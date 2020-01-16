@@ -738,6 +738,13 @@ void vtkMRMLRTBeamNode::CreateBeamPolyData(vtkPolyData* beamModelPolyData/*=null
 }
 
 //---------------------------------------------------------------------------
+vtkPolyData* vtkMRMLRTBeamNode::CreateMultiLeafCollimatorModelPolyData()
+{
+  //TODO: add code here
+  return nullptr;
+}
+
+//---------------------------------------------------------------------------
 void vtkMRMLRTBeamNode::RequestCloning()
 {
   this->InvokeEvent(vtkMRMLRTBeamNode::CloningRequested);

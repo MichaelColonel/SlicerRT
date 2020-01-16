@@ -234,6 +234,13 @@ void vtkMRMLRTIonBeamNode::CreateNewBeamTransformNode()
   Superclass::CreateNewBeamTransformNode();
 }
 
+//---------------------------------------------------------------------------
+vtkPolyData* vtkMRMLRTIonBeamNode::CreateMultiLeafCollimatorModelPolyData()
+{
+  //TODO: add code here
+  return nullptr;
+}
+
 //----------------------------------------------------------------------------
 void vtkMRMLRTIonBeamNode::SetVSAD( double xComponent, double yComponent)
 {

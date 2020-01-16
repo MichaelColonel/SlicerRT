@@ -66,6 +66,9 @@ public:
   /// Always creates a new transform node.
   void CreateNewBeamTransformNode() override;
 
+  /// Create MLC model polydata for further representation 
+  vtkPolyData* CreateMultiLeafCollimatorModelPolyData() override;
+
 public:
   /// Get VSAD distance x component
   vtkGetMacro( VSADx, double);

@@ -88,6 +88,9 @@ public:
   /// Always creates a new transform node.
   virtual void CreateNewBeamTransformNode();
 
+  /// Create MLC model polydata for further representation 
+  virtual vtkPolyData* CreateMultiLeafCollimatorModelPolyData();
+
   /// Update beam poly data based on beam geometry parameters (jaws, MLC)
   void UpdateGeometry();
 
