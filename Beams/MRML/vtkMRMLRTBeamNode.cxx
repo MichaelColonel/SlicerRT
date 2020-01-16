@@ -740,8 +740,76 @@ void vtkMRMLRTBeamNode::CreateBeamPolyData(vtkPolyData* beamModelPolyData/*=null
 //---------------------------------------------------------------------------
 vtkPolyData* vtkMRMLRTBeamNode::CreateMultiLeafCollimatorModelPolyData()
 {
-  //TODO: add code here
-  return nullptr;
+  vtkIdType nofLeafPairs = 0;
+  // MLC boundary data
+  vtkMRMLDoubleArrayNode* arrayNode = this->GetMLCBoundaryDoubleArrayNode();
+  vtkDoubleArray* mlcBoundArray = nullptr;
+  if (arrayNode)
+  {
+    mlcBoundArray = arrayNode->GetArray();
+    nofLeafPairs = mlcBoundArray ? (mlcBoundArray->GetNumberOfTuples() - 1) : 0;
+  }
+
+  // MLC position data
+  vtkMRMLTableNode* mlcTableNode = nullptr;
+  if (nofLeafPairs)
+  {
+    mlcTableNode = this->GetMLCPositionTableNode();
+    if (mlcTableNode && (mlcTableNode->GetNumberOfRows() == nofLeafPairs))
+    {
+      vtkDebugMacro("CreateMultiLeafCollimatorPolyData: Valid MLC nodes, number of leaf pairs: " << nofLeafPairs);
+    }
+    else
+    {
+      vtkErrorMacro("CreateMultiLeafCollimatorPolyData: Invalid MLC nodes, or " \
+        "number of MLC boundaries and positions are different");
+      mlcTableNode = nullptr;
+    }
+  }
+
+  // Check that we have MLC
+  // append a leaf pair to form MLC polydata
+  double isoCenterToMLCDistance = this->SAD - SourceToMultiLeafCollimatorDistance;
+  auto append = vtkSmartPointer<vtkAppendPolyData>::New();
+  if (mlcTableNode)
+  {
+    const char* mlcName = mlcTableNode->GetName();
+    bool typeMLCX = !strncmp( "MLCX", mlcName, strlen("MLCX"));
+    bool typeMLCY = !strncmp( "MLCY", mlcName, strlen("MLCY"));
+
+    // create polydata for a leaf pair
+    for ( vtkIdType leafPair = 0; leafPair < nofLeafPairs; leafPair++)
+    {
+      vtkTable* table = mlcTableNode->GetTable();
+      double boundBegin = mlcBoundArray->GetTuple1(leafPair);
+      double boundEnd = mlcBoundArray->GetTuple1(leafPair + 1);
+      double pos1 = table->GetValue( leafPair, 0).ToDouble();
+      double pos2 = table->GetValue( leafPair, 1).ToDouble();
+
+      auto leaf1 = vtkSmartPointer<vtkCubeSource>::New();
+      auto leaf2 = vtkSmartPointer<vtkCubeSource>::New();
+      if (typeMLCX)
+      {
+        leaf1->SetBounds( pos1 - 20., pos1, boundBegin, boundEnd, -isoCenterToMLCDistance, isoCenterToMLCDistance);
+        leaf2->SetBounds( pos2, pos2 + 20., boundBegin, boundEnd, -isoCenterToMLCDistance, isoCenterToMLCDistance);
+      }
+      else if (typeMLCY)
+      {
+        leaf1->SetBounds( boundBegin, boundEnd, pos1 - 20., pos1, -isoCenterToMLCDistance, isoCenterToMLCDistance);
+        leaf2->SetBounds( boundBegin, boundEnd, pos2, pos2 + 20., -isoCenterToMLCDistance, isoCenterToMLCDistance);
+      }
+      leaf1->Update();
+      leaf2->Update();
+      append->AddInputData(leaf1->GetOutput());
+      append->AddInputData(leaf2->GetOutput());
+    }
+  }
+  append->Update();
+
+  vtkPolyData* mlcModelPolyData = vtkPolyData::New();
+  mlcModelPolyData->ShallowCopy(append->GetOutput());
+
+  return mlcModelPolyData;
 }
 
 //---------------------------------------------------------------------------
