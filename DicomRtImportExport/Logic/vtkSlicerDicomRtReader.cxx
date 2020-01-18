@@ -1035,7 +1035,7 @@ void vtkSlicerDicomRtReader::vtkInternal::LoadRTPlan(DcmDataset* dataset)
         beamEntry.ControlPointSequenceVector.push_back(dummyControlPoint);
       }
       unsigned int controlPointCount = 0;
-    
+
       do
       {
         DRTControlPointSequence::Item &controlPointItem = rtControlPointSequence.getCurrentItem();
@@ -2652,6 +2652,17 @@ const char* vtkSlicerDicomRtReader::GetBeamName(unsigned int beamNumber)
     return nullptr;
   }
   return (beam->Name.empty() ? vtkSlicerRtCommon::DICOMRTIMPORT_NO_NAME : beam->Name).c_str();
+}
+
+//----------------------------------------------------------------------------
+const char* vtkSlicerDicomRtReader::GetBeamType(unsigned int beamNumber)
+{
+  vtkInternal::BeamEntry* beam=this->Internal->FindBeamByNumber(beamNumber);
+  if (!beam)
+  {
+    return nullptr;
+  }
+  return beam->Type.c_str();
 }
 
 //---------------------------------------------------------------------------- DEPRICATED

@@ -31,6 +31,9 @@
 #include <qSlicerCoreApplication.h>
 #include <qSlicerModuleManager.h>
 
+// Slicer Models includes
+#include <vtkSlicerModelsLogic.h>
+
 // SubjectHierarchy Plugins includes
 #include "qSlicerSubjectHierarchyPluginHandler.h"
 #include "qSlicerSubjectHierarchyRtImagePlugin.h"
@@ -153,6 +156,18 @@ void qSlicerDicomRtImportExportModule::setup()
   {
     qCritical() << Q_FUNC_INFO << ": Beams module is not found";
   } 
+
+  // Set models logic to the logic
+  qSlicerAbstractCoreModule* modelsModule = qSlicerCoreApplication::application()->moduleManager()->module("Models");
+  if (modelsModule)
+  {
+    vtkSlicerModelsLogic* modelsLogic = vtkSlicerModelsLogic::SafeDownCast(modelsModule->logic());
+    dicomRtImportExportLogic->SetModelsLogic(modelsLogic);
+  }
+  else
+  {
+    qCritical() << Q_FUNC_INFO << ": Beams module is not found";
+  }
 
   // Register Subject Hierarchy plugins
   qSlicerSubjectHierarchyPluginHandler::instance()->registerPlugin(new qSlicerSubjectHierarchyRtImagePlugin());

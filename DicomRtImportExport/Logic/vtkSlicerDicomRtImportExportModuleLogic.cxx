@@ -67,6 +67,9 @@
 #include "vtkOrientedImageDataResample.h"
 #include "vtkSegmentationConverterFactory.h"
 
+// Slicer Models includes
+#include <vtkSlicerModelsLogic.h>
+
 // DCMTK includes
 #include <dcmtk/dcmdata/dcfilefo.h>
 #include <dcmtk/dcmdata/dcdeftag.h>
@@ -130,6 +133,7 @@ vtkStandardNewMacro(vtkSlicerDicomRtImportExportModuleLogic);
 vtkCxxSetObjectMacro(vtkSlicerDicomRtImportExportModuleLogic, IsodoseLogic, vtkSlicerIsodoseModuleLogic);
 vtkCxxSetObjectMacro(vtkSlicerDicomRtImportExportModuleLogic, PlanarImageLogic, vtkSlicerPlanarImageModuleLogic);
 vtkCxxSetObjectMacro(vtkSlicerDicomRtImportExportModuleLogic, BeamsLogic, vtkSlicerBeamsModuleLogic);
+vtkCxxSetObjectMacro(vtkSlicerDicomRtImportExportModuleLogic, ModelsLogic, vtkSlicerModelsLogic);
 
 //----------------------------------------------------------------------------
 class vtkSlicerDicomRtImportExportModuleLogic::vtkInternal
@@ -747,6 +751,16 @@ bool vtkSlicerDicomRtImportExportModuleLogic::vtkInternal::LoadRtPlan(vtkSlicerD
   scene->EndState(vtkMRMLScene::BatchProcessState);
 
   // Exec after batch processing has ended (once again)
+
+  if (this->External->ModelsLogic)
+  {
+    vtkWarningWithObjectMacro(this->External, "LoadRtPlan: Models logic is valid");
+  }
+  else
+  {
+    vtkWarningWithObjectMacro(this->External, "LoadRtPlan: Models logic is invalid");
+  }
+
   if (beams)
   {
     for (int i=0; i<beams->GetNumberOfItems(); ++i)
@@ -831,6 +845,17 @@ bool vtkSlicerDicomRtImportExportModuleLogic::vtkInternal::LoadExternalBeamPlan(
     unsigned int dicomBeamNumber = rtReader->GetBeamNumberForIndex(beamIndex);
     const char* beamName = rtReader->GetBeamName(dicomBeamNumber);
     unsigned int nofCointrolPoints = rtReader->GetBeamNumberOfControlPoints(dicomBeamNumber);
+    const char* beamType = rtReader->GetBeamType(dicomBeamNumber);
+    const char* treatmentDeliveryType = rtReader->GetBeamTreatmentDeliveryType(dicomBeamNumber);
+    bool notStaticBeam = true;
+    if (beamType)
+    {
+      notStaticBeam = strcmp( beamType, "STATIC");
+      if (!notStaticBeam && nofCointrolPoints == 2)
+      {
+        nofCointrolPoints = 1;
+      }
+    }
 
     for ( unsigned int cointrolPointIndex = 0; cointrolPointIndex < nofCointrolPoints; ++cointrolPointIndex)
     {
@@ -847,19 +872,25 @@ bool vtkSlicerDicomRtImportExportModuleLogic::vtkInternal::LoadExternalBeamPlan(
       }
 
       std::ostringstream nameStream;
-      const char* treatmentDeliveryType = rtReader->GetBeamTreatmentDeliveryType(dicomBeamNumber);
-      if (treatmentDeliveryType)
+      if (notStaticBeam && treatmentDeliveryType)
       {
         nameStream << std::string(beamName) << " [" << treatmentDeliveryType 
           << "] : CP" << cointrolPointIndex;
       }
-      else
+      else if (notStaticBeam)
       {
         nameStream << std::string(beamName) << " : CP" << cointrolPointIndex;
       }
+      else
+      {
+        beamNode->SetName(beamName);
+      }
 
-      std::string newBeamName = nameStream.str();
-      beamNode->SetName(newBeamName.c_str());
+      if (notStaticBeam)
+      {
+        std::string newBeamName = nameStream.str();
+        beamNode->SetName(newBeamName.c_str());
+      }
 
       // Set beam geometry parameters from DICOM
       double jawPositions[2][2] = {{0.0, 0.0},{0.0, 0.0}};
@@ -1027,7 +1058,31 @@ bool vtkSlicerDicomRtImportExportModuleLogic::vtkInternal::LoadExternalBeamPlan(
       beamModelHierarchyDisplayNode->SetVisibility(1);
       scene->AddNode(beamModelHierarchyDisplayNode);
       beamModelHierarchyNode->SetAndObserveDisplayNodeID( beamModelHierarchyDisplayNode->GetID() );
+
+      // Add MLC to beam or ion beam
+      if (beamNode && mlcTableNode && mlcArrayNode)
+      {
+        vtkPolyData* mlcModel = beamNode->CreateMultiLeafCollimatorModelPolyData();
+        if (mlcModel)
+        {
+          vtkMRMLModelNode* mlcModelNode = this->External->ModelsLogic->AddModel(mlcModel);
+          if (mlcModelNode)
+          {
+            std::string mlcModelName = std::string(mlcTableNode->GetName()) + "_Model";
+            mlcModelNode->SetName(mlcModelName.c_str());
+            mlcModelNode->SetAndObserveTransformNodeID(beamNode->GetTransformNodeID());
+            vtkMRMLDisplayNode* displayNode = mlcModelNode->GetDisplayNode();
+            displayNode->SetColor( 1, 1, 1);
+            displayNode->SetOpacity(0.5);
+            displayNode->SetBackfaceCulling(0); // Disable backface culling to make the back side of the contour visible as well
+            displayNode->VisibilityOn();
+            displayNode->Visibility2DOn();
+          }
+          mlcModel->Delete();
+        }
+      }
     } // end of a control point
+
   } // end of a beam
 
   return true;
@@ -1866,6 +1921,7 @@ vtkSlicerDicomRtImportExportModuleLogic::vtkSlicerDicomRtImportExportModuleLogic
   this->IsodoseLogic = nullptr;
   this->PlanarImageLogic = nullptr;
   this->BeamsLogic = nullptr;
+  this->ModelsLogic = nullptr;
 
   this->BeamModelsInSeparateBranch = true;
 }
@@ -1876,6 +1932,7 @@ vtkSlicerDicomRtImportExportModuleLogic::~vtkSlicerDicomRtImportExportModuleLogi
   this->SetIsodoseLogic(nullptr);
   this->SetPlanarImageLogic(nullptr);
   this->SetBeamsLogic(nullptr);
+  this->SetModelsLogic(nullptr);
 
   if (this->Internal)
   {

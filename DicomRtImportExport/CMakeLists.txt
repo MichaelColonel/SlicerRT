@@ -28,6 +28,7 @@ set(MODULE_INCLUDE_DIRECTORIES
   ${vtkSegmentationCore_INCLUDE_DIRS}
   ${qSlicerDicomRtImportExportSubjectHierarchyPlugins_INCLUDE_DIRS}
   ${qSlicerSubjectHierarchyModuleWidgets_INCLUDE_DIRS}
+  ${qSlicerModelsModule_INCLUDE_DIRS}
   )
 
 set(MODULE_SRCS

@@ -42,6 +42,7 @@ class vtkMRMLScalarVolumeNode;
 class vtkMRMLScene;
 class vtkMRMLSegmentationNode;
 class vtkSlicerBeamsModuleLogic;
+class vtkSlicerModelsLogic;
 class vtkSlicerDICOMLoadable;
 class vtkSlicerDicomReaderBase;
 class vtkSlicerIsodoseModuleLogic;
@@ -84,6 +85,8 @@ public:
   void SetPlanarImageLogic(vtkSlicerPlanarImageModuleLogic* planarImageLogic);
   /// Set Beams module logic
   void SetBeamsLogic(vtkSlicerBeamsModuleLogic* beamsLogic);
+  /// Set Models logic
+  void SetModelsLogic(vtkSlicerModelsLogic* modelsLogic);
 
 public:
   vtkSetMacro(BeamModelsInSeparateBranch, bool);
@@ -117,6 +120,9 @@ private:
 
   /// Beams module logic instance
   vtkSlicerBeamsModuleLogic* BeamsLogic;
+
+  /// Models module logic instance
+  vtkSlicerModelsLogic* ModelsLogic;
 
   /// Flag determining whether the generated beam models are arranged in a separate subject hierarchy
   /// branch, or each beam model is added under its corresponding isocenter fiducial

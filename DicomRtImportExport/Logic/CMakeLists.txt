@@ -39,6 +39,7 @@ set(${KIT}_TARGET_LIBRARIES
   vtkSlicerMarkupsModuleMRML
   vtkSlicerDICOMLibModuleLogic
   vtkPlmCommon
+  vtkSlicerModelsModuleLogic
   ${PLASTIMATCH_LIBRARIES}
   )
 
