@@ -1070,7 +1070,7 @@ bool vtkSlicerDicomRtImportExportModuleLogic::vtkInternal::LoadExternalBeamPlan(
           {
             std::string mlcModelName = std::string(mlcTableNode->GetName()) + "_Model";
             mlcModelNode->SetName(mlcModelName.c_str());
-            mlcModelNode->SetAndObserveTransformNodeID(beamNode->GetTransformNodeID());
+//            mlcModelNode->SetAndObserveTransformNodeID(beamNode->GetTransformNodeID());
             vtkMRMLDisplayNode* displayNode = mlcModelNode->GetDisplayNode();
             displayNode->SetColor( 1, 1, 1);
             displayNode->SetOpacity(0.5);
