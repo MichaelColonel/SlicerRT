@@ -601,6 +601,7 @@ void vtkMRMLRTBeamNode::CreateBeamPolyData(vtkPolyData* beamModelPolyData/*=null
           (pos1 <= this->X1Jaw && pos2 >= this->X2Jaw) || 
           (pos1 >= this->X1Jaw && pos1 <= this->X2Jaw && 
             pos2 >= this->X1Jaw && pos2 <= this->X2Jaw));
+        withinJaw = true;
       }
       else if (typeMLCY)
       {
@@ -611,16 +612,20 @@ void vtkMRMLRTBeamNode::CreateBeamPolyData(vtkPolyData* beamModelPolyData/*=null
             pos2 >= this->Y1Jaw && pos2 <= this->Y2Jaw));
       }
 
+      vtkWarningMacro("CreateBeamPolyData: Leaf iterator: " << withinJaw << ' ' << mlcOpened);
       if (withinJaw && mlcOpened && firstLeafIterator == mlc.end())
       {
+        vtkWarningMacro("CreateBeamPolyData: First leaf iterator");
         firstLeafIterator = it;
       }
       if (withinJaw && mlcOpened && firstLeafIterator != mlc.end())
       {
+        vtkWarningMacro("CreateBeamPolyData: Last leaf iterator");
         lastLeafIterator = it;
       }
-      if (firstLeafIterator != mlc.end() && lastLeafIterator != mlc.end() && !mlcOpened)
+      if (firstLeafIterator != mlc.end() && lastLeafIterator != mlc.end() && mlcOpened)
       {
+        vtkWarningMacro("CreateBeamPolyData: MLC section");
         sections.push_back({ firstLeafIterator, lastLeafIterator});
         firstLeafIterator = mlc.end();
         lastLeafIterator = mlc.end();

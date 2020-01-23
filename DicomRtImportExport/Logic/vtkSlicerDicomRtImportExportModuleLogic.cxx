@@ -1070,12 +1070,12 @@ bool vtkSlicerDicomRtImportExportModuleLogic::vtkInternal::LoadExternalBeamPlan(
           {
             std::string mlcModelName = std::string(mlcTableNode->GetName()) + "_Model";
             mlcModelNode->SetName(mlcModelName.c_str());
-//            mlcModelNode->SetAndObserveTransformNodeID(beamNode->GetTransformNodeID());
+            mlcModelNode->SetAndObserveTransformNodeID(beamNode->GetTransformNodeID());
             vtkMRMLDisplayNode* displayNode = mlcModelNode->GetDisplayNode();
             displayNode->SetColor( 1, 1, 1);
             displayNode->SetOpacity(0.5);
             displayNode->SetBackfaceCulling(0); // Disable backface culling to make the back side of the contour visible as well
-            displayNode->VisibilityOn();
+            displayNode->VisibilityOff();
             displayNode->Visibility2DOn();
           }
           mlcModel->Delete();
