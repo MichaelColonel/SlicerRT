@@ -64,6 +64,7 @@ namespace
 {
 
 bool(*AreEqual)( double, double) = vtkSlicerRtCommon::AreEqualWithTolerance;
+const double MLC_LEAF_LENGTH = 200.;
 
 } // namespace
 
@@ -590,9 +591,20 @@ void vtkMRMLRTBeamNode::CreateBeamPolyData(vtkPolyData* beamModelPolyData/*=null
     MLCSectionVector sections; // sections (first & last leaf iterator) of opened MLC
     for ( auto it = mlc.begin(); it != mlc.end(); ++it)
     {
-      double& pos1 = (*it)[2]; // leaf position "1"
-      double& pos2 = (*it)[3]; // leaf position "2"
-      bool mlcOpened = !AreEqual( pos1, pos2);
+      const double& bound1 = (*it)[0]; // leaf boundary begin
+      const double& bound2 = (*it)[1]; // leaf boundary end
+      const double& pos1 = (*it)[2]; // leaf position "1"
+      const double& pos2 = (*it)[3]; // leaf position "2"
+      bool mlcOpened = true;
+      if ((bound1 < jawBegin && bound2 < jawBegin) || (bound1 > jawEnd && bound2 > jawEnd))
+      {
+        mlcOpened = false;
+      }
+      else
+      {
+        mlcOpened = !AreEqual( pos1, pos2);
+      }
+
       bool withinJaw = false;
       if (typeMLCX)
       {
@@ -601,7 +613,7 @@ void vtkMRMLRTBeamNode::CreateBeamPolyData(vtkPolyData* beamModelPolyData/*=null
           (pos1 <= this->X1Jaw && pos2 >= this->X2Jaw) || 
           (pos1 >= this->X1Jaw && pos1 <= this->X2Jaw && 
             pos2 >= this->X1Jaw && pos2 <= this->X2Jaw));
-        withinJaw = true;
+//        withinJaw = true;
       }
       else if (typeMLCY)
       {
@@ -623,7 +635,7 @@ void vtkMRMLRTBeamNode::CreateBeamPolyData(vtkPolyData* beamModelPolyData/*=null
         vtkWarningMacro("CreateBeamPolyData: Last leaf iterator");
         lastLeafIterator = it;
       }
-      if (firstLeafIterator != mlc.end() && lastLeafIterator != mlc.end() && mlcOpened)
+      if (firstLeafIterator != mlc.end() && lastLeafIterator != mlc.end() && !mlcOpened)
       {
         vtkWarningMacro("CreateBeamPolyData: MLC section");
         sections.push_back({ firstLeafIterator, lastLeafIterator});
@@ -796,13 +808,17 @@ vtkPolyData* vtkMRMLRTBeamNode::CreateMultiLeafCollimatorModelPolyData()
       auto leaf2 = vtkSmartPointer<vtkCubeSource>::New();
       if (typeMLCX)
       {
-        leaf1->SetBounds( pos1 - 200., pos1, boundBegin, boundEnd, -isoCenterToMLCDistance, isoCenterToMLCDistance);
-        leaf2->SetBounds( pos2, pos2 + 200., boundBegin, boundEnd, -isoCenterToMLCDistance, isoCenterToMLCDistance);
+        leaf1->SetBounds( pos1 - MLC_LEAF_LENGTH, pos1, boundBegin, boundEnd, 
+          -isoCenterToMLCDistance, isoCenterToMLCDistance);
+        leaf2->SetBounds( pos2, pos2 + MLC_LEAF_LENGTH, boundBegin, boundEnd, 
+          -isoCenterToMLCDistance, isoCenterToMLCDistance);
       }
       else if (typeMLCY)
       {
-        leaf1->SetBounds( boundBegin, boundEnd, pos1 - 200., pos1, -isoCenterToMLCDistance, isoCenterToMLCDistance);
-        leaf2->SetBounds( boundBegin, boundEnd, pos2, pos2 + 200., -isoCenterToMLCDistance, isoCenterToMLCDistance);
+        leaf1->SetBounds( boundBegin, boundEnd, pos1 - MLC_LEAF_LENGTH, pos1, 
+          -isoCenterToMLCDistance, isoCenterToMLCDistance);
+        leaf2->SetBounds( boundBegin, boundEnd, pos2, pos2 + MLC_LEAF_LENGTH, 
+          -isoCenterToMLCDistance, isoCenterToMLCDistance);
       }
       leaf1->Update();
       leaf2->Update();
