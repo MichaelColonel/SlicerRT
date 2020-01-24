@@ -595,8 +595,7 @@ void vtkMRMLRTBeamNode::CreateBeamPolyData(vtkPolyData* beamModelPolyData/*=null
       double& bound2 = (*it)[1]; // leaf boundary end
       double& pos1 = (*it)[2]; // leaf position "1"
       double& pos2 = (*it)[3]; // leaf position "2"
-      bool mlcOpened = ((bound1 < jawBegin && bound2 < jawBegin) || 
-        (bound1 > jawEnd && bound2 > jawEnd)) ? false : !AreEqual( pos1, pos2);
+      bool mlcOpened = (bound2 < jawBegin || bound1 > jawEnd) ? false : !AreEqual( pos1, pos2);
 
       bool withinJaw = false;
       if (typeMLCX)
