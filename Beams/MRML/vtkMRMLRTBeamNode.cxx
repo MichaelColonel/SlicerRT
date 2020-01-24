@@ -591,19 +591,12 @@ void vtkMRMLRTBeamNode::CreateBeamPolyData(vtkPolyData* beamModelPolyData/*=null
     MLCSectionVector sections; // sections (first & last leaf iterator) of opened MLC
     for ( auto it = mlc.begin(); it != mlc.end(); ++it)
     {
-      const double& bound1 = (*it)[0]; // leaf boundary begin
-      const double& bound2 = (*it)[1]; // leaf boundary end
-      const double& pos1 = (*it)[2]; // leaf position "1"
-      const double& pos2 = (*it)[3]; // leaf position "2"
-      bool mlcOpened = true;
-      if ((bound1 < jawBegin && bound2 < jawBegin) || (bound1 > jawEnd && bound2 > jawEnd))
-      {
-        mlcOpened = false;
-      }
-      else
-      {
-        mlcOpened = !AreEqual( pos1, pos2);
-      }
+      double& bound1 = (*it)[0]; // leaf boundary begin
+      double& bound2 = (*it)[1]; // leaf boundary end
+      double& pos1 = (*it)[2]; // leaf position "1"
+      double& pos2 = (*it)[3]; // leaf position "2"
+      bool mlcOpened = ((bound1 < jawBegin && bound2 < jawBegin) || 
+        (bound1 > jawEnd && bound2 > jawEnd)) ? false : !AreEqual( pos1, pos2);
 
       bool withinJaw = false;
       if (typeMLCX)
@@ -613,7 +606,6 @@ void vtkMRMLRTBeamNode::CreateBeamPolyData(vtkPolyData* beamModelPolyData/*=null
           (pos1 <= this->X1Jaw && pos2 >= this->X2Jaw) || 
           (pos1 >= this->X1Jaw && pos1 <= this->X2Jaw && 
             pos2 >= this->X1Jaw && pos2 <= this->X2Jaw));
-//        withinJaw = true;
       }
       else if (typeMLCY)
       {
@@ -624,20 +616,20 @@ void vtkMRMLRTBeamNode::CreateBeamPolyData(vtkPolyData* beamModelPolyData/*=null
             pos2 >= this->Y1Jaw && pos2 <= this->Y2Jaw));
       }
 
-      vtkWarningMacro("CreateBeamPolyData: Leaf iterator: " << withinJaw << ' ' << mlcOpened);
+//      vtkWarningMacro("CreateBeamPolyData: Leaf iterator: " << withinJaw << ' ' << mlcOpened);
       if (withinJaw && mlcOpened && firstLeafIterator == mlc.end())
       {
-        vtkWarningMacro("CreateBeamPolyData: First leaf iterator");
+//        vtkWarningMacro("CreateBeamPolyData: First leaf iterator");
         firstLeafIterator = it;
       }
       if (withinJaw && mlcOpened && firstLeafIterator != mlc.end())
       {
-        vtkWarningMacro("CreateBeamPolyData: Last leaf iterator");
+//        vtkWarningMacro("CreateBeamPolyData: Last leaf iterator");
         lastLeafIterator = it;
       }
       if (firstLeafIterator != mlc.end() && lastLeafIterator != mlc.end() && !mlcOpened)
       {
-        vtkWarningMacro("CreateBeamPolyData: MLC section");
+//        vtkWarningMacro("CreateBeamPolyData: MLC section");
         sections.push_back({ firstLeafIterator, lastLeafIterator});
         firstLeafIterator = mlc.end();
         lastLeafIterator = mlc.end();
