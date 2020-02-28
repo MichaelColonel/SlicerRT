@@ -108,7 +108,7 @@ public:
   /// Load basic additional devices (deployed with SlicerRT)
   void LoadBasicCollimatorMountedDevices();
   /// Set up the IEC transforms and model properties on the basic additional device models
-  void SetupBasicCollimatorMountedDeviceModels();
+  void SetupBasicCollimatorMountedDeviceModels(vtkMRMLRoomsEyeViewNode* parameterNode = nullptr);
 
   ///TODO:
   void UpdateAdditionalCollimatorDevicesToCollimatorTransforms(vtkMRMLRoomsEyeViewNode* parameterNode);
@@ -131,6 +131,8 @@ public:
 protected:
   /// Get patient body closed surface poly data from segmentation node and segment selection in the parameter node
   bool GetPatientBodyPolyData(vtkMRMLRoomsEyeViewNode* parameterNode, vtkPolyData* patientBodyPolyData);
+  /// Calculate patient body transform for proper visualization and processing
+  vtkLinearTransformNode* CalculatePatientBodyTransform( vtkMRMLRoomsEyeViewNode* parameterNode, vtkMRMLVolumeNode* patientBody = nullptr);
 
 protected:
   vtkSlicerIECTransformLogic* IECLogic;

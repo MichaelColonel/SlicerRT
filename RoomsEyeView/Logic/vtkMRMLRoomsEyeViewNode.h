@@ -111,7 +111,10 @@ public:
 
   vtkMRMLLinearTransformNode* GetPatientSupportScaledTranslatedToTableTopVerticalTranslationTransformNode();
   void SetAndObserveTableTopEccentricRotationToPatientSupportTransformNode(vtkMRMLLinearTransformNode* node);
- 
+
+  vtkMRMLLinearTransformNode* GetPatientBodyToTableTopTransformNode();
+  void SetAndObservePatientBodyToTableTopTransformNode(vtkMRMLLinearTransformNode* node);
+
   /// Get beam node
   vtkMRMLRTBeamNode* GetBeamNode();
   /// Set and observe beam node
@@ -121,6 +124,11 @@ public:
   vtkMRMLSegmentationNode* GetPatientBodySegmentationNode();
   /// Set and observe patient body segmentation node
   void SetAndObservePatientBodySegmentationNode(vtkMRMLSegmentationNode* node);
+
+  /// Get patient body volume node
+  vtkMRMLVolumeNode* GetPatientBodyVolumeNode();
+  /// Set and observe patient body volume node
+  void SetAndObservePatientBodyVolumeNode(vtkMRMLVolumeNode* node);
 
   /// Get patient body segment ID
   vtkGetStringMacro(PatientBodySegmentID);

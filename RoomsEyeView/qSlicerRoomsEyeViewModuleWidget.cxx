@@ -117,9 +117,11 @@ void qSlicerRoomsEyeViewModuleWidget::setMRMLScene(vtkMRMLScene* scene)
   qvtkReconnect(d->logic(), scene, vtkMRMLScene::EndCloseEvent, this, SLOT(onSceneClosedEvent()));
 
   // Find parameters node or create it if there is none in the scene
+  // Find patient body data: volume node, segmantation node
   if (scene)
   {
     vtkMRMLNode* node = scene->GetNthNodeByClass(0, "vtkMRMLRoomsEyeViewNode");
+    vtkMRMLNode* patientVolumeNode = scene->GetNthNodeByClass(0, "vtkMRMLScalarVolumeNode");
     if (d->MRMLNodeComboBox_ParameterSet->currentNode())
     {
       this->setParameterNode(d->MRMLNodeComboBox_ParameterSet->currentNode());
@@ -268,6 +270,10 @@ void qSlicerRoomsEyeViewModuleWidget::setup()
   ioManager->registerDialog(new qSlicerDataDialog(this));
   ioManager->registerDialog(new qSlicerSaveDataDialog(this));
 
+  QStringList volumeNodes;
+  volumeNodes.push_back("vtkMRMLVolumeNode");
+  d->MRMLNodeComboBox_PatientBody->setNodeTypes(volumeNodes);
+
   // Add treatment machine options
   d->TreatmentMachineComboBox->addItem("Varian TrueBeam STx", "VarianTrueBeamSTx");
   d->TreatmentMachineComboBox->addItem("Siemens Artiste", "SiemensArtiste");
@@ -299,6 +305,7 @@ void qSlicerRoomsEyeViewModuleWidget::setup()
   connect(d->BeamsEyeViewButton, SIGNAL(clicked()), this, SLOT(onBeamsEyeViewButtonClicked()));
 
   connect(d->MRMLNodeComboBox_Beam, SIGNAL(currentNodeChanged(vtkMRMLNode*)), this, SLOT(onBeamNodeChanged(vtkMRMLNode*)));
+  connect(d->MRMLNodeComboBox_PatientBody, SIGNAL(currentNodeChanged(vtkMRMLNode*)), this, SLOT(onPatientBodyVolumeNodeChanged(vtkMRMLNode*)));
   connect(d->SegmentSelectorWidget_PatientBody, SIGNAL(currentNodeChanged(vtkMRMLNode*)), this, SLOT(onPatientBodySegmentationNodeChanged(vtkMRMLNode*)));
   connect(d->SegmentSelectorWidget_PatientBody, SIGNAL(currentSegmentChanged(QString)), this, SLOT(onPatientBodySegmentChanged(QString)));
 
@@ -399,6 +406,28 @@ void qSlicerRoomsEyeViewModuleWidget::onPatientBodySegmentationNodeChanged(vtkMR
     shNode->SetDisplayVisibilityForBranch(
       shNode->GetItemByDataNode(currentSegmentationNode), (currentSegmentationNode==node ? 1 : 0) );
   }
+}
+
+//-----------------------------------------------------------------------------
+void qSlicerRoomsEyeViewModuleWidget::onPatientBodyVolumeNodeChanged(vtkMRMLNode* node)
+{
+  Q_D(qSlicerRoomsEyeViewModuleWidget);
+
+  if (!this->mrmlScene())
+  {
+    qCritical() << Q_FUNC_INFO << ": Invalid scene";
+    return;
+  }
+
+  vtkMRMLRoomsEyeViewNode* paramNode = vtkMRMLRoomsEyeViewNode::SafeDownCast(d->MRMLNodeComboBox_ParameterSet->currentNode());
+  if (!paramNode || !d->ModuleWindowInitialized)
+  {
+    return;
+  }
+
+  paramNode->DisableModifiedEventOn();
+  paramNode->SetAndObservePatientBodyVolumeNode(vtkMRMLVolumeNode::SafeDownCast(node));
+  paramNode->DisableModifiedEventOff();
 }
 
 //-----------------------------------------------------------------------------

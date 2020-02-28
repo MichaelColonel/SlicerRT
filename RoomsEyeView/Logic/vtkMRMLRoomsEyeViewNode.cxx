@@ -64,6 +64,7 @@ static const char* TABLETOPECCENTRICROTATION_TO_PATIENTSUPPORT_TRANSFORM_NODE_RE
 
 static const char* BEAM_REFERENCE_ROLE = "beamRef";
 static const char* PATIENT_BODY_SEGMENTATION_REFERENCE_ROLE = "patientBodySegmentationRef";
+static const char* PATIENT_BODY_VOLUME_REFERENCE_ROLE = "patientBodyVolumeRef";
 
 //------------------------------------------------------------------------------
 vtkMRMLNodeNewMacro(vtkMRMLRoomsEyeViewNode);
@@ -560,6 +561,24 @@ void vtkMRMLRoomsEyeViewNode::SetAndObservePatientBodySegmentationNode(vtkMRMLSe
     }
 
   this->SetNodeReferenceID(PATIENT_BODY_SEGMENTATION_REFERENCE_ROLE, (node ? node->GetID() : nullptr));
+}
+
+//----------------------------------------------------------------------------
+vtkMRMLVolumeNode* vtkMRMLRoomsEyeViewNode::GetPatientBodyVolumeNode()
+{
+  return vtkMRMLVolumeNode::SafeDownCast(this->GetNodeReference(PATIENT_BODY_VOLUME_REFERENCE_ROLE));
+}
+
+//----------------------------------------------------------------------------
+void vtkMRMLRoomsEyeViewNode::SetAndObservePatientBodyVolumeNode(vtkMRMLVolumeNode* node)
+{
+  if (node && this->Scene != node->GetScene())
+    {
+    vtkErrorMacro("Cannot set reference: the referenced and referencing node are not in the same scene");
+    return;
+    }
+
+  this->SetNodeReferenceID( PATIENT_BODY_VOLUME_REFERENCE_ROLE, (node ? node->GetID() : nullptr));
 }
 
 //----------------------------------------------------------------------------

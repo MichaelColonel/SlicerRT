@@ -515,11 +515,11 @@ void vtkSlicerRoomsEyeViewModuleLogic::LoadTreatmentMachineModels(vtkMRMLRoomsEy
   }
 
   // Setup treatment machine model display and transforms
-  this->SetupTreatmentMachineModels();
+  this->SetupTreatmentMachineModels(parameterNode);
 }
 
 //----------------------------------------------------------------------------
-void vtkSlicerRoomsEyeViewModuleLogic::SetupTreatmentMachineModels()
+void vtkSlicerRoomsEyeViewModuleLogic::SetupTreatmentMachineModels(vtkMRMLRoomsEyeViewNode* parameterNode)
 {
   if (!this->GetMRMLScene())
   {
@@ -647,9 +647,21 @@ void vtkSlicerRoomsEyeViewModuleLogic::SetupTreatmentMachineModels()
   this->CollimatorTableTopCollisionDetection->SetInput(1, tableTopModel->GetPolyData());
 
   //TODO: Whole patient (segmentation, CT) will need to be transformed when the table top is transformed
-  //vtkMRMLLinearTransformNode* patientModelTransforms = vtkMRMLLinearTransformNode::SafeDownCast(
-  //  this->GetMRMLScene()->GetFirstNodeByName("TableTopEccentricRotationToPatientSupportTransform"));
-  //patientModel->SetAndObserveTransformNodeID(patientModelTransforms->GetID());
+  vtkMRMLLinearTransformNode* patientModelTransforms = vtkMRMLLinearTransformNode::SafeDownCast(
+    this->GetMRMLScene()->GetFirstNodeByName("TableTopEccentricRotationToPatientSupportTransform"));
+  if (parameterNode && patientModelTransforms)
+  {
+    vtkMRMLVolumeNode* volume = parameterNode->GetPatientBodyVolumeNode();
+    if (volume)
+    {
+      volume->SetAndObserveTransformNodeID(patientModelTransforms->GetID());
+    }
+    vtkMRMLSegmentationNode* segmentation = parameterNode->GetPatientBodySegmentationNode();
+    if (segmentation)
+    {
+      segmentation->SetAndObserveTransformNodeID(patientModelTransforms->GetID());
+    }
+  }
 
   // Patient model is set when calculating collisions, as it can be changed dynamically
   this->GantryPatientCollisionDetection->SetInput(0, gantryModel->GetPolyData());
@@ -953,6 +965,51 @@ bool vtkSlicerRoomsEyeViewModuleLogic::GetPatientBodyPolyData(vtkMRMLRoomsEyeVie
     segmentationNode, parameterNode->GetPatientBodySegmentID(),
     vtkSegmentationConverter::GetSegmentationClosedSurfaceRepresentationName(),
     patientBodyPolyData );
+}
+
+vtkLinearTransformNode* CalculatePatientBodyTransform( vtkMRMLRoomsEyeViewNode* parameterNode, vtkMRMLVolumeNode* patientBody)
+{
+  vtkMRMLScene* scene = this->GetMRMLScene();
+  if (!scene)
+  {
+    vtkErrorMacro("CalculatePatientBodyTransform: Invalid scene");
+    return nullptr;
+  }
+  if (!parameterNode)
+  {
+    vtkErrorMacro("CalculatePatientBodyTransform: Invalid parameter set node");
+    return nullptr;
+  }
+  if (!patientBody)
+  {
+    vtkErrorMacro("CalculatePatientBodyTransform: Invalid patient body volume node");
+    return nullptr;
+  }
+
+  vtkNew<vtkMRMLLinearTransformNode> transformNode;
+
+  scene->AddNode(transformNode);
+//  vtkNew<vtkMatrix4x4> matrix;
+
+//  transformNode->SetMatrixTransformToParent(matrix);
+  if (transformNode)
+  {
+    std::string transformNodeName("PatientBodyToTableTop");
+    transformNodeName = scene->GenerateUniqueName(transformNodeName);
+    transformNode->SetName(transformNodeName.c_str());
+    vtkTransform* transform = vtkTransform::SafeDownCast(transformNode->GetTransformToParent());
+
+    transform->Identity();
+
+    // The "S" direction in RAS is the "A" direction in FixedReference
+    transform->RotateX(90.0);
+    // The "S" direction to be toward the gantry (head first position) by default
+    transform->RotateZ(-180.0);
+    transform->Modified();
+    transformNode->SetAndObserveTransformNodeID(parameterNode->GetTableTopToTableTopEccentricRotationTransformNode->GetID());
+  }
+
+  return transformNode;
 }
 
 //----------------------------------------------------------------------------

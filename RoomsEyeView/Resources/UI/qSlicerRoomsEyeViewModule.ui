@@ -9,7 +9,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>449</width>
+    <width>513</width>
     <height>538</height>
    </rect>
   </property>
@@ -17,16 +17,7 @@
    <string>Room's Eye View</string>
   </property>
   <layout class="QGridLayout" name="gridLayout_2">
-   <property name="leftMargin">
-    <number>4</number>
-   </property>
-   <property name="topMargin">
-    <number>4</number>
-   </property>
-   <property name="rightMargin">
-    <number>4</number>
-   </property>
-   <property name="bottomMargin">
+   <property name="margin">
     <number>4</number>
    </property>
    <property name="spacing">
@@ -56,21 +47,12 @@
     </spacer>
    </item>
    <item row="6" column="0">
-    <widget class="ctkCollapsibleButton" name="TransformsCollapsibleButton">
-     <property name="text">
+    <widget class="ctkCollapsibleButton" name="TransformsCollapsibleButton" native="true">
+     <property name="text" stdset="0">
       <string>Transforms</string>
      </property>
      <layout class="QGridLayout" name="gridLayout_8">
-      <property name="leftMargin">
-       <number>4</number>
-      </property>
-      <property name="topMargin">
-       <number>4</number>
-      </property>
-      <property name="rightMargin">
-       <number>4</number>
-      </property>
-      <property name="bottomMargin">
+      <property name="margin">
        <number>4</number>
       </property>
       <property name="spacing">
@@ -84,24 +66,24 @@
        </widget>
       </item>
       <item row="1" column="1">
-       <widget class="ctkSliderWidget" name="CollimatorRotationSlider">
-        <property name="minimum">
+       <widget class="ctkSliderWidget" name="CollimatorRotationSlider" native="true">
+        <property name="minimum" stdset="0">
          <double>0.000000000000000</double>
         </property>
-        <property name="maximum">
+        <property name="maximum" stdset="0">
          <double>359.000000000000000</double>
         </property>
-        <property name="value">
+        <property name="value" stdset="0">
          <double>0.000000000000000</double>
         </property>
        </widget>
       </item>
       <item row="0" column="1">
-       <widget class="ctkSliderWidget" name="GantryRotationSlider">
-        <property name="minimum">
+       <widget class="ctkSliderWidget" name="GantryRotationSlider" native="true">
+        <property name="minimum" stdset="0">
          <double>0.000000000000000</double>
         </property>
-        <property name="maximum">
+        <property name="maximum" stdset="0">
          <double>359.000000000000000</double>
         </property>
        </widget>
@@ -121,40 +103,40 @@
        </widget>
       </item>
       <item row="3" column="1">
-       <widget class="ctkSliderWidget" name="PatientSupportRotationSlider">
-        <property name="minimum">
+       <widget class="ctkSliderWidget" name="PatientSupportRotationSlider" native="true">
+        <property name="minimum" stdset="0">
          <double>-180.000000000000000</double>
         </property>
-        <property name="maximum">
+        <property name="maximum" stdset="0">
          <double>179.000000000000000</double>
         </property>
-        <property name="value">
+        <property name="value" stdset="0">
          <double>0.000000000000000</double>
         </property>
        </widget>
       </item>
       <item row="5" column="1">
-       <widget class="ctkSliderWidget" name="LongitudinalTableTopDisplacementSlider">
-        <property name="minimum">
+       <widget class="ctkSliderWidget" name="LongitudinalTableTopDisplacementSlider" native="true">
+        <property name="minimum" stdset="0">
          <double>0.000000000000000</double>
         </property>
-        <property name="maximum">
+        <property name="maximum" stdset="0">
          <double>1000.000000000000000</double>
         </property>
-        <property name="value">
+        <property name="value" stdset="0">
          <double>0.000000000000000</double>
         </property>
        </widget>
       </item>
       <item row="6" column="1">
-       <widget class="ctkSliderWidget" name="LateralTableTopDisplacementSlider">
-        <property name="minimum">
+       <widget class="ctkSliderWidget" name="LateralTableTopDisplacementSlider" native="true">
+        <property name="minimum" stdset="0">
          <double>-230.000000000000000</double>
         </property>
-        <property name="maximum">
+        <property name="maximum" stdset="0">
          <double>230.000000000000000</double>
         </property>
-        <property name="value">
+        <property name="value" stdset="0">
          <double>0.000000000000000</double>
         </property>
        </widget>
@@ -181,14 +163,14 @@
        </widget>
       </item>
       <item row="4" column="1">
-       <widget class="ctkSliderWidget" name="VerticalTableTopDisplacementSlider">
-        <property name="minimum">
+       <widget class="ctkSliderWidget" name="VerticalTableTopDisplacementSlider" native="true">
+        <property name="minimum" stdset="0">
          <double>-500.000000000000000</double>
         </property>
-        <property name="maximum">
+        <property name="maximum" stdset="0">
          <double>299.000000000000000</double>
         </property>
-        <property name="value">
+        <property name="value" stdset="0">
          <double>0.000000000000000</double>
         </property>
        </widget>
@@ -201,14 +183,14 @@
        </widget>
       </item>
       <item row="7" column="1">
-       <widget class="ctkSliderWidget" name="ImagingPanelMovementSlider">
-        <property name="minimum">
+       <widget class="ctkSliderWidget" name="ImagingPanelMovementSlider" native="true">
+        <property name="minimum" stdset="0">
          <double>-68.500000000000000</double>
         </property>
-        <property name="maximum">
+        <property name="maximum" stdset="0">
          <double>500.000000000000000</double>
         </property>
-        <property name="value">
+        <property name="value" stdset="0">
          <double>-68.500000000000000</double>
         </property>
        </widget>
@@ -217,24 +199,15 @@
     </widget>
    </item>
    <item row="7" column="0">
-    <widget class="ctkCollapsibleButton" name="AdditionalTreatmentModelsCollapsibleButton">
-     <property name="text">
+    <widget class="ctkCollapsibleButton" name="AdditionalTreatmentModelsCollapsibleButton" native="true">
+     <property name="text" stdset="0">
       <string>Additional device models</string>
      </property>
-     <property name="collapsed">
+     <property name="collapsed" stdset="0">
       <bool>true</bool>
      </property>
      <layout class="QGridLayout" name="gridLayout_4">
-      <property name="leftMargin">
-       <number>4</number>
-      </property>
-      <property name="topMargin">
-       <number>4</number>
-      </property>
-      <property name="rightMargin">
-       <number>4</number>
-      </property>
-      <property name="bottomMargin">
+      <property name="margin">
        <number>4</number>
       </property>
       <property name="spacing">
@@ -278,9 +251,6 @@
         </item>
        </layout>
       </item>
-      <item row="3" column="0">
-       <layout class="QHBoxLayout" name="horizontalLayout_4"/>
-      </item>
       <item row="0" column="0">
        <layout class="QHBoxLayout" name="horizontalLayout_2">
         <item>
@@ -312,7 +282,7 @@
          </widget>
         </item>
         <item row="0" column="1">
-         <widget class="ctkSliderWidget" name="VerticalTranslationSliderWidget"/>
+         <widget class="ctkSliderWidget" name="VerticalTranslationSliderWidget" native="true"/>
         </item>
         <item row="0" column="0">
          <widget class="QLabel" name="AdditionalModelsVerticalTranslationLabel">
@@ -329,10 +299,10 @@
          </widget>
         </item>
         <item row="1" column="1">
-         <widget class="ctkSliderWidget" name="LongitudinalTranslationSliderWidget"/>
+         <widget class="ctkSliderWidget" name="LongitudinalTranslationSliderWidget" native="true"/>
         </item>
         <item row="2" column="1">
-         <widget class="ctkSliderWidget" name="LateralTranslationSliderWidget"/>
+         <widget class="ctkSliderWidget" name="LateralTranslationSliderWidget" native="true"/>
         </item>
        </layout>
       </item>
@@ -340,21 +310,12 @@
     </widget>
    </item>
    <item row="5" column="0">
-    <widget class="ctkCollapsibleButton" name="CollisionDetectionCollapsibleButton">
-     <property name="text">
+    <widget class="ctkCollapsibleButton" name="CollisionDetectionCollapsibleButton" native="true">
+     <property name="text" stdset="0">
       <string>Collision detection</string>
      </property>
      <layout class="QGridLayout" name="gridLayout_3">
-      <property name="leftMargin">
-       <number>4</number>
-      </property>
-      <property name="topMargin">
-       <number>4</number>
-      </property>
-      <property name="rightMargin">
-       <number>4</number>
-      </property>
-      <property name="bottomMargin">
+      <property name="margin">
        <number>4</number>
       </property>
       <property name="spacing">
@@ -390,8 +351,11 @@
         </property>
        </widget>
       </item>
+      <item row="0" column="2">
+       <widget class="qMRMLSegmentSelectorWidget" name="SegmentSelectorWidget_PatientBody" native="true"/>
+      </item>
       <item row="0" column="1">
-       <widget class="qMRMLSegmentSelectorWidget" name="SegmentSelectorWidget_PatientBody"/>
+       <widget class="qMRMLNodeComboBox" name="MRMLNodeComboBox_PatientBody" native="true"/>
       </item>
      </layout>
     </widget>
@@ -406,8 +370,8 @@
       </widget>
      </item>
      <item row="0" column="1">
-      <widget class="qMRMLNodeComboBox" name="MRMLNodeComboBox_ParameterSet">
-       <property name="nodeTypes">
+      <widget class="qMRMLNodeComboBox" name="MRMLNodeComboBox_ParameterSet" native="true">
+       <property name="nodeTypes" stdset="0">
         <stringlist>
          <string>vtkMRMLRoomsEyeViewNode</string>
         </stringlist>
@@ -422,8 +386,8 @@
       </widget>
      </item>
      <item row="1" column="1">
-      <widget class="qMRMLNodeComboBox" name="MRMLNodeComboBox_Beam">
-       <property name="nodeTypes">
+      <widget class="qMRMLNodeComboBox" name="MRMLNodeComboBox_Beam" native="true">
+       <property name="nodeTypes" stdset="0">
         <stringlist>
          <string>vtkMRMLRTBeamNode</string>
         </stringlist>
@@ -467,6 +431,7 @@
    <class>qMRMLSegmentSelectorWidget</class>
    <extends>qMRMLWidget</extends>
    <header>qMRMLSegmentSelectorWidget.h</header>
+   <container>1</container>
   </customwidget>
   <customwidget>
    <class>ctkCollapsibleButton</class>
@@ -527,6 +492,22 @@
     <hint type="destinationlabel">
      <x>329</x>
      <y>118</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>qSlicerRoomsEyeViewModule</sender>
+   <signal>mrmlSceneChanged(vtkMRMLScene*)</signal>
+   <receiver>MRMLNodeComboBox_PatientBody</receiver>
+   <slot>setMRMLScene(vtkMRMLScene*)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>256</x>
+     <y>268</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>256</x>
+     <y>93</y>
     </hint>
    </hints>
   </connection>
