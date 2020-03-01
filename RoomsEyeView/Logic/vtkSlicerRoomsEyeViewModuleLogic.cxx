@@ -651,7 +651,7 @@ void vtkSlicerRoomsEyeViewModuleLogic::SetupTreatmentMachineModels(vtkMRMLRoomsE
   //TODO: Whole patient (segmentation, CT) will need to be transformed when the table top is transformed
 //  vtkMRMLLinearTransformNode* patientModelTransforms = vtkMRMLLinearTransformNode::SafeDownCast(
 //    this->GetMRMLScene()->GetFirstNodeByName("PatientToTableTopTransform"));
-/*
+
   vtkMRMLLinearTransformNode* patientToTableTopTransformNode =
     this->IECLogic->GetTransformNodeBetween(vtkSlicerIECTransformLogic::Patient, vtkSlicerIECTransformLogic::TableTop);
 
@@ -669,7 +669,7 @@ void vtkSlicerRoomsEyeViewModuleLogic::SetupTreatmentMachineModels(vtkMRMLRoomsE
       }
     }
   }
-*/
+
 
   // Patient model is set when calculating collisions, as it can be changed dynamically
   this->GantryPatientCollisionDetection->SetInput(0, gantryModel->GetPolyData());

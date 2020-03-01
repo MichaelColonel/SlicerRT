@@ -246,6 +246,14 @@ void vtkSlicerIECTransformLogic::UpdateIECTransformsFromBeam(vtkMRMLRTBeamNode* 
   patientSupportToFixedReferenceTransform->RotateZ(beamNode->GetCouchAngle());
   patientSupportToFixedReferenceTransform->Modified();
 
+  vtkMRMLLinearTransformNode* patientToTableTopReferenceTransformNode =
+    this->GetTransformNodeBetween( Patient, TableTop);
+  vtkTransform* patientToTableTopReferenceTransform = vtkTransform::SafeDownCast(patientToTableTopReferenceTransformNode->GetTransformToParent());
+  patientToTableTopReferenceTransform->Identity();
+  patientToTableTopReferenceTransform->RotateX(90.);
+  patientToTableTopReferenceTransform->RotateZ(-180.);
+  patientToTableTopReferenceTransform->Modified();
+
   // Update IEC FixedReference to RAS transform based on the isocenter defined in the beam's parent plan
   vtkMRMLLinearTransformNode* fixedReferenceToRasTransformNode =
     this->GetTransformNodeBetween(FixedReference, RAS);
