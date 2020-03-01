@@ -29,6 +29,7 @@
 
 class vtkMRMLLinearTransformNode;
 class vtkMRMLSegmentationNode;
+class vtkMRMLVolumeNode;
 class vtkMRMLRTBeamNode;
 
 /// \ingroup SlicerRt_QtModules_RoomsEyeView

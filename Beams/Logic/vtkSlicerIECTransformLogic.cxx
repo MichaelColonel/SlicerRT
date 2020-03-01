@@ -53,6 +53,7 @@ vtkSlicerIECTransformLogic::vtkSlicerIECTransformLogic()
   this->CoordinateSystemsMap[TableTopEccentricRotation] = "TableTopEccentricRotation";
   this->CoordinateSystemsMap[TableTop] = "TableTop";
   this->CoordinateSystemsMap[FlatPanel] = "FlatPanel";
+  this->CoordinateSystemsMap[Patient] = "Patient";
 
   this->IecTransforms.clear();
   this->IecTransforms.push_back(std::make_pair(FixedReference, RAS));
@@ -64,6 +65,7 @@ vtkSlicerIECTransformLogic::vtkSlicerIECTransformLogic()
   this->IecTransforms.push_back(std::make_pair(PatientSupport, PatientSupportRotation)); // Scaling component of patient support transform
   this->IecTransforms.push_back(std::make_pair(TableTopEccentricRotation, PatientSupportRotation)); // NOTE: Currently not supported by REV
   this->IecTransforms.push_back(std::make_pair(TableTop, TableTopEccentricRotation));
+  this->IecTransforms.push_back(std::make_pair(Patient, TableTop));
   this->IecTransforms.push_back(std::make_pair(FlatPanel, Gantry));
 }
 
@@ -121,7 +123,7 @@ void vtkSlicerIECTransformLogic::BuildIECTransformHierarchy()
     {
       vtkSmartPointer<vtkMRMLLinearTransformNode> transformNode = vtkSmartPointer<vtkMRMLLinearTransformNode>::New();
       transformNode->SetName(transformNodeName.c_str());
-      transformNode->SetHideFromEditors(1);
+      transformNode->SetHideFromEditors(transformIt->first != Patient || transformIt->second != TableTop);
       std::string singletonTag = std::string("IEC_") + transformNodeName;
       transformNode->SetSingletonTag(singletonTag.c_str());
       this->GetMRMLScene()->AddNode(transformNode);
@@ -149,6 +151,8 @@ void vtkSlicerIECTransformLogic::BuildIECTransformHierarchy()
     this->GetTransformNodeBetween(PatientSupportRotation, FixedReference)->GetID() );
   this->GetTransformNodeBetween(TableTop, TableTopEccentricRotation)->SetAndObserveTransformNodeID(
     this->GetTransformNodeBetween(TableTopEccentricRotation, PatientSupportRotation)->GetID() );
+  this->GetTransformNodeBetween(Patient, TableTop)->SetAndObserveTransformNodeID(
+    this->GetTransformNodeBetween(TableTop, TableTopEccentricRotation)->GetID() );
 }
 
 //-----------------------------------------------------------------------------

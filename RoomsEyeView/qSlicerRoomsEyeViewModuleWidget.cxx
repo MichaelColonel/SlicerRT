@@ -45,6 +45,7 @@
 #include <vtkMRMLLinearTransformNode.h>
 #include <vtkMRMLDisplayNode.h>
 #include <vtkMRMLModelNode.h>
+#include <vtkMRMLVolumeNode.h>
 #include <vtkMRMLSegmentationNode.h>
 #include <vtkMRMLCameraNode.h>
 #include <vtkMRMLViewNode.h>
@@ -121,7 +122,7 @@ void qSlicerRoomsEyeViewModuleWidget::setMRMLScene(vtkMRMLScene* scene)
   if (scene)
   {
     vtkMRMLNode* node = scene->GetNthNodeByClass(0, "vtkMRMLRoomsEyeViewNode");
-    vtkMRMLNode* patientVolumeNode = scene->GetNthNodeByClass(0, "vtkMRMLScalarVolumeNode");
+//    vtkMRMLNode* patientVolumeNode = scene->GetNthNodeByClass(0, "vtkMRMLScalarVolumeNode");
     if (d->MRMLNodeComboBox_ParameterSet->currentNode())
     {
       this->setParameterNode(d->MRMLNodeComboBox_ParameterSet->currentNode());

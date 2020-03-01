@@ -34,6 +34,7 @@ Ontario with funds provided by the Ontario Ministry of Health and Long-Term Care
 class vtkCollisionDetectionFilter;
 class vtkSlicerIECTransformLogic;
 class vtkMRMLRoomsEyeViewNode;
+class vtkMRMLLinearTransformNode;
 class vtkMRMLModelNode;
 class vtkPolyData;
 
@@ -67,7 +68,7 @@ public:
   ///        (must match folder name where the models can be found)
   void LoadTreatmentMachineModels(vtkMRMLRoomsEyeViewNode* parameterNode);
   /// Set up the IEC transforms and model properties on the treatment machine models
-  void SetupTreatmentMachineModels();
+  void SetupTreatmentMachineModels(vtkMRMLRoomsEyeViewNode* parameterNode = nullptr);
   /// Create or get transforms taking part in the IEC logic and additional devices, and build the transform hierarchy
   void BuildRoomsEyeViewTransformHierarchy();
 
@@ -108,7 +109,7 @@ public:
   /// Load basic additional devices (deployed with SlicerRT)
   void LoadBasicCollimatorMountedDevices();
   /// Set up the IEC transforms and model properties on the basic additional device models
-  void SetupBasicCollimatorMountedDeviceModels(vtkMRMLRoomsEyeViewNode* parameterNode = nullptr);
+  void SetupBasicCollimatorMountedDeviceModels();
 
   ///TODO:
   void UpdateAdditionalCollimatorDevicesToCollimatorTransforms(vtkMRMLRoomsEyeViewNode* parameterNode);
@@ -132,7 +133,7 @@ protected:
   /// Get patient body closed surface poly data from segmentation node and segment selection in the parameter node
   bool GetPatientBodyPolyData(vtkMRMLRoomsEyeViewNode* parameterNode, vtkPolyData* patientBodyPolyData);
   /// Calculate patient body transform for proper visualization and processing
-  vtkLinearTransformNode* CalculatePatientBodyTransform( vtkMRMLRoomsEyeViewNode* parameterNode, vtkMRMLVolumeNode* patientBody = nullptr);
+  vtkMRMLLinearTransformNode* CalculatePatientBodyTransform(vtkMRMLRoomsEyeViewNode* parameterNode);
 
 protected:
   vtkSlicerIECTransformLogic* IECLogic;

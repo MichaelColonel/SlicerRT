@@ -28,6 +28,7 @@
 #include <vtkMRMLScene.h>
 #include <vtkMRMLLinearTransformNode.h>
 #include <vtkMRMLSegmentationNode.h>
+#include <vtkMRMLVolumeNode.h>
 
 // VTK includes
 #include <vtkObjectFactory.h>
@@ -543,6 +544,24 @@ void vtkMRMLRoomsEyeViewNode::SetAndObserveTableTopEccentricRotationToPatientSup
     }
 
   this->SetNodeReferenceID(TABLETOPECCENTRICROTATION_TO_PATIENTSUPPORT_TRANSFORM_NODE_REFERENCE_ROLE, (node ? node->GetID() : nullptr));
+}
+
+//----------------------------------------------------------------------------
+vtkMRMLLinearTransformNode* vtkMRMLRoomsEyeViewNode::GetPatientBodyToTableTopTransformNode()
+{
+  return vtkMRMLLinearTransformNode::SafeDownCast(this->GetNodeReference("PatientBodyToTableTopTransformRef"));
+}
+
+//----------------------------------------------------------------------------
+void vtkMRMLRoomsEyeViewNode::SetAndObservePatientBodyToTableTopTransformNode(vtkMRMLLinearTransformNode* node)
+{
+  if (node && this->Scene != node->GetScene())
+    {
+    vtkErrorMacro("Cannot set reference: the referenced and referencing node are not in the same scene");
+    return;
+    }
+
+  this->SetNodeReferenceID( "PatientBodyToTableTopTransformRef", (node ? node->GetID() : nullptr));
 }
 
 //----------------------------------------------------------------------------

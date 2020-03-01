@@ -35,6 +35,7 @@
 #include <vtkMRMLViewNode.h>
 #include <vtkMRMLModelHierarchyNode.h>
 #include <vtkMRMLModelDisplayNode.h>
+#include <vtkMRMLVolumeNode.h>
 
 // Slicer includes
 #include <vtkSlicerModelsLogic.h>
@@ -515,6 +516,7 @@ void vtkSlicerRoomsEyeViewModuleLogic::LoadTreatmentMachineModels(vtkMRMLRoomsEy
   }
 
   // Setup treatment machine model display and transforms
+  this->CalculatePatientBodyTransform(parameterNode);
   this->SetupTreatmentMachineModels(parameterNode);
 }
 
@@ -647,19 +649,23 @@ void vtkSlicerRoomsEyeViewModuleLogic::SetupTreatmentMachineModels(vtkMRMLRoomsE
   this->CollimatorTableTopCollisionDetection->SetInput(1, tableTopModel->GetPolyData());
 
   //TODO: Whole patient (segmentation, CT) will need to be transformed when the table top is transformed
-  vtkMRMLLinearTransformNode* patientModelTransforms = vtkMRMLLinearTransformNode::SafeDownCast(
-    this->GetMRMLScene()->GetFirstNodeByName("TableTopEccentricRotationToPatientSupportTransform"));
-  if (parameterNode && patientModelTransforms)
+//  vtkMRMLLinearTransformNode* patientModelTransforms = vtkMRMLLinearTransformNode::SafeDownCast(
+//    this->GetMRMLScene()->GetFirstNodeByName("PatientToTableTopTransform"));
+  vtkMRMLLinearTransformNode* patientToTableTopTransformNode =
+    this->IECLogic->GetTransformNodeBetween(vtkSlicerIECTransformLogic::Patient, vtkSlicerIECTransformLogic::TableTop);
+
+  if (parameterNode && patientToTableTopTransformNode)
   {
-    vtkMRMLVolumeNode* volume = parameterNode->GetPatientBodyVolumeNode();
-    if (volume)
-    {
-      volume->SetAndObserveTransformNodeID(patientModelTransforms->GetID());
-    }
     vtkMRMLSegmentationNode* segmentation = parameterNode->GetPatientBodySegmentationNode();
     if (segmentation)
     {
-      segmentation->SetAndObserveTransformNodeID(patientModelTransforms->GetID());
+      segmentation->SetAndObserveTransformNodeID(patientToTableTopTransformNode->GetID());
+
+      vtkMRMLVolumeNode* volume = vtkMRMLVolumeNode::SafeDownCast(segmentation->GetNodeReference(vtkMRMLSegmentationNode::GetReferenceImageGeometryReferenceRole().c_str()));
+      if (volume)
+      {
+        volume->SetAndObserveTransformNodeID(patientToTableTopTransformNode->GetID());
+      }
     }
   }
 
@@ -967,7 +973,9 @@ bool vtkSlicerRoomsEyeViewModuleLogic::GetPatientBodyPolyData(vtkMRMLRoomsEyeVie
     patientBodyPolyData );
 }
 
-vtkLinearTransformNode* CalculatePatientBodyTransform( vtkMRMLRoomsEyeViewNode* parameterNode, vtkMRMLVolumeNode* patientBody)
+//----------------------------------------------------------------------------
+vtkMRMLLinearTransformNode*
+vtkSlicerRoomsEyeViewModuleLogic::CalculatePatientBodyTransform(vtkMRMLRoomsEyeViewNode* parameterNode)
 {
   vtkMRMLScene* scene = this->GetMRMLScene();
   if (!scene)
@@ -980,12 +988,23 @@ vtkLinearTransformNode* CalculatePatientBodyTransform( vtkMRMLRoomsEyeViewNode* 
     vtkErrorMacro("CalculatePatientBodyTransform: Invalid parameter set node");
     return nullptr;
   }
-  if (!patientBody)
+  
+  // Get IEC transform nodes that are used below
+  vtkMRMLLinearTransformNode* patientToTableTopTransformNode =
+    this->IECLogic->GetTransformNodeBetween(vtkSlicerIECTransformLogic::Patient, vtkSlicerIECTransformLogic::TableTop);
+  if (!patientToTableTopTransformNode)
   {
-    vtkErrorMacro("CalculatePatientBodyTransform: Invalid patient body volume node");
+    vtkErrorMacro("CalculatePatientBodyTransform: Failed to access patientToTableTopTransformNode");
     return nullptr;
   }
-
+  else
+  {
+//    parameterNode->GetPatientBodyVolumeNode()->SetAndObserveTransformNodeID(patientToTableTopTransformNode->GetID());
+//    parameterNode->GetPatientBodySegmentationNode()->SetAndObserveTransformNodeID(patientToTableTopTransformNode->GetID());
+  }
+//  scene->AddNode(patientToTableTopTransformNode);
+  // Organize transforms into hierarchy
+/*
   vtkNew<vtkMRMLLinearTransformNode> transformNode;
 
   scene->AddNode(transformNode);
@@ -1006,10 +1025,10 @@ vtkLinearTransformNode* CalculatePatientBodyTransform( vtkMRMLRoomsEyeViewNode* 
     // The "S" direction to be toward the gantry (head first position) by default
     transform->RotateZ(-180.0);
     transform->Modified();
-    transformNode->SetAndObserveTransformNodeID(parameterNode->GetTableTopToTableTopEccentricRotationTransformNode->GetID());
+    transformNode->SetAndObserveTransformNodeID(parameterNode->GetTableTopToTableTopEccentricRotationTransformNode()->GetID());
   }
-
-  return transformNode;
+*/
+  return patientToTableTopTransformNode;
 }
 
 //----------------------------------------------------------------------------

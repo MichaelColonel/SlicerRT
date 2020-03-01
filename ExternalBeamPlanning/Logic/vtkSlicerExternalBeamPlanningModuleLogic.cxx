@@ -102,6 +102,7 @@ vtkSlicerExternalBeamPlanningModuleLogic::vtkSlicerExternalBeamPlanningModuleLog
   this->DRRImageSize[1] = 256;
 
   this->BeamsLogic = nullptr;
+  this->IECLogic = vtkSlicerIECTransformLogic::New();
 
   this->Internal = new vtkInternal;
 }
@@ -110,6 +111,12 @@ vtkSlicerExternalBeamPlanningModuleLogic::vtkSlicerExternalBeamPlanningModuleLog
 vtkSlicerExternalBeamPlanningModuleLogic::~vtkSlicerExternalBeamPlanningModuleLogic()
 {
   this->SetBeamsLogic(nullptr);
+
+  if (this->IECLogic)
+  {
+    this->IECLogic->Delete();
+    this->IECLogic = nullptr;
+  }
 
   delete this->Internal;
 }
@@ -335,6 +342,12 @@ vtkMRMLRTBeamNode* vtkSlicerExternalBeamPlanningModuleLogic::CloneBeamInPlan(vtk
   return beamCloneNode;
 }
 
+vtkMRMLLinearTransformNode*
+vtkSlicerExternalBeamPlanningModuleLogic::GetPatientToTableTopTransformNode()
+{
+  return this->IECLogic->GetTransformNodeBetween( vtkSlicerIECTransformLogic::Patient, 
+    vtkSlicerIECTransformLogic::TableTop);
+}
 
 //---------------------------------------------------------------------------
 //---------------------------------------------------------------------------

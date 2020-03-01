@@ -44,6 +44,9 @@ class vtkMRMLRTBeamNode;
 class vtkSlicerCLIModuleLogic;
 class vtkSlicerBeamsModuleLogic;
 class vtkSlicerDoseAccumulationModuleLogic;
+class vtkSlicerIECTransformLogic;
+
+class vtkMRMLLinearTransformNode;
 
 /// \ingroup SlicerRt_QtModules_ExternalBeamPlanning
 class VTK_SLICER_EXTERNALBEAMPLANNING_MODULE_LOGIC_EXPORT vtkSlicerExternalBeamPlanningModuleLogic :
@@ -65,6 +68,7 @@ public:
   /// \param planNode Plan to add beam clone to. If omitted then beam clone is added in same plan as copiedBeamNode
   /// \return The new beam node that has been copied and added to the plan
   vtkMRMLRTBeamNode* CloneBeamInPlan(vtkMRMLRTBeamNode* copiedBeamNode, vtkMRMLRTPlanNode* planNode=nullptr);
+  vtkMRMLLinearTransformNode* GetPatientToTableTopTransformNode();
 
 //TODO: Obsolete functions
 public:
@@ -103,6 +107,7 @@ protected:
 protected:
   /// TODO:
   int DRRImageSize[2];
+  vtkSlicerIECTransformLogic* IECLogic;
 
 private:
   vtkSlicerExternalBeamPlanningModuleLogic(const vtkSlicerExternalBeamPlanningModuleLogic&) = delete;
