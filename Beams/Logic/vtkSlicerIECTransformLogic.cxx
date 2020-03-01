@@ -123,7 +123,8 @@ void vtkSlicerIECTransformLogic::BuildIECTransformHierarchy()
     {
       vtkSmartPointer<vtkMRMLLinearTransformNode> transformNode = vtkSmartPointer<vtkMRMLLinearTransformNode>::New();
       transformNode->SetName(transformNodeName.c_str());
-      transformNode->SetHideFromEditors(transformIt->first != Patient || transformIt->second != TableTop);
+//      transformNode->SetHideFromEditors(transformIt->first != Patient || transformIt->second != TableTop);
+      transformNode->SetHideFromEditors(0);
       std::string singletonTag = std::string("IEC_") + transformNodeName;
       transformNode->SetSingletonTag(singletonTag.c_str());
       this->GetMRMLScene()->AddNode(transformNode);
