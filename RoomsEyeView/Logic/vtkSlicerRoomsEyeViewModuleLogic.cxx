@@ -1326,6 +1326,24 @@ void vtkSlicerRoomsEyeViewModuleLogic::UpdateTableTopToTableTopEccentricRotation
 }
 
 //-----------------------------------------------------------------------------
+void vtkSlicerRoomsEyeViewModuleLogic::UpdatePatientToTableTopTransform(vtkMRMLRoomsEyeViewNode* parameterNode)
+{
+  if (!parameterNode)
+  {
+    vtkErrorMacro("UpdatePatientToTableTopTransform: Invalid parameter set node");
+    return;
+  }
+
+  vtkMRMLLinearTransformNode* patientToTableTopTransformNode =
+    this->IECLogic->GetTransformNodeBetween( vtkSlicerIECTransformLogic::Patient, vtkSlicerIECTransformLogic::TableTop);
+
+//  double rotationAngle = parameterNode->GetPatientSupportRotationAngle();
+//  vtkNew<vtkTransform> patientToTableTopTransform;
+//  patientToTableTopTransform->RotateZ(rotationAngle);
+//  patientToTableTopTransformNode->SetAndObserveTransformToParent(patientToTableTopTransform);
+}
+
+//-----------------------------------------------------------------------------
 void vtkSlicerRoomsEyeViewModuleLogic::UpdateAdditionalCollimatorDevicesToCollimatorTransforms(vtkMRMLRoomsEyeViewNode* parameterNode)
 {
   if (!parameterNode)

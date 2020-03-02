@@ -96,7 +96,8 @@ public:
   void UpdateTableTopEccentricRotationToPatientSupportRotationTransform(vtkMRMLRoomsEyeViewNode* parameterNode);
   /// Update TableTopToTableTopEccentricRotation based on all three table top translations
   void UpdateTableTopToTableTopEccentricRotationTransform(vtkMRMLRoomsEyeViewNode* parameterNode);
- 
+  /// Update TableTopToTableTopEccentricRotation based on all three table top translations
+  void UpdatePatientToTableTopTransform(vtkMRMLRoomsEyeViewNode* parameterNode);
   /// Update orientation marker based on the current transforms
   vtkMRMLModelNode* UpdateTreatmentOrientationMarker();
 

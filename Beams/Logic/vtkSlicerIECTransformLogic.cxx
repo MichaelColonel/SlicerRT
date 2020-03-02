@@ -251,7 +251,7 @@ void vtkSlicerIECTransformLogic::UpdateIECTransformsFromBeam(vtkMRMLRTBeamNode* 
   vtkTransform* patientToTableTopReferenceTransform = vtkTransform::SafeDownCast(patientToTableTopReferenceTransformNode->GetTransformToParent());
   patientToTableTopReferenceTransform->Identity();
   patientToTableTopReferenceTransform->RotateX(90.);
-  patientToTableTopReferenceTransform->RotateZ(-180.);
+//  patientToTableTopReferenceTransform->RotateZ(-180.);
   patientToTableTopReferenceTransform->Modified();
 
   // Update IEC FixedReference to RAS transform based on the isocenter defined in the beam's parent plan
@@ -272,7 +272,7 @@ void vtkSlicerIECTransformLogic::UpdateIECTransformsFromBeam(vtkMRMLRTBeamNode* 
   // The "S" direction in RAS is the "A" direction in FixedReference
   fixedReferenceToRasTransform->RotateX(-90.0);
   // The "S" direction to be toward the gantry (head first position) by default
-  fixedReferenceToRasTransform->RotateZ(180.0);
+//  fixedReferenceToRasTransform->RotateZ(180.0);
   fixedReferenceToRasTransform->Modified();
 }
 
