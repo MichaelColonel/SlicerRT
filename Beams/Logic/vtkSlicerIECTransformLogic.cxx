@@ -53,6 +53,7 @@ vtkSlicerIECTransformLogic::vtkSlicerIECTransformLogic()
   this->CoordinateSystemsMap[TableTopEccentricRotation] = "TableTopEccentricRotation";
   this->CoordinateSystemsMap[TableTop] = "TableTop";
   this->CoordinateSystemsMap[FlatPanel] = "FlatPanel";
+  this->CoordinateSystemsMap[LastIECCoordinateFrame] = "Patient";
 
   this->IecTransforms.clear();
   this->IecTransforms.push_back(std::make_pair(FixedReference, RAS));
@@ -64,6 +65,7 @@ vtkSlicerIECTransformLogic::vtkSlicerIECTransformLogic()
   this->IecTransforms.push_back(std::make_pair(PatientSupport, PatientSupportRotation)); // Scaling component of patient support transform
   this->IecTransforms.push_back(std::make_pair(TableTopEccentricRotation, PatientSupportRotation)); // NOTE: Currently not supported by REV
   this->IecTransforms.push_back(std::make_pair(TableTop, TableTopEccentricRotation));
+  this->IecTransforms.push_back(std::make_pair(LastIECCoordinateFrame, TableTop));
   this->IecTransforms.push_back(std::make_pair(FlatPanel, Gantry));
 }
 
@@ -149,6 +151,8 @@ void vtkSlicerIECTransformLogic::BuildIECTransformHierarchy()
     this->GetTransformNodeBetween(PatientSupportRotation, FixedReference)->GetID() );
   this->GetTransformNodeBetween(TableTop, TableTopEccentricRotation)->SetAndObserveTransformNodeID(
     this->GetTransformNodeBetween(TableTopEccentricRotation, PatientSupportRotation)->GetID() );
+  this->GetTransformNodeBetween(LastIECCoordinateFrame, TableTop)->SetAndObserveTransformNodeID(
+    this->GetTransformNodeBetween(TableTop, TableTopEccentricRotation)->GetID() );
 }
 
 //-----------------------------------------------------------------------------
@@ -240,6 +244,14 @@ void vtkSlicerIECTransformLogic::UpdateIECTransformsFromBeam(vtkMRMLRTBeamNode* 
   patientSupportToFixedReferenceTransform->Identity();
   patientSupportToFixedReferenceTransform->RotateZ(beamNode->GetCouchAngle());
   patientSupportToFixedReferenceTransform->Modified();
+
+  vtkMRMLLinearTransformNode* patientToTableTopReferenceTransformNode =
+    this->GetTransformNodeBetween( LastIECCoordinateFrame, TableTop);
+  vtkTransform* patientToTableTopReferenceTransform = vtkTransform::SafeDownCast(patientToTableTopReferenceTransformNode->GetTransformToParent());
+  patientToTableTopReferenceTransform->Identity();
+  patientToTableTopReferenceTransform->RotateX(90.);
+  patientToTableTopReferenceTransform->RotateZ(-180.);
+  patientToTableTopReferenceTransform->Modified();
 
   // Update IEC FixedReference to RAS transform based on the isocenter defined in the beam's parent plan
   vtkMRMLLinearTransformNode* fixedReferenceToRasTransformNode =
