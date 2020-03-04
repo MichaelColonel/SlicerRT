@@ -35,6 +35,7 @@
 #include <vtkMRMLViewNode.h>
 #include <vtkMRMLModelHierarchyNode.h>
 #include <vtkMRMLModelDisplayNode.h>
+#include <vtkMRMLVolumeNode.h>
 
 // Slicer includes
 #include <vtkSlicerModelsLogic.h>
@@ -515,11 +516,11 @@ void vtkSlicerRoomsEyeViewModuleLogic::LoadTreatmentMachineModels(vtkMRMLRoomsEy
   }
 
   // Setup treatment machine model display and transforms
-  this->SetupTreatmentMachineModels();
+  this->SetupTreatmentMachineModels(parameterNode);
 }
 
 //----------------------------------------------------------------------------
-void vtkSlicerRoomsEyeViewModuleLogic::SetupTreatmentMachineModels()
+void vtkSlicerRoomsEyeViewModuleLogic::SetupTreatmentMachineModels(vtkMRMLRoomsEyeViewNode* parameterNode)
 {
   if (!this->GetMRMLScene())
   {
@@ -650,6 +651,23 @@ void vtkSlicerRoomsEyeViewModuleLogic::SetupTreatmentMachineModels()
   //vtkMRMLLinearTransformNode* patientModelTransforms = vtkMRMLLinearTransformNode::SafeDownCast(
   //  this->GetMRMLScene()->GetFirstNodeByName("TableTopEccentricRotationToPatientSupportTransform"));
   //patientModel->SetAndObserveTransformNodeID(patientModelTransforms->GetID());
+  vtkMRMLLinearTransformNode* patientToTableTopTransformNode =
+    this->IECLogic->GetTransformNodeBetween(vtkSlicerIECTransformLogic::LastIECCoordinateFrame, vtkSlicerIECTransformLogic::TableTop);
+
+  if (parameterNode && patientToTableTopTransformNode)
+  {
+    vtkMRMLSegmentationNode* segmentation = parameterNode->GetPatientBodySegmentationNode();
+    if (segmentation)
+    {
+      segmentation->SetAndObserveTransformNodeID(patientToTableTopTransformNode->GetID());
+
+      vtkMRMLVolumeNode* volume = vtkMRMLVolumeNode::SafeDownCast(segmentation->GetNodeReference(vtkMRMLSegmentationNode::GetReferenceImageGeometryReferenceRole().c_str()));
+      if (volume)
+      {
+        volume->SetAndObserveTransformNodeID(patientToTableTopTransformNode->GetID());
+      }
+    }
+  }
 
   // Patient model is set when calculating collisions, as it can be changed dynamically
   this->GantryPatientCollisionDetection->SetInput(0, gantryModel->GetPolyData());
