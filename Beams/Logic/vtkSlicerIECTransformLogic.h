@@ -30,6 +30,7 @@
 // STD includes
 #include <map>
 #include <vector>
+#include <list>
 
 class vtkGeneralTransform;
 class vtkMRMLRTBeamNode;
@@ -49,6 +50,7 @@ class vtkMRMLLinearTransformNode;
 class VTK_SLICER_BEAMS_LOGIC_EXPORT vtkSlicerIECTransformLogic : public vtkMRMLAbstractLogic
 {
 public:
+  // Need add Image and Focus
   enum CoordinateSystemIdentifier
   {
     RAS = 0,
@@ -62,6 +64,8 @@ public:
     TableTopEccentricRotation,
     TableTop,
     FlatPanel,
+    WedgeFilter,
+    Patient,
     LastIECCoordinateFrame // Last index used for adding more coordinate systems externally
   };
 
@@ -94,12 +98,20 @@ protected:
   ///   Note: If IEC does not specify a transform between the given coordinate frames, then there will be no node with the returned name.
   std::string GetTransformNodeNameBetween(CoordinateSystemIdentifier fromFrame, CoordinateSystemIdentifier toFrame);
 
+  // Root system if a FixedReference system
+  bool GetPathToRoot( CoordinateSystemIdentifier frame, std::list< std::string >& path);
+  bool CalculatePathBetween( const std::list< std::string >& fromFrame, 
+    const std::list< std::string >& toFrame, std::list< std::string >& combinedPath);
+
 protected:
   /// Map from \sa CoordinateSystemIdentifier to coordinate system name. Used for getting transforms
   std::map<CoordinateSystemIdentifier, std::string> CoordinateSystemsMap;
 
   /// List of IEC transforms
   std::vector< std::pair<CoordinateSystemIdentifier, CoordinateSystemIdentifier> > IecTransforms;
+
+  /// Map of IEC coordinate systems hierarchy
+  std::map< CoordinateSystemIdentifier, std::list< CoordinateSystemIdentifier > > CoordinateSystemsHierarchy;
 
 protected:
   vtkSlicerIECTransformLogic();

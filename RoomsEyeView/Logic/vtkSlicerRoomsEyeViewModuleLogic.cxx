@@ -652,7 +652,7 @@ void vtkSlicerRoomsEyeViewModuleLogic::SetupTreatmentMachineModels(vtkMRMLRoomsE
   //  this->GetMRMLScene()->GetFirstNodeByName("TableTopEccentricRotationToPatientSupportTransform"));
   //patientModel->SetAndObserveTransformNodeID(patientModelTransforms->GetID());
   vtkMRMLLinearTransformNode* patientToTableTopTransformNode =
-    this->IECLogic->GetTransformNodeBetween(vtkSlicerIECTransformLogic::LastIECCoordinateFrame, vtkSlicerIECTransformLogic::TableTop);
+    this->IECLogic->GetTransformNodeBetween(vtkSlicerIECTransformLogic::Patient, vtkSlicerIECTransformLogic::TableTop);
 
   if (parameterNode && patientToTableTopTransformNode)
   {
