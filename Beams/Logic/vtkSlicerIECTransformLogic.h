@@ -47,10 +47,37 @@ class vtkMRMLLinearTransformNode;
 /// Image describing these coordinate frames:
 /// http://perk.cs.queensu.ca/sites/perkd7.cs.queensu.ca/files/Project/IEC_Transformations.PNG
 ///
+
+/*
+                          "IEC 61217:2011 Hierarchy"
+
+                   -------------------("f")---------------------
+                   |                    |                      |
+        ---------("g")                ("i")                  ("s")
+        |          |                    |                      |
+      ("r")      ("b")                ("o")                  ("e")
+                   |                                           |
+                 ("w")                                       ("t")
+                                                               |
+                                                             ("p")
+
+Legend:
+  ("f") - Fixed reference system
+  ("g") - GANTRY coordinate system
+  ("b") - BEAM LIMITING DEVICE or DELINEATOR coordinate system
+  ("w") - WEDGE FILTER coordinate system
+  ("r") - X-RAY IMAGE RECEPTOR coordinate system
+  ("s") - PATIENT SUPPORT coordinate system
+  ("e") - Table top eccentric rotation coordinate system
+  ("t") - Table top coordinate system
+  ("p") - PATIENT coordinate system
+  ("i") - Imager coordinate system
+  ("o") - Focus coordinate system
+*/
+
 class VTK_SLICER_BEAMS_LOGIC_EXPORT vtkSlicerIECTransformLogic : public vtkMRMLAbstractLogic
 {
 public:
-  // Need add Image and Focus
   enum CoordinateSystemIdentifier
   {
     RAS = 0,
@@ -66,8 +93,11 @@ public:
     FlatPanel,
     WedgeFilter,
     Patient,
+    Imager,
+    Focus,
     LastIECCoordinateFrame // Last index used for adding more coordinate systems externally
   };
+  typedef std::list< CoordinateSystemIdentifier > CoordinateSystemsList;
 
 public:
   static vtkSlicerIECTransformLogic *New();
@@ -98,10 +128,10 @@ protected:
   ///   Note: If IEC does not specify a transform between the given coordinate frames, then there will be no node with the returned name.
   std::string GetTransformNodeNameBetween(CoordinateSystemIdentifier fromFrame, CoordinateSystemIdentifier toFrame);
 
-  // Root system if a FixedReference system
-  bool GetPathToRoot( CoordinateSystemIdentifier frame, std::list< std::string >& path);
-  bool CalculatePathBetween( const std::list< std::string >& fromFrame, 
-    const std::list< std::string >& toFrame, std::list< std::string >& combinedPath);
+  /// Root system is a FixedReference system
+  bool GetPathToRoot( CoordinateSystemIdentifier frame, CoordinateSystemsList& path);
+  bool CalculatePathBetween( const CoordinateSystemsList& fromFrame, 
+    const CoordinateSystemsList& toFrame, CoordinateSystemsList& combinedPath);
 
 protected:
   /// Map from \sa CoordinateSystemIdentifier to coordinate system name. Used for getting transforms
@@ -110,6 +140,7 @@ protected:
   /// List of IEC transforms
   std::vector< std::pair<CoordinateSystemIdentifier, CoordinateSystemIdentifier> > IecTransforms;
 
+  // TODO: for hierarchy use tree with nodes
   /// Map of IEC coordinate systems hierarchy
   std::map< CoordinateSystemIdentifier, std::list< CoordinateSystemIdentifier > > CoordinateSystemsHierarchy;
 

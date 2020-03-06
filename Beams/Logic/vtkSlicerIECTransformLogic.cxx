@@ -323,6 +323,39 @@ bool vtkSlicerIECTransformLogic::GetTransformBetween(CoordinateSystemIdentifier 
   }
 
   //TODO: !!! IMPLEMENT DYNAMICALLY !!!
+  CoordinateSystemsList fromFramePath, toFramePath;
+  if (this->GetPathToRoot( fromFrame, fromFramePath) && this->GetPathToRoot( toFrame, toFramePath))
+  {
+    std::reverse( toFramePath.begin(), toFramePath.end());
+
+    for ( size i = 0; i < fromFramePath.size() - 1; ++i)
+    {
+      CoordinateSystemIdentifier parent, child;
+      child = fromFramePath[i];
+      parent = fromFramePath[i + 1];
+      vtkMRMLLinearTransformNode* fromTransform = this->GetTransformNodeBetween( parent, child);
+      if (fromTransform)
+      {
+        vtkWarningMacro("GetTransformBetween: From frame transform from " 
+          << "\"" << this->CoordinateSystemsMap[parent] << "\" to " 
+          << "\"" << this->CoordinateSystemsMap[child] << "\" is valid!"); 
+      }
+    }
+
+    for ( size i = 0; i < toFramePath.size() - 1; ++i)
+    {
+      CoordinateSystemIdentifier parent, child;
+      parent = toFramePath[i];
+      child = toFramePath[i + 1];
+      vtkMRMLLinearTransformNode* fromTransform = this->GetTransformNodeBetween( parent, child);
+      if (fromTransform)
+      {
+        vtkWarningMacro("GetTransformBetween: To frame transform from " 
+          << "\"" << this->CoordinateSystemsMap[parent] << "\" to " 
+          << "\"" << this->CoordinateSystemsMap[child] << "\" is valid!"); 
+      }
+    }
+  }
 
   if (fromFrame == Collimator && toFrame == RAS)
   {
@@ -337,7 +370,7 @@ bool vtkSlicerIECTransformLogic::GetTransformBetween(CoordinateSystemIdentifier 
 
 //-----------------------------------------------------------------------------
 bool vtkSlicerIECTransformLogic::GetPathToRoot( CoordinateSystemIdentifier frame, 
-  std::list< std::string >& path)
+  CoordinateSystemsList& path)
 {
   bool found;
   do
@@ -351,9 +384,12 @@ bool vtkSlicerIECTransformLogic::GetPathToRoot( CoordinateSystemIdentifier frame
       if (iter != children.end())
       {
         CoordinateSystemIdentifier id = *iter;
-//        std::cout << "System " << "\"" << name.at(id) << "\"" << " found, parent " << name.at(parent) << std::endl;
+        vtkWarningMacro( "GetPathToRoot: System " 
+          << "\"" << this->CoordinateSystemsMap.at(id) << "\"" 
+          << " found, parent " << this->CoordinateSystemsMap.at(parent));
+
         frame = parent;
-        path.push_back(this->CoordinateSystemsMap.at(id));
+        path.push_back(id);
         if (frame != FixedReference)
         {
           found = true;
@@ -361,7 +397,7 @@ bool vtkSlicerIECTransformLogic::GetPathToRoot( CoordinateSystemIdentifier frame
         }
         else
         {
-          path.push_back(this->CoordinateSystemsMap.at(FixedReference));
+          path.push_back(FixedReference);
         }
       }
       else
@@ -372,20 +408,26 @@ bool vtkSlicerIECTransformLogic::GetPathToRoot( CoordinateSystemIdentifier frame
   }
   while (found);
 
-  return found;
+  return (pash.size() > 1);
 }
 
 //-----------------------------------------------------------------------------
 bool vtkSlicerIECTransformLogic::CalculatePathBetween( 
-  const std::list< std::string >& fromFrame, 
-  const std::list< std::string >& toFrame, 
+  const CoordinateSystemsList& fromFrame, 
+  const CoordinateSystemsList& toFrame, 
   std::list< std::string >& combinedPath)
 {
   std::list< std::string > fromPath(fromFrame), toPath(toFrame);
 
-  int size = std::min(toPath.size(), fromPath.size());
-  std::string par;
-  for ( int i = 0; i < size; ++i)
+  size_t size = std::min( toPath.size(), fromPath.size());
+  if (!size)
+  {
+    vtkErrorMacro("CalculatePathBetween: No elements in the path");
+    return false;
+  }
+
+  CoordinateSystemIdentifier par;
+  for ( size_t i = 0; i < size; ++i)
   {
     std::string& v1 = fromPath.back();
     std::string& v2 = toPath.back();
@@ -414,5 +456,5 @@ bool vtkSlicerIECTransformLogic::CalculatePathBetween(
   {
     combinedPath.push_back(*tmp);
   }
-  return true;
+  return (combinedPath.size() > 1);
 }
