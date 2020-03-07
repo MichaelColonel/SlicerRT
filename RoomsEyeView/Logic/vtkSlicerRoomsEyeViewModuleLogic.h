@@ -67,7 +67,7 @@ public:
   ///        (must match folder name where the models can be found)
   void LoadTreatmentMachineModels(vtkMRMLRoomsEyeViewNode* parameterNode);
   /// Set up the IEC transforms and model properties on the treatment machine models
-  void SetupTreatmentMachineModels(vtkMRMLRoomsEyeViewNode* parameterNode = nullptr);
+  void SetupTreatmentMachineModels(/*vtkMRMLRoomsEyeViewNode* parameterNode = nullptr*/);
   /// Create or get transforms taking part in the IEC logic and additional devices, and build the transform hierarchy
   void BuildRoomsEyeViewTransformHierarchy();
 

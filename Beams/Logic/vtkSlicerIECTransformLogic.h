@@ -70,7 +70,7 @@ Legend:
   ("s") - PATIENT SUPPORT coordinate system
   ("e") - Table top eccentric rotation coordinate system
   ("t") - Table top coordinate system
-  ("p") - PATIENT coordinate system
+  ("p") - PATIENT coordinate system - 3D Slicer RAS system
   ("i") - Imager coordinate system
   ("o") - Focus coordinate system
 */
@@ -92,7 +92,7 @@ public:
     TableTop,
     FlatPanel,
     WedgeFilter,
-    Patient,
+    Patient, // RAS
     Imager,
     Focus,
     LastIECCoordinateFrame // Last index used for adding more coordinate systems externally

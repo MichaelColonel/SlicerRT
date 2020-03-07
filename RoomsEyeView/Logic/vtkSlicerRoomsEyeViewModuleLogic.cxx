@@ -516,11 +516,11 @@ void vtkSlicerRoomsEyeViewModuleLogic::LoadTreatmentMachineModels(vtkMRMLRoomsEy
   }
 
   // Setup treatment machine model display and transforms
-  this->SetupTreatmentMachineModels(parameterNode);
+  this->SetupTreatmentMachineModels(/*parameterNode*/);
 }
 
 //----------------------------------------------------------------------------
-void vtkSlicerRoomsEyeViewModuleLogic::SetupTreatmentMachineModels(vtkMRMLRoomsEyeViewNode* parameterNode)
+void vtkSlicerRoomsEyeViewModuleLogic::SetupTreatmentMachineModels(/*vtkMRMLRoomsEyeViewNode* parameterNode*/)
 {
   if (!this->GetMRMLScene())
   {
@@ -651,6 +651,7 @@ void vtkSlicerRoomsEyeViewModuleLogic::SetupTreatmentMachineModels(vtkMRMLRoomsE
   //vtkMRMLLinearTransformNode* patientModelTransforms = vtkMRMLLinearTransformNode::SafeDownCast(
   //  this->GetMRMLScene()->GetFirstNodeByName("TableTopEccentricRotationToPatientSupportTransform"));
   //patientModel->SetAndObserveTransformNodeID(patientModelTransforms->GetID());
+/*
   vtkMRMLLinearTransformNode* patientToTableTopTransformNode =
     this->IECLogic->GetTransformNodeBetween(vtkSlicerIECTransformLogic::Patient, vtkSlicerIECTransformLogic::TableTop);
 
@@ -668,7 +669,7 @@ void vtkSlicerRoomsEyeViewModuleLogic::SetupTreatmentMachineModels(vtkMRMLRoomsE
       }
     }
   }
-
+*/
   // Patient model is set when calculating collisions, as it can be changed dynamically
   this->GantryPatientCollisionDetection->SetInput(0, gantryModel->GetPolyData());
   this->CollimatorPatientCollisionDetection->SetInput(0, collimatorModel->GetPolyData());
