@@ -71,7 +71,7 @@ vtkSlicerIECTransformLogic::vtkSlicerIECTransformLogic()
   this->IecTransforms.push_back(std::make_pair(FlatPanel, Gantry));
 
   this->CoordinateSystemsHierarchy.clear();
-//  this->CoordinateSystemsHierarchy[RAS] = { FixedReference };
+  // key - parent, value - children
   this->CoordinateSystemsHierarchy[FixedReference] = { Gantry, PatientSupportRotation };
   this->CoordinateSystemsHierarchy[Gantry] = { Collimator, LeftImagingPanel, RightImagingPanel, FlatPanel };
   this->CoordinateSystemsHierarchy[Collimator] = { WedgeFilter };
@@ -196,7 +196,7 @@ void vtkSlicerIECTransformLogic::UpdateBeamTransform(vtkMRMLRTBeamNode* beamNode
   this->UpdateIECTransformsFromBeam(beamNode);
 
   vtkSmartPointer<vtkGeneralTransform> beamGeneralTransform = vtkSmartPointer<vtkGeneralTransform>::New();
-  if (this->GetTransformBetween(Collimator, RAS, beamGeneralTransform))
+  if (this->GetTransformBetween( Collimator, Patient, beamGeneralTransform))
   {
     // Convert general transform to linear
     // This call also makes hard copy of the transform so that it doesn't change when other beam transforms change
@@ -331,12 +331,9 @@ bool vtkSlicerIECTransformLogic::GetTransformBetween(CoordinateSystemIdentifier 
     return false;
   }
 
-  //TODO: !!! IMPLEMENT DYNAMICALLY !!!
   CoordinateSystemsList fromFramePath, toFramePath;
-  if (this->GetPathToRoot( Collimator, fromFramePath) && this->GetPathToRoot( Patient, toFramePath))
+  if (this->GetPathToRoot( fromFrame, fromFramePath) && this->GetPathFromRoot( toFrame, toFramePath))
   {
-    std::reverse( toFramePath.begin(), toFramePath.end());
-
     std::vector< CoordinateSystemIdentifier > toFrameVector(toFramePath.size());
     std::vector< CoordinateSystemIdentifier > fromFrameVector(fromFramePath.size());
 
@@ -477,6 +474,22 @@ bool vtkSlicerIECTransformLogic::GetPathToRoot( CoordinateSystemIdentifier frame
 }
 
 //-----------------------------------------------------------------------------
+bool vtkSlicerIECTransformLogic::GetPathFromRoot( CoordinateSystemIdentifier frame, 
+  CoordinateSystemsList& path)
+{
+  if (this->GetPathToRoot( frame, path))
+  {
+    std::reverse( path.begin(), path.end());
+    return true;
+  }
+  else
+  {
+    return false;
+  }
+}
+
+//-----------------------------------------------------------------------------
+/*
 bool vtkSlicerIECTransformLogic::CalculatePathBetween( 
   const CoordinateSystemsList& fromFrame, 
   const CoordinateSystemsList& toFrame, 
@@ -523,3 +536,4 @@ bool vtkSlicerIECTransformLogic::CalculatePathBetween(
   }
   return (combinedPath.size() > 0);
 }
+*/

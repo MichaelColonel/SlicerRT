@@ -128,10 +128,15 @@ protected:
   ///   Note: If IEC does not specify a transform between the given coordinate frames, then there will be no node with the returned name.
   std::string GetTransformNodeNameBetween(CoordinateSystemIdentifier fromFrame, CoordinateSystemIdentifier toFrame);
 
-  /// Root system is a FixedReference system
+  /// @brief Get coordinate system identifiers from frame system up to root system
+  /// Root system = FixedReference system, see IEC 61217:2011 hierarchy
   bool GetPathToRoot( CoordinateSystemIdentifier frame, CoordinateSystemsList& path);
-  bool CalculatePathBetween( const CoordinateSystemsList& fromFrame, 
-    const CoordinateSystemsList& toFrame, CoordinateSystemsList& combinedPath);
+
+  /// @brief Get coordinate system identifiers from root system down to frame system
+  /// Root system = FixedReference system, see IEC 61217:2011 hierarchy
+  bool GetPathFromRoot( CoordinateSystemIdentifier frame, CoordinateSystemsList& path);
+//  bool CalculatePathBetween( const CoordinateSystemsList& fromFrame, 
+//    const CoordinateSystemsList& toFrame, CoordinateSystemsList& combinedPath);
 
 protected:
   /// Map from \sa CoordinateSystemIdentifier to coordinate system name. Used for getting transforms
@@ -140,7 +145,7 @@ protected:
   /// List of IEC transforms
   std::vector< std::pair<CoordinateSystemIdentifier, CoordinateSystemIdentifier> > IecTransforms;
 
-  // TODO: for hierarchy use tree with nodes
+  // TODO: for hierarchy use tree with nodes, something like graph
   /// Map of IEC coordinate systems hierarchy
   std::map< CoordinateSystemIdentifier, std::list< CoordinateSystemIdentifier > > CoordinateSystemsHierarchy;
 
