@@ -63,7 +63,7 @@ int vtkSlicerIECTransformLogicTest1(int vtkNotUsed(argc), char* vtkNotUsed(argv)
   vtkSmartPointer<vtkSlicerBeamsModuleLogic> beamsLogic = vtkSmartPointer<vtkSlicerBeamsModuleLogic>::New();
   beamsLogic->SetMRMLScene(mrmlScene);
 
-  int expectedNumberOfLinearTransformNodes = 12;
+  int expectedNumberOfLinearTransformNodes = 13;
   int numberOfLinearTransformNodes = mrmlScene->GetNumberOfNodesByClass("vtkMRMLLinearTransformNode");
   if (numberOfLinearTransformNodes != expectedNumberOfLinearTransformNodes)
   {

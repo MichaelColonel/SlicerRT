@@ -70,9 +70,25 @@ Legend:
   ("s") - PATIENT SUPPORT coordinate system
   ("e") - Table top eccentric rotation coordinate system
   ("t") - Table top coordinate system
-  ("p") - PATIENT coordinate system - 3D Slicer RAS system
+  ("p") - PATIENT coordinate system
   ("i") - Imager coordinate system
   ("o") - Focus coordinate system
+*/
+/*
+ IEC Patient to DICOM Patient transformation:
+     Counter clockwise rotation around X-axis, angle = -90 
+
+                       1 0  0 
+     Rotation Matrix = 0 0 -1
+                       0 1  0
+
+ IEC Patient to RAS Patient transformation:
+     Counter clockwise rotation around X-axis, angle = -90 
+     Clockwise rotation around Z-axis, angle = 180 
+
+                       -1 0 0 
+     Rotation Matrix =  0 0 1
+                        0 1 0
 */
 
 class VTK_SLICER_BEAMS_LOGIC_EXPORT vtkSlicerIECTransformLogic : public vtkMRMLAbstractLogic
@@ -92,7 +108,7 @@ public:
     TableTop,
     FlatPanel,
     WedgeFilter,
-    Patient, // RAS
+    Patient,
     Imager,
     Focus,
     LastIECCoordinateFrame // Last index used for adding more coordinate systems externally
@@ -135,8 +151,6 @@ protected:
   /// @brief Get coordinate system identifiers from root system down to frame system
   /// Root system = FixedReference system, see IEC 61217:2011 hierarchy
   bool GetPathFromRoot( CoordinateSystemIdentifier frame, CoordinateSystemsList& path);
-//  bool CalculatePathBetween( const CoordinateSystemsList& fromFrame, 
-//    const CoordinateSystemsList& toFrame, CoordinateSystemsList& combinedPath);
 
 protected:
   /// Map from \sa CoordinateSystemIdentifier to coordinate system name. Used for getting transforms

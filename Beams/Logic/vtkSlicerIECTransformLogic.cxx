@@ -68,6 +68,7 @@ vtkSlicerIECTransformLogic::vtkSlicerIECTransformLogic()
   this->IecTransforms.push_back(std::make_pair(TableTopEccentricRotation, PatientSupportRotation)); // NOTE: Currently not supported by REV
   this->IecTransforms.push_back(std::make_pair(TableTop, TableTopEccentricRotation));
   this->IecTransforms.push_back(std::make_pair(Patient, TableTop));
+  this->IecTransforms.push_back(std::make_pair(RAS, Patient));
   this->IecTransforms.push_back(std::make_pair(FlatPanel, Gantry));
 
   this->CoordinateSystemsHierarchy.clear();
@@ -78,6 +79,7 @@ vtkSlicerIECTransformLogic::vtkSlicerIECTransformLogic()
   this->CoordinateSystemsHierarchy[PatientSupportRotation] = { PatientSupport, TableTopEccentricRotation };
   this->CoordinateSystemsHierarchy[TableTopEccentricRotation] = { TableTop };
   this->CoordinateSystemsHierarchy[TableTop] = { Patient };
+  this->CoordinateSystemsHierarchy[Patient] = { RAS };
 }
 
 //-----------------------------------------------------------------------------
@@ -164,6 +166,8 @@ void vtkSlicerIECTransformLogic::BuildIECTransformHierarchy()
     this->GetTransformNodeBetween(TableTopEccentricRotation, PatientSupportRotation)->GetID() );
   this->GetTransformNodeBetween( Patient, TableTop)->SetAndObserveTransformNodeID(
     this->GetTransformNodeBetween(TableTop, TableTopEccentricRotation)->GetID() );
+  this->GetTransformNodeBetween( RAS, Patient)->SetAndObserveTransformNodeID(
+    this->GetTransformNodeBetween( Patient, TableTop)->GetID() );
 }
 
 //-----------------------------------------------------------------------------
@@ -195,8 +199,11 @@ void vtkSlicerIECTransformLogic::UpdateBeamTransform(vtkMRMLRTBeamNode* beamNode
   // Update transforms in IEC logic from beam node parameters
   this->UpdateIECTransformsFromBeam(beamNode);
 
+  // Dynamic transform from Collimator to RAS
+  // Transformation path:
+  // Collimator -> Gantry -> FixedReference -> PatientSupport -> TableTopEccentricRotation -> TableTop -> Patient -> RAS
   vtkSmartPointer<vtkGeneralTransform> beamGeneralTransform = vtkSmartPointer<vtkGeneralTransform>::New();
-  if (this->GetTransformBetween( Collimator, Patient, beamGeneralTransform))
+  if (this->GetTransformBetween( Collimator, RAS, beamGeneralTransform))
   {
     // Convert general transform to linear
     // This call also makes hard copy of the transform so that it doesn't change when other beam transforms change
@@ -256,23 +263,24 @@ void vtkSlicerIECTransformLogic::UpdateIECTransformsFromBeam(vtkMRMLRTBeamNode* 
   patientSupportToFixedReferenceTransform->RotateZ(beamNode->GetCouchAngle());
   patientSupportToFixedReferenceTransform->Modified();
 
-  vtkMRMLLinearTransformNode* patientToTableTopReferenceTransformNode =
-    this->GetTransformNodeBetween(Patient, TableTop);
-  vtkTransform* patientToTableTopReferenceTransform = vtkTransform::SafeDownCast(patientToTableTopReferenceTransformNode->GetTransformToParent());
-  patientToTableTopReferenceTransform->Identity();
+  // Update IEC Patient to RAS transform based on the isocenter defined in the beam's parent plan
+  vtkMRMLLinearTransformNode* rasToPatientReferenceTransformNode =
+    this->GetTransformNodeBetween( RAS, Patient);
+  vtkTransform* rasToPatientReferenceTransform = vtkTransform::SafeDownCast(rasToPatientReferenceTransformNode->GetTransformToParent());
+  rasToPatientReferenceTransform->Identity();
   // Apply isocenter translation
   std::array< double, 3 > isocenterPosition = { 0.0, 0.0, 0.0 };
   if (beamNode->GetPlanIsocenterPosition(isocenterPosition.data()))
   {
-    patientToTableTopReferenceTransform->Translate(isocenterPosition[0], isocenterPosition[1], isocenterPosition[2]);
+    rasToPatientReferenceTransform->Translate(isocenterPosition[0], isocenterPosition[1], isocenterPosition[2]);
   }
   else
   {
     vtkErrorMacro("UpdateIECTransformsFromBeam: Failed to get isocenter position for beam " << beamNode->GetName());
   }
-  patientToTableTopReferenceTransform->RotateX(-90.);
-  patientToTableTopReferenceTransform->RotateZ(180.);
-  patientToTableTopReferenceTransform->Modified();
+  rasToPatientReferenceTransform->RotateX(-90.);
+  rasToPatientReferenceTransform->RotateZ(180.);
+  rasToPatientReferenceTransform->Modified();
 
   // Update IEC FixedReference to RAS transform based on the isocenter defined in the beam's parent plan
   vtkMRMLLinearTransformNode* fixedReferenceToRasTransformNode =
@@ -347,25 +355,25 @@ bool vtkSlicerIECTransformLogic::GetTransformBetween(CoordinateSystemIdentifier 
       CoordinateSystemIdentifier parent, child;
       child = fromFrameVector[i];
       parent = fromFrameVector[i + 1];
-      vtkMRMLLinearTransformNode* fromTransform = this->GetTransformNodeBetween( child, parent);
 
+      if (child == parent)
+      {
+        continue;
+      }
+
+      vtkMRMLLinearTransformNode* fromTransform = this->GetTransformNodeBetween( child, parent);
       if (fromTransform)
       {
         vtkNew<vtkMatrix4x4> mat;
         fromTransform->GetMatrixTransformToParent(mat);
         outputTransform->Concatenate(mat);
-        vtkDebugMacro("GetTransformBetween: From frame transform from " 
-          << "\"" << this->CoordinateSystemsMap[parent] << "\" to " 
-          << "\"" << this->CoordinateSystemsMap[child] << "\" is valid");
 
-//        for (int i = 0; i < 4; i++)
-//        {
-//          for (int j = 0; j < 4; j++)
-//          {
-//            std::cout << mat->GetElement( i, j) << " ";
-//          }
-//          std::cout << std::endl;
-//        }
+        vtkDebugMacro("GetTransformBetween: Transform node \"" << fromTransform->GetName() << "\" is valid");
+      }
+      else
+      {
+        vtkErrorMacro("GetTransformBetween: Transform node \"" << fromTransform->GetName() << "\" is invalid");
+        return false;
       }
     }
 
@@ -374,51 +382,32 @@ bool vtkSlicerIECTransformLogic::GetTransformBetween(CoordinateSystemIdentifier 
       CoordinateSystemIdentifier parent, child;
       parent = toFrameVector[i];
       child = toFrameVector[i + 1];
-      vtkMRMLLinearTransformNode* toTransform = this->GetTransformNodeBetween( child, parent);
 
+      if (child == parent)
+      {
+        continue;
+      }
+
+      vtkMRMLLinearTransformNode* toTransform = this->GetTransformNodeBetween( child, parent);
       if (toTransform)
       {
         vtkNew<vtkMatrix4x4> mat;
         toTransform->GetMatrixTransformFromParent(mat);
         mat->Invert();
         outputTransform->Concatenate(mat);
-        vtkDebugMacro("GetTransformBetween: To frame transform from " 
-          << "\"" << this->CoordinateSystemsMap[parent] << "\" to " 
-          << "\"" << this->CoordinateSystemsMap[child] << "\" is valid");
 
-//        for (int i = 0; i < 4; i++)
-//        {
-//          for (int j = 0; j < 4; j++)
-//          {
-//            std::cout << mat->GetElement( i, j) << " ";
-//          }
-//          std::cout << std::endl;
-//        }
+        vtkDebugMacro("GetTransformBetween: Transform node \"" << toTransform->GetName() << "\" is valid");
+      }
+      else
+      {
+        vtkErrorMacro("GetTransformBetween: Transform node \"" << toTransform->GetName() << "\" is invalid");
+        return false;
       }
     }
-//    transform->Modified();
 
-//    vtkWarningMacro("Final transform matrix:");
-
-//    vtkNew<vtkMatrix4x4> mat;
-//    transform->GetMatrix(mat);
-//    for (int i = 0; i < 4; i++)
-//    {
-//      for (int j = 0; j < 4; j++)
-//      {
-//        std::cout << mat->GetElement( i, j) << " ";
-//      }
-//      std::cout << std::endl;
-//    }
+    outputTransform->Modified();
     return true;
   }
-
-//  if (fromFrame == Collimator && toFrame == RAS)
-//  {
-//    vtkMRMLTransformNode::GetTransformBetweenNodes(
-//      this->GetTransformNodeBetween(Collimator, Gantry), nullptr, outputTransform );
-//    return true;
-//  }
 
   vtkErrorMacro("GetTransformBetween: Failed to get transform " << this->GetTransformNodeNameBetween(fromFrame, toFrame));
   return false;
@@ -428,13 +417,13 @@ bool vtkSlicerIECTransformLogic::GetTransformBetween(CoordinateSystemIdentifier 
 bool vtkSlicerIECTransformLogic::GetPathToRoot( CoordinateSystemIdentifier frame, 
   CoordinateSystemsList& path)
 {
-  bool found;
   if (frame == FixedReference)
   {
     path.push_back(FixedReference);
     return true;
   }
 
+  bool found = false;
   do
   {
     for ( auto& pair : this->CoordinateSystemsHierarchy)
@@ -446,9 +435,10 @@ bool vtkSlicerIECTransformLogic::GetPathToRoot( CoordinateSystemIdentifier frame
       if (iter != children.end())
       {
         CoordinateSystemIdentifier id = *iter;
-        vtkDebugMacro("GetPathToRoot: System " << "\"" 
-          << this->CoordinateSystemsMap.at(id) << "\"" 
-          << " found, parent " << this->CoordinateSystemsMap.at(parent));
+
+        vtkDebugMacro("GetPathToRoot: Checking affine transformation " 
+          << "\"" << this->CoordinateSystemsMap[id] << "\" -> " 
+          << "\"" << this->CoordinateSystemsMap[parent] << "\"");
 
         frame = parent;
         path.push_back(id);
@@ -487,53 +477,3 @@ bool vtkSlicerIECTransformLogic::GetPathFromRoot( CoordinateSystemIdentifier fra
     return false;
   }
 }
-
-//-----------------------------------------------------------------------------
-/*
-bool vtkSlicerIECTransformLogic::CalculatePathBetween( 
-  const CoordinateSystemsList& fromFrame, 
-  const CoordinateSystemsList& toFrame, 
-  CoordinateSystemsList& combinedPath)
-{
-  CoordinateSystemsList fromPath(fromFrame), toPath(toFrame);
-
-  size_t size = std::min( toPath.size(), fromPath.size());
-  if (!size)
-  {
-    vtkErrorMacro("CalculatePathBetween: No elements in the path");
-    return false;
-  }
-
-  CoordinateSystemIdentifier par = FixedReference;
-  for ( size_t i = 0; i < size; ++i)
-  {
-    CoordinateSystemIdentifier v1 = fromPath.back();
-    CoordinateSystemIdentifier v2 = toPath.back();
-    if (v1 == v2 && fromPath.size() && toPath.size())
-    {
-      fromPath.pop_back();
-      toPath.pop_back();
-      par = v1;
-    }
-    if (!fromPath.size() || !toPath.size())
-    {
-      fromPath.push_back(par);
-      break;
-    }
-    if (i == size - 1)
-    {
-      fromPath.push_back(par);
-    }
-  }
-
-  for ( auto tmp = fromPath.begin(); tmp != fromPath.end(); ++tmp)
-  {
-    combinedPath.push_back(*tmp);
-  }
-  for ( auto tmp = toPath.rbegin(); tmp != toPath.rend(); ++tmp)
-  {
-    combinedPath.push_back(*tmp);
-  }
-  return (combinedPath.size() > 0);
-}
-*/
