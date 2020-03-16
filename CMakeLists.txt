@@ -77,6 +77,7 @@ add_subdirectory(PlastimatchPy)
 add_subdirectory(PlmBspline)
 add_subdirectory(PlmLandwarp)
 add_subdirectory(PlmRegister)
+add_subdirectory(PlmDrr)
 
 if (SLICERRT_ENABLE_EXPERIMENTAL_MODULES)
   # In development
