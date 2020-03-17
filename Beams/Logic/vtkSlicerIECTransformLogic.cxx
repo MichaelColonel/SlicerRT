@@ -73,6 +73,20 @@ vtkSlicerIECTransformLogic::vtkSlicerIECTransformLogic()
   this->IecTransforms.push_back(std::make_pair(RAS, Patient));
   this->IecTransforms.push_back(std::make_pair(FlatPanel, Gantry));
 
+  // Dynamic transformation from some frame to RAS (SomeFrame -> RAS)
+  // for "Beams" and "Room's Eye View" modules
+  this->IecTransforms.push_back(std::make_pair( FixedReference, RAS));
+  this->IecTransforms.push_back(std::make_pair( Collimator, RAS));
+  this->IecTransforms.push_back(std::make_pair( WedgeFilter, RAS));
+  this->IecTransforms.push_back(std::make_pair( FlatPanel, RAS));
+  this->IecTransforms.push_back(std::make_pair( LeftImagingPanel, RAS));
+  this->IecTransforms.push_back(std::make_pair( RightImagingPanel, RAS));
+  this->IecTransforms.push_back(std::make_pair( PatientSupportRotation, RAS));
+  this->IecTransforms.push_back(std::make_pair( PatientSupport, RAS));
+  this->IecTransforms.push_back(std::make_pair( TableTopEccentricRotation, RAS));
+  this->IecTransforms.push_back(std::make_pair( TableTop, RAS));
+  this->IecTransforms.push_back(std::make_pair( Patient, RAS));
+
   this->CoordinateSystemsHierarchy.clear();
   // key - parent, value - children
   this->CoordinateSystemsHierarchy[FixedReference] = { Gantry, PatientSupportRotation };
@@ -89,6 +103,7 @@ vtkSlicerIECTransformLogic::~vtkSlicerIECTransformLogic()
 {
   this->CoordinateSystemsMap.clear();
   this->IecTransforms.clear();
+  this->CoordinateSystemsHierarchy.clear();
 }
 
 //----------------------------------------------------------------------------
@@ -136,7 +151,7 @@ void vtkSlicerIECTransformLogic::BuildIECTransformHierarchy()
     {
       vtkNew<vtkMRMLLinearTransformNode> transformNode;
       transformNode->SetName(transformNodeName.c_str());
-      transformNode->SetHideFromEditors(1);
+      transformNode->SetHideFromEditors(0);
       std::string singletonTag = std::string("IEC_") + transformNodeName;
       transformNode->SetSingletonTag(singletonTag.c_str());
       this->GetMRMLScene()->AddNode(transformNode);
