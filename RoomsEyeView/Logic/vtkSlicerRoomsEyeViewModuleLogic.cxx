@@ -539,9 +539,9 @@ void vtkSlicerRoomsEyeViewModuleLogic::SetupTreatmentMachineModels()
     vtkErrorMacro("SetupTreatmentMachineModels: Unable to access gantry model");
     return;
   }
-  vtkMRMLLinearTransformNode* gantryToFixedReferenceTransformNode =
-    this->IECLogic->GetTransformNodeBetween(vtkSlicerIECTransformLogic::Gantry, vtkSlicerIECTransformLogic::FixedReference);
-  gantryModel->SetAndObserveTransformNodeID(gantryToFixedReferenceTransformNode->GetID());
+  vtkMRMLLinearTransformNode* gantryToRasTransformNode =
+    this->IECLogic->GetTransformNodeBetween(vtkSlicerIECTransformLogic::Gantry, vtkSlicerIECTransformLogic::RAS);
+  gantryModel->SetAndObserveTransformNodeID(gantryToRasTransformNode->GetID());
   gantryModel->CreateDefaultDisplayNodes();
   gantryModel->GetDisplayNode()->SetColor(0.95, 0.95, 0.95);
 
@@ -553,9 +553,9 @@ void vtkSlicerRoomsEyeViewModuleLogic::SetupTreatmentMachineModels()
     vtkErrorMacro("SetupTreatmentMachineModels: Unable to access collimator model");
     return;
   }
-  vtkMRMLLinearTransformNode* collimatorToGantryTransformNode =
-    this->IECLogic->GetTransformNodeBetween(vtkSlicerIECTransformLogic::Collimator, vtkSlicerIECTransformLogic::Gantry);
-  collimatorModel->SetAndObserveTransformNodeID(collimatorToGantryTransformNode->GetID());
+  vtkMRMLLinearTransformNode* collimatorToRASTransformNode =
+    this->IECLogic->GetTransformNodeBetween(vtkSlicerIECTransformLogic::Collimator, vtkSlicerIECTransformLogic::RAS);
+  collimatorModel->SetAndObserveTransformNodeID(collimatorToRASTransformNode->GetID());
   collimatorModel->CreateDefaultDisplayNodes();
   collimatorModel->GetDisplayNode()->SetColor(0.7, 0.7, 0.95);
 
@@ -567,9 +567,9 @@ void vtkSlicerRoomsEyeViewModuleLogic::SetupTreatmentMachineModels()
     vtkErrorMacro("SetupTreatmentMachineModels: Unable to access patient support model");
     return;
   }
-  vtkMRMLLinearTransformNode* patientSupportToPatientSupportRotationTransformNode =
-    this->IECLogic->GetTransformNodeBetween(vtkSlicerIECTransformLogic::PatientSupport, vtkSlicerIECTransformLogic::PatientSupportRotation);
-  patientSupportModel->SetAndObserveTransformNodeID(patientSupportToPatientSupportRotationTransformNode->GetID());
+  vtkMRMLLinearTransformNode* patientSupportToRasTransformNode =
+    this->IECLogic->GetTransformNodeBetween(vtkSlicerIECTransformLogic::PatientSupport, vtkSlicerIECTransformLogic::RAS);
+  patientSupportModel->SetAndObserveTransformNodeID(patientSupportToRasTransformNode->GetID());
   patientSupportModel->CreateDefaultDisplayNodes();
   patientSupportModel->GetDisplayNode()->SetColor(0.85, 0.85, 0.85);
 
@@ -581,9 +581,9 @@ void vtkSlicerRoomsEyeViewModuleLogic::SetupTreatmentMachineModels()
     vtkErrorMacro("SetupTreatmentMachineModels: Unable to access table top model");
     return;
   }
-  vtkMRMLLinearTransformNode* tableTopToTableTopEccentricRotationTransformNode =
-    this->IECLogic->GetTransformNodeBetween(vtkSlicerIECTransformLogic::TableTop, vtkSlicerIECTransformLogic::TableTopEccentricRotation);
-  tableTopModel->SetAndObserveTransformNodeID(tableTopToTableTopEccentricRotationTransformNode->GetID());
+  vtkMRMLLinearTransformNode* tableTopToRasTransformNode =
+    this->IECLogic->GetTransformNodeBetween(vtkSlicerIECTransformLogic::TableTop, vtkSlicerIECTransformLogic::RAS);
+  tableTopModel->SetAndObserveTransformNodeID(tableTopToRasTransformNode->GetID());
   tableTopModel->CreateDefaultDisplayNodes();
   tableTopModel->GetDisplayNode()->SetColor(0, 0, 0);
 
@@ -604,9 +604,9 @@ void vtkSlicerRoomsEyeViewModuleLogic::SetupTreatmentMachineModels()
     this->GetMRMLScene()->GetFirstNodeByName(IMAGINGPANELLEFT_MODEL_NAME) );
   if (leftImagingPanelModel)
   {
-    vtkMRMLLinearTransformNode* leftImagingPanelToGantryTransformNode =
-      this->IECLogic->GetTransformNodeBetween(vtkSlicerIECTransformLogic::LeftImagingPanel, vtkSlicerIECTransformLogic::Gantry);
-    leftImagingPanelModel->SetAndObserveTransformNodeID(leftImagingPanelToGantryTransformNode->GetID());
+    vtkMRMLLinearTransformNode* leftImagingPanelToRasTransformNode =
+      this->IECLogic->GetTransformNodeBetween(vtkSlicerIECTransformLogic::LeftImagingPanel, vtkSlicerIECTransformLogic::RAS);
+    leftImagingPanelModel->SetAndObserveTransformNodeID(leftImagingPanelToRasTransformNode->GetID());
     leftImagingPanelModel->CreateDefaultDisplayNodes();
     leftImagingPanelModel->GetDisplayNode()->SetColor(0.95, 0.95, 0.95);
   }
@@ -616,9 +616,9 @@ void vtkSlicerRoomsEyeViewModuleLogic::SetupTreatmentMachineModels()
     this->GetMRMLScene()->GetFirstNodeByName(IMAGINGPANELRIGHT_MODEL_NAME) );
   if (rightImagingPanelModel)
   {
-    vtkMRMLLinearTransformNode* rightImagingPanelToGantryTransformNode =
-      this->IECLogic->GetTransformNodeBetween(vtkSlicerIECTransformLogic::RightImagingPanel, vtkSlicerIECTransformLogic::Gantry);
-    rightImagingPanelModel->SetAndObserveTransformNodeID(rightImagingPanelToGantryTransformNode->GetID());
+    vtkMRMLLinearTransformNode* rightImagingPanelToRasTransformNode =
+      this->IECLogic->GetTransformNodeBetween(vtkSlicerIECTransformLogic::RightImagingPanel, vtkSlicerIECTransformLogic::RAS);
+    rightImagingPanelModel->SetAndObserveTransformNodeID(rightImagingPanelToRasTransformNode->GetID());
     rightImagingPanelModel->CreateDefaultDisplayNodes();
     rightImagingPanelModel->GetDisplayNode()->SetColor(0.95, 0.95, 0.95);
   }
@@ -628,9 +628,9 @@ void vtkSlicerRoomsEyeViewModuleLogic::SetupTreatmentMachineModels()
     this->GetMRMLScene()->GetFirstNodeByName(FLATPANEL_MODEL_NAME) );
   if (flatPanelModel)
   {
-    vtkMRMLLinearTransformNode* flatPanelToGantryTransformNode =
-      this->IECLogic->GetTransformNodeBetween(vtkSlicerIECTransformLogic::FlatPanel, vtkSlicerIECTransformLogic::Gantry);
-    flatPanelModel->SetAndObserveTransformNodeID(flatPanelToGantryTransformNode->GetID());
+    vtkMRMLLinearTransformNode* flatPanelToRasTransformNode =
+      this->IECLogic->GetTransformNodeBetween(vtkSlicerIECTransformLogic::FlatPanel, vtkSlicerIECTransformLogic::RAS);
+    flatPanelModel->SetAndObserveTransformNodeID(flatPanelToRasTransformNode->GetID());
     flatPanelModel->CreateDefaultDisplayNodes();
     flatPanelModel->GetDisplayNode()->SetColor(0.95, 0.95, 0.95);
   }
@@ -1153,7 +1153,6 @@ void vtkSlicerRoomsEyeViewModuleLogic::UpdatePatientSupportRotationToFixedRefere
 
   vtkMRMLLinearTransformNode* patientSupportRotationToFixedReferenceTransformNode =
     this->IECLogic->GetTransformNodeBetween(vtkSlicerIECTransformLogic::PatientSupportRotation, vtkSlicerIECTransformLogic::FixedReference);
-
   double rotationAngle = parameterNode->GetPatientSupportRotationAngle();
   vtkNew<vtkTransform> patientSupportToRotatedPatientSupportTransform;
   patientSupportToRotatedPatientSupportTransform->RotateZ(rotationAngle);
