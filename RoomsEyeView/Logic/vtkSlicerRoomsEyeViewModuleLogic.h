@@ -77,14 +77,6 @@ public:
   /// Update CollimatorToGantry transform based on collimator angle parameter
   void UpdateCollimatorToGantryTransform(vtkMRMLRoomsEyeViewNode* parameterNode);
 
-  /// Update left imaging panel to gantry transform based on imaging panel movement parameter
-  void UpdateLeftImagingPanelToGantryTransform(vtkMRMLRoomsEyeViewNode* parameterNode);
-  /// Update right imaging panel to gantry transform based on imaging panel movement parameter
-  void UpdateRightImagingPanelToGantryTransform(vtkMRMLRoomsEyeViewNode* parameterNode);
-
-  /// Update both left and right imaging panel transforms based on imaging panel movement parameter
-  void UpdateImagingPanelMovementTransforms(vtkMRMLRoomsEyeViewNode* parameterNode);
-
   /// Update PatientSupportRotrationToFixedReference transform based on patient support rotation parameter
   void UpdatePatientSupportRotationToFixedReferenceTransform(vtkMRMLRoomsEyeViewNode* parameterNode);
   ///  Update PatientSupportToPatientSupportRotation transform based on patient support vertical translation parameter
@@ -103,19 +95,6 @@ public:
   /// \return string indicating whether collision occurred
   std::string CheckForCollisions(vtkMRMLRoomsEyeViewNode* parameterNode);
 
-// Additional device related methods
-public:
-  /// Load basic additional devices (deployed with SlicerRT)
-  void LoadBasicCollimatorMountedDevices();
-  /// Set up the IEC transforms and model properties on the basic additional device models
-  void SetupBasicCollimatorMountedDeviceModels();
-
-  ///TODO:
-  void UpdateAdditionalCollimatorDevicesToCollimatorTransforms(vtkMRMLRoomsEyeViewNode* parameterNode);
-
-  ///TODO:
-  void UpdateAdditionalDevicesVisibility(vtkMRMLRoomsEyeViewNode* parameterNode);
-
 // Set/get methods
 public:
   vtkGetObjectMacro(IECLogic, vtkSlicerIECTransformLogic);
@@ -125,8 +104,6 @@ public:
   vtkGetObjectMacro(GantryPatientSupportCollisionDetection, vtkCollisionDetectionFilter);
   vtkGetObjectMacro(CollimatorPatientCollisionDetection, vtkCollisionDetectionFilter);
   vtkGetObjectMacro(CollimatorTableTopCollisionDetection, vtkCollisionDetectionFilter);
-  vtkGetObjectMacro(AdditionalModelsTableTopCollisionDetection, vtkCollisionDetectionFilter);
-  vtkGetObjectMacro(AdditionalModelsPatientSupportCollisionDetection, vtkCollisionDetectionFilter);
 
 protected:
   /// Get patient body closed surface poly data from segmentation node and segment selection in the parameter node
@@ -141,9 +118,6 @@ protected:
 
   vtkCollisionDetectionFilter* CollimatorPatientCollisionDetection;
   vtkCollisionDetectionFilter* CollimatorTableTopCollisionDetection;
-
-  vtkCollisionDetectionFilter* AdditionalModelsTableTopCollisionDetection;
-  vtkCollisionDetectionFilter* AdditionalModelsPatientSupportCollisionDetection;
 
 protected:
   vtkSlicerRoomsEyeViewModuleLogic();

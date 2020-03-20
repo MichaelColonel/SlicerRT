@@ -648,14 +648,14 @@ void qSlicerRoomsEyeViewModuleWidget::onLoadBasicCollimatorMountedDeviceButtonCl
 {
   Q_D(qSlicerRoomsEyeViewModuleWidget);
 
-  d->logic()->LoadBasicCollimatorMountedDevices();
+//  d->logic()->LoadBasicCollimatorMountedDevices();
 }
 
 //-----------------------------------------------------------------------------
 void qSlicerRoomsEyeViewModuleWidget::onLoadCustomCollimatorMountedDeviceButtonClicked()
 {
   Q_D(qSlicerRoomsEyeViewModuleWidget);
-
+/*
   qSlicerIOManager* ioManager = qSlicerApplication::application()->ioManager();
   vtkSmartPointer<vtkCollection> loadedModelsCollection = vtkSmartPointer<vtkCollection>::New();
   ioManager->openDialog("ModelFile", qSlicerDataDialog::Read, qSlicerIO::IOProperties(), loadedModelsCollection);
@@ -668,7 +668,7 @@ void qSlicerRoomsEyeViewModuleWidget::onLoadCustomCollimatorMountedDeviceButtonC
       vtkSlicerIECTransformLogic::Collimator, vtkSlicerIECTransformLogic::Gantry );
     loadedModelNode->SetAndObserveTransformNodeID(collimatorModelTransforms->GetID());
   }
-
+*/
   //TODO: Add function UpdateTreatmentOrientationMarker that merges the treatment machine components into a model that can be set as orientation marker,
   //TODO: Add new option 'Treatment room' to orientation marker choices and merged model with actual colors (surface scalars?)
   /**qSlicerApplication* slicerApplication = qSlicerApplication::application();
@@ -681,8 +681,8 @@ void qSlicerRoomsEyeViewModuleWidget::onLoadCustomCollimatorMountedDeviceButtonC
 //-----------------------------------------------------------------------------
 void qSlicerRoomsEyeViewModuleWidget::onAdditionalCollimatorMountedDevicesChecked(int state)
 {
-  
   Q_D(qSlicerRoomsEyeViewModuleWidget);
+/*
   vtkMRMLRoomsEyeViewNode* paramNode = vtkMRMLRoomsEyeViewNode::SafeDownCast(d->MRMLNodeComboBox_ParameterSet->currentNode());
   if (!paramNode || !d->ModuleWindowInitialized)
   {
@@ -691,13 +691,14 @@ void qSlicerRoomsEyeViewModuleWidget::onAdditionalCollimatorMountedDevicesChecke
   paramNode->SetApplicatorHolderVisibility(state);
   paramNode->SetElectronApplicatorVisibility(state);
   d->logic()->UpdateAdditionalDevicesVisibility(paramNode);
+*/
 }
 
 //-----------------------------------------------------------------------------
 void qSlicerRoomsEyeViewModuleWidget::onAdditionalModelLateralDisplacementSliderValueChanged(double value)
 {
   Q_D(qSlicerRoomsEyeViewModuleWidget);
-
+/*
   vtkMRMLRoomsEyeViewNode* paramNode = vtkMRMLRoomsEyeViewNode::SafeDownCast(d->MRMLNodeComboBox_ParameterSet->currentNode());
   if (!paramNode || !d->ModuleWindowInitialized)
   {
@@ -712,13 +713,14 @@ void qSlicerRoomsEyeViewModuleWidget::onAdditionalModelLateralDisplacementSlider
 
   this->checkForCollisions();
   this->updateTreatmentOrientationMarker();
+*/
 }
 
 //-----------------------------------------------------------------------------
 void qSlicerRoomsEyeViewModuleWidget::onAdditionalModelLongitudinalDisplacementSliderValueChanged(double value)
 {
   Q_D(qSlicerRoomsEyeViewModuleWidget);
-
+/*
   vtkMRMLRoomsEyeViewNode* paramNode = vtkMRMLRoomsEyeViewNode::SafeDownCast(d->MRMLNodeComboBox_ParameterSet->currentNode());
   if (!paramNode || !d->ModuleWindowInitialized)
   {
@@ -733,12 +735,13 @@ void qSlicerRoomsEyeViewModuleWidget::onAdditionalModelLongitudinalDisplacementS
 
   this->checkForCollisions();
   this->updateTreatmentOrientationMarker();
+*/
 }
 //-----------------------------------------------------------------------------
 void qSlicerRoomsEyeViewModuleWidget::onAdditionalModelVerticalDisplacementSliderValueChanged(double value)
 {
   Q_D(qSlicerRoomsEyeViewModuleWidget);
-
+/*
   vtkMRMLRoomsEyeViewNode* paramNode = vtkMRMLRoomsEyeViewNode::SafeDownCast(d->MRMLNodeComboBox_ParameterSet->currentNode());
   if (!paramNode || !d->ModuleWindowInitialized)
   {
@@ -753,6 +756,7 @@ void qSlicerRoomsEyeViewModuleWidget::onAdditionalModelVerticalDisplacementSlide
 
   this->checkForCollisions();
   this->updateTreatmentOrientationMarker();
+*/
 }
 
 //-----------------------------------------------------------------------------
