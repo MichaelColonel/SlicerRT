@@ -412,6 +412,12 @@ bool vtkSlicerIECTransformLogic::GetTransformBetween(CoordinateSystemIdentifier 
 }
 
 //-----------------------------------------------------------------------------
+bool vtkSlicerIECTransformLogic::GetTransformToRAS( CoordinateSystemIdentifier frame, vtkGeneralTransform* outputTransform)
+{
+  return GetTransformBetween( frame, RAS, outputTransform);
+}
+
+//-----------------------------------------------------------------------------
 bool vtkSlicerIECTransformLogic::GetPathToRoot( CoordinateSystemIdentifier frame, 
   CoordinateSystemsList& path)
 {

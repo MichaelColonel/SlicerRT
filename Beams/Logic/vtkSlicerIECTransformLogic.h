@@ -133,6 +133,10 @@ public:
   /// \return Success flag (false on any error)
   bool GetTransformBetween(CoordinateSystemIdentifier fromFrame, CoordinateSystemIdentifier toFrame, vtkGeneralTransform* outputTransform);
 
+  /// Get transform from coordinate frame to RAS
+  /// \return Success flag (false on any error)
+  bool GetTransformToRAS( CoordinateSystemIdentifier frame, vtkGeneralTransform* outputTransform);
+
   /// Update parent transform node of a given beam from the IEC transform hierarchy and the beam parameters
   void UpdateBeamTransform(vtkMRMLRTBeamNode* beamNode);
   /// Update IEC transforms according to beam node
