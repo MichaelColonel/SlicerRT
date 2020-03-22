@@ -46,6 +46,7 @@ vtkSlicerIECTransformLogic::vtkSlicerIECTransformLogic()
   // Setup coordinate system ID to name map
   this->CoordinateSystemsMap.clear();
   this->CoordinateSystemsMap[RAS] = "Ras";
+  this->CoordinateSystemsMap[IEC] = "Iec";
   this->CoordinateSystemsMap[FixedReference] = "FixedReference";
   this->CoordinateSystemsMap[Gantry] = "Gantry";
   this->CoordinateSystemsMap[Collimator] = "Collimator";
@@ -71,11 +72,13 @@ vtkSlicerIECTransformLogic::vtkSlicerIECTransformLogic()
   this->IecTransforms.push_back(std::make_pair(TableTop, TableTopEccentricRotation));
   this->IecTransforms.push_back(std::make_pair(Patient, TableTop));
   this->IecTransforms.push_back(std::make_pair(RAS, Patient));
+  this->IecTransforms.push_back(std::make_pair(IEC, RAS));
   this->IecTransforms.push_back(std::make_pair(FlatPanel, Gantry));
 
   // Dynamic transformation from some frame to RAS (SomeFrame -> RAS)
   // for "Beams" and "Room's Eye View" modules
   this->IecTransforms.push_back(std::make_pair( FixedReference, RAS));
+  this->IecTransforms.push_back(std::make_pair( Gantry, RAS));
   this->IecTransforms.push_back(std::make_pair( Collimator, RAS));
   this->IecTransforms.push_back(std::make_pair( WedgeFilter, RAS));
   this->IecTransforms.push_back(std::make_pair( FlatPanel, RAS));
@@ -96,6 +99,7 @@ vtkSlicerIECTransformLogic::vtkSlicerIECTransformLogic()
   this->CoordinateSystemsHierarchy[TableTopEccentricRotation] = { TableTop };
   this->CoordinateSystemsHierarchy[TableTop] = { Patient };
   this->CoordinateSystemsHierarchy[Patient] = { RAS };
+  this->CoordinateSystemsHierarchy[RAS] = { IEC };
 }
 
 //-----------------------------------------------------------------------------
@@ -171,8 +175,8 @@ void vtkSlicerIECTransformLogic::BuildIECTransformHierarchy()
   this->GetTransformNodeBetween(FlatPanel, Gantry)->SetAndObserveTransformNodeID(
     this->GetTransformNodeBetween(Gantry, FixedReference)->GetID() );
 
-  this->GetTransformNodeBetween(PatientSupportRotation, FixedReference)->SetAndObserveTransformNodeID(
-    this->GetTransformNodeBetween(FixedReference, RAS)->GetID() );
+//  this->GetTransformNodeBetween(PatientSupportRotation, FixedReference)->SetAndObserveTransformNodeID(
+//    this->GetTransformNodeBetween(FixedReference, RAS)->GetID() );
   this->GetTransformNodeBetween(PatientSupport, PatientSupportRotation)->SetAndObserveTransformNodeID(
     this->GetTransformNodeBetween(PatientSupportRotation, FixedReference)->GetID() );
   this->GetTransformNodeBetween(TableTopEccentricRotation, PatientSupportRotation)->SetAndObserveTransformNodeID(
@@ -185,6 +189,8 @@ void vtkSlicerIECTransformLogic::BuildIECTransformHierarchy()
   // Transform from IEC Patient to 3D Slicer RAS system
   this->GetTransformNodeBetween( RAS, Patient)->SetAndObserveTransformNodeID(
     this->GetTransformNodeBetween( Patient, TableTop)->GetID() );
+  this->GetTransformNodeBetween( IEC, RAS)->SetAndObserveTransformNodeID(
+    this->GetTransformNodeBetween( RAS, Patient)->GetID() );
 }
 
 //-----------------------------------------------------------------------------
@@ -300,6 +306,26 @@ void vtkSlicerIECTransformLogic::UpdateIECTransformsFromBeam(vtkMRMLRTBeamNode* 
   // The "S" direction to be toward the gantry (head first position) by default
   rasToPatientTransform->RotateZ(180.);
   rasToPatientTransform->Modified();
+
+  // Update IEC Patient to RAS transform based on the isocenter defined in the beam's parent plan
+  vtkMRMLLinearTransformNode* iecToRasTransformNode =
+    this->GetTransformNodeBetween( IEC, RAS);
+  vtkTransform* iecToRasTransform = vtkTransform::SafeDownCast(iecToRasTransformNode->GetTransformToParent());
+  iecToRasTransform->Identity();
+  if (beamNode->GetPlanIsocenterPosition(isocenterPosition.data()))
+  {
+    iecToRasTransform->Translate(isocenterPosition[0], isocenterPosition[1], isocenterPosition[2]);
+  }
+  else
+  {
+    vtkErrorMacro("UpdateIECTransformsFromBeam: Failed to get isocenter position for beam " << beamNode->GetName());
+  }
+  // The "S" direction in RAS is the "A" direction in IEC Patient
+//  iecToRasTransform->RotateX(90.);
+  // The "S" direction to be toward the gantry (head first position) by default
+//  iecToRasTransform->RotateZ(-180.);
+//  iecToRasTransform->RotateY(90.);
+  iecToRasTransform->Modified();
 }
 
 //-----------------------------------------------------------------------------
@@ -412,9 +438,31 @@ bool vtkSlicerIECTransformLogic::GetTransformBetween(CoordinateSystemIdentifier 
 }
 
 //-----------------------------------------------------------------------------
-bool vtkSlicerIECTransformLogic::GetTransformToRAS( CoordinateSystemIdentifier frame, vtkGeneralTransform* outputTransform)
+bool vtkSlicerIECTransformLogic::UpdateTransformNodeToRAS(CoordinateSystemIdentifier frame)
 {
-  return GetTransformBetween( frame, RAS, outputTransform);
+  vtkMRMLLinearTransformNode* frameToRasTransformNode = this->GetTransformNodeBetween( frame, RAS);
+  if (!frameToRasTransformNode)
+  {
+    vtkErrorMacro("UpdateTransformNodeToRAS: Invalid transform node to RAS");
+    return false;
+  }
+
+  vtkNew<vtkGeneralTransform> generalTransform;
+  if (this->GetTransformBetween( frame, IEC, generalTransform))
+  {
+    // Convert general transform to linear
+    // This call also makes hard copy of the transform so that it doesn't change when other transforms change
+    vtkNew<vtkTransform> linearTransform;
+    if (!vtkMRMLTransformNode::IsGeneralTransformLinear( generalTransform, linearTransform))
+    {
+      vtkErrorMacro("UpdateTransformNodeToRAS: Unable to set transform with non-linear components to RAS");
+      return false;
+    }
+
+    // Set transform to beam node
+    frameToRasTransformNode->SetAndObserveTransformToParent(linearTransform);
+  }
+  return true;
 }
 
 //-----------------------------------------------------------------------------

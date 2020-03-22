@@ -723,7 +723,7 @@ void vtkSlicerRoomsEyeViewModuleLogic::UpdateCollimatorToGantryTransform(vtkMRML
 {
   if (!parameterNode)
   {
-    vtkErrorMacro("UpdateFixedReferenceIsocenterToCollimatorRotatedTransform: Invalid parameter set node");
+    vtkErrorMacro("UpdateCollimatorToGantryTransform: Invalid parameter set node");
     return;
   }
 
@@ -735,6 +735,14 @@ void vtkSlicerRoomsEyeViewModuleLogic::UpdateCollimatorToGantryTransform(vtkMRML
     vtkNew<vtkTransform> collimatorToGantryTransform;
     collimatorToGantryTransform->RotateZ(parameterNode->GetCollimatorRotationAngle());
     collimatorToGantryTransformNode->SetAndObserveTransformToParent(collimatorToGantryTransform);
+
+    this->IECLogic->UpdateTransformNodeToRAS(vtkSlicerIECTransformLogic::Collimator);
+    this->IECLogic->UpdateTransformNodeToRAS(vtkSlicerIECTransformLogic::Gantry);
+    this->IECLogic->UpdateTransformNodeToRAS(vtkSlicerIECTransformLogic::FixedReference);
+    this->IECLogic->UpdateTransformNodeToRAS(vtkSlicerIECTransformLogic::PatientSupportRotation);
+    this->IECLogic->UpdateTransformNodeToRAS(vtkSlicerIECTransformLogic::PatientSupport);
+    this->IECLogic->UpdateTransformNodeToRAS(vtkSlicerIECTransformLogic::TableTopEccentricRotation);
+    this->IECLogic->UpdateTransformNodeToRAS(vtkSlicerIECTransformLogic::TableTop);
   }
   else
   {
@@ -759,6 +767,14 @@ void vtkSlicerRoomsEyeViewModuleLogic::UpdateGantryToFixedReferenceTransform(vtk
     vtkNew<vtkTransform> gantryToFixedReferenceTransform;
     gantryToFixedReferenceTransform->RotateY(parameterNode->GetGantryRotationAngle());
     gantryToFixedReferenceTransformNode->SetAndObserveTransformToParent(gantryToFixedReferenceTransform);
+
+    this->IECLogic->UpdateTransformNodeToRAS(vtkSlicerIECTransformLogic::Collimator);
+    this->IECLogic->UpdateTransformNodeToRAS(vtkSlicerIECTransformLogic::Gantry);
+    this->IECLogic->UpdateTransformNodeToRAS(vtkSlicerIECTransformLogic::FixedReference);
+    this->IECLogic->UpdateTransformNodeToRAS(vtkSlicerIECTransformLogic::PatientSupportRotation);
+    this->IECLogic->UpdateTransformNodeToRAS(vtkSlicerIECTransformLogic::PatientSupport);
+    this->IECLogic->UpdateTransformNodeToRAS(vtkSlicerIECTransformLogic::TableTopEccentricRotation);
+    this->IECLogic->UpdateTransformNodeToRAS(vtkSlicerIECTransformLogic::TableTop);
   }
   else
   {
@@ -785,6 +801,10 @@ void vtkSlicerRoomsEyeViewModuleLogic::UpdatePatientSupportRotationToFixedRefere
     vtkNew<vtkTransform> patientSupportToRotatedPatientSupportTransform;
     patientSupportToRotatedPatientSupportTransform->RotateZ(rotationAngle);
     patientSupportRotationToFixedReferenceTransformNode->SetAndObserveTransformToParent(patientSupportToRotatedPatientSupportTransform);
+
+    this->IECLogic->UpdateTransformNodeToRAS(vtkSlicerIECTransformLogic::Collimator);
+    this->IECLogic->UpdateTransformNodeToRAS(vtkSlicerIECTransformLogic::Gantry);
+    this->IECLogic->UpdateTransformNodeToRAS(vtkSlicerIECTransformLogic::FixedReference);
   }
   else
   {
@@ -849,6 +869,10 @@ void vtkSlicerRoomsEyeViewModuleLogic::UpdatePatientSupportToPatientSupportRotat
     patientSupportToFixedReferenceTransform->Concatenate(rasToScaledRasTransform);
     patientSupportToFixedReferenceTransform->Concatenate(scaledRasToFixedReferenceTransform);
     patientSupportToPatientSupportRotationTransformNode->SetAndObserveTransformToParent(patientSupportToFixedReferenceTransform);
+
+    this->IECLogic->UpdateTransformNodeToRAS(vtkSlicerIECTransformLogic::Collimator);
+    this->IECLogic->UpdateTransformNodeToRAS(vtkSlicerIECTransformLogic::Gantry);
+    this->IECLogic->UpdateTransformNodeToRAS(vtkSlicerIECTransformLogic::FixedReference);
   }
   else
   {
@@ -889,6 +913,10 @@ void vtkSlicerRoomsEyeViewModuleLogic::UpdateTableTopToTableTopEccentricRotation
     tableTopEccentricRotationToPatientSupportMatrix->SetElement(2,3, translationArray[2]);
     tableTopEccentricRotationToPatientSupportTransform->SetMatrix(tableTopEccentricRotationToPatientSupportMatrix);
     tableTopEccentricRotationToPatientSupportTransform->Modified();
+
+    this->IECLogic->UpdateTransformNodeToRAS(vtkSlicerIECTransformLogic::Collimator);
+    this->IECLogic->UpdateTransformNodeToRAS(vtkSlicerIECTransformLogic::Gantry);
+    this->IECLogic->UpdateTransformNodeToRAS(vtkSlicerIECTransformLogic::FixedReference);
   }
   else
   {

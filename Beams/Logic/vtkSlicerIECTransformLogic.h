@@ -97,6 +97,7 @@ public:
   enum CoordinateSystemIdentifier
   {
     RAS = 0,
+    IEC,
     FixedReference,
     Gantry,
     Collimator,
@@ -135,7 +136,7 @@ public:
 
   /// Get transform from coordinate frame to RAS
   /// \return Success flag (false on any error)
-  bool GetTransformToRAS( CoordinateSystemIdentifier frame, vtkGeneralTransform* outputTransform);
+  bool UpdateTransformNodeToRAS(CoordinateSystemIdentifier frame);
 
   /// Update parent transform node of a given beam from the IEC transform hierarchy and the beam parameters
   void UpdateBeamTransform(vtkMRMLRTBeamNode* beamNode);

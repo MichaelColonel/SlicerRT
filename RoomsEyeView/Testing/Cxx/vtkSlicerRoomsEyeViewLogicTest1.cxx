@@ -244,7 +244,7 @@ int vtkSlicerRoomsEyeViewLogicTest1(int vtkNotUsed(argc), char* vtkNotUsed(argv)
     std::cerr << __LINE__ << ": CollimatorToGantry does not match baseline" << std::endl;
     return EXIT_FAILURE;
     }
-
+/*
   // Imaging panel, position -50 (slightly extended)
   paramNode->SetImagingPanelMovement(-50.0);
   revLogic->UpdateImagingPanelMovementTransforms(paramNode);
@@ -292,7 +292,7 @@ int vtkSlicerRoomsEyeViewLogicTest1(int vtkNotUsed(argc), char* vtkNotUsed(argv)
     std::cerr << __LINE__ << ": Imaging panel transforms do not match baselines for position 500" << std::endl;
     return EXIT_FAILURE;
     }
-
+*/
   // Patient support rotation, 1 degree angle
   paramNode->SetPatientSupportRotationAngle(1.0);
   revLogic->UpdatePatientSupportRotationToFixedReferenceTransform(paramNode);

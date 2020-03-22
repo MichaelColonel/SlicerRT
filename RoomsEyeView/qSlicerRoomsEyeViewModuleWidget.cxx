@@ -531,7 +531,7 @@ void qSlicerRoomsEyeViewModuleWidget::onGantryRotationSliderValueChanged(double 
 void qSlicerRoomsEyeViewModuleWidget::onImagingPanelMovementSliderValueChanged(double value)
 {
   Q_D(qSlicerRoomsEyeViewModuleWidget);
-
+/*
   vtkMRMLRoomsEyeViewNode* paramNode = vtkMRMLRoomsEyeViewNode::SafeDownCast(d->MRMLNodeComboBox_ParameterSet->currentNode());
   if (!paramNode || !d->ModuleWindowInitialized)
   {
@@ -546,6 +546,7 @@ void qSlicerRoomsEyeViewModuleWidget::onImagingPanelMovementSliderValueChanged(d
 
   this->checkForCollisions();
   this->updateTreatmentOrientationMarker();
+*/
 }
 
 //-----------------------------------------------------------------------------
