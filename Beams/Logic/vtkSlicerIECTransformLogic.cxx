@@ -60,7 +60,7 @@ vtkSlicerIECTransformLogic::vtkSlicerIECTransformLogic()
   this->CoordinateSystemsMap[Patient] = "Patient";
 
   this->IecTransforms.clear();
-//  this->IecTransforms.push_back(std::make_pair(FixedReference, RAS));
+  this->IecTransforms.push_back(std::make_pair(FixedReference, RAS));
   this->IecTransforms.push_back(std::make_pair(Gantry, FixedReference));
   this->IecTransforms.push_back(std::make_pair(Collimator, Gantry));
   this->IecTransforms.push_back(std::make_pair(WedgeFilter, Collimator));
@@ -76,7 +76,7 @@ vtkSlicerIECTransformLogic::vtkSlicerIECTransformLogic()
 
   this->IecTransforms.push_back(std::make_pair(FixedReference, PatientSupportRotation));
   this->IecTransforms.push_back(std::make_pair(PatientSupportRotation, PatientSupport));
-  this->IecTransforms.push_back(std::make_pair(PatientSupportRotation, TableTopEccentricRotation));
+  this->IecTransforms.push_back(std::make_pair(PatientSupport, TableTopEccentricRotation));
   this->IecTransforms.push_back(std::make_pair(TableTopEccentricRotation, TableTop));
   this->IecTransforms.push_back(std::make_pair(TableTop, Patient));
   this->IecTransforms.push_back(std::make_pair(Patient, RAS));
@@ -166,8 +166,8 @@ void vtkSlicerIECTransformLogic::BuildIECTransformHierarchy()
   this->GetTransformNodeBetween(FlatPanel, Gantry)->SetAndObserveTransformNodeID(
     this->GetTransformNodeBetween(Gantry, FixedReference)->GetID() );
 
-//  this->GetTransformNodeBetween(PatientSupportRotation, FixedReference)->SetAndObserveTransformNodeID(
-//    this->GetTransformNodeBetween(FixedReference, RAS)->GetID() );
+  this->GetTransformNodeBetween(PatientSupportRotation, FixedReference)->SetAndObserveTransformNodeID(
+    this->GetTransformNodeBetween(FixedReference, RAS)->GetID() );
   this->GetTransformNodeBetween(PatientSupport, PatientSupportRotation)->SetAndObserveTransformNodeID(
     this->GetTransformNodeBetween(PatientSupportRotation, FixedReference)->GetID() );
   this->GetTransformNodeBetween(TableTopEccentricRotation, PatientSupportRotation)->SetAndObserveTransformNodeID(
@@ -181,16 +181,21 @@ void vtkSlicerIECTransformLogic::BuildIECTransformHierarchy()
 
   this->GetTransformNodeBetween( Gantry, FixedReference)->SetAndObserveTransformNodeID(
     this->GetTransformNodeBetween( FixedReference, PatientSupportRotation)->GetID() );
+
   this->GetTransformNodeBetween( FixedReference, PatientSupportRotation)->SetAndObserveTransformNodeID(
     this->GetTransformNodeBetween( PatientSupportRotation, PatientSupport)->GetID() );
-  this->GetTransformNodeBetween( PatientSupportRotation, TableTopEccentricRotation)->SetAndObserveTransformNodeID(
-    this->GetTransformNodeBetween( FixedReference, PatientSupportRotation)->GetID() );
-  this->GetTransformNodeBetween( TableTopEccentricRotation, TableTop)->SetAndObserveTransformNodeID(
-    this->GetTransformNodeBetween( PatientSupportRotation, TableTopEccentricRotation)->GetID() );
-  this->GetTransformNodeBetween( TableTop, Patient)->SetAndObserveTransformNodeID(
+
+  this->GetTransformNodeBetween( PatientSupportRotation, PatientSupport)->SetAndObserveTransformNodeID(
+    this->GetTransformNodeBetween( PatientSupport, TableTopEccentricRotation)->GetID() );
+
+  this->GetTransformNodeBetween( PatientSupport, TableTopEccentricRotation)->SetAndObserveTransformNodeID(
     this->GetTransformNodeBetween( TableTopEccentricRotation, TableTop)->GetID() );
-  this->GetTransformNodeBetween( Patient, RAS)->SetAndObserveTransformNodeID(
+
+  this->GetTransformNodeBetween( TableTopEccentricRotation, TableTop)->SetAndObserveTransformNodeID(
     this->GetTransformNodeBetween( TableTop, Patient)->GetID() );
+
+  this->GetTransformNodeBetween( TableTop, Patient)->SetAndObserveTransformNodeID(
+    this->GetTransformNodeBetween( Patient, RAS)->GetID() );
 }
 
 //-----------------------------------------------------------------------------
