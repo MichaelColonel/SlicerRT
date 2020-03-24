@@ -60,7 +60,7 @@ vtkSlicerIECTransformLogic::vtkSlicerIECTransformLogic()
   this->CoordinateSystemsMap[Patient] = "Patient";
 
   this->IecTransforms.clear();
-  this->IecTransforms.push_back(std::make_pair(FixedReference, RAS));
+//  this->IecTransforms.push_back(std::make_pair(FixedReference, RAS));
   this->IecTransforms.push_back(std::make_pair(Gantry, FixedReference));
   this->IecTransforms.push_back(std::make_pair(Collimator, Gantry));
   this->IecTransforms.push_back(std::make_pair(WedgeFilter, Collimator));
@@ -152,8 +152,8 @@ void vtkSlicerIECTransformLogic::BuildIECTransformHierarchy()
   }
 
   // Organize transforms into hierarchy based on IEC Standard 61217
-  this->GetTransformNodeBetween(Gantry, FixedReference)->SetAndObserveTransformNodeID(
-    this->GetTransformNodeBetween(FixedReference, RAS)->GetID() );
+//  this->GetTransformNodeBetween(Gantry, FixedReference)->SetAndObserveTransformNodeID(
+//    this->GetTransformNodeBetween(FixedReference, RAS)->GetID() );
   this->GetTransformNodeBetween(Collimator, Gantry)->SetAndObserveTransformNodeID(
     this->GetTransformNodeBetween(Gantry, FixedReference)->GetID() );
   this->GetTransformNodeBetween(WedgeFilter, Collimator)->SetAndObserveTransformNodeID(
@@ -166,8 +166,8 @@ void vtkSlicerIECTransformLogic::BuildIECTransformHierarchy()
   this->GetTransformNodeBetween(FlatPanel, Gantry)->SetAndObserveTransformNodeID(
     this->GetTransformNodeBetween(Gantry, FixedReference)->GetID() );
 
-  this->GetTransformNodeBetween(PatientSupportRotation, FixedReference)->SetAndObserveTransformNodeID(
-    this->GetTransformNodeBetween(FixedReference, RAS)->GetID() );
+//  this->GetTransformNodeBetween(PatientSupportRotation, FixedReference)->SetAndObserveTransformNodeID(
+//    this->GetTransformNodeBetween(FixedReference, RAS)->GetID() );
   this->GetTransformNodeBetween(PatientSupport, PatientSupportRotation)->SetAndObserveTransformNodeID(
     this->GetTransformNodeBetween(PatientSupportRotation, FixedReference)->GetID() );
   this->GetTransformNodeBetween(TableTopEccentricRotation, PatientSupportRotation)->SetAndObserveTransformNodeID(
