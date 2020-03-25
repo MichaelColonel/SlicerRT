@@ -263,7 +263,7 @@ void vtkSlicerIECTransformLogic::UpdateBeamTransform(vtkMRMLRTBeamNode* beamNode
   // Transformation path:
   // Collimator -> Gantry -> FixedReference -> PatientSupport -> TableTopEccentricRotation -> TableTop -> Patient -> RAS
   vtkNew<vtkGeneralTransform> beamGeneralTransform;
-  if (this->GetTransformBetween( Collimator, RAS, beamGeneralTransform))
+  if (this->GetTransformBetween( Collimator, Gantry, beamGeneralTransform))
   {
     // Convert general transform to linear
     // This call also makes hard copy of the transform so that it doesn't change when other beam transforms change
