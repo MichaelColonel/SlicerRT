@@ -75,6 +75,13 @@ vtkSlicerIECTransformLogic::vtkSlicerIECTransformLogic()
   this->IecTransforms.push_back(std::make_pair(IEC, Patient));
   this->IecTransforms.push_back(std::make_pair(FlatPanel, Gantry));
 
+  this->IecTransforms.push_back(std::make_pair(FixedReference, PatientSupportRotation));
+  this->IecTransforms.push_back(std::make_pair(PatientSupportRotation, PatientSupport));
+  this->IecTransforms.push_back(std::make_pair(PatientSupport, TableTopEccentricRotation));
+  this->IecTransforms.push_back(std::make_pair(TableTopEccentricRotation, TableTop));
+  this->IecTransforms.push_back(std::make_pair(TableTop, Patient));
+  this->IecTransforms.push_back(std::make_pair(Patient, RAS));
+
   // Dynamic transformation from some frame to RAS (SomeFrame -> RAS)
   // for "Beams" and "Room's Eye View" modules
   this->IecTransforms.push_back(std::make_pair( FixedReference, RAS));
@@ -175,8 +182,6 @@ void vtkSlicerIECTransformLogic::BuildIECTransformHierarchy()
   this->GetTransformNodeBetween(FlatPanel, Gantry)->SetAndObserveTransformNodeID(
     this->GetTransformNodeBetween(Gantry, FixedReference)->GetID() );
 
-//  this->GetTransformNodeBetween(PatientSupportRotation, FixedReference)->SetAndObserveTransformNodeID(
-//    this->GetTransformNodeBetween(FixedReference, RAS)->GetID() );
   this->GetTransformNodeBetween(PatientSupport, PatientSupportRotation)->SetAndObserveTransformNodeID(
     this->GetTransformNodeBetween(PatientSupportRotation, FixedReference)->GetID() );
   this->GetTransformNodeBetween(TableTopEccentricRotation, PatientSupportRotation)->SetAndObserveTransformNodeID(
@@ -186,11 +191,43 @@ void vtkSlicerIECTransformLogic::BuildIECTransformHierarchy()
   this->GetTransformNodeBetween( Patient, TableTop)->SetAndObserveTransformNodeID(
     this->GetTransformNodeBetween(TableTop, TableTopEccentricRotation)->GetID() );
 
+  this->GetTransformNodeBetween(PatientSupportRotation, FixedReference)->SetAndObserveTransformNodeID(
+    this->GetTransformNodeBetween(FixedReference, RAS)->GetID() );
+  this->GetTransformNodeBetween(PatientSupport, PatientSupportRotation)->SetAndObserveTransformNodeID(
+    this->GetTransformNodeBetween(PatientSupportRotation, FixedReference)->GetID() );
+  this->GetTransformNodeBetween(TableTopEccentricRotation, PatientSupportRotation)->SetAndObserveTransformNodeID(
+    this->GetTransformNodeBetween(PatientSupportRotation, FixedReference)->GetID() );
+  this->GetTransformNodeBetween(TableTop, TableTopEccentricRotation)->SetAndObserveTransformNodeID(
+    this->GetTransformNodeBetween(TableTopEccentricRotation, PatientSupportRotation)->GetID() );
+  this->GetTransformNodeBetween( Patient, TableTop)->SetAndObserveTransformNodeID(
+    this->GetTransformNodeBetween(TableTop, TableTopEccentricRotation)->GetID() );
+  this->GetTransformNodeBetween( RAS, Patient)->SetAndObserveTransformNodeID(
+    this->GetTransformNodeBetween( Patient, TableTop)->GetID() );
+
+  this->GetTransformNodeBetween( Gantry, FixedReference)->SetAndObserveTransformNodeID(
+    this->GetTransformNodeBetween( FixedReference, PatientSupportRotation)->GetID() );
+
+  this->GetTransformNodeBetween( FixedReference, PatientSupportRotation)->SetAndObserveTransformNodeID(
+    this->GetTransformNodeBetween( PatientSupportRotation, PatientSupport)->GetID() );
+
+  this->GetTransformNodeBetween( PatientSupportRotation, PatientSupport)->SetAndObserveTransformNodeID(
+    this->GetTransformNodeBetween( PatientSupport, TableTopEccentricRotation)->GetID() );
+
+  this->GetTransformNodeBetween( PatientSupport, TableTopEccentricRotation)->SetAndObserveTransformNodeID(
+    this->GetTransformNodeBetween( TableTopEccentricRotation, TableTop)->GetID() );
+
+  this->GetTransformNodeBetween( TableTopEccentricRotation, TableTop)->SetAndObserveTransformNodeID(
+    this->GetTransformNodeBetween( TableTop, Patient)->GetID() );
+
+  this->GetTransformNodeBetween( TableTop, Patient)->SetAndObserveTransformNodeID(
+    this->GetTransformNodeBetween( Patient, RAS)->GetID() );
+
   // Transform from IEC Patient to 3D Slicer RAS system
   this->GetTransformNodeBetween( RAS, Patient)->SetAndObserveTransformNodeID(
     this->GetTransformNodeBetween( Patient, TableTop)->GetID() );
   this->GetTransformNodeBetween( IEC, Patient)->SetAndObserveTransformNodeID(
     this->GetTransformNodeBetween( Patient, TableTop)->GetID() );
+
 }
 
 //-----------------------------------------------------------------------------
