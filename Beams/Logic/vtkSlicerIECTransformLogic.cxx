@@ -82,15 +82,15 @@ vtkSlicerIECTransformLogic::vtkSlicerIECTransformLogic()
   this->IecTransforms.push_back(std::make_pair(Patient, RAS));
   this->IecTransforms.push_back(std::make_pair(Collimator, RAS));
 
-  this->CoordinateSystemsHierarchy.clear();
+  this->CoordinateSystemsHierarchyMap.clear();
   // key - parent, value - children
-  this->CoordinateSystemsHierarchy[FixedReference] = { Gantry, PatientSupportRotation };
-  this->CoordinateSystemsHierarchy[Gantry] = { Collimator, LeftImagingPanel, RightImagingPanel, FlatPanel };
-  this->CoordinateSystemsHierarchy[Collimator] = { WedgeFilter };
-  this->CoordinateSystemsHierarchy[PatientSupportRotation] = { PatientSupport, TableTopEccentricRotation };
-  this->CoordinateSystemsHierarchy[TableTopEccentricRotation] = { TableTop };
-  this->CoordinateSystemsHierarchy[TableTop] = { Patient };
-  this->CoordinateSystemsHierarchy[Patient] = { RAS };
+  this->CoordinateSystemsHierarchyMap[FixedReference] = { Gantry, PatientSupportRotation };
+  this->CoordinateSystemsHierarchyMap[Gantry] = { Collimator, LeftImagingPanel, RightImagingPanel, FlatPanel };
+  this->CoordinateSystemsHierarchyMap[Collimator] = { WedgeFilter };
+  this->CoordinateSystemsHierarchyMap[PatientSupportRotation] = { PatientSupport, TableTopEccentricRotation };
+  this->CoordinateSystemsHierarchyMap[TableTopEccentricRotation] = { TableTop };
+  this->CoordinateSystemsHierarchyMap[TableTop] = { Patient };
+  this->CoordinateSystemsHierarchyMap[Patient] = { RAS };
 }
 
 //-----------------------------------------------------------------------------
@@ -292,6 +292,25 @@ void vtkSlicerIECTransformLogic::UpdateIECTransformsFromBeam(vtkMRMLRTBeamNode* 
   patientSupportToFixedReferenceTransform->RotateZ(beamNode->GetCouchAngle());
   patientSupportToFixedReferenceTransform->Modified();
 
+  if (patientSupportToFixedReferenceTransform)
+  {
+    vtkMRMLLinearTransformNode* fixedReferenceToPatientSupportRotationTransformNode =
+      this->GetTransformNodeBetween( FixedReference, PatientSupportRotation);
+    if (fixedReferenceToPatientSupportRotationTransformNode)
+    {
+      vtkSmartPointer<vtkTransform> beamLinearTransform = vtkSmartPointer<vtkTransform>::New();
+      beamLinearTransform->Identity();
+
+      vtkNew<vtkMatrix4x4> mat;
+      patientSupportToFixedReferenceTransform->GetMatrixTransformToParent(mat);
+      mat->Invert();
+      beamLinearTransform->Concatenate(mat);
+
+      // Set transform to beam node
+      vtkMRMLLinearTransformNode->SetAndObserveTransformFromParent(beamLinearTransform);
+    }
+  }
+  
   // Update IEC Patient to RAS transform based on the isocenter defined in the beam's parent plan
   vtkMRMLLinearTransformNode* rasToPatientReferenceTransformNode =
     this->GetTransformNodeBetween( RAS, Patient);
@@ -446,6 +465,7 @@ bool vtkSlicerIECTransformLogic::GetTransformBetween(CoordinateSystemIdentifier 
 bool vtkSlicerIECTransformLogic::GetPathToRoot( CoordinateSystemIdentifier frame, 
   CoordinateSystemsList& path)
 {
+  path.clear();
   if (frame == FixedReference)
   {
     path.push_back(FixedReference);
@@ -455,7 +475,7 @@ bool vtkSlicerIECTransformLogic::GetPathToRoot( CoordinateSystemIdentifier frame
   bool found = false;
   do
   {
-    for ( auto& pair : this->CoordinateSystemsHierarchy)
+    for ( auto& pair : this->CoordinateSystemsHierarchyMap)
     {
       CoordinateSystemIdentifier parent = pair.first;
 
@@ -504,5 +524,77 @@ bool vtkSlicerIECTransformLogic::GetPathFromRoot( CoordinateSystemIdentifier fra
   else
   {
     return false;
+  }
+}
+
+//-----------------------------------------------------------------------------
+void vtkSlicerIECTransformLogic::CalculateTransformsPaths( CoordinateSystemIdentifier fromFrame, 
+  CoordinateSystemIdentifier toFrame, CoordinateSystemsTransformsList& fromFrameTransforms, 
+  CoordinateSystemsTransformsList& toFrameTransforms)
+{
+  CoordinateSystemsList fromFramePath, toFramePath;
+  CoordinateSystemsTransformsList toRootPairs, fromRootPairs;
+  if (pathToRoot( fromFrame, fromFramePath) && pathToRoot( toFrame, toFramePath))
+  {
+    std::vector< CoordinateSystemIdentifier > toFrameVector(toFramePath.size());
+    std::vector< CoordinateSystemIdentifier > fromFrameVector(fromFramePath.size());
+
+    std::copy( toFramePath.begin(), toFramePath.end(), toFrameVector.begin());
+    std::copy( fromFramePath.begin(), fromFramePath.end(), fromFrameVector.begin());
+
+    for ( size_t i = 0; i < fromFrameVector.size() - 1; ++i)
+    {
+      CoordinateSystemIdentifier parent, child;
+      child = fromFrameVector[i];
+      parent = fromFrameVector[i + 1];
+
+      if (child == parent)
+      {
+        continue;
+      }
+
+      toRootPairs.push_front({ child, parent });
+    }
+
+    for ( size_t i = 0; i < toFrameVector.size() - 1; ++i)
+    {
+      CoordinateSystemIdentifier parent, child;
+      child = toFrameVector[i];
+      parent = toFrameVector[i + 1];
+
+      if (child == parent)
+      {
+        continue;
+      }
+      fromRootPairs.push_front({ child, parent });
+    }
+  }
+
+  toFrameTransforms.clear();
+  fromFrameTransforms.clear();
+  if (toRootPairs.size() || fromRootPairs.size())
+  {
+    std::pair< IecTransforms::iterator, IecTransforms::iterator > res;
+    res = std::mismatch( toRootPairs.begin(), toRootPairs.end(), fromRootPairs.begin());
+    if (res.first != toRootPairs.end())
+    {
+      for ( auto iter = res.first; iter != toRootPairs.end(); ++iter)
+      {
+        CoordinateSystemIdentifier parent = (*iter).first;
+        CoordinateSystemIdentifier child = (*iter).second;
+        toFrameTransforms.push_back({ child, parent });
+      }
+//      std::reverse( toFrameTransforms.begin(), toFrameTransforms.end());
+    }
+    if (res.second != fromRootPairs.end())
+    {
+      for ( auto iter = res.second; iter != fromRootPairs.end(); ++iter)
+      {
+        CoordinateSystemIdentifier parent = (*iter).first;
+        CoordinateSystemIdentifier child = (*iter).second;
+        fromFrameTransforms.push_back({ parent, child });
+      }
+      std::reverse( fromFrameTransforms.begin(), fromFrameTransforms.end());
+    }
   }
 }

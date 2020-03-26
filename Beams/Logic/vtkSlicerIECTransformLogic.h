@@ -61,6 +61,17 @@ class vtkMRMLLinearTransformNode;
                                                                |
                                                              ("p")
 
+------------------------------------------------------------------
+
+                                                --<-("r")
+                                                |
+                                          --<-("g")-<-("b")-<-("w")
+                                          |
+                                          |
+  RAS-<-("p")-<-("t")-<-("e")-<-("s")-<-("f")
+                                          |
+                                          |
+                                          --<-("i")-<-("o")
 Legend:
   ("f") - Fixed reference system
   ("g") - GANTRY coordinate system
@@ -115,6 +126,9 @@ public:
   };
   typedef std::list< CoordinateSystemIdentifier > CoordinateSystemsList;
 
+  /// List of transforms, from frame to frame
+  typedef std::list< std::pair< CoordinateSystemIdentifier, CoordinateSystemIdentifier > > CoordinateSystemsTransformsList;
+
 public:
   static vtkSlicerIECTransformLogic *New();
   vtkTypeMacro(vtkSlicerIECTransformLogic, vtkMRMLAbstractLogic);
@@ -152,16 +166,28 @@ protected:
   /// Root system = FixedReference system, see IEC 61217:2011 hierarchy
   bool GetPathFromRoot( CoordinateSystemIdentifier frame, CoordinateSystemsList& path);
 
+  /// @brief Calculate transforms paths from one frame to another one
+  /// @param fromFrame - from this frame
+  /// @param toFrame - to that frame
+  /// @param fromFrameTransforms - list of transform pairs from frame system to Root system, 
+  /// if list is empty then transform = identity
+  /// @param toFrameTransforms - list of transform pairs from Root system to to frame system, 
+  /// if list is empty then transform = identity  
+  void CalculateTransformsPaths( CoordinateSystemIdentifier fromFrame, 
+    CoordinateSystemIdentifier toFrame, 
+    CoordinateSystemsTransformsList& fromFrameTransforms, 
+    CoordinateSystemsTransformsList& toFrameTransforms);
+
 protected:
   /// Map from \sa CoordinateSystemIdentifier to coordinate system name. Used for getting transforms
   std::map<CoordinateSystemIdentifier, std::string> CoordinateSystemsMap;
 
   /// List of IEC transforms
-  std::vector< std::pair<CoordinateSystemIdentifier, CoordinateSystemIdentifier> > IecTransforms;
+  CoordinateSystemsTransformsList IecTransforms;
 
   // TODO: for hierarchy use tree with nodes, something like graph
   /// Map of IEC coordinate systems hierarchy
-  std::map< CoordinateSystemIdentifier, std::list< CoordinateSystemIdentifier > > CoordinateSystemsHierarchy;
+  std::map< CoordinateSystemIdentifier, std::list< CoordinateSystemIdentifier > > CoordinateSystemsHierarchyMap;
 
 protected:
   vtkSlicerIECTransformLogic();
