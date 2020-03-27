@@ -305,10 +305,12 @@ void vtkSlicerIECTransformLogic::UpdateIECTransformsFromBeam(vtkMRMLRTBeamNode* 
       patientSupportToFixedReferenceTransform->GetMatrix(mat);
       mat->Invert();
       linearTransform->Concatenate(mat);
-      linearTransform->Modified();
-      
+//      linearTransform->Modified();
+
       // Set transform to beam node
       fixedReferenceToPatientSupportRotationTransformNode->SetAndObserveTransformToParent(linearTransform);
+      fixedReferenceToPatientSupportRotationTransformNode->TransformModified();
+//      fixedReferenceToPatientSupportRotationTransformNode->Modified();
     }
   }
   
@@ -388,6 +390,58 @@ bool vtkSlicerIECTransformLogic::GetTransformBetween(CoordinateSystemIdentifier 
     return false;
   }
 
+  CoordinateSystemsTransformsList toRootPairs, fromRootPairs;
+
+  CalculateTransformsPaths( fromFrame, toFrame, fromRootPairs, toRootPairs);
+
+  outputTransform->Identity();
+  outputTransform->PostMultiply();
+
+  for ( auto& pair : toRootPairs)
+  {
+    CoordinateSystemIdentifier parent = pair.first;
+    CoordinateSystemIdentifier child = pair.second;
+//    std::cout << CoordinateSystemsMap[from] << " -> " << CoordinateSystemsMap[to] << '\n';
+    vtkMRMLLinearTransformNode* fromTransform = this->GetTransformNodeBetween( child, parent);
+    if (fromTransform)
+    {
+//      vtkNew<vtkMatrix4x4> mat;
+//      fromTransform->GetMatrixTransformToParent(mat);
+      const vtkMatrix4x4* mat = fromTransform->GetMatrixTransformToParent();
+      outputTransform->Concatenate(mat);
+
+      vtkDebugMacro("GetTransformBetween: Transform node \"" << fromTransform->GetName() << "\" is valid");
+    }
+    else
+    {
+      vtkErrorMacro("GetTransformBetween: Transform node \"" << fromTransform->GetName() << "\" is invalid");
+      return false;
+    }
+  }
+
+  for ( auto& pair : fromRootPairs)
+  {
+    CoordinateSystemIdentifier child = pair.first;
+    CoordinateSystemIdentifier parent = pair.second;
+//    std::cout << CoordinateSystemsMap[from] << " -> " << CoordinateSystemsMap[to] << '\n';
+    vtkMRMLLinearTransformNode* toTransform = this->GetTransformNodeBetween( child, parent);
+    if (toTransform)
+    {
+      vtkNew<vtkMatrix4x4> mat;
+      toTransform->GetMatrixTransformFromParent(mat);
+      mat->Invert();
+      outputTransform->Concatenate(mat);
+
+      vtkDebugMacro("GetTransformBetween: Transform node \"" << toTransform->GetName() << "\" is valid");
+    }
+    else
+    {
+      vtkErrorMacro("GetTransformBetween: Transform node \"" << toTransform->GetName() << "\" is invalid");
+      return false;
+    }
+  }
+  return true;
+/*
   CoordinateSystemsList fromFramePath, toFramePath;
   if (this->GetPathToRoot( fromFrame, fromFramePath) && this->GetPathFromRoot( toFrame, toFramePath))
   {
@@ -457,6 +511,7 @@ bool vtkSlicerIECTransformLogic::GetTransformBetween(CoordinateSystemIdentifier 
     outputTransform->Modified();
     return true;
   }
+*/
 
   vtkErrorMacro("GetTransformBetween: Failed to get transform " << this->GetTransformNodeNameBetween(fromFrame, toFrame));
   return false;
@@ -585,7 +640,7 @@ void vtkSlicerIECTransformLogic::CalculateTransformsPaths( CoordinateSystemIdent
         CoordinateSystemIdentifier child = (*iter).second;
         toFrameTransforms.push_back({ child, parent });
       }
-//      std::reverse( toFrameTransforms.begin(), toFrameTransforms.end());
+      std::reverse( toFrameTransforms.begin(), toFrameTransforms.end());
     }
     if (res.second != fromRootPairs.end())
     {
@@ -595,7 +650,7 @@ void vtkSlicerIECTransformLogic::CalculateTransformsPaths( CoordinateSystemIdent
         CoordinateSystemIdentifier child = (*iter).second;
         fromFrameTransforms.push_back({ parent, child });
       }
-      std::reverse( fromFrameTransforms.begin(), fromFrameTransforms.end());
+//      std::reverse( fromFrameTransforms.begin(), fromFrameTransforms.end());
     }
   }
 }
