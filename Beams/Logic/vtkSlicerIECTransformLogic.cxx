@@ -230,9 +230,9 @@ void vtkSlicerIECTransformLogic::UpdateBeamTransform(vtkMRMLRTBeamNode* beamNode
 
   // Dynamic transform from Collimator to RAS
   // Transformation path:
-  // Collimator -> Gantry -> FixedReference -> PatientSupport -> TableTopEccentricRotation -> TableTop -> Patient -> RAS
+  // Collimator -> Gantry -> FixedReference -> PatientSupportRotation -> TableTopEccentricRotation -> TableTop -> Patient -> RAS
   vtkSmartPointer<vtkGeneralTransform> beamGeneralTransform = vtkSmartPointer<vtkGeneralTransform>::New();
-  if (this->GetTransformBetween( Collimator, Gantry, beamGeneralTransform))
+  if (this->GetTransformBetween( Collimator, RAS, beamGeneralTransform))
   {
     // Convert general transform to linear
     // This call also makes hard copy of the transform so that it doesn't change when other beam transforms change
@@ -298,16 +298,17 @@ void vtkSlicerIECTransformLogic::UpdateIECTransformsFromBeam(vtkMRMLRTBeamNode* 
       this->GetTransformNodeBetween( FixedReference, PatientSupportRotation);
     if (fixedReferenceToPatientSupportRotationTransformNode)
     {
-      vtkSmartPointer<vtkTransform> beamLinearTransform = vtkSmartPointer<vtkTransform>::New();
-      beamLinearTransform->Identity();
+      vtkSmartPointer<vtkTransform> linearTransform = vtkSmartPointer<vtkTransform>::New();
+      linearTransform->Identity();
 
       vtkNew<vtkMatrix4x4> mat;
-      patientSupportToFixedReferenceTransform->GetMatrixTransformToParent(mat);
+      patientSupportToFixedReferenceTransform->GetMatrix(mat);
       mat->Invert();
-      beamLinearTransform->Concatenate(mat);
-
+      linearTransform->Concatenate(mat);
+      linearTransform->Modified();
+      
       // Set transform to beam node
-      vtkMRMLLinearTransformNode->SetAndObserveTransformFromParent(beamLinearTransform);
+      fixedReferenceToPatientSupportRotationTransformNode->SetAndObserveTransformToParent(linearTransform);
     }
   }
   
@@ -534,7 +535,7 @@ void vtkSlicerIECTransformLogic::CalculateTransformsPaths( CoordinateSystemIdent
 {
   CoordinateSystemsList fromFramePath, toFramePath;
   CoordinateSystemsTransformsList toRootPairs, fromRootPairs;
-  if (pathToRoot( fromFrame, fromFramePath) && pathToRoot( toFrame, toFramePath))
+  if (GetPathToRoot( fromFrame, fromFramePath) && GetPathToRoot( toFrame, toFramePath))
   {
     std::vector< CoordinateSystemIdentifier > toFrameVector(toFramePath.size());
     std::vector< CoordinateSystemIdentifier > fromFrameVector(fromFramePath.size());
@@ -574,7 +575,7 @@ void vtkSlicerIECTransformLogic::CalculateTransformsPaths( CoordinateSystemIdent
   fromFrameTransforms.clear();
   if (toRootPairs.size() || fromRootPairs.size())
   {
-    std::pair< IecTransforms::iterator, IecTransforms::iterator > res;
+    std::pair< CoordinateSystemsTransformsList::iterator, CoordinateSystemsTransformsList::iterator > res;
     res = std::mismatch( toRootPairs.begin(), toRootPairs.end(), fromRootPairs.begin());
     if (res.first != toRootPairs.end())
     {
