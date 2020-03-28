@@ -1248,6 +1248,7 @@ void vtkSlicerRoomsEyeViewModuleLogic::UpdateTableTopToTableTopEccentricRotation
   tableTopEccentricRotationToPatientSupportMatrix->SetElement(2,3, translationArray[2]);
   tableTopEccentricRotationToPatientSupportTransform->SetMatrix(tableTopEccentricRotationToPatientSupportMatrix);
   tableTopEccentricRotationToPatientSupportTransform->Modified();
+  this->IECLogic->UpdateTransformBetween( vtkSlicerIECTransformLogic::TableTopEccentricRotation, vtkSlicerIECTransformLogic::TableTop);
 }
 
 //-----------------------------------------------------------------------------
