@@ -568,7 +568,8 @@ void vtkSlicerRoomsEyeViewModuleLogic::SetupTreatmentMachineModels()
     return;
   }
   vtkMRMLLinearTransformNode* patientSupportToPatientSupportRotationTransformNode =
-    this->IECLogic->GetTransformNodeBetween(vtkSlicerIECTransformLogic::PatientSupport, vtkSlicerIECTransformLogic::PatientSupportRotation);
+    this->IECLogic->GetTransformNodeBetween(vtkSlicerIECTransformLogic::PatientSupport, vtkSlicerIECTransformLogic::TableTopEccentricRotation);
+//    this->IECLogic->GetTransformNodeBetween(vtkSlicerIECTransformLogic::PatientSupport, vtkSlicerIECTransformLogic::PatientSupportRotation);
   patientSupportModel->SetAndObserveTransformNodeID(patientSupportToPatientSupportRotationTransformNode->GetID());
   patientSupportModel->CreateDefaultDisplayNodes();
   patientSupportModel->GetDisplayNode()->SetColor(0.85, 0.85, 0.85);
@@ -582,7 +583,8 @@ void vtkSlicerRoomsEyeViewModuleLogic::SetupTreatmentMachineModels()
     return;
   }
   vtkMRMLLinearTransformNode* tableTopToTableTopEccentricRotationTransformNode =
-    this->IECLogic->GetTransformNodeBetween(vtkSlicerIECTransformLogic::TableTop, vtkSlicerIECTransformLogic::TableTopEccentricRotation);
+    this->IECLogic->GetTransformNodeBetween(vtkSlicerIECTransformLogic::TableTop, vtkSlicerIECTransformLogic::Patient);
+//    this->IECLogic->GetTransformNodeBetween(vtkSlicerIECTransformLogic::TableTop, vtkSlicerIECTransformLogic::TableTopEccentricRotation);
   tableTopModel->SetAndObserveTransformNodeID(tableTopToTableTopEccentricRotationTransformNode->GetID());
   tableTopModel->CreateDefaultDisplayNodes();
   tableTopModel->GetDisplayNode()->SetColor(0, 0, 0);
@@ -593,7 +595,8 @@ void vtkSlicerRoomsEyeViewModuleLogic::SetupTreatmentMachineModels()
   if (linacBodyModel)
   {
     vtkMRMLLinearTransformNode* fixedReferenceToRasTransformNode =
-      this->IECLogic->GetTransformNodeBetween(vtkSlicerIECTransformLogic::FixedReference, vtkSlicerIECTransformLogic::RAS);
+      this->IECLogic->GetTransformNodeBetween(vtkSlicerIECTransformLogic::FixedReference, vtkSlicerIECTransformLogic::PatientSupportRotation);
+//      this->IECLogic->GetTransformNodeBetween(vtkSlicerIECTransformLogic::FixedReference, vtkSlicerIECTransformLogic::RAS);
     linacBodyModel->SetAndObserveTransformNodeID(fixedReferenceToRasTransformNode->GetID());
     linacBodyModel->CreateDefaultDisplayNodes();
     linacBodyModel->GetDisplayNode()->SetColor(0.9, 0.9, 0.9);

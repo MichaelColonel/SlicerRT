@@ -108,6 +108,7 @@ public:
   enum CoordinateSystemIdentifier
   {
     RAS = 0,
+    IEC,
     FixedReference,
     Gantry,
     Collimator,
@@ -149,6 +150,9 @@ public:
 
   /// Update parent transform node of a given beam from the IEC transform hierarchy and the beam parameters
   void UpdateBeamTransform(vtkMRMLRTBeamNode* beamNode);
+
+  bool UpdateTransformBetween( CoordinateSystemIdentifier fromFrame, CoordinateSystemIdentifier toFrame);
+
   /// Update IEC transforms according to beam node
   void UpdateIECTransformsFromBeam(vtkMRMLRTBeamNode* beamNode);
 
@@ -164,7 +168,7 @@ protected:
 
   /// @brief Get coordinate system identifiers from root system down to frame system
   /// Root system = FixedReference system, see IEC 61217:2011 hierarchy
-  bool GetPathFromRoot( CoordinateSystemIdentifier frame, CoordinateSystemsList& path);
+//  bool GetPathFromRoot( CoordinateSystemIdentifier frame, CoordinateSystemsList& path);
 
   /// @brief Calculate transforms paths from one frame to another one
   /// @param fromFrame - from this frame
