@@ -29,6 +29,10 @@
 // STD includes
 #include <cassert>
 
+// Plastimatch reconstruct module
+#include <drr.h>
+#include <drr_options.h>
+
 //----------------------------------------------------------------------------
 vtkStandardNewMacro(vtkSlicerPlmDrrLogic);
 
