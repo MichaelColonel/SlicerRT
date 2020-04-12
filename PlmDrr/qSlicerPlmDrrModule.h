@@ -19,7 +19,7 @@
 #define __qSlicerLoadableModuleTemplateModule_h
 
 // SlicerQt includes
-#include "qSlicerLoadableModule.h"
+#include <qSlicerLoadableModule.h>
 
 #include "qSlicerPlmDrrModuleExport.h"
 

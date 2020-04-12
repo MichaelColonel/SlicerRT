@@ -19,7 +19,7 @@
 #define __qSlicerPlmDrrModuleWidget_h
 
 // SlicerQt includes
-#include "qSlicerAbstractModuleWidget.h"
+#include <qSlicerAbstractModuleWidget.h>
 
 #include "qSlicerPlmDrrModuleExport.h"
 
@@ -39,7 +39,7 @@ public:
   virtual ~qSlicerPlmDrrModuleWidget();
 
 public slots:
-
+  void onRTBeamNodeChanged(vtkMRMLNode*);
 
 protected:
   QScopedPointer<qSlicerPlmDrrModuleWidgetPrivate> d_ptr;

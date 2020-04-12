@@ -25,7 +25,7 @@
 #define __vtkSlicerPlmDrrLogic_h
 
 // Slicer includes
-#include "vtkSlicerModuleLogic.h"
+#include <vtkSlicerModuleLogic.h>
 
 // MRML includes
 
@@ -34,6 +34,8 @@
 
 #include "vtkSlicerPlmDrrModuleLogicExport.h"
 
+class Drr_options;
+class vtkMRMLVolumeNode;
 
 /// \ingroup Slicer_QtModules_ExtensionTemplate
 class VTK_SLICER_PLMDRR_MODULE_LOGIC_EXPORT vtkSlicerPlmDrrLogic :
@@ -44,6 +46,10 @@ public:
   static vtkSlicerPlmDrrLogic *New();
   vtkTypeMacro(vtkSlicerPlmDrrLogic, vtkSlicerModuleLogic);
   void PrintSelf(ostream& os, vtkIndent indent);
+
+  bool SaveVolumeNode( const vtkMRMLVolumeNode* volumeNode, std::string& filename);
+  void ComputeDRR(Drr_options* opts);
+  bool LoadDRR( vtkMRMLVolumeNode* volumeNode, const std::string& filename);
 
 protected:
   vtkSlicerPlmDrrLogic();

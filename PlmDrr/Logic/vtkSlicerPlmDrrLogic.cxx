@@ -20,6 +20,7 @@
 
 // MRML includes
 #include <vtkMRMLScene.h>
+#include <vtkMRMLScalarVolumeNode.h>
 
 // VTK includes
 #include <vtkIntArray.h>
@@ -75,13 +76,37 @@ void vtkSlicerPlmDrrLogic::UpdateFromMRMLScene()
 }
 
 //---------------------------------------------------------------------------
-void vtkSlicerPlmDrrLogic
-::OnMRMLSceneNodeAdded(vtkMRMLNode* vtkNotUsed(node))
+void vtkSlicerPlmDrrLogic::OnMRMLSceneNodeAdded(vtkMRMLNode* vtkNotUsed(node))
 {
 }
 
 //---------------------------------------------------------------------------
-void vtkSlicerPlmDrrLogic
-::OnMRMLSceneNodeRemoved(vtkMRMLNode* vtkNotUsed(node))
+void vtkSlicerPlmDrrLogic::OnMRMLSceneNodeRemoved(vtkMRMLNode* vtkNotUsed(node))
 {
+}
+
+bool vtkSlicerPlmDrrLogic::SaveVolumeNode( const vtkMRMLVolumeNode* volumeNode, std::string& vtkNotUsed(filename))
+{
+  if (!volumeNode)
+  {
+    return false;
+  }
+  return false;
+}
+
+void vtkSlicerPlmDrrLogic::ComputeDRR(Drr_options* opts)
+{
+  if (!opts)
+  {
+    return;
+  }
+}
+
+bool vtkSlicerPlmDrrLogic::LoadDRR( vtkMRMLVolumeNode* volumeNode, const std::string& vtkNotUsed(filename))
+{
+  if (!volumeNode)
+  {
+    return false;
+  }
+  return true;
 }
