@@ -54,7 +54,7 @@
        </property>
        <layout class="QVBoxLayout" name="verticalLayout_3">
         <item>
-         <widget class="qSlicerPlmDrrFooBarWidget" name="PlmDrrParametersWidget" native="true"/>
+         <widget class="qSlicerPlmDrrParametersWidget" name="PlmDrrParametersWidget" native="true"/>
         </item>
        </layout>
       </widget>
@@ -82,9 +82,9 @@
    <container>1</container>
   </customwidget>
   <customwidget>
-   <class>qSlicerPlmDrrFooBarWidget</class>
+   <class>qSlicerPlmDrrParametersWidget</class>
    <extends>QWidget</extends>
-   <header>qSlicerPlmDrrFooBarWidget.h</header>
+   <header>qSlicerPlmDrrParametersWidget.h</header>
    <container>1</container>
   </customwidget>
  </customwidgets>

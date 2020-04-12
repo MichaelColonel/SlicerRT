@@ -19,48 +19,48 @@
 ==============================================================================*/
 
 // FooBar Widgets includes
-#include "qSlicerPlmDrrFooBarWidget.h"
-#include "ui_qSlicerPlmDrrFooBarWidget.h"
+#include "qSlicerPlmDrrParametersWidget.h"
+#include "ui_qSlicerPlmDrrParametersWidget.h"
 
 //-----------------------------------------------------------------------------
 /// \ingroup Slicer_QtModules_LoadableModuleTemplate
-class qSlicerPlmDrrFooBarWidgetPrivate : public Ui_qSlicerPlmDrrFooBarWidget
+class qSlicerPlmDrrParametersWidgetPrivate : public Ui_qSlicerPlmDrrParametersWidget
 {
-  Q_DECLARE_PUBLIC(qSlicerPlmDrrFooBarWidget);
+  Q_DECLARE_PUBLIC(qSlicerPlmDrrParametersWidget);
 protected:
-  qSlicerPlmDrrFooBarWidget* const q_ptr;
+  qSlicerPlmDrrParametersWidget* const q_ptr;
 
 public:
-  qSlicerPlmDrrFooBarWidgetPrivate(
-    qSlicerPlmDrrFooBarWidget& object);
-  virtual void setupUi(qSlicerPlmDrrFooBarWidget*);
+  qSlicerPlmDrrParametersWidgetPrivate(
+    qSlicerPlmDrrParametersWidget& object);
+  virtual void setupUi(qSlicerPlmDrrParametersWidget*);
 };
 
 // --------------------------------------------------------------------------
-qSlicerPlmDrrFooBarWidgetPrivate::qSlicerPlmDrrFooBarWidgetPrivate(qSlicerPlmDrrFooBarWidget& object)
+qSlicerPlmDrrParametersWidgetPrivate::qSlicerPlmDrrParametersWidgetPrivate(qSlicerPlmDrrParametersWidget& object)
   : q_ptr(&object)
 {
 }
 
 // --------------------------------------------------------------------------
-void qSlicerPlmDrrFooBarWidgetPrivate::setupUi(qSlicerPlmDrrFooBarWidget* widget)
+void qSlicerPlmDrrParametersWidgetPrivate::setupUi(qSlicerPlmDrrParametersWidget* widget)
 {
-  this->Ui_qSlicerPlmDrrFooBarWidget::setupUi(widget);
+  this->Ui_qSlicerPlmDrrParametersWidget::setupUi(widget);
 }
 
 //-----------------------------------------------------------------------------
 // qSlicerLoadableModuleTemplateFooBarWidget methods
 
 //-----------------------------------------------------------------------------
-qSlicerPlmDrrFooBarWidget::qSlicerPlmDrrFooBarWidget(QWidget* parentWidget)
+qSlicerPlmDrrParametersWidget::qSlicerPlmDrrParametersWidget(QWidget* parentWidget)
   : Superclass( parentWidget )
-  , d_ptr( new qSlicerPlmDrrFooBarWidgetPrivate(*this) )
+  , d_ptr( new qSlicerPlmDrrParametersWidgetPrivate(*this) )
 {
-  Q_D(qSlicerPlmDrrFooBarWidget);
+  Q_D(qSlicerPlmDrrParametersWidget);
   d->setupUi(this);
 }
 
 //-----------------------------------------------------------------------------
-qSlicerPlmDrrFooBarWidget::~qSlicerPlmDrrFooBarWidget()
+qSlicerPlmDrrParametersWidget::~qSlicerPlmDrrParametersWidget()
 {
 }
