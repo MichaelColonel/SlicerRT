@@ -17,13 +17,25 @@
 
 // Qt includes
 #include <QDebug>
+#include <QDir>
 
 // SlicerQt includes
+#include <qSlicerCoreApplication.h>
+#include <qSlicerCoreIOManager.h>
+#include <qSlicerIO.h>
+
 #include "qSlicerPlmDrrModuleWidget.h"
 #include "ui_qSlicerPlmDrrModuleWidget.h"
 
+// MRML includes
+#include <vtkMRMLScalarVolumeNode.h>
+
+// RTBeam includes
 #include <vtkMRMLRTBeamNode.h>
 #include <vtkMRMLRTIonBeamNode.h>
+
+// Plastimatch includes
+#include <drr_options.h>
 
 //-----------------------------------------------------------------------------
 /// \ingroup Slicer_QtModules_ExtensionTemplate
@@ -31,6 +43,9 @@ class qSlicerPlmDrrModuleWidgetPrivate: public Ui_qSlicerPlmDrrModuleWidget
 {
 public:
   qSlicerPlmDrrModuleWidgetPrivate();
+  vtkMRMLRTBeamNode* RtBeam;
+  vtkMRMLScalarVolumeNode* ReferenceVolume;
+  Drr_options DrrOptions;
 };
 
 //-----------------------------------------------------------------------------
@@ -38,6 +53,9 @@ public:
 
 //-----------------------------------------------------------------------------
 qSlicerPlmDrrModuleWidgetPrivate::qSlicerPlmDrrModuleWidgetPrivate()
+  :
+  RtBeam(nullptr),
+  ReferenceVolume(nullptr)
 {
 }
 
@@ -69,15 +87,66 @@ void qSlicerPlmDrrModuleWidget::setup()
 
   connect( d->MRMLNodeComboBox_RtBeam, SIGNAL(currentNodeChanged(vtkMRMLNode*)), 
     this, SLOT(onRTBeamNodeChanged(vtkMRMLNode*)));
+
+  QStringList volumeNodes;
+  volumeNodes.push_back("vtkMRMLScalarVolumeNode");
+  d->MRMLNodeComboBox_ReferenceVolume->setNodeTypes(volumeNodes);
+
+  connect( d->MRMLNodeComboBox_RtBeam, SIGNAL(currentNodeChanged(vtkMRMLNode*)), 
+    this, SLOT(onRTBeamNodeChanged(vtkMRMLNode*)));
+  connect( d->MRMLNodeComboBox_ReferenceVolume, SIGNAL(currentNodeChanged(vtkMRMLNode*)), 
+    this, SLOT(onReferenceVolumeNodeChanged(vtkMRMLNode*)));
+  connect( d->PushButton_SaveVolume, SIGNAL(clicked()), this, SLOT(onSaveVolumeClicked()));
+  connect( d->PushButton_ComputeDrr, SIGNAL(clicked()), this, SLOT(onComputeDrrClicked()));
+  connect( d->PushButton_LoadDrr, SIGNAL(clicked()), this, SLOT(onLoadDrrClicked()));
 }
 
 /// RTBeam Node (RTBeam or RTIonBeam) changed
-void
-qSlicerPlmDrrModuleWidget::onRTBeamNodeChanged(vtkMRMLNode* node)
+void qSlicerPlmDrrModuleWidget::onRTBeamNodeChanged(vtkMRMLNode* node)
 {
   Q_D(qSlicerPlmDrrModuleWidget);
   vtkMRMLRTBeamNode* beamNode = vtkMRMLRTBeamNode::SafeDownCast(node);
   vtkMRMLRTIonBeamNode* ionBeamNode = vtkMRMLRTIonBeamNode::SafeDownCast(node);
-  Q_UNUSED(beamNode);
+  d->RtBeam = beamNode;
   Q_UNUSED(ionBeamNode);
+}
+
+void qSlicerPlmDrrModuleWidget::onReferenceVolumeNodeChanged(vtkMRMLNode* node)
+{
+  Q_D(qSlicerPlmDrrModuleWidget);
+  vtkMRMLScalarVolumeNode* volumeNode = vtkMRMLScalarVolumeNode::SafeDownCast(node);
+  d->ReferenceVolume = volumeNode;
+}
+
+void qSlicerPlmDrrModuleWidget::onSaveVolumeClicked()
+{
+  Q_D(qSlicerPlmDrrModuleWidget);
+
+  if (d->ReferenceVolume && d->ReferenceVolume->AddDefaultStorageNode())
+  {
+    qDebug() << Q_FUNC_INFO << "Reference volume node OK!";
+
+    qSlicerCoreIOManager* coreIOManager = qSlicerCoreApplication::application()->coreIOManager();
+    qSlicerIO::IOProperties fileParameters;
+    QDir dir(qSlicerCoreApplication::application()->temporaryPath());
+    QString drrVolumeFileName = dir.absoluteFilePath("inputDrrVolume.mha");
+
+    fileParameters["nodeID"] = d->ReferenceVolume->GetID();
+    fileParameters["fileName"] = drrVolumeFileName;
+    if (coreIOManager->saveNodes( "VolumeFile", fileParameters))
+    {
+      d->DrrOptions.input_file = drrVolumeFileName.toStdString();
+      qDebug() << Q_FUNC_INFO << "Reference volume node written into temporary mha file";
+    }
+  }
+}
+
+void qSlicerPlmDrrModuleWidget::onComputeDrrClicked()
+{
+  Q_D(qSlicerPlmDrrModuleWidget);
+}
+
+void qSlicerPlmDrrModuleWidget::onLoadDrrClicked()
+{
+  Q_D(qSlicerPlmDrrModuleWidget);
 }

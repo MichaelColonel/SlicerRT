@@ -91,15 +91,17 @@ bool vtkSlicerPlmDrrLogic::SaveVolumeNode( const vtkMRMLVolumeNode* volumeNode, 
   {
     return false;
   }
+  
   return false;
 }
 
-void vtkSlicerPlmDrrLogic::ComputeDRR(Drr_options* opts)
+bool vtkSlicerPlmDrrLogic::ComputeDRR(Drr_options* opts)
 {
   if (!opts)
   {
-    return;
+    return false;
   }
+  return true;
 }
 
 bool vtkSlicerPlmDrrLogic::LoadDRR( vtkMRMLVolumeNode* volumeNode, const std::string& vtkNotUsed(filename))

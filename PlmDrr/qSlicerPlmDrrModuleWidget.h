@@ -40,6 +40,10 @@ public:
 
 public slots:
   void onRTBeamNodeChanged(vtkMRMLNode*);
+  void onReferenceVolumeNodeChanged(vtkMRMLNode*);
+  void onSaveVolumeClicked();
+  void onComputeDrrClicked();
+  void onLoadDrrClicked();
 
 protected:
   QScopedPointer<qSlicerPlmDrrModuleWidgetPrivate> d_ptr;

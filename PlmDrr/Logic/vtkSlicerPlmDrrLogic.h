@@ -48,7 +48,7 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
 
   bool SaveVolumeNode( const vtkMRMLVolumeNode* volumeNode, std::string& filename);
-  void ComputeDRR(Drr_options* opts);
+  bool ComputeDRR(Drr_options* opts);
   bool LoadDRR( vtkMRMLVolumeNode* volumeNode, const std::string& filename);
 
 protected:
