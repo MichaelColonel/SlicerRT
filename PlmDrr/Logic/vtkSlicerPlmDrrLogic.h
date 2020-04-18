@@ -37,6 +37,11 @@
 class Drr_options;
 class vtkMRMLVolumeNode;
 
+class vtkMRMLPlmDrrNode;
+class vtkMRMLMarkupsClosedCurveNode;
+class vtkMRMLMarkupsFiducialNode;
+class vtkMRMLMarkupsLineNode;
+
 /// \ingroup Slicer_QtModules_ExtensionTemplate
 class VTK_SLICER_PLMDRR_MODULE_LOGIC_EXPORT vtkSlicerPlmDrrLogic :
   public vtkSlicerModuleLogic
@@ -47,6 +52,11 @@ public:
   vtkTypeMacro(vtkSlicerPlmDrrLogic, vtkSlicerModuleLogic);
   void PrintSelf(ostream& os, vtkIndent indent);
 
+  vtkMRMLMarkupsLineNode* CreateDetectorNormal(vtkMRMLPlmDrrNode* node);
+  vtkMRMLMarkupsClosedCurveNode* CreateDetectorBoundary(vtkMRMLPlmDrrNode* node);
+  vtkMRMLMarkupsClosedCurveNode* CreateImageBoundary(vtkMRMLPlmDrrNode* node);
+  vtkMRMLMarkupsFiducialNode* CreateImageFirstRowColumn(vtkMRMLPlmDrrNode* node);
+  
   bool SaveVolumeNode( const vtkMRMLVolumeNode* volumeNode, std::string& filename);
   bool ComputeDRR(Drr_options* opts);
   bool LoadDRR( vtkMRMLVolumeNode* volumeNode, const std::string& filename);

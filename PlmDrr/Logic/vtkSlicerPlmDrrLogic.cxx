@@ -21,6 +21,14 @@
 // MRML includes
 #include <vtkMRMLScene.h>
 #include <vtkMRMLScalarVolumeNode.h>
+#include <vtkMRMLRTBeamNode.h>
+#include <vtkMRMLRTPlanNode.h>
+
+#include <vtkMRMLMarkupsClosedCurveNode.h>
+#include <vtkMRMLMarkupsFiducialNode.h>
+#include <vtkMRMLMarkupsLineNode.h>
+
+#include "vtkMRMLPlmDrrNode.h"
 
 // VTK includes
 #include <vtkIntArray.h>
@@ -67,6 +75,20 @@ void vtkSlicerPlmDrrLogic::SetMRMLSceneInternal(vtkMRMLScene * newScene)
 void vtkSlicerPlmDrrLogic::RegisterNodes()
 {
   assert(this->GetMRMLScene() != 0);
+  vtkMRMLScene* scene = this->GetMRMLScene(); 
+  if (!scene)
+  {
+    vtkErrorMacro("RegisterNodes: Invalid MRML scene");
+    return;
+  }
+  if (!scene->IsNodeClassRegistered("vtkMRMLRTPlanNode"))
+  {
+    scene->RegisterNodeClass(vtkSmartPointer<vtkMRMLRTPlanNode>::New());
+  }
+  if (!scene->IsNodeClassRegistered("vtkMRMLRTBeamNode"))
+  {
+    scene->RegisterNodeClass(vtkSmartPointer<vtkMRMLRTBeamNode>::New());
+  }
 }
 
 //---------------------------------------------------------------------------
@@ -76,8 +98,27 @@ void vtkSlicerPlmDrrLogic::UpdateFromMRMLScene()
 }
 
 //---------------------------------------------------------------------------
-void vtkSlicerPlmDrrLogic::OnMRMLSceneNodeAdded(vtkMRMLNode* vtkNotUsed(node))
+void vtkSlicerPlmDrrLogic::OnMRMLSceneNodeAdded(vtkMRMLNode* node)
 {
+  if (!node || !this->GetMRMLScene())
+  {
+    vtkErrorMacro("OnMRMLSceneNodeAdded: Invalid MRML scene or input node");
+    return;
+  }
+
+  if (node->IsA("vtkMRMLRTBeamNode"))
+  {
+    // Observe beam events
+    vtkSmartPointer<vtkIntArray> events = vtkSmartPointer<vtkIntArray>::New();
+    events->InsertNextValue(vtkMRMLRTBeamNode::BeamTransformModified);
+    vtkObserveMRMLNodeEventsMacro(node, events);
+  }
+  else if (node->IsA("vtkMRMLRTPlanNode"))
+  {
+    vtkSmartPointer<vtkIntArray> events = vtkSmartPointer<vtkIntArray>::New();
+    events->InsertNextValue(vtkMRMLRTPlanNode::IsocenterModifiedEvent);
+    vtkObserveMRMLNodeEventsMacro(node, events);
+  }
 }
 
 //---------------------------------------------------------------------------
@@ -111,4 +152,24 @@ bool vtkSlicerPlmDrrLogic::LoadDRR( vtkMRMLVolumeNode* volumeNode, const std::st
     return false;
   }
   return true;
+}
+
+vtkMRMLMarkupsLineNode* vtkSlicerPlmDrrLogic::CreateDetectorNormal(vtkMRMLPlmDrrNode* node)
+{
+  return nullptr;
+}
+
+vtkMRMLMarkupsClosedCurveNode* vtkSlicerPlmDrrLogic::CreateDetectorBoundary(vtkMRMLPlmDrrNode* node)
+{
+  return nullptr;
+}
+
+vtkMRMLMarkupsClosedCurveNode* vtkSlicerPlmDrrLogic::CreateImageBoundary(vtkMRMLPlmDrrNode* node)
+{
+  return nullptr;
+}
+
+vtkMRMLMarkupsFiducialNode* vtkSlicerPlmDrrLogic::CreateImageFirstRowColumn(vtkMRMLPlmDrrNode* node)
+{
+  return nullptr;
 }

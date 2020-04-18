@@ -29,6 +29,9 @@
 
 class vtkMRMLLinearTransformNode;
 class vtkMRMLRTBeamNode;
+class vtkMRMLMarkupsClosedCurveNode;
+class vtkMRMLMarkupsFiducialNode;
+class vtkMRMLMarkupsLineNode;
 
 /// \ingroup SlicerRt_QtModules_PlmDrr
 class VTK_SLICER_PLMDRR_MODULE_MRML_EXPORT vtkMRMLPlmDrrNode : public vtkMRMLNode
@@ -72,6 +75,7 @@ protected:
 protected:
 
   double SourceImageDistance; // SID
+  
 };
 
 #endif
