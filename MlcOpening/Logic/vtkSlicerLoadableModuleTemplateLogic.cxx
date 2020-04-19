@@ -68,6 +68,7 @@
 namespace
 {
 
+/*
 bool
 AreEqual( double v1, double v2)
 {
@@ -96,6 +97,7 @@ MakeLUTFromCTF( size_t tableSize, vtkLookupTable* lut)
     lut->SetTableValue( i, rgb);
   }
 }
+*/
 
 } // namespace
 
@@ -188,7 +190,9 @@ vtkSlicerLoadableModuleTemplateLogic::CalculateMultiLeafCollimatorOpening(
 
   // Create markups node (subject hierarchy node is created automatically)
   vtkNew<vtkMRMLMarkupsClosedCurveNode> curveNode;
+  curveNode->SetCurveTypeToLinear();
   curveNode->SetName("MLCProjectionCurve");
+
   this->GetMRMLScene()->AddNode(curveNode);
 
   // external points for MLC opening calculation, projected on the isocenter plane
