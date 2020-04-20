@@ -32,6 +32,8 @@
 class vtkPolyData;
 class vtkMRMLMarkupsCurveNode;
 class vtkMRMLRTBeamNode;
+class vtkMRMLDoubleArrayNode;
+class vtkMRMLTableNode;
 
 /// \ingroup Slicer_QtModules_ExtensionTemplate
 class VTK_SLICER_LOADABLEMODULETEMPLATE_MODULE_LOGIC_EXPORT vtkSlicerLoadableModuleTemplateLogic : public vtkSlicerModuleLogic {
@@ -44,6 +46,9 @@ public:
   /// Calculate MLC opening polygon on isocenter plane
   vtkMRMLMarkupsCurveNode* CalculateMultiLeafCollimatorOpening( 
     vtkMRMLRTBeamNode* beamNode, vtkPolyData* targetPoly);
+
+  vtkMRMLDoubleArrayNode* CreateMultiLeafCollimatorDoubleArrayNode();
+  vtkMRMLTableNode* CreateMultiLeafCollimatorTableNode( vtkMRMLMarkupsCurveNode* curveNode, vtkMRMLDoubleArrayNode* mlcBoundaryNode);
 
 protected:
   vtkSlicerLoadableModuleTemplateLogic();

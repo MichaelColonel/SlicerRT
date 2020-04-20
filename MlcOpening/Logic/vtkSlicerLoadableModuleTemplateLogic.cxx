@@ -28,6 +28,8 @@
 #include <vtkMRMLStorageNode.h>
 #include <vtkMRMLMarkupsClosedCurveNode.h> // MLC curve
 #include <vtkMRMLTransformNode.h>
+#include <vtkMRMLDoubleArrayNode.h>
+#include <vtkMRMLTableNode.h>
 
 // SlicerRT MRML includes
 #include <vtkMRMLRTPlanNode.h>
@@ -67,6 +69,46 @@
 
 namespace
 {
+
+const char* MLCY_Boundary = "MLCY_Boundary";
+const char* MLCY_Position = "MLCY_Position";
+
+const double leaves = 32;
+const double boundary[33] = {
+  -8.0,
+  -7.5,
+  -7.0,
+  -6.5,
+  -6.0,
+  -5.5,
+  -5.0,
+  -4.5,
+  -4.0,
+  -3.5,
+  -3.0,
+  -2.5,
+  -2.0,
+  -1.5,
+  -1.0,
+  -0.5,
+  -0.0,
+  +0.5,
+  +1.0,
+  +1.5,
+  +2.0,
+  +2.5,
+  +3.0,
+  +3.5,
+  +4.0,
+  +4.5,
+  +5.0,
+  +5.5,
+  +6.0,
+  +6.5,
+  +7.0,
+  +7.5,
+  +8.65
+};
 
 /*
 bool
@@ -239,6 +281,21 @@ vtkSlicerLoadableModuleTemplateLogic::CalculateMultiLeafCollimatorOpening(
     curveNode->Delete();
     return nullptr;
   }
+}
+
+//---------------------------------------------------------------------------
+vtkMRMLDoubleArrayNode*
+vtkSlicerLoadableModuleTemplateLogic::CreateMultiLeafCollimatorDoubleArrayNode()
+{
+  return nullptr;
+}
+
+//---------------------------------------------------------------------------
+vtkMRMLTableNode*
+vtkSlicerLoadableModuleTemplateLogic::CreateMultiLeafCollimatorTableNode( 
+  vtkMRMLMarkupsCurveNode* vtkNotUsed(curveNode), vtkMRMLDoubleArrayNode* vtkNotUsed(mlcBoundaryNode))
+{
+  return nullptr;
 }
 
 //---------------------------------------------------------------------------
