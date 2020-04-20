@@ -47,6 +47,10 @@ class VTK_SLICER_PLMDRR_MODULE_LOGIC_EXPORT vtkSlicerPlmDrrLogic :
   public vtkSlicerModuleLogic
 {
 public:
+  static const char* DETECTOR_BOUNDARY_MARKUPS_NODE_NAME; // closed curve
+  static const char* IMAGE_BOUNDARY_MARKUPS_NODE_NAME; // closed curve
+  static const char* ORIGIN_MARKUPS_NODE_NAME; // fiducial
+  static const char* NORMAL_MARKUPS_NODE_NAME; // line
 
   static vtkSlicerPlmDrrLogic *New();
   vtkTypeMacro(vtkSlicerPlmDrrLogic, vtkSlicerModuleLogic);
@@ -71,6 +75,10 @@ protected:
   virtual void UpdateFromMRMLScene();
   virtual void OnMRMLSceneNodeAdded(vtkMRMLNode* node);
   virtual void OnMRMLSceneNodeRemoved(vtkMRMLNode* node);
+
+  /// Handles events registered in the observer manager
+  void ProcessMRMLNodesEvents(vtkObject* caller, unsigned long event, void* callData) override;
+
 private:
 
   vtkSlicerPlmDrrLogic(const vtkSlicerPlmDrrLogic&); // Not implemented

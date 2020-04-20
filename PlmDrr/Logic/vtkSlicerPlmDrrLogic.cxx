@@ -42,6 +42,11 @@
 #include <drr.h>
 #include <drr_options.h>
 
+const char* vtkSlicerPlmDrrLogic::DETECTOR_BOUNDARY_MARKUPS_NODE_NAME = "Detector"; // closed curve
+const char* vtkSlicerPlmDrrLogic::IMAGE_BOUNDARY_MARKUPS_NODE_NAME = "Image"; // closed curve
+const char* vtkSlicerPlmDrrLogic::ORIGIN_MARKUPS_NODE_NAME = "Origin"; // fiducial
+const char* vtkSlicerPlmDrrLogic::NORMAL_MARKUPS_NODE_NAME = "Normal"; // line
+
 //----------------------------------------------------------------------------
 vtkStandardNewMacro(vtkSlicerPlmDrrLogic);
 
@@ -89,6 +94,10 @@ void vtkSlicerPlmDrrLogic::RegisterNodes()
   {
     scene->RegisterNodeClass(vtkSmartPointer<vtkMRMLRTBeamNode>::New());
   }
+  if (!scene->IsNodeClassRegistered("vtkMRMLPlmDrrNode"))
+  {
+    scene->RegisterNodeClass(vtkSmartPointer<vtkMRMLPlmDrrNode>::New());
+  }
 }
 
 //---------------------------------------------------------------------------
@@ -126,6 +135,7 @@ void vtkSlicerPlmDrrLogic::OnMRMLSceneNodeRemoved(vtkMRMLNode* vtkNotUsed(node))
 {
 }
 
+//----------------------------------------------------------------------------
 bool vtkSlicerPlmDrrLogic::SaveVolumeNode( const vtkMRMLVolumeNode* volumeNode, std::string& vtkNotUsed(filename))
 {
   if (!volumeNode)
@@ -136,6 +146,7 @@ bool vtkSlicerPlmDrrLogic::SaveVolumeNode( const vtkMRMLVolumeNode* volumeNode, 
   return false;
 }
 
+//----------------------------------------------------------------------------
 bool vtkSlicerPlmDrrLogic::ComputeDRR(Drr_options* opts)
 {
   if (!opts)
@@ -145,6 +156,7 @@ bool vtkSlicerPlmDrrLogic::ComputeDRR(Drr_options* opts)
   return true;
 }
 
+//----------------------------------------------------------------------------
 bool vtkSlicerPlmDrrLogic::LoadDRR( vtkMRMLVolumeNode* volumeNode, const std::string& vtkNotUsed(filename))
 {
   if (!volumeNode)
@@ -159,17 +171,59 @@ vtkMRMLMarkupsLineNode* vtkSlicerPlmDrrLogic::CreateDetectorNormal(vtkMRMLPlmDrr
   return nullptr;
 }
 
+//----------------------------------------------------------------------------
 vtkMRMLMarkupsClosedCurveNode* vtkSlicerPlmDrrLogic::CreateDetectorBoundary(vtkMRMLPlmDrrNode* node)
 {
   return nullptr;
 }
 
+//----------------------------------------------------------------------------
 vtkMRMLMarkupsClosedCurveNode* vtkSlicerPlmDrrLogic::CreateImageBoundary(vtkMRMLPlmDrrNode* node)
 {
   return nullptr;
 }
 
+//----------------------------------------------------------------------------
 vtkMRMLMarkupsFiducialNode* vtkSlicerPlmDrrLogic::CreateImageFirstRowColumn(vtkMRMLPlmDrrNode* node)
 {
   return nullptr;
+}
+
+//----------------------------------------------------------------------------
+void vtkSlicerPlmDrrLogic::ProcessMRMLNodesEvents(vtkObject* caller, unsigned long event, void* callData)
+{
+  Superclass::ProcessMRMLNodesEvents(caller, event, callData);
+
+  vtkMRMLScene* mrmlScene = this->GetMRMLScene();
+  if (!mrmlScene)
+  {
+    vtkErrorMacro("ProcessMRMLNodesEvents: Invalid MRML scene");
+    return;
+  }
+  if (mrmlScene->IsBatchProcessing())
+  {
+    return;
+  }
+
+  if (caller->IsA("vtkMRMLRTBeamNode"))
+  {
+    vtkMRMLRTBeamNode* beamNode = vtkMRMLRTBeamNode::SafeDownCast(caller);
+    if (event == vtkMRMLRTBeamNode::BeamTransformModified)
+    {
+      vtkErrorMacro("ProcessMRMLNodesEvents: RTBeam transformation has been changed");
+    }
+    else if (event == vtkMRMLRTBeamNode::BeamGeometryModified)
+    {
+      vtkErrorMacro("ProcessMRMLNodesEvents: RTBeam geometry has been changed");
+    }
+  }
+  else if (caller->IsA("vtkMRMLRTPlanNode"))
+  {
+    vtkMRMLRTPlanNode* planNode = vtkMRMLRTPlanNode::SafeDownCast(caller);
+
+    if (event == vtkMRMLRTPlanNode::IsocenterModifiedEvent)
+    {
+      vtkErrorMacro("ProcessMRMLNodesEvents: RTPlan isocenter has been changed");
+    }
+  }
 }
