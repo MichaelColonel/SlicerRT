@@ -67,6 +67,11 @@ protected:
 private:
   vtkSlicerLoadableModuleTemplateLogic(const vtkSlicerLoadableModuleTemplateLogic&); // Not implemented
   void operator=(const vtkSlicerLoadableModuleTemplateLogic&); // Not implemented
+
+  bool CalculateCurveBoundary( vtkMRMLMarkupsCurveNode* node, double* b);
+  void FindLeavesRangeIndexes( double* b, int& leafIndexFirst, int& leafIndexLast);
+  vtkIdType FindFiducialIdForX( vtkMRMLMarkupsCurveNode* node, double b);
+  bool FindBoundaryForLeaf( vtkMRMLMarkupsCurveNode* node, int leafIndex, vtkIdType curveId, double* b, int beginLeaf, int endLeaf);
 };
 
 #endif
