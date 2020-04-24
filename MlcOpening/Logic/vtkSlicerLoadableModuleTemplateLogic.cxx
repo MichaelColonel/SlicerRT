@@ -518,17 +518,34 @@ vtkSlicerLoadableModuleTemplateLogic::FindBoundaryForLeaf( vtkMRMLMarkupsCurveNo
   std::vector< int > indexes;
   std::vector< int > ids;
   const std::vector< vtkMRMLMarkupsNode::ControlPoint* >* tmp_points = curveNode->GetControlPoints();
+  std::vector< std::pair< int , std::array< double, 2 > > > new_points;
   std::vector< vtkMRMLMarkupsNode::ControlPoint* > points( tmp_points->begin(), tmp_points->end());
+
+  for ( size_t i = 0; i < tmp_points->size(); ++i)
+  {
+    vtkMRMLMarkupsNode::ControlPoint* point = tmp_points->at(i);
+    double x = point->Position[0];
+    double y = point->Position[1];
+    new_points.push_back(std::make_pair( int(i) - tmp_points->size(), std::array< double, 2 >({x, y})));
+  }
+  for ( size_t i = 0; i < tmp_points->size(); ++i)
+  {
+    vtkMRMLMarkupsNode::ControlPoint* point = tmp_points->at(i);
+    double x = point->Position[0];
+    double y = point->Position[1];
+    new_points.push_back(std::make_pair( i, std::array< double, 2 >({x, y})));
+  }
 //  for ( size_t i = 0; i < tmp_points->size(); ++i)
 //  {
 //    vtkMRMLMarkupsNode::ControlPoint* point = tmp_points->at(i);
 //    points.push_back(point);
 //  }
 
-  for ( size_t i = 0; i < points.size(); ++i)
+  for ( size_t i = 0; i < new_points.size(); ++i)
   {
-    const vtkMRMLMarkupsNode::ControlPoint* point = points.at(i);
-    double x = point->Position[0];
+//    const vtkMRMLMarkupsNode::ControlPoint* point = points.at(i);
+//    double x = point->Position[0];
+    double x = (new_points[i].second)[1];
     if (x < leafStart)
     {
       indexes.push_back(-1);
@@ -542,8 +559,9 @@ vtkSlicerLoadableModuleTemplateLogic::FindBoundaryForLeaf( vtkMRMLMarkupsCurveNo
       indexes.push_back(0);
 //      const vtkMRMLMarkupsNode::ControlPoint* p = points.at(pos);
 //      double x = p->Position[0];
-      double y = point->Position[1];
-      ids.push_back(i);
+//      double y = point->Position[1];
+//      ids.push_back(i);
+      ids.push_back(new_points[i].first);
   //    vtkErrorMacro("Within Leaf: " << i << " " << x << " " << y);
     }
   }
@@ -607,9 +625,9 @@ vtkSlicerLoadableModuleTemplateLogic::FindBoundaryForLeaf( vtkMRMLMarkupsCurveNo
   if (itOne_Zero != indexes.end())
   {
     size_t pos = itOne_Zero - indexes.begin();
-    const vtkMRMLMarkupsNode::ControlPoint* p = points.at(pos);
-    double x = p->Position[0];
-    double y = p->Position[1];
+//    const vtkMRMLMarkupsNode::ControlPoint* p = points.at(pos);
+//    double x = p->Position[0];
+//    double y = p->Position[1];
  //   vtkErrorMacro("Inside Leaf Right (1 0): " << pos << " " << x << " " << y);
     ids.push_back(pos);
     inRight = true;
@@ -617,9 +635,9 @@ vtkSlicerLoadableModuleTemplateLogic::FindBoundaryForLeaf( vtkMRMLMarkupsCurveNo
   if (itZero_One != indexes.end())
   {
     size_t pos = itZero_One - indexes.begin() + 1;
-    const vtkMRMLMarkupsNode::ControlPoint* p = points.at(pos);
-    double x = p->Position[0];
-    double y = p->Position[1];
+//    const vtkMRMLMarkupsNode::ControlPoint* p = points.at(pos);
+//    double x = p->Position[0];
+//    double y = p->Position[1];
 //    vtkErrorMacro("Outsize Leaf Right (0 1): " << pos << " "  << x << " " << y);
     ids.push_back(pos);
     outRight = true;
@@ -627,9 +645,9 @@ vtkSlicerLoadableModuleTemplateLogic::FindBoundaryForLeaf( vtkMRMLMarkupsCurveNo
   if (itMinusOne_Zero != indexes.end())
   {
     size_t pos = itMinusOne_Zero - indexes.begin();
-    const vtkMRMLMarkupsNode::ControlPoint* p = points.at(pos);
-    double x = p->Position[0];
-    double y = p->Position[1];
+//    const vtkMRMLMarkupsNode::ControlPoint* p = points.at(pos);
+//    double x = p->Position[0];
+//    double y = p->Position[1];
  //   vtkErrorMacro("Inside Leaf Left (-1 0): " << pos << " "  << x << " " << y);
     ids.push_back(pos);
     inLeft = true;
@@ -637,9 +655,9 @@ vtkSlicerLoadableModuleTemplateLogic::FindBoundaryForLeaf( vtkMRMLMarkupsCurveNo
   if (itZero_MinusOne != indexes.end())
   {
     size_t pos = itZero_MinusOne - indexes.begin() + 1;
-    const vtkMRMLMarkupsNode::ControlPoint* p = points.at(pos);
-    double x = p->Position[0];
-    double y = p->Position[1];
+//    const vtkMRMLMarkupsNode::ControlPoint* p = points.at(pos);
+//    double x = p->Position[0];
+//    double y = p->Position[1];
  //   vtkErrorMacro("Outsize Leaf Left (0 -1): " << pos << " "  << x << " " << y);
     ids.push_back(pos);
     outLeft = true;
@@ -647,14 +665,14 @@ vtkSlicerLoadableModuleTemplateLogic::FindBoundaryForLeaf( vtkMRMLMarkupsCurveNo
   if (itMinusOne_One != indexes.end())
   {
     size_t pos = itMinusOne_One - indexes.begin();
-    const vtkMRMLMarkupsNode::ControlPoint* p = points.at(pos);
-    double x = p->Position[0];
-    double y = p->Position[1];
+//    const vtkMRMLMarkupsNode::ControlPoint* p = points.at(pos);
+//    double x = p->Position[0];
+//    double y = p->Position[1];
  //   vtkErrorMacro("Between Leaf Left (-1 1): " << pos << " "  << x << " " << y);
     ids.push_back(pos);
-    p = points.at(pos + 1);
-    x = p->Position[0];
-    y = p->Position[1];
+//    p = points.at(pos + 1);
+//    x = p->Position[0];
+//    y = p->Position[1];
  //   vtkErrorMacro("Between Leaf Left (-1 1): " << pos + 1 << " "  << x << " " << y);
     ids.push_back(pos + 1);
     betweenLeft = true;
@@ -662,14 +680,14 @@ vtkSlicerLoadableModuleTemplateLogic::FindBoundaryForLeaf( vtkMRMLMarkupsCurveNo
   if (itOne_MinusOne != indexes.end())
   {
     size_t pos = itOne_MinusOne - indexes.begin();
-    const vtkMRMLMarkupsNode::ControlPoint* p = points.at(pos);
-    double x = p->Position[0];
-    double y = p->Position[1];
+//    const vtkMRMLMarkupsNode::ControlPoint* p = points.at(pos);
+//    double x = p->Position[0];
+//    double y = p->Position[1];
     ids.push_back(pos);
 //    vtkErrorMacro("Between Leaf Right (1 -1): " << pos << " "  << x << " " << y);
-    p = points.at(pos + 1);
-    x = p->Position[0];
-    y = p->Position[1];
+//    p = points.at(pos + 1);
+//    x = p->Position[0];
+//    y = p->Position[1];
 //    vtkErrorMacro("Between Leaf Left (1 -1): " << pos + 1 << " "  << x << " " << y);
     ids.push_back(pos + 1);
     betweenRight = true;
