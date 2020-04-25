@@ -230,12 +230,20 @@ qSlicerLoadableModuleTemplateModuleWidget::onCalculateOpeningButtonClicked()
     vtkPolyData* targetPoly = d->StructureSetSegmentationNode->GetClosedSurfaceInternalRepresentation(targetId);
     if (targetPoly)
     {
-      vtkMRMLMarkupsCurveNode* openingCurve = moduleLogic->CalculateMultiLeafCollimatorOpening( 
+      vtkMRMLMarkupsCurveNode* positionCurve = moduleLogic->CalculatePositionCurve( 
         d->BeamNode, targetPoly);
-      if (openingCurve)
+      if (positionCurve)
       {
         vtkMRMLTransformNode* beamTransformNode = d->BeamNode->GetParentTransformNode();
-        openingCurve->SetAndObserveTransformNodeID(beamTransformNode->GetID());
+        positionCurve->SetAndObserveTransformNodeID(beamTransformNode->GetID());
+        
+        vtkMRMLDoubleArrayNode* mlcBoundaryNode = moduleLogic->CreateMultiLeafCollimatorDoubleArrayNode();
+        vtkMRMLTableNode* mlcPositionNode = moduleLogic->CalculateMultiLeafCollimatorPosition( positionCurve, mlcBoundaryNode);
+        if (mlcBoundaryNode && mlcPositionNode)
+        {
+          d->BeamNode->SetAndObserveMLCBoundaryDoubleArrayNode(mlcBoundaryNode);
+          d->BeamNode->SetAndObserveMLCPositionTableNode(mlcPositionNode);
+        }
       }
     }
   }

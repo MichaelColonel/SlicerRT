@@ -33,6 +33,7 @@ class vtkPolyData;
 class vtkMRMLMarkupsCurveNode;
 class vtkMRMLRTBeamNode;
 class vtkMRMLDoubleArrayNode;
+class vtkDoubleArray;
 class vtkMRMLTableNode;
 
 /// \ingroup Slicer_QtModules_ExtensionTemplate
@@ -43,12 +44,14 @@ public:
   vtkTypeMacro( vtkSlicerLoadableModuleTemplateLogic, vtkSlicerModuleLogic);
   void PrintSelf( ostream& os, vtkIndent indent);
 
-  /// Calculate MLC opening polygon on isocenter plane
-  vtkMRMLMarkupsCurveNode* CalculateMultiLeafCollimatorOpening( 
+  /// Calculate position curve on isocenter plane
+  vtkMRMLMarkupsCurveNode* CalculatePositionCurve( 
     vtkMRMLRTBeamNode* beamNode, vtkPolyData* targetPoly);
 
+  vtkMRMLTableNode* CalculateMultiLeafCollimatorPosition( vtkMRMLMarkupsCurveNode* curveNode, 
+    vtkMRMLDoubleArrayNode* mlcBoundary);
+
   vtkMRMLDoubleArrayNode* CreateMultiLeafCollimatorDoubleArrayNode();
-  vtkMRMLTableNode* CreateMultiLeafCollimatorTableNode( vtkMRMLMarkupsCurveNode* curveNode, vtkMRMLDoubleArrayNode* mlcBoundaryNode);
 
 protected:
   vtkSlicerLoadableModuleTemplateLogic();
@@ -68,10 +71,12 @@ private:
   vtkSlicerLoadableModuleTemplateLogic(const vtkSlicerLoadableModuleTemplateLogic&); // Not implemented
   void operator=(const vtkSlicerLoadableModuleTemplateLogic&); // Not implemented
 
-  bool CalculateCurveBoundary( vtkMRMLMarkupsCurveNode* node, double* b);
-  void FindLeavesRangeIndexes( double* b, int& leafIndexFirst, int& leafIndexLast);
-  vtkIdType FindFiducialIdForX( vtkMRMLMarkupsCurveNode* node, double b);
-  bool FindBoundaryForLeaf( vtkMRMLMarkupsCurveNode* node, int leafIndex, vtkIdType curveId, double* b, int beginLeaf, int endLeaf);
+  vtkMRMLTableNode* CreateMultiLeafCollimatorTableNode(const std::vector<double>& positions);
+  bool CalculateCurveBoundary( vtkMRMLMarkupsCurveNode* node, double b[4]);
+  void FindLeafPairRangeIndexes( double* b, vtkDoubleArray* mlcBoundaryArray, int& leafPairIndexFirst, int& leafPairIndexLast);
+  bool FindLeafPairPositions( vtkMRMLMarkupsCurveNode* node, vtkDoubleArray* mlcBoundaryArray, size_t leafPairIndex, 
+    double& side1, double& side2, int strategy = 1, 
+    double maxPositionDistance = 100., double positionStep = 0.01);
 };
 
 #endif
