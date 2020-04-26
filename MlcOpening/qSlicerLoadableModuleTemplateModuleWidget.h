@@ -65,6 +65,7 @@ public slots:
 
   /// Process Volume and Segmentation Nodes
   void onCalculateOpeningButtonClicked();
+  void onCalculateOpeningButtonClicked1();
 
   /// Change visibility of the MRML node ID columns
   void setMRMLIDsVisible(bool visible);

@@ -182,6 +182,8 @@ qSlicerLoadableModuleTemplateModuleWidget::setup()
 
   connect( d->CalculateOpeningPushButton, SIGNAL(clicked()),
     this, SLOT(onCalculateOpeningButtonClicked()));
+  connect( d->CalculateOpeningPushButton1, SIGNAL(clicked()),
+    this, SLOT(onCalculateOpeningButtonClicked1()));
 
   qDebug() << Q_FUNC_INFO;
 }
@@ -240,15 +242,30 @@ qSlicerLoadableModuleTemplateModuleWidget::onCalculateOpeningButtonClicked()
           d->BeamNode->SetAndObserveMLCBoundaryDoubleArrayNode(mlcBoundaryNode);
           d->BeamNode->SetAndObserveMLCPositionTableNode(mlcPositionNode);
         }
-        moduleLogic->SetParentForMultiLeafCollimatorPosition( d->BeamNode, mlcPositionNode);
 
         double area = moduleLogic->CalculateMultiLeafCollimatorPositionArea( mlcBoundaryNode, mlcPositionNode);
         qDebug() << Q_FUNC_INFO << ": Position area (mm^2) = " << area;
 
         area = moduleLogic->CalculateCurvePolygonArea(positionCurve);
         qDebug() << Q_FUNC_INFO << ": Polygon area (mm^2) = " << area;
+        moduleLogic->SetParentForMultiLeafCollimatorPosition( d->BeamNode, mlcPositionNode);
       }
     }
+  }
+}
+
+void
+qSlicerLoadableModuleTemplateModuleWidget::onCalculateOpeningButtonClicked1()
+{
+  Q_D(qSlicerLoadableModuleTemplateModuleWidget);
+
+  vtkSlicerLoadableModuleTemplateLogic* moduleLogic = vtkSlicerLoadableModuleTemplateLogic::SafeDownCast(this->logic());
+
+  std::string targetId = d->m_TargetVolumeName.toStdString();
+
+  if (moduleLogic && !targetId.empty())
+  {
+    moduleLogic->CreateMultiLeafCollimatorModelPolyData(d->BeamNode);
   }
 }
 

@@ -129,6 +129,9 @@ public:
   /// \return Success flag
   bool GetSourcePosition(double source[3]);
 
+  /// Create MLC polydata
+  vtkPolyData* CreateMultiLeafCollimatorModelPolyData(double mlcLeafLength = 200.);
+
 // Beam parameters
 public:
   /// Get beam number
