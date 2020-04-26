@@ -18,6 +18,10 @@
 // LoadableModuleTemplate Logic includes
 #include "vtkSlicerLoadableModuleTemplateLogic.h"
 
+// Subject Hierarchy includes
+#include <vtkMRMLSubjectHierarchyConstants.h>
+#include <vtkMRMLSubjectHierarchyNode.h>
+
 // MRML includes
 #include <vtkMRMLNode.h>
 #include <vtkMRMLDisplayableNode.h>
@@ -50,6 +54,7 @@
 
 #include <vtkOBBTree.h>
 #include <vtkPoints.h>
+#include <vtkPolygon.h>
 #include <vtkIdList.h>
 #include <vtkPointsProjectedHull.h>
 
@@ -78,6 +83,43 @@ const char* MLCY_Boundary = "MLCY_Boundary";
 const char* MLCY_Position = "MLCY_Position";
 
 const size_t leaves = 32;
+/*
+const double boundary[leaves + 1] = {
+  -80.0 - 2.5,
+  -75.0 - 2.5,
+  -70.0 - 2.5,
+  -65.0 - 2.5,
+  -60.0 - 2.5,
+  -55.0 - 2.5,
+  -50.0 - 2.5,
+  -45.0 - 2.5,
+  -40.0 - 2.5,
+  -35.0 - 2.5,
+  -30.0 - 2.5,
+  -25.0 - 2.5,
+  -20.0 - 2.5,
+  -15.0 - 2.5,
+  -10.0 - 2.5,
+   -5.0 - 2.5,
+    0.0 - 2.5,
+   +5.0 - 2.5,
+  +10.0 - 2.5,
+  +15.0 - 2.5,
+  +20.0 - 2.5,
+  +25.0 - 2.5,
+  +30.0 - 2.5,
+  +35.0 - 2.5,
+  +40.0 - 2.5,
+  +45.0 - 2.5,
+  +50.0 - 2.5,
+  +55.0 - 2.5,
+  +60.0 - 2.5,
+  +65.0 - 2.5,
+  +70.0 - 2.5,
+  +75.0 - 2.5,
+  +86.5 - 2.5
+};
+*/
 const double boundary[leaves + 1] = {
   -80.0,
   -75.0,
@@ -322,13 +364,13 @@ vtkMRMLTableNode*
 vtkSlicerLoadableModuleTemplateLogic::CalculateMultiLeafCollimatorPosition( 
   vtkMRMLMarkupsCurveNode* curveNode, vtkMRMLDoubleArrayNode* mlcBoundaryNode)
 {
-
   vtkDoubleArray* mlcBoundaryArray = nullptr;
+
   size_t nofLeafPairs = 0;
   if (mlcBoundaryNode)
   {
     mlcBoundaryArray = mlcBoundaryNode->GetArray();
-    nofLeafPairs = mlcBoundaryNode ? (mlcBoundaryArray->GetNumberOfTuples() - 1) : 0;
+    nofLeafPairs = mlcBoundaryArray ? (mlcBoundaryArray->GetNumberOfTuples() - 1) : 0;
   }
 
   double curveBounds[4];
@@ -354,7 +396,10 @@ vtkSlicerLoadableModuleTemplateLogic::CalculateMultiLeafCollimatorPosition(
       positions[leafIndex + nofLeafPairs] = side2;
     }
   }
-  return CreateMultiLeafCollimatorTableNode(positions);
+
+  vtkMRMLTableNode* mlcTableNode = CreateMultiLeafCollimatorTableNode(positions);
+
+  return mlcTableNode;
 }
 
 //---------------------------------------------------------------------------
@@ -424,8 +469,12 @@ vtkSlicerLoadableModuleTemplateLogic::FindLeafPairRangeIndexes( double* b, vtkDo
 //---------------------------------------------------------------------------
 bool
 vtkSlicerLoadableModuleTemplateLogic::FindLeafPairPositions( 
-   vtkMRMLMarkupsCurveNode* curveNode, vtkDoubleArray* mlcBoundaryArray, size_t leafPairIndex, 
-    double& side1, double& side2, int vtkNotUsed(strategy), double maxPositionDistance, double positionStep)
+  vtkMRMLMarkupsCurveNode* curveNode, vtkDoubleArray* mlcBoundaryArray, 
+  size_t leafPairIndex, 
+  double& side1, double& side2, 
+  int vtkNotUsed(strategy), 
+  double maxPositionDistance, 
+  double positionStep)
 {
   double leafStart = mlcBoundaryArray->GetTuple1(leafPairIndex);
   double leafEnd = mlcBoundaryArray->GetTuple1(leafPairIndex + 1);
@@ -477,4 +526,93 @@ vtkSlicerLoadableModuleTemplateLogic::FindLeafPairPositions(
     }
   }
   return (side1Flag && side2Flag);
+}
+
+//---------------------------------------------------------------------------
+double
+vtkSlicerLoadableModuleTemplateLogic::CalculateMultiLeafCollimatorPositionArea( 
+  vtkMRMLDoubleArrayNode* mlcBoundaryNode, 
+  vtkMRMLTableNode* mlcPositionNode)
+{
+  vtkDoubleArray* mlcBoundaryArray = nullptr;
+
+  int nofLeafPairs = 0;
+  if (mlcBoundaryNode)
+  {
+    mlcBoundaryArray = mlcBoundaryNode->GetArray();
+    nofLeafPairs = mlcBoundaryArray ? (mlcBoundaryArray->GetNumberOfTuples() - 1) : 0;
+  }
+
+  double area = -1;
+  // MLC position data
+  if (nofLeafPairs && mlcPositionNode && (mlcPositionNode->GetNumberOfRows() == nofLeafPairs))
+  {
+    area = 0.;
+    for ( size_t leafPair = 0; leafPair < size_t(nofLeafPairs); ++leafPair)
+    {
+      double boundBegin = mlcBoundaryArray->GetTuple1(leafPair);
+      double boundEnd = mlcBoundaryArray->GetTuple1(leafPair + 1);
+
+      vtkTable* table = mlcPositionNode->GetTable();
+      double side1 = table->GetValue( leafPair, 0).ToDouble();
+      double side2 = table->GetValue( leafPair, 1).ToDouble();
+      area += (fabs(side1) + fabs(side2)) * fabs(boundEnd - boundBegin);
+    }
+  }
+
+  return area;
+}
+
+//---------------------------------------------------------------------------
+double
+vtkSlicerLoadableModuleTemplateLogic::CalculateCurvePolygonArea(vtkMRMLMarkupsCurveNode* curveNode)
+{
+  if (!curveNode)
+  {
+    return -1.;
+  }
+
+  const std::vector< vtkMRMLMarkupsNode::ControlPoint* >* controlPoints = curveNode->GetControlPoints();
+
+  // Setup points
+  vtkNew<vtkPoints> points;
+
+  for ( auto it = controlPoints->begin(); it != controlPoints->end(); ++it)
+  {
+    vtkMRMLMarkupsNode::ControlPoint* point = *it;
+    double x = point->Position[0];
+    double y = point->Position[1];
+    points->InsertNextPoint( x, y, 0.0);
+  }
+
+  double normal[3];
+  return vtkPolygon::ComputeArea( points, controlPoints->size(), nullptr, normal);
+}
+
+//---------------------------------------------------------------------------
+void
+vtkSlicerLoadableModuleTemplateLogic::SetParentForMultiLeafCollimatorPosition( 
+  vtkMRMLRTBeamNode* beamNode, vtkMRMLTableNode* mlcPositionNode)
+{
+  vtkMRMLSubjectHierarchyNode* shNode = vtkMRMLSubjectHierarchyNode::GetSubjectHierarchyNode(this->GetMRMLScene());
+  if (shNode)
+  {
+    vtkIdType beamShId = vtkMRMLSubjectHierarchyNode::INVALID_ITEM_ID;
+    vtkIdType mlcPositionShId = vtkMRMLSubjectHierarchyNode::INVALID_ITEM_ID;
+
+    if (beamNode)
+    {
+      // put observed mlc data under beam and ion beam node parent
+      beamShId = shNode->GetItemByDataNode(beamNode);
+      if (mlcPositionNode)
+      {
+        mlcPositionShId = shNode->GetItemByDataNode(mlcPositionNode);
+      }
+      if (beamShId != vtkMRMLSubjectHierarchyNode::INVALID_ITEM_ID && 
+        mlcPositionShId != vtkMRMLSubjectHierarchyNode::INVALID_ITEM_ID)
+      {
+        shNode->SetItemParent( mlcPositionShId, beamShId);
+      }
+    }
+  }
 }

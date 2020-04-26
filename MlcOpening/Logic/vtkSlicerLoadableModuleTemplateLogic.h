@@ -48,10 +48,18 @@ public:
   vtkMRMLMarkupsCurveNode* CalculatePositionCurve( 
     vtkMRMLRTBeamNode* beamNode, vtkPolyData* targetPoly);
 
-  vtkMRMLTableNode* CalculateMultiLeafCollimatorPosition( vtkMRMLMarkupsCurveNode* curveNode, 
+  vtkMRMLTableNode* CalculateMultiLeafCollimatorPosition( 
+    vtkMRMLMarkupsCurveNode* curveNode, 
     vtkMRMLDoubleArrayNode* mlcBoundary);
 
   vtkMRMLDoubleArrayNode* CreateMultiLeafCollimatorDoubleArrayNode();
+
+  double CalculateMultiLeafCollimatorPositionArea( 
+    vtkMRMLDoubleArrayNode* mlcBoundary, 
+    vtkMRMLTableNode* mlcPosition);
+
+  double CalculateCurvePolygonArea(vtkMRMLMarkupsCurveNode* curveNode);
+  void SetParentForMultiLeafCollimatorPosition( vtkMRMLRTBeamNode* beamNode, vtkMRMLTableNode* mlcPositionNode);
 
 protected:
   vtkSlicerLoadableModuleTemplateLogic();

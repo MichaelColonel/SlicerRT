@@ -36,10 +36,6 @@
 // Logic includes
 #include "vtkSlicerLoadableModuleTemplateLogic.h"
 
-// Subject Hierarchy includes
-#include <qMRMLSubjectHierarchyModel.h>
-#include <vtkMRMLSubjectHierarchyConstants.h>
-
 // MRMLWidgets includes
 #include <qMRMLSceneModel.h>
 #include <qMRMLSliceWidget.h>
@@ -244,6 +240,13 @@ qSlicerLoadableModuleTemplateModuleWidget::onCalculateOpeningButtonClicked()
           d->BeamNode->SetAndObserveMLCBoundaryDoubleArrayNode(mlcBoundaryNode);
           d->BeamNode->SetAndObserveMLCPositionTableNode(mlcPositionNode);
         }
+        moduleLogic->SetParentForMultiLeafCollimatorPosition( d->BeamNode, mlcPositionNode);
+
+        double area = moduleLogic->CalculateMultiLeafCollimatorPositionArea( mlcBoundaryNode, mlcPositionNode);
+        qDebug() << Q_FUNC_INFO << ": Position area (mm^2) = " << area;
+
+        area = moduleLogic->CalculateCurvePolygonArea(positionCurve);
+        qDebug() << Q_FUNC_INFO << ": Polygon area (mm^2) = " << area;
       }
     }
   }
