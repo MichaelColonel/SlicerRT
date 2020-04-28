@@ -29,6 +29,9 @@
 #include <qSlicerSegmentationsModule.h>
 #include <vtkSlicerSegmentationsModuleLogic.h>
 
+// Slicer Models includes
+#include <vtkSlicerModelsLogic.h>
+
 // Slicer includes
 #include <qSlicerIOManager.h>
 #include <qSlicerCoreApplication.h>
@@ -142,6 +145,17 @@ qSlicerLoadableModuleTemplateModule::createWidgetRepresentation()
   {
     vtkSlicerBeamsModuleLogic* beamsLogic = vtkSlicerBeamsModuleLogic::SafeDownCast(beamsModule->logic());
     moduleWidget->setBeamsLogic(beamsLogic);
+  }
+  else
+  {
+    qCritical() << Q_FUNC_INFO << ": Beams module is not found";
+  }
+
+  qSlicerAbstractCoreModule* modelsModule = qSlicerCoreApplication::application()->moduleManager()->module("Models");
+  if (modelsModule)
+  {
+    vtkSlicerModelsLogic* modelsLogic = vtkSlicerModelsLogic::SafeDownCast(modelsModule->logic());
+    moduleWidget->setModelsLogic(modelsLogic);
   }
   else
   {

@@ -534,7 +534,7 @@ vtkSlicerLoadableModuleTemplateLogic::FindLeafPairPositions(
 
   int subId;
   double t, xyz[3], pcoords[3];
-  for ( double c = -1. * maxPositionDistance; c < 0.; c += positionStep)
+  for ( double c = -1. * maxPositionDistance; c <= maxPositionDistance; c += positionStep)
   {
     if (typeMLCX)
     {
@@ -547,7 +547,7 @@ vtkSlicerLoadableModuleTemplateLogic::FindLeafPairPositions(
       pEnd[1] = c;
     }
 
-    if (cellLocator->IntersectWithLine( pStart, pEnd, 0.0001, t, xyz, pcoords, subId))
+    if (cellLocator->IntersectWithLine( pStart, pEnd, 0.01, t, xyz, pcoords, subId))
     {
       side1Flag = true;
       // xyz values
@@ -565,7 +565,7 @@ vtkSlicerLoadableModuleTemplateLogic::FindLeafPairPositions(
 
   // intersection with side2
   bool side2Flag = false;
-  for ( double c = maxPositionDistance; c > 0.; c -= positionStep)
+  for ( double c = maxPositionDistance; c >= -1. * maxPositionDistance; c -= positionStep)
   {
     if (typeMLCX)
     {
@@ -578,7 +578,7 @@ vtkSlicerLoadableModuleTemplateLogic::FindLeafPairPositions(
       pEnd[1] = c;
     }
 
-    if (cellLocator->IntersectWithLine( pStart, pEnd, 0.0001, t, xyz, pcoords, subId))
+    if (cellLocator->IntersectWithLine( pStart, pEnd, 0.05, t, xyz, pcoords, subId))
     {
       side2Flag = true;
       // xyz values

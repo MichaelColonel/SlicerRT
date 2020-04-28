@@ -33,6 +33,9 @@
 #include <vtkMRMLRTIonBeamNode.h>
 #include <vtkMRMLRTPlanNode.h>
 
+// Slicer Models includes
+#include <vtkSlicerModelsLogic.h>
+
 // Logic includes
 #include "vtkSlicerLoadableModuleTemplateLogic.h"
 
@@ -92,6 +95,7 @@ public:
   vtkMRMLSegmentationNode* StructureSetSegmentationNode;
   vtkSlicerSegmentationsModuleLogic* SegmentationsLogic;
   vtkSlicerBeamsModuleLogic* BeamsLogic;
+  vtkSlicerModelsLogic* ModelsLogic;
   vtkMRMLRTBeamNode* BeamNode;
   QString m_TargetVolumeName;
 };
@@ -107,6 +111,7 @@ qSlicerLoadableModuleTemplateModuleWidgetPrivate::qSlicerLoadableModuleTemplateM
   StructureSetSegmentationNode(nullptr),
   SegmentationsLogic(nullptr),
   BeamsLogic(nullptr),
+  ModelsLogic(nullptr),
   BeamNode(nullptr)
 {
 }
@@ -265,7 +270,15 @@ qSlicerLoadableModuleTemplateModuleWidget::onCalculateOpeningButtonClicked1()
 
   if (moduleLogic && !targetId.empty())
   {
+//    vtkSlicerLoadableModuleTemplateLogic* moduleLogic = vtkSlicerLoadableModuleTemplateLogic::SafeDownCast(this->logic());
+//    moduleLogic->SetModelsLogic(d->ModelsLogic);
     moduleLogic->CreateMultiLeafCollimatorModelPolyData(d->BeamNode);
+        
+    vtkMRMLDoubleArrayNode* mlcBoundaryNode = d->BeamNode->GetMLCBoundaryDoubleArrayNode();
+    vtkMRMLTableNode* mlcPositionNode = d->BeamNode->GetMLCPositionTableNode();
+
+    double area = moduleLogic->CalculateMultiLeafCollimatorPositionArea( mlcBoundaryNode, mlcPositionNode);
+    qDebug() << Q_FUNC_INFO << ": Position area (mm^2) = " << area;
   }
 }
 
@@ -354,6 +367,22 @@ qSlicerLoadableModuleTemplateModuleWidget::setBeamsLogic(vtkSlicerBeamsModuleLog
   {
     qCritical() << "Beams logic is invalid";
     d->BeamsLogic = nullptr;
+  }
+}
+
+void
+qSlicerLoadableModuleTemplateModuleWidget::setModelsLogic(vtkSlicerModelsLogic* logic)
+{
+  Q_D(qSlicerLoadableModuleTemplateModuleWidget);
+  if (logic)
+  {
+    qDebug() << "Models logic is valid";
+    d->ModelsLogic = logic;
+  }
+  else
+  {
+    qCritical() << "Models logic is invalid";
+    d->ModelsLogic = nullptr;
   }
 }
 

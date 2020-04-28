@@ -89,7 +89,7 @@ private:
   void FindLeafPairRangeIndexes( double* b, vtkDoubleArray* mlcBoundaryArray, int& leafPairIndexFirst, int& leafPairIndexLast);
   bool FindLeafPairPositions( vtkMRMLMarkupsCurveNode* node, vtkMRMLDoubleArrayNode* mlcBoundaryNode, size_t leafPairIndex, 
     double& side1, double& side2, int strategy = 1, 
-    double maxPositionDistance = 100., double positionStep = 0.01);
+    double maxPositionDistance = 100., double positionStep = 0.1);
 
   /// Models module logic instance
   vtkSlicerModelsLogic* ModelsLogic;

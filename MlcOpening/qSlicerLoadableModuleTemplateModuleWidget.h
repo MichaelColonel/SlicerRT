@@ -33,6 +33,7 @@ class vtkMRMLSegmentationNode;
 
 class vtkSlicerSegmentationsModuleLogic;
 class vtkSlicerBeamsModuleLogic;
+class vtkSlicerModelsLogic;
 
 /// \ingroup Slicer_QtModules_ExtensionTemplate
 class Q_SLICER_QTMODULES_LOADABLEMODULETEMPLATE_EXPORT qSlicerLoadableModuleTemplateModuleWidget : public qSlicerAbstractModuleWidget {
@@ -47,6 +48,7 @@ public:
   virtual void enter();
   void setSegmentationsLogic(vtkSlicerSegmentationsModuleLogic*);
   void setBeamsLogic(vtkSlicerBeamsModuleLogic*);
+  void setModelsLogic(vtkSlicerModelsLogic*);
 
 public slots:
   /// Reimplemented for internal reasons
