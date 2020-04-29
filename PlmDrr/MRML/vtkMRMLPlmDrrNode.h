@@ -91,7 +91,7 @@ protected:
   void operator=(const vtkMRMLPlmDrrNode&);
 
 protected:
-  double IsocenterDetectorDistance; // abs(SID - SAD)
+  double IsocenterDetectorDistance; // fabs(SID - SAD)
   double DetectorCenterOffset[2]; // x,y
   int ImageDimention[2]; // x,y
   double ImageSpacing[2]; // x,y

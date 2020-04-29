@@ -170,9 +170,10 @@ bool vtkSlicerPlmDrrLogic::LoadDRR( vtkMRMLVolumeNode* volumeNode, const std::st
 //----------------------------------------------------------------------------
 void vtkSlicerPlmDrrLogic::CreateDefaultMarkupsNodes(vtkMRMLRTBeamNode* vtkNotUsed(beamNode))
 {
-  if (!this->GetMRMLScene())
+  vtkMRMLScene* scene = this->GetMRMLScene(); 
+  if (!scene)
   {
-    vtkErrorMacro("CreateDefaultMarkupsNodes: Invalid scene");
+    vtkErrorMacro("CreateDefaultMarkupsNodes: Invalid MRML scene");
     return;
   }
 

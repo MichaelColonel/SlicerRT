@@ -34,6 +34,9 @@
 #include <vtkMRMLRTBeamNode.h>
 #include <vtkMRMLRTIonBeamNode.h>
 
+// Logic includes
+#include "vtkSlicerPlmDrrLogic.h"
+
 // Plastimatch includes
 #include <drr_options.h>
 
@@ -41,22 +44,43 @@
 /// \ingroup Slicer_QtModules_ExtensionTemplate
 class qSlicerPlmDrrModuleWidgetPrivate: public Ui_qSlicerPlmDrrModuleWidget
 {
+  Q_DECLARE_PUBLIC(qSlicerPlmDrrModuleWidget);
+protected:
+  qSlicerPlmDrrModuleWidget* const q_ptr;
 public:
-  qSlicerPlmDrrModuleWidgetPrivate();
-  vtkMRMLRTBeamNode* RtBeam;
-  vtkMRMLScalarVolumeNode* ReferenceVolume;
+  qSlicerPlmDrrModuleWidgetPrivate(qSlicerPlmDrrModuleWidget& object);
+  virtual ~qSlicerPlmDrrModuleWidgetPrivate();
+  vtkSlicerPlmDrrLogic* logic() const;
+
+public:
+  vtkMRMLRTBeamNode* RtBeamNode;
+  vtkMRMLScalarVolumeNode* ReferenceVolumeNode;
   Drr_options DrrOptions;
 };
 
 //-----------------------------------------------------------------------------
-// qSlicerPlmDrrModuleWidgetPrivate methods
+// qSlicerLoadableModuleTemplateModuleWidgetPrivate methods
 
 //-----------------------------------------------------------------------------
-qSlicerPlmDrrModuleWidgetPrivate::qSlicerPlmDrrModuleWidgetPrivate()
+qSlicerPlmDrrModuleWidgetPrivate::qSlicerPlmDrrModuleWidgetPrivate(qSlicerPlmDrrModuleWidget &object)
   :
-  RtBeam(nullptr),
-  ReferenceVolume(nullptr)
+  q_ptr(&object),
+  RtBeamNode(nullptr),
+  ReferenceVolumeNode(nullptr)
 {
+}
+
+//-----------------------------------------------------------------------------
+qSlicerPlmDrrModuleWidgetPrivate::~qSlicerPlmDrrModuleWidgetPrivate()
+{
+}
+
+//-----------------------------------------------------------------------------
+vtkSlicerPlmDrrLogic*
+qSlicerPlmDrrModuleWidgetPrivate::logic() const
+{
+  Q_Q(const qSlicerPlmDrrModuleWidget);
+  return vtkSlicerPlmDrrLogic::SafeDownCast(q->logic());
 }
 
 //-----------------------------------------------------------------------------
@@ -64,9 +88,11 @@ qSlicerPlmDrrModuleWidgetPrivate::qSlicerPlmDrrModuleWidgetPrivate()
 
 //-----------------------------------------------------------------------------
 qSlicerPlmDrrModuleWidget::qSlicerPlmDrrModuleWidget(QWidget* _parent)
-  : Superclass( _parent )
-  , d_ptr( new qSlicerPlmDrrModuleWidgetPrivate )
+  :
+  Superclass(_parent),
+  d_ptr(new qSlicerPlmDrrModuleWidgetPrivate(*this))
 {
+  // Q_D(qSlicerPlmDrrModuleWidget);
 }
 
 //-----------------------------------------------------------------------------
@@ -110,7 +136,7 @@ void qSlicerPlmDrrModuleWidget::onRTBeamNodeChanged(vtkMRMLNode* node)
   Q_D(qSlicerPlmDrrModuleWidget);
   vtkMRMLRTBeamNode* beamNode = vtkMRMLRTBeamNode::SafeDownCast(node);
   vtkMRMLRTIonBeamNode* ionBeamNode = vtkMRMLRTIonBeamNode::SafeDownCast(node);
-  d->RtBeam = beamNode;
+  d->RtBeamNode = beamNode;
   Q_UNUSED(ionBeamNode);
 }
 
@@ -119,7 +145,7 @@ void qSlicerPlmDrrModuleWidget::onReferenceVolumeNodeChanged(vtkMRMLNode* node)
 {
   Q_D(qSlicerPlmDrrModuleWidget);
   vtkMRMLScalarVolumeNode* volumeNode = vtkMRMLScalarVolumeNode::SafeDownCast(node);
-  d->ReferenceVolume = volumeNode;
+  d->ReferenceVolumeNode = volumeNode;
 }
 
 //-----------------------------------------------------------------------------
@@ -127,7 +153,7 @@ void qSlicerPlmDrrModuleWidget::onSaveVolumeClicked()
 {
   Q_D(qSlicerPlmDrrModuleWidget);
 
-  if (d->ReferenceVolume && d->ReferenceVolume->AddDefaultStorageNode())
+  if (d->ReferenceVolumeNode && d->ReferenceVolumeNode->AddDefaultStorageNode())
   {
     qDebug() << Q_FUNC_INFO << "Reference volume node OK!";
 
@@ -136,7 +162,7 @@ void qSlicerPlmDrrModuleWidget::onSaveVolumeClicked()
     QDir dir(qSlicerCoreApplication::application()->temporaryPath());
     QString drrVolumeFileName = dir.absoluteFilePath("inputDrrVolume.mha");
 
-    fileParameters["nodeID"] = d->ReferenceVolume->GetID();
+    fileParameters["nodeID"] = d->ReferenceVolumeNode->GetID();
     fileParameters["fileName"] = drrVolumeFileName;
     if (coreIOManager->saveNodes( "VolumeFile", fileParameters))
     {
@@ -167,7 +193,7 @@ void qSlicerPlmDrrModuleWidget::onLogicModified()
 //-----------------------------------------------------------------------------
 void qSlicerPlmDrrModuleWidget::updateWidgetFromMRML()
 {
-  Q_D(qSlicerRoomsEyeViewModuleWidget);
+  Q_D(qSlicerPlmDrrModuleWidget);
 /*
   vtkMRMLRoomsEyeViewNode* paramNode = vtkMRMLRoomsEyeViewNode::SafeDownCast(d->MRMLNodeComboBox_ParameterSet->currentNode());
 

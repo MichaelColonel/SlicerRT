@@ -38,6 +38,7 @@ class Drr_options;
 class vtkMRMLVolumeNode;
 
 class vtkMRMLPlmDrrNode;
+class vtkMRMLRTBeamNode;
 class vtkMRMLMarkupsClosedCurveNode;
 class vtkMRMLMarkupsFiducialNode;
 class vtkMRMLMarkupsLineNode;
@@ -49,9 +50,9 @@ class VTK_SLICER_PLMDRR_MODULE_LOGIC_EXPORT vtkSlicerPlmDrrLogic :
 public:
   static const char* DETECTOR_BOUNDARY_MARKUPS_NODE_NAME; // closed curve
   static const char* IMAGE_BOUNDARY_MARKUPS_NODE_NAME; // closed curve
-  static const char* ORIGIN_MARKUPS_NODE_NAME; // fiducial
-  static const char* NORMAL_MARKUPS_NODE_NAME; // line
-  static const char* VUP_MARKUPS_NODE_NAME; // line
+  static const char* ORIGIN_POINT_MARKUPS_NODE_NAME; // fiducial
+  static const char* NORMAL_VECTOR_MARKUPS_NODE_NAME; // line
+  static const char* VUP_VECTOR_MARKUPS_NODE_NAME; // line
 
   static vtkSlicerPlmDrrLogic *New();
   vtkTypeMacro(vtkSlicerPlmDrrLogic, vtkSlicerModuleLogic);
