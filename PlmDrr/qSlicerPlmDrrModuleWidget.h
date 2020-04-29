@@ -44,6 +44,11 @@ public slots:
   void onSaveVolumeClicked();
   void onComputeDrrClicked();
   void onLoadDrrClicked();
+  /// Update widget GUI from drr parameters node
+  void updateWidgetFromMRML();
+
+protected slots:
+  void onLogicModified();
 
 protected:
   QScopedPointer<qSlicerPlmDrrModuleWidgetPrivate> d_ptr;

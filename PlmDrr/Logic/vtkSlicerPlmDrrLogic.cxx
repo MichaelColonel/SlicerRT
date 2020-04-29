@@ -42,10 +42,11 @@
 #include <drr.h>
 #include <drr_options.h>
 
-const char* vtkSlicerPlmDrrLogic::DETECTOR_BOUNDARY_MARKUPS_NODE_NAME = "Detector"; // closed curve
-const char* vtkSlicerPlmDrrLogic::IMAGE_BOUNDARY_MARKUPS_NODE_NAME = "Image"; // closed curve
-const char* vtkSlicerPlmDrrLogic::ORIGIN_MARKUPS_NODE_NAME = "Origin"; // fiducial
-const char* vtkSlicerPlmDrrLogic::NORMAL_MARKUPS_NODE_NAME = "Normal"; // line
+const char* vtkSlicerPlmDrrLogic::DETECTOR_BOUNDARY_MARKUPS_NODE_NAME = "DetectorBoundary"; // closed curve
+const char* vtkSlicerPlmDrrLogic::IMAGE_BOUNDARY_MARKUPS_NODE_NAME = "ImageBoundary"; // closed curve
+const char* vtkSlicerPlmDrrLogic::ORIGIN_POINT_MARKUPS_NODE_NAME = "OriginPoint"; // fiducial
+const char* vtkSlicerPlmDrrLogic::NORMAL_VECTOR_MARKUPS_NODE_NAME = "NormalVector"; // line
+const char* vtkSlicerPlmDrrLogic::VUP_VECTOR_MARKUPS_NODE_NAME = "VUPVector"; // line
 
 //----------------------------------------------------------------------------
 vtkStandardNewMacro(vtkSlicerPlmDrrLogic);
@@ -166,25 +167,54 @@ bool vtkSlicerPlmDrrLogic::LoadDRR( vtkMRMLVolumeNode* volumeNode, const std::st
   return true;
 }
 
-vtkMRMLMarkupsLineNode* vtkSlicerPlmDrrLogic::CreateDetectorNormal(vtkMRMLPlmDrrNode* node)
+//----------------------------------------------------------------------------
+void vtkSlicerPlmDrrLogic::CreateDefaultMarkupsNodes(vtkMRMLRTBeamNode* vtkNotUsed(beamNode))
+{
+  if (!this->GetMRMLScene())
+  {
+    vtkErrorMacro("CreateDefaultMarkupsNodes: Invalid scene");
+    return;
+  }
+
+  // Create markups nodes if they don't exist
+
+  // Detector boundary closed curve node
+  vtkSmartPointer<vtkMRMLMarkupsClosedCurveNode> detectorMarkupsClosedCurveNode;
+  if (!scene->GetFirstNodeByName(DETECTOR_BOUNDARY_MARKUPS_NODE_NAME))
+  {
+    detectorMarkupsClosedCurveNode = vtkSmartPointer<vtkMRMLMarkupsClosedCurveNode>::New();
+    detectorMarkupsClosedCurveNode->SetName(DETECTOR_BOUNDARY_MARKUPS_NODE_NAME);
+    detectorMarkupsClosedCurveNode->SetHideFromEditors(1);
+    std::string singletonTag = std::string("DRR_") + DETECTOR_BOUNDARY_MARKUPS_NODE_NAME;
+    detectorMarkupsClosedCurveNode->SetSingletonTag(singletonTag.c_str());
+    scene->AddNode(detectorMarkupsClosedCurveNode);
+  }
+  else
+  {
+    detectorMarkupsClosedCurveNode = vtkMRMLMarkupsClosedCurveNode::SafeDownCast(
+      scene->GetFirstNodeByName(DETECTOR_BOUNDARY_MARKUPS_NODE_NAME));
+  }
+}
+
+vtkMRMLMarkupsLineNode* vtkSlicerPlmDrrLogic::CreateDetectorNormal(vtkMRMLPlmDrrNode* vtkNotUsed(node))
 {
   return nullptr;
 }
 
 //----------------------------------------------------------------------------
-vtkMRMLMarkupsClosedCurveNode* vtkSlicerPlmDrrLogic::CreateDetectorBoundary(vtkMRMLPlmDrrNode* node)
+vtkMRMLMarkupsClosedCurveNode* vtkSlicerPlmDrrLogic::CreateDetectorBoundary(vtkMRMLPlmDrrNode* vtkNotUsed(node))
 {
   return nullptr;
 }
 
 //----------------------------------------------------------------------------
-vtkMRMLMarkupsClosedCurveNode* vtkSlicerPlmDrrLogic::CreateImageBoundary(vtkMRMLPlmDrrNode* node)
+vtkMRMLMarkupsClosedCurveNode* vtkSlicerPlmDrrLogic::CreateImageBoundary(vtkMRMLPlmDrrNode* vtkNotUsed(node))
 {
   return nullptr;
 }
 
 //----------------------------------------------------------------------------
-vtkMRMLMarkupsFiducialNode* vtkSlicerPlmDrrLogic::CreateImageFirstRowColumn(vtkMRMLPlmDrrNode* node)
+vtkMRMLMarkupsFiducialNode* vtkSlicerPlmDrrLogic::CreateImageFirstRowColumn(vtkMRMLPlmDrrNode* vtkNotUsed(node))
 {
   return nullptr;
 }

@@ -51,10 +51,14 @@ public:
   static const char* IMAGE_BOUNDARY_MARKUPS_NODE_NAME; // closed curve
   static const char* ORIGIN_MARKUPS_NODE_NAME; // fiducial
   static const char* NORMAL_MARKUPS_NODE_NAME; // line
+  static const char* VUP_MARKUPS_NODE_NAME; // line
 
   static vtkSlicerPlmDrrLogic *New();
   vtkTypeMacro(vtkSlicerPlmDrrLogic, vtkSlicerModuleLogic);
   void PrintSelf(ostream& os, vtkIndent indent);
+
+  /// Create default markups nodes (2 curves, 2 lines, 1 fiducial) for visualization
+  void CreateDefaultMarkupsNodes(vtkMRMLRTBeamNode* beamNode = nullptr);
 
   vtkMRMLMarkupsLineNode* CreateDetectorNormal(vtkMRMLPlmDrrNode* node);
   vtkMRMLMarkupsClosedCurveNode* CreateDetectorBoundary(vtkMRMLPlmDrrNode* node);

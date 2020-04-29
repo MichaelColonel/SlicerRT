@@ -99,6 +99,9 @@ void qSlicerPlmDrrModuleWidget::setup()
   connect( d->PushButton_SaveVolume, SIGNAL(clicked()), this, SLOT(onSaveVolumeClicked()));
   connect( d->PushButton_ComputeDrr, SIGNAL(clicked()), this, SLOT(onComputeDrrClicked()));
   connect( d->PushButton_LoadDrr, SIGNAL(clicked()), this, SLOT(onLoadDrrClicked()));
+
+  // Handle scene change event if occurs
+  qvtkConnect( d->logic(), vtkCommand::ModifiedEvent, this, SLOT(onLogicModified()));
 }
 
 /// RTBeam Node (RTBeam or RTIonBeam) changed
@@ -111,6 +114,7 @@ void qSlicerPlmDrrModuleWidget::onRTBeamNodeChanged(vtkMRMLNode* node)
   Q_UNUSED(ionBeamNode);
 }
 
+//-----------------------------------------------------------------------------
 void qSlicerPlmDrrModuleWidget::onReferenceVolumeNodeChanged(vtkMRMLNode* node)
 {
   Q_D(qSlicerPlmDrrModuleWidget);
@@ -118,6 +122,7 @@ void qSlicerPlmDrrModuleWidget::onReferenceVolumeNodeChanged(vtkMRMLNode* node)
   d->ReferenceVolume = volumeNode;
 }
 
+//-----------------------------------------------------------------------------
 void qSlicerPlmDrrModuleWidget::onSaveVolumeClicked()
 {
   Q_D(qSlicerPlmDrrModuleWidget);
@@ -141,12 +146,58 @@ void qSlicerPlmDrrModuleWidget::onSaveVolumeClicked()
   }
 }
 
+//-----------------------------------------------------------------------------
 void qSlicerPlmDrrModuleWidget::onComputeDrrClicked()
 {
   Q_D(qSlicerPlmDrrModuleWidget);
 }
 
+//-----------------------------------------------------------------------------
 void qSlicerPlmDrrModuleWidget::onLoadDrrClicked()
 {
   Q_D(qSlicerPlmDrrModuleWidget);
+}
+
+//-----------------------------------------------------------------------------
+void qSlicerPlmDrrModuleWidget::onLogicModified()
+{
+  this->updateWidgetFromMRML();
+}
+
+//-----------------------------------------------------------------------------
+void qSlicerPlmDrrModuleWidget::updateWidgetFromMRML()
+{
+  Q_D(qSlicerRoomsEyeViewModuleWidget);
+/*
+  vtkMRMLRoomsEyeViewNode* paramNode = vtkMRMLRoomsEyeViewNode::SafeDownCast(d->MRMLNodeComboBox_ParameterSet->currentNode());
+
+  if (paramNode && this->mrmlScene())
+  {
+    if (paramNode->GetBeamNode())
+    {
+      d->MRMLNodeComboBox_Beam->setCurrentNode(paramNode->GetBeamNode());
+    }
+    if (paramNode->GetPatientBodySegmentationNode())
+    {
+      d->SegmentSelectorWidget_PatientBody->setCurrentNode(paramNode->GetPatientBodySegmentationNode());
+    }
+    if (paramNode->GetPatientBodySegmentID())
+    {
+      d->SegmentSelectorWidget_PatientBody->setCurrentSegmentID(paramNode->GetPatientBodySegmentID());
+    }
+
+    d->GantryRotationSlider->setValue(paramNode->GetGantryRotationAngle());
+    d->CollimatorRotationSlider->setValue(paramNode->GetCollimatorRotationAngle());
+    d->PatientSupportRotationSlider->setValue(paramNode->GetPatientSupportRotationAngle());
+    d->ImagingPanelMovementSlider->setValue(paramNode->GetImagingPanelMovement());
+    d->VerticalTableTopDisplacementSlider->setValue(paramNode->GetVerticalTableTopDisplacement());
+    d->LateralTableTopDisplacementSlider->setValue(paramNode->GetLateralTableTopDisplacement());
+    d->LongitudinalTableTopDisplacementSlider->setValue(paramNode->GetLongitudinalTableTopDisplacement());
+    d->VerticalTranslationSliderWidget->setValue(paramNode->GetAdditionalModelVerticalDisplacement());
+    d->LongitudinalTranslationSliderWidget->setValue(paramNode->GetAdditionalModelLongitudinalDisplacement());
+    d->LateralTranslationSliderWidget->setValue(paramNode->GetAdditionalModelLateralDisplacement());
+    d->ApplicatorHolderCheckBox->setChecked(paramNode->GetApplicatorHolderVisibility());
+    d->ElectronApplicatorCheckBox->setChecked(paramNode->GetElectronApplicatorVisibility());
+  }
+*/
 }
