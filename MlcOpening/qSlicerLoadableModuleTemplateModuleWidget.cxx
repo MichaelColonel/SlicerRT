@@ -238,22 +238,29 @@ qSlicerLoadableModuleTemplateModuleWidget::onCalculateOpeningButtonClicked()
       if (positionCurve)
       {
         vtkMRMLTransformNode* beamTransformNode = d->BeamNode->GetParentTransformNode();
-        positionCurve->SetAndObserveTransformNodeID(beamTransformNode->GetID());
         
         vtkMRMLDoubleArrayNode* mlcBoundaryNode = moduleLogic->CreateMultiLeafCollimatorDoubleArrayNode();
-        vtkMRMLTableNode* mlcPositionNode = moduleLogic->CalculateMultiLeafCollimatorPosition( positionCurve, mlcBoundaryNode);
-        if (mlcBoundaryNode && mlcPositionNode)
+        if (mlcBoundaryNode)
         {
           d->BeamNode->SetAndObserveMLCBoundaryDoubleArrayNode(mlcBoundaryNode);
+        }
+        vtkMRMLTableNode* mlcPositionNode = moduleLogic->CalculateMultiLeafCollimatorPosition( d->BeamNode, positionCurve);
+        if (mlcPositionNode)
+        {
           d->BeamNode->SetAndObserveMLCPositionTableNode(mlcPositionNode);
         }
 
-        double area = moduleLogic->CalculateMultiLeafCollimatorPositionArea( mlcBoundaryNode, mlcPositionNode);
+        double area = moduleLogic->CalculateMultiLeafCollimatorPositionArea(d->BeamNode);
         qDebug() << Q_FUNC_INFO << ": Position area (mm^2) = " << area;
 
         area = moduleLogic->CalculateCurvePolygonArea(positionCurve);
         qDebug() << Q_FUNC_INFO << ": Polygon area (mm^2) = " << area;
-        moduleLogic->SetParentForMultiLeafCollimatorPosition( d->BeamNode, mlcPositionNode);
+        moduleLogic->SetParentForMultiLeafCollimatorPosition(d->BeamNode);        
+
+//        positionCurve->ApplyTransform(beamTransformNode->GetTransformToParent());
+        moduleLogic->SetParentForMultiLeafCollimatorCurve( d->BeamNode, positionCurve);
+
+        positionCurve->SetAndObserveTransformNodeID(beamTransformNode->GetID());
       }
     }
   }
@@ -273,11 +280,7 @@ qSlicerLoadableModuleTemplateModuleWidget::onCalculateOpeningButtonClicked1()
 //    vtkSlicerLoadableModuleTemplateLogic* moduleLogic = vtkSlicerLoadableModuleTemplateLogic::SafeDownCast(this->logic());
 //    moduleLogic->SetModelsLogic(d->ModelsLogic);
     moduleLogic->CreateMultiLeafCollimatorModelPolyData(d->BeamNode);
-        
-    vtkMRMLDoubleArrayNode* mlcBoundaryNode = d->BeamNode->GetMLCBoundaryDoubleArrayNode();
-    vtkMRMLTableNode* mlcPositionNode = d->BeamNode->GetMLCPositionTableNode();
-
-    double area = moduleLogic->CalculateMultiLeafCollimatorPositionArea( mlcBoundaryNode, mlcPositionNode);
+    double area = moduleLogic->CalculateMultiLeafCollimatorPositionArea(d->BeamNode);
     qDebug() << Q_FUNC_INFO << ": Position area (mm^2) = " << area;
   }
 }

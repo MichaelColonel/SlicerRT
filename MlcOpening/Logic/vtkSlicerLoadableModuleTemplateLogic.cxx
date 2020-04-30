@@ -56,9 +56,11 @@
 #include <vtkImageData.h>
 #include <vtkDoubleArray.h>
 #include <vtkTable.h>
-#include <vtkCellLocator.h>
 
+#include <vtkCellLocator.h>
+#include <vtkModifiedBSPTree.h>
 #include <vtkOBBTree.h>
+
 #include <vtkPoints.h>
 #include <vtkPolygon.h>
 #include <vtkIdList.h>
@@ -85,8 +87,8 @@
 namespace
 {
 
-const char* MLCY_Boundary = "MLCX_Boundary";
-const char* MLCY_Position = "MLCX_Position";
+const char* MLCX_Boundary = "MLCX_Boundary";
+const char* MLCX_Position = "MLCX_Position";
 
 const size_t leaves = 32;
 /*
@@ -253,9 +255,9 @@ vtkSlicerLoadableModuleTemplateLogic::CalculatePositionCurve(
   }
 
   // Create markups node (subject hierarchy node is created automatically)
-  vtkNew<vtkMRMLMarkupsClosedCurveNode> curveNode;
+  vtkNew<vtkMRMLMarkupsCurveNode> curveNode;
   curveNode->SetCurveTypeToLinear();
-  curveNode->SetName("MLCProjectionCurve");
+  curveNode->SetName("ProjectionCurve");
 
   this->GetMRMLScene()->AddNode(curveNode);
 
@@ -296,6 +298,7 @@ vtkSlicerLoadableModuleTemplateLogic::CalculatePositionCurve(
     }
 
     delete pts;
+//    curveNode->ResampleCurveWorld(5.);
     return curveNode.GetPointer();
   }
   else
@@ -312,7 +315,7 @@ vtkSlicerLoadableModuleTemplateLogic::CreateMultiLeafCollimatorDoubleArrayNode()
 {
   vtkNew<vtkMRMLDoubleArrayNode> arrayNode;
   this->GetMRMLScene()->AddNode(arrayNode);
-  arrayNode->SetName(MLCY_Boundary);
+  arrayNode->SetName(MLCX_Boundary);
 
   // Leaf boundaries
   vtkNew<vtkDoubleArray> b;
@@ -332,7 +335,7 @@ vtkSlicerLoadableModuleTemplateLogic::CreateMultiLeafCollimatorTableNode(const s
 {
   vtkNew<vtkMRMLTableNode> tableNode;
   this->GetMRMLScene()->AddNode(tableNode);
-  tableNode->SetName(MLCY_Position);
+  tableNode->SetName(MLCX_Position);
 
   vtkTable* table = tableNode->GetTable();
   if (table)
@@ -369,8 +372,16 @@ vtkSlicerLoadableModuleTemplateLogic::CreateMultiLeafCollimatorTableNode(const s
 //---------------------------------------------------------------------------
 vtkMRMLTableNode*
 vtkSlicerLoadableModuleTemplateLogic::CalculateMultiLeafCollimatorPosition( 
-  vtkMRMLMarkupsCurveNode* curveNode, vtkMRMLDoubleArrayNode* mlcBoundaryNode)
+  vtkMRMLRTBeamNode* beamNode, vtkMRMLMarkupsCurveNode* curveNode)
 {
+  if (!beamNode)
+  {
+    vtkErrorMacro("CalculateMultiLeafCollimatorPosition: invalid beam node");
+    return nullptr;
+  }
+
+  vtkMRMLDoubleArrayNode* mlcBoundaryNode = beamNode->GetMLCBoundaryDoubleArrayNode();
+
   vtkDoubleArray* mlcBoundaryArray = nullptr;
 
   size_t nofLeafPairs = 0;
@@ -381,7 +392,11 @@ vtkSlicerLoadableModuleTemplateLogic::CalculateMultiLeafCollimatorPosition(
   }
 
   double curveBounds[4];
-  CalculateCurveBoundary( curveNode, curveBounds);
+  if (!nofLeafPairs || !CalculateCurveBoundary( curveNode, curveBounds))
+  {
+    vtkErrorMacro("CalculateMultiLeafCollimatorPosition: Number of leaf pairs is zero or unab'e to calculate curve boundary");
+    return nullptr;
+  }
 
   int leafPairStart, leafPairEnd;
   FindLeafPairRangeIndexes( curveBounds, mlcBoundaryArray, leafPairStart, leafPairEnd);
@@ -390,7 +405,16 @@ vtkSlicerLoadableModuleTemplateLogic::CalculateMultiLeafCollimatorPosition(
     vtkErrorMacro("CalculateMultiLeafCollimatorPosition: Unable to find leaves range");
     return nullptr;
   }
-    
+
+  if (leafPairStart > 0)
+  {
+    leafPairStart -= 1;
+  }
+  if (leafPairEnd < int(nofLeafPairs - 1))
+  {
+    leafPairEnd += 1;
+  }
+
   std::vector< double > positions(2 * nofLeafPairs);
   for ( int leafPairIndex = leafPairStart; leafPairIndex <= leafPairEnd; ++leafPairIndex)
   {
@@ -404,9 +428,7 @@ vtkSlicerLoadableModuleTemplateLogic::CalculateMultiLeafCollimatorPosition(
     }
   }
 
-  vtkMRMLTableNode* mlcTableNode = CreateMultiLeafCollimatorTableNode(positions);
-
-  return mlcTableNode;
+  return CreateMultiLeafCollimatorTableNode(positions);
 }
 
 //---------------------------------------------------------------------------
@@ -483,7 +505,6 @@ vtkSlicerLoadableModuleTemplateLogic::FindLeafPairPositions(
   double maxPositionDistance, 
   double positionStep)
 {
-
   vtkDoubleArray* mlcBoundaryArray = nullptr;
 
   if (mlcBoundaryNode)
@@ -513,6 +534,7 @@ vtkSlicerLoadableModuleTemplateLogic::FindLeafPairPositions(
 
   // Build locator
   vtkNew<vtkCellLocator> cellLocator;
+//  vtkNew<vtkModifiedBSPTree> cellLocator;
   cellLocator->SetDataSet(curvePoly);
   cellLocator->BuildLocator();
 
@@ -547,7 +569,7 @@ vtkSlicerLoadableModuleTemplateLogic::FindLeafPairPositions(
       pEnd[1] = c;
     }
 
-    if (cellLocator->IntersectWithLine( pStart, pEnd, 0.01, t, xyz, pcoords, subId))
+    if (cellLocator->IntersectWithLine( pStart, pEnd, 0.0001, t, xyz, pcoords, subId))
     {
       side1Flag = true;
       // xyz values
@@ -578,7 +600,7 @@ vtkSlicerLoadableModuleTemplateLogic::FindLeafPairPositions(
       pEnd[1] = c;
     }
 
-    if (cellLocator->IntersectWithLine( pStart, pEnd, 0.05, t, xyz, pcoords, subId))
+    if (cellLocator->IntersectWithLine( pStart, pEnd, 0.0001, t, xyz, pcoords, subId))
     {
       side2Flag = true;
       // xyz values
@@ -599,9 +621,15 @@ vtkSlicerLoadableModuleTemplateLogic::FindLeafPairPositions(
 //---------------------------------------------------------------------------
 double
 vtkSlicerLoadableModuleTemplateLogic::CalculateMultiLeafCollimatorPositionArea( 
-  vtkMRMLDoubleArrayNode* mlcBoundaryNode, 
-  vtkMRMLTableNode* mlcPositionNode)
+  vtkMRMLRTBeamNode* beamNode)
 {
+  if (!beamNode)
+  {
+    vtkErrorMacro("CalculateMultiLeafCollimatorPositionArea: invalid beam node");
+    return -1.;
+  }
+
+  vtkMRMLDoubleArrayNode* mlcBoundaryNode = beamNode->GetMLCBoundaryDoubleArrayNode();
   vtkDoubleArray* mlcBoundaryArray = nullptr;
 
   int nofLeafPairs = 0;
@@ -610,6 +638,8 @@ vtkSlicerLoadableModuleTemplateLogic::CalculateMultiLeafCollimatorPositionArea(
     mlcBoundaryArray = mlcBoundaryNode->GetArray();
     nofLeafPairs = mlcBoundaryArray ? (mlcBoundaryArray->GetNumberOfTuples() - 1) : 0;
   }
+
+  vtkMRMLTableNode* mlcPositionNode = beamNode->GetMLCPositionTableNode();
 
   double area = -1;
   // MLC position data
@@ -659,8 +689,7 @@ vtkSlicerLoadableModuleTemplateLogic::CalculateCurvePolygonArea(vtkMRMLMarkupsCu
 
 //---------------------------------------------------------------------------
 void
-vtkSlicerLoadableModuleTemplateLogic::SetParentForMultiLeafCollimatorPosition( 
-  vtkMRMLRTBeamNode* beamNode, vtkMRMLTableNode* mlcPositionNode)
+vtkSlicerLoadableModuleTemplateLogic::SetParentForMultiLeafCollimatorPosition(vtkMRMLRTBeamNode* beamNode)
 {
   vtkMRMLSubjectHierarchyNode* shNode = vtkMRMLSubjectHierarchyNode::GetSubjectHierarchyNode(this->GetMRMLScene());
   if (shNode)
@@ -672,6 +701,7 @@ vtkSlicerLoadableModuleTemplateLogic::SetParentForMultiLeafCollimatorPosition(
     {
       // put observed mlc data under beam and ion beam node parent
       beamShId = shNode->GetItemByDataNode(beamNode);
+      vtkMRMLTableNode* mlcPositionNode = beamNode->GetMLCPositionTableNode();
       if (mlcPositionNode)
       {
         mlcPositionShId = shNode->GetItemByDataNode(mlcPositionNode);
@@ -819,3 +849,79 @@ vtkSlicerLoadableModuleTemplateLogic::CreateMultiLeafCollimatorModelPolyData(vtk
     mlcModel->Delete();
   }
 }
+
+//---------------------------------------------------------------------------
+void
+vtkSlicerLoadableModuleTemplateLogic::SetParentForMultiLeafCollimatorCurve( 
+  vtkMRMLRTBeamNode* beamNode, vtkMRMLMarkupsCurveNode* curveNode)
+{
+  vtkMRMLSubjectHierarchyNode* shNode = vtkMRMLSubjectHierarchyNode::GetSubjectHierarchyNode(this->GetMRMLScene());
+  if (shNode)
+  {
+    vtkIdType beamShId = vtkMRMLSubjectHierarchyNode::INVALID_ITEM_ID;
+    vtkIdType mlcCurveShId = vtkMRMLSubjectHierarchyNode::INVALID_ITEM_ID;
+
+    if (beamNode)
+    {
+      // put observed mlc data under beam and ion beam node parent
+      beamShId = shNode->GetItemByDataNode(beamNode);
+      if (curveNode)
+      {
+        mlcCurveShId = shNode->GetItemByDataNode(curveNode);
+      }
+      if (beamShId != vtkMRMLSubjectHierarchyNode::INVALID_ITEM_ID && 
+        mlcCurveShId != vtkMRMLSubjectHierarchyNode::INVALID_ITEM_ID)
+      {
+        shNode->SetItemParent( mlcCurveShId, beamShId);
+      }
+    }
+  }
+}
+
+//---------------------------------------------------------------------------
+/*
+bool
+vtkSlicerLoadableModuleTemplateLogic::TransformMultiLeafCollimatorCurveToWorld( vtkMRMLRTBeamNode* beamNode, vtkMRMLMarkupsCurveNode* curveNode)
+{
+  if (!beamNode)
+  {
+    vtkErrorMacro("TransformMultiLeafCollimatorCurveToWorld: Beam node is invalid");
+    return false;
+  }
+
+  vtkMRMLTransformNode* beamTransformNode = beamNode->GetParentTransformNode();
+  vtkTransform* beamTransform = nullptr;
+  if (beamTransformNode)
+  {
+    beamTransform = vtkTransform::SafeDownCast(beamTransformNode->GetTransformToParent());
+  }
+  else
+  {
+    vtkErrorMacro("TransformMultiLeafCollimatorCurveToWorld: Beam transform node is invalid");
+    return false;
+  }
+
+  vtkNew<vtkMatrix4x4> matrix;
+  if (beamTransform)
+  {
+    beamTransform->GetMatrix(matrix);
+  }
+  else
+  {
+    vtkErrorMacro("TransformMultiLeafCollimatorCurveToWorld: Matrix transform is invalid");
+    return false;
+  }
+
+  for ( int i = 0; i < curveNode->GetNumberOfControlPoints(); ++i)
+  {
+    double worldPoint[4]; // projected hull point in world coordinates
+    double projectedPoint[4] = { 0., 0., 0., 1. }; // projected hull point on XY plane of BEAM LIMITING DEVICE frame
+    curveNode->GetNthControlPointPositionWorld( i, projectedPoint);
+
+    matrix->MultiplyPoint( projectedPoint, worldPoint);
+    curveNode->SetNthControlPointPositionWorld( i, worldPoint[0], worldPoint[1], worldPoint[2]);
+  }
+  curveNode->Modified();
+  return true;
+}
+*/

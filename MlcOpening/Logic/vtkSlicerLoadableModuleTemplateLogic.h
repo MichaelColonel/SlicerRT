@@ -48,22 +48,21 @@ public:
   /// Set Models logic
   void SetModelsLogic(vtkSlicerModelsLogic* modelsLogic);
 
-  /// Calculate position curve on isocenter plane
-  vtkMRMLMarkupsCurveNode* CalculatePositionCurve( 
-    vtkMRMLRTBeamNode* beamNode, vtkPolyData* targetPoly);
-
-  vtkMRMLTableNode* CalculateMultiLeafCollimatorPosition( 
-    vtkMRMLMarkupsCurveNode* curveNode, 
-    vtkMRMLDoubleArrayNode* mlcBoundary);
-
   vtkMRMLDoubleArrayNode* CreateMultiLeafCollimatorDoubleArrayNode();
 
-  double CalculateMultiLeafCollimatorPositionArea( 
-    vtkMRMLDoubleArrayNode* mlcBoundary, 
-    vtkMRMLTableNode* mlcPosition);
+  /// Calculate position curve on isocenter plane
+  vtkMRMLMarkupsCurveNode* CalculatePositionCurve( vtkMRMLRTBeamNode* beamNode, vtkPolyData* targetPoly);
 
+  vtkMRMLTableNode* CalculateMultiLeafCollimatorPosition( vtkMRMLRTBeamNode* beamNode, vtkMRMLMarkupsCurveNode* curveNode);
+
+//  bool TransformMultiLeafCollimatorCurveToWorld( vtkMRMLRTBeamNode* beamNode, vtkMRMLMarkupsCurveNode* curveNode);
+
+  double CalculateMultiLeafCollimatorPositionArea(vtkMRMLRTBeamNode* beamNode);
   double CalculateCurvePolygonArea(vtkMRMLMarkupsCurveNode* curveNode);
-  void SetParentForMultiLeafCollimatorPosition( vtkMRMLRTBeamNode* beamNode, vtkMRMLTableNode* mlcPositionNode);
+
+  void SetParentForMultiLeafCollimatorPosition(vtkMRMLRTBeamNode* beamNode);
+  void SetParentForMultiLeafCollimatorCurve( vtkMRMLRTBeamNode* beamNode, vtkMRMLMarkupsCurveNode* curveNode);
+
   void CreateMultiLeafCollimatorModelPolyData(vtkMRMLRTBeamNode* beamNode);
 
 protected:
@@ -86,10 +85,13 @@ private:
 
   vtkMRMLTableNode* CreateMultiLeafCollimatorTableNode(const std::vector<double>& positions);
   bool CalculateCurveBoundary( vtkMRMLMarkupsCurveNode* node, double b[4]);
-  void FindLeafPairRangeIndexes( double* b, vtkDoubleArray* mlcBoundaryArray, int& leafPairIndexFirst, int& leafPairIndexLast);
-  bool FindLeafPairPositions( vtkMRMLMarkupsCurveNode* node, vtkMRMLDoubleArrayNode* mlcBoundaryNode, size_t leafPairIndex, 
+  void FindLeafPairRangeIndexes( double b[4], vtkDoubleArray* mlcBoundaryArray, 
+    int& leafPairIndexFirst, int& leafPairIndexLast);
+
+  bool FindLeafPairPositions( vtkMRMLMarkupsCurveNode* node,
+    vtkMRMLDoubleArrayNode* mlcBoundaryNode, size_t leafPairIndex, 
     double& side1, double& side2, int strategy = 1, 
-    double maxPositionDistance = 100., double positionStep = 0.1);
+    double maxPositionDistance = 100., double positionStep = 0.01);
 
   /// Models module logic instance
   vtkSlicerModelsLogic* ModelsLogic;
