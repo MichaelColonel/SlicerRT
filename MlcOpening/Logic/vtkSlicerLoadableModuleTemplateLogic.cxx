@@ -56,6 +56,7 @@
 #include <vtkImageData.h>
 #include <vtkDoubleArray.h>
 #include <vtkTable.h>
+#include <vtkPlane.h>
 
 #include <vtkCellLocator.h>
 #include <vtkModifiedBSPTree.h>
@@ -221,6 +222,7 @@ vtkSlicerLoadableModuleTemplateLogic::OnMRMLSceneNodeAdded(vtkMRMLNode* vtkNotUs
 }
 
 //-----------------------------------------------------------------------------
+/*
 vtkMRMLMarkupsCurveNode*
 vtkSlicerLoadableModuleTemplateLogic::CalculatePositionCurve( 
   vtkMRMLRTBeamNode* beamNode, vtkPolyData* targetPoly)
@@ -299,6 +301,99 @@ vtkSlicerLoadableModuleTemplateLogic::CalculatePositionCurve(
 
     delete pts;
 //    curveNode->ResampleCurveWorld(5.);
+    return curveNode.GetPointer();
+  }
+  else
+  {
+    this->GetMRMLScene()->RemoveNode(curveNode);
+    curveNode->Delete();
+    return nullptr;
+  }
+}
+*/
+
+vtkMRMLMarkupsCurveNode*
+vtkSlicerLoadableModuleTemplateLogic::CalculatePositionCurve( 
+  vtkMRMLRTBeamNode* beamNode, vtkPolyData* targetPoly)
+{
+  if (!beamNode)
+  {
+    vtkErrorMacro("CalculatePositionCurve: Beam node is invalid");
+    return nullptr;
+  }
+
+  vtkMRMLTransformNode* beamTransformNode = beamNode->GetParentTransformNode();
+  vtkTransform* beamTransform = nullptr;
+  if (beamTransformNode)
+  {
+    beamTransform = vtkTransform::SafeDownCast(beamTransformNode->GetTransformToParent());
+  }
+  else
+  {
+    vtkErrorMacro("CalculatePositionCurve: Beam transform node is invalid");
+    return nullptr;
+  }
+
+  vtkNew<vtkMatrix4x4> inverseMatrix;
+  if (beamTransform)
+  {
+    beamTransform->GetInverse(inverseMatrix);
+  }
+  else
+  {
+    vtkErrorMacro("CalculatePositionCurve: Matrix transform is invalid");
+    return nullptr;
+  }
+
+  // Create markups node (subject hierarchy node is created automatically)
+  vtkNew<vtkMRMLMarkupsCurveNode> curveNode;
+  curveNode->SetCurveTypeToLinear();
+  curveNode->SetName("ProjectionCurve");
+
+  this->GetMRMLScene()->AddNode(curveNode);
+
+  // external points for MLC opening calculation, projected on the isocenter plane
+  vtkNew<vtkPointsProjectedHull> points; 
+
+  vtkNew<vtkPlane> projectionPlane;
+  projectionPlane->SetOrigin( 0., 0., 0.);
+  projectionPlane->SetNormal( 0., 0., 1.);
+  for( vtkIdType i = 0; i < targetPoly->GetNumberOfPoints(); i++)
+  {
+    double beamFramePoint[4] = {}; // target region point in beam frame coordinates
+    double worldPoint[4] = { 0., 0., 0., 1. }; // target region point in world
+    double t = 0.0001;
+    double projectedPoint[3]; // target region point projected on plane
+    targetPoly->GetPoint( i, worldPoint);
+
+    inverseMatrix->MultiplyPoint( worldPoint, beamFramePoint);
+
+    double sourcePoint[3] = { 0., 0., -1. * beamNode->GetSAD() };
+    double targetPoint[3] = { beamFramePoint[0], beamFramePoint[1], projectedPoint[2] };
+
+    if (projectionPlane->IntersectWithLine( sourcePoint, targetPoint, t, projectedPoint))
+    {
+      // projection on XY plane of BEAM LIMITING DEVICE frame
+      points->InsertPoint( i, projectedPoint[0], projectedPoint[1], 0.0);
+    }
+  }
+
+  int zSize = points->GetSizeCCWHullZ();
+  if (zSize >= 3)
+  {
+    double* pts = new double[zSize * 2];
+    points->GetCCWHullZ( pts, zSize);
+
+    for( int i = 0; i < zSize; i++)
+    {
+      double xval = pts[2 * i];
+      double yval = pts[2 * i + 1];
+
+      vtkVector3d point( xval, yval, 0.0);
+      curveNode->AddControlPoint(point);
+    }
+
+    delete pts;
     return curveNode.GetPointer();
   }
   else
