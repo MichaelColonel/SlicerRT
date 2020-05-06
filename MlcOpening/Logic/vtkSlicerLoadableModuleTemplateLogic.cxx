@@ -346,7 +346,7 @@ vtkSlicerLoadableModuleTemplateLogic::CalculatePositionCurve(
   }
 
   // Create markups node (subject hierarchy node is created automatically)
-  vtkNew<vtkMRMLMarkupsCurveNode> curveNode;
+  vtkNew<vtkMRMLMarkupsClosedCurveNode> curveNode;
   curveNode->SetCurveTypeToLinear();
   curveNode->SetName("ProjectionCurve");
 
