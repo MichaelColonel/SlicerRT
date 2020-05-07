@@ -197,6 +197,7 @@ void vtkSlicerPlmDrrLogic::CreateDefaultMarkupsNodes(vtkMRMLRTBeamNode* vtkNotUs
   }
 }
 
+//----------------------------------------------------------------------------
 vtkMRMLMarkupsLineNode* vtkSlicerPlmDrrLogic::CreateDetectorNormal(vtkMRMLPlmDrrNode* vtkNotUsed(node))
 {
   return nullptr;
@@ -223,7 +224,7 @@ vtkMRMLMarkupsFiducialNode* vtkSlicerPlmDrrLogic::CreateImageFirstRowColumn(vtkM
 //----------------------------------------------------------------------------
 void vtkSlicerPlmDrrLogic::ProcessMRMLNodesEvents(vtkObject* caller, unsigned long event, void* callData)
 {
-  Superclass::ProcessMRMLNodesEvents(caller, event, callData);
+  Superclass::ProcessMRMLNodesEvents( caller, event, callData);
 
   vtkMRMLScene* mrmlScene = this->GetMRMLScene();
   if (!mrmlScene)
@@ -257,4 +258,38 @@ void vtkSlicerPlmDrrLogic::ProcessMRMLNodesEvents(vtkObject* caller, unsigned lo
       vtkErrorMacro("ProcessMRMLNodesEvents: RTPlan isocenter has been changed");
     }
   }
+}
+
+//----------------------------------------------------------------------------
+void vtkSlicerPlmDrrLogic::UpdateIsocenterToDetectorDistance(vtkMRMLRoomsEyeViewNode* parameterNode)
+{
+  if (!parameterNode)
+  {
+    vtkErrorMacro("UpdateIsocenterToDetectorDistance: Invalid parameter set node");
+    return;
+  }
+
+  // Get detector markups node
+  // Create detector markups singleton tag
+  std::string detectorSingletonTag = std::string(parameterNode->GetSingletonTag()) + "_" + DETECTOR_BOUNDARY_MARKUPS_NODE_NAME;
+
+  vtkMRMLMarkupsClosedCurveNode* detectorMarkupsNode = vtkMRMLModelNode::SafeDownCast(
+    scene->GetSingletonNode(detectorSingletonTag.c_str(), "vtkMRMLMarkupsClosedCurveNode") );
+  if (detectorMarkupsNode)
+  {
+    vtkWarningMacro("UpdateIsocenterToDetectorDistance: Detector markups node is valid");
+  }
+  else
+  {
+    vtkErrorMacro("UpdateIsocenterToDetectorDistance: Failed to get detector markups node");
+  }
+
+/*
+  vtkMRMLLinearTransformNode* collimatorToGantryTransformNode =
+    this->IECLogic->GetTransformNodeBetween(vtkSlicerIECTransformLogic::Collimator, vtkSlicerIECTransformLogic::Gantry);
+
+  vtkNew<vtkTransform> collimatorToGantryTransform;
+  collimatorToGantryTransform->RotateZ(parameterNode->GetCollimatorRotationAngle());
+  collimatorToGantryTransformNode->SetAndObserveTransformToParent(collimatorToGantryTransform);
+*/
 }

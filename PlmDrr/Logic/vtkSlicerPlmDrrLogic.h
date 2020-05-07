@@ -58,6 +58,9 @@ public:
   vtkTypeMacro(vtkSlicerPlmDrrLogic, vtkSlicerModuleLogic);
   void PrintSelf(ostream& os, vtkIndent indent);
 
+  /// Update DRR markups based on isocenter to detector distance parameter
+  void UpdateIsocenterToDetectorDistance(vtkMRMLPlmDrrNode* parameterNode);
+
   /// Create default markups nodes (2 curves, 2 lines, 1 fiducial) for visualization
   void CreateDefaultMarkupsNodes(vtkMRMLRTBeamNode* beamNode = nullptr);
 

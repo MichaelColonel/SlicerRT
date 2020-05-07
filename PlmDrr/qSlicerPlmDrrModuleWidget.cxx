@@ -56,6 +56,7 @@ public:
   vtkMRMLRTBeamNode* RtBeamNode;
   vtkMRMLScalarVolumeNode* ReferenceVolumeNode;
   Drr_options DrrOptions;
+  bool ModuleWindowInitialized;
 };
 
 //-----------------------------------------------------------------------------
@@ -66,7 +67,8 @@ qSlicerPlmDrrModuleWidgetPrivate::qSlicerPlmDrrModuleWidgetPrivate(qSlicerPlmDrr
   :
   q_ptr(&object),
   RtBeamNode(nullptr),
-  ReferenceVolumeNode(nullptr)
+  ReferenceVolumeNode(nullptr),
+  ModuleWindowInitialized(false)
 {
 }
 
@@ -128,6 +130,36 @@ void qSlicerPlmDrrModuleWidget::setup()
 
   // Handle scene change event if occurs
   qvtkConnect( d->logic(), vtkCommand::ModifiedEvent, this, SLOT(onLogicModified()));
+}
+
+//-----------------------------------------------------------------------------
+void qSlicerPlmDrrModuleWidget::setMRMLScene(vtkMRMLScene* scene)
+{
+  Q_D(qSlicerPlmDrrModuleWidget);
+  this->Superclass::setMRMLScene(scene);
+
+  qvtkReconnect( d->logic(), scene, vtkMRMLScene::EndImportEvent, this, SLOT(onSceneImportedEvent()));
+  qvtkReconnect( d->logic(), scene, vtkMRMLScene::EndCloseEvent, this, SLOT(onSceneClosedEvent()));
+
+  // Find parameters node or create it if there is none in the scene
+  if (scene)
+  {
+    vtkMRMLNode* node = scene->GetNthNodeByClass( 0, "vtkMRMLPlmDrrNode");
+    if (d->MRMLNodeComboBox_ParameterSet->currentNode())
+    {
+      this->setParameterNode(d->MRMLNodeComboBox_ParameterSet->currentNode());
+    }
+    else if (node)
+    {
+      this->setParameterNode(node);
+    }
+    else
+    {
+      auto newNode = vtkSmartPointer<vtkMRMLPlmDrrNode>::New();
+      this->mrmlScene()->AddNode(newNode);
+      this->setParameterNode(newNode);
+    }
+  }
 }
 
 /// RTBeam Node (RTBeam or RTIonBeam) changed
@@ -226,4 +258,104 @@ void qSlicerPlmDrrModuleWidget::updateWidgetFromMRML()
     d->ElectronApplicatorCheckBox->setChecked(paramNode->GetElectronApplicatorVisibility());
   }
 */
+}
+
+//-----------------------------------------------------------------------------
+void qSlicerPlmDrrModuleWidget::onSceneImportedEvent()
+{
+  this->onEnter();
+}
+
+//-----------------------------------------------------------------------------
+void qSlicerPlmDrrModuleWidget::onSceneClosedEvent()
+{
+  this->onEnter();
+}
+
+//-----------------------------------------------------------------------------
+void qSlicerPlmDrrModuleWidget::enter()
+{
+  this->onEnter();
+  this->Superclass::enter();
+}
+
+//-----------------------------------------------------------------------------
+void qSlicerPlmDrrModuleWidget::onEnter()
+{
+  Q_D(qSlicerPlmDrrModuleWidget);
+
+  if (!this->mrmlScene())
+  {
+    qCritical() << Q_FUNC_INFO << ": Invalid scene";
+    return;
+  }
+
+  // First check the logic if it has a parameter node
+  if (!d->logic())
+  {
+    qCritical() << Q_FUNC_INFO << ": Invalid logic";
+    return;
+  }
+
+  // Select or create parameter node
+  this->setMRMLScene(this->mrmlScene());
+
+  d->ModuleWindowInitialized = true;
+}
+
+//-----------------------------------------------------------------------------
+void qSlicerPlmDrrModuleWidget::setParameterNode(vtkMRMLNode *node)
+{
+  Q_D(qSlicerPlmDrrModuleWidget);
+
+  vtkMRMLPlmDrrNode* paramNode = vtkMRMLPlmDrrNode::SafeDownCast(node);
+
+  // Make sure the parameter set node is selected (in case the function was not called by the selector combobox signal)
+  d->MRMLNodeComboBox_ParameterSet->setCurrentNode(paramNode);
+
+  // Each time the node is modified, the UI widgets are updated
+  qvtkReconnect( paramNode, vtkCommand::ModifiedEvent, this, SLOT(updateWidgetFromMRML()));
+  
+  // Set selected MRML nodes in comboboxes in the parameter set if it was nullptr there
+  // (then in the meantime the comboboxes selected the first one from the scene and we have to set that)
+  if (paramNode)
+  {
+    if (!paramNode->GetBeamNode())
+    {
+      paramNode->SetAndObserveBeamNode(vtkMRMLRTBeamNode::SafeDownCast(d->MRMLNodeComboBox_Beam->currentNode()));
+    }
+/*    if (!paramNode->GetPatientBodySegmentationNode())
+    {
+      paramNode->SetAndObservePatientBodySegmentationNode(vtkMRMLSegmentationNode::SafeDownCast(d->SegmentSelectorWidget_PatientBody->currentNode()));
+    }
+    if (!paramNode->GetPatientBodySegmentID() && !d->SegmentSelectorWidget_PatientBody->currentSegmentID().isEmpty())
+    {
+      paramNode->SetPatientBodySegmentID(d->SegmentSelectorWidget_PatientBody->currentSegmentID().toUtf8().constData());
+    }
+
+    paramNode->SetApplicatorHolderVisibility(0);
+    paramNode->SetElectronApplicatorVisibility(0);
+*/
+  }
+
+  this->updateWidgetFromMRML();
+}
+
+//-----------------------------------------------------------------------------
+void qSlicerPlmDrrModuleWidget::onIsocenterToImageSliderValueChanged(double value)
+{
+  Q_D(qSlicerPlmDrrModuleWidget);
+
+  vtkMRMLPlmDrrNode* paramNode = vtkMRMLPlmDrrNode::SafeDownCast(d->MRMLNodeComboBox_ParameterSet->currentNode());
+  if (!paramNode || !d->ModuleWindowInitialized)
+  {
+    return;
+  }
+
+  paramNode->DisableModifiedEventOn();
+  paramNode->SetIsocenterToDetectorDistance(value);
+  paramNode->DisableModifiedEventOff();
+  
+  // Update IEC transform
+  d->logic()->UpdateIsocenterToDetectorDistance(paramNode);
 }

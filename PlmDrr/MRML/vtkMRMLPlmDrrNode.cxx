@@ -172,10 +172,10 @@ vtkMRMLRTBeamNode* vtkMRMLPlmDrrNode::GetBeamNode()
 void vtkMRMLPlmDrrNode::SetAndObserveBeamNode(vtkMRMLRTBeamNode* node)
 {
   if (node && this->Scene != node->GetScene())
-    {
-    vtkErrorMacro("Cannot set reference: the referenced and referencing node are not in the same scene");
+  {
+    vtkErrorMacro("SetAndObserveBeamNode: Cannot set reference, the referenced and referencing node are not in the same scene");
     return;
-    }
+  }
 
   this->SetNodeReferenceID(BEAM_REFERENCE_ROLE, (node ? node->GetID() : nullptr));
 }

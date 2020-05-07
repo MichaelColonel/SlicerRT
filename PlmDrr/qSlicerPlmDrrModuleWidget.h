@@ -39,6 +39,11 @@ public:
   virtual ~qSlicerPlmDrrModuleWidget();
 
 public slots:
+  void setMRMLScene(vtkMRMLScene*) override;
+  void setParameterNode(vtkMRMLNode*);
+  void onSceneImportedEvent();
+  void onSceneClosedEvent();
+
   void onRTBeamNodeChanged(vtkMRMLNode*);
   void onReferenceVolumeNodeChanged(vtkMRMLNode*);
   void onSaveVolumeClicked();
@@ -49,6 +54,7 @@ public slots:
 
 protected slots:
   void onLogicModified();
+  void onIsocenterToDetectorDistanceValueChanged(double);
 
 protected:
   QScopedPointer<qSlicerPlmDrrModuleWidgetPrivate> d_ptr;
