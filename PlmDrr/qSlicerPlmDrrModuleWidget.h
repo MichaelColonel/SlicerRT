@@ -36,7 +36,9 @@ public:
 
   typedef qSlicerAbstractModuleWidget Superclass;
   qSlicerPlmDrrModuleWidget(QWidget *parent=0);
-  virtual ~qSlicerPlmDrrModuleWidget();
+  ~qSlicerPlmDrrModuleWidget() override;
+
+  void enter() override;
 
 public slots:
   void setMRMLScene(vtkMRMLScene*) override;
@@ -54,12 +56,13 @@ public slots:
 
 protected slots:
   void onLogicModified();
-  void onIsocenterToDetectorDistanceValueChanged(double);
+  void onIsocenterDetectorDistanceValueChanged(double);
 
 protected:
   QScopedPointer<qSlicerPlmDrrModuleWidgetPrivate> d_ptr;
 
-  virtual void setup();
+  void setup() override;
+  void onEnter();
 
 private:
   Q_DECLARE_PRIVATE(qSlicerPlmDrrModuleWidget);

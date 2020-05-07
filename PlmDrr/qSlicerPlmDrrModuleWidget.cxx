@@ -30,6 +30,9 @@
 // MRML includes
 #include <vtkMRMLScene.h>
 #include <vtkMRMLScalarVolumeNode.h>
+#include <vtkMRMLSubjectHierarchyNode.h>
+
+#include "vtkMRMLPlmDrrNode.h"
 
 // RTBeam includes
 #include <vtkMRMLRTBeamNode.h>
@@ -107,24 +110,35 @@ qSlicerPlmDrrModuleWidget::~qSlicerPlmDrrModuleWidget()
 void qSlicerPlmDrrModuleWidget::setup()
 {
   Q_D(qSlicerPlmDrrModuleWidget);
+
   d->setupUi(this);
+
   this->Superclass::setup();
+
+  QStringList plmDrrNodes;
+  plmDrrNodes.push_back("vtkMRMLPlmDrrNode");
+  d->MRMLNodeComboBox_ParameterNode->setNodeTypes(plmDrrNodes);
 
   QStringList rtBeamNodes;
   rtBeamNodes.push_back("vtkMRMLRTBeamNode");
   d->MRMLNodeComboBox_RtBeam->setNodeTypes(rtBeamNodes);
 
-  connect( d->MRMLNodeComboBox_RtBeam, SIGNAL(currentNodeChanged(vtkMRMLNode*)), 
-    this, SLOT(onRTBeamNodeChanged(vtkMRMLNode*)));
-
   QStringList volumeNodes;
   volumeNodes.push_back("vtkMRMLScalarVolumeNode");
   d->MRMLNodeComboBox_ReferenceVolume->setNodeTypes(volumeNodes);
 
+  // Nodes
   connect( d->MRMLNodeComboBox_RtBeam, SIGNAL(currentNodeChanged(vtkMRMLNode*)), 
     this, SLOT(onRTBeamNodeChanged(vtkMRMLNode*)));
   connect( d->MRMLNodeComboBox_ReferenceVolume, SIGNAL(currentNodeChanged(vtkMRMLNode*)), 
     this, SLOT(onReferenceVolumeNodeChanged(vtkMRMLNode*)));
+
+  // Sliders
+  connect( d->SliderWidget_IsocenterImageDistance, SIGNAL(valueChanged(double)), 
+    this, SLOT(onIsocenterDetectorDistanceValueChanged(double)));
+
+  // Buttons
+  connect( d->PushButton_SaveVolume, SIGNAL(clicked()), this, SLOT(onSaveVolumeClicked()));
   connect( d->PushButton_SaveVolume, SIGNAL(clicked()), this, SLOT(onSaveVolumeClicked()));
   connect( d->PushButton_ComputeDrr, SIGNAL(clicked()), this, SLOT(onComputeDrrClicked()));
   connect( d->PushButton_LoadDrr, SIGNAL(clicked()), this, SLOT(onLoadDrrClicked()));
@@ -146,9 +160,9 @@ void qSlicerPlmDrrModuleWidget::setMRMLScene(vtkMRMLScene* scene)
   if (scene)
   {
     vtkMRMLNode* node = scene->GetNthNodeByClass( 0, "vtkMRMLPlmDrrNode");
-    if (d->MRMLNodeComboBox_ParameterSet->currentNode())
+    if (d->MRMLNodeComboBox_ParameterNode->currentNode())
     {
-      this->setParameterNode(d->MRMLNodeComboBox_ParameterSet->currentNode());
+      this->setParameterNode(d->MRMLNodeComboBox_ParameterNode->currentNode());
     }
     else if (node)
     {
@@ -167,10 +181,59 @@ void qSlicerPlmDrrModuleWidget::setMRMLScene(vtkMRMLScene* scene)
 void qSlicerPlmDrrModuleWidget::onRTBeamNodeChanged(vtkMRMLNode* node)
 {
   Q_D(qSlicerPlmDrrModuleWidget);
+
+  if (!this->mrmlScene())
+  {
+    qCritical() << Q_FUNC_INFO << ": Invalid scene";
+    return;
+  }
+
+  vtkMRMLSubjectHierarchyNode* shNode = vtkMRMLSubjectHierarchyNode::GetSubjectHierarchyNode(this->mrmlScene());
+  if (!shNode)
+  {
+    qCritical() << Q_FUNC_INFO << ": Failed to access subject hierarchy";
+    return;
+  }
+
   vtkMRMLRTBeamNode* beamNode = vtkMRMLRTBeamNode::SafeDownCast(node);
   vtkMRMLRTIonBeamNode* ionBeamNode = vtkMRMLRTIonBeamNode::SafeDownCast(node);
   d->RtBeamNode = beamNode;
   Q_UNUSED(ionBeamNode);
+
+  vtkMRMLPlmDrrNode* paramNode = vtkMRMLPlmDrrNode::SafeDownCast(d->MRMLNodeComboBox_ParameterNode->currentNode());
+  if (!paramNode || !d->ModuleWindowInitialized)
+  {
+    return;
+  }
+
+  qDebug() << Q_FUNC_INFO << ": Beam node is set to parameter node";
+
+  paramNode->DisableModifiedEventOn();
+  paramNode->SetAndObserveBeamNode(beamNode);
+  paramNode->DisableModifiedEventOff();
+/*
+  // Trigger update of transforms based on selected beam
+  beamNode->InvokeCustomModifiedEvent(vtkMRMLRTBeamNode::BeamTransformModified);
+
+  // Show only selected beam, hide others
+  std::vector<vtkMRMLNode*> beamNodes;
+  this->mrmlScene()->GetNodesByClass("vtkMRMLRTBeamNode", beamNodes);
+  for (std::vector<vtkMRMLNode*>::iterator beamIt=beamNodes.begin(); beamIt!=beamNodes.end(); ++beamIt)
+  {
+    vtkMRMLRTBeamNode* currentBeamNode = vtkMRMLRTBeamNode::SafeDownCast(*beamIt);
+    shNode->SetDisplayVisibilityForBranch(
+      shNode->GetItemByDataNode(currentBeamNode), (currentBeamNode==beamNode ? 1 : 0) );
+  }
+
+  // Select patient segmentation
+  vtkMRMLRTPlanNode* planNode = beamNode->GetParentPlanNode();
+  if (!planNode)
+  {
+    qCritical() << Q_FUNC_INFO << ": Failed to access parent plan of beam " << beamNode->GetName();
+    return;
+  }
+  d->SegmentSelectorWidget_PatientBody->setCurrentNode(planNode->GetSegmentationNode());
+*/
 }
 
 //-----------------------------------------------------------------------------
@@ -227,15 +290,17 @@ void qSlicerPlmDrrModuleWidget::onLogicModified()
 void qSlicerPlmDrrModuleWidget::updateWidgetFromMRML()
 {
   Q_D(qSlicerPlmDrrModuleWidget);
-/*
-  vtkMRMLRoomsEyeViewNode* paramNode = vtkMRMLRoomsEyeViewNode::SafeDownCast(d->MRMLNodeComboBox_ParameterSet->currentNode());
+
+  vtkMRMLPlmDrrNode* paramNode = vtkMRMLPlmDrrNode::SafeDownCast(d->MRMLNodeComboBox_ParameterNode->currentNode());
 
   if (paramNode && this->mrmlScene())
   {
     if (paramNode->GetBeamNode())
     {
-      d->MRMLNodeComboBox_Beam->setCurrentNode(paramNode->GetBeamNode());
+      qDebug() << Q_FUNC_INFO << "Set beam node into GUI";
+      d->MRMLNodeComboBox_RtBeam->setCurrentNode(paramNode->GetBeamNode());
     }
+/*    
     if (paramNode->GetPatientBodySegmentationNode())
     {
       d->SegmentSelectorWidget_PatientBody->setCurrentNode(paramNode->GetPatientBodySegmentationNode());
@@ -257,8 +322,8 @@ void qSlicerPlmDrrModuleWidget::updateWidgetFromMRML()
     d->LateralTranslationSliderWidget->setValue(paramNode->GetAdditionalModelLateralDisplacement());
     d->ApplicatorHolderCheckBox->setChecked(paramNode->GetApplicatorHolderVisibility());
     d->ElectronApplicatorCheckBox->setChecked(paramNode->GetElectronApplicatorVisibility());
+*/  
   }
-*/
 }
 
 //-----------------------------------------------------------------------------
@@ -276,8 +341,8 @@ void qSlicerPlmDrrModuleWidget::onSceneClosedEvent()
 //-----------------------------------------------------------------------------
 void qSlicerPlmDrrModuleWidget::enter()
 {
-  this->onEnter();
   this->Superclass::enter();
+  this->onEnter();
 }
 
 //-----------------------------------------------------------------------------
@@ -301,6 +366,8 @@ void qSlicerPlmDrrModuleWidget::onEnter()
   // Select or create parameter node
   this->setMRMLScene(this->mrmlScene());
 
+  d->logic()->CreateDefaultMarkupsNodes();
+
   d->ModuleWindowInitialized = true;
 }
 
@@ -312,7 +379,7 @@ void qSlicerPlmDrrModuleWidget::setParameterNode(vtkMRMLNode *node)
   vtkMRMLPlmDrrNode* paramNode = vtkMRMLPlmDrrNode::SafeDownCast(node);
 
   // Make sure the parameter set node is selected (in case the function was not called by the selector combobox signal)
-  d->MRMLNodeComboBox_ParameterSet->setCurrentNode(paramNode);
+  d->MRMLNodeComboBox_ParameterNode->setCurrentNode(paramNode);
 
   // Each time the node is modified, the UI widgets are updated
   qvtkReconnect( paramNode, vtkCommand::ModifiedEvent, this, SLOT(updateWidgetFromMRML()));
@@ -323,7 +390,7 @@ void qSlicerPlmDrrModuleWidget::setParameterNode(vtkMRMLNode *node)
   {
     if (!paramNode->GetBeamNode())
     {
-      paramNode->SetAndObserveBeamNode(vtkMRMLRTBeamNode::SafeDownCast(d->MRMLNodeComboBox_Beam->currentNode()));
+      paramNode->SetAndObserveBeamNode(vtkMRMLRTBeamNode::SafeDownCast(d->MRMLNodeComboBox_RtBeam->currentNode()));
     }
 /*    if (!paramNode->GetPatientBodySegmentationNode())
     {
@@ -343,20 +410,20 @@ void qSlicerPlmDrrModuleWidget::setParameterNode(vtkMRMLNode *node)
 }
 
 //-----------------------------------------------------------------------------
-void qSlicerPlmDrrModuleWidget::onIsocenterToImageSliderValueChanged(double value)
+void qSlicerPlmDrrModuleWidget::onIsocenterDetectorDistanceValueChanged(double value)
 {
   Q_D(qSlicerPlmDrrModuleWidget);
 
-  vtkMRMLPlmDrrNode* paramNode = vtkMRMLPlmDrrNode::SafeDownCast(d->MRMLNodeComboBox_ParameterSet->currentNode());
+  vtkMRMLPlmDrrNode* paramNode = vtkMRMLPlmDrrNode::SafeDownCast(d->MRMLNodeComboBox_ParameterNode->currentNode());
   if (!paramNode || !d->ModuleWindowInitialized)
   {
     return;
   }
 
   paramNode->DisableModifiedEventOn();
-  paramNode->SetIsocenterToDetectorDistance(value);
+  paramNode->SetIsocenterDetectorDistance(value);
   paramNode->DisableModifiedEventOff();
   
   // Update IEC transform
-  d->logic()->UpdateIsocenterToDetectorDistance(paramNode);
+  d->logic()->UpdateIsocenterDetectorDistance(paramNode);
 }

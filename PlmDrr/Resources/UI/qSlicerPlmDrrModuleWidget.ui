@@ -24,7 +24,7 @@
       </widget>
      </item>
      <item row="0" column="1" colspan="2">
-      <widget class="qMRMLNodeComboBox" name="MRMLNodeComboBox_ParameterNode" native="true"/>
+      <widget class="qMRMLNodeComboBox" name="MRMLNodeComboBox_ParameterNode"/>
      </item>
      <item row="1" column="0">
       <widget class="QLabel" name="label_2">
@@ -34,7 +34,7 @@
       </widget>
      </item>
      <item row="1" column="1" colspan="2">
-      <widget class="qMRMLNodeComboBox" name="MRMLNodeComboBox_ReferenceVolume" native="true"/>
+      <widget class="qMRMLNodeComboBox" name="MRMLNodeComboBox_ReferenceVolume"/>
      </item>
      <item row="2" column="0">
       <widget class="QLabel" name="label">
@@ -44,7 +44,7 @@
       </widget>
      </item>
      <item row="2" column="1" colspan="2">
-      <widget class="qMRMLNodeComboBox" name="MRMLNodeComboBox_RtBeam" native="true"/>
+      <widget class="qMRMLNodeComboBox" name="MRMLNodeComboBox_RtBeam"/>
      </item>
      <item row="5" column="0">
       <widget class="QPushButton" name="PushButton_SaveVolume">
@@ -68,8 +68,8 @@
       </widget>
      </item>
      <item row="3" column="0" colspan="3">
-      <widget class="ctkCollapsibleButton" name="CollapsibleButton" native="true">
-       <property name="text" stdset="0">
+      <widget class="ctkCollapsibleButton" name="CollapsibleButton">
+       <property name="text">
         <string>CollapsibleButton</string>
        </property>
        <layout class="QGridLayout" name="gridLayout_3">
@@ -97,7 +97,14 @@
            </widget>
           </item>
           <item row="0" column="1">
-           <widget class="ctkSliderWidget" name="SliderWidget_IsocenterImageDistance" native="true"/>
+           <widget class="ctkSliderWidget" name="SliderWidget_IsocenterImageDistance">
+            <property name="maximum">
+             <double>999.899999999999977</double>
+            </property>
+            <property name="value">
+             <double>300.000000000000000</double>
+            </property>
+           </widget>
           </item>
           <item row="3" column="0">
            <widget class="QLabel" name="label_7">
@@ -107,14 +114,22 @@
            </widget>
           </item>
           <item row="1" column="1">
-           <widget class="ctkSliderWidget" name="SliderWidget_RotateImageAroundX" native="true"/>
+           <widget class="ctkSliderWidget" name="SliderWidget_RotateImageAroundX">
+            <property name="maximum">
+             <double>359.990000000000009</double>
+            </property>
+           </widget>
           </item>
           <item row="3" column="1">
-           <widget class="ctkSliderWidget" name="SliderWidget__RotateImageAroundZ" native="true"/>
+           <widget class="ctkSliderWidget" name="SliderWidget__RotateImageAroundZ">
+            <property name="maximum">
+             <double>359.990000000000009</double>
+            </property>
+           </widget>
           </item>
           <item row="4" column="1">
-           <widget class="ctkCoordinatesWidget" name="CoordinatesWidget_ImageCenterOffset" native="true">
-            <property name="dimension" stdset="0">
+           <widget class="ctkCoordinatesWidget" name="CoordinatesWidget_ImageCenterOffset">
+            <property name="dimension">
              <number>2</number>
             </property>
            </widget>
@@ -127,7 +142,11 @@
            </widget>
           </item>
           <item row="2" column="1">
-           <widget class="ctkSliderWidget" name="SliderWidget__RotateImageAroundY" native="true"/>
+           <widget class="ctkSliderWidget" name="SliderWidget__RotateImageAroundY">
+            <property name="maximum">
+             <double>359.990000000000009</double>
+            </property>
+           </widget>
           </item>
           <item row="1" column="0">
            <widget class="QLabel" name="label_5">
@@ -144,17 +163,17 @@
            </widget>
           </item>
           <item row="5" column="1">
-           <widget class="ctkCoordinatesWidget" name="CoordinatesWidget_ImagePixelDimention" native="true">
-            <property name="dimension" stdset="0">
+           <widget class="ctkCoordinatesWidget" name="CoordinatesWidget_ImagePixelDimention">
+            <property name="dimension">
              <number>2</number>
             </property>
-            <property name="decimals" stdset="0">
+            <property name="decimals">
              <number>0</number>
             </property>
-            <property name="minimum" stdset="0">
+            <property name="minimum">
              <double>0.000000000000000</double>
             </property>
-            <property name="maximum" stdset="0">
+            <property name="maximum">
              <double>40000.000000000000000</double>
             </property>
             <property name="coordinates" stdset="0">
@@ -163,14 +182,14 @@
            </widget>
           </item>
           <item row="6" column="1">
-           <widget class="ctkCoordinatesWidget" name="CoordinatesWidget_ImagePixelSpacing" native="true">
-            <property name="dimension" stdset="0">
+           <widget class="ctkCoordinatesWidget" name="CoordinatesWidget_ImagePixelSpacing">
+            <property name="dimension">
              <number>2</number>
             </property>
-            <property name="minimum" stdset="0">
+            <property name="minimum">
              <double>0.100000000000000</double>
             </property>
-            <property name="maximum" stdset="0">
+            <property name="maximum">
              <double>10.000000000000000</double>
             </property>
             <property name="coordinates" stdset="0">
@@ -184,8 +203,8 @@
       </widget>
      </item>
      <item row="4" column="0" colspan="3">
-      <widget class="ctkCollapsibleButton" name="CTKCollapsibleButton" native="true">
-       <property name="text" stdset="0">
+      <widget class="ctkCollapsibleButton" name="CTKCollapsibleButton">
+       <property name="text">
         <string>Plastimatch DRR parameters</string>
        </property>
        <layout class="QVBoxLayout" name="verticalLayout_3">
@@ -233,6 +252,7 @@
    <class>qMRMLNodeComboBox</class>
    <extends>QWidget</extends>
    <header>qMRMLNodeComboBox.h</header>
+   <container>1</container>
   </customwidget>
   <customwidget>
    <class>qSlicerWidget</class>
@@ -277,6 +297,22 @@
     </hint>
     <hint type="destinationlabel">
      <x>238</x>
+     <y>21</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>qSlicerPlmDrrModuleWidget</sender>
+   <signal>mrmlSceneChanged(vtkMRMLScene*)</signal>
+   <receiver>MRMLNodeComboBox_ParameterNode</receiver>
+   <slot>setMRMLScene(vtkMRMLScene*)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>236</x>
+     <y>413</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>311</x>
      <y>21</y>
     </hint>
    </hints>

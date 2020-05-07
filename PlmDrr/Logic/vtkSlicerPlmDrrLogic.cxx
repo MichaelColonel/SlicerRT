@@ -80,7 +80,6 @@ void vtkSlicerPlmDrrLogic::SetMRMLSceneInternal(vtkMRMLScene * newScene)
 //-----------------------------------------------------------------------------
 void vtkSlicerPlmDrrLogic::RegisterNodes()
 {
-  assert(this->GetMRMLScene() != 0);
   vtkMRMLScene* scene = this->GetMRMLScene(); 
   if (!scene)
   {
@@ -239,7 +238,7 @@ void vtkSlicerPlmDrrLogic::ProcessMRMLNodesEvents(vtkObject* caller, unsigned lo
 
   if (caller->IsA("vtkMRMLRTBeamNode"))
   {
-    vtkMRMLRTBeamNode* beamNode = vtkMRMLRTBeamNode::SafeDownCast(caller);
+//    vtkMRMLRTBeamNode* beamNode = vtkMRMLRTBeamNode::SafeDownCast(caller);
     if (event == vtkMRMLRTBeamNode::BeamTransformModified)
     {
       vtkErrorMacro("ProcessMRMLNodesEvents: RTBeam transformation has been changed");
@@ -251,8 +250,7 @@ void vtkSlicerPlmDrrLogic::ProcessMRMLNodesEvents(vtkObject* caller, unsigned lo
   }
   else if (caller->IsA("vtkMRMLRTPlanNode"))
   {
-    vtkMRMLRTPlanNode* planNode = vtkMRMLRTPlanNode::SafeDownCast(caller);
-
+//    vtkMRMLRTPlanNode* planNode = vtkMRMLRTPlanNode::SafeDownCast(caller);
     if (event == vtkMRMLRTPlanNode::IsocenterModifiedEvent)
     {
       vtkErrorMacro("ProcessMRMLNodesEvents: RTPlan isocenter has been changed");
@@ -261,7 +259,7 @@ void vtkSlicerPlmDrrLogic::ProcessMRMLNodesEvents(vtkObject* caller, unsigned lo
 }
 
 //----------------------------------------------------------------------------
-void vtkSlicerPlmDrrLogic::UpdateIsocenterToDetectorDistance(vtkMRMLPlmDrrNode* parameterNode)
+void vtkSlicerPlmDrrLogic::UpdateIsocenterDetectorDistance(vtkMRMLPlmDrrNode* parameterNode)
 {
   vtkMRMLScene* mrmlScene = this->GetMRMLScene();
   if (!mrmlScene)
