@@ -261,8 +261,14 @@ void vtkSlicerPlmDrrLogic::ProcessMRMLNodesEvents(vtkObject* caller, unsigned lo
 }
 
 //----------------------------------------------------------------------------
-void vtkSlicerPlmDrrLogic::UpdateIsocenterToDetectorDistance(vtkMRMLRoomsEyeViewNode* parameterNode)
+void vtkSlicerPlmDrrLogic::UpdateIsocenterToDetectorDistance(vtkMRMLPlmDrrNode* parameterNode)
 {
+  vtkMRMLScene* mrmlScene = this->GetMRMLScene();
+  if (!mrmlScene)
+  {
+    vtkErrorMacro("ProcessMRMLNodesEvents: Invalid MRML scene");
+    return;
+  }
   if (!parameterNode)
   {
     vtkErrorMacro("UpdateIsocenterToDetectorDistance: Invalid parameter set node");
@@ -273,8 +279,8 @@ void vtkSlicerPlmDrrLogic::UpdateIsocenterToDetectorDistance(vtkMRMLRoomsEyeView
   // Create detector markups singleton tag
   std::string detectorSingletonTag = std::string(parameterNode->GetSingletonTag()) + "_" + DETECTOR_BOUNDARY_MARKUPS_NODE_NAME;
 
-  vtkMRMLMarkupsClosedCurveNode* detectorMarkupsNode = vtkMRMLModelNode::SafeDownCast(
-    scene->GetSingletonNode(detectorSingletonTag.c_str(), "vtkMRMLMarkupsClosedCurveNode") );
+  vtkMRMLMarkupsClosedCurveNode* detectorMarkupsNode = vtkMRMLMarkupsClosedCurveNode::SafeDownCast(
+    mrmlScene->GetSingletonNode(detectorSingletonTag.c_str(), "vtkMRMLMarkupsClosedCurveNode") );
   if (detectorMarkupsNode)
   {
     vtkWarningMacro("UpdateIsocenterToDetectorDistance: Detector markups node is valid");

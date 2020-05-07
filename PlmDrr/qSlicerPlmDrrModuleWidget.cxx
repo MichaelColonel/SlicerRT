@@ -28,6 +28,7 @@
 #include "ui_qSlicerPlmDrrModuleWidget.h"
 
 // MRML includes
+#include <vtkMRMLScene.h>
 #include <vtkMRMLScalarVolumeNode.h>
 
 // RTBeam includes
