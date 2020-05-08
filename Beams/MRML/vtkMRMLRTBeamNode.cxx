@@ -790,7 +790,6 @@ void vtkMRMLRTBeamNode::CreateMLCPointsFromSectionBorder( double jawBegin,
   auto intersectJawsMLC = [ jawBegin, jawEnd, typeMLCX](MLCVisiblePointVector::value_type& point)
   {
     double leafBoundary = (typeMLCX) ? point.second : point.first;
-<<<<<<< HEAD
 //    if (typeMLCX) // JawsY and MLCX
 //    {
 //      leafBoundary = point.second;
@@ -799,9 +798,6 @@ void vtkMRMLRTBeamNode::CreateMLCPointsFromSectionBorder( double jawBegin,
 //    {
 //      leafBoundary = point.first;
 //    }
-=======
->>>>>>> 8933f978d84d5af477430aae4aa16c5c6d1aac27
-
     if (leafBoundary <= jawBegin)
     {
       leafBoundary = jawBegin;
@@ -815,11 +811,7 @@ void vtkMRMLRTBeamNode::CreateMLCPointsFromSectionBorder( double jawBegin,
     {
       point.second = leafBoundary;
     }
-<<<<<<< HEAD
-    else if (typeMLCY) // JawsX and MLCY
-=======
     else // JawsX and MLCY
->>>>>>> 8933f978d84d5af477430aae4aa16c5c6d1aac27
     {
       point.first = leafBoundary;
     }
