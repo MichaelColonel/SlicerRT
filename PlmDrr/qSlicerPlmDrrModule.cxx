@@ -76,13 +76,13 @@ QStringList qSlicerPlmDrrModule::contributors() const
 //-----------------------------------------------------------------------------
 QIcon qSlicerPlmDrrModule::icon() const
 {
-  return QIcon(":/Icons/LoadableModuleTemplate.png");
+  return QIcon(":/Icons/PlmDrr.png");
 }
 
 //-----------------------------------------------------------------------------
 QStringList qSlicerPlmDrrModule::categories() const
 {
-  return QStringList() << "Examples";
+  return QStringList() << "Radiotherapy";
 }
 
 //-----------------------------------------------------------------------------
