@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>qSlicerMlcPositionFooBarWidget</class>
+ <widget class="QWidget" name="qSlicerMlcPositionFooBarWidget">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>456</width>
+    <height>83</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Foo bar</string>
+  </property>
+  <layout class="QGridLayout" name="gridLayout_4"/>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>

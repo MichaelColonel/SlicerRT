@@ -72,6 +72,7 @@ add_subdirectory(DosxyzNrc3dDoseFileReader)
 add_subdirectory(DicomSroImportExport)
 add_subdirectory(BatchProcessing)
 add_subdirectory(RoomsEyeView)
+add_subdirectory(MlcPosition)
 
 add_subdirectory(PlastimatchPy)
 add_subdirectory(PlmBspline)

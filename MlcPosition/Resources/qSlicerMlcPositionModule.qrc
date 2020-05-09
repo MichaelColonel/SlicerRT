@@ -1,0 +1,8 @@
+<!DOCTYPE RCC><RCC version="1.0">
+  <qresource>
+    <file>Icons/MlcPosition.png</file>
+    <file>Icons/OutOfField.png</file>
+    <file>Icons/InField.png</file>
+    <file>Icons/CrossBoundary.png</file>
+  </qresource>
+</RCC>
