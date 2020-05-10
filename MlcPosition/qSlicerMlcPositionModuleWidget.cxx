@@ -202,6 +202,8 @@ qSlicerMlcPositionModuleWidget::onCalculateMultiLeafCollimatorPositionButtonClic
     return;
   }
 
+  qDebug() << Q_FUNC_INFO << "Target ID: " << d->m_TargetVolumeName;
+
   std::string targetId = d->m_TargetVolumeName.toStdString();
 
   if (d->logic() && !targetId.empty())
@@ -216,7 +218,8 @@ qSlicerMlcPositionModuleWidget::onCalculateMultiLeafCollimatorPositionButtonClic
         
         vtkMRMLTableNode* mlcTableNode = d->logic()->CreateMultiLeafCollimatorTableNodeBoundaryData();
 
-        if (mlcTableNode && d->logic()->CalculateMultiLeafCollimatorPosition( mlcTableNode, convexHullCurve))
+//        if (mlcTableNode && d->logic()->CalculateMultiLeafCollimatorPosition( mlcTableNode, convexHullCurve))
+        if (mlcTableNode && d->logic()->CalculateMultiLeafCollimatorPosition( d->BeamNode, mlcTableNode, targetPoly))
         {
           d->BeamNode->SetAndObserveMultiLeafCollimatorTableNode(mlcTableNode);
           d->logic()->SetParentForMultiLeafCollimatorTableNode(d->BeamNode);
@@ -230,6 +233,7 @@ qSlicerMlcPositionModuleWidget::onCalculateMultiLeafCollimatorPositionButtonClic
           d->logic()->SetParentForMultiLeafCollimatorCurve( d->BeamNode, convexHullCurve);
 
           convexHullCurve->SetAndObserveTransformNodeID(beamTransformNode->GetID());
+//          d->logic()->CalculateMultiLeafCollimatorPosition( d->BeamNode, mlcTableNode, targetPoly);
         }
 /*
         vtkMRMLTableNode* mlcPositionNode = moduleLogic->CalculateMultiLeafCollimatorPosition( d->BeamNode, positionCurve);

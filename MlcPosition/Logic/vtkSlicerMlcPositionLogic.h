@@ -34,6 +34,7 @@ class vtkMRMLMarkupsCurveNode;
 class vtkMRMLRTBeamNode;
 class vtkMRMLTableNode;
 class vtkTable;
+class vtkAlgorithmOutput;
 
 /// \ingroup Slicer_QtModules_ExtensionTemplate
 class VTK_SLICER_MLCPOSITION_MODULE_LOGIC_EXPORT vtkSlicerMlcPositionLogic : public vtkSlicerModuleLogic {
@@ -86,11 +87,20 @@ private:
   void FindLeafPairRangeIndexes( double* curveBound, vtkTable* mlcTable, 
     int& leafPairIndexFirst, int& leafPairIndexLast);
 
+  /// @param curveBound (xmin, xmax, ymin, ymax)
+  void FindLeafPairRangeIndexes( vtkMRMLRTBeamNode* beamNode, vtkMRMLTableNode* mlcTableNode, 
+    int& leafPairIndexFirst, int& leafPairIndexLast);
+
   /// @param mlcTableNode is used only to get leaf pair boundary data
   bool FindLeafPairPositions( vtkMRMLMarkupsCurveNode* node,
     vtkMRMLTableNode* mlcTableNode, size_t leafPairIndex, 
     double& side1, double& side2, int strategy = 1, 
     double maxPositionDistance = 100., double positionStep = 0.01);
+
+  bool FindLeafAndTargetCollision( vtkMRMLRTBeamNode* beamNode, vtkAlgorithmOutput* leaf, vtkAlgorithmOutput* target, 
+    double& sidePos, int sideType = 1, bool mlcType = true, 
+    double maxPositionDistance = 100., double positionStep = 0.01);
+
 };
 
 #endif
