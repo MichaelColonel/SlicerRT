@@ -369,25 +369,17 @@ vtkSlicerMlcPositionLogic::CalculatePositionConvexHullCurve(
   }
 
   vtkMRMLTransformNode* beamTransformNode = beamNode->GetParentTransformNode();
-  vtkTransform* beamTransform = nullptr;
+  vtkNew<vtkMatrix4x4> beamInverseMatrix;
+  vtkNew<vtkTransform> beamInverseTransform;
   if (beamTransformNode)
   {
-    beamTransform = vtkTransform::SafeDownCast(beamTransformNode->GetTransformToParent());
+    beamTransformNode->GetMatrixTransformToWorld(beamInverseMatrix);
+    beamInverseMatrix->Invert();
+    beamInverseTransform->SetMatrix(beamInverseMatrix);
   }
   else
   {
     vtkErrorMacro("CalculatePositionCurve: Beam transform node is invalid");
-    return nullptr;
-  }
-
-  vtkNew<vtkMatrix4x4> inverseMatrix;
-  if (beamTransform)
-  {
-    beamTransform->GetInverse(inverseMatrix);
-  }
-  else
-  {
-    vtkErrorMacro("CalculatePositionCurve: Matrix transform is invalid");
     return nullptr;
   }
 
@@ -398,19 +390,29 @@ vtkSlicerMlcPositionLogic::CalculatePositionConvexHullCurve(
 
   this->GetMRMLScene()->AddNode(curveNode);
 
+  // transform target poly data into beam frame
+  auto beamInverseTransformFilter = vtkSmartPointer<vtkTransformPolyDataFilter>::New();
+  beamInverseTransformFilter->SetTransform(beamInverseTransform);
+  beamInverseTransformFilter->SetInputData(targetPoly);
+  beamInverseTransformFilter->Update();
+
+  vtkPolyData* targetPolyBeamFrame = beamInverseTransformFilter->GetOutput();
+
   // external points for MLC opening calculation, projected on the isocenter plane
   vtkNew<vtkPointsProjectedHull> points; 
 
   if (parallelBeam)
   {
-    for( vtkIdType i = 0; i < targetPoly->GetNumberOfPoints(); i++)
+    for( vtkIdType i = 0; i < targetPolyBeamFrame->GetNumberOfPoints(); i++)
     {
       double projectedPoint[4] = {}; // projected point in plane coordinates
-      double M[4] = { 0., 0., 0., 1. }; // target region point
+//      double M[4] = { 0., 0., 0., 1. }; // target region point
 
-      targetPoly->GetPoint( i, M);
+      targetPolyBeamFrame->GetPoint( i, projectedPoint);
 
-      inverseMatrix->MultiplyPoint( M, projectedPoint);
+//      targetPoly->GetPoint( i, M);
+
+//      inverseMatrix->MultiplyPoint( M, projectedPoint);
 
       // projection on XY plane of BEAM LIMITING DEVICE frame
       points->InsertPoint( i, projectedPoint[0], projectedPoint[1], 0.0);
@@ -421,16 +423,17 @@ vtkSlicerMlcPositionLogic::CalculatePositionConvexHullCurve(
     vtkNew<vtkPlane> projectionPlane;
     projectionPlane->SetOrigin( 0., 0., 0.);
     projectionPlane->SetNormal( 0., 0., 1.);
-    for( vtkIdType i = 0; i < targetPoly->GetNumberOfPoints(); i++)
+    for( vtkIdType i = 0; i < targetPolyBeamFrame->GetNumberOfPoints(); i++)
     {
       double beamFramePoint[4] = {}; // target region point in beam frame coordinates
       double worldPoint[4] = { 0., 0., 0., 1. }; // target region point in world
       double t = 0.0001;
       double projectedPoint[3]; // target region point projected on plane
-      targetPoly->GetPoint( i, worldPoint);
+//      targetPoly->GetPoint( i, worldPoint);
 
-      inverseMatrix->MultiplyPoint( worldPoint, beamFramePoint);
-
+//      inverseMatrix->MultiplyPoint( worldPoint, beamFramePoint);
+      targetPolyBeamFrame->GetPoint( i, beamFramePoint);
+      
       double sourcePoint[3] = { 0., 0., -1. * beamNode->GetSAD() };
       double targetPoint[3] = { beamFramePoint[0], beamFramePoint[1], projectedPoint[2] };
 
