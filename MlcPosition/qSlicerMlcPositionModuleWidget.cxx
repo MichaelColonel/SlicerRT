@@ -219,7 +219,9 @@ qSlicerMlcPositionModuleWidget::onCalculateMultiLeafCollimatorPositionButtonClic
         vtkMRMLTableNode* mlcTableNode = d->logic()->CreateMultiLeafCollimatorTableNodeBoundaryData();
 
 //        if (mlcTableNode && d->logic()->CalculateMultiLeafCollimatorPosition( mlcTableNode, convexHullCurve))
-        if (mlcTableNode && d->logic()->CalculateMultiLeafCollimatorPosition( d->BeamNode, mlcTableNode, targetPoly))
+//        if (mlcTableNode && d->logic()->CalculateMultiLeafCollimatorPosition( d->BeamNode, mlcTableNode, targetPoly))
+        if (mlcTableNode && d->logic()->CalculateMultiLeafCollimatorPosition( mlcTableNode, convexHullCurve) 
+          && d->logic()->CalculateMultiLeafCollimatorPosition( d->BeamNode, mlcTableNode, targetPoly))
         {
           d->BeamNode->SetAndObserveMultiLeafCollimatorTableNode(mlcTableNode);
           d->logic()->SetParentForMultiLeafCollimatorTableNode(d->BeamNode);
@@ -263,20 +265,17 @@ void
 qSlicerMlcPositionModuleWidget::onShowMultiLeafCollimatorModelButtonClicked()
 {
   Q_D(qSlicerMlcPositionModuleWidget);
-/*
-  vtkSlicerLoadableModuleTemplateLogic* moduleLogic = vtkSlicerLoadableModuleTemplateLogic::SafeDownCast(this->logic());
 
   std::string targetId = d->m_TargetVolumeName.toStdString();
 
-  if (moduleLogic && !targetId.empty())
+  if (d->logic() && !targetId.empty())
   {
 //    vtkSlicerLoadableModuleTemplateLogic* moduleLogic = vtkSlicerLoadableModuleTemplateLogic::SafeDownCast(this->logic());
 //    moduleLogic->SetModelsLogic(d->ModelsLogic);
-    moduleLogic->CreateMultiLeafCollimatorModelPolyData(d->BeamNode);
-    double area = moduleLogic->CalculateMultiLeafCollimatorPositionArea(d->BeamNode);
-    qDebug() << Q_FUNC_INFO << ": Position area (mm^2) = " << area;
+///    d->logic()->CreateMultiLeafCollimatorModelPolyData(d->BeamNode);
+///    double area = d->logic()->CalculateMultiLeafCollimatorPositionArea(d->BeamNode);
+///    qDebug() << Q_FUNC_INFO << ": Position area (mm^2) = " << area;
   }
-  */
 }
 
 //-----------------------------------------------------------------------------

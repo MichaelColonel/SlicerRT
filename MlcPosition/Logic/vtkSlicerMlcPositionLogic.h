@@ -47,7 +47,8 @@ public:
   vtkMRMLTableNode* CreateMultiLeafCollimatorTableNodeBoundaryData();
 
   /// Calculate convex hull curve on isocenter plane for MLC position computation
-  vtkMRMLMarkupsCurveNode* CalculatePositionConvexHullCurve( vtkMRMLRTBeamNode* beamNode, vtkPolyData* targetPoly);
+  vtkMRMLMarkupsCurveNode* CalculatePositionConvexHullCurve( vtkMRMLRTBeamNode* beamNode, vtkPolyData* targetPoly, 
+    bool parallelBeam = true);
 
   bool CalculateMultiLeafCollimatorPosition( vtkMRMLTableNode* mlcTableNode, vtkMRMLMarkupsCurveNode* curveNode);
   bool CalculateMultiLeafCollimatorPosition( vtkMRMLRTBeamNode* beamNode, 
@@ -101,6 +102,9 @@ private:
     double& sidePos, int sideType = 1, bool mlcType = true, 
     double maxPositionDistance = 100., double positionStep = 0.01);
 
+  bool FindLeafAndTargetCollision2( vtkMRMLRTBeamNode* beamNode, vtkAlgorithmOutput* leaf, vtkAlgorithmOutput* target, 
+    double& sidePos, double initialPosition, int sideType = 1, bool mlcType = true, 
+    double maxPositionDistance = 100., double positionStep = 0.1);
 };
 
 #endif

@@ -129,7 +129,7 @@ const double boundary[leaves + 1] = {
   +86.5 - 2.5
 };
 */
-/*
+
 const size_t leaves = 32;
 const double boundary[leaves + 1] = {
   -80.0,
@@ -166,12 +166,11 @@ const double boundary[leaves + 1] = {
   +75.0,
   +86.5
 };
-*/
 
 const size_t leaves1 = 16; 
-const size_t leaves = 16; 
-//const double boundary_l1[leaves1 + 1] = {
-const double boundary[leaves + 1] = {
+//const size_t leaves = 16; 
+const double boundary_l1[leaves1 + 1] = {
+//const double boundary[leaves + 1] = {
   -75.0,
   -65.0,
   -55.0,
@@ -192,6 +191,7 @@ const double boundary[leaves + 1] = {
 };
 
 const double boundary_l2[leaves1 + 1] = {
+//const double boundary[leaves + 1] = {
   -80.0,
   -70.0,
   -60.0,
@@ -360,7 +360,7 @@ vtkSlicerLoadableModuleTemplateLogic::CalculatePositionCurve(
 
 vtkMRMLMarkupsCurveNode*
 vtkSlicerMlcPositionLogic::CalculatePositionConvexHullCurve( 
-  vtkMRMLRTBeamNode* beamNode, vtkPolyData* targetPoly)
+  vtkMRMLRTBeamNode* beamNode, vtkPolyData* targetPoly, bool parallelBeam)
 {
   if (!beamNode)
   {
@@ -401,26 +401,44 @@ vtkSlicerMlcPositionLogic::CalculatePositionConvexHullCurve(
   // external points for MLC opening calculation, projected on the isocenter plane
   vtkNew<vtkPointsProjectedHull> points; 
 
-  vtkNew<vtkPlane> projectionPlane;
-  projectionPlane->SetOrigin( 0., 0., 0.);
-  projectionPlane->SetNormal( 0., 0., 1.);
-  for( vtkIdType i = 0; i < targetPoly->GetNumberOfPoints(); i++)
+  if (parallelBeam)
   {
-    double beamFramePoint[4] = {}; // target region point in beam frame coordinates
-    double worldPoint[4] = { 0., 0., 0., 1. }; // target region point in world
-    double t = 0.0001;
-    double projectedPoint[3]; // target region point projected on plane
-    targetPoly->GetPoint( i, worldPoint);
-
-    inverseMatrix->MultiplyPoint( worldPoint, beamFramePoint);
-
-    double sourcePoint[3] = { 0., 0., -1. * beamNode->GetSAD() };
-    double targetPoint[3] = { beamFramePoint[0], beamFramePoint[1], projectedPoint[2] };
-
-    if (projectionPlane->IntersectWithLine( sourcePoint, targetPoint, t, projectedPoint))
+    for( vtkIdType i = 0; i < targetPoly->GetNumberOfPoints(); i++)
     {
+      double projectedPoint[4] = {}; // projected point in plane coordinates
+      double M[4] = { 0., 0., 0., 1. }; // target region point
+
+      targetPoly->GetPoint( i, M);
+
+      inverseMatrix->MultiplyPoint( M, projectedPoint);
+
       // projection on XY plane of BEAM LIMITING DEVICE frame
       points->InsertPoint( i, projectedPoint[0], projectedPoint[1], 0.0);
+    }
+  }
+  else
+  {
+    vtkNew<vtkPlane> projectionPlane;
+    projectionPlane->SetOrigin( 0., 0., 0.);
+    projectionPlane->SetNormal( 0., 0., 1.);
+    for( vtkIdType i = 0; i < targetPoly->GetNumberOfPoints(); i++)
+    {
+      double beamFramePoint[4] = {}; // target region point in beam frame coordinates
+      double worldPoint[4] = { 0., 0., 0., 1. }; // target region point in world
+      double t = 0.0001;
+      double projectedPoint[3]; // target region point projected on plane
+      targetPoly->GetPoint( i, worldPoint);
+
+      inverseMatrix->MultiplyPoint( worldPoint, beamFramePoint);
+
+      double sourcePoint[3] = { 0., 0., -1. * beamNode->GetSAD() };
+      double targetPoint[3] = { beamFramePoint[0], beamFramePoint[1], projectedPoint[2] };
+
+      if (projectionPlane->IntersectWithLine( sourcePoint, targetPoint, t, projectedPoint))
+      {
+        // projection on XY plane of BEAM LIMITING DEVICE frame
+        points->InsertPoint( i, projectedPoint[0], projectedPoint[1], 0.0);
+      }
     }
   }
 
@@ -1202,7 +1220,7 @@ vtkSlicerMlcPositionLogic::CalculateMultiLeafCollimatorPosition( vtkMRMLRTBeamNo
 
     auto leaf1 = vtkSmartPointer<vtkCubeSource>::New();
     auto leaf2 = vtkSmartPointer<vtkCubeSource>::New();
-
+/*
     int leafPairStart;
     int leafPairEnd;
     FindLeafPairRangeIndexes( beamNode, mlcTableNode, leafPairStart, leafPairEnd);
@@ -1220,17 +1238,27 @@ vtkSlicerMlcPositionLogic::CalculateMultiLeafCollimatorPosition( vtkMRMLRTBeamNo
     {
       leafPairEnd += 1;
     }
-
+*/
     // create polydata for a leaf pair
-    for ( vtkIdType leafPair = leafPairStart; leafPair <= leafPairEnd; leafPair++)
+//    for ( vtkIdType leafPair = leafPairStart; leafPair <= leafPairEnd; leafPair++)
+    for ( vtkIdType leafPair = 0; leafPair < nofLeafPairs; leafPair++)
     { // leaf pair for cycle begins
 //      vtkWarningMacro("LeafID: " << leafPair);
+
       vtkTable* table = mlcTableNode->GetTable();
+      double InitialPos1 = table->GetValue( leafPair, 1).ToDouble();
+      double InitialPos2 = table->GetValue( leafPair, 2).ToDouble();
+
+      if (vtkSlicerRtCommon::AreEqualWithTolerance( InitialPos1, InitialPos2))
+      {
+        continue;
+      }
+
       double boundBegin = table->GetValue( leafPair, 0).ToDouble();
       double boundEnd = table->GetValue( leafPair + 1, 0).ToDouble();
 
-//      double pos1 = table->GetValue( leafPair, 0).ToDouble();
-//      double pos2 = table->GetValue( leafPair, 1).ToDouble();
+//      double InitialPos1 = table->GetValue( leafPair, 1).ToDouble();
+//      double InitialPos2 = table->GetValue( leafPair, 2).ToDouble();
       double mlcLeafLength = 200.;
 
         if (typeMLCX) // MLCX
@@ -1252,8 +1280,8 @@ vtkSlicerMlcPositionLogic::CalculateMultiLeafCollimatorPosition( vtkMRMLRTBeamNo
         leaf2->Update();
 
         double side1 = 0.0;
-        if (FindLeafAndTargetCollision( beamNode, leaf1->GetOutputPort(), beamInverseTransformFilter->GetOutputPort(),
-          side1, 1, typeMLCX))
+        if (FindLeafAndTargetCollision2( beamNode, leaf1->GetOutputPort(), beamInverseTransformFilter->GetOutputPort(),
+          side1, InitialPos1 - 1., 1, typeMLCX))
         {
 //          vtkWarningMacro("CalculateMultiLeafCollimatorPosition: Side 1 collision found " << s1);
           table->SetValue( leafPair, 1, side1);
@@ -1264,8 +1292,8 @@ vtkSlicerMlcPositionLogic::CalculateMultiLeafCollimatorPosition( vtkMRMLRTBeamNo
         }
 
         double side2 = 0.0;
-        if (FindLeafAndTargetCollision( beamNode, leaf2->GetOutputPort(), beamInverseTransformFilter->GetOutputPort(),
-          side2, 2, typeMLCX))
+        if (FindLeafAndTargetCollision2( beamNode, leaf2->GetOutputPort(), beamInverseTransformFilter->GetOutputPort(),
+          side2, InitialPos2 + 1., 2, typeMLCX))
         {
 //          vtkWarningMacro("CalculateMultiLeafCollimatorPosition: Side 2 collision found " << s2);
           table->SetValue( leafPair, 2, side2);
@@ -1453,5 +1481,131 @@ vtkSlicerMlcPositionLogic::FindLeafAndTargetCollision( vtkMRMLRTBeamNode* beamNo
         }
       }
 */
+  return res;
+}
+
+//---------------------------------------------------------------------------
+bool
+vtkSlicerMlcPositionLogic::FindLeafAndTargetCollision2( vtkMRMLRTBeamNode* beamNode, vtkAlgorithmOutput* leafOutput, vtkAlgorithmOutput* targetOutput,
+  double& sidePos, double initialPosition, int sideType, bool mlcType, 
+  double maxPositionDistance, double positionStep)
+{
+  int contactMode = 1;
+  auto targetMatrix = vtkSmartPointer<vtkMatrix4x4>::New(); // fixed target matrix
+  targetMatrix->Identity();
+  auto leafTransform = vtkSmartPointer<vtkTransform>::New(); // moving leaf transform
+  leafTransform->Identity();
+  auto collide = vtkSmartPointer<vtkCollisionDetectionFilter>::New();
+  collide->SetInputConnection( 0, leafOutput);
+  collide->SetTransform( 0, leafTransform);
+  collide->SetInputConnection( 1, targetOutput);
+  collide->SetMatrix( 1, targetMatrix);
+  collide->SetBoxTolerance(0.0);
+  collide->SetCellTolerance(0.0);
+  collide->SetNumberOfCellsPerNode(2);
+  if (contactMode == 0)
+  {
+    collide->SetCollisionModeToAllContacts();
+  }
+  else if (contactMode == 1)
+  {
+    collide->SetCollisionModeToFirstContact();
+  }
+  else
+  {
+    collide->SetCollisionModeToHalfContacts();
+  }
+  collide->GenerateScalarsOn();
+
+  // Move the leaf
+  int numSteps = fabs(initialPosition) + fabs(maxPositionDistance) / fabs(positionStep);
+  if (sideType == 1)
+  {
+      if (mlcType) // MLCX
+      {
+        leafTransform->Translate( initialPosition, 0.0, 0.0);
+      }
+      else // MLCY
+      {
+        leafTransform->Translate( 0., initialPosition, 0.0);
+      }
+  }
+  else
+  {
+      if (mlcType) // MLCX
+      {
+        leafTransform->Translate( initialPosition, 0.0, 0.0);
+      }
+      else // MLCY
+      {
+        leafTransform->Translate( 0., initialPosition, 0.0);
+      }
+  }
+
+  bool res = false;
+  double p[3] = {};
+  for (int i = 0; i < numSteps; ++i)
+  {
+    if (sideType == 1)
+    {
+      if (mlcType) // MLCX
+      {
+        leafTransform->Translate( positionStep, 0.0, 0.0);
+      }
+      else // MLCY
+      {
+        leafTransform->Translate( 0.0, positionStep, 0.0);
+      }
+    }
+    else
+    {
+      if (mlcType) // MLCX
+      {
+        leafTransform->Translate( -1. * positionStep, 0.0, 0.0);
+      }
+      else // MLCY
+      {
+        leafTransform->Translate( 0.0, -1. * positionStep, 0.0);
+      }
+    }
+    
+    leafTransform->Update();
+    collide->Update();
+
+    if (collide->GetNumberOfContacts() > 0)
+    {
+
+      vtkPolyData* contacts = collide->GetContactsOutput();
+      vtkIdType nofCells = contacts->GetNumberOfCells();
+
+      for ( vtkIdType i = 0; i < nofCells; ++i)
+      {
+        vtkCell* cell = contacts->GetCell(i);
+        if (cell)
+        {
+          vtkPoints* points = cell->GetPoints();
+          if (points)
+          {
+            for ( vtkIdType j = 0; j < points->GetNumberOfPoints(); ++j)
+            {
+              points->GetPoint( j, p);
+              if (mlcType) // MLCX
+              {
+                sidePos = p[0];
+              }
+              else // MLCY
+              {
+                sidePos = p[1];
+              }
+            }
+          }
+        }
+      }
+
+      res = true;
+      break;
+    }
+  }
+
   return res;
 }
