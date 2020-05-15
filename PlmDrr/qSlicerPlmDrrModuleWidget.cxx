@@ -137,6 +137,14 @@ void qSlicerPlmDrrModuleWidget::setup()
   connect( d->SliderWidget_IsocenterImageDistance, SIGNAL(valueChanged(double)), 
     this, SLOT(onIsocenterDetectorDistanceValueChanged(double)));
 
+  // Coordinates widgets
+  connect( d->CoordinatesWidget_ImageCenterOffset, SIGNAL(coordinatesChanged(double*)), 
+    this, SLOT(onImageCenterOffsetCoordinatesChanged(double*)));
+  connect( d->CoordinatesWidget_ImagePixelDimention, SIGNAL(coordinatesChanged(double*)), 
+    this, SLOT(onImageDimentionChanged(double*)));
+  connect( d->CoordinatesWidget_ImagePixelSpacing, SIGNAL(coordinatesChanged(double*)), 
+    this, SLOT(onImageSpacingChanged(double*)));
+
   // Buttons
   connect( d->PushButton_SaveVolume, SIGNAL(clicked()), this, SLOT(onSaveVolumeClicked()));
   connect( d->PushButton_SaveVolume, SIGNAL(clicked()), this, SLOT(onSaveVolumeClicked()));
@@ -173,6 +181,7 @@ void qSlicerPlmDrrModuleWidget::setMRMLScene(vtkMRMLScene* scene)
       auto newNode = vtkSmartPointer<vtkMRMLPlmDrrNode>::New();
       this->mrmlScene()->AddNode(newNode);
       this->setParameterNode(newNode);
+//      d->logic()->CreateDefaultMarkupsNodes(newNode);
     }
   }
 }
@@ -211,6 +220,8 @@ void qSlicerPlmDrrModuleWidget::onRTBeamNodeChanged(vtkMRMLNode* node)
   paramNode->DisableModifiedEventOn();
   paramNode->SetAndObserveBeamNode(beamNode);
   paramNode->DisableModifiedEventOff();
+
+  d->logic()->UpdateMarkupsNodes(paramNode);
 /*
   // Trigger update of transforms based on selected beam
   beamNode->InvokeCustomModifiedEvent(vtkMRMLRTBeamNode::BeamTransformModified);
@@ -299,6 +310,7 @@ void qSlicerPlmDrrModuleWidget::updateWidgetFromMRML()
     {
       qDebug() << Q_FUNC_INFO << "Set beam node into GUI";
       d->MRMLNodeComboBox_RtBeam->setCurrentNode(paramNode->GetBeamNode());
+      // apply beam transform to detector closed curve markups
     }
 /*    
     if (paramNode->GetPatientBodySegmentationNode())
@@ -366,7 +378,15 @@ void qSlicerPlmDrrModuleWidget::onEnter()
   // Select or create parameter node
   this->setMRMLScene(this->mrmlScene());
 
-  d->logic()->CreateDefaultMarkupsNodes();
+
+  vtkMRMLPlmDrrNode* paramNode = vtkMRMLPlmDrrNode::SafeDownCast(d->MRMLNodeComboBox_ParameterNode->currentNode());
+  if (!paramNode)
+  {
+    qCritical() << Q_FUNC_INFO << ": Invalid parameter node";
+    return;
+  }
+
+  d->logic()->CreateDefaultMarkupsNodes(paramNode);
 
   d->ModuleWindowInitialized = true;
 }
@@ -391,6 +411,7 @@ void qSlicerPlmDrrModuleWidget::setParameterNode(vtkMRMLNode *node)
     if (!paramNode->GetBeamNode())
     {
       paramNode->SetAndObserveBeamNode(vtkMRMLRTBeamNode::SafeDownCast(d->MRMLNodeComboBox_RtBeam->currentNode()));
+      paramNode->Modified();
     }
 /*    if (!paramNode->GetPatientBodySegmentationNode())
     {
@@ -424,6 +445,68 @@ void qSlicerPlmDrrModuleWidget::onIsocenterDetectorDistanceValueChanged(double v
   paramNode->SetIsocenterDetectorDistance(value);
   paramNode->DisableModifiedEventOff();
   
-  // Update IEC transform
-  d->logic()->UpdateIsocenterDetectorDistance(paramNode);
+  // Update detector and image markups
+  d->logic()->UpdateMarkupsNodes(paramNode);
+//  d->logic()->UpdateIsocenterDetectorDistance(paramNode);
+}
+
+//-----------------------------------------------------------------------------
+void qSlicerPlmDrrModuleWidget::onImageCenterOffsetCoordinatesChanged(double* detectorOffset)
+{
+  Q_D(qSlicerPlmDrrModuleWidget);
+
+  vtkMRMLPlmDrrNode* paramNode = vtkMRMLPlmDrrNode::SafeDownCast(d->MRMLNodeComboBox_ParameterNode->currentNode());
+  if (!paramNode || !d->ModuleWindowInitialized)
+  {
+    return;
+  }
+
+  double offset[2] = { detectorOffset[0], detectorOffset[1] };
+  paramNode->DisableModifiedEventOn();
+  paramNode->SetDetectorCenterOffset(offset);
+  paramNode->DisableModifiedEventOff();
+
+  // Update detector and image markups
+  d->logic()->UpdateMarkupsNodes(paramNode);
+}
+//-----------------------------------------------------------------------------
+void qSlicerPlmDrrModuleWidget::onImageSpacingChanged(double* spacing)
+{
+  Q_D(qSlicerPlmDrrModuleWidget);
+
+  vtkMRMLPlmDrrNode* paramNode = vtkMRMLPlmDrrNode::SafeDownCast(d->MRMLNodeComboBox_ParameterNode->currentNode());
+  if (!paramNode || !d->ModuleWindowInitialized)
+  {
+    return;
+  }
+
+  double s[2] = { spacing[0], spacing[1] };
+  paramNode->DisableModifiedEventOn();
+  paramNode->SetImageSpacing(s);
+  paramNode->DisableModifiedEventOff();
+
+  // Update detector and image markups
+  d->logic()->UpdateMarkupsNodes(paramNode);
+//  d->logic()->UpdateImageSpacing(paramNode);
+}
+
+//-----------------------------------------------------------------------------
+void qSlicerPlmDrrModuleWidget::onImageDimentionChanged(double* dimention)
+{
+  Q_D(qSlicerPlmDrrModuleWidget);
+
+  vtkMRMLPlmDrrNode* paramNode = vtkMRMLPlmDrrNode::SafeDownCast(d->MRMLNodeComboBox_ParameterNode->currentNode());
+  if (!paramNode || !d->ModuleWindowInitialized)
+  {
+    return;
+  }
+
+  int dim[2] = { static_cast<int>(dimention[0]), static_cast<int>(dimention[1]) };
+  paramNode->DisableModifiedEventOn();
+  paramNode->SetImageDimention(dim);
+  paramNode->DisableModifiedEventOff();
+  
+  // Update detector and image markups
+  d->logic()->UpdateMarkupsNodes(paramNode);
+//  d->logic()->UpdateImageDimention(paramNode);
 }

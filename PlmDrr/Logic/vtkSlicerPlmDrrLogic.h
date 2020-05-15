@@ -60,9 +60,18 @@ public:
 
   /// Update DRR markups based on isocenter to detector distance parameter
   void UpdateIsocenterDetectorDistance(vtkMRMLPlmDrrNode* parameterNode);
+  /// Update DRR markups based on image dimention
+  void UpdateImageDimention(vtkMRMLPlmDrrNode* parameterNode);
+  /// Update DRR markups based on image spacing
+  void UpdateImageSpacing(vtkMRMLPlmDrrNode* parameterNode);
+  /// Update DRR markups based on detector center offset
+  void UpdateDetectorCenterOffset(vtkMRMLPlmDrrNode* parameterNode);
 
   /// Create default markups nodes (2 curves, 2 lines, 1 fiducial) for visualization
-  void CreateDefaultMarkupsNodes(vtkMRMLRTBeamNode* beamNode = nullptr);
+  void CreateDefaultMarkupsNodes(vtkMRMLPlmDrrNode* parameterNode);
+
+  /// Update markups nodes using parameter node data
+  void UpdateMarkupsNodes(vtkMRMLPlmDrrNode* parameterNode);
 
   vtkMRMLMarkupsLineNode* CreateDetectorNormal(vtkMRMLPlmDrrNode* node);
   vtkMRMLMarkupsClosedCurveNode* CreateDetectorBoundary(vtkMRMLPlmDrrNode* node);

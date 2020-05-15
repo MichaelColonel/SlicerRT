@@ -48,15 +48,19 @@ public slots:
 
   void onRTBeamNodeChanged(vtkMRMLNode*);
   void onReferenceVolumeNodeChanged(vtkMRMLNode*);
-  void onSaveVolumeClicked();
-  void onComputeDrrClicked();
-  void onLoadDrrClicked();
+
   /// Update widget GUI from drr parameters node
   void updateWidgetFromMRML();
 
 protected slots:
   void onLogicModified();
   void onIsocenterDetectorDistanceValueChanged(double);
+  void onImageCenterOffsetCoordinatesChanged(double*);
+  void onImageSpacingChanged(double*);
+  void onImageDimentionChanged(double*);
+  void onSaveVolumeClicked();
+  void onComputeDrrClicked();
+  void onLoadDrrClicked();  
 
 protected:
   QScopedPointer<qSlicerPlmDrrModuleWidgetPrivate> d_ptr;

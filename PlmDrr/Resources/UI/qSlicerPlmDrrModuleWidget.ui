@@ -70,7 +70,7 @@
      <item row="3" column="0" colspan="3">
       <widget class="ctkCollapsibleButton" name="CollapsibleButton">
        <property name="text">
-        <string>CollapsibleButton</string>
+        <string>Basic DRR parameters</string>
        </property>
        <layout class="QGridLayout" name="gridLayout_3">
         <item row="0" column="0">
@@ -131,6 +131,12 @@
            <widget class="ctkCoordinatesWidget" name="CoordinatesWidget_ImageCenterOffset">
             <property name="dimension">
              <number>2</number>
+            </property>
+            <property name="minimum">
+             <double>-100.000000000000000</double>
+            </property>
+            <property name="maximum">
+             <double>100.000000000000000</double>
             </property>
            </widget>
           </item>
