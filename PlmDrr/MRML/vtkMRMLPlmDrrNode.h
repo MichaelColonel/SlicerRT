@@ -63,17 +63,23 @@ public:
   /// Set and observe beam node
   void SetAndObserveBeamNode(vtkMRMLRTBeamNode* node);
 
-  vtkGetMacro(IsocenterDetectorDistance, double);
-  vtkSetMacro(IsocenterDetectorDistance, double);
+  vtkGetMacro(IsocenterImagerDistance, double);
+  vtkSetMacro(IsocenterImagerDistance, double);
 
-  vtkGetVector2Macro( DetectorCenterOffset, double);
-  vtkSetVector2Macro( DetectorCenterOffset, double);
+  vtkGetVector2Macro( ImagerCenterOffset, double);
+  vtkSetVector2Macro( ImagerCenterOffset, double);
 
   vtkGetVector2Macro( ImageDimention, int);
   vtkSetVector2Macro( ImageDimention, int);
 
   vtkGetVector2Macro( ImageSpacing, double);
   vtkSetVector2Macro( ImageSpacing, double);
+
+  vtkGetVector2Macro( ImageCenter, int);
+  vtkSetVector2Macro( ImageCenter, int);
+
+  vtkGetVector4Macro( ImageWindow, int);
+  vtkSetVector4Macro( ImageWindow, int);
 
   vtkGetMacro( RotateX, double);
   vtkSetMacro( RotateX, double);
@@ -91,10 +97,12 @@ protected:
   void operator=(const vtkMRMLPlmDrrNode&);
 
 protected:
-  double IsocenterDetectorDistance; // fabs(SID - SAD)
-  double DetectorCenterOffset[2]; // x,y
-  int ImageDimention[2]; // x,y
+  double IsocenterImagerDistance; // fabs(SID - SAD)
+  double ImagerCenterOffset[2]; // x,y
+  int ImageDimention[2]; // columns, rows
   double ImageSpacing[2]; // x,y
+  int ImageCenter[2]; // column, row
+  int ImageWindow[4]; // column1, column2, row1, row2
   double RotateX;
   double RotateY;
   double RotateZ;

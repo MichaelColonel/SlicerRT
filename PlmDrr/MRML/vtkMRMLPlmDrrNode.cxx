@@ -36,7 +36,7 @@
 namespace
 {
 
-  const char* BEAM_REFERENCE_ROLE = "beamRef";
+const char* BEAM_REFERENCE_ROLE = "beamRef";
 
 } // namespace
 
@@ -46,17 +46,27 @@ vtkMRMLNodeNewMacro(vtkMRMLPlmDrrNode);
 //----------------------------------------------------------------------------
 vtkMRMLPlmDrrNode::vtkMRMLPlmDrrNode()
   :
-  IsocenterDetectorDistance(300.),
+  IsocenterImagerDistance(300.),
   RotateX(0.),
   RotateY(0.),
   RotateZ(0.)
 {
-  DetectorCenterOffset[0] = 0.;
-  DetectorCenterOffset[1] = 0.;
-  ImageDimention[0] = 1024;
-  ImageDimention[1] = 768;
-  ImageSpacing[0] = 1.;
-  ImageSpacing[1] = 1.;
+  ImagerCenterOffset[0] = 0.;
+  ImagerCenterOffset[1] = 0.;
+  ImageDimention[0] = 1024; // columns = x
+  ImageDimention[1] = 768; // columns = y
+
+  ImageCenter[0] = ImageDimention[0] / 2; // columns = x
+  ImageCenter[1] = ImageDimention[1] / 2; // rows = y
+
+  ImageSpacing[0] = 0.25; // 250 um
+  ImageSpacing[1] = 0.25; // 250 um
+
+  ImageWindow[0] = 0; // c1 = x1 (start column) 
+  ImageWindow[1] = 0; // r1 = y1 (start row)
+  ImageWindow[2] = ImageDimention[0]; // c2 = x2 (end column)
+  ImageWindow[3] = ImageDimention[1]; // r2 = y2 (end row)
+
   this->SetSingletonTag("DRR");
 }
 
@@ -72,10 +82,12 @@ void vtkMRMLPlmDrrNode::WriteXML(ostream& of, int nIndent)
 
   // Write all MRML node attributes into output stream
   vtkMRMLWriteXMLBeginMacro(of);
-  vtkMRMLWriteXMLFloatMacro( IsocenterDetectorDistance, IsocenterDetectorDistance);
-  vtkMRMLWriteXMLVectorMacro( DetectorCenterOffset, DetectorCenterOffset, double, 2);
+  vtkMRMLWriteXMLFloatMacro( IsocenterImagerDistance, IsocenterImagerDistance);
+  vtkMRMLWriteXMLVectorMacro( ImagerCenterOffset, ImagerCenterOffset, double, 2);
   vtkMRMLWriteXMLVectorMacro( ImageDimention, ImageDimention, int, 2);
   vtkMRMLWriteXMLVectorMacro( ImageSpacing, ImageSpacing, double, 2);
+  vtkMRMLWriteXMLVectorMacro( ImageCenter, ImageCenter, int, 2);
+  vtkMRMLWriteXMLVectorMacro( ImageWindow, ImageWindow, int, 4);
   vtkMRMLWriteXMLFloatMacro( RotateX, RotateX);
   vtkMRMLWriteXMLFloatMacro( RotateY, RotateY);
   vtkMRMLWriteXMLFloatMacro( RotateZ, RotateZ);
@@ -89,10 +101,12 @@ void vtkMRMLPlmDrrNode::ReadXMLAttributes(const char** atts)
   vtkMRMLNode::ReadXMLAttributes(atts);
 
   vtkMRMLReadXMLBeginMacro(atts);
-  vtkMRMLReadXMLFloatMacro( IsocenterDetectorDistance, IsocenterDetectorDistance);
-  vtkMRMLReadXMLVectorMacro( DetectorCenterOffset, DetectorCenterOffset, double, 2);
+  vtkMRMLReadXMLFloatMacro( IsocenterImagerDistance, IsocenterImagerDistance);
+  vtkMRMLReadXMLVectorMacro( ImagerCenterOffset, ImagerCenterOffset, double, 2);
   vtkMRMLReadXMLVectorMacro( ImageDimention, ImageDimention, int, 2);
   vtkMRMLReadXMLVectorMacro( ImageSpacing, ImageSpacing, double, 2);
+  vtkMRMLReadXMLVectorMacro( ImageCenter, ImageCenter, int, 2);
+  vtkMRMLReadXMLVectorMacro( ImageWindow, ImageWindow, int, 4);
   vtkMRMLReadXMLFloatMacro( RotateX, RotateX);
   vtkMRMLReadXMLFloatMacro( RotateY, RotateY);
   vtkMRMLReadXMLFloatMacro( RotateZ, RotateZ);
@@ -119,31 +133,34 @@ void vtkMRMLPlmDrrNode::Copy(vtkMRMLNode *anode)
 
   // Copy beam parameters
   this->DisableModifiedEventOn();
-
-  this->SetIsocenterDetectorDistance(node->GetIsocenterDetectorDistance());
-  this->SetDetectorCenterOffset(node->GetDetectorCenterOffset());
+/*
+  this->SetIsocenterImagerDistance(node->GetIsocenterImagerDistance());
+  this->SetImagerCenterOffset(node->GetImagerCenterOffset());
   this->SetImageDimention(node->GetImageDimention());
   this->SetImageSpacing(node->GetImageSpacing());
+  this->SetImageWindow(node->GetImageWindow());
   this->SetRotateX(node->GetRotateX());
   this->SetRotateY(node->GetRotateY());
   this->SetRotateZ(node->GetRotateZ());
 
   this->EndModify(disabledModify);
-  
-  this->InvokePendingModifiedEvent();
-/*
+*/
+
   vtkMRMLCopyBeginMacro(anode);
-  vtkMRMLCopyFloatMacro(IsocenterDetectorDistance);
-  vtkMRMLCopyVectorMacro( DetectorCenterOffset, double, 2);
+  vtkMRMLCopyFloatMacro(IsocenterImagerDistance);
+  vtkMRMLCopyVectorMacro( ImagerCenterOffset, double, 2);
   vtkMRMLCopyVectorMacro( ImageDimention, int, 2);
   vtkMRMLCopyVectorMacro( ImageSpacing, double, 2);
+  vtkMRMLCopyVectorMacro( ImageCenter, int, 2);
+  vtkMRMLCopyVectorMacro( ImageWindow, int, 4);
   vtkMRMLCopyFloatMacro(RotateX);
   vtkMRMLCopyFloatMacro(RotateY);
   vtkMRMLCopyFloatMacro(RotateZ);
   vtkMRMLCopyEndMacro(); 
 
   this->EndModify(disabledModify);
-*/
+
+  this->InvokePendingModifiedEvent();
 }
 
 //----------------------------------------------------------------------------
@@ -152,10 +169,12 @@ void vtkMRMLPlmDrrNode::PrintSelf(ostream& os, vtkIndent indent)
   Superclass::PrintSelf(os,indent);
 
   vtkMRMLPrintBeginMacro(os, indent);
-  vtkMRMLPrintFloatMacro(IsocenterDetectorDistance);
-  vtkMRMLPrintVectorMacro( DetectorCenterOffset, double, 2);
+  vtkMRMLPrintFloatMacro(IsocenterImagerDistance);
+  vtkMRMLPrintVectorMacro( ImagerCenterOffset, double, 2);
   vtkMRMLPrintVectorMacro( ImageDimention, int, 2);
   vtkMRMLPrintVectorMacro( ImageSpacing, double, 2);
+  vtkMRMLPrintVectorMacro( ImageCenter, int, 2);
+  vtkMRMLPrintVectorMacro( ImageWindow, int, 4);
   vtkMRMLPrintFloatMacro(RotateX);
   vtkMRMLPrintFloatMacro(RotateY);
   vtkMRMLPrintFloatMacro(RotateZ);

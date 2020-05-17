@@ -134,19 +134,20 @@ void qSlicerPlmDrrModuleWidget::setup()
     this, SLOT(onReferenceVolumeNodeChanged(vtkMRMLNode*)));
 
   // Sliders
-  connect( d->SliderWidget_IsocenterImageDistance, SIGNAL(valueChanged(double)), 
-    this, SLOT(onIsocenterDetectorDistanceValueChanged(double)));
+  connect( d->SliderWidget_IsocenterImagerDistance, SIGNAL(valueChanged(double)), 
+    this, SLOT(onIsocenterImagerDistanceValueChanged(double)));
 
   // Coordinates widgets
-  connect( d->CoordinatesWidget_ImageCenterOffset, SIGNAL(coordinatesChanged(double*)), 
-    this, SLOT(onImageCenterOffsetCoordinatesChanged(double*)));
+  connect( d->CoordinatesWidget_ImagerCenterOffset, SIGNAL(coordinatesChanged(double*)), 
+    this, SLOT(onImagerCenterOffsetCoordinatesChanged(double*)));
   connect( d->CoordinatesWidget_ImagePixelDimention, SIGNAL(coordinatesChanged(double*)), 
     this, SLOT(onImageDimentionChanged(double*)));
   connect( d->CoordinatesWidget_ImagePixelSpacing, SIGNAL(coordinatesChanged(double*)), 
     this, SLOT(onImageSpacingChanged(double*)));
+  connect( d->CoordinatesWidget_ImageWindow, SIGNAL(coordinatesChanged(double*)), 
+    this, SLOT(onImageWindowCoordinatesChanged(double*)));
 
   // Buttons
-  connect( d->PushButton_SaveVolume, SIGNAL(clicked()), this, SLOT(onSaveVolumeClicked()));
   connect( d->PushButton_SaveVolume, SIGNAL(clicked()), this, SLOT(onSaveVolumeClicked()));
   connect( d->PushButton_ComputeDrr, SIGNAL(clicked()), this, SLOT(onComputeDrrClicked()));
   connect( d->PushButton_LoadDrr, SIGNAL(clicked()), this, SLOT(onLoadDrrClicked()));
@@ -386,7 +387,7 @@ void qSlicerPlmDrrModuleWidget::onEnter()
     return;
   }
 
-  d->logic()->CreateDefaultMarkupsNodes(paramNode);
+  d->logic()->CreateMarkupsNodes(paramNode);
 
   d->ModuleWindowInitialized = true;
 }
@@ -431,7 +432,7 @@ void qSlicerPlmDrrModuleWidget::setParameterNode(vtkMRMLNode *node)
 }
 
 //-----------------------------------------------------------------------------
-void qSlicerPlmDrrModuleWidget::onIsocenterDetectorDistanceValueChanged(double value)
+void qSlicerPlmDrrModuleWidget::onIsocenterImagerDistanceValueChanged(double value)
 {
   Q_D(qSlicerPlmDrrModuleWidget);
 
@@ -442,16 +443,16 @@ void qSlicerPlmDrrModuleWidget::onIsocenterDetectorDistanceValueChanged(double v
   }
 
   paramNode->DisableModifiedEventOn();
-  paramNode->SetIsocenterDetectorDistance(value);
+  paramNode->SetIsocenterImagerDistance(value);
   paramNode->DisableModifiedEventOff();
   
-  // Update detector and image markups
+  // Update imager and image markups
   d->logic()->UpdateMarkupsNodes(paramNode);
 //  d->logic()->UpdateIsocenterDetectorDistance(paramNode);
 }
 
 //-----------------------------------------------------------------------------
-void qSlicerPlmDrrModuleWidget::onImageCenterOffsetCoordinatesChanged(double* detectorOffset)
+void qSlicerPlmDrrModuleWidget::onImagerCenterOffsetCoordinatesChanged(double* detectorOffset)
 {
   Q_D(qSlicerPlmDrrModuleWidget);
 
@@ -463,10 +464,10 @@ void qSlicerPlmDrrModuleWidget::onImageCenterOffsetCoordinatesChanged(double* de
 
   double offset[2] = { detectorOffset[0], detectorOffset[1] };
   paramNode->DisableModifiedEventOn();
-  paramNode->SetDetectorCenterOffset(offset);
+  paramNode->SetImagerCenterOffset(offset);
   paramNode->DisableModifiedEventOff();
 
-  // Update detector and image markups
+  // Update imager and image markups
   d->logic()->UpdateMarkupsNodes(paramNode);
 }
 //-----------------------------------------------------------------------------
@@ -485,7 +486,7 @@ void qSlicerPlmDrrModuleWidget::onImageSpacingChanged(double* spacing)
   paramNode->SetImageSpacing(s);
   paramNode->DisableModifiedEventOff();
 
-  // Update detector and image markups
+  // Update imager and image markups
   d->logic()->UpdateMarkupsNodes(paramNode);
 //  d->logic()->UpdateImageSpacing(paramNode);
 }
@@ -501,12 +502,37 @@ void qSlicerPlmDrrModuleWidget::onImageDimentionChanged(double* dimention)
     return;
   }
 
-  int dim[2] = { static_cast<int>(dimention[0]), static_cast<int>(dimention[1]) };
+  int dim[2] = { static_cast<int>(dimention[0]), static_cast<int>(dimention[1]) }; // x, y
   paramNode->DisableModifiedEventOn();
   paramNode->SetImageDimention(dim);
   paramNode->DisableModifiedEventOff();
   
-  // Update detector and image markups
+  // Update imager and image markups
   d->logic()->UpdateMarkupsNodes(paramNode);
 //  d->logic()->UpdateImageDimention(paramNode);
+}
+
+//-----------------------------------------------------------------------------
+void qSlicerPlmDrrModuleWidget::onImageWindowCoordinatesChanged(double* window)
+{
+  Q_D(qSlicerPlmDrrModuleWidget);
+
+  vtkMRMLPlmDrrNode* paramNode = vtkMRMLPlmDrrNode::SafeDownCast(d->MRMLNodeComboBox_ParameterNode->currentNode());
+  if (!paramNode || !d->ModuleWindowInitialized)
+  {
+    return;
+  }
+
+  int imageWindow[4] = { 
+    static_cast<int>(window[0]), // c1 = x1
+    static_cast<int>(window[1]), // r1 = y1
+    static_cast<int>(window[2]), // c2 = x2
+    static_cast<int>(window[3]) }; // r2 = y2
+
+  paramNode->DisableModifiedEventOn();
+  paramNode->SetImageWindow(imageWindow);
+  paramNode->DisableModifiedEventOff();
+  
+  // Update imager and image markups
+  d->logic()->UpdateMarkupsNodes(paramNode);
 }

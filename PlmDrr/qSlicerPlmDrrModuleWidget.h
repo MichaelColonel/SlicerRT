@@ -54,8 +54,9 @@ public slots:
 
 protected slots:
   void onLogicModified();
-  void onIsocenterDetectorDistanceValueChanged(double);
-  void onImageCenterOffsetCoordinatesChanged(double*);
+  void onIsocenterImagerDistanceValueChanged(double);
+  void onImagerCenterOffsetCoordinatesChanged(double*);
+  void onImageWindowCoordinatesChanged(double*);
   void onImageSpacingChanged(double*);
   void onImageDimentionChanged(double*);
   void onSaveVolumeClicked();

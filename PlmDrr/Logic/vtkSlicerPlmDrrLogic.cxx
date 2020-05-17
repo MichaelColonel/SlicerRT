@@ -37,17 +37,18 @@
 #include <vtkObjectFactory.h>
 
 // STD includes
+#include <string>
 #include <cassert>
 
 // Plastimatch reconstruct module
 #include <drr.h>
 #include <drr_options.h>
 
-const char* vtkSlicerPlmDrrLogic::DETECTOR_BOUNDARY_MARKUPS_NODE_NAME = "DetectorBoundary"; // closed curve
-const char* vtkSlicerPlmDrrLogic::IMAGE_BOUNDARY_MARKUPS_NODE_NAME = "ImageBoundary"; // closed curve
+const char* vtkSlicerPlmDrrLogic::IMAGER_BOUNDARY_MARKUPS_NODE_NAME = "ImagerBoundary"; // fiducial
+const char* vtkSlicerPlmDrrLogic::IMAGE_WINDOW_MARKUPS_NODE_NAME = "ImageWindow"; // fiducial
 const char* vtkSlicerPlmDrrLogic::ORIGIN_POINT_MARKUPS_NODE_NAME = "OriginPoint"; // fiducial
 const char* vtkSlicerPlmDrrLogic::NORMAL_VECTOR_MARKUPS_NODE_NAME = "NormalVector"; // line
-const char* vtkSlicerPlmDrrLogic::VUP_VECTOR_MARKUPS_NODE_NAME = "VUPVector"; // line
+const char* vtkSlicerPlmDrrLogic::VUP_VECTOR_MARKUPS_NODE_NAME = "VupVector"; // line
 
 //----------------------------------------------------------------------------
 vtkStandardNewMacro(vtkSlicerPlmDrrLogic);
@@ -174,7 +175,7 @@ bool vtkSlicerPlmDrrLogic::LoadDRR( vtkMRMLVolumeNode* volumeNode, const std::st
 }
 
 //----------------------------------------------------------------------------
-void vtkSlicerPlmDrrLogic::CreateDefaultMarkupsNodes(vtkMRMLPlmDrrNode* parameterNode)
+void vtkSlicerPlmDrrLogic::CreateMarkupsNodes(vtkMRMLPlmDrrNode* parameterNode)
 {
   vtkMRMLScene* scene = this->GetMRMLScene(); 
   if (!scene)
@@ -185,63 +186,43 @@ void vtkSlicerPlmDrrLogic::CreateDefaultMarkupsNodes(vtkMRMLPlmDrrNode* paramete
 
   // Create markups nodes if they don't exist
 
-  // Detector boundary markups node
-  vtkSmartPointer<vtkMRMLMarkupsFiducialNode> detectorMarkupsNode;
-  if (!scene->GetFirstNodeByName(DETECTOR_BOUNDARY_MARKUPS_NODE_NAME))
+  // Imager boundary markups node
+  vtkSmartPointer<vtkMRMLMarkupsFiducialNode> imagerMarkupsNode;
+  if (!scene->GetFirstNodeByName(IMAGER_BOUNDARY_MARKUPS_NODE_NAME))
   {
-    detectorMarkupsNode = vtkSmartPointer<vtkMRMLMarkupsFiducialNode>::New();
-    scene->AddNode(detectorMarkupsNode);
-    detectorMarkupsNode->SetName(DETECTOR_BOUNDARY_MARKUPS_NODE_NAME);
-    detectorMarkupsNode->SetHideFromEditors(1);
-    std::string singletonTag = std::string("DRR_") + DETECTOR_BOUNDARY_MARKUPS_NODE_NAME;
-    detectorMarkupsNode->SetSingletonTag(singletonTag.c_str());
-    vtkWarningMacro("CreateDefaultMarkupsNodes: Add points to the curve using parameter node data");
-    
-    if (parameterNode)
-    {
-      double distance = parameterNode->GetIsocenterDetectorDistance();
-      
-      double spacing[2] = {};
-      parameterNode->GetImageSpacing(spacing);
-
-      int dimention[2] = {};
-      parameterNode->GetImageDimention(dimention);
-
-      double offset[2] = {};
-      parameterNode->GetDetectorCenterOffset(offset);
-
-      double x = spacing[0] * dimention[0] / 2.;
-      double y = spacing[1] * dimention[1] / 2.;
-      // add points
-      vtkVector3d p1( -x + offset[0], y + offset[1], -distance);
-      vtkVector3d p2( x + offset[0], y + offset[1], -distance);
-      vtkVector3d p3( x + offset[0], -y + offset[1], -distance);
-      vtkVector3d p4( -x + offset[0], -y + offset[1], -distance);
-
-      detectorMarkupsNode->AddControlPoint( p1, std::string("Upper Left")); // "-x,y"
-      detectorMarkupsNode->AddControlPoint( p2, std::string("Upper Right")); // "x,y"
-      detectorMarkupsNode->AddControlPoint( p3, std::string("Lower Right")); // "x,-y"
-      detectorMarkupsNode->AddControlPoint( p4, std::string("Lower Left")); // "-x,-y"
-
-      if (vtkMRMLRTBeamNode* beamNode = parameterNode->GetBeamNode())
-      {
-        vtkWarningMacro("CreateDefaultMarkupsNodes: beam node is valid");
-        vtkMRMLTransformNode* beamTransformNode = beamNode->GetParentTransformNode();
-
-        if (beamTransformNode)
-        {
-          vtkWarningMacro("CreateDefaultMarkupsNodes: beam transform is observed");
-          detectorMarkupsNode->SetAndObserveTransformNodeID(beamTransformNode->GetID());
-        }
-      }
-    }
-
+    imagerMarkupsNode = this->CreateImagerBoundary(parameterNode);
   }
   else
   {
-    detectorMarkupsNode = vtkMRMLMarkupsFiducialNode::SafeDownCast(
-      scene->GetFirstNodeByName(DETECTOR_BOUNDARY_MARKUPS_NODE_NAME));
-    vtkWarningMacro("CreateDefaultMarkupsNodes: Update curve points using parameter node data");
+    imagerMarkupsNode = vtkMRMLMarkupsFiducialNode::SafeDownCast(
+      scene->GetFirstNodeByName(IMAGER_BOUNDARY_MARKUPS_NODE_NAME));
+    vtkWarningMacro("CreateDefaultMarkupsNodes: Update imager points using parameter node data");
+  }
+
+  // Image window markups node
+  vtkSmartPointer<vtkMRMLMarkupsFiducialNode> imageWindowMarkupsNode;
+  if (!scene->GetFirstNodeByName(IMAGE_WINDOW_MARKUPS_NODE_NAME))
+  {
+    imageWindowMarkupsNode = this->CreateImageWindow(parameterNode);
+  }
+  else
+  {
+    imageWindowMarkupsNode = vtkMRMLMarkupsFiducialNode::SafeDownCast(
+      scene->GetFirstNodeByName(IMAGE_WINDOW_MARKUPS_NODE_NAME));
+    vtkWarningMacro("CreateDefaultMarkupsNodes: Update image window points using parameter node data");
+  }
+
+  // vector markups node
+  vtkSmartPointer<vtkMRMLMarkupsLineNode> vectorMarkupsNode;
+  if (!scene->GetFirstNodeByName(VUP_VECTOR_MARKUPS_NODE_NAME))
+  {
+    vectorMarkupsNode = this->CreateImageFirstRowColumn(parameterNode);
+  }
+  else
+  {
+    vectorMarkupsNode = vtkMRMLMarkupsLineNode::SafeDownCast(
+      scene->GetFirstNodeByName(VUP_VECTOR_MARKUPS_NODE_NAME));
+    vtkWarningMacro("CreateDefaultMarkupsNodes: Update VUP vector points using parameter node data");
   }
 }
 
@@ -259,13 +240,13 @@ void vtkSlicerPlmDrrLogic::UpdateMarkupsNodes(vtkMRMLPlmDrrNode* parameterNode)
     vtkErrorMacro("UpdateMarkupsNodes: Invalid parameter set node");
     return;
   }
-  // Detector boundary markups node
-  if (scene->GetFirstNodeByName(DETECTOR_BOUNDARY_MARKUPS_NODE_NAME))
+  // Imager boundary markups node
+  if (scene->GetFirstNodeByName(IMAGER_BOUNDARY_MARKUPS_NODE_NAME))
   {
-    vtkMRMLMarkupsFiducialNode* detectorMarkupsNode = vtkMRMLMarkupsFiducialNode::SafeDownCast(
-      scene->GetFirstNodeByName(DETECTOR_BOUNDARY_MARKUPS_NODE_NAME));
+    vtkMRMLMarkupsFiducialNode* imagerMarkupsNode = vtkMRMLMarkupsFiducialNode::SafeDownCast(
+      scene->GetFirstNodeByName(IMAGER_BOUNDARY_MARKUPS_NODE_NAME));
 
-    double distance = parameterNode->GetIsocenterDetectorDistance();
+    double distance = parameterNode->GetIsocenterImagerDistance();
     
     double spacing[2] = {};
     parameterNode->GetImageSpacing(spacing);
@@ -274,7 +255,7 @@ void vtkSlicerPlmDrrLogic::UpdateMarkupsNodes(vtkMRMLPlmDrrNode* parameterNode)
     parameterNode->GetImageDimention(dimention);
 
     double offset[2] = {};
-    parameterNode->GetDetectorCenterOffset(offset);
+    parameterNode->GetImagerCenterOffset(offset);
 
     double x = spacing[0] * dimention[0] / 2.;
     double y = spacing[1] * dimention[1] / 2.;
@@ -285,61 +266,338 @@ void vtkSlicerPlmDrrLogic::UpdateMarkupsNodes(vtkMRMLPlmDrrNode* parameterNode)
     vtkVector3d p3( -x + offset[0], -y + offset[1], -distance);
 
     double* p;
-    p = detectorMarkupsNode->GetNthControlPointPosition(0);
+    p = imagerMarkupsNode->GetNthControlPointPosition(0);
     p[0] = p0.GetX();
     p[1] = p0.GetY();
     p[2] = p0.GetZ();
 
-    p = detectorMarkupsNode->GetNthControlPointPosition(1);
+    p = imagerMarkupsNode->GetNthControlPointPosition(1);
     p[0] = p1.GetX();
     p[1] = p1.GetY();
     p[2] = p1.GetZ();
 
-    p = detectorMarkupsNode->GetNthControlPointPosition(2);
+    p = imagerMarkupsNode->GetNthControlPointPosition(2);
     p[0] = p2.GetX();
     p[1] = p2.GetY();
     p[2] = p2.GetZ();
 
-    p = detectorMarkupsNode->GetNthControlPointPosition(3);
+    p = imagerMarkupsNode->GetNthControlPointPosition(3);
     p[0] = p3.GetX();
     p[1] = p3.GetY();
     p[2] = p3.GetZ();
 
-    detectorMarkupsNode->Modified();
+    imagerMarkupsNode->Modified();
+
+    // Update markups transform node if it's changed    
+    vtkMRMLTransformNode* markupsTransformNode = imagerMarkupsNode->GetParentTransformNode();
+
     if (vtkMRMLRTBeamNode* beamNode = parameterNode->GetBeamNode())
     {
       vtkMRMLTransformNode* beamTransformNode = beamNode->GetParentTransformNode();
 
-      if (beamTransformNode)
+      if (markupsTransformNode && beamTransformNode->GetID() != markupsTransformNode->GetID())
       {
-        detectorMarkupsNode->SetAndObserveTransformNodeID(beamTransformNode->GetID());
+        imagerMarkupsNode->SetAndObserveTransformNodeID(beamTransformNode->GetID());
+      }
+    }
+  }
+
+  // Image window markups node
+  if (scene->GetFirstNodeByName(IMAGE_WINDOW_MARKUPS_NODE_NAME))
+  {
+    vtkMRMLMarkupsFiducialNode* imageWindowMarkupsNode = vtkMRMLMarkupsFiducialNode::SafeDownCast(
+      scene->GetFirstNodeByName(IMAGE_WINDOW_MARKUPS_NODE_NAME));
+
+    double distance = parameterNode->GetIsocenterImagerDistance();
+     
+    double spacing[2] = {};
+    parameterNode->GetImageSpacing(spacing);
+
+    int dimention[2] = {};
+    parameterNode->GetImageDimention(dimention);
+
+    double offset[2] = {};
+    parameterNode->GetImagerCenterOffset(offset);
+
+    double x = spacing[0] * dimention[0] / 2.; // columns
+    double y = spacing[1] * dimention[1] / 2.; // rows
+
+    int imageWindow[4] = {};
+    parameterNode->GetImageWindow(imageWindow);
+
+    double r1 = y - imageWindow[1] * spacing[1];
+    double c1 = imageWindow[0] * spacing[0] - x;
+    double r2 = y - imageWindow[3] * spacing[1];
+    double c2 = imageWindow[2] * spacing[0] - x;
+
+    // add points
+    vtkVector3d p0( c1, r1, -distance);
+    vtkVector3d p1( c1, r2, -distance);
+    vtkVector3d p2( c2, r2, -distance);
+    vtkVector3d p3( c2, r1, -distance);
+
+    double* p;
+    p = imageWindowMarkupsNode->GetNthControlPointPosition(0);
+    p[0] = p0.GetX();
+    p[1] = p0.GetY();
+    p[2] = p0.GetZ();
+
+    p = imageWindowMarkupsNode->GetNthControlPointPosition(1);
+    p[0] = p1.GetX();
+    p[1] = p1.GetY();
+    p[2] = p1.GetZ();
+
+    p = imageWindowMarkupsNode->GetNthControlPointPosition(2);
+    p[0] = p2.GetX();
+    p[1] = p2.GetY();
+    p[2] = p2.GetZ();
+
+    p = imageWindowMarkupsNode->GetNthControlPointPosition(3);
+    p[0] = p3.GetX();
+    p[1] = p3.GetY();
+    p[2] = p3.GetZ();
+
+    imageWindowMarkupsNode->Modified();
+
+    // Update markups transform node if it's changed    
+    vtkMRMLTransformNode* markupsTransformNode = imageWindowMarkupsNode->GetParentTransformNode();
+
+    if (vtkMRMLRTBeamNode* beamNode = parameterNode->GetBeamNode())
+    {
+      vtkMRMLTransformNode* beamTransformNode = beamNode->GetParentTransformNode();
+
+      if (markupsTransformNode && beamTransformNode->GetID() != markupsTransformNode->GetID())
+      {
+        imageWindowMarkupsNode->SetAndObserveTransformNodeID(beamTransformNode->GetID());
+      }
+    }
+  }
+
+  // VUP Vector markups line node
+  if (scene->GetFirstNodeByName(VUP_VECTOR_MARKUPS_NODE_NAME))
+  {
+    vtkMRMLMarkupsLineNode* vectorMarkupsNode = vtkMRMLMarkupsLineNode::SafeDownCast(
+      scene->GetFirstNodeByName(VUP_VECTOR_MARKUPS_NODE_NAME));
+
+    double distance = parameterNode->GetIsocenterImagerDistance();
+     
+    double spacing[2] = {};
+    parameterNode->GetImageSpacing(spacing);
+
+    int dimention[2] = {};
+    parameterNode->GetImageDimention(dimention);
+
+    double offset[2] = {};
+    parameterNode->GetImagerCenterOffset(offset);
+
+    double x = spacing[0] * dimention[0] / 2.; // columns
+    double y = spacing[1] * dimention[1] / 2.; // rows
+
+    // add points
+    vtkVector3d p0( offset[0], offset[1], -distance);
+    vtkVector3d p1( -x + offset[0], y + offset[1], -distance);
+
+    double* p;
+    p = vectorMarkupsNode->GetNthControlPointPosition(0);
+    p[0] = p0.GetX();
+    p[1] = p0.GetY();
+    p[2] = p0.GetZ();
+
+    p = vectorMarkupsNode->GetNthControlPointPosition(1);
+    p[0] = p1.GetX();
+    p[1] = p1.GetY();
+    p[2] = p1.GetZ();
+
+    vectorMarkupsNode->Modified();
+
+    // Update markups transform node if it's changed    
+    vtkMRMLTransformNode* markupsTransformNode = vectorMarkupsNode->GetParentTransformNode();
+
+    if (vtkMRMLRTBeamNode* beamNode = parameterNode->GetBeamNode())
+    {
+      vtkMRMLTransformNode* beamTransformNode = beamNode->GetParentTransformNode();
+
+      if (markupsTransformNode && beamTransformNode->GetID() != markupsTransformNode->GetID())
+      {
+        vectorMarkupsNode->SetAndObserveTransformNodeID(beamTransformNode->GetID());
       }
     }
   }
 }
 
 //----------------------------------------------------------------------------
-vtkMRMLMarkupsLineNode* vtkSlicerPlmDrrLogic::CreateDetectorNormal(vtkMRMLPlmDrrNode* vtkNotUsed(node))
+vtkMRMLMarkupsLineNode* vtkSlicerPlmDrrLogic::CreateImagerNormal(vtkMRMLPlmDrrNode* vtkNotUsed(node))
 {
   return nullptr;
 }
 
 //----------------------------------------------------------------------------
-vtkMRMLMarkupsClosedCurveNode* vtkSlicerPlmDrrLogic::CreateDetectorBoundary(vtkMRMLPlmDrrNode* vtkNotUsed(node))
+vtkMRMLMarkupsFiducialNode* vtkSlicerPlmDrrLogic::CreateImagerBoundary(vtkMRMLPlmDrrNode* parameterNode)
 {
-  return nullptr;
+  auto imagerMarkupsNode = vtkSmartPointer<vtkMRMLMarkupsFiducialNode>::New();
+  this->GetMRMLScene()->AddNode(imagerMarkupsNode);
+  imagerMarkupsNode->SetName(IMAGER_BOUNDARY_MARKUPS_NODE_NAME);
+  imagerMarkupsNode->SetHideFromEditors(1);
+  std::string singletonTag = std::string("DRR_") + IMAGER_BOUNDARY_MARKUPS_NODE_NAME;
+  imagerMarkupsNode->SetSingletonTag(singletonTag.c_str());
+  vtkWarningMacro("CreateImagerBoundary: Add points to the curve using parameter node data");
+
+  if (parameterNode)
+  {
+    double distance = parameterNode->GetIsocenterImagerDistance();
+     
+    double spacing[2] = {};
+    parameterNode->GetImageSpacing(spacing);
+
+    int dimention[2] = {};
+    parameterNode->GetImageDimention(dimention);
+
+    double offset[2] = {};
+    parameterNode->GetImagerCenterOffset(offset);
+
+    double x = spacing[0] * dimention[0] / 2.; // columns
+    double y = spacing[1] * dimention[1] / 2.; // rows
+
+    // add points
+    vtkVector3d p0( -x + offset[0], y + offset[1], -distance);
+    vtkVector3d p1( x + offset[0], y + offset[1], -distance);
+    vtkVector3d p2( x + offset[0], -y + offset[1], -distance);
+    vtkVector3d p3( -x + offset[0], -y + offset[1], -distance);
+
+    imagerMarkupsNode->AddControlPoint( p0, std::string("Upper Left")); // "-x,y"
+    imagerMarkupsNode->AddControlPoint( p1, std::string("Upper Right")); // "x,y"
+    imagerMarkupsNode->AddControlPoint( p2, std::string("Lower Right")); // "x,-y"
+    imagerMarkupsNode->AddControlPoint( p3, std::string("Lower Left")); // "-x,-y"
+
+    if (vtkMRMLRTBeamNode* beamNode = parameterNode->GetBeamNode())
+    {
+      vtkWarningMacro("CreateDetectorBoundary: beam node is valid");
+      vtkMRMLTransformNode* beamTransformNode = beamNode->GetParentTransformNode();
+
+      if (beamTransformNode)
+      {
+        vtkWarningMacro("CreateDetectorBoundary: beam transform is observed");
+        imagerMarkupsNode->SetAndObserveTransformNodeID(beamTransformNode->GetID());
+      }
+    }
+  }
+  return imagerMarkupsNode;
 }
 
 //----------------------------------------------------------------------------
-vtkMRMLMarkupsClosedCurveNode* vtkSlicerPlmDrrLogic::CreateImageBoundary(vtkMRMLPlmDrrNode* vtkNotUsed(node))
+vtkMRMLMarkupsFiducialNode* vtkSlicerPlmDrrLogic::CreateImageWindow(vtkMRMLPlmDrrNode* parameterNode)
 {
-  return nullptr;
+  auto imageWindowMarkupsNode = vtkSmartPointer<vtkMRMLMarkupsFiducialNode>::New();
+  this->GetMRMLScene()->AddNode(imageWindowMarkupsNode);
+  imageWindowMarkupsNode->SetName(IMAGE_WINDOW_MARKUPS_NODE_NAME);
+  imageWindowMarkupsNode->SetHideFromEditors(1);
+  std::string singletonTag = std::string("DRR_") + IMAGE_WINDOW_MARKUPS_NODE_NAME;
+  imageWindowMarkupsNode->SetSingletonTag(singletonTag.c_str());
+  vtkWarningMacro("CreateImageWindow: Add points to the curve using parameter node data");
+
+  if (parameterNode)
+  {
+    double distance = parameterNode->GetIsocenterImagerDistance();
+     
+    double spacing[2] = {};
+    parameterNode->GetImageSpacing(spacing);
+
+    int dimention[2] = {};
+    parameterNode->GetImageDimention(dimention);
+
+    double offset[2] = {};
+    parameterNode->GetImagerCenterOffset(offset);
+
+    double x = spacing[0] * dimention[0] / 2.; // columns
+    double y = spacing[1] * dimention[1] / 2.; // rows
+
+    int imageWindow[4] = {};
+    parameterNode->GetImageWindow(imageWindow);
+
+    double r1 = y - imageWindow[1] * spacing[1];
+    double c1 = imageWindow[0] * spacing[0] - x;
+    double r2 = y - imageWindow[3] * spacing[1];
+    double c2 = imageWindow[2] * spacing[0] - x;
+
+    // add points
+    vtkVector3d p0( c1, r1, -distance);
+    vtkVector3d p1( c1, r2, -distance);
+    vtkVector3d p2( c2, r2, -distance);
+    vtkVector3d p3( c2, r1, -distance);
+
+    imageWindowMarkupsNode->AddControlPoint( p0, std::string("r1,c1"));
+    imageWindowMarkupsNode->AddControlPoint( p1, std::string("r2,c1"));
+    imageWindowMarkupsNode->AddControlPoint( p2, std::string("r2,c2"));
+    imageWindowMarkupsNode->AddControlPoint( p3, std::string("r1,c2"));
+
+    if (vtkMRMLRTBeamNode* beamNode = parameterNode->GetBeamNode())
+    {
+      vtkWarningMacro("CreateImageWindow: beam node is valid");
+      vtkMRMLTransformNode* beamTransformNode = beamNode->GetParentTransformNode();
+
+      if (beamTransformNode)
+      {
+        vtkWarningMacro("CreateImageWindow: beam transform is observed");
+        imageWindowMarkupsNode->SetAndObserveTransformNodeID(beamTransformNode->GetID());
+      }
+    }
+  }
+  return imageWindowMarkupsNode;
 }
 
 //----------------------------------------------------------------------------
-vtkMRMLMarkupsFiducialNode* vtkSlicerPlmDrrLogic::CreateImageFirstRowColumn(vtkMRMLPlmDrrNode* vtkNotUsed(node))
+vtkMRMLMarkupsLineNode* vtkSlicerPlmDrrLogic::CreateImageFirstRowColumn(vtkMRMLPlmDrrNode* parameterNode)
 {
-  return nullptr;
+  auto vectorMarkupsNode = vtkSmartPointer<vtkMRMLMarkupsLineNode>::New();
+  this->GetMRMLScene()->AddNode(vectorMarkupsNode);
+  vectorMarkupsNode->SetName(VUP_VECTOR_MARKUPS_NODE_NAME);
+  vectorMarkupsNode->SetHideFromEditors(1);
+  std::string singletonTag = std::string("DRR_") + VUP_VECTOR_MARKUPS_NODE_NAME;
+  vectorMarkupsNode->SetSingletonTag(singletonTag.c_str());
+  vtkWarningMacro("CreateImageFirstRowColumn: Add points to vector using parameter node data");
+
+  if (parameterNode)
+  {
+    double distance = parameterNode->GetIsocenterImagerDistance();
+     
+    double spacing[2] = {};
+    parameterNode->GetImageSpacing(spacing);
+
+    int dimention[2] = {};
+    parameterNode->GetImageDimention(dimention);
+
+    double offset[2] = {};
+    parameterNode->GetImagerCenterOffset(offset);
+
+    double x = spacing[0] * dimention[0] / 2.; // columns
+    double y = spacing[1] * dimention[1] / 2.; // rows
+
+    // add points
+    vtkVector3d p0( 0, 0, -distance);
+    vtkVector3d p1( -x, y, -distance);
+
+    vectorMarkupsNode->AddControlPoint( p0, "");
+    vectorMarkupsNode->AddControlPoint( p1, std::string("(0,0)"));
+
+    if (vtkMRMLRTBeamNode* beamNode = parameterNode->GetBeamNode())
+    {
+      vtkWarningMacro("CreateImageFirstRowColumn: beam node is valid");
+      vtkMRMLTransformNode* beamTransformNode = beamNode->GetParentTransformNode();
+
+      if (beamTransformNode)
+      {
+        vtkWarningMacro("CreateImageFirstRowColumn: beam transform is observed");
+        vectorMarkupsNode->SetAndObserveTransformNodeID(beamTransformNode->GetID());
+      }
+    }
+  }
+  return vectorMarkupsNode;
+}
+
+//----------------------------------------------------------------------------
+std::string vtkSlicerPlmDrrLogic::GeneratePlastimatchDrrArgs( vtkMRMLVolumeNode* vtkNotUsed(volumeNode), vtkMRMLPlmDrrNode* vtkNotUsed(parameterNode))
+{
+  return std::string();
 }
 
 //----------------------------------------------------------------------------
@@ -389,7 +647,7 @@ void vtkSlicerPlmDrrLogic::ProcessMRMLNodesEvents(vtkObject* caller, unsigned lo
 }
 
 //----------------------------------------------------------------------------
-void vtkSlicerPlmDrrLogic::UpdateIsocenterDetectorDistance(vtkMRMLPlmDrrNode* parameterNode)
+void vtkSlicerPlmDrrLogic::UpdateIsocenterImagerDistance(vtkMRMLPlmDrrNode* parameterNode)
 {
   this->UpdateMarkupsNodes(parameterNode);
 /*
@@ -555,7 +813,7 @@ void vtkSlicerPlmDrrLogic::UpdateImageDimention(vtkMRMLPlmDrrNode* parameterNode
 }
 
 //----------------------------------------------------------------------------
-void vtkSlicerPlmDrrLogic::UpdateDetectorCenterOffset(vtkMRMLPlmDrrNode* parameterNode)
+void vtkSlicerPlmDrrLogic::UpdateImagerCenterOffset(vtkMRMLPlmDrrNode* parameterNode)
 {
   this->UpdateMarkupsNodes(parameterNode);
 }

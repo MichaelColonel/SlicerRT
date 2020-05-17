@@ -48,8 +48,8 @@ class VTK_SLICER_PLMDRR_MODULE_LOGIC_EXPORT vtkSlicerPlmDrrLogic :
   public vtkSlicerModuleLogic
 {
 public:
-  static const char* DETECTOR_BOUNDARY_MARKUPS_NODE_NAME; // closed curve
-  static const char* IMAGE_BOUNDARY_MARKUPS_NODE_NAME; // closed curve
+  static const char* IMAGER_BOUNDARY_MARKUPS_NODE_NAME; // fiducial
+  static const char* IMAGE_WINDOW_MARKUPS_NODE_NAME; // fiducial
   static const char* ORIGIN_POINT_MARKUPS_NODE_NAME; // fiducial
   static const char* NORMAL_VECTOR_MARKUPS_NODE_NAME; // line
   static const char* VUP_VECTOR_MARKUPS_NODE_NAME; // line
@@ -58,29 +58,25 @@ public:
   vtkTypeMacro(vtkSlicerPlmDrrLogic, vtkSlicerModuleLogic);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  /// Update DRR markups based on isocenter to detector distance parameter
-  void UpdateIsocenterDetectorDistance(vtkMRMLPlmDrrNode* parameterNode);
+  /// Update DRR markups based on isocenter to imager distance parameter
+  void UpdateIsocenterImagerDistance(vtkMRMLPlmDrrNode* parameterNode);
   /// Update DRR markups based on image dimention
   void UpdateImageDimention(vtkMRMLPlmDrrNode* parameterNode);
   /// Update DRR markups based on image spacing
   void UpdateImageSpacing(vtkMRMLPlmDrrNode* parameterNode);
-  /// Update DRR markups based on detector center offset
-  void UpdateDetectorCenterOffset(vtkMRMLPlmDrrNode* parameterNode);
+  /// Update DRR markups based on imager center offset
+  void UpdateImagerCenterOffset(vtkMRMLPlmDrrNode* parameterNode);
 
-  /// Create default markups nodes (2 curves, 2 lines, 1 fiducial) for visualization
-  void CreateDefaultMarkupsNodes(vtkMRMLPlmDrrNode* parameterNode);
+  /// Create markups nodes (2 lines, 3 fiducials) for visualization
+  void CreateMarkupsNodes(vtkMRMLPlmDrrNode* parameterNode);
 
   /// Update markups nodes using parameter node data
   void UpdateMarkupsNodes(vtkMRMLPlmDrrNode* parameterNode);
-
-  vtkMRMLMarkupsLineNode* CreateDetectorNormal(vtkMRMLPlmDrrNode* node);
-  vtkMRMLMarkupsClosedCurveNode* CreateDetectorBoundary(vtkMRMLPlmDrrNode* node);
-  vtkMRMLMarkupsClosedCurveNode* CreateImageBoundary(vtkMRMLPlmDrrNode* node);
-  vtkMRMLMarkupsFiducialNode* CreateImageFirstRowColumn(vtkMRMLPlmDrrNode* node);
   
   bool SaveVolumeNode( const vtkMRMLVolumeNode* volumeNode, std::string& filename);
   bool ComputeDRR(Drr_options* opts);
   bool LoadDRR( vtkMRMLVolumeNode* volumeNode, const std::string& filename);
+  std::string GeneratePlastimatchDrrArgs( vtkMRMLVolumeNode* volumeNode, vtkMRMLPlmDrrNode* node);
 
 protected:
   vtkSlicerPlmDrrLogic();
@@ -100,6 +96,11 @@ private:
 
   vtkSlicerPlmDrrLogic(const vtkSlicerPlmDrrLogic&); // Not implemented
   void operator=(const vtkSlicerPlmDrrLogic&); // Not implemented
+
+  vtkMRMLMarkupsLineNode* CreateImagerNormal(vtkMRMLPlmDrrNode* node);
+  vtkMRMLMarkupsFiducialNode* CreateImagerBoundary(vtkMRMLPlmDrrNode* node);
+  vtkMRMLMarkupsFiducialNode* CreateImageWindow(vtkMRMLPlmDrrNode* node);
+  vtkMRMLMarkupsLineNode* CreateImageFirstRowColumn(vtkMRMLPlmDrrNode* node);
 };
 
 #endif
