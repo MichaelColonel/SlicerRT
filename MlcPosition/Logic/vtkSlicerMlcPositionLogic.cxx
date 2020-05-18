@@ -31,6 +31,7 @@
 #include <vtkMRMLStorageNode.h>
 #include <vtkMRMLMarkupsClosedCurveNode.h> // MLC curve
 #include <vtkMRMLTransformNode.h>
+#include <vtkMRMLLinearTransformNode.h>
 #include <vtkMRMLTableNode.h>
 
 #include <vtkMRMLModelHierarchyNode.h>
@@ -382,6 +383,33 @@ vtkSlicerMlcPositionLogic::CalculatePositionConvexHullCurve(
     vtkErrorMacro("CalculatePositionCurve: Beam transform node is invalid");
     return nullptr;
   }
+
+  // add new transform for MLC 
+  auto transformNode = vtkSmartPointer<vtkMRMLLinearTransformNode>::New();
+  transformNode->SetName("MLCtransform");
+  std::string singletonTag = std::string("IEC_MLCtransform");
+  transformNode->SetSingletonTag(singletonTag.c_str());
+  this->GetMRMLScene()->AddNode(transformNode);
+
+  vtkTransform* transform = vtkTransform::SafeDownCast(transformNode->GetTransformToParent());
+  transform->Identity();
+  transform->RotateZ(-90.0);
+  transform->RotateX(180.0);
+  transform->Concatenate(beamInverseMatrix);
+  transform->Modified();
+
+  // add new transform for MLC 
+  auto transformNode1 = vtkSmartPointer<vtkMRMLLinearTransformNode>::New();
+  transformNode1->SetName("MLCtransformBeam");
+  std::string singletonTag1 = std::string("IEC_MLCtransformBeam");
+  transformNode1->SetSingletonTag(singletonTag1.c_str());
+  this->GetMRMLScene()->AddNode(transformNode1);
+
+  vtkTransform* transform1 = vtkTransform::SafeDownCast(transformNode1->GetTransformToParent());
+  transform1->Identity();
+  transform1->RotateZ(-90.0);
+  transform1->RotateX(180.0);
+  transform1->Modified();
 
   // Create markups node (subject hierarchy node is created automatically)
   vtkNew<vtkMRMLMarkupsClosedCurveNode> curveNode;
