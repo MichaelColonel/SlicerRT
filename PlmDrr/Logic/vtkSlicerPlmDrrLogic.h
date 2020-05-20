@@ -98,8 +98,8 @@ private:
   void operator=(const vtkSlicerPlmDrrLogic&); // Not implemented
 
   vtkMRMLMarkupsLineNode* CreateImagerNormal(vtkMRMLPlmDrrNode* node);
-  vtkMRMLMarkupsFiducialNode* CreateImagerBoundary(vtkMRMLPlmDrrNode* node);
-  vtkMRMLMarkupsFiducialNode* CreateImageWindow(vtkMRMLPlmDrrNode* node);
+  vtkMRMLMarkupsClosedCurveNode* CreateImagerBoundary(vtkMRMLPlmDrrNode* node);
+  vtkMRMLMarkupsClosedCurveNode* CreateImageWindow(vtkMRMLPlmDrrNode* node);
   vtkMRMLMarkupsLineNode* CreateImageFirstRowColumn(vtkMRMLPlmDrrNode* node);
 };
 

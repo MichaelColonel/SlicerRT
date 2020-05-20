@@ -187,27 +187,27 @@ void vtkSlicerPlmDrrLogic::CreateMarkupsNodes(vtkMRMLPlmDrrNode* parameterNode)
   // Create markups nodes if they don't exist
 
   // Imager boundary markups node
-  vtkSmartPointer<vtkMRMLMarkupsFiducialNode> imagerMarkupsNode;
+  vtkSmartPointer<vtkMRMLMarkupsClosedCurveNode> imagerMarkupsNode;
   if (!scene->GetFirstNodeByName(IMAGER_BOUNDARY_MARKUPS_NODE_NAME))
   {
     imagerMarkupsNode = this->CreateImagerBoundary(parameterNode);
   }
   else
   {
-    imagerMarkupsNode = vtkMRMLMarkupsFiducialNode::SafeDownCast(
+    imagerMarkupsNode = vtkMRMLMarkupsClosedCurveNode::SafeDownCast(
       scene->GetFirstNodeByName(IMAGER_BOUNDARY_MARKUPS_NODE_NAME));
     vtkWarningMacro("CreateDefaultMarkupsNodes: Update imager points using parameter node data");
   }
 
   // Image window markups node
-  vtkSmartPointer<vtkMRMLMarkupsFiducialNode> imageWindowMarkupsNode;
+  vtkSmartPointer<vtkMRMLMarkupsClosedCurveNode> imageWindowMarkupsNode;
   if (!scene->GetFirstNodeByName(IMAGE_WINDOW_MARKUPS_NODE_NAME))
   {
     imageWindowMarkupsNode = this->CreateImageWindow(parameterNode);
   }
   else
   {
-    imageWindowMarkupsNode = vtkMRMLMarkupsFiducialNode::SafeDownCast(
+    imageWindowMarkupsNode = vtkMRMLMarkupsClosedCurveNode::SafeDownCast(
       scene->GetFirstNodeByName(IMAGE_WINDOW_MARKUPS_NODE_NAME));
     vtkWarningMacro("CreateDefaultMarkupsNodes: Update image window points using parameter node data");
   }
@@ -243,7 +243,7 @@ void vtkSlicerPlmDrrLogic::UpdateMarkupsNodes(vtkMRMLPlmDrrNode* parameterNode)
   // Imager boundary markups node
   if (scene->GetFirstNodeByName(IMAGER_BOUNDARY_MARKUPS_NODE_NAME))
   {
-    vtkMRMLMarkupsFiducialNode* imagerMarkupsNode = vtkMRMLMarkupsFiducialNode::SafeDownCast(
+    vtkMRMLMarkupsClosedCurveNode* imagerMarkupsNode = vtkMRMLMarkupsClosedCurveNode::SafeDownCast(
       scene->GetFirstNodeByName(IMAGER_BOUNDARY_MARKUPS_NODE_NAME));
 
     double distance = parameterNode->GetIsocenterImagerDistance();
@@ -305,7 +305,7 @@ void vtkSlicerPlmDrrLogic::UpdateMarkupsNodes(vtkMRMLPlmDrrNode* parameterNode)
   // Image window markups node
   if (scene->GetFirstNodeByName(IMAGE_WINDOW_MARKUPS_NODE_NAME))
   {
-    vtkMRMLMarkupsFiducialNode* imageWindowMarkupsNode = vtkMRMLMarkupsFiducialNode::SafeDownCast(
+    vtkMRMLMarkupsClosedCurveNode* imageWindowMarkupsNode = vtkMRMLMarkupsClosedCurveNode::SafeDownCast(
       scene->GetFirstNodeByName(IMAGE_WINDOW_MARKUPS_NODE_NAME));
 
     double distance = parameterNode->GetIsocenterImagerDistance();
@@ -432,11 +432,12 @@ vtkMRMLMarkupsLineNode* vtkSlicerPlmDrrLogic::CreateImagerNormal(vtkMRMLPlmDrrNo
 }
 
 //----------------------------------------------------------------------------
-vtkMRMLMarkupsFiducialNode* vtkSlicerPlmDrrLogic::CreateImagerBoundary(vtkMRMLPlmDrrNode* parameterNode)
+vtkMRMLMarkupsClosedCurveNode* vtkSlicerPlmDrrLogic::CreateImagerBoundary(vtkMRMLPlmDrrNode* parameterNode)
 {
-  auto imagerMarkupsNode = vtkSmartPointer<vtkMRMLMarkupsFiducialNode>::New();
+  auto imagerMarkupsNode = vtkSmartPointer<vtkMRMLMarkupsClosedCurveNode>::New();
   this->GetMRMLScene()->AddNode(imagerMarkupsNode);
   imagerMarkupsNode->SetName(IMAGER_BOUNDARY_MARKUPS_NODE_NAME);
+  imagerMarkupsNode->SetCurveTypeToLinear();
   imagerMarkupsNode->SetHideFromEditors(1);
   std::string singletonTag = std::string("DRR_") + IMAGER_BOUNDARY_MARKUPS_NODE_NAME;
   imagerMarkupsNode->SetSingletonTag(singletonTag.c_str());
@@ -464,10 +465,10 @@ vtkMRMLMarkupsFiducialNode* vtkSlicerPlmDrrLogic::CreateImagerBoundary(vtkMRMLPl
     vtkVector3d p2( x + offset[0], -y + offset[1], -distance);
     vtkVector3d p3( -x + offset[0], -y + offset[1], -distance);
 
-    imagerMarkupsNode->AddControlPoint( p0, std::string("Upper Left")); // "-x,y"
-    imagerMarkupsNode->AddControlPoint( p1, std::string("Upper Right")); // "x,y"
-    imagerMarkupsNode->AddControlPoint( p2, std::string("Lower Right")); // "x,-y"
-    imagerMarkupsNode->AddControlPoint( p3, std::string("Lower Left")); // "-x,-y"
+    imagerMarkupsNode->AddControlPoint( p0);//, std::string("Upper Left")); // "-x,y"
+    imagerMarkupsNode->AddControlPoint( p1);//, std::string("Upper Right")); // "x,y"
+    imagerMarkupsNode->AddControlPoint( p2);//, std::string("Lower Right")); // "x,-y"
+    imagerMarkupsNode->AddControlPoint( p3);//, std::string("Lower Left")); // "-x,-y"
 
     if (vtkMRMLRTBeamNode* beamNode = parameterNode->GetBeamNode())
     {
@@ -485,11 +486,12 @@ vtkMRMLMarkupsFiducialNode* vtkSlicerPlmDrrLogic::CreateImagerBoundary(vtkMRMLPl
 }
 
 //----------------------------------------------------------------------------
-vtkMRMLMarkupsFiducialNode* vtkSlicerPlmDrrLogic::CreateImageWindow(vtkMRMLPlmDrrNode* parameterNode)
+vtkMRMLMarkupsClosedCurveNode* vtkSlicerPlmDrrLogic::CreateImageWindow(vtkMRMLPlmDrrNode* parameterNode)
 {
-  auto imageWindowMarkupsNode = vtkSmartPointer<vtkMRMLMarkupsFiducialNode>::New();
+  auto imageWindowMarkupsNode = vtkSmartPointer<vtkMRMLMarkupsClosedCurveNode>::New();
   this->GetMRMLScene()->AddNode(imageWindowMarkupsNode);
   imageWindowMarkupsNode->SetName(IMAGE_WINDOW_MARKUPS_NODE_NAME);
+  imageWindowMarkupsNode->SetCurveTypeToLinear();
   imageWindowMarkupsNode->SetHideFromEditors(1);
   std::string singletonTag = std::string("DRR_") + IMAGE_WINDOW_MARKUPS_NODE_NAME;
   imageWindowMarkupsNode->SetSingletonTag(singletonTag.c_str());
@@ -525,10 +527,10 @@ vtkMRMLMarkupsFiducialNode* vtkSlicerPlmDrrLogic::CreateImageWindow(vtkMRMLPlmDr
     vtkVector3d p2( c2, r2, -distance);
     vtkVector3d p3( c2, r1, -distance);
 
-    imageWindowMarkupsNode->AddControlPoint( p0, std::string("r1,c1"));
-    imageWindowMarkupsNode->AddControlPoint( p1, std::string("r2,c1"));
-    imageWindowMarkupsNode->AddControlPoint( p2, std::string("r2,c2"));
-    imageWindowMarkupsNode->AddControlPoint( p3, std::string("r1,c2"));
+    imageWindowMarkupsNode->AddControlPoint( p0);//, std::string("r1,c1")); // r1, c1
+    imageWindowMarkupsNode->AddControlPoint( p1);//, std::string("r2,c1")); // r2, c1
+    imageWindowMarkupsNode->AddControlPoint( p2);//, std::string("r2,c2")); // r2, c2
+    imageWindowMarkupsNode->AddControlPoint( p3);//, std::string("r1,c2")); // r1, c2
 
     if (vtkMRMLRTBeamNode* beamNode = parameterNode->GetBeamNode())
     {
