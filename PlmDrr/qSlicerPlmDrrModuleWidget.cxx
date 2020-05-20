@@ -411,7 +411,9 @@ void qSlicerPlmDrrModuleWidget::setParameterNode(vtkMRMLNode *node)
   {
     if (!paramNode->GetBeamNode())
     {
-      paramNode->SetAndObserveBeamNode(vtkMRMLRTBeamNode::SafeDownCast(d->MRMLNodeComboBox_RtBeam->currentNode()));
+      vtkMRMLRTBeamNode* beamNode = vtkMRMLRTBeamNode::SafeDownCast(d->MRMLNodeComboBox_RtBeam->currentNode());
+      qvtkConnect( beamNode, vtkMRMLRTBeamNode::BeamGeometryModified, this, SLOT(onUpdateImageWindowFromBeamJaws()));
+      paramNode->SetAndObserveBeamNode(beamNode);
       paramNode->Modified();
     }
 /*    if (!paramNode->GetPatientBodySegmentationNode())
@@ -535,4 +537,12 @@ void qSlicerPlmDrrModuleWidget::onImageWindowCoordinatesChanged(double* window)
   
   // Update imager and image markups
   d->logic()->UpdateMarkupsNodes(paramNode);
+}
+
+//-----------------------------------------------------------------------------
+void qSlicerPlmDrrModuleWidget::onUpdateImageWindowFromBeamJaws()
+{
+  Q_D(qSlicerPlmDrrModuleWidget);
+
+  qDebug() << Q_FUNC_INFO << "update image window from beam";
 }

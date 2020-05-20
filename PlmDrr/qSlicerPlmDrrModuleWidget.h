@@ -61,7 +61,8 @@ protected slots:
   void onImageDimentionChanged(double*);
   void onSaveVolumeClicked();
   void onComputeDrrClicked();
-  void onLoadDrrClicked();  
+  void onLoadDrrClicked();
+  void onUpdateImageWindowFromBeamJaws();
 
 protected:
   QScopedPointer<qSlicerPlmDrrModuleWidgetPrivate> d_ptr;

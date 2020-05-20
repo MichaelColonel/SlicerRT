@@ -595,8 +595,27 @@ vtkMRMLMarkupsLineNode* vtkSlicerPlmDrrLogic::CreateImageFirstRowColumn(vtkMRMLP
 }
 
 //----------------------------------------------------------------------------
-std::string vtkSlicerPlmDrrLogic::GeneratePlastimatchDrrArgs( vtkMRMLVolumeNode* vtkNotUsed(volumeNode), vtkMRMLPlmDrrNode* vtkNotUsed(parameterNode))
+std::string vtkSlicerPlmDrrLogic::GeneratePlastimatchDrrArgs( vtkMRMLVolumeNode* volumeNode, vtkMRMLPlmDrrNode* parameterNode)
 {
+  if (!volumeNode)
+  {
+    vtkErrorMacro("UpdateMarkupsNodes: Invalid parameter set node");
+    return std::string();
+  }
+
+  if (!parameterNode)
+  {
+    vtkErrorMacro("UpdateMarkupsNodes: Invalid parameter set node");
+    return std::string();
+  }
+
+  vtkMRMLScalarVolumeNode* imageVolumeNode = vtkMRMLScalarVolumeNode::SafeDownCast(volumeNode);
+  if (imageVolumeNode)
+  {
+    double volumeOrigin[3];
+    imageVolumeNode->GetOrigin(volumeOrigin);
+  }
+
   return std::string();
 }
 
