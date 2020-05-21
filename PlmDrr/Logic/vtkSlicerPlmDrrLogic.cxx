@@ -245,6 +245,10 @@ void vtkSlicerPlmDrrLogic::UpdateMarkupsNodes(vtkMRMLPlmDrrNode* parameterNode)
   {
     vtkMRMLMarkupsClosedCurveNode* imagerMarkupsNode = vtkMRMLMarkupsClosedCurveNode::SafeDownCast(
       scene->GetFirstNodeByName(IMAGER_BOUNDARY_MARKUPS_NODE_NAME));
+    
+//    scene->RemoveNode(imagerMarkupsNode);
+    
+//    imagerMarkupsNode = this->CreateImagerBoundary(parameterNode);
 
     double distance = parameterNode->GetIsocenterImagerDistance();
     
@@ -308,6 +312,10 @@ void vtkSlicerPlmDrrLogic::UpdateMarkupsNodes(vtkMRMLPlmDrrNode* parameterNode)
     vtkMRMLMarkupsClosedCurveNode* imageWindowMarkupsNode = vtkMRMLMarkupsClosedCurveNode::SafeDownCast(
       scene->GetFirstNodeByName(IMAGE_WINDOW_MARKUPS_NODE_NAME));
 
+    scene->RemoveNode(imageWindowMarkupsNode);
+    
+    imageWindowMarkupsNode = this->CreateImageWindow(parameterNode);
+/*
     double distance = parameterNode->GetIsocenterImagerDistance();
      
     double spacing[2] = {};
@@ -371,6 +379,7 @@ void vtkSlicerPlmDrrLogic::UpdateMarkupsNodes(vtkMRMLPlmDrrNode* parameterNode)
         imageWindowMarkupsNode->SetAndObserveTransformNodeID(beamTransformNode->GetID());
       }
     }
+*/
   }
 
   // VUP Vector markups line node
