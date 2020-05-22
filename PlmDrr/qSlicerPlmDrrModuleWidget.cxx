@@ -447,6 +447,7 @@ void qSlicerPlmDrrModuleWidget::onIsocenterImagerDistanceValueChanged(double val
   paramNode->DisableModifiedEventOn();
   paramNode->SetIsocenterImagerDistance(value);
   paramNode->DisableModifiedEventOff();
+//  paramNode->Modified();
   
   // Update imager and image markups
   d->logic()->UpdateMarkupsNodes(paramNode);

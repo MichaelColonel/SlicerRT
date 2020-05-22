@@ -48,9 +48,9 @@ class VTK_SLICER_PLMDRR_MODULE_LOGIC_EXPORT vtkSlicerPlmDrrLogic :
   public vtkSlicerModuleLogic
 {
 public:
-  static const char* IMAGER_BOUNDARY_MARKUPS_NODE_NAME; // fiducial
-  static const char* IMAGE_WINDOW_MARKUPS_NODE_NAME; // fiducial
-  static const char* ORIGIN_POINT_MARKUPS_NODE_NAME; // fiducial
+  static const char* IMAGER_BOUNDARY_MARKUPS_NODE_NAME; // curve
+  static const char* IMAGE_WINDOW_MARKUPS_NODE_NAME; // curve
+  static const char* FIDUCIALS_MARKUPS_NODE_NAME; // fiducial
   static const char* NORMAL_VECTOR_MARKUPS_NODE_NAME; // line
   static const char* VUP_VECTOR_MARKUPS_NODE_NAME; // line
 
@@ -67,7 +67,7 @@ public:
   /// Update DRR markups based on imager center offset
   void UpdateImagerCenterOffset(vtkMRMLPlmDrrNode* parameterNode);
 
-  /// Create markups nodes (2 lines, 3 fiducials) for visualization
+  /// Create markups nodes for visualization
   void CreateMarkupsNodes(vtkMRMLPlmDrrNode* parameterNode);
 
   /// Update markups nodes using parameter node data
@@ -100,7 +100,7 @@ private:
   vtkMRMLMarkupsLineNode* CreateImagerNormal(vtkMRMLPlmDrrNode* node);
   vtkMRMLMarkupsClosedCurveNode* CreateImagerBoundary(vtkMRMLPlmDrrNode* node);
   vtkMRMLMarkupsClosedCurveNode* CreateImageWindow(vtkMRMLPlmDrrNode* node);
-  vtkMRMLMarkupsLineNode* CreateImageFirstRowColumn(vtkMRMLPlmDrrNode* node);
+  vtkMRMLMarkupsFiducialNode* CreateFiducials(vtkMRMLPlmDrrNode* node);
 };
 
 #endif
