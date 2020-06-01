@@ -130,7 +130,7 @@ const double boundary[leaves + 1] = {
   +86.5 - 2.5
 };
 */
-
+/*
 const size_t leaves = 32;
 const double boundary[leaves + 1] = {
   -80.0,
@@ -167,9 +167,9 @@ const double boundary[leaves + 1] = {
   +75.0,
   +86.5
 };
-
+*/
 const size_t leaves1 = 16; 
-//const size_t leaves = 16; 
+const size_t leaves = 16; 
 const double boundary_l1[leaves1 + 1] = {
 //const double boundary[leaves + 1] = {
   -75.0,
@@ -191,8 +191,8 @@ const double boundary_l1[leaves1 + 1] = {
   +86.5
 };
 
-const double boundary_l2[leaves1 + 1] = {
-//const double boundary[leaves + 1] = {
+//const double boundary_l2[leaves1 + 1] = {
+const double boundary[leaves + 1] = {
   -80.0,
   -70.0,
   -60.0,
