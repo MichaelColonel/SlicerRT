@@ -758,6 +758,28 @@ std::string vtkSlicerPlmDrrLogic::GeneratePlastimatchDrrArgs( vtkMRMLVolumeNode*
     imageVolumeNode->GetOrigin(volumeOrigin);
   }
 
+  vtkMRMLRTBeamNode* beamNode = parameterNode->GetBeamNode();
+  vtkMRMLTransformNode* beamTransformNode = beamNode->GetParentTransformNode();
+  vtkTransform* beamTransform = nullptr;
+  if (beamTransformNode)
+  {
+    beamTransform = vtkTransform::SafeDownCast(beamTransformNode->GetTransformToParent());
+  }
+  else
+  {
+    vtkErrorMacro("CalculatePositionCurve: Beam transform node is invalid");
+    return nullptr;
+  }
+
+  double normalVector[4] = { 0., 0., 1., 0 }; // beam Z-axis 
+  double viewUpVector[4] = { 0., 1., 0., 0 }; // beam Y-axis
+  double n[4], vup[4];
+  vtkNew<vtkMatrix4x4> mat;
+  beamTransform->GetMatrix(mat);
+  
+  mat->MultiplyPoint( normalVector, n);
+  mat->MultiplyPoint( viewUpVector, vup);
+
   return std::string();
 }
 
