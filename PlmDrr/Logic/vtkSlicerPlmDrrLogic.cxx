@@ -32,6 +32,8 @@
 #include "vtkMRMLPlmDrrNode.h"
 
 // VTK includes
+#include <vtkTransform.h>
+#include <vtkMatrix4x4.h>
 #include <vtkIntArray.h>
 #include <vtkNew.h>
 #include <vtkObjectFactory.h>
@@ -779,6 +781,10 @@ std::string vtkSlicerPlmDrrLogic::GeneratePlastimatchDrrArgs( vtkMRMLVolumeNode*
   
   mat->MultiplyPoint( normalVector, n);
   mat->MultiplyPoint( viewUpVector, vup);
+
+  vtkWarningMacro("GeneratePlastimatchDrrArgs: " << 
+    n[0] << " " << n[1] << " " << n[2] << " ; " <<
+    vup[0] << " " << vup[1] << " " << vup[2]);
 
   return std::string();
 }

@@ -15,8 +15,8 @@
 
 ==============================================================================*/
 
-#ifndef __vtkMRMLRoomsEyeViewNode_h
-#define __vtkMRMLRoomsEyeViewNode_h
+#ifndef __vtkMRMLPlmDrrNode_h
+#define __vtkMRMLPlmDrrNode_h
 
 // Beams includes
 #include "vtkSlicerPlmDrrModuleMRMLExport.h"

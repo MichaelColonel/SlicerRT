@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>474</width>
-    <height>827</height>
+    <width>454</width>
+    <height>612</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -81,7 +81,7 @@
              <bool>false</bool>
             </property>
             <property name="text">
-             <string>Rotate X (norm)</string>
+             <string>Rotate X</string>
             </property>
            </widget>
           </item>
@@ -192,10 +192,10 @@
           <item row="3" column="0">
            <widget class="QLabel" name="label_7">
             <property name="enabled">
-             <bool>false</bool>
+             <bool>true</bool>
             </property>
             <property name="text">
-             <string>Rotate Z (norm)</string>
+             <string>Rotate Z</string>
             </property>
            </widget>
           </item>
@@ -212,7 +212,7 @@
           <item row="3" column="1">
            <widget class="ctkSliderWidget" name="SliderWidget__RotateImageAroundZ">
             <property name="enabled">
-             <bool>false</bool>
+             <bool>true</bool>
             </property>
             <property name="maximum">
              <double>359.990000000000009</double>
@@ -249,7 +249,7 @@
              <bool>false</bool>
             </property>
             <property name="text">
-             <string>Rotate Y (norm)</string>
+             <string>Rotate Y</string>
             </property>
            </widget>
           </item>
@@ -285,31 +285,18 @@
       </widget>
      </item>
      <item row="4" column="0" colspan="3">
-      <widget class="ctkCollapsibleButton" name="CTKCollapsibleButton">
+      <widget class="ctkCollapsibleButton" name="CollapsibleButton_PlmDrrArgs">
        <property name="text">
-        <string>Plastimatch DRR parameters</string>
+        <string>Plastimatch DRR args</string>
        </property>
        <layout class="QVBoxLayout" name="verticalLayout_3">
         <item>
-         <widget class="qSlicerPlmDrrParametersWidget" name="PlmDrrParametersWidget" native="true"/>
+         <widget class="qSlicerPlmDrrParametersWidget" name="PlmDrrArgsWidget" native="true"/>
         </item>
        </layout>
       </widget>
      </item>
     </layout>
-   </item>
-   <item row="1" column="0">
-    <spacer name="verticalSpacer">
-     <property name="orientation">
-      <enum>Qt::Vertical</enum>
-     </property>
-     <property name="sizeHint" stdset="0">
-      <size>
-       <width>20</width>
-       <height>40</height>
-      </size>
-     </property>
-    </spacer>
    </item>
   </layout>
  </widget>

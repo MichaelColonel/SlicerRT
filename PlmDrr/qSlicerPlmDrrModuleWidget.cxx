@@ -547,3 +547,11 @@ void qSlicerPlmDrrModuleWidget::onUpdateImageWindowFromBeamJaws()
 
   qDebug() << Q_FUNC_INFO << "update image window from beam";
 }
+
+//-----------------------------------------------------------------------------
+void qSlicerPlmDrrModuleWidget::onRotateZ(double angle)
+{
+  Q_D(qSlicerPlmDrrModuleWidget);
+
+  qDebug() << Q_FUNC_INFO << "Angle rotation around Z: " << angle;
+}

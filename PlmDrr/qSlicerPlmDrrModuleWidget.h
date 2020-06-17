@@ -63,6 +63,7 @@ protected slots:
   void onComputeDrrClicked();
   void onLoadDrrClicked();
   void onUpdateImageWindowFromBeamJaws();
+  void onRotateZ(double);
 
 protected:
   QScopedPointer<qSlicerPlmDrrModuleWidgetPrivate> d_ptr;
