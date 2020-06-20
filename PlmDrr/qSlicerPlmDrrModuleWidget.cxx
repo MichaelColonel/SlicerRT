@@ -136,6 +136,8 @@ void qSlicerPlmDrrModuleWidget::setup()
   // Sliders
   connect( d->SliderWidget_IsocenterImagerDistance, SIGNAL(valueChanged(double)), 
     this, SLOT(onIsocenterImagerDistanceValueChanged(double)));
+  connect( d->SliderWidget_RotateImagerAroundZ, SIGNAL(valueChanged(double)), 
+    this, SLOT(onRotateZ(double)));
 
   // Coordinates widgets
   connect( d->CoordinatesWidget_ImagerCenterOffset, SIGNAL(coordinatesChanged(double*)), 
@@ -222,7 +224,9 @@ void qSlicerPlmDrrModuleWidget::onRTBeamNodeChanged(vtkMRMLNode* node)
   paramNode->SetAndObserveBeamNode(beamNode);
   paramNode->DisableModifiedEventOff();
 
+  // Update imager and image markups, DRR arguments
   d->logic()->UpdateMarkupsNodes(paramNode);
+  this->onUpdatePlmDrrArgs();
 /*
   // Trigger update of transforms based on selected beam
   beamNode->InvokeCustomModifiedEvent(vtkMRMLRTBeamNode::BeamTransformModified);
@@ -254,6 +258,7 @@ void qSlicerPlmDrrModuleWidget::onReferenceVolumeNodeChanged(vtkMRMLNode* node)
   Q_D(qSlicerPlmDrrModuleWidget);
   vtkMRMLScalarVolumeNode* volumeNode = vtkMRMLScalarVolumeNode::SafeDownCast(node);
   d->ReferenceVolumeNode = volumeNode;
+  this->onUpdatePlmDrrArgs();
 }
 
 //-----------------------------------------------------------------------------
@@ -313,6 +318,31 @@ void qSlicerPlmDrrModuleWidget::updateWidgetFromMRML()
       d->MRMLNodeComboBox_RtBeam->setCurrentNode(paramNode->GetBeamNode());
       // apply beam transform to detector closed curve markups
     }
+    d->SliderWidget_IsocenterImagerDistance->setValue(paramNode->GetIsocenterImagerDistance());
+    
+    d->CoordinatesWidget_ImageCenter->setCoordinates(paramNode->GetImagerCenterOffset());
+
+    int imageDimInteger[2] = {};
+    double imageDim[2] = {};
+    paramNode->GetImageDimention(imageDimInteger);
+    imageDim[0] = static_cast<double>(imageDimInteger[0]);
+    imageDim[1] = static_cast<double>(imageDimInteger[1]);
+    d->CoordinatesWidget_ImagePixelDimention->setCoordinates(imageDim);
+
+    d->CoordinatesWidget_ImagePixelSpacing->setCoordinates(paramNode->GetImageSpacing());
+    
+    int imageWindowInteger[4] = {};
+    double imageWindow[4] = {};
+    paramNode->GetImageWindow(imageWindowInteger);
+    imageWindow[0] = static_cast<double>(imageWindowInteger[0]);
+    imageWindow[1] = static_cast<double>(imageWindowInteger[1]);
+    imageWindow[2] = static_cast<double>(imageWindowInteger[2]);
+    imageWindow[3] = static_cast<double>(imageWindowInteger[3]);
+    d->CoordinatesWidget_ImageWindow->setCoordinates(imageWindow);
+    d->CoordinatesWidget_ImagerCenterOffset->setCoordinates(paramNode->GetImagerCenterOffset());
+
+    // Update DRR arguments
+    this->onUpdatePlmDrrArgs();
 /*    
     if (paramNode->GetPatientBodySegmentationNode())
     {
@@ -390,6 +420,7 @@ void qSlicerPlmDrrModuleWidget::onEnter()
   d->logic()->CreateMarkupsNodes(paramNode);
 
   d->ModuleWindowInitialized = true;
+  this->onUpdatePlmDrrArgs();
 }
 
 //-----------------------------------------------------------------------------
@@ -448,9 +479,10 @@ void qSlicerPlmDrrModuleWidget::onIsocenterImagerDistanceValueChanged(double val
   paramNode->SetIsocenterImagerDistance(value);
   paramNode->DisableModifiedEventOff();
 //  paramNode->Modified();
-  
-  // Update imager and image markups
+
+  // Update imager and image markups, DRR arguments
   d->logic()->UpdateMarkupsNodes(paramNode);
+  this->onUpdatePlmDrrArgs();
 //  d->logic()->UpdateIsocenterDetectorDistance(paramNode);
 }
 
@@ -470,8 +502,9 @@ void qSlicerPlmDrrModuleWidget::onImagerCenterOffsetCoordinatesChanged(double* d
   paramNode->SetImagerCenterOffset(offset);
   paramNode->DisableModifiedEventOff();
 
-  // Update imager and image markups
+  // Update imager and image markups, DRR arguments
   d->logic()->UpdateMarkupsNodes(paramNode);
+  this->onUpdatePlmDrrArgs();
 }
 //-----------------------------------------------------------------------------
 void qSlicerPlmDrrModuleWidget::onImageSpacingChanged(double* spacing)
@@ -489,8 +522,9 @@ void qSlicerPlmDrrModuleWidget::onImageSpacingChanged(double* spacing)
   paramNode->SetImageSpacing(s);
   paramNode->DisableModifiedEventOff();
 
-  // Update imager and image markups
+  // Update imager and image markups, DRR arguments
   d->logic()->UpdateMarkupsNodes(paramNode);
+  this->onUpdatePlmDrrArgs();
 //  d->logic()->UpdateImageSpacing(paramNode);
 }
 
@@ -510,8 +544,9 @@ void qSlicerPlmDrrModuleWidget::onImageDimentionChanged(double* dimention)
   paramNode->SetImageDimention(dim);
   paramNode->DisableModifiedEventOff();
   
-  // Update imager and image markups
+  // Update imager and image markups, DRR arguments
   d->logic()->UpdateMarkupsNodes(paramNode);
+  this->onUpdatePlmDrrArgs();
 //  d->logic()->UpdateImageDimention(paramNode);
 }
 
@@ -536,8 +571,9 @@ void qSlicerPlmDrrModuleWidget::onImageWindowCoordinatesChanged(double* window)
   paramNode->SetImageWindow(imageWindow);
   paramNode->DisableModifiedEventOff();
   
-  // Update imager and image markups
+  // Update imager and image markups, DRR arguments
   d->logic()->UpdateMarkupsNodes(paramNode);
+  this->onUpdatePlmDrrArgs();
 }
 
 //-----------------------------------------------------------------------------
@@ -553,5 +589,39 @@ void qSlicerPlmDrrModuleWidget::onRotateZ(double angle)
 {
   Q_D(qSlicerPlmDrrModuleWidget);
 
-  qDebug() << Q_FUNC_INFO << "Angle rotation around Z: " << angle;
+  vtkMRMLPlmDrrNode* paramNode = vtkMRMLPlmDrrNode::SafeDownCast(d->MRMLNodeComboBox_ParameterNode->currentNode());
+  if (!paramNode || !d->ModuleWindowInitialized)
+  {
+    return;
+  }
+
+  qDebug() << Q_FUNC_INFO << " Angle rotation around Z: " << angle;
+
+//  paramNode->DisableModifiedEventOn();
+//  paramNode->SetRotateZ(angle);
+//  paramNode->DisableModifiedEventOff();
+
+  if (d->RtBeamNode)
+  {
+    d->RtBeamNode->SetCollimatorAngle(angle);
+  }
+
+  // Update imager and image markups, DRR arguments
+  d->logic()->UpdateMarkupsNodes(paramNode);
+  this->onUpdatePlmDrrArgs();
+}
+
+//-----------------------------------------------------------------------------
+void qSlicerPlmDrrModuleWidget::onUpdatePlmDrrArgs()
+{
+  Q_D(qSlicerPlmDrrModuleWidget);
+
+  vtkMRMLPlmDrrNode* paramNode = vtkMRMLPlmDrrNode::SafeDownCast(d->MRMLNodeComboBox_ParameterNode->currentNode());
+  if (!d->ReferenceVolumeNode || !paramNode || !d->ModuleWindowInitialized)
+  {
+    return;
+  }
+
+  std::string args = d->logic()->GeneratePlastimatchDrrArgs( d->ReferenceVolumeNode, paramNode);
+  d->plainTextEdit_PlmDrrArgs->setPlainText(QString::fromStdString(args));
 }

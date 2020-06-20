@@ -54,7 +54,7 @@ vtkMRMLPlmDrrNode::vtkMRMLPlmDrrNode()
   ImagerCenterOffset[0] = 0.;
   ImagerCenterOffset[1] = 0.;
   ImageDimention[0] = 1024; // columns = x
-  ImageDimention[1] = 768; // columns = y
+  ImageDimention[1] = 768; // rows = y
 
   ImageCenter[0] = ImageDimention[0] / 2; // columns = x
   ImageCenter[1] = ImageDimention[1] / 2; // rows = y
