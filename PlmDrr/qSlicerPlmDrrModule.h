@@ -15,8 +15,8 @@
 
 ==============================================================================*/
 
-#ifndef __qSlicerLoadableModuleTemplateModule_h
-#define __qSlicerLoadableModuleTemplateModule_h
+#ifndef __qSlicerPlmDrrModule_h
+#define __qSlicerPlmDrrModule_h
 
 // SlicerQt includes
 #include <qSlicerLoadableModule.h>
@@ -26,8 +26,7 @@
 class qSlicerPlmDrrModulePrivate;
 
 /// \ingroup Slicer_QtModules_ExtensionTemplate
-class Q_SLICER_QTMODULES_PLMDRR_EXPORT
-qSlicerPlmDrrModule : public qSlicerLoadableModule
+class Q_SLICER_QTMODULES_PLMDRR_EXPORT qSlicerPlmDrrModule : public qSlicerLoadableModule
 {
   Q_OBJECT
   Q_PLUGIN_METADATA(IID "org.slicer.modules.loadable.qSlicerLoadableModule/1.0");

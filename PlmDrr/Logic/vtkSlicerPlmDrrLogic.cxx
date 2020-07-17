@@ -183,7 +183,7 @@ void vtkSlicerPlmDrrLogic::CreateMarkupsNodes(vtkMRMLPlmDrrNode* parameterNode)
   vtkMRMLScene* scene = this->GetMRMLScene(); 
   if (!scene)
   {
-    vtkErrorMacro("CreateDefaultMarkupsNodes: Invalid MRML scene");
+    vtkErrorMacro("CreateMarkupsNodes: Invalid MRML scene");
     return;
   }
 
@@ -199,7 +199,7 @@ void vtkSlicerPlmDrrLogic::CreateMarkupsNodes(vtkMRMLPlmDrrNode* parameterNode)
   {
     imagerMarkupsNode = vtkMRMLMarkupsClosedCurveNode::SafeDownCast(
       scene->GetFirstNodeByName(IMAGER_BOUNDARY_MARKUPS_NODE_NAME));
-    vtkWarningMacro("CreateDefaultMarkupsNodes: Update imager points using parameter node data");
+    vtkWarningMacro("CreateMarkupsNodes: Update imager points using parameter node data");
   }
 
   // Image window markups node
@@ -212,7 +212,7 @@ void vtkSlicerPlmDrrLogic::CreateMarkupsNodes(vtkMRMLPlmDrrNode* parameterNode)
   {
     imageWindowMarkupsNode = vtkMRMLMarkupsClosedCurveNode::SafeDownCast(
       scene->GetFirstNodeByName(IMAGE_WINDOW_MARKUPS_NODE_NAME));
-    vtkWarningMacro("CreateDefaultMarkupsNodes: Update image window points using parameter node data");
+    vtkWarningMacro("CreateMarkupsNodes: Update image window points using parameter node data");
   }
 
   // imager normal vector markups node
@@ -225,7 +225,7 @@ void vtkSlicerPlmDrrLogic::CreateMarkupsNodes(vtkMRMLPlmDrrNode* parameterNode)
   {
     normalVectorMarkupsNode = vtkMRMLMarkupsLineNode::SafeDownCast(
       scene->GetFirstNodeByName(NORMAL_VECTOR_MARKUPS_NODE_NAME));
-    vtkWarningMacro("CreateDefaultMarkupsNodes: Update Normal vector points using parameter node data");
+    vtkWarningMacro("CreateMarkupsNodes: Update Normal vector points using parameter node data");
   }
 
   // imager vup vector markups node
@@ -238,7 +238,7 @@ void vtkSlicerPlmDrrLogic::CreateMarkupsNodes(vtkMRMLPlmDrrNode* parameterNode)
   {
     vupVectorMarkupsNode = vtkMRMLMarkupsLineNode::SafeDownCast(
       scene->GetFirstNodeByName(VUP_VECTOR_MARKUPS_NODE_NAME));
-    vtkWarningMacro("CreateDefaultMarkupsNodes: Update VUP vector points using parameter node data");
+    vtkWarningMacro("CreateMarkupsNodes: Update VUP vector points using parameter node data");
   }
 
   // fiducial markups node
@@ -251,7 +251,7 @@ void vtkSlicerPlmDrrLogic::CreateMarkupsNodes(vtkMRMLPlmDrrNode* parameterNode)
   {
     pointsMarkupsNode = vtkMRMLMarkupsFiducialNode::SafeDownCast(
       scene->GetFirstNodeByName(FIDUCIALS_MARKUPS_NODE_NAME));
-    vtkWarningMacro("CreateDefaultMarkupsNodes: Update fiducial points using parameter node data");
+    vtkWarningMacro("CreateMarkupsNodes: Update fiducial points using parameter node data");
   }
 }
 
@@ -287,22 +287,11 @@ void vtkSlicerPlmDrrLogic::UpdateMarkupsNodes(vtkMRMLPlmDrrNode* parameterNode)
     return;
   }
 
-//  vtkNew<vtkTransform> imagerTransform;
-//  imagerTransform->SetMatrix(mat);
-//  imagerTransform->Translate( 0., 0., 0.);
-//  imagerTransform->RotateX(270.);
-//  imagerTransform->RotateZ(90. + parameterNode->GetRotateZ());
-//  imagerTransform->Modified();
-
   // Imager boundary markups node
   if (scene->GetFirstNodeByName(IMAGER_BOUNDARY_MARKUPS_NODE_NAME))
   {
     vtkMRMLMarkupsClosedCurveNode* imagerMarkupsNode = vtkMRMLMarkupsClosedCurveNode::SafeDownCast(
       scene->GetFirstNodeByName(IMAGER_BOUNDARY_MARKUPS_NODE_NAME));
-
-//    scene->RemoveNode(imagerMarkupsNode);
-    
-//    imagerMarkupsNode = this->CreateImagerBoundary(parameterNode);
 
     double distance = parameterNode->GetIsocenterImagerDistance();
     
@@ -317,6 +306,7 @@ void vtkSlicerPlmDrrLogic::UpdateMarkupsNodes(vtkMRMLPlmDrrNode* parameterNode)
 
     double x = spacing[0] * dimention[0] / 2.;
     double y = spacing[1] * dimention[1] / 2.;
+
     // add points
     vtkVector3d p0( -x + offset[0], y + offset[1], -distance);
     vtkVector3d p1( x + offset[0], y + offset[1], -distance);
@@ -348,10 +338,7 @@ void vtkSlicerPlmDrrLogic::UpdateMarkupsNodes(vtkMRMLPlmDrrNode* parameterNode)
     p[2] = p3.GetZ();
     imagerMarkupsNode->SetNthControlPointPosition( 3, p[0], p[1], p[2]);
 
-//    imagerMarkupsNode->Modified();
-//    imagerMarkupsNode->ApplyTransform(imagerTransform);
-
-    // Update markups transform node if it's changed    
+    // Update imager boundary markups transform node if it's changed    
     vtkMRMLTransformNode* markupsTransformNode = imagerMarkupsNode->GetParentTransformNode();
 
     if (vtkMRMLRTBeamNode* beamNode = parameterNode->GetBeamNode())
@@ -363,7 +350,6 @@ void vtkSlicerPlmDrrLogic::UpdateMarkupsNodes(vtkMRMLPlmDrrNode* parameterNode)
         imagerMarkupsNode->SetAndObserveTransformNodeID(beamTransformNode->GetID());
       }
     }
-
   }
 
   // Image window markups node
@@ -371,10 +357,6 @@ void vtkSlicerPlmDrrLogic::UpdateMarkupsNodes(vtkMRMLPlmDrrNode* parameterNode)
   {
     vtkMRMLMarkupsClosedCurveNode* imageWindowMarkupsNode = vtkMRMLMarkupsClosedCurveNode::SafeDownCast(
       scene->GetFirstNodeByName(IMAGE_WINDOW_MARKUPS_NODE_NAME));
-
-//    scene->RemoveNode(imageWindowMarkupsNode);
-    
-//    imageWindowMarkupsNode = this->CreateImageWindow(parameterNode);
 
     double distance = parameterNode->GetIsocenterImagerDistance();
      
@@ -429,11 +411,7 @@ void vtkSlicerPlmDrrLogic::UpdateMarkupsNodes(vtkMRMLPlmDrrNode* parameterNode)
     p[2] = p3.GetZ();
     imageWindowMarkupsNode->SetNthControlPointPosition( 3, p[0], p[1], p[2]);
 
-//    imageWindowMarkupsNode->ApplyTransform(imagerTransform);
-
-//    imageWindowMarkupsNode->Modified();
-
-    // Update markups transform node if it's changed    
+    // Update image window markups transform node if it's changed    
     vtkMRMLTransformNode* markupsTransformNode = imageWindowMarkupsNode->GetParentTransformNode();
 
     if (vtkMRMLRTBeamNode* beamNode = parameterNode->GetBeamNode())
@@ -455,22 +433,6 @@ void vtkSlicerPlmDrrLogic::UpdateMarkupsNodes(vtkMRMLPlmDrrNode* parameterNode)
       scene->GetFirstNodeByName(NORMAL_VECTOR_MARKUPS_NODE_NAME));
 
     double distance = parameterNode->GetIsocenterImagerDistance();
-     
-//    double spacing[2] = {};
-//    parameterNode->GetImageSpacing(spacing);
-
-//    int dimention[2] = {};
-//    parameterNode->GetImageDimention(dimention);
-
-//    double offset[2] = {};
-//    parameterNode->GetImagerCenterOffset(offset);
-
-//    double x = spacing[0] * dimention[0] / 2.; // columns
-//    double y = spacing[1] * dimention[1] / 2.; // rows
-
-    // add points
-//    vtkVector3d p0( offset[0], offset[1], -distance);
-//    vtkVector3d p1( -x + offset[0], y + offset[1], -distance);
 
     vtkVector3d p0( 0., 0., -distance);
     vtkVector3d p1( 0., 0., -distance + 100.);
@@ -488,11 +450,7 @@ void vtkSlicerPlmDrrLogic::UpdateMarkupsNodes(vtkMRMLPlmDrrNode* parameterNode)
     p[2] = p1.GetZ();
     vectorMarkupsNode->SetNthControlPointPosition( 1, p[0], p[1], p[2]);
 
-//    vectorMarkupsNode->Modified();
-
-//   vectorMarkupsNode->ApplyTransform(imagerTransform);
-
-    // Update markups transform node if it's changed    
+    // Update imager normal vector markups transform node if it's changed    
     vtkMRMLTransformNode* markupsTransformNode = vectorMarkupsNode->GetParentTransformNode();
 
     if (vtkMRMLRTBeamNode* beamNode = parameterNode->GetBeamNode())
@@ -543,11 +501,7 @@ void vtkSlicerPlmDrrLogic::UpdateMarkupsNodes(vtkMRMLPlmDrrNode* parameterNode)
     p[2] = p1.GetZ();
     vectorMarkupsNode->SetNthControlPointPosition( 1, p[0], p[1], p[2]);
 
-//    vectorMarkupsNode->Modified();
-
-//   vectorMarkupsNode->ApplyTransform(imagerTransform);
-
-    // Update markups transform node if it's changed    
+    // Update VUP VECTOR markups transform node if it's changed    
     vtkMRMLTransformNode* markupsTransformNode = vectorMarkupsNode->GetParentTransformNode();
 
     if (vtkMRMLRTBeamNode* beamNode = parameterNode->GetBeamNode())
@@ -583,9 +537,9 @@ void vtkSlicerPlmDrrLogic::UpdateMarkupsNodes(vtkMRMLPlmDrrNode* parameterNode)
 
     // add points
     vtkVector3d p0( 0, 0, -distance); // imager center
-    vtkVector3d p1( 0, 0, -distance + 100.); // n
+    vtkVector3d p1( 0, 0, -distance + 100.); // imager normal vector
     vtkVector3d p2( -x + offset[0], -y + offset[1], -distance); // (0,0)
-    vtkVector3d p3( -x + offset[0], 0.0, -distance); // vup
+    vtkVector3d p3( -x + offset[0], 0.0, -distance); // vup vector
 
     double p[3];
     pointsMarkupsNode->GetNthControlPointPosition( 0, p);
@@ -612,10 +566,7 @@ void vtkSlicerPlmDrrLogic::UpdateMarkupsNodes(vtkMRMLPlmDrrNode* parameterNode)
     p[2] = p3.GetZ();
     pointsMarkupsNode->SetNthControlPointPosition( 3, p[0], p[1], p[2]);
 
-//    pointsMarkupsNode->ApplyTransform(imagerTransform);
-//    pointsMarkupsNode->Modified();
-
-    // Update markups transform node if it's changed    
+    // Update fiducials markups transform node if it's changed    
     vtkMRMLTransformNode* markupsTransformNode = pointsMarkupsNode->GetParentTransformNode();
 
     if (vtkMRMLRTBeamNode* beamNode = parameterNode->GetBeamNode())
@@ -640,7 +591,6 @@ vtkMRMLMarkupsClosedCurveNode* vtkSlicerPlmDrrLogic::CreateImagerBoundary(vtkMRM
   imagerMarkupsNode->SetHideFromEditors(1);
   std::string singletonTag = std::string("DRR_") + IMAGER_BOUNDARY_MARKUPS_NODE_NAME;
   imagerMarkupsNode->SetSingletonTag(singletonTag.c_str());
-  vtkWarningMacro("CreateImagerBoundary: Add points to the curve using parameter node data");
 
   if (parameterNode)
   {
@@ -664,19 +614,16 @@ vtkMRMLMarkupsClosedCurveNode* vtkSlicerPlmDrrLogic::CreateImagerBoundary(vtkMRM
     vtkVector3d p2( x + offset[0], -y + offset[1], -distance);
     vtkVector3d p3( -x + offset[0], -y + offset[1], -distance);
 
-    imagerMarkupsNode->AddControlPoint(p0);//, std::string("Upper Left")); // "-x,y"
-    imagerMarkupsNode->AddControlPoint(p1);//, std::string("Upper Right")); // "x,y"
-    imagerMarkupsNode->AddControlPoint(p2);//, std::string("Lower Right")); // "x,-y"
-    imagerMarkupsNode->AddControlPoint(p3);//, std::string("Lower Left")); // "-x,-y"
+    imagerMarkupsNode->AddControlPoint(p0); // "Upper Left", "-x,y"
+    imagerMarkupsNode->AddControlPoint(p1); // "Upper Right", "x,y"
+    imagerMarkupsNode->AddControlPoint(p2); // "Lower Right", "x,-y"
+    imagerMarkupsNode->AddControlPoint(p3); // "Lower Left", "-x,-y"
 
     if (vtkMRMLRTBeamNode* beamNode = parameterNode->GetBeamNode())
     {
-      vtkWarningMacro("CreateDetectorBoundary: beam node is valid");
       vtkMRMLTransformNode* beamTransformNode = beamNode->GetParentTransformNode();
-
       if (beamTransformNode)
       {
-        vtkWarningMacro("CreateDetectorBoundary: beam transform is observed");
         imagerMarkupsNode->SetAndObserveTransformNodeID(beamTransformNode->GetID());
       }
     }
@@ -694,7 +641,6 @@ vtkMRMLMarkupsClosedCurveNode* vtkSlicerPlmDrrLogic::CreateImageWindow(vtkMRMLPl
   imageWindowMarkupsNode->SetHideFromEditors(1);
   std::string singletonTag = std::string("DRR_") + IMAGE_WINDOW_MARKUPS_NODE_NAME;
   imageWindowMarkupsNode->SetSingletonTag(singletonTag.c_str());
-  vtkWarningMacro("CreateImageWindow: Add points to the curve using parameter node data");
 
   if (parameterNode)
   {
@@ -726,19 +672,16 @@ vtkMRMLMarkupsClosedCurveNode* vtkSlicerPlmDrrLogic::CreateImageWindow(vtkMRMLPl
     vtkVector3d p2( c2, r2, -distance);
     vtkVector3d p3( c2, r1, -distance);
 
-    imageWindowMarkupsNode->AddControlPoint(p0);//, std::string("r1,c1")); // r1, c1
-    imageWindowMarkupsNode->AddControlPoint(p1);//, std::string("r2,c1")); // r2, c1
-    imageWindowMarkupsNode->AddControlPoint(p2);//, std::string("r2,c2")); // r2, c2
-    imageWindowMarkupsNode->AddControlPoint(p3);//, std::string("r1,c2")); // r1, c2
+    imageWindowMarkupsNode->AddControlPoint(p0); // r1, c1
+    imageWindowMarkupsNode->AddControlPoint(p1); // r2, c1
+    imageWindowMarkupsNode->AddControlPoint(p2); // r2, c2
+    imageWindowMarkupsNode->AddControlPoint(p3); // r1, c2
 
     if (vtkMRMLRTBeamNode* beamNode = parameterNode->GetBeamNode())
     {
-      vtkWarningMacro("CreateImageWindow: beam node is valid");
       vtkMRMLTransformNode* beamTransformNode = beamNode->GetParentTransformNode();
-
       if (beamTransformNode)
       {
-        vtkWarningMacro("CreateImageWindow: beam transform is observed");
         imageWindowMarkupsNode->SetAndObserveTransformNodeID(beamTransformNode->GetID());
       }
     }
@@ -755,23 +698,10 @@ vtkMRMLMarkupsLineNode* vtkSlicerPlmDrrLogic::CreateImagerNormal(vtkMRMLPlmDrrNo
   vectorMarkupsNode->SetHideFromEditors(1);
   std::string singletonTag = std::string("DRR_") + NORMAL_VECTOR_MARKUPS_NODE_NAME;
   vectorMarkupsNode->SetSingletonTag(singletonTag.c_str());
-  vtkWarningMacro("CreateImagerNormal: Add points to vector using parameter node data");
 
   if (parameterNode)
   {
     double distance = parameterNode->GetIsocenterImagerDistance();
-     
-//    double spacing[2] = {};
-//    parameterNode->GetImageSpacing(spacing);
-
-//    int dimention[2] = {};
-//    parameterNode->GetImageDimention(dimention);
-
-//    double offset[2] = {};
-//    parameterNode->GetImagerCenterOffset(offset);
-
-//    double x = spacing[0] * dimention[0] / 2.; // columns
-//    double y = spacing[1] * dimention[1] / 2.; // rows
 
     // add points
     vtkVector3d p0( 0, 0, -distance);
@@ -782,12 +712,9 @@ vtkMRMLMarkupsLineNode* vtkSlicerPlmDrrLogic::CreateImagerNormal(vtkMRMLPlmDrrNo
 
     if (vtkMRMLRTBeamNode* beamNode = parameterNode->GetBeamNode())
     {
-      vtkWarningMacro("CreateImageFirstRowColumn: beam node is valid");
       vtkMRMLTransformNode* beamTransformNode = beamNode->GetParentTransformNode();
-
       if (beamTransformNode)
       {
-        vtkWarningMacro("CreateImageFirstRowColumn: beam transform is observed");
         vectorMarkupsNode->SetAndObserveTransformNodeID(beamTransformNode->GetID());
       }
     }
@@ -804,7 +731,6 @@ vtkMRMLMarkupsLineNode* vtkSlicerPlmDrrLogic::CreateImagerVUP(vtkMRMLPlmDrrNode*
   vectorMarkupsNode->SetHideFromEditors(1);
   std::string singletonTag = std::string("DRR_") + VUP_VECTOR_MARKUPS_NODE_NAME;
   vectorMarkupsNode->SetSingletonTag(singletonTag.c_str());
-  vtkWarningMacro("CreateImagerVUP: Add points to vector using parameter node data");
 
   if (parameterNode)
   {
@@ -831,12 +757,9 @@ vtkMRMLMarkupsLineNode* vtkSlicerPlmDrrLogic::CreateImagerVUP(vtkMRMLPlmDrrNode*
 
     if (vtkMRMLRTBeamNode* beamNode = parameterNode->GetBeamNode())
     {
-      vtkWarningMacro("CreateImageFirstRowColumn: beam node is valid");
       vtkMRMLTransformNode* beamTransformNode = beamNode->GetParentTransformNode();
-
       if (beamTransformNode)
       {
-        vtkWarningMacro("CreateImageFirstRowColumn: beam transform is observed");
         vectorMarkupsNode->SetAndObserveTransformNodeID(beamTransformNode->GetID());
       }
     }
@@ -853,7 +776,6 @@ vtkMRMLMarkupsFiducialNode* vtkSlicerPlmDrrLogic::CreateFiducials(vtkMRMLPlmDrrN
   pointsMarkupsNode->SetHideFromEditors(1);
   std::string singletonTag = std::string("DRR_") + FIDUCIALS_MARKUPS_NODE_NAME;
   pointsMarkupsNode->SetSingletonTag(singletonTag.c_str());
-  vtkWarningMacro("CreateFiducials: Add fiducial points using parameter node data");
 
   if (parameterNode)
   {
@@ -884,12 +806,9 @@ vtkMRMLMarkupsFiducialNode* vtkSlicerPlmDrrLogic::CreateFiducials(vtkMRMLPlmDrrN
 
     if (vtkMRMLRTBeamNode* beamNode = parameterNode->GetBeamNode())
     {
-      vtkWarningMacro("CreateFiducials: beam node is valid");
       vtkMRMLTransformNode* beamTransformNode = beamNode->GetParentTransformNode();
-
       if (beamTransformNode)
       {
-        vtkWarningMacro("CreateFiducials: beam transform is observed");
         pointsMarkupsNode->SetAndObserveTransformNodeID(beamTransformNode->GetID());
       }
     }
@@ -902,13 +821,13 @@ std::string vtkSlicerPlmDrrLogic::GeneratePlastimatchDrrArgs( vtkMRMLVolumeNode*
 {
   if (!volumeNode)
   {
-    vtkErrorMacro("UpdateMarkupsNodes: Invalid parameter set node");
+    vtkErrorMacro("GeneratePlastimatchDrrArgs: Invalid volume node");
     return std::string();
   }
 
   if (!parameterNode)
   {
-    vtkErrorMacro("UpdateMarkupsNodes: Invalid parameter set node");
+    vtkErrorMacro("GeneratePlastimatchDrrArgs: Invalid parameter set node");
     return std::string();
   }
 
@@ -932,27 +851,16 @@ std::string vtkSlicerPlmDrrLogic::GeneratePlastimatchDrrArgs( vtkMRMLVolumeNode*
   }
   else
   {
-    vtkErrorMacro("CalculatePositionCurve: Beam transform node is invalid");
+    vtkErrorMacro("GeneratePlastimatchDrrArgs: Beam transform node is invalid");
     return nullptr;
   }
 
-//  vtkNew<vtkTransform> imagerTransform;
-//  imagerTransform->SetMatrix(mat);
-//  imagerTransform->RotateZ(parameterNode->GetRotateZ());
-//  imagerTransform->GetMatrix(mat);
-
-//  double radAngle = parameterNode->GetRotateZ() * M_PI / 180.;
-  double normalVector[4] = { 0., 0., -1., 0. }; // beam negative Z-axis 
-//  double viewUpVector[4] = { sin(radAngle), cos(radAngle), 0., 0 }; // beam Y-axis
+  double normalVector[4] = { 0., 0., -1., 0. }; // beam negative Z-axis
   double viewUpVector[4] = { 1., 0., 0., 0. }; // beam positive X-axis
   double n[4], vup[4];
-  
+
   mat->MultiplyPoint( normalVector, n);
   mat->MultiplyPoint( viewUpVector, vup);
-
-  vtkWarningMacro("GeneratePlastimatchDrrArgs: " << 
-    n[0] << " " << n[1] << " " << n[2] << " ; " <<
-    vup[0] << " " << vup[1] << " " << vup[2]);
 
   int res[2];
   parameterNode->GetImageDimention(res);
@@ -964,6 +872,15 @@ std::string vtkSlicerPlmDrrLogic::GeneratePlastimatchDrrArgs( vtkMRMLVolumeNode*
 
   int window[4];
   parameterNode->GetImageWindow(window);
+
+//   plastimatch drr -nrm "1 0 0" \
+//    -vup "0 0 1" \
+//    -g "1000 1500" \
+//    -r "1024 768" \
+//    -z "400 300" \
+//    -c "383.5 511.5" \
+//    -o "0 -20 -50" \
+//    -e -i uniform -O Out -t raw input_file.mha
 
   std::ostringstream command;
   command << "plastimatch drr ";
@@ -977,16 +894,6 @@ std::string vtkSlicerPlmDrrLogic::GeneratePlastimatchDrrArgs( vtkMRMLVolumeNode*
   command << "\t-w" << " \"" << window[1] << " " << window[3] << " " << window[0] << " " << window[2] << "\" \\" << "\n";
   command << "\t-e -i uniform -O Out -t raw";
 
-/*
-drr -nrm "1 0 0" \
-    -vup "0 0 1" \
-    -g "1000 1500" \
-    -r "1024 768" \
-    -z "400 300" \
-    -c "383.5 511.5" \
-    -o "0 -20 -50" \
-    input_file.mha
-*/
   return command.str();
 }
 
@@ -1011,11 +918,11 @@ void vtkSlicerPlmDrrLogic::ProcessMRMLNodesEvents(vtkObject* caller, unsigned lo
 //    vtkMRMLRTBeamNode* beamNode = vtkMRMLRTBeamNode::SafeDownCast(caller);
     if (event == vtkMRMLRTBeamNode::BeamTransformModified)
     {
-      vtkErrorMacro("ProcessMRMLNodesEvents: RTBeam transformation has been changed");
+      vtkDebugMacro("ProcessMRMLNodesEvents: RTBeam transformation has been changed");
     }
     else if (event == vtkMRMLRTBeamNode::BeamGeometryModified)
     {
-      vtkErrorMacro("ProcessMRMLNodesEvents: RTBeam geometry has been changed");
+      vtkDebugMacro("ProcessMRMLNodesEvents: RTBeam geometry has been changed");
     }
   }
   else if (caller->IsA("vtkMRMLRTPlanNode"))
@@ -1023,187 +930,15 @@ void vtkSlicerPlmDrrLogic::ProcessMRMLNodesEvents(vtkObject* caller, unsigned lo
 //    vtkMRMLRTPlanNode* planNode = vtkMRMLRTPlanNode::SafeDownCast(caller);
     if (event == vtkMRMLRTPlanNode::IsocenterModifiedEvent)
     {
-      vtkErrorMacro("ProcessMRMLNodesEvents: RTPlan isocenter has been changed");
+      vtkDebugMacro("ProcessMRMLNodesEvents: RTPlan isocenter has been changed");
     }
   }
   else if (caller->IsA("vtkMRMLPlmDrrNode"))
   {
-//    vtkMRMLRTPlanNode* planNode = vtkMRMLRTPlanNode::SafeDownCast(caller);
+//    vtkMRMLPlmDrrNode* parameterNode = vtkMRMLPlmDrrNode::SafeDownCast(caller);
     if (event == vtkCommand::ModifiedEvent)
     {
-      vtkErrorMacro("ProcessMRMLNodesEvents: Plastimatch DRR node modified");
+      vtkDebugMacro("ProcessMRMLNodesEvents: Plastimatch DRR node modified");
     }
   }
-}
-
-//----------------------------------------------------------------------------
-void vtkSlicerPlmDrrLogic::UpdateIsocenterImagerDistance(vtkMRMLPlmDrrNode* parameterNode)
-{
-  this->UpdateMarkupsNodes(parameterNode);
-/*
-  vtkMRMLScene* mrmlScene = this->GetMRMLScene();
-  if (!mrmlScene)
-  {
-    vtkErrorMacro("UpdateIsocenterDetectorDistance: Invalid MRML scene");
-    return;
-  }
-  if (!parameterNode)
-  {
-    vtkErrorMacro("UpdateIsocenterDetectorDistance: Invalid parameter set node");
-    return;
-  }
-
-  // Get detector markups node
-  // Create detector markups singleton tag
-  std::string detectorSingletonTag = std::string(parameterNode->GetSingletonTag()) + "_" + DETECTOR_BOUNDARY_MARKUPS_NODE_NAME;
-
-  vtkMRMLMarkupsFiducialNode* detectorMarkupsNode = vtkMRMLMarkupsFiducialNode::SafeDownCast(
-    mrmlScene->GetSingletonNode(detectorSingletonTag.c_str(), "vtkMRMLMarkupsFiducialNode") );
-
-  if (detectorMarkupsNode)
-  {
-    vtkWarningMacro("UpdateIsocenterDetectorDistance: Detector markups node is valid");
-    double* p;
-    p = detectorMarkupsNode->GetNthControlPointPosition(0);
-    p[2] = -1. * parameterNode->GetIsocenterDetectorDistance();
-    p = detectorMarkupsNode->GetNthControlPointPosition(1);
-    p[2] = -1. * parameterNode->GetIsocenterDetectorDistance();
-    p = detectorMarkupsNode->GetNthControlPointPosition(2);
-    p[2] = -1. * parameterNode->GetIsocenterDetectorDistance();
-    p = detectorMarkupsNode->GetNthControlPointPosition(3);
-    p[2] = -1. * parameterNode->GetIsocenterDetectorDistance();
-
-    detectorMarkupsNode->Modified();
-  }
-  else
-  {
-    vtkErrorMacro("UpdateIsocenterToDetectorDistance: Failed to get detector markups node");
-  }
-*/
-}
-
-//----------------------------------------------------------------------------
-void vtkSlicerPlmDrrLogic::UpdateImageSpacing(vtkMRMLPlmDrrNode* parameterNode)
-{
-  this->UpdateMarkupsNodes(parameterNode);
-/*
-  vtkMRMLScene* mrmlScene = this->GetMRMLScene();
-  if (!mrmlScene)
-  {
-    vtkErrorMacro("UpdateImageSpacing: Invalid MRML scene");
-    return;
-  }
-  if (!parameterNode)
-  {
-    vtkErrorMacro("UpdateImageSpacing: Invalid parameter set node");
-    return;
-  }
-
-  // Get detector markups node
-  // Create detector markups singleton tag
-  std::string detectorSingletonTag = std::string(parameterNode->GetSingletonTag()) + "_" + DETECTOR_BOUNDARY_MARKUPS_NODE_NAME;
-
-  vtkMRMLMarkupsFiducialNode* detectorMarkupsNode = vtkMRMLMarkupsFiducialNode::SafeDownCast(
-    mrmlScene->GetSingletonNode(detectorSingletonTag.c_str(), "vtkMRMLMarkupsFiducialNode") );
-
-//  vtkMRMLMarkupsFiducialNode* detectorMarkupsNode = vtkMRMLMarkupsFiducialNode::SafeDownCast(
-//    mrmlScene->GetSingletonNode(detectorSingletonTag.c_str(), "vtkMRMLMarkupsFiducialNode") );
-  if (detectorMarkupsNode)
-  {
-    double spacing[2] = {};
-    parameterNode->GetImageSpacing(spacing);
-
-    int dimention[2] = {};
-    parameterNode->GetImageDimention(dimention);
-
-    double x = spacing[0] * dimention[0] / 2.;
-    double y = spacing[1] * dimention[1] / 2.;
-
-    vtkWarningMacro("UpdateImageSpacing: Detector markups node is valid");
-    double* p;
-    p = detectorMarkupsNode->GetNthControlPointPosition(0);
-    p[0] = -1. * x;
-    p[1] = y;
-    p = detectorMarkupsNode->GetNthControlPointPosition(1);
-    p[0] = x;
-    p[1] = y;
-    p = detectorMarkupsNode->GetNthControlPointPosition(2);
-    p[0] = x;
-    p[1] = -1. * y;
-    p = detectorMarkupsNode->GetNthControlPointPosition(3);
-    p[0] = -1. * x;
-    p[1] = -1. * y;
-    
-    detectorMarkupsNode->Modified();
-  }
-  else
-  {
-    vtkErrorMacro("UpdateImageSpacing: Failed to get detector markups node");
-  }
-*/
-}
-
-//----------------------------------------------------------------------------
-void vtkSlicerPlmDrrLogic::UpdateImageDimention(vtkMRMLPlmDrrNode* parameterNode)
-{
-  this->UpdateMarkupsNodes(parameterNode);
-/*
-  vtkMRMLScene* mrmlScene = this->GetMRMLScene();
-  if (!mrmlScene)
-  {
-    vtkErrorMacro("UpdateImageDimention: Invalid MRML scene");
-    return;
-  }
-  if (!parameterNode)
-  {
-    vtkErrorMacro("UpdateImageDimention: Invalid parameter set node");
-    return;
-  }
-
-  // Get detector boundary markups node
-  // Create detector markups singleton tag
-  std::string detectorSingletonTag = std::string(parameterNode->GetSingletonTag()) + "_" + DETECTOR_BOUNDARY_MARKUPS_NODE_NAME;
-
-  vtkMRMLMarkupsFiducialNode* detectorMarkupsNode = vtkMRMLMarkupsFiducialNode::SafeDownCast(
-    mrmlScene->GetSingletonNode(detectorSingletonTag.c_str(), "vtkMRMLMarkupsFiducialNode") );
-
-  if (detectorMarkupsNode)
-  {
-    double spacing[2] = {};
-    parameterNode->GetImageSpacing(spacing);
-
-    int dimention[2] = {};
-    parameterNode->GetImageDimention(dimention);
-
-    double x = spacing[0] * dimention[0] / 2.;
-    double y = spacing[1] * dimention[1] / 2.;
-
-    vtkWarningMacro("UpdateImageDimention: Detector markups node is valid");
-    double* p;
-    p = detectorMarkupsNode->GetNthControlPointPosition(0);
-    p[0] = -1. * x;
-    p[1] = y;
-    p = detectorMarkupsNode->GetNthControlPointPosition(1);
-    p[0] = x;
-    p[1] = y;
-    p = detectorMarkupsNode->GetNthControlPointPosition(2);
-    p[0] = x;
-    p[1] = -1. * y;
-    p = detectorMarkupsNode->GetNthControlPointPosition(3);
-    p[0] = -1. * x;
-    p[1] = -1. * y;
-    
-    detectorMarkupsNode->Modified();
-  }
-  else
-  {
-    vtkErrorMacro("UpdateImageDimention: Failed to get detector markups node");
-  }
-*/
-}
-
-//----------------------------------------------------------------------------
-void vtkSlicerPlmDrrLogic::UpdateImagerCenterOffset(vtkMRMLPlmDrrNode* parameterNode)
-{
-  this->UpdateMarkupsNodes(parameterNode);
 }

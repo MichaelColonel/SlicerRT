@@ -181,10 +181,9 @@ void qSlicerPlmDrrModuleWidget::setMRMLScene(vtkMRMLScene* scene)
     }
     else
     {
-      auto newNode = vtkSmartPointer<vtkMRMLPlmDrrNode>::New();
+      vtkNew<vtkMRMLPlmDrrNode> newNode;
       this->mrmlScene()->AddNode(newNode);
       this->setParameterNode(newNode);
-//      d->logic()->CreateDefaultMarkupsNodes(newNode);
     }
   }
 }
@@ -218,8 +217,6 @@ void qSlicerPlmDrrModuleWidget::onRTBeamNodeChanged(vtkMRMLNode* node)
     return;
   }
 
-  qDebug() << Q_FUNC_INFO << ": Beam node is set to parameter node";
-
   paramNode->DisableModifiedEventOn();
   paramNode->SetAndObserveBeamNode(beamNode);
   paramNode->DisableModifiedEventOff();
@@ -227,29 +224,6 @@ void qSlicerPlmDrrModuleWidget::onRTBeamNodeChanged(vtkMRMLNode* node)
   // Update imager and image markups, DRR arguments
   d->logic()->UpdateMarkupsNodes(paramNode);
   this->onUpdatePlmDrrArgs();
-/*
-  // Trigger update of transforms based on selected beam
-  beamNode->InvokeCustomModifiedEvent(vtkMRMLRTBeamNode::BeamTransformModified);
-
-  // Show only selected beam, hide others
-  std::vector<vtkMRMLNode*> beamNodes;
-  this->mrmlScene()->GetNodesByClass("vtkMRMLRTBeamNode", beamNodes);
-  for (std::vector<vtkMRMLNode*>::iterator beamIt=beamNodes.begin(); beamIt!=beamNodes.end(); ++beamIt)
-  {
-    vtkMRMLRTBeamNode* currentBeamNode = vtkMRMLRTBeamNode::SafeDownCast(*beamIt);
-    shNode->SetDisplayVisibilityForBranch(
-      shNode->GetItemByDataNode(currentBeamNode), (currentBeamNode==beamNode ? 1 : 0) );
-  }
-
-  // Select patient segmentation
-  vtkMRMLRTPlanNode* planNode = beamNode->GetParentPlanNode();
-  if (!planNode)
-  {
-    qCritical() << Q_FUNC_INFO << ": Failed to access parent plan of beam " << beamNode->GetName();
-    return;
-  }
-  d->SegmentSelectorWidget_PatientBody->setCurrentNode(planNode->GetSegmentationNode());
-*/
 }
 
 //-----------------------------------------------------------------------------
@@ -268,8 +242,6 @@ void qSlicerPlmDrrModuleWidget::onSaveVolumeClicked()
 
   if (d->ReferenceVolumeNode && d->ReferenceVolumeNode->AddDefaultStorageNode())
   {
-    qDebug() << Q_FUNC_INFO << "Reference volume node OK!";
-
     qSlicerCoreIOManager* coreIOManager = qSlicerCoreApplication::application()->coreIOManager();
     qSlicerIO::IOProperties fileParameters;
     QDir dir(qSlicerCoreApplication::application()->temporaryPath());
@@ -314,7 +286,6 @@ void qSlicerPlmDrrModuleWidget::updateWidgetFromMRML()
   {
     if (paramNode->GetBeamNode())
     {
-      qDebug() << Q_FUNC_INFO << "Set beam node into GUI";
       d->MRMLNodeComboBox_RtBeam->setCurrentNode(paramNode->GetBeamNode());
       // apply beam transform to detector closed curve markups
     }
@@ -343,29 +314,6 @@ void qSlicerPlmDrrModuleWidget::updateWidgetFromMRML()
 
     // Update DRR arguments
     this->onUpdatePlmDrrArgs();
-/*    
-    if (paramNode->GetPatientBodySegmentationNode())
-    {
-      d->SegmentSelectorWidget_PatientBody->setCurrentNode(paramNode->GetPatientBodySegmentationNode());
-    }
-    if (paramNode->GetPatientBodySegmentID())
-    {
-      d->SegmentSelectorWidget_PatientBody->setCurrentSegmentID(paramNode->GetPatientBodySegmentID());
-    }
-
-    d->GantryRotationSlider->setValue(paramNode->GetGantryRotationAngle());
-    d->CollimatorRotationSlider->setValue(paramNode->GetCollimatorRotationAngle());
-    d->PatientSupportRotationSlider->setValue(paramNode->GetPatientSupportRotationAngle());
-    d->ImagingPanelMovementSlider->setValue(paramNode->GetImagingPanelMovement());
-    d->VerticalTableTopDisplacementSlider->setValue(paramNode->GetVerticalTableTopDisplacement());
-    d->LateralTableTopDisplacementSlider->setValue(paramNode->GetLateralTableTopDisplacement());
-    d->LongitudinalTableTopDisplacementSlider->setValue(paramNode->GetLongitudinalTableTopDisplacement());
-    d->VerticalTranslationSliderWidget->setValue(paramNode->GetAdditionalModelVerticalDisplacement());
-    d->LongitudinalTranslationSliderWidget->setValue(paramNode->GetAdditionalModelLongitudinalDisplacement());
-    d->LateralTranslationSliderWidget->setValue(paramNode->GetAdditionalModelLateralDisplacement());
-    d->ApplicatorHolderCheckBox->setChecked(paramNode->GetApplicatorHolderVisibility());
-    d->ElectronApplicatorCheckBox->setChecked(paramNode->GetElectronApplicatorVisibility());
-*/  
   }
 }
 
@@ -447,18 +395,6 @@ void qSlicerPlmDrrModuleWidget::setParameterNode(vtkMRMLNode *node)
       paramNode->SetAndObserveBeamNode(beamNode);
       paramNode->Modified();
     }
-/*    if (!paramNode->GetPatientBodySegmentationNode())
-    {
-      paramNode->SetAndObservePatientBodySegmentationNode(vtkMRMLSegmentationNode::SafeDownCast(d->SegmentSelectorWidget_PatientBody->currentNode()));
-    }
-    if (!paramNode->GetPatientBodySegmentID() && !d->SegmentSelectorWidget_PatientBody->currentSegmentID().isEmpty())
-    {
-      paramNode->SetPatientBodySegmentID(d->SegmentSelectorWidget_PatientBody->currentSegmentID().toUtf8().constData());
-    }
-
-    paramNode->SetApplicatorHolderVisibility(0);
-    paramNode->SetElectronApplicatorVisibility(0);
-*/
   }
 
   this->updateWidgetFromMRML();
@@ -478,12 +414,10 @@ void qSlicerPlmDrrModuleWidget::onIsocenterImagerDistanceValueChanged(double val
   paramNode->DisableModifiedEventOn();
   paramNode->SetIsocenterImagerDistance(value);
   paramNode->DisableModifiedEventOff();
-//  paramNode->Modified();
 
   // Update imager and image markups, DRR arguments
   d->logic()->UpdateMarkupsNodes(paramNode);
   this->onUpdatePlmDrrArgs();
-//  d->logic()->UpdateIsocenterDetectorDistance(paramNode);
 }
 
 //-----------------------------------------------------------------------------
@@ -525,7 +459,6 @@ void qSlicerPlmDrrModuleWidget::onImageSpacingChanged(double* spacing)
   // Update imager and image markups, DRR arguments
   d->logic()->UpdateMarkupsNodes(paramNode);
   this->onUpdatePlmDrrArgs();
-//  d->logic()->UpdateImageSpacing(paramNode);
 }
 
 //-----------------------------------------------------------------------------
@@ -547,7 +480,6 @@ void qSlicerPlmDrrModuleWidget::onImageDimentionChanged(double* dimention)
   // Update imager and image markups, DRR arguments
   d->logic()->UpdateMarkupsNodes(paramNode);
   this->onUpdatePlmDrrArgs();
-//  d->logic()->UpdateImageDimention(paramNode);
 }
 
 //-----------------------------------------------------------------------------
@@ -580,8 +512,6 @@ void qSlicerPlmDrrModuleWidget::onImageWindowCoordinatesChanged(double* window)
 void qSlicerPlmDrrModuleWidget::onUpdateImageWindowFromBeamJaws()
 {
   Q_D(qSlicerPlmDrrModuleWidget);
-
-  qDebug() << Q_FUNC_INFO << "update image window from beam";
 }
 
 //-----------------------------------------------------------------------------
@@ -594,12 +524,6 @@ void qSlicerPlmDrrModuleWidget::onRotateZ(double angle)
   {
     return;
   }
-
-  qDebug() << Q_FUNC_INFO << " Angle rotation around Z: " << angle;
-
-//  paramNode->DisableModifiedEventOn();
-//  paramNode->SetRotateZ(angle);
-//  paramNode->DisableModifiedEventOff();
 
   if (d->RtBeamNode)
   {

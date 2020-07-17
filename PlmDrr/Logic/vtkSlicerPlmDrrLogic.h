@@ -58,15 +58,6 @@ public:
   vtkTypeMacro(vtkSlicerPlmDrrLogic, vtkSlicerModuleLogic);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  /// Update DRR markups based on isocenter to imager distance parameter
-  void UpdateIsocenterImagerDistance(vtkMRMLPlmDrrNode* parameterNode);
-  /// Update DRR markups based on image dimention
-  void UpdateImageDimention(vtkMRMLPlmDrrNode* parameterNode);
-  /// Update DRR markups based on image spacing
-  void UpdateImageSpacing(vtkMRMLPlmDrrNode* parameterNode);
-  /// Update DRR markups based on imager center offset
-  void UpdateImagerCenterOffset(vtkMRMLPlmDrrNode* parameterNode);
-
   /// Create markups nodes for visualization
   void CreateMarkupsNodes(vtkMRMLPlmDrrNode* parameterNode);
 

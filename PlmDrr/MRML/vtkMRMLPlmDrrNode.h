@@ -103,8 +103,8 @@ protected:
   double ImageSpacing[2]; // x,y
   int ImageCenter[2]; // column, row
   int ImageWindow[4]; // column1, column2, row1, row2
-  double RotateX;
-  double RotateY;
+  double RotateX; // not used
+  double RotateY; // not used
   double RotateZ;
 };
 
