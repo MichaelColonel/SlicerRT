@@ -30,11 +30,11 @@
 
 class vtkPolyData;
 class vtkMRMLScene;
-class vtkMRMLDoubleArrayNode;
 class vtkMRMLTableNode;
 class vtkMRMLRTPlanNode;
 class vtkMRMLScalarVolumeNode;
 class vtkMRMLSegmentationNode;
+class vtkMRMLLinearTransformNode;
 
 /// \ingroup SlicerRt_QtModules_Beams
 class VTK_SLICER_BEAMS_MODULE_MRML_EXPORT vtkMRMLRTBeamNode : public vtkMRMLModelNode
@@ -71,6 +71,9 @@ public:
   /// Copy the node's attributes to this object 
   void Copy(vtkMRMLNode *node) override;
 
+  /// Copy node content (excludes basic data, such a name and node reference)
+  vtkMRMLCopyContentMacro(vtkMRMLRTBeamNode);
+
   /// Make sure display node and transform node are present and valid
   void SetScene(vtkMRMLScene* scene) override;
 
@@ -88,6 +91,11 @@ public:
   /// Always creates a new transform node.
   virtual void CreateNewBeamTransformNode();
 
+  /// Create transform node that places the beam poly data in the right position based on geometry.
+  /// Always creates a new transform node.
+  /// This method is used only in vtkSlicerDicomRtImportExportModuleLogic::vtkInternal::LoadDynamicBeamSequence
+  virtual vtkMRMLLinearTransformNode* CreateBeamTransformNode(vtkMRMLScene *externalScene);
+
   /// Update beam poly data based on beam geometry parameters (jaws, MLC)
   void UpdateGeometry();
 
@@ -99,17 +107,11 @@ public:
   /// Get parent plan node
   vtkMRMLRTPlanNode* GetParentPlanNode();
 
-  /// Get MLC boundary double array node
-  vtkMRMLDoubleArrayNode* GetMLCBoundaryDoubleArrayNode();
-  /// Set and observe MLC boundary double array node.
+  /// Get MLC boundary and position table node
+  vtkMRMLTableNode* GetMultiLeafCollimatorTableNode();
+  /// Set and observe MLC boundary and position table node
   /// Triggers \sa BeamGeometryModified event and re-generation of beam model
-  void SetAndObserveMLCBoundaryDoubleArrayNode(vtkMRMLDoubleArrayNode* node);
-
-  /// Get MLC position table node
-  vtkMRMLTableNode* GetMLCPositionTableNode();
-  /// Set and observe MLC position table node
-  /// Triggers \sa BeamGeometryModified event and re-generation of beam model
-  void SetAndObserveMLCPositionTableNode(vtkMRMLTableNode* node);
+  void SetAndObserveMultiLeafCollimatorTableNode(vtkMRMLTableNode* node);
 
   /// Get DRR volume node
   vtkMRMLScalarVolumeNode* GetDRRVolumeNode();
@@ -246,7 +248,7 @@ protected:
   /// Couch angle
   double CouchAngle;
 
-private:
+protected:
   /// Visible multi-leaf collimator points
   typedef std::vector< std::pair< double, double > > MLCVisiblePointVector;
   /// Multi-leaf collimator boundary position parameters 
@@ -257,8 +259,10 @@ private:
   /// \brief Create visible points of MLC enclosure (perimeter) 
   ///  in IEC BEAM LIMITING DEVICE coordinate axis (isocenter plane)
   void CreateMLCPointsFromSectionBorder( double jawBegin, double jawEnd, 
-    bool typeMLCX, bool typeMLCY, const MLCSectionVector::value_type& sectionBorder, 
+    bool mlcType, const MLCSectionVector::value_type& sectionBorder, 
     MLCVisiblePointVector& side12);
+
+  static bool AreEqual( double v1, double v2);
 };
 
 #endif // __vtkMRMLRTBeamNode_h

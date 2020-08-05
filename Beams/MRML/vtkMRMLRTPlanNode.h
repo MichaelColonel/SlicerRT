@@ -80,6 +80,9 @@ public:
   /// Copy the node's attributes to this object 
   void Copy(vtkMRMLNode *node) override;
 
+  /// Copy node content (excludes basic data, such a name and node reference)
+  vtkMRMLCopyContentMacro(vtkMRMLRTPlanNode);
+
   /// Get unique node XML tag name (like Volume, Model) 
   const char* GetNodeTagName() override { return "RTPlan"; };
 
@@ -95,6 +98,12 @@ public:
 
   /// Add given beam node to plan
   void AddBeam(vtkMRMLRTBeamNode* beam);
+
+  /// Add given proxy beam node to plan
+  /// @param proxyBeam - Pointer to the selected beam of the beam sequence node,
+  /// the selection process is controlled by a sequence browser node
+  void AddProxyBeam(vtkMRMLRTBeamNode* proxyBeam);
+
   /// Remove given beam node from plan
   void RemoveBeam(vtkMRMLRTBeamNode* beam);
   /// Remove all beam nodes from plan
@@ -185,6 +194,11 @@ public:
   vtkSetVector3Macro(DoseGrid, double);
   vtkGetVector3Macro(DoseGrid, double);
 
+  /// Get flag for ion plan
+  vtkGetMacro( IonPlanFlag, bool);
+  /// Set flag for ion plan
+  vtkSetMacro( IonPlanFlag, bool);
+
 protected:
   /// Create default plan POIs markups node
   vtkMRMLMarkupsFiducialNode* CreateMarkupsFiducialNode();
@@ -196,6 +210,14 @@ protected:
   void operator=(const vtkMRMLRTPlanNode&);
 
 protected:
+  /// Get next beam number (for Read, Write XML methods)
+  vtkGetMacro(NextBeamNumber, int);
+  /// Set next beam number (for Read, Write XML methods)
+  vtkSetMacro(NextBeamNumber, int);
+
+  /// Set isocenter specification (for ReadXMLAttributes method)
+  void SetIsocenterSpecification(int isocenterSpec);
+
   /// Prescription dose (Gy)
   double RxDose;
 
@@ -215,6 +237,9 @@ protected:
   ///TODO: Allow user to specify dose volume resolution different from reference volume
   /// (currently output dose volume has the same spacing as the reference anatomy)
   double DoseGrid[3];
+
+  /// Flag, indicates that a plan node is an ion plan node
+  bool IonPlanFlag;
 };
 
 #endif // __vtkMRMLRTPlanNode_h
