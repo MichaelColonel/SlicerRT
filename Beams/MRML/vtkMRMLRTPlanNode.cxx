@@ -70,6 +70,8 @@ vtkMRMLRTPlanNode::vtkMRMLRTPlanNode()
   this->DoseGrid[0] = 0;
   this->DoseGrid[1] = 0;
   this->DoseGrid[2] = 0;
+
+  this->IonPlanFlag = false;
 }
 
 //----------------------------------------------------------------------------
@@ -85,20 +87,15 @@ void vtkMRMLRTPlanNode::WriteXML(ostream& of, int nIndent)
   Superclass::WriteXML(of, nIndent);
 
   // Write all MRML node attributes into output stream
-  if (this->TargetSegmentID != nullptr)
-  {
-    of << " TargetSegmentID=\"" << this->TargetSegmentID << "\"";
-  }
-  if (this->DoseEngineName != nullptr)
-  {
-    of << " DoseEngineName=\"" << this->DoseEngineName << "\"";
-  }
-
-  of << " NextBeamNumber=\"" << (this->NextBeamNumber) << "\"";
-
-  of << " RxDose=\"" << (this->RxDose) << "\"";
-
-  of << " IsocenterSpecification=\"" << (int)(this->IsocenterSpecification) << "\"";
+  vtkMRMLWriteXMLBeginMacro(of);
+  vtkMRMLWriteXMLIntMacro(NextBeamNumber, NextBeamNumber);
+  vtkMRMLWriteXMLStringMacro(TargetSegmentID, TargetSegmentID);
+  vtkMRMLWriteXMLStringMacro(DoseEngineName, DoseEngineName);
+  vtkMRMLWriteXMLFloatMacro(RxDose, RxDose);
+  vtkMRMLWriteXMLIntMacro(IsocenterSpecification, IsocenterSpecification);
+  vtkMRMLWriteXMLVectorMacro(DoseGrid, DoseGrid, double, 3);
+  vtkMRMLWriteXMLBooleanMacro(IonPlanFlag, IonPlanFlag);
+  vtkMRMLWriteXMLEndMacro();
 }
 
 //----------------------------------------------------------------------------
@@ -107,35 +104,15 @@ void vtkMRMLRTPlanNode::ReadXMLAttributes(const char** atts)
   vtkMRMLNode::ReadXMLAttributes(atts);
 
   // Read all MRML node attributes from two arrays of names and values
-  const char* attName = nullptr;
-  const char* attValue = nullptr;
-
-  while (*atts != nullptr)
-  {
-    attName = *(atts++);
-    attValue = *(atts++);
-
-    if (!strcmp(attName, "NextBeamNumber"))
-    {
-      this->NextBeamNumber = vtkVariant(attValue).ToDouble();
-    }
-    else if (!strcmp(attName, "TargetSegmentID"))
-    {
-      this->SetTargetSegmentID(attValue);
-    }
-    else if (!strcmp(attName, "DoseEngineName"))
-    {
-      this->SetDoseEngineName(attValue);
-    }
-    else if (!strcmp(attName, "RxDose"))
-    {
-      this->RxDose = vtkVariant(attValue).ToDouble();
-    }
-    else if (!strcmp(attName, "IsocenterSpecification"))
-    {
-      this->IsocenterSpecification = (IsocenterSpecificationType)(vtkVariant(attValue).ToInt());
-    }
-  }
+  vtkMRMLReadXMLBeginMacro(atts);
+  vtkMRMLReadXMLIntMacro(NextBeamNumber, NextBeamNumber);
+  vtkMRMLReadXMLStringMacro(TargetSegmentID, TargetSegmentID);
+  vtkMRMLReadXMLStringMacro(DoseEngineName, DoseEngineName);
+  vtkMRMLReadXMLFloatMacro(RxDose, RxDose);
+  vtkMRMLReadXMLIntMacro(IsocenterSpecification, IsocenterSpecification);
+  vtkMRMLReadXMLVectorMacro(DoseGrid, DoseGrid, double, 3);
+  vtkMRMLReadXMLBooleanMacro(IonPlanFlag, IonPlanFlag);
+  vtkMRMLReadXMLEndMacro();
 }
 
 //----------------------------------------------------------------------------
@@ -153,12 +130,14 @@ void vtkMRMLRTPlanNode::Copy(vtkMRMLNode *anode)
 
   this->DisableModifiedEventOn();
 
-  this->SetTargetSegmentID(node->TargetSegmentID);
-  this->SetDoseEngineName(node->DoseEngineName);
-
-  this->SetIsocenterSpecification(node->GetIsocenterSpecification());
-
-  this->NextBeamNumber = node->NextBeamNumber;
+  vtkMRMLCopyBeginMacro(node);
+  vtkMRMLCopyStringMacro(TargetSegmentID);
+  vtkMRMLCopyIntMacro(IsocenterSpecification);
+  vtkMRMLCopyIntMacro(NextBeamNumber);
+  vtkMRMLCopyStringMacro(DoseEngineName);
+  vtkMRMLCopyVectorMacro(DoseGrid, double, 3);
+  vtkMRMLCopyBooleanMacro(IonPlanFlag);
+  vtkMRMLCopyEndMacro();
 
   // Copy beams
   this->RemoveAllBeams();
@@ -178,15 +157,41 @@ void vtkMRMLRTPlanNode::Copy(vtkMRMLNode *anode)
 }
 
 //----------------------------------------------------------------------------
+void vtkMRMLRTPlanNode::CopyContent(vtkMRMLNode *anode, bool deepCopy/*=true*/)
+{
+  MRMLNodeModifyBlocker blocker(this);
+  Superclass::CopyContent(anode, deepCopy);
+
+  vtkMRMLRTPlanNode* node = vtkMRMLRTPlanNode::SafeDownCast(anode);
+  if (!node)
+  {
+    return;
+  }
+
+  vtkMRMLCopyBeginMacro(node);
+  vtkMRMLCopyFloatMacro(RxDose);
+  vtkMRMLCopyStringMacro(TargetSegmentID);
+  vtkMRMLCopyIntMacro(IsocenterSpecification);
+  vtkMRMLCopyIntMacro(NextBeamNumber);
+  vtkMRMLCopyStringMacro(DoseEngineName);
+  vtkMRMLCopyVectorMacro(DoseGrid, double, 3);
+  vtkMRMLCopyBooleanMacro(IonPlanFlag);
+  vtkMRMLCopyEndMacro();
+}
+
+//----------------------------------------------------------------------------
 void vtkMRMLRTPlanNode::PrintSelf(ostream& os, vtkIndent indent)
 {
   Superclass::PrintSelf(os,indent);
 
-  os << indent << " TargetSegmentID:   " << (this->TargetSegmentID?this->TargetSegmentID:"nullptr") << "\n";
-  os << indent << " DoseEngineName:   " << (this->DoseEngineName?this->DoseEngineName:"nullptr") << "\n";
-  os << indent << " NextBeamNumber:   " << this->NextBeamNumber << "\n";
-  os << indent << " RxDose:   " << this->RxDose << "\n";
-  os << indent << " IsocenterSpecification:   " << (int)(this->IsocenterSpecification) << "\n";
+  vtkMRMLPrintBeginMacro(os, indent);
+  vtkMRMLPrintIntMacro(NextBeamNumber);
+  vtkMRMLPrintStringMacro(TargetSegmentID);
+  vtkMRMLPrintStringMacro(DoseEngineName);
+  vtkMRMLPrintFloatMacro(RxDose);
+  vtkMRMLPrintIntMacro(IsocenterSpecification);
+  vtkMRMLPrintVectorMacro(DoseGrid, double, 3);
+  vtkMRMLPrintBooleanMacro(IonPlanFlag);
 
   // Beams
   std::vector<vtkMRMLRTBeamNode*> beams;
@@ -196,24 +201,24 @@ void vtkMRMLRTPlanNode::PrintSelf(ostream& os, vtkIndent indent)
     vtkMRMLRTBeamNode* beamNode = (*beamIt);
     beamNode->PrintSelf(os, indent.GetNextIndent());
   }
+
+  vtkMRMLPrintEndMacro();
 }
 
 //----------------------------------------------------------------------------
 void vtkMRMLRTPlanNode::SetDoseEngineName(const char* engineName)
 {
   vtkDebugMacro(<< this->GetClassName() << " (" << this << "): setting DoseEngineName to " << (engineName?engineName:"(null)") );
-  if ( this->DoseEngineName == nullptr && engineName == nullptr) { return;}
-  if ( this->DoseEngineName && engineName && (!strcmp(this->DoseEngineName,engineName))) { return;}
+  if (this->DoseEngineName == nullptr && engineName == nullptr) { return;}
+  if (this->DoseEngineName && engineName && (!strcmp(this->DoseEngineName,engineName))) { return;}
 
   // Set dose engine name
   delete [] this->DoseEngineName;
   if (engineName)
   {
     size_t n = strlen(engineName) + 1;
-    char *cp1 =  new char[n];
-    const char *cp2 = (engineName);
-    this->DoseEngineName = cp1;
-    do { *cp1++ = *cp2++; } while ( --n );
+    this->DoseEngineName = new char[n];
+    strcpy(this->DoseEngineName, engineName);
   }
   else
   {
@@ -240,8 +245,8 @@ void vtkMRMLRTPlanNode::ProcessMRMLEvents(vtkObject *caller, unsigned long event
     return;
   }
 
-  if ( eventID == vtkMRMLMarkupsNode::PointModifiedEvent
-    && caller == this->GetPoisMarkupsFiducialNode() )
+  if (eventID == vtkMRMLMarkupsNode::PointModifiedEvent
+    && caller == this->GetPoisMarkupsFiducialNode())
   {
     // Update the model
     this->InvokeCustomModifiedEvent(vtkMRMLRTPlanNode::IsocenterModifiedEvent);
@@ -269,7 +274,7 @@ void vtkMRMLRTPlanNode::SetAndObserveReferenceVolumeNode(vtkMRMLScalarVolumeNode
 //----------------------------------------------------------------------------
 vtkMRMLSegmentationNode* vtkMRMLRTPlanNode::GetSegmentationNode()
 {
-  return vtkMRMLSegmentationNode::SafeDownCast( this->GetNodeReference(SEGMENTATION_REFERENCE_ROLE) );
+  return vtkMRMLSegmentationNode::SafeDownCast(this->GetNodeReference(SEGMENTATION_REFERENCE_ROLE));
 }
 
 //----------------------------------------------------------------------------
@@ -423,7 +428,7 @@ bool vtkMRMLRTPlanNode::SetIsocenterPosition(double isocenter[3])
 //----------------------------------------------------------------------------
 vtkMRMLScalarVolumeNode* vtkMRMLRTPlanNode::GetOutputTotalDoseVolumeNode()
 {
-  return vtkMRMLScalarVolumeNode::SafeDownCast( this->GetNodeReference(OUTPUT_TOTAL_DOSE_VOLUME_REFERENCE_ROLE) );
+  return vtkMRMLScalarVolumeNode::SafeDownCast(this->GetNodeReference(OUTPUT_TOTAL_DOSE_VOLUME_REFERENCE_ROLE));
 }
 
 //----------------------------------------------------------------------------
@@ -525,8 +530,8 @@ vtkMRMLRTBeamNode* vtkMRMLRTPlanNode::GetBeamByName(const std::string& beamName)
   for (int i=0; i<beamCollection->GetNumberOfItems(); ++i)
   {
     vtkMRMLRTBeamNode* beamNode = vtkMRMLRTBeamNode::SafeDownCast(beamCollection->GetItemAsObject(i));
-    if ( beamNode && beamNode->GetName()
-      && !strcmp(beamNode->GetName(), beamName.c_str()) )
+    if (beamNode && beamNode->GetName()
+      && !strcmp(beamNode->GetName(), beamName.c_str()))
     {
       return beamNode;
     }
@@ -608,6 +613,41 @@ void vtkMRMLRTPlanNode::AddBeam(vtkMRMLRTBeamNode* beamNode)
 
   // Invoke beam added event (logic will create beam geometry and transform node)
   this->InvokeEvent(vtkMRMLRTPlanNode::BeamAdded, (void*)beamNode->GetID());
+  this->Modified();
+}
+
+//---------------------------------------------------------------------------
+void vtkMRMLRTPlanNode::AddProxyBeam(vtkMRMLRTBeamNode* beamNode)
+{
+  if (!this->GetScene())
+  {
+    vtkErrorMacro("AddProxyBeam: Invalid MRML scene");
+    return;
+  }
+  if (!beamNode)
+  {
+    return;
+  }
+
+  // Get subject hierarchy item for the RT Plan
+  vtkIdType planShItemID = this->GetPlanSubjectHierarchyItemID();
+  if (planShItemID == vtkMRMLSubjectHierarchyNode::INVALID_ITEM_ID)
+  {
+    vtkErrorMacro("AddProxyBeam: Failed to access RT plan subject hierarchy item, although it should always be available");
+    return;
+  }
+  vtkMRMLSubjectHierarchyNode* shNode = vtkMRMLSubjectHierarchyNode::GetSubjectHierarchyNode(beamNode->GetScene());
+  if (!shNode)
+  {
+    vtkErrorMacro("AddProxyBeam: Failed to access subject hierarchy node");
+    return;
+  }
+
+  // Set the beam number
+  beamNode->SetBeamNumber(this->NextBeamNumber++);
+
+  // Add beam node in the right subject hierarchy branch
+  shNode->CreateItem(planShItemID, beamNode);
   this->Modified();
 }
 
@@ -708,6 +748,20 @@ void vtkMRMLRTPlanNode::SetIsocenterSpecification(vtkMRMLRTPlanNode::IsocenterSp
 }
 
 //----------------------------------------------------------------------------
+void vtkMRMLRTPlanNode::SetIsocenterSpecification(int isocenterSpec)
+{
+  switch (isocenterSpec)
+  {
+    case 0:
+      SetIsocenterSpecification(IsocenterSpecificationType::CenterOfTarget);
+      break;
+    default:
+      SetIsocenterSpecification(IsocenterSpecificationType::ArbitraryPoint);
+      break;
+  }
+}
+
+//----------------------------------------------------------------------------
 void vtkMRMLRTPlanNode::SetIsocenterToTargetCenter()
 {
   if (!this->TargetSegmentID)
@@ -768,16 +822,16 @@ vtkSmartPointer<vtkOrientedImageData> vtkMRMLRTPlanNode::GetTargetOrientedImageD
     segmentationNode->GetBinaryLabelmapRepresentation(this->TargetSegmentID, targetOrientedImageData);
 #else
     targetOrientedImageData = vtkSmartPointer<vtkOrientedImageData>::New();
-    targetOrientedImageData->DeepCopy( vtkOrientedImageData::SafeDownCast(
-        segment->GetRepresentation(vtkSegmentationConverter::GetSegmentationBinaryLabelmapRepresentationName()) ) );
+    targetOrientedImageData->DeepCopy(vtkOrientedImageData::SafeDownCast(
+        segment->GetRepresentation(vtkSegmentationConverter::GetSegmentationBinaryLabelmapRepresentationName())));
 #endif 
   }
   else
   {
     // Need to convert
-    targetOrientedImageData = vtkSmartPointer<vtkOrientedImageData>::Take( vtkOrientedImageData::SafeDownCast(
+    targetOrientedImageData = vtkSmartPointer<vtkOrientedImageData>::Take(vtkOrientedImageData::SafeDownCast(
       vtkSlicerSegmentationsModuleLogic::CreateRepresentationForOneSegment(
-        segmentation, this->GetTargetSegmentID(), vtkSegmentationConverter::GetSegmentationBinaryLabelmapRepresentationName() ) ) );
+        segmentation, this->GetTargetSegmentID(), vtkSegmentationConverter::GetSegmentationBinaryLabelmapRepresentationName())));
     if (!targetOrientedImageData.GetPointer())
     {
       std::string errorMessage("Failed to convert target segment into binary labelmap");
