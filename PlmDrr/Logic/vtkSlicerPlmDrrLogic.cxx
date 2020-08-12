@@ -40,12 +40,18 @@
 
 // STD includes
 #include <string>
-#include <sstream>
-#include <cassert>
 
 // Plastimatch reconstruct module
 #include <drr.h>
 #include <drr_options.h>
+
+// ITK includes
+#include <itkImage.h>
+#include <itkImageFileReader.h>
+#include <itkMetaImageIO.h>
+
+// SlicerRT includes
+#include <vtkSlicerRtCommon.h>
 
 const char* vtkSlicerPlmDrrLogic::IMAGER_BOUNDARY_MARKUPS_NODE_NAME = "ImagerBoundary"; // curve
 const char* vtkSlicerPlmDrrLogic::IMAGE_WINDOW_MARKUPS_NODE_NAME = "ImageWindow"; // curve
@@ -108,7 +114,12 @@ void vtkSlicerPlmDrrLogic::RegisterNodes()
 //---------------------------------------------------------------------------
 void vtkSlicerPlmDrrLogic::UpdateFromMRMLScene()
 {
-  assert(this->GetMRMLScene() != 0);
+  vtkMRMLScene* scene = this->GetMRMLScene();
+  if (!scene)
+  {
+    vtkErrorMacro("UpdateFromMRMLScene: Invalid MRML scene");
+    return;
+  }
 }
 
 //---------------------------------------------------------------------------
@@ -162,19 +173,52 @@ bool vtkSlicerPlmDrrLogic::ComputeDRR(Drr_options* opts)
 {
   if (!opts)
   {
-    return false;
+    vtkErrorMacro("ComputeDRR: DRR options pointer is invalid");
   }
+  
+  drr_compute(opts);
   return true;
 }
 
 //----------------------------------------------------------------------------
-bool vtkSlicerPlmDrrLogic::LoadDRR( vtkMRMLVolumeNode* volumeNode, const std::string& vtkNotUsed(filename))
+bool vtkSlicerPlmDrrLogic::LoadDRR( vtkMRMLScalarVolumeNode* volumeNode, const std::string& filename)
 {
-  if (!volumeNode)
+  if (filename.empty())
   {
+    vtkErrorMacro("LoadDRR: MetaImageHeader file name is empty");
     return false;
   }
-  return true;
+
+  if (!volumeNode)
+  {
+    vtkErrorMacro("LoadDRR: volume node is invalid");
+    return false;
+  }
+
+  // Plastimatch DRR input Pixel Type
+  using InputPixelType = signed long;
+  const unsigned int InputDimension = 3;
+
+  using InputImageType = itk::Image< InputPixelType, InputDimension >;
+  using ReaderType = itk::ImageFileReader< InputImageType >;
+
+  ReaderType::Pointer reader = ReaderType::New();
+
+  reader->SetFileName(filename.c_str());
+
+  try
+  {
+    reader->Update();
+  }
+  catch(itk::ExceptionObject& excp)
+  {
+    vtkErrorMacro("LoadDRR: Problem reading data \n" << excp);
+    return false;
+  }
+  
+  InputImageType::Pointer itkImagePtr = reader->GetOutput();
+  bool res = vtkSlicerRtCommon::ConvertItkImageToVolumeNode< InputPixelType >( itkImagePtr, volumeNode, VTK_LONG);
+  return res;
 }
 
 //----------------------------------------------------------------------------
@@ -817,7 +861,8 @@ vtkMRMLMarkupsFiducialNode* vtkSlicerPlmDrrLogic::CreateFiducials(vtkMRMLPlmDrrN
 }
 
 //----------------------------------------------------------------------------
-std::string vtkSlicerPlmDrrLogic::GeneratePlastimatchDrrArgs( vtkMRMLVolumeNode* volumeNode, vtkMRMLPlmDrrNode* parameterNode)
+std::string vtkSlicerPlmDrrLogic::GeneratePlastimatchDrrArgs( vtkMRMLVolumeNode* volumeNode, 
+  vtkMRMLPlmDrrNode* parameterNode, Drr_options& drrOptions)
 {
   if (!volumeNode)
   {
@@ -881,6 +926,53 @@ std::string vtkSlicerPlmDrrLogic::GeneratePlastimatchDrrArgs( vtkMRMLVolumeNode*
 //    -c "383.5 511.5" \
 //    -o "0 -20 -50" \
 //    -e -i uniform -O Out -t raw input_file.mha
+
+  // Imager resolution
+  drrOptions.detector_resolution[0] = res[1];
+  drrOptions.detector_resolution[1] = res[0];
+
+  // VUP vector
+  drrOptions.vup[0] = static_cast<float>(vup[0]);
+  drrOptions.vup[1] = static_cast<float>(vup[1]);
+  drrOptions.vup[2] = static_cast<float>(vup[2]);
+
+  // Imager normal vector
+  drrOptions.have_nrm = 1;
+  drrOptions.nrm[0] = static_cast<float>(n[0]);
+  drrOptions.nrm[1] = static_cast<float>(n[1]);
+  drrOptions.nrm[2] = static_cast<float>(n[2]);
+
+  // SAD, SID distance
+  drrOptions.sad = static_cast<float>(beamNode->GetSAD());
+  drrOptions.sid = static_cast<float>(beamNode->GetSAD() + parameterNode->GetIsocenterImagerDistance());
+
+  // Image size
+  drrOptions.image_size[0] = static_cast<float>(res[1] * spacing[1]);
+  drrOptions.image_size[1] = static_cast<float>(res[0] * spacing[0]);
+
+  // Image center
+  drrOptions.have_image_center = 1;
+  drrOptions.image_center[0] = static_cast<float>(res[1] / 2.);
+  drrOptions.image_center[1] = static_cast<float>(res[0] / 2.);
+
+  // Isocenter
+  drrOptions.isocenter[0] = static_cast<float>(isocenter[0]);
+  drrOptions.isocenter[1] = static_cast<float>(isocenter[1]);
+  drrOptions.isocenter[2] = static_cast<float>(isocenter[2]);
+
+  // Image window
+  drrOptions.have_image_window = 1;
+  drrOptions.image_window[0] = window[1];
+  drrOptions.image_window[1] = window[3];
+  drrOptions.image_window[2] = window[0];
+  drrOptions.image_window[3] = window[2];
+
+  // Algorithm
+  drrOptions.algorithm = DRR_ALGORITHM_EXACT;
+  // Output format
+  drrOptions.output_format = OUTPUT_FORMAT_RAW;
+  // Output prefix
+  drrOptions.output_prefix = "Out";
 
   std::ostringstream command;
   command << "plastimatch drr ";

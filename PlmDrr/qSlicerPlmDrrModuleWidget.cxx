@@ -267,6 +267,53 @@ void qSlicerPlmDrrModuleWidget::onComputeDrrClicked()
 void qSlicerPlmDrrModuleWidget::onLoadDrrClicked()
 {
   Q_D(qSlicerPlmDrrModuleWidget);
+
+  // Get DRR raw image file
+  QDir dir(qSlicerCoreApplication::application()->temporaryPath());
+  QStringList filters;
+  filters << "*.raw";
+  QStringList tmpRawImages = dir.entryList(filters);
+
+  // Create *.mhd file for that one image
+  std::string mhdName;
+  for (const QString& fileName : tmpRawImages)
+  {
+    QFileInfo fileInfo(fileName);
+    QString baseName = fileInfo.baseName();
+    QString mhdFileName = baseName + ".mhd";
+
+    fileInfo.setFile( dir, mhdFileName);
+    
+    mhdName = fileInfo.absoluteFilePath().toStdString();
+    std::ofstream ofs(mhdName.c_str());
+
+    ofs << "NDims = 3\n";
+    ofs << "DimSize = " << d->DrrOptions.detector_resolution[0] 
+      << ' ' << d->DrrOptions.detector_resolution[1] << " 1\n";
+    ofs << "ElementSpacing = " << d->DrrOptions.image_size[0] / d->DrrOptions.detector_resolution[0] 
+      << ' ' << d->DrrOptions.image_size[1] / d->DrrOptions.detector_resolution[1] << " 1\n";
+    ofs << "Position = 0 0 0\n";
+    ofs << "BinaryData = True\n";
+    ofs << "ElementByteOrderMSB = False\n";
+    ofs << "ElementType = MET_LONG\n";
+    ofs << "ElementDataFile = " << fileName.toStdString() << '\n';
+    ofs.close();
+  }
+  
+  if (mhdName.empty())
+  {
+    qCritical() << Q_FUNC_INFO << "MetaImageHeader file name is empty";
+    return;
+  }
+  vtkNew<vtkMRMLScalarVolumeNode> drrVolumeNode;
+  this->mrmlScene()->AddNode(drrVolumeNode);
+  
+  bool res = d->logic()->LoadDRR( drrVolumeNode, mhdName);
+  
+  if (res)
+  {
+    qDebug() << Q_FUNC_INFO << ": DRR scalar volume node is loaded";
+  }
 }
 
 //-----------------------------------------------------------------------------
@@ -546,6 +593,6 @@ void qSlicerPlmDrrModuleWidget::onUpdatePlmDrrArgs()
     return;
   }
 
-  std::string args = d->logic()->GeneratePlastimatchDrrArgs( d->ReferenceVolumeNode, paramNode);
+  std::string args = d->logic()->GeneratePlastimatchDrrArgs( d->ReferenceVolumeNode, paramNode, d->DrrOptions);
   d->plainTextEdit_PlmDrrArgs->setPlainText(QString::fromStdString(args));
 }
