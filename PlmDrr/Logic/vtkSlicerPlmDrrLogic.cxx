@@ -108,7 +108,12 @@ void vtkSlicerPlmDrrLogic::RegisterNodes()
 //---------------------------------------------------------------------------
 void vtkSlicerPlmDrrLogic::UpdateFromMRMLScene()
 {
-  assert(this->GetMRMLScene() != 0);
+  vtkMRMLScene* scene = this->GetMRMLScene();
+  if (!scene)
+  {
+    vtkErrorMacro("UpdateFromMRMLScene: Invalid MRML scene");
+    return;
+  }
 }
 
 //---------------------------------------------------------------------------
@@ -158,12 +163,8 @@ bool vtkSlicerPlmDrrLogic::SaveVolumeNode( const vtkMRMLVolumeNode* volumeNode, 
 }
 
 //----------------------------------------------------------------------------
-bool vtkSlicerPlmDrrLogic::ComputeDRR(Drr_options* opts)
+bool vtkSlicerPlmDrrLogic::ComputeDRR(const Drr_options& opts)
 {
-  if (!opts)
-  {
-    return false;
-  }
   return true;
 }
 
@@ -817,7 +818,8 @@ vtkMRMLMarkupsFiducialNode* vtkSlicerPlmDrrLogic::CreateFiducials(vtkMRMLPlmDrrN
 }
 
 //----------------------------------------------------------------------------
-std::string vtkSlicerPlmDrrLogic::GeneratePlastimatchDrrArgs( vtkMRMLVolumeNode* volumeNode, vtkMRMLPlmDrrNode* parameterNode)
+std::string vtkSlicerPlmDrrLogic::GeneratePlastimatchDrrArgs( vtkMRMLVolumeNode* volumeNode, 
+  vtkMRMLPlmDrrNode* parameterNode, Drr_options& drrOptions)
 {
   if (!volumeNode)
   {
@@ -881,6 +883,24 @@ std::string vtkSlicerPlmDrrLogic::GeneratePlastimatchDrrArgs( vtkMRMLVolumeNode*
 //    -c "383.5 511.5" \
 //    -o "0 -20 -50" \
 //    -e -i uniform -O Out -t raw input_file.mha
+
+  // Imager resolution
+  drrOptions.detector_resolution[0] = res[1];
+  drrOptions.detector_resolution[1] = res[0];
+
+  // VUP vector
+  drrOptions.vup[0] = static_cast<float>(vup[0]);
+  drrOptions.vup[1] = static_cast<float>(vup[1]);
+  drrOptions.vup[2] = static_cast<float>(vup[2]);
+
+  // Imager normal vector
+  drrOptions.nrm[0] = static_cast<float>(n[0]);
+  drrOptions.nrm[1] = static_cast<float>(n[1]);
+  drrOptions.nrm[2] = static_cast<float>(n[2]);
+
+  // SAD, SID distance
+  drrOptions.sad = static_cast<float>(beamNode->GetSAD());
+  drrOptions.sid = static_cast<float>(beamNode->GetSAD() + parameterNode->GetIsocenterImagerDistance());
 
   std::ostringstream command;
   command << "plastimatch drr ";

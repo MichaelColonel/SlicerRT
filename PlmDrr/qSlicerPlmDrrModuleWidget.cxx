@@ -546,6 +546,6 @@ void qSlicerPlmDrrModuleWidget::onUpdatePlmDrrArgs()
     return;
   }
 
-  std::string args = d->logic()->GeneratePlastimatchDrrArgs( d->ReferenceVolumeNode, paramNode);
+  std::string args = d->logic()->GeneratePlastimatchDrrArgs( d->ReferenceVolumeNode, paramNode, d->DrrOptions);
   d->plainTextEdit_PlmDrrArgs->setPlainText(QString::fromStdString(args));
 }

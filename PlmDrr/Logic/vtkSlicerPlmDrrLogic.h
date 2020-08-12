@@ -65,9 +65,9 @@ public:
   void UpdateMarkupsNodes(vtkMRMLPlmDrrNode* parameterNode);
   
   bool SaveVolumeNode( const vtkMRMLVolumeNode* volumeNode, std::string& filename);
-  bool ComputeDRR(Drr_options* opts);
+  bool ComputeDRR(const Drr_options& opts);
   bool LoadDRR( vtkMRMLVolumeNode* volumeNode, const std::string& filename);
-  std::string GeneratePlastimatchDrrArgs( vtkMRMLVolumeNode* volumeNode, vtkMRMLPlmDrrNode* node);
+  std::string GeneratePlastimatchDrrArgs( vtkMRMLVolumeNode* volumeNode, vtkMRMLPlmDrrNode* node, Drr_options& opts);
 
 protected:
   vtkSlicerPlmDrrLogic();
