@@ -18,6 +18,9 @@
 #ifndef __qSlicerPlmDrrModuleWidget_h
 #define __qSlicerPlmDrrModuleWidget_h
 
+// Qt includes
+#include <QProcess>
+
 // SlicerQt includes
 #include <qSlicerAbstractModuleWidget.h>
 
@@ -65,7 +68,8 @@ protected slots:
   void onUpdateImageWindowFromBeamJaws();
   void onRotateZ(double);
   void onUpdatePlmDrrArgs();
-
+  void onPlatimatchDrrProcessStarted();
+  void onPlatimatchDrrProcessFinished( int, QProcess::ExitStatus);
 protected:
   QScopedPointer<qSlicerPlmDrrModuleWidgetPrivate> d_ptr;
 

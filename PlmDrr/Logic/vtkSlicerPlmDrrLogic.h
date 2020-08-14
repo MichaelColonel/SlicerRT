@@ -70,7 +70,7 @@ public:
   bool ComputeDRR(Drr_options* opts);
   bool LoadDRR( vtkMRMLScalarVolumeNode* volumeNode, const std::string& filename);
 
-  std::string GeneratePlastimatchDrrArgs( vtkMRMLVolumeNode* volumeNode, vtkMRMLPlmDrrNode* node, Drr_options& opts);
+  std::string GeneratePlastimatchDrrArgs( vtkMRMLVolumeNode* volumeNode, vtkMRMLPlmDrrNode* node, std::list< std::string >& plastimatchArguments/*, Drr_options& opts*/);
 
 protected:
   vtkSlicerPlmDrrLogic();
