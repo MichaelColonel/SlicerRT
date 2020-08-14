@@ -18,6 +18,7 @@
 // Qt includes
 #include <QDebug>
 #include <QDir>
+#include <QSettings>
 
 // SlicerQt includes
 #include <qSlicerCoreApplication.h>
@@ -42,7 +43,7 @@
 #include "vtkSlicerPlmDrrLogic.h"
 
 // Plastimatch includes
-#include <drr_options.h>
+//#include <drr_options.h>
 
 //-----------------------------------------------------------------------------
 /// \ingroup Slicer_QtModules_ExtensionTemplate
@@ -59,8 +60,11 @@ public:
 public:
   vtkMRMLRTBeamNode* RtBeamNode;
   vtkMRMLScalarVolumeNode* ReferenceVolumeNode;
-  Drr_options DrrOptions;
+//  Drr_options DrrOptions;
   bool ModuleWindowInitialized;
+  QProcess* m_PlastimatchProcess;
+  QString m_ReferenceVolumeFile;
+  std::list< std::string > PlastimatchArgs;
 };
 
 //-----------------------------------------------------------------------------
@@ -72,13 +76,19 @@ qSlicerPlmDrrModuleWidgetPrivate::qSlicerPlmDrrModuleWidgetPrivate(qSlicerPlmDrr
   q_ptr(&object),
   RtBeamNode(nullptr),
   ReferenceVolumeNode(nullptr),
-  ModuleWindowInitialized(false)
+  ModuleWindowInitialized(false),
+  m_PlastimatchProcess(nullptr)
 {
 }
 
 //-----------------------------------------------------------------------------
 qSlicerPlmDrrModuleWidgetPrivate::~qSlicerPlmDrrModuleWidgetPrivate()
 {
+  if (m_PlastimatchProcess)
+  {
+    delete m_PlastimatchProcess;
+    m_PlastimatchProcess = nullptr;
+  }
 }
 
 //-----------------------------------------------------------------------------
@@ -104,6 +114,15 @@ qSlicerPlmDrrModuleWidget::qSlicerPlmDrrModuleWidget(QWidget* _parent)
 //-----------------------------------------------------------------------------
 qSlicerPlmDrrModuleWidget::~qSlicerPlmDrrModuleWidget()
 {
+  Q_D(qSlicerPlmDrrModuleWidget);
+
+  QSettings* settings = qSlicerCoreApplication::application()->settings();
+
+  // Get plastimatch application path
+  QString plastimatchPath = d->LineEdit_PlastimatchAppPath->text();
+
+  // saving up the plastimatch path
+  settings->setValue( "SlicerRT/PlastimatchApplicationPath", plastimatchPath);
 }
 
 //-----------------------------------------------------------------------------
@@ -156,6 +175,22 @@ void qSlicerPlmDrrModuleWidget::setup()
 
   // Handle scene change event if occurs
   qvtkConnect( d->logic(), vtkCommand::ModifiedEvent, this, SLOT(onLogicModified()));
+
+  // Load default the plastimatch application path
+  QSettings* settings = qSlicerCoreApplication::application()->settings();
+  QString plastimatchPath;
+
+  // set up the plastimatch path
+  if (settings->value( "SlicerRT/PlastimatchApplicationPath", "") == "")
+  {
+    plastimatchPath = QString("./plastimatch");
+    qCritical() << Q_FUNC_INFO << "No Plastimatch path in settings.  Using \"" << qPrintable(plastimatchPath.toUtf8()) << "\".\n";
+  }
+  else
+  {
+    plastimatchPath = settings->value( "SlicerRT/PlastimatchApplicationPath", "").toString();
+    d->LineEdit_PlastimatchAppPath->setText(plastimatchPath);
+  }
 }
 
 //-----------------------------------------------------------------------------
@@ -207,6 +242,12 @@ void qSlicerPlmDrrModuleWidget::onRTBeamNodeChanged(vtkMRMLNode* node)
   }
 
   vtkMRMLRTBeamNode* beamNode = vtkMRMLRTBeamNode::SafeDownCast(node);
+  if (!beamNode)
+  {
+    qCritical() << Q_FUNC_INFO << "Beam node is invalid";
+    return;
+  }
+
   vtkMRMLRTIonBeamNode* ionBeamNode = vtkMRMLRTIonBeamNode::SafeDownCast(node);
   d->RtBeamNode = beamNode;
   Q_UNUSED(ionBeamNode);
@@ -231,6 +272,12 @@ void qSlicerPlmDrrModuleWidget::onReferenceVolumeNodeChanged(vtkMRMLNode* node)
 {
   Q_D(qSlicerPlmDrrModuleWidget);
   vtkMRMLScalarVolumeNode* volumeNode = vtkMRMLScalarVolumeNode::SafeDownCast(node);
+  if (!volumeNode)
+  {
+    qCritical() << Q_FUNC_INFO << "Reference volume node is invalid";
+    return;
+  }
+
   d->ReferenceVolumeNode = volumeNode;
   this->onUpdatePlmDrrArgs();
 }
@@ -251,8 +298,13 @@ void qSlicerPlmDrrModuleWidget::onSaveVolumeClicked()
     fileParameters["fileName"] = drrVolumeFileName;
     if (coreIOManager->saveNodes( "VolumeFile", fileParameters))
     {
-      d->DrrOptions.input_file = drrVolumeFileName.toStdString();
+      d->m_ReferenceVolumeFile = drrVolumeFileName;
       qDebug() << Q_FUNC_INFO << "Reference volume node written into temporary mha file";
+    }
+    else
+    {
+      d->m_ReferenceVolumeFile.clear();
+      qDebug() << Q_FUNC_INFO << "Unable save reference volume into temporary mha file";
     }
   }
 }
@@ -261,6 +313,45 @@ void qSlicerPlmDrrModuleWidget::onSaveVolumeClicked()
 void qSlicerPlmDrrModuleWidget::onComputeDrrClicked()
 {
   Q_D(qSlicerPlmDrrModuleWidget);
+
+  d->m_PlastimatchProcess = new QProcess();
+  connect( d->m_PlastimatchProcess, SIGNAL(started()), 
+    this, SLOT(onPlatimatchDrrProcessStarted()));
+  connect( d->m_PlastimatchProcess, SIGNAL(finished( int, QProcess::ExitStatus)), 
+    this, SLOT(onPlatimatchDrrProcessFinished( int, QProcess::ExitStatus)));
+
+  QStringList arguments;
+  for (const std::string& arg : d->PlastimatchArgs)
+  {
+    arguments << arg;
+  }
+  arguments << d->m_ReferenceVolumeFile;
+
+  qDebug() << d->LineEdit_PlastimatchAppPath->text();
+  for (auto& string : arguments)
+  {
+    qDebug() << string;
+  }
+  
+  d->m_PlastimatchProcess->start( d->LineEdit_PlastimatchAppPath->text(), arguments);
+}
+
+//-----------------------------------------------------------------------------
+void qSlicerPlmDrrModuleWidget::onPlatimatchDrrProcessStarted()
+{
+  Q_D(qSlicerPlmDrrModuleWidget);
+  qDebug() << Q_FUNC_INFO << "Process has been started.";
+}
+
+//-----------------------------------------------------------------------------
+void qSlicerPlmDrrModuleWidget::onPlatimatchDrrProcessFinished( int exitCode, QProcess::ExitStatus exitStatus)
+{
+  Q_D(qSlicerPlmDrrModuleWidget);
+  qDebug() << Q_FUNC_INFO << exitCode << " Process has been finished.";
+  if (exitCode == 0)
+  {
+    delete d->m_PlastimatchProcess;
+  }
 }
 
 //-----------------------------------------------------------------------------
@@ -286,7 +377,7 @@ void qSlicerPlmDrrModuleWidget::onLoadDrrClicked()
     
     mhdName = fileInfo.absoluteFilePath().toStdString();
     std::ofstream ofs(mhdName.c_str());
-
+/*
     ofs << "NDims = 3\n";
     ofs << "DimSize = " << d->DrrOptions.detector_resolution[0] 
       << ' ' << d->DrrOptions.detector_resolution[1] << " 1\n";
@@ -298,6 +389,7 @@ void qSlicerPlmDrrModuleWidget::onLoadDrrClicked()
     ofs << "ElementType = MET_LONG\n";
     ofs << "ElementDataFile = " << fileName.toStdString() << '\n';
     ofs.close();
+*/
   }
   
   if (mhdName.empty())
@@ -403,7 +495,6 @@ void qSlicerPlmDrrModuleWidget::onEnter()
 
   // Select or create parameter node
   this->setMRMLScene(this->mrmlScene());
-
 
   vtkMRMLPlmDrrNode* paramNode = vtkMRMLPlmDrrNode::SafeDownCast(d->MRMLNodeComboBox_ParameterNode->currentNode());
   if (!paramNode)
@@ -593,6 +684,6 @@ void qSlicerPlmDrrModuleWidget::onUpdatePlmDrrArgs()
     return;
   }
 
-  std::string args = d->logic()->GeneratePlastimatchDrrArgs( d->ReferenceVolumeNode, paramNode, d->DrrOptions);
-  d->plainTextEdit_PlmDrrArgs->setPlainText(QString::fromStdString(args));
+  std::string command = d->logic()->GeneratePlastimatchDrrArgs( d->ReferenceVolumeNode, paramNode, d->PlastimatchArgs/*, d->DrrOptions*/);
+  d->plainTextEdit_PlmDrrArgs->setPlainText(QString::fromStdString(command));
 }

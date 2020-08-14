@@ -176,7 +176,7 @@ bool vtkSlicerPlmDrrLogic::ComputeDRR(Drr_options* opts)
     vtkErrorMacro("ComputeDRR: DRR options pointer is invalid");
   }
   
-  drr_compute(opts);
+//  drr_compute(opts);
   return true;
 }
 
@@ -862,7 +862,7 @@ vtkMRMLMarkupsFiducialNode* vtkSlicerPlmDrrLogic::CreateFiducials(vtkMRMLPlmDrrN
 
 //----------------------------------------------------------------------------
 std::string vtkSlicerPlmDrrLogic::GeneratePlastimatchDrrArgs( vtkMRMLVolumeNode* volumeNode, 
-  vtkMRMLPlmDrrNode* parameterNode, Drr_options& drrOptions)
+  vtkMRMLPlmDrrNode* parameterNode, std::list< std::string >& plastimatchArguments/*, Drr_options& drrOptions */)
 {
   if (!volumeNode)
   {
@@ -926,6 +926,44 @@ std::string vtkSlicerPlmDrrLogic::GeneratePlastimatchDrrArgs( vtkMRMLVolumeNode*
 //    -c "383.5 511.5" \
 //    -o "0 -20 -50" \
 //    -e -i uniform -O Out -t raw input_file.mha
+/*
+  drrOptions.threading = THREADING_CPU_SINGLE;
+  drrOptions.detector_resolution[0] = 128;
+  drrOptions.detector_resolution[1] = 128;
+  drrOptions.image_size[0] = 600;
+  drrOptions.image_size[1] = 600;
+  drrOptions.have_image_center = 0;
+  drrOptions.have_image_window = 0;
+  drrOptions.isocenter[0] = 0.0f;
+  drrOptions.isocenter[1] = 0.0f;
+  drrOptions.isocenter[2] = 0.0f;
+
+  drrOptions.start_angle = 0.f;
+  drrOptions.num_angles = 1;
+  drrOptions.have_angle_diff = 0;
+  drrOptions.angle_diff = 1.0f;
+
+  drrOptions.have_nrm = 0;
+  drrOptions.nrm[0] = 1.0f;
+  drrOptions.nrm[1] = 0.0f;
+  drrOptions.nrm[2] = 0.0f;
+  drrOptions.vup[0] = 0.0f;
+  drrOptions.vup[1] = 0.0f;
+  drrOptions.vup[2] = 1.0f;
+
+  drrOptions.sad = 1000.0f;
+  drrOptions.sid = 1630.0f;
+  drrOptions.manual_scale = 1.0f;
+
+  drrOptions.exponential_mapping = 0;
+  drrOptions.output_format= OUTPUT_FORMAT_PFM;
+  drrOptions.hu_conversion = PREPROCESS_CONVERSION;
+  drrOptions.output_details_prefix = "";
+  drrOptions.output_details_fn = "";
+  drrOptions.algorithm = DRR_ALGORITHM_EXACT;
+  drrOptions.input_file = "";
+  drrOptions.geometry_only = 0;
+  drrOptions.output_prefix = "out_";
 
   // Imager resolution
   drrOptions.detector_resolution[0] = res[1];
@@ -973,7 +1011,7 @@ std::string vtkSlicerPlmDrrLogic::GeneratePlastimatchDrrArgs( vtkMRMLVolumeNode*
   drrOptions.output_format = OUTPUT_FORMAT_RAW;
   // Output prefix
   drrOptions.output_prefix = "Out";
-
+*/
   std::ostringstream command;
   command << "plastimatch drr ";
   command << "--nrm" << " \"" << n[0] << " " << n[1] << " " << n[2] << "\" \\" << "\n";
@@ -985,6 +1023,56 @@ std::string vtkSlicerPlmDrrLogic::GeneratePlastimatchDrrArgs( vtkMRMLVolumeNode*
   command << "\t-o" << " \"" << isocenter[0] << " " << isocenter[1] << " " << isocenter[2] << "\" \\" << "\n";
   command << "\t-w" << " \"" << window[1] << " " << window[3] << " " << window[0] << " " << window[2] << "\" \\" << "\n";
   command << "\t-e -i uniform -O Out -t raw";
+
+  plastimatchArguments.clear();
+  plastimatchArguments.push_back("drr");
+  plastimatchArguments.push_back("--nrm");
+  std::ostringstream arg1;
+  arg1 << char('"') << n[0] << " " << n[1] << " " << n[2] << char('"');
+  plastimatchArguments.push_back(arg1.str());
+  
+  plastimatchArguments.push_back("--vup");
+  std::ostringstream arg2;
+  arg2 << char('"') << vup[0] << " " << vup[1] << " " << vup[2] << char('"');
+  plastimatchArguments.push_back(arg2.str());
+
+  plastimatchArguments.push_back("--sad");
+  plastimatchArguments.push_back(std::to_string(beamNode->GetSAD()));
+  plastimatchArguments.push_back("--sid");
+  plastimatchArguments.push_back(std::to_string(beamNode->GetSAD() + parameterNode->GetIsocenterImagerDistance()));
+
+  plastimatchArguments.push_back("-r");
+  std::ostringstream arg3;
+  arg3 << char('"') << res[1] << " " << res[0] << char('"');
+  plastimatchArguments.push_back(arg3.str());
+
+  plastimatchArguments.push_back("-z");
+  std::ostringstream arg4;
+  arg4 << char('"') << res[1] * spacing[1] << " " << res[0] * spacing[0] << char('"');
+  plastimatchArguments.push_back(arg4.str());
+
+  plastimatchArguments.push_back("-c");
+  std::ostringstream arg5;
+  arg5 << char('"') << double(res[1]) / 2. << " " << double(res[0]) / 2. << char('"');
+  plastimatchArguments.push_back(arg5.str());
+  
+  plastimatchArguments.push_back("-o");
+  std::ostringstream arg6;
+  arg6 << char('"') << isocenter[0] << " " << isocenter[1] << " " << isocenter[2] << char('"');
+  plastimatchArguments.push_back(arg6.str());
+
+  plastimatchArguments.push_back("-w");
+  std::ostringstream arg7;
+  arg7 << char('"') << window[1] << " " << window[3] << " " << window[0] << " " << window[2] << char('"');
+  plastimatchArguments.push_back(arg7.str());
+
+  plastimatchArguments.push_back("-e");
+  plastimatchArguments.push_back("-i");
+  plastimatchArguments.push_back("uniform");
+  plastimatchArguments.push_back("-O");
+  plastimatchArguments.push_back("Out");
+  plastimatchArguments.push_back("-t");
+  plastimatchArguments.push_back("raw");
 
   return command.str();
 }
