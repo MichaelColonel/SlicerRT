@@ -323,16 +323,11 @@ void qSlicerPlmDrrModuleWidget::onComputeDrrClicked()
   QStringList arguments;
   for (const std::string& arg : d->PlastimatchArgs)
   {
-    arguments << arg;
+    arguments << QString::fromStdString(arg);
   }
   arguments << d->m_ReferenceVolumeFile;
 
-  qDebug() << d->LineEdit_PlastimatchAppPath->text();
-  for (auto& string : arguments)
-  {
-    qDebug() << string;
-  }
-  
+  d->m_PlastimatchProcess->setWorkingDirectory(qSlicerCoreApplication::application()->temporaryPath());
   d->m_PlastimatchProcess->start( d->LineEdit_PlastimatchAppPath->text(), arguments);
 }
 
@@ -684,6 +679,6 @@ void qSlicerPlmDrrModuleWidget::onUpdatePlmDrrArgs()
     return;
   }
 
-  std::string command = d->logic()->GeneratePlastimatchDrrArgs( d->ReferenceVolumeNode, paramNode, d->PlastimatchArgs/*, d->DrrOptions*/);
-  d->plainTextEdit_PlmDrrArgs->setPlainText(QString::fromStdString(command));
+  std::string args = d->logic()->GeneratePlastimatchDrrArgs( d->ReferenceVolumeNode, paramNode, d->PlastimatchArgs);
+  d->plainTextEdit_PlmDrrArgs->setPlainText(QString::fromStdString(args));
 }

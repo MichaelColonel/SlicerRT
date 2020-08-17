@@ -1028,12 +1028,12 @@ std::string vtkSlicerPlmDrrLogic::GeneratePlastimatchDrrArgs( vtkMRMLVolumeNode*
   plastimatchArguments.push_back("drr");
   plastimatchArguments.push_back("--nrm");
   std::ostringstream arg1;
-  arg1 << char('"') << n[0] << " " << n[1] << " " << n[2] << char('"');
+  arg1 << /*char('"') << */n[0] << " " << n[1] << " " << n[2]/* << char('"')*/;
   plastimatchArguments.push_back(arg1.str());
   
   plastimatchArguments.push_back("--vup");
   std::ostringstream arg2;
-  arg2 << char('"') << vup[0] << " " << vup[1] << " " << vup[2] << char('"');
+  arg2 << /*char('"') << */vup[0] << " " << vup[1] << " " << vup[2]/* << char('"')*/;
   plastimatchArguments.push_back(arg2.str());
 
   plastimatchArguments.push_back("--sad");
@@ -1043,27 +1043,27 @@ std::string vtkSlicerPlmDrrLogic::GeneratePlastimatchDrrArgs( vtkMRMLVolumeNode*
 
   plastimatchArguments.push_back("-r");
   std::ostringstream arg3;
-  arg3 << char('"') << res[1] << " " << res[0] << char('"');
+  arg3 << /*char('"') << */res[1] << " " << res[0]/* << char('"')*/;
   plastimatchArguments.push_back(arg3.str());
 
   plastimatchArguments.push_back("-z");
   std::ostringstream arg4;
-  arg4 << char('"') << res[1] * spacing[1] << " " << res[0] * spacing[0] << char('"');
+  arg4 << /*char('"') << */res[1] * spacing[1] << " " << res[0] * spacing[0]/* << char('"')*/;
   plastimatchArguments.push_back(arg4.str());
 
   plastimatchArguments.push_back("-c");
   std::ostringstream arg5;
-  arg5 << char('"') << double(res[1]) / 2. << " " << double(res[0]) / 2. << char('"');
+  arg5 << /*char('"') << */double(res[1]) / 2. << " " << double(res[0]) / 2./* << char('"')*/;
   plastimatchArguments.push_back(arg5.str());
   
   plastimatchArguments.push_back("-o");
   std::ostringstream arg6;
-  arg6 << char('"') << isocenter[0] << " " << isocenter[1] << " " << isocenter[2] << char('"');
+  arg6 << /*char('"') << */isocenter[0] << " " << isocenter[1] << " " << isocenter[2]/* << char('"')*/;
   plastimatchArguments.push_back(arg6.str());
 
   plastimatchArguments.push_back("-w");
   std::ostringstream arg7;
-  arg7 << char('"') << window[1] << " " << window[3] << " " << window[0] << " " << window[2] << char('"');
+  arg7 << /*char('"') << */window[1] << " " << window[3] << " " << window[0] << " " << window[2]/* << char('"')*/;
   plastimatchArguments.push_back(arg7.str());
 
   plastimatchArguments.push_back("-e");
