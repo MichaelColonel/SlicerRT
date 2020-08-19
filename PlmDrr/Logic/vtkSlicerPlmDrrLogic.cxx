@@ -169,18 +169,6 @@ bool vtkSlicerPlmDrrLogic::SaveVolumeNode( const vtkMRMLVolumeNode* volumeNode, 
 }
 
 //----------------------------------------------------------------------------
-bool vtkSlicerPlmDrrLogic::ComputeDRR(Drr_options* opts)
-{
-  if (!opts)
-  {
-    vtkErrorMacro("ComputeDRR: DRR options pointer is invalid");
-  }
-  
-//  drr_compute(opts);
-  return true;
-}
-
-//----------------------------------------------------------------------------
 bool vtkSlicerPlmDrrLogic::LoadDRR( vtkMRMLScalarVolumeNode* volumeNode, const std::string& filename)
 {
   if (filename.empty())
@@ -862,7 +850,7 @@ vtkMRMLMarkupsFiducialNode* vtkSlicerPlmDrrLogic::CreateFiducials(vtkMRMLPlmDrrN
 
 //----------------------------------------------------------------------------
 std::string vtkSlicerPlmDrrLogic::GeneratePlastimatchDrrArgs( vtkMRMLVolumeNode* volumeNode, 
-  vtkMRMLPlmDrrNode* parameterNode, std::list< std::string >& plastimatchArguments/*, Drr_options& drrOptions */)
+  vtkMRMLPlmDrrNode* parameterNode, std::list< std::string >& plastimatchArguments)
 {
   if (!volumeNode)
   {
@@ -1028,12 +1016,12 @@ std::string vtkSlicerPlmDrrLogic::GeneratePlastimatchDrrArgs( vtkMRMLVolumeNode*
   plastimatchArguments.push_back("drr");
   plastimatchArguments.push_back("--nrm");
   std::ostringstream arg1;
-  arg1 << /*char('"') << */n[0] << " " << n[1] << " " << n[2]/* << char('"')*/;
+  arg1 << n[0] << " " << n[1] << " " << n[2];
   plastimatchArguments.push_back(arg1.str());
   
   plastimatchArguments.push_back("--vup");
   std::ostringstream arg2;
-  arg2 << /*char('"') << */vup[0] << " " << vup[1] << " " << vup[2]/* << char('"')*/;
+  arg2 << vup[0] << " " << vup[1] << " " << vup[2];
   plastimatchArguments.push_back(arg2.str());
 
   plastimatchArguments.push_back("--sad");
@@ -1043,27 +1031,27 @@ std::string vtkSlicerPlmDrrLogic::GeneratePlastimatchDrrArgs( vtkMRMLVolumeNode*
 
   plastimatchArguments.push_back("-r");
   std::ostringstream arg3;
-  arg3 << /*char('"') << */res[1] << " " << res[0]/* << char('"')*/;
+  arg3 << res[1] << " " << res[0];
   plastimatchArguments.push_back(arg3.str());
 
   plastimatchArguments.push_back("-z");
   std::ostringstream arg4;
-  arg4 << /*char('"') << */res[1] * spacing[1] << " " << res[0] * spacing[0]/* << char('"')*/;
+  arg4 << res[1] * spacing[1] << " " << res[0] * spacing[0];
   plastimatchArguments.push_back(arg4.str());
 
   plastimatchArguments.push_back("-c");
   std::ostringstream arg5;
-  arg5 << /*char('"') << */double(res[1]) / 2. << " " << double(res[0]) / 2./* << char('"')*/;
+  arg5 << double(res[1]) / 2. << " " << double(res[0]) / 2.;
   plastimatchArguments.push_back(arg5.str());
   
   plastimatchArguments.push_back("-o");
   std::ostringstream arg6;
-  arg6 << /*char('"') << */isocenter[0] << " " << isocenter[1] << " " << isocenter[2]/* << char('"')*/;
+  arg6 << isocenter[0] << " " << isocenter[1] << " " << isocenter[2];
   plastimatchArguments.push_back(arg6.str());
 
   plastimatchArguments.push_back("-w");
   std::ostringstream arg7;
-  arg7 << /*char('"') << */window[1] << " " << window[3] << " " << window[0] << " " << window[2]/* << char('"')*/;
+  arg7 << window[1] << " " << window[3] << " " << window[0] << " " << window[2];
   plastimatchArguments.push_back(arg7.str());
 
   plastimatchArguments.push_back("-e");

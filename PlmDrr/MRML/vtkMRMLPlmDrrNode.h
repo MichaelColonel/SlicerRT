@@ -37,6 +37,10 @@ class vtkMRMLMarkupsLineNode;
 class VTK_SLICER_PLMDRR_MODULE_MRML_EXPORT vtkMRMLPlmDrrNode : public vtkMRMLNode
 {
 public:
+  enum AlgorithmReconstuctionType { EXACT, UNIFORM };
+  enum HounsfieldUnitsConversionType { PREPROCESS, INLINE, NONE };
+  enum ThreadingType { CPU, CUDA, OPENCL };
+
   static vtkMRMLPlmDrrNode *New();
   vtkTypeMacro(vtkMRMLPlmDrrNode,vtkMRMLNode);
   void PrintSelf(ostream& os, vtkIndent indent) override;
@@ -45,7 +49,7 @@ public:
   vtkMRMLNode* CreateNodeInstance() override;
 
   /// Set node attributes from name/value pairs 
-  void ReadXMLAttributes( const char** atts) override;
+  void ReadXMLAttributes(const char** atts) override;
 
   /// Write this node's information to a MRML file in XML format. 
   void WriteXML(ostream& of, int indent) override;
@@ -106,6 +110,14 @@ protected:
   double RotateX; // not used
   double RotateY; // not used
   double RotateZ;
+  AlgorithmReconstuctionType AlgorithmType;
+  HounsfieldUnitsConversionType ConversionType;
+  ThreadingType ThreadType;
+  bool ExponentialMapping;
+  struct {
+    bool AutoscaleFlag;
+    int AutoScaleRange[2];
+  } Autoscale;
 };
 
 #endif

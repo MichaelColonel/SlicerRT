@@ -45,6 +45,12 @@
 // Plastimatch includes
 //#include <drr_options.h>
 
+#define INPUT_VOLUME_FILE "inputVolumeFile"
+#define OUTPUT_VOLUME_FILE "Out0000"
+#define INPUT_MHA_FILE (INPUT_VOLUME_FILE ".mha")
+#define OUTPUT_MHD_FILE (OUTPUT_VOLUME_FILE ".mhd")
+#define OUTPUT_RAW_FILE (OUTPUT_VOLUME_FILE ".raw")
+
 //-----------------------------------------------------------------------------
 /// \ingroup Slicer_QtModules_ExtensionTemplate
 class qSlicerPlmDrrModuleWidgetPrivate: public Ui_qSlicerPlmDrrModuleWidget
@@ -60,7 +66,6 @@ public:
 public:
   vtkMRMLRTBeamNode* RtBeamNode;
   vtkMRMLScalarVolumeNode* ReferenceVolumeNode;
-//  Drr_options DrrOptions;
   bool ModuleWindowInitialized;
   QProcess* m_PlastimatchProcess;
   QString m_ReferenceVolumeFile;
@@ -191,6 +196,8 @@ void qSlicerPlmDrrModuleWidget::setup()
     plastimatchPath = settings->value( "SlicerRT/PlastimatchApplicationPath", "").toString();
     d->LineEdit_PlastimatchAppPath->setText(plastimatchPath);
   }
+  qDebug() << Q_FUNC_INFO << INPUT_VOLUME_FILE << " " << INPUT_MHA_FILE << " " << \
+    OUTPUT_MHD_FILE << " " << OUTPUT_RAW_FILE;
 }
 
 //-----------------------------------------------------------------------------
@@ -292,7 +299,7 @@ void qSlicerPlmDrrModuleWidget::onSaveVolumeClicked()
     qSlicerCoreIOManager* coreIOManager = qSlicerCoreApplication::application()->coreIOManager();
     qSlicerIO::IOProperties fileParameters;
     QDir dir(qSlicerCoreApplication::application()->temporaryPath());
-    QString drrVolumeFileName = dir.absoluteFilePath("inputDrrVolume.mha");
+    QString drrVolumeFileName = dir.absoluteFilePath(INPUT_MHA_FILE);
 
     fileParameters["nodeID"] = d->ReferenceVolumeNode->GetID();
     fileParameters["fileName"] = drrVolumeFileName;
@@ -354,6 +361,12 @@ void qSlicerPlmDrrModuleWidget::onLoadDrrClicked()
 {
   Q_D(qSlicerPlmDrrModuleWidget);
 
+  vtkMRMLPlmDrrNode* paramNode = vtkMRMLPlmDrrNode::SafeDownCast(d->MRMLNodeComboBox_ParameterNode->currentNode());
+  if (!paramNode || !d->ModuleWindowInitialized)
+  {
+    return;
+  }
+
   // Get DRR raw image file
   QDir dir(qSlicerCoreApplication::application()->temporaryPath());
   QStringList filters;
@@ -368,23 +381,29 @@ void qSlicerPlmDrrModuleWidget::onLoadDrrClicked()
     QString baseName = fileInfo.baseName();
     QString mhdFileName = baseName + ".mhd";
 
-    fileInfo.setFile( dir, mhdFileName);
+    qDebug() << Q_FUNC_INFO << mhdFileName;
+    if (mhdFileName == OUTPUT_MHD_FILE)
+    {
+      fileInfo.setFile( dir, mhdFileName);
     
-    mhdName = fileInfo.absoluteFilePath().toStdString();
-    std::ofstream ofs(mhdName.c_str());
-/*
-    ofs << "NDims = 3\n";
-    ofs << "DimSize = " << d->DrrOptions.detector_resolution[0] 
-      << ' ' << d->DrrOptions.detector_resolution[1] << " 1\n";
-    ofs << "ElementSpacing = " << d->DrrOptions.image_size[0] / d->DrrOptions.detector_resolution[0] 
-      << ' ' << d->DrrOptions.image_size[1] / d->DrrOptions.detector_resolution[1] << " 1\n";
-    ofs << "Position = 0 0 0\n";
-    ofs << "BinaryData = True\n";
-    ofs << "ElementByteOrderMSB = False\n";
-    ofs << "ElementType = MET_LONG\n";
-    ofs << "ElementDataFile = " << fileName.toStdString() << '\n';
-    ofs.close();
-*/
+      mhdName = fileInfo.absoluteFilePath().toStdString();
+      std::ofstream ofs(mhdName.c_str());
+
+      int res[2];
+      paramNode->GetImageDimention(res);
+      double spacing[2];
+      paramNode->GetImageSpacing(spacing);
+
+      ofs << "NDims = 3\n";
+      ofs << "DimSize = " << res[1] << " " << res[0] << " 1\n";
+      ofs << "ElementSpacing = " << spacing[1] << " " << spacing[1] << " 1\n";
+      ofs << "Position = 0 0 0\n";
+      ofs << "BinaryData = True\n";
+      ofs << "ElementByteOrderMSB = False\n";
+      ofs << "ElementType = MET_LONG\n";
+      ofs << "ElementDataFile = " << fileName.toStdString() << '\n';
+      ofs.close();
+    }
   }
   
   if (mhdName.empty())

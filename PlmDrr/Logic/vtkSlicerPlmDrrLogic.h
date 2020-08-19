@@ -34,7 +34,6 @@
 
 #include "vtkSlicerPlmDrrModuleLogicExport.h"
 
-class Drr_options;
 class vtkMRMLVolumeNode;
 class vtkMRMLScalarVolumeNode;
 
@@ -67,10 +66,10 @@ public:
   
   bool SaveVolumeNode( const vtkMRMLVolumeNode* volumeNode, std::string& filename);
 
-  bool ComputeDRR(Drr_options* opts);
   bool LoadDRR( vtkMRMLScalarVolumeNode* volumeNode, const std::string& filename);
 
-  std::string GeneratePlastimatchDrrArgs( vtkMRMLVolumeNode* volumeNode, vtkMRMLPlmDrrNode* node, std::list< std::string >& arguments/*, Drr_options& opts*/);
+  std::string GeneratePlastimatchDrrArgs( vtkMRMLVolumeNode* volumeNode, 
+    vtkMRMLPlmDrrNode* node, std::list< std::string >& arguments);
 
 protected:
   vtkSlicerPlmDrrLogic();
