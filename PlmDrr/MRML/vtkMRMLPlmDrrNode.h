@@ -57,6 +57,9 @@ public:
   /// Copy the node's attributes to this object 
   void Copy(vtkMRMLNode *node) override;
 
+  /// Copy node content (excludes basic data, such a name and node reference)
+  vtkMRMLCopyContentMacro(vtkMRMLRTPlanNode);
+
   /// Get unique node XML tag name (like Volume, Model) 
   const char* GetNodeTagName() override { return "PlmDrr"; };
 
@@ -66,6 +69,24 @@ public:
   vtkMRMLRTBeamNode* GetBeamNode();
   /// Set and observe beam node
   void SetAndObserveBeamNode(vtkMRMLRTBeamNode* node);
+
+  vtkGetMacro(AlgorithmReconstuction, AlgorithmReconstuctionType);
+  vtkSetMacro(AlgorithmReconstuction, AlgorithmReconstuctionType);
+
+  vtkGetMacro(HUConversion, HounsfieldUnitsConversionType);
+  vtkSetMacro(HUConversion, HounsfieldUnitsConversionType);
+
+  vtkGetMacro(Threading, ThreadingType);
+  vtkSetMacro(Threading, ThreadingType);
+
+  vtkGetMacro(ExponentialMappingFlag, bool);
+  vtkSetMacro(ExponentialMappingFlag, bool);
+
+  vtkGetMacro(AutoscaleFlag, bool);
+  vtkSetMacro(AutoscaleFlag, bool);
+
+  vtkGetVector2Macro(AutoscaleRange, int);
+  vtkSetVector2Macro(AutoscaleRange, int);
 
   vtkGetMacro(IsocenterImagerDistance, double);
   vtkSetMacro(IsocenterImagerDistance, double);
@@ -110,14 +131,12 @@ protected:
   double RotateX; // not used
   double RotateY; // not used
   double RotateZ;
-  AlgorithmReconstuctionType AlgorithmType;
-  HounsfieldUnitsConversionType ConversionType;
-  ThreadingType ThreadType;
-  bool ExponentialMapping;
-  struct {
-    bool AutoscaleFlag;
-    int AutoScaleRange[2];
-  } Autoscale;
+  AlgorithmReconstuctionType AlgorithmReconstuction;
+  HounsfieldUnitsConversionType HUConversion;
+  ThreadingType Threading;
+  bool ExponentialMappingFlag;
+  bool AutoscaleFlag;
+  int AutoscaleRange[2];
 };
 
 #endif

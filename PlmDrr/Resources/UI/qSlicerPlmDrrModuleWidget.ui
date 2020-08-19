@@ -13,7 +13,7 @@
   <property name="windowTitle">
    <string>Form</string>
   </property>
-  <layout class="QGridLayout" name="gridLayout">
+  <layout class="QGridLayout" name="gridLayout_7">
    <item row="1" column="0" colspan="2">
     <widget class="QLabel" name="label_10">
      <property name="text">
@@ -34,7 +34,7 @@
    <item row="2" column="2" colspan="2">
     <widget class="qMRMLNodeComboBox" name="MRMLNodeComboBox_ReferenceVolume"/>
    </item>
-   <item row="3" column="0" colspan="2">
+   <item row="3" column="0">
     <widget class="QLabel" name="label">
      <property name="text">
       <string>RT beam:</string>
@@ -45,9 +45,12 @@
     <widget class="qMRMLNodeComboBox" name="MRMLNodeComboBox_RtBeam"/>
    </item>
    <item row="4" column="0" colspan="4">
-    <widget class="ctkCollapsibleButton" name="CollapsibleButton_BasicParameters">
+    <widget class="ctkCollapsibleButton" name="CollapsibleButton_GeometryBasicParameters">
      <property name="text">
-      <string>Basic parameters</string>
+      <string>Geometry basic parameters</string>
+     </property>
+     <property name="collapsed">
+      <bool>false</bool>
      </property>
      <layout class="QGridLayout" name="gridLayout_3">
       <item row="0" column="0">
@@ -261,10 +264,13 @@
      </layout>
     </widget>
    </item>
-   <item row="5" column="0" colspan="4">
+   <item row="6" column="0" colspan="4">
     <widget class="ctkCollapsibleButton" name="CollapsibleButton_PlmDrrArgs">
      <property name="text">
       <string>Plastimatch DRR args</string>
+     </property>
+     <property name="collapsed">
+      <bool>true</bool>
      </property>
      <layout class="QVBoxLayout" name="verticalLayout_3">
       <item>
@@ -273,21 +279,21 @@
      </layout>
     </widget>
    </item>
-   <item row="6" column="0">
+   <item row="7" column="0">
     <widget class="QPushButton" name="PushButton_SaveVolume">
      <property name="text">
       <string>Save volume</string>
      </property>
     </widget>
    </item>
-   <item row="6" column="1" colspan="2">
+   <item row="7" column="1" colspan="2">
     <widget class="QPushButton" name="PushButton_ComputeDrr">
      <property name="text">
       <string>Compute DRR</string>
      </property>
     </widget>
    </item>
-   <item row="6" column="3">
+   <item row="7" column="3">
     <widget class="QPushButton" name="PushButton_LoadDrr">
      <property name="text">
       <string>Load resulted DRR image</string>
@@ -317,6 +323,153 @@
      </layout>
     </widget>
    </item>
+   <item row="5" column="0" colspan="4">
+    <widget class="ctkCollapsibleButton" name="CollapsibleButton_PlmDrrImageProcessing">
+     <property name="text">
+      <string>Plastimatch DRR image processing</string>
+     </property>
+     <property name="collapsed">
+      <bool>true</bool>
+     </property>
+     <layout class="QGridLayout" name="gridLayout_6">
+      <item row="1" column="0">
+       <layout class="QVBoxLayout" name="verticalLayout">
+        <item>
+         <widget class="QGroupBox" name="GroupBox_Autoscale">
+          <property name="title">
+           <string>Autoscale</string>
+          </property>
+          <layout class="QGridLayout" name="gridLayout_8">
+           <item row="1" column="0">
+            <widget class="QCheckBox" name="CheckBox_AutoscaleWithRange">
+             <property name="enabled">
+              <bool>false</bool>
+             </property>
+             <property name="text">
+              <string>With range</string>
+             </property>
+             <property name="checked">
+              <bool>false</bool>
+             </property>
+            </widget>
+           </item>
+           <item row="0" column="0">
+            <widget class="QCheckBox" name="CheckBox_AutoscalePixelsRange">
+             <property name="text">
+              <string>Autoscale pixel's range</string>
+             </property>
+             <property name="checked">
+              <bool>false</bool>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="1">
+            <widget class="ctkRangeWidget" name="RangeWidget">
+             <property name="enabled">
+              <bool>false</bool>
+             </property>
+             <property name="decimals">
+              <number>0</number>
+             </property>
+             <property name="maximum">
+              <double>65535.000000000000000</double>
+             </property>
+             <property name="maximumValue">
+              <double>255.000000000000000</double>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </widget>
+        </item>
+        <item>
+         <widget class="QGroupBox" name="GroupBox_ReconstuctionAlgorithm">
+          <property name="title">
+           <string>Reconstruction algorithm</string>
+          </property>
+          <layout class="QGridLayout" name="gridLayout_5">
+           <item row="0" column="0">
+            <widget class="QRadioButton" name="RadioButton_Exact">
+             <property name="text">
+              <string>Exact</string>
+             </property>
+            </widget>
+           </item>
+           <item row="0" column="1">
+            <widget class="QRadioButton" name="RadioButton_Uniform">
+             <property name="text">
+              <string>Uniform</string>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </widget>
+        </item>
+        <item>
+         <widget class="QGroupBox" name="GroupBox_HounsfieldConversion">
+          <property name="title">
+           <string>Hounsfield conversion</string>
+          </property>
+          <layout class="QGridLayout" name="gridLayout_4">
+           <item row="0" column="0">
+            <widget class="QRadioButton" name="RadioButton_Preprocess">
+             <property name="text">
+              <string>Preprocess</string>
+             </property>
+            </widget>
+           </item>
+           <item row="0" column="1">
+            <widget class="QRadioButton" name="RadioButton_Inline">
+             <property name="text">
+              <string>Inline</string>
+             </property>
+            </widget>
+           </item>
+           <item row="0" column="2">
+            <widget class="QRadioButton" name="RadioButton_None">
+             <property name="text">
+              <string>None</string>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </widget>
+        </item>
+        <item>
+         <widget class="QGroupBox" name="GroupBox_Threading">
+          <property name="title">
+           <string>Threading</string>
+          </property>
+          <layout class="QGridLayout" name="gridLayout">
+           <item row="0" column="0">
+            <widget class="QRadioButton" name="RadioButton_CPU">
+             <property name="text">
+              <string>CPU</string>
+             </property>
+            </widget>
+           </item>
+           <item row="0" column="1">
+            <widget class="QRadioButton" name="RadioButton_CUDA">
+             <property name="text">
+              <string>CUDA</string>
+             </property>
+            </widget>
+           </item>
+           <item row="0" column="2">
+            <widget class="QRadioButton" name="RadioButton_OpenCL">
+             <property name="text">
+              <string>OpenCL</string>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </widget>
+        </item>
+       </layout>
+      </item>
+     </layout>
+    </widget>
+   </item>
   </layout>
  </widget>
  <customwidgets>
@@ -330,6 +483,11 @@
    <class>ctkCoordinatesWidget</class>
    <extends>QWidget</extends>
    <header>ctkCoordinatesWidget.h</header>
+  </customwidget>
+  <customwidget>
+   <class>ctkRangeWidget</class>
+   <extends>QWidget</extends>
+   <header>ctkRangeWidget.h</header>
   </customwidget>
   <customwidget>
    <class>ctkSliderWidget</class>
