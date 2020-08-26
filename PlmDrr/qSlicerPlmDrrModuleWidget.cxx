@@ -349,10 +349,104 @@ void qSlicerPlmDrrModuleWidget::onPlatimatchDrrProcessStarted()
 void qSlicerPlmDrrModuleWidget::onPlatimatchDrrProcessFinished( int exitCode, QProcess::ExitStatus exitStatus)
 {
   Q_D(qSlicerPlmDrrModuleWidget);
-  qDebug() << Q_FUNC_INFO << exitCode << " Process has been finished.";
-  if (exitCode == 0)
+
+  if (exitCode == EXIT_SUCCESS && exitStatus == QProcess::NormalExit)
   {
     delete d->m_PlastimatchProcess;
+    d->m_PlastimatchProcess = nullptr;
+
+    vtkMRMLPlmDrrNode* paramNode = vtkMRMLPlmDrrNode::SafeDownCast(d->MRMLNodeComboBox_ParameterNode->currentNode());
+    if (!paramNode || !d->ModuleWindowInitialized)
+    {
+      return;
+    }
+    
+    // load DRR raw resulted raw image file
+    QDir dir(qSlicerCoreApplication::application()->temporaryPath());
+    QStringList filters;
+    filters << "*.raw";
+    QStringList tmpRawImages = dir.entryList(filters);
+
+    // Create *.mhd file for that one image
+    std::string mhdName;
+    for (const QString& fileName : tmpRawImages)
+    {
+      QFileInfo fileInfo(fileName);
+      QString baseName = fileInfo.baseName();
+      QString mhdFileName = baseName + ".mhd";
+
+      if (mhdFileName == OUTPUT_MHD_FILE)
+      {
+        fileInfo.setFile( dir, mhdFileName);
+    
+        mhdName = fileInfo.absoluteFilePath().toStdString();
+        std::ofstream ofs(mhdName.c_str());
+
+        int res[2];
+        paramNode->GetImageDimention(res);
+        double spacing[2];
+        paramNode->GetImageSpacing(spacing);
+
+        ofs << "NDims = 3\n";
+        ofs << "DimSize = " << res[1] << " " << res[0] << " 1\n";
+        ofs << "ElementSpacing = " << spacing[1] << " " << spacing[1] << " 1\n";
+        ofs << "Position = 0 0 0\n";
+        ofs << "BinaryData = True\n";
+        ofs << "ElementByteOrderMSB = False\n";
+        ofs << "ElementType = MET_LONG\n";
+        ofs << "ElementDataFile = " << fileName.toStdString() << '\n';
+        ofs.close();
+      }
+    }
+
+    if (mhdName.empty())
+    {
+      qCritical() << Q_FUNC_INFO << ": MetaImageHeader file name of DRR raw imahe is empty!";
+      return;
+    }
+    vtkNew<vtkMRMLScalarVolumeNode> drrVolumeNode;
+    this->mrmlScene()->AddNode(drrVolumeNode);
+
+    bool res = d->logic()->LoadDRR( drrVolumeNode, mhdName);
+  
+    if (res)
+    {
+      qDebug() << Q_FUNC_INFO << ": DRR scalar volume node has been loaded";
+    }
+  }
+  else
+  {
+    QProcess::ProcessError err = d->m_PlastimatchProcess->error();
+
+    delete d->m_PlastimatchProcess;
+    d->m_PlastimatchProcess = nullptr;
+    
+    QString errorMessage;
+    switch (err)
+    {
+    case QProcess::FailedToStart:
+      errorMessage = tr("Failed to start, Either the invoked program is missing, " \
+        "or you may have insufficient permissions to invoke the program.");
+      break;
+    case QProcess::Crashed:
+      errorMessage = tr("Crashed some time after starting successfully.");
+      break;
+    case QProcess::Timedout:
+      errorMessage = tr("The last waitFor...() function timed out, no response.");
+      break;
+    case QProcess::WriteError:
+      errorMessage = tr("An error occurred when attempting to write to the process.");
+      break;    
+    case QProcess::ReadError:
+      errorMessage = tr("An error occurred when attempting to read from the process.");
+      break;
+    case QProcess::UnknownError:
+    default:
+      errorMessage = tr("An unknown error occurred.");
+      break;
+    }
+    qCritical() << Q_FUNC_INFO << ": DRR calculation process has been finished with an error: " << errorMessage;
+    return;
   }
 }
 
@@ -360,7 +454,7 @@ void qSlicerPlmDrrModuleWidget::onPlatimatchDrrProcessFinished( int exitCode, QP
 void qSlicerPlmDrrModuleWidget::onLoadDrrClicked()
 {
   Q_D(qSlicerPlmDrrModuleWidget);
-
+/*
   vtkMRMLPlmDrrNode* paramNode = vtkMRMLPlmDrrNode::SafeDownCast(d->MRMLNodeComboBox_ParameterNode->currentNode());
   if (!paramNode || !d->ModuleWindowInitialized)
   {
@@ -420,6 +514,7 @@ void qSlicerPlmDrrModuleWidget::onLoadDrrClicked()
   {
     qDebug() << Q_FUNC_INFO << ": DRR scalar volume node is loaded";
   }
+*/
 }
 
 //-----------------------------------------------------------------------------
