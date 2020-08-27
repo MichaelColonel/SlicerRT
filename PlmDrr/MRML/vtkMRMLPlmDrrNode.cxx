@@ -236,3 +236,10 @@ void vtkMRMLPlmDrrNode::SetAndObserveBeamNode(vtkMRMLRTBeamNode* node)
 
   this->SetNodeReferenceID(BEAM_REFERENCE_ROLE, (node ? node->GetID() : nullptr));
 }
+
+//----------------------------------------------------------------------------
+void vtkMRMLPlmDrrNode::GetRTImagePosition(double position[2])
+{
+  position[0] = -1. * ImageSpacing[0] * ImageDimention[0] / 2.; // columns (X)
+  position[1] = ImageSpacing[1] * ImageDimention[1] / 2.; // rows (Y)
+}

@@ -71,6 +71,7 @@ public:
   std::string GeneratePlastimatchDrrArgs( vtkMRMLVolumeNode* volumeNode, 
     vtkMRMLPlmDrrNode* node, std::list< std::string >& arguments);
 
+  bool LoadRtImage( vtkMRMLPlmDrrNode* paramNode, vtkMRMLScalarVolumeNode* drrVolumeNode);
   bool SetupRtImageGeometry( vtkMRMLPlmDrrNode* paramNode, vtkMRMLScalarVolumeNode* drrVolumeNode);
 
 protected:

@@ -21,6 +21,7 @@
 // MRML includes
 #include <vtkMRMLScene.h>
 #include <vtkMRMLScalarVolumeNode.h>
+#include <vtkMRMLScalarVolumeDisplayNode.h>
 #include <vtkMRMLRTBeamNode.h>
 #include <vtkMRMLRTPlanNode.h>
 #include <vtkMRMLLinearTransformNode.h>
@@ -30,6 +31,11 @@
 #include <vtkMRMLMarkupsLineNode.h>
 
 #include "vtkMRMLPlmDrrNode.h"
+
+// SubjectHierarchy includes
+#include "vtkMRMLSubjectHierarchyConstants.h"
+#include "vtkMRMLSubjectHierarchyNode.h"
+#include "vtkSlicerSubjectHierarchyModuleLogic.h"
 
 // VTK includes
 #include <vtkTransform.h>
@@ -1111,6 +1117,125 @@ void vtkSlicerPlmDrrLogic::ProcessMRMLNodesEvents(vtkObject* caller, unsigned lo
   }
 }
 
+//---------------------------------------------------------------------------
+bool vtkSlicerPlmDrrLogic::LoadRtImage( vtkMRMLPlmDrrNode* paramNode,
+  vtkMRMLScalarVolumeNode* drrVolumeNode)
+{
+  if (!paramNode)
+  {
+    vtkErrorMacro("LoadRtImage: Invalid parameter node");
+    return false;
+  }
+
+  vtkMRMLRTBeamNode* beamNode = paramNode->GetBeamNode();
+
+  vtkMRMLScene* scene = this->GetMRMLScene();
+  if (!scene)
+  {
+    vtkErrorMacro("LoadRtImage: Invalid MRML scene");
+    return false;
+  }
+  vtkMRMLSubjectHierarchyNode* shNode = vtkMRMLSubjectHierarchyNode::GetSubjectHierarchyNode(this->GetMRMLScene());
+  if (!shNode)
+  {
+    vtkErrorMacro("LoadRtImage: Failed to access subject hierarchy node");
+    return false;
+  }
+/*
+  // Load Volume
+  vtkSmartPointer<vtkMRMLVolumeArchetypeStorageNode> volumeStorageNode = vtkSmartPointer<vtkMRMLVolumeArchetypeStorageNode>::New();
+  vtkSmartPointer<vtkMRMLScalarVolumeNode> volumeNode = vtkSmartPointer<vtkMRMLScalarVolumeNode>::New();
+  volumeStorageNode->SetFileName(fileName);
+  volumeStorageNode->ResetFileNameList();
+  volumeStorageNode->SetSingleFile(1);
+
+  // Read image from disk
+  if (!volumeStorageNode->ReadData(volumeNode))
+  {
+    vtkErrorWithObjectMacro(this->External, "LoadRtImage: Failed to load RT image file '" << fileName << "' (series name '" << seriesName << "')");
+    return false;
+  }
+
+  volumeNode->SetScene(scene);
+  std::string volumeNodeName = scene->GenerateUniqueName(seriesName);
+  volumeNode->SetName(volumeNodeName.c_str());
+  scene->AddNode(volumeNode);
+*/
+  // Create display node for the volume
+  vtkNew<vtkMRMLScalarVolumeDisplayNode> volumeDisplayNode;
+  scene->AddNode(volumeDisplayNode);
+  volumeDisplayNode->SetDefaultColorMap();
+
+  int AutoscaleRange[2];
+  paramNode->GetAutoscaleRange(AutoscaleRange);
+  if (!paramNode->GetAutoscaleFlag() || (paramNode->GetAutoscaleFlag() &&
+    !AutoscaleRange[0] && !AutoscaleRange[1]))
+  {
+    volumeDisplayNode->AutoWindowLevelOn();
+  }
+  else
+  {
+    // Apply given window level if available
+    float center = float(AutoscaleRange[1] - AutoscaleRange[0]) / 2.;
+    float width = float(AutoscaleRange[1] - AutoscaleRange[0]);
+
+    volumeDisplayNode->AutoWindowLevelOff();
+    volumeDisplayNode->SetWindowLevel(width, center);
+  }
+
+  drrVolumeNode->SetAndObserveDisplayNodeID(volumeDisplayNode->GetID());
+
+  // Set up subject hierarchy item
+  vtkIdType seriesShItemID = shNode->CreateItem(shNode->GetSceneItemID(), drrVolumeNode);
+//  shNode->SetItemUID(seriesShItemID, vtkMRMLSubjectHierarchyConstants::GetDICOMUIDName(), rtReader->GetSeriesInstanceUid());
+
+  // Set RT image specific attributes
+  shNode->SetItemAttribute(seriesShItemID, vtkSlicerRtCommon::DICOMRTIMPORT_RTIMAGE_IDENTIFIER_ATTRIBUTE_NAME, "1");
+//  shNode->SetItemAttribute(seriesShItemID, vtkMRMLSubjectHierarchyConstants::GetDICOMReferencedInstanceUIDsAttributeName(),
+//    (rtReader->GetRTImageReferencedRTPlanSOPInstanceUID() ? rtReader->GetRTImageReferencedRTPlanSOPInstanceUID() : "") );
+
+//  std::stringstream radiationMachineSadStream;
+//  radiationMachineSadStream << rtReader->GetRadiationMachineSAD();
+  shNode->SetItemAttribute(seriesShItemID, vtkSlicerRtCommon::DICOMRTIMPORT_SOURCE_AXIS_DISTANCE_ATTRIBUTE_NAME, std::to_string(beamNode->GetSAD()));
+
+//  std::stringstream gantryAngleStream;
+//  gantryAngleStream << rtReader->GetGantryAngle();
+  shNode->SetItemAttribute(seriesShItemID, vtkSlicerRtCommon::DICOMRTIMPORT_GANTRY_ANGLE_ATTRIBUTE_NAME, std::to_string(beamNode->GetGantryAngle()));
+
+//  std::stringstream couchAngleStream;
+//  couchAngleStream << rtReader->GetPatientSupportAngle();
+  shNode->SetItemAttribute(seriesShItemID, vtkSlicerRtCommon::DICOMRTIMPORT_COUCH_ANGLE_ATTRIBUTE_NAME, std::to_string(beamNode->GetCouchAngle()));
+
+//  std::stringstream collimatorAngleStream;
+//  collimatorAngleStream << rtReader->GetBeamLimitingDeviceAngle();
+  shNode->SetItemAttribute(seriesShItemID, vtkSlicerRtCommon::DICOMRTIMPORT_COLLIMATOR_ANGLE_ATTRIBUTE_NAME, std::to_string(beamNode->GetCollimatorAngle()));
+
+//  std::stringstream referencedBeamNumberStream;
+//  referencedBeamNumberStream << rtReader->GetReferencedBeamNumber();
+  shNode->SetItemAttribute(seriesShItemID, vtkSlicerRtCommon::DICOMRTIMPORT_BEAM_NUMBER_ATTRIBUTE_NAME, std::to_string(beamNode->GetBeamNumber()));
+
+//  std::stringstream rtImageSidStream;
+//  rtImageSidStream << rtReader->GetRTImageSID();
+  double sid = beamNode->GetSAD() + paramNode->GetIsocenterImagerDistance();
+  shNode->SetItemAttribute(seriesShItemID, vtkSlicerRtCommon::DICOMRTIMPORT_RTIMAGE_SID_ATTRIBUTE_NAME, std::to_string(sid));
+
+//  std::stringstream rtImagePositionStream;
+  double rtImagePosition[2] = {0.0, 0.0};
+  paramNode->GetRTImagePosition(rtImagePosition);
+//  rtReader->GetRTImagePosition(rtImagePosition);
+//  rtImagePositionStream << rtImagePosition[0] << " " << rtImagePosition[1];
+  std::string rtImagePositionString = std::to_string(rtImagePosition[0]) + std::string(" ") + std::to_string(rtImagePosition[1]);
+  shNode->SetItemAttribute(seriesShItemID,  vtkSlicerRtCommon::DICOMRTIMPORT_RTIMAGE_POSITION_ATTRIBUTE_NAME, rtImagePositionString);
+
+  // Insert series in subject hierarchy
+//  vtkSlicerDicomRtImportExportModuleLogic::InsertSeriesInSubjectHierarchy(rtReader, scene);
+
+  // Compute and set RT image geometry. Uses the referenced beam if available, otherwise the geometry will be set up when loading the referenced beam
+//  this->SetupRtImageGeometry(volumeNode);
+
+  return true;
+}
+
 //------------------------------------------------------------------------------
 bool vtkSlicerPlmDrrLogic::SetupRtImageGeometry( vtkMRMLPlmDrrNode* paramNode,
   vtkMRMLScalarVolumeNode* drrVolumeNode)
@@ -1121,7 +1246,7 @@ bool vtkSlicerPlmDrrLogic::SetupRtImageGeometry( vtkMRMLPlmDrrNode* paramNode,
     return false;
   }
 
-  vtkMRMLRTBeamNode* beamNode = paramNode=>GetBeamNode();
+  vtkMRMLRTBeamNode* beamNode = paramNode->GetBeamNode();
 
   vtkIdType rtImageShItemID = vtkMRMLSubjectHierarchyNode::INVALID_ITEM_ID;
 
@@ -1131,6 +1256,7 @@ bool vtkSlicerPlmDrrLogic::SetupRtImageGeometry( vtkMRMLPlmDrrNode* paramNode,
     vtkErrorMacro("SetupRtImageGeometry: Failed to access subject hierarchy node");
     return false;
   }
+
 /*
   // If the function is called from the LoadRtPlan function with a beam: find corresponding RT image
   else if (beamNode)

@@ -63,6 +63,8 @@ public:
   /// Get unique node XML tag name (like Volume, Model) 
   const char* GetNodeTagName() override { return "PlmDrr"; };
 
+  void GetRTImagePosition(double position[2]);
+
 public:
  
   /// Get beam node
