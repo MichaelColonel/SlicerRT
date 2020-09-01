@@ -1231,7 +1231,7 @@ bool vtkSlicerPlmDrrLogic::LoadRtImage( vtkMRMLPlmDrrNode* paramNode,
 //  vtkSlicerDicomRtImportExportModuleLogic::InsertSeriesInSubjectHierarchy(rtReader, scene);
 
   // Compute and set RT image geometry. Uses the referenced beam if available, otherwise the geometry will be set up when loading the referenced beam
-//  this->SetupRtImageGeometry(volumeNode);
+  this->SetupRtImageGeometry( paramNode, drrVolumeNode);
 
   return true;
 }
