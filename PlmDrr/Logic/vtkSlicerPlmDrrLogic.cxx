@@ -18,6 +18,10 @@
 // LoadableModuleTemplate Logic includes
 #include "vtkSlicerPlmDrrLogic.h"
 
+// SlicerRT includes
+#include "vtkSlicerPlanarImageModuleLogic.h"
+#include "vtkMRMLPlanarImageNode.h"
+
 // MRML includes
 #include <vtkMRMLScene.h>
 #include <vtkMRMLScalarVolumeNode.h>
@@ -67,6 +71,7 @@ const char* vtkSlicerPlmDrrLogic::VUP_VECTOR_MARKUPS_NODE_NAME = "VupVector"; //
 
 //----------------------------------------------------------------------------
 vtkStandardNewMacro(vtkSlicerPlmDrrLogic);
+vtkCxxSetObjectMacro(vtkSlicerPlmDrrLogic, PlanarImageLogic, vtkSlicerPlanarImageModuleLogic);
 
 //----------------------------------------------------------------------------
 vtkSlicerPlmDrrLogic::vtkSlicerPlmDrrLogic()
@@ -1257,7 +1262,6 @@ bool vtkSlicerPlmDrrLogic::SetupRtImageGeometry( vtkMRMLPlmDrrNode* paramNode,
     return false;
   }
 
-/*
   // If the function is called from the LoadRtPlan function with a beam: find corresponding RT image
   else if (beamNode)
   {
@@ -1265,27 +1269,27 @@ bool vtkSlicerPlmDrrLogic::SetupRtImageGeometry( vtkMRMLPlmDrrNode* paramNode,
     vtkMRMLRTPlanNode *planNode = beamNode->GetParentPlanNode();
     if (!planNode)
     {
-      vtkErrorWithObjectMacro(this->External, "SetupRtImageGeometry: Failed to retrieve valid plan node for beam '" << beamNode->GetName() << "'");
-      return;
+      vtkErrorMacro("SetupRtImageGeometry: Failed to retrieve valid plan node for beam '" << beamNode->GetName() << "'");
+      return false;
     }
     vtkIdType planShItemID = planNode->GetPlanSubjectHierarchyItemID();
     if (planShItemID == vtkMRMLSubjectHierarchyNode::INVALID_ITEM_ID)
     {
-      vtkErrorWithObjectMacro(this->External, "SetupRtImageGeometry: Failed to retrieve valid plan subject hierarchy item for beam '" << beamNode->GetName() << "'");
-      return;
+      vtkErrorMacro("SetupRtImageGeometry: Failed to retrieve valid plan subject hierarchy item for beam '" << beamNode->GetName() << "'");
+      return false;
     }
     std::string rtPlanSopInstanceUid = shNode->GetItemUID(planShItemID, vtkMRMLSubjectHierarchyConstants::GetDICOMInstanceUIDName());
     if (rtPlanSopInstanceUid.empty())
     {
-      vtkErrorWithObjectMacro(this->External, "SetupRtImageGeometry: Failed to get RT Plan DICOM UID for beam '" << beamNode->GetName() << "'");
-      return;
+      vtkErrorMacro("SetupRtImageGeometry: Failed to get RT Plan DICOM UID for beam '" << beamNode->GetName() << "'");
+      return false;
     }
 
     // Get isocenter beam number
     int beamNumber = beamNode->GetBeamNumber();
     // Get number of beams in the plan (if there is only one, then the beam number may nor be correctly referenced, so we cannot find it that way
     bool oneBeamInPlan = (shNode->GetNumberOfItemChildren(planShItemID) == 1);
-
+/*
     // Find corresponding RT image according to beam (isocenter) UID
     std::vector<vtkIdType> itemIDs;
     shNode->GetItemChildren(shNode->GetSceneItemID(), itemIDs, true);
@@ -1324,30 +1328,43 @@ bool vtkSlicerPlmDrrLogic::SetupRtImageGeometry( vtkMRMLPlmDrrNode* paramNode,
       }
 
       // Return if a referenced displayed model is present for the RT image, because it means that the geometry has been set up successfully before
-      if (rtImageVolumeNode)
+      if (drrVolumeNode)
       {
         vtkMRMLModelNode* modelNode = vtkMRMLModelNode::SafeDownCast(
-          rtImageVolumeNode->GetNodeReference(vtkMRMLPlanarImageNode::PLANARIMAGE_DISPLAYED_MODEL_REFERENCE_ROLE.c_str()) );
+          drrVolumeNode->GetNodeReference(vtkMRMLPlanarImageNode::PLANARIMAGE_DISPLAYED_MODEL_REFERENCE_ROLE.c_str()) );
         if (modelNode)
         {
-          vtkDebugWithObjectMacro(this->External, "SetupRtImageGeometry: RT image '" << rtImageVolumeNode->GetName() << "' belonging to beam '" << beamNode->GetName() << "' seems to have been set up already.");
+          vtkDebugMacro("SetupRtImageGeometry: RT image '" << rtImageVolumeNode->GetName() << "' belonging to beam '" << beamNode->GetName() << "' seems to have been set up already.");
           return;
         }
       }
-    }
 
-    if (!rtImageVolumeNode)
+    }
+*/
+    // Return if a referenced displayed model is present for the RT image, because it means that the geometry has been set up successfully before
+    if (drrVolumeNode)
+    {
+      vtkMRMLModelNode* modelNode = vtkMRMLModelNode::SafeDownCast(
+        drrVolumeNode->GetNodeReference(vtkMRMLPlanarImageNode::PLANARIMAGE_DISPLAYED_MODEL_REFERENCE_ROLE.c_str()) );
+      if (modelNode)
+      {
+        vtkDebugMacro("SetupRtImageGeometry: RT image '" << rtImageVolumeNode->GetName() << "' belonging to beam '" << beamNode->GetName() << "' seems to have been set up already.");
+        return false;
+      }
+    }
+      
+    if (!drrVolumeNode)
     {
       // RT image for the isocenter is not loaded yet. Geometry will be set up upon loading the related RT image
-      vtkDebugWithObjectMacro(this->External, "SetupRtImageGeometry: Cannot set up geometry of RT image corresponding to beam '" << beamNode->GetName()
+      vtkDebugMacro("SetupRtImageGeometry: Cannot set up geometry of RT image corresponding to beam '" << beamNode->GetName()
         << "' because the RT image is not loaded yet. Will be set up upon loading the related RT image");
-      return;
+      return false;
     }
   }
   else
   {
-    vtkErrorWithObjectMacro(this->External, "SetupRtImageGeometry: Input node is neither a volume node nor an plan POIs markups fiducial node");
-    return;
+    vtkErrorMacro("SetupRtImageGeometry: Input node is neither a volume node nor an plan POIs markups fiducial node");
+    return false;
   }
 
   // We have both the RT image and the isocenter, we can set up the geometry
@@ -1378,8 +1395,8 @@ bool vtkSlicerPlmDrrLogic::SetupRtImageGeometry( vtkMRMLPlmDrrNode* paramNode,
   double isocenterWorldCoordinates[3] = {0.0, 0.0, 0.0};
   if (!beamNode->GetPlanIsocenterPosition(isocenterWorldCoordinates))
   {
-    vtkErrorWithObjectMacro(this->External, "SetupRtImageGeometry: Failed to get plan isocenter position");
-    return;
+    vtkErrorMacro("SetupRtImageGeometry: Failed to get plan isocenter position");
+    return false;
   }
 
   // Assemble transform from isocenter IEC to RT image RAS
@@ -1424,7 +1441,7 @@ bool vtkSlicerPlmDrrLogic::SetupRtImageGeometry( vtkMRMLPlmDrrNode* paramNode,
 
   // Get RT image IJK to RAS matrix (containing the spacing and the LPS-RAS conversion)
   vtkSmartPointer<vtkMatrix4x4> rtImageIjkToRtImageRasTransformMatrix = vtkSmartPointer<vtkMatrix4x4>::New();
-  rtImageVolumeNode->GetIJKToRASMatrix(rtImageIjkToRtImageRasTransformMatrix);
+  drrVolumeNode->GetIJKToRASMatrix(rtImageIjkToRtImageRasTransformMatrix);
   vtkSmartPointer<vtkTransform> rtImageIjkToRtImageRasTransform = vtkSmartPointer<vtkTransform>::New();
   rtImageIjkToRtImageRasTransform->SetMatrix(rtImageIjkToRtImageRasTransformMatrix);
 
@@ -1442,30 +1459,30 @@ bool vtkSlicerPlmDrrLogic::SetupRtImageGeometry( vtkMRMLPlmDrrNode* paramNode,
   isocenterToRtImageRas->Concatenate(rtImageIjkToRtImageRasTransformMatrix);
 
   // Transform RT image to proper position and orientation
-  rtImageVolumeNode->SetIJKToRASMatrix(isocenterToRtImageRas->GetMatrix());
+  drrVolumeNode->SetIJKToRASMatrix(isocenterToRtImageRas->GetMatrix());
 
   // Set up outputs for the planar image display
   vtkSmartPointer<vtkMRMLModelNode> displayedModelNode = vtkSmartPointer<vtkMRMLModelNode>::New();
-  this->External->GetMRMLScene()->AddNode(displayedModelNode);
-  std::string displayedModelNodeName = vtkMRMLPlanarImageNode::PLANARIMAGE_MODEL_NODE_NAME_PREFIX + std::string(rtImageVolumeNode->GetName());
+  this->GetMRMLScene()->AddNode(displayedModelNode);
+  std::string displayedModelNodeName = vtkMRMLPlanarImageNode::PLANARIMAGE_MODEL_NODE_NAME_PREFIX + std::string(drrVolumeNode->GetName());
   displayedModelNode->SetName(displayedModelNodeName.c_str());
   displayedModelNode->SetAttribute(vtkMRMLSubjectHierarchyConstants::GetSubjectHierarchyExcludeFromTreeAttributeName().c_str(), "1");
 
   // Create PlanarImage parameter set node
   std::string planarImageParameterSetNodeName;
-  planarImageParameterSetNodeName = this->External->GetMRMLScene()->GenerateUniqueName(
-    vtkMRMLPlanarImageNode::PLANARIMAGE_PARAMETER_SET_BASE_NAME_PREFIX + std::string(rtImageVolumeNode->GetName()) );
+  planarImageParameterSetNodeName = this->GetMRMLScene()->GenerateUniqueName(
+    vtkMRMLPlanarImageNode::PLANARIMAGE_PARAMETER_SET_BASE_NAME_PREFIX + std::string(drrVolumeNode->GetName()) );
   vtkSmartPointer<vtkMRMLPlanarImageNode> planarImageParameterSetNode = vtkSmartPointer<vtkMRMLPlanarImageNode>::New();
   planarImageParameterSetNode->SetName(planarImageParameterSetNodeName.c_str());
-  this->External->GetMRMLScene()->AddNode(planarImageParameterSetNode);
-  planarImageParameterSetNode->SetAndObserveRtImageVolumeNode(rtImageVolumeNode);
+  this->GetMRMLScene()->AddNode(planarImageParameterSetNode);
+  planarImageParameterSetNode->SetAndObserveRtImageVolumeNode(drrVolumeNode);
   planarImageParameterSetNode->SetAndObserveDisplayedModelNode(displayedModelNode);
 
   // Create planar image model for the RT image
-  this->External->PlanarImageLogic->CreateModelForPlanarImage(planarImageParameterSetNode);
+  this->PlanarImageLogic->CreateModelForPlanarImage(planarImageParameterSetNode);
 
   // Hide the displayed planar image model by default
   displayedModelNode->SetDisplayVisibility(0);
-*/
+
   return true;
 }
