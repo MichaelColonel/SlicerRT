@@ -59,6 +59,7 @@
 #include <itkImage.h>
 #include <itkImageFileReader.h>
 #include <itkMetaImageIO.h>
+#include <itkRescaleIntensityImageFilter.h>
 
 // SlicerRT includes
 #include <vtkSlicerRtCommon.h>
@@ -194,12 +195,17 @@ bool vtkSlicerPlmDrrLogic::LoadDRR( vtkMRMLScalarVolumeNode* volumeNode, const s
     return false;
   }
 
-  // Plastimatch DRR input Pixel Type
+  // Plastimatch DRR input pixel type (long)
   using InputPixelType = signed long;
   const unsigned int InputDimension = 3;
 
   using InputImageType = itk::Image< InputPixelType, InputDimension >;
   using ReaderType = itk::ImageFileReader< InputImageType >;
+
+  // Inner output pixel type (double)
+  using OutputPixelType = double;
+  using OutputImageType = itk::Image< OutputPixelType, InputDimension >;
+  using RescaleFilterType = itk::RescaleIntensityImageFilter< InputImageType, OutputImageType >;
 
   ReaderType::Pointer reader = ReaderType::New();
 
@@ -215,8 +221,26 @@ bool vtkSlicerPlmDrrLogic::LoadDRR( vtkMRMLScalarVolumeNode* volumeNode, const s
     return false;
   }
   
-  InputImageType::Pointer itkImagePtr = reader->GetOutput();
-  bool res = vtkSlicerRtCommon::ConvertItkImageToVolumeNode< InputPixelType >( itkImagePtr, volumeNode, VTK_LONG);
+  InputImageType::Pointer inputImagePtr = reader->GetOutput();
+  InputImageType::RegionType inputRegion = inputImagePtr->GetLargestPossibleRegion();
+  InputImageType::SizeType inputSize = inputRegion.GetSize();
+//  inputImagePtr->GetSize(inputSize);
+  
+  RescaleFilterType::Pointer rescaler = RescaleFilterType::New();
+  rescaler->SetOutputMinimum(0.);
+  rescaler->SetOutputMaximum(255.);
+  rescaler->SetInput(reader->GetOutput());
+  rescaler->Update();
+
+  OutputImageType::Pointer outputImagePtr = rescaler->GetOutput();
+  OutputImageType::RegionType outputRegion = outputImagePtr->GetLargestPossibleRegion();
+  OutputImageType::SizeType outputSize = outputRegion.GetSize();
+//  OutputImagePtr->GetSize(outputSize);
+
+  vtkWarningMacro("LoadDRR sizes: " << inputSize[0] << " " << inputSize[1] << " " << inputSize[2] << " " <<
+    outputSize[0] << " " << outputSize[1] << " " << outputSize[2]);
+
+  bool res = vtkSlicerRtCommon::ConvertItkImageToVolumeNode< OutputPixelType >( rescaler->GetOutput(), volumeNode, VTK_DOUBLE);
   return res;
 }
 
@@ -1123,6 +1147,9 @@ void vtkSlicerPlmDrrLogic::ProcessMRMLNodesEvents(vtkObject* caller, unsigned lo
 }
 
 //---------------------------------------------------------------------------
+// seriesName
+// SeriesInstanceUid
+// 
 bool vtkSlicerPlmDrrLogic::LoadRtImage( vtkMRMLPlmDrrNode* paramNode,
   vtkMRMLScalarVolumeNode* drrVolumeNode)
 {
@@ -1196,6 +1223,7 @@ bool vtkSlicerPlmDrrLogic::LoadRtImage( vtkMRMLPlmDrrNode* paramNode,
 
   // Set RT image specific attributes
   shNode->SetItemAttribute(seriesShItemID, vtkSlicerRtCommon::DICOMRTIMPORT_RTIMAGE_IDENTIFIER_ATTRIBUTE_NAME, "1");
+  shNode->SetItemAttribute(seriesShItemID, vtkMRMLSubjectHierarchyConstants::GetDICOMReferencedInstanceUIDsAttributeName(), "");
 //  shNode->SetItemAttribute(seriesShItemID, vtkMRMLSubjectHierarchyConstants::GetDICOMReferencedInstanceUIDsAttributeName(),
 //    (rtReader->GetRTImageReferencedRTPlanSOPInstanceUID() ? rtReader->GetRTImageReferencedRTPlanSOPInstanceUID() : "") );
 
@@ -1252,6 +1280,11 @@ bool vtkSlicerPlmDrrLogic::SetupRtImageGeometry( vtkMRMLPlmDrrNode* paramNode,
   }
 
   vtkMRMLRTBeamNode* beamNode = paramNode->GetBeamNode();
+  if (!beamNode)
+  {
+    vtkErrorMacro("SetupRtImageGeometry: Invalid beam node");
+    return false;
+  }
 
   vtkIdType rtImageShItemID = vtkMRMLSubjectHierarchyNode::INVALID_ITEM_ID;
 
@@ -1263,7 +1296,7 @@ bool vtkSlicerPlmDrrLogic::SetupRtImageGeometry( vtkMRMLPlmDrrNode* paramNode,
   }
 
   // If the function is called from the LoadRtPlan function with a beam: find corresponding RT image
-  else if (beamNode)
+  if (beamNode)
   {
     // Get RT plan for beam
     vtkMRMLRTPlanNode *planNode = beamNode->GetParentPlanNode();
@@ -1282,13 +1315,13 @@ bool vtkSlicerPlmDrrLogic::SetupRtImageGeometry( vtkMRMLPlmDrrNode* paramNode,
     if (rtPlanSopInstanceUid.empty())
     {
       vtkErrorMacro("SetupRtImageGeometry: Failed to get RT Plan DICOM UID for beam '" << beamNode->GetName() << "'");
-      return false;
+//      return false;
     }
 
     // Get isocenter beam number
     int beamNumber = beamNode->GetBeamNumber();
     // Get number of beams in the plan (if there is only one, then the beam number may nor be correctly referenced, so we cannot find it that way
-    bool oneBeamInPlan = (shNode->GetNumberOfItemChildren(planShItemID) == 1);
+//    bool oneBeamInPlan = (shNode->GetNumberOfItemChildren(planShItemID) == 1);
 /*
     // Find corresponding RT image according to beam (isocenter) UID
     std::vector<vtkIdType> itemIDs;
@@ -1348,7 +1381,7 @@ bool vtkSlicerPlmDrrLogic::SetupRtImageGeometry( vtkMRMLPlmDrrNode* paramNode,
         drrVolumeNode->GetNodeReference(vtkMRMLPlanarImageNode::PLANARIMAGE_DISPLAYED_MODEL_REFERENCE_ROLE.c_str()) );
       if (modelNode)
       {
-        vtkDebugMacro("SetupRtImageGeometry: RT image '" << rtImageVolumeNode->GetName() << "' belonging to beam '" << beamNode->GetName() << "' seems to have been set up already.");
+        vtkWarningMacro("SetupRtImageGeometry: RT image '" << drrVolumeNode->GetName() << "' belonging to beam '" << beamNode->GetName() << "' seems to have been set up already.");
         return false;
       }
     }
@@ -1356,7 +1389,7 @@ bool vtkSlicerPlmDrrLogic::SetupRtImageGeometry( vtkMRMLPlmDrrNode* paramNode,
     if (!drrVolumeNode)
     {
       // RT image for the isocenter is not loaded yet. Geometry will be set up upon loading the related RT image
-      vtkDebugMacro("SetupRtImageGeometry: Cannot set up geometry of RT image corresponding to beam '" << beamNode->GetName()
+      vtkWarningMacro("SetupRtImageGeometry: Cannot set up geometry of RT image corresponding to beam '" << beamNode->GetName()
         << "' because the RT image is not loaded yet. Will be set up upon loading the related RT image");
       return false;
     }
@@ -1375,12 +1408,16 @@ bool vtkSlicerPlmDrrLogic::SetupRtImageGeometry( vtkMRMLPlmDrrNode* paramNode,
   if (!rtImageSidStr.empty())
   {
     rtImageSid = vtkVariant(rtImageSidStr).ToDouble();
+    vtkWarningMacro("SetupRtImageGeometry: SID bad");
+    return false;
   }
   // Get RT image position (the x and y coordinates (in mm) of the upper left hand corner of the image, in the IEC X-RAY IMAGE RECEPTOR coordinate system)
   double rtImagePosition[2] = {0.0, 0.0};
   std::string rtImagePositionStr = shNode->GetItemAttribute(rtImageShItemID, vtkSlicerRtCommon::DICOMRTIMPORT_RTIMAGE_POSITION_ATTRIBUTE_NAME);
   if (!rtImagePositionStr.empty())
   {
+    vtkWarningMacro("SetupRtImageGeometry: RT image position bad");
+    return false;
     std::stringstream ss;
     ss << rtImagePositionStr;
     ss >> rtImagePosition[0] >> rtImagePosition[1];
@@ -1478,8 +1515,12 @@ bool vtkSlicerPlmDrrLogic::SetupRtImageGeometry( vtkMRMLPlmDrrNode* paramNode,
   planarImageParameterSetNode->SetAndObserveRtImageVolumeNode(drrVolumeNode);
   planarImageParameterSetNode->SetAndObserveDisplayedModelNode(displayedModelNode);
 
-  // Create planar image model for the RT image
-  this->PlanarImageLogic->CreateModelForPlanarImage(planarImageParameterSetNode);
+  if (this->PlanarImageLogic && planarImageParameterSetNode)
+  {
+    vtkWarningMacro("SetupRtImageGeometry: Planal image logic OK");
+    // Create planar image model for the RT image
+    this->PlanarImageLogic->CreateModelForPlanarImage(planarImageParameterSetNode);
+  }
 
   // Hide the displayed planar image model by default
   displayedModelNode->SetDisplayVisibility(0);

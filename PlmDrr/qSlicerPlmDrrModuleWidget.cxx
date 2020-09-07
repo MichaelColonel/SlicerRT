@@ -412,6 +412,7 @@ void qSlicerPlmDrrModuleWidget::onPlatimatchDrrProcessFinished( int exitCode, QP
     if (res)
     {
       qDebug() << Q_FUNC_INFO << ": DRR scalar volume node has been loaded";
+      d->logic()->LoadRtImage( paramNode, drrVolumeNode);
     }
   }
   else
