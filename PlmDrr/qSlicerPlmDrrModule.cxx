@@ -15,12 +15,26 @@
 
 ==============================================================================*/
 
-// PlmDrr Logic includes
-#include <vtkSlicerPlmDrrLogic.h>
-
 // PlmDrr includes
 #include "qSlicerPlmDrrModule.h"
 #include "qSlicerPlmDrrModuleWidget.h"
+
+// SlicerQt includes
+#include <qSlicerCoreApplication.h>
+#include <qSlicerModuleManager.h>
+
+// SlicerRT includes
+#include <vtkSlicerPlanarImageModuleLogic.h>
+
+// Qt includes
+#include <QDebug> 
+
+// PlmDrr Logic includes
+#include <vtkSlicerPlmDrrLogic.h>
+
+// SubjectHierarchy Plugins includes
+//#include <qSlicerSubjectHierarchyPluginHandler.h>
+//#include <qSlicerSubjectHierarchyRtImagePlugin.h>
 
 //-----------------------------------------------------------------------------
 /// \ingroup Slicer_QtModules_ExtensionTemplate
@@ -88,13 +102,29 @@ QStringList qSlicerPlmDrrModule::categories() const
 //-----------------------------------------------------------------------------
 QStringList qSlicerPlmDrrModule::dependencies() const
 {
-  return QStringList();
+  return QStringList() << "Volumes" << "PlanarImage" << "Beams";
 }
 
 //-----------------------------------------------------------------------------
 void qSlicerPlmDrrModule::setup()
 {
   this->Superclass::setup();
+
+  vtkSlicerPlmDrrLogic* drrLogic = vtkSlicerPlmDrrLogic::SafeDownCast(this->logic());
+
+  // Set planar image logic to the logic
+  qSlicerAbstractCoreModule* planarImageModule = qSlicerCoreApplication::application()->moduleManager()->module("PlanarImage");
+  if (planarImageModule && drrLogic)
+  {
+    vtkSlicerPlanarImageModuleLogic* planarImageLogic = vtkSlicerPlanarImageModuleLogic::SafeDownCast(planarImageModule->logic());
+    drrLogic->SetPlanarImageLogic(planarImageLogic);
+  }
+  else
+  {
+    qCritical() << Q_FUNC_INFO << ": Planar Image module is not found";
+  }
+  
+//  qSlicerSubjectHierarchyPluginHandler::instance()->registerPlugin(new qSlicerSubjectHierarchyRtImagePlugin());
 }
 
 //-----------------------------------------------------------------------------

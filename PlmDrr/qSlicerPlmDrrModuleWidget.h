@@ -50,6 +50,7 @@ public slots:
   void onSceneClosedEvent();
 
   void onRTBeamNodeChanged(vtkMRMLNode*);
+  void onParameterNodeChanged(vtkMRMLNode*);
   void onReferenceVolumeNodeChanged(vtkMRMLNode*);
 
   /// Update widget GUI from drr parameters node
@@ -62,9 +63,7 @@ protected slots:
   void onImageWindowCoordinatesChanged(double*);
   void onImageSpacingChanged(double*);
   void onImageDimentionChanged(double*);
-  void onSaveVolumeClicked();
   void onComputeDrrClicked();
-  void onLoadDrrClicked();
   void onUpdateImageWindowFromBeamJaws();
   void onRotateZ(double);
   void onUpdatePlmDrrArgs();

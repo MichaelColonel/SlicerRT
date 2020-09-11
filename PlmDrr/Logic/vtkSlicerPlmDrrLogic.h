@@ -73,7 +73,7 @@ public:
     vtkMRMLPlmDrrNode* node, std::list< std::string >& arguments);
 
   bool LoadRtImage( vtkMRMLPlmDrrNode* paramNode, vtkMRMLScalarVolumeNode* drrVolumeNode);
-  bool SetupRtImageGeometry( vtkMRMLPlmDrrNode* paramNode, vtkMRMLScalarVolumeNode* drrVolumeNode);
+  bool SetupRtImageGeometry( vtkMRMLPlmDrrNode* paramNode, vtkMRMLScalarVolumeNode* drrVolumeNode, vtkIdType shNodeID);
 
   /// Set Planar Image module logic
   void SetPlanarImageLogic(vtkSlicerPlanarImageModuleLogic* planarImageLogic);
