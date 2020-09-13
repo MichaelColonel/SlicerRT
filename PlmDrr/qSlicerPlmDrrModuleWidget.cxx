@@ -19,6 +19,7 @@
 #include <QDebug>
 #include <QDir>
 #include <QSettings>
+#include <QFileDialog>
 
 // SlicerQt includes
 #include <qSlicerCoreApplication.h>
@@ -41,9 +42,6 @@
 
 // Logic includes
 #include "vtkSlicerPlmDrrLogic.h"
-
-// Plastimatch includes
-//#include <drr_options.h>
 
 #define INPUT_VOLUME_FILE "inputVolumeFile"
 #define OUTPUT_VOLUME_FILE "Out0000"
@@ -163,7 +161,7 @@ void qSlicerPlmDrrModuleWidget::setup()
   connect( d->SliderWidget_IsocenterImagerDistance, SIGNAL(valueChanged(double)), 
     this, SLOT(onIsocenterImagerDistanceValueChanged(double)));
   connect( d->SliderWidget_RotateImagerAroundZ, SIGNAL(valueChanged(double)), 
-    this, SLOT(onRotateZ(double)));
+    this, SLOT(onRotateAroundNormal(double)));
 
   // Coordinates widgets
   connect( d->CoordinatesWidget_ImagerCenterOffset, SIGNAL(coordinatesChanged(double*)), 
@@ -176,7 +174,9 @@ void qSlicerPlmDrrModuleWidget::setup()
     this, SLOT(onImageWindowCoordinatesChanged(double*)));
 
   // Buttons
+  connect( d->PushButton_SelectPlastimatchAppPath, SIGNAL(clicked()), this, SLOT(onSelectPlastimatchAppPathClicked()));
   connect( d->PushButton_ComputeDrr, SIGNAL(clicked()), this, SLOT(onComputeDrrClicked()));
+  connect( d->CheckBox_ShowDrrMarkups, SIGNAL(toggled(bool)), this, SLOT(onShowMarkupsToggled(bool)));
 
   // Handle scene change event if occurs
   qvtkConnect( d->logic(), vtkCommand::ModifiedEvent, this, SLOT(onLogicModified()));
@@ -194,8 +194,8 @@ void qSlicerPlmDrrModuleWidget::setup()
   else
   {
     plastimatchPath = settings->value( "SlicerRT/PlastimatchApplicationPath", "").toString();
-    d->LineEdit_PlastimatchAppPath->setText(plastimatchPath);
   }
+  d->LineEdit_PlastimatchAppPath->setText(plastimatchPath);
 }
 
 //-----------------------------------------------------------------------------
@@ -483,6 +483,48 @@ void qSlicerPlmDrrModuleWidget::onLogicModified()
 }
 
 //-----------------------------------------------------------------------------
+void qSlicerPlmDrrModuleWidget::onSelectPlastimatchAppPathClicked()
+{
+  Q_D(qSlicerPlmDrrModuleWidget);
+
+  QFileDialog* dialog = new QFileDialog( this, tr("Select plastimatch application"));
+  QStringList fileNames;
+  QString fileName;
+  QString filter;
+
+  dialog->setAcceptMode(QFileDialog::AcceptOpen);
+  dialog->setFileMode(QFileDialog::ExistingFile);
+
+  QStringList filters;
+
+  filters << tr("All files (*)");
+
+  QFileInfo fileInfo(d->LineEdit_PlastimatchAppPath->text());
+  dialog->setDirectory(fileInfo.absoluteFilePath());
+
+  if (dialog->exec())
+  {
+    fileNames = dialog->selectedFiles();
+
+    if (!fileNames.isEmpty())
+    {
+      fileName = fileNames[0];
+      filter = dialog->selectedNameFilter();
+    }
+  }
+  if (!fileName.isEmpty())
+  {
+    d->LineEdit_PlastimatchAppPath->setText(fileName);
+  }
+  else
+  {
+    qCritical() << Q_FUNC_INFO << ": Wrong path to plastimatch";
+  }
+  
+  delete dialog;
+}
+
+//-----------------------------------------------------------------------------
 void qSlicerPlmDrrModuleWidget::updateWidgetFromMRML()
 {
   Q_D(qSlicerPlmDrrModuleWidget);
@@ -685,6 +727,7 @@ void qSlicerPlmDrrModuleWidget::onImagerCenterOffsetCoordinatesChanged(double* d
   d->logic()->UpdateMarkupsNodes(paramNode);
   this->onUpdatePlmDrrArgs();
 }
+
 //-----------------------------------------------------------------------------
 void qSlicerPlmDrrModuleWidget::onImageSpacingChanged(double* spacing)
 {
@@ -705,6 +748,22 @@ void qSlicerPlmDrrModuleWidget::onImageSpacingChanged(double* spacing)
   // Update imager and image markups, DRR arguments
   d->logic()->UpdateMarkupsNodes(paramNode);
   this->onUpdatePlmDrrArgs();
+}
+
+//-----------------------------------------------------------------------------
+void qSlicerPlmDrrModuleWidget::onShowMarkupsToggled(bool toggled)
+{
+  Q_D(qSlicerPlmDrrModuleWidget);
+
+  vtkMRMLPlmDrrNode* paramNode = vtkMRMLPlmDrrNode::SafeDownCast(d->MRMLNodeComboBox_ParameterNode->currentNode());
+  if (!paramNode)
+  {
+    qCritical() << Q_FUNC_INFO << ": Invalid parameter node";
+    return;
+  }
+
+  // Update imager and image markups, DRR arguments
+  d->logic()->ShowMarkupsNodes( paramNode, toggled);
 }
 
 //-----------------------------------------------------------------------------
@@ -763,7 +822,7 @@ void qSlicerPlmDrrModuleWidget::onUpdateImageWindowFromBeamJaws()
 }
 
 //-----------------------------------------------------------------------------
-void qSlicerPlmDrrModuleWidget::onRotateZ(double angle)
+void qSlicerPlmDrrModuleWidget::onRotateAroundNormal(double angle)
 {
   Q_D(qSlicerPlmDrrModuleWidget);
 

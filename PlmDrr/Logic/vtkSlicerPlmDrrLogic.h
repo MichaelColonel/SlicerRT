@@ -64,7 +64,8 @@ public:
 
   /// Update markups nodes using parameter node data
   void UpdateMarkupsNodes(vtkMRMLPlmDrrNode* parameterNode);
-  
+  void ShowMarkupsNodes( vtkMRMLPlmDrrNode* parameterNode, bool toggled);
+
   bool SaveVolumeNode( const vtkMRMLVolumeNode* volumeNode, std::string& filename);
 
   bool LoadDRR( vtkMRMLScalarVolumeNode* volumeNode, const std::string& filename);

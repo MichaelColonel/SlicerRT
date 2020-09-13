@@ -65,10 +65,13 @@ protected slots:
   void onImageDimentionChanged(double*);
   void onComputeDrrClicked();
   void onUpdateImageWindowFromBeamJaws();
-  void onRotateZ(double);
+  void onRotateAroundNormal(double);
   void onUpdatePlmDrrArgs();
   void onPlatimatchDrrProcessStarted();
   void onPlatimatchDrrProcessFinished( int, QProcess::ExitStatus);
+  void onSelectPlastimatchAppPathClicked();
+  void onShowMarkupsToggled(bool);
+
 protected:
   QScopedPointer<qSlicerPlmDrrModuleWidgetPrivate> d_ptr;
 

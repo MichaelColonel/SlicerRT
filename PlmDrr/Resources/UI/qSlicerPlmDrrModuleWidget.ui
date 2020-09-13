@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>559</width>
-    <height>911</height>
+    <width>458</width>
+    <height>979</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -27,21 +27,21 @@
    <item row="6" column="0" colspan="4">
     <widget class="ctkCollapsibleButton" name="CollapsibleButton_PlmDrrImageProcessing">
      <property name="enabled">
-      <bool>false</bool>
+      <bool>true</bool>
      </property>
      <property name="text">
       <string>Plastimatch DRR image processing</string>
      </property>
      <property name="collapsed">
-      <bool>true</bool>
+      <bool>false</bool>
      </property>
      <layout class="QGridLayout" name="gridLayout_6">
       <item row="0" column="0">
        <layout class="QVBoxLayout" name="verticalLayout">
         <item>
-         <widget class="QGroupBox" name="GroupBox_Autoscale">
+         <widget class="QGroupBox" name="GroupBox_IntensityAutoscale">
           <property name="title">
-           <string>Autoscale</string>
+           <string>Intensity autoscale</string>
           </property>
           <layout class="QGridLayout" name="gridLayout_8">
            <item row="1" column="0">
@@ -68,7 +68,7 @@
             </widget>
            </item>
            <item row="1" column="1">
-            <widget class="ctkRangeWidget" name="RangeWidget">
+            <widget class="ctkRangeWidget" name="RangeWidget_IntensityRange">
              <property name="enabled">
               <bool>false</bool>
              </property>
@@ -266,7 +266,7 @@
         <item row="4" column="0">
          <widget class="QLabel" name="label_4">
           <property name="enabled">
-           <bool>true</bool>
+           <bool>false</bool>
           </property>
           <property name="text">
            <string>Imager center offset (mm)</string>
@@ -286,7 +286,7 @@
         <item row="4" column="1">
          <widget class="ctkCoordinatesWidget" name="CoordinatesWidget_ImagerCenterOffset">
           <property name="enabled">
-           <bool>true</bool>
+           <bool>false</bool>
           </property>
           <property name="dimension">
            <number>2</number>
@@ -301,6 +301,9 @@
         </item>
         <item row="7" column="1">
          <widget class="ctkCoordinatesWidget" name="CoordinatesWidget_ImageWindow">
+          <property name="enabled">
+           <bool>true</bool>
+          </property>
           <property name="dimension">
            <number>4</number>
           </property>
@@ -347,10 +350,10 @@
         <item row="3" column="0">
          <widget class="QLabel" name="label_7">
           <property name="enabled">
-           <bool>false</bool>
+           <bool>true</bool>
           </property>
           <property name="text">
-           <string>Rotate Z</string>
+           <string>Rotate around normal</string>
           </property>
          </widget>
         </item>
@@ -367,7 +370,7 @@
         <item row="3" column="1">
          <widget class="ctkSliderWidget" name="SliderWidget_RotateImagerAroundZ">
           <property name="enabled">
-           <bool>false</bool>
+           <bool>true</bool>
           </property>
           <property name="maximum">
            <double>359.990000000000009</double>
@@ -376,6 +379,9 @@
         </item>
         <item row="7" column="0">
          <widget class="QLabel" name="label_11">
+          <property name="enabled">
+           <bool>true</bool>
+          </property>
           <property name="text">
            <string>Image window</string>
           </property>
@@ -410,13 +416,19 @@
         </item>
         <item row="8" column="0">
          <widget class="QLabel" name="label_12">
+          <property name="enabled">
+           <bool>true</bool>
+          </property>
           <property name="text">
-           <string>Image center</string>
+           <string>Image center (mm)</string>
           </property>
          </widget>
         </item>
         <item row="8" column="1">
          <widget class="ctkCoordinatesWidget" name="CoordinatesWidget_ImageCenter">
+          <property name="enabled">
+           <bool>true</bool>
+          </property>
           <property name="dimension">
            <number>2</number>
           </property>
@@ -468,7 +480,7 @@
       <string>Plastimatch DRR args</string>
      </property>
      <property name="collapsed">
-      <bool>false</bool>
+      <bool>true</bool>
      </property>
      <layout class="QVBoxLayout" name="verticalLayout_3">
       <item>
@@ -485,7 +497,7 @@
     </widget>
    </item>
    <item row="4" column="2" colspan="2">
-    <widget class="QCheckBox" name="CheckBox_ShowMarkups">
+    <widget class="QCheckBox" name="CheckBox_ShowDrrMarkups">
      <property name="text">
       <string>Show DRR markups</string>
      </property>
@@ -578,6 +590,38 @@
     <hint type="destinationlabel">
      <x>311</x>
      <y>21</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>CheckBox_AutoscalePixelsRange</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>CheckBox_AutoscaleWithRange</receiver>
+   <slot>setDisabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>110</x>
+     <y>311</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>110</x>
+     <y>339</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>CheckBox_AutoscaleWithRange</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>RangeWidget_IntensityRange</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>110</x>
+     <y>609</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>311</x>
+     <y>609</y>
     </hint>
    </hints>
   </connection>

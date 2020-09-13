@@ -673,6 +673,62 @@ void vtkSlicerPlmDrrLogic::UpdateMarkupsNodes(vtkMRMLPlmDrrNode* parameterNode)
 }
 
 //----------------------------------------------------------------------------
+void vtkSlicerPlmDrrLogic::ShowMarkupsNodes(vtkMRMLPlmDrrNode* parameterNode, bool toggled)
+{
+  vtkMRMLScene* scene = this->GetMRMLScene(); 
+  if (!scene)
+  {
+    vtkErrorMacro("UpdateMarkupsNodes: Invalid MRML scene");
+    return;
+  }
+  if (!parameterNode)
+  {
+    vtkErrorMacro("UpdateMarkupsNodes: Invalid parameter set node");
+    return;
+  }
+
+  // Imager boundary markups node
+  if (scene->GetFirstNodeByName(IMAGER_BOUNDARY_MARKUPS_NODE_NAME))
+  {
+    vtkMRMLMarkupsClosedCurveNode* imagerMarkupsNode = vtkMRMLMarkupsClosedCurveNode::SafeDownCast(
+      scene->GetFirstNodeByName(IMAGER_BOUNDARY_MARKUPS_NODE_NAME));
+    imagerMarkupsNode->SetDisplayVisibility(int(toggled));
+  }
+
+  // Image window markups node
+  if (scene->GetFirstNodeByName(IMAGE_WINDOW_MARKUPS_NODE_NAME))
+  {
+    vtkMRMLMarkupsClosedCurveNode* imageWindowMarkupsNode = vtkMRMLMarkupsClosedCurveNode::SafeDownCast(
+      scene->GetFirstNodeByName(IMAGE_WINDOW_MARKUPS_NODE_NAME));
+    imageWindowMarkupsNode->SetDisplayVisibility(int(toggled));
+  }
+
+  // normal vector markups line node
+  if (scene->GetFirstNodeByName(NORMAL_VECTOR_MARKUPS_NODE_NAME))
+  {
+    vtkMRMLMarkupsLineNode* vectorMarkupsNode = vtkMRMLMarkupsLineNode::SafeDownCast(
+      scene->GetFirstNodeByName(NORMAL_VECTOR_MARKUPS_NODE_NAME));
+    vectorMarkupsNode->SetDisplayVisibility(int(toggled));
+  }
+
+  // vup vector markups line node
+  if (scene->GetFirstNodeByName(VUP_VECTOR_MARKUPS_NODE_NAME))
+  {
+    vtkMRMLMarkupsLineNode* vectorMarkupsNode = vtkMRMLMarkupsLineNode::SafeDownCast(
+      scene->GetFirstNodeByName(VUP_VECTOR_MARKUPS_NODE_NAME));
+    vectorMarkupsNode->SetDisplayVisibility(int(toggled));
+  }
+
+  // fiducial markups line node
+  if (scene->GetFirstNodeByName(FIDUCIALS_MARKUPS_NODE_NAME))
+  {
+    vtkMRMLMarkupsFiducialNode* pointsMarkupsNode = vtkMRMLMarkupsFiducialNode::SafeDownCast(
+      scene->GetFirstNodeByName(FIDUCIALS_MARKUPS_NODE_NAME));
+    pointsMarkupsNode->SetDisplayVisibility(int(toggled));
+  }
+}
+
+//----------------------------------------------------------------------------
 vtkMRMLMarkupsClosedCurveNode* vtkSlicerPlmDrrLogic::CreateImagerBoundary(vtkMRMLPlmDrrNode* parameterNode)
 {
   auto imagerMarkupsNode = vtkSmartPointer<vtkMRMLMarkupsClosedCurveNode>::New();
@@ -1115,7 +1171,7 @@ std::string vtkSlicerPlmDrrLogic::GeneratePlastimatchDrrArgs( vtkMRMLVolumeNode*
 
   plastimatchArguments.push_back("-e");
   plastimatchArguments.push_back("-i");
-  plastimatchArguments.push_back("uniform");
+  plastimatchArguments.push_back("exact");
   plastimatchArguments.push_back("-O");
   plastimatchArguments.push_back("Out");
   plastimatchArguments.push_back("-t");
