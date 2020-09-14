@@ -60,7 +60,7 @@ public:
   /// Copy node content (excludes basic data, such a name and node reference)
   vtkMRMLCopyContentMacro(vtkMRMLRTPlanNode);
 
-  /// Get unique node XML tag name (like Volume, Model) 
+  /// Get unique node XML tag name
   const char* GetNodeTagName() override { return "PlmDrr"; };
 
   void GetRTImagePosition(double position[2]);
@@ -128,11 +128,11 @@ protected:
   double ImagerCenterOffset[2]; // x,y
   int ImageDimention[2]; // columns, rows
   double ImageSpacing[2]; // x,y
-  int ImageCenter[2]; // column, row
-  int ImageWindow[4]; // column1, column2, row1, row2
+  int ImageCenter[2]; // column, row (calculated from imager offset and image data)
+  int ImageWindow[4]; // column1, column2, row1, row2 (y0, y1, x0, x1)
   double RotateX; // not used
   double RotateY; // not used
-  double RotateZ;
+  double RotateZ; // deg
   AlgorithmReconstuctionType AlgorithmReconstuction;
   HounsfieldUnitsConversionType HUConversion;
   ThreadingType Threading;

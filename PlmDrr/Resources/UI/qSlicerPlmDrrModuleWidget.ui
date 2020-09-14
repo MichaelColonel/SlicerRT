@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>458</width>
-    <height>979</height>
+    <width>487</width>
+    <height>1022</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -266,7 +266,7 @@
         <item row="4" column="0">
          <widget class="QLabel" name="label_4">
           <property name="enabled">
-           <bool>false</bool>
+           <bool>true</bool>
           </property>
           <property name="text">
            <string>Imager center offset (mm)</string>
@@ -286,7 +286,7 @@
         <item row="4" column="1">
          <widget class="ctkCoordinatesWidget" name="CoordinatesWidget_ImagerCenterOffset">
           <property name="enabled">
-           <bool>false</bool>
+           <bool>true</bool>
           </property>
           <property name="dimension">
            <number>2</number>
@@ -417,7 +417,7 @@
         <item row="8" column="0">
          <widget class="QLabel" name="label_12">
           <property name="enabled">
-           <bool>true</bool>
+           <bool>false</bool>
           </property>
           <property name="text">
            <string>Image center (mm)</string>
@@ -427,7 +427,7 @@
         <item row="8" column="1">
          <widget class="ctkCoordinatesWidget" name="CoordinatesWidget_ImageCenter">
           <property name="enabled">
-           <bool>true</bool>
+           <bool>false</bool>
           </property>
           <property name="dimension">
            <number>2</number>

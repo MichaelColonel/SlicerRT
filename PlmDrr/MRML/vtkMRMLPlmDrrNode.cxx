@@ -57,10 +57,10 @@ vtkMRMLPlmDrrNode::vtkMRMLPlmDrrNode()
   ImageSpacing[0] = 0.25; // 250 um
   ImageSpacing[1] = 0.25; // 250 um
 
-  ImageWindow[0] = 0; // c1 = x1 (start column) 
-  ImageWindow[1] = 0; // r1 = y1 (start row)
-  ImageWindow[2] = ImageDimention[0]; // c2 = x2 (end column)
-  ImageWindow[3] = ImageDimention[1]; // r2 = y2 (end row)
+  ImageWindow[0] = 0; // c1 = x0 (start column) 
+  ImageWindow[1] = 0; // r1 = y0 (start row)
+  ImageWindow[2] = ImageDimention[0]; // c2 = x1 (end column)
+  ImageWindow[3] = ImageDimention[1]; // r2 = y1 (end row)
 
   AlgorithmReconstuction = EXACT;
   HUConversion = PREPROCESS;
