@@ -354,6 +354,7 @@ void qSlicerPlmDrrModuleWidget::onPlatimatchDrrProcessStarted()
 {
   Q_D(qSlicerPlmDrrModuleWidget);
   qDebug() << Q_FUNC_INFO << ": Process has been started";
+  //TODO: Add progress dialog here
 }
 
 //-----------------------------------------------------------------------------
@@ -361,18 +362,20 @@ void qSlicerPlmDrrModuleWidget::onPlatimatchDrrProcessFinished( int exitCode, QP
 {
   Q_D(qSlicerPlmDrrModuleWidget);
 
+  QProcess::ProcessError err = d->m_PlastimatchProcess->error();
+
+  delete d->m_PlastimatchProcess;
+  d->m_PlastimatchProcess = nullptr;
+
   if (exitCode == EXIT_SUCCESS && exitStatus == QProcess::NormalExit)
   {
-    delete d->m_PlastimatchProcess;
-    d->m_PlastimatchProcess = nullptr;
-
     vtkMRMLPlmDrrNode* paramNode = vtkMRMLPlmDrrNode::SafeDownCast(d->MRMLNodeComboBox_ParameterNode->currentNode());
-    if (!paramNode || !d->ModuleWindowInitialized)
+    if (!paramNode)
     {
       return;
     }
     
-    // load DRR raw resulted raw image file
+    // load resulted raw DRR image file
     QDir dir(qSlicerCoreApplication::application()->temporaryPath());
     QStringList filters;
     filters << "*.raw";
@@ -420,7 +423,6 @@ void qSlicerPlmDrrModuleWidget::onPlatimatchDrrProcessFinished( int exitCode, QP
     this->mrmlScene()->AddNode(drrVolumeNode);
 
     bool res = d->logic()->LoadDRR( drrVolumeNode, mhdName);
-  
     if (res)
     {
       qDebug() << Q_FUNC_INFO << ": DRR scalar volume node has been loaded, deleting temporary files";
@@ -441,12 +443,7 @@ void qSlicerPlmDrrModuleWidget::onPlatimatchDrrProcessFinished( int exitCode, QP
     }
   }
   else
-  {
-    QProcess::ProcessError err = d->m_PlastimatchProcess->error();
-
-    delete d->m_PlastimatchProcess;
-    d->m_PlastimatchProcess = nullptr;
-    
+  {    
     QString errorMessage;
     switch (err)
     {
@@ -605,6 +602,12 @@ void qSlicerPlmDrrModuleWidget::enter()
 {
   this->Superclass::enter();
   this->onEnter();
+}
+
+//-----------------------------------------------------------------------------
+void qSlicerPlmDrrModuleWidget::exit()
+{
+  this->Superclass::exit();
 }
 
 //-----------------------------------------------------------------------------

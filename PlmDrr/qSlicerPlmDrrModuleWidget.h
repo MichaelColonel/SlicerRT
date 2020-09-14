@@ -41,6 +41,7 @@ public:
   qSlicerPlmDrrModuleWidget(QWidget *parent=0);
   ~qSlicerPlmDrrModuleWidget() override;
 
+  void exit() override;
   void enter() override;
 
 public slots:
