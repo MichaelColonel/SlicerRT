@@ -1195,7 +1195,7 @@ bool vtkSlicerPlmDrrLogic::LoadRtImage( vtkMRMLPlmDrrNode* paramNode,
   scene->AddNode(volumeDisplayNode);
   volumeDisplayNode->SetDefaultColorMap();
 
-  int AutoscaleRange[2];
+  signed long int AutoscaleRange[2];
   paramNode->GetAutoscaleRange(AutoscaleRange);
   if (!paramNode->GetAutoscaleFlag() || (paramNode->GetAutoscaleFlag() &&
     !AutoscaleRange[0] && !AutoscaleRange[1]))

@@ -87,8 +87,8 @@ public:
   vtkGetMacro(AutoscaleFlag, bool);
   vtkSetMacro(AutoscaleFlag, bool);
 
-  vtkGetVector2Macro(AutoscaleRange, int);
-  vtkSetVector2Macro(AutoscaleRange, int);
+  vtkGetVector2Macro(AutoscaleRange, signed long int);
+  vtkSetVector2Macro(AutoscaleRange, signed long int);
 
   vtkGetMacro(IsocenterImagerDistance, double);
   vtkSetMacro(IsocenterImagerDistance, double);
@@ -138,7 +138,7 @@ protected:
   ThreadingType Threading;
   bool ExponentialMappingFlag;
   bool AutoscaleFlag;
-  int AutoscaleRange[2];
+  signed long int AutoscaleRange[2];
 };
 
 #endif
