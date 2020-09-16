@@ -48,14 +48,14 @@ vtkMRMLPlmDrrNode::vtkMRMLPlmDrrNode()
 {
   ImagerCenterOffset[0] = 0.;
   ImagerCenterOffset[1] = 0.;
-  ImageDimention[0] = 2048; // columns = x
-  ImageDimention[1] = 2048; // rows = y
+  ImageDimention[0] = 1024; // columns = x
+  ImageDimention[1] = 768; // rows = y
 
   ImageCenter[0] = ImageDimention[0] / 2; // columns = x
   ImageCenter[1] = ImageDimention[1] / 2; // rows = y
 
-  ImageSpacing[0] = 0.25; // 250 um
-  ImageSpacing[1] = 0.25; // 250 um
+  ImageSpacing[0] = 0.25; // 250 um (columns = x)
+  ImageSpacing[1] = 0.25; // 250 um (rows = y)
 
   ImageWindow[0] = 0; // c1 = x0 (start column) 
   ImageWindow[1] = 0; // r1 = y0 (start row)
@@ -240,6 +240,9 @@ void vtkMRMLPlmDrrNode::SetAndObserveBeamNode(vtkMRMLRTBeamNode* node)
 //----------------------------------------------------------------------------
 void vtkMRMLPlmDrrNode::GetRTImagePosition(double position[2])
 {
-  position[0] = -1. * ImageSpacing[0] * ImageDimention[0] / 2.; // columns (X)
-  position[1] = ImageSpacing[1] * ImageDimention[1] / 2.; // rows (Y)
+  double offsetX = double(ImageWindow[0]) * ImageSpacing[0];
+  double offsetY = double(ImageWindow[1]) * ImageSpacing[1];
+
+  position[0] = offsetX - ImageSpacing[0] * ImageDimention[0] / 2.; // columns (X)
+  position[1] = offsetY - ImageSpacing[1] * ImageDimention[1] / 2.; // rows (Y)
 }

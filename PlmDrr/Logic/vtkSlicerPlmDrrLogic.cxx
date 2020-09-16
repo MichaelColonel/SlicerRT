@@ -200,7 +200,7 @@ bool vtkSlicerPlmDrrLogic::LoadDRR( vtkMRMLScalarVolumeNode* volumeNode, const s
   }
 
   // Plastimatch DRR input pixel type (long)
-  using InputPixelType = signed long;
+  using InputPixelType = signed long int;
   const unsigned int InputDimension = 3;
 
   using InputImageType = itk::Image< InputPixelType, InputDimension >;
@@ -221,7 +221,7 @@ bool vtkSlicerPlmDrrLogic::LoadDRR( vtkMRMLScalarVolumeNode* volumeNode, const s
   }
   catch(itk::ExceptionObject& ex)
   {
-    vtkErrorMacro("LoadDRR: Problem reading data " << ex);
+    vtkErrorMacro("LoadDRR: Reading exception caught " << ex);
     return false;
   }
 
@@ -398,7 +398,7 @@ void vtkSlicerPlmDrrLogic::UpdateMarkupsNodes(vtkMRMLPlmDrrNode* parameterNode)
     double imagerHalfWidth = spacing[0] * dimention[0] / 2.; // columns
     double imagerHalfHeight = spacing[1] * dimention[1] / 2.; // rows
 
-    // add points
+    // update points
     vtkVector3d imagerP0( -1. * imagerHalfWidth + offset[0], imagerHalfHeight + offset[1], -distance);
     vtkVector3d imagerP1( imagerHalfWidth + offset[0], imagerHalfHeight + offset[1], -distance);
     vtkVector3d imagerP2( imagerHalfWidth + offset[0], -1. * imagerHalfHeight + offset[1], -distance);
@@ -470,11 +470,11 @@ void vtkSlicerPlmDrrLogic::UpdateMarkupsNodes(vtkMRMLPlmDrrNode* parameterNode)
     vtkVector3d imagerP0( -1. * imagerHalfWidth + offset[0], imagerHalfHeight + offset[1], -distance);
 
     double r1 = -1. * imagerP0.GetY() + imageWindow[1] * spacing[1];
-    double c1 = /* - imagerP0.GetX() + */ -1. * imageWindow[0] * spacing[0];
+    double c1 = imagerP0.GetX() + imageWindow[0] * spacing[0];
     double r2 = -1. * imagerP0.GetY() + imageWindow[3] * spacing[1];
-    double c2 = /* - imagerP0.GetX() + */ -1. * imageWindow[2] * spacing[0];
+    double c2 = imagerP0.GetX() + imageWindow[2] * spacing[0];
 
-    // add points
+    // update points
     vtkVector3d imageP0( c1, r1, -distance);
     vtkVector3d imageP1( c1, r2, -distance);
     vtkVector3d imageP2( c2, r2, -distance);
@@ -530,6 +530,7 @@ void vtkSlicerPlmDrrLogic::UpdateMarkupsNodes(vtkMRMLPlmDrrNode* parameterNode)
 
     double distance = parameterNode->GetIsocenterImagerDistance();
 
+    // update points
     vtkVector3d p0( offset[0], offset[1], -distance);
     vtkVector3d p1( offset[0], offset[1], -distance + 100.);
 
@@ -577,10 +578,9 @@ void vtkSlicerPlmDrrLogic::UpdateMarkupsNodes(vtkMRMLPlmDrrNode* parameterNode)
     double offset[2] = {};
     parameterNode->GetImagerCenterOffset(offset);
 
-    double x = spacing[0] * dimention[0] / 2.; // columns
-//    double y = spacing[1] * dimention[1] / 2.; // rows
+    double x = spacing[0] * dimention[0] / 2.; // center imager column
 
-    // add points
+    // update points
     vtkVector3d p0( offset[0], offset[1], -distance);
     vtkVector3d p1( -x + offset[0], offset[1], -distance);
 
@@ -628,10 +628,10 @@ void vtkSlicerPlmDrrLogic::UpdateMarkupsNodes(vtkMRMLPlmDrrNode* parameterNode)
     double offset[2] = {};
     parameterNode->GetImagerCenterOffset(offset);
 
-    double x = spacing[0] * dimention[0] / 2.; // columns
-    double y = spacing[1] * dimention[1] / 2.; // rows
+    double x = spacing[0] * dimention[0] / 2.; // imager center column
+    double y = spacing[1] * dimention[1] / 2.; // imager center row
 
-    // add points
+    // update points
     vtkVector3d p0( 0., 0., -distance); // imager center
     vtkVector3d p1( 0., 0., -distance + 100.); // imager normal vector
     vtkVector3d p2( -x + offset[0], -y + offset[1], -distance); // (0,0)
@@ -813,13 +813,13 @@ vtkMRMLMarkupsClosedCurveNode* vtkSlicerPlmDrrLogic::CreateImageWindow(vtkMRMLPl
     double imagerHalfWidth = spacing[0] * dimention[0] / 2.; // columns
     double imagerHalfHeight = spacing[1] * dimention[1] / 2.; // rows
 
-    // add points
+    // Imager upper left point
     vtkVector3d imagerP0( -1. * imagerHalfWidth + offset[0], imagerHalfHeight + offset[1], -distance);
 
     double r1 = -1. * imagerP0.GetY() + imageWindow[1] * spacing[1];
-    double c1 = /* - imagerP0.GetX() + */ -1. * imageWindow[0] * spacing[0];
+    double c1 = imagerP0.GetX() + imageWindow[0] * spacing[0];
     double r2 = -1. * imagerP0.GetY() + imageWindow[3] * spacing[1];
-    double c2 = /* - imagerP0.GetX() + */ -1. * imageWindow[2] * spacing[0];
+    double c2 = imagerP0.GetX() + imageWindow[2] * spacing[0];
 
     // add points
     vtkVector3d imageP0( c1, r1, -distance);
@@ -1023,106 +1023,28 @@ std::string vtkSlicerPlmDrrLogic::GeneratePlastimatchDrrArgs( vtkMRMLVolumeNode*
   double spacing[2];
   parameterNode->GetImageSpacing(spacing);
 
+  // Isocenter RAS position, for plastimatch isocenter MUST BE in LPS position
   double isocenter[3];
   beamNode->GetPlanIsocenterPosition(isocenter);
 
   int window[4];
   parameterNode->GetImageWindow(window);
 
-//   plastimatch drr -nrm "1 0 0"
-//    -vup "0 0 1"
-//    -g "1000 1500"
-//    -r "1024 768"
-//    -z "400 300"
-//    -c "383.5 511.5"
-//    -o "0 -20 -50"
-//    -e -i uniform -O Out -t raw input_file.mha
-/*
-  drrOptions.threading = THREADING_CPU_SINGLE;
-  drrOptions.detector_resolution[0] = 128;
-  drrOptions.detector_resolution[1] = 128;
-  drrOptions.image_size[0] = 600;
-  drrOptions.image_size[1] = 600;
-  drrOptions.have_image_center = 0;
-  drrOptions.have_image_window = 0;
-  drrOptions.isocenter[0] = 0.0f;
-  drrOptions.isocenter[1] = 0.0f;
-  drrOptions.isocenter[2] = 0.0f;
+  // flag that specific image window is used
+  bool useImageWindow = !(window[0] == 0 && 
+    window[1] == 0 && 
+    window[2] == res[0] && 
+    window[3] == res[1]);
 
-  drrOptions.start_angle = 0.f;
-  drrOptions.num_angles = 1;
-  drrOptions.have_angle_diff = 0;
-  drrOptions.angle_diff = 1.0f;
+  // imager center
+  double imageCenterX = double(res[0] - 1) / 2.;
+  double imageCenterY = double(res[1] - 1) / 2.;
+  if (useImageWindow) // image window center
+  {
+    imageCenterX = double(window[0]) + double(window[2] - window[0] - 1) / 2.;
+    imageCenterY = double(window[1]) + double(window[3] - window[1] - 1) / 2.;
+  }
 
-  drrOptions.have_nrm = 0;
-  drrOptions.nrm[0] = 1.0f;
-  drrOptions.nrm[1] = 0.0f;
-  drrOptions.nrm[2] = 0.0f;
-  drrOptions.vup[0] = 0.0f;
-  drrOptions.vup[1] = 0.0f;
-  drrOptions.vup[2] = 1.0f;
-
-  drrOptions.sad = 1000.0f;
-  drrOptions.sid = 1630.0f;
-  drrOptions.manual_scale = 1.0f;
-
-  drrOptions.exponential_mapping = 0;
-  drrOptions.output_format= OUTPUT_FORMAT_PFM;
-  drrOptions.hu_conversion = PREPROCESS_CONVERSION;
-  drrOptions.output_details_prefix = "";
-  drrOptions.output_details_fn = "";
-  drrOptions.algorithm = DRR_ALGORITHM_EXACT;
-  drrOptions.input_file = "";
-  drrOptions.geometry_only = 0;
-  drrOptions.output_prefix = "out_";
-
-  // Imager resolution
-  drrOptions.detector_resolution[0] = res[1];
-  drrOptions.detector_resolution[1] = res[0];
-
-  // VUP vector
-  drrOptions.vup[0] = static_cast<float>(vup[0]);
-  drrOptions.vup[1] = static_cast<float>(vup[1]);
-  drrOptions.vup[2] = static_cast<float>(vup[2]);
-
-  // Imager normal vector
-  drrOptions.have_nrm = 1;
-  drrOptions.nrm[0] = static_cast<float>(n[0]);
-  drrOptions.nrm[1] = static_cast<float>(n[1]);
-  drrOptions.nrm[2] = static_cast<float>(n[2]);
-
-  // SAD, SID distance
-  drrOptions.sad = static_cast<float>(beamNode->GetSAD());
-  drrOptions.sid = static_cast<float>(beamNode->GetSAD() + parameterNode->GetIsocenterImagerDistance());
-
-  // Image size
-  drrOptions.image_size[0] = static_cast<float>(res[1] * spacing[1]);
-  drrOptions.image_size[1] = static_cast<float>(res[0] * spacing[0]);
-
-  // Image center
-  drrOptions.have_image_center = 1;
-  drrOptions.image_center[0] = static_cast<float>(res[1] / 2.);
-  drrOptions.image_center[1] = static_cast<float>(res[0] / 2.);
-
-  // Isocenter
-  drrOptions.isocenter[0] = static_cast<float>(isocenter[0]);
-  drrOptions.isocenter[1] = static_cast<float>(isocenter[1]);
-  drrOptions.isocenter[2] = static_cast<float>(isocenter[2]);
-
-  // Image window
-  drrOptions.have_image_window = 1;
-  drrOptions.image_window[0] = window[1];
-  drrOptions.image_window[1] = window[3];
-  drrOptions.image_window[2] = window[0];
-  drrOptions.image_window[3] = window[2];
-
-  // Algorithm
-  drrOptions.algorithm = DRR_ALGORITHM_EXACT;
-  // Output format
-  drrOptions.output_format = OUTPUT_FORMAT_RAW;
-  // Output prefix
-  drrOptions.output_prefix = "Out";
-*/
   std::ostringstream command;
   command << "plastimatch drr ";
   command << "--nrm" << " \"" << n[0] << " " << n[1] << " " << n[2] << "\" \\" << "\n";
@@ -1130,10 +1052,15 @@ std::string vtkSlicerPlmDrrLogic::GeneratePlastimatchDrrArgs( vtkMRMLVolumeNode*
   command << "\t--sad " << beamNode->GetSAD() << " --sid " << beamNode->GetSAD() + parameterNode->GetIsocenterImagerDistance() << " \\" << "\n";
   command << "\t-r" << " \"" << res[1] << " " << res[0] << "\" \\" << "\n";
   command << "\t-z" << " \"" << res[1] * spacing[1] << " " << res[0] * spacing[0] << "\" \\" << "\n";
-  command << "\t-c" << " \"" << double(res[1]) / 2. << " " << double(res[0]) / 2. << "\" \\" << "\n";
-  command << "\t-o" << " \"" << isocenter[0] << " " << isocenter[1] << " " << isocenter[2] << "\" \\" << "\n";
-  command << "\t-w" << " \"" << window[1] << " " << window[3] << " " << window[0] << " " << window[2] << "\" \\" << "\n";
-  command << "\t-e -i uniform -O Out -t raw";
+  command << "\t-c" << " \"" << imageCenterY << " " << imageCenterX << "\" \\" << "\n";
+
+  // Isocenter LPS position (-isocenter[0], -isocenter[1], isocenter[2])
+  command << "\t-o" << " \"" << -1. * isocenter[0] << " " << -1. * isocenter[1] << " " << isocenter[2] << "\" \\" << "\n";
+  if (useImageWindow)
+  {
+    command << "\t-w" << " \"" << window[1] << " " << window[3] << " " << window[0] << " " << window[2] << "\" \\" << "\n";
+  }
+  command << "\t-e -i exact -O Out -t raw";
 
   plastimatchArguments.clear();
   plastimatchArguments.push_back("drr");
@@ -1164,18 +1091,22 @@ std::string vtkSlicerPlmDrrLogic::GeneratePlastimatchDrrArgs( vtkMRMLVolumeNode*
 
   plastimatchArguments.push_back("-c");
   std::ostringstream arg5;
-  arg5 << double(res[1]) / 2. << " " << double(res[0]) / 2.;
+  arg5 << imageCenterY << " " << imageCenterX;
   plastimatchArguments.push_back(arg5.str());
-  
+
+  // Isocenter LPS position (-isocenter[0], -isocenter[1], isocenter[2])
   plastimatchArguments.push_back("-o");
   std::ostringstream arg6;
-  arg6 << isocenter[0] << " " << isocenter[1] << " " << isocenter[2];
+  arg6 << -1. * isocenter[0] << " " << -1. * isocenter[1] << " " << isocenter[2];
   plastimatchArguments.push_back(arg6.str());
 
-  plastimatchArguments.push_back("-w");
-  std::ostringstream arg7;
-  arg7 << window[1] << " " << window[3] << " " << window[0] << " " << window[2];
-  plastimatchArguments.push_back(arg7.str());
+  if (useImageWindow)
+  {
+    plastimatchArguments.push_back("-w");
+    std::ostringstream arg7;
+    arg7 << window[1] << " " << window[3] << " " << window[0] << " " << window[2];
+    plastimatchArguments.push_back(arg7.str());
+  }
 
   plastimatchArguments.push_back("-e");
   plastimatchArguments.push_back("-i");
@@ -1422,6 +1353,14 @@ bool vtkSlicerPlmDrrLogic::SetupRtImageGeometry( vtkMRMLPlmDrrNode* paramNode,
   double gantryAngle = beamNode->GetGantryAngle();
   double couchAngle = beamNode->GetCouchAngle();
 
+  int window[4];
+  paramNode->GetImageWindow(window);
+  double spacing[2];
+  paramNode->GetImageSpacing(spacing);
+
+  double offsetX = double(window[0]) * spacing[0];
+  double offsetY = double(window[1]) * spacing[1] ;
+
   // Get isocenter coordinates
   double isocenterWorldCoordinates[3] = {0.0, 0.0, 0.0};
   if (!beamNode->GetPlanIsocenterPosition(isocenterWorldCoordinates))
@@ -1449,11 +1388,11 @@ bool vtkSlicerPlmDrrLogic::SetupRtImageGeometry( vtkMRMLPlmDrrNode* paramNode,
 
   vtkSmartPointer<vtkTransform> rtImageToSourceTransform = vtkSmartPointer<vtkTransform>::New();
   rtImageToSourceTransform->Identity();
-  rtImageToSourceTransform->Translate(0.0, -1. * /* sourceAxisDistance */ rtImageSid, 0.0);
+  rtImageToSourceTransform->Translate(0.0, -1. * rtImageSid, 0.0);
 
   vtkSmartPointer<vtkTransform> rtImageCenterToCornerTransform = vtkSmartPointer<vtkTransform>::New();
   rtImageCenterToCornerTransform->Identity();
-  rtImageCenterToCornerTransform->Translate( -1. * rtImagePosition[0], 0.0, -1. * rtImagePosition[1]);
+  rtImageCenterToCornerTransform->Translate( -1. * rtImagePosition[0], 0.0, rtImagePosition[1]);
 
   // Create isocenter to RAS transform
   // The transformation below is based section C.8.8 in DICOM standard volume 3:

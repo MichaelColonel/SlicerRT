@@ -72,6 +72,7 @@ protected slots:
   void onPlatimatchDrrProcessFinished( int, QProcess::ExitStatus);
   void onSelectPlastimatchAppPathClicked();
   void onShowMarkupsToggled(bool);
+  void onUseImageWindowToggled(bool);
 
 protected:
   QScopedPointer<qSlicerPlmDrrModuleWidgetPrivate> d_ptr;

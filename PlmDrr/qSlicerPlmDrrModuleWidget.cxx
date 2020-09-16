@@ -177,6 +177,7 @@ void qSlicerPlmDrrModuleWidget::setup()
   connect( d->PushButton_SelectPlastimatchAppPath, SIGNAL(clicked()), this, SLOT(onSelectPlastimatchAppPathClicked()));
   connect( d->PushButton_ComputeDrr, SIGNAL(clicked()), this, SLOT(onComputeDrrClicked()));
   connect( d->CheckBox_ShowDrrMarkups, SIGNAL(toggled(bool)), this, SLOT(onShowMarkupsToggled(bool)));
+  connect( d->CheckBox_UseImageWindow, SIGNAL(toggled(bool)), this, SLOT(onUseImageWindowToggled(bool)));
 
   // Handle scene change event if occurs
   qvtkConnect( d->logic(), vtkCommand::ModifiedEvent, this, SLOT(onLogicModified()));
@@ -399,11 +400,20 @@ void qSlicerPlmDrrModuleWidget::onPlatimatchDrrProcessFinished( int exitCode, QP
 
         int res[2];
         paramNode->GetImageDimention(res);
+        int window[4];
+        paramNode->GetImageWindow(window);
         double spacing[2];
         paramNode->GetImageSpacing(spacing);
 
         ofs << "NDims = 3\n";
-        ofs << "DimSize = " << res[1] << " " << res[0] << " 1\n";
+        if (!d->CheckBox_UseImageWindow->isChecked())
+        {
+          ofs << "DimSize = " << res[1] << " " << res[0] << " 1\n";
+        }
+        else
+        {
+          ofs << "DimSize = " << window[3] - window[1] + 1 << " " << window[2] - window[0] + 1 << " 1\n";
+        }
         ofs << "ElementSpacing = " << spacing[1] << " " << spacing[1] << " 1\n";
         ofs << "Position = 0 0 0\n";
         ofs << "BinaryData = True\n";
@@ -808,6 +818,45 @@ void qSlicerPlmDrrModuleWidget::onImageWindowCoordinatesChanged(double* window)
     static_cast<int>(window[1]), // r1 = y1
     static_cast<int>(window[2]), // c2 = x2
     static_cast<int>(window[3]) }; // r2 = y2
+
+  paramNode->DisableModifiedEventOn();
+  paramNode->SetImageWindow(imageWindow);
+  paramNode->DisableModifiedEventOff();
+  
+  // Update imager and image markups, DRR arguments
+  d->logic()->UpdateMarkupsNodes(paramNode);
+  this->onUpdatePlmDrrArgs();
+}
+
+//-----------------------------------------------------------------------------
+void qSlicerPlmDrrModuleWidget::onUseImageWindowToggled(bool value)
+{
+  Q_D(qSlicerPlmDrrModuleWidget);
+
+  vtkMRMLPlmDrrNode* paramNode = vtkMRMLPlmDrrNode::SafeDownCast(d->MRMLNodeComboBox_ParameterNode->currentNode());
+  if (!paramNode)
+  {
+    qCritical() << Q_FUNC_INFO << ": Invalid parameter node";
+    return;
+  }
+
+  int imageWindow[4];
+  if (value)
+  {
+    const double* window = d->CoordinatesWidget_ImageWindow->coordinates();
+    imageWindow[0] = static_cast<int>(window[0]); // c1 = x1
+    imageWindow[1] = static_cast<int>(window[1]); // r1 = y1
+    imageWindow[2] = static_cast<int>(window[2]); // c2 = x2
+    imageWindow[3] = static_cast<int>(window[3]); // r2 = y2
+  }
+  else
+  {
+    const double* window = d->CoordinatesWidget_ImagePixelDimention->coordinates();
+    imageWindow[0] = 0;
+    imageWindow[1] = 0;
+    imageWindow[2] = static_cast<int>(window[0]); // column = x
+    imageWindow[3] = static_cast<int>(window[1]); // row = y
+  }
 
   paramNode->DisableModifiedEventOn();
   paramNode->SetImageWindow(imageWindow);
