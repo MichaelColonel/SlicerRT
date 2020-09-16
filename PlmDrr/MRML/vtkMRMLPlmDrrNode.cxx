@@ -48,8 +48,8 @@ vtkMRMLPlmDrrNode::vtkMRMLPlmDrrNode()
 {
   ImagerCenterOffset[0] = 0.;
   ImagerCenterOffset[1] = 0.;
-  ImageDimention[0] = 1024; // columns = x
-  ImageDimention[1] = 768; // rows = y
+  ImageDimention[0] = 2048; // columns = x
+  ImageDimention[1] = 2048; // rows = y
 
   ImageCenter[0] = ImageDimention[0] / 2; // columns = x
   ImageCenter[1] = ImageDimention[1] / 2; // rows = y
@@ -59,8 +59,8 @@ vtkMRMLPlmDrrNode::vtkMRMLPlmDrrNode()
 
   ImageWindow[0] = 0; // c1 = x0 (start column) 
   ImageWindow[1] = 0; // r1 = y0 (start row)
-  ImageWindow[2] = ImageDimention[0]; // c2 = x1 (end column)
-  ImageWindow[3] = ImageDimention[1]; // r2 = y1 (end row)
+  ImageWindow[2] = 1024; // c2 = x1 (end column)
+  ImageWindow[3] = 768; // r2 = y1 (end row)
 
   AlgorithmReconstuction = EXACT;
   HUConversion = PREPROCESS;
@@ -68,7 +68,7 @@ vtkMRMLPlmDrrNode::vtkMRMLPlmDrrNode()
   ExponentialMappingFlag = true;
   AutoscaleFlag = false;
   AutoscaleRange[0] = 0;
-  AutoscaleRange[1] =255;
+  AutoscaleRange[1] = 255;
 
   IsocenterImagerDistance = 300.;
   RotateX = 0.;

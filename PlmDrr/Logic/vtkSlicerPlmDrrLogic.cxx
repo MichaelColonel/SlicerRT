@@ -466,13 +466,13 @@ void vtkSlicerPlmDrrLogic::UpdateMarkupsNodes(vtkMRMLPlmDrrNode* parameterNode)
     double imagerHalfWidth = spacing[0] * dimention[0] / 2.; // columns
     double imagerHalfHeight = spacing[1] * dimention[1] / 2.; // rows
 
-    // add points
-    vtkVector3d topLeftPoint( -1. * imagerHalfWidth + offset[0], imagerHalfHeight + offset[1], -distance);
+    // imager top left corner
+    vtkVector3d imagerP0( -1. * imagerHalfWidth + offset[0], imagerHalfHeight + offset[1], -distance);
 
-    double r1 = topLeftPoint.GetY() - imageWindow[1] * spacing[1];
-    double c1 = topLeftPoint.GetX() + imageWindow[0] * spacing[0];
-    double r2 = topLeftPoint.GetY() - imageWindow[3] * spacing[1];
-    double c2 = topLeftPoint.GetX() + imageWindow[2] * spacing[0];
+    double r1 = -1. * imagerP0.GetY() + imageWindow[1] * spacing[1];
+    double c1 = /* - imagerP0.GetX() + */ -1. * imageWindow[0] * spacing[0];
+    double r2 = -1. * imagerP0.GetY() + imageWindow[3] * spacing[1];
+    double c2 = /* - imagerP0.GetX() + */ -1. * imageWindow[2] * spacing[0];
 
     // add points
     vtkVector3d imageP0( c1, r1, -distance);
@@ -816,10 +816,10 @@ vtkMRMLMarkupsClosedCurveNode* vtkSlicerPlmDrrLogic::CreateImageWindow(vtkMRMLPl
     // add points
     vtkVector3d imagerP0( -1. * imagerHalfWidth + offset[0], imagerHalfHeight + offset[1], -distance);
 
-    double r1 = imagerP0.GetY() - imageWindow[1] * spacing[1];
-    double c1 = imagerP0.GetX() + imageWindow[0] * spacing[0];
-    double r2 = imagerP0.GetY() - imageWindow[3] * spacing[1];
-    double c2 = imagerP0.GetX() + imageWindow[2] * spacing[0];
+    double r1 = -1. * imagerP0.GetY() + imageWindow[1] * spacing[1];
+    double c1 = /* - imagerP0.GetX() + */ -1. * imageWindow[0] * spacing[0];
+    double r2 = -1. * imagerP0.GetY() + imageWindow[3] * spacing[1];
+    double c2 = /* - imagerP0.GetX() + */ -1. * imageWindow[2] * spacing[0];
 
     // add points
     vtkVector3d imageP0( c1, r1, -distance);
