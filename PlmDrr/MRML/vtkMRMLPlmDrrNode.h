@@ -37,9 +37,9 @@ class vtkMRMLMarkupsLineNode;
 class VTK_SLICER_PLMDRR_MODULE_MRML_EXPORT vtkMRMLPlmDrrNode : public vtkMRMLNode
 {
 public:
-  enum AlgorithmReconstuctionType { EXACT, UNIFORM };
-  enum HounsfieldUnitsConversionType { PREPROCESS, INLINE, NONE };
-  enum ThreadingType { CPU, CUDA, OPENCL };
+  enum AlgorithmReconstuctionType { EXACT = 0, UNIFORM = 1 };
+  enum HounsfieldUnitsConversionType { PREPROCESS = 0, INLINE = 1, NONE = 2};
+  enum ThreadingType { CPU = 0, CUDA = 1, OPENCL = 2 };
 
   static vtkMRMLPlmDrrNode *New();
   vtkTypeMacro(vtkMRMLPlmDrrNode,vtkMRMLNode);
@@ -122,6 +122,10 @@ protected:
   ~vtkMRMLPlmDrrNode();
   vtkMRMLPlmDrrNode(const vtkMRMLPlmDrrNode&);
   void operator=(const vtkMRMLPlmDrrNode&);
+
+  void SetAlgorithmReconstuction(int algorithmReconstuction = 0);
+  void SetHUConversion(int huConversion = 0);
+  void SetThreading(int threading = 0);
 
 protected:
   double IsocenterImagerDistance; // fabs(SID - SAD)

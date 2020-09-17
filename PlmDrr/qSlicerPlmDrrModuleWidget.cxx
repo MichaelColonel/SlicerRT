@@ -794,8 +794,13 @@ void qSlicerPlmDrrModuleWidget::onImageDimentionChanged(double* dimention)
   int dim[2] = { static_cast<int>(dimention[0]), static_cast<int>(dimention[1]) }; // x, y
   paramNode->DisableModifiedEventOn();
   paramNode->SetImageDimention(dim);
+  if (!d->CheckBox_UseImageWindow->isChecked())
+  {
+    int win[4] = { 0, 0, dim[0], dim[1] };
+    paramNode->SetImageWindow(win);
+  }
   paramNode->DisableModifiedEventOff();
-  
+
   // Update imager and image markups, DRR arguments
   d->logic()->UpdateMarkupsNodes(paramNode);
   this->onUpdatePlmDrrArgs();

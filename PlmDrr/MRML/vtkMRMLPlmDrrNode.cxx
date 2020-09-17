@@ -96,6 +96,12 @@ void vtkMRMLPlmDrrNode::WriteXML(ostream& of, int nIndent)
   vtkMRMLWriteXMLVectorMacro(ImageSpacing, ImageSpacing, double, 2);
   vtkMRMLWriteXMLVectorMacro(ImageCenter, ImageCenter, int, 2);
   vtkMRMLWriteXMLVectorMacro(ImageWindow, ImageWindow, int, 4);
+  vtkMRMLWriteXMLBooleanMacro( ExponentialMappingFlag, ExponentialMappingFlag);
+  vtkMRMLWriteXMLBooleanMacro( AutoscaleFlag, AutoscaleFlag);
+  vtkMRMLWriteXMLVectorMacro( AutoscaleRange, AutoscaleRange, signed long int, 2); 
+  vtkMRMLWriteXMLIntMacro( AlgorithmReconstuction, AlgorithmReconstuction);
+  vtkMRMLWriteXMLIntMacro( HUConversion, HUConversion);
+  vtkMRMLWriteXMLIntMacro( Threading, Threading);
   vtkMRMLWriteXMLFloatMacro(RotateX, RotateX);
   vtkMRMLWriteXMLFloatMacro(RotateY, RotateY);
   vtkMRMLWriteXMLFloatMacro(RotateZ, RotateZ);
@@ -116,6 +122,12 @@ void vtkMRMLPlmDrrNode::ReadXMLAttributes(const char** atts)
   vtkMRMLReadXMLVectorMacro(ImageSpacing, ImageSpacing, double, 2);
   vtkMRMLReadXMLVectorMacro(ImageCenter, ImageCenter, int, 2);
   vtkMRMLReadXMLVectorMacro(ImageWindow, ImageWindow, int, 4);
+  vtkMRMLReadXMLBooleanMacro( ExponentialMappingFlag, ExponentialMappingFlag);
+  vtkMRMLReadXMLBooleanMacro( AutoscaleFlag, AutoscaleFlag);
+  vtkMRMLReadXMLVectorMacro( AutoscaleRange, AutoscaleRange, signed long int, 2);
+  vtkMRMLReadXMLIntMacro( AlgorithmReconstuction, AlgorithmReconstuction);
+  vtkMRMLReadXMLIntMacro( HUConversion, HUConversion);
+  vtkMRMLReadXMLIntMacro( Threading, Threading);
   vtkMRMLReadXMLFloatMacro(RotateX, RotateX);
   vtkMRMLReadXMLFloatMacro(RotateY, RotateY);
   vtkMRMLReadXMLFloatMacro(RotateZ, RotateZ);
@@ -163,6 +175,12 @@ void vtkMRMLPlmDrrNode::Copy(vtkMRMLNode *anode)
   vtkMRMLCopyVectorMacro(ImageSpacing, double, 2);
   vtkMRMLCopyVectorMacro(ImageCenter, int, 2);
   vtkMRMLCopyVectorMacro(ImageWindow, int, 4);
+  vtkMRMLCopyBooleanMacro(ExponentialMappingFlag);
+  vtkMRMLCopyBooleanMacro(AutoscaleFlag);
+  vtkMRMLCopyVectorMacro(AutoscaleRange, signed long int, 2);
+  vtkMRMLCopyIntMacro(AlgorithmReconstuction);
+  vtkMRMLCopyIntMacro(HUConversion);
+  vtkMRMLCopyIntMacro(Threading);
   vtkMRMLCopyFloatMacro(RotateX);
   vtkMRMLCopyFloatMacro(RotateY);
   vtkMRMLCopyFloatMacro(RotateZ);
@@ -193,6 +211,12 @@ void vtkMRMLPlmDrrNode::CopyContent(vtkMRMLNode *anode, bool deepCopy/*=true*/)
   vtkMRMLCopyVectorMacro(ImageSpacing, double, 2);
   vtkMRMLCopyVectorMacro(ImageCenter, int, 2);
   vtkMRMLCopyVectorMacro(ImageWindow, int, 4);
+  vtkMRMLCopyBooleanMacro(ExponentialMappingFlag);
+  vtkMRMLCopyBooleanMacro(AutoscaleFlag);
+  vtkMRMLCopyVectorMacro(AutoscaleRange, signed long int, 2);
+  vtkMRMLCopyIntMacro(AlgorithmReconstuction);
+  vtkMRMLCopyIntMacro(HUConversion);
+  vtkMRMLCopyIntMacro(Threading);
   vtkMRMLCopyFloatMacro(RotateX);
   vtkMRMLCopyFloatMacro(RotateY);
   vtkMRMLCopyFloatMacro(RotateZ);
@@ -212,6 +236,12 @@ void vtkMRMLPlmDrrNode::PrintSelf(ostream& os, vtkIndent indent)
   vtkMRMLPrintVectorMacro(ImageSpacing, double, 2);
   vtkMRMLPrintVectorMacro(ImageCenter, int, 2);
   vtkMRMLPrintVectorMacro(ImageWindow, int, 4);
+  vtkMRMLPrintBooleanMacro(ExponentialMappingFlag);
+  vtkMRMLPrintBooleanMacro(AutoscaleFlag);
+  vtkMRMLPrintVectorMacro(AutoscaleRange, signed long int, 2);
+  vtkMRMLPrintIntMacro(AlgorithmReconstuction);
+  vtkMRMLPrintIntMacro(HUConversion);
+  vtkMRMLPrintIntMacro(Threading);
   vtkMRMLPrintFloatMacro(RotateX);
   vtkMRMLPrintFloatMacro(RotateY);
   vtkMRMLPrintFloatMacro(RotateZ);
@@ -245,4 +275,55 @@ void vtkMRMLPlmDrrNode::GetRTImagePosition(double position[2])
 
   position[0] = offsetX - ImageSpacing[0] * ImageDimention[0] / 2.; // columns (X)
   position[1] = offsetY - ImageSpacing[1] * ImageDimention[1] / 2.; // rows (Y)
+}
+
+//----------------------------------------------------------------------------
+void vtkMRMLPlmDrrNode::SetAlgorithmReconstuction(int algorithmReconstuction)
+{
+  switch (algorithmReconstuction)
+  {
+    case 1:
+      SetAlgorithmReconstuction(AlgorithmReconstuctionType::UNIFORM);
+      break;
+    case 0:
+    default:
+      SetAlgorithmReconstuction(AlgorithmReconstuctionType::EXACT);
+      break;
+  };
+}
+
+//----------------------------------------------------------------------------
+void vtkMRMLPlmDrrNode::SetHUConversion(int huConvension)
+{
+  switch (huConvension)
+  {
+    case 1:
+      SetHUConversion(HounsfieldUnitsConversionType::INLINE);
+      break;
+    case 2:
+      SetHUConversion(HounsfieldUnitsConversionType::NONE);
+      break;
+    case 0:
+    default:
+      SetHUConversion(HounsfieldUnitsConversionType::PREPROCESS);
+      break;
+  };
+}
+
+//----------------------------------------------------------------------------
+void vtkMRMLPlmDrrNode::SetThreading(int threading)
+{
+  switch (threading)
+  {
+    case 1:
+      SetThreading(ThreadingType::CUDA);
+      break;
+    case 2:
+      SetThreading(ThreadingType::OPENCL);
+      break;
+    case 0:
+    default:
+      SetThreading(ThreadingType::CPU);
+      break;
+  };
 }

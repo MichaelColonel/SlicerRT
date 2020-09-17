@@ -900,8 +900,8 @@ vtkMRMLMarkupsLineNode* vtkSlicerPlmDrrLogic::CreateImagerVUP(vtkMRMLPlmDrrNode*
     double offset[2] = {};
     parameterNode->GetImagerCenterOffset(offset);
 
-    double x = spacing[0] * dimention[0] / 2.; // columns
-    double y = spacing[1] * dimention[1] / 2.; // rows
+    double x = spacing[0] * dimention[0] / 2.; // center column
+//    double y = spacing[1] * dimention[1] / 2.; // center row
 
     // add points
     vtkVector3d p0( 0 + offset[0], 0 + offset[1], -distance);
@@ -1357,9 +1357,6 @@ bool vtkSlicerPlmDrrLogic::SetupRtImageGeometry( vtkMRMLPlmDrrNode* paramNode,
   paramNode->GetImageWindow(window);
   double spacing[2];
   paramNode->GetImageSpacing(spacing);
-
-  double offsetX = double(window[0]) * spacing[0];
-  double offsetY = double(window[1]) * spacing[1] ;
 
   // Get isocenter coordinates
   double isocenterWorldCoordinates[3] = {0.0, 0.0, 0.0};
