@@ -290,7 +290,7 @@ void vtkSlicerPlmDrrLogic::CreateMarkupsNodes(vtkMRMLPlmDrrNode* parameterNode)
   {
     imagerMarkupsNode = vtkMRMLMarkupsClosedCurveNode::SafeDownCast(
       scene->GetFirstNodeByName(IMAGER_BOUNDARY_MARKUPS_NODE_NAME));
-    vtkWarningMacro("CreateMarkupsNodes: Update imager points using parameter node data");
+    // Update imager points using parameter node data
   }
 
   // Image window markups node
@@ -303,7 +303,7 @@ void vtkSlicerPlmDrrLogic::CreateMarkupsNodes(vtkMRMLPlmDrrNode* parameterNode)
   {
     imageWindowMarkupsNode = vtkMRMLMarkupsClosedCurveNode::SafeDownCast(
       scene->GetFirstNodeByName(IMAGE_WINDOW_MARKUPS_NODE_NAME));
-    vtkWarningMacro("CreateMarkupsNodes: Update image window points using parameter node data");
+    // Update image window points using parameter node data
   }
 
   // imager normal vector markups node
@@ -316,7 +316,7 @@ void vtkSlicerPlmDrrLogic::CreateMarkupsNodes(vtkMRMLPlmDrrNode* parameterNode)
   {
     normalVectorMarkupsNode = vtkMRMLMarkupsLineNode::SafeDownCast(
       scene->GetFirstNodeByName(NORMAL_VECTOR_MARKUPS_NODE_NAME));
-    vtkWarningMacro("CreateMarkupsNodes: Update Normal vector points using parameter node data");
+    // Update Normal vector points using parameter node data
   }
 
   // imager vup vector markups node
@@ -329,7 +329,7 @@ void vtkSlicerPlmDrrLogic::CreateMarkupsNodes(vtkMRMLPlmDrrNode* parameterNode)
   {
     vupVectorMarkupsNode = vtkMRMLMarkupsLineNode::SafeDownCast(
       scene->GetFirstNodeByName(VUP_VECTOR_MARKUPS_NODE_NAME));
-    vtkWarningMacro("CreateMarkupsNodes: Update VUP vector points using parameter node data");
+    // Update VUP vector points using parameter node data
   }
 
   // fiducial markups node
@@ -342,7 +342,7 @@ void vtkSlicerPlmDrrLogic::CreateMarkupsNodes(vtkMRMLPlmDrrNode* parameterNode)
   {
     pointsMarkupsNode = vtkMRMLMarkupsFiducialNode::SafeDownCast(
       scene->GetFirstNodeByName(FIDUCIALS_MARKUPS_NODE_NAME));
-    vtkWarningMacro("CreateMarkupsNodes: Update fiducial points using parameter node data");
+    // Update fiducial points using parameter node data
   }
 }
 
@@ -362,6 +362,12 @@ void vtkSlicerPlmDrrLogic::UpdateMarkupsNodes(vtkMRMLPlmDrrNode* parameterNode)
   }
 
   vtkMRMLRTBeamNode* beamNode = parameterNode->GetBeamNode();
+  if (!beamNode)
+  {
+    vtkErrorMacro("UpdateMarkupsNodes: Invalid beam node");
+    return;
+  }
+
   vtkMRMLTransformNode* beamTransformNode = beamNode->GetParentTransformNode();
   vtkTransform* beamTransform = nullptr;
   vtkNew<vtkMatrix4x4> mat;
@@ -432,14 +438,9 @@ void vtkSlicerPlmDrrLogic::UpdateMarkupsNodes(vtkMRMLPlmDrrNode* parameterNode)
     // Update imager boundary markups transform node if it's changed    
     vtkMRMLTransformNode* markupsTransformNode = imagerMarkupsNode->GetParentTransformNode();
 
-    if (vtkMRMLRTBeamNode* beamNode = parameterNode->GetBeamNode())
+    if (markupsTransformNode && beamTransformNode->GetID() != markupsTransformNode->GetID())
     {
-      vtkMRMLTransformNode* beamTransformNode = beamNode->GetParentTransformNode();
-
-      if (markupsTransformNode && beamTransformNode->GetID() != markupsTransformNode->GetID())
-      {
-        imagerMarkupsNode->SetAndObserveTransformNodeID(beamTransformNode->GetID());
-      }
+      imagerMarkupsNode->SetAndObserveTransformNodeID(beamTransformNode->GetID());
     }
   }
 
@@ -508,14 +509,9 @@ void vtkSlicerPlmDrrLogic::UpdateMarkupsNodes(vtkMRMLPlmDrrNode* parameterNode)
     // Update image window markups transform node if it's changed    
     vtkMRMLTransformNode* markupsTransformNode = imageWindowMarkupsNode->GetParentTransformNode();
 
-    if (vtkMRMLRTBeamNode* beamNode = parameterNode->GetBeamNode())
+    if (markupsTransformNode && beamTransformNode->GetID() != markupsTransformNode->GetID())
     {
-      vtkMRMLTransformNode* beamTransformNode = beamNode->GetParentTransformNode();
-
-      if (markupsTransformNode && beamTransformNode->GetID() != markupsTransformNode->GetID())
-      {
-        imageWindowMarkupsNode->SetAndObserveTransformNodeID(beamTransformNode->GetID());
-      }
+      imageWindowMarkupsNode->SetAndObserveTransformNodeID(beamTransformNode->GetID());
     }
   }
 
@@ -550,14 +546,9 @@ void vtkSlicerPlmDrrLogic::UpdateMarkupsNodes(vtkMRMLPlmDrrNode* parameterNode)
     // Update imager normal vector markups transform node if it's changed    
     vtkMRMLTransformNode* markupsTransformNode = vectorMarkupsNode->GetParentTransformNode();
 
-    if (vtkMRMLRTBeamNode* beamNode = parameterNode->GetBeamNode())
+    if (markupsTransformNode && beamTransformNode->GetID() != markupsTransformNode->GetID())
     {
-      vtkMRMLTransformNode* beamTransformNode = beamNode->GetParentTransformNode();
-
-      if (markupsTransformNode && beamTransformNode->GetID() != markupsTransformNode->GetID())
-      {
-        vectorMarkupsNode->SetAndObserveTransformNodeID(beamTransformNode->GetID());
-      }
+      vectorMarkupsNode->SetAndObserveTransformNodeID(beamTransformNode->GetID());
     }
   }
 
@@ -600,14 +591,9 @@ void vtkSlicerPlmDrrLogic::UpdateMarkupsNodes(vtkMRMLPlmDrrNode* parameterNode)
     // Update VUP VECTOR markups transform node if it's changed    
     vtkMRMLTransformNode* markupsTransformNode = vectorMarkupsNode->GetParentTransformNode();
 
-    if (vtkMRMLRTBeamNode* beamNode = parameterNode->GetBeamNode())
+    if (markupsTransformNode && beamTransformNode->GetID() != markupsTransformNode->GetID())
     {
-      vtkMRMLTransformNode* beamTransformNode = beamNode->GetParentTransformNode();
-
-      if (markupsTransformNode && beamTransformNode->GetID() != markupsTransformNode->GetID())
-      {
-        vectorMarkupsNode->SetAndObserveTransformNodeID(beamTransformNode->GetID());
-      }
+      vectorMarkupsNode->SetAndObserveTransformNodeID(beamTransformNode->GetID());
     }
   }
 
@@ -665,14 +651,9 @@ void vtkSlicerPlmDrrLogic::UpdateMarkupsNodes(vtkMRMLPlmDrrNode* parameterNode)
     // Update fiducials markups transform node if it's changed    
     vtkMRMLTransformNode* markupsTransformNode = pointsMarkupsNode->GetParentTransformNode();
 
-    if (vtkMRMLRTBeamNode* beamNode = parameterNode->GetBeamNode())
+    if (markupsTransformNode && beamTransformNode->GetID() != markupsTransformNode->GetID())
     {
-      vtkMRMLTransformNode* beamTransformNode = beamNode->GetParentTransformNode();
-
-      if (markupsTransformNode && beamTransformNode->GetID() != markupsTransformNode->GetID())
-      {
-        pointsMarkupsNode->SetAndObserveTransformNodeID(beamTransformNode->GetID());
-      }
+      pointsMarkupsNode->SetAndObserveTransformNodeID(beamTransformNode->GetID());
     }
   }
 }
@@ -1047,7 +1028,22 @@ std::string vtkSlicerPlmDrrLogic::GeneratePlastimatchDrrArgs( vtkMRMLVolumeNode*
 
   std::ostringstream command;
   command << "plastimatch drr ";
-  command << "--nrm" << " \"" << n[0] << " " << n[1] << " " << n[2] << "\" \\" << "\n";
+  switch (parameterNode->GetThreading())
+  {
+    case vtkMRMLPlmDrrNode::ThreadingType::CPU:
+      command << "-A cpu \\\n";
+      break;
+    case vtkMRMLPlmDrrNode::ThreadingType::CUDA:
+      command << "-A cuda \\\n";
+      break;
+    case vtkMRMLPlmDrrNode::ThreadingType::OPENCL:
+      command << "-A opencl \\\n";
+      break;
+    default:
+      break;
+  }
+
+  command << "\t--nrm" << " \"" << n[0] << " " << n[1] << " " << n[2] << "\" \\" << "\n";
   command << "\t--vup" << " \"" << vup[0] << " " << vup[1] << " " << vup[2] << "\" \\" << "\n";
   command << "\t--sad " << beamNode->GetSAD() << " --sid " << beamNode->GetSAD() + parameterNode->GetIsocenterImagerDistance() << " \\" << "\n";
   command << "\t-r" << " \"" << res[1] << " " << res[0] << "\" \\" << "\n";
@@ -1060,7 +1056,44 @@ std::string vtkSlicerPlmDrrLogic::GeneratePlastimatchDrrArgs( vtkMRMLVolumeNode*
   {
     command << "\t-w" << " \"" << window[1] << " " << window[3] << " " << window[0] << " " << window[2] << "\" \\" << "\n";
   }
-  command << "\t-e -i exact -O Out -t raw";
+
+  if (parameterNode->GetExponentialMappingFlag())
+  {
+    command << "\t-e ";
+  }
+  else
+  {
+    command << "\t ";
+  }
+
+  switch (parameterNode->GetAlgorithmReconstuction())
+  {
+    case vtkMRMLPlmDrrNode::AlgorithmReconstuctionType::EXACT:
+      command << "-i exact ";
+      break;
+    case vtkMRMLPlmDrrNode::AlgorithmReconstuctionType::UNIFORM:
+      command << "-i uniform ";
+      break;
+    default:
+      break;
+  }
+
+  switch (parameterNode->GetHUConversion())
+  {
+    case vtkMRMLPlmDrrNode::HounsfieldUnitsConversionType::NONE:
+      command << "-P none ";
+      break;
+    case vtkMRMLPlmDrrNode::HounsfieldUnitsConversionType::PREPROCESS:
+      command << "-P preprocess ";
+      break;
+    case vtkMRMLPlmDrrNode::HounsfieldUnitsConversionType::INLINE:
+      command << "-P inline ";
+      break;
+    default:
+      break;
+  }
+
+  command << "-O Out -t raw";
 
   plastimatchArguments.clear();
   plastimatchArguments.push_back("drr");
@@ -1108,9 +1141,56 @@ std::string vtkSlicerPlmDrrLogic::GeneratePlastimatchDrrArgs( vtkMRMLVolumeNode*
     plastimatchArguments.push_back(arg7.str());
   }
 
-  plastimatchArguments.push_back("-e");
+  if (parameterNode->GetExponentialMappingFlag())
+  {
+    plastimatchArguments.push_back("-e");
+  }
+
+  plastimatchArguments.push_back("-A");
+  switch (parameterNode->GetThreading())
+  {
+    case vtkMRMLPlmDrrNode::ThreadingType::CPU:
+      plastimatchArguments.push_back("cpu");
+      break;
+    case vtkMRMLPlmDrrNode::ThreadingType::CUDA:
+      plastimatchArguments.push_back("cuda");
+      break;
+    case vtkMRMLPlmDrrNode::ThreadingType::OPENCL:
+      plastimatchArguments.push_back("opencl");
+      break;
+    default:
+      break;
+  }
+
   plastimatchArguments.push_back("-i");
-  plastimatchArguments.push_back("exact");
+  switch (parameterNode->GetAlgorithmReconstuction())
+  {
+    case vtkMRMLPlmDrrNode::AlgorithmReconstuctionType::EXACT:
+      plastimatchArguments.push_back("exact");
+      break;
+    case vtkMRMLPlmDrrNode::AlgorithmReconstuctionType::UNIFORM:
+      plastimatchArguments.push_back("uniform");
+      break;
+    default:
+      break;
+  }
+
+  plastimatchArguments.push_back("-P");
+  switch (parameterNode->GetHUConversion())
+  {
+    case vtkMRMLPlmDrrNode::HounsfieldUnitsConversionType::NONE:
+      plastimatchArguments.push_back("none");
+      break;
+    case vtkMRMLPlmDrrNode::HounsfieldUnitsConversionType::PREPROCESS:
+      plastimatchArguments.push_back("preprocess");
+      break;
+    case vtkMRMLPlmDrrNode::HounsfieldUnitsConversionType::INLINE:
+      plastimatchArguments.push_back("inline");
+      break;
+    default:
+      break;
+  }
+
   plastimatchArguments.push_back("-O");
   plastimatchArguments.push_back("Out");
   plastimatchArguments.push_back("-t");
@@ -1460,4 +1540,3 @@ void vtkSlicerPlmDrrLogic::SetPlanarImageLogic(vtkSlicerPlanarImageModuleLogic* 
 {
   this->PlanarImageLogic = planarImageLogic;
 }
-

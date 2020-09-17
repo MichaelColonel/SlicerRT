@@ -73,6 +73,10 @@ protected slots:
   void onSelectPlastimatchAppPathClicked();
   void onShowMarkupsToggled(bool);
   void onUseImageWindowToggled(bool);
+  void onUseExponentialMappingToggled(bool);
+  void onReconstructionAlgorithmChanged(int);
+  void onThreadingChanged(int);
+  void onHUConversionChanged(int);
 
 protected:
   QScopedPointer<qSlicerPlmDrrModuleWidgetPrivate> d_ptr;

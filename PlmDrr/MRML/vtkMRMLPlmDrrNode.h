@@ -93,29 +93,29 @@ public:
   vtkGetMacro(IsocenterImagerDistance, double);
   vtkSetMacro(IsocenterImagerDistance, double);
 
-  vtkGetVector2Macro( ImagerCenterOffset, double);
-  vtkSetVector2Macro( ImagerCenterOffset, double);
+  vtkGetVector2Macro(ImagerCenterOffset, double);
+  vtkSetVector2Macro(ImagerCenterOffset, double);
 
-  vtkGetVector2Macro( ImageDimention, int);
-  vtkSetVector2Macro( ImageDimention, int);
+  vtkGetVector2Macro(ImageDimention, int);
+  vtkSetVector2Macro(ImageDimention, int);
 
-  vtkGetVector2Macro( ImageSpacing, double);
-  vtkSetVector2Macro( ImageSpacing, double);
+  vtkGetVector2Macro(ImageSpacing, double);
+  vtkSetVector2Macro(ImageSpacing, double);
 
-  vtkGetVector2Macro( ImageCenter, int);
-  vtkSetVector2Macro( ImageCenter, int);
+  vtkGetVector2Macro(ImageCenter, int);
+  vtkSetVector2Macro(ImageCenter, int);
 
-  vtkGetVector4Macro( ImageWindow, int);
-  vtkSetVector4Macro( ImageWindow, int);
+  vtkGetVector4Macro(ImageWindow, int);
+  vtkSetVector4Macro(ImageWindow, int);
 
-  vtkGetMacro( RotateX, double);
-  vtkSetMacro( RotateX, double);
+  vtkGetMacro(RotateX, double);
+  vtkSetMacro(RotateX, double);
 
-  vtkGetMacro( RotateY, double);
-  vtkSetMacro( RotateY, double);
+  vtkGetMacro(RotateY, double);
+  vtkSetMacro(RotateY, double);
 
-  vtkGetMacro( RotateZ, double);
-  vtkSetMacro( RotateZ, double);
+  vtkGetMacro(RotateZ, double);
+  vtkSetMacro(RotateZ, double);
 
 protected:
   vtkMRMLPlmDrrNode();
