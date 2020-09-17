@@ -19,8 +19,8 @@
 #include "vtkSlicerPlmDrrLogic.h"
 
 // SlicerRT includes
-#include "vtkSlicerPlanarImageModuleLogic.h"
-#include "vtkMRMLPlanarImageNode.h"
+#include <vtkSlicerPlanarImageModuleLogic.h>
+#include <vtkMRMLPlanarImageNode.h>
 
 // MRML includes
 #include <vtkMRMLScene.h>
@@ -34,12 +34,12 @@
 #include <vtkMRMLMarkupsFiducialNode.h>
 #include <vtkMRMLMarkupsLineNode.h>
 
-#include "vtkMRMLPlmDrrNode.h"
+#include <vtkMRMLPlmDrrNode.h>
 
 // SubjectHierarchy includes
-#include "vtkMRMLSubjectHierarchyConstants.h"
-#include "vtkMRMLSubjectHierarchyNode.h"
-#include "vtkSlicerSubjectHierarchyModuleLogic.h"
+#include <vtkMRMLSubjectHierarchyConstants.h>
+#include <vtkMRMLSubjectHierarchyNode.h>
+#include <vtkSlicerSubjectHierarchyModuleLogic.h>
 
 // VTK includes
 #include <vtkTransform.h>
@@ -50,10 +50,6 @@
 
 // STD includes
 #include <string>
-
-// Plastimatch reconstruct module
-#include <drr.h>
-#include <drr_options.h>
 
 // ITK includes
 #include <itkImage.h>
@@ -1453,7 +1449,7 @@ bool vtkSlicerPlmDrrLogic::SetupRtImageGeometry( vtkMRMLPlmDrrNode* paramNode,
 
   vtkSmartPointer<vtkTransform> couchToFixedTransform = vtkSmartPointer<vtkTransform>::New();
   couchToFixedTransform->Identity();
-  couchToFixedTransform->RotateWXYZ(couchAngle, 0.0, 1.0, 0.0);
+  couchToFixedTransform->RotateWXYZ( couchAngle, 0.0, 1.0, 0.0);
 
   vtkSmartPointer<vtkTransform> gantryToCouchTransform = vtkSmartPointer<vtkTransform>::New();
   gantryToCouchTransform->Identity();
