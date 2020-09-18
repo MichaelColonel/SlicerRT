@@ -1449,7 +1449,7 @@ bool vtkSlicerPlmDrrLogic::SetupRtImageGeometry( vtkMRMLPlmDrrNode* paramNode,
 
   vtkSmartPointer<vtkTransform> couchToFixedTransform = vtkSmartPointer<vtkTransform>::New();
   couchToFixedTransform->Identity();
-  couchToFixedTransform->RotateWXYZ( couchAngle, 0.0, 1.0, 0.0);
+  couchToFixedTransform->RotateWXYZ( -1. * couchAngle, 0.0, 1.0, 0.0);
 
   vtkSmartPointer<vtkTransform> gantryToCouchTransform = vtkSmartPointer<vtkTransform>::New();
   gantryToCouchTransform->Identity();
