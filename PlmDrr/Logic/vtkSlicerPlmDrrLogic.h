@@ -68,7 +68,7 @@ public:
 
   bool SaveVolumeNode( const vtkMRMLVolumeNode* volumeNode, std::string& filename);
 
-  bool LoadDRR( vtkMRMLScalarVolumeNode* volumeNode, const std::string& filename);
+  bool LoadDRR( vtkMRMLPlmDrrNode* paramNode, vtkMRMLScalarVolumeNode* drrVolumeNode, const std::string& filename);
 
   std::string GeneratePlastimatchDrrArgs( vtkMRMLVolumeNode* volumeNode, 
     vtkMRMLPlmDrrNode* node, std::list< std::string >& arguments);

@@ -48,8 +48,8 @@ vtkMRMLPlmDrrNode::vtkMRMLPlmDrrNode()
 {
   ImagerCenterOffset[0] = 0.;
   ImagerCenterOffset[1] = 0.;
-  ImageDimention[0] = 1024; // columns = x
-  ImageDimention[1] = 768; // rows = y
+  ImageDimention[0] = 2000; // columns = x
+  ImageDimention[1] = 2000; // rows = y
 
   ImageCenter[0] = ImageDimention[0] / 2; // columns = x
   ImageCenter[1] = ImageDimention[1] / 2; // rows = y
@@ -57,10 +57,10 @@ vtkMRMLPlmDrrNode::vtkMRMLPlmDrrNode()
   ImageSpacing[0] = 0.25; // 250 um (columns = x)
   ImageSpacing[1] = 0.25; // 250 um (rows = y)
 
-  ImageWindow[0] = 0; // c1 = x0 (start column) 
-  ImageWindow[1] = 0; // r1 = y0 (start row)
-  ImageWindow[2] = 1024; // c2 = x1 (end column)
-  ImageWindow[3] = 768; // r2 = y1 (end row)
+  ImageWindow[0] = 512; // c1 = x0 (start column) 
+  ImageWindow[1] = 512; // r1 = y0 (start row)
+  ImageWindow[2] = 1536; // c2 = x1 (end column)
+  ImageWindow[3] = 1536; // r2 = y1 (end row)
 
   AlgorithmReconstuction = EXACT;
   HUConversion = PREPROCESS;
@@ -90,6 +90,8 @@ void vtkMRMLPlmDrrNode::WriteXML(ostream& of, int nIndent)
 
   // Write all MRML node attributes into output stream
   vtkMRMLWriteXMLBeginMacro(of);
+  vtkMRMLWriteXMLVectorMacro(NormalVector, NormalVector, double, 4);
+  vtkMRMLWriteXMLVectorMacro(ViewUpVector, ViewUpVector, double, 4);
   vtkMRMLWriteXMLFloatMacro(IsocenterImagerDistance, IsocenterImagerDistance);
   vtkMRMLWriteXMLVectorMacro(ImagerCenterOffset, ImagerCenterOffset, double, 2);
   vtkMRMLWriteXMLVectorMacro(ImageDimention, ImageDimention, int, 2);
@@ -116,6 +118,8 @@ void vtkMRMLPlmDrrNode::ReadXMLAttributes(const char** atts)
   vtkMRMLNode::ReadXMLAttributes(atts);
 
   vtkMRMLReadXMLBeginMacro(atts);
+  vtkMRMLReadXMLVectorMacro(NormalVector, NormalVector, double, 4);
+  vtkMRMLReadXMLVectorMacro(ViewUpVector, ViewUpVector, double, 4);
   vtkMRMLReadXMLFloatMacro(IsocenterImagerDistance, IsocenterImagerDistance);
   vtkMRMLReadXMLVectorMacro(ImagerCenterOffset, ImagerCenterOffset, double, 2);
   vtkMRMLReadXMLVectorMacro(ImageDimention, ImageDimention, int, 2);
@@ -169,6 +173,8 @@ void vtkMRMLPlmDrrNode::Copy(vtkMRMLNode *anode)
 */
 
   vtkMRMLCopyBeginMacro(node);
+  vtkMRMLCopyVectorMacro(NormalVector, double, 4);
+  vtkMRMLCopyVectorMacro(ViewUpVector, double, 4);
   vtkMRMLCopyFloatMacro(IsocenterImagerDistance);
   vtkMRMLCopyVectorMacro(ImagerCenterOffset, double, 2);
   vtkMRMLCopyVectorMacro(ImageDimention, int, 2);
@@ -205,6 +211,8 @@ void vtkMRMLPlmDrrNode::CopyContent(vtkMRMLNode *anode, bool deepCopy/*=true*/)
   }
 
   vtkMRMLCopyBeginMacro(node);
+  vtkMRMLCopyVectorMacro(NormalVector, double, 4);
+  vtkMRMLCopyVectorMacro(ViewUpVector, double, 4);
   vtkMRMLCopyFloatMacro(IsocenterImagerDistance);
   vtkMRMLCopyVectorMacro(ImagerCenterOffset, double, 2);
   vtkMRMLCopyVectorMacro(ImageDimention, int, 2);
@@ -230,6 +238,8 @@ void vtkMRMLPlmDrrNode::PrintSelf(ostream& os, vtkIndent indent)
   Superclass::PrintSelf(os,indent);
 
   vtkMRMLPrintBeginMacro(os, indent);
+  vtkMRMLPrintVectorMacro(NormalVector, double, 4);
+  vtkMRMLPrintVectorMacro(ViewUpVector, double, 4);
   vtkMRMLPrintFloatMacro(IsocenterImagerDistance);
   vtkMRMLPrintVectorMacro(ImagerCenterOffset, double, 2);
   vtkMRMLPrintVectorMacro(ImageDimention, int, 2);

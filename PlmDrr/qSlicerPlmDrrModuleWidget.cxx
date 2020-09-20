@@ -436,11 +436,12 @@ void qSlicerPlmDrrModuleWidget::onPlatimatchDrrProcessFinished( int exitCode, QP
     vtkNew<vtkMRMLScalarVolumeNode> drrVolumeNode;
     this->mrmlScene()->AddNode(drrVolumeNode);
 
-    bool res = d->logic()->LoadDRR( drrVolumeNode, mhdName);
+    bool res = d->logic()->LoadDRR( paramNode, drrVolumeNode, mhdName);
     if (res)
     {
       qDebug() << Q_FUNC_INFO << ": DRR scalar volume node has been loaded, deleting temporary files";
-      if (d->logic()->LoadRtImage( paramNode, drrVolumeNode))
+      res = d->logic()->LoadRtImage( paramNode, drrVolumeNode);
+      if (res)
       {
         QFile drrReferenceVolumeFile(d->m_ReferenceVolumeFile);
         QFile drrMhdFile(mhdName.c_str());
@@ -575,7 +576,7 @@ void qSlicerPlmDrrModuleWidget::updateWidgetFromMRML()
   // Update widgets info from parameter node and update plastimatch drr command
   d->MRMLNodeComboBox_RtBeam->setCurrentNode(paramNode->GetBeamNode());
   d->SliderWidget_IsocenterImagerDistance->setValue(paramNode->GetIsocenterImagerDistance());
-  d->CoordinatesWidget_ImageCenter->setCoordinates(paramNode->GetImagerCenterOffset());
+  d->CoordinatesWidget_ImagerCenterOffset->setCoordinates(paramNode->GetImagerCenterOffset());
 
   int imageDimInteger[2] = {};
   double imageDim[2] = {};

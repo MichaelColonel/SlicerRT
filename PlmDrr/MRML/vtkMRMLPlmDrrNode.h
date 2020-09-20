@@ -72,6 +72,12 @@ public:
   /// Set and observe beam node
   void SetAndObserveBeamNode(vtkMRMLRTBeamNode* node);
 
+  vtkGetVector4Macro(NormalVector, double);
+  vtkSetVector4Macro(NormalVector, double);
+
+  vtkGetVector4Macro(ViewUpVector, double);
+  vtkSetVector4Macro(ViewUpVector, double);
+
   vtkGetMacro(AlgorithmReconstuction, AlgorithmReconstuctionType);
   vtkSetMacro(AlgorithmReconstuction, AlgorithmReconstuctionType);
 
@@ -128,6 +134,8 @@ protected:
   void SetThreading(int threading = 0);
 
 protected:
+  double NormalVector[4];
+  double ViewUpVector[4];
   double IsocenterImagerDistance; // fabs(SID - SAD)
   double ImagerCenterOffset[2]; // x,y
   int ImageDimention[2]; // columns, rows

@@ -362,7 +362,7 @@
            <double>40000.000000000000000</double>
           </property>
           <property name="coordinates" stdset="0">
-           <string>0,0,1024,768</string>
+           <string>0,0,2000,2000</string>
           </property>
          </widget>
         </item>
@@ -388,7 +388,7 @@
            <double>40000.000000000000000</double>
           </property>
           <property name="coordinates" stdset="0">
-           <string>1024,768</string>
+           <string>2000,2000</string>
           </property>
          </widget>
         </item>
@@ -683,8 +683,8 @@
   </connection>
  </connections>
  <buttongroups>
-  <buttongroup name="ButtonGroup_ReconstructionAlgorithm"/>
   <buttongroup name="ButtonGroup_HUConversion"/>
   <buttongroup name="ButtonGroup_Threading"/>
+  <buttongroup name="ButtonGroup_ReconstructionAlgorithm"/>
  </buttongroups>
 </ui>

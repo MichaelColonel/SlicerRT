@@ -18,9 +18,12 @@
 // LoadableModuleTemplate Logic includes
 #include "vtkSlicerPlmDrrLogic.h"
 
-// SlicerRT includes
+// SlicerRT PlanarImage includes
 #include <vtkSlicerPlanarImageModuleLogic.h>
 #include <vtkMRMLPlanarImageNode.h>
+
+// SlicerRT Beams logic includes
+#include <vtkSlicerIECTransformLogic.h>
 
 // MRML includes
 #include <vtkMRMLScene.h>
@@ -43,6 +46,7 @@
 
 // VTK includes
 #include <vtkTransform.h>
+#include <vtkGeneralTransform.h>
 #include <vtkMatrix4x4.h>
 #include <vtkIntArray.h>
 #include <vtkNew.h>
@@ -58,9 +62,18 @@
 #include <itkRescaleIntensityImageFilter.h>
 #include <itkInvertIntensityImageFilter.h>
 #include <itkCastImageFilter.h>
+#include <itkFlipImageFilter.h>
 
 // SlicerRT includes
 #include <vtkSlicerRtCommon.h>
+
+namespace
+{
+
+const double normalVector[4] = { 0., 0., 1., 0. }; // beam positive Z-axis
+const double viewUpVector[4] = { -1., 0., 0., 0. }; // beam negative X-axis
+
+} // namespace
 
 const char* vtkSlicerPlmDrrLogic::IMAGER_BOUNDARY_MARKUPS_NODE_NAME = "ImagerBoundary"; // curve
 const char* vtkSlicerPlmDrrLogic::IMAGE_WINDOW_MARKUPS_NODE_NAME = "ImageWindow"; // curve
@@ -181,8 +194,14 @@ bool vtkSlicerPlmDrrLogic::SaveVolumeNode( const vtkMRMLVolumeNode* volumeNode, 
 }
 
 //----------------------------------------------------------------------------
-bool vtkSlicerPlmDrrLogic::LoadDRR( vtkMRMLScalarVolumeNode* volumeNode, const std::string& filename)
+bool vtkSlicerPlmDrrLogic::LoadDRR( vtkMRMLPlmDrrNode* parameterNode, vtkMRMLScalarVolumeNode* volumeNode, const std::string& filename)
 {
+  if (!parameterNode)
+  {
+    vtkErrorMacro("LoadDRR: Invalid parameter set node");
+    return false;
+  }
+
   if (filename.empty())
   {
     vtkErrorMacro("LoadDRR: MetaImageHeader file name is empty");
@@ -195,6 +214,18 @@ bool vtkSlicerPlmDrrLogic::LoadDRR( vtkMRMLScalarVolumeNode* volumeNode, const s
     return false;
   }
 
+  double n[4] = {};
+  double vup[4] = {};
+  parameterNode->GetViewUpVector(vup);
+  parameterNode->GetNormalVector(n);
+  vtkWarningMacro( "GeneratePlastimatchDrrArgs: ViewUp " << vup[0] << " " << vup[1] << " " << vup[2]);
+  vtkWarningMacro( "GeneratePlastimatchDrrArgs: Normal " << n[0] << " " << n[1] << " " << n[2]);
+
+  double vupDotResult = vtkMath::Dot( vup, viewUpVector);
+  double nDotResult = vtkMath::Dot( n, normalVector);
+  vtkWarningMacro( "GeneratePlastimatchDrrArgs: vupDotResult " << vupDotResult);
+  vtkWarningMacro( "GeneratePlastimatchDrrArgs: nDotResult " << nDotResult);
+
   // Plastimatch DRR input pixel type (long)
   using InputPixelType = signed long int;
   const unsigned int InputDimension = 3;
@@ -205,9 +236,6 @@ bool vtkSlicerPlmDrrLogic::LoadDRR( vtkMRMLScalarVolumeNode* volumeNode, const s
   // Inner output pixel type (double)
   using OutputPixelType = double;
   using OutputImageType = itk::Image< OutputPixelType, InputDimension >;
-  using CastFilterType = itk::CastImageFilter< InputImageType, OutputImageType >;
-  using RescaleFilterType = itk::RescaleIntensityImageFilter< OutputImageType, OutputImageType >;
-  using InvertFilterType = itk::InvertIntensityImageFilter< OutputImageType, OutputImageType >;
 
   ReaderType::Pointer reader = ReaderType::New();
   reader->SetFileName(filename.c_str());
@@ -221,6 +249,7 @@ bool vtkSlicerPlmDrrLogic::LoadDRR( vtkMRMLScalarVolumeNode* volumeNode, const s
     return false;
   }
 
+  using CastFilterType = itk::CastImageFilter< InputImageType, OutputImageType >;
   CastFilterType::Pointer cast = CastFilterType::New();
   cast->SetInput(reader->GetOutput());
   try
@@ -233,6 +262,7 @@ bool vtkSlicerPlmDrrLogic::LoadDRR( vtkMRMLScalarVolumeNode* volumeNode, const s
     return false;
   }
 
+  using RescaleFilterType = itk::RescaleIntensityImageFilter< OutputImageType, OutputImageType >;
   RescaleFilterType::Pointer rescale = RescaleFilterType::New();
   rescale->SetOutputMinimum(0.);
   rescale->SetOutputMaximum(255.);
@@ -247,6 +277,7 @@ bool vtkSlicerPlmDrrLogic::LoadDRR( vtkMRMLScalarVolumeNode* volumeNode, const s
     return false;
   }
 
+  using InvertFilterType = itk::InvertIntensityImageFilter< OutputImageType, OutputImageType >;
   InvertFilterType::Pointer invert = InvertFilterType::New();
   invert->SetInput(rescale->GetOutput());
   invert->SetMaximum(0);
@@ -260,8 +291,38 @@ bool vtkSlicerPlmDrrLogic::LoadDRR( vtkMRMLScalarVolumeNode* volumeNode, const s
     return false;
   }
 
-  bool res = vtkSlicerRtCommon::ConvertItkImageToVolumeNode< OutputPixelType >( invert->GetOutput(), volumeNode, VTK_DOUBLE);
-  return res;
+  OutputImageType::Pointer drrImagePtr = invert->GetOutput();
+
+  using FlipImageFilterType = itk::FlipImageFilter< OutputImageType >;
+  FlipImageFilterType::Pointer flip = FlipImageFilterType::New();
+  flip->SetInput(invert->GetOutput());
+  FlipImageFilterType::FlipAxesArrayType flipAxes;
+//  if ((nDotResult > 0. && vupDotResult < 0. && !vtkSlicerRtCommon::AreEqualWithTolerance( vupDotResult, 0.0))) // flip image horizontally
+  {
+    flipAxes[0] = false;
+    flipAxes[1] = true;
+    flip->SetFlipAxes(flipAxes);
+    try
+    {
+      flip->Update();
+    }
+    catch(itk::ExceptionObject& ex)
+    {
+      vtkErrorMacro("LoadDRR: Problem flipping data \n" << ex);
+      return false;
+    }
+    drrImagePtr = flip->GetOutput();
+  }
+//  else if (nDotResult >= 0. && vtkSlicerRtCommon::AreEqualWithTolerance( vupDotResult, 0.0))
+//  {
+//    ;
+//  }
+//  else if (nDotResult >= 0. && vupDotResult >= 0.)
+//  {
+//    ;
+//  }
+
+  return vtkSlicerRtCommon::ConvertItkImageToVolumeNode< OutputPixelType >( drrImagePtr, volumeNode, VTK_DOUBLE);
 }
 
 //----------------------------------------------------------------------------
@@ -977,10 +1038,24 @@ std::string vtkSlicerPlmDrrLogic::GeneratePlastimatchDrrArgs( vtkMRMLVolumeNode*
   vtkNew<vtkMatrix4x4> mat;
   mat->Identity();
 
+  vtkSmartPointer<vtkTransform> isocenterToRtImageRas = vtkSmartPointer<vtkTransform>::New();
   if (beamTransformNode)
   {
     beamTransform = vtkTransform::SafeDownCast(beamTransformNode->GetTransformToParent());
     beamTransform->GetMatrix(mat);
+/*
+    vtkSmartPointer<vtkTransform> iecToLpsTransform = vtkSmartPointer<vtkTransform>::New();
+    iecToLpsTransform->Identity();
+    iecToLpsTransform->RotateX(90.0);
+    iecToLpsTransform->RotateZ(180.0);
+    
+    vtkSmartPointer<vtkTransform> isocenterToRtImageRas = vtkSmartPointer<vtkTransform>::New();
+    isocenterToRtImageRas->Identity();
+    isocenterToRtImageRas->PreMultiply();
+    isocenterToRtImageRas->Concatenate(mat);
+    isocenterToRtImageRas->Concatenate(iecToLpsTransform);
+    isocenterToRtImageRas->GetMatrix(mat);
+*/
   }
   else
   {
@@ -988,12 +1063,18 @@ std::string vtkSlicerPlmDrrLogic::GeneratePlastimatchDrrArgs( vtkMRMLVolumeNode*
     return nullptr;
   }
 
-  double normalVector[4] = { 0., 0., -1., 0. }; // beam negative Z-axis
-  double viewUpVector[4] = { 1., 0., 0., 0. }; // beam positive X-axis
   double n[4], vup[4];
 
   mat->MultiplyPoint( normalVector, n);
   mat->MultiplyPoint( viewUpVector, vup);
+//  n[0] *= -1.;
+//  n[1] *= -1.;
+//  vup[0] *= -1.;
+//  vup[1] *= -1.;
+  parameterNode->SetNormalVector(n);
+  parameterNode->SetViewUpVector(vup);
+  vtkWarningMacro( "GeneratePlastimatchDrrArgs: normal " << n[0] << " " << n[1] << " " << n[2]);
+  vtkWarningMacro( "GeneratePlastimatchDrrArgs: ViewUp " << vup[0] << " " << vup[1] << " " << vup[2]);
 
   int res[2];
   parameterNode->GetImageDimention(res);
@@ -1094,14 +1175,14 @@ std::string vtkSlicerPlmDrrLogic::GeneratePlastimatchDrrArgs( vtkMRMLVolumeNode*
   plastimatchArguments.clear();
   plastimatchArguments.push_back("drr");
   plastimatchArguments.push_back("--nrm");
-  std::ostringstream arg1;
-  arg1 << n[0] << " " << n[1] << " " << n[2];
-  plastimatchArguments.push_back(arg1.str());
+  std::ostringstream drrStream;
+  drrStream << n[0] << " " << n[1] << " " << n[2];
+  plastimatchArguments.push_back(drrStream.str());
   
   plastimatchArguments.push_back("--vup");
-  std::ostringstream arg2;
-  arg2 << vup[0] << " " << vup[1] << " " << vup[2];
-  plastimatchArguments.push_back(arg2.str());
+  std::ostringstream vupStream;
+  vupStream << vup[0] << " " << vup[1] << " " << vup[2];
+  plastimatchArguments.push_back(vupStream.str());
 
   plastimatchArguments.push_back("--sad");
   plastimatchArguments.push_back(std::to_string(beamNode->GetSAD()));
@@ -1109,32 +1190,32 @@ std::string vtkSlicerPlmDrrLogic::GeneratePlastimatchDrrArgs( vtkMRMLVolumeNode*
   plastimatchArguments.push_back(std::to_string(beamNode->GetSAD() + parameterNode->GetIsocenterImagerDistance()));
 
   plastimatchArguments.push_back("-r");
-  std::ostringstream arg3;
-  arg3 << res[1] << " " << res[0];
-  plastimatchArguments.push_back(arg3.str());
+  std::ostringstream imagerResolutionStream;
+  imagerResolutionStream << res[1] << " " << res[0];
+  plastimatchArguments.push_back(imagerResolutionStream.str());
 
   plastimatchArguments.push_back("-z");
-  std::ostringstream arg4;
-  arg4 << res[1] * spacing[1] << " " << res[0] * spacing[0];
-  plastimatchArguments.push_back(arg4.str());
+  std::ostringstream imagerSizeStream;
+  imagerSizeStream << res[1] * spacing[1] << " " << res[0] * spacing[0];
+  plastimatchArguments.push_back(imagerSizeStream.str());
 
   plastimatchArguments.push_back("-c");
-  std::ostringstream arg5;
-  arg5 << imageCenterY << " " << imageCenterX;
-  plastimatchArguments.push_back(arg5.str());
+  std::ostringstream imagerCenterPositionStream;
+  imagerCenterPositionStream << imageCenterY << " " << imageCenterX;
+  plastimatchArguments.push_back(imagerCenterPositionStream.str());
 
   // Isocenter LPS position (-isocenter[0], -isocenter[1], isocenter[2])
   plastimatchArguments.push_back("-o");
-  std::ostringstream arg6;
-  arg6 << -1. * isocenter[0] << " " << -1. * isocenter[1] << " " << isocenter[2];
-  plastimatchArguments.push_back(arg6.str());
+  std::ostringstream isocenterStream;
+  isocenterStream << -1. * isocenter[0] << " " << -1. * isocenter[1] << " " << isocenter[2];
+  plastimatchArguments.push_back(isocenterStream.str());
 
   if (useImageWindow)
   {
     plastimatchArguments.push_back("-w");
-    std::ostringstream arg7;
-    arg7 << window[1] << " " << window[3] << " " << window[0] << " " << window[2];
-    plastimatchArguments.push_back(arg7.str());
+    std::ostringstream imageWindowStream;
+    imageWindowStream << window[1] << " " << window[3] << " " << window[0] << " " << window[2];
+    plastimatchArguments.push_back(imageWindowStream.str());
   }
 
   if (parameterNode->GetExponentialMappingFlag())
@@ -1293,24 +1374,18 @@ bool vtkSlicerPlmDrrLogic::LoadRtImage( vtkMRMLPlmDrrNode* paramNode,
   // Set up subject hierarchy item
   vtkIdType drrVolumeShItemID = shNode->CreateItem( shNode->GetSceneItemID(), drrVolumeNode);
 
+  double sid = beamNode->GetSAD() + paramNode->GetIsocenterImagerDistance();
   // Set RT image specific attributes
   shNode->SetItemAttribute(drrVolumeShItemID, vtkSlicerRtCommon::DICOMRTIMPORT_RTIMAGE_IDENTIFIER_ATTRIBUTE_NAME, "1");
   shNode->SetItemAttribute(drrVolumeShItemID, vtkMRMLSubjectHierarchyConstants::GetDICOMReferencedInstanceUIDsAttributeName(), "");
-
   shNode->SetItemAttribute(drrVolumeShItemID, vtkSlicerRtCommon::DICOMRTIMPORT_SOURCE_AXIS_DISTANCE_ATTRIBUTE_NAME, std::to_string(beamNode->GetSAD()));
-
   shNode->SetItemAttribute(drrVolumeShItemID, vtkSlicerRtCommon::DICOMRTIMPORT_GANTRY_ANGLE_ATTRIBUTE_NAME, std::to_string(beamNode->GetGantryAngle()));
-
   shNode->SetItemAttribute(drrVolumeShItemID, vtkSlicerRtCommon::DICOMRTIMPORT_COUCH_ANGLE_ATTRIBUTE_NAME, std::to_string(beamNode->GetCouchAngle()));
-
   shNode->SetItemAttribute(drrVolumeShItemID, vtkSlicerRtCommon::DICOMRTIMPORT_COLLIMATOR_ANGLE_ATTRIBUTE_NAME, std::to_string(beamNode->GetCollimatorAngle()));
-
   shNode->SetItemAttribute(drrVolumeShItemID, vtkSlicerRtCommon::DICOMRTIMPORT_BEAM_NUMBER_ATTRIBUTE_NAME, std::to_string(beamNode->GetBeamNumber()));
-
-  double sid = beamNode->GetSAD() + paramNode->GetIsocenterImagerDistance();
   shNode->SetItemAttribute(drrVolumeShItemID, vtkSlicerRtCommon::DICOMRTIMPORT_RTIMAGE_SID_ATTRIBUTE_NAME, std::to_string(sid));
 
-  double rtImagePosition[2] = {0.0, 0.0};
+  double rtImagePosition[2] = {};
   paramNode->GetRTImagePosition(rtImagePosition);
   std::string rtImagePositionString = std::to_string(rtImagePosition[0]) + std::string(" ") + std::to_string(rtImagePosition[1]);
   shNode->SetItemAttribute(drrVolumeShItemID,  vtkSlicerRtCommon::DICOMRTIMPORT_RTIMAGE_POSITION_ATTRIBUTE_NAME, rtImagePositionString);
@@ -1415,7 +1490,7 @@ bool vtkSlicerPlmDrrLogic::SetupRtImageGeometry( vtkMRMLPlmDrrNode* paramNode,
   }
 
   // Get RT image position (the x and y coordinates (in mm) of the upper left hand corner of the image, in the IEC X-RAY IMAGE RECEPTOR coordinate system)
-  double rtImagePosition[2] = {0.0, 0.0};
+  double rtImagePosition[2] = {};
   std::string rtImagePositionStr = shNode->GetItemAttribute(rtImageShItemID, vtkSlicerRtCommon::DICOMRTIMPORT_RTIMAGE_POSITION_ATTRIBUTE_NAME);
   if (!rtImagePositionStr.empty())
   {
@@ -1435,13 +1510,35 @@ bool vtkSlicerPlmDrrLogic::SetupRtImageGeometry( vtkMRMLPlmDrrNode* paramNode,
   paramNode->GetImageSpacing(spacing);
 
   // Get isocenter coordinates
-  double isocenterWorldCoordinates[3] = {0.0, 0.0, 0.0};
+  double isocenterWorldCoordinates[3] = {};
   if (!beamNode->GetPlanIsocenterPosition(isocenterWorldCoordinates))
   {
     vtkErrorMacro("SetupRtImageGeometry: Failed to get plan isocenter position");
     return false;
   }
+/*
+  //TODO: Use one IEC logic in a private scene for all beam transform updates?
+  vtkSmartPointer<vtkSlicerIECTransformLogic> iecLogic = vtkSmartPointer<vtkSlicerIECTransformLogic>::New();
+  iecLogic->SetMRMLScene(this->GetMRMLScene());
+  iecLogic->UpdateBeamTransform(beamNode);
 
+  // Update transforms in IEC logic from beam node parameters
+  iecLogic->UpdateIECTransformsFromBeam( beamNode, isocenterWorldCoordinates);
+
+  // Dynamic transform from Collimator to RAS
+  // Transformation path:
+  // Collimator -> Gantry -> FixedReference -> PatientSupport -> TableTopEccentricRotation -> TableTop -> Patient -> RAS
+  vtkSmartPointer<vtkGeneralTransform> beamGeneralTransform = vtkSmartPointer<vtkGeneralTransform>::New();
+  vtkSmartPointer<vtkTransform> beamLinearTransform = vtkSmartPointer<vtkTransform>::New();
+  if (iecLogic->GetTransformBetween( vtkSlicerIECTransformLogic::CoordinateSystemIdentifier::FlatPanel, vtkSlicerIECTransformLogic::CoordinateSystemIdentifier::FixedReference, beamGeneralTransform))
+  {
+    if (!vtkMRMLTransformNode::IsGeneralTransformLinear(beamGeneralTransform, beamLinearTransform))
+    {
+      vtkErrorMacro("SetupRtImageGeometry: Unable to set transform with non-linear components to beam " << beamNode->GetName());
+      return false;
+    }
+  }
+*/
   // Assemble transform from isocenter IEC to RT image RAS
   vtkSmartPointer<vtkTransform> fixedToIsocenterTransform = vtkSmartPointer<vtkTransform>::New();
   fixedToIsocenterTransform->Identity();
@@ -1449,7 +1546,7 @@ bool vtkSlicerPlmDrrLogic::SetupRtImageGeometry( vtkMRMLPlmDrrNode* paramNode,
 
   vtkSmartPointer<vtkTransform> couchToFixedTransform = vtkSmartPointer<vtkTransform>::New();
   couchToFixedTransform->Identity();
-  couchToFixedTransform->RotateWXYZ( -1. * couchAngle, 0.0, 1.0, 0.0);
+  couchToFixedTransform->RotateWXYZ(couchAngle, 0.0, 1.0, 0.0);
 
   vtkSmartPointer<vtkTransform> gantryToCouchTransform = vtkSmartPointer<vtkTransform>::New();
   gantryToCouchTransform->Identity();
@@ -1465,7 +1562,7 @@ bool vtkSlicerPlmDrrLogic::SetupRtImageGeometry( vtkMRMLPlmDrrNode* paramNode,
 
   vtkSmartPointer<vtkTransform> rtImageCenterToCornerTransform = vtkSmartPointer<vtkTransform>::New();
   rtImageCenterToCornerTransform->Identity();
-  rtImageCenterToCornerTransform->Translate( -1. * rtImagePosition[0], 0.0, rtImagePosition[1]);
+  rtImageCenterToCornerTransform->Translate( rtImagePosition[0], 0.0, rtImagePosition[1]);
 
   // Create isocenter to RAS transform
   // The transformation below is based section C.8.8 in DICOM standard volume 3:

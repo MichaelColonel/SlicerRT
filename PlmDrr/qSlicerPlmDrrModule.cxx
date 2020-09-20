@@ -32,10 +32,6 @@
 // PlmDrr Logic includes
 #include <vtkSlicerPlmDrrLogic.h>
 
-// SubjectHierarchy Plugins includes
-//#include <qSlicerSubjectHierarchyPluginHandler.h>
-//#include <qSlicerSubjectHierarchyRtImagePlugin.h>
-
 //-----------------------------------------------------------------------------
 /// \ingroup Slicer_QtModules_ExtensionTemplate
 class qSlicerPlmDrrModulePrivate
@@ -123,8 +119,6 @@ void qSlicerPlmDrrModule::setup()
   {
     qCritical() << Q_FUNC_INFO << ": Planar Image module is not found";
   }
-  
-//  qSlicerSubjectHierarchyPluginHandler::instance()->registerPlugin(new qSlicerSubjectHierarchyRtImagePlugin());
 }
 
 //-----------------------------------------------------------------------------
