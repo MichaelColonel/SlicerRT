@@ -70,8 +70,10 @@
 namespace
 {
 
-const double normalVector[4] = { 0., 0., 1., 0. }; // beam positive Z-axis
+const double normalVector[4] = { 0., 0., -1., 0. }; // beam positive Z-axis
 const double viewUpVector[4] = { -1., 0., 0., 0. }; // beam negative X-axis
+
+int InnerDrrNumber = 0;
 
 } // namespace
 
@@ -1470,7 +1472,7 @@ bool vtkSlicerPlmDrrLogic::SetupRtImageGeometry( vtkMRMLPlmDrrNode* paramNode,
     }
 
     // Set more user friendly DRR image name
-    std::string drrName = std::string("DRR: ") + std::string(beamNode->GetName());
+    std::string drrName = std::string("DRR ") + std::to_string(InnerDrrNumber++) + std::string(" : ") + std::string(beamNode->GetName());
     drrVolumeNode->SetName(drrName.c_str());
   }
   else
@@ -1623,7 +1625,7 @@ bool vtkSlicerPlmDrrLogic::SetupRtImageGeometry( vtkMRMLPlmDrrNode* paramNode,
   this->PlanarImageLogic->CreateModelForPlanarImage(planarImageParameterSetNode);
 
   // Hide the displayed planar image model by default
-  displayedModelNode->SetDisplayVisibility(0);
+  displayedModelNode->SetDisplayVisibility(1);
 
   return true;
 }
