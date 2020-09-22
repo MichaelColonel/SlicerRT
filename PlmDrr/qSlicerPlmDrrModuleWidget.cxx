@@ -173,6 +173,10 @@ void qSlicerPlmDrrModuleWidget::setup()
     this, SLOT(onImageSpacingChanged(double*)));
   connect( d->CoordinatesWidget_ImageWindow, SIGNAL(coordinatesChanged(double*)), 
     this, SLOT(onImageWindowCoordinatesChanged(double*)));
+  connect( d->RangeWidget_ImageWindowColumns, SIGNAL(valuesChanged( double, double)), 
+    this, SLOT(onImageWindowColumnsValuesChanged( double, double)));
+  connect( d->RangeWidget_ImageWindowRows, SIGNAL(valuesChanged( double, double)), 
+    this, SLOT(onImageWindowRowsValuesChanged( double, double)));
 
   // Buttons
   connect( d->PushButton_SelectPlastimatchAppPath, SIGNAL(clicked()), this, SLOT(onSelectPlastimatchAppPathClicked()));
@@ -788,14 +792,39 @@ void qSlicerPlmDrrModuleWidget::onImageDimentionChanged(double* dimention)
   }
 
   int dim[2] = { static_cast<int>(dimention[0]), static_cast<int>(dimention[1]) }; // x, y
-  paramNode->DisableModifiedEventOn();
+
   paramNode->SetImageDimention(dim);
+
+  int win[4] = { 0, 0, dim[0] - 1, dim[1] - 1 };
+  paramNode->SetImageWindow(win);
+  double winColumns = d->RangeWidget_ImageWindowColumns->maximumValue();
+  double winRows = d->RangeWidget_ImageWindowRows->maximumValue();
+
+//  if (dim[0] - 1 <= winColumns)
+//  {
+//    d->RangeWidget_ImageWindowColumns->setMaximumValue(dim[0] - 1);
+//  }
+  d->RangeWidget_ImageWindowColumns->setMaximum(dim[0] - 1);
+
+//  if (dim[1] - 1 <= winRows)
+//  {
+//    d->RangeWidget_ImageWindowRows->setMaximumValue(dim[1] - 1);
+//  }
+  d->RangeWidget_ImageWindowRows->setMaximum(dim[1] - 1);
+
+  d->CoordinatesWidget_ImageWindow->setMaximum(std::max( dim[0] - 1, dim[1] - 1));
+
   if (!d->CheckBox_UseImageWindow->isChecked())
   {
-    int win[4] = { 0, 0, dim[0], dim[1] };
-    paramNode->SetImageWindow(win);
+    d->RangeWidget_ImageWindowColumns->setMinimum(0);
+    d->RangeWidget_ImageWindowColumns->setMaximumValue(dim[0] - 1);
+    d->RangeWidget_ImageWindowRows->setMinimum(0);
+    d->RangeWidget_ImageWindowRows->setMaximumValue(dim[1] - 1);
   }
-  paramNode->DisableModifiedEventOff();
+  else
+  {
+    ;
+  }
 
   // Update imager and image markups, DRR arguments
   d->logic()->UpdateMarkupsNodes(paramNode);
@@ -819,6 +848,74 @@ void qSlicerPlmDrrModuleWidget::onImageWindowCoordinatesChanged(double* window)
     static_cast<int>(window[1]), // r1 = y1
     static_cast<int>(window[2]), // c2 = x2
     static_cast<int>(window[3]) }; // r2 = y2
+
+  paramNode->DisableModifiedEventOn();
+  paramNode->SetImageWindow(imageWindow);
+  paramNode->DisableModifiedEventOff();
+  
+  // Update imager and image markups, DRR arguments
+  d->logic()->UpdateMarkupsNodes(paramNode);
+  this->onUpdatePlmDrrArgs();
+}
+
+//-----------------------------------------------------------------------------
+void qSlicerPlmDrrModuleWidget::onImageWindowRowsValuesChanged( double r1, double r2)
+{
+  Q_D(qSlicerPlmDrrModuleWidget);
+
+  vtkMRMLPlmDrrNode* paramNode = vtkMRMLPlmDrrNode::SafeDownCast(d->MRMLNodeComboBox_ParameterNode->currentNode());
+  if (!paramNode || !d->ModuleWindowInitialized)
+  {
+    qCritical() << Q_FUNC_INFO << ": Invalid parameter node";
+    return;
+  }
+
+  int imageWindow[4];
+  paramNode->GetImageWindow(imageWindow);
+  imageWindow[1] = static_cast<int>(r1); // r1
+  imageWindow[3] = static_cast<int>(r2); // r2
+
+  double imageWin[4];
+  const double* coord = d->CoordinatesWidget_ImageWindow->coordinates();
+  imageWin[0] = coord[0];
+  imageWin[1] = r1;
+  imageWin[2] = coord[2];
+  imageWin[3] = r2;
+  d->CoordinatesWidget_ImageWindow->setCoordinates(imageWin);
+
+  paramNode->DisableModifiedEventOn();
+  paramNode->SetImageWindow(imageWindow);
+  paramNode->DisableModifiedEventOff();
+  
+  // Update imager and image markups, DRR arguments
+  d->logic()->UpdateMarkupsNodes(paramNode);
+  this->onUpdatePlmDrrArgs();
+}
+
+//-----------------------------------------------------------------------------
+void qSlicerPlmDrrModuleWidget::onImageWindowColumnsValuesChanged( double c1, double c2)
+{
+  Q_D(qSlicerPlmDrrModuleWidget);
+
+  vtkMRMLPlmDrrNode* paramNode = vtkMRMLPlmDrrNode::SafeDownCast(d->MRMLNodeComboBox_ParameterNode->currentNode());
+  if (!paramNode || !d->ModuleWindowInitialized)
+  {
+    qCritical() << Q_FUNC_INFO << ": Invalid parameter node";
+    return;
+  }
+
+  int imageWindow[4];
+  paramNode->GetImageWindow(imageWindow);
+  imageWindow[0] = static_cast<int>(c1); // c1
+  imageWindow[2] = static_cast<int>(c2); // c2
+
+  double imageWin[4];
+  const double* coord = d->CoordinatesWidget_ImageWindow->coordinates();
+  imageWin[0] = c1;
+  imageWin[1] = coord[1];
+  imageWin[2] = c2;
+  imageWin[3] = coord[3];
+  d->CoordinatesWidget_ImageWindow->setCoordinates(imageWin);
 
   paramNode->DisableModifiedEventOn();
   paramNode->SetImageWindow(imageWindow);

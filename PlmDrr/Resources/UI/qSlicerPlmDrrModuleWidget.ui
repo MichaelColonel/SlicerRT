@@ -83,7 +83,7 @@
         <item row="6" column="0" colspan="2">
          <widget class="ctkCollapsibleGroupBox" name="CollapsibleGroupBox_ImageWindowParameters">
           <property name="enabled">
-           <bool>true</bool>
+           <bool>false</bool>
           </property>
           <property name="sizePolicy">
            <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
@@ -95,7 +95,7 @@
            <string>Image Window Parameters</string>
           </property>
           <property name="collapsed">
-           <bool>true</bool>
+           <bool>false</bool>
           </property>
           <layout class="QGridLayout" name="gridLayout_10">
            <item row="1" column="0">
@@ -142,7 +142,7 @@
             </widget>
            </item>
            <item row="0" column="1" colspan="2">
-            <widget class="ctkRangeWidget" name="RangeWidget">
+            <widget class="ctkRangeWidget" name="RangeWidget_ImageWindowColumns">
              <property name="decimals">
               <number>0</number>
              </property>
@@ -155,7 +155,7 @@
             </widget>
            </item>
            <item row="1" column="1" colspan="2">
-            <widget class="ctkRangeWidget" name="RangeWidget_2">
+            <widget class="ctkRangeWidget" name="RangeWidget_ImageWindowRows">
              <property name="decimals">
               <number>0</number>
              </property>
@@ -730,22 +730,6 @@
   <connection>
    <sender>CheckBox_UseImageWindow</sender>
    <signal>toggled(bool)</signal>
-   <receiver>CoordinatesWidget_ImageWindow</receiver>
-   <slot>setEnabled(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>131</x>
-     <y>822</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>358</x>
-     <y>823</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>CheckBox_UseImageWindow</sender>
-   <signal>toggled(bool)</signal>
    <receiver>CollapsibleGroupBox_ImageWindowParameters</receiver>
    <slot>setEnabled(bool)</slot>
    <hints>
@@ -761,8 +745,8 @@
   </connection>
  </connections>
  <buttongroups>
-  <buttongroup name="ButtonGroup_ReconstructionAlgorithm"/>
   <buttongroup name="ButtonGroup_Threading"/>
   <buttongroup name="ButtonGroup_HUConversion"/>
+  <buttongroup name="ButtonGroup_ReconstructionAlgorithm"/>
  </buttongroups>
 </ui>

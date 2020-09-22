@@ -76,6 +76,8 @@ protected slots:
   void onReconstructionAlgorithmChanged(int);
   void onThreadingChanged(int);
   void onHUConversionChanged(int);
+  void onImageWindowColumnsValuesChanged( double, double);
+  void onImageWindowRowsValuesChanged( double, double);
 
 protected:
   QScopedPointer<qSlicerPlmDrrModuleWidgetPrivate> d_ptr;
