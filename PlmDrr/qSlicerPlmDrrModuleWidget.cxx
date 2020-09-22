@@ -607,10 +607,10 @@ void qSlicerPlmDrrModuleWidget::onSceneImportedEvent()
 }
 
 //-----------------------------------------------------------------------------
-void qSlicerPlmDrrModuleWidget::onSceneClosedEvent()
-{
-  this->onEnter();
-}
+//void qSlicerPlmDrrModuleWidget::onSceneClosedEvent()
+//{
+//  this->onEnter();
+//}
 
 //-----------------------------------------------------------------------------
 void qSlicerPlmDrrModuleWidget::enter()
@@ -645,25 +645,32 @@ void qSlicerPlmDrrModuleWidget::onEnter()
   }
 
   // Select or create parameter node
-  this->setMRMLScene(this->mrmlScene());
-
   vtkMRMLPlmDrrNode* paramNode = vtkMRMLPlmDrrNode::SafeDownCast(d->MRMLNodeComboBox_ParameterNode->currentNode());
   if (!paramNode)
   {
-    qCritical() << Q_FUNC_INFO << ": Invalid parameter node";
-    return;
+    // Try to find one in the scene
+    vtkMRMLNode* node = this->mrmlScene()->GetNthNodeByClass(0, "vtkMRMLPlmDrrNode");
+    if (node)
+    {
+      paramNode = vtkMRMLPlmDrrNode::SafeDownCast(node);
+    }
+    else 
+    {
+      qCritical() << Q_FUNC_INFO << ": Invalid parameter node";
+      return;
+    }
   }
 
-  if (!paramNode->GetBeamNode())
-  {
-    qCritical() << Q_FUNC_INFO << ": Invalid parameter referenced beam node";
-    return;
-  }
+//  if (!paramNode->GetBeamNode())
+//  {
+//    qCritical() << Q_FUNC_INFO << ": Invalid parameter referenced beam node";
+//    return;
+//  }
 
   d->logic()->CreateMarkupsNodes(paramNode);
 
   d->ModuleWindowInitialized = true;
-  this->onUpdatePlmDrrArgs();
+//  this->onUpdatePlmDrrArgs();
 }
 
 //-----------------------------------------------------------------------------

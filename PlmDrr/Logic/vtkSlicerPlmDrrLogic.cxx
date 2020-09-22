@@ -1624,7 +1624,7 @@ bool vtkSlicerPlmDrrLogic::SetupRtImageGeometry( vtkMRMLPlmDrrNode* paramNode,
   // Create planar image model for the RT image
   this->PlanarImageLogic->CreateModelForPlanarImage(planarImageParameterSetNode);
 
-  // Hide the displayed planar image model by default
+  // Show the displayed planar image model by default
   displayedModelNode->SetDisplayVisibility(1);
 
   return true;
