@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>488</width>
+    <width>495</width>
     <height>1068</height>
    </rect>
   </property>
@@ -14,18 +14,288 @@
    <string>Form</string>
   </property>
   <layout class="QGridLayout" name="gridLayout_7">
-   <item row="10" column="0" colspan="4">
-    <spacer name="verticalSpacer">
-     <property name="orientation">
-      <enum>Qt::Vertical</enum>
+   <item row="3" column="2" colspan="2">
+    <widget class="qMRMLNodeComboBox" name="MRMLNodeComboBox_RtBeam"/>
+   </item>
+   <item row="3" column="0">
+    <widget class="QLabel" name="label">
+     <property name="text">
+      <string>RT beam:</string>
      </property>
-     <property name="sizeHint" stdset="0">
-      <size>
-       <width>20</width>
-       <height>40</height>
-      </size>
+    </widget>
+   </item>
+   <item row="5" column="0" colspan="4">
+    <widget class="ctkCollapsibleButton" name="CollapsibleButton_GeometryBasicParameters">
+     <property name="text">
+      <string>Geometry basic parameters</string>
      </property>
-    </spacer>
+     <property name="collapsed">
+      <bool>false</bool>
+     </property>
+     <layout class="QGridLayout" name="gridLayout_3">
+      <item row="0" column="0">
+       <layout class="QGridLayout" name="gridLayout_2">
+        <item row="4" column="0">
+         <widget class="QLabel" name="label_9">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="text">
+           <string>Image spacing</string>
+          </property>
+         </widget>
+        </item>
+        <item row="2" column="0">
+         <widget class="QLabel" name="label_4">
+          <property name="enabled">
+           <bool>true</bool>
+          </property>
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="text">
+           <string>Imager center offset</string>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="0">
+         <widget class="QLabel" name="label_7">
+          <property name="enabled">
+           <bool>true</bool>
+          </property>
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="text">
+           <string>Rotate around normal</string>
+          </property>
+         </widget>
+        </item>
+        <item row="6" column="0" colspan="2">
+         <widget class="ctkCollapsibleGroupBox" name="CollapsibleGroupBox_ImageWindowParameters">
+          <property name="enabled">
+           <bool>true</bool>
+          </property>
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="title">
+           <string>Image Window Parameters</string>
+          </property>
+          <property name="collapsed">
+           <bool>true</bool>
+          </property>
+          <layout class="QGridLayout" name="gridLayout_10">
+           <item row="1" column="0">
+            <widget class="QLabel" name="label_6">
+             <property name="text">
+              <string>Rows</string>
+             </property>
+            </widget>
+           </item>
+           <item row="2" column="2">
+            <widget class="ctkCoordinatesWidget" name="CoordinatesWidget_ImageWindow">
+             <property name="enabled">
+              <bool>false</bool>
+             </property>
+             <property name="dimension">
+              <number>4</number>
+             </property>
+             <property name="decimals">
+              <number>0</number>
+             </property>
+             <property name="minimum">
+              <double>0.000000000000000</double>
+             </property>
+             <property name="maximum">
+              <double>1999.000000000000000</double>
+             </property>
+             <property name="coordinates" stdset="0">
+              <string>0,0,1999,1999</string>
+             </property>
+            </widget>
+           </item>
+           <item row="0" column="0">
+            <widget class="QLabel" name="label_5">
+             <property name="text">
+              <string>Columns</string>
+             </property>
+            </widget>
+           </item>
+           <item row="2" column="0">
+            <widget class="QLabel" name="label_11">
+             <property name="text">
+              <string>c1 r1 c2 r2</string>
+             </property>
+            </widget>
+           </item>
+           <item row="0" column="1" colspan="2">
+            <widget class="ctkRangeWidget" name="RangeWidget">
+             <property name="decimals">
+              <number>0</number>
+             </property>
+             <property name="maximum">
+              <double>1999.000000000000000</double>
+             </property>
+             <property name="maximumValue">
+              <double>1999.000000000000000</double>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="1" colspan="2">
+            <widget class="ctkRangeWidget" name="RangeWidget_2">
+             <property name="decimals">
+              <number>0</number>
+             </property>
+             <property name="maximum">
+              <double>1999.000000000000000</double>
+             </property>
+             <property name="maximumValue">
+              <double>1999.000000000000000</double>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </widget>
+        </item>
+        <item row="4" column="1">
+         <widget class="ctkCoordinatesWidget" name="CoordinatesWidget_ImagePixelSpacing">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="dimension">
+           <number>2</number>
+          </property>
+          <property name="minimum">
+           <double>0.100000000000000</double>
+          </property>
+          <property name="maximum">
+           <double>10.000000000000000</double>
+          </property>
+          <property name="coordinates" stdset="0">
+           <string>0.25,0.25</string>
+          </property>
+         </widget>
+        </item>
+        <item row="2" column="1">
+         <widget class="ctkCoordinatesWidget" name="CoordinatesWidget_ImagerCenterOffset">
+          <property name="enabled">
+           <bool>true</bool>
+          </property>
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="dimension">
+           <number>2</number>
+          </property>
+          <property name="minimum">
+           <double>-100.000000000000000</double>
+          </property>
+          <property name="maximum">
+           <double>100.000000000000000</double>
+          </property>
+         </widget>
+        </item>
+        <item row="3" column="0">
+         <widget class="QLabel" name="label_8">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="text">
+           <string>Image dimention</string>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="0">
+         <widget class="QLabel" name="label_3">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="text">
+           <string>Isocenter to imager distance</string>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="1">
+         <widget class="ctkSliderWidget" name="SliderWidget_RotateImagerAroundZ">
+          <property name="enabled">
+           <bool>true</bool>
+          </property>
+          <property name="maximum">
+           <double>359.990000000000009</double>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="1">
+         <widget class="ctkSliderWidget" name="SliderWidget_IsocenterImagerDistance">
+          <property name="maximum">
+           <double>999.899999999999977</double>
+          </property>
+          <property name="value">
+           <double>300.000000000000000</double>
+          </property>
+         </widget>
+        </item>
+        <item row="3" column="1">
+         <widget class="ctkCoordinatesWidget" name="CoordinatesWidget_ImagePixelDimention">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="dimension">
+           <number>2</number>
+          </property>
+          <property name="decimals">
+           <number>0</number>
+          </property>
+          <property name="minimum">
+           <double>0.000000000000000</double>
+          </property>
+          <property name="maximum">
+           <double>40000.000000000000000</double>
+          </property>
+          <property name="coordinates" stdset="0">
+           <string>2000,2000</string>
+          </property>
+         </widget>
+        </item>
+        <item row="5" column="0" colspan="2">
+         <widget class="QCheckBox" name="CheckBox_UseImageWindow">
+          <property name="text">
+           <string>Use image window</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </item>
+     </layout>
+    </widget>
    </item>
    <item row="6" column="0" colspan="4">
     <widget class="ctkCollapsibleButton" name="CollapsibleButton_PlmDrrImageProcessing">
@@ -229,250 +499,6 @@
      </layout>
     </widget>
    </item>
-   <item row="7" column="0" colspan="4">
-    <widget class="ctkCollapsibleButton" name="CollapsibleButton_PlmDrrArgs">
-     <property name="text">
-      <string>Plastimatch DRR args</string>
-     </property>
-     <property name="collapsed">
-      <bool>false</bool>
-     </property>
-     <layout class="QVBoxLayout" name="verticalLayout_3">
-      <item>
-       <widget class="QPlainTextEdit" name="plainTextEdit_PlmDrrArgs"/>
-      </item>
-     </layout>
-    </widget>
-   </item>
-   <item row="5" column="0" colspan="4">
-    <widget class="ctkCollapsibleButton" name="CollapsibleButton_GeometryBasicParameters">
-     <property name="text">
-      <string>Geometry basic parameters</string>
-     </property>
-     <property name="collapsed">
-      <bool>false</bool>
-     </property>
-     <layout class="QGridLayout" name="gridLayout_3">
-      <item row="0" column="0">
-       <layout class="QGridLayout" name="gridLayout_2">
-        <item row="1" column="0">
-         <widget class="QLabel" name="label_5">
-          <property name="enabled">
-           <bool>false</bool>
-          </property>
-          <property name="text">
-           <string>Rotate X</string>
-          </property>
-         </widget>
-        </item>
-        <item row="6" column="1">
-         <widget class="ctkCoordinatesWidget" name="CoordinatesWidget_ImagePixelSpacing">
-          <property name="dimension">
-           <number>2</number>
-          </property>
-          <property name="minimum">
-           <double>0.100000000000000</double>
-          </property>
-          <property name="maximum">
-           <double>10.000000000000000</double>
-          </property>
-          <property name="coordinates" stdset="0">
-           <string>0.25,0.25</string>
-          </property>
-         </widget>
-        </item>
-        <item row="6" column="0">
-         <widget class="QLabel" name="label_9">
-          <property name="text">
-           <string>Image spacing (mm)</string>
-          </property>
-         </widget>
-        </item>
-        <item row="4" column="0">
-         <widget class="QLabel" name="label_4">
-          <property name="enabled">
-           <bool>true</bool>
-          </property>
-          <property name="text">
-           <string>Imager center offset (mm)</string>
-          </property>
-         </widget>
-        </item>
-        <item row="2" column="1">
-         <widget class="ctkSliderWidget" name="SliderWidget_RotateImagerAroundY">
-          <property name="enabled">
-           <bool>false</bool>
-          </property>
-          <property name="maximum">
-           <double>359.990000000000009</double>
-          </property>
-         </widget>
-        </item>
-        <item row="4" column="1">
-         <widget class="ctkCoordinatesWidget" name="CoordinatesWidget_ImagerCenterOffset">
-          <property name="enabled">
-           <bool>true</bool>
-          </property>
-          <property name="dimension">
-           <number>2</number>
-          </property>
-          <property name="minimum">
-           <double>-100.000000000000000</double>
-          </property>
-          <property name="maximum">
-           <double>100.000000000000000</double>
-          </property>
-         </widget>
-        </item>
-        <item row="7" column="1">
-         <widget class="ctkCoordinatesWidget" name="CoordinatesWidget_ImageWindow">
-          <property name="enabled">
-           <bool>false</bool>
-          </property>
-          <property name="dimension">
-           <number>4</number>
-          </property>
-          <property name="decimals">
-           <number>0</number>
-          </property>
-          <property name="minimum">
-           <double>0.000000000000000</double>
-          </property>
-          <property name="maximum">
-           <double>40000.000000000000000</double>
-          </property>
-          <property name="coordinates" stdset="0">
-           <string>0,0,2000,2000</string>
-          </property>
-         </widget>
-        </item>
-        <item row="0" column="0">
-         <widget class="QLabel" name="label_3">
-          <property name="text">
-           <string>Isocenter to imager distance (mm)</string>
-          </property>
-         </widget>
-        </item>
-        <item row="5" column="1">
-         <widget class="ctkCoordinatesWidget" name="CoordinatesWidget_ImagePixelDimention">
-          <property name="dimension">
-           <number>2</number>
-          </property>
-          <property name="decimals">
-           <number>0</number>
-          </property>
-          <property name="minimum">
-           <double>0.000000000000000</double>
-          </property>
-          <property name="maximum">
-           <double>40000.000000000000000</double>
-          </property>
-          <property name="coordinates" stdset="0">
-           <string>2000,2000</string>
-          </property>
-         </widget>
-        </item>
-        <item row="3" column="0">
-         <widget class="QLabel" name="label_7">
-          <property name="enabled">
-           <bool>true</bool>
-          </property>
-          <property name="text">
-           <string>Rotate around normal</string>
-          </property>
-         </widget>
-        </item>
-        <item row="1" column="1">
-         <widget class="ctkSliderWidget" name="SliderWidget_RotateImagerAroundX">
-          <property name="enabled">
-           <bool>false</bool>
-          </property>
-          <property name="maximum">
-           <double>359.990000000000009</double>
-          </property>
-         </widget>
-        </item>
-        <item row="3" column="1">
-         <widget class="ctkSliderWidget" name="SliderWidget_RotateImagerAroundZ">
-          <property name="enabled">
-           <bool>true</bool>
-          </property>
-          <property name="maximum">
-           <double>359.990000000000009</double>
-          </property>
-         </widget>
-        </item>
-        <item row="5" column="0">
-         <widget class="QLabel" name="label_8">
-          <property name="text">
-           <string>Image dimention</string>
-          </property>
-         </widget>
-        </item>
-        <item row="0" column="1">
-         <widget class="ctkSliderWidget" name="SliderWidget_IsocenterImagerDistance">
-          <property name="maximum">
-           <double>999.899999999999977</double>
-          </property>
-          <property name="value">
-           <double>300.000000000000000</double>
-          </property>
-         </widget>
-        </item>
-        <item row="2" column="0">
-         <widget class="QLabel" name="label_6">
-          <property name="enabled">
-           <bool>false</bool>
-          </property>
-          <property name="text">
-           <string>Rotate Y</string>
-          </property>
-         </widget>
-        </item>
-        <item row="8" column="0">
-         <widget class="QLabel" name="label_12">
-          <property name="enabled">
-           <bool>false</bool>
-          </property>
-          <property name="text">
-           <string>Image center (mm)</string>
-          </property>
-         </widget>
-        </item>
-        <item row="8" column="1">
-         <widget class="ctkCoordinatesWidget" name="CoordinatesWidget_ImageCenter">
-          <property name="enabled">
-           <bool>false</bool>
-          </property>
-          <property name="dimension">
-           <number>2</number>
-          </property>
-          <property name="decimals">
-           <number>2</number>
-          </property>
-          <property name="minimum">
-           <double>0.000000000000000</double>
-          </property>
-          <property name="maximum">
-           <double>40000.000000000000000</double>
-          </property>
-          <property name="coordinates" stdset="0">
-           <string>512,384</string>
-          </property>
-         </widget>
-        </item>
-        <item row="7" column="0">
-         <widget class="QCheckBox" name="CheckBox_UseImageWindow">
-          <property name="text">
-           <string>Use image window</string>
-          </property>
-         </widget>
-        </item>
-       </layout>
-      </item>
-     </layout>
-    </widget>
-   </item>
    <item row="4" column="2" colspan="2">
     <widget class="QCheckBox" name="CheckBox_ShowDrrMarkups">
      <property name="text">
@@ -483,48 +509,39 @@
      </property>
     </widget>
    </item>
-   <item row="3" column="0">
-    <widget class="QLabel" name="label">
+   <item row="7" column="0" colspan="4">
+    <widget class="ctkCollapsibleButton" name="CollapsibleButton_PlmDrrArgs">
      <property name="text">
-      <string>RT beam:</string>
+      <string>Plastimatch DRR command arguments (read only)</string>
      </property>
-    </widget>
-   </item>
-   <item row="2" column="0" colspan="2">
-    <widget class="QLabel" name="label_2">
-     <property name="text">
-      <string>Reference volume:</string>
+     <property name="collapsed">
+      <bool>true</bool>
      </property>
-    </widget>
-   </item>
-   <item row="9" column="1" colspan="2">
-    <widget class="QPushButton" name="PushButton_ComputeDrr">
-     <property name="enabled">
-      <bool>false</bool>
-     </property>
-     <property name="text">
-      <string>Compute DRR image</string>
-     </property>
-    </widget>
-   </item>
-   <item row="3" column="2" colspan="2">
-    <widget class="qMRMLNodeComboBox" name="MRMLNodeComboBox_RtBeam"/>
-   </item>
-   <item row="1" column="0" colspan="2">
-    <widget class="QLabel" name="label_10">
-     <property name="text">
-      <string>Parameter node:</string>
-     </property>
+     <layout class="QVBoxLayout" name="verticalLayout_3">
+      <item>
+       <widget class="QPlainTextEdit" name="plainTextEdit_PlmDrrArgs">
+        <property name="readOnly">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+     </layout>
     </widget>
    </item>
    <item row="0" column="0" colspan="4">
     <widget class="ctkCollapsibleButton" name="CollapsibleButton_PlastimatchAppPath">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
      <property name="text">
       <string>Plastimatch DRR application path</string>
      </property>
-     <layout class="QGridLayout" name="gridLayout_9">
+     <layout class="QGridLayout" name="gridLayout_11">
       <item row="0" column="0">
-       <layout class="QHBoxLayout" name="horizontalLayout_2">
+       <layout class="QHBoxLayout" name="horizontalLayout">
         <item>
          <widget class="QLineEdit" name="LineEdit_PlastimatchAppPath"/>
         </item>
@@ -540,11 +557,48 @@
      </layout>
     </widget>
    </item>
-   <item row="2" column="2" colspan="2">
-    <widget class="qMRMLNodeComboBox" name="MRMLNodeComboBox_ReferenceVolume"/>
+   <item row="1" column="0" colspan="2">
+    <widget class="QLabel" name="label_10">
+     <property name="text">
+      <string>Parameter node:</string>
+     </property>
+    </widget>
+   </item>
+   <item row="9" column="1" colspan="2">
+    <widget class="QPushButton" name="PushButton_ComputeDrr">
+     <property name="enabled">
+      <bool>false</bool>
+     </property>
+     <property name="text">
+      <string>Compute DRR image</string>
+     </property>
+    </widget>
    </item>
    <item row="1" column="2" colspan="2">
     <widget class="qMRMLNodeComboBox" name="MRMLNodeComboBox_ParameterNode"/>
+   </item>
+   <item row="2" column="0" colspan="2">
+    <widget class="QLabel" name="label_2">
+     <property name="text">
+      <string>Reference volume:</string>
+     </property>
+    </widget>
+   </item>
+   <item row="2" column="2" colspan="2">
+    <widget class="qMRMLNodeComboBox" name="MRMLNodeComboBox_ReferenceVolume"/>
+   </item>
+   <item row="10" column="0" colspan="4">
+    <spacer name="verticalSpacer">
+     <property name="orientation">
+      <enum>Qt::Vertical</enum>
+     </property>
+     <property name="sizeHint" stdset="0">
+      <size>
+       <width>20</width>
+       <height>40</height>
+      </size>
+     </property>
+    </spacer>
    </item>
   </layout>
  </widget>
@@ -553,6 +607,12 @@
    <class>ctkCollapsibleButton</class>
    <extends>QWidget</extends>
    <header>ctkCollapsibleButton.h</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>ctkCollapsibleGroupBox</class>
+   <extends>QGroupBox</extends>
+   <header>ctkCollapsibleGroupBox.h</header>
    <container>1</container>
   </customwidget>
   <customwidget>
@@ -683,10 +743,26 @@
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>CheckBox_UseImageWindow</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>CollapsibleGroupBox_ImageWindowParameters</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>131</x>
+     <y>556</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>247</x>
+     <y>646</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
  <buttongroups>
-  <buttongroup name="ButtonGroup_HUConversion"/>
-  <buttongroup name="ButtonGroup_Threading"/>
   <buttongroup name="ButtonGroup_ReconstructionAlgorithm"/>
+  <buttongroup name="ButtonGroup_Threading"/>
+  <buttongroup name="ButtonGroup_HUConversion"/>
  </buttongroups>
 </ui>

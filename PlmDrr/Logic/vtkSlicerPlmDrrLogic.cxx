@@ -70,9 +70,6 @@
 namespace
 {
 
-const double normalVector[4] = { 0., 0., -1., 0. }; // beam positive Z-axis
-const double viewUpVector[4] = { -1., 0., 0., 0. }; // beam negative X-axis
-
 int InnerDrrNumber = 0;
 
 } // namespace
@@ -216,18 +213,6 @@ bool vtkSlicerPlmDrrLogic::LoadDRR( vtkMRMLPlmDrrNode* parameterNode, vtkMRMLSca
     return false;
   }
 
-  double n[4] = {};
-  double vup[4] = {};
-  parameterNode->GetViewUpVector(vup);
-  parameterNode->GetNormalVector(n);
-  vtkWarningMacro( "GeneratePlastimatchDrrArgs: ViewUp " << vup[0] << " " << vup[1] << " " << vup[2]);
-  vtkWarningMacro( "GeneratePlastimatchDrrArgs: Normal " << n[0] << " " << n[1] << " " << n[2]);
-
-  double vupDotResult = vtkMath::Dot( vup, viewUpVector);
-  double nDotResult = vtkMath::Dot( n, normalVector);
-  vtkWarningMacro( "GeneratePlastimatchDrrArgs: vupDotResult " << vupDotResult);
-  vtkWarningMacro( "GeneratePlastimatchDrrArgs: nDotResult " << nDotResult);
-
   // Plastimatch DRR input pixel type (long)
   using InputPixelType = signed long int;
   const unsigned int InputDimension = 3;
@@ -294,7 +279,7 @@ bool vtkSlicerPlmDrrLogic::LoadDRR( vtkMRMLPlmDrrNode* parameterNode, vtkMRMLSca
   }
 
   OutputImageType::Pointer drrImagePtr = invert->GetOutput();
-
+/*
   using FlipImageFilterType = itk::FlipImageFilter< OutputImageType >;
   FlipImageFilterType::Pointer flip = FlipImageFilterType::New();
   flip->SetInput(invert->GetOutput());
@@ -302,7 +287,7 @@ bool vtkSlicerPlmDrrLogic::LoadDRR( vtkMRMLPlmDrrNode* parameterNode, vtkMRMLSca
 //  if ((nDotResult > 0. && vupDotResult < 0. && !vtkSlicerRtCommon::AreEqualWithTolerance( vupDotResult, 0.0))) // flip image horizontally
   {
     flipAxes[0] = false;
-    flipAxes[1] = true;
+    flipAxes[1] = false;
     flip->SetFlipAxes(flipAxes);
     try
     {
@@ -315,6 +300,7 @@ bool vtkSlicerPlmDrrLogic::LoadDRR( vtkMRMLPlmDrrNode* parameterNode, vtkMRMLSca
     }
     drrImagePtr = flip->GetOutput();
   }
+*/
 //  else if (nDotResult >= 0. && vtkSlicerRtCommon::AreEqualWithTolerance( vupDotResult, 0.0))
 //  {
 //    ;
@@ -1037,27 +1023,24 @@ std::string vtkSlicerPlmDrrLogic::GeneratePlastimatchDrrArgs( vtkMRMLVolumeNode*
   vtkMRMLRTBeamNode* beamNode = parameterNode->GetBeamNode();
   vtkMRMLTransformNode* beamTransformNode = beamNode->GetParentTransformNode();
   vtkTransform* beamTransform = nullptr;
-  vtkNew<vtkMatrix4x4> mat;
-  mat->Identity();
+  vtkNew<vtkMatrix4x4> mat; // DICOM beam transform matrix
 
   vtkSmartPointer<vtkTransform> isocenterToRtImageRas = vtkSmartPointer<vtkTransform>::New();
   if (beamTransformNode)
   {
     beamTransform = vtkTransform::SafeDownCast(beamTransformNode->GetTransformToParent());
-    beamTransform->GetMatrix(mat);
-/*
-    vtkSmartPointer<vtkTransform> iecToLpsTransform = vtkSmartPointer<vtkTransform>::New();
-    iecToLpsTransform->Identity();
-    iecToLpsTransform->RotateX(90.0);
-    iecToLpsTransform->RotateZ(180.0);
+
+    vtkSmartPointer<vtkTransform> rasToLpsTransform = vtkSmartPointer<vtkTransform>::New();
+    rasToLpsTransform->Identity();
+    rasToLpsTransform->RotateZ(180.0);
     
-    vtkSmartPointer<vtkTransform> isocenterToRtImageRas = vtkSmartPointer<vtkTransform>::New();
-    isocenterToRtImageRas->Identity();
-    isocenterToRtImageRas->PreMultiply();
-    isocenterToRtImageRas->Concatenate(mat);
-    isocenterToRtImageRas->Concatenate(iecToLpsTransform);
-    isocenterToRtImageRas->GetMatrix(mat);
-*/
+    vtkSmartPointer<vtkTransform> dicomBeamTransform = vtkSmartPointer<vtkTransform>::New();
+    dicomBeamTransform->Identity();
+    dicomBeamTransform->PreMultiply();
+    dicomBeamTransform->Concatenate(rasToLpsTransform);
+    dicomBeamTransform->Concatenate(beamTransform);
+
+    dicomBeamTransform->GetMatrix(mat);
   }
   else
   {
@@ -1066,17 +1049,14 @@ std::string vtkSlicerPlmDrrLogic::GeneratePlastimatchDrrArgs( vtkMRMLVolumeNode*
   }
 
   double n[4], vup[4];
+  double normalVector[4] = { 0., 0., 1., 0. }; // beam positive Z-axis
+  double viewUpVector[4] = { -1., 0., 0., 0. }; // beam negative X-axis
 
   mat->MultiplyPoint( normalVector, n);
   mat->MultiplyPoint( viewUpVector, vup);
-//  n[0] *= -1.;
-//  n[1] *= -1.;
-//  vup[0] *= -1.;
-//  vup[1] *= -1.;
+
   parameterNode->SetNormalVector(n);
   parameterNode->SetViewUpVector(vup);
-  vtkWarningMacro( "GeneratePlastimatchDrrArgs: normal " << n[0] << " " << n[1] << " " << n[2]);
-  vtkWarningMacro( "GeneratePlastimatchDrrArgs: ViewUp " << vup[0] << " " << vup[1] << " " << vup[2]);
 
   int res[2];
   parameterNode->GetImageDimention(res);
@@ -1518,29 +1498,7 @@ bool vtkSlicerPlmDrrLogic::SetupRtImageGeometry( vtkMRMLPlmDrrNode* paramNode,
     vtkErrorMacro("SetupRtImageGeometry: Failed to get plan isocenter position");
     return false;
   }
-/*
-  //TODO: Use one IEC logic in a private scene for all beam transform updates?
-  vtkSmartPointer<vtkSlicerIECTransformLogic> iecLogic = vtkSmartPointer<vtkSlicerIECTransformLogic>::New();
-  iecLogic->SetMRMLScene(this->GetMRMLScene());
-  iecLogic->UpdateBeamTransform(beamNode);
 
-  // Update transforms in IEC logic from beam node parameters
-  iecLogic->UpdateIECTransformsFromBeam( beamNode, isocenterWorldCoordinates);
-
-  // Dynamic transform from Collimator to RAS
-  // Transformation path:
-  // Collimator -> Gantry -> FixedReference -> PatientSupport -> TableTopEccentricRotation -> TableTop -> Patient -> RAS
-  vtkSmartPointer<vtkGeneralTransform> beamGeneralTransform = vtkSmartPointer<vtkGeneralTransform>::New();
-  vtkSmartPointer<vtkTransform> beamLinearTransform = vtkSmartPointer<vtkTransform>::New();
-  if (iecLogic->GetTransformBetween( vtkSlicerIECTransformLogic::CoordinateSystemIdentifier::FlatPanel, vtkSlicerIECTransformLogic::CoordinateSystemIdentifier::FixedReference, beamGeneralTransform))
-  {
-    if (!vtkMRMLTransformNode::IsGeneralTransformLinear(beamGeneralTransform, beamLinearTransform))
-    {
-      vtkErrorMacro("SetupRtImageGeometry: Unable to set transform with non-linear components to beam " << beamNode->GetName());
-      return false;
-    }
-  }
-*/
   // Assemble transform from isocenter IEC to RT image RAS
   vtkSmartPointer<vtkTransform> fixedToIsocenterTransform = vtkSmartPointer<vtkTransform>::New();
   fixedToIsocenterTransform->Identity();
@@ -1564,7 +1522,7 @@ bool vtkSlicerPlmDrrLogic::SetupRtImageGeometry( vtkMRMLPlmDrrNode* paramNode,
 
   vtkSmartPointer<vtkTransform> rtImageCenterToCornerTransform = vtkSmartPointer<vtkTransform>::New();
   rtImageCenterToCornerTransform->Identity();
-  rtImageCenterToCornerTransform->Translate( rtImagePosition[0], 0.0, rtImagePosition[1]);
+  rtImageCenterToCornerTransform->Translate( -1. * rtImagePosition[0], 0.0, rtImagePosition[1]);
 
   // Create isocenter to RAS transform
   // The transformation below is based section C.8.8 in DICOM standard volume 3:

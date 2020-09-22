@@ -213,7 +213,6 @@ void qSlicerPlmDrrModuleWidget::setMRMLScene(vtkMRMLScene* scene)
   this->Superclass::setMRMLScene(scene);
 
   qvtkReconnect( d->logic(), scene, vtkMRMLScene::EndImportEvent, this, SLOT(onSceneImportedEvent()));
-  qvtkReconnect( d->logic(), scene, vtkMRMLScene::EndCloseEvent, this, SLOT(onSceneClosedEvent()));
 
   // Find parameters node or create it if there is none in the scene
   if (scene)
@@ -605,12 +604,6 @@ void qSlicerPlmDrrModuleWidget::onSceneImportedEvent()
 {
   this->onEnter();
 }
-
-//-----------------------------------------------------------------------------
-//void qSlicerPlmDrrModuleWidget::onSceneClosedEvent()
-//{
-//  this->onEnter();
-//}
 
 //-----------------------------------------------------------------------------
 void qSlicerPlmDrrModuleWidget::enter()

@@ -48,7 +48,6 @@ public slots:
   void setMRMLScene(vtkMRMLScene*) override;
   void setParameterNode(vtkMRMLNode*);
   void onSceneImportedEvent();
-//  void onSceneClosedEvent();
 
   void onRTBeamNodeChanged(vtkMRMLNode*);
   void onParameterNodeChanged(vtkMRMLNode*);
