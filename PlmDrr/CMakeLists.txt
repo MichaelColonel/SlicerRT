@@ -1,7 +1,7 @@
 
 #-----------------------------------------------------------------------------
 set(MODULE_NAME "PlmDrr")
-set(MODULE_TITLE "DRR")
+set(MODULE_TITLE "DRR Computation")
 
 string(TOUPPER ${MODULE_NAME} MODULE_NAME_UPPER)
 

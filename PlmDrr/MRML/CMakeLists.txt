@@ -30,6 +30,7 @@ SET (${KIT}_INCLUDE_DIRS
 
 set(${KIT}_TARGET_LIBRARIES
   vtkSlicerRtCommon
+  vtkSlicerBeamsModuleMRML
   MRMLCore
   vtkSlicerMarkupsModuleMRML
   )

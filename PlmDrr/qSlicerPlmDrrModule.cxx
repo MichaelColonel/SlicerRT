@@ -66,20 +66,21 @@ qSlicerPlmDrrModule::~qSlicerPlmDrrModule()
 //-----------------------------------------------------------------------------
 QString qSlicerPlmDrrModule::helpText() const
 {
-  return "This is a loadable module that can be bundled in an extension";
+  return "This is a loadable module that calculated a digitally " \
+  "reconstructed radiograph (DRR) using the plastimatch application.";
 }
 
 //-----------------------------------------------------------------------------
 QString qSlicerPlmDrrModule::acknowledgementText() const
 {
-  return "This work was partially funded by NIH grant NXNNXXNNNNNN-NNXN";
+  return QString();
 }
 
 //-----------------------------------------------------------------------------
 QStringList qSlicerPlmDrrModule::contributors() const
 {
   QStringList moduleContributors;
-  moduleContributors << QString("John Doe (AnyWare Corp.)");
+  moduleContributors << QString("Mikhail Polkovnikov (NRC \"Kurchatov Institute\" - IHEP)");
   return moduleContributors;
 }
 

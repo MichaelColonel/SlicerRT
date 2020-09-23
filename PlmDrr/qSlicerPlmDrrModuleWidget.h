@@ -67,8 +67,9 @@ protected slots:
   void onUpdateImageWindowFromBeamJaws();
   void onRotateAroundNormal(double);
   void onUpdatePlmDrrArgs();
-  void onPlatimatchDrrProcessStarted();
-  void onPlatimatchDrrProcessFinished( int, QProcess::ExitStatus);
+  void onPlastimatchDrrProcessStarted();
+  void onPlastimatchDrrProcessFinished( int, QProcess::ExitStatus);
+  void onCancelPlastimatchDrrProcessClicked();
   void onSelectPlastimatchAppPathClicked();
   void onShowMarkupsToggled(bool);
   void onUseImageWindowToggled(bool);

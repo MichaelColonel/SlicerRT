@@ -21,6 +21,7 @@
 #include <QDir>
 #include <QSettings>
 #include <QFileDialog>
+#include <QProgressDialog>
 
 // SlicerQt includes
 #include <qSlicerCoreApplication.h>
@@ -63,11 +64,13 @@ public:
   vtkSlicerPlmDrrLogic* logic() const;
 
 public:
+  vtkMRMLPlmDrrNode* ParameterNode;
   vtkMRMLRTBeamNode* RtBeamNode;
   vtkMRMLScalarVolumeNode* ReferenceVolumeNode;
   bool ModuleWindowInitialized;
   QProcess* m_PlastimatchProcess;
   QString m_ReferenceVolumeFile;
+  QProgressDialog* m_ProgressDialog;
   std::list< std::string > PlastimatchArgs;
 };
 
@@ -78,10 +81,12 @@ public:
 qSlicerPlmDrrModuleWidgetPrivate::qSlicerPlmDrrModuleWidgetPrivate(qSlicerPlmDrrModuleWidget &object)
   :
   q_ptr(&object),
+  ParameterNode(nullptr),
   RtBeamNode(nullptr),
   ReferenceVolumeNode(nullptr),
   ModuleWindowInitialized(false),
-  m_PlastimatchProcess(nullptr)
+  m_PlastimatchProcess(nullptr),
+  m_ProgressDialog(nullptr)
 {
 }
 
@@ -90,8 +95,15 @@ qSlicerPlmDrrModuleWidgetPrivate::~qSlicerPlmDrrModuleWidgetPrivate()
 {
   if (m_PlastimatchProcess)
   {
+    m_PlastimatchProcess->close();
     delete m_PlastimatchProcess;
     m_PlastimatchProcess = nullptr;
+  }
+  if (m_ProgressDialog)
+  {
+    m_ProgressDialog->hide();
+    delete m_ProgressDialog;
+    m_ProgressDialog = nullptr;
   }
 }
 
@@ -112,7 +124,7 @@ qSlicerPlmDrrModuleWidget::qSlicerPlmDrrModuleWidget(QWidget* _parent)
   Superclass(_parent),
   d_ptr(new qSlicerPlmDrrModuleWidgetPrivate(*this))
 {
-  // Q_D(qSlicerPlmDrrModuleWidget);
+//  Q_D(qSlicerPlmDrrModuleWidget);
 }
 
 //-----------------------------------------------------------------------------
@@ -265,22 +277,20 @@ void qSlicerPlmDrrModuleWidget::onRTBeamNodeChanged(vtkMRMLNode* node)
   }
 
   vtkMRMLRTIonBeamNode* ionBeamNode = vtkMRMLRTIonBeamNode::SafeDownCast(node);
-  d->RtBeamNode = beamNode;
   Q_UNUSED(ionBeamNode);
 
-  vtkMRMLPlmDrrNode* paramNode = vtkMRMLPlmDrrNode::SafeDownCast(d->MRMLNodeComboBox_ParameterNode->currentNode());
-  if (!paramNode/* || !d->ModuleWindowInitialized*/)
+  if (!d->ParameterNode)
   {
     qCritical() << Q_FUNC_INFO << ": Invalid parameter node";
     return;
   }
 
-  paramNode->DisableModifiedEventOn();
-  paramNode->SetAndObserveBeamNode(beamNode);
-  paramNode->DisableModifiedEventOff();
+  d->ParameterNode->DisableModifiedEventOn();
+  d->ParameterNode->SetAndObserveBeamNode(beamNode);
+  d->ParameterNode->DisableModifiedEventOff();
 
   // Update imager and image markups, DRR arguments
-  d->logic()->UpdateMarkupsNodes(paramNode);
+  d->logic()->UpdateMarkupsNodes(d->ParameterNode);
   this->updateWidgetFromMRML();
 }
 
@@ -320,6 +330,16 @@ void qSlicerPlmDrrModuleWidget::onComputeDrrClicked()
 
   if (d->ReferenceVolumeNode && d->ReferenceVolumeNode->AddDefaultStorageNode())
   {
+    if (d->m_ProgressDialog)
+    {
+      delete d->m_ProgressDialog;
+    }
+    d->m_ProgressDialog = new QProgressDialog( tr("Saving files to the Slicer temporary directory..."), 
+      tr("Stop"), 0, 0, this);
+    connect( d->m_ProgressDialog, SIGNAL(canceled()), this, SLOT(onCancelPlastimatchDrrProcessClicked()));
+    d->m_ProgressDialog->setWindowTitle("DRR computation progress");
+    d->m_ProgressDialog->setWindowModality(Qt::WindowModal);
+
     qSlicerCoreIOManager* coreIOManager = qSlicerCoreApplication::application()->coreIOManager();
     qSlicerIO::IOProperties fileParameters;
     QDir dir(qSlicerCoreApplication::application()->temporaryPath());
@@ -327,16 +347,16 @@ void qSlicerPlmDrrModuleWidget::onComputeDrrClicked()
 
     fileParameters["nodeID"] = d->ReferenceVolumeNode->GetID();
     fileParameters["fileName"] = drrVolumeFileName;
+    // Saving reference volume into temporary mha file and starting the process
     if (coreIOManager->saveNodes( "VolumeFile", fileParameters))
     {
       d->m_ReferenceVolumeFile = drrVolumeFileName;
-      qDebug() << Q_FUNC_INFO << ": Reference volume node written into temporary mha file";
 
       d->m_PlastimatchProcess = new QProcess();
       connect( d->m_PlastimatchProcess, SIGNAL(started()), 
-        this, SLOT(onPlatimatchDrrProcessStarted()));
+        this, SLOT(onPlastimatchDrrProcessStarted()));
       connect( d->m_PlastimatchProcess, SIGNAL(finished( int, QProcess::ExitStatus)), 
-        this, SLOT(onPlatimatchDrrProcessFinished( int, QProcess::ExitStatus)));
+        this, SLOT(onPlastimatchDrrProcessFinished( int, QProcess::ExitStatus)));
 
       QStringList arguments;
       for (const std::string& arg : d->PlastimatchArgs)
@@ -351,22 +371,25 @@ void qSlicerPlmDrrModuleWidget::onComputeDrrClicked()
     else
     {
       d->m_ReferenceVolumeFile.clear();
-      qCritical() << Q_FUNC_INFO << ": Unable save reference volume into temporary mha file";
+      qCritical() << Q_FUNC_INFO << ": Unable to save reference volume into temporary mha file";
       return;
     }
   }
 }
 
 //-----------------------------------------------------------------------------
-void qSlicerPlmDrrModuleWidget::onPlatimatchDrrProcessStarted()
+void qSlicerPlmDrrModuleWidget::onPlastimatchDrrProcessStarted()
 {
   Q_D(qSlicerPlmDrrModuleWidget);
-  qDebug() << Q_FUNC_INFO << ": Process has been started";
-  //TODO: Add progress dialog here
+  qDebug() << Q_FUNC_INFO << ": Process of DRR RTImage calculation has been started";
+  if (d->m_ProgressDialog)
+  {
+    d->m_ProgressDialog->setLabelText(tr("Plastimatch process..."));
+  }
 }
 
 //-----------------------------------------------------------------------------
-void qSlicerPlmDrrModuleWidget::onPlatimatchDrrProcessFinished( int exitCode, QProcess::ExitStatus exitStatus)
+void qSlicerPlmDrrModuleWidget::onPlastimatchDrrProcessFinished( int exitCode, QProcess::ExitStatus exitStatus)
 {
   Q_D(qSlicerPlmDrrModuleWidget);
 
@@ -377,12 +400,11 @@ void qSlicerPlmDrrModuleWidget::onPlatimatchDrrProcessFinished( int exitCode, QP
 
   if (exitCode == EXIT_SUCCESS && exitStatus == QProcess::NormalExit)
   {
-    vtkMRMLPlmDrrNode* paramNode = vtkMRMLPlmDrrNode::SafeDownCast(d->MRMLNodeComboBox_ParameterNode->currentNode());
-    if (!paramNode || !d->ModuleWindowInitialized)
+    if (d->m_ProgressDialog)
     {
-      return;
+      d->m_ProgressDialog->setLabelText(tr("Loading and processing DRR image..."));
     }
-    
+
     // load resulted raw DRR image file
     QDir dir(qSlicerCoreApplication::application()->temporaryPath());
     QStringList filters;
@@ -406,11 +428,11 @@ void qSlicerPlmDrrModuleWidget::onPlatimatchDrrProcessFinished( int exitCode, QP
         std::ofstream ofs(mhdName.c_str());
 
         int res[2];
-        paramNode->GetImageDimention(res);
+        d->ParameterNode->GetImageDimention(res);
         int window[4];
-        paramNode->GetImageWindow(window);
+        d->ParameterNode->GetImageWindow(window);
         double spacing[2];
-        paramNode->GetImageSpacing(spacing);
+        d->ParameterNode->GetImageSpacing(spacing);
 
         ofs << "NDims = 3\n";
         if (!d->CheckBox_UseImageWindow->isChecked())
@@ -421,7 +443,7 @@ void qSlicerPlmDrrModuleWidget::onPlatimatchDrrProcessFinished( int exitCode, QP
         {
           ofs << "DimSize = " << window[3] - window[1] + 1 << " " << window[2] - window[0] + 1 << " 1\n";
         }
-        ofs << "ElementSpacing = " << spacing[1] << " " << spacing[1] << " 1\n";
+        ofs << "ElementSpacing = " << spacing[1] << " " << spacing[0] << " 1\n";
         ofs << "Position = 0 0 0\n";
         ofs << "BinaryData = True\n";
         ofs << "ElementByteOrderMSB = False\n";
@@ -439,11 +461,11 @@ void qSlicerPlmDrrModuleWidget::onPlatimatchDrrProcessFinished( int exitCode, QP
     vtkNew<vtkMRMLScalarVolumeNode> drrVolumeNode;
     this->mrmlScene()->AddNode(drrVolumeNode);
 
-    bool res = d->logic()->LoadDRR( paramNode, drrVolumeNode, mhdName);
+    bool res = d->logic()->LoadDRR( d->ParameterNode, drrVolumeNode, mhdName);
     if (res)
     {
       qDebug() << Q_FUNC_INFO << ": DRR scalar volume node has been loaded, deleting temporary files";
-      res = d->logic()->LoadRtImage( paramNode, drrVolumeNode);
+      res = d->logic()->LoadRtImage( d->ParameterNode, drrVolumeNode);
       if (res)
       {
         QFile drrReferenceVolumeFile(d->m_ReferenceVolumeFile);
@@ -488,6 +510,31 @@ void qSlicerPlmDrrModuleWidget::onPlatimatchDrrProcessFinished( int exitCode, QP
     }
     qCritical() << Q_FUNC_INFO << ": DRR calculation process has been finished with an error: " << errorMessage;
     return;
+  }
+  if (d->m_ProgressDialog)
+  {
+    d->m_ProgressDialog->hide();
+    delete d->m_ProgressDialog;
+    d->m_ProgressDialog = nullptr;
+  }
+}
+
+//-----------------------------------------------------------------------------
+void qSlicerPlmDrrModuleWidget::onCancelPlastimatchDrrProcessClicked()
+{
+  Q_D(qSlicerPlmDrrModuleWidget);
+
+  if (d->m_PlastimatchProcess)
+  {
+    d->m_PlastimatchProcess->close();
+    delete d->m_PlastimatchProcess;
+    d->m_PlastimatchProcess = nullptr;
+  }
+  if (d->m_ProgressDialog)
+  {
+    d->m_ProgressDialog->hide();
+    delete d->m_ProgressDialog;
+    d->m_ProgressDialog = nullptr;
   }
 }
 
@@ -544,7 +591,7 @@ void qSlicerPlmDrrModuleWidget::updateWidgetFromMRML()
 {
   Q_D(qSlicerPlmDrrModuleWidget);
 
-  vtkMRMLPlmDrrNode* paramNode = vtkMRMLPlmDrrNode::SafeDownCast(d->MRMLNodeComboBox_ParameterNode->currentNode());
+  d->ParameterNode = vtkMRMLPlmDrrNode::SafeDownCast(d->MRMLNodeComboBox_ParameterNode->currentNode());
 
   if (!this->mrmlScene())
   {
@@ -552,19 +599,13 @@ void qSlicerPlmDrrModuleWidget::updateWidgetFromMRML()
     return;
   }
 
-  if (!paramNode || !d->ModuleWindowInitialized)
+  if (!d->ParameterNode || !d->ModuleWindowInitialized)
   {
     qCritical() << Q_FUNC_INFO << ": Invalid parameter node";
     return;
   }
 
-  if (!paramNode->GetBeamNode())
-  {
-    qCritical() << Q_FUNC_INFO << ": Invalid referenced parameter's beam node";
-    return;
-  }
-
-  if (!d->RtBeamNode)
+  if (!d->ParameterNode->GetBeamNode())
   {
     qCritical() << Q_FUNC_INFO << ": Invalid referenced parameter's beam node";
     return;
@@ -577,27 +618,29 @@ void qSlicerPlmDrrModuleWidget::updateWidgetFromMRML()
   }
 
   // Update widgets info from parameter node and update plastimatch drr command
-  d->MRMLNodeComboBox_RtBeam->setCurrentNode(paramNode->GetBeamNode());
-  d->SliderWidget_IsocenterImagerDistance->setValue(paramNode->GetIsocenterImagerDistance());
-  d->CoordinatesWidget_ImagerCenterOffset->setCoordinates(paramNode->GetImagerCenterOffset());
+  d->MRMLNodeComboBox_RtBeam->setCurrentNode(d->ParameterNode->GetBeamNode());
+  d->SliderWidget_IsocenterImagerDistance->setValue(d->ParameterNode->GetIsocenterImagerDistance());
+  d->CoordinatesWidget_ImagerCenterOffset->setCoordinates(d->ParameterNode->GetImagerCenterOffset());
 
   int imageDimInteger[2] = {};
   double imageDim[2] = {};
-  paramNode->GetImageDimention(imageDimInteger);
+  d->ParameterNode->GetImageDimention(imageDimInteger);
   imageDim[0] = static_cast<double>(imageDimInteger[0]);
   imageDim[1] = static_cast<double>(imageDimInteger[1]);
   d->CoordinatesWidget_ImagePixelDimention->setCoordinates(imageDim);
-  d->CoordinatesWidget_ImagePixelSpacing->setCoordinates(paramNode->GetImageSpacing());
+  d->CoordinatesWidget_ImagePixelSpacing->setCoordinates(d->ParameterNode->GetImageSpacing());
     
   int imageWindowInteger[4] = {};
   double imageWindow[4] = {};
-  paramNode->GetImageWindow(imageWindowInteger);
+  d->ParameterNode->GetImageWindow(imageWindowInteger);
   imageWindow[0] = static_cast<double>(imageWindowInteger[0]);
   imageWindow[1] = static_cast<double>(imageWindowInteger[1]);
   imageWindow[2] = static_cast<double>(imageWindowInteger[2]);
   imageWindow[3] = static_cast<double>(imageWindowInteger[3]);
   d->CoordinatesWidget_ImageWindow->setCoordinates(imageWindow);
-  d->CoordinatesWidget_ImagerCenterOffset->setCoordinates(paramNode->GetImagerCenterOffset());
+  d->CoordinatesWidget_ImagerCenterOffset->setCoordinates(d->ParameterNode->GetImagerCenterOffset());
+
+  d->CheckBox_UseImageWindow->setChecked(d->ParameterNode->GetImageWindowFlag());
 
   // Update DRR arguments
   this->onUpdatePlmDrrArgs();
@@ -641,15 +684,13 @@ void qSlicerPlmDrrModuleWidget::onEnter()
     return;
   }
 
-  // Select or create parameter node
-  vtkMRMLPlmDrrNode* paramNode = vtkMRMLPlmDrrNode::SafeDownCast(d->MRMLNodeComboBox_ParameterNode->currentNode());
-  if (!paramNode)
+  if (!d->ParameterNode)
   {
     // Try to find one in the scene
-    vtkMRMLNode* node = this->mrmlScene()->GetNthNodeByClass(0, "vtkMRMLPlmDrrNode");
+    vtkMRMLNode* node = this->mrmlScene()->GetNthNodeByClass( 0, "vtkMRMLPlmDrrNode");
     if (node)
     {
-      paramNode = vtkMRMLPlmDrrNode::SafeDownCast(node);
+      d->ParameterNode = vtkMRMLPlmDrrNode::SafeDownCast(node);
     }
     else 
     {
@@ -658,16 +699,25 @@ void qSlicerPlmDrrModuleWidget::onEnter()
     }
   }
 
-//  if (!paramNode->GetBeamNode())
-//  {
-//    qCritical() << Q_FUNC_INFO << ": Invalid parameter referenced beam node";
-//    return;
-//  }
+  if (!d->ParameterNode->GetBeamNode())
+  {
+    // Try to find one in the scene
+    vtkMRMLNode* node = this->mrmlScene()->GetNthNodeByClass( 0, "vtkMRMLRTBeamNode");
+    if (node)
+    {
+      d->RtBeamNode = vtkMRMLRTBeamNode::SafeDownCast(node);
+      d->ParameterNode->SetAndObserveBeamNode(d->RtBeamNode);
+    }
+    else 
+    {
+      d->RtBeamNode = nullptr;
+    }
+  }
 
-  d->logic()->CreateMarkupsNodes(paramNode);
+  d->logic()->CreateMarkupsNodes(d->ParameterNode);
 
   d->ModuleWindowInitialized = true;
-//  this->onUpdatePlmDrrArgs();
+  this->updateWidgetFromMRML();
 }
 
 //-----------------------------------------------------------------------------
@@ -675,24 +725,24 @@ void qSlicerPlmDrrModuleWidget::setParameterNode(vtkMRMLNode *node)
 {
   Q_D(qSlicerPlmDrrModuleWidget);
 
-  vtkMRMLPlmDrrNode* paramNode = vtkMRMLPlmDrrNode::SafeDownCast(node);
+  d->ParameterNode = vtkMRMLPlmDrrNode::SafeDownCast(node);
 
   // Make sure the parameter set node is selected (in case the function was not called by the selector combobox signal)
-  d->MRMLNodeComboBox_ParameterNode->setCurrentNode(paramNode);
+  d->MRMLNodeComboBox_ParameterNode->setCurrentNode(d->ParameterNode);
 
   // Each time the node is modified, the UI widgets are updated
-  qvtkReconnect( paramNode, vtkCommand::ModifiedEvent, this, SLOT(updateWidgetFromMRML()));
+  qvtkReconnect( d->ParameterNode, vtkCommand::ModifiedEvent, this, SLOT(updateWidgetFromMRML()));
   
   // Set selected MRML nodes in comboboxes in the parameter set if it was nullptr there
   // (then in the meantime the comboboxes selected the first one from the scene and we have to set that)
-  if (paramNode)
+  if (d->ParameterNode)
   {
-    if (!paramNode->GetBeamNode())
+    if (!d->ParameterNode->GetBeamNode())
     {
       vtkMRMLRTBeamNode* beamNode = vtkMRMLRTBeamNode::SafeDownCast(d->MRMLNodeComboBox_RtBeam->currentNode());
       qvtkConnect( beamNode, vtkMRMLRTBeamNode::BeamGeometryModified, this, SLOT(onUpdateImageWindowFromBeamJaws()));
-      paramNode->SetAndObserveBeamNode(beamNode);
-      paramNode->Modified();
+      d->ParameterNode->SetAndObserveBeamNode(beamNode);
+      d->ParameterNode->Modified();
     }
   }
   this->updateWidgetFromMRML();
@@ -703,19 +753,16 @@ void qSlicerPlmDrrModuleWidget::onIsocenterImagerDistanceValueChanged(double val
 {
   Q_D(qSlicerPlmDrrModuleWidget);
 
-  vtkMRMLPlmDrrNode* paramNode = vtkMRMLPlmDrrNode::SafeDownCast(d->MRMLNodeComboBox_ParameterNode->currentNode());
-  if (!paramNode || !d->ModuleWindowInitialized)
+  if (!d->ParameterNode)
   {
     qCritical() << Q_FUNC_INFO << ": Invalid parameter node";
     return;
   }
 
-  paramNode->DisableModifiedEventOn();
-  paramNode->SetIsocenterImagerDistance(value);
-  paramNode->DisableModifiedEventOff();
+  d->ParameterNode->SetIsocenterImagerDistance(value);
 
   // Update imager and image markups, DRR arguments
-  d->logic()->UpdateMarkupsNodes(paramNode);
+  d->logic()->UpdateMarkupsNodes(d->ParameterNode);
   this->onUpdatePlmDrrArgs();
 }
 
@@ -724,20 +771,17 @@ void qSlicerPlmDrrModuleWidget::onImagerCenterOffsetCoordinatesChanged(double* d
 {
   Q_D(qSlicerPlmDrrModuleWidget);
 
-  vtkMRMLPlmDrrNode* paramNode = vtkMRMLPlmDrrNode::SafeDownCast(d->MRMLNodeComboBox_ParameterNode->currentNode());
-  if (!paramNode || !d->ModuleWindowInitialized)
+  if (!d->ParameterNode)
   {
     qCritical() << Q_FUNC_INFO << ": Invalid parameter node";
     return;
   }
 
   double offset[2] = { detectorOffset[0], detectorOffset[1] };
-  paramNode->DisableModifiedEventOn();
-  paramNode->SetImagerCenterOffset(offset);
-  paramNode->DisableModifiedEventOff();
+  d->ParameterNode->SetImagerCenterOffset(offset);
 
   // Update imager and image markups, DRR arguments
-  d->logic()->UpdateMarkupsNodes(paramNode);
+  d->logic()->UpdateMarkupsNodes(d->ParameterNode);
   this->onUpdatePlmDrrArgs();
 }
 
@@ -746,20 +790,17 @@ void qSlicerPlmDrrModuleWidget::onImageSpacingChanged(double* spacing)
 {
   Q_D(qSlicerPlmDrrModuleWidget);
 
-  vtkMRMLPlmDrrNode* paramNode = vtkMRMLPlmDrrNode::SafeDownCast(d->MRMLNodeComboBox_ParameterNode->currentNode());
-  if (!paramNode || !d->ModuleWindowInitialized)
+  if (!d->ParameterNode)
   {
     qCritical() << Q_FUNC_INFO << ": Invalid parameter node";
     return;
   }
 
   double s[2] = { spacing[0], spacing[1] };
-  paramNode->DisableModifiedEventOn();
-  paramNode->SetImageSpacing(s);
-  paramNode->DisableModifiedEventOff();
+  d->ParameterNode->SetImageSpacing(s);
 
   // Update imager and image markups, DRR arguments
-  d->logic()->UpdateMarkupsNodes(paramNode);
+  d->logic()->UpdateMarkupsNodes(d->ParameterNode);
   this->onUpdatePlmDrrArgs();
 }
 
@@ -768,15 +809,14 @@ void qSlicerPlmDrrModuleWidget::onShowMarkupsToggled(bool toggled)
 {
   Q_D(qSlicerPlmDrrModuleWidget);
 
-  vtkMRMLPlmDrrNode* paramNode = vtkMRMLPlmDrrNode::SafeDownCast(d->MRMLNodeComboBox_ParameterNode->currentNode());
-  if (!paramNode || !d->ModuleWindowInitialized)
+  if (!d->ParameterNode)
   {
     qCritical() << Q_FUNC_INFO << ": Invalid parameter node";
     return;
   }
 
   // Update imager and image markups, DRR arguments
-  d->logic()->ShowMarkupsNodes( paramNode, toggled);
+  d->logic()->ShowMarkupsNodes( d->ParameterNode, toggled);
 }
 
 //-----------------------------------------------------------------------------
@@ -784,8 +824,7 @@ void qSlicerPlmDrrModuleWidget::onImageDimentionChanged(double* dimention)
 {
   Q_D(qSlicerPlmDrrModuleWidget);
 
-  vtkMRMLPlmDrrNode* paramNode = vtkMRMLPlmDrrNode::SafeDownCast(d->MRMLNodeComboBox_ParameterNode->currentNode());
-  if (!paramNode || !d->ModuleWindowInitialized)
+  if (!d->ParameterNode)
   {
     qCritical() << Q_FUNC_INFO << ": Invalid parameter node";
     return;
@@ -793,41 +832,22 @@ void qSlicerPlmDrrModuleWidget::onImageDimentionChanged(double* dimention)
 
   int dim[2] = { static_cast<int>(dimention[0]), static_cast<int>(dimention[1]) }; // x, y
 
-  paramNode->SetImageDimention(dim);
+  d->ParameterNode->SetImageDimention(dim);
 
   int win[4] = { 0, 0, dim[0] - 1, dim[1] - 1 };
-  paramNode->SetImageWindow(win);
-  double winColumns = d->RangeWidget_ImageWindowColumns->maximumValue();
-  double winRows = d->RangeWidget_ImageWindowRows->maximumValue();
+  d->ParameterNode->SetImageWindow(win);
 
-//  if (dim[0] - 1 <= winColumns)
-//  {
-//    d->RangeWidget_ImageWindowColumns->setMaximumValue(dim[0] - 1);
-//  }
   d->RangeWidget_ImageWindowColumns->setMaximum(dim[0] - 1);
-
-//  if (dim[1] - 1 <= winRows)
-//  {
-//    d->RangeWidget_ImageWindowRows->setMaximumValue(dim[1] - 1);
-//  }
   d->RangeWidget_ImageWindowRows->setMaximum(dim[1] - 1);
-
   d->CoordinatesWidget_ImageWindow->setMaximum(std::max( dim[0] - 1, dim[1] - 1));
 
-  if (!d->CheckBox_UseImageWindow->isChecked())
-  {
-    d->RangeWidget_ImageWindowColumns->setMinimum(0);
-    d->RangeWidget_ImageWindowColumns->setMaximumValue(dim[0] - 1);
-    d->RangeWidget_ImageWindowRows->setMinimum(0);
-    d->RangeWidget_ImageWindowRows->setMaximumValue(dim[1] - 1);
-  }
-  else
-  {
-    ;
-  }
+  d->RangeWidget_ImageWindowColumns->setMinimum(0);
+  d->RangeWidget_ImageWindowColumns->setMaximum(dim[0] - 1);
+  d->RangeWidget_ImageWindowRows->setMinimum(0);
+  d->RangeWidget_ImageWindowRows->setMaximum(dim[1] - 1);
 
   // Update imager and image markups, DRR arguments
-  d->logic()->UpdateMarkupsNodes(paramNode);
+  d->logic()->UpdateMarkupsNodes(d->ParameterNode);
   this->onUpdatePlmDrrArgs();
 }
 
@@ -836,8 +856,7 @@ void qSlicerPlmDrrModuleWidget::onImageWindowCoordinatesChanged(double* window)
 {
   Q_D(qSlicerPlmDrrModuleWidget);
 
-  vtkMRMLPlmDrrNode* paramNode = vtkMRMLPlmDrrNode::SafeDownCast(d->MRMLNodeComboBox_ParameterNode->currentNode());
-  if (!paramNode || !d->ModuleWindowInitialized)
+  if (!d->ParameterNode)
   {
     qCritical() << Q_FUNC_INFO << ": Invalid parameter node";
     return;
@@ -849,12 +868,10 @@ void qSlicerPlmDrrModuleWidget::onImageWindowCoordinatesChanged(double* window)
     static_cast<int>(window[2]), // c2 = x2
     static_cast<int>(window[3]) }; // r2 = y2
 
-  paramNode->DisableModifiedEventOn();
-  paramNode->SetImageWindow(imageWindow);
-  paramNode->DisableModifiedEventOff();
-  
+  d->ParameterNode->SetImageWindow(imageWindow);
+
   // Update imager and image markups, DRR arguments
-  d->logic()->UpdateMarkupsNodes(paramNode);
+  d->logic()->UpdateMarkupsNodes(d->ParameterNode);
   this->onUpdatePlmDrrArgs();
 }
 
@@ -863,15 +880,14 @@ void qSlicerPlmDrrModuleWidget::onImageWindowRowsValuesChanged( double r1, doubl
 {
   Q_D(qSlicerPlmDrrModuleWidget);
 
-  vtkMRMLPlmDrrNode* paramNode = vtkMRMLPlmDrrNode::SafeDownCast(d->MRMLNodeComboBox_ParameterNode->currentNode());
-  if (!paramNode || !d->ModuleWindowInitialized)
+  if (!d->ParameterNode)
   {
     qCritical() << Q_FUNC_INFO << ": Invalid parameter node";
     return;
   }
 
   int imageWindow[4];
-  paramNode->GetImageWindow(imageWindow);
+  d->ParameterNode->GetImageWindow(imageWindow);
   imageWindow[1] = static_cast<int>(r1); // r1
   imageWindow[3] = static_cast<int>(r2); // r2
 
@@ -883,12 +899,10 @@ void qSlicerPlmDrrModuleWidget::onImageWindowRowsValuesChanged( double r1, doubl
   imageWin[3] = r2;
   d->CoordinatesWidget_ImageWindow->setCoordinates(imageWin);
 
-  paramNode->DisableModifiedEventOn();
-  paramNode->SetImageWindow(imageWindow);
-  paramNode->DisableModifiedEventOff();
+  d->ParameterNode->SetImageWindow(imageWindow);
   
   // Update imager and image markups, DRR arguments
-  d->logic()->UpdateMarkupsNodes(paramNode);
+  d->logic()->UpdateMarkupsNodes(d->ParameterNode);
   this->onUpdatePlmDrrArgs();
 }
 
@@ -897,15 +911,14 @@ void qSlicerPlmDrrModuleWidget::onImageWindowColumnsValuesChanged( double c1, do
 {
   Q_D(qSlicerPlmDrrModuleWidget);
 
-  vtkMRMLPlmDrrNode* paramNode = vtkMRMLPlmDrrNode::SafeDownCast(d->MRMLNodeComboBox_ParameterNode->currentNode());
-  if (!paramNode || !d->ModuleWindowInitialized)
+  if (!d->ParameterNode)
   {
     qCritical() << Q_FUNC_INFO << ": Invalid parameter node";
     return;
   }
 
   int imageWindow[4];
-  paramNode->GetImageWindow(imageWindow);
+  d->ParameterNode->GetImageWindow(imageWindow);
   imageWindow[0] = static_cast<int>(c1); // c1
   imageWindow[2] = static_cast<int>(c2); // c2
 
@@ -917,12 +930,10 @@ void qSlicerPlmDrrModuleWidget::onImageWindowColumnsValuesChanged( double c1, do
   imageWin[3] = coord[3];
   d->CoordinatesWidget_ImageWindow->setCoordinates(imageWin);
 
-  paramNode->DisableModifiedEventOn();
-  paramNode->SetImageWindow(imageWindow);
-  paramNode->DisableModifiedEventOff();
-  
+  d->ParameterNode->SetImageWindow(imageWindow);
+
   // Update imager and image markups, DRR arguments
-  d->logic()->UpdateMarkupsNodes(paramNode);
+  d->logic()->UpdateMarkupsNodes(d->ParameterNode);
   this->onUpdatePlmDrrArgs();
 }
 
@@ -931,8 +942,7 @@ void qSlicerPlmDrrModuleWidget::onUseImageWindowToggled(bool value)
 {
   Q_D(qSlicerPlmDrrModuleWidget);
 
-  vtkMRMLPlmDrrNode* paramNode = vtkMRMLPlmDrrNode::SafeDownCast(d->MRMLNodeComboBox_ParameterNode->currentNode());
-  if (!paramNode || !d->ModuleWindowInitialized)
+  if (!d->ParameterNode)
   {
     qCritical() << Q_FUNC_INFO << ": Invalid parameter node";
     return;
@@ -956,12 +966,11 @@ void qSlicerPlmDrrModuleWidget::onUseImageWindowToggled(bool value)
     imageWindow[3] = static_cast<int>(window[1]); // row = y
   }
 
-  paramNode->DisableModifiedEventOn();
-  paramNode->SetImageWindow(imageWindow);
-  paramNode->DisableModifiedEventOff();
+  d->ParameterNode->SetImageWindowFlag(value);
+  d->ParameterNode->SetImageWindow(imageWindow);
   
   // Update imager and image markups, DRR arguments
-  d->logic()->UpdateMarkupsNodes(paramNode);
+  d->logic()->UpdateMarkupsNodes(d->ParameterNode);
   this->onUpdatePlmDrrArgs();
 }
 
@@ -970,15 +979,13 @@ void qSlicerPlmDrrModuleWidget::onUseExponentialMappingToggled(bool value)
 {
   Q_D(qSlicerPlmDrrModuleWidget);
 
-  vtkMRMLPlmDrrNode* paramNode = vtkMRMLPlmDrrNode::SafeDownCast(d->MRMLNodeComboBox_ParameterNode->currentNode());
-  if (!paramNode || !d->ModuleWindowInitialized)
+  if (!d->ParameterNode)
   {
     qCritical() << Q_FUNC_INFO << ": Invalid parameter node";
     return;
   }
 
-  paramNode->SetExponentialMappingFlag(value);
-  
+  d->ParameterNode->SetExponentialMappingFlag(value);
   // Update DRR arguments
   this->onUpdatePlmDrrArgs();
 }
@@ -994,8 +1001,7 @@ void qSlicerPlmDrrModuleWidget::onRotateAroundNormal(double angle)
 {
   Q_D(qSlicerPlmDrrModuleWidget);
 
-  vtkMRMLPlmDrrNode* paramNode = vtkMRMLPlmDrrNode::SafeDownCast(d->MRMLNodeComboBox_ParameterNode->currentNode());
-  if (!paramNode || !d->ModuleWindowInitialized)
+  if (!d->ParameterNode)
   {
     qCritical() << Q_FUNC_INFO << ": Invalid parameter node";
     return;
@@ -1007,7 +1013,7 @@ void qSlicerPlmDrrModuleWidget::onRotateAroundNormal(double angle)
   }
 
   // Update imager and image markups, DRR arguments
-  d->logic()->UpdateMarkupsNodes(paramNode);
+  d->logic()->UpdateMarkupsNodes(d->ParameterNode);
   this->onUpdatePlmDrrArgs();
 }
 
@@ -1016,24 +1022,19 @@ void qSlicerPlmDrrModuleWidget::onUpdatePlmDrrArgs()
 {
   Q_D(qSlicerPlmDrrModuleWidget);
 
-  vtkMRMLPlmDrrNode* paramNode = vtkMRMLPlmDrrNode::SafeDownCast(d->MRMLNodeComboBox_ParameterNode->currentNode());
-
-  if (!d->ReferenceVolumeNode || !paramNode || !d->ModuleWindowInitialized)
+  if (!d->ParameterNode)
   {
-    qCritical() << Q_FUNC_INFO << ": Invalid reference or parameter node, or module window hasn't been initiated yet";
+    qCritical() << Q_FUNC_INFO << ": Invalid parameter node";
     return;
   }
 
-  if (!paramNode->GetBeamNode())
+  std::string args = d->ParameterNode->GenerateArguments(d->PlastimatchArgs);
+  if (!args.empty())
   {
-    qCritical() << Q_FUNC_INFO << ": Invalid beam node";
-    return;
+    // all nodes are valid, enable compute button and update plastimatch drr parameters
+    d->PushButton_ComputeDrr->setEnabled(true); 
+    d->plainTextEdit_PlmDrrArgs->setPlainText(QString::fromStdString(args));
   }
- 
-  // all nodes are valid, enable compute button and update plastimatch drr parameters
-  d->PushButton_ComputeDrr->setEnabled(true); 
-  std::string args = d->logic()->GeneratePlastimatchDrrArgs( d->ReferenceVolumeNode, paramNode, d->PlastimatchArgs);
-  d->plainTextEdit_PlmDrrArgs->setPlainText(QString::fromStdString(args));
 }
 
 //-----------------------------------------------------------------------------
@@ -1041,9 +1042,7 @@ void qSlicerPlmDrrModuleWidget::onReconstructionAlgorithmChanged(int button_id)
 {
   Q_D(qSlicerPlmDrrModuleWidget);
 
-  vtkMRMLPlmDrrNode* paramNode = vtkMRMLPlmDrrNode::SafeDownCast(d->MRMLNodeComboBox_ParameterNode->currentNode());
-
-  if (!paramNode || !d->ModuleWindowInitialized)
+  if (!d->ParameterNode)
   {
     qCritical() << Q_FUNC_INFO << ": Invalid parameter node";
     return;
@@ -1054,11 +1053,11 @@ void qSlicerPlmDrrModuleWidget::onReconstructionAlgorithmChanged(int button_id)
 
   if (rbutton == d->RadioButton_Exact)
   {
-    paramNode->SetAlgorithmReconstuction(vtkMRMLPlmDrrNode::AlgorithmReconstuctionType::EXACT);
+    d->ParameterNode->SetAlgorithmReconstuction(vtkMRMLPlmDrrNode::AlgorithmReconstuctionType::EXACT);
   }
   else if (rbutton == d->RadioButton_Uniform)
   {
-    paramNode->SetAlgorithmReconstuction(vtkMRMLPlmDrrNode::AlgorithmReconstuctionType::UNIFORM);
+    d->ParameterNode->SetAlgorithmReconstuction(vtkMRMLPlmDrrNode::AlgorithmReconstuctionType::UNIFORM);
   }
   else
   {
@@ -1074,9 +1073,7 @@ void qSlicerPlmDrrModuleWidget::onThreadingChanged(int button_id)
 {
   Q_D(qSlicerPlmDrrModuleWidget);
 
-  vtkMRMLPlmDrrNode* paramNode = vtkMRMLPlmDrrNode::SafeDownCast(d->MRMLNodeComboBox_ParameterNode->currentNode());
-
-  if (!paramNode || !d->ModuleWindowInitialized)
+  if (!d->ParameterNode)
   {
     qCritical() << Q_FUNC_INFO << ": Invalid parameter node";
     return;
@@ -1087,15 +1084,15 @@ void qSlicerPlmDrrModuleWidget::onThreadingChanged(int button_id)
 
   if (rbutton == d->RadioButton_CPU)
   {
-    paramNode->SetThreading(vtkMRMLPlmDrrNode::ThreadingType::CPU);
+    d->ParameterNode->SetThreading(vtkMRMLPlmDrrNode::ThreadingType::CPU);
   }
   else if (rbutton == d->RadioButton_CUDA)
   {
-    paramNode->SetThreading(vtkMRMLPlmDrrNode::ThreadingType::CUDA);
+    d->ParameterNode->SetThreading(vtkMRMLPlmDrrNode::ThreadingType::CUDA);
   }
   else if (rbutton == d->RadioButton_OpenCL)
   {
-    paramNode->SetThreading(vtkMRMLPlmDrrNode::ThreadingType::OPENCL);
+    d->ParameterNode->SetThreading(vtkMRMLPlmDrrNode::ThreadingType::OPENCL);
   }
   else
   {
@@ -1111,9 +1108,7 @@ void qSlicerPlmDrrModuleWidget::onHUConversionChanged(int button_id)
 {
   Q_D(qSlicerPlmDrrModuleWidget);
 
-  vtkMRMLPlmDrrNode* paramNode = vtkMRMLPlmDrrNode::SafeDownCast(d->MRMLNodeComboBox_ParameterNode->currentNode());
-
-  if (!paramNode || !d->ModuleWindowInitialized)
+  if (!d->ParameterNode)
   {
     qCritical() << Q_FUNC_INFO << ": Invalid parameter node";
     return;
@@ -1124,15 +1119,15 @@ void qSlicerPlmDrrModuleWidget::onHUConversionChanged(int button_id)
 
   if (rbutton == d->RadioButton_None)
   {
-    paramNode->SetHUConversion(vtkMRMLPlmDrrNode::HounsfieldUnitsConversionType::NONE);
+    d->ParameterNode->SetHUConversion(vtkMRMLPlmDrrNode::HounsfieldUnitsConversionType::NONE);
   }
   else if (rbutton == d->RadioButton_Inline)
   {
-    paramNode->SetHUConversion(vtkMRMLPlmDrrNode::HounsfieldUnitsConversionType::INLINE);
+    d->ParameterNode->SetHUConversion(vtkMRMLPlmDrrNode::HounsfieldUnitsConversionType::INLINE);
   }
   else if (rbutton == d->RadioButton_Preprocess)
   {
-    paramNode->SetHUConversion(vtkMRMLPlmDrrNode::HounsfieldUnitsConversionType::PREPROCESS);
+    d->ParameterNode->SetHUConversion(vtkMRMLPlmDrrNode::HounsfieldUnitsConversionType::PREPROCESS);
   }
   else
   {

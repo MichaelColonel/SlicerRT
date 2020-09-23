@@ -66,13 +66,7 @@ public:
   void UpdateMarkupsNodes(vtkMRMLPlmDrrNode* parameterNode);
   void ShowMarkupsNodes( vtkMRMLPlmDrrNode* parameterNode, bool toggled);
 
-  bool SaveVolumeNode( const vtkMRMLVolumeNode* volumeNode, std::string& filename);
-
   bool LoadDRR( vtkMRMLPlmDrrNode* paramNode, vtkMRMLScalarVolumeNode* drrVolumeNode, const std::string& filename);
-
-  std::string GeneratePlastimatchDrrArgs( vtkMRMLVolumeNode* volumeNode, 
-    vtkMRMLPlmDrrNode* node, std::list< std::string >& arguments);
-
   bool LoadRtImage( vtkMRMLPlmDrrNode* paramNode, vtkMRMLScalarVolumeNode* drrVolumeNode);
   bool SetupRtImageGeometry( vtkMRMLPlmDrrNode* paramNode, vtkMRMLScalarVolumeNode* drrVolumeNode, vtkIdType shNodeID);
 

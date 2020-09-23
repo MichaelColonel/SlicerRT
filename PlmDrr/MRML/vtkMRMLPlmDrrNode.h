@@ -26,6 +26,8 @@
 #include <vtkMRMLNode.h>
 #include <vtkMRMLModelNode.h>
 
+// STD includes
+#include <list>
 
 class vtkMRMLLinearTransformNode;
 class vtkMRMLRTBeamNode;
@@ -37,9 +39,9 @@ class vtkMRMLMarkupsLineNode;
 class VTK_SLICER_PLMDRR_MODULE_MRML_EXPORT vtkMRMLPlmDrrNode : public vtkMRMLNode
 {
 public:
-  enum AlgorithmReconstuctionType { EXACT = 0, UNIFORM = 1 };
-  enum HounsfieldUnitsConversionType { PREPROCESS = 0, INLINE = 1, NONE = 2};
-  enum ThreadingType { CPU = 0, CUDA = 1, OPENCL = 2 };
+  enum AlgorithmReconstuctionType { EXACT, UNIFORM };
+  enum HounsfieldUnitsConversionType { PREPROCESS, INLINE, NONE };
+  enum ThreadingType { CPU, CUDA, OPENCL };
 
   static vtkMRMLPlmDrrNode *New();
   vtkTypeMacro(vtkMRMLPlmDrrNode,vtkMRMLNode);
@@ -64,6 +66,10 @@ public:
   const char* GetNodeTagName() override { return "PlmDrr"; };
 
   void GetRTImagePosition(double position[2]);
+
+  /// @brief Generate plastimatch drr command line arguments as a list of strings
+  /// @return command line arguments as a string (plastimatch drr included)
+  std::string GenerateArguments(std::list< std::string >& plastimatchArguments);
 
 public:
  
@@ -111,6 +117,9 @@ public:
   vtkGetVector2Macro(ImageCenter, int);
   vtkSetVector2Macro(ImageCenter, int);
 
+  vtkGetMacro(ImageWindowFlag, bool);
+  vtkSetMacro(ImageWindowFlag, bool);
+
   vtkGetVector4Macro(ImageWindow, int);
   vtkSetVector4Macro(ImageWindow, int);
 
@@ -141,6 +150,7 @@ protected:
   int ImageDimention[2]; // columns, rows
   double ImageSpacing[2]; // x,y
   int ImageCenter[2]; // column, row (calculated from imager offset and image data)
+  bool ImageWindowFlag; // use image window
   int ImageWindow[4]; // column1, column2, row1, row2 (y0, y1, x0, x1)
   double RotateX; // not used
   double RotateY; // not used
