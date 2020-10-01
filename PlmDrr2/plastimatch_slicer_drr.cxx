@@ -9,6 +9,8 @@
 #include "plmreconstruct_config.h"
 #include "drr_options.h"
 #include "drr.h"
+#include "plm_math.h"
+#include "threading.h"
 
 // Use an anonymous namespace to keep class types and function names
 // from colliding when module is used as shared object module.  Every

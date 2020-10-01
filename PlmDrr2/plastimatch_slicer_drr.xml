@@ -71,7 +71,7 @@
       <name>viewUpVector</name>
       <label>View-Up</label>
       <longflag>vup</longflag>
-      <default>-1,0,0</default>
+      <default>-1.0,0.0,0.0</default>
     </float-vector> 
 
     <float-vector>
@@ -79,7 +79,7 @@
       <label>Normal</label>
       <flag>n</flag>
       <longflag>normal</longflag>
-      <default>0,0,1</default>
+      <default>0.0,0.0,1.0</default>
     </float-vector>
 
     <float-vector>
@@ -112,6 +112,48 @@
       <label>Spacing</label>
       <default>0.25, 0.25</default>
     </float-vector>
+
+    <integer-vector>
+      <name>imageWindow</name>
+      <flag>w</flag>
+      <longflag>subwindow</longflag>
+      <description>Limit DRR output to a subwindow (row1 row2 column1 column2)</description>
+      <label>Image window</label>
+      <default>0, 1999, 0, 1999</default>
+    </integer-vector>
+  </parameters>
+
+  <parameters>
+    <label>Process parameters</label>
+    <description><![CDATA[DRR computation process parameters]]></description>
+     <string-enumeration>
+     <label>Threading type</label>
+     <name>threading</name>
+     <flag>A</flag>
+     <default>cpu</default>
+     <element>cpu</element>
+     <element>cuda</element>
+     <element>opencl</element>
+     </string-enumeration>
+
+     <string-enumeration>
+     <label>HU conversion type</label>
+     <name>huconversion</name>
+     <flag>P</flag>
+     <default>preprocess</default>
+     <element>preprocess</element>
+     <element>inline</element>
+     <element>none</element>
+     </string-enumeration>
+
+     <string-enumeration>
+     <label>Exposure type</label>
+     <name>algorithm</name>
+     <flag>i</flag>
+     <default>exact</default>
+     <element>exact</element>
+     <element>uniform</element>
+     </string-enumeration>
   </parameters>
 
 </executable>
