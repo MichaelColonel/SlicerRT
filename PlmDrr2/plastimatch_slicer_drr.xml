@@ -67,6 +67,34 @@
       </constraints>
     </double>
 
+    <double>
+      <name>gantryAngle</name>
+      <longflag>gantryAngle</longflag>
+      <flag>y</flag>
+      <label>Gantry angle</label>
+      <description><![CDATA[Gantry angle for image source in degrees]]></description>
+      <default>0.0</default>
+      <constraints>
+        <minimum>0</minimum>
+        <maximum>359.99</maximum>
+        <step>.01</step>
+      </constraints>
+    </double>
+
+    <double>
+      <name>supportRotationAngle</name>
+      <longflag>supportRotationAngle</longflag>
+      <flag>u</flag>
+      <label>Patient support rotation angle</label>
+      <description><![CDATA[Patient support rotation angle for image source in degrees]]></description>
+      <default>0.0</default>
+      <constraints>
+        <minimum>0</minimum>
+        <maximum>359.99</maximum>
+        <step>.01</step>
+      </constraints>
+    </double>
+
     <float-vector>
       <name>viewUpVector</name>
       <label>View-Up</label>
