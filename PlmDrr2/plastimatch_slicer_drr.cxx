@@ -1,3 +1,56 @@
+/*==============================================================================
+
+  Program: 3D Slicer
+
+  Portions (c) Copyright Brigham and Women's Hospital (BWH) All Rights Reserved.
+
+  See COPYRIGHT.txt
+  or http://www.slicer.org/copyright/copyright.txt for details.
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+
+==============================================================================*/
+
+// SlicerRT PlanarImage includes
+#include <vtkSlicerPlanarImageModuleLogic.h>
+#include <vtkMRMLPlanarImageNode.h>
+
+// MRML includes
+#include <vtkMRMLScene.h>
+#include <vtkMRMLScalarVolumeNode.h>
+#include <vtkMRMLLinearTransformNode.h>
+
+// SlicerRT MRML includes
+#include <vtkMRMLRTBeamNode.h>
+#include <vtkMRMLRTPlanNode.h>
+
+// VTK includes
+#include <vtkTransform.h>
+#include <vtkGeneralTransform.h>
+#include <vtkMatrix4x4.h>
+#include <vtkIntArray.h>
+#include <vtkNew.h>
+#include <vtkObjectFactory.h>
+
+// STD includes
+#include <string>
+
+// ITK includes
+#include <itkImage.h>
+#include <itkImageFileReader.h>
+#include <itkMetaImageIO.h>
+#include <itkRescaleIntensityImageFilter.h>
+#include <itkInvertIntensityImageFilter.h>
+#include <itkCastImageFilter.h>
+#include <itkFlipImageFilter.h>
+
+// SlicerRT includes
+#include <vtkSlicerRtCommon.h>
+
 #include "itkImageFileWriter.h"
 
 #include "itkSmoothingRecursiveGaussianImageFilter.h"
@@ -39,6 +92,12 @@ int DoIt( int argc, char * argv[], TPixel )
 
   reader->SetFileName( inputVolume.c_str() );
 
+  typedef itk::ImageFileWriter<InputImageType>  WriterType;
+  typename WriterType::Pointer writer = WriterType::New();
+  writer->SetFileName( "dataTmp.mha" );
+  writer->SetInput( reader->GetOutput() );
+  writer->Update();
+/*
   typedef itk::SmoothingRecursiveGaussianImageFilter<
     InputImageType, OutputImageType>  FilterType;
   typename FilterType::Pointer filter = FilterType::New();
@@ -51,7 +110,7 @@ int DoIt( int argc, char * argv[], TPixel )
   writer->SetInput( filter->GetOutput() );
   writer->SetUseCompression(1);
   writer->Update();
-
+*/
   return EXIT_SUCCESS;
 }
 
@@ -64,8 +123,27 @@ int main( int argc, char * argv[] )
   itk::ImageIOBase::IOPixelType     pixelType;
   itk::ImageIOBase::IOComponentType componentType;
 
-  Drr_options params;
-  drr_compute(&params);
+//  Drr_options params;
+//  drr_compute(&params);
+
+  // Load default the plastimatch application path
+//  QSettings* settings = qSlicerCoreApplication::application()->settings();
+//  QString plastimatchPath;
+
+//  std::string tmpPath = qSlicerCoreApplication::application()->temporaryPath().toStdString();
+//  std::cout << tmpPath << '\n';
+/*
+  // set up the plastimatch path
+  if (settings->value( "SlicerRT/PlastimatchApplicationPath", "") == "")
+  {
+    plastimatchPath = QString("./plastimatch");
+    qCritical() << Q_FUNC_INFO << ": No Plastimatch path in settings.  Using \"" << qPrintable(plastimatchPath.toUtf8()) << "\".\n";
+  }
+  else
+  {
+    plastimatchPath = settings->value( "SlicerRT/PlastimatchApplicationPath", "").toString();
+  }
+*/
 
   try
     {
@@ -121,5 +199,6 @@ int main( int argc, char * argv[] )
     std::cerr << excep << std::endl;
     return EXIT_FAILURE;
     }
+
   return EXIT_SUCCESS;
 }

@@ -3,7 +3,7 @@
   <category>Plastimatch</category>
   <title>DRR computation</title>
   <description><![CDATA[This is a CLI module that computes a synthetic radiograph (DRR) which can be generated from a CT scan.]]></description>
-  <version>0.0.1</version>
+  <version>0.0.1.001.vc</version>
   <documentation-url>http://www.plastimatch.org/drr.html</documentation-url>
   <license>Slicer</license>
   <contributor>Mikhail Polkovnikov (NRS \'Kurchatov Institute\' - IHEP)</contributor>
@@ -23,18 +23,18 @@
 
     <image>
       <name>inputVolume</name>
-      <label>Input Volume</label>
+      <description><![CDATA[CT input volume]]></description>
+      <label>CT Input Volume</label>
       <channel>input</channel>
       <index>0</index>
-      <description><![CDATA[Input volume]]></description>
     </image>
 
     <image>
       <name>outputVolume</name>
-      <label>Output Volume</label>
+      <description><![CDATA[RTImage DRR output Volume]]></description>
+      <label>DRR Output Volume</label>
       <channel>output</channel>
       <index>1</index>
-      <description><![CDATA[Output Volume]]></description>
     </image>
   </parameters>
 
@@ -57,7 +57,7 @@
     <double>
       <name>sourceImagerDistance</name>
       <longflag>sid</longflag>
-      <description>Source-Imager distance</description>
+      <description><![CDATA[Distance between a source and an imager]]></description>
       <label>SID</label>
       <default>1400</default>
       <constraints>
@@ -97,6 +97,7 @@
 
     <float-vector>
       <name>viewUpVector</name>
+      <description><![CDATA[View up vector to the first row]]></description>
       <label>View-Up</label>
       <longflag>vup</longflag>
       <default>-1.0,0.0,0.0</default>
@@ -104,6 +105,7 @@
 
     <float-vector>
       <name>normalVector</name>
+      <description><![CDATA[Imager surface normal vector]]></description>
       <label>Normal</label>
       <flag>n</flag>
       <longflag>normal</longflag>
@@ -112,9 +114,9 @@
 
     <float-vector>
       <name>isocenterPosition</name>
+      <description><![CDATA[Isocenter position in LPS coordinate system]]></description>
       <flag>o</flag>
       <longflag>isocenter</longflag>
-      <description>Isocenter position in LPS coordinate system</description>
       <label>Isocenter</label>
       <default>0.0,0.0,0.0</default>
     </float-vector>
@@ -123,29 +125,30 @@
   <parameters>
     <label>Imager parameters</label>
     <description><![CDATA[Image and imager parameters]]></description>
+
     <integer-vector>
       <name>imagerResolution</name>
+      <description><![CDATA[Imager resolution (columns, rows)]]></description>
       <flag>r</flag>
       <longflag>resolution</longflag>
-      <description>Imager resolution (columns, rows)</description>
       <label>Resolution</label>
       <default>2000, 2000</default>
     </integer-vector>
 
     <float-vector>
       <name>imagerSpacing</name>
+      <description><![CDATA[Imager spacing in mm (columns, rows)]]></description>
       <flag>p</flag>
       <longflag>spacing</longflag>
-      <description>Imager spacing in mm (columns, rows)</description>
       <label>Spacing</label>
       <default>0.25, 0.25</default>
     </float-vector>
 
     <integer-vector>
       <name>imageWindow</name>
+      <description><![CDATA[Limit DRR output to a subwindow (row1 row2 column1 column2)]]></description>
       <flag>w</flag>
       <longflag>subwindow</longflag>
-      <description>Limit DRR output to a subwindow (row1 row2 column1 column2)</description>
       <label>Image window</label>
       <default>0, 1999, 0, 1999</default>
     </integer-vector>
@@ -154,34 +157,36 @@
   <parameters>
     <label>Process parameters</label>
     <description><![CDATA[DRR computation process parameters]]></description>
-     <string-enumeration>
-     <label>Threading type</label>
-     <name>threading</name>
-     <flag>A</flag>
-     <default>cpu</default>
-     <element>cpu</element>
-     <element>cuda</element>
-     <element>opencl</element>
-     </string-enumeration>
 
-     <string-enumeration>
-     <label>HU conversion type</label>
-     <name>huconversion</name>
-     <flag>P</flag>
-     <default>preprocess</default>
-     <element>preprocess</element>
-     <element>inline</element>
-     <element>none</element>
-     </string-enumeration>
+    <string-enumeration>
+      <label>Threading type</label>
+      <name>threading</name>
+      <flag>A</flag>
+      <longflag>threading</longflag>
+      <default>cpu</default>
+      <element>cpu</element>
+      <element>cuda</element>
+      <element>opencl</element>
+    </string-enumeration>
 
-     <string-enumeration>
-     <label>Exposure type</label>
-     <name>algorithm</name>
-     <flag>i</flag>
-     <default>exact</default>
-     <element>exact</element>
-     <element>uniform</element>
-     </string-enumeration>
+    <string-enumeration>
+      <label>HU conversion type</label>
+      <name>huconversion</name>
+      <longflag>huconversion</longflag>
+      <default>preprocess</default>
+      <element>preprocess</element>
+      <element>inline</element>
+      <element>none</element>
+    </string-enumeration>
+
+    <string-enumeration>
+      <label>Exposure type</label>
+      <name>algorithm</name>
+      <longflag>algorithm</longflag>
+      <default>exact</default>
+      <element>exact</element>
+      <element>uniform</element>
+    </string-enumeration>
   </parameters>
 
 </executable>
