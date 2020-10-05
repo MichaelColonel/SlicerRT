@@ -10,18 +10,9 @@
   <acknowledgements></acknowledgements>
 
   <parameters>
-    <label>IO</label>
+    <label>I/O</label>
     <description><![CDATA[Input/output parameters]]></description>
-    <double>
-      <name>sigma</name>
-      <longflag>sigma</longflag>
-      <flag>s</flag>
-      <label>Sigma</label>
-      <description><![CDATA[A double value (in units of mm) passed to the algorithm]]></description>
-      <default>1.0</default>
-    </double>
-
-    <image>
+    <image type="scalar">
       <name>inputVolume</name>
       <description><![CDATA[CT input volume]]></description>
       <label>CT Input Volume</label>
@@ -29,7 +20,7 @@
       <index>0</index>
     </image>
 
-    <image>
+    <image type="scalar">
       <name>outputVolume</name>
       <description><![CDATA[RTImage DRR output Volume]]></description>
       <label>DRR Output Volume</label>
@@ -98,7 +89,7 @@
     <float-vector>
       <name>viewUpVector</name>
       <description><![CDATA[View up vector to the first row]]></description>
-      <label>View-Up</label>
+      <label>View-Up vector</label>
       <longflag>vup</longflag>
       <default>-1.0,0.0,0.0</default>
     </float-vector> 
@@ -106,7 +97,7 @@
     <float-vector>
       <name>normalVector</name>
       <description><![CDATA[Imager surface normal vector]]></description>
-      <label>Normal</label>
+      <label>Normal vector</label>
       <flag>n</flag>
       <longflag>normal</longflag>
       <default>0.0,0.0,1.0</default>
@@ -123,16 +114,16 @@
   </parameters>
 
   <parameters>
-    <label>Imager parameters</label>
+    <label>Imager and image parameters</label>
     <description><![CDATA[Image and imager parameters]]></description>
 
     <integer-vector>
       <name>imagerResolution</name>
       <description><![CDATA[Imager resolution (columns, rows)]]></description>
       <flag>r</flag>
-      <longflag>resolution</longflag>
+      <longflag>dim</longflag>
       <label>Resolution</label>
-      <default>2000, 2000</default>
+      <default>2000,2000</default>
     </integer-vector>
 
     <float-vector>
@@ -141,7 +132,7 @@
       <flag>p</flag>
       <longflag>spacing</longflag>
       <label>Spacing</label>
-      <default>0.25, 0.25</default>
+      <default>0.25,0.25</default>
     </float-vector>
 
     <integer-vector>
@@ -150,8 +141,32 @@
       <flag>w</flag>
       <longflag>subwindow</longflag>
       <label>Image window</label>
-      <default>0, 1999, 0, 1999</default>
+      <default>0,1999,0,1999</default>
     </integer-vector>
+
+    <boolean>
+      <name>autoscale</name>
+      <longflag>autoscale</longflag>
+      <description><![CDATA[Automatically rescale intensity]]></description>
+      <label>Automatically rescale intensity</label>
+      <default>true</default>
+    </boolean>
+
+    <float-vector>
+      <name>autoscaleRange</name>
+      <description><![CDATA[Range used for autoscale in form "min max"]]></description>
+      <longflag>autoscaleRange</longflag>
+      <label>Autoscale range</label>
+      <default>0.,255.</default>
+    </float-vector>
+
+    <boolean>
+      <name>exponentialMapping</name>
+      <longflag>exponential</longflag>
+      <description><![CDATA[Do exponential mapping of output values]]></description>
+      <label>Exponential mapping</label>
+      <default>true</default>
+    </boolean>
   </parameters>
 
   <parameters>
@@ -187,6 +202,18 @@
       <element>exact</element>
       <element>uniform</element>
     </string-enumeration>
+
+    <string-enumeration>
+      <label>Output format</label>
+      <name>outputFormat</name>
+      <flag>t</flag>
+      <longflag>outputFormat</longflag>
+      <default>raw</default>
+      <element>pgm</element>
+      <element>pfm</element>
+      <element>raw</element>
+    </string-enumeration>
+
   </parameters>
 
 </executable>

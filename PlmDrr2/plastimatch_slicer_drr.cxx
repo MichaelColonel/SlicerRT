@@ -73,30 +73,185 @@
 namespace
 {
 
+int DoSetupDRR( int argc, char * argv[], Drr_options& options) throw(std::string)
+{
+  PARSE_ARGS;
+
+  // Single image mode
+  options.have_angle_diff = false;
+  options.num_angles = 1;
+  options.start_angle = 0.;
+
+  // Imager MUST be with image window and image center
+  options.have_image_center = 1;
+  options.have_image_window = 1;
+  options.image_resolution[0] = imagerResolution[0];
+  options.image_resolution[1] = imagerResolution[1];
+  options.image_size[0] = imagerResolution[0] * imagerSpacing[0];
+  options.image_size[1] = imagerResolution[1] * imagerSpacing[1];
+
+  float imageCenterX = float(imageWindow[2]) + float(imageWindow[3] - imageWindow[2] - 1) / 2.f; // columns
+  float imageCenterY = float(imageWindow[0]) + float(imageWindow[1] - imageWindow[0] - 1) / 2.f; // rows
+
+  options.image_center[0] = imageCenterX; // columns
+  options.image_center[1] = imageCenterY; // rows
+
+  // geometry
+  // vup and normal vectors
+  options.vup[0] = viewUpVector[0];
+  options.vup[1] = viewUpVector[1];
+  options.vup[2] = viewUpVector[2];
+
+  options.have_nrm = 1;
+  options.nrm[0] = normalVector[0];
+  options.nrm[1] = normalVector[1];
+  options.nrm[2] = normalVector[2];
+
+  if (sourceImagerDistance < sourceAxisDistance)
+  {
+    throw std::string("SID is less than SAD");
+  }
+  options.sad = sourceAxisDistance;
+  options.sid = sourceImagerDistance;
+
+  // Isocenter DICOM (LPS) position
+  options.isocenter[0] = isocenterPosition[0];
+  options.isocenter[1] = isocenterPosition[1];
+  options.isocenter[2] = isocenterPosition[2];
+
+  // intensity
+  options.exponential_mapping = static_cast<int>(exponentialMapping);
+  options.autoscale = autoscale;
+  if (autoscaleRange[0] >= autoscaleRange[1])
+  {
+    throw std::string("Autoscale range is wrong");
+  }
+  options.autoscale_range[0] = autoscaleRange[0];
+  options.autoscale_range[1] = autoscaleRange[1];
+
+  // processing
+  options.threading = threading_parse(threading);
+
+  if (!huconversion.compare("preprocess"))
+  {
+    options.hu_conversion = PREPROCESS_CONVERSION;
+  }
+  else if (!huconversion.compare("inline"))
+  {
+    options.hu_conversion = INLINE_CONVERSION;
+  }
+  else if (!huconversion.compare("none"))
+  {
+    options.hu_conversion = NO_CONVERSION;
+  }
+  else
+  {
+    throw std::string("Wrong huconversion value");
+  }
+
+  if (!algorithm.compare("exact"))
+  {
+    options.algorithm = DRR_ALGORITHM_EXACT;
+  }
+  else if (!algorithm.compare("uniform"))
+  {
+    options.algorithm = DRR_ALGORITHM_UNIFORM;
+  }
+  else
+  {
+    throw std::string("Wrong algorithm value");
+  }
+
+  if (!outputFormat.compare("pgm"))
+  {
+    options.output_format = OUTPUT_FORMAT_PGM;
+  }
+  else if (!algorithm.compare("pfm"))
+  {
+    options.output_format = OUTPUT_FORMAT_PFM;
+  }
+  else if (!algorithm.compare("raw"))
+  {
+    options.output_format = OUTPUT_FORMAT_RAW;
+  }
+  else
+  {
+    throw std::string("Wrong output file format");
+  }
+
+  options.output_prefix = std::string("Out");
+
+/*
+
+  switch (this->AlgorithmReconstuction)
+  {
+    case AlgorithmReconstuctionType::EXACT:
+      command << "-i exact ";
+      break;
+    case AlgorithmReconstuctionType::UNIFORM:
+      command << "-i uniform ";
+      break;
+    default:
+      break;
+  }
+
+  switch (this->HUConversion)
+  {
+    case HounsfieldUnitsConversionType::NONE:
+      command << "-P none ";
+      break;
+    case HounsfieldUnitsConversionType::PREPROCESS:
+      command << "-P preprocess ";
+      break;
+    case HounsfieldUnitsConversionType::INLINE:
+      command << "-P inline ";
+      break;
+    default:
+      break;
+  }
+
+  command << "-O Out -t raw";
+*/
+  return EXIT_SUCCESS;
+}
+
 template <typename TPixel>
 int DoIt( int argc, char * argv[], TPixel )
 {
   PARSE_ARGS;
 
-  typedef TPixel InputPixelType;
-  typedef TPixel OutputPixelType;
+  typedef TPixel InputPixelType; // CT pixel type (short)
+//  typedef signed long int OutputPixelType; // Plastimatch DRR pixel type (long)
 
   const unsigned int Dimension = 3;
 
-  typedef itk::Image<InputPixelType,  Dimension> InputImageType;
-  typedef itk::Image<OutputPixelType, Dimension> OutputImageType;
+  // CT image type and reader
+  typedef itk::Image< InputPixelType, Dimension> InputImageType;
+  typedef itk::ImageFileReader<InputImageType> InputReaderType;
 
-  typedef itk::ImageFileReader<InputImageType>  ReaderType;
+  typename InputReaderType::Pointer inputReader = InputReaderType::New();
+  inputReader->SetFileName( inputVolume.c_str() );
 
-  typename ReaderType::Pointer reader = ReaderType::New();
-
-  reader->SetFileName( inputVolume.c_str() );
-
-  typedef itk::ImageFileWriter<InputImageType>  WriterType;
-  typename WriterType::Pointer writer = WriterType::New();
-  writer->SetFileName( "dataTmp.mha" );
-  writer->SetInput( reader->GetOutput() );
-  writer->Update();
+  // MetaImageHeader temporary writer
+  typedef itk::ImageFileWriter<InputImageType>  InputWriterType;
+  typename InputWriterType::Pointer inputWriter = InputWriterType::New();
+  
+  std::size_t found = inputVolume.find_last_of("/\\");
+  std::string mhaFilename = "inputVolume.mha";
+  if (found < inputVolume.size() - 1)
+  {
+    mhaFilename = inputVolume.substr( 0, found + 1) + mhaFilename;
+  }
+  else if (found == inputVolume.size() or found == std::string::npos)
+  {
+    return EXIT_FAILURE;
+  }
+  
+  inputWriter->SetFileName(mhaFilename.c_str());
+  inputWriter->SetInput(inputReader->GetOutput());
+  inputWriter->Update();
+  
+//    typedef itk::Image<OutputPixelType, Dimension> OutputImageType;
 /*
   typedef itk::SmoothingRecursiveGaussianImageFilter<
     InputImageType, OutputImageType>  FilterType;
@@ -123,82 +278,76 @@ int main( int argc, char * argv[] )
   itk::ImageIOBase::IOPixelType     pixelType;
   itk::ImageIOBase::IOComponentType componentType;
 
-//  Drr_options params;
-//  drr_compute(&params);
-
-  // Load default the plastimatch application path
-//  QSettings* settings = qSlicerCoreApplication::application()->settings();
-//  QString plastimatchPath;
-
-//  std::string tmpPath = qSlicerCoreApplication::application()->temporaryPath().toStdString();
-//  std::cout << tmpPath << '\n';
-/*
-  // set up the plastimatch path
-  if (settings->value( "SlicerRT/PlastimatchApplicationPath", "") == "")
-  {
-    plastimatchPath = QString("./plastimatch");
-    qCritical() << Q_FUNC_INFO << ": No Plastimatch path in settings.  Using \"" << qPrintable(plastimatchPath.toUtf8()) << "\".\n";
-  }
-  else
-  {
-    plastimatchPath = settings->value( "SlicerRT/PlastimatchApplicationPath", "").toString();
-  }
-*/
+  Drr_options drrOptions;
 
   try
-    {
+  {
+    // Since there are no conditional flags, EVERY options must be defined
+    // and checked.
+    DoSetupDRR( argc, argv, drrOptions);
+
     itk::GetImageType(inputVolume, pixelType, componentType);
 
     // This filter handles all types on input, but only produces
     // signed types
     switch( componentType )
-      {
-      case itk::ImageIOBase::UCHAR:
-        return DoIt( argc, argv, static_cast<unsigned char>(0) );
-        break;
-      case itk::ImageIOBase::CHAR:
-        return DoIt( argc, argv, static_cast<signed char>(0) );
-        break;
-      case itk::ImageIOBase::USHORT:
-        return DoIt( argc, argv, static_cast<unsigned short>(0) );
-        break;
-      case itk::ImageIOBase::SHORT:
-        return DoIt( argc, argv, static_cast<short>(0) );
-        break;
-      case itk::ImageIOBase::UINT:
-        return DoIt( argc, argv, static_cast<unsigned int>(0) );
-        break;
-      case itk::ImageIOBase::INT:
-        return DoIt( argc, argv, static_cast<int>(0) );
-        break;
-      case itk::ImageIOBase::ULONG:
-        return DoIt( argc, argv, static_cast<unsigned long>(0) );
-        break;
-      case itk::ImageIOBase::LONG:
-        return DoIt( argc, argv, static_cast<long>(0) );
-        break;
-      case itk::ImageIOBase::FLOAT:
-        return DoIt( argc, argv, static_cast<float>(0) );
-        break;
-      case itk::ImageIOBase::DOUBLE:
-        return DoIt( argc, argv, static_cast<double>(0) );
-        break;
-      case itk::ImageIOBase::UNKNOWNCOMPONENTTYPE:
-      default:
-        std::cerr << "Unknown input image pixel component type: ";
-        std::cerr << itk::ImageIOBase::GetComponentTypeAsString( componentType );
-        std::cerr << std::endl;
-        return EXIT_FAILURE;
-        break;
-      }
-    }
-
-  catch( itk::ExceptionObject & excep )
     {
+    case itk::ImageIOBase::UCHAR:
+      return DoIt( argc, argv, static_cast<unsigned char>(0) );
+      break;
+    case itk::ImageIOBase::CHAR:
+      return DoIt( argc, argv, static_cast<signed char>(0) );
+      break;
+    case itk::ImageIOBase::USHORT:
+      return DoIt( argc, argv, static_cast<unsigned short>(0) );
+      break;
+    case itk::ImageIOBase::SHORT:
+      return DoIt( argc, argv, static_cast<short>(0) );
+      break;
+    case itk::ImageIOBase::UINT:
+      return DoIt( argc, argv, static_cast<unsigned int>(0) );
+      break;
+    case itk::ImageIOBase::INT:
+      return DoIt( argc, argv, static_cast<int>(0) );
+      break;
+    case itk::ImageIOBase::ULONG:
+      return DoIt( argc, argv, static_cast<unsigned long>(0) );
+      break;
+    case itk::ImageIOBase::LONG:
+      return DoIt( argc, argv, static_cast<long>(0) );
+      break;
+    case itk::ImageIOBase::FLOAT:
+      return DoIt( argc, argv, static_cast<float>(0) );
+      break;
+    case itk::ImageIOBase::DOUBLE:
+      return DoIt( argc, argv, static_cast<double>(0) );
+      break;
+    case itk::ImageIOBase::UNKNOWNCOMPONENTTYPE:
+    default:
+      std::cerr << "Unknown input image pixel component type: ";
+      std::cerr << itk::ImageIOBase::GetComponentTypeAsString( componentType );
+      std::cerr << std::endl;
+      return EXIT_FAILURE;
+      break;
+    }
+  }
+  catch( itk::ExceptionObject & excep )
+  {
     std::cerr << argv[0] << ": exception caught !" << std::endl;
     std::cerr << excep << std::endl;
     return EXIT_FAILURE;
-    }
+  }
+  catch( std::string& errorString )
+  {
+    std::cerr << argv[0] << ": exception caught !" << std::endl;
+    std::cerr << "Error message: " << std::endl;
+    return EXIT_FAILURE;
+  }
+  catch( ... )
+  {
+    std::cerr << "Desaster!" << std::endl;
+    return EXIT_FAILURE;
+  }
 
   return EXIT_SUCCESS;
 }
