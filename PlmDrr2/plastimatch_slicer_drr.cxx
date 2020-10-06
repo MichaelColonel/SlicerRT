@@ -216,7 +216,7 @@ int DoSetupDRR( int argc, char * argv[], Drr_options& options) throw(std::string
 }
 
 template <typename TPixel>
-int DoIt( int argc, char * argv[], TPixel )
+int DoIt( int argc, char * argv[], std::string& fileName, TPixel )
 {
   PARSE_ARGS;
 
@@ -241,6 +241,7 @@ int DoIt( int argc, char * argv[], TPixel )
   if (found < inputVolume.size() - 1)
   {
     mhaFilename = inputVolume.substr( 0, found + 1) + mhaFilename;
+    fileName = mhaFilename;
   }
   else if (found == inputVolume.size() or found == std::string::npos)
   {
@@ -285,7 +286,7 @@ int main( int argc, char * argv[] )
   itk::ImageIOBase::IOComponentType componentType;
 
   Drr_options drrOptions;
-
+  std::string mhaFileName;
   try
   {
     // Since there are no conditional flags, EVERY options must be defined
@@ -299,34 +300,34 @@ int main( int argc, char * argv[] )
     switch( componentType )
     {
     case itk::ImageIOBase::UCHAR:
-      return DoIt( argc, argv, static_cast<unsigned char>(0) );
+      return DoIt( argc, argv, mhaFileName, static_cast<unsigned char>(0) );
       break;
     case itk::ImageIOBase::CHAR:
-      return DoIt( argc, argv, static_cast<signed char>(0) );
+      return DoIt( argc, argv, mhaFileName, static_cast<signed char>(0) );
       break;
     case itk::ImageIOBase::USHORT:
-      return DoIt( argc, argv, static_cast<unsigned short>(0) );
+      return DoIt( argc, argv, mhaFileName, static_cast<unsigned short>(0) );
       break;
     case itk::ImageIOBase::SHORT:
-      return DoIt( argc, argv, static_cast<short>(0) );
+      return DoIt( argc, argv, mhaFileName, static_cast<short>(0) );
       break;
     case itk::ImageIOBase::UINT:
-      return DoIt( argc, argv, static_cast<unsigned int>(0) );
+      return DoIt( argc, argv, mhaFileName, static_cast<unsigned int>(0) );
       break;
     case itk::ImageIOBase::INT:
-      return DoIt( argc, argv, static_cast<int>(0) );
+      return DoIt( argc, argv, mhaFileName, static_cast<int>(0) );
       break;
     case itk::ImageIOBase::ULONG:
-      return DoIt( argc, argv, static_cast<unsigned long>(0) );
+      return DoIt( argc, argv, mhaFileName, static_cast<unsigned long>(0) );
       break;
     case itk::ImageIOBase::LONG:
-      return DoIt( argc, argv, static_cast<long>(0) );
+      return DoIt( argc, argv, mhaFileName, static_cast<long>(0) );
       break;
     case itk::ImageIOBase::FLOAT:
-      return DoIt( argc, argv, static_cast<float>(0) );
+      return DoIt( argc, argv, mhaFileName, static_cast<float>(0) );
       break;
     case itk::ImageIOBase::DOUBLE:
-      return DoIt( argc, argv, static_cast<double>(0) );
+      return DoIt( argc, argv, mhaFileName, static_cast<double>(0) );
       break;
     case itk::ImageIOBase::UNKNOWNCOMPONENTTYPE:
     default:
@@ -343,17 +344,29 @@ int main( int argc, char * argv[] )
     std::cerr << excep << std::endl;
     return EXIT_FAILURE;
   }
+  catch( std::exception& ex )
+  {
+    std::cerr << argv[0] << ": std exception caught !" << std::endl;
+    std::cerr << "Error message: " << ex.what() << std::endl;
+    return EXIT_FAILURE;
+  }
   catch( std::string& errorString )
   {
-    std::cerr << argv[0] << ": exception caught !" << std::endl;
-    std::cerr << "Error message: " << std::endl;
+    std::cerr << argv[0] << ": exception message caught !" << std::endl;
+    std::cerr << "Error message: " << errorString << std::endl;
     return EXIT_FAILURE;
   }
   catch( ... )
   {
-    std::cerr << "Desaster!" << std::endl;
+    std::cerr << "Desaster, unknown exception caught!" << std::endl;
     return EXIT_FAILURE;
   }
 
+  // Compute DRR image if mha file name is valid
+  if (!mhaFileName.empty())
+  {
+    drrOptions.input_file = mhaFileName;
+    drr_compute(&drrOptions);
+  }
   return EXIT_SUCCESS;
 }

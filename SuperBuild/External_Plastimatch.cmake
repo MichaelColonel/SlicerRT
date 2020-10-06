@@ -20,13 +20,13 @@ if(NOT DEFINED ${proj}_DIR AND NOT ${CMAKE_PROJECT_NAME}_USE_SYSTEM_${proj})
 
   ExternalProject_SetIfNotDefined(
     ${CMAKE_PROJECT_NAME}_${proj}_GIT_REPOSITORY
-    "https://gitlab.com/plastimatch/plastimatch.git" # Gitlab only support https for anonymous checkout
+    "https://gitlab.com/MichaelColonel/plastimatch.git" # Gitlab only support https for anonymous checkout
     QUIET
     )
 
   ExternalProject_SetIfNotDefined(
     ${CMAKE_PROJECT_NAME}_${proj}_GIT_TAG
-    "2e729bc2c7c4eaa51184ed0acb23d91e615a7ff8"
+    "414067704bda9761b48cb7e92dfbcc7cb83f4ce4"
     QUIET
     )
 
