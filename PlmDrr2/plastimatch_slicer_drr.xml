@@ -35,7 +35,7 @@
     <double>
       <name>sourceAxisDistance</name>
       <longflag>sad</longflag>
-      <description>Source-Axis distance</description>
+      <description><![CDATA[Distance between a source and rotation axis in mm]]></description>
       <label>SAD</label>
       <default>1000</default>
       <constraints>
@@ -48,40 +48,12 @@
     <double>
       <name>sourceImagerDistance</name>
       <longflag>sid</longflag>
-      <description><![CDATA[Distance between a source and an imager]]></description>
+      <description><![CDATA[Distance between a source and an imager in mm]]></description>
       <label>SID</label>
       <default>1400</default>
       <constraints>
         <minimum>400</minimum>
         <maximum>4000</maximum>
-        <step>.01</step>
-      </constraints>
-    </double>
-
-    <double>
-      <name>gantryAngle</name>
-      <longflag>gantryAngle</longflag>
-      <flag>y</flag>
-      <label>Gantry angle</label>
-      <description><![CDATA[Gantry angle for image source in degrees]]></description>
-      <default>0.0</default>
-      <constraints>
-        <minimum>0</minimum>
-        <maximum>359.99</maximum>
-        <step>.01</step>
-      </constraints>
-    </double>
-
-    <double>
-      <name>supportRotationAngle</name>
-      <longflag>supportRotationAngle</longflag>
-      <flag>u</flag>
-      <label>Patient support rotation angle</label>
-      <description><![CDATA[Patient support rotation angle for image source in degrees]]></description>
-      <default>0.0</default>
-      <constraints>
-        <minimum>0</minimum>
-        <maximum>359.99</maximum>
         <step>.01</step>
       </constraints>
     </double>
@@ -105,7 +77,7 @@
 
     <float-vector>
       <name>isocenterPosition</name>
-      <description><![CDATA[Isocenter position in LPS coordinate system]]></description>
+      <description><![CDATA[Isocenter position in LPS coordinate system in mm]]></description>
       <flag>o</flag>
       <longflag>isocenter</longflag>
       <label>Isocenter</label>
@@ -137,11 +109,11 @@
 
     <integer-vector>
       <name>imageWindow</name>
-      <description><![CDATA[Limit DRR output to a subwindow (row1 row2 column1 column2)]]></description>
+      <description><![CDATA[Limit DRR output to a subwindow (column1 row1 column2 row2)]]></description>
       <flag>w</flag>
       <longflag>subwindow</longflag>
       <label>Image window</label>
-      <default>0,1999,0,1999</default>
+      <default>0,0,1999,1999</default>
     </integer-vector>
 
     <boolean>
@@ -149,7 +121,7 @@
       <longflag>autoscale</longflag>
       <description><![CDATA[Automatically rescale intensity]]></description>
       <label>Automatically rescale intensity</label>
-      <default>true</default>
+      <default>false</default>
     </boolean>
 
     <float-vector>
