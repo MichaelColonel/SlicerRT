@@ -30,7 +30,7 @@
   </parameters>
 
   <parameters>
-    <label>Geometry parameters</label>
+    <label>Geometry Parameters</label>
     <description><![CDATA[Basic geometry parameters of source and imager]]></description>
     <double>
       <name>sourceAxisDistance</name>
@@ -114,7 +114,7 @@
   </parameters>
 
   <parameters>
-    <label>Imager and image parameters</label>
+    <label>Imager and Image Parameters</label>
     <description><![CDATA[Image and imager parameters]]></description>
 
     <integer-vector>
@@ -170,7 +170,7 @@
   </parameters>
 
   <parameters>
-    <label>Process parameters</label>
+    <label>Process Parameters</label>
     <description><![CDATA[DRR computation process parameters]]></description>
 
     <string-enumeration>

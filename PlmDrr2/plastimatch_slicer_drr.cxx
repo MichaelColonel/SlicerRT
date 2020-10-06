@@ -249,8 +249,14 @@ int DoIt( int argc, char * argv[], TPixel )
   
   inputWriter->SetFileName(mhaFilename.c_str());
   inputWriter->SetInput(inputReader->GetOutput());
-  inputWriter->Update();
-  
+  try
+  {
+    inputWriter->Update();
+  }
+  catch ( itk::ExceptionObject & excep )
+  {
+    throw;
+  }
 //    typedef itk::Image<OutputPixelType, Dimension> OutputImageType;
 /*
   typedef itk::SmoothingRecursiveGaussianImageFilter<
