@@ -350,6 +350,7 @@ void qSlicerPlmDrrModuleWidget::onComputeDrrClicked()
       d->m_ReferenceVolumeFile = drrVolumeFileName;
 
       d->m_PlastimatchProcess = new QProcess();
+      d->m_PlastimatchProcess->setStandardOutputFile("/tmp/Slicer-michel/drr_output.txt");
       connect( d->m_PlastimatchProcess, SIGNAL(started()), 
         this, SLOT(onPlastimatchDrrProcessStarted()));
       connect( d->m_PlastimatchProcess, SIGNAL(finished( int, QProcess::ExitStatus)), 
@@ -465,8 +466,8 @@ void qSlicerPlmDrrModuleWidget::onPlastimatchDrrProcessFinished( int exitCode, Q
       QFile drrRawFile(mhdName.c_str());
         
       drrReferenceVolumeFile.remove();
-      drrMhdFile.remove();
-      drrRawFile.remove();
+//      drrMhdFile.remove();
+//      drrRawFile.remove();
     }
     else
     {
