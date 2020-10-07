@@ -15,7 +15,8 @@
 
 ==============================================================================*/
 
-// SlicerRT PlanarImage includes
+// SlicerRT includes
+#include <vtkSlicerRtCommon.h>
 #include <vtkSlicerPlanarImageModuleLogic.h>
 #include <vtkMRMLPlanarImageNode.h>
 
@@ -36,28 +37,19 @@
 #include <vtkNew.h>
 #include <vtkObjectFactory.h>
 
-// STD includes
-#include <string>
-
 // ITK includes
 #include <itkImage.h>
 #include <itkImageFileReader.h>
+#include <itkImageFileWriter.h>
 #include <itkMetaImageIO.h>
 #include <itkRescaleIntensityImageFilter.h>
 #include <itkInvertIntensityImageFilter.h>
 #include <itkCastImageFilter.h>
-
-// SlicerRT includes
-#include <vtkSlicerRtCommon.h>
-
-#include "itkImageFileWriter.h"
-
-#include "itkSmoothingRecursiveGaussianImageFilter.h"
-
-#include "itkPluginUtilities.h"
+#include <itkPluginUtilities.h>
 
 #include "plastimatch_slicer_drrCLP.h"
 
+// Plastimatch includes
 #include "plmreconstruct_config.h"
 #include "drr_options.h"
 #include "drr.h"
@@ -85,10 +77,10 @@ int DoSetupDRR( int argc, char * argv[], Drr_options& options) throw(std::string
   // Imager MUST be with image window and image center and image resolution
   options.have_image_center = 1;
   options.have_image_window = useImageWindow;
-  options.detector_resolution[0] = imagerResolution[0];
-  options.detector_resolution[1] = imagerResolution[1];
-  options.image_size[0] = imagerResolution[0] * imagerSpacing[0];
-  options.image_size[1] = imagerResolution[1] * imagerSpacing[1];
+  options.detector_resolution[0] = imagerResolution[0]; // columns
+  options.detector_resolution[1] = imagerResolution[1]; // rows
+  options.image_size[0] = imagerResolution[0] * imagerSpacing[0]; // columns
+  options.image_size[1] = imagerResolution[1] * imagerSpacing[1]; // rows
   if (useImageWindow)
   {
     options.image_window[0] = std::max<int>( 0, imageWindow[0]); // start column
@@ -105,8 +97,8 @@ int DoSetupDRR( int argc, char * argv[], Drr_options& options) throw(std::string
   }
   options.image_center[0] = options.image_window[0] + (options.image_window[1] - options.image_window[0]) / 2.f; // column
   options.image_center[1] = options.image_window[2] + (options.image_window[3] - options.image_window[2]) / 2.f; // row
-  options.image_resolution[0] = options.image_window[1] - options.image_window[0] + 1;
-  options.image_resolution[1] = options.image_window[3] - options.image_window[2] + 1;
+  options.image_resolution[0] = options.image_window[1] - options.image_window[0] + 1; // columns
+  options.image_resolution[1] = options.image_window[3] - options.image_window[2] + 1; // rows
 
   // geometry
   // vup and normal vectors
@@ -227,9 +219,9 @@ int DoIt( int argc, char * argv[], Drr_options& options, TPixel ) throw(itk::Exc
     std::ofstream ofs(mhdFilename.c_str());
     ofs << "NDims = " << Dimension << "\n";
     ofs << "DimSize = " << options.image_resolution[0] << " " << options.image_resolution[1] << " 1\n"; // x (columns), y (rows), 1
-    float spacingColumns = options.image_size[0] / float(options.detector_resolution[0]);
-    float spacingRows = options.image_size[1] / float(options.detector_resolution[1]);
-    ofs << "ElementSpacing = " << spacingColumns << " " << spacingRows << " 1\n"; // x (columns), y (rows), 1
+//    float spacingColumns = options.image_size[0] / float(options.detector_resolution[0]);
+//    float spacingRows = options.image_size[1] / float(options.detector_resolution[1]);
+    ofs << "ElementSpacing = " << imagerSpacing[0] << " " << imagerSpacing[1] << " 1\n"; // x (columns), y (rows), 1
     ofs << "Position = 0 0 0\n";
     ofs << "BinaryData = True\n";
     ofs << "ElementByteOrderMSB = False\n";
@@ -364,13 +356,13 @@ int main( int argc, char * argv[] )
     std::cerr << excep << std::endl;
     return EXIT_FAILURE;
   }
-  catch( std::exception& ex )
+  catch( const std::exception& ex )
   {
     std::cerr << argv[0] << ": std exception caught !" << std::endl;
     std::cerr << "Error message: " << ex.what() << std::endl;
     return EXIT_FAILURE;
   }
-  catch( std::string& errorString )
+  catch( const std::string& errorString )
   {
     std::cerr << argv[0] << ": exception message caught !" << std::endl;
     std::cerr << "Error message: " << errorString << std::endl;
@@ -378,7 +370,7 @@ int main( int argc, char * argv[] )
   }
   catch( ... )
   {
-    std::cerr << "Disaster, unknown exception caught!" << std::endl;
+    std::cerr << "Disaster! Unknown exception caught!" << std::endl;
     return EXIT_FAILURE;
   }
 

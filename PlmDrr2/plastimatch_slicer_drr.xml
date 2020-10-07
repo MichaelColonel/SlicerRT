@@ -22,7 +22,7 @@
 
     <image type="scalar">
       <name>outputVolume</name>
-      <description><![CDATA[RTImage DRR output Volume]]></description>
+      <description><![CDATA[RTImage DRR output volume]]></description>
       <label>DRR Output Volume</label>
       <channel>output</channel>
       <index>1</index>
@@ -30,12 +30,12 @@
   </parameters>
 
   <parameters>
-    <label>Geometry Parameters</label>
+    <label>Source and Imager Geometry Parameters</label>
     <description><![CDATA[Basic geometry parameters of source and imager]]></description>
     <double>
       <name>sourceAxisDistance</name>
       <longflag>sad</longflag>
-      <description>Source-Axis distance</description>
+      <description><![CDATA[Distance between a source and an axis of rotation (isocenter)]]></description>
       <label>SAD</label>
       <default>1000</default>
       <constraints>
@@ -105,10 +105,10 @@
 
     <float-vector>
       <name>isocenterPosition</name>
-      <description><![CDATA[Isocenter position in LPS coordinate system]]></description>
+      <description><![CDATA[Isocenter position in LPS (DICOM) coordinate system]]></description>
       <flag>o</flag>
       <longflag>isocenter</longflag>
-      <label>Isocenter</label>
+      <label>Isocenter position</label>
       <default>0.0,0.0,0.0</default>
     </float-vector>
   </parameters>
@@ -145,7 +145,7 @@
 
     <integer-vector>
       <name>imageWindow</name>
-      <description><![CDATA[Limit DRR output to a subwindow (column1 row1 column2 row2)]]></description>
+      <description><![CDATA[Limit DRR output to a subwindow (column1, row1, column2, row2)]]></description>
       <flag>w</flag>
       <longflag>subwindow</longflag>
       <label>Image window</label>
@@ -162,7 +162,7 @@
 
     <float-vector>
       <name>autoscaleRange</name>
-      <description><![CDATA[Range used for autoscale in form "min max"]]></description>
+      <description><![CDATA[Range used for autoscale in form (min, max)]]></description>
       <longflag>autoscaleRange</longflag>
       <label>Autoscale range</label>
       <default>0.,255.</default>
@@ -171,7 +171,7 @@
     <boolean>
       <name>exponentialMapping</name>
       <longflag>exponential</longflag>
-      <description><![CDATA[Do exponential mapping of output values]]></description>
+      <description><![CDATA[Apply exponential mapping of output values]]></description>
       <label>Exponential mapping</label>
       <default>true</default>
     </boolean>
