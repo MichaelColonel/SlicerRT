@@ -57,7 +57,7 @@
         <step>.01</step>
       </constraints>
     </double>
-
+<!--
     <double>
       <name>gantryAngle</name>
       <longflag>gantryAngle</longflag>
@@ -85,7 +85,7 @@
         <step>.01</step>
       </constraints>
     </double>
-
+-->
     <float-vector>
       <name>viewUpVector</name>
       <description><![CDATA[View up vector to the first row]]></description>
@@ -135,6 +135,14 @@
       <default>0.25,0.25</default>
     </float-vector>
 
+    <boolean>
+      <name>useImageWindow</name>
+      <longflag>useImageWindow</longflag>
+      <description><![CDATA[Use image subwindow or a whole imager (detector)]]></description>
+      <label>Use image window</label>
+      <default>false</default>
+    </boolean>
+
     <integer-vector>
       <name>imageWindow</name>
       <description><![CDATA[Limit DRR output to a subwindow (column1 row1 column2 row2)]]></description>
@@ -149,7 +157,7 @@
       <longflag>autoscale</longflag>
       <description><![CDATA[Automatically rescale intensity]]></description>
       <label>Automatically rescale intensity</label>
-      <default>true</default>
+      <default>false</default>
     </boolean>
 
     <float-vector>
