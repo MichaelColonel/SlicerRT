@@ -260,9 +260,11 @@ int DoIt( int argc, char * argv[], Drr_options& options, TPixel ) throw( std::st
       std::ofstream ofs(mhdFilename.c_str());
       ofs << "NDims = " << Dimension << "\n";
       ofs << "DimSize = " << options.image_resolution[0] << " " << options.image_resolution[1] << " 1\n"; // x (columns), y (rows), 1
-//      float spacingColumns = options.image_size[0] / float(options.detector_resolution[0]);
-//      float spacingRows = options.image_size[1] / float(options.detector_resolution[1]);
-      ofs << "ElementSpacing = " << imagerSpacing[0] << " " << imagerSpacing[1] << " 1\n"; // x (columns), y (rows), 1
+      float imageSpacing_[2] = {
+        options.image_size[0] / float(options.detector_resolution[0]),
+        options.image_size[1] / float(options.detector_resolution[1])
+      };
+      ofs << "ElementSpacing = " << imageSpacing_[0] << " " << imageSpacing_[1] << " 1\n"; // x (columns), y (rows), 1
       ofs << "Position = 0 0 0\n";
       ofs << "BinaryData = True\n";
       ofs << "ElementByteOrderMSB = False\n";
