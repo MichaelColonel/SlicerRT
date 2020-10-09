@@ -18,6 +18,9 @@
 // LoadableModuleTemplate Logic includes
 #include "vtkSlicerPlmDrrLogic.h"
 
+// Slicer includer
+#include <vtkSlicerCLIModuleLogic.h>
+
 // SlicerRT PlanarImage includes
 #include <vtkSlicerPlanarImageModuleLogic.h>
 #include <vtkMRMLPlanarImageNode.h>
@@ -81,11 +84,13 @@ const char* vtkSlicerPlmDrrLogic::VUP_VECTOR_MARKUPS_NODE_NAME = "VupVector"; //
 //----------------------------------------------------------------------------
 vtkStandardNewMacro(vtkSlicerPlmDrrLogic);
 //vtkCxxSetObjectMacro(vtkSlicerPlmDrrLogic, PlanarImageLogic, vtkSlicerPlanarImageModuleLogic);
+vtkCxxSetObjectMacro(vtkSlicerPlmDrrLogic, DRRComputationLogic, vtkSlicerCLIModuleLogic);
 
 //----------------------------------------------------------------------------
 vtkSlicerPlmDrrLogic::vtkSlicerPlmDrrLogic()
   :
-  PlanarImageLogic(nullptr)
+  PlanarImageLogic(nullptr),
+  DRRComputationLogic(nullptr)
 {
 }
 
@@ -1319,3 +1324,9 @@ void vtkSlicerPlmDrrLogic::SetPlanarImageLogic(vtkSlicerPlanarImageModuleLogic* 
 {
   this->PlanarImageLogic = planarImageLogic;
 }
+
+//------------------------------------------------------------------------------
+//void vtkSlicerPlmDrrLogic::SetDRRComputationLogic(vtkSlicerCLIModuleLogic* plastimatchDrrLogic)
+//{
+//  this->PlastimachDrrLogic = plastimatchDrrLogic;
+//}

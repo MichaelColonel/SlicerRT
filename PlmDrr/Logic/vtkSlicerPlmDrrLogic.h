@@ -42,7 +42,9 @@ class vtkMRMLRTBeamNode;
 class vtkMRMLMarkupsClosedCurveNode;
 class vtkMRMLMarkupsFiducialNode;
 class vtkMRMLMarkupsLineNode;
+
 class vtkSlicerPlanarImageModuleLogic;
+class vtkSlicerCLIModuleLogic;
 
 /// \ingroup Slicer_QtModules_ExtensionTemplate
 class VTK_SLICER_PLMDRR_MODULE_LOGIC_EXPORT vtkSlicerPlmDrrLogic :
@@ -72,6 +74,7 @@ public:
 
   /// Set Planar Image module logic
   void SetPlanarImageLogic(vtkSlicerPlanarImageModuleLogic* planarImageLogic);
+  void SetDRRComputationLogic(vtkSlicerCLIModuleLogic* plastimatchDrrLogic);
 
 protected:
   vtkSlicerPlmDrrLogic();
@@ -100,6 +103,7 @@ private:
 
   /// Planar Image logic instance
   vtkSlicerPlanarImageModuleLogic* PlanarImageLogic;
+  vtkSlicerCLIModuleLogic* DRRComputationLogic;
 };
 
 #endif

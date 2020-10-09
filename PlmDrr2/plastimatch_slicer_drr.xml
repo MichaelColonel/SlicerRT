@@ -100,7 +100,7 @@
       <label>Normal vector</label>
       <flag>n</flag>
       <longflag>normal</longflag>
-      <default>0.0,1.0,0.0</default>
+      <default>0.0,-1.0,0.0</default>
     </float-vector>
 
     <float-vector>

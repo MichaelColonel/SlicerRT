@@ -26,6 +26,10 @@
 #include <vtkMRMLNode.h>
 #include <vtkMRMLModelNode.h>
 
+// PlanarImage includes
+#include <vtkSlicerPlanarImageModuleLogic.h>
+#include <vtkMRMLPlanarImageNode.h>
+
 // STD includes
 #include <list>
 
@@ -36,9 +40,10 @@ class vtkMRMLMarkupsFiducialNode;
 class vtkMRMLMarkupsLineNode;
 
 /// \ingroup SlicerRt_QtModules_PlmDrr
-class VTK_SLICER_PLMDRR_MODULE_MRML_EXPORT vtkMRMLPlmDrrNode : public vtkMRMLNode
+class VTK_SLICER_PLMDRR_MODULE_MRML_EXPORT vtkMRMLPlmDrrNode : public vtkMRMLPlanarImageNode
 {
 public:
+  enum ImageType { DRR, PORTAL, SIMULATOR, RADIOGRAPH, BLANK, FLUENCE };
   enum AlgorithmReconstuctionType { EXACT, UNIFORM };
   enum HounsfieldUnitsConversionType { PREPROCESS, INLINE, NONE };
   enum ThreadingType { CPU, CUDA, OPENCL };
@@ -60,7 +65,8 @@ public:
   void Copy(vtkMRMLNode *node) override;
 
   /// Copy node content (excludes basic data, such a name and node reference)
-  vtkMRMLCopyContentMacro(vtkMRMLRTPlanNode);
+//  vtkMRMLCopyContentMacro(vtkMRMLRTPlanNode);
+  vtkMRMLCopyContentMacro(vtkMRMLPlmDrrNode);
 
   /// Get unique node XML tag name
   const char* GetNodeTagName() override { return "PlmDrr"; };

@@ -26,6 +26,9 @@
 // SlicerRT includes
 #include <vtkSlicerPlanarImageModuleLogic.h>
 
+// Slicer includes
+#include <vtkSlicerCLIModuleLogic.h>
+
 // Qt includes
 #include <QDebug> 
 
@@ -99,7 +102,7 @@ QStringList qSlicerPlmDrrModule::categories() const
 //-----------------------------------------------------------------------------
 QStringList qSlicerPlmDrrModule::dependencies() const
 {
-  return QStringList() << "Volumes" << "PlanarImage" << "Beams";
+  return QStringList() << "Volumes" << "PlanarImage" << "Beams" << "plastimatch_slicer_drr";
 }
 
 //-----------------------------------------------------------------------------
@@ -119,6 +122,18 @@ void qSlicerPlmDrrModule::setup()
   else
   {
     qCritical() << Q_FUNC_INFO << ": Planar Image module is not found";
+  }
+
+  // Set plastimatch DRR computation logic to the logic
+  qSlicerAbstractCoreModule* plastimatchDrrModule = qSlicerCoreApplication::application()->moduleManager()->module("plastimatch_slicer_drr");
+  if (plastimatchDrrModule && drrLogic)
+  {
+    vtkSlicerCLIModuleLogic* plastimatchDrrLogic = vtkSlicerCLIModuleLogic::SafeDownCast(plastimatchDrrModule->logic());
+    drrLogic->SetDRRComputationLogic(plastimatchDrrLogic);
+  }
+  else
+  {
+    qCritical() << Q_FUNC_INFO << ": Plastimatch DRR module is not found";
   }
 }
 

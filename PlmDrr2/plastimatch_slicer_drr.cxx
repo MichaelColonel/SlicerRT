@@ -52,6 +52,7 @@
 #include <drr_options.h>
 #include <drr.h>
 #include <plm_math.h>
+#include <proj_image.h>
 #include <threading.h>
 
 #include "plastimatch_slicer_drrCLP.h"
@@ -64,12 +65,12 @@
 namespace
 {
 
-int DoSetupDRR( int argc, char * argv[], Drr_options& options) throw(std::string)
+int DoSetupDRR( int argc, char * argv[], Drr_options& options ) throw( std::string )
 {
   PARSE_ARGS;
 
   // Single image mode, no geometry
-  options.have_angle_diff = false;
+  options.have_angle_diff = 0;
   options.num_angles = 1;
   options.start_angle = 0.;
   options.geometry_only = 0;
@@ -187,35 +188,35 @@ int DoSetupDRR( int argc, char * argv[], Drr_options& options) throw(std::string
 }
 
 template <typename TPixel>
-int DoIt( int argc, char * argv[], Drr_options& options, TPixel ) throw(std::string, itk::ExceptionObject)
+int DoIt( int argc, char * argv[], Drr_options& options, TPixel ) throw( std::string, itk::ExceptionObject )
 {
   PARSE_ARGS;
 
-  using InputPixelType = TPixel; // CT pixel type (short)
+  typedef TPixel InputPixelType; // CT pixel type (short)
   const unsigned int Dimension = 3;
 
   // CT image type and reader
-  using InputImageType = itk::Image< InputPixelType, Dimension>;
-
-  using InputReaderType = itk::ImageFileReader<InputImageType>;
+  using InputImageType = itk::Image< InputPixelType, Dimension >;
+  using InputReaderType = itk::ImageFileReader< InputImageType >;
+  // Read CT data
   typename InputReaderType::Pointer inputReader = InputReaderType::New();
   inputReader->SetFileName( inputVolume.c_str() );
 
-  // MetaImageHeader temporary writer
-  using InputWriterType = itk::ImageFileWriter<InputImageType>;
+  // Save CT data as MetaImageHeader (*.mha)
+  using InputWriterType = itk::ImageFileWriter< InputImageType >;
   typename InputWriterType::Pointer inputWriter = InputWriterType::New();
 
   // Input and output files options
   std::size_t found = inputVolume.find_last_of("/\\");
   std::string mhdFilename;
-  if (found < inputVolume.size() and options.output_format == OUTPUT_FORMAT_RAW)
+  if (found < inputVolume.size() && options.output_format == OUTPUT_FORMAT_RAW)
   {
     std::string tmpDir = inputVolume.substr( 0, found + 1);
     options.input_file = tmpDir + "inputVolume.mha";
     options.output_file = tmpDir + "outputVolume.raw";
     mhdFilename = tmpDir + "outputVolume.mhd";
   }
-  else if (found == inputVolume.size() or found == std::string::npos)
+  else if (found == inputVolume.size() || found == std::string::npos)
   {
     throw std::string("Unable to find directory name");
   }
@@ -226,7 +227,7 @@ int DoIt( int argc, char * argv[], Drr_options& options, TPixel ) throw(std::str
   {
     inputWriter->Update();
   }
-  catch ( itk::ExceptionObject & excep )
+  catch ( itk::ExceptionObject& excep )
   {
     throw;
   }
@@ -234,12 +235,12 @@ int DoIt( int argc, char * argv[], Drr_options& options, TPixel ) throw(std::str
   // Compute DRR image if everything is OK
   drr_compute(&options);
 
-  // Plastimatch DRR pixel type (int32_t)
-  using PlmDrrPixelType = int32_t;
-
   // Create mhd file for raw file loading
   if (!mhdFilename.empty())
   {
+    // Plastimatch DRR pixel type (float)
+    typedef float PlmDrrPixelType;
+
     size_t imageSize = options.image_resolution[0] * options.image_resolution[1] * sizeof(PlmDrrPixelType);
     size_t rawSize = 0;
 
@@ -275,7 +276,7 @@ int DoIt( int argc, char * argv[], Drr_options& options, TPixel ) throw(std::str
     }
 
     using PlmDrrImageType = itk::Image< PlmDrrPixelType, Dimension >;
-    
+
     // read mhd file
     using PlmDrrReaderType = itk::ImageFileReader< PlmDrrImageType >;
     PlmDrrReaderType::Pointer drrReader = PlmDrrReaderType::New();
@@ -300,13 +301,13 @@ int DoIt( int argc, char * argv[], Drr_options& options, TPixel ) throw(std::str
     WriterType::Pointer writer = WriterType::New();
     writer->SetFileName( outputVolume.c_str() );
     writer->SetInput( invert->GetOutput() );
-//    writer->SetUseCompression(1);
+    writer->SetUseCompression(1);
 
     try
     {
       writer->Update();
     }
-    catch ( itk::ExceptionObject & excep )
+    catch ( itk::ExceptionObject& excep )
     {
       throw;
     }
