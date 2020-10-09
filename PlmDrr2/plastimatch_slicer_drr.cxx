@@ -47,14 +47,14 @@
 #include <itkCastImageFilter.h>
 #include <itkPluginUtilities.h>
 
-#include "plastimatch_slicer_drrCLP.h"
-
 // Plastimatch includes
-#include "plmreconstruct_config.h"
-#include "drr_options.h"
-#include "drr.h"
-#include "plm_math.h"
-#include "threading.h"
+#include <plmreconstruct_config.h>
+#include <drr_options.h>
+#include <drr.h>
+#include <plm_math.h>
+#include <threading.h>
+
+#include "plastimatch_slicer_drrCLP.h"
 
 // Use an anonymous namespace to keep class types and function names
 // from colliding when module is used as shared object module.  Every
@@ -187,7 +187,7 @@ int DoSetupDRR( int argc, char * argv[], Drr_options& options) throw(std::string
 }
 
 template <typename TPixel>
-int DoIt( int argc, char * argv[], Drr_options& options, TPixel ) throw(itk::ExceptionObject)
+int DoIt( int argc, char * argv[], Drr_options& options, TPixel ) throw(std::string, itk::ExceptionObject)
 {
   PARSE_ARGS;
 
@@ -196,8 +196,8 @@ int DoIt( int argc, char * argv[], Drr_options& options, TPixel ) throw(itk::Exc
 
   // CT image type and reader
   using InputImageType = itk::Image< InputPixelType, Dimension>;
+
   using InputReaderType = itk::ImageFileReader<InputImageType>;
-  
   typename InputReaderType::Pointer inputReader = InputReaderType::New();
   inputReader->SetFileName( inputVolume.c_str() );
 
@@ -206,28 +206,14 @@ int DoIt( int argc, char * argv[], Drr_options& options, TPixel ) throw(itk::Exc
   typename InputWriterType::Pointer inputWriter = InputWriterType::New();
 
   // Input and output files options
-  std::string mhdFilename;
   std::size_t found = inputVolume.find_last_of("/\\");
-  if (found < inputVolume.size() - 1)
+  std::string mhdFilename;
+  if (found < inputVolume.size() and options.output_format == OUTPUT_FORMAT_RAW)
   {
     std::string tmpDir = inputVolume.substr( 0, found + 1);
     options.input_file = tmpDir + "inputVolume.mha";
     options.output_file = tmpDir + "outputVolume.raw";
     mhdFilename = tmpDir + "outputVolume.mhd";
-
-    // setup meta file info for raw file
-    std::ofstream ofs(mhdFilename.c_str());
-    ofs << "NDims = " << Dimension << "\n";
-    ofs << "DimSize = " << options.image_resolution[0] << " " << options.image_resolution[1] << " 1\n"; // x (columns), y (rows), 1
-//    float spacingColumns = options.image_size[0] / float(options.detector_resolution[0]);
-//    float spacingRows = options.image_size[1] / float(options.detector_resolution[1]);
-    ofs << "ElementSpacing = " << imagerSpacing[0] << " " << imagerSpacing[1] << " 1\n"; // x (columns), y (rows), 1
-    ofs << "Position = 0 0 0\n";
-    ofs << "BinaryData = True\n";
-    ofs << "ElementByteOrderMSB = False\n";
-    ofs << "ElementType = MET_LONG\n";
-    ofs << "ElementDataFile = outputVolume.raw\n";
-    ofs.close();
   }
   else if (found == inputVolume.size() or found == std::string::npos)
   {
@@ -248,44 +234,83 @@ int DoIt( int argc, char * argv[], Drr_options& options, TPixel ) throw(itk::Exc
   // Compute DRR image if everything is OK
   drr_compute(&options);
 
-  // Plastimatch DRR pixel type (long)
-  using PlmDrrPixelType = signed long int;
-  using PlmDrrImageType = itk::Image< PlmDrrPixelType, Dimension >;
-  using PlmDrrReaderType = itk::ImageFileReader< PlmDrrImageType >;
+  // Plastimatch DRR pixel type (int32_t)
+  using PlmDrrPixelType = int32_t;
 
-  // read mhd file
-  typename PlmDrrReaderType::Pointer drrReader = PlmDrrReaderType::New();
-  drrReader->SetFileName(mhdFilename.c_str());
-
-  // rescale to autoscale range
-  using RescaleFilterType = itk::RescaleIntensityImageFilter< PlmDrrImageType, PlmDrrImageType >;
-  typename RescaleFilterType::Pointer rescale = RescaleFilterType::New();
-  rescale->SetOutputMinimum(options.autoscale_range[0]);
-  rescale->SetOutputMaximum(options.autoscale_range[1]);
-  rescale->SetInput(drrReader->GetOutput());
-
-  // invert (optional?)
-  using InvertFilterType = itk::InvertIntensityImageFilter< PlmDrrImageType, PlmDrrImageType >;
-  InvertFilterType::Pointer invert = InvertFilterType::New();
-  invert->SetInput(rescale->GetOutput());
-  invert->SetMaximum(options.autoscale_range[0]);
-
-  // write data into Slicer
-  using WriterType = itk::ImageFileWriter< PlmDrrImageType >;
-  typename WriterType::Pointer writer = WriterType::New();
-  writer->SetFileName( outputVolume.c_str() );
-  writer->SetInput( invert->GetOutput() );
-//  writer->SetUseCompression(1);
-
-  try
+  // Create mhd file for raw file loading
+  if (!mhdFilename.empty())
   {
-    writer->Update();
-  }
-  catch ( itk::ExceptionObject & excep )
-  {
-    throw;
-  }
+    size_t imageSize = options.image_resolution[0] * options.image_resolution[1] * sizeof(PlmDrrPixelType);
+    size_t rawSize = 0;
 
+    // check that raw file is exists and has a proper size 
+    std::ifstream ifs( options.output_file.c_str(), std::ifstream::binary);
+    if (ifs)
+    {
+      // get length of file
+      ifs.seekg( 0, ifs.end);
+      rawSize = ifs.tellg();
+      ifs.close();
+    }
+
+    if (rawSize == imageSize)
+    {
+      // setup meta file info for raw file
+      std::ofstream ofs(mhdFilename.c_str());
+      ofs << "NDims = " << Dimension << "\n";
+      ofs << "DimSize = " << options.image_resolution[0] << " " << options.image_resolution[1] << " 1\n"; // x (columns), y (rows), 1
+//      float spacingColumns = options.image_size[0] / float(options.detector_resolution[0]);
+//      float spacingRows = options.image_size[1] / float(options.detector_resolution[1]);
+      ofs << "ElementSpacing = " << imagerSpacing[0] << " " << imagerSpacing[1] << " 1\n"; // x (columns), y (rows), 1
+      ofs << "Position = 0 0 0\n";
+      ofs << "BinaryData = True\n";
+      ofs << "ElementByteOrderMSB = False\n";
+      ofs << "ElementType = MET_LONG\n";
+      ofs << "ElementDataFile = outputVolume.raw\n";
+      ofs.close();
+    }
+    else
+    {
+      throw std::string("Raw file and DRR image has different sizes");
+    }
+
+    using PlmDrrImageType = itk::Image< PlmDrrPixelType, Dimension >;
+    
+    // read mhd file
+    using PlmDrrReaderType = itk::ImageFileReader< PlmDrrImageType >;
+    PlmDrrReaderType::Pointer drrReader = PlmDrrReaderType::New();
+    drrReader->SetFileName(mhdFilename.c_str());
+
+    // Transform DRR image (range, invert)
+    // rescale to autoscale range
+    using RescaleFilterType = itk::RescaleIntensityImageFilter< PlmDrrImageType, PlmDrrImageType >;
+    RescaleFilterType::Pointer rescale = RescaleFilterType::New();
+    rescale->SetOutputMinimum(options.autoscale_range[0]);
+    rescale->SetOutputMaximum(options.autoscale_range[1]);
+    rescale->SetInput(drrReader->GetOutput());
+
+    // invert (optional?)
+    using InvertFilterType = itk::InvertIntensityImageFilter< PlmDrrImageType, PlmDrrImageType >;
+    InvertFilterType::Pointer invert = InvertFilterType::New();
+    invert->SetInput(rescale->GetOutput());
+    invert->SetMaximum(options.autoscale_range[0]);
+
+    // write data into Slicer
+    using WriterType = itk::ImageFileWriter< PlmDrrImageType >;
+    WriterType::Pointer writer = WriterType::New();
+    writer->SetFileName( outputVolume.c_str() );
+    writer->SetInput( invert->GetOutput() );
+//    writer->SetUseCompression(1);
+
+    try
+    {
+      writer->Update();
+    }
+    catch ( itk::ExceptionObject & excep )
+    {
+      throw;
+    }
+  }
   return EXIT_SUCCESS;
 }
 

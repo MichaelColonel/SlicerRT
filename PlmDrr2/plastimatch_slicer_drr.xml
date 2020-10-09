@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <executable>
-  <category>Plastimatch</category>
+  <category>Plastimatch.Reconstruct</category>
   <title>DRR computation</title>
   <description><![CDATA[This is a CLI module that computes a synthetic radiograph (DRR) which can be generated from a CT scan.]]></description>
   <version>0.0.1.001.vc</version>
@@ -100,7 +100,7 @@
       <label>Normal vector</label>
       <flag>n</flag>
       <longflag>normal</longflag>
-      <default>0.0,0.0,1.0</default>
+      <default>0.0,1.0,0.0</default>
     </float-vector>
 
     <float-vector>
@@ -216,7 +216,7 @@
       <name>outputFormat</name>
       <flag>t</flag>
       <longflag>outputFormat</longflag>
-      <default>raw</default>
+      <default>raw</default> <!-- Only this must be used for 3DSlicer visualization -->
       <element>pgm</element>
       <element>pfm</element>
       <element>raw</element>
