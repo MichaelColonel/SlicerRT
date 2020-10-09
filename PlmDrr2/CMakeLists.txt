@@ -29,7 +29,6 @@ include(${ITK_USE_FILE})
 
 #-----------------------------------------------------------------------------
 set(MODULE_INCLUDE_DIRECTORIES
-#  ${Plastimatch_DIR}
   ${PLASTIMATCH_INCLUDE_DIRS}
   ${SlicerRtCommon_INCLUDE_DIRS}
   ${vtkSlicerBeamsModuleLogic_INCLUDE_DIRS}
@@ -41,6 +40,7 @@ set(MODULE_SRCS
 
 set(MODULE_TARGET_LIBRARIES
   ${ITK_LIBRARIES}
+  ${PLASTIMATCH_LIBRARIES}
   vtkSlicerBeamsModuleLogic
   vtkSlicerPlanarImageModuleLogic
   vtkSlicerMarkupsModuleMRML
@@ -48,10 +48,6 @@ set(MODULE_TARGET_LIBRARIES
   vtkPlmCommon
   vtkSlicerBeamsModuleMRML
   MRMLCore
-  plmbase
-  plmutil
-  plmreconstruct
-  ${PLASTIMATCH_LIBRARIES}
   )
 
 #-----------------------------------------------------------------------------
