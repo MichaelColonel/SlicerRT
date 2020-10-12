@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <executable>
   <category>Plastimatch.Reconstruct</category>
-  <title>DRR computation</title>
+  <title>DRR generation</title>
   <description><![CDATA[This is a CLI module that computes a synthetic radiograph (DRR) which can be generated from a CT scan.]]></description>
   <version>0.0.1.001.vc</version>
   <documentation-url>http://www.plastimatch.org/drr.html</documentation-url>
   <license>Slicer</license>
-  <contributor>Mikhail Polkovnikov (NRS \'Kurchatov Institute\' - IHEP)</contributor>
+  <contributor>Mikhail Polkovnikov (NRC \'Kurchatov Institute\' - IHEP)</contributor>
   <acknowledgements></acknowledgements>
 
   <parameters>
@@ -222,6 +222,13 @@
       <element>raw</element>
     </string-enumeration>
 
+    <boolean>
+      <name>invertIntensity</name>
+      <longflag>negative</longflag>
+      <description><![CDATA[Invert intensity of DRR image (makes it negative)]]></description>
+      <label>Invert intensity</label>
+      <default>true</default>
+    </boolean>
   </parameters>
 
 </executable>

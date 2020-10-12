@@ -15,27 +15,6 @@
 
 ==============================================================================*/
 
-// SlicerRT includes
-#include <vtkSlicerRtCommon.h>
-#include <vtkSlicerPlanarImageModuleLogic.h>
-#include <vtkMRMLPlanarImageNode.h>
-
-// MRML includes
-#include <vtkMRMLScene.h>
-#include <vtkMRMLScalarVolumeNode.h>
-#include <vtkMRMLLinearTransformNode.h>
-
-// SlicerRT MRML includes
-#include <vtkMRMLRTBeamNode.h>
-#include <vtkMRMLRTPlanNode.h>
-
-// VTK includes
-#include <vtkTransform.h>
-#include <vtkGeneralTransform.h>
-#include <vtkMatrix4x4.h>
-#include <vtkIntArray.h>
-#include <vtkNew.h>
-#include <vtkObjectFactory.h>
 
 // ITK includes
 #include <itkImage.h>
@@ -44,7 +23,6 @@
 #include <itkMetaImageIO.h>
 #include <itkRescaleIntensityImageFilter.h>
 #include <itkInvertIntensityImageFilter.h>
-#include <itkCastImageFilter.h>
 #include <itkPluginUtilities.h>
 
 // Plastimatch includes
@@ -268,7 +246,7 @@ int DoIt( int argc, char * argv[], Drr_options& options, TPixel ) throw( std::st
       ofs << "Position = 0 0 0\n";
       ofs << "BinaryData = True\n";
       ofs << "ElementByteOrderMSB = False\n";
-      ofs << "ElementType = MET_LONG\n";
+      ofs << "ElementType = MET_FLOAT\n";
       ofs << "ElementDataFile = outputVolume.raw\n";
       ofs.close();
     }
@@ -292,26 +270,44 @@ int DoIt( int argc, char * argv[], Drr_options& options, TPixel ) throw( std::st
     rescale->SetOutputMaximum(options.autoscale_range[1]);
     rescale->SetInput(drrReader->GetOutput());
 
-    // invert (optional?)
-    using InvertFilterType = itk::InvertIntensityImageFilter< PlmDrrImageType, PlmDrrImageType >;
-    InvertFilterType::Pointer invert = InvertFilterType::New();
-    invert->SetInput(rescale->GetOutput());
-    invert->SetMaximum(options.autoscale_range[0]);
-
     // write data into Slicer
     using WriterType = itk::ImageFileWriter< PlmDrrImageType >;
     WriterType::Pointer writer = WriterType::New();
     writer->SetFileName( outputVolume.c_str() );
-    writer->SetInput( invert->GetOutput() );
     writer->SetUseCompression(1);
 
-    try
+    if (invertIntensity)
     {
-      writer->Update();
+      // invert
+      using InvertFilterType = itk::InvertIntensityImageFilter< PlmDrrImageType, PlmDrrImageType >;
+      InvertFilterType::Pointer invert = InvertFilterType::New();
+      invert->SetInput(rescale->GetOutput());
+      invert->SetMaximum(options.autoscale_range[0]);
+
+      // inverted input
+      writer->SetInput( invert->GetOutput() );
+
+      try
+      {
+        writer->Update();
+      }
+      catch ( itk::ExceptionObject& excep )
+      {
+        throw;
+      }
     }
-    catch ( itk::ExceptionObject& excep )
+    else
     {
-      throw;
+      writer->SetInput( rescale->GetOutput() );
+
+      try
+      {
+        writer->Update();
+      }
+      catch ( itk::ExceptionObject& excep )
+      {
+        throw;
+      }
     }
   }
   return EXIT_SUCCESS;
@@ -326,11 +322,12 @@ int main( int argc, char * argv[] )
   itk::ImageIOBase::IOPixelType     pixelType;
   itk::ImageIOBase::IOComponentType componentType;
 
+  Drr_options drrOptions;
+
   try
   {
     // Since there are no conditional flags, EVERY options must be 
     // explicitly defined and checked.
-    Drr_options drrOptions;
     DoSetupDRR( argc, argv, drrOptions);
 
     itk::GetImageType(inputVolume, pixelType, componentType);

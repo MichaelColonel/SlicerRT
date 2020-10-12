@@ -84,7 +84,7 @@ const char* vtkSlicerPlmDrrLogic::VUP_VECTOR_MARKUPS_NODE_NAME = "VupVector"; //
 //----------------------------------------------------------------------------
 vtkStandardNewMacro(vtkSlicerPlmDrrLogic);
 //vtkCxxSetObjectMacro(vtkSlicerPlmDrrLogic, PlanarImageLogic, vtkSlicerPlanarImageModuleLogic);
-vtkCxxSetObjectMacro(vtkSlicerPlmDrrLogic, DRRComputationLogic, vtkSlicerCLIModuleLogic);
+//vtkCxxSetObjectMacro(vtkSlicerPlmDrrLogic, DRRComputationLogic, vtkSlicerCLIModuleLogic);
 
 //----------------------------------------------------------------------------
 vtkSlicerPlmDrrLogic::vtkSlicerPlmDrrLogic()
@@ -1326,7 +1326,7 @@ void vtkSlicerPlmDrrLogic::SetPlanarImageLogic(vtkSlicerPlanarImageModuleLogic* 
 }
 
 //------------------------------------------------------------------------------
-//void vtkSlicerPlmDrrLogic::SetDRRComputationLogic(vtkSlicerCLIModuleLogic* plastimatchDrrLogic)
-//{
-//  this->PlastimachDrrLogic = plastimatchDrrLogic;
-//}
+void vtkSlicerPlmDrrLogic::SetDRRComputationLogic(vtkSlicerCLIModuleLogic* plastimatchDrrLogic)
+{
+  this->DRRComputationLogic = plastimatchDrrLogic;
+}
