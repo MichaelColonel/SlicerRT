@@ -43,12 +43,12 @@ public:
 
 public slots:
   void setMRMLScene(vtkMRMLScene*) override;
-//  void setParameterNode(vtkMRMLNode*);
+  void setParameterNode(vtkMRMLNode*);
   void onSceneImportedEvent();
 
-  void onRTImageNodeChanged(vtkMRMLNode*);
+  void onParameterNodeChanged(vtkMRMLNode*);
   void onRTBeamNodeChanged(vtkMRMLNode*);
-  void onReferenceVolumeNodeChanged(vtkMRMLNode*);
+  void onCtVolumeNodeChanged(vtkMRMLNode*);
 
   /// Update widget GUI from drr parameters node
   void updateWidgetFromMRML();
@@ -57,6 +57,7 @@ protected:
   QScopedPointer<qSlicerRtImageModuleWidgetPrivate> d_ptr;
 
   void setup() override;
+  void onEnter();
 
 private:
   Q_DECLARE_PRIVATE(qSlicerRtImageModuleWidget);

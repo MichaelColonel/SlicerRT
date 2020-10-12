@@ -30,7 +30,7 @@
 #include <vtkMRMLScalarVolumeDisplayNode.h>
 #include <vtkMRMLLinearTransformNode.h>
 
-#include <vtkMRMLMarkupsPlaneNode.h>
+//#include <vtkMRMLMarkupsPlaneNode.h>
 #include <vtkMRMLMarkupsClosedCurveNode.h>
 #include <vtkMRMLMarkupsFiducialNode.h>
 #include <vtkMRMLMarkupsLineNode.h>
@@ -53,7 +53,7 @@
 #include <vtkNew.h>
 #include <vtkObjectFactory.h>
 
-const char* vtkSlicerRtImageLogic::IMAGER_BOUNDARY_MARKUPS_NODE_NAME = "ImagerBoundary"; // plane
+const char* vtkSlicerRtImageLogic::IMAGER_BOUNDARY_MARKUPS_NODE_NAME = "ImagerBoundary"; // curve
 const char* vtkSlicerRtImageLogic::IMAGE_WINDOW_MARKUPS_NODE_NAME = "ImageWindow"; // curve
 const char* vtkSlicerRtImageLogic::FIDUCIALS_MARKUPS_NODE_NAME = "FiducialPoints"; // fiducial
 const char* vtkSlicerRtImageLogic::NORMAL_VECTOR_MARKUPS_NODE_NAME = "NormalVector"; // line
@@ -133,13 +133,13 @@ void vtkSlicerRtImageLogic::OnMRMLSceneNodeAdded(vtkMRMLNode* node)
   if (node->IsA("vtkMRMLRTBeamNode"))
   {
     // Observe beam events
-    vtkSmartPointer<vtkIntArray> events = vtkSmartPointer<vtkIntArray>::New();
+    vtkNew<vtkIntArray> events;
     events->InsertNextValue(vtkMRMLRTBeamNode::BeamTransformModified);
     vtkObserveMRMLNodeEventsMacro(node, events);
   }
   else if (node->IsA("vtkMRMLRTPlanNode"))
   {
-    vtkSmartPointer<vtkIntArray> events = vtkSmartPointer<vtkIntArray>::New();
+    vtkNew<vtkIntArray> events;
     events->InsertNextValue(vtkMRMLRTPlanNode::IsocenterModifiedEvent);
     vtkObserveMRMLNodeEventsMacro(node, events);
   }
@@ -229,14 +229,14 @@ void vtkSlicerRtImageLogic::CreateMarkupsNodes(vtkMRMLRTImageNode* rtImageNode)
   // Create markups nodes if they don't exist
 
   // Imager boundary markups node
-  vtkSmartPointer<vtkMRMLMarkupsPlaneNode> imagerMarkupsNode;
+  vtkSmartPointer<vtkMRMLMarkupsClosedCurveNode> imagerMarkupsNode;
   if (!scene->GetFirstNodeByName(IMAGER_BOUNDARY_MARKUPS_NODE_NAME))
   {
     imagerMarkupsNode = this->CreateImagerBoundary(rtImageNode);
   }
   else
   {
-    imagerMarkupsNode = vtkMRMLMarkupsPlaneNode::SafeDownCast(
+    imagerMarkupsNode = vtkMRMLMarkupsClosedCurveNode::SafeDownCast(
       scene->GetFirstNodeByName(IMAGER_BOUNDARY_MARKUPS_NODE_NAME));
     // Update imager points using RTImage node data
     if (beamTransformNode)
@@ -346,7 +346,7 @@ void vtkSlicerRtImageLogic::UpdateMarkupsNodes(vtkMRMLRTImageNode* rtImageNode)
   // Imager boundary markups node
   if (scene->GetFirstNodeByName(IMAGER_BOUNDARY_MARKUPS_NODE_NAME))
   {
-    vtkMRMLMarkupsPlaneNode* imagerMarkupsNode = vtkMRMLMarkupsPlaneNode::SafeDownCast(
+    vtkMRMLMarkupsClosedCurveNode* imagerMarkupsNode = vtkMRMLMarkupsClosedCurveNode::SafeDownCast(
       scene->GetFirstNodeByName(IMAGER_BOUNDARY_MARKUPS_NODE_NAME));
 
     double distance = rtImageNode->GetIsocenterImagerDistance();
@@ -676,12 +676,12 @@ void vtkSlicerRtImageLogic::ShowMarkupsNodes(vtkMRMLRTImageNode* rtImageNode, bo
 }
 
 //----------------------------------------------------------------------------
-vtkMRMLMarkupsPlaneNode* vtkSlicerRtImageLogic::CreateImagerBoundary(vtkMRMLRTImageNode* rtImageNode)
+vtkMRMLMarkupsClosedCurveNode* vtkSlicerRtImageLogic::CreateImagerBoundary(vtkMRMLRTImageNode* rtImageNode)
 {
-  auto imagerMarkupsNode = vtkSmartPointer<vtkMRMLMarkupsPlaneNode>::New();
+  vtkNew<vtkMRMLMarkupsClosedCurveNode> imagerMarkupsNode;
   this->GetMRMLScene()->AddNode(imagerMarkupsNode);
   imagerMarkupsNode->SetName(IMAGER_BOUNDARY_MARKUPS_NODE_NAME);
-//  imagerMarkupsNode->SetCurveTypeToLinear();
+  imagerMarkupsNode->SetCurveTypeToLinear();
   imagerMarkupsNode->SetHideFromEditors(1);
   std::string singletonTag = std::string("RTIMAGE_") + IMAGER_BOUNDARY_MARKUPS_NODE_NAME;
   imagerMarkupsNode->SetSingletonTag(singletonTag.c_str());
@@ -728,7 +728,7 @@ vtkMRMLMarkupsPlaneNode* vtkSlicerRtImageLogic::CreateImagerBoundary(vtkMRMLRTIm
 //----------------------------------------------------------------------------
 vtkMRMLMarkupsClosedCurveNode* vtkSlicerRtImageLogic::CreateImageWindow(vtkMRMLRTImageNode* rtImageNode)
 {
-  auto imageWindowMarkupsNode = vtkSmartPointer<vtkMRMLMarkupsClosedCurveNode>::New();
+  vtkNew<vtkMRMLMarkupsClosedCurveNode> imageWindowMarkupsNode;
   this->GetMRMLScene()->AddNode(imageWindowMarkupsNode);
   imageWindowMarkupsNode->SetName(IMAGE_WINDOW_MARKUPS_NODE_NAME);
   imageWindowMarkupsNode->SetCurveTypeToLinear();
@@ -789,7 +789,7 @@ vtkMRMLMarkupsClosedCurveNode* vtkSlicerRtImageLogic::CreateImageWindow(vtkMRMLR
 //----------------------------------------------------------------------------
 vtkMRMLMarkupsLineNode* vtkSlicerRtImageLogic::CreateImagerNormal(vtkMRMLRTImageNode* rtImageNode)
 {
-  auto vectorMarkupsNode = vtkSmartPointer<vtkMRMLMarkupsLineNode>::New();
+  vtkNew<vtkMRMLMarkupsLineNode> vectorMarkupsNode;
   this->GetMRMLScene()->AddNode(vectorMarkupsNode);
   vectorMarkupsNode->SetName(NORMAL_VECTOR_MARKUPS_NODE_NAME);
   vectorMarkupsNode->SetHideFromEditors(1);
@@ -822,7 +822,7 @@ vtkMRMLMarkupsLineNode* vtkSlicerRtImageLogic::CreateImagerNormal(vtkMRMLRTImage
 //----------------------------------------------------------------------------
 vtkMRMLMarkupsLineNode* vtkSlicerRtImageLogic::CreateImagerVUP(vtkMRMLRTImageNode* rtImageNode)
 {
-  auto vectorMarkupsNode = vtkSmartPointer<vtkMRMLMarkupsLineNode>::New();
+  vtkNew<vtkMRMLMarkupsLineNode> vectorMarkupsNode;
   this->GetMRMLScene()->AddNode(vectorMarkupsNode);
   vectorMarkupsNode->SetName(VUP_VECTOR_MARKUPS_NODE_NAME);
   vectorMarkupsNode->SetHideFromEditors(1);
@@ -867,10 +867,10 @@ vtkMRMLMarkupsLineNode* vtkSlicerRtImageLogic::CreateImagerVUP(vtkMRMLRTImageNod
 //----------------------------------------------------------------------------
 vtkMRMLMarkupsFiducialNode* vtkSlicerRtImageLogic::CreateFiducials(vtkMRMLRTImageNode* rtImageNode)
 {
-  auto pointsMarkupsNode = vtkSmartPointer<vtkMRMLMarkupsFiducialNode>::New();
+  vtkNew<vtkMRMLMarkupsFiducialNode> pointsMarkupsNode;
   this->GetMRMLScene()->AddNode(pointsMarkupsNode);
   pointsMarkupsNode->SetName(FIDUCIALS_MARKUPS_NODE_NAME);
-  pointsMarkupsNode->SetHideFromEditors(1);
+ // pointsMarkupsNode->SetHideFromEditors(1);
   std::string singletonTag = std::string("RTIMAGE_") + FIDUCIALS_MARKUPS_NODE_NAME;
   pointsMarkupsNode->SetSingletonTag(singletonTag.c_str());
 

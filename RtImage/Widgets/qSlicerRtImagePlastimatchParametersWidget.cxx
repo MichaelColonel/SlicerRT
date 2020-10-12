@@ -70,3 +70,13 @@ qSlicerRtImagePlastimatchParametersWidget
 ::~qSlicerRtImagePlastimatchParametersWidget()
 {
 }
+
+//-----------------------------------------------------------------------------
+void qSlicerRtImagePlastimatchParametersWidget
+::onParameterNodeChanged(vtkMRMLRTImageNode* node)
+{
+  vtkMRMLRTImageNode* parameterNode = vtkMRMLRTImageNode::SafeDownCast(node);
+  if (parameterNode)
+  {
+  }
+}

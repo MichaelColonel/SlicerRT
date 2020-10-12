@@ -48,9 +48,9 @@ public:
   virtual ~qSlicerRtImageModuleWidgetPrivate();
   vtkSlicerRtImageLogic* logic() const;
 
-  vtkMRMLRTImageNode* RtImageNode;
+  vtkMRMLRTImageNode* ParameterNode;
   vtkMRMLRTBeamNode* RtBeamNode;
-  vtkMRMLScalarVolumeNode* ReferenceVolumeNode;
+  vtkMRMLScalarVolumeNode* CtVolumeNode;
   bool ModuleWindowInitialized;
 };
 
@@ -99,7 +99,7 @@ void qSlicerRtImageModuleWidget::setup()
 
   QStringList rtImageNodes;
   rtImageNodes.push_back("vtkMRMLRTImageNode");
-  d->MRMLNodeComboBox_RtImage->setNodeTypes(rtImageNodes);
+  d->MRMLNodeComboBox_ParameterSet->setNodeTypes(rtImageNodes);
 
   QStringList rtBeamNodes;
   rtBeamNodes.push_back("vtkMRMLRTBeamNode");
@@ -107,7 +107,7 @@ void qSlicerRtImageModuleWidget::setup()
 
   QStringList volumeNodes;
   volumeNodes.push_back("vtkMRMLScalarVolumeNode");
-  d->MRMLNodeComboBox_ReferenceVolume->setNodeTypes(volumeNodes);
+  d->MRMLNodeComboBox_CtVolume->setNodeTypes(volumeNodes);
 }
 
 //-----------------------------------------------------------------------------
@@ -122,21 +122,49 @@ void qSlicerRtImageModuleWidget::setMRMLScene(vtkMRMLScene* scene)
   if (scene)
   {
     vtkMRMLNode* node = scene->GetNthNodeByClass( 0, "vtkMRMLRTImageNode");
-    if (d->MRMLNodeComboBox_RtImage->currentNode())
+    if (d->MRMLNodeComboBox_ParameterSet->currentNode())
     {
-//      this->setParameterNode(d->MRMLNodeComboBox_ParameterNode->currentNode());
+      this->setParameterNode(d->MRMLNodeComboBox_ParameterSet->currentNode());
     }
     else if (node)
     {
-//      this->setParameterNode(node);
+      this->setParameterNode(node);
     }
     else
     {
-//      vtkNew<vtkMRMLPlmDrrNode> newNode;
-//      this->mrmlScene()->AddNode(newNode);
-//      this->setParameterNode(newNode);
+      vtkNew<vtkMRMLRTImageNode> newNode;
+      this->mrmlScene()->AddNode(newNode);
+      this->setParameterNode(newNode);
     }
   }
+}
+
+//-----------------------------------------------------------------------------
+void qSlicerRtImageModuleWidget::setParameterNode(vtkMRMLNode *node)
+{
+  Q_D(qSlicerRtImageModuleWidget);
+
+  d->ParameterNode = vtkMRMLRTImageNode::SafeDownCast(node);
+
+  // Make sure the parameter set node is selected (in case the function was not called by the selector combobox signal)
+  d->MRMLNodeComboBox_ParameterSet->setCurrentNode(d->ParameterNode);
+
+  // Each time the node is modified, the UI widgets are updated
+  qvtkReconnect( d->ParameterNode, vtkCommand::ModifiedEvent, this, SLOT(updateWidgetFromMRML()));
+  
+  // Set selected MRML nodes in comboboxes in the parameter set if it was nullptr there
+  // (then in the meantime the comboboxes selected the first one from the scene and we have to set that)
+  if (d->ParameterNode)
+  {
+    if (!d->ParameterNode->GetBeamNode())
+    {
+      vtkMRMLRTBeamNode* beamNode = vtkMRMLRTBeamNode::SafeDownCast(d->MRMLNodeComboBox_RtBeam->currentNode());
+      qvtkConnect( beamNode, vtkMRMLRTBeamNode::BeamGeometryModified, this, SLOT(onUpdateImageWindowFromBeamJaws()));
+      d->ParameterNode->SetAndObserveBeamNode(beamNode);
+      d->ParameterNode->Modified();
+    }
+  }
+  this->updateWidgetFromMRML();
 }
 
 //-----------------------------------------------------------------------------
@@ -144,7 +172,7 @@ void qSlicerRtImageModuleWidget::updateWidgetFromMRML()
 {
   Q_D(qSlicerRtImageModuleWidget);
 
-  d->RtImageNode = vtkMRMLRTImageNode::SafeDownCast(d->MRMLNodeComboBox_RtImage->currentNode());
+  d->ParameterNode = vtkMRMLRTImageNode::SafeDownCast(d->MRMLNodeComboBox_ParameterSet->currentNode());
 
   if (!this->mrmlScene())
   {
@@ -152,27 +180,27 @@ void qSlicerRtImageModuleWidget::updateWidgetFromMRML()
     return;
   }
 
-  if (!d->RtImageNode || !d->ModuleWindowInitialized)
+  if (!d->ParameterNode || !d->ModuleWindowInitialized)
   {
     qCritical() << Q_FUNC_INFO << ": Invalid RT Image node";
     return;
   }
 
-  if (!d->RtImageNode->GetBeamNode())
+  if (!d->ParameterNode->GetBeamNode())
   {
     qCritical() << Q_FUNC_INFO << ": Invalid referenced parameter's beam node";
     return;
   }
 
-  if (!d->ReferenceVolumeNode)
+  if (!d->CtVolumeNode)
   {
     qCritical() << Q_FUNC_INFO << ": Invalid referenced volume node";
     return;
   }
 
   // Update widgets info from parameter node and update plastimatch drr command
-  d->MRMLNodeComboBox_RtBeam->setCurrentNode(d->RtImageNode->GetBeamNode());
-  d->SliderWidget_IsocenterImagerDistance->setValue(d->RtImageNode->GetIsocenterImagerDistance());
+  d->MRMLNodeComboBox_RtBeam->setCurrentNode(d->ParameterNode->GetBeamNode());
+  d->SliderWidget_IsocenterImagerDistance->setValue(d->ParameterNode->GetIsocenterImagerDistance());
 /*
   int imageDimInteger[2] = {};
   double imageDim[2] = {};
@@ -246,7 +274,7 @@ void qSlicerRtImageModuleWidget::updateWidgetFromMRML()
 //-----------------------------------------------------------------------------
 void qSlicerRtImageModuleWidget::onSceneImportedEvent()
 {
-//  this->onEnter();
+  this->onEnter();
 }
 
 /// RTBeam Node (RTBeam or RTIonBeam) changed
@@ -277,26 +305,26 @@ void qSlicerRtImageModuleWidget::onRTBeamNodeChanged(vtkMRMLNode* node)
   vtkMRMLRTIonBeamNode* ionBeamNode = vtkMRMLRTIonBeamNode::SafeDownCast(node);
   Q_UNUSED(ionBeamNode);
 
-  if (!d->RtImageNode)
+  if (!d->ParameterNode)
   {
     qCritical() << Q_FUNC_INFO << ": Invalid RT Image node";
     return;
   }
 
-  d->RtImageNode->DisableModifiedEventOn();
-  d->RtImageNode->SetAndObserveBeamNode(beamNode);
-  d->RtImageNode->DisableModifiedEventOff();
+  d->ParameterNode->DisableModifiedEventOn();
+  d->ParameterNode->SetAndObserveBeamNode(beamNode);
+  d->ParameterNode->DisableModifiedEventOff();
 
   // Update imager and image markups, DRR arguments
-//  d->logic()->UpdateMarkupsNodes(d->ParameterNode);
-//  this->updateWidgetFromMRML();
+  d->logic()->UpdateMarkupsNodes(d->ParameterNode);
+  this->updateWidgetFromMRML();
 }
 
 //-----------------------------------------------------------------------------
 void qSlicerRtImageModuleWidget::enter()
 {
   this->Superclass::enter();
-//  this->onEnter();
+  this->onEnter();
 }
 
 //-----------------------------------------------------------------------------
@@ -307,30 +335,84 @@ void qSlicerRtImageModuleWidget::exit()
 }
 
 //-----------------------------------------------------------------------------
-void qSlicerRtImageModuleWidget::onReferenceVolumeNodeChanged(vtkMRMLNode* node)
+void qSlicerRtImageModuleWidget::onCtVolumeNodeChanged(vtkMRMLNode* node)
 {
   Q_D(qSlicerRtImageModuleWidget);
   vtkMRMLScalarVolumeNode* volumeNode = vtkMRMLScalarVolumeNode::SafeDownCast(node);
   if (!volumeNode)
   {
-    qCritical() << Q_FUNC_INFO << ": Invalid reference volume node";
+    qCritical() << Q_FUNC_INFO << ": Invalid reference CT volume node";
     return;
   }
 
-  d->ReferenceVolumeNode = volumeNode;
-//  this->updateWidgetFromMRML();
+  d->CtVolumeNode = volumeNode;
+  this->updateWidgetFromMRML();
 }
 
 //-----------------------------------------------------------------------------
-void qSlicerRtImageModuleWidget::onRTImageNodeChanged(vtkMRMLNode* node)
+void qSlicerRtImageModuleWidget::onParameterNodeChanged(vtkMRMLNode* node)
 {
   Q_D(qSlicerRtImageModuleWidget);
-  vtkMRMLRTImageNode* rtImageNode = vtkMRMLRTImageNode::SafeDownCast(node);
-  if (!rtImageNode || !d->ModuleWindowInitialized)
+  vtkMRMLRTImageNode* parameterNode = vtkMRMLRTImageNode::SafeDownCast(node);
+  if (!parameterNode || !d->ModuleWindowInitialized)
   {
     qCritical() << Q_FUNC_INFO << ": Invalid RT Image node";
     return;
   }
 
-//  setParameterNode(paramNode);
+  setParameterNode(parameterNode);
+}
+
+//-----------------------------------------------------------------------------
+void qSlicerRtImageModuleWidget::onEnter()
+{
+  Q_D(qSlicerRtImageModuleWidget);
+
+  if (!this->mrmlScene())
+  {
+    qCritical() << Q_FUNC_INFO << ": Invalid scene";
+    return;
+  }
+
+  // First check the logic if it has a parameter node
+  if (!d->logic())
+  {
+    qCritical() << Q_FUNC_INFO << ": Invalid logic";
+    return;
+  }
+
+  if (!d->ParameterNode)
+  {
+    // Try to find one in the scene
+    vtkMRMLNode* node = this->mrmlScene()->GetNthNodeByClass( 0, "vtkMRMLRTImageNode");
+    if (node)
+    {
+      d->ParameterNode = vtkMRMLRTImageNode::SafeDownCast(node);
+    }
+    else 
+    {
+      qCritical() << Q_FUNC_INFO << ": Invalid RT Image node";
+      return;
+    }
+  }
+
+  if (!d->ParameterNode->GetBeamNode())
+  {
+    // Try to find one in the scene
+    vtkMRMLNode* node = this->mrmlScene()->GetNthNodeByClass( 0, "vtkMRMLRTBeamNode");
+    if (node)
+    {
+      d->RtBeamNode = vtkMRMLRTBeamNode::SafeDownCast(node);
+      d->ParameterNode->SetAndObserveBeamNode(d->RtBeamNode);
+    }
+    else 
+    {
+      d->RtBeamNode = nullptr;
+    }
+  }
+
+  d->logic()->CreateMarkupsNodes(d->ParameterNode);
+
+  d->ModuleWindowInitialized = true;
+  this->updateWidgetFromMRML();
 }

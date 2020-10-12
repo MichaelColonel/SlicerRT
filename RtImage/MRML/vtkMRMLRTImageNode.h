@@ -37,6 +37,13 @@ class vtkMRMLMarkupsFiducialNode;
 class vtkMRMLMarkupsLineNode;
 
 /// \ingroup SlicerRt_QtModules_RtImage
+/// 
+/// Parameter set node for RTImage generation. 
+/// \warning Currently supports only DRR image computation using plastimatch reconstruct library.
+/// Node references:
+///   Parameter -> RT beam (BEAM_REFERENCE_ROLE)
+///
+
 class VTK_SLICER_RTIMAGE_MODULE_MRML_EXPORT vtkMRMLRTImageNode : public vtkMRMLPlanarImageNode
 {
 public:
@@ -46,7 +53,7 @@ public:
   enum PlastimatchThreadingType { CPU, CUDA, OPENCL };
 
   static vtkMRMLRTImageNode *New();
-  vtkTypeMacro(vtkMRMLRTImageNode,vtkMRMLNode);
+  vtkTypeMacro(vtkMRMLRTImageNode,vtkMRMLPlanarImageNode);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /// Create instance of a GAD node. 
@@ -121,15 +128,6 @@ public:
   vtkGetVector4Macro(ImageWindow, int);
   vtkSetVector4Macro(ImageWindow, int);
 
-  vtkGetMacro(RotateX, double);
-  vtkSetMacro(RotateX, double);
-
-  vtkGetMacro(RotateY, double);
-  vtkSetMacro(RotateY, double);
-
-  vtkGetMacro(RotateZ, double);
-  vtkSetMacro(RotateZ, double);
-
 protected:
   vtkMRMLRTImageNode();
   ~vtkMRMLRTImageNode();
@@ -150,9 +148,6 @@ protected:
   int ImageCenter[2]; // column, row (calculated from imager offset and image data)
   bool ImageWindowFlag; // use image window
   int ImageWindow[4]; // column1, column2, row1, row2 (y0, y1, x0, x1)
-  double RotateX; // not used
-  double RotateY; // not used
-  double RotateZ; // deg
   PlastimatchAlgorithmReconstuctionType AlgorithmReconstuction;
   PlastimatchHounsfieldUnitsConversionType HUConversion;
   PlastimatchThreadingType Threading;

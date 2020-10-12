@@ -24,8 +24,10 @@
 // Qt includes
 #include <QWidget>
 
-// FooBar Widgets includes
+// RtImage Widgets includes
 #include "qSlicerRtImageModuleWidgetsExport.h"
+
+#include <vtkMRMLRTImageNode.h>
 
 class qSlicerRtImagePlastimatchParametersWidgetPrivate;
 
@@ -39,7 +41,13 @@ public:
   qSlicerRtImagePlastimatchParametersWidget(QWidget *parent=0);
   virtual ~qSlicerRtImagePlastimatchParametersWidget();
 
+signals:
+  void signalAlgorithmChanged(vtkMRMLRTImageNode::PlastimatchAlgorithmReconstuctionType);
+  void signalConversionChanged(vtkMRMLRTImageNode::PlastimatchHounsfieldUnitsConversionType);
+  void signalThreadingChanged(vtkMRMLRTImageNode::PlastimatchThreadingType);
+
 protected slots:
+  void onParameterNodeChanged(vtkMRMLRTImageNode* node);
 
 protected:
   QScopedPointer<qSlicerRtImagePlastimatchParametersWidgetPrivate> d_ptr;

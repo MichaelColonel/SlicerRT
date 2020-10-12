@@ -52,7 +52,7 @@ class VTK_SLICER_RTIMAGE_MODULE_LOGIC_EXPORT vtkSlicerRtImageLogic :
   public vtkSlicerModuleLogic
 {
 public:
-  static const char* IMAGER_BOUNDARY_MARKUPS_NODE_NAME; // plane
+  static const char* IMAGER_BOUNDARY_MARKUPS_NODE_NAME; // curve
   static const char* IMAGE_WINDOW_MARKUPS_NODE_NAME; // curve
   static const char* FIDUCIALS_MARKUPS_NODE_NAME; // fiducial
   static const char* NORMAL_VECTOR_MARKUPS_NODE_NAME; // line
@@ -92,7 +92,7 @@ private:
 
   vtkMRMLMarkupsLineNode* CreateImagerNormal(vtkMRMLRTImageNode* node); // n
   vtkMRMLMarkupsLineNode* CreateImagerVUP(vtkMRMLRTImageNode* node); // vup
-  vtkMRMLMarkupsPlaneNode* CreateImagerBoundary(vtkMRMLRTImageNode* node); // Imager == Reciever == Detector
+  vtkMRMLMarkupsClosedCurveNode* CreateImagerBoundary(vtkMRMLRTImageNode* node); // Imager == Reciever == Detector
   vtkMRMLMarkupsClosedCurveNode* CreateImageWindow(vtkMRMLRTImageNode* node); // subwindow
   vtkMRMLMarkupsFiducialNode* CreateFiducials(vtkMRMLRTImageNode* node);
 

@@ -6,60 +6,49 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>497</width>
+    <width>498</width>
     <height>675</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>Form</string>
   </property>
-  <layout class="QGridLayout" name="gridLayout_4">
+  <layout class="QGridLayout" name="gridLayout_5">
    <item row="0" column="0">
     <layout class="QGridLayout" name="gridLayout">
-     <item row="2" column="1">
-      <widget class="qMRMLNodeComboBox" name="MRMLNodeComboBox_RtBeam"/>
-     </item>
-     <item row="2" column="0">
-      <widget class="QLabel" name="label">
+     <item row="1" column="0" colspan="2">
+      <widget class="ctkCollapsibleButton" name="CollapsibleButton_ReferenceInput">
        <property name="text">
-        <string>RT beam:</string>
+        <string>Reference input nodes</string>
        </property>
-      </widget>
-     </item>
-     <item row="1" column="1">
-      <widget class="qMRMLNodeComboBox" name="MRMLNodeComboBox_ReferenceVolume"/>
-     </item>
-     <item row="3" column="1">
-      <widget class="QCheckBox" name="CheckBox_ShowDrrMarkups">
-       <property name="text">
-        <string>Show DRR markups</string>
-       </property>
-       <property name="checked">
-        <bool>true</bool>
-       </property>
-      </widget>
-     </item>
-     <item row="1" column="0">
-      <widget class="QLabel" name="label_2">
-       <property name="text">
-        <string>Reference volume:</string>
-       </property>
+       <layout class="QGridLayout" name="gridLayout_4">
+        <item row="0" column="0">
+         <widget class="QLabel" name="label_2">
+          <property name="text">
+           <string>CT volume:</string>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="1">
+         <widget class="qMRMLNodeComboBox" name="MRMLNodeComboBox_CtVolume" native="true"/>
+        </item>
+        <item row="1" column="0">
+         <widget class="QLabel" name="label">
+          <property name="text">
+           <string>RT beam:</string>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="1">
+         <widget class="qMRMLNodeComboBox" name="MRMLNodeComboBox_RtBeam" native="true"/>
+        </item>
+       </layout>
       </widget>
      </item>
      <item row="5" column="0" colspan="2">
       <widget class="qSlicerRtImagePlastimatchParametersWidget" name="PlastimatchParametersWidget" native="true"/>
      </item>
-     <item row="6" column="0" colspan="2">
-      <widget class="QPushButton" name="PushButton_ComputeDrr">
-       <property name="enabled">
-        <bool>false</bool>
-       </property>
-       <property name="text">
-        <string>Compute DRR image</string>
-       </property>
-      </widget>
-     </item>
-     <item row="4" column="0" colspan="2">
+     <item row="3" column="0" colspan="2">
       <widget class="ctkCollapsibleButton" name="CollapsibleButton_GeometryBasicParameters">
        <property name="text">
         <string>Geometry basic parameters</string>
@@ -255,14 +244,48 @@
       </widget>
      </item>
      <item row="0" column="1">
-      <widget class="qMRMLNodeComboBox" name="MRMLNodeComboBox_RtImage"/>
+      <widget class="qMRMLNodeComboBox" name="MRMLNodeComboBox_ParameterSet" native="true"/>
+     </item>
+     <item row="2" column="1">
+      <widget class="QCheckBox" name="CheckBox_ShowDrrMarkups">
+       <property name="text">
+        <string>Show DRR markups</string>
+       </property>
+       <property name="checked">
+        <bool>true</bool>
+       </property>
+      </widget>
      </item>
      <item row="0" column="0">
       <widget class="QLabel" name="label_4">
        <property name="text">
-        <string>RT image:</string>
+        <string>Parameter set:</string>
        </property>
       </widget>
+     </item>
+     <item row="4" column="0" colspan="2">
+      <layout class="QHBoxLayout" name="horizontalLayout">
+       <item>
+        <widget class="QPushButton" name="PushButton_ComputeDrr">
+         <property name="enabled">
+          <bool>false</bool>
+         </property>
+         <property name="text">
+          <string>Compute DRR image</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QPushButton" name="PushButton_SaveDrr">
+         <property name="enabled">
+          <bool>false</bool>
+         </property>
+         <property name="text">
+          <string>Save DRR image to file...</string>
+         </property>
+        </widget>
+       </item>
+      </layout>
      </item>
     </layout>
    </item>
@@ -351,7 +374,7 @@
   <connection>
    <sender>qSlicerRtImageModuleWidget</sender>
    <signal>mrmlSceneChanged(vtkMRMLScene*)</signal>
-   <receiver>MRMLNodeComboBox_RtImage</receiver>
+   <receiver>MRMLNodeComboBox_ParameterSet</receiver>
    <slot>setMRMLScene(vtkMRMLScene*)</slot>
    <hints>
     <hint type="sourcelabel">
@@ -383,7 +406,7 @@
   <connection>
    <sender>qSlicerRtImageModuleWidget</sender>
    <signal>mrmlSceneChanged(vtkMRMLScene*)</signal>
-   <receiver>MRMLNodeComboBox_ReferenceVolume</receiver>
+   <receiver>MRMLNodeComboBox_CtVolume</receiver>
    <slot>setMRMLScene(vtkMRMLScene*)</slot>
    <hints>
     <hint type="sourcelabel">

@@ -72,11 +72,8 @@ vtkMRMLRTImageNode::vtkMRMLRTImageNode()
   AutoscaleRange[1] = 255.;
 
   IsocenterImagerDistance = 300.;
-  RotateX = 0.;
-  RotateY = 0.;
-  RotateZ = 0.;
 
-//  this->SetSingletonTag("RTImage");
+  this->SetSingletonTag("RTImage");
 }
 
 //----------------------------------------------------------------------------
@@ -106,9 +103,6 @@ void vtkMRMLRTImageNode::WriteXML(ostream& of, int nIndent)
   vtkMRMLWriteXMLIntMacro(AlgorithmReconstuction, AlgorithmReconstuction);
   vtkMRMLWriteXMLIntMacro(HUConversion, HUConversion);
   vtkMRMLWriteXMLIntMacro(Threading, Threading);
-  vtkMRMLWriteXMLFloatMacro(RotateX, RotateX);
-  vtkMRMLWriteXMLFloatMacro(RotateY, RotateY);
-  vtkMRMLWriteXMLFloatMacro(RotateZ, RotateZ);
   // add new parameters here
   vtkMRMLWriteXMLEndMacro(); 
 }
@@ -135,9 +129,6 @@ void vtkMRMLRTImageNode::ReadXMLAttributes(const char** atts)
   vtkMRMLReadXMLIntMacro(AlgorithmReconstuction, AlgorithmReconstuction);
   vtkMRMLReadXMLIntMacro(HUConversion, HUConversion);
   vtkMRMLReadXMLIntMacro(Threading, Threading);
-  vtkMRMLReadXMLFloatMacro(RotateX, RotateX);
-  vtkMRMLReadXMLFloatMacro(RotateY, RotateY);
-  vtkMRMLReadXMLFloatMacro(RotateZ, RotateZ);
   // add new parameters here
   vtkMRMLReadXMLEndMacro();
 
@@ -178,9 +169,6 @@ void vtkMRMLRTImageNode::Copy(vtkMRMLNode *anode)
   vtkMRMLCopyIntMacro(AlgorithmReconstuction);
   vtkMRMLCopyIntMacro(HUConversion);
   vtkMRMLCopyIntMacro(Threading);
-  vtkMRMLCopyFloatMacro(RotateX);
-  vtkMRMLCopyFloatMacro(RotateY);
-  vtkMRMLCopyFloatMacro(RotateZ);
   // add new parameters here
   vtkMRMLCopyEndMacro(); 
 
@@ -217,9 +205,6 @@ void vtkMRMLRTImageNode::CopyContent(vtkMRMLNode *anode, bool deepCopy/*=true*/)
   vtkMRMLCopyIntMacro(AlgorithmReconstuction);
   vtkMRMLCopyIntMacro(HUConversion);
   vtkMRMLCopyIntMacro(Threading);
-  vtkMRMLCopyFloatMacro(RotateX);
-  vtkMRMLCopyFloatMacro(RotateY);
-  vtkMRMLCopyFloatMacro(RotateZ);
   // add new parameters here
   vtkMRMLCopyEndMacro();
 }
@@ -245,9 +230,6 @@ void vtkMRMLRTImageNode::PrintSelf(ostream& os, vtkIndent indent)
   vtkMRMLPrintIntMacro(AlgorithmReconstuction);
   vtkMRMLPrintIntMacro(HUConversion);
   vtkMRMLPrintIntMacro(Threading);
-  vtkMRMLPrintFloatMacro(RotateX);
-  vtkMRMLPrintFloatMacro(RotateY);
-  vtkMRMLPrintFloatMacro(RotateZ);
   // add new parameters here
   vtkMRMLPrintEndMacro(); 
 }
