@@ -47,21 +47,18 @@ vtkMRMLRTImageNode::vtkMRMLRTImageNode()
 {
   ImagerCenterOffset[0] = 0.; // columns = x
   ImagerCenterOffset[1] = 0.; // rows = y
-  ImageDimention[0] = 1024; // columns = x
-  ImageDimention[1] = 768; // rows = y
+  ImagerResolution[0] = 1024; // columns = x
+  ImagerResolution[1] = 768; // rows = y
 
-  ImageSpacing[0] = 0.25; // 250 um (columns = x)
-  ImageSpacing[1] = 0.25; // 250 um (rows = y)
+  ImagerSpacing[0] = 0.25; // 250 um (columns = x)
+  ImagerSpacing[1] = 0.25; // 250 um (rows = y)
 
   // default image window is whole imager
   ImageWindowFlag = true;
-  ImageWindow[0] = 10; // c1 = x0 (start column) 
-  ImageWindow[1] = 20; // r1 = y0 (start row)
-  ImageWindow[2] = ImageDimention[0] - 100; // c2 = x1 (end column)
-  ImageWindow[3] = ImageDimention[1] - 200; // r2 = y1 (end row)
-
-  ImageCenter[0] = double(ImageWindow[2]) / 2.; // columns = x
-  ImageCenter[1] = double(ImageWindow[3]) / 2.; // rows = y
+  ImageWindow[0] = 0; // c1 = x0 (start column) 
+  ImageWindow[1] = 0; // r1 = y0 (start row)
+  ImageWindow[2] = ImagerResolution[0] - 1; // c2 = x1 (end column)
+  ImageWindow[3] = ImagerResolution[1] - 1; // r2 = y1 (end row)
 
   ImageCenter[0] = ImageWindow[0] + (ImageWindow[2] - ImageWindow[0]) / 2.f; // column
   ImageCenter[1] = ImageWindow[1] + (ImageWindow[3] - ImageWindow[1]) / 2.f; // row
@@ -95,8 +92,8 @@ void vtkMRMLRTImageNode::WriteXML(ostream& of, int nIndent)
   vtkMRMLWriteXMLVectorMacro(ViewUpVector, ViewUpVector, double, 4);
   vtkMRMLWriteXMLFloatMacro(IsocenterImagerDistance, IsocenterImagerDistance);
   vtkMRMLWriteXMLVectorMacro(ImagerCenterOffset, ImagerCenterOffset, double, 2);
-  vtkMRMLWriteXMLVectorMacro(ImageDimention, ImageDimention, int, 2);
-  vtkMRMLWriteXMLVectorMacro(ImageSpacing, ImageSpacing, double, 2);
+  vtkMRMLWriteXMLVectorMacro(ImagerResolution, ImagerResolution, int, 2);
+  vtkMRMLWriteXMLVectorMacro(ImagerSpacing, ImagerSpacing, double, 2);
   vtkMRMLWriteXMLVectorMacro(ImageCenter, ImageCenter, int, 2);
   vtkMRMLWriteXMLBooleanMacro(ImageWindowFlag, ImageWindowFlag);
   vtkMRMLWriteXMLVectorMacro(ImageWindow, ImageWindow, int, 4);
@@ -121,8 +118,8 @@ void vtkMRMLRTImageNode::ReadXMLAttributes(const char** atts)
   vtkMRMLReadXMLVectorMacro(ViewUpVector, ViewUpVector, double, 4);
   vtkMRMLReadXMLFloatMacro(IsocenterImagerDistance, IsocenterImagerDistance);
   vtkMRMLReadXMLVectorMacro(ImagerCenterOffset, ImagerCenterOffset, double, 2);
-  vtkMRMLReadXMLVectorMacro(ImageDimention, ImageDimention, int, 2);
-  vtkMRMLReadXMLVectorMacro(ImageSpacing, ImageSpacing, double, 2);
+  vtkMRMLReadXMLVectorMacro(ImagerResolution, ImagerResolution, int, 2);
+  vtkMRMLReadXMLVectorMacro(ImagerSpacing, ImagerSpacing, double, 2);
   vtkMRMLReadXMLVectorMacro(ImageCenter, ImageCenter, int, 2);
   vtkMRMLReadXMLBooleanMacro(ImageWindowFlag, ImageWindowFlag);
   vtkMRMLReadXMLVectorMacro(ImageWindow, ImageWindow, int, 4);
@@ -161,8 +158,8 @@ void vtkMRMLRTImageNode::Copy(vtkMRMLNode *anode)
   vtkMRMLCopyVectorMacro(ViewUpVector, double, 4);
   vtkMRMLCopyFloatMacro(IsocenterImagerDistance);
   vtkMRMLCopyVectorMacro(ImagerCenterOffset, double, 2);
-  vtkMRMLCopyVectorMacro(ImageDimention, int, 2);
-  vtkMRMLCopyVectorMacro(ImageSpacing, double, 2);
+  vtkMRMLCopyVectorMacro(ImagerResolution, int, 2);
+  vtkMRMLCopyVectorMacro(ImagerSpacing, double, 2);
   vtkMRMLCopyVectorMacro(ImageCenter, int, 2);
   vtkMRMLCopyBooleanMacro(ImageWindowFlag);
   vtkMRMLCopyVectorMacro(ImageWindow, int, 4);
@@ -197,8 +194,8 @@ void vtkMRMLRTImageNode::CopyContent(vtkMRMLNode *anode, bool deepCopy/*=true*/)
   vtkMRMLCopyVectorMacro(ViewUpVector, double, 4);
   vtkMRMLCopyFloatMacro(IsocenterImagerDistance);
   vtkMRMLCopyVectorMacro(ImagerCenterOffset, double, 2);
-  vtkMRMLCopyVectorMacro(ImageDimention, int, 2);
-  vtkMRMLCopyVectorMacro(ImageSpacing, double, 2);
+  vtkMRMLCopyVectorMacro(ImagerResolution, int, 2);
+  vtkMRMLCopyVectorMacro(ImagerSpacing, double, 2);
   vtkMRMLCopyVectorMacro(ImageCenter, int, 2);
   vtkMRMLCopyBooleanMacro(ImageWindowFlag);
   vtkMRMLCopyVectorMacro(ImageWindow, int, 4);
@@ -222,8 +219,8 @@ void vtkMRMLRTImageNode::PrintSelf(ostream& os, vtkIndent indent)
   vtkMRMLPrintVectorMacro(ViewUpVector, double, 4);
   vtkMRMLPrintFloatMacro(IsocenterImagerDistance);
   vtkMRMLPrintVectorMacro(ImagerCenterOffset, double, 2);
-  vtkMRMLPrintVectorMacro(ImageDimention, int, 2);
-  vtkMRMLPrintVectorMacro(ImageSpacing, double, 2);
+  vtkMRMLPrintVectorMacro(ImagerResolution, int, 2);
+  vtkMRMLPrintVectorMacro(ImagerSpacing, double, 2);
   vtkMRMLPrintVectorMacro(ImageCenter, int, 2);
   vtkMRMLPrintBooleanMacro(ImageWindowFlag);
   vtkMRMLPrintVectorMacro(ImageWindow, int, 4);
@@ -258,11 +255,11 @@ void vtkMRMLRTImageNode::SetAndObserveBeamNode(vtkMRMLRTBeamNode* node)
 //----------------------------------------------------------------------------
 void vtkMRMLRTImageNode::GetRTImagePosition(double position[2])
 {
-  double offsetX = double(ImageWindow[0]) * ImageSpacing[0];
-  double offsetY = double(ImageWindow[1]) * ImageSpacing[1];
+  double offsetX = double(ImageWindow[0]) * ImagerSpacing[0];
+  double offsetY = double(ImageWindow[1]) * ImagerSpacing[1];
 
-  position[0] = offsetX - ImageSpacing[0] * ImageDimention[0] / 2.; // columns (X)
-  position[1] = offsetY - ImageSpacing[1] * ImageDimention[1] / 2.; // rows (Y)
+  position[0] = offsetX - ImagerSpacing[0] * ImagerResolution[0] / 2.; // columns (X)
+  position[1] = offsetY - ImagerSpacing[1] * ImagerResolution[1] / 2.; // rows (Y)
 }
 
 //----------------------------------------------------------------------------

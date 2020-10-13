@@ -134,20 +134,7 @@ void vtkSlicerRtImageLogic::OnMRMLSceneNodeAdded(vtkMRMLNode* node)
     return;
   }
 
-  if (node->IsA("vtkMRMLRTBeamNode"))
-  {
-    // Observe beam events
-    vtkNew<vtkIntArray> events;
-    events->InsertNextValue(vtkMRMLRTBeamNode::BeamTransformModified);
-    vtkObserveMRMLNodeEventsMacro(node, events);
-  }
-  else if (node->IsA("vtkMRMLRTPlanNode"))
-  {
-    vtkNew<vtkIntArray> events;
-    events->InsertNextValue(vtkMRMLRTPlanNode::IsocenterModifiedEvent);
-    vtkObserveMRMLNodeEventsMacro(node, events);
-  }
-  else if (node->IsA("vtkMRMLRTImageNode"))
+  if (node->IsA("vtkMRMLRTImageNode"))
   {
     vtkNew<vtkIntArray> events;
     events->InsertNextValue(vtkCommand::ModifiedEvent);
@@ -176,78 +163,13 @@ void vtkSlicerRtImageLogic::ProcessMRMLNodesEvents(vtkObject* caller, unsigned l
     return;
   }
 
-  if (caller->IsA("vtkMRMLRTBeamNode"))
-  {
-    vtkMRMLRTBeamNode* beamNode = vtkMRMLRTBeamNode::SafeDownCast(caller);
-    if (beamNode && event == vtkMRMLRTBeamNode::BeamTransformModified)
-    {
-      // Make sure transform node exists
-//      beamNode->CreateDefaultTransformNode();
-      // Calculate transform from beam parameters and isocenter from plan
-//      this->UpdateTransformForBeam(beamNode);
-    }
-  }
-  else if (caller->IsA("vtkMRMLRTPlanNode"))
-  {
-    vtkMRMLRTPlanNode* planNode = vtkMRMLRTPlanNode::SafeDownCast(caller);
-
-    if (event == vtkMRMLRTPlanNode::IsocenterModifiedEvent)
-    {
-      // Get added beam node
-      char* beamNodeID = reinterpret_cast<char*>(callData);
-      if (!beamNodeID)
-      {
-        vtkErrorMacro("ProcessMRMLNodesEvents: No beam node ID for beam added event in plan " << planNode->GetName());
-        return;
-      }
-      vtkMRMLRTBeamNode* beamNode = vtkMRMLRTBeamNode::SafeDownCast(mrmlScene->GetNodeByID(beamNodeID));
-      if (!beamNode)
-      {
-        vtkErrorMacro("ProcessMRMLNodesEvents: Failed to get added beam node by ID " << beamNodeID);
-        return;
-      }
-
-      // Make sure transform node exists
-//      beamNode->CreateDefaultTransformNode();
-      // Calculate transform from beam parameters and isocenter from plan
-//      this->UpdateTransformForBeam(beamNode);
-
-      // Make sure display is set up
-//      beamNode->UpdateGeometry();
-//
-    }
-  }
-  else if (caller->IsA("vtkMRMLRTImageNode"))
+  if (caller->IsA("vtkMRMLRTImageNode"))
   {
     vtkMRMLRTImageNode* parameterNode = vtkMRMLRTImageNode::SafeDownCast(caller);
 
     if (parameterNode && event == vtkCommand::ModifiedEvent)
     {
-//      vtkWarningMacro("ProcessMRMLNodesEvents: RT Image node modified");
       this->UpdateMarkupsNodes(parameterNode);
-/*
-      // Get added beam node
-      char* beamNodeID = reinterpret_cast<char*>(callData);
-      if (!beamNodeID)
-      {
-        vtkErrorMacro("ProcessMRMLNodesEvents: No beam node ID for beam added event in plan " << planNode->GetName());
-        return;
-      }
-      vtkMRMLRTBeamNode* beamNode = vtkMRMLRTBeamNode::SafeDownCast(mrmlScene->GetNodeByID(beamNodeID));
-      if (!beamNode)
-      {
-        vtkErrorMacro("ProcessMRMLNodesEvents: Failed to get added beam node by ID " << beamNodeID);
-        return;
-      }
-*/
-      // Make sure transform node exists
-//      beamNode->CreateDefaultTransformNode();
-      // Calculate transform from beam parameters and isocenter from plan
-//      this->UpdateTransformForBeam(beamNode);
-
-      // Make sure display is set up
-//      beamNode->UpdateGeometry();
-//
     }
   }
 }
@@ -373,7 +295,7 @@ void vtkSlicerRtImageLogic::UpdateMarkupsNodes(vtkMRMLRTImageNode* rtImageNode)
   }
   if (!rtImageNode)
   {
-    vtkErrorMacro("UpdateMarkupsNodes: Invalid RTImage node");
+    vtkErrorMacro("UpdateMarkupsNodes: Invalid RT Image node");
     return;
   }
 
@@ -394,10 +316,10 @@ void vtkSlicerRtImageLogic::UpdateMarkupsNodes(vtkMRMLRTImageNode* rtImageNode)
   double distance = rtImageNode->GetIsocenterImagerDistance();
     
   double spacing[2] = {};
-  rtImageNode->GetImageSpacing(spacing);
+  rtImageNode->GetImagerSpacing(spacing);
 
-  int dimention[2] = {};
-  rtImageNode->GetImageDimention(dimention);
+  int resolution[2] = {};
+  rtImageNode->GetImagerResolution(resolution);
 
   double offset[2] = {};
   rtImageNode->GetImagerCenterOffset(offset);
@@ -405,8 +327,8 @@ void vtkSlicerRtImageLogic::UpdateMarkupsNodes(vtkMRMLRTImageNode* rtImageNode)
   int imageWindow[4] = {};
   rtImageNode->GetImageWindow(imageWindow);
 
-  double imagerHalfWidth = spacing[0] * dimention[0] / 2.; // columns
-  double imagerHalfHeight = spacing[1] * dimention[1] / 2.; // rows
+  double imagerHalfWidth = spacing[0] * resolution[0] / 2.; // columns
+  double imagerHalfHeight = spacing[1] * resolution[1] / 2.; // rows
   double& x = imagerHalfWidth;
   double& y = imagerHalfHeight;
 
@@ -691,16 +613,16 @@ vtkMRMLMarkupsClosedCurveNode* vtkSlicerRtImageLogic::CreateImagerBoundary(vtkMR
     double distance = rtImageNode->GetIsocenterImagerDistance();
      
     double spacing[2] = {};
-    rtImageNode->GetImageSpacing(spacing);
+    rtImageNode->GetImagerSpacing(spacing);
 
-    int dimention[2] = {};
-    rtImageNode->GetImageDimention(dimention);
+    int resolution[2] = {};
+    rtImageNode->GetImagerResolution(resolution);
 
     double offset[2] = {};
     rtImageNode->GetImagerCenterOffset(offset);
 
-    double imagerHalfWidth = spacing[0] * dimention[0] / 2.; // columns
-    double imagerHalfHeight = spacing[1] * dimention[1] / 2.; // rows
+    double imagerHalfWidth = spacing[0] * resolution[0] / 2.; // columns
+    double imagerHalfHeight = spacing[1] * resolution[1] / 2.; // rows
 
     double& x = imagerHalfWidth;
     double& y = imagerHalfHeight;
@@ -744,10 +666,10 @@ vtkMRMLMarkupsClosedCurveNode* vtkSlicerRtImageLogic::CreateImageWindow(vtkMRMLR
     double distance = rtImageNode->GetIsocenterImagerDistance();
      
     double spacing[2] = {};
-    rtImageNode->GetImageSpacing(spacing);
+    rtImageNode->GetImagerSpacing(spacing);
 
-    int dimention[2] = {};
-    rtImageNode->GetImageDimention(dimention);
+    int resolution[2] = {};
+    rtImageNode->GetImagerResolution(resolution);
 
     double offset[2] = {};
     rtImageNode->GetImagerCenterOffset(offset);
@@ -755,8 +677,8 @@ vtkMRMLMarkupsClosedCurveNode* vtkSlicerRtImageLogic::CreateImageWindow(vtkMRMLR
     int imageWindow[4] = {};
     rtImageNode->GetImageWindow(imageWindow);
 
-    double imagerHalfWidth = spacing[0] * dimention[0] / 2.; // columns
-    double imagerHalfHeight = spacing[1] * dimention[1] / 2.; // rows
+    double imagerHalfWidth = spacing[0] * resolution[0] / 2.; // columns
+    double imagerHalfHeight = spacing[1] * resolution[1] / 2.; // rows
 
     double& x = imagerHalfWidth;
     double& y = imagerHalfHeight;
@@ -840,15 +762,15 @@ vtkMRMLMarkupsLineNode* vtkSlicerRtImageLogic::CreateImagerVUP(vtkMRMLRTImageNod
     double distance = rtImageNode->GetIsocenterImagerDistance();
      
     double spacing[2] = {};
-    rtImageNode->GetImageSpacing(spacing);
+    rtImageNode->GetImagerSpacing(spacing);
 
-    int dimention[2] = {};
-    rtImageNode->GetImageDimention(dimention);
+    int resolution[2] = {};
+    rtImageNode->GetImagerResolution(resolution);
 
     double offset[2] = {};
     rtImageNode->GetImagerCenterOffset(offset);
 
-    double imagerHalfHeight = spacing[1] * dimention[1] / 2.; // rows
+    double imagerHalfHeight = spacing[1] * resolution[1] / 2.; // rows
     double& y = imagerHalfHeight;
 
     // add points
@@ -885,16 +807,16 @@ vtkMRMLMarkupsFiducialNode* vtkSlicerRtImageLogic::CreateFiducials(vtkMRMLRTImag
     double distance = rtImageNode->GetIsocenterImagerDistance();
      
     double spacing[2] = {};
-    rtImageNode->GetImageSpacing(spacing);
+    rtImageNode->GetImagerSpacing(spacing);
 
-    int dimention[2] = {};
-    rtImageNode->GetImageDimention(dimention);
+    int resolution[2] = {};
+    rtImageNode->GetImagerResolution(resolution);
 
     double offset[2] = {};
     rtImageNode->GetImagerCenterOffset(offset);
 
-    double imagerHalfWidth = spacing[0] * dimention[0] / 2.; // columns
-    double imagerHalfHeight = spacing[1] * dimention[1] / 2.; // rows
+    double imagerHalfWidth = spacing[0] * resolution[0] / 2.; // columns
+    double imagerHalfHeight = spacing[1] * resolution[1] / 2.; // rows
 
     double& x = imagerHalfWidth;
     double& y = imagerHalfHeight;

@@ -113,11 +113,11 @@ public:
   vtkGetVector2Macro(ImagerCenterOffset, double);
   vtkSetVector2Macro(ImagerCenterOffset, double);
 
-  vtkGetVector2Macro(ImageDimention, int);
-  vtkSetVector2Macro(ImageDimention, int);
+  vtkGetVector2Macro(ImagerResolution, int);
+  vtkSetVector2Macro(ImagerResolution, int);
 
-  vtkGetVector2Macro(ImageSpacing, double);
-  vtkSetVector2Macro(ImageSpacing, double);
+  vtkGetVector2Macro(ImagerSpacing, double);
+  vtkSetVector2Macro(ImagerSpacing, double);
 
   vtkGetVector2Macro(ImageCenter, int);
   vtkSetVector2Macro(ImageCenter, int);
@@ -143,8 +143,8 @@ protected:
   double ViewUpVector[4];
   double IsocenterImagerDistance; // fabs(SID - SAD)
   double ImagerCenterOffset[2]; // x,y
-  int ImageDimention[2]; // columns, rows
-  double ImageSpacing[2]; // columns, rows
+  int ImagerResolution[2]; // columns, rows
+  double ImagerSpacing[2]; // columns, rows
   int ImageCenter[2]; // column, row (calculated from imager offset and image data)
   bool ImageWindowFlag; // use image window
   int ImageWindow[4]; // column1, row1, column2, row2 (y0, x0, y1, x1)

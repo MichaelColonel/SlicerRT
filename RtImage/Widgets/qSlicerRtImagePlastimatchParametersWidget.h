@@ -24,11 +24,15 @@
 // Qt includes
 #include <QWidget>
 
+// CTK includes
+#include <ctkPimpl.h>
+#include <ctkVTKObject.h>
+
 // RtImage Widgets includes
 #include "qSlicerRtImageModuleWidgetsExport.h"
 
-#include <vtkMRMLRTImageNode.h>
-
+class vtkMRMLNode;
+class vtkMRMLRTImageNode;
 class qSlicerRtImagePlastimatchParametersWidgetPrivate;
 
 /// \ingroup Slicer_QtModules_RtImage
@@ -36,18 +40,31 @@ class Q_SLICER_MODULE_RTIMAGE_WIDGETS_EXPORT qSlicerRtImagePlastimatchParameters
   : public QWidget
 {
   Q_OBJECT
+  QVTK_OBJECT
+
 public:
   typedef QWidget Superclass;
   qSlicerRtImagePlastimatchParametersWidget(QWidget *parent=0);
   virtual ~qSlicerRtImagePlastimatchParametersWidget();
 
-signals:
-  void signalAlgorithmChanged(vtkMRMLRTImageNode::PlastimatchAlgorithmReconstuctionType);
-  void signalConversionChanged(vtkMRMLRTImageNode::PlastimatchHounsfieldUnitsConversionType);
-  void signalThreadingChanged(vtkMRMLRTImageNode::PlastimatchThreadingType);
+public slots:
+  /// Set RT Image MRML node (Parameter node)
+  void setRtImageNode(vtkMRMLNode* node);
+  /// Update widget GUI from RT Image parameters node
+  void updateWidgetFromMRML();
 
 protected slots:
-  void onParameterNodeChanged(vtkMRMLRTImageNode* node);
+  /// Exponential mapping flag
+  void onUseExponentialMappingToggled(bool);
+  /// Autoscale flag
+  void onAutoscalePixelsRangeToggled(bool);
+  /// Type of reconstruct algorithm
+  void onReconstructionAlgorithmChanged(int);
+  /// Type of computation threading
+  void onThreadingChanged(int);
+  /// Type Hounsfield Units conversion
+  void onHUConversionChanged(int);
+  void onAutoscaleIntensityRangeChanged(double, double);
 
 protected:
   QScopedPointer<qSlicerRtImagePlastimatchParametersWidgetPrivate> d_ptr;

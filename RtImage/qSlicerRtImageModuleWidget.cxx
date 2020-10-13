@@ -190,9 +190,12 @@ void qSlicerRtImageModuleWidget::setParameterNode(vtkMRMLNode *node)
 
   // Make sure the parameter set node is selected (in case the function was not called by the selector combobox signal)
   d->MRMLNodeComboBox_ParameterSet->setCurrentNode(d->ParameterNode);
+  // Set parameter node to children widgets (PlastimatchParameters)
+  d->PlastimatchParametersWidget->setRtImageNode(node);
 
   // Each time the node is modified, the UI widgets are updated
   qvtkReconnect( d->ParameterNode, vtkCommand::ModifiedEvent, this, SLOT(updateWidgetFromMRML()));
+  qvtkReconnect( d->ParameterNode, vtkCommand::ModifiedEvent, d->PlastimatchParametersWidget, SLOT(updateWidgetFromMRML()));
   
   // Set selected MRML nodes in comboboxes in the parameter set if it was nullptr there
   // (then in the meantime the comboboxes selected the first one from the scene and we have to set that)
@@ -244,18 +247,18 @@ void qSlicerRtImageModuleWidget::updateWidgetFromMRML()
   d->MRMLNodeComboBox_RtBeam->setCurrentNode(d->ParameterNode->GetBeamNode());
   d->SliderWidget_IsocenterImagerDistance->setValue(d->ParameterNode->GetIsocenterImagerDistance());
 
-  int imageDimInteger[2] = {};
-  double imageDim[2] = {};
-  d->ParameterNode->GetImageDimention(imageDimInteger); // imager Resolution
-  imageDim[0] = static_cast<double>(imageDimInteger[0]);
-  imageDim[1] = static_cast<double>(imageDimInteger[1]);
-  d->CoordinatesWidget_ImagerResolution->setCoordinates(imageDim);
-  d->CoordinatesWidget_ImagerSpacing->setCoordinates(d->ParameterNode->GetImageSpacing());
+  int imagerResolution[2] = {};
+  double imagerRes[2] = {};
+  d->ParameterNode->GetImagerResolution(imagerResolution);
+  imagerRes[0] = static_cast<double>(imagerResolution[0]);
+  imagerRes[1] = static_cast<double>(imagerResolution[1]);
+  d->CoordinatesWidget_ImagerResolution->setCoordinates(imagerRes);
+  d->CoordinatesWidget_ImagerSpacing->setCoordinates(d->ParameterNode->GetImagerSpacing());
 
   d->RangeWidget_ImageWindowColumns->setMinimum(0.);
-  d->RangeWidget_ImageWindowColumns->setMaximum(double(imageDimInteger[0] - 1));
+  d->RangeWidget_ImageWindowColumns->setMaximum(double(imagerResolution[0] - 1));
   d->RangeWidget_ImageWindowRows->setMinimum(0.);
-  d->RangeWidget_ImageWindowRows->setMaximum(double(imageDimInteger[1] - 1));
+  d->RangeWidget_ImageWindowRows->setMaximum(double(imagerResolution[1] - 1));
 
   bool useImageWindow = d->ParameterNode->GetImageWindowFlag();
   int imageWindow[4] = {};
@@ -264,13 +267,17 @@ void qSlicerRtImageModuleWidget::updateWidgetFromMRML()
   d->CheckBox_UseImageWindow->setChecked(useImageWindow);
   if (!useImageWindow)
   {
-    d->RangeWidget_ImageWindowColumns->setValues( 0., double(imageDimInteger[0] - 1));
-    d->RangeWidget_ImageWindowRows->setValues( 0., double(imageDimInteger[1] - 1));
+//    d->RangeWidget_ImageWindowColumns->setValues( 0., double(imagerResolution[0] - 1));
+//    d->RangeWidget_ImageWindowRows->setValues( 0., double(imagerResolution[1] - 1));
   }
   else
   {
-    d->RangeWidget_ImageWindowColumns->setValues( double(imageWindow[0]), double(imageWindow[2]));
-    d->RangeWidget_ImageWindowRows->setValues( double(imageWindow[1]), double(imageWindow[3]));
+    d->RangeWidget_ImageWindowColumns->setValues( 
+      static_cast<double>(std::max<int>( 0, imageWindow[0])),
+      static_cast<double>(std::min<int>( imagerResolution[0] - 1, imageWindow[2])));
+    d->RangeWidget_ImageWindowRows->setValues( 
+      static_cast<double>(std::max<int>( 0, imageWindow[1])), 
+      static_cast<double>(std::min<int>( imagerResolution[1] - 1, imageWindow[3])));
   }
 
 /*
@@ -499,7 +506,7 @@ void qSlicerRtImageModuleWidget::onImagerSpacingChanged(double* spacing)
   }
 
   double s[2] = { spacing[0], spacing[1] }; // columns, rows
-  d->ParameterNode->SetImageSpacing(s);
+  d->ParameterNode->SetImagerSpacing(s);
   d->ParameterNode->Modified(); // Update imager and image markups, DRR arguments
 }
 
@@ -514,7 +521,7 @@ void qSlicerRtImageModuleWidget::onShowMarkupsToggled(bool toggled)
 
 /// @brief Setup imager resolution (dimention)
 /// @param dimention: dimention[0] = columns, dimention[1] = rows
-void qSlicerRtImageModuleWidget::onImagerResolutionChanged(double* dimention)
+void qSlicerRtImageModuleWidget::onImagerResolutionChanged(double* res)
 {
   Q_D(qSlicerRtImageModuleWidget);
 
@@ -524,9 +531,9 @@ void qSlicerRtImageModuleWidget::onImagerResolutionChanged(double* dimention)
     return;
   }
 
-  int dim[2] = { static_cast<int>(dimention[0]), static_cast<int>(dimention[1]) }; // x, y
+  int imagerResolution[2] = { static_cast<int>(res[0]), static_cast<int>(res[1]) }; // x, y
 
-  d->ParameterNode->SetImageDimention(dim);
+  d->ParameterNode->SetImagerResolution(imagerResolution);
   d->ParameterNode->Modified(); // Update imager and image markups, DRR arguments
 }
 
@@ -583,9 +590,12 @@ void qSlicerRtImageModuleWidget::onUseImageWindowToggled(bool value)
     return;
   }
 
-  int imageWindow[4];
   if (value)
   {
+    int imagerResolution[2] = {};
+    int imageWindow[4] = {};
+    d->ParameterNode->GetImagerResolution(imagerResolution);
+
     double columns[2], rows[2];
     d->RangeWidget_ImageWindowColumns->values( columns[0], columns[1]);
     d->RangeWidget_ImageWindowRows->values( rows[0], rows[1]);
@@ -594,17 +604,18 @@ void qSlicerRtImageModuleWidget::onUseImageWindowToggled(bool value)
     imageWindow[1] = static_cast<int>(rows[0]); // r1 = y1
     imageWindow[2] = static_cast<int>(columns[1]); // c2 = x2
     imageWindow[3] = static_cast<int>(rows[1]); // r2 = y2
+
+    d->ParameterNode->SetImageWindow(imageWindow);
   }
   else
   {
-    const double* window = d->CoordinatesWidget_ImagerResolution->coordinates();
-    imageWindow[0] = 0; // c1 = x1
-    imageWindow[1] = 0; // r1 = y1
-    imageWindow[2] = static_cast<int>(window[0] - 1.); // c2 = x2
-    imageWindow[3] = static_cast<int>(window[1] - 1.); // r2 = y2
+//    const double* window = d->CoordinatesWidget_ImagerResolution->coordinates();
+//    imageWindow[0] = 0; // c1 = x1
+//    imageWindow[1] = 0; // r1 = y1
+//    imageWindow[2] = static_cast<int>(window[0] - 1.); // c2 = x2
+//    imageWindow[3] = static_cast<int>(window[1] - 1.); // r2 = y2
   }
 
   d->ParameterNode->SetImageWindowFlag(value);
-  d->ParameterNode->SetImageWindow(imageWindow);
   d->ParameterNode->Modified(); // Update imager and image markups, DRR arguments
 }
