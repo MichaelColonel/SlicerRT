@@ -60,7 +60,11 @@ public:
 //-----------------------------------------------------------------------------
 qSlicerRtImageModuleWidgetPrivate::qSlicerRtImageModuleWidgetPrivate(qSlicerRtImageModuleWidget &object)
   :
-  q_ptr(&object)
+  q_ptr(&object),
+  ParameterNode(nullptr),
+  RtBeamNode(nullptr),
+  CtVolumeNode(nullptr),
+  ModuleWindowInitialized(false)
 {
 }
 
@@ -235,7 +239,7 @@ void qSlicerRtImageModuleWidget::updateWidgetFromMRML()
     qCritical() << Q_FUNC_INFO << ": Invalid referenced volume node";
     return;
   }
-/*
+
   // Update widgets info from parameter node and update plastimatch drr command
   d->MRMLNodeComboBox_RtBeam->setCurrentNode(d->ParameterNode->GetBeamNode());
   d->SliderWidget_IsocenterImagerDistance->setValue(d->ParameterNode->GetIsocenterImagerDistance());
@@ -248,25 +252,27 @@ void qSlicerRtImageModuleWidget::updateWidgetFromMRML()
   d->CoordinatesWidget_ImagerResolution->setCoordinates(imageDim);
   d->CoordinatesWidget_ImagerSpacing->setCoordinates(d->ParameterNode->GetImageSpacing());
 
-  d->RangeWidget_ImageWindowColumns->setMinimum(0);
-  d->RangeWidget_ImageWindowColumns->setMaximum(imageDimInteger[0] - 1);
-  d->RangeWidget_ImageWindowRows->setMinimum(0);
-  d->RangeWidget_ImageWindowRows->setMaximum(imageDimInteger[1] - 1);
+  d->RangeWidget_ImageWindowColumns->setMinimum(0.);
+  d->RangeWidget_ImageWindowColumns->setMaximum(double(imageDimInteger[0] - 1));
+  d->RangeWidget_ImageWindowRows->setMinimum(0.);
+  d->RangeWidget_ImageWindowRows->setMaximum(double(imageDimInteger[1] - 1));
 
+  bool useImageWindow = d->ParameterNode->GetImageWindowFlag();
   int imageWindow[4] = {};
   d->ParameterNode->GetImageWindow(imageWindow);
-  d->RangeWidget_ImageWindowColumns->setRange( double(imageWindow[0]), double(imageWindow[2]));
-  d->RangeWidget_ImageWindowRows->setRange( double(imageWindow[1]), double(imageWindow[3]));
-*/
-//  d->RangeWidget_ImageWindowColumns->setValues( double(imageWindow[0]), double(imageWindow[2]));
-//  d->RangeWidget_ImageWindowRows->setValues( double(imageWindow[1]), double(imageWindow[3]));
-//  imageWindow[0] = static_cast<double>(imageWindowInteger[0]);
-//  imageWindow[1] = static_cast<double>(imageWindowInteger[1]);
-//  imageWindow[2] = static_cast<double>(imageWindowInteger[2]);
-//  imageWindow[3] = static_cast<double>(imageWindowInteger[3]);
-//  d->CoordinatesWidget_ImageWindow->setCoordinates(imageWindow);
 
-//  d->CheckBox_UseImageWindow->setChecked(d->ParameterNode->GetImageWindowFlag());
+  d->CheckBox_UseImageWindow->setChecked(useImageWindow);
+  if (!useImageWindow)
+  {
+    d->RangeWidget_ImageWindowColumns->setValues( 0., double(imageDimInteger[0] - 1));
+    d->RangeWidget_ImageWindowRows->setValues( 0., double(imageDimInteger[1] - 1));
+  }
+  else
+  {
+    d->RangeWidget_ImageWindowColumns->setValues( double(imageWindow[0]), double(imageWindow[2]));
+    d->RangeWidget_ImageWindowRows->setValues( double(imageWindow[1]), double(imageWindow[3]));
+  }
+
 /*
   d->CheckBox_UseExponentialMapping->setChecked(d->ParameterNode->GetExponentialMappingFlag());
   d->CheckBox_AutoscalePixelsRange->setChecked(d->ParameterNode->GetAutoscaleFlag());
@@ -362,9 +368,6 @@ void qSlicerRtImageModuleWidget::onRTBeamNodeChanged(vtkMRMLNode* node)
   d->ParameterNode->SetAndObserveBeamNode(beamNode);
   d->ParameterNode->DisableModifiedEventOff();
   d->ParameterNode->Modified(); // Update imager and image markups, DRR arguments
-
-  // Update GUI
-//  this->updateWidgetFromMRML();
 }
 
 //-----------------------------------------------------------------------------
@@ -393,7 +396,6 @@ void qSlicerRtImageModuleWidget::onCtVolumeNodeChanged(vtkMRMLNode* node)
   }
 
   d->CtVolumeNode = volumeNode;
-//  this->updateWidgetFromMRML();
 }
 
 //-----------------------------------------------------------------------------
@@ -483,9 +485,6 @@ void qSlicerRtImageModuleWidget::onIsocenterImagerDistanceValueChanged(double va
 
   d->ParameterNode->SetIsocenterImagerDistance(value);
   d->ParameterNode->Modified(); // Update imager and image markups, DRR arguments
-
-  // Update GUI
-//  this->updateWidgetFromMRML();
 }
 
 //-----------------------------------------------------------------------------
@@ -502,9 +501,6 @@ void qSlicerRtImageModuleWidget::onImagerSpacingChanged(double* spacing)
   double s[2] = { spacing[0], spacing[1] }; // columns, rows
   d->ParameterNode->SetImageSpacing(s);
   d->ParameterNode->Modified(); // Update imager and image markups, DRR arguments
-
-  // Update GUI
-//  this->updateWidgetFromMRML();
 }
 
 //-----------------------------------------------------------------------------
@@ -532,8 +528,6 @@ void qSlicerRtImageModuleWidget::onImagerResolutionChanged(double* dimention)
 
   d->ParameterNode->SetImageDimention(dim);
   d->ParameterNode->Modified(); // Update imager and image markups, DRR arguments
-  // Update GUI
-//  this->updateWidgetFromMRML();
 }
 
 //-----------------------------------------------------------------------------
@@ -555,9 +549,6 @@ void qSlicerRtImageModuleWidget::onImageWindowColumnsValuesChanged(double start_
 
   d->ParameterNode->SetImageWindow(imageWindow);
   d->ParameterNode->Modified(); // Update imager and image markups, DRR arguments
-
-  // Update GUI
-//  this->updateWidgetFromMRML();
 }
 
 //-----------------------------------------------------------------------------
@@ -579,9 +570,6 @@ void qSlicerRtImageModuleWidget::onImageWindowRowsValuesChanged( double start_ro
 
   d->ParameterNode->SetImageWindow(imageWindow);
   d->ParameterNode->Modified(); // Update imager and image markups, DRR arguments
-
-  // Update GUI
-//  this->updateWidgetFromMRML();
 }
 
 //-----------------------------------------------------------------------------
@@ -610,16 +598,13 @@ void qSlicerRtImageModuleWidget::onUseImageWindowToggled(bool value)
   else
   {
     const double* window = d->CoordinatesWidget_ImagerResolution->coordinates();
-    imageWindow[0] = 0;
-    imageWindow[1] = static_cast<int>(window[0]); // column = x
-    imageWindow[2] = 0;
-    imageWindow[3] = static_cast<int>(window[1]); // row = y
+    imageWindow[0] = 0; // c1 = x1
+    imageWindow[1] = 0; // r1 = y1
+    imageWindow[2] = static_cast<int>(window[0] - 1.); // c2 = x2
+    imageWindow[3] = static_cast<int>(window[1] - 1.); // r2 = y2
   }
 
   d->ParameterNode->SetImageWindowFlag(value);
   d->ParameterNode->SetImageWindow(imageWindow);
   d->ParameterNode->Modified(); // Update imager and image markups, DRR arguments
-
-  // Update GUI
-//  this->updateWidgetFromMRML();
 }

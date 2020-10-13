@@ -391,31 +391,36 @@ void vtkSlicerRtImageLogic::UpdateMarkupsNodes(vtkMRMLRTImageNode* rtImageNode)
     return;
   }
 
+  double distance = rtImageNode->GetIsocenterImagerDistance();
+    
+  double spacing[2] = {};
+  rtImageNode->GetImageSpacing(spacing);
+
+  int dimention[2] = {};
+  rtImageNode->GetImageDimention(dimention);
+
+  double offset[2] = {};
+  rtImageNode->GetImagerCenterOffset(offset);
+
+  int imageWindow[4] = {};
+  rtImageNode->GetImageWindow(imageWindow);
+
+  double imagerHalfWidth = spacing[0] * dimention[0] / 2.; // columns
+  double imagerHalfHeight = spacing[1] * dimention[1] / 2.; // rows
+  double& x = imagerHalfWidth;
+  double& y = imagerHalfHeight;
+
   // Imager boundary markups node
   if (scene->GetFirstNodeByName(IMAGER_BOUNDARY_MARKUPS_NODE_NAME))
   {
     vtkMRMLMarkupsClosedCurveNode* imagerMarkupsNode = vtkMRMLMarkupsClosedCurveNode::SafeDownCast(
       scene->GetFirstNodeByName(IMAGER_BOUNDARY_MARKUPS_NODE_NAME));
 
-    double distance = rtImageNode->GetIsocenterImagerDistance();
-    
-    double spacing[2] = {};
-    rtImageNode->GetImageSpacing(spacing);
-
-    int dimention[2] = {};
-    rtImageNode->GetImageDimention(dimention);
-
-    double offset[2] = {};
-    rtImageNode->GetImagerCenterOffset(offset);
-
-    double imagerHalfWidth = spacing[0] * dimention[0] / 2.; // columns
-    double imagerHalfHeight = spacing[1] * dimention[1] / 2.; // rows
-
-    // update points
-    vtkVector3d imagerP0( -1. * imagerHalfWidth + offset[0], imagerHalfHeight + offset[1], -distance);
-    vtkVector3d imagerP1( imagerHalfWidth + offset[0], imagerHalfHeight + offset[1], -distance);
-    vtkVector3d imagerP2( imagerHalfWidth + offset[0], -1. * imagerHalfHeight + offset[1], -distance);
-    vtkVector3d imagerP3( -1. * imagerHalfWidth + offset[0], -1. * imagerHalfHeight + offset[1], -distance);
+    // add points
+    vtkVector3d imagerP0( -1. * y + offset[0], x + offset[1], -distance);
+    vtkVector3d imagerP1( y + offset[0], x + offset[1], -distance);
+    vtkVector3d imagerP2( y + offset[0], -1. * x + offset[1], -distance);
+    vtkVector3d imagerP3( -1. * y + offset[0], -1. * x + offset[1], -distance);
 
     double p[3];
     imagerMarkupsNode->GetNthControlPointPosition( 0, p);
@@ -445,7 +450,7 @@ void vtkSlicerRtImageLogic::UpdateMarkupsNodes(vtkMRMLRTImageNode* rtImageNode)
     // Update imager boundary markups transform node if it's changed    
     vtkMRMLTransformNode* markupsTransformNode = imagerMarkupsNode->GetParentTransformNode();
 
-    if (markupsTransformNode/* && beamTransformNode->GetID() != markupsTransformNode->GetID()*/)
+    if (markupsTransformNode)
     {
       imagerMarkupsNode->SetAndObserveTransformNodeID(beamTransformNode->GetID());
     }
@@ -459,36 +464,19 @@ void vtkSlicerRtImageLogic::UpdateMarkupsNodes(vtkMRMLRTImageNode* rtImageNode)
 
     imageWindowMarkupsNode->SetDisplayVisibility(rtImageNode->GetImageWindowFlag());
 
-    double distance = rtImageNode->GetIsocenterImagerDistance();
-     
-    double spacing[2] = {};
-    rtImageNode->GetImageSpacing(spacing);
+    // Imager upper left point
+    vtkVector3d imagerP0( -1. * y + offset[0], -1. * x + offset[1], -distance);
 
-    int dimention[2] = {};
-    rtImageNode->GetImageDimention(dimention);
-
-    double offset[2] = {};
-    rtImageNode->GetImagerCenterOffset(offset);
-
-    int imageWindow[4] = {};
-    rtImageNode->GetImageWindow(imageWindow);
-
-    double imagerHalfWidth = spacing[0] * dimention[0] / 2.; // columns
-    double imagerHalfHeight = spacing[1] * dimention[1] / 2.; // rows
-
-    // imager top left corner
-    vtkVector3d imagerP0( -1. * imagerHalfWidth + offset[0], imagerHalfHeight + offset[1], -distance);
-
-    double r1 = -1. * imagerP0.GetY() + imageWindow[1] * spacing[1];
-    double c1 = imagerP0.GetX() + imageWindow[0] * spacing[0];
-    double r2 = -1. * imagerP0.GetY() + imageWindow[3] * spacing[1];
-    double c2 = imagerP0.GetX() + imageWindow[2] * spacing[0];
+    double r1 = imagerP0.GetX() + imageWindow[1] * spacing[1];
+    double c1 = imagerP0.GetY() + imageWindow[0] * spacing[0];
+    double r2 = imagerP0.GetX() + imageWindow[3] * spacing[1];
+    double c2 = imagerP0.GetY() + imageWindow[2] * spacing[0];
 
     // update points
-    vtkVector3d imageP0( c1, r1, -distance);
-    vtkVector3d imageP1( c1, r2, -distance);
-    vtkVector3d imageP2( c2, r2, -distance);
-    vtkVector3d imageP3( c2, r1, -distance);
+    vtkVector3d imageP0( r1, c1, -distance);
+    vtkVector3d imageP1( r1, c2, -distance);
+    vtkVector3d imageP2( r2, c2, -distance);
+    vtkVector3d imageP3( r2, c1, -distance);
 
     double p[3];
     imageWindowMarkupsNode->GetNthControlPointPosition( 0, p);
@@ -518,7 +506,7 @@ void vtkSlicerRtImageLogic::UpdateMarkupsNodes(vtkMRMLRTImageNode* rtImageNode)
     // Update image window markups transform node if it's changed    
     vtkMRMLTransformNode* markupsTransformNode = imageWindowMarkupsNode->GetParentTransformNode();
 
-    if (markupsTransformNode/* && beamTransformNode->GetID() != markupsTransformNode->GetID()*/)
+    if (markupsTransformNode)
     {
       imageWindowMarkupsNode->SetAndObserveTransformNodeID(beamTransformNode->GetID());
     }
@@ -529,11 +517,6 @@ void vtkSlicerRtImageLogic::UpdateMarkupsNodes(vtkMRMLRTImageNode* rtImageNode)
   {
     vtkMRMLMarkupsLineNode* vectorMarkupsNode = vtkMRMLMarkupsLineNode::SafeDownCast(
       scene->GetFirstNodeByName(NORMAL_VECTOR_MARKUPS_NODE_NAME));
-
-    double offset[2] = {};
-    rtImageNode->GetImagerCenterOffset(offset);
-
-    double distance = rtImageNode->GetIsocenterImagerDistance();
 
     // update points
     vtkVector3d p0( offset[0], offset[1], -distance);
@@ -555,7 +538,7 @@ void vtkSlicerRtImageLogic::UpdateMarkupsNodes(vtkMRMLRTImageNode* rtImageNode)
     // Update imager normal vector markups transform node if it's changed    
     vtkMRMLTransformNode* markupsTransformNode = vectorMarkupsNode->GetParentTransformNode();
 
-    if (markupsTransformNode/* && beamTransformNode->GetID() != markupsTransformNode->GetID()*/)
+    if (markupsTransformNode)
     {
       vectorMarkupsNode->SetAndObserveTransformNodeID(beamTransformNode->GetID());
     }
@@ -567,22 +550,9 @@ void vtkSlicerRtImageLogic::UpdateMarkupsNodes(vtkMRMLRTImageNode* rtImageNode)
     vtkMRMLMarkupsLineNode* vectorMarkupsNode = vtkMRMLMarkupsLineNode::SafeDownCast(
       scene->GetFirstNodeByName(VUP_VECTOR_MARKUPS_NODE_NAME));
 
-    double distance = rtImageNode->GetIsocenterImagerDistance();
-
-    double spacing[2] = {};
-    rtImageNode->GetImageSpacing(spacing);
-
-    int dimention[2] = {};
-    rtImageNode->GetImageDimention(dimention);
-
-    double offset[2] = {};
-    rtImageNode->GetImagerCenterOffset(offset);
-
-    double x = spacing[0] * dimention[0] / 2.; // center imager column
-
     // update points
     vtkVector3d p0( offset[0], offset[1], -distance);
-    vtkVector3d p1( -x + offset[0], offset[1], -distance);
+    vtkVector3d p1( -1. * y + offset[0], 0. + offset[1], -distance); // vup
 
     double p[3];
     vectorMarkupsNode->GetNthControlPointPosition( 0, p);
@@ -600,7 +570,7 @@ void vtkSlicerRtImageLogic::UpdateMarkupsNodes(vtkMRMLRTImageNode* rtImageNode)
     // Update VUP VECTOR markups transform node if it's changed    
     vtkMRMLTransformNode* markupsTransformNode = vectorMarkupsNode->GetParentTransformNode();
 
-    if (markupsTransformNode/* && beamTransformNode->GetID() != markupsTransformNode->GetID()*/)
+    if (markupsTransformNode)
     {
       vectorMarkupsNode->SetAndObserveTransformNodeID(beamTransformNode->GetID());
     }
@@ -612,25 +582,11 @@ void vtkSlicerRtImageLogic::UpdateMarkupsNodes(vtkMRMLRTImageNode* rtImageNode)
     vtkMRMLMarkupsFiducialNode* pointsMarkupsNode = vtkMRMLMarkupsFiducialNode::SafeDownCast(
       scene->GetFirstNodeByName(FIDUCIALS_MARKUPS_NODE_NAME));
 
-    double distance = rtImageNode->GetIsocenterImagerDistance();
-     
-    double spacing[2] = {};
-    rtImageNode->GetImageSpacing(spacing);
-
-    int dimention[2] = {};
-    rtImageNode->GetImageDimention(dimention);
-
-    double offset[2] = {};
-    rtImageNode->GetImagerCenterOffset(offset);
-
-    double x = spacing[0] * dimention[0] / 2.; // imager center column
-    double y = spacing[1] * dimention[1] / 2.; // imager center row
-
     // update points
     vtkVector3d p0( 0., 0., -distance); // imager center
-    vtkVector3d p1( 0., 0., -distance + 100.); // imager normal vector
-    vtkVector3d p2( -x + offset[0], -y + offset[1], -distance); // (0,0)
-    vtkVector3d p3( -x + offset[0], 0., -distance); // vup vector
+    vtkVector3d p1( 0., 0., -distance + 100.); // n
+    vtkVector3d p2( -1. * y + offset[0], -1. * x + offset[1], -distance); // (0,0)
+    vtkVector3d p3( -1. * y + offset[0], 0.0, -distance); // vup
 
     double p[3];
     pointsMarkupsNode->GetNthControlPointPosition( 0, p);
@@ -660,11 +616,12 @@ void vtkSlicerRtImageLogic::UpdateMarkupsNodes(vtkMRMLRTImageNode* rtImageNode)
     // Update fiducials markups transform node if it's changed    
     vtkMRMLTransformNode* markupsTransformNode = pointsMarkupsNode->GetParentTransformNode();
 
-    if (markupsTransformNode/* && beamTransformNode->GetID() != markupsTransformNode->GetID()*/)
+    if (markupsTransformNode)
     {
       pointsMarkupsNode->SetAndObserveTransformNodeID(beamTransformNode->GetID());
     }
   }
+
 }
 
 //----------------------------------------------------------------------------
@@ -745,11 +702,14 @@ vtkMRMLMarkupsClosedCurveNode* vtkSlicerRtImageLogic::CreateImagerBoundary(vtkMR
     double imagerHalfWidth = spacing[0] * dimention[0] / 2.; // columns
     double imagerHalfHeight = spacing[1] * dimention[1] / 2.; // rows
 
+    double& x = imagerHalfWidth;
+    double& y = imagerHalfHeight;
+
     // add points
-    vtkVector3d imagerP0( -1. * imagerHalfWidth + offset[0], imagerHalfHeight + offset[1], -distance);
-    vtkVector3d imagerP1( imagerHalfWidth + offset[0], imagerHalfHeight + offset[1], -distance);
-    vtkVector3d imagerP2( imagerHalfWidth + offset[0], -1. * imagerHalfHeight + offset[1], -distance);
-    vtkVector3d imagerP3( -1. * imagerHalfWidth + offset[0], -1. * imagerHalfHeight + offset[1], -distance);
+    vtkVector3d imagerP0( -1. * y + offset[0], x + offset[1], -distance);
+    vtkVector3d imagerP1( y + offset[0], x + offset[1], -distance);
+    vtkVector3d imagerP2( y + offset[0], -1. * x + offset[1], -distance);
+    vtkVector3d imagerP3( -1. * y + offset[0], -1. * x + offset[1], -distance);
 
     imagerMarkupsNode->AddControlPoint(imagerP0); // "Upper Left", "-x,y"
     imagerMarkupsNode->AddControlPoint(imagerP1); // "Upper Right", "x,y"
@@ -798,19 +758,22 @@ vtkMRMLMarkupsClosedCurveNode* vtkSlicerRtImageLogic::CreateImageWindow(vtkMRMLR
     double imagerHalfWidth = spacing[0] * dimention[0] / 2.; // columns
     double imagerHalfHeight = spacing[1] * dimention[1] / 2.; // rows
 
-    // Imager upper left point
-    vtkVector3d imagerP0( -1. * imagerHalfWidth + offset[0], imagerHalfHeight + offset[1], -distance);
+    double& x = imagerHalfWidth;
+    double& y = imagerHalfHeight;
 
-    double r1 = -1. * imagerP0.GetY() + imageWindow[1] * spacing[1];
-    double c1 = imagerP0.GetX() + imageWindow[0] * spacing[0];
-    double r2 = -1. * imagerP0.GetY() + imageWindow[3] * spacing[1];
-    double c2 = imagerP0.GetX() + imageWindow[2] * spacing[0];
+    // Imager upper left point
+    vtkVector3d imagerP0( -1. * y + offset[0], -1. * x + offset[1], -distance);
+
+    double r1 = imagerP0.GetX() + imageWindow[1] * spacing[1];
+    double c1 = imagerP0.GetY() + imageWindow[0] * spacing[0];
+    double r2 = imagerP0.GetX() + imageWindow[3] * spacing[1];
+    double c2 = imagerP0.GetY() + imageWindow[2] * spacing[0];
 
     // add points
-    vtkVector3d imageP0( c1, r1, -distance);
-    vtkVector3d imageP1( c1, r2, -distance);
-    vtkVector3d imageP2( c2, r2, -distance);
-    vtkVector3d imageP3( c2, r1, -distance);
+    vtkVector3d imageP0( r1, c1, -distance);
+    vtkVector3d imageP1( r1, c2, -distance);
+    vtkVector3d imageP2( r2, c2, -distance);
+    vtkVector3d imageP3( r2, c1, -distance);
 
     imageWindowMarkupsNode->AddControlPoint(imageP0); // r1, c1
     imageWindowMarkupsNode->AddControlPoint(imageP1); // r2, c1
@@ -885,12 +848,12 @@ vtkMRMLMarkupsLineNode* vtkSlicerRtImageLogic::CreateImagerVUP(vtkMRMLRTImageNod
     double offset[2] = {};
     rtImageNode->GetImagerCenterOffset(offset);
 
-    double x = spacing[0] * dimention[0] / 2.; // center column
-//    double y = spacing[1] * dimention[1] / 2.; // center row
+    double imagerHalfHeight = spacing[1] * dimention[1] / 2.; // rows
+    double& y = imagerHalfHeight;
 
     // add points
-    vtkVector3d p0( 0 + offset[0], 0 + offset[1], -distance);
-    vtkVector3d p1( -x + offset[0], 0 + offset[1], -distance);
+    vtkVector3d p0( 0. + offset[0], 0. + offset[1], -distance);
+    vtkVector3d p1( -1. * y + offset[0], 0. + offset[1], -distance); // vup
 
     vectorMarkupsNode->AddControlPoint(p0);
     vectorMarkupsNode->AddControlPoint(p1);
@@ -913,7 +876,7 @@ vtkMRMLMarkupsFiducialNode* vtkSlicerRtImageLogic::CreateFiducials(vtkMRMLRTImag
   vtkNew<vtkMRMLMarkupsFiducialNode> pointsMarkupsNode;
   this->GetMRMLScene()->AddNode(pointsMarkupsNode);
   pointsMarkupsNode->SetName(FIDUCIALS_MARKUPS_NODE_NAME);
- // pointsMarkupsNode->SetHideFromEditors(1);
+  pointsMarkupsNode->SetHideFromEditors(1);
   std::string singletonTag = std::string("RTIMAGE_") + FIDUCIALS_MARKUPS_NODE_NAME;
   pointsMarkupsNode->SetSingletonTag(singletonTag.c_str());
 
@@ -930,14 +893,17 @@ vtkMRMLMarkupsFiducialNode* vtkSlicerRtImageLogic::CreateFiducials(vtkMRMLRTImag
     double offset[2] = {};
     rtImageNode->GetImagerCenterOffset(offset);
 
-    double x = spacing[0] * dimention[0] / 2.; // columns
-    double y = spacing[1] * dimention[1] / 2.; // rows
+    double imagerHalfWidth = spacing[0] * dimention[0] / 2.; // columns
+    double imagerHalfHeight = spacing[1] * dimention[1] / 2.; // rows
+
+    double& x = imagerHalfWidth;
+    double& y = imagerHalfHeight;
 
     // add points
-    vtkVector3d p0( 0, 0, -distance); // imager center
-    vtkVector3d p1( 0, 0, -distance + 100.); // n
-    vtkVector3d p2( -x + offset[0], -y + offset[1], -distance); // (0,0)
-    vtkVector3d p3( -x + offset[0], 0.0, -distance); // vup
+    vtkVector3d p0( 0., 0., -distance); // imager center
+    vtkVector3d p1( 0., 0., -distance + 100.); // n
+    vtkVector3d p2( -1. * y + offset[0], -1. * x + offset[1], -distance); // (0,0)
+    vtkVector3d p3( -1. * y + offset[0], 0.0, -distance); // vup
 
     pointsMarkupsNode->AddControlPoint( p0, "Imager center");
     pointsMarkupsNode->AddControlPoint( p1, "n");
