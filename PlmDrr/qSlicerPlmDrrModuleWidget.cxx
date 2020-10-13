@@ -1019,10 +1019,10 @@ void qSlicerPlmDrrModuleWidget::onAutoscalePixelsRangeToggled(bool value)
 }
 
 //-----------------------------------------------------------------------------
-void qSlicerPlmDrrModuleWidget::onUpdateImageWindowFromBeamJaws()
-{
-  Q_D(qSlicerPlmDrrModuleWidget);
-}
+//void qSlicerPlmDrrModuleWidget::onUpdateImageWindowFromBeamJaws()
+//{
+//  Q_D(qSlicerPlmDrrModuleWidget);
+//}
 
 //-----------------------------------------------------------------------------
 void qSlicerPlmDrrModuleWidget::onUpdatePlmDrrArgs()

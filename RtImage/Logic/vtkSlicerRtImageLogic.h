@@ -66,7 +66,7 @@ public:
   void CreateMarkupsNodes(vtkMRMLRTImageNode* rtImageNode);
   /// Update markups nodes using parameter node data
   void UpdateMarkupsNodes(vtkMRMLRTImageNode* rtImageNode);
-  void ShowMarkupsNodes( vtkMRMLRTImageNode* rtImageNode, bool toggled = false);
+  void ShowMarkupsNodes(bool toggled = false);
 
   /// Set Planar Image module logic
   void SetPlanarImageLogic(vtkSlicerPlanarImageModuleLogic* planarImageLogic);

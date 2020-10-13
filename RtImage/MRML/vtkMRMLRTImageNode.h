@@ -147,7 +147,7 @@ protected:
   double ImageSpacing[2]; // columns, rows
   int ImageCenter[2]; // column, row (calculated from imager offset and image data)
   bool ImageWindowFlag; // use image window
-  int ImageWindow[4]; // column1, column2, row1, row2 (y0, y1, x0, x1)
+  int ImageWindow[4]; // column1, row1, column2, row2 (y0, x0, y1, x1)
   PlastimatchAlgorithmReconstuctionType AlgorithmReconstuction;
   PlastimatchHounsfieldUnitsConversionType HUConversion;
   PlastimatchThreadingType Threading;

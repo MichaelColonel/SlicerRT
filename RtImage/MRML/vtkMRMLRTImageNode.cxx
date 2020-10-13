@@ -47,21 +47,24 @@ vtkMRMLRTImageNode::vtkMRMLRTImageNode()
 {
   ImagerCenterOffset[0] = 0.;
   ImagerCenterOffset[1] = 0.;
-  ImageDimention[0] = 2000; // columns = x
-  ImageDimention[1] = 2000; // rows = y
+  ImageDimention[0] = 1024; // columns = x
+  ImageDimention[1] = 768; // rows = y
 
   ImageSpacing[0] = 0.25; // 250 um (columns = x)
   ImageSpacing[1] = 0.25; // 250 um (rows = y)
 
   // default image window is whole imager
-  ImageWindowFlag = false;
-  ImageWindow[0] = 0; // c1 = x0 (start column) 
-  ImageWindow[1] = 0; // r1 = y0 (start row)
-  ImageWindow[2] = ImageDimention[0] - 1; // c2 = x1 (end column)
-  ImageWindow[3] = ImageDimention[1] - 1; // r2 = y1 (end row)
+  ImageWindowFlag = true;
+  ImageWindow[0] = 20;//0; // c1 = x0 (start column) 
+  ImageWindow[1] = 70;//0; // r1 = y0 (start row)
+  ImageWindow[2] = 1000;//ImageDimention[0] - 1; // c2 = x1 (end column)
+  ImageWindow[3] = 700;//ImageDimention[1] - 1; // r2 = y1 (end row)
 
   ImageCenter[0] = double(ImageWindow[2]) / 2.; // columns = x
   ImageCenter[1] = double(ImageWindow[3]) / 2.; // rows = y
+
+  ImageCenter[0] = ImageWindow[0] + (ImageWindow[2] - ImageWindow[0]) / 2.f; // column
+  ImageCenter[1] = ImageWindow[1] + (ImageWindow[3] - ImageWindow[1]) / 2.f; // row
 
   AlgorithmReconstuction = EXACT;
   HUConversion = PREPROCESS;

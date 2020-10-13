@@ -108,6 +108,44 @@ void qSlicerRtImageModuleWidget::setup()
   QStringList volumeNodes;
   volumeNodes.push_back("vtkMRMLScalarVolumeNode");
   d->MRMLNodeComboBox_CtVolume->setNodeTypes(volumeNodes);
+
+  // Nodes
+  connect( d->MRMLNodeComboBox_RtBeam, SIGNAL(currentNodeChanged(vtkMRMLNode*)), 
+    this, SLOT(onRTBeamNodeChanged(vtkMRMLNode*)));
+  connect( d->MRMLNodeComboBox_CtVolume, SIGNAL(currentNodeChanged(vtkMRMLNode*)), 
+    this, SLOT(onCtVolumeNodeChanged(vtkMRMLNode*)));
+  connect( d->MRMLNodeComboBox_ParameterSet, SIGNAL(currentNodeChanged(vtkMRMLNode*)), 
+    this, SLOT(onParameterNodeChanged(vtkMRMLNode*)));
+
+  // Sliders
+  connect( d->SliderWidget_IsocenterImagerDistance, SIGNAL(valueChanged(double)), 
+    this, SLOT(onIsocenterImagerDistanceValueChanged(double)));
+
+  // Coordinates widgets
+  connect( d->CoordinatesWidget_ImagerResolution, SIGNAL(coordinatesChanged(double*)), 
+    this, SLOT(onImagerResolutionChanged(double*)));
+  connect( d->CoordinatesWidget_ImagerSpacing, SIGNAL(coordinatesChanged(double*)), 
+    this, SLOT(onImagerSpacingChanged(double*)));
+  connect( d->RangeWidget_ImageWindowColumns, SIGNAL(valuesChanged( double, double)), 
+    this, SLOT(onImageWindowColumnsValuesChanged( double, double)));
+  connect( d->RangeWidget_ImageWindowRows, SIGNAL(valuesChanged( double, double)), 
+    this, SLOT(onImageWindowRowsValuesChanged( double, double)));
+
+  // Buttons
+//  connect( d->PushButton_SelectPlastimatchAppPath, SIGNAL(clicked()), this, SLOT(onSelectPlastimatchAppPathClicked()));
+//  connect( d->PushButton_ComputeDrr, SIGNAL(clicked()), this, SLOT(onComputeDrrClicked()));
+  connect( d->CheckBox_ShowDrrMarkups, SIGNAL(toggled(bool)), this, SLOT(onShowMarkupsToggled(bool)));
+  connect( d->CheckBox_UseImageWindow, SIGNAL(toggled(bool)), this, SLOT(onUseImageWindowToggled(bool)));
+//  connect( d->CheckBox_UseExponentialMapping, SIGNAL(toggled(bool)), this, SLOT(onUseExponentialMappingToggled(bool)));
+//  connect( d->CheckBox_AutoscalePixelsRange, SIGNAL(toggled(bool)), this, SLOT(onAutoscalePixelsRangeToggled(bool)));
+
+  // Button groups
+//  connect( d->ButtonGroup_ReconstructionAlgorithm, SIGNAL(buttonClicked(int)), this, SLOT(onReconstructionAlgorithmChanged(int)));
+//  connect( d->ButtonGroup_Threading, SIGNAL(buttonClicked(int)), this, SLOT(onThreadingChanged(int)));
+//  connect( d->ButtonGroup_HUConversion, SIGNAL(buttonClicked(int)), this, SLOT(onHUConversionChanged(int)));
+
+  // Handle scene change event if occurs
+  qvtkConnect( d->logic(), vtkCommand::ModifiedEvent, this, SLOT(onLogicModified()));
 }
 
 //-----------------------------------------------------------------------------
@@ -159,7 +197,7 @@ void qSlicerRtImageModuleWidget::setParameterNode(vtkMRMLNode *node)
     if (!d->ParameterNode->GetBeamNode())
     {
       vtkMRMLRTBeamNode* beamNode = vtkMRMLRTBeamNode::SafeDownCast(d->MRMLNodeComboBox_RtBeam->currentNode());
-      qvtkConnect( beamNode, vtkMRMLRTBeamNode::BeamGeometryModified, this, SLOT(onUpdateImageWindowFromBeamJaws()));
+//      qvtkConnect( beamNode, vtkMRMLRTBeamNode::BeamGeometryModified, this, SLOT(onUpdateImageWindowFromBeamJaws()));
       d->ParameterNode->SetAndObserveBeamNode(beamNode);
       d->ParameterNode->Modified();
     }
@@ -197,30 +235,39 @@ void qSlicerRtImageModuleWidget::updateWidgetFromMRML()
     qCritical() << Q_FUNC_INFO << ": Invalid referenced volume node";
     return;
   }
-
+/*
   // Update widgets info from parameter node and update plastimatch drr command
   d->MRMLNodeComboBox_RtBeam->setCurrentNode(d->ParameterNode->GetBeamNode());
   d->SliderWidget_IsocenterImagerDistance->setValue(d->ParameterNode->GetIsocenterImagerDistance());
-/*
+
   int imageDimInteger[2] = {};
   double imageDim[2] = {};
-  d->ParameterNode->GetImageDimention(imageDimInteger);
+  d->ParameterNode->GetImageDimention(imageDimInteger); // imager Resolution
   imageDim[0] = static_cast<double>(imageDimInteger[0]);
   imageDim[1] = static_cast<double>(imageDimInteger[1]);
-  d->CoordinatesWidget_ImagePixelDimention->setCoordinates(imageDim);
-  d->CoordinatesWidget_ImagePixelSpacing->setCoordinates(d->ParameterNode->GetImageSpacing());
-    
-  int imageWindowInteger[4] = {};
-  double imageWindow[4] = {};
-  d->ParameterNode->GetImageWindow(imageWindowInteger);
-  imageWindow[0] = static_cast<double>(imageWindowInteger[0]);
-  imageWindow[1] = static_cast<double>(imageWindowInteger[1]);
-  imageWindow[2] = static_cast<double>(imageWindowInteger[2]);
-  imageWindow[3] = static_cast<double>(imageWindowInteger[3]);
-  d->CoordinatesWidget_ImageWindow->setCoordinates(imageWindow);
+  d->CoordinatesWidget_ImagerResolution->setCoordinates(imageDim);
+  d->CoordinatesWidget_ImagerSpacing->setCoordinates(d->ParameterNode->GetImageSpacing());
 
-  d->CheckBox_UseImageWindow->setChecked(d->ParameterNode->GetImageWindowFlag());
+  d->RangeWidget_ImageWindowColumns->setMinimum(0);
+  d->RangeWidget_ImageWindowColumns->setMaximum(imageDimInteger[0] - 1);
+  d->RangeWidget_ImageWindowRows->setMinimum(0);
+  d->RangeWidget_ImageWindowRows->setMaximum(imageDimInteger[1] - 1);
 
+  int imageWindow[4] = {};
+  d->ParameterNode->GetImageWindow(imageWindow);
+  d->RangeWidget_ImageWindowColumns->setRange( double(imageWindow[0]), double(imageWindow[2]));
+  d->RangeWidget_ImageWindowRows->setRange( double(imageWindow[1]), double(imageWindow[3]));
+*/
+//  d->RangeWidget_ImageWindowColumns->setValues( double(imageWindow[0]), double(imageWindow[2]));
+//  d->RangeWidget_ImageWindowRows->setValues( double(imageWindow[1]), double(imageWindow[3]));
+//  imageWindow[0] = static_cast<double>(imageWindowInteger[0]);
+//  imageWindow[1] = static_cast<double>(imageWindowInteger[1]);
+//  imageWindow[2] = static_cast<double>(imageWindowInteger[2]);
+//  imageWindow[3] = static_cast<double>(imageWindowInteger[3]);
+//  d->CoordinatesWidget_ImageWindow->setCoordinates(imageWindow);
+
+//  d->CheckBox_UseImageWindow->setChecked(d->ParameterNode->GetImageWindowFlag());
+/*
   d->CheckBox_UseExponentialMapping->setChecked(d->ParameterNode->GetExponentialMappingFlag());
   d->CheckBox_AutoscalePixelsRange->setChecked(d->ParameterNode->GetAutoscaleFlag());
 
@@ -314,10 +361,10 @@ void qSlicerRtImageModuleWidget::onRTBeamNodeChanged(vtkMRMLNode* node)
   d->ParameterNode->DisableModifiedEventOn();
   d->ParameterNode->SetAndObserveBeamNode(beamNode);
   d->ParameterNode->DisableModifiedEventOff();
+  d->ParameterNode->Modified(); // Update imager and image markups, DRR arguments
 
-  // Update imager and image markups, DRR arguments
-  d->logic()->UpdateMarkupsNodes(d->ParameterNode);
-  this->updateWidgetFromMRML();
+  // Update GUI
+//  this->updateWidgetFromMRML();
 }
 
 //-----------------------------------------------------------------------------
@@ -346,7 +393,7 @@ void qSlicerRtImageModuleWidget::onCtVolumeNodeChanged(vtkMRMLNode* node)
   }
 
   d->CtVolumeNode = volumeNode;
-  this->updateWidgetFromMRML();
+//  this->updateWidgetFromMRML();
 }
 
 //-----------------------------------------------------------------------------
@@ -415,4 +462,164 @@ void qSlicerRtImageModuleWidget::onEnter()
 
   d->ModuleWindowInitialized = true;
   this->updateWidgetFromMRML();
+}
+
+//-----------------------------------------------------------------------------
+void qSlicerRtImageModuleWidget::onLogicModified()
+{
+  this->updateWidgetFromMRML();
+}
+
+//-----------------------------------------------------------------------------
+void qSlicerRtImageModuleWidget::onIsocenterImagerDistanceValueChanged(double value)
+{
+  Q_D(qSlicerRtImageModuleWidget);
+
+  if (!d->ParameterNode)
+  {
+    qCritical() << Q_FUNC_INFO << ": Invalid RT Image node";
+    return;
+  }
+
+  d->ParameterNode->SetIsocenterImagerDistance(value);
+  d->ParameterNode->Modified(); // Update imager and image markups, DRR arguments
+
+  // Update GUI
+//  this->updateWidgetFromMRML();
+}
+
+//-----------------------------------------------------------------------------
+void qSlicerRtImageModuleWidget::onImagerSpacingChanged(double* spacing)
+{
+  Q_D(qSlicerRtImageModuleWidget);
+
+  if (!d->ParameterNode)
+  {
+    qCritical() << Q_FUNC_INFO << ": Invalid RT Image node";
+    return;
+  }
+
+  double s[2] = { spacing[0], spacing[1] }; // columns, rows
+  d->ParameterNode->SetImageSpacing(s);
+  d->ParameterNode->Modified(); // Update imager and image markups, DRR arguments
+
+  // Update GUI
+//  this->updateWidgetFromMRML();
+}
+
+//-----------------------------------------------------------------------------
+void qSlicerRtImageModuleWidget::onShowMarkupsToggled(bool toggled)
+{
+  Q_D(qSlicerRtImageModuleWidget);
+
+  // Update imager and image markups, DRR arguments
+  d->logic()->ShowMarkupsNodes(toggled);
+}
+
+/// @brief Setup imager resolution (dimention)
+/// @param dimention: dimention[0] = columns, dimention[1] = rows
+void qSlicerRtImageModuleWidget::onImagerResolutionChanged(double* dimention)
+{
+  Q_D(qSlicerRtImageModuleWidget);
+
+  if (!d->ParameterNode)
+  {
+    qCritical() << Q_FUNC_INFO << ": Invalid RT Image node";
+    return;
+  }
+
+  int dim[2] = { static_cast<int>(dimention[0]), static_cast<int>(dimention[1]) }; // x, y
+
+  d->ParameterNode->SetImageDimention(dim);
+  d->ParameterNode->Modified(); // Update imager and image markups, DRR arguments
+  // Update GUI
+//  this->updateWidgetFromMRML();
+}
+
+//-----------------------------------------------------------------------------
+void qSlicerRtImageModuleWidget::onImageWindowColumnsValuesChanged(double start_column, double end_column)
+{
+  Q_D(qSlicerRtImageModuleWidget);
+
+  if (!d->ParameterNode)
+  {
+    qCritical() << Q_FUNC_INFO << ": Invalid RT Image node";
+    return;
+  }
+
+  int imageWindow[4];
+  d->ParameterNode->GetImageWindow(imageWindow);
+  
+  imageWindow[0] = start_column;
+  imageWindow[2] = end_column;
+
+  d->ParameterNode->SetImageWindow(imageWindow);
+  d->ParameterNode->Modified(); // Update imager and image markups, DRR arguments
+
+  // Update GUI
+//  this->updateWidgetFromMRML();
+}
+
+//-----------------------------------------------------------------------------
+void qSlicerRtImageModuleWidget::onImageWindowRowsValuesChanged( double start_row, double end_row)
+{
+  Q_D(qSlicerRtImageModuleWidget);
+
+  if (!d->ParameterNode)
+  {
+    qCritical() << Q_FUNC_INFO << ": Invalid RT Image node";
+    return;
+  }
+
+  int imageWindow[4];
+  d->ParameterNode->GetImageWindow(imageWindow);
+  
+  imageWindow[1] = start_row;
+  imageWindow[3] = end_row;
+
+  d->ParameterNode->SetImageWindow(imageWindow);
+  d->ParameterNode->Modified(); // Update imager and image markups, DRR arguments
+
+  // Update GUI
+//  this->updateWidgetFromMRML();
+}
+
+//-----------------------------------------------------------------------------
+void qSlicerRtImageModuleWidget::onUseImageWindowToggled(bool value)
+{
+  Q_D(qSlicerRtImageModuleWidget);
+
+  if (!d->ParameterNode)
+  {
+    qCritical() << Q_FUNC_INFO << ": Invalid parameter node";
+    return;
+  }
+
+  int imageWindow[4];
+  if (value)
+  {
+    double columns[2], rows[2];
+    d->RangeWidget_ImageWindowColumns->values( columns[0], columns[1]);
+    d->RangeWidget_ImageWindowRows->values( rows[0], rows[1]);
+
+    imageWindow[0] = static_cast<int>(columns[0]); // c1 = x1
+    imageWindow[1] = static_cast<int>(rows[0]); // r1 = y1
+    imageWindow[2] = static_cast<int>(columns[1]); // c2 = x2
+    imageWindow[3] = static_cast<int>(rows[1]); // r2 = y2
+  }
+  else
+  {
+    const double* window = d->CoordinatesWidget_ImagerResolution->coordinates();
+    imageWindow[0] = 0;
+    imageWindow[1] = static_cast<int>(window[0]); // column = x
+    imageWindow[2] = 0;
+    imageWindow[3] = static_cast<int>(window[1]); // row = y
+  }
+
+  d->ParameterNode->SetImageWindowFlag(value);
+  d->ParameterNode->SetImageWindow(imageWindow);
+  d->ParameterNode->Modified(); // Update imager and image markups, DRR arguments
+
+  // Update GUI
+//  this->updateWidgetFromMRML();
 }

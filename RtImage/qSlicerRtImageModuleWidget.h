@@ -50,7 +50,16 @@ public slots:
   void onRTBeamNodeChanged(vtkMRMLNode*);
   void onCtVolumeNodeChanged(vtkMRMLNode*);
 
-  /// Update widget GUI from drr parameters node
+  void onLogicModified();
+  void onIsocenterImagerDistanceValueChanged(double);
+  void onImageWindowColumnsValuesChanged( double, double);
+  void onImageWindowRowsValuesChanged( double, double);
+  void onImagerSpacingChanged(double*);
+  void onImagerResolutionChanged(double*);
+  void onShowMarkupsToggled(bool);
+  void onUseImageWindowToggled(bool);
+
+  /// Update widget GUI from RT Image parameters node
   void updateWidgetFromMRML();
 
 protected:

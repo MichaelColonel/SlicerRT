@@ -108,6 +108,10 @@ void vtkSlicerRtImageLogic::RegisterNodes()
   {
     scene->RegisterNodeClass(vtkSmartPointer<vtkMRMLRTBeamNode>::New());
   }
+  if (!scene->IsNodeClassRegistered("vtkMRMLRTImageNode"))
+  {
+    scene->RegisterNodeClass(vtkSmartPointer<vtkMRMLRTImageNode>::New());
+  }
 }
 
 //---------------------------------------------------------------------------
@@ -143,6 +147,12 @@ void vtkSlicerRtImageLogic::OnMRMLSceneNodeAdded(vtkMRMLNode* node)
     events->InsertNextValue(vtkMRMLRTPlanNode::IsocenterModifiedEvent);
     vtkObserveMRMLNodeEventsMacro(node, events);
   }
+  else if (node->IsA("vtkMRMLRTImageNode"))
+  {
+    vtkNew<vtkIntArray> events;
+    events->InsertNextValue(vtkCommand::ModifiedEvent);
+    vtkObserveMRMLNodeEventsMacro(node, events);
+  }
 }
 
 //---------------------------------------------------------------------------
@@ -169,7 +179,7 @@ void vtkSlicerRtImageLogic::ProcessMRMLNodesEvents(vtkObject* caller, unsigned l
   if (caller->IsA("vtkMRMLRTBeamNode"))
   {
     vtkMRMLRTBeamNode* beamNode = vtkMRMLRTBeamNode::SafeDownCast(caller);
-    if (event == vtkMRMLRTBeamNode::BeamTransformModified)
+    if (beamNode && event == vtkMRMLRTBeamNode::BeamTransformModified)
     {
       // Make sure transform node exists
 //      beamNode->CreateDefaultTransformNode();
@@ -184,7 +194,7 @@ void vtkSlicerRtImageLogic::ProcessMRMLNodesEvents(vtkObject* caller, unsigned l
     if (event == vtkMRMLRTPlanNode::IsocenterModifiedEvent)
     {
       // Get added beam node
-/*      char* beamNodeID = reinterpret_cast<char*>(callData);
+      char* beamNodeID = reinterpret_cast<char*>(callData);
       if (!beamNodeID)
       {
         vtkErrorMacro("ProcessMRMLNodesEvents: No beam node ID for beam added event in plan " << planNode->GetName());
@@ -198,13 +208,46 @@ void vtkSlicerRtImageLogic::ProcessMRMLNodesEvents(vtkObject* caller, unsigned l
       }
 
       // Make sure transform node exists
-      beamNode->CreateDefaultTransformNode();
+//      beamNode->CreateDefaultTransformNode();
       // Calculate transform from beam parameters and isocenter from plan
-      this->UpdateTransformForBeam(beamNode);
+//      this->UpdateTransformForBeam(beamNode);
 
       // Make sure display is set up
-      beamNode->UpdateGeometry();
+//      beamNode->UpdateGeometry();
+//
+    }
+  }
+  else if (caller->IsA("vtkMRMLRTImageNode"))
+  {
+    vtkMRMLRTImageNode* parameterNode = vtkMRMLRTImageNode::SafeDownCast(caller);
+
+    if (parameterNode && event == vtkCommand::ModifiedEvent)
+    {
+//      vtkWarningMacro("ProcessMRMLNodesEvents: RT Image node modified");
+      this->UpdateMarkupsNodes(parameterNode);
+/*
+      // Get added beam node
+      char* beamNodeID = reinterpret_cast<char*>(callData);
+      if (!beamNodeID)
+      {
+        vtkErrorMacro("ProcessMRMLNodesEvents: No beam node ID for beam added event in plan " << planNode->GetName());
+        return;
+      }
+      vtkMRMLRTBeamNode* beamNode = vtkMRMLRTBeamNode::SafeDownCast(mrmlScene->GetNodeByID(beamNodeID));
+      if (!beamNode)
+      {
+        vtkErrorMacro("ProcessMRMLNodesEvents: Failed to get added beam node by ID " << beamNodeID);
+        return;
+      }
 */
+      // Make sure transform node exists
+//      beamNode->CreateDefaultTransformNode();
+      // Calculate transform from beam parameters and isocenter from plan
+//      this->UpdateTransformForBeam(beamNode);
+
+      // Make sure display is set up
+//      beamNode->UpdateGeometry();
+//
     }
   }
 }
@@ -216,6 +259,11 @@ void vtkSlicerRtImageLogic::CreateMarkupsNodes(vtkMRMLRTImageNode* rtImageNode)
   if (!scene)
   {
     vtkErrorMacro("CreateMarkupsNodes: Invalid MRML scene");
+    return;
+  }
+  if (!rtImageNode)
+  {
+    vtkErrorMacro("CreateMarkupsNodes: Invalid RT Image node");
     return;
   }
 
@@ -620,17 +668,12 @@ void vtkSlicerRtImageLogic::UpdateMarkupsNodes(vtkMRMLRTImageNode* rtImageNode)
 }
 
 //----------------------------------------------------------------------------
-void vtkSlicerRtImageLogic::ShowMarkupsNodes(vtkMRMLRTImageNode* rtImageNode, bool toggled)
+void vtkSlicerRtImageLogic::ShowMarkupsNodes(bool toggled)
 {
   vtkMRMLScene* scene = this->GetMRMLScene(); 
   if (!scene)
   {
     vtkErrorMacro("UpdateMarkupsNodes: Invalid MRML scene");
-    return;
-  }
-  if (!rtImageNode)
-  {
-    vtkErrorMacro("UpdateMarkupsNodes: Invalid RTImage node");
     return;
   }
 

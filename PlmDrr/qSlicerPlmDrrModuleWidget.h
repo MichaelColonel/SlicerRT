@@ -62,14 +62,15 @@ protected slots:
   void onImageWindowCoordinatesChanged(double*);
   void onImageSpacingChanged(double*);
   void onImageDimentionChanged(double*);
+  void onShowMarkupsToggled(bool);
   void onComputeDrrClicked();
-  void onUpdateImageWindowFromBeamJaws();
+//  void onUpdateImageWindowFromBeamJaws();
   void onUpdatePlmDrrArgs();
   void onPlastimatchDrrProcessStarted();
   void onPlastimatchDrrProcessFinished( int, QProcess::ExitStatus);
   void onCancelPlastimatchDrrProcessClicked();
   void onSelectPlastimatchAppPathClicked();
-  void onShowMarkupsToggled(bool);
+//  void onShowMarkupsToggled(bool);
   void onUseImageWindowToggled(bool);
   void onUseExponentialMappingToggled(bool);
   void onAutoscalePixelsRangeToggled(bool);
