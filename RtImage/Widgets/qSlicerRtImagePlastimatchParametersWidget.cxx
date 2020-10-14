@@ -27,6 +27,9 @@
 #include <vtkMRMLScene.h>
 #include <vtkMRMLNode.h>
 
+// SlicerRT MRML includes
+#include <vtkMRMLRTBeamNode.h>
+
 // Qt includes
 #include <QDebug>
 
@@ -172,6 +175,7 @@ void qSlicerRtImagePlastimatchParametersWidget::updateWidgetFromMRML()
     default:
       break;
   }
+  this->updatePlastimatchDrrArguments();
 }
 
 //-----------------------------------------------------------------------------
@@ -308,4 +312,122 @@ void qSlicerRtImagePlastimatchParametersWidget::onAutoscaleIntensityRangeChanged
     return;
   }
   d->ParameterNode->SetAutoscaleRange( min, max);
+}
+
+//-----------------------------------------------------------------------------
+void qSlicerRtImagePlastimatchParametersWidget::updatePlastimatchDrrArguments()
+{
+  Q_D(qSlicerRtImagePlastimatchParametersWidget);
+
+  if (!d->ParameterNode)
+  {
+    qCritical() << Q_FUNC_INFO << ": Invalid parameter node";
+    return;
+  }
+
+  vtkMRMLRTBeamNode* beamNode = d->ParameterNode->GetBeamNode();
+  if (!beamNode)
+  {
+    qCritical() << Q_FUNC_INFO << ": Invalid RT Beam node";
+    return;
+  }
+
+  std::ostringstream command;
+  command << "plastimatch drr ";
+  switch (d->ParameterNode->GetThreading())
+  {
+    case vtkMRMLRTImageNode::PlastimatchThreadingType::CPU:
+      command << "-A cpu \\\n";
+      break;
+    case vtkMRMLRTImageNode::PlastimatchThreadingType::CUDA:
+      command << "-A cuda \\\n";
+      break;
+    case vtkMRMLRTImageNode::PlastimatchThreadingType::OPENCL:
+      command << "-A opencl \\\n";
+      break;
+    default:
+      break;
+  }
+
+  double n[4], vup[4];
+  d->ParameterNode->GetNormalVector(n);
+  d->ParameterNode->GetViewUpVector(vup);
+  command << "\t--nrm" << " \"" << n[0] << " " << n[1] << " " << n[2] << "\" \\" << "\n";
+  command << "\t--vup" << " \"" << vup[0] << " " << vup[1] << " " << vup[2] << "\" \\" << "\n";
+
+  int imagerResolution[2];
+  double imagerSpacing[2];
+  double imageCenter[2];
+  double isocenterPosition[3];
+  d->ParameterNode->GetImagerResolution(imagerResolution);
+  d->ParameterNode->GetImagerSpacing(imagerSpacing);
+  d->ParameterNode->GetImageCenter(imageCenter);
+  d->ParameterNode->GetIsocenterPositionLPS(isocenterPosition);
+
+  command << "\t--sad " << beamNode->GetSAD() << " --sid " \
+    << beamNode->GetSAD() + d->ParameterNode->GetIsocenterImagerDistance() << " \\" << "\n";
+  command << "\t-r" << " \"" << imagerResolution[1] << " " \
+    << imagerResolution[0] << "\" \\" << "\n";
+  command << "\t-z" << " \"" << imagerResolution[1] * imagerSpacing[1] << " " \
+    << imagerResolution[0] * imagerSpacing[0] << "\" \\" << "\n";
+  command << "\t-c" << " \"" << imageCenter[1] << " " << imageCenter[0] << "\" \\" << "\n";
+
+  int imageWindow[4];
+  d->ParameterNode->GetImageWindow(imageWindow);
+  // Isocenter LPS position
+  command << "\t-o" << " \"" << isocenterPosition[0] << " " \
+    << isocenterPosition[1] << " " << isocenterPosition[2] << "\" \\" << "\n";
+  if (d->ParameterNode->GetImageWindowFlag())
+  {
+    command << "\t-w" << " \"" << imageWindow[1] << " " << imageWindow[3] << " " \
+      << imageWindow[0] << " " << imageWindow[2] << "\" \\" << "\n";
+  }
+
+  if (d->ParameterNode->GetExponentialMappingFlag())
+  {
+    command << "\t-e ";
+  }
+  else
+  {
+    command << "\t ";
+  }
+
+  if (d->ParameterNode->GetAutoscaleFlag())
+  {
+    command << "--autoscale ";
+  }
+  float autoscaleRange[2];
+  d->ParameterNode->GetAutoscaleRange(autoscaleRange);
+  command << "--autoscale-range \"" << autoscaleRange[0] << " " << autoscaleRange[1] << "\" \\\n\t ";
+
+  switch (d->ParameterNode->GetAlgorithmReconstuction())
+  {
+    case vtkMRMLRTImageNode::PlastimatchAlgorithmReconstuctionType::EXACT:
+      command << "-i exact ";
+      break;
+    case vtkMRMLRTImageNode::PlastimatchAlgorithmReconstuctionType::UNIFORM:
+      command << "-i uniform ";
+      break;
+    default:
+      break;
+  }
+
+  switch (d->ParameterNode->GetHUConversion())
+  {
+    case vtkMRMLRTImageNode::PlastimatchHounsfieldUnitsConversionType::NONE:
+      command << "-P none ";
+      break;
+    case vtkMRMLRTImageNode::PlastimatchHounsfieldUnitsConversionType::PREPROCESS:
+      command << "-P preprocess ";
+      break;
+    case vtkMRMLRTImageNode::PlastimatchHounsfieldUnitsConversionType::INLINE:
+      command << "-P inline ";
+      break;
+    default:
+      break;
+  }
+
+//  command << "-O Out -t raw";
+
+  d->plainTextEdit_PlmDrrArgs->setPlainText(QString::fromStdString(command.str()));
 }

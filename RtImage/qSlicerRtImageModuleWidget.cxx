@@ -137,7 +137,7 @@ void qSlicerRtImageModuleWidget::setup()
 
   // Buttons
 //  connect( d->PushButton_SelectPlastimatchAppPath, SIGNAL(clicked()), this, SLOT(onSelectPlastimatchAppPathClicked()));
-//  connect( d->PushButton_ComputeDrr, SIGNAL(clicked()), this, SLOT(onComputeDrrClicked()));
+  connect( d->PushButton_ComputeDrr, SIGNAL(clicked()), this, SLOT(onComputeDrrClicked()));
   connect( d->CheckBox_ShowDrrMarkups, SIGNAL(toggled(bool)), this, SLOT(onShowMarkupsToggled(bool)));
   connect( d->CheckBox_UseImageWindow, SIGNAL(toggled(bool)), this, SLOT(onUseImageWindowToggled(bool)));
 //  connect( d->CheckBox_UseExponentialMapping, SIGNAL(toggled(bool)), this, SLOT(onUseExponentialMappingToggled(bool)));
@@ -279,56 +279,7 @@ void qSlicerRtImageModuleWidget::updateWidgetFromMRML()
       static_cast<double>(std::max<int>( 0, imageWindow[1])), 
       static_cast<double>(std::min<int>( imagerResolution[1] - 1, imageWindow[3])));
   }
-
-/*
-  d->CheckBox_UseExponentialMapping->setChecked(d->ParameterNode->GetExponentialMappingFlag());
-  d->CheckBox_AutoscalePixelsRange->setChecked(d->ParameterNode->GetAutoscaleFlag());
-
-  switch (d->ParameterNode->GetAlgorithmReconstuction())
-  {
-    case vtkMRMLPlmDrrNode::AlgorithmReconstuctionType::EXACT:
-      d->RadioButton_Exact->setChecked(true);
-      break;
-    case vtkMRMLPlmDrrNode::AlgorithmReconstuctionType::UNIFORM:
-      d->RadioButton_Exact->setChecked(true);
-      break;
-    default:
-      break;
-  }
-
-  switch (d->ParameterNode->GetHUConversion())
-  {
-    case vtkMRMLPlmDrrNode::HounsfieldUnitsConversionType::PREPROCESS:
-      d->RadioButton_Preprocess->setChecked(true);
-      break;
-    case vtkMRMLPlmDrrNode::HounsfieldUnitsConversionType::INLINE:
-      d->RadioButton_Inline->setChecked(true);
-      break;
-    case vtkMRMLPlmDrrNode::HounsfieldUnitsConversionType::NONE:
-      d->RadioButton_None->setChecked(true);
-      break;
-    default:
-      break;
-  }
-
-  switch (d->ParameterNode->GetThreading())
-  {
-    case vtkMRMLPlmDrrNode::ThreadingType::CPU:
-      d->RadioButton_CPU->setChecked(true);
-      break;
-    case vtkMRMLPlmDrrNode::ThreadingType::CUDA:
-      d->RadioButton_CUDA->setChecked(true);
-      break;
-    case vtkMRMLPlmDrrNode::ThreadingType::OPENCL:
-      d->RadioButton_OpenCL->setChecked(true);
-      break;
-    default:
-      break;
-  }
-
-  // Update DRR arguments
-  this->onUpdatePlmDrrArgs();
-*/
+  d->PushButton_ComputeDrr->setEnabled(true);
 }
 
 //-----------------------------------------------------------------------------
@@ -618,4 +569,35 @@ void qSlicerRtImageModuleWidget::onUseImageWindowToggled(bool value)
 
   d->ParameterNode->SetImageWindowFlag(value);
   d->ParameterNode->Modified(); // Update imager and image markups, DRR arguments
+}
+
+//-----------------------------------------------------------------------------
+void qSlicerRtImageModuleWidget::onComputeDrrClicked()
+{
+  Q_D(qSlicerRtImageModuleWidget);
+
+  if (!d->ParameterNode || !d->ModuleWindowInitialized)
+  {
+    qCritical() << Q_FUNC_INFO << ": Invalid RT Image node";
+    return;
+  }
+
+  if (!d->ParameterNode->GetBeamNode())
+  {
+    qCritical() << Q_FUNC_INFO << ": Invalid referenced parameter's beam node";
+    return;
+  }
+
+  if (!d->CtVolumeNode)
+  {
+    qCritical() << Q_FUNC_INFO << ": Invalid referenced volume node";
+    return;
+  }
+  
+  bool result = d->logic()->ComputePlastimatchDRR( d->ParameterNode, d->CtVolumeNode);
+  if (result)
+  {
+    qDebug() << Q_FUNC_INFO << ": DRR RT Image calculated";
+    return;
+  }
 }

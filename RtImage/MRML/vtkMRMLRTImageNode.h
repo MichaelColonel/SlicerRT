@@ -47,7 +47,6 @@ class vtkMRMLMarkupsLineNode;
 class VTK_SLICER_RTIMAGE_MODULE_MRML_EXPORT vtkMRMLRTImageNode : public vtkMRMLPlanarImageNode
 {
 public:
-  enum ImageType { DRR, PORTAL, SIMULATOR, RADIOGRAPH, BLANK, FLUENCE };
   enum PlastimatchAlgorithmReconstuctionType { EXACT, UNIFORM };
   enum PlastimatchHounsfieldUnitsConversionType { PREPROCESS, INLINE, NONE };
   enum PlastimatchThreadingType { CPU, CUDA, OPENCL };
@@ -75,12 +74,12 @@ public:
   const char* GetNodeTagName() override { return "RTImage"; };
 
   void GetRTImagePosition(double position[2]);
+  void GetIsocenterPositionLPS(double position[3]);
 
 public:
- 
   /// Get beam node
   vtkMRMLRTBeamNode* GetBeamNode();
-  /// Set and observe beam node
+  /// Set and observe beam node. This updates Normal and View-Up vectors.
   void SetAndObserveBeamNode(vtkMRMLRTBeamNode* node);
 
   vtkGetVector4Macro(NormalVector, double);
@@ -119,6 +118,8 @@ public:
   vtkGetVector2Macro(ImagerSpacing, double);
   vtkSetVector2Macro(ImagerSpacing, double);
 
+  /// \brief This also updates image center data
+  void GetImageCenter(double imageCenter[2]);
   vtkGetVector2Macro(ImageCenter, int);
   vtkSetVector2Macro(ImageCenter, int);
 
@@ -137,6 +138,7 @@ protected:
   void SetAlgorithmReconstuction(int algorithmReconstuction = 0);
   void SetHUConversion(int huConversion = 0);
   void SetThreading(int threading = 0);
+  void UpdateNormalAndVupVectorsFromBeam(vtkMRMLRTBeamNode* beamNode);
 
 protected:
   double NormalVector[4];

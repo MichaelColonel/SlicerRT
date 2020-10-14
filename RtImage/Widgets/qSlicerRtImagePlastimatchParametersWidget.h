@@ -68,6 +68,7 @@ protected slots:
 
 protected:
   QScopedPointer<qSlicerRtImagePlastimatchParametersWidgetPrivate> d_ptr;
+  void updatePlastimatchDrrArguments();
 
 private:
   Q_DECLARE_PRIVATE(qSlicerRtImagePlastimatchParametersWidget);

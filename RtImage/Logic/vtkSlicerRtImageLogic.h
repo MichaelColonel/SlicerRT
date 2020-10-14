@@ -71,6 +71,8 @@ public:
   /// Set Planar Image module logic
   void SetPlanarImageLogic(vtkSlicerPlanarImageModuleLogic* planarImageLogic);
   void SetDRRComputationLogic(vtkSlicerCLIModuleLogic* plastimatchDrrLogic);
+  /// Compute DRR image
+  bool ComputePlastimatchDRR( vtkMRMLRTImageNode* rtImageOutputNode, vtkMRMLScalarVolumeNode* ctInputVolume);
 
 protected:
   vtkSlicerRtImageLogic();
@@ -96,10 +98,14 @@ private:
   vtkMRMLMarkupsClosedCurveNode* CreateImageWindow(vtkMRMLRTImageNode* node); // subwindow
   vtkMRMLMarkupsFiducialNode* CreateFiducials(vtkMRMLRTImageNode* node);
 
+  bool SetupDisplayAndSubjectHierarchyNodes( vtkMRMLRTImageNode* rtImageNode, vtkMRMLScalarVolumeNode* rtImageVolumeNode);
+  bool SetupGeometry( vtkMRMLRTImageNode* rtImageNode, vtkMRMLScalarVolumeNode* rtImageVolumeNode, vtkIdType rtImageVolumeShItemID);
+
   /// Planar Image logic instance
   vtkSlicerPlanarImageModuleLogic* PlanarImageLogic;
   /// Plastimatch DRR computation logic instance
   vtkSlicerCLIModuleLogic* PlastimatchDRRComputationLogic;
+  int PlastimatchDRRImageIndex;
 };
 
 #endif

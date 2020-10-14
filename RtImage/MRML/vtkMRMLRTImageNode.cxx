@@ -47,8 +47,8 @@ vtkMRMLRTImageNode::vtkMRMLRTImageNode()
 {
   ImagerCenterOffset[0] = 0.; // columns = x
   ImagerCenterOffset[1] = 0.; // rows = y
-  ImagerResolution[0] = 1024; // columns = x
-  ImagerResolution[1] = 768; // rows = y
+  ImagerResolution[0] = 2000; // columns = x
+  ImagerResolution[1] = 2000; // rows = y
 
   ImagerSpacing[0] = 0.25; // 250 um (columns = x)
   ImagerSpacing[1] = 0.25; // 250 um (rows = y)
@@ -250,6 +250,8 @@ void vtkMRMLRTImageNode::SetAndObserveBeamNode(vtkMRMLRTBeamNode* node)
   }
 
   this->SetNodeReferenceID(BEAM_REFERENCE_ROLE, (node ? node->GetID() : nullptr));
+  // Update normal and vup vectors
+  this->UpdateNormalAndVupVectorsFromBeam(node);
 }
 
 //----------------------------------------------------------------------------
@@ -311,4 +313,93 @@ void vtkMRMLRTImageNode::SetThreading(int threading)
       SetThreading(PlastimatchThreadingType::CPU);
       break;
   };
+}
+
+//----------------------------------------------------------------------------
+void vtkMRMLRTImageNode::UpdateNormalAndVupVectorsFromBeam(vtkMRMLRTBeamNode* beamNode)
+{
+  if (!beamNode)
+  {
+    vtkErrorMacro("UpdateNormalAndVupVectorsFromBeam: RT Beam node is invalid");
+    return;
+  }
+
+  vtkMRMLTransformNode* beamTransformNode = beamNode->GetParentTransformNode();
+  vtkTransform* beamTransform = nullptr;
+  vtkNew<vtkMatrix4x4> mat; // DICOM beam transform matrix
+  mat->Identity();
+
+  if (beamTransformNode)
+  {
+    beamTransform = vtkTransform::SafeDownCast(beamTransformNode->GetTransformToParent());
+
+    vtkNew<vtkTransform> rasToLpsTransform;
+    rasToLpsTransform->Identity();
+    rasToLpsTransform->RotateZ(180.0);
+    
+    vtkNew<vtkTransform> dicomBeamTransform;
+    dicomBeamTransform->Identity();
+    dicomBeamTransform->PreMultiply();
+    dicomBeamTransform->Concatenate(rasToLpsTransform);
+    dicomBeamTransform->Concatenate(beamTransform);
+
+    dicomBeamTransform->GetMatrix(mat);
+  }
+  else
+  {
+    vtkWarningMacro("UpdateNormalAndVupVectorsFromBeam: Beam transform node is invalid, identity matrix will be used instead");
+  }
+
+  double n[4], vup[4];
+  const double normalVector[4] = { 0., 0., 1., 0. }; // beam positive Z-axis
+  const double viewUpVector[4] = { -1., 0., 0., 0. }; // beam negative X-axis
+
+  mat->MultiplyPoint( normalVector, n);
+  mat->MultiplyPoint( viewUpVector, vup);
+
+  this->SetNormalVector(n);
+  this->SetViewUpVector(vup);
+}
+
+//----------------------------------------------------------------------------
+void vtkMRMLRTImageNode::GetIsocenterPositionLPS(double isocenterPosition[3])
+{
+  vtkMRMLRTBeamNode* beamNode = this->GetBeamNode();
+  if (!beamNode)
+  {
+    vtkErrorMacro("GetIsocenterPositionLPS: RT Beam node is invalid");
+    return;
+  }
+  
+  // Isocenter RAS position, for plastimatch isocenter MUST BE in LPS system
+  beamNode->GetPlanIsocenterPosition(isocenterPosition);
+  // Position from RAS to PLS
+  isocenterPosition[0] *= -1.;
+  isocenterPosition[1] *= -1.;
+}
+
+//----------------------------------------------------------------------------
+void vtkMRMLRTImageNode::GetImageCenter(double imageCenter[2])
+{
+  int image_window[4] = {};
+  int image_center[2] = {};
+  if (this->ImageWindowFlag)
+  {
+    image_window[0] = std::max<int>( 0, this->ImageWindow[0]); // start column
+    image_window[1] = std::min<int>( this->ImagerResolution[0] - 1, this->ImageWindow[2]); // end column
+    image_window[2] = std::max<int>( 0, this->ImageWindow[1]); // start row
+    image_window[3] = std::min<int>( this->ImagerResolution[1] - 1, this->ImageWindow[3]); // end row
+  }
+  else
+  {
+    image_window[0] = 0; // start column
+    image_window[1] = this->ImagerResolution[0] - 1; // end column
+    image_window[2] = 0; // start row
+    image_window[3] = this->ImagerResolution[1] - 1; // end row
+  }
+  imageCenter[0] = image_window[0] + (image_window[1] - image_window[0]) / 2.; // column
+  imageCenter[1] = image_window[2] + (image_window[3] - image_window[2]) / 2.; // row
+  image_center[0] = static_cast<int>(imageCenter[0]);
+  image_center[1] = static_cast<int>(imageCenter[1]);
+  this->SetImageCenter(image_center);
 }

@@ -71,12 +71,9 @@ add_subdirectory(DosxyzNrc3dDoseFileReader)
 add_subdirectory(DicomSroImportExport)
 add_subdirectory(BatchProcessing)
 add_subdirectory(RoomsEyeView)
-#add_subdirectory(RtImage)
 
 add_subdirectory(PlastimatchPy)
 add_subdirectory(PlmBspline)
-add_subdirectory(PlmDrr)
-add_subdirectory(PlmDrr2)
 add_subdirectory(PlmLandwarp)
 add_subdirectory(PlmRegister)
 
@@ -85,6 +82,11 @@ if (SLICERRT_ENABLE_EXPERIMENTAL_MODULES)
   add_subdirectory(PlmThreshbox)
   add_subdirectory(PinnacleDvfReader)
 
+  # Plastimatch DRR generation
+  add_subdirectory(RtImage)
+  add_subdirectory(PlmDrr)
+  add_subdirectory(PlmDrr2)
+
   # Registration validation routines
   add_subdirectory(PlmSynth)
   add_subdirectory(PlmVectorFieldAnalysis)
@@ -92,7 +94,6 @@ endif()
 
 if(BUILD_TESTING)
   add_subdirectory(Testing)
-  add_subdirectory(RtImage)
 endif()
 
 #-----------------------------------------------------------------------------

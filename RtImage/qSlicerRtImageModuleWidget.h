@@ -59,6 +59,8 @@ public slots:
   void onShowMarkupsToggled(bool);
   void onUseImageWindowToggled(bool);
 
+  void onComputeDrrClicked();
+
   /// Update widget GUI from RT Image parameters node
   void updateWidgetFromMRML();
 
