@@ -75,6 +75,7 @@ public:
 
   void GetRTImagePosition(double position[2]);
   void GetIsocenterPositionLPS(double position[3]);
+  void UpdateNormalAndVupVectorsFromBeam(vtkMRMLRTBeamNode* beamNode = nullptr);
 
 public:
   /// Get beam node
@@ -138,7 +139,6 @@ protected:
   void SetAlgorithmReconstuction(int algorithmReconstuction = 0);
   void SetHUConversion(int huConversion = 0);
   void SetThreading(int threading = 0);
-  void UpdateNormalAndVupVectorsFromBeam(vtkMRMLRTBeamNode* beamNode);
 
 protected:
   double NormalVector[4];

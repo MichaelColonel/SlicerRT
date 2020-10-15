@@ -136,17 +136,9 @@ void qSlicerRtImageModuleWidget::setup()
     this, SLOT(onImageWindowRowsValuesChanged( double, double)));
 
   // Buttons
-//  connect( d->PushButton_SelectPlastimatchAppPath, SIGNAL(clicked()), this, SLOT(onSelectPlastimatchAppPathClicked()));
   connect( d->PushButton_ComputeDrr, SIGNAL(clicked()), this, SLOT(onComputeDrrClicked()));
   connect( d->CheckBox_ShowDrrMarkups, SIGNAL(toggled(bool)), this, SLOT(onShowMarkupsToggled(bool)));
   connect( d->CheckBox_UseImageWindow, SIGNAL(toggled(bool)), this, SLOT(onUseImageWindowToggled(bool)));
-//  connect( d->CheckBox_UseExponentialMapping, SIGNAL(toggled(bool)), this, SLOT(onUseExponentialMappingToggled(bool)));
-//  connect( d->CheckBox_AutoscalePixelsRange, SIGNAL(toggled(bool)), this, SLOT(onAutoscalePixelsRangeToggled(bool)));
-
-  // Button groups
-//  connect( d->ButtonGroup_ReconstructionAlgorithm, SIGNAL(buttonClicked(int)), this, SLOT(onReconstructionAlgorithmChanged(int)));
-//  connect( d->ButtonGroup_Threading, SIGNAL(buttonClicked(int)), this, SLOT(onThreadingChanged(int)));
-//  connect( d->ButtonGroup_HUConversion, SIGNAL(buttonClicked(int)), this, SLOT(onHUConversionChanged(int)));
 
   // Handle scene change event if occurs
   qvtkConnect( d->logic(), vtkCommand::ModifiedEvent, this, SLOT(onLogicModified()));
@@ -179,6 +171,7 @@ void qSlicerRtImageModuleWidget::setMRMLScene(vtkMRMLScene* scene)
       this->setParameterNode(newNode);
     }
   }
+  qDebug() << Q_FUNC_INFO << ": called";
 }
 
 //-----------------------------------------------------------------------------
@@ -204,7 +197,7 @@ void qSlicerRtImageModuleWidget::setParameterNode(vtkMRMLNode *node)
     if (!d->ParameterNode->GetBeamNode())
     {
       vtkMRMLRTBeamNode* beamNode = vtkMRMLRTBeamNode::SafeDownCast(d->MRMLNodeComboBox_RtBeam->currentNode());
-//      qvtkConnect( beamNode, vtkMRMLRTBeamNode::BeamGeometryModified, this, SLOT(onUpdateImageWindowFromBeamJaws()));
+//      qvtkConnect( beamNode, vtkMRMLRTBeamNode::BeamTransformModified, this, SLOT(updateNormalAndVupVectors()));
       d->ParameterNode->SetAndObserveBeamNode(beamNode);
       d->ParameterNode->Modified();
     }
@@ -264,11 +257,13 @@ void qSlicerRtImageModuleWidget::updateWidgetFromMRML()
   int imageWindow[4] = {};
   d->ParameterNode->GetImageWindow(imageWindow);
 
+  // TODO: Image window is disabled for now
+  useImageWindow = false;
   d->CheckBox_UseImageWindow->setChecked(useImageWindow);
   if (!useImageWindow)
   {
-//    d->RangeWidget_ImageWindowColumns->setValues( 0., double(imagerResolution[0] - 1));
-//    d->RangeWidget_ImageWindowRows->setValues( 0., double(imagerResolution[1] - 1));
+    d->RangeWidget_ImageWindowColumns->setValues( 0., double(imagerResolution[0] - 1));
+    d->RangeWidget_ImageWindowRows->setValues( 0., double(imagerResolution[1] - 1));
   }
   else
   {
@@ -417,7 +412,15 @@ void qSlicerRtImageModuleWidget::onEnter()
       d->RtBeamNode = nullptr;
     }
   }
+  else // If referenced beam node is valid
+  {
+    // First thing first: update normal and vup vectors for parameter node
+    // in case observed beam node transformation has been modified
+    d->ParameterNode->UpdateNormalAndVupVectorsFromBeam();
+    qDebug() << Q_FUNC_INFO << ": nrm and vup vectors have been updated";
+  }
 
+  // Create of update DRR markups nodes
   d->logic()->CreateMarkupsNodes(d->ParameterNode);
 
   d->ModuleWindowInitialized = true;
@@ -428,6 +431,7 @@ void qSlicerRtImageModuleWidget::onEnter()
 void qSlicerRtImageModuleWidget::onLogicModified()
 {
   this->updateWidgetFromMRML();
+  qDebug() << Q_FUNC_INFO << ": called";
 }
 
 //-----------------------------------------------------------------------------
@@ -541,6 +545,8 @@ void qSlicerRtImageModuleWidget::onUseImageWindowToggled(bool value)
     return;
   }
 
+  // TODO: Image window is disabled for now
+  value = false;
   if (value)
   {
     int imagerResolution[2] = {};

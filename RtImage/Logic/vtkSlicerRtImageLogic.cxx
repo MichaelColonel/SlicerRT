@@ -38,7 +38,7 @@
 // SlicerRT MRML includes
 #include <vtkMRMLRTBeamNode.h>
 #include <vtkMRMLRTPlanNode.h>
-#include <vtkMRMLRTImageNode.h>
+#include "vtkMRMLRTImageNode.h"
 
 // SubjectHierarchy includes
 #include <vtkMRMLSubjectHierarchyConstants.h>
@@ -899,7 +899,8 @@ bool vtkSlicerRtImageLogic::ComputePlastimatchDRR( vtkMRMLRTImageNode* parameter
   cmdNode->SetParameterAsString( "outputVolume", drrVolumeNode->GetID());
   cmdNode->SetParameterAsDouble( "sourceAxisDistance", beamNode->GetSAD());
   cmdNode->SetParameterAsDouble( "sourceImagerDistance", beamNode->GetSAD() + parameterNode->GetIsocenterImagerDistance());
-  
+
+  // Fill CLI cmd node data
   std::stringstream vupStream;
   double vup[4] = { -1., 0., 0., 0 };
   parameterNode->GetViewUpVector(vup);
@@ -1028,20 +1029,9 @@ bool vtkSlicerRtImageLogic::SetupDisplayAndSubjectHierarchyNodes( vtkMRMLRTImage
 
   float autoscaleRange[2] = { 0.f, 255.f };
   parameterNode->GetAutoscaleRange(autoscaleRange);
-  if (!parameterNode->GetAutoscaleFlag()/* || (parameterNode->GetAutoscaleFlag() &&
-    !autoscaleRange[0] && !autoscaleRange[1])*/)
-  {
-    volumeDisplayNode->AutoWindowLevelOn();
-  }
-  else
-  {
-    // Apply given intensity range if available
-    float center = (autoscaleRange[1] - autoscaleRange[0]) / 2.f; // window center
-    float width = autoscaleRange[1] - autoscaleRange[0]; // window width
-
-    volumeDisplayNode->AutoWindowLevelOff();
-    volumeDisplayNode->SetWindowLevel(width, center);
-  }
+  
+  // TODO: add manual level setting
+  volumeDisplayNode->AutoWindowLevelOn();
 
   drrVolumeNode->SetAndObserveDisplayNodeID(volumeDisplayNode->GetID());
 
@@ -1064,18 +1054,16 @@ bool vtkSlicerRtImageLogic::SetupDisplayAndSubjectHierarchyNodes( vtkMRMLRTImage
   std::string rtImagePositionString = std::to_string(rtImagePosition[0]) + std::string(" ") + std::to_string(rtImagePosition[1]);
   shNode->SetItemAttribute(rtImageVolumeShItemID, vtkSlicerRtCommon::DICOMRTIMPORT_RTIMAGE_POSITION_ATTRIBUTE_NAME, rtImagePositionString);
 
-  // Compute and set RT image geometry. Uses the referenced beam if available, otherwise the geometry will be set up when loading the referenced beam
-  return this->SetupGeometry( parameterNode, drrVolumeNode, rtImageVolumeShItemID);
+  // Compute and set RT image geometry. Uses the referenced beam 
+  return this->SetupGeometry( parameterNode, drrVolumeNode);
 }
 
 //------------------------------------------------------------------------------
-bool vtkSlicerRtImageLogic::SetupGeometry( vtkMRMLRTImageNode* parameterNode, vtkMRMLScalarVolumeNode* drrVolumeNode, vtkIdType rtImageShItemID)
+bool vtkSlicerRtImageLogic::SetupGeometry( vtkMRMLRTImageNode* parameterNode, vtkMRMLScalarVolumeNode* drrVolumeNode)
 {
   vtkMRMLRTBeamNode* beamNode = parameterNode->GetBeamNode();
 
   vtkMRMLSubjectHierarchyNode* shNode = vtkMRMLSubjectHierarchyNode::GetSubjectHierarchyNode(this->GetMRMLScene());
-
-//  vtkIdType rtImageShItemID = shNode->GetItemByDataNode(drrVolumeNode);
 
   // Get RT plan for beam
   vtkMRMLRTPlanNode *planNode = beamNode->GetParentPlanNode();
@@ -1109,28 +1097,17 @@ bool vtkSlicerRtImageLogic::SetupGeometry( vtkMRMLRTImageNode* parameterNode, vt
   std::string drrName = std::string("DRR ") + std::to_string(PlastimatchDRRImageIndex++) + std::string(" : ") + std::string(beamNode->GetName());
   drrVolumeNode->SetName(drrName.c_str());
 
-  // Get source to RT image plane distance (along beam axis)
-  double rtImageSid = 0.0;
-  std::string rtImageSidStr = shNode->GetItemAttribute(rtImageShItemID, vtkSlicerRtCommon::DICOMRTIMPORT_RTIMAGE_SID_ATTRIBUTE_NAME);
-  if (!rtImageSidStr.empty())
-  {
-    rtImageSid = vtkVariant(rtImageSidStr).ToDouble();
-  }
-
-  // Get RT image position (the x and y coordinates (in mm) of the upper left hand corner of the image, in the IEC X-RAY IMAGE RECEPTOR coordinate system)
-  double rtImagePosition[2] = {};
-  std::string rtImagePositionStr = shNode->GetItemAttribute(rtImageShItemID, vtkSlicerRtCommon::DICOMRTIMPORT_RTIMAGE_POSITION_ATTRIBUTE_NAME);
-  if (!rtImagePositionStr.empty())
-  {
-    std::stringstream ss;
-    ss << rtImagePositionStr;
-    ss >> rtImagePosition[0] >> rtImagePosition[1];
-  }
-
   // Extract beam-related parameters needed to compute RT image coordinate system
   double sourceAxisDistance = beamNode->GetSAD();
   double gantryAngle = beamNode->GetGantryAngle();
   double couchAngle = beamNode->GetCouchAngle();
+
+  // Source to RT image plane distance (along beam axis)
+  double rtImageSid = sourceAxisDistance + parameterNode->GetIsocenterImagerDistance();
+
+  // RT image position (the x and y coordinates (in mm) of the upper left hand corner of the image, in the IEC X-RAY IMAGE RECEPTOR coordinate system)
+  double rtImagePosition[2] = {};
+  parameterNode->GetRTImagePosition(rtImagePosition);
 
 //  int window[4];
 //  parameterNode->GetImageWindow(window);
@@ -1146,27 +1123,27 @@ bool vtkSlicerRtImageLogic::SetupGeometry( vtkMRMLRTImageNode* parameterNode, vt
   }
 
   // Assemble transform from isocenter IEC to RT image RAS
-  vtkSmartPointer<vtkTransform> fixedToIsocenterTransform = vtkSmartPointer<vtkTransform>::New();
+  vtkNew<vtkTransform> fixedToIsocenterTransform;
   fixedToIsocenterTransform->Identity();
   fixedToIsocenterTransform->Translate(isocenterWorldCoordinates);
 
-  vtkSmartPointer<vtkTransform> couchToFixedTransform = vtkSmartPointer<vtkTransform>::New();
+  vtkNew<vtkTransform> couchToFixedTransform;
   couchToFixedTransform->Identity();
   couchToFixedTransform->RotateWXYZ(couchAngle, 0.0, 1.0, 0.0);
 
-  vtkSmartPointer<vtkTransform> gantryToCouchTransform = vtkSmartPointer<vtkTransform>::New();
+  vtkNew<vtkTransform> gantryToCouchTransform;
   gantryToCouchTransform->Identity();
   gantryToCouchTransform->RotateWXYZ(gantryAngle, 0.0, 0.0, 1.0);
 
-  vtkSmartPointer<vtkTransform> sourceToGantryTransform = vtkSmartPointer<vtkTransform>::New();
+  vtkNew<vtkTransform> sourceToGantryTransform;
   sourceToGantryTransform->Identity();
   sourceToGantryTransform->Translate(0.0, sourceAxisDistance, 0.0);
 
-  vtkSmartPointer<vtkTransform> rtImageToSourceTransform = vtkSmartPointer<vtkTransform>::New();
+  vtkNew<vtkTransform> rtImageToSourceTransform;
   rtImageToSourceTransform->Identity();
   rtImageToSourceTransform->Translate(0.0, -1. * rtImageSid, 0.0);
 
-  vtkSmartPointer<vtkTransform> rtImageCenterToCornerTransform = vtkSmartPointer<vtkTransform>::New();
+  vtkNew<vtkTransform> rtImageCenterToCornerTransform;
   rtImageCenterToCornerTransform->Identity();
   rtImageCenterToCornerTransform->Translate( -1. * rtImagePosition[0], 0.0, rtImagePosition[1]);
 
@@ -1181,19 +1158,19 @@ bool vtkSlicerRtImageLogic::SetupGeometry( vtkMRMLRTImageNode* parameterNode, vt
   //  ZDICOM) = (XIEC, -ZIEC, YIEC). Refer to the latest IEC documentation for the current definition of the
   //  IEC PATIENT Coordinate System."
   // The IJK to RAS transform already contains the LPS to RAS conversion, so we only need to consider this rotation
-  vtkSmartPointer<vtkTransform> iecToLpsTransform = vtkSmartPointer<vtkTransform>::New();
+  vtkNew<vtkTransform> iecToLpsTransform;
   iecToLpsTransform->Identity();
   iecToLpsTransform->RotateX(90.0);
   iecToLpsTransform->RotateZ(-90.0);
 
   // Get RT image IJK to RAS matrix (containing the spacing and the LPS-RAS conversion)
-  vtkSmartPointer<vtkMatrix4x4> rtImageIjkToRtImageRasTransformMatrix = vtkSmartPointer<vtkMatrix4x4>::New();
+  vtkNew<vtkMatrix4x4> rtImageIjkToRtImageRasTransformMatrix;
   drrVolumeNode->GetIJKToRASMatrix(rtImageIjkToRtImageRasTransformMatrix);
-  vtkSmartPointer<vtkTransform> rtImageIjkToRtImageRasTransform = vtkSmartPointer<vtkTransform>::New();
+  vtkNew<vtkTransform> rtImageIjkToRtImageRasTransform;
   rtImageIjkToRtImageRasTransform->SetMatrix(rtImageIjkToRtImageRasTransformMatrix);
 
   // Concatenate the transform components
-  vtkSmartPointer<vtkTransform> isocenterToRtImageRas = vtkSmartPointer<vtkTransform>::New();
+  vtkNew<vtkTransform> isocenterToRtImageRas;
   isocenterToRtImageRas->Identity();
   isocenterToRtImageRas->PreMultiply();
   isocenterToRtImageRas->Concatenate(fixedToIsocenterTransform);

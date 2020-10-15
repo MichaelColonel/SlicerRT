@@ -54,7 +54,7 @@ vtkMRMLRTImageNode::vtkMRMLRTImageNode()
   ImagerSpacing[1] = 0.25; // 250 um (rows = y)
 
   // default image window is whole imager
-  ImageWindowFlag = true;
+  ImageWindowFlag = false;
   ImageWindow[0] = 0; // c1 = x0 (start column) 
   ImageWindow[1] = 0; // r1 = y0 (start row)
   ImageWindow[2] = ImagerResolution[0] - 1; // c2 = x1 (end column)
@@ -67,7 +67,7 @@ vtkMRMLRTImageNode::vtkMRMLRTImageNode()
   HUConversion = PREPROCESS;
   Threading = CPU;
   ExponentialMappingFlag = true;
-  AutoscaleFlag = false;
+  AutoscaleFlag = true;
   AutoscaleRange[0] = 0.;
   AutoscaleRange[1] = 255.;
 
@@ -257,11 +257,19 @@ void vtkMRMLRTImageNode::SetAndObserveBeamNode(vtkMRMLRTBeamNode* node)
 //----------------------------------------------------------------------------
 void vtkMRMLRTImageNode::GetRTImagePosition(double position[2])
 {
-  double offsetX = double(ImageWindow[0]) * ImagerSpacing[0];
-  double offsetY = double(ImageWindow[1]) * ImagerSpacing[1];
+  position[0] = 0.;
+  position[1] = 0.;
+  double offsetX = double(ImagerResolution[1]) * ImagerSpacing[1] / 2.;
+  double offsetY = double(ImagerResolution[0]) * ImagerSpacing[0] / 2.;
 
-  position[0] = offsetX - ImagerSpacing[0] * ImagerResolution[0] / 2.; // columns (X)
-  position[1] = offsetY - ImagerSpacing[1] * ImagerResolution[1] / 2.; // rows (Y)
+  position[0] -= offsetX;
+  position[1] -= offsetY;
+
+  if (ImageWindowFlag)
+  {
+    position[0] += ImagerSpacing[1] * double(ImageWindow[1]); // columns (X)
+    position[1] += ImagerSpacing[0] * double(ImageWindow[0]); // rows (Y)
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -316,8 +324,10 @@ void vtkMRMLRTImageNode::SetThreading(int threading)
 }
 
 //----------------------------------------------------------------------------
-void vtkMRMLRTImageNode::UpdateNormalAndVupVectorsFromBeam(vtkMRMLRTBeamNode* beamNode)
+void vtkMRMLRTImageNode::UpdateNormalAndVupVectorsFromBeam(vtkMRMLRTBeamNode* node)
 {
+  vtkMRMLRTBeamNode* beamNode = (node) ? node : this->GetBeamNode();
+
   if (!beamNode)
   {
     vtkErrorMacro("UpdateNormalAndVupVectorsFromBeam: RT Beam node is invalid");

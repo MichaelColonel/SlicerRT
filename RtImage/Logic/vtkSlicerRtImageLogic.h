@@ -99,7 +99,7 @@ private:
   vtkMRMLMarkupsFiducialNode* CreateFiducials(vtkMRMLRTImageNode* node);
 
   bool SetupDisplayAndSubjectHierarchyNodes( vtkMRMLRTImageNode* rtImageNode, vtkMRMLScalarVolumeNode* rtImageVolumeNode);
-  bool SetupGeometry( vtkMRMLRTImageNode* rtImageNode, vtkMRMLScalarVolumeNode* rtImageVolumeNode, vtkIdType rtImageVolumeShItemID);
+  bool SetupGeometry( vtkMRMLRTImageNode* rtImageNode, vtkMRMLScalarVolumeNode* rtImageVolumeNode);
 
   /// Planar Image logic instance
   vtkSlicerPlanarImageModuleLogic* PlanarImageLogic;

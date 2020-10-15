@@ -77,15 +77,16 @@ add_subdirectory(PlmBspline)
 add_subdirectory(PlmLandwarp)
 add_subdirectory(PlmRegister)
 
+
+# Plastimatch DRR generation
+add_subdirectory(RtImage)
+add_subdirectory(PlmDrr)
+add_subdirectory(PlmDrr2)
+
 if (SLICERRT_ENABLE_EXPERIMENTAL_MODULES)
   # In development
   add_subdirectory(PlmThreshbox)
   add_subdirectory(PinnacleDvfReader)
-
-  # Plastimatch DRR generation
-  add_subdirectory(RtImage)
-  add_subdirectory(PlmDrr)
-  add_subdirectory(PlmDrr2)
 
   # Registration validation routines
   add_subdirectory(PlmSynth)

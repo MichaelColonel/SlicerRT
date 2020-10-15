@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>448</width>
-    <height>491</height>
+    <width>470</width>
+    <height>588</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -16,14 +16,11 @@
   <layout class="QGridLayout" name="gridLayout">
    <item row="0" column="0">
     <widget class="ctkCollapsibleButton" name="CollapsibleButton_PlmDrrImageProcessing">
-     <property name="enabled">
-      <bool>true</bool>
-     </property>
      <property name="text">
       <string>Plastimatch DRR image processing</string>
      </property>
      <property name="collapsed">
-      <bool>true</bool>
+      <bool>false</bool>
      </property>
      <layout class="QGridLayout" name="gridLayout_6">
       <item row="1" column="0">
@@ -40,7 +37,7 @@
            <item row="0" column="0">
             <widget class="QCheckBox" name="CheckBox_AutoscaleIntensity">
              <property name="enabled">
-              <bool>false</bool>
+              <bool>true</bool>
              </property>
              <property name="text">
               <string>Autoscale intensity</string>
@@ -69,10 +66,13 @@
               <bool>true</bool>
              </property>
              <property name="decimals">
-              <number>0</number>
+              <number>2</number>
+             </property>
+             <property name="minimum">
+              <double>-32768.000000000000000</double>
              </property>
              <property name="maximum">
-              <double>65535.000000000000000</double>
+              <double>32767.000000000000000</double>
              </property>
              <property name="maximumValue">
               <double>255.000000000000000</double>
@@ -224,6 +224,12 @@
    </item>
    <item row="1" column="0">
     <widget class="ctkCollapsibleButton" name="CollapsibleButton_PlmDrrArgs">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Minimum" vsizetype="Expanding">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
      <property name="text">
       <string>Plastimatch DRR command arguments (read only)</string>
      </property>
@@ -259,8 +265,8 @@
  <resources/>
  <connections/>
  <buttongroups>
+  <buttongroup name="ButtonGroup_ReconstructAlgorithm"/>
   <buttongroup name="ButtonGroup_Threading"/>
   <buttongroup name="ButtonGroup_HuConversion"/>
-  <buttongroup name="ButtonGroup_ReconstructAlgorithm"/>
  </buttongroups>
 </ui>
