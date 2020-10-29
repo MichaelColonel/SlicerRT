@@ -1,7 +1,7 @@
 
 #-----------------------------------------------------------------------------
 set(MODULE_NAME RtImage)
-set(MODULE_TITLE ${MODULE_NAME})
+set(MODULE_TITLE "DRR Computation")
 
 string(TOUPPER ${MODULE_NAME} MODULE_NAME_UPPER)
 

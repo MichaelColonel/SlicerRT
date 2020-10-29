@@ -15,11 +15,11 @@
   </property>
   <layout class="QGridLayout" name="gridLayout">
    <item row="0" column="0">
-    <widget class="ctkCollapsibleButton" name="CollapsibleButton_PlmDrrImageProcessing">
-     <property name="text">
+    <widget class="ctkCollapsibleButton" name="CollapsibleButton_PlmDrrImageProcessing" native="true">
+     <property name="text" stdset="0">
       <string>Plastimatch DRR image processing</string>
      </property>
-     <property name="collapsed">
+     <property name="collapsed" stdset="0">
       <bool>true</bool>
      </property>
      <layout class="QGridLayout" name="gridLayout_6">
@@ -40,7 +40,7 @@
               <bool>true</bool>
              </property>
              <property name="text">
-              <string>Autoscale intensity</string>
+              <string>Autoscale</string>
              </property>
              <property name="checked">
               <bool>true</bool>
@@ -49,33 +49,34 @@
            </item>
            <item row="1" column="0">
             <widget class="QLabel" name="label">
-             <property name="sizePolicy">
-              <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-               <horstretch>0</horstretch>
-               <verstretch>0</verstretch>
-              </sizepolicy>
-             </property>
              <property name="text">
-              <string>Intensity range:</string>
+              <string>Range:</string>
              </property>
             </widget>
            </item>
            <item row="1" column="1">
-            <widget class="ctkRangeWidget" name="RangeWidget_IntensityRange">
+            <widget class="ctkRangeWidget" name="RangeWidget_IntensityRange" native="true">
              <property name="enabled">
               <bool>true</bool>
              </property>
-             <property name="decimals">
+             <property name="decimals" stdset="0">
               <number>2</number>
              </property>
-             <property name="minimum">
+             <property name="minimum" stdset="0">
               <double>-32768.000000000000000</double>
              </property>
-             <property name="maximum">
+             <property name="maximum" stdset="0">
               <double>32767.000000000000000</double>
              </property>
-             <property name="maximumValue">
+             <property name="maximumValue" stdset="0">
               <double>255.000000000000000</double>
+             </property>
+            </widget>
+           </item>
+           <item row="0" column="1">
+            <widget class="QCheckBox" name="CheckBox_InvertIntensity">
+             <property name="text">
+              <string>Invert</string>
              </property>
             </widget>
            </item>
@@ -229,17 +230,17 @@
     </widget>
    </item>
    <item row="1" column="0">
-    <widget class="ctkCollapsibleButton" name="CollapsibleButton_PlmDrrArgs">
+    <widget class="ctkCollapsibleButton" name="CollapsibleButton_PlmDrrArgs" native="true">
      <property name="sizePolicy">
       <sizepolicy hsizetype="Minimum" vsizetype="Expanding">
        <horstretch>0</horstretch>
        <verstretch>0</verstretch>
       </sizepolicy>
      </property>
-     <property name="text">
+     <property name="text" stdset="0">
       <string>Plastimatch DRR command arguments (read only)</string>
      </property>
-     <property name="collapsed">
+     <property name="collapsed" stdset="0">
       <bool>true</bool>
      </property>
      <layout class="QVBoxLayout" name="verticalLayout_3">
@@ -271,8 +272,8 @@
  <resources/>
  <connections/>
  <buttongroups>
-  <buttongroup name="ButtonGroup_Threading"/>
   <buttongroup name="ButtonGroup_ReconstructAlgorithm"/>
+  <buttongroup name="ButtonGroup_Threading"/>
   <buttongroup name="ButtonGroup_HuConversion"/>
  </buttongroups>
 </ui>

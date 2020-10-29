@@ -80,6 +80,7 @@ void qSlicerRtImagePlastimatchParametersWidgetPrivate::init()
   // Buttons
   QObject::connect( this->CheckBox_UseExponentialMapping, SIGNAL(toggled(bool)), q, SLOT(onUseExponentialMappingToggled(bool)));
   QObject::connect( this->CheckBox_AutoscaleIntensity, SIGNAL(toggled(bool)), q, SLOT(onAutoscalePixelsRangeToggled(bool)));
+  QObject::connect( this->CheckBox_InvertIntensity, SIGNAL(toggled(bool)), q, SLOT(onInvertIntensityToggled(bool)));
 
   // Button groups
   QObject::connect( this->ButtonGroup_ReconstructAlgorithm, SIGNAL(buttonClicked(int)), q, SLOT(onReconstructionAlgorithmChanged(int)));
@@ -133,6 +134,7 @@ void qSlicerRtImagePlastimatchParametersWidget::updateWidgetFromMRML()
   // Update widgets info from parameter node and update plastimatch drr command
   d->CheckBox_UseExponentialMapping->setChecked(d->ParameterNode->GetExponentialMappingFlag());
   d->CheckBox_AutoscaleIntensity->setChecked(d->ParameterNode->GetAutoscaleFlag());
+  d->CheckBox_InvertIntensity->setChecked(d->ParameterNode->GetInvertIntensityFlag());
 
   float autoscaleRange[2] = { 0.f, 255.f };
   d->ParameterNode->GetAutoscaleRange(autoscaleRange);
@@ -303,6 +305,20 @@ void qSlicerRtImagePlastimatchParametersWidget::onAutoscalePixelsRangeToggled(bo
   }
 
   d->ParameterNode->SetAutoscaleFlag(value);
+}
+
+//-----------------------------------------------------------------------------
+void qSlicerRtImagePlastimatchParametersWidget::onInvertIntensityToggled(bool value)
+{
+  Q_D(qSlicerRtImagePlastimatchParametersWidget);
+
+  if (!d->ParameterNode)
+  {
+    qCritical() << Q_FUNC_INFO << ": Invalid parameter node";
+    return;
+  }
+
+  d->ParameterNode->SetInvertIntensityFlag(value);
 }
 
 //-----------------------------------------------------------------------------

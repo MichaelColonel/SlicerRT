@@ -76,6 +76,7 @@ vtkMRMLRTImageNode::vtkMRMLRTImageNode()
   AutoscaleFlag = true;
   AutoscaleRange[0] = 0.;
   AutoscaleRange[1] = 255.;
+  InvertIntensityFlag = false;
 
   IsocenterImagerDistance = 300.;
 }
@@ -103,6 +104,7 @@ void vtkMRMLRTImageNode::WriteXML(ostream& of, int nIndent)
   vtkMRMLWriteXMLVectorMacro(ImageWindow, ImageWindow, int, 4);
   vtkMRMLWriteXMLBooleanMacro(ExponentialMappingFlag, ExponentialMappingFlag);
   vtkMRMLWriteXMLBooleanMacro(AutoscaleFlag, AutoscaleFlag);
+  vtkMRMLWriteXMLBooleanMacro(InvertIntensityFlag, InvertIntensityFlag);
   vtkMRMLWriteXMLVectorMacro(AutoscaleRange, AutoscaleRange, float, 2); 
   vtkMRMLWriteXMLIntMacro(AlgorithmReconstuction, AlgorithmReconstuction);
   vtkMRMLWriteXMLIntMacro(HUConversion, HUConversion);
@@ -129,6 +131,7 @@ void vtkMRMLRTImageNode::ReadXMLAttributes(const char** atts)
   vtkMRMLReadXMLVectorMacro(ImageWindow, ImageWindow, int, 4);
   vtkMRMLReadXMLBooleanMacro(ExponentialMappingFlag, ExponentialMappingFlag);
   vtkMRMLReadXMLBooleanMacro(AutoscaleFlag, AutoscaleFlag);
+  vtkMRMLReadXMLBooleanMacro(InvertIntensityFlag, InvertIntensityFlag);
   vtkMRMLReadXMLVectorMacro(AutoscaleRange, AutoscaleRange, float, 2);
   vtkMRMLReadXMLIntMacro(AlgorithmReconstuction, AlgorithmReconstuction);
   vtkMRMLReadXMLIntMacro(HUConversion, HUConversion);
@@ -169,6 +172,7 @@ void vtkMRMLRTImageNode::Copy(vtkMRMLNode *anode)
   vtkMRMLCopyVectorMacro(ImageWindow, int, 4);
   vtkMRMLCopyBooleanMacro(ExponentialMappingFlag);
   vtkMRMLCopyBooleanMacro(AutoscaleFlag);
+  vtkMRMLCopyBooleanMacro(InvertIntensityFlag);
   vtkMRMLCopyVectorMacro(AutoscaleRange, float, 2);
   vtkMRMLCopyIntMacro(AlgorithmReconstuction);
   vtkMRMLCopyIntMacro(HUConversion);
@@ -205,6 +209,7 @@ void vtkMRMLRTImageNode::CopyContent(vtkMRMLNode *anode, bool deepCopy/*=true*/)
   vtkMRMLCopyVectorMacro(ImageWindow, int, 4);
   vtkMRMLCopyBooleanMacro(ExponentialMappingFlag);
   vtkMRMLCopyBooleanMacro(AutoscaleFlag);
+  vtkMRMLCopyBooleanMacro(InvertIntensityFlag);
   vtkMRMLCopyVectorMacro(AutoscaleRange, float, 2);
   vtkMRMLCopyIntMacro(AlgorithmReconstuction);
   vtkMRMLCopyIntMacro(HUConversion);
@@ -230,6 +235,7 @@ void vtkMRMLRTImageNode::PrintSelf(ostream& os, vtkIndent indent)
   vtkMRMLPrintVectorMacro(ImageWindow, int, 4);
   vtkMRMLPrintBooleanMacro(ExponentialMappingFlag);
   vtkMRMLPrintBooleanMacro(AutoscaleFlag);
+  vtkMRMLPrintBooleanMacro(InvertIntensityFlag);
   vtkMRMLPrintVectorMacro(AutoscaleRange, float, 2);
   vtkMRMLPrintIntMacro(AlgorithmReconstuction);
   vtkMRMLPrintIntMacro(HUConversion);

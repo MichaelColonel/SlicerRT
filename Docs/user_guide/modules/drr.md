@@ -49,9 +49,9 @@ based on [plastimatch drr](http://www.plastimatch.org/drr.html) ones.
 
 ### Graphical User Interface loadable module (GUI)
 
-![image](https://user-images.githubusercontent.com/3785912/96576439-dd4e5180-12da-11eb-9561-6e3628829dce.png)
+![image](https://user-images.githubusercontent.com/3785912/97528819-a6093000-19bf-11eb-969b-3eaa38bf98c4.png)
 
-Loadable GUI module "RtImage" uses CLI module's logic and nodes data to calculate
+Loadable GUI module "DRR Computation" uses CLI module's logic and nodes data to calculate
 and visualize DRR image. It also shows basic detector elements such as: detector boundary,
 detector normal vector, detector view-up vector, detector image origin (0,0) pixel,
 image subwindow boundary as markups data on a slice and 3D views.
@@ -85,14 +85,15 @@ represented by vtkMRMLRTBeamNode object.
 
 #### Plastimatch DRR image processing
 
-![image](https://user-images.githubusercontent.com/3785912/96576832-636a9800-12db-11eb-96f2-c69f416a3a1b.png)
+![image](https://user-images.githubusercontent.com/3785912/97527533-99cfa380-19bc-11eb-8875-42598847f246.png)
 
 10. **Use exponential mapping**: Apply exponential mapping of output values
-11. **Autoscale intensity**: Automatically rescale intensity
-12. **Intensity range**: Range used for intensity in form (min, max)
-13. **Reconstruction algorithm**: Type of reconstruction algorithm (Type of exposure algorithm in CLI module)
-16. **Hounsfield units conversion**: Type of Hounsfield Units conversion during computation
-15. **Threading**: Type of parallelism of computation
+11. **Autoscale**: Automatically rescale intensity
+12. **Invert**: Invert image intensity
+13. **Range**: Range used for intensity in form (min, max)
+14. **Reconstruction algorithm**: Type of reconstruction algorithm (Type of exposure algorithm in CLI module)
+15. **Hounsfield units conversion**: Type of Hounsfield Units conversion during computation
+16. **Threading**: Type of parallelism of computation
 
 #### Plastimatch DRR command arguments (read only)
 

@@ -58,6 +58,8 @@ protected slots:
   void onUseExponentialMappingToggled(bool);
   /// Autoscale flag
   void onAutoscalePixelsRangeToggled(bool);
+  /// Invert intensity flag
+  void onInvertIntensityToggled(bool);
   /// Type of reconstruct algorithm
   void onReconstructionAlgorithmChanged(int);
   /// Type of computation threading

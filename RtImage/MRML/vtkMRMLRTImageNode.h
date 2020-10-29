@@ -127,6 +127,9 @@ public:
   vtkGetMacro(ImageWindowFlag, bool);
   vtkSetMacro(ImageWindowFlag, bool);
 
+  vtkGetMacro(InvertIntensityFlag, bool);
+  vtkSetMacro(InvertIntensityFlag, bool);
+
   vtkGetVector4Macro(ImageWindow, int);
   vtkSetVector4Macro(ImageWindow, int);
 
@@ -155,6 +158,7 @@ protected:
   PlastimatchThreadingType Threading;
   bool ExponentialMappingFlag;
   bool AutoscaleFlag;
+  bool InvertIntensityFlag;
   float AutoscaleRange[2];
 };
 

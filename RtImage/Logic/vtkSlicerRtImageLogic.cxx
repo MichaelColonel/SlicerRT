@@ -1025,7 +1025,7 @@ bool vtkSlicerRtImageLogic::ComputePlastimatchDRR( vtkMRMLRTImageNode* parameter
     break;
   }
   cmdNode->SetParameterAsString( "algorithm", algorithmString);
-  cmdNode->SetParameterAsBool( "invertIntensity", true);
+  cmdNode->SetParameterAsBool( "invertIntensity", parameterNode->GetInvertIntensityFlag());
   cmdNode->SetParameterAsString( "outputFormat", "raw");
 
   this->PlastimatchDRRComputationLogic->ApplyAndWait( cmdNode, true);
