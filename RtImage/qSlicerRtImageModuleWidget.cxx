@@ -142,6 +142,7 @@ void qSlicerRtImageModuleWidget::setup()
 
   // Handle scene change event if occurs
   qvtkConnect( d->logic(), vtkCommand::ModifiedEvent, this, SLOT(onLogicModified()));
+
 }
 
 //-----------------------------------------------------------------------------
@@ -164,12 +165,12 @@ void qSlicerRtImageModuleWidget::setMRMLScene(vtkMRMLScene* scene)
     {
       this->setParameterNode(node);
     }
-    else
-    {
-      vtkNew<vtkMRMLRTImageNode> newNode;
-      this->mrmlScene()->AddNode(newNode);
-      this->setParameterNode(newNode);
-    }
+//    else
+//    {
+//      vtkNew<vtkMRMLRTImageNode> newNode;
+//      this->mrmlScene()->AddNode(newNode);
+//      this->setParameterNode(newNode);
+//    }
   }
 }
 
@@ -295,6 +296,7 @@ void qSlicerRtImageModuleWidget::onSceneClosedEvent()
   d->ParameterNode = nullptr;
   d->RtBeamNode = nullptr;
   d->CtVolumeNode = nullptr;
+
 }
 
 /// RTBeam Node (RTBeam or RTIonBeam) changed
@@ -340,15 +342,19 @@ void qSlicerRtImageModuleWidget::onRTBeamNodeChanged(vtkMRMLNode* node)
 //-----------------------------------------------------------------------------
 void qSlicerRtImageModuleWidget::enter()
 {
+  Q_D(qSlicerRtImageModuleWidget);
+
   this->Superclass::enter();
+
   this->onEnter();
 }
 
 //-----------------------------------------------------------------------------
 void qSlicerRtImageModuleWidget::exit()
 {
+  Q_D(qSlicerRtImageModuleWidget);
+
   this->Superclass::exit();
-  this->qvtkDisconnectAll();
 }
 
 //-----------------------------------------------------------------------------
@@ -363,6 +369,7 @@ void qSlicerRtImageModuleWidget::onCtVolumeNodeChanged(vtkMRMLNode* node)
   }
 
   d->CtVolumeNode = volumeNode;
+  this->onEnter();
 }
 
 //-----------------------------------------------------------------------------
@@ -370,13 +377,15 @@ void qSlicerRtImageModuleWidget::onParameterNodeChanged(vtkMRMLNode* node)
 {
   Q_D(qSlicerRtImageModuleWidget);
   vtkMRMLRTImageNode* parameterNode = vtkMRMLRTImageNode::SafeDownCast(node);
+
   if (!parameterNode || !d->ModuleWindowInitialized)
   {
     qCritical() << Q_FUNC_INFO << ": Invalid parameter node";
     return;
   }
 
-  setParameterNode(parameterNode);
+  this->setParameterNode(parameterNode);
+  this->onEnter();
 }
 
 //-----------------------------------------------------------------------------
@@ -400,26 +409,26 @@ void qSlicerRtImageModuleWidget::onEnter()
   if (!d->ParameterNode)
   {
     // Try to find one in the scene
-    vtkMRMLNode* node = this->mrmlScene()->GetNthNodeByClass( 0, "vtkMRMLRTImageNode");
-    if (node)
+    if (vtkMRMLNode* node = this->mrmlScene()->GetNthNodeByClass( 0, "vtkMRMLRTImageNode"))
     {
       d->ParameterNode = vtkMRMLRTImageNode::SafeDownCast(node);
     }
     else 
     {
-      vtkNew<vtkMRMLRTImageNode> newNode;
-      this->mrmlScene()->AddNode(newNode);
-      this->setParameterNode(newNode);
+      // At this moment, we can say that module GUI window has been initialized;
+      if (!d->ModuleWindowInitialized)
+      {
+        d->ModuleWindowInitialized = true;
+      }
       qCritical() << Q_FUNC_INFO << ": Invalid parameter node";
-//      return;
+      return;
     }
   }
 
   if (!d->ParameterNode->GetBeamNode())
   {
     // Try to find one in the scene
-    vtkMRMLNode* node = this->mrmlScene()->GetNthNodeByClass( 0, "vtkMRMLRTBeamNode");
-    if (node)
+    if (vtkMRMLNode* node = this->mrmlScene()->GetNthNodeByClass( 0, "vtkMRMLRTBeamNode"))
     {
       d->RtBeamNode = vtkMRMLRTBeamNode::SafeDownCast(node);
       d->ParameterNode->SetAndObserveBeamNode(d->RtBeamNode);
