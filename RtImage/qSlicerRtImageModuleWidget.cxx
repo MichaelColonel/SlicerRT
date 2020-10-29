@@ -151,16 +151,16 @@ void qSlicerRtImageModuleWidget::setMRMLScene(vtkMRMLScene* scene)
   this->Superclass::setMRMLScene(scene);
 
   qvtkReconnect( d->logic(), scene, vtkMRMLScene::EndImportEvent, this, SLOT(onSceneImportedEvent()));
+  qvtkReconnect( d->logic(), scene, vtkMRMLScene::EndCloseEvent, this, SLOT(onSceneClosedEvent()));
 
   // Find parameters node or create it if there is none in the scene
   if (scene)
   {
-    vtkMRMLNode* node = scene->GetNthNodeByClass( 0, "vtkMRMLRTImageNode");
     if (d->MRMLNodeComboBox_ParameterSet->currentNode())
     {
       this->setParameterNode(d->MRMLNodeComboBox_ParameterSet->currentNode());
     }
-    else if (node)
+    else if (vtkMRMLNode* node = scene->GetNthNodeByClass( 0, "vtkMRMLRTImageNode"))
     {
       this->setParameterNode(node);
     }
@@ -284,6 +284,19 @@ void qSlicerRtImageModuleWidget::onSceneImportedEvent()
   this->onEnter();
 }
 
+//-----------------------------------------------------------------------------
+void qSlicerRtImageModuleWidget::onSceneClosedEvent()
+{
+  Q_D(qSlicerRtImageModuleWidget);
+  this->qvtkDisconnectAll();
+  d->MRMLNodeComboBox_RtBeam->setCurrentNode(nullptr);
+  d->MRMLNodeComboBox_CtVolume->setCurrentNode(nullptr);
+  d->MRMLNodeComboBox_ParameterSet->setCurrentNode(nullptr);
+  d->ParameterNode = nullptr;
+  d->RtBeamNode = nullptr;
+  d->CtVolumeNode = nullptr;
+}
+
 /// RTBeam Node (RTBeam or RTIonBeam) changed
 void qSlicerRtImageModuleWidget::onRTBeamNodeChanged(vtkMRMLNode* node)
 {
@@ -394,8 +407,11 @@ void qSlicerRtImageModuleWidget::onEnter()
     }
     else 
     {
+      vtkNew<vtkMRMLRTImageNode> newNode;
+      this->mrmlScene()->AddNode(newNode);
+      this->setParameterNode(newNode);
       qCritical() << Q_FUNC_INFO << ": Invalid parameter node";
-      return;
+//      return;
     }
   }
 

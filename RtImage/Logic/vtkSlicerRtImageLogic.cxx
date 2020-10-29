@@ -97,6 +97,8 @@ void vtkSlicerRtImageLogic::SetMRMLSceneInternal(vtkMRMLScene * newScene)
   vtkNew<vtkIntArray> events;
   events->InsertNextValue(vtkMRMLScene::NodeAddedEvent);
   events->InsertNextValue(vtkMRMLScene::NodeRemovedEvent);
+  events->InsertNextValue(vtkMRMLScene::StartCloseEvent);
+  events->InsertNextValue(vtkMRMLScene::EndCloseEvent);
   events->InsertNextValue(vtkMRMLScene::EndBatchProcessEvent);
   this->SetAndObserveMRMLSceneEventsInternal(newScene, events.GetPointer());
 }
@@ -370,31 +372,46 @@ void vtkSlicerRtImageLogic::UpdateMarkupsNodes(vtkMRMLRTImageNode* parameterNode
     vtkVector3d imagerP2( y + offset[0], -1. * x + offset[1], -distance);
     vtkVector3d imagerP3( -1. * y + offset[0], -1. * x + offset[1], -distance);
 
-    double p[3];
-    imagerMarkupsNode->GetNthControlPointPosition( 0, p);
-    p[0] = imagerP0.GetX();
-    p[1] = imagerP0.GetY();
-    p[2] = imagerP0.GetZ();
-    imagerMarkupsNode->SetNthControlPointPosition( 0, p[0], p[1], p[2]);
-
-    imagerMarkupsNode->GetNthControlPointPosition( 1, p);
-    p[0] = imagerP1.GetX();
-    p[1] = imagerP1.GetY();
-    p[2] = imagerP1.GetZ();
-    imagerMarkupsNode->SetNthControlPointPosition( 1, p[0], p[1], p[2]);
-
-    imagerMarkupsNode->GetNthControlPointPosition( 2, p);
-    p[0] = imagerP2.GetX();
-    p[1] = imagerP2.GetY();
-    p[2] = imagerP2.GetZ();
-    imagerMarkupsNode->SetNthControlPointPosition( 2, p[0], p[1], p[2]);
-
-    imagerMarkupsNode->GetNthControlPointPosition( 3, p);
-    p[0] = imagerP3.GetX();
-    p[1] = imagerP3.GetY();
-    p[2] = imagerP3.GetZ();
-    imagerMarkupsNode->SetNthControlPointPosition( 3, p[0], p[1], p[2]);
-
+    double* p = imagerMarkupsNode->GetNthControlPointPosition(0);
+    if (p)
+    {
+      imagerMarkupsNode->SetNthControlPointPosition( 0, imagerP0.GetX(), imagerP0.GetY(), imagerP0.GetZ());
+    }
+    else
+    {
+      imagerMarkupsNode->AddControlPoint(imagerP0);
+    }
+    
+    p = imagerMarkupsNode->GetNthControlPointPosition(1);
+    if (p)
+    {
+      imagerMarkupsNode->SetNthControlPointPosition( 1, imagerP1.GetX(), imagerP1.GetY(), imagerP1.GetZ());
+    }
+    else
+    {
+      imagerMarkupsNode->AddControlPoint(imagerP1);
+    }
+    
+    p = imagerMarkupsNode->GetNthControlPointPosition(2);
+    if (p)
+    {
+      imagerMarkupsNode->SetNthControlPointPosition( 2, imagerP2.GetX(), imagerP2.GetY(), imagerP2.GetZ());
+    }
+    else
+    {
+      imagerMarkupsNode->AddControlPoint(imagerP2);
+    }
+    
+    p = imagerMarkupsNode->GetNthControlPointPosition(3);
+    if (p)
+    {
+      imagerMarkupsNode->SetNthControlPointPosition( 3, imagerP3.GetX(), imagerP3.GetY(), imagerP3.GetZ());
+    }
+    else
+    {
+      imagerMarkupsNode->AddControlPoint(imagerP3);
+    }
+    
     // Update imager boundary markups transform node if it's changed    
     vtkMRMLTransformNode* markupsTransformNode = imagerMarkupsNode->GetParentTransformNode();
 
@@ -426,30 +443,46 @@ void vtkSlicerRtImageLogic::UpdateMarkupsNodes(vtkMRMLRTImageNode* parameterNode
     vtkVector3d imageP2( r2, c2, -distance);
     vtkVector3d imageP3( r2, c1, -distance);
 
-    double p[3];
-    imageWindowMarkupsNode->GetNthControlPointPosition( 0, p);
-    p[0] = imageP0.GetX();
-    p[1] = imageP0.GetY();
-    p[2] = imageP0.GetZ();
-    imageWindowMarkupsNode->SetNthControlPointPosition( 0, p[0], p[1], p[2]);
-
-    imageWindowMarkupsNode->GetNthControlPointPosition( 1, p);
-    p[0] = imageP1.GetX();
-    p[1] = imageP1.GetY();
-    p[2] = imageP1.GetZ();
-    imageWindowMarkupsNode->SetNthControlPointPosition( 1, p[0], p[1], p[2]);
-
-    imageWindowMarkupsNode->GetNthControlPointPosition( 2, p);
-    p[0] = imageP2.GetX();
-    p[1] = imageP2.GetY();
-    p[2] = imageP2.GetZ();
-    imageWindowMarkupsNode->SetNthControlPointPosition( 2, p[0], p[1], p[2]);
-
-    imageWindowMarkupsNode->GetNthControlPointPosition( 3, p);
-    p[0] = imageP3.GetX();
-    p[1] = imageP3.GetY();
-    p[2] = imageP3.GetZ();
-    imageWindowMarkupsNode->SetNthControlPointPosition( 3, p[0], p[1], p[2]);
+    double* p = imageWindowMarkupsNode->GetNthControlPointPosition(0);
+    if (p)
+    {
+      imageWindowMarkupsNode->SetNthControlPointPosition( 0, imageP0.GetX(), imageP0.GetY(), imageP0.GetZ());
+    }
+    else
+    {
+      imageWindowMarkupsNode->AddControlPoint(imageP0);
+    }
+    
+    p = imageWindowMarkupsNode->GetNthControlPointPosition(1);
+    if (p)
+    {
+      imageWindowMarkupsNode->SetNthControlPointPosition( 1, imageP1.GetX(), imageP1.GetY(), imageP1.GetZ());
+    }
+    else
+    {
+      imageWindowMarkupsNode->AddControlPoint(imageP1);
+    }
+    
+    p = imageWindowMarkupsNode->GetNthControlPointPosition(2);
+    if (p)
+    {
+      imageWindowMarkupsNode->SetNthControlPointPosition( 2, imageP2.GetX(), imageP2.GetY(), imageP2.GetZ());
+    }
+    else
+    {
+      imageWindowMarkupsNode->AddControlPoint(imageP2);
+    }
+    
+    p = imageWindowMarkupsNode->GetNthControlPointPosition(3);
+    if (p)
+    {
+      imageWindowMarkupsNode->SetNthControlPointPosition( 3, imageP3.GetX(), imageP3.GetY(), imageP3.GetZ());
+    }
+    else
+    {
+      imageWindowMarkupsNode->AddControlPoint(imageP3);
+    }
+    
 
     // Update image window markups transform node if it's changed    
     vtkMRMLTransformNode* markupsTransformNode = imageWindowMarkupsNode->GetParentTransformNode();
@@ -470,18 +503,25 @@ void vtkSlicerRtImageLogic::UpdateMarkupsNodes(vtkMRMLRTImageNode* parameterNode
     vtkVector3d p0( offset[0], offset[1], -distance);
     vtkVector3d p1( offset[0], offset[1], -distance + 100.);
 
-    double p[3];
-    vectorMarkupsNode->GetNthControlPointPosition( 0, p);
-    p[0] = p0.GetX();
-    p[1] = p0.GetY();
-    p[2] = p0.GetZ();
-    vectorMarkupsNode->SetNthControlPointPosition( 0, p[0], p[1], p[2]);
-
-    vectorMarkupsNode->GetNthControlPointPosition( 1, p);
-    p[0] = p1.GetX();
-    p[1] = p1.GetY();
-    p[2] = p1.GetZ();
-    vectorMarkupsNode->SetNthControlPointPosition( 1, p[0], p[1], p[2]);
+    double* p = vectorMarkupsNode->GetNthControlPointPosition(0);
+    if (p)
+    {
+      vectorMarkupsNode->SetNthControlPointPosition( 0, p0.GetX(), p0.GetY(), p0.GetZ());
+    }
+    else
+    {
+      vectorMarkupsNode->AddControlPoint(p0);
+    }
+    
+    p = vectorMarkupsNode->GetNthControlPointPosition(1);
+    if (p)
+    {
+      vectorMarkupsNode->SetNthControlPointPosition( 1, p1.GetX(), p1.GetY(), p1.GetZ());
+    }
+    else
+    {
+      vectorMarkupsNode->AddControlPoint(p1);
+    }
 
     // Update imager normal vector markups transform node if it's changed    
     vtkMRMLTransformNode* markupsTransformNode = vectorMarkupsNode->GetParentTransformNode();
@@ -502,18 +542,25 @@ void vtkSlicerRtImageLogic::UpdateMarkupsNodes(vtkMRMLRTImageNode* parameterNode
     vtkVector3d p0( offset[0], offset[1], -distance);
     vtkVector3d p1( -1. * y + offset[0], 0. + offset[1], -distance); // vup
 
-    double p[3];
-    vectorMarkupsNode->GetNthControlPointPosition( 0, p);
-    p[0] = p0.GetX();
-    p[1] = p0.GetY();
-    p[2] = p0.GetZ();
-    vectorMarkupsNode->SetNthControlPointPosition( 0, p[0], p[1], p[2]);
-
-    vectorMarkupsNode->GetNthControlPointPosition( 1, p);
-    p[0] = p1.GetX();
-    p[1] = p1.GetY();
-    p[2] = p1.GetZ();
-    vectorMarkupsNode->SetNthControlPointPosition( 1, p[0], p[1], p[2]);
+    double* p = vectorMarkupsNode->GetNthControlPointPosition(0);
+    if (p)
+    {
+      vectorMarkupsNode->SetNthControlPointPosition( 0, p0.GetX(), p0.GetY(), p0.GetZ());
+    }
+    else
+    {
+      vectorMarkupsNode->AddControlPoint(p0);
+    }
+    
+    p = vectorMarkupsNode->GetNthControlPointPosition(1);
+    if (p)
+    {
+      vectorMarkupsNode->SetNthControlPointPosition( 1, p1.GetX(), p1.GetY(), p1.GetZ());
+    }
+    else
+    {
+      vectorMarkupsNode->AddControlPoint(p1);
+    }
 
     // Update VUP VECTOR markups transform node if it's changed    
     vtkMRMLTransformNode* markupsTransformNode = vectorMarkupsNode->GetParentTransformNode();
@@ -536,30 +583,45 @@ void vtkSlicerRtImageLogic::UpdateMarkupsNodes(vtkMRMLRTImageNode* parameterNode
     vtkVector3d p2( -1. * y + offset[0], -1. * x + offset[1], -distance); // (0,0)
     vtkVector3d p3( -1. * y + offset[0], 0.0, -distance); // vup
 
-    double p[3];
-    pointsMarkupsNode->GetNthControlPointPosition( 0, p);
-    p[0] = p0.GetX();
-    p[1] = p0.GetY();
-    p[2] = p0.GetZ();
-    pointsMarkupsNode->SetNthControlPointPosition( 0, p[0], p[1], p[2]);
-
-    pointsMarkupsNode->GetNthControlPointPosition( 1, p);
-    p[0] = p1.GetX();
-    p[1] = p1.GetY();
-    p[2] = p1.GetZ();
-    pointsMarkupsNode->SetNthControlPointPosition( 1, p[0], p[1], p[2]);
-
-    pointsMarkupsNode->GetNthControlPointPosition( 2, p);
-    p[0] = p2.GetX();
-    p[1] = p2.GetY();
-    p[2] = p2.GetZ();
-    pointsMarkupsNode->SetNthControlPointPosition( 2, p[0], p[1], p[2]);
-
-    pointsMarkupsNode->GetNthControlPointPosition( 3, p);
-    p[0] = p3.GetX();
-    p[1] = p3.GetY();
-    p[2] = p3.GetZ();
-    pointsMarkupsNode->SetNthControlPointPosition( 3, p[0], p[1], p[2]);
+    double* p = pointsMarkupsNode->GetNthControlPointPosition(0);
+    if (p)
+    {
+      pointsMarkupsNode->SetNthControlPointPosition( 0, p0.GetX(), p0.GetY(), p0.GetZ());
+    }
+    else
+    {
+      pointsMarkupsNode->AddControlPoint(p0);
+    }
+    
+    p = pointsMarkupsNode->GetNthControlPointPosition(1);
+    if (p)
+    {
+      pointsMarkupsNode->SetNthControlPointPosition( 1, p1.GetX(), p1.GetY(), p1.GetZ());
+    }
+    else
+    {
+      pointsMarkupsNode->AddControlPoint(p1);
+    }
+    
+    p = pointsMarkupsNode->GetNthControlPointPosition(2);
+    if (p)
+    {
+      pointsMarkupsNode->SetNthControlPointPosition( 2, p2.GetX(), p2.GetY(), p2.GetZ());
+    }
+    else
+    {
+      pointsMarkupsNode->AddControlPoint(p2);
+    }
+    
+    p = pointsMarkupsNode->GetNthControlPointPosition(3);
+    if (p)
+    {
+      pointsMarkupsNode->SetNthControlPointPosition( 3, p3.GetX(), p3.GetY(), p3.GetZ());
+    }
+    else
+    {
+      pointsMarkupsNode->AddControlPoint(p3);
+    }
 
     // Update fiducials markups transform node if it's changed    
     vtkMRMLTransformNode* markupsTransformNode = pointsMarkupsNode->GetParentTransformNode();
@@ -631,8 +693,8 @@ vtkMRMLMarkupsClosedCurveNode* vtkSlicerRtImageLogic::CreateImagerBoundary(vtkMR
   imagerMarkupsNode->SetName(IMAGER_BOUNDARY_MARKUPS_NODE_NAME);
   imagerMarkupsNode->SetCurveTypeToLinear();
   imagerMarkupsNode->SetHideFromEditors(1);
-  std::string singletonTag = std::string("RTIMAGE_") + IMAGER_BOUNDARY_MARKUPS_NODE_NAME;
-  imagerMarkupsNode->SetSingletonTag(singletonTag.c_str());
+//  std::string singletonTag = std::string("RTIMAGE_") + IMAGER_BOUNDARY_MARKUPS_NODE_NAME;
+//  imagerMarkupsNode->SetSingletonTag(singletonTag.c_str());
 
   if (parameterNode)
   {
@@ -685,8 +747,8 @@ vtkMRMLMarkupsClosedCurveNode* vtkSlicerRtImageLogic::CreateImageWindow(vtkMRMLR
   imageWindowMarkupsNode->SetName(IMAGE_WINDOW_MARKUPS_NODE_NAME);
   imageWindowMarkupsNode->SetCurveTypeToLinear();
   imageWindowMarkupsNode->SetHideFromEditors(1);
-  std::string singletonTag = std::string("RTIMAGE_") + IMAGE_WINDOW_MARKUPS_NODE_NAME;
-  imageWindowMarkupsNode->SetSingletonTag(singletonTag.c_str());
+//  std::string singletonTag = std::string("RTIMAGE_") + IMAGE_WINDOW_MARKUPS_NODE_NAME;
+//  imageWindowMarkupsNode->SetSingletonTag(singletonTag.c_str());
 
   if (parameterNode)
   {
@@ -749,8 +811,8 @@ vtkMRMLMarkupsLineNode* vtkSlicerRtImageLogic::CreateImagerNormal(vtkMRMLRTImage
   this->GetMRMLScene()->AddNode(vectorMarkupsNode);
   vectorMarkupsNode->SetName(NORMAL_VECTOR_MARKUPS_NODE_NAME);
   vectorMarkupsNode->SetHideFromEditors(1);
-  std::string singletonTag = std::string("RTIMAGE_") + NORMAL_VECTOR_MARKUPS_NODE_NAME;
-  vectorMarkupsNode->SetSingletonTag(singletonTag.c_str());
+//  std::string singletonTag = std::string("RTIMAGE_") + NORMAL_VECTOR_MARKUPS_NODE_NAME;
+//  vectorMarkupsNode->SetSingletonTag(singletonTag.c_str());
 
   if (parameterNode)
   {
@@ -783,8 +845,8 @@ vtkMRMLMarkupsLineNode* vtkSlicerRtImageLogic::CreateImagerVUP(vtkMRMLRTImageNod
   this->GetMRMLScene()->AddNode(vectorMarkupsNode);
   vectorMarkupsNode->SetName(VUP_VECTOR_MARKUPS_NODE_NAME);
   vectorMarkupsNode->SetHideFromEditors(1);
-  std::string singletonTag = std::string("RTIMAGE_") + VUP_VECTOR_MARKUPS_NODE_NAME;
-  vectorMarkupsNode->SetSingletonTag(singletonTag.c_str());
+//  std::string singletonTag = std::string("RTIMAGE_") + VUP_VECTOR_MARKUPS_NODE_NAME;
+//  vectorMarkupsNode->SetSingletonTag(singletonTag.c_str());
 
   if (parameterNode)
   {
@@ -829,8 +891,8 @@ vtkMRMLMarkupsFiducialNode* vtkSlicerRtImageLogic::CreateFiducials(vtkMRMLRTImag
   this->GetMRMLScene()->AddNode(pointsMarkupsNode);
   pointsMarkupsNode->SetName(FIDUCIALS_MARKUPS_NODE_NAME);
   pointsMarkupsNode->SetHideFromEditors(1);
-  std::string singletonTag = std::string("RTIMAGE_") + FIDUCIALS_MARKUPS_NODE_NAME;
-  pointsMarkupsNode->SetSingletonTag(singletonTag.c_str());
+//  std::string singletonTag = std::string("RTIMAGE_") + FIDUCIALS_MARKUPS_NODE_NAME;
+//  pointsMarkupsNode->SetSingletonTag(singletonTag.c_str());
 
   if (parameterNode)
   {
