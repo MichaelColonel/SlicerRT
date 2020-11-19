@@ -165,7 +165,7 @@ protected:
 
   // TODO: for hierarchy use tree with nodes, something like graph
   /// Map of IEC coordinate systems hierarchy
-  std::map< CoordinateSystemIdentifier, std::list< CoordinateSystemIdentifier > > CoordinateSystemsHierarchy;
+  std::map< CoordinateSystemIdentifier, CoordinateSystemsList > CoordinateSystemsHierarchy;
 
 protected:
   vtkSlicerIECTransformLogic();

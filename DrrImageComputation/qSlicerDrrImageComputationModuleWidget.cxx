@@ -121,7 +121,7 @@ void qSlicerDrrImageComputationModuleWidget::setup()
   // Buttons
   connect( d->PushButton_ComputeDrr, SIGNAL(clicked()), this, SLOT(onComputeDrrClicked()));
   connect( d->CheckBox_ShowDrrMarkups, SIGNAL(toggled(bool)), this, SLOT(onShowMarkupsToggled(bool)));
-  connect( d->CheckBox_UseImageWindow, SIGNAL(toggled(bool)), this, SLOT(onUseImageWindowToggled(bool)));
+  connect( d->GroupBox_UseImageWindow, SIGNAL(toggled(bool)), this, SLOT(onUseImageWindowToggled(bool)));
 
   // Handle scene change event if occurs
   qvtkConnect( d->logic(), vtkCommand::ModifiedEvent, this, SLOT(onLogicModified()));
@@ -247,9 +247,7 @@ void qSlicerDrrImageComputationModuleWidget::updateWidgetFromMRML()
   int imageWindow[4] = {};
   parameterNode->GetImageWindow(imageWindow);
 
-  // TODO: Image window is disabled for now
-  useImageWindow = false;
-  d->CheckBox_UseImageWindow->setChecked(useImageWindow);
+  d->GroupBox_UseImageWindow->setChecked(useImageWindow);
   if (!useImageWindow)
   {
     d->RangeWidget_ImageWindowColumns->setValues( 0., double(imagerResolution[0] - 1));
@@ -289,13 +287,6 @@ void qSlicerDrrImageComputationModuleWidget::onRTBeamNodeChanged(vtkMRMLNode* no
     qCritical() << Q_FUNC_INFO << ": Invalid scene";
     return;
   }
-
-//  vtkMRMLSubjectHierarchyNode* shNode = vtkMRMLSubjectHierarchyNode::GetSubjectHierarchyNode(this->mrmlScene());
-//  if (!shNode)
-//  {
-//    qCritical() << Q_FUNC_INFO << ": Failed to access subject hierarchy";
-//    return;
-//  }
 
   vtkMRMLRTBeamNode* beamNode = vtkMRMLRTBeamNode::SafeDownCast(node);
   if (!beamNode)
@@ -519,8 +510,6 @@ void qSlicerDrrImageComputationModuleWidget::onUseImageWindowToggled(bool value)
     return;
   }
 
-  // TODO: Image window is disabled for now
-  value = false;
   if (value)
   {
     int imagerResolution[2] = {};
@@ -537,14 +526,6 @@ void qSlicerDrrImageComputationModuleWidget::onUseImageWindowToggled(bool value)
     imageWindow[3] = static_cast<int>(rows[1]); // r2 = y2
 
     parameterNode->SetImageWindow(imageWindow);
-  }
-  else
-  {
-//    const double* window = d->CoordinatesWidget_ImagerResolution->coordinates();
-//    imageWindow[0] = 0; // c1 = x1
-//    imageWindow[1] = 0; // r1 = y1
-//    imageWindow[2] = static_cast<int>(window[0] - 1.); // c2 = x2
-//    imageWindow[3] = static_cast<int>(window[1] - 1.); // r2 = y2
   }
 
   parameterNode->SetImageWindowFlag(value);
@@ -576,9 +557,14 @@ void qSlicerDrrImageComputationModuleWidget::onComputeDrrClicked()
     return;
   }
   
+  QApplication::setOverrideCursor(QCursor(Qt::BusyCursor));
+  
   bool result = d->logic()->ComputePlastimatchDRR( parameterNode, ctVolumeNode);
+  
+  QApplication::restoreOverrideCursor();
+  
   if (result)
   {
-    return;
+    qDebug() << Q_FUNC_INFO << ": DRR image using plastimatch libreconstruct library has been computed";
   }
 }
