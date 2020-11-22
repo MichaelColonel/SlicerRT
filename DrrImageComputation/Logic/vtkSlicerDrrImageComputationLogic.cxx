@@ -1268,7 +1268,7 @@ bool vtkSlicerDrrImageComputationLogic::SetupGeometry( vtkMRMLDrrImageComputatio
   this->PlanarImageLogic->CreateModelForPlanarImage(parameterNode);
 
   // Show the displayed planar image model by default
-  displayedModelNode->SetDisplayVisibility(1);
+  displayedModelNode->SetDisplayVisibility(0);
 
   return true;
 }

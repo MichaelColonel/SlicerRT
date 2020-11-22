@@ -52,6 +52,13 @@ message(STATUS "Plastimatch_DIR: " ${Plastimatch_DIR} )
 message(STATUS "SLICERRT_ENABLE_EXPERIMENTAL_MODULES: " ${SLICERRT_ENABLE_EXPERIMENTAL_MODULES} )
 
 #-----------------------------------------------------------------------------
+# RTK_DIR is only used now by experimental modules. Print the
+# RTK_DIR, to avoid the warning "Manually-specified variables were not
+# used by the project: RTK_DIR" warning
+message(STATUS "RTK_DIR: " ${RTK_DIR} )
+message(STATUS "SLICERRT_ENABLE_EXPERIMENTAL_MODULES: " ${SLICERRT_ENABLE_EXPERIMENTAL_MODULES} )
+
+#-----------------------------------------------------------------------------
 add_subdirectory(SlicerRtCommon)
 add_subdirectory(PlmCommon)
 
