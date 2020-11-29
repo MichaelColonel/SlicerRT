@@ -72,6 +72,7 @@ add_subdirectory(DicomSroImportExport)
 add_subdirectory(BatchProcessing)
 add_subdirectory(RoomsEyeView)
 add_subdirectory(DrrImageComputation)
+add_subdirectory(IhepStandGeometry)
 
 add_subdirectory(PlastimatchPy)
 add_subdirectory(PlmBspline)
