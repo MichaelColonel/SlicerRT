@@ -59,6 +59,19 @@
 #include <vtkNew.h>
 #include <vtkObjectFactory.h>
 
+// RTK includes
+#include <rtkConstantImageSource.h>
+#include <rtkThreeDCircularProjectionGeometry.h>
+#include <rtkJosephForwardProjectionImageFilter.h>
+#include <rtkJosephForwardAttenuatedProjectionImageFilter.h>
+#include <rtkZengForwardProjectionImageFilter.h>
+#ifdef RTK_USE_CUDA
+#  include <rtkCudaForwardProjectionImageFilter.h>
+#endif
+
+// ITK includes
+#include <itkConstantPadImageFilter.h>
+
 // SlicerRT includes
 #include <vtkSlicerRtCommon.h>
 
@@ -1097,6 +1110,187 @@ bool vtkSlicerDrrImageComputationLogic::ComputePlastimatchDRR( vtkMRMLDrrImageCo
     res = this->SetupDisplayAndSubjectHierarchyNodes( parameterNode, drrVolumeNode);
   }
   return res;
+}
+
+//------------------------------------------------------------------------------
+bool vtkSlicerDrrImageComputationLogic::ComputeRtkDRR( vtkMRMLDrrImageComputationNode* parameterNode, 
+  vtkMRMLScalarVolumeNode* ctVolumeNode)
+{
+  vtkMRMLScene* scene = this->GetMRMLScene(); 
+  if (!scene)
+  {
+    vtkErrorMacro("ComputePlastimatchDRR: Invalid MRML scene");
+    return false;
+  }
+
+  if (!parameterNode)
+  {
+    vtkErrorMacro("ComputePlastimatchDRR: Invalid parameter node");
+    return false;
+  }
+
+  vtkMRMLRTBeamNode* beamNode = parameterNode->GetBeamNode();
+  if (!beamNode)
+  {
+    vtkErrorMacro("ComputePlastimatchDRR: Invalid RT Beam node");
+    return false;
+  }
+
+  if (!ctVolumeNode)
+  {
+    vtkErrorMacro("ComputePlastimatchDRR: Invalid input CT volume node");
+    return false;
+  }
+
+  if (!this->PlastimatchDRRComputationLogic)
+  {
+    vtkErrorMacro("ComputePlastimatchDRR: slicer_plastimatch_drr logic is not set");
+    return false;
+  }
+
+  vtkMRMLCommandLineModuleNode* cmdNode = this->PlastimatchDRRComputationLogic->CreateNodeInScene();
+  if (!cmdNode)
+  {
+    vtkErrorMacro("ComputePlastimatchDRR: failed to create CLI module node");
+    return false;
+  }
+
+  scene->StartState(vtkMRMLScene::BatchProcessState); 
+/*
+  // Create node for the DRR image volume
+  vtkNew<vtkMRMLScalarVolumeNode> drrVolumeNode;
+  scene->AddNode(drrVolumeNode);
+
+  cmdNode->SetParameterAsNode( "inputVolume", ctVolumeNode);
+  cmdNode->SetParameterAsNode( "outputVolume", drrVolumeNode);
+  cmdNode->SetParameterAsDouble( "sourceAxisDistance", beamNode->GetSAD());
+  cmdNode->SetParameterAsDouble( "sourceImagerDistance", beamNode->GetSAD() + parameterNode->GetIsocenterImagerDistance());
+
+  // Fill CLI cmd node data
+  std::stringstream vupStream;
+  double vup[3] = { -1., 0., 0. };
+  parameterNode->GetViewUpVector(vup);
+  vupStream << vup[0] << "," << vup[1] << "," << vup[2];
+  cmdNode->SetParameterAsString( "viewUpVector", vupStream.str());
+
+  std::stringstream normalStream;
+  double n[3] = { 0., 0., 1. };
+  parameterNode->GetNormalVector(n);
+  normalStream << n[0] << "," << n[1] << "," << n[2];
+  cmdNode->SetParameterAsString( "normalVector", normalStream.str());
+
+  std::stringstream isocenterStream;
+  double isocenter[3] = {};
+  parameterNode->GetIsocenterPositionLPS(isocenter);
+  isocenterStream << isocenter[0] << "," << isocenter[1] << "," << isocenter[2];
+  cmdNode->SetParameterAsString( "isocenterPosition", isocenterStream.str());
+  
+  std::stringstream imagerResolutionStream;
+  int imagerResolution[2] = { 1024, 768 };
+  parameterNode->GetImagerResolution(imagerResolution);
+  imagerResolutionStream << imagerResolution[0] << "," << imagerResolution[1];
+  cmdNode->SetParameterAsString( "imagerResolution", imagerResolutionStream.str());
+
+  std::stringstream imagerSpacingStream;
+  double imagerSpacing[2] = { 0.25, 0.25 };
+  parameterNode->GetImagerSpacing(imagerSpacing);
+  imagerSpacingStream << imagerSpacing[0] << "," << imagerSpacing[1];
+  cmdNode->SetParameterAsString( "imagerSpacing", imagerSpacingStream.str());
+
+  cmdNode->SetParameterAsBool( "useImageWindow", parameterNode->GetImageWindowFlag());
+  if (parameterNode->GetImageWindowFlag())
+  {
+    std::stringstream imageWindowStream;
+    int imageWindow[4] = { 0, 0, 1023, 767 };
+    parameterNode->GetImageWindow(imageWindow);
+    imageWindowStream << imageWindow[0] << "," << imageWindow[1] << "," << imageWindow[2] << "," << imageWindow[3];
+    cmdNode->SetParameterAsString( "imageWindow", imageWindowStream.str());
+  }
+
+  cmdNode->SetParameterAsBool( "autoscale", parameterNode->GetAutoscaleFlag());
+  
+  std::stringstream autoscaleRangeStream;
+  float autoscaleRange[2] = { 0., 255. };
+  parameterNode->GetAutoscaleRange(autoscaleRange);
+  autoscaleRangeStream << autoscaleRange[0] << "," << autoscaleRange[1];
+  cmdNode->SetParameterAsString( "autoscaleRange", autoscaleRangeStream.str());
+
+  cmdNode->SetParameterAsBool( "exponentialMapping", parameterNode->GetExponentialMappingFlag());
+  
+  std::string threadingString = "cpu";
+  switch (parameterNode->GetThreading())
+  {
+  case vtkMRMLDrrImageComputationNode::PlastimatchThreadingType::CPU:
+    threadingString = "cpu";
+    break;
+  case vtkMRMLDrrImageComputationNode::PlastimatchThreadingType::CUDA:
+    threadingString = "cuda";
+    break;
+  case vtkMRMLDrrImageComputationNode::PlastimatchThreadingType::OPENCL:
+    threadingString = "opencl";
+    break;
+  default:
+    break;
+  }
+  cmdNode->SetParameterAsString( "threading", threadingString);
+
+  std::string huconversionString = "preprocess";
+  switch (parameterNode->GetHUConversion())
+  {
+  case vtkMRMLDrrImageComputationNode::PlastimatchHounsfieldUnitsConversionType::INLINE:
+    huconversionString = "inline";
+    break;
+  case vtkMRMLDrrImageComputationNode::PlastimatchHounsfieldUnitsConversionType::PREPROCESS:
+    huconversionString = "preprocess";
+    break;
+  case vtkMRMLDrrImageComputationNode::PlastimatchHounsfieldUnitsConversionType::NONE:
+    huconversionString = "none";
+    break;
+  default:
+    break;
+  }
+  cmdNode->SetParameterAsString( "huconversion", huconversionString);
+
+  std::string algorithmString = "exact";
+  switch (parameterNode->GetAlgorithmReconstuction())
+  {
+  case vtkMRMLDrrImageComputationNode::PlastimatchAlgorithmReconstuctionType::EXACT:
+    algorithmString = "exact";
+    break;
+  case vtkMRMLDrrImageComputationNode::PlastimatchAlgorithmReconstuctionType::UNIFORM:
+    algorithmString = "uniform";
+    break;
+  default:
+    break;
+  }
+  cmdNode->SetParameterAsString( "algorithm", algorithmString);
+  cmdNode->SetParameterAsBool( "invertIntensity", parameterNode->GetInvertIntensityFlag());
+  cmdNode->SetParameterAsString( "outputFormat", "raw");
+
+  this->PlastimatchDRRComputationLogic->ApplyAndWait( cmdNode, true);
+/*
+  scene->EndState(vtkMRMLScene::BatchProcessState);
+/*
+  scene->RemoveNode(cmdNode);
+  // TODO: Add results checking ( image size is valid, and computation didn't crash )
+
+  bool res = false;
+  if (drrVolumeNode->GetImageData() && drrVolumeNode->GetSpacing())
+  {
+    // Set more user friendly DRR image name
+    std::string drrName = scene->GenerateUniqueName(std::string("DRR : ") + std::string(beamNode->GetName()));
+    drrVolumeNode->SetName(drrName.c_str());
+
+    // Create parameter node name, and observe calculated drr volume
+    std::string parameterSetNodeName;
+    parameterSetNodeName = vtkMRMLPlanarImageNode::PLANARIMAGE_PARAMETER_SET_BASE_NAME_PREFIX + drrName;
+    parameterNode->SetName(parameterSetNodeName.c_str());
+    parameterNode->SetAndObserveRtImageVolumeNode(drrVolumeNode);
+
+    res = this->SetupDisplayAndSubjectHierarchyNodes( parameterNode, drrVolumeNode);
+  }
+*/
+  return true;
 }
 
 //------------------------------------------------------------------------------

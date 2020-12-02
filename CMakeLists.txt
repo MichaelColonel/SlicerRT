@@ -29,6 +29,7 @@ find_package(Slicer COMPONENTS ConfigurePrerequisites REQUIRED)
 project(SlicerRT)
 find_package(Slicer REQUIRED)
 include(${Slicer_USE_FILE})
+
 mark_as_superbuild(Slicer_DIR)
 
 #-----------------------------------------------------------------------------
@@ -55,8 +56,14 @@ message(STATUS "SLICERRT_ENABLE_EXPERIMENTAL_MODULES: " ${SLICERRT_ENABLE_EXPERI
 # RTK_DIR is only used now by experimental modules. Print the
 # RTK_DIR, to avoid the warning "Manually-specified variables were not
 # used by the project: RTK_DIR" warning
-message(STATUS "RTK_DIR: " ${RTK_DIR} )
-message(STATUS "SLICERRT_ENABLE_EXPERIMENTAL_MODULES: " ${SLICERRT_ENABLE_EXPERIMENTAL_MODULES} )
+find_package(ITK REQUIRED COMPONENTS RTK)
+IF(ITK_FOUND)
+  include(${ITK_USE_FILE})
+  message(STATUS "RTK_DIR: " ${RTK_DIR} )
+  message(STATUS "SLICERRT_ENABLE_EXPERIMENTAL_MODULES: " ${SLICERRT_ENABLE_EXPERIMENTAL_MODULES} )
+ELSE(ITK_FOUND)
+  message(FATAL_ERROR "Cannot build without RTK.  Please set RTK_DIR.")
+ENDIF(ITK_FOUND)
 
 #-----------------------------------------------------------------------------
 add_subdirectory(SlicerRtCommon)

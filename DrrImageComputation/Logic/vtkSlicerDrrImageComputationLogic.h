@@ -83,10 +83,15 @@ public:
   /// Set Beams module logic
   void SetBeamsLogic(vtkSlicerBeamsModuleLogic* beamsLogic);
 
-  /// Compute DRR image
+  /// Compute DRR image using Plastimatch reconstuct library
   /// @param parameterNode - parameters of DRR image computation
   /// @param ctInputVolume - CT volume
   bool ComputePlastimatchDRR( vtkMRMLDrrImageComputationNode* parameterNode, vtkMRMLScalarVolumeNode* ctInputVolume);
+
+  /// Compute DRR image using RTK ForwardProjection filter
+  /// @param parameterNode - parameters of DRR image computation
+  /// @param ctInputVolume - CT volume
+  bool ComputeRtkDRR( vtkMRMLDrrImageComputationNode* parameterNode, vtkMRMLScalarVolumeNode* ctInputVolume);
 
 protected:
   vtkSlicerDrrImageComputationLogic();

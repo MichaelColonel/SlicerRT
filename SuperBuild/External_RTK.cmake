@@ -20,7 +20,7 @@ if(NOT DEFINED ${proj}_DIR AND NOT ${CMAKE_PROJECT_NAME}_USE_SYSTEM_${proj})
 
   ExternalProject_SetIfNotDefined(
     ${CMAKE_PROJECT_NAME}_${proj}_GIT_REPOSITORY
-    "https://github.com/MichaelColonel/RTK.git" # Gitlab only support https for anonymous checkout
+    "https://github.com/SimonRit/RTK.git" # Gitlab only support https for anonymous checkout
     QUIET
     )
 
