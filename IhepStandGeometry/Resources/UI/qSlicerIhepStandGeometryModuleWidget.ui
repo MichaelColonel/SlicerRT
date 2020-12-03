@@ -128,7 +128,14 @@
      </property>
      <layout class="QGridLayout" name="gridLayout_5">
       <item row="0" column="0">
-       <widget class="qSlicerBeamToStandTransformationWidget" name="beamToStandTransformationWidget" native="true"/>
+       <widget class="qSlicerBeamToStandTransformationWidget" name="beamToStandTransformationWidget" native="true">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+       </widget>
       </item>
      </layout>
     </widget>
