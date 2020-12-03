@@ -23,6 +23,9 @@
 #include <vtkMRMLScene.h>
 #include <vtkMRMLLinearTransformNode.h>
 
+#include <vtkMRMLSegmentationNode.h>
+#include <vtkMRMLScalarVolumeNode.h>
+
 // VTK includes
 #include <vtkObjectFactory.h>
 #include <vtkSmartPointer.h>
@@ -36,6 +39,8 @@ namespace
 {
 
 const char* BEAM_REFERENCE_ROLE = "beamRef";
+const char* PATIENT_BODY_SEGMENTATION_REFERENCE_ROLE = "patientBodySegmentationRef";
+const char* PATIENT_BODY_VOLUME_REFERENCE_ROLE = "patientBodyVolumeRef";
 
 } // namespace
 
@@ -153,4 +158,40 @@ void vtkMRMLIhepStandGeometryNode::SetAndObserveBeamNode(vtkMRMLRTBeamNode* node
   }
 
   this->SetNodeReferenceID(BEAM_REFERENCE_ROLE, (node ? node->GetID() : nullptr));
+}
+
+//----------------------------------------------------------------------------
+vtkMRMLSegmentationNode* vtkMRMLIhepStandGeometryNode::GetPatientBodySegmentationNode()
+{
+  return vtkMRMLSegmentationNode::SafeDownCast( this->GetNodeReference(PATIENT_BODY_SEGMENTATION_REFERENCE_ROLE) );
+}
+
+//----------------------------------------------------------------------------
+void vtkMRMLIhepStandGeometryNode::SetAndObservePatientBodySegmentationNode(vtkMRMLSegmentationNode* node)
+{
+  if (node && this->Scene != node->GetScene())
+  {
+    vtkErrorMacro("Cannot set reference: the referenced and referencing node are not in the same scene");
+    return;
+  }
+
+  this->SetNodeReferenceID(PATIENT_BODY_SEGMENTATION_REFERENCE_ROLE, (node ? node->GetID() : nullptr));
+}
+
+//----------------------------------------------------------------------------
+vtkMRMLScalarVolumeNode* vtkMRMLIhepStandGeometryNode::GetReferenceVolumeNode()
+{
+  return vtkMRMLScalarVolumeNode::SafeDownCast( this->GetNodeReference(PATIENT_BODY_VOLUME_REFERENCE_ROLE) );
+}
+
+//----------------------------------------------------------------------------
+void vtkMRMLIhepStandGeometryNode::SetAndObserveReferenceVolumeNode(vtkMRMLScalarVolumeNode* node)
+{
+  if (node && this->Scene != node->GetScene())
+  {
+    vtkErrorMacro("Cannot set reference: the referenced and referencing node are not in the same scene");
+    return;
+  }
+
+  this->SetNodeReferenceID(PATIENT_BODY_VOLUME_REFERENCE_ROLE, (node ? node->GetID() : nullptr));
 }

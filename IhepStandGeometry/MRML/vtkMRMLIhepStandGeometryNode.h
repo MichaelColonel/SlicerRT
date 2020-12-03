@@ -31,6 +31,9 @@ class vtkMRMLMarkupsClosedCurveNode;
 class vtkMRMLMarkupsFiducialNode;
 class vtkMRMLMarkupsLineNode;
 
+class vtkMRMLSegmentationNode;
+class vtkMRMLScalarVolumeNode;
+
 /// \ingroup SlicerRt_QtModules_IhepStandGeometry
 
 class VTK_SLICER_IHEPSTANDGEOMETRY_MODULE_MRML_EXPORT vtkMRMLIhepStandGeometryNode : public vtkMRMLNode
@@ -65,6 +68,26 @@ public:
   /// Set and observe beam node. This updates Normal and View-Up vectors.
   void SetAndObserveBeamNode(vtkMRMLRTBeamNode* node);
 
+  /// Get patient body segmentation node
+  vtkMRMLSegmentationNode* GetPatientBodySegmentationNode();
+  /// Set and observe patient body segmentation node
+  void SetAndObservePatientBodySegmentationNode(vtkMRMLSegmentationNode* node);
+
+  /// Get patient body volume node
+  vtkMRMLScalarVolumeNode* GetReferenceVolumeNode();
+  /// Set and observe patient body volume node
+  void SetAndObserveReferenceVolumeNode(vtkMRMLScalarVolumeNode* node);
+
+  /// Get patient body segment ID
+  vtkGetStringMacro(PatientBodySegmentID);
+  /// Set patient body segment ID
+  vtkSetStringMacro(PatientBodySegmentID);
+
+  /// Get treatment machine type name
+  vtkGetStringMacro(TreatmentMachineType);
+  /// Set treatment machine type name
+  vtkSetStringMacro(TreatmentMachineType);
+
   /// Get/Set patient support rotation angle
   vtkSetMacro(PatientSupportRotationAngle, double);
   vtkGetMacro(PatientSupportRotationAngle, double);
@@ -76,6 +99,12 @@ protected:
   void operator=(const vtkMRMLIhepStandGeometryNode&);
 
 protected:
+  /// Patient body segment ID in selected segmentation node
+  char* PatientBodySegmentID;
+
+  /// Name of treatment machine used (must match folder name where the models can be found)
+  char* TreatmentMachineType;
+  /// IEC Patient support rotation angle (theta_s)
   double PatientSupportRotationAngle;
 };
 

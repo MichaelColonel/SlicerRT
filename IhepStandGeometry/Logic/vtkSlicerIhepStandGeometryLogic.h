@@ -25,15 +25,16 @@
 #define __vtkSlicerIhepStandGeometryLogic_h
 
 // Slicer includes
-#include "vtkSlicerModuleLogic.h"
+#include <vtkSlicerModuleLogic.h>
 
 // MRML includes
 
 // STD includes
-#include <cstdlib>
 
 #include "vtkSlicerIhepStandGeometryModuleLogicExport.h"
 
+class vtkMRMLIhepStandGeometryNode;
+class vtkSlicerIECTransformLogic;
 
 /// \ingroup Slicer_QtModules_IhepStandGeometry
 class VTK_SLICER_IHEPSTANDGEOMETRY_MODULE_LOGIC_EXPORT vtkSlicerIhepStandGeometryLogic :
@@ -41,9 +42,25 @@ class VTK_SLICER_IHEPSTANDGEOMETRY_MODULE_LOGIC_EXPORT vtkSlicerIhepStandGeometr
 {
 public:
 
+  static const char* CANYON_MODEL_NAME;
+  static const char* ROTATION_MODEL_NAME; // Patient Support Rotation
+  static const char* STAND_MODEL_NAME; // Patient Support Stand
+  static const char* TABLETOP_MODEL_NAME;
+
+  static const char* ORIENTATION_MARKER_MODEL_NODE_NAME;
+
   static vtkSlicerIhepStandGeometryLogic *New();
   vtkTypeMacro(vtkSlicerIhepStandGeometryLogic, vtkSlicerModuleLogic);
   void PrintSelf(ostream& os, vtkIndent indent);
+
+  /// Load pre-defined components of the treatment machine into the scene
+  /// \param parameterNode Parameter node contains the type of treatment machine
+  ///        (must match folder name where the models can be found)
+//  void LoadTreatmentMachineModels(vtkMRMLIhepStandGeometryNode* parameterNode);
+  /// Set up the IEC transforms and model properties on the treatment machine models
+//  void SetupTreatmentMachineModels();
+  /// Create or get transforms taking part in the IEC logic and additional devices, and build the transform hierarchy
+  void BuildIhepStangGeometryTransformHierarchy();
 
 protected:
   vtkSlicerIhepStandGeometryLogic();
@@ -55,6 +72,10 @@ protected:
   void UpdateFromMRMLScene() override;
   void OnMRMLSceneNodeAdded(vtkMRMLNode* node) override;
   void OnMRMLSceneNodeRemoved(vtkMRMLNode* node) override;
+
+protected:
+  vtkSlicerIECTransformLogic* IECLogic;
+
 private:
 
   vtkSlicerIhepStandGeometryLogic(const vtkSlicerIhepStandGeometryLogic&) = delete;

@@ -13,13 +13,11 @@ set(${KIT}_SRCS
   )
 
 set(${KIT}_TARGET_LIBRARIES
-#  ${ITK_LIBRARIES}
-#  vtkSlicer${MODULE_NAME}ModuleMRML
+  ${ITK_LIBRARIES}
+  vtkSlicer${MODULE_NAME}ModuleMRML
   vtkSlicerBeamsModuleLogic
-#  vtkSlicerPlanarImageModuleLogic
-#  vtkSlicerMarkupsModuleMRML
+  vtkSlicerMarkupsModuleMRML
   vtkSlicerRtCommon
-#  vtkPlmCommon
   )
 
 #-----------------------------------------------------------------------------
