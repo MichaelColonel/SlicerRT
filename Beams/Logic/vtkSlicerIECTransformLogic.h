@@ -94,7 +94,7 @@ Legend:
 class VTK_SLICER_BEAMS_LOGIC_EXPORT vtkSlicerIECTransformLogic : public vtkMRMLAbstractLogic
 {
 public:
-  enum CoordinateSystemIdentifier
+  enum class CoordinateSystemIdentifier : int
   {
     RAS = 0,
     FixedReference,
@@ -104,6 +104,7 @@ public:
     RightImagingPanel,
     PatientSupportRotation, // Not part of the standard, but useful for visualization
     PatientSupport,
+    TableTopInferiorSuperiorMovement, // Inferior-Superior movement of the table top
     TableTopEccentricRotation,
     TableTop,
     FlatPanel,
@@ -165,7 +166,7 @@ protected:
 
   // TODO: for hierarchy use tree with nodes, something like graph
   /// Map of IEC coordinate systems hierarchy
-  std::map< CoordinateSystemIdentifier, std::list< CoordinateSystemIdentifier > > CoordinateSystemsHierarchy;
+  std::map< CoordinateSystemIdentifier, CoordinateSystemsList > CoordinateSystemsHierarchy;
 
 protected:
   vtkSlicerIECTransformLogic();

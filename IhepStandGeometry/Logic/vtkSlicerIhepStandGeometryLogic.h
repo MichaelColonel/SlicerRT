@@ -43,8 +43,8 @@ class VTK_SLICER_IHEPSTANDGEOMETRY_MODULE_LOGIC_EXPORT vtkSlicerIhepStandGeometr
 public:
 
   static const char* CANYON_MODEL_NAME;
-  static const char* ROTATION_MODEL_NAME; // Patient Support Rotation
-  static const char* STAND_MODEL_NAME; // Patient Support Stand
+  static const char* PATIENTSUPPORT_MODEL_NAME; // Patient Support Rotation
+  static const char* TABLETOPSTAND_MODEL_NAME; // Table Top Inferior-Superior Movement Stand
   static const char* TABLETOP_MODEL_NAME;
 
   static const char* ORIENTATION_MARKER_MODEL_NODE_NAME;
@@ -56,9 +56,9 @@ public:
   /// Load pre-defined components of the treatment machine into the scene
   /// \param parameterNode Parameter node contains the type of treatment machine
   ///        (must match folder name where the models can be found)
-//  void LoadTreatmentMachineModels(vtkMRMLIhepStandGeometryNode* parameterNode);
+  void LoadTreatmentMachineModels(vtkMRMLIhepStandGeometryNode* parameterNode);
   /// Set up the IEC transforms and model properties on the treatment machine models
-//  void SetupTreatmentMachineModels();
+  void SetupTreatmentMachineModels();
   /// Create or get transforms taking part in the IEC logic and additional devices, and build the transform hierarchy
   void BuildIhepStangGeometryTransformHierarchy();
 

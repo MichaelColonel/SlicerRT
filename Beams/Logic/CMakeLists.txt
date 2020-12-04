@@ -15,6 +15,8 @@ set(${KIT}_SRCS
   vtkSlicer${MODULE_NAME}ModuleLogic.h
   vtkSlicerIECTransformLogic.cxx
   vtkSlicerIECTransformLogic.h
+#  vtkSlicerIhepStandGeometryTransformLogic.cxx
+#  vtkSlicerIhepStandGeometryTransformLogic.h
   vtkSlicerMLCPositionLogic.cxx
   vtkSlicerMLCPositionLogic.h
   )

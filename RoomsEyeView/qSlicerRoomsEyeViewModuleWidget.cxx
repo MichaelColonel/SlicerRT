@@ -662,12 +662,13 @@ void qSlicerRoomsEyeViewModuleWidget::onLoadCustomCollimatorMountedDeviceButtonC
   vtkSmartPointer<vtkCollection> loadedModelsCollection = vtkSmartPointer<vtkCollection>::New();
   ioManager->openDialog("ModelFile", qSlicerDataDialog::Read, qSlicerIO::IOProperties(), loadedModelsCollection);
   
+  using IEC = vtkSlicerIECTransformLogic::CoordinateSystemIdentifier;
   for (int modelIndex=0; modelIndex<loadedModelsCollection->GetNumberOfItems(); ++modelIndex)
   {
     vtkMRMLModelNode* loadedModelNode = vtkMRMLModelNode::SafeDownCast(
       loadedModelsCollection->GetItemAsObject(modelIndex) );
     vtkMRMLLinearTransformNode* collimatorModelTransforms = d->logic()->GetIECLogic()->GetTransformNodeBetween(
-      vtkSlicerIECTransformLogic::Collimator, vtkSlicerIECTransformLogic::Gantry );
+      IEC::Collimator, IEC::Gantry );
     loadedModelNode->SetAndObserveTransformNodeID(collimatorModelTransforms->GetID());
   }
 
