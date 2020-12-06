@@ -22,6 +22,7 @@
 // MRML includes
 #include <vtkMRMLScene.h>
 #include <vtkMRMLLinearTransformNode.h>
+#include <vtkMRMLScalarVolumeNode.h>
 
 // VTK includes
 #include <vtkObjectFactory.h>
@@ -36,6 +37,7 @@ namespace
 {
 
 const char* BEAM_REFERENCE_ROLE = "beamRef";
+const char* CT_VOLUME_REFERENCE_ROLE = "ctVolumeRef";
 
 } // namespace
 
@@ -45,6 +47,8 @@ vtkMRMLNodeNewMacro(vtkMRMLDrrImageComputationNode);
 //----------------------------------------------------------------------------
 vtkMRMLDrrImageComputationNode::vtkMRMLDrrImageComputationNode()
 {
+  ReconstructionLibrary = PLASTIMATCH;
+  // Common and plastimatch parameters
   NormalVector[0] = 0.;
   NormalVector[1] = 0.;
   NormalVector[2] = 1.;
@@ -79,6 +83,9 @@ vtkMRMLDrrImageComputationNode::vtkMRMLDrrImageComputationNode()
   InvertIntensityFlag = false;
 
   IsocenterImagerDistance = 300.;
+  // RTK parameters
+  RtkForwardProjection = JOSEPH;
+  FillPadSize = 0;
 }
 
 //----------------------------------------------------------------------------
@@ -93,6 +100,7 @@ void vtkMRMLDrrImageComputationNode::WriteXML(ostream& of, int nIndent)
 
   // Write all MRML node attributes into output stream
   vtkMRMLWriteXMLBeginMacro(of);
+  vtkMRMLWriteXMLIntMacro(ReconstructionLibrary, ReconstructionLibrary);
   vtkMRMLWriteXMLVectorMacro(NormalVector, NormalVector, double, 3);
   vtkMRMLWriteXMLVectorMacro(ViewUpVector, ViewUpVector, double, 3);
   vtkMRMLWriteXMLFloatMacro(IsocenterImagerDistance, IsocenterImagerDistance);
@@ -109,6 +117,8 @@ void vtkMRMLDrrImageComputationNode::WriteXML(ostream& of, int nIndent)
   vtkMRMLWriteXMLIntMacro(AlgorithmReconstuction, AlgorithmReconstuction);
   vtkMRMLWriteXMLIntMacro(HUConversion, HUConversion);
   vtkMRMLWriteXMLIntMacro(Threading, Threading);
+  vtkMRMLWriteXMLIntMacro(RtkForwardProjection, RtkForwardProjection);
+  vtkMRMLWriteXMLIntMacro(FillPadSize, FillPadSize);
   // add new parameters here
   vtkMRMLWriteXMLEndMacro(); 
 }
@@ -120,6 +130,7 @@ void vtkMRMLDrrImageComputationNode::ReadXMLAttributes(const char** atts)
   vtkMRMLNode::ReadXMLAttributes(atts);
 
   vtkMRMLReadXMLBeginMacro(atts);
+  vtkMRMLReadXMLIntMacro(ReconstructionLibrary, ReconstructionLibrary);
   vtkMRMLReadXMLVectorMacro(NormalVector, NormalVector, double, 3);
   vtkMRMLReadXMLVectorMacro(ViewUpVector, ViewUpVector, double, 3);
   vtkMRMLReadXMLFloatMacro(IsocenterImagerDistance, IsocenterImagerDistance);
@@ -136,6 +147,8 @@ void vtkMRMLDrrImageComputationNode::ReadXMLAttributes(const char** atts)
   vtkMRMLReadXMLIntMacro(AlgorithmReconstuction, AlgorithmReconstuction);
   vtkMRMLReadXMLIntMacro(HUConversion, HUConversion);
   vtkMRMLReadXMLIntMacro(Threading, Threading);
+  vtkMRMLReadXMLIntMacro(RtkForwardProjection, RtkForwardProjection);
+  vtkMRMLReadXMLIntMacro(FillPadSize, FillPadSize);
   // add new parameters here
   vtkMRMLReadXMLEndMacro();
 
@@ -161,6 +174,7 @@ void vtkMRMLDrrImageComputationNode::Copy(vtkMRMLNode *anode)
   // Copy beam parameters
   this->DisableModifiedEventOn();
   vtkMRMLCopyBeginMacro(node);
+  vtkMRMLCopyIntMacro(ReconstructionLibrary);
   vtkMRMLCopyVectorMacro(NormalVector, double, 3);
   vtkMRMLCopyVectorMacro(ViewUpVector, double, 3);
   vtkMRMLCopyFloatMacro(IsocenterImagerDistance);
@@ -177,6 +191,8 @@ void vtkMRMLDrrImageComputationNode::Copy(vtkMRMLNode *anode)
   vtkMRMLCopyIntMacro(AlgorithmReconstuction);
   vtkMRMLCopyIntMacro(HUConversion);
   vtkMRMLCopyIntMacro(Threading);
+  vtkMRMLCopyIntMacro(RtkForwardProjection);
+  vtkMRMLCopyIntMacro(FillPadSize);
   // add new parameters here
   vtkMRMLCopyEndMacro(); 
 
@@ -198,6 +214,7 @@ void vtkMRMLDrrImageComputationNode::CopyContent(vtkMRMLNode *anode, bool deepCo
   }
 
   vtkMRMLCopyBeginMacro(node);
+  vtkMRMLCopyIntMacro(ReconstructionLibrary);
   vtkMRMLCopyVectorMacro(NormalVector, double, 3);
   vtkMRMLCopyVectorMacro(ViewUpVector, double, 3);
   vtkMRMLCopyFloatMacro(IsocenterImagerDistance);
@@ -214,6 +231,8 @@ void vtkMRMLDrrImageComputationNode::CopyContent(vtkMRMLNode *anode, bool deepCo
   vtkMRMLCopyIntMacro(AlgorithmReconstuction);
   vtkMRMLCopyIntMacro(HUConversion);
   vtkMRMLCopyIntMacro(Threading);
+  vtkMRMLCopyIntMacro(RtkForwardProjection);
+  vtkMRMLCopyIntMacro(FillPadSize);
   // add new parameters here
   vtkMRMLCopyEndMacro();
 }
@@ -224,6 +243,7 @@ void vtkMRMLDrrImageComputationNode::PrintSelf(ostream& os, vtkIndent indent)
   Superclass::PrintSelf(os,indent);
 
   vtkMRMLPrintBeginMacro(os, indent);
+  vtkMRMLPrintIntMacro(ReconstructionLibrary);
   vtkMRMLPrintVectorMacro(NormalVector, double, 3);
   vtkMRMLPrintVectorMacro(ViewUpVector, double, 3);
   vtkMRMLPrintFloatMacro(IsocenterImagerDistance);
@@ -240,6 +260,8 @@ void vtkMRMLDrrImageComputationNode::PrintSelf(ostream& os, vtkIndent indent)
   vtkMRMLPrintIntMacro(AlgorithmReconstuction);
   vtkMRMLPrintIntMacro(HUConversion);
   vtkMRMLPrintIntMacro(Threading);
+  vtkMRMLPrintIntMacro(RtkForwardProjection);
+  vtkMRMLPrintIntMacro(FillPadSize);
   // add new parameters here
   vtkMRMLPrintEndMacro(); 
 }
@@ -260,6 +282,24 @@ void vtkMRMLDrrImageComputationNode::SetAndObserveBeamNode(vtkMRMLRTBeamNode* no
   }
 
   this->SetNodeReferenceID(BEAM_REFERENCE_ROLE, (node ? node->GetID() : nullptr));
+}
+
+//----------------------------------------------------------------------------
+vtkMRMLScalarVolumeNode* vtkMRMLDrrImageComputationNode::GetCtVolumeNode()
+{
+  return vtkMRMLScalarVolumeNode::SafeDownCast( this->GetNodeReference(CT_VOLUME_REFERENCE_ROLE) );
+}
+
+//----------------------------------------------------------------------------
+void vtkMRMLDrrImageComputationNode::SetAndObserveCtVolumeNode(vtkMRMLScalarVolumeNode* node)
+{
+  if (node && this->Scene != node->GetScene())
+  {
+    vtkErrorMacro("SetAndObserveVolumeNode: Cannot set reference, the referenced and referencing node are not in the same scene");
+    return;
+  }
+
+  this->SetNodeReferenceID(CT_VOLUME_REFERENCE_ROLE, (node ? node->GetID() : nullptr));
 }
 
 //----------------------------------------------------------------------------
@@ -285,13 +325,13 @@ void vtkMRMLDrrImageComputationNode::SetAlgorithmReconstuction(int algorithmReco
 {
   switch (algorithmReconstuction)
   {
-    case 1:
-      SetAlgorithmReconstuction(PlastimatchAlgorithmReconstuctionType::UNIFORM);
-      break;
-    case 0:
-    default:
-      SetAlgorithmReconstuction(PlastimatchAlgorithmReconstuctionType::EXACT);
-      break;
+  case 1:
+    SetAlgorithmReconstuction(PlastimatchAlgorithmReconstuctionType::UNIFORM);
+    break;
+  case 0:
+  default:
+    SetAlgorithmReconstuction(PlastimatchAlgorithmReconstuctionType::EXACT);
+    break;
   };
 }
 
@@ -300,16 +340,16 @@ void vtkMRMLDrrImageComputationNode::SetHUConversion(int huConvension)
 {
   switch (huConvension)
   {
-    case 1:
-      SetHUConversion(PlastimatchHounsfieldUnitsConversionType::INLINE);
-      break;
-    case 2:
-      SetHUConversion(PlastimatchHounsfieldUnitsConversionType::NONE);
-      break;
-    case 0:
-    default:
-      SetHUConversion(PlastimatchHounsfieldUnitsConversionType::PREPROCESS);
-      break;
+  case 1:
+    SetHUConversion(PlastimatchHounsfieldUnitsConversionType::INLINE);
+    break;
+  case 2:
+    SetHUConversion(PlastimatchHounsfieldUnitsConversionType::NONE);
+    break;
+  case 0:
+  default:
+    SetHUConversion(PlastimatchHounsfieldUnitsConversionType::PREPROCESS);
+    break;
   };
 }
 
@@ -318,16 +358,52 @@ void vtkMRMLDrrImageComputationNode::SetThreading(int threading)
 {
   switch (threading)
   {
-    case 1:
-      SetThreading(PlastimatchThreadingType::CUDA);
-      break;
-    case 2:
-      SetThreading(PlastimatchThreadingType::OPENCL);
-      break;
-    case 0:
-    default:
-      SetThreading(PlastimatchThreadingType::CPU);
-      break;
+  case 1:
+    SetThreading(PlastimatchThreadingType::CUDA);
+    break;
+  case 2:
+    SetThreading(PlastimatchThreadingType::OPENCL);
+    break;
+  case 0:
+  default:
+    SetThreading(PlastimatchThreadingType::CPU);
+    break;
+  };
+}
+
+//----------------------------------------------------------------------------
+void vtkMRMLDrrImageComputationNode::SetReconstructionLibrary(int drrLibrary)
+{
+  switch (drrLibrary)
+  {
+  case 1:
+    SetReconstructionLibrary(ReconstructionLibraryType::RTK);
+    break;
+  case 0:
+  default:
+    SetReconstructionLibrary(ReconstructionLibraryType::PLASTIMATCH);
+    break;
+  };
+}
+
+//----------------------------------------------------------------------------
+void vtkMRMLDrrImageComputationNode::SetRtkForwardProjection(int rtkForwardProjection)
+{
+  switch (rtkForwardProjection)
+  {
+  case 1:
+    SetRtkForwardProjection(RtkForwardProjectionType::JOSEPH_ATTENUATED);
+    break;
+  case 2:
+    SetRtkForwardProjection(RtkForwardProjectionType::ZENG);
+    break;
+  case 3:
+    SetRtkForwardProjection(RtkForwardProjectionType::CUDA_RAYCAST);
+    break;
+  case 0:
+  default:
+    SetRtkForwardProjection(RtkForwardProjectionType::JOSEPH);
+    break;
   };
 }
 

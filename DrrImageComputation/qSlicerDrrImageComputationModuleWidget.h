@@ -61,6 +61,9 @@ public slots:
   void onUseImageWindowToggled(bool);
   void onComputeDrrClicked();
 
+  /// Type of reconstruction library: Plastimatch (default) or RTK
+  void onReconstructionLibraryChanged(int);
+
   /// Update widget GUI from RT Image parameters node
   void updateWidgetFromMRML();
 

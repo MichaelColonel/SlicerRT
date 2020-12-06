@@ -30,6 +30,7 @@
 #include <vtkSlicerPlanarImageModuleLogic.h>
 #include <vtkMRMLPlanarImageNode.h>
 
+class vtkMRMLScalarVolumeNode;
 class vtkMRMLLinearTransformNode;
 class vtkMRMLRTBeamNode;
 class vtkMRMLMarkupsClosedCurveNode;
@@ -47,9 +48,11 @@ class vtkMRMLMarkupsLineNode;
 class VTK_SLICER_DRRIMAGECOMPUTATION_MODULE_MRML_EXPORT vtkMRMLDrrImageComputationNode : public vtkMRMLPlanarImageNode
 {
 public:
+  enum ReconstructionLibraryType { PLASTIMATCH, RTK };
   enum PlastimatchAlgorithmReconstuctionType { EXACT, UNIFORM };
   enum PlastimatchHounsfieldUnitsConversionType { PREPROCESS, INLINE, NONE };
   enum PlastimatchThreadingType { CPU, CUDA, OPENCL };
+  enum RtkForwardProjectionType { JOSEPH, JOSEPH_ATTENUATED, ZENG, CUDA_RAYCAST };
 
   static vtkMRMLDrrImageComputationNode *New();
   vtkTypeMacro(vtkMRMLDrrImageComputationNode,vtkMRMLPlanarImageNode);
@@ -81,6 +84,14 @@ public:
   vtkMRMLRTBeamNode* GetBeamNode();
   /// Set and observe beam node. This updates Normal and View-Up vectors.
   void SetAndObserveBeamNode(vtkMRMLRTBeamNode* node);
+
+  /// Get CT volume node
+  vtkMRMLScalarVolumeNode* GetCtVolumeNode();
+  /// Set and observe CT volume node
+  void SetAndObserveCtVolumeNode(vtkMRMLScalarVolumeNode* node);
+
+  vtkGetMacro(ReconstructionLibrary, ReconstructionLibraryType);
+  vtkSetMacro(ReconstructionLibrary, ReconstructionLibraryType);
 
   vtkGetVector3Macro(NormalVector, double);
   vtkSetVector3Macro(NormalVector, double);
@@ -132,6 +143,12 @@ public:
   vtkGetVector4Macro(ImageWindow, int);
   vtkSetVector4Macro(ImageWindow, int);
 
+  vtkGetMacro(RtkForwardProjection, RtkForwardProjectionType);
+  vtkSetMacro(RtkForwardProjection, RtkForwardProjectionType);
+
+  vtkGetMacro(FillPadSize, int);
+  vtkSetMacro(FillPadSize, int);
+
 protected:
   vtkMRMLDrrImageComputationNode();
   ~vtkMRMLDrrImageComputationNode();
@@ -141,8 +158,11 @@ protected:
   void SetAlgorithmReconstuction(int algorithmReconstuction = 0);
   void SetHUConversion(int huConversion = 0);
   void SetThreading(int threading = 0);
+  void SetReconstructionLibrary(int drrLibrary = 0);
+  void SetRtkForwardProjection(int rtkForwardProjection = 0);
 
 protected:
+  ReconstructionLibraryType ReconstructionLibrary;
   double NormalVector[3]; // updated in logic
   double ViewUpVector[3]; // updated in logic
   double IsocenterImagerDistance; // fabs(SID - SAD)
@@ -159,6 +179,8 @@ protected:
   bool AutoscaleFlag;
   bool InvertIntensityFlag;
   float AutoscaleRange[2];
+  RtkForwardProjectionType RtkForwardProjection;
+  int FillPadSize;
 };
 
 #endif

@@ -1040,13 +1040,13 @@ bool vtkSlicerDrrImageComputationLogic::ComputePlastimatchDRR( vtkMRMLDrrImageCo
   std::string threadingString = "cpu";
   switch (parameterNode->GetThreading())
   {
-  case vtkMRMLDrrImageComputationNode::PlastimatchThreadingType::CPU:
+  case vtkMRMLDrrImageComputationNode::CPU:
     threadingString = "cpu";
     break;
-  case vtkMRMLDrrImageComputationNode::PlastimatchThreadingType::CUDA:
+  case vtkMRMLDrrImageComputationNode::CUDA:
     threadingString = "cuda";
     break;
-  case vtkMRMLDrrImageComputationNode::PlastimatchThreadingType::OPENCL:
+  case vtkMRMLDrrImageComputationNode::OPENCL:
     threadingString = "opencl";
     break;
   default:
@@ -1057,13 +1057,13 @@ bool vtkSlicerDrrImageComputationLogic::ComputePlastimatchDRR( vtkMRMLDrrImageCo
   std::string huconversionString = "preprocess";
   switch (parameterNode->GetHUConversion())
   {
-  case vtkMRMLDrrImageComputationNode::PlastimatchHounsfieldUnitsConversionType::INLINE:
+  case vtkMRMLDrrImageComputationNode::INLINE:
     huconversionString = "inline";
     break;
-  case vtkMRMLDrrImageComputationNode::PlastimatchHounsfieldUnitsConversionType::PREPROCESS:
+  case vtkMRMLDrrImageComputationNode::PREPROCESS:
     huconversionString = "preprocess";
     break;
-  case vtkMRMLDrrImageComputationNode::PlastimatchHounsfieldUnitsConversionType::NONE:
+  case vtkMRMLDrrImageComputationNode::NONE:
     huconversionString = "none";
     break;
   default:
@@ -1074,10 +1074,10 @@ bool vtkSlicerDrrImageComputationLogic::ComputePlastimatchDRR( vtkMRMLDrrImageCo
   std::string algorithmString = "exact";
   switch (parameterNode->GetAlgorithmReconstuction())
   {
-  case vtkMRMLDrrImageComputationNode::PlastimatchAlgorithmReconstuctionType::EXACT:
+  case vtkMRMLDrrImageComputationNode::EXACT:
     algorithmString = "exact";
     break;
-  case vtkMRMLDrrImageComputationNode::PlastimatchAlgorithmReconstuctionType::UNIFORM:
+  case vtkMRMLDrrImageComputationNode::UNIFORM:
     algorithmString = "uniform";
     break;
   default:
@@ -1268,9 +1268,9 @@ bool vtkSlicerDrrImageComputationLogic::ComputeRtkDRR( vtkMRMLDrrImageComputatio
   cmdNode->SetParameterAsString( "outputFormat", "raw");
 
   this->PlastimatchDRRComputationLogic->ApplyAndWait( cmdNode, true);
-/*
+
   scene->EndState(vtkMRMLScene::BatchProcessState);
-/*
+
   scene->RemoveNode(cmdNode);
   // TODO: Add results checking ( image size is valid, and computation didn't crash )
 

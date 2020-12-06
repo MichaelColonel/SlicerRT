@@ -11,14 +11,18 @@ set(${KIT}_INCLUDE_DIRECTORIES
 set(${KIT}_SRCS
   qSlicer${MODULE_NAME}PlastimatchParametersWidget.cxx
   qSlicer${MODULE_NAME}PlastimatchParametersWidget.h
+  qSlicer${MODULE_NAME}RtkParametersWidget.cxx
+  qSlicer${MODULE_NAME}RtkParametersWidget.h
   )
 
 set(${KIT}_MOC_SRCS
   qSlicer${MODULE_NAME}PlastimatchParametersWidget.h
+  qSlicer${MODULE_NAME}RtkParametersWidget.h
   )
 
 set(${KIT}_UI_SRCS
   ../Resources/UI/qSlicer${MODULE_NAME}PlastimatchParametersWidget.ui
+  ../Resources/UI/qSlicer${MODULE_NAME}RtkParametersWidget.ui
   )
 
 set(${KIT}_RESOURCES

@@ -145,44 +145,44 @@ void qSlicerDrrImageComputationPlastimatchParametersWidget::updateWidgetFromMRML
 
   switch (d->ParameterNode->GetAlgorithmReconstuction())
   {
-    case vtkMRMLDrrImageComputationNode::PlastimatchAlgorithmReconstuctionType::EXACT:
-      d->RadioButton_Exact->setChecked(true);
-      break;
-    case vtkMRMLDrrImageComputationNode::PlastimatchAlgorithmReconstuctionType::UNIFORM:
-      d->RadioButton_Uniform->setChecked(true);
-      break;
-    default:
-      break;
+  case vtkMRMLDrrImageComputationNode::EXACT:
+    d->RadioButton_Exact->setChecked(true);
+    break;
+  case vtkMRMLDrrImageComputationNode::UNIFORM:
+    d->RadioButton_Uniform->setChecked(true);
+    break;
+  default:
+    break;
   }
 
   switch (d->ParameterNode->GetHUConversion())
   {
-    case vtkMRMLDrrImageComputationNode::PlastimatchHounsfieldUnitsConversionType::PREPROCESS:
-      d->RadioButton_Preprocess->setChecked(true);
-      break;
-    case vtkMRMLDrrImageComputationNode::PlastimatchHounsfieldUnitsConversionType::INLINE:
-      d->RadioButton_Inline->setChecked(true);
-      break;
-    case vtkMRMLDrrImageComputationNode::PlastimatchHounsfieldUnitsConversionType::NONE:
-      d->RadioButton_None->setChecked(true);
-      break;
-    default:
-      break;
+  case vtkMRMLDrrImageComputationNode::PREPROCESS:
+    d->RadioButton_Preprocess->setChecked(true);
+    break;
+  case vtkMRMLDrrImageComputationNode::INLINE:
+    d->RadioButton_Inline->setChecked(true);
+    break;
+  case vtkMRMLDrrImageComputationNode::NONE:
+    d->RadioButton_None->setChecked(true);
+    break;
+  default:
+    break;
   }
 
   switch (d->ParameterNode->GetThreading())
   {
-    case vtkMRMLDrrImageComputationNode::PlastimatchThreadingType::CPU:
-      d->RadioButton_CPU->setChecked(true);
-      break;
-    case vtkMRMLDrrImageComputationNode::PlastimatchThreadingType::CUDA:
-      d->RadioButton_CUDA->setChecked(true);
-      break;
-    case vtkMRMLDrrImageComputationNode::PlastimatchThreadingType::OPENCL:
-      d->RadioButton_OpenCL->setChecked(true);
-      break;
-    default:
-      break;
+  case vtkMRMLDrrImageComputationNode::CPU:
+    d->RadioButton_CPU->setChecked(true);
+    break;
+  case vtkMRMLDrrImageComputationNode::CUDA:
+    d->RadioButton_CUDA->setChecked(true);
+    break;
+  case vtkMRMLDrrImageComputationNode::OPENCL:
+    d->RadioButton_OpenCL->setChecked(true);
+    break;
+  default:
+    break;
   }
   this->updatePlastimatchDrrArguments();
 }
@@ -194,7 +194,7 @@ void qSlicerDrrImageComputationPlastimatchParametersWidget::onReconstructionAlgo
 
   if (!d->ParameterNode)
   {
-    qCritical() << Q_FUNC_INFO << ": Invalid parameter node";
+    qWarning() << Q_FUNC_INFO << ": Invalid parameter node";
     return;
   }
 
@@ -203,11 +203,11 @@ void qSlicerDrrImageComputationPlastimatchParametersWidget::onReconstructionAlgo
 
   if (rbutton == d->RadioButton_Exact)
   {
-    d->ParameterNode->SetAlgorithmReconstuction(vtkMRMLDrrImageComputationNode::PlastimatchAlgorithmReconstuctionType::EXACT);
+    d->ParameterNode->SetAlgorithmReconstuction(vtkMRMLDrrImageComputationNode::EXACT);
   }
   else if (rbutton == d->RadioButton_Uniform)
   {
-    d->ParameterNode->SetAlgorithmReconstuction(vtkMRMLDrrImageComputationNode::PlastimatchAlgorithmReconstuctionType::UNIFORM);
+    d->ParameterNode->SetAlgorithmReconstuction(vtkMRMLDrrImageComputationNode::UNIFORM);
   }
   else
   {
@@ -223,7 +223,7 @@ void qSlicerDrrImageComputationPlastimatchParametersWidget::onThreadingChanged(i
 
   if (!d->ParameterNode)
   {
-    qCritical() << Q_FUNC_INFO << ": Invalid parameter node";
+    qWarning() << Q_FUNC_INFO << ": Invalid parameter node";
     return;
   }
 
@@ -232,15 +232,15 @@ void qSlicerDrrImageComputationPlastimatchParametersWidget::onThreadingChanged(i
 
   if (rbutton == d->RadioButton_CPU)
   {
-    d->ParameterNode->SetThreading(vtkMRMLDrrImageComputationNode::PlastimatchThreadingType::CPU);
+    d->ParameterNode->SetThreading(vtkMRMLDrrImageComputationNode::CPU);
   }
   else if (rbutton == d->RadioButton_CUDA)
   {
-    d->ParameterNode->SetThreading(vtkMRMLDrrImageComputationNode::PlastimatchThreadingType::CUDA);
+    d->ParameterNode->SetThreading(vtkMRMLDrrImageComputationNode::CUDA);
   }
   else if (rbutton == d->RadioButton_OpenCL)
   {
-    d->ParameterNode->SetThreading(vtkMRMLDrrImageComputationNode::PlastimatchThreadingType::OPENCL);
+    d->ParameterNode->SetThreading(vtkMRMLDrrImageComputationNode::OPENCL);
   }
   else
   {
@@ -256,7 +256,7 @@ void qSlicerDrrImageComputationPlastimatchParametersWidget::onHUConversionChange
 
   if (!d->ParameterNode)
   {
-    qCritical() << Q_FUNC_INFO << ": Invalid parameter node";
+    qWarning() << Q_FUNC_INFO << ": Invalid parameter node";
     return;
   }
 
@@ -265,15 +265,15 @@ void qSlicerDrrImageComputationPlastimatchParametersWidget::onHUConversionChange
 
   if (rbutton == d->RadioButton_None)
   {
-    d->ParameterNode->SetHUConversion(vtkMRMLDrrImageComputationNode::PlastimatchHounsfieldUnitsConversionType::NONE);
+    d->ParameterNode->SetHUConversion(vtkMRMLDrrImageComputationNode::NONE);
   }
   else if (rbutton == d->RadioButton_Inline)
   {
-    d->ParameterNode->SetHUConversion(vtkMRMLDrrImageComputationNode::PlastimatchHounsfieldUnitsConversionType::INLINE);
+    d->ParameterNode->SetHUConversion(vtkMRMLDrrImageComputationNode::INLINE);
   }
   else if (rbutton == d->RadioButton_Preprocess)
   {
-    d->ParameterNode->SetHUConversion(vtkMRMLDrrImageComputationNode::PlastimatchHounsfieldUnitsConversionType::PREPROCESS);
+    d->ParameterNode->SetHUConversion(vtkMRMLDrrImageComputationNode::PREPROCESS);
   }
   else
   {
@@ -289,7 +289,7 @@ void qSlicerDrrImageComputationPlastimatchParametersWidget::onUseExponentialMapp
 
   if (!d->ParameterNode)
   {
-    qCritical() << Q_FUNC_INFO << ": Invalid parameter node";
+    qWarning() << Q_FUNC_INFO << ": Invalid parameter node";
     return;
   }
 
@@ -303,7 +303,7 @@ void qSlicerDrrImageComputationPlastimatchParametersWidget::onAutoscalePixelsRan
 
   if (!d->ParameterNode)
   {
-    qCritical() << Q_FUNC_INFO << ": Invalid parameter node";
+    qWarning() << Q_FUNC_INFO << ": Invalid parameter node";
     return;
   }
 
@@ -317,7 +317,7 @@ void qSlicerDrrImageComputationPlastimatchParametersWidget::onInvertIntensityTog
 
   if (!d->ParameterNode)
   {
-    qCritical() << Q_FUNC_INFO << ": Invalid parameter node";
+    qWarning() << Q_FUNC_INFO << ": Invalid parameter node";
     return;
   }
 
@@ -331,7 +331,7 @@ void qSlicerDrrImageComputationPlastimatchParametersWidget::onAutoscaleIntensity
 
   if (!d->ParameterNode)
   {
-    qCritical() << Q_FUNC_INFO << ": Invalid parameter node";
+    qWarning() << Q_FUNC_INFO << ": Invalid parameter node";
     return;
   }
   d->ParameterNode->SetAutoscaleRange( min, max);
@@ -344,14 +344,14 @@ void qSlicerDrrImageComputationPlastimatchParametersWidget::updatePlastimatchDrr
 
   if (!d->ParameterNode)
   {
-    qCritical() << Q_FUNC_INFO << ": Invalid parameter node";
+    qWarning() << Q_FUNC_INFO << ": Invalid parameter node";
     return;
   }
 
   vtkMRMLRTBeamNode* beamNode = d->ParameterNode->GetBeamNode();
   if (!beamNode)
   {
-    qCritical() << Q_FUNC_INFO << ": Invalid RT Beam node";
+    qWarning() << Q_FUNC_INFO << ": Invalid RT Beam node";
     return;
   }
 
@@ -359,17 +359,17 @@ void qSlicerDrrImageComputationPlastimatchParametersWidget::updatePlastimatchDrr
   command << "plastimatch drr ";
   switch (d->ParameterNode->GetThreading())
   {
-    case vtkMRMLDrrImageComputationNode::PlastimatchThreadingType::CPU:
-      command << "-A cpu \\\n";
-      break;
-    case vtkMRMLDrrImageComputationNode::PlastimatchThreadingType::CUDA:
-      command << "-A cuda \\\n";
-      break;
-    case vtkMRMLDrrImageComputationNode::PlastimatchThreadingType::OPENCL:
-      command << "-A opencl \\\n";
-      break;
-    default:
-      break;
+  case vtkMRMLDrrImageComputationNode::CPU:
+    command << "-A cpu \\\n";
+    break;
+  case vtkMRMLDrrImageComputationNode::CUDA:
+    command << "-A cuda \\\n";
+    break;
+  case vtkMRMLDrrImageComputationNode::OPENCL:
+    command << "-A opencl \\\n";
+    break;
+  default:
+    break;
   }
 
   double n[3], vup[3]; // normal and view up in LPS coordinate system
@@ -425,29 +425,29 @@ void qSlicerDrrImageComputationPlastimatchParametersWidget::updatePlastimatchDrr
 
   switch (d->ParameterNode->GetAlgorithmReconstuction())
   {
-    case vtkMRMLDrrImageComputationNode::PlastimatchAlgorithmReconstuctionType::EXACT:
-      command << "-i exact ";
-      break;
-    case vtkMRMLDrrImageComputationNode::PlastimatchAlgorithmReconstuctionType::UNIFORM:
-      command << "-i uniform ";
-      break;
-    default:
-      break;
+  case vtkMRMLDrrImageComputationNode::EXACT:
+    command << "-i exact ";
+    break;
+  case vtkMRMLDrrImageComputationNode::UNIFORM:
+    command << "-i uniform ";
+    break;
+  default:
+    break;
   }
 
   switch (d->ParameterNode->GetHUConversion())
   {
-    case vtkMRMLDrrImageComputationNode::PlastimatchHounsfieldUnitsConversionType::NONE:
-      command << "-P none ";
-      break;
-    case vtkMRMLDrrImageComputationNode::PlastimatchHounsfieldUnitsConversionType::PREPROCESS:
-      command << "-P preprocess ";
-      break;
-    case vtkMRMLDrrImageComputationNode::PlastimatchHounsfieldUnitsConversionType::INLINE:
-      command << "-P inline ";
-      break;
-    default:
-      break;
+  case vtkMRMLDrrImageComputationNode::NONE:
+    command << "-P none ";
+    break;
+  case vtkMRMLDrrImageComputationNode::PREPROCESS:
+    command << "-P preprocess ";
+    break;
+  case vtkMRMLDrrImageComputationNode::INLINE:
+    command << "-P inline ";
+    break;
+  default:
+    break;
   }
 
   command << "-O Out";

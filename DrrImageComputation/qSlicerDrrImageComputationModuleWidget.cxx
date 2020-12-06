@@ -17,6 +17,7 @@
 
 // Qt includes
 #include <QDebug>
+#include <QTimer>
 
 // qSlicer includes
 #include "qSlicerDrrImageComputationModuleWidget.h"
@@ -123,6 +124,9 @@ void qSlicerDrrImageComputationModuleWidget::setup()
   connect( d->CheckBox_ShowDrrMarkups, SIGNAL(toggled(bool)), this, SLOT(onShowMarkupsToggled(bool)));
   connect( d->GroupBox_UseImageWindow, SIGNAL(toggled(bool)), this, SLOT(onUseImageWindowToggled(bool)));
 
+  // Button groups
+  connect( d->buttonGroup_ReconstructionLibrary, SIGNAL(buttonClicked(int)), this, SLOT(onReconstructionLibraryChanged(int)));
+
   // Handle scene change event if occurs
   qvtkConnect( d->logic(), vtkCommand::ModifiedEvent, this, SLOT(onLogicModified()));
 }
@@ -194,28 +198,28 @@ void qSlicerDrrImageComputationModuleWidget::updateWidgetFromMRML()
 
   vtkMRMLDrrImageComputationNode* parameterNode = vtkMRMLDrrImageComputationNode::SafeDownCast(d->MRMLNodeComboBox_ParameterSet->currentNode());
 
-  if (!this->mrmlScene())
-  {
-    qCritical() << Q_FUNC_INFO << ": Invalid scene";
-    return;
-  }
-
   // Enable widgets
   d->CheckBox_ShowDrrMarkups->setEnabled(parameterNode);
   d->CollapsibleButton_ReferenceInput->setEnabled(parameterNode);
   d->CollapsibleButton_GeometryBasicParameters->setEnabled(parameterNode);
   d->PlastimatchParametersWidget->setEnabled(parameterNode);
-  d->PushButton_ComputeDrr->setEnabled(parameterNode);
+//  d->PushButton_ComputeDrr->setEnabled(parameterNode);
   
   if (!parameterNode || !d->ModuleWindowInitialized)
   {
-    qCritical() << Q_FUNC_INFO << ": Invalid parameter node, or module window isn't initialized";
+    qWarning() << Q_FUNC_INFO << ": Invalid parameter node, or module window isn't initialized";
     return;
   }
-
+/*
   if (!parameterNode->GetBeamNode())
   {
     qCritical() << Q_FUNC_INFO << ": Invalid referenced parameter's beam node";
+    return;
+  }
+
+  if (!parameterNode->GetCtVolumeNode())
+  {
+    qCritical() << Q_FUNC_INFO << ": Invalid referenced parameter's CT volume node";
     return;
   }
 
@@ -225,11 +229,23 @@ void qSlicerDrrImageComputationModuleWidget::updateWidgetFromMRML()
     qCritical() << Q_FUNC_INFO << ": Invalid referenced volume node";
     return;
   }
-
+*/
   // Update widgets info from parameter node
   d->MRMLNodeComboBox_RtBeam->setCurrentNode(parameterNode->GetBeamNode());
+  d->MRMLNodeComboBox_CtVolume->setCurrentNode(parameterNode->GetCtVolumeNode());
   d->SliderWidget_IsocenterImagerDistance->setValue(parameterNode->GetIsocenterImagerDistance());
 
+  switch (parameterNode->GetReconstructionLibrary())
+  {
+  case vtkMRMLDrrImageComputationNode::RTK:
+    d->radioButton_RTK->setChecked(true);
+    break;
+  case vtkMRMLDrrImageComputationNode::PLASTIMATCH:
+  default:
+    d->radioButton_Plastimatch->setChecked(true);
+    break;
+  }
+  
   int imagerResolution[2] = {};
   double imagerRes[2] = {};
   parameterNode->GetImagerResolution(imagerResolution);
@@ -262,6 +278,11 @@ void qSlicerDrrImageComputationModuleWidget::updateWidgetFromMRML()
       static_cast<double>(std::max<int>( 0, imageWindow[1])), 
       static_cast<double>(std::min<int>( imagerResolution[1] - 1, imageWindow[3])));
   }
+
+  // Enable / disable Compute DRR button
+  d->PushButton_ComputeDrr->setEnabled(parameterNode 
+    && parameterNode->GetBeamNode() 
+    && parameterNode->GetCtVolumeNode());
 }
 
 //-----------------------------------------------------------------------------
@@ -282,16 +303,10 @@ void qSlicerDrrImageComputationModuleWidget::onRTBeamNodeChanged(vtkMRMLNode* no
 {
   Q_D(qSlicerDrrImageComputationModuleWidget);
 
-  if (!this->mrmlScene())
-  {
-    qCritical() << Q_FUNC_INFO << ": Invalid scene";
-    return;
-  }
-
   vtkMRMLRTBeamNode* beamNode = vtkMRMLRTBeamNode::SafeDownCast(node);
   if (!beamNode)
   {
-    qCritical() << Q_FUNC_INFO << ": Invalid beam node";
+    qWarning() << Q_FUNC_INFO << ": Invalid beam node";
     return;
   }
 
@@ -301,7 +316,7 @@ void qSlicerDrrImageComputationModuleWidget::onRTBeamNodeChanged(vtkMRMLNode* no
   vtkMRMLDrrImageComputationNode* parameterNode = vtkMRMLDrrImageComputationNode::SafeDownCast(d->MRMLNodeComboBox_ParameterSet->currentNode());
   if (!parameterNode)
   {
-    qCritical() << Q_FUNC_INFO << ": Invalid parameter node";
+    qWarning() << Q_FUNC_INFO << ": Invalid parameter node";
     return;
   }
 
@@ -329,12 +344,23 @@ void qSlicerDrrImageComputationModuleWidget::exit()
 void qSlicerDrrImageComputationModuleWidget::onCtVolumeNodeChanged(vtkMRMLNode* node)
 {
   Q_D(qSlicerDrrImageComputationModuleWidget);
+
+  vtkMRMLDrrImageComputationNode* parameterNode = vtkMRMLDrrImageComputationNode::SafeDownCast(d->MRMLNodeComboBox_ParameterSet->currentNode());
+  if (!parameterNode)
+  {
+    qWarning() << Q_FUNC_INFO << ": Invalid parameter node";
+    return;
+  }
+
   vtkMRMLScalarVolumeNode* volumeNode = vtkMRMLScalarVolumeNode::SafeDownCast(node);
   if (!volumeNode)
   {
-    qCritical() << Q_FUNC_INFO << ": Invalid reference CT volume node";
+    qWarning() << Q_FUNC_INFO << ": Invalid reference CT volume node";
     return;
   }
+  
+  parameterNode->SetAndObserveCtVolumeNode(volumeNode);
+  parameterNode->Modified(); // Update widget from MRML, Update imager and image markups, DRR arguments in logic
 }
 
 //-----------------------------------------------------------------------------
@@ -345,7 +371,7 @@ void qSlicerDrrImageComputationModuleWidget::onParameterNodeChanged(vtkMRMLNode*
 
   if (!parameterNode || !d->ModuleWindowInitialized)
   {
-    qCritical() << Q_FUNC_INFO << ": Invalid parameter node, or module window isn't initialized";
+    qWarning() << Q_FUNC_INFO << ": Invalid parameter node, or module window isn't initialized";
     return;
   }
 
@@ -370,11 +396,15 @@ void qSlicerDrrImageComputationModuleWidget::onEnter()
     return;
   }
 
-  vtkMRMLDrrImageComputationNode* parameterNode = nullptr; 
-  // Try to find one in the scene
-  if (vtkMRMLNode* node = this->mrmlScene()->GetNthNodeByClass( 0, "vtkMRMLDrrImageComputationNode"))
+  vtkMRMLDrrImageComputationNode* parameterNode = vtkMRMLDrrImageComputationNode::SafeDownCast(d->MRMLNodeComboBox_ParameterSet->currentNode());
+  
+  if (!parameterNode)
   {
-    parameterNode = vtkMRMLDrrImageComputationNode::SafeDownCast(node);
+    // Try to find one in the scene
+    if (vtkMRMLNode* node = this->mrmlScene()->GetNthNodeByClass( 0, "vtkMRMLDrrImageComputationNode"))
+    {
+      parameterNode = vtkMRMLDrrImageComputationNode::SafeDownCast(node);
+    }
   }
 
   if (parameterNode && parameterNode->GetBeamNode())
@@ -382,6 +412,13 @@ void qSlicerDrrImageComputationModuleWidget::onEnter()
     // First thing first: update normal and vup vectors for parameter node
     // in case observed beam node transformation has been modified
     d->logic()->UpdateNormalAndVupVectors(parameterNode);
+
+    d->MRMLNodeComboBox_RtBeam->setCurrentNode(parameterNode->GetBeamNode());
+  }
+
+  if (parameterNode && parameterNode->GetCtVolumeNode())
+  {
+    d->MRMLNodeComboBox_CtVolume->setCurrentNode(parameterNode->GetCtVolumeNode());
   }
 
   // Create or update DRR markups nodes
@@ -406,7 +443,7 @@ void qSlicerDrrImageComputationModuleWidget::onIsocenterImagerDistanceValueChang
   vtkMRMLDrrImageComputationNode* parameterNode = vtkMRMLDrrImageComputationNode::SafeDownCast(d->MRMLNodeComboBox_ParameterSet->currentNode());
   if (!parameterNode)
   {
-    qCritical() << Q_FUNC_INFO << ": Invalid parameter node";
+    qWarning() << Q_FUNC_INFO << ": Invalid parameter node";
     return;
   }
 
@@ -421,7 +458,7 @@ void qSlicerDrrImageComputationModuleWidget::onImagerSpacingChanged(double* spac
   vtkMRMLDrrImageComputationNode* parameterNode = vtkMRMLDrrImageComputationNode::SafeDownCast(d->MRMLNodeComboBox_ParameterSet->currentNode());
   if (!parameterNode)
   {
-    qCritical() << Q_FUNC_INFO << ": Invalid parameter node";
+    qWarning() << Q_FUNC_INFO << ": Invalid parameter node";
     return;
   }
 
@@ -447,7 +484,7 @@ void qSlicerDrrImageComputationModuleWidget::onImagerResolutionChanged(double* r
   vtkMRMLDrrImageComputationNode* parameterNode = vtkMRMLDrrImageComputationNode::SafeDownCast(d->MRMLNodeComboBox_ParameterSet->currentNode());
   if (!parameterNode)
   {
-    qCritical() << Q_FUNC_INFO << ": Invalid parameter node";
+    qWarning() << Q_FUNC_INFO << ": Invalid parameter node";
     return;
   }
 
@@ -464,7 +501,7 @@ void qSlicerDrrImageComputationModuleWidget::onImageWindowColumnsValuesChanged(d
   vtkMRMLDrrImageComputationNode* parameterNode = vtkMRMLDrrImageComputationNode::SafeDownCast(d->MRMLNodeComboBox_ParameterSet->currentNode());
   if (!parameterNode)
   {
-    qCritical() << Q_FUNC_INFO << ": Invalid parameter node";
+    qWarning() << Q_FUNC_INFO << ": Invalid parameter node";
     return;
   }
 
@@ -485,7 +522,7 @@ void qSlicerDrrImageComputationModuleWidget::onImageWindowRowsValuesChanged( dou
   vtkMRMLDrrImageComputationNode* parameterNode = vtkMRMLDrrImageComputationNode::SafeDownCast(d->MRMLNodeComboBox_ParameterSet->currentNode());
   if (!parameterNode)
   {
-    qCritical() << Q_FUNC_INFO << ": Invalid parameter node";
+    qWarning() << Q_FUNC_INFO << ": Invalid parameter node";
     return;
   }
 
@@ -506,7 +543,7 @@ void qSlicerDrrImageComputationModuleWidget::onUseImageWindowToggled(bool value)
   vtkMRMLDrrImageComputationNode* parameterNode = vtkMRMLDrrImageComputationNode::SafeDownCast(d->MRMLNodeComboBox_ParameterSet->currentNode());
   if (!parameterNode)
   {
-    qCritical() << Q_FUNC_INFO << ": Invalid parameter node";
+    qWarning() << Q_FUNC_INFO << ": Invalid parameter node";
     return;
   }
 
@@ -541,19 +578,19 @@ void qSlicerDrrImageComputationModuleWidget::onComputeDrrClicked()
 
   if (!parameterNode)
   {
-    qCritical() << Q_FUNC_INFO << ": Invalid parameter node";
+    qWarning() << Q_FUNC_INFO << ": Invalid parameter node";
     return;
   }
 
   if (!parameterNode->GetBeamNode())
   {
-    qCritical() << Q_FUNC_INFO << ": Invalid referenced parameter's beam node";
+    qWarning() << Q_FUNC_INFO << ": Invalid referenced parameter's beam node";
     return;
   }
 
   if (!ctVolumeNode)
   {
-    qCritical() << Q_FUNC_INFO << ": Invalid referenced volume node";
+    qWarning() << Q_FUNC_INFO << ": Invalid referenced volume node";
     return;
   }
   
@@ -565,6 +602,37 @@ void qSlicerDrrImageComputationModuleWidget::onComputeDrrClicked()
   
   if (result)
   {
-    qDebug() << Q_FUNC_INFO << ": DRR image using plastimatch libreconstruct library has been computed";
+    qDebug() << Q_FUNC_INFO << ": DRR image using has been computed";
+  }
+}
+
+//-----------------------------------------------------------------------------
+void qSlicerDrrImageComputationModuleWidget::onReconstructionLibraryChanged(int buttonId)
+{
+  Q_D(qSlicerDrrImageComputationModuleWidget);
+  vtkMRMLDrrImageComputationNode* parameterNode = vtkMRMLDrrImageComputationNode::SafeDownCast(d->MRMLNodeComboBox_ParameterSet->currentNode());
+
+  if (!parameterNode)
+  {
+    qWarning() << Q_FUNC_INFO << ": Invalid parameter node";
+    return;
+  }
+
+
+  QAbstractButton* button = d->buttonGroup_ReconstructionLibrary->button(buttonId);
+  QRadioButton* rbutton = qobject_cast<QRadioButton*>(button);
+
+  if (rbutton == d->radioButton_Plastimatch)
+  {
+    parameterNode->SetReconstructionLibrary(vtkMRMLDrrImageComputationNode::PLASTIMATCH);
+  }
+  else if (rbutton == d->radioButton_RTK)
+  {
+    parameterNode->SetReconstructionLibrary(vtkMRMLDrrImageComputationNode::RTK);
+  }
+  else
+  {
+    qWarning() << Q_FUNC_INFO << ": Invalid reconstruct library button id";
+    return;
   }
 }
