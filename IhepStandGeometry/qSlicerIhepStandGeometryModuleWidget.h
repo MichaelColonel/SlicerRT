@@ -38,13 +38,26 @@ public:
   qSlicerIhepStandGeometryModuleWidget(QWidget *parent=0);
   virtual ~qSlicerIhepStandGeometryModuleWidget();
 
-public slots:
+  void exit() override;
+  void enter() override;
 
+public slots:
+  void setMRMLScene(vtkMRMLScene*) override;
+  void setParameterNode(vtkMRMLNode*);
+  void onSceneImportedEvent();
+  void onSceneClosedEvent();
+  void onParameterNodeChanged(vtkMRMLNode*);
+  void onLogicModified();
+  void onLoadStandModelsButtonClicked();
+
+  /// Update widget GUI from RT Image parameters node
+  void updateWidgetFromMRML();
 
 protected:
   QScopedPointer<qSlicerIhepStandGeometryModuleWidgetPrivate> d_ptr;
 
-  virtual void setup();
+  void setup() override;
+  void onEnter();
 
 private:
   Q_DECLARE_PRIVATE(qSlicerIhepStandGeometryModuleWidget);
