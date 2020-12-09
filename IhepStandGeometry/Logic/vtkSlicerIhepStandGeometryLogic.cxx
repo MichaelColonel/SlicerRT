@@ -184,7 +184,7 @@ void vtkSlicerIhepStandGeometryLogic::LoadTreatmentMachineModels(vtkMRMLIhepStan
     vtkErrorMacro("LoadTreatmentMachineModels: Invalid parameter node");
     return;
   }
-
+  
   // Make sure the transform hierarchy is in place
   this->BuildIhepStangGeometryTransformHierarchy();
 
@@ -356,6 +356,7 @@ void vtkSlicerIhepStandGeometryLogic::LoadTreatmentMachineModels(vtkMRMLIhepStan
 
   // Setup treatment machine model display and transforms
   this->SetupTreatmentMachineModels();
+  
 }
 
 //----------------------------------------------------------------------------
@@ -367,6 +368,7 @@ void vtkSlicerIhepStandGeometryLogic::SetupTreatmentMachineModels()
     return;
   }
 
+  vtkWarningMacro("SetupTreatmentMachineModels: test1");
   //TODO: Store treatment machine component color and other properties in JSON
 
   // Display all pieces of the treatment room and sets each piece a color to provide realistic representation
@@ -381,11 +383,16 @@ void vtkSlicerIhepStandGeometryLogic::SetupTreatmentMachineModels()
     return;
   }
   vtkMRMLLinearTransformNode* tableTopStandToFixedReferenceTransformNode =
-    this->IECLogic->GetTransformNodeBetween(IEC::TableTopInferiorSuperiorMovement, IEC::FixedReference);
-  tableTopStandModel->SetAndObserveTransformNodeID(tableTopStandToFixedReferenceTransformNode->GetID());
-  tableTopStandModel->CreateDefaultDisplayNodes();
-  tableTopStandModel->GetDisplayNode()->SetColor(0.95, 0.95, 0.95);
+    this->IECLogic->GetTransformNodeBetween(IEC::TableTopInferiorSuperiorMovement, IEC::PatientSupportRotation);
+  if (tableTopStandToFixedReferenceTransformNode)
+  {
+    vtkWarningMacro("SetupTreatmentMachineModels: table top to fixed reference");
+    tableTopStandModel->SetAndObserveTransformNodeID(tableTopStandToFixedReferenceTransformNode->GetID());
+    tableTopStandModel->CreateDefaultDisplayNodes();
+    tableTopStandModel->GetDisplayNode()->SetColor(0.95, 0.95, 0.95);
+  }
 
+  vtkWarningMacro("SetupTreatmentMachineModels: test2");
   // Patient support - mandatory
   vtkMRMLModelNode* patientSupportModel = vtkMRMLModelNode::SafeDownCast(
     this->GetMRMLScene()->GetFirstNodeByName(PATIENTSUPPORT_MODEL_NAME) );
@@ -396,10 +403,15 @@ void vtkSlicerIhepStandGeometryLogic::SetupTreatmentMachineModels()
   }
   vtkMRMLLinearTransformNode* patientSupportToPatientSupportRotationTransformNode =
     this->IECLogic->GetTransformNodeBetween(IEC::PatientSupport, IEC::PatientSupportRotation);
-  patientSupportModel->SetAndObserveTransformNodeID(patientSupportToPatientSupportRotationTransformNode->GetID());
-  patientSupportModel->CreateDefaultDisplayNodes();
-  patientSupportModel->GetDisplayNode()->SetColor(0.85, 0.85, 0.85);
-
+  if (patientSupportToPatientSupportRotationTransformNode)
+  {
+    vtkWarningMacro("SetupTreatmentMachineModels: patient support to rotation");
+    patientSupportModel->SetAndObserveTransformNodeID(patientSupportToPatientSupportRotationTransformNode->GetID());
+    patientSupportModel->CreateDefaultDisplayNodes();
+    patientSupportModel->GetDisplayNode()->SetColor(0.85, 0.85, 0.85);
+  }
+  
+  vtkWarningMacro("SetupTreatmentMachineModels: test3");
   // Table top - mandatory
   vtkMRMLModelNode* tableTopModel = vtkMRMLModelNode::SafeDownCast(
     this->GetMRMLScene()->GetFirstNodeByName(TABLETOP_MODEL_NAME) );
@@ -410,10 +422,15 @@ void vtkSlicerIhepStandGeometryLogic::SetupTreatmentMachineModels()
   }
   vtkMRMLLinearTransformNode* tableTopToTableTopEccentricRotationTransformNode =
     this->IECLogic->GetTransformNodeBetween(IEC::TableTop, IEC::TableTopEccentricRotation);
-  tableTopModel->SetAndObserveTransformNodeID(tableTopToTableTopEccentricRotationTransformNode->GetID());
-  tableTopModel->CreateDefaultDisplayNodes();
-  tableTopModel->GetDisplayNode()->SetColor(0, 0, 0);
+  if (tableTopToTableTopEccentricRotationTransformNode)
+  {
+    vtkWarningMacro("SetupTreatmentMachineModels: table top to eccentric rotation");
+    tableTopModel->SetAndObserveTransformNodeID(tableTopToTableTopEccentricRotationTransformNode->GetID());
+    tableTopModel->CreateDefaultDisplayNodes();
+    tableTopModel->GetDisplayNode()->SetColor(0, 0, 0);
+  }
 
+  vtkWarningMacro("SetupTreatmentMachineModels: test4");
   // Canyon - mandatory
   vtkMRMLModelNode* canyonModel = vtkMRMLModelNode::SafeDownCast(
     this->GetMRMLScene()->GetFirstNodeByName(CANYON_MODEL_NAME) );
@@ -421,8 +438,13 @@ void vtkSlicerIhepStandGeometryLogic::SetupTreatmentMachineModels()
   {
     vtkMRMLLinearTransformNode* fixedReferenceToRasTransformNode =
       this->IECLogic->GetTransformNodeBetween(IEC::FixedReference, IEC::RAS);
-    canyonModel->SetAndObserveTransformNodeID(fixedReferenceToRasTransformNode->GetID());
-    canyonModel->CreateDefaultDisplayNodes();
-    canyonModel->GetDisplayNode()->SetColor(0.9, 0.9, 0.9);
+    if (fixedReferenceToRasTransformNode)
+    {
+      vtkWarningMacro("SetupTreatmentMachineModels: fixed reference to ras");
+      canyonModel->SetAndObserveTransformNodeID(fixedReferenceToRasTransformNode->GetID());
+      canyonModel->CreateDefaultDisplayNodes();
+      canyonModel->GetDisplayNode()->SetColor(0.9, 0.9, 0.9);
+    }
   }
+  vtkWarningMacro("SetupTreatmentMachineModels: test5");
 }

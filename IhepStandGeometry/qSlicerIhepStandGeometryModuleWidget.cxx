@@ -189,24 +189,123 @@ void qSlicerIhepStandGeometryModuleWidget::onLoadStandModelsButtonClicked()
 //-----------------------------------------------------------------------------
 void qSlicerIhepStandGeometryModuleWidget::enter()
 {
+  Q_D(qSlicerIhepStandGeometryModuleWidget);
+  this->Superclass::enter();
+  this->onEnter();
 }
 
 //-----------------------------------------------------------------------------
 void qSlicerIhepStandGeometryModuleWidget::exit()
 {
   Q_D(qSlicerIhepStandGeometryModuleWidget);
+  this->Superclass::exit();
 }
 
 //-----------------------------------------------------------------------------
 void qSlicerIhepStandGeometryModuleWidget::onEnter()
 {
   Q_D(qSlicerIhepStandGeometryModuleWidget);
+
+  if (!this->mrmlScene())
+  {
+    qCritical() << Q_FUNC_INFO << ": Invalid scene";
+    return;
+  }
+
+  // First check the logic if it has a parameter node
+  if (!d->logic())
+  {
+    qCritical() << Q_FUNC_INFO << ": Invalid logic";
+    return;
+  }
+
+  vtkMRMLIhepStandGeometryNode* parameterNode = nullptr; 
+  // Try to find one in the scene
+  if (vtkMRMLNode* node = this->mrmlScene()->GetNthNodeByClass( 0, "vtkMRMLIhepStandGeometryNode"))
+  {
+    parameterNode = vtkMRMLIhepStandGeometryNode::SafeDownCast(node);
+  }
+
+  this->updateWidgetFromMRML();
+
+  // All required data for GUI is initiated
+  d->ModuleWindowInitialized = true;
 }
 
 //-----------------------------------------------------------------------------
 void qSlicerIhepStandGeometryModuleWidget::updateWidgetFromMRML()
 {
   Q_D(qSlicerIhepStandGeometryModuleWidget);
+
+  vtkMRMLIhepStandGeometryNode* parameterNode = vtkMRMLIhepStandGeometryNode::SafeDownCast(d->MRMLNodeComboBox_ParameterSet->currentNode());
+
+  if (!this->mrmlScene())
+  {
+    qCritical() << Q_FUNC_INFO << ": Invalid scene";
+    return;
+  }
+
+  // Enable widgets
+  
+  if (!parameterNode || !d->ModuleWindowInitialized)
+  {
+    qCritical() << Q_FUNC_INFO << ": Invalid parameter node, or module window isn't initialized";
+    return;
+  }
+  qDebug() << Q_FUNC_INFO << ": GUI initiated successfully";
+/*
+  if (!parameterNode->GetBeamNode())
+  {
+    qCritical() << Q_FUNC_INFO << ": Invalid referenced parameter's beam node";
+    return;
+  }
+
+  vtkMRMLScalarVolumeNode* ctVolumeNode = vtkMRMLScalarVolumeNode::SafeDownCast(d->MRMLNodeComboBox_CtVolume->currentNode());
+  if (!ctVolumeNode)
+  {
+    qCritical() << Q_FUNC_INFO << ": Invalid referenced volume node";
+    return;
+  }
+
+  // Update widgets info from parameter node
+  d->MRMLNodeComboBox_RtBeam->setCurrentNode(parameterNode->GetBeamNode());
+  d->SliderWidget_IsocenterImagerDistance->setValue(parameterNode->GetIsocenterImagerDistance());
+
+  int imagerResolution[2] = {};
+  double imagerRes[2] = {};
+  parameterNode->GetImagerResolution(imagerResolution);
+  imagerRes[0] = static_cast<double>(imagerResolution[0]);
+  imagerRes[1] = static_cast<double>(imagerResolution[1]);
+  d->CoordinatesWidget_ImagerResolution->setCoordinates(imagerRes);
+  d->CoordinatesWidget_ImagerSpacing->setCoordinates(parameterNode->GetImagerSpacing());
+
+  d->RangeWidget_ImageWindowColumns->setMinimum(0.);
+  d->RangeWidget_ImageWindowColumns->setMaximum(double(imagerResolution[0] - 1));
+  d->RangeWidget_ImageWindowRows->setMinimum(0.);
+  d->RangeWidget_ImageWindowRows->setMaximum(double(imagerResolution[1] - 1));
+
+  bool useImageWindow = parameterNode->GetImageWindowFlag();
+  int imageWindow[4] = {};
+  parameterNode->GetImageWindow(imageWindow);
+
+  // TODO: Image window is disabled for now
+  useImageWindow = false;
+  d->CheckBox_UseImageWindow->setChecked(useImageWindow);
+  if (!useImageWindow)
+  {
+    d->RangeWidget_ImageWindowColumns->setValues( 0., double(imagerResolution[0] - 1));
+    d->RangeWidget_ImageWindowRows->setValues( 0., double(imagerResolution[1] - 1));
+  }
+  else
+  {
+    d->RangeWidget_ImageWindowColumns->setValues( 
+      static_cast<double>(std::max<int>( 0, imageWindow[0])),
+      static_cast<double>(std::min<int>( imagerResolution[0] - 1, imageWindow[2])));
+    d->RangeWidget_ImageWindowRows->setValues( 
+      static_cast<double>(std::max<int>( 0, imageWindow[1])), 
+      static_cast<double>(std::min<int>( imagerResolution[1] - 1, imageWindow[3])));
+  }
+*/
 }
 
 //-----------------------------------------------------------------------------
@@ -225,18 +324,45 @@ void qSlicerIhepStandGeometryModuleWidget::onParameterNodeChanged(vtkMRMLNode*)
 void qSlicerIhepStandGeometryModuleWidget::setParameterNode(vtkMRMLNode* node)
 {
   Q_D(qSlicerIhepStandGeometryModuleWidget);
+
+  vtkMRMLIhepStandGeometryNode* parameterNode = vtkMRMLIhepStandGeometryNode::SafeDownCast(node);
+
+  // Make sure the parameter set node is selected (in case the function was not called by the selector combobox signal)
+  d->MRMLNodeComboBox_ParameterSet->setCurrentNode(node);
+
+  // Set parameter node to children widgets (PlastimatchParameters)
+//  d->PlastimatchParametersWidget->setParameterNode(node);
+ 
+  // Each time the node is modified, the UI widgets are updated
+  qvtkReconnect( parameterNode, vtkCommand::ModifiedEvent, this, SLOT(updateWidgetFromMRML()));
+
+  // Set selected MRML nodes in comboboxes in the parameter set if it was nullptr there
+  // (then in the meantime the comboboxes selected the first one from the scene and we have to set that)
+  if (parameterNode)
+  {
+    if (!parameterNode->GetBeamNode())
+    {
+      vtkMRMLRTBeamNode* beamNode = vtkMRMLRTBeamNode::SafeDownCast(d->MRMLNodeComboBox_RtBeam->currentNode());
+//      qvtkConnect( beamNode, vtkMRMLRTBeamNode::BeamTransformModified, this, SLOT(updateNormalAndVupVectors()));
+      parameterNode->SetAndObserveBeamNode(beamNode);
+      parameterNode->Modified();
+    }
+  }
+  this->updateWidgetFromMRML();
 }
 
 //-----------------------------------------------------------------------------
 void qSlicerIhepStandGeometryModuleWidget::onSceneClosedEvent()
 {
   Q_D(qSlicerIhepStandGeometryModuleWidget);
+  this->updateWidgetFromMRML();
 }
 
 //-----------------------------------------------------------------------------
 void qSlicerIhepStandGeometryModuleWidget::onSceneImportedEvent()
 {
   Q_D(qSlicerIhepStandGeometryModuleWidget);
+  this->onEnter();
 }
 
 //-----------------------------------------------------------------------------
