@@ -82,11 +82,18 @@ void qSlicerDrrImageComputationPlastimatchParametersWidgetPrivate::init()
   QObject::connect( this->CheckBox_UseExponentialMapping, SIGNAL(toggled(bool)), q, SLOT(onUseExponentialMappingToggled(bool)));
   QObject::connect( this->CheckBox_AutoscaleIntensity, SIGNAL(toggled(bool)), q, SLOT(onAutoscalePixelsRangeToggled(bool)));
   QObject::connect( this->CheckBox_InvertIntensity, SIGNAL(toggled(bool)), q, SLOT(onInvertIntensityToggled(bool)));
+  QObject::connect( this->GroupBox_UseImageWindow, SIGNAL(toggled(bool)), q, SLOT(onUseImageWindowToggled(bool)));
 
   // Button groups
   QObject::connect( this->ButtonGroup_ReconstructAlgorithm, SIGNAL(buttonClicked(int)), q, SLOT(onReconstructionAlgorithmChanged(int)));
   QObject::connect( this->ButtonGroup_Threading, SIGNAL(buttonClicked(int)), q, SLOT(onThreadingChanged(int)));
   QObject::connect( this->ButtonGroup_HuConversion, SIGNAL(buttonClicked(int)), q, SLOT(onHUConversionChanged(int)));
+
+  // Coordinates widgets
+  QObject::connect( this->RangeWidget_ImageWindowColumns, SIGNAL(valuesChanged( double, double)), 
+    q, SLOT(onImageWindowColumnsValuesChanged( double, double)));
+  QObject::connect( this->RangeWidget_ImageWindowRows, SIGNAL(valuesChanged( double, double)), 
+    q, SLOT(onImageWindowRowsValuesChanged( double, double)));
 }
 
 //-----------------------------------------------------------------------------
@@ -132,6 +139,35 @@ void qSlicerDrrImageComputationPlastimatchParametersWidget::updateWidgetFromMRML
   {
     qCritical() << Q_FUNC_INFO << ": Invalid parameter node";
     return;
+  }
+
+  // Image sub-window
+  int imagerResolution[2] = {};
+  d->ParameterNode->GetImagerResolution(imagerResolution);
+
+  d->RangeWidget_ImageWindowColumns->setMinimum(0.);
+  d->RangeWidget_ImageWindowColumns->setMaximum(double(imagerResolution[0] - 1));
+  d->RangeWidget_ImageWindowRows->setMinimum(0.);
+  d->RangeWidget_ImageWindowRows->setMaximum(double(imagerResolution[1] - 1));
+
+  bool useImageWindow = d->ParameterNode->GetImageWindowFlag();
+  int imageWindow[4] = {};
+  d->ParameterNode->GetImageWindow(imageWindow);
+
+  d->GroupBox_UseImageWindow->setChecked(useImageWindow);
+  if (!useImageWindow)
+  {
+    d->RangeWidget_ImageWindowColumns->setValues( 0., double(imagerResolution[0] - 1));
+    d->RangeWidget_ImageWindowRows->setValues( 0., double(imagerResolution[1] - 1));
+  }
+  else
+  {
+    d->RangeWidget_ImageWindowColumns->setValues( 
+      static_cast<double>(std::max<int>( 0, imageWindow[0])),
+      static_cast<double>(std::min<int>( imagerResolution[0] - 1, imageWindow[2])));
+    d->RangeWidget_ImageWindowRows->setValues( 
+      static_cast<double>(std::max<int>( 0, imageWindow[1])), 
+      static_cast<double>(std::min<int>( imagerResolution[1] - 1, imageWindow[3])));
   }
 
   // Update widgets info from parameter node and update plastimatch drr command
@@ -335,6 +371,81 @@ void qSlicerDrrImageComputationPlastimatchParametersWidget::onAutoscaleIntensity
     return;
   }
   d->ParameterNode->SetAutoscaleRange( min, max);
+}
+
+//-----------------------------------------------------------------------------
+void qSlicerDrrImageComputationPlastimatchParametersWidget::onImageWindowColumnsValuesChanged(double start_column, double end_column)
+{
+  Q_D(qSlicerDrrImageComputationPlastimatchParametersWidget);
+
+  if (!d->ParameterNode)
+  {
+    qWarning() << Q_FUNC_INFO << ": Invalid parameter node";
+    return;
+  }
+
+  int imageWindow[4];
+  d->ParameterNode->GetImageWindow(imageWindow);
+  
+  imageWindow[0] = start_column;
+  imageWindow[2] = end_column;
+
+  d->ParameterNode->SetImageWindow(imageWindow);
+  d->ParameterNode->Modified(); // Update imager and image markups, DRR arguments
+}
+
+//-----------------------------------------------------------------------------
+void qSlicerDrrImageComputationPlastimatchParametersWidget::onImageWindowRowsValuesChanged( double start_row, double end_row)
+{
+  Q_D(qSlicerDrrImageComputationPlastimatchParametersWidget);
+
+  if (!d->ParameterNode)
+  {
+    qWarning() << Q_FUNC_INFO << ": Invalid parameter node";
+    return;
+  }
+
+  int imageWindow[4];
+  d->ParameterNode->GetImageWindow(imageWindow);
+  
+  imageWindow[1] = start_row;
+  imageWindow[3] = end_row;
+
+  d->ParameterNode->SetImageWindow(imageWindow);
+  d->ParameterNode->Modified(); // Update imager and image markups, DRR arguments
+}
+
+//-----------------------------------------------------------------------------
+void qSlicerDrrImageComputationPlastimatchParametersWidget::onUseImageWindowToggled(bool value)
+{
+  Q_D(qSlicerDrrImageComputationPlastimatchParametersWidget);
+
+  if (!d->ParameterNode)
+  {
+    qWarning() << Q_FUNC_INFO << ": Invalid parameter node";
+    return;
+  }
+
+  if (value)
+  {
+    int imagerResolution[2] = {};
+    int imageWindow[4] = {};
+    d->ParameterNode->GetImagerResolution(imagerResolution);
+
+    double columns[2], rows[2];
+    d->RangeWidget_ImageWindowColumns->values( columns[0], columns[1]);
+    d->RangeWidget_ImageWindowRows->values( rows[0], rows[1]);
+
+    imageWindow[0] = static_cast<int>(columns[0]); // c1 = x1
+    imageWindow[1] = static_cast<int>(rows[0]); // r1 = y1
+    imageWindow[2] = static_cast<int>(columns[1]); // c2 = x2
+    imageWindow[3] = static_cast<int>(rows[1]); // r2 = y2
+
+    d->ParameterNode->SetImageWindow(imageWindow);
+  }
+
+  d->ParameterNode->SetImageWindowFlag(value);
+  d->ParameterNode->Modified(); // Update imager and image markups, DRR arguments
 }
 
 //-----------------------------------------------------------------------------

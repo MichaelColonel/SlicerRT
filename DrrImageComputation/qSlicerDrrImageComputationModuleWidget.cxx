@@ -21,6 +21,8 @@
 
 // qSlicer includes
 #include "qSlicerDrrImageComputationModuleWidget.h"
+#include "qSlicerDrrImageComputationPlastimatchParametersWidget.h"
+#include "qSlicerDrrImageComputationRtkParametersWidget.h"
 #include "ui_qSlicerDrrImageComputationModuleWidget.h"
 
 // Slicer MRML includes
@@ -50,6 +52,7 @@ public:
   virtual ~qSlicerDrrImageComputationModuleWidgetPrivate();
   vtkSlicerDrrImageComputationLogic* logic() const;
 
+  QWidget* DrrParametersWidget;
   bool ModuleWindowInitialized;
 };
 
@@ -60,6 +63,7 @@ public:
 qSlicerDrrImageComputationModuleWidgetPrivate::qSlicerDrrImageComputationModuleWidgetPrivate(qSlicerDrrImageComputationModuleWidget &object)
   :
   q_ptr(&object),
+  DrrParametersWidget(nullptr),
   ModuleWindowInitialized(false)
 {
 }
@@ -114,15 +118,10 @@ void qSlicerDrrImageComputationModuleWidget::setup()
     this, SLOT(onImagerResolutionChanged(double*)));
   connect( d->CoordinatesWidget_ImagerSpacing, SIGNAL(coordinatesChanged(double*)), 
     this, SLOT(onImagerSpacingChanged(double*)));
-  connect( d->RangeWidget_ImageWindowColumns, SIGNAL(valuesChanged( double, double)), 
-    this, SLOT(onImageWindowColumnsValuesChanged( double, double)));
-  connect( d->RangeWidget_ImageWindowRows, SIGNAL(valuesChanged( double, double)), 
-    this, SLOT(onImageWindowRowsValuesChanged( double, double)));
 
   // Buttons
   connect( d->PushButton_ComputeDrr, SIGNAL(clicked()), this, SLOT(onComputeDrrClicked()));
   connect( d->CheckBox_ShowDrrMarkups, SIGNAL(toggled(bool)), this, SLOT(onShowMarkupsToggled(bool)));
-  connect( d->GroupBox_UseImageWindow, SIGNAL(toggled(bool)), this, SLOT(onUseImageWindowToggled(bool)));
 
   // Button groups
   connect( d->buttonGroup_ReconstructionLibrary, SIGNAL(buttonClicked(int)), this, SLOT(onReconstructionLibraryChanged(int)));
@@ -253,31 +252,6 @@ void qSlicerDrrImageComputationModuleWidget::updateWidgetFromMRML()
   imagerRes[1] = static_cast<double>(imagerResolution[1]);
   d->CoordinatesWidget_ImagerResolution->setCoordinates(imagerRes);
   d->CoordinatesWidget_ImagerSpacing->setCoordinates(parameterNode->GetImagerSpacing());
-
-  d->RangeWidget_ImageWindowColumns->setMinimum(0.);
-  d->RangeWidget_ImageWindowColumns->setMaximum(double(imagerResolution[0] - 1));
-  d->RangeWidget_ImageWindowRows->setMinimum(0.);
-  d->RangeWidget_ImageWindowRows->setMaximum(double(imagerResolution[1] - 1));
-
-  bool useImageWindow = parameterNode->GetImageWindowFlag();
-  int imageWindow[4] = {};
-  parameterNode->GetImageWindow(imageWindow);
-
-  d->GroupBox_UseImageWindow->setChecked(useImageWindow);
-  if (!useImageWindow)
-  {
-    d->RangeWidget_ImageWindowColumns->setValues( 0., double(imagerResolution[0] - 1));
-    d->RangeWidget_ImageWindowRows->setValues( 0., double(imagerResolution[1] - 1));
-  }
-  else
-  {
-    d->RangeWidget_ImageWindowColumns->setValues( 
-      static_cast<double>(std::max<int>( 0, imageWindow[0])),
-      static_cast<double>(std::min<int>( imagerResolution[0] - 1, imageWindow[2])));
-    d->RangeWidget_ImageWindowRows->setValues( 
-      static_cast<double>(std::max<int>( 0, imageWindow[1])), 
-      static_cast<double>(std::min<int>( imagerResolution[1] - 1, imageWindow[3])));
-  }
 
   // Enable / disable Compute DRR button
   d->PushButton_ComputeDrr->setEnabled(parameterNode 
@@ -495,81 +469,6 @@ void qSlicerDrrImageComputationModuleWidget::onImagerResolutionChanged(double* r
 }
 
 //-----------------------------------------------------------------------------
-void qSlicerDrrImageComputationModuleWidget::onImageWindowColumnsValuesChanged(double start_column, double end_column)
-{
-  Q_D(qSlicerDrrImageComputationModuleWidget);
-  vtkMRMLDrrImageComputationNode* parameterNode = vtkMRMLDrrImageComputationNode::SafeDownCast(d->MRMLNodeComboBox_ParameterSet->currentNode());
-  if (!parameterNode)
-  {
-    qWarning() << Q_FUNC_INFO << ": Invalid parameter node";
-    return;
-  }
-
-  int imageWindow[4];
-  parameterNode->GetImageWindow(imageWindow);
-  
-  imageWindow[0] = start_column;
-  imageWindow[2] = end_column;
-
-  parameterNode->SetImageWindow(imageWindow);
-  parameterNode->Modified(); // Update imager and image markups, DRR arguments
-}
-
-//-----------------------------------------------------------------------------
-void qSlicerDrrImageComputationModuleWidget::onImageWindowRowsValuesChanged( double start_row, double end_row)
-{
-  Q_D(qSlicerDrrImageComputationModuleWidget);
-  vtkMRMLDrrImageComputationNode* parameterNode = vtkMRMLDrrImageComputationNode::SafeDownCast(d->MRMLNodeComboBox_ParameterSet->currentNode());
-  if (!parameterNode)
-  {
-    qWarning() << Q_FUNC_INFO << ": Invalid parameter node";
-    return;
-  }
-
-  int imageWindow[4];
-  parameterNode->GetImageWindow(imageWindow);
-  
-  imageWindow[1] = start_row;
-  imageWindow[3] = end_row;
-
-  parameterNode->SetImageWindow(imageWindow);
-  parameterNode->Modified(); // Update imager and image markups, DRR arguments
-}
-
-//-----------------------------------------------------------------------------
-void qSlicerDrrImageComputationModuleWidget::onUseImageWindowToggled(bool value)
-{
-  Q_D(qSlicerDrrImageComputationModuleWidget);
-  vtkMRMLDrrImageComputationNode* parameterNode = vtkMRMLDrrImageComputationNode::SafeDownCast(d->MRMLNodeComboBox_ParameterSet->currentNode());
-  if (!parameterNode)
-  {
-    qWarning() << Q_FUNC_INFO << ": Invalid parameter node";
-    return;
-  }
-
-  if (value)
-  {
-    int imagerResolution[2] = {};
-    int imageWindow[4] = {};
-    parameterNode->GetImagerResolution(imagerResolution);
-
-    double columns[2], rows[2];
-    d->RangeWidget_ImageWindowColumns->values( columns[0], columns[1]);
-    d->RangeWidget_ImageWindowRows->values( rows[0], rows[1]);
-
-    imageWindow[0] = static_cast<int>(columns[0]); // c1 = x1
-    imageWindow[1] = static_cast<int>(rows[0]); // r1 = y1
-    imageWindow[2] = static_cast<int>(columns[1]); // c2 = x2
-    imageWindow[3] = static_cast<int>(rows[1]); // r2 = y2
-
-    parameterNode->SetImageWindow(imageWindow);
-  }
-
-  parameterNode->SetImageWindowFlag(value);
-  parameterNode->Modified(); // Update imager and image markups, DRR arguments
-}
-
-//-----------------------------------------------------------------------------
 void qSlicerDrrImageComputationModuleWidget::onComputeDrrClicked()
 {
   Q_D(qSlicerDrrImageComputationModuleWidget);
@@ -625,13 +524,16 @@ void qSlicerDrrImageComputationModuleWidget::onReconstructionLibraryChanged(int 
   if (rbutton == d->radioButton_Plastimatch)
   {
     parameterNode->SetReconstructionLibrary(vtkMRMLDrrImageComputationNode::PLASTIMATCH);
+    d->DrrParametersWidget = nullptr; // Plastimatch
   }
   else if (rbutton == d->radioButton_RTK)
   {
     parameterNode->SetReconstructionLibrary(vtkMRMLDrrImageComputationNode::RTK);
+    d->DrrParametersWidget = nullptr; // RTK
   }
   else
   {
+    d->DrrParametersWidget = nullptr;
     qWarning() << Q_FUNC_INFO << ": Invalid reconstruct library button id";
     return;
   }

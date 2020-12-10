@@ -53,12 +53,9 @@ public slots:
 
   void onLogicModified();
   void onIsocenterImagerDistanceValueChanged(double);
-  void onImageWindowColumnsValuesChanged( double, double);
-  void onImageWindowRowsValuesChanged( double, double);
   void onImagerSpacingChanged(double*);
   void onImagerResolutionChanged(double*);
   void onShowMarkupsToggled(bool);
-  void onUseImageWindowToggled(bool);
   void onComputeDrrClicked();
 
   /// Type of reconstruction library: Plastimatch (default) or RTK

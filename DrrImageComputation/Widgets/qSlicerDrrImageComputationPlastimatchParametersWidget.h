@@ -53,6 +53,10 @@ public slots:
   /// Update widget GUI from RT Image parameters node
   void updateWidgetFromMRML();
 
+  void onUseImageWindowToggled(bool);
+  void onImageWindowColumnsValuesChanged( double, double);
+  void onImageWindowRowsValuesChanged( double, double);
+
 protected slots:
   /// Exponential mapping flag
   void onUseExponentialMappingToggled(bool);

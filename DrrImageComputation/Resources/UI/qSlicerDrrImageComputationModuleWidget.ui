@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>458</width>
+    <width>498</width>
     <height>667</height>
    </rect>
   </property>
@@ -127,80 +127,6 @@
            </widget>
           </item>
          </layout>
-        </item>
-        <item row="1" column="0">
-         <widget class="QGroupBox" name="GroupBox_UseImageWindow">
-          <property name="title">
-           <string>Use image window</string>
-          </property>
-          <property name="flat">
-           <bool>false</bool>
-          </property>
-          <property name="checkable">
-           <bool>true</bool>
-          </property>
-          <property name="checked">
-           <bool>false</bool>
-          </property>
-          <layout class="QGridLayout" name="gridLayout_6">
-           <item row="0" column="0">
-            <layout class="QGridLayout" name="gridLayout_5">
-             <item row="0" column="0">
-              <widget class="QLabel" name="label_5">
-               <property name="text">
-                <string>Columns</string>
-               </property>
-              </widget>
-             </item>
-             <item row="0" column="1">
-              <widget class="ctkRangeWidget" name="RangeWidget_ImageWindowColumns">
-               <property name="decimals">
-                <number>0</number>
-               </property>
-               <property name="minimum">
-                <double>0.000000000000000</double>
-               </property>
-               <property name="maximum">
-                <double>1999.000000000000000</double>
-               </property>
-               <property name="minimumValue">
-                <double>0.000000000000000</double>
-               </property>
-               <property name="maximumValue">
-                <double>1999.000000000000000</double>
-               </property>
-              </widget>
-             </item>
-             <item row="1" column="0">
-              <widget class="QLabel" name="label_6">
-               <property name="text">
-                <string>Rows</string>
-               </property>
-              </widget>
-             </item>
-             <item row="1" column="1">
-              <widget class="ctkRangeWidget" name="RangeWidget_ImageWindowRows">
-               <property name="decimals">
-                <number>0</number>
-               </property>
-               <property name="minimum">
-                <double>0.000000000000000</double>
-               </property>
-               <property name="maximum">
-                <double>1999.000000000000000</double>
-               </property>
-               <property name="minimumValue">
-                <double>0.000000000000000</double>
-               </property>
-               <property name="maximumValue">
-                <double>1999.000000000000000</double>
-               </property>
-              </widget>
-             </item>
-            </layout>
-           </item>
-          </layout>
-         </widget>
         </item>
        </layout>
       </widget>
@@ -400,11 +326,6 @@
    <class>ctkCoordinatesWidget</class>
    <extends>QWidget</extends>
    <header>ctkCoordinatesWidget.h</header>
-  </customwidget>
-  <customwidget>
-   <class>ctkRangeWidget</class>
-   <extends>QWidget</extends>
-   <header>ctkRangeWidget.h</header>
   </customwidget>
   <customwidget>
    <class>ctkSliderWidget</class>
