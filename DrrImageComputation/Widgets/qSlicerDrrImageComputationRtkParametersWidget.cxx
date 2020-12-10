@@ -66,7 +66,7 @@ qSlicerDrrImageComputationRtkParametersWidgetPrivate::qSlicerDrrImageComputation
 // --------------------------------------------------------------------------
 void qSlicerDrrImageComputationRtkParametersWidgetPrivate::setupUi(qSlicerDrrImageComputationRtkParametersWidget* widget)
 {
-  this->Ui_qSlicerDrrImageComputationPlastimatchParametersWidget::setupUi(widget);
+  this->Ui_qSlicerDrrImageComputationRtkParametersWidget::setupUi(widget);
 }
 
 // --------------------------------------------------------------------------
