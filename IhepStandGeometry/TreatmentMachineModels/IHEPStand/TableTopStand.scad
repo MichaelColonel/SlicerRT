@@ -1,14 +1,14 @@
 union() {
   color("#c09dbf")
-  translate([0, 50+90, 13.5])
-    cube([ 100, 180, 27], center=true);
+  translate([0, 500+900, 135])
+    cube([ 1000, 1800, 270], center=true);
   color("#5fa4df")
-  translate([ 45, 50+90, 64+27])
-    cube([ 10, 40, 128], center=true);
+  translate([ 450, 500+900, 640+270])
+    cube([ 100, 400, 1280], center=true);
   color("#5fa4df")
-  translate([ -45, 50+90, 64+27])
-    cube([ 10, 40, 128], center=true);
+  translate([ -450, 500+900, 640+270])
+    cube([ 100, 400, 1280], center=true);
   color("#5fa4df")
-  translate([ 0, 220, 64+27])
-    cube([ 40, 10, 128], center=true);
+  translate([ 0, 2200, 640+270])
+    cube([ 400, 100, 1280], center=true);
 }
