@@ -54,6 +54,10 @@ public slots:
   void updateWidgetFromMRML();
 
 protected slots:
+  /// Type of RTK forward projection filter
+  void onForwardProjectionFilterChanged(int);
+  void onForwardProjectionFilterParameterChanged(double);
+  void onFillPadValueChanged(double);
 
 protected:
   QScopedPointer<qSlicerDrrImageComputationRtkParametersWidgetPrivate> d_ptr;

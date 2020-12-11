@@ -73,6 +73,13 @@ void qSlicerDrrImageComputationRtkParametersWidgetPrivate::setupUi(qSlicerDrrIma
 void qSlicerDrrImageComputationRtkParametersWidgetPrivate::init()
 {
   Q_Q(qSlicerDrrImageComputationRtkParametersWidget);
+
+  // Button groups
+  QObject::connect( this->ButtonGroup_ForwardProjectionFilter, SIGNAL(buttonClicked(int)), q, SLOT(onForwardProjectionFilterChanged(int)));
+  // Slider
+  QObject::connect( this->SliderWidget_ForwardProjectionFilterParameter, SIGNAL(valueChanged(int)), q, SLOT(onForwardProjectionFilterParameterChanged(double)));
+  QObject::connect( this->SliderWidget_FillPadPixels, SIGNAL(valueChanged(int)), q, SLOT(onFillPadValueChanged(double)));
+  
 }
 
 //-----------------------------------------------------------------------------
@@ -114,7 +121,80 @@ void qSlicerDrrImageComputationRtkParametersWidget::updateWidgetFromMRML()
 
   if (!d->ParameterNode)
   {
-    qCritical() << Q_FUNC_INFO << ": Invalid parameter node";
+    qWarning() << Q_FUNC_INFO << ": Invalid parameter node";
     return;
   }
+}
+
+//-----------------------------------------------------------------------------
+void qSlicerDrrImageComputationRtkParametersWidget::onForwardProjectionFilterChanged(int button_id)
+{
+  Q_D(qSlicerDrrImageComputationRtkParametersWidget);
+
+  if (!d->ParameterNode)
+  {
+    qWarning() << Q_FUNC_INFO << ": Invalid parameter node";
+    return;
+  }
+  QAbstractButton* button = d->ButtonGroup_ForwardProjectionFilter->button(button_id);
+  QRadioButton* rbutton = qobject_cast<QRadioButton*>(button);
+
+  if (rbutton == d->RadioButton_Joseph)
+  {
+    d->ParameterNode->SetRtkForwardProjection(vtkMRMLDrrImageComputationNode::JOSEPH);
+    d->SliderWidget_ForwardProjectionFilterParameter->setEnabled(false);
+    d->Label_ForwardProjectionParameter->setText(QObject::tr("Parameter:"));
+    d->ParameterNode->SetAttribute( "RTK_ForwardProjectionFilterParameter", "");
+  }
+  else if (rbutton == d->RadioButton_JosephAttenuated)
+  {
+    d->ParameterNode->SetRtkForwardProjection(vtkMRMLDrrImageComputationNode::JOSEPH_ATTENUATED);
+    d->SliderWidget_ForwardProjectionFilterParameter->setEnabled(true);
+    d->Label_ForwardProjectionParameter->setText(QObject::tr("Sigma zero:"));
+  }
+  else if (rbutton == d->RadioButton_Zeng)
+  {
+    d->ParameterNode->SetRtkForwardProjection(vtkMRMLDrrImageComputationNode::ZENG);
+    d->SliderWidget_ForwardProjectionFilterParameter->setEnabled(true);
+    d->Label_ForwardProjectionParameter->setText(QObject::tr("Alpha PSF:"));
+  }
+  else if (rbutton == d->RadioButton_CudaRayCast)
+  {
+    d->ParameterNode->SetRtkForwardProjection(vtkMRMLDrrImageComputationNode::CUDA_RAYCAST);
+    d->SliderWidget_ForwardProjectionFilterParameter->setEnabled(false);
+    d->Label_ForwardProjectionParameter->setText(QObject::tr("Parameter:"));
+    d->ParameterNode->SetAttribute( "RTK_ForwardProjectionFilterParameter", "");
+  }
+  else
+  {
+    qWarning() << Q_FUNC_INFO << ": Invalid Hounsfield units conversion button id";
+    return;
+  }
+}
+
+//-----------------------------------------------------------------------------
+void qSlicerDrrImageComputationRtkParametersWidget::onForwardProjectionFilterParameterChanged(double value)
+{
+  Q_D(qSlicerDrrImageComputationRtkParametersWidget);
+
+  if (!d->ParameterNode)
+  {
+    qWarning() << Q_FUNC_INFO << ": Invalid parameter node";
+    return;
+  }
+  std::string valueString = std::to_string(value);
+  d->ParameterNode->SetAttribute( "RTK_ForwardProjectionFilterParameter", valueString.c_str());
+}
+
+//-----------------------------------------------------------------------------
+void qSlicerDrrImageComputationRtkParametersWidget::onFillPadValueChanged(double value)
+{
+  Q_D(qSlicerDrrImageComputationRtkParametersWidget);
+
+  if (!d->ParameterNode)
+  {
+    qWarning() << Q_FUNC_INFO << ": Invalid parameter node";
+    return;
+  }
+  d->ParameterNode->SetFillPadSize(static_cast<int>(value));
 }

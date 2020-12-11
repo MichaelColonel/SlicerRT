@@ -17,7 +17,7 @@
    <item row="0" column="0">
     <layout class="QGridLayout" name="gridLayout">
      <item row="1" column="0">
-      <widget class="QLabel" name="label_ForwardProjectionParameter">
+      <widget class="QLabel" name="Label_ForwardProjectionParameter">
        <property name="text">
         <string>Parameter:</string>
        </property>
