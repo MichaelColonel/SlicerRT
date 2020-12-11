@@ -52,7 +52,7 @@ public:
   virtual ~qSlicerDrrImageComputationModuleWidgetPrivate();
   vtkSlicerDrrImageComputationLogic* logic() const;
 
-  QWidget* DrrParametersWidget;
+  QWidget* AdditionalParametersWidget; // Plastimatch or RTK parameters
   bool ModuleWindowInitialized;
 };
 
@@ -63,7 +63,7 @@ public:
 qSlicerDrrImageComputationModuleWidgetPrivate::qSlicerDrrImageComputationModuleWidgetPrivate(qSlicerDrrImageComputationModuleWidget &object)
   :
   q_ptr(&object),
-  DrrParametersWidget(nullptr),
+  AdditionalParametersWidget(nullptr),
   ModuleWindowInitialized(false)
 {
 }
@@ -128,6 +128,10 @@ void qSlicerDrrImageComputationModuleWidget::setup()
 
   // Handle scene change event if occurs
   qvtkConnect( d->logic(), vtkCommand::ModifiedEvent, this, SLOT(onLogicModified()));
+
+  // Plastimatch additional parameters widget
+  d->AdditionalParametersWidget = new qSlicerDrrImageComputationPlastimatchParametersWidget(this);
+  d->verticalLayout_AdditionalParametersContainer->addWidget( d->AdditionalParametersWidget, true);
 }
 
 //-----------------------------------------------------------------------------
@@ -169,9 +173,25 @@ void qSlicerDrrImageComputationModuleWidget::setParameterNode(vtkMRMLNode *node)
   // Make sure the parameter set node is selected (in case the function was not called by the selector combobox signal)
   d->MRMLNodeComboBox_ParameterSet->setCurrentNode(node);
 
-  // Set parameter node to children widgets (PlastimatchParameters)
-  d->PlastimatchParametersWidget->setParameterNode(node);
- 
+  // Set parameter node to children widgets (Plastimatch, RTK)
+  if (d->radioButton_Plastimatch->isChecked()) // Plastimatch
+  {
+    qSlicerDrrImageComputationPlastimatchParametersWidget* widget = 
+      qobject_cast<qSlicerDrrImageComputationPlastimatchParametersWidget*>(d->AdditionalParametersWidget);
+    if (widget)
+    {
+      widget->setParameterNode(node);
+    }
+  }
+  else if (d->radioButton_RTK->isChecked()) // RTK
+  {
+    qSlicerDrrImageComputationRtkParametersWidget* widget = 
+      qobject_cast<qSlicerDrrImageComputationRtkParametersWidget*>(d->AdditionalParametersWidget);
+    if (widget)
+    {
+      widget->setParameterNode(node);
+    }
+  }
   // Each time the node is modified, the UI widgets are updated
   qvtkReconnect( parameterNode, vtkCommand::ModifiedEvent, this, SLOT(updateWidgetFromMRML()));
 
@@ -201,8 +221,6 @@ void qSlicerDrrImageComputationModuleWidget::updateWidgetFromMRML()
   d->CheckBox_ShowDrrMarkups->setEnabled(parameterNode);
   d->CollapsibleButton_ReferenceInput->setEnabled(parameterNode);
   d->CollapsibleButton_GeometryBasicParameters->setEnabled(parameterNode);
-  d->PlastimatchParametersWidget->setEnabled(parameterNode);
-//  d->PushButton_ComputeDrr->setEnabled(parameterNode);
   
   if (!parameterNode || !d->ModuleWindowInitialized)
   {
@@ -521,19 +539,30 @@ void qSlicerDrrImageComputationModuleWidget::onReconstructionLibraryChanged(int 
   QAbstractButton* button = d->buttonGroup_ReconstructionLibrary->button(buttonId);
   QRadioButton* rbutton = qobject_cast<QRadioButton*>(button);
 
-  if (rbutton == d->radioButton_Plastimatch)
+  if (rbutton == d->radioButton_Plastimatch) // Plastimatch widget
   {
     parameterNode->SetReconstructionLibrary(vtkMRMLDrrImageComputationNode::PLASTIMATCH);
-    d->DrrParametersWidget = nullptr; // Plastimatch
+    d->verticalLayout_AdditionalParametersContainer->removeWidget(d->AdditionalParametersWidget);
+    delete d->AdditionalParametersWidget;
+    qSlicerDrrImageComputationPlastimatchParametersWidget* widget = 
+      new qSlicerDrrImageComputationPlastimatchParametersWidget(this);
+    d->verticalLayout_AdditionalParametersContainer->addWidget( widget, true);
+    widget->setParameterNode(parameterNode);
+    d->AdditionalParametersWidget = widget;
   }
-  else if (rbutton == d->radioButton_RTK)
+  else if (rbutton == d->radioButton_RTK) // RTK widget
   {
     parameterNode->SetReconstructionLibrary(vtkMRMLDrrImageComputationNode::RTK);
-    d->DrrParametersWidget = nullptr; // RTK
+    d->verticalLayout_AdditionalParametersContainer->removeWidget(d->AdditionalParametersWidget);
+    delete d->AdditionalParametersWidget;
+    qSlicerDrrImageComputationRtkParametersWidget* widget = 
+      new qSlicerDrrImageComputationRtkParametersWidget(this);
+    d->verticalLayout_AdditionalParametersContainer->addWidget( widget, true);
+    widget->setParameterNode(parameterNode);
+    d->AdditionalParametersWidget = widget;
   }
   else
   {
-    d->DrrParametersWidget = nullptr;
     qWarning() << Q_FUNC_INFO << ": Invalid reconstruct library button id";
     return;
   }
