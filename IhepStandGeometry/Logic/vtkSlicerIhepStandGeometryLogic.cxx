@@ -61,7 +61,13 @@
 #include <vtkGeneralTransform.h>
 #include <vtkTransformFilter.h>
 
-// STD includes
+namespace
+{
+// Initial positions
+const double PatientSupportToTableTopSurfaceDistanceAxisZ = 925.; // mm
+const double TableTopFromIsocenterDistanceAxisY = 1400.; // mm
+
+}
 
 //----------------------------------------------------------------------------
 // Treatment machine component names
