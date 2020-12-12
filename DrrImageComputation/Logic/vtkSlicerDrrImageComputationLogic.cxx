@@ -1156,7 +1156,7 @@ bool vtkSlicerDrrImageComputationLogic::ComputeRtkDRR( vtkMRMLDrrImageComputatio
   }
 
   scene->StartState(vtkMRMLScene::BatchProcessState); 
-
+/*
   using InputPixelType = short;
   using OutputPixelType = float;
   constexpr unsigned int Dimension = 3;
@@ -1309,6 +1309,7 @@ bool vtkSlicerDrrImageComputationLogic::ComputeRtkDRR( vtkMRMLDrrImageComputatio
 //  {
     TRY_AND_EXIT_ON_ITK_EXCEPTION(forwardProjection->Update())
 //  }
+*/
 /*
   using ConstIteratorType = itk::ImageRegionConstIterator< OutputImageType >;
   using IteratorType = itk::ImageRegionIterator< OutputImageType >;
