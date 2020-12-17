@@ -390,6 +390,22 @@ void vtkSlicerIhepStandGeometryLogic::SetupTreatmentMachineModels()
   }
   vtkMRMLLinearTransformNode* tableTopStandToFixedReferenceTransformNode =
     this->IECLogic->GetTransformNodeBetween(IEC::TableTopInferiorSuperiorMovement, IEC::PatientSupportRotation);
+
+  vtkNew<vtkGeneralTransform> generalTransform;
+  if (this->IECLogic->GetTransformBetween( IEC::TableTopInferiorSuperiorMovement, IEC::RAS, generalTransform))
+  {
+    // Convert general transform to linear
+    // This call also makes hard copy of the transform so that it doesn't change when other beam transforms change
+    vtkNew<vtkTransform> linearTransform;
+    if (!vtkMRMLTransformNode::IsGeneralTransformLinear(generalTransform, linearTransform))
+    {
+      vtkErrorMacro("SetupTreatmentMachineModels: Unable to get transform hierarchy for the table top stand model");
+      return;
+    }
+    // Set transform to node
+    vtkWarningMacro("SetupTreatmentMachineModels: Table top stand transform to RAS hierarchy is valid");
+  }
+
   if (tableTopStandToFixedReferenceTransformNode)
   {
     vtkWarningMacro("SetupTreatmentMachineModels: table top to fixed reference");
