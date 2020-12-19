@@ -366,6 +366,23 @@ void vtkSlicerIhepStandGeometryLogic::LoadTreatmentMachineModels(vtkMRMLIhepStan
 }
 
 //----------------------------------------------------------------------------
+void vtkSlicerIhepStandGeometryLogic::ResetModelsToInitialPosition(vtkMRMLIhepStandGeometryNode* parameterNode)
+{
+  vtkMRMLScene* scene = this->GetMRMLScene();
+  if (!scene)
+  {
+    vtkErrorMacro("ResetModelsToInitialPosition: Invalid scene");
+    return;
+  }
+  if (!parameterNode || !parameterNode->GetTreatmentMachineType())
+  {
+    vtkErrorMacro("ResetModelsToInitialPosition: Invalid parameter node");
+    return;
+  }
+  this->IECLogic->UpdateStandTransform();
+}
+
+//----------------------------------------------------------------------------
 void vtkSlicerIhepStandGeometryLogic::SetupTreatmentMachineModels()
 {
   if (!this->GetMRMLScene())

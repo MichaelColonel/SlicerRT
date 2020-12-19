@@ -49,6 +49,7 @@ public slots:
   void onParameterNodeChanged(vtkMRMLNode*);
   void onLogicModified();
   void onLoadStandModelsButtonClicked();
+  void onResetToInitialPositionButtonClicked();
 
   /// Update widget GUI from RT Image parameters node
   void updateWidgetFromMRML();

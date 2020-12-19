@@ -134,6 +134,7 @@ void qSlicerIhepStandGeometryModuleWidget::setup()
 
   // Buttons
   connect( d->pushButton_LoadStandModels, SIGNAL(clicked()), this, SLOT(onLoadStandModelsButtonClicked()));
+  connect( d->pushButton_ResetModelsInitialPosition, SIGNAL(clicked()), this, SLOT(onResetToInitialPositionButtonClicked()));
 
   // Handle scene change event if occurs
   qvtkConnect( d->logic(), vtkCommand::ModifiedEvent, this, SLOT(onLogicModified()));
@@ -184,6 +185,26 @@ void qSlicerIhepStandGeometryModuleWidget::onLoadStandModelsButtonClicked()
   //TODO: Add new option 'Treatment room' to orientation marker choices and merged model with actual colors (surface scalars?)
   //vtkMRMLViewNode* viewNode = threeDView->mrmlViewNode();
   //viewNode->SetOrientationMarkerHumanModelNodeID(this->mrmlScene()->GetFirstNodeByName("EBRTOrientationMarkerModel")->GetID());
+}
+
+//-----------------------------------------------------------------------------
+void qSlicerIhepStandGeometryModuleWidget::onResetToInitialPositionButtonClicked()
+{
+  Q_D(qSlicerIhepStandGeometryModuleWidget);
+
+  if (!this->mrmlScene())
+  {
+    qCritical() << Q_FUNC_INFO << ": Invalid scene";
+    return;
+  }
+
+  vtkMRMLIhepStandGeometryNode* parameterNode = vtkMRMLIhepStandGeometryNode::SafeDownCast(d->MRMLNodeComboBox_ParameterSet->currentNode());
+  if (!parameterNode || !d->ModuleWindowInitialized)
+  {
+    return;
+  }
+
+  d->logic()->ResetModelsToInitialPosition(parameterNode);
 }
 
 //-----------------------------------------------------------------------------
