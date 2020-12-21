@@ -383,6 +383,34 @@ void vtkSlicerIhepStandGeometryLogic::ResetModelsToInitialPosition(vtkMRMLIhepSt
 }
 
 //----------------------------------------------------------------------------
+void vtkSlicerIhepStandGeometryLogic::UpdatePatientSupportRotationToFixedReferenceTransform(vtkMRMLIhepStandGeometryNode* parameterNode, double rotationAngle)
+{
+  vtkMRMLScene* scene = this->GetMRMLScene();
+  if (!scene)
+  {
+    vtkErrorMacro("UpdatePatientSupportRotationToFixedReferenceTransform: Invalid scene");
+    return;
+  }
+  if (!parameterNode || !parameterNode->GetTreatmentMachineType())
+  {
+    vtkErrorMacro("UpdatePatientSupportRotationToFixedReferenceTransform: Invalid parameter node");
+    return;
+  }
+
+  using IEC = vtkSlicerIECTransformLogic::CoordinateSystemIdentifier;
+  vtkMRMLLinearTransformNode* patientSupportRotationToFixedReferenceTransformNode =
+    this->IECLogic->GetTransformNodeBetween(IEC::PatientSupportRotation, IEC::FixedReference);
+
+  if (patientSupportRotationToFixedReferenceTransformNode)
+  {
+//    double rotationAngle = parameterNode->GetPatientSupportRotationAngle();
+    vtkNew<vtkTransform> patientSupportToRotatedPatientSupportTransform;
+    patientSupportToRotatedPatientSupportTransform->RotateZ(-1. * rotationAngle);
+    patientSupportRotationToFixedReferenceTransformNode->SetAndObserveTransformToParent(patientSupportToRotatedPatientSupportTransform);
+  }
+}
+
+//----------------------------------------------------------------------------
 void vtkSlicerIhepStandGeometryLogic::SetupTreatmentMachineModels()
 {
   if (!this->GetMRMLScene())
@@ -407,25 +435,8 @@ void vtkSlicerIhepStandGeometryLogic::SetupTreatmentMachineModels()
   }
   vtkMRMLLinearTransformNode* tableTopStandToFixedReferenceTransformNode =
     this->IECLogic->GetTransformNodeBetween(IEC::TableTopInferiorSuperiorMovement, IEC::PatientSupportRotation);
-
-  vtkNew<vtkGeneralTransform> generalTransform;
-  if (this->IECLogic->GetTransformBetween( IEC::TableTopInferiorSuperiorMovement, IEC::RAS, generalTransform))
-  {
-    // Convert general transform to linear
-    // This call also makes hard copy of the transform so that it doesn't change when other beam transforms change
-    vtkNew<vtkTransform> linearTransform;
-    if (!vtkMRMLTransformNode::IsGeneralTransformLinear(generalTransform, linearTransform))
-    {
-      vtkErrorMacro("SetupTreatmentMachineModels: Unable to get transform hierarchy for the table top stand model");
-      return;
-    }
-    // Set transform to node
-    vtkWarningMacro("SetupTreatmentMachineModels: Table top stand transform to RAS hierarchy is valid");
-  }
-
   if (tableTopStandToFixedReferenceTransformNode)
   {
-    vtkWarningMacro("SetupTreatmentMachineModels: table top to fixed reference");
     tableTopStandModel->SetAndObserveTransformNodeID(tableTopStandToFixedReferenceTransformNode->GetID());
     tableTopStandModel->CreateDefaultDisplayNodes();
     tableTopStandModel->GetDisplayNode()->SetColor(0.95, 0.95, 0.95);
@@ -473,7 +484,7 @@ void vtkSlicerIhepStandGeometryLogic::SetupTreatmentMachineModels()
   // Canyon - mandatory
   vtkMRMLModelNode* canyonModel = vtkMRMLModelNode::SafeDownCast(
     this->GetMRMLScene()->GetFirstNodeByName(CANYON_MODEL_NAME) );
-  if (canyonModel)
+/*  if (canyonModel)
   {
     vtkMRMLLinearTransformNode* fixedReferenceToRasTransformNode =
       this->IECLogic->GetTransformNodeBetween(IEC::FixedReference, IEC::RAS);
@@ -486,4 +497,35 @@ void vtkSlicerIhepStandGeometryLogic::SetupTreatmentMachineModels()
     }
   }
   vtkWarningMacro("SetupTreatmentMachineModels: test5");
+*/
+
+  vtkMRMLLinearTransformNode* fixedReferenceToRasTransformNode =
+    this->IECLogic->GetTransformNodeBetween(IEC::FixedReference, IEC::RAS);
+
+  vtkNew<vtkGeneralTransform> generalTransform;
+  if (this->IECLogic->GetTransformBetween( IEC::FixedReference, IEC::Collimator, generalTransform))
+  {
+    // Convert general transform to linear
+    // This call also makes hard copy of the transform so that it doesn't change when other beam transforms change
+    vtkNew<vtkTransform> linearTransform;
+    if (!vtkMRMLTransformNode::IsGeneralTransformLinear(generalTransform, linearTransform))
+    {
+      vtkErrorMacro("SetupTreatmentMachineModels: Unable to get transform hierarchy for the fixed reference model");
+      return;
+    }
+    // Set transform to node
+    vtkWarningMacro("SetupTreatmentMachineModels: Fixed reference to RAS hierarchy is valid");
+
+    if (fixedReferenceToRasTransformNode)
+    {
+      vtkWarningMacro("SetupTreatmentMachineModels: fixed to RAS reference");
+//      linearTransform->Inverse();
+      fixedReferenceToRasTransformNode->SetAndObserveTransformFromParent(linearTransform);
+//      patientSupportRotationToFixedReferenceTransformNode->SetAndObserveTransformToParent(patientSupportToRotatedPatientSupportTransform);
+//      tableTopStandModel->SetAndObserveTransformToParent(linearTransform);
+      canyonModel->SetAndObserveTransformNodeID(fixedReferenceToRasTransformNode->GetID());
+      canyonModel->CreateDefaultDisplayNodes();
+      canyonModel->GetDisplayNode()->SetColor(0.95, 0.95, 0.95);
+    }
+  }
 }

@@ -50,6 +50,7 @@ public slots:
   void onLogicModified();
   void onLoadStandModelsButtonClicked();
   void onResetToInitialPositionButtonClicked();
+  void onPatientSupportRotationAngleChanged(double);
 
   /// Update widget GUI from RT Image parameters node
   void updateWidgetFromMRML();

@@ -130,7 +130,9 @@ void qSlicerIhepStandGeometryModuleWidget::setup()
   connect( d->MRMLNodeComboBox_ParameterSet, SIGNAL(currentNodeChanged(vtkMRMLNode*)), 
     this, SLOT(onParameterNodeChanged(vtkMRMLNode*)));
 
-  // Coordinates widgets
+  // Sliders, Coordinates widgets
+  connect( d->SliderWidget_PatientSupportRotationAngle, SIGNAL(valueChanged(double)), 
+    this, SLOT(onPatientSupportRotationAngleChanged(double)));
 
   // Buttons
   connect( d->pushButton_LoadStandModels, SIGNAL(clicked()), this, SLOT(onLoadStandModelsButtonClicked()));
@@ -205,6 +207,26 @@ void qSlicerIhepStandGeometryModuleWidget::onResetToInitialPositionButtonClicked
   }
 
   d->logic()->ResetModelsToInitialPosition(parameterNode);
+}
+
+//-----------------------------------------------------------------------------
+void qSlicerIhepStandGeometryModuleWidget::onPatientSupportRotationAngleChanged(double rotationAngle)
+{
+  Q_D(qSlicerIhepStandGeometryModuleWidget);
+
+  if (!this->mrmlScene())
+  {
+    qCritical() << Q_FUNC_INFO << ": Invalid scene";
+    return;
+  }
+
+  vtkMRMLIhepStandGeometryNode* parameterNode = vtkMRMLIhepStandGeometryNode::SafeDownCast(d->MRMLNodeComboBox_ParameterSet->currentNode());
+  if (!parameterNode || !d->ModuleWindowInitialized)
+  {
+    return;
+  }
+
+  d->logic()->UpdatePatientSupportRotationToFixedReferenceTransform( parameterNode, rotationAngle);
 }
 
 //-----------------------------------------------------------------------------

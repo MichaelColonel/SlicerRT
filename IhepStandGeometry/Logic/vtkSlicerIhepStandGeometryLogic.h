@@ -58,6 +58,8 @@ public:
   ///        (must match folder name where the models can be found)
   void LoadTreatmentMachineModels(vtkMRMLIhepStandGeometryNode* parameterNode);
   void ResetModelsToInitialPosition(vtkMRMLIhepStandGeometryNode* parameterNode);
+  /// Apply new patient support rotation angle to transform (Fixed->PatientSupport)
+  void UpdatePatientSupportRotationToFixedReferenceTransform(vtkMRMLIhepStandGeometryNode* parameterNode, double value);
 
   /// Set up the IEC transforms and model properties on the treatment machine models
   void SetupTreatmentMachineModels();
