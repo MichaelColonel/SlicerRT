@@ -60,6 +60,7 @@ public:
   void ResetModelsToInitialPosition(vtkMRMLIhepStandGeometryNode* parameterNode);
   /// Apply new patient support rotation angle to transform (Fixed->PatientSupport)
   void UpdatePatientSupportRotationToFixedReferenceTransform(vtkMRMLIhepStandGeometryNode* parameterNode, double value);
+  void MoveModelsToIsocenter(vtkMRMLIhepStandGeometryNode* parameterNode, double isocenter[3]);
 
   /// Set up the IEC transforms and model properties on the treatment machine models
   void SetupTreatmentMachineModels();

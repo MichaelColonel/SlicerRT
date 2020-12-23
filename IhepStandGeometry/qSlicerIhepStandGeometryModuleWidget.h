@@ -47,10 +47,12 @@ public slots:
   void onSceneImportedEvent();
   void onSceneClosedEvent();
   void onParameterNodeChanged(vtkMRMLNode*);
+  void onRTBeamNodeChanged(vtkMRMLNode*);
   void onLogicModified();
   void onLoadStandModelsButtonClicked();
   void onResetToInitialPositionButtonClicked();
   void onPatientSupportRotationAngleChanged(double);
+  void onMoveModelsToIsocenter();
 
   /// Update widget GUI from RT Image parameters node
   void updateWidgetFromMRML();

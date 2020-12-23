@@ -31,6 +31,7 @@
 // Beams includes
 //#include "vtkSlicerIECTransformLogic.h"
 #include <vtkMRMLRTBeamNode.h>
+#include <vtkMRMLRTIonBeamNode.h>
 //#include "vtkMRMLRTPlanNode.h"
 
 // Slicer includes
@@ -123,8 +124,8 @@ void qSlicerIhepStandGeometryModuleWidget::setup()
 
 
   // Nodes
-//  connect( d->MRMLNodeComboBox_RtBeam, SIGNAL(currentNodeChanged(vtkMRMLNode*)), 
-//    this, SLOT(onRTBeamNodeChanged(vtkMRMLNode*)));
+  connect( d->MRMLNodeComboBox_RtBeam, SIGNAL(currentNodeChanged(vtkMRMLNode*)), 
+    this, SLOT(onRTBeamNodeChanged(vtkMRMLNode*)));
 //  connect( d->MRMLNodeComboBox_CtVolume, SIGNAL(currentNodeChanged(vtkMRMLNode*)), 
 //    this, SLOT(onCtVolumeNodeChanged(vtkMRMLNode*)));
   connect( d->MRMLNodeComboBox_ParameterSet, SIGNAL(currentNodeChanged(vtkMRMLNode*)), 
@@ -135,8 +136,9 @@ void qSlicerIhepStandGeometryModuleWidget::setup()
     this, SLOT(onPatientSupportRotationAngleChanged(double)));
 
   // Buttons
-  connect( d->pushButton_LoadStandModels, SIGNAL(clicked()), this, SLOT(onLoadStandModelsButtonClicked()));
-  connect( d->pushButton_ResetModelsInitialPosition, SIGNAL(clicked()), this, SLOT(onResetToInitialPositionButtonClicked()));
+  connect( d->PushButton_LoadStandModels, SIGNAL(clicked()), this, SLOT(onLoadStandModelsButtonClicked()));
+  connect( d->PushButton_ResetModelsInitialPosition, SIGNAL(clicked()), this, SLOT(onResetToInitialPositionButtonClicked()));
+  connect( d->PushButton_MoveModelsToIsocenter, SIGNAL(clicked()), this, SLOT(onMoveModelsToIsocenter()));
 
   // Handle scene change event if occurs
   qvtkConnect( d->logic(), vtkCommand::ModifiedEvent, this, SLOT(onLogicModified()));
@@ -227,6 +229,31 @@ void qSlicerIhepStandGeometryModuleWidget::onPatientSupportRotationAngleChanged(
   }
 
   d->logic()->UpdatePatientSupportRotationToFixedReferenceTransform( parameterNode, rotationAngle);
+}
+
+//-----------------------------------------------------------------------------
+void qSlicerIhepStandGeometryModuleWidget::onMoveModelsToIsocenter()
+{
+  Q_D(qSlicerIhepStandGeometryModuleWidget);
+
+  if (!this->mrmlScene())
+  {
+    qCritical() << Q_FUNC_INFO << ": Invalid scene";
+    return;
+  }
+
+  vtkMRMLIhepStandGeometryNode* parameterNode = vtkMRMLIhepStandGeometryNode::SafeDownCast(d->MRMLNodeComboBox_ParameterSet->currentNode());
+  if (!parameterNode || !d->ModuleWindowInitialized)
+  {
+    return;
+  }
+
+  double isocenter[3] = {};
+  vtkMRMLRTBeamNode* beam = parameterNode->GetBeamNode();
+  if (beam->GetPlanIsocenterPosition(isocenter))
+  {
+    d->logic()->MoveModelsToIsocenter( parameterNode, isocenter);
+  }
 }
 
 //-----------------------------------------------------------------------------
@@ -392,6 +419,45 @@ void qSlicerIhepStandGeometryModuleWidget::setParameterNode(vtkMRMLNode* node)
     }
   }
   this->updateWidgetFromMRML();
+}
+
+/// RTBeam Node (RTBeam or RTIonBeam) changed
+void qSlicerIhepStandGeometryModuleWidget::onRTBeamNodeChanged(vtkMRMLNode* node)
+{
+  Q_D(qSlicerIhepStandGeometryModuleWidget);
+
+  if (!this->mrmlScene())
+  {
+    qCritical() << Q_FUNC_INFO << ": Invalid scene";
+    return;
+  }
+
+//  vtkMRMLSubjectHierarchyNode* shNode = vtkMRMLSubjectHierarchyNode::GetSubjectHierarchyNode(this->mrmlScene());
+//  if (!shNode)
+//  {
+//    qCritical() << Q_FUNC_INFO << ": Failed to access subject hierarchy";
+//    return;
+//  }
+
+  vtkMRMLRTBeamNode* beamNode = vtkMRMLRTBeamNode::SafeDownCast(node);
+  if (!beamNode)
+  {
+    qCritical() << Q_FUNC_INFO << ": Invalid beam node";
+    return;
+  }
+
+  vtkMRMLRTIonBeamNode* ionBeamNode = vtkMRMLRTIonBeamNode::SafeDownCast(node);
+  Q_UNUSED(ionBeamNode);
+
+  vtkMRMLIhepStandGeometryNode* parameterNode = vtkMRMLIhepStandGeometryNode::SafeDownCast(d->MRMLNodeComboBox_ParameterSet->currentNode());
+  if (!parameterNode || !d->ModuleWindowInitialized)
+  {
+    qCritical() << Q_FUNC_INFO << ": Invalid parameter node";
+    return;
+  }
+
+  parameterNode->SetAndObserveBeamNode(beamNode);
+  parameterNode->Modified(); // Update imager and image markups, DRR arguments in logic
 }
 
 //-----------------------------------------------------------------------------
