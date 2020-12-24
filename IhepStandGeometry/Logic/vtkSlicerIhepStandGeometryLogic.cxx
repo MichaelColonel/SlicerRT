@@ -543,17 +543,17 @@ void vtkSlicerIhepStandGeometryLogic::MoveModelsToIsocenter(vtkMRMLIhepStandGeom
   // Move models
 
   vtkMRMLRTBeamNode* beamNode = parameterNode->GetBeamNode();
-    using IEC = vtkSlicerIECTransformLogic::CoordinateSystemIdentifier;
+  using IEC = vtkSlicerIECTransformLogic::CoordinateSystemIdentifier;
   vtkMRMLLinearTransformNode* fixedReferenceToRasTransformNode =
     this->IECLogic->GetTransformNodeBetween(IEC::FixedReference, IEC::RAS);
 
   vtkNew<vtkGeneralTransform> generalTransform;
+  vtkNew<vtkTransform> linearTransform;
   // FixedReference -> PatientSupport -> TableTopEccentricRotation -> TableTop -> Patient -> RAS
   if (this->IECLogic->GetTransformBetween( IEC::FixedReference, IEC::RAS, generalTransform))
   {
     // Convert general transform to linear
     // This call also makes hard copy of the transform so that it doesn't change when other beam transforms change
-    vtkNew<vtkTransform> linearTransform;
     if (!vtkMRMLTransformNode::IsGeneralTransformLinear(generalTransform, linearTransform))
     {
       vtkErrorMacro("MoveModelsToIsocenter: Unable to get transform hierarchy for the fixed reference model");
@@ -581,7 +581,8 @@ void vtkSlicerIhepStandGeometryLogic::MoveModelsToIsocenter(vtkMRMLIhepStandGeom
   vtkErrorMacro("MoveModelsToIsocenter: 2");
   if (beamTransform)
   {
-  vtkSmartPointer<vtkMRMLLinearTransformNode> transformNode = vtkSmartPointer<vtkMRMLLinearTransformNode>::New();
+//    beamTransform->Inverse();
+  vtkNew<vtkMRMLLinearTransformNode> transformNode;
   transformNode->SetName("CanyonToPatientTransform");
 //  transformNode->SetHideFromEditors(1);
   scene->AddNode(transformNode);
@@ -589,19 +590,22 @@ void vtkSlicerIhepStandGeometryLogic::MoveModelsToIsocenter(vtkMRMLIhepStandGeom
   // Translation back from origin after in-place rotation
   vtkNew<vtkTransform> originToIsocenterTransform;
   originToIsocenterTransform->Identity();
-  originToIsocenterTransform->Translate( 0., 0., -1550. + isocenter[2]);
+  originToIsocenterTransform->Translate( 0., 0., -1550. - isocenter[2]);
 
   vtkNew<vtkTransform> canyonToPatientTransform;
   canyonToPatientTransform->Identity();
 
+  // 0 angle of the fixed beam is 90 degrees of gantry
   vtkNew<vtkTransform> rotateZTransform;
   rotateZTransform->Identity();
-  rotateZTransform->RotateZ(180);
+  rotateZTransform->RotateZ(-180);
+  rotateZTransform->RotateX(-180);
 
   canyonToPatientTransform->PostMultiply();
   canyonToPatientTransform->Concatenate(originToIsocenterTransform);
+  canyonToPatientTransform->Concatenate(linearTransform);
   canyonToPatientTransform->Concatenate(rotateZTransform);
-  canyonToPatientTransform->Concatenate(beamTransform);
+//  canyonToPatientTransform->Concatenate(beamTransform);
 //  canyonToPatientTransform->Concatenate(fixedReferenceToRasTransform);
   transformNode->SetAndObserveTransformToParent(canyonToPatientTransform);
 

@@ -71,6 +71,7 @@
        <property name="nodeTypes">
         <stringlist>
          <string>vtkMRMLRTBeamNode</string>
+         <string>vtkMRMLRTIonBeamNode</string>
         </stringlist>
        </property>
        <property name="showChildNodeTypes">
