@@ -581,6 +581,7 @@ void vtkSlicerIhepStandGeometryLogic::MoveModelsToIsocenter(vtkMRMLIhepStandGeom
   vtkErrorMacro("MoveModelsToIsocenter: 2");
   if (beamTransform)
   {
+//    linearTransform->Inverse();
 //    beamTransform->Inverse();
   vtkNew<vtkMRMLLinearTransformNode> transformNode;
   transformNode->SetName("CanyonToPatientTransform");
@@ -598,8 +599,10 @@ void vtkSlicerIhepStandGeometryLogic::MoveModelsToIsocenter(vtkMRMLIhepStandGeom
   // 0 angle of the fixed beam is 90 degrees of gantry
   vtkNew<vtkTransform> rotateZTransform;
   rotateZTransform->Identity();
-  rotateZTransform->RotateZ(-180);
-  rotateZTransform->RotateX(-180);
+  rotateZTransform->RotateZ(-180.);
+//  rotateZTransform->RotateY(90. - beamNode->GetGantryAngle());
+//  rotateZTransform->RotateZ(90);
+  rotateZTransform->RotateX(180.);
 
   canyonToPatientTransform->PostMultiply();
   canyonToPatientTransform->Concatenate(originToIsocenterTransform);
