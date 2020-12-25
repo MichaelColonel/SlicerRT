@@ -591,7 +591,10 @@ void vtkSlicerIhepStandGeometryLogic::MoveModelsToIsocenter(vtkMRMLIhepStandGeom
   // Translation back from origin after in-place rotation
   vtkNew<vtkTransform> originToIsocenterTransform;
   originToIsocenterTransform->Identity();
-  originToIsocenterTransform->Translate( 0., 0., -1550. - isocenter[2]);
+//  originToIsocenterTransform->Translate( -isocenter[0], -isocenter[1], -1550. - isocenter[2]);
+  originToIsocenterTransform->Translate( 0., 0., -1550.);
+//  originToIsocenterTransform->RotateY(-90. + beamNode->GetGantryAngle());
+//  originToIsocenterTransform->RotateZ(-1. * beamNode->GetCouchAngle());
 
   vtkNew<vtkTransform> canyonToPatientTransform;
   canyonToPatientTransform->Identity();
@@ -599,17 +602,17 @@ void vtkSlicerIhepStandGeometryLogic::MoveModelsToIsocenter(vtkMRMLIhepStandGeom
   // 0 angle of the fixed beam is 90 degrees of gantry
   vtkNew<vtkTransform> rotateZTransform;
   rotateZTransform->Identity();
-  rotateZTransform->RotateZ(-180.);
-//  rotateZTransform->RotateY(90. - beamNode->GetGantryAngle());
-//  rotateZTransform->RotateZ(90);
-  rotateZTransform->RotateX(180.);
+//  rotateZTransform->RotateZ(90.);
+//  rotateZTransform->RotateY(-90. + beamNode->GetGantryAngle());
+//  rotateZTransform->RotateZ(-1. * beamNode->GetCouchAngle());
+/////  rotateZTransform->RotateZ(90);
+//  rotateZTransform->RotateX(180.);
 
   canyonToPatientTransform->PostMultiply();
   canyonToPatientTransform->Concatenate(originToIsocenterTransform);
-  canyonToPatientTransform->Concatenate(linearTransform);
   canyonToPatientTransform->Concatenate(rotateZTransform);
+  canyonToPatientTransform->Concatenate(linearTransform);
 //  canyonToPatientTransform->Concatenate(beamTransform);
-//  canyonToPatientTransform->Concatenate(fixedReferenceToRasTransform);
   transformNode->SetAndObserveTransformToParent(canyonToPatientTransform);
 
   // Canyon - mandatory
