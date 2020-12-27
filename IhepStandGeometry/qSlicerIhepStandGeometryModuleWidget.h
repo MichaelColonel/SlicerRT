@@ -53,6 +53,8 @@ public slots:
   void onResetToInitialPositionButtonClicked();
   void onPatientSupportRotationAngleChanged(double);
   void onMoveModelsToIsocenter();
+  void onLongitudinalTableTopDisplacementChanged(double);
+  void onVerticalTableTopDisplacementChanged(double);
 
   /// Update widget GUI from RT Image parameters node
   void updateWidgetFromMRML();

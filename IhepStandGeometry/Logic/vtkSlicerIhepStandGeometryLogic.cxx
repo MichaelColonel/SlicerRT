@@ -413,16 +413,28 @@ void vtkSlicerIhepStandGeometryLogic::UpdatePatientSupportRotationToFixedReferen
 //----------------------------------------------------------------------------
 void vtkSlicerIhepStandGeometryLogic::SetupTreatmentMachineModels()
 {
-  if (!this->GetMRMLScene())
+  vtkMRMLScene* scene = this->GetMRMLScene();
+
+  if (!scene)
   {
     vtkErrorMacro("SetupTreatmentMachineModels: Invalid scene");
     return;
   }
-
+  
   //TODO: Store treatment machine component color and other properties in JSON
 
   // Display all pieces of the treatment room and sets each piece a color to provide realistic representation
   using IEC = vtkSlicerIECTransformLogic::CoordinateSystemIdentifier;
+/*
+  vtkNew<vtkMRMLLinearTransformNode> transformNode;
+  transformNode->SetName("TableTopToPatientTransform");
+  scene->AddNode(transformNode);
+
+  vtkNew<vtkTransform> rotateZTransform;
+  rotateZTransform->Identity();
+  rotateZTransform->RotateZ(180.);
+  rotateZTransform->PreMultiply();
+*/
 
   // Table top stand - mandatory
   vtkMRMLModelNode* tableTopStandModel = vtkMRMLModelNode::SafeDownCast(
@@ -436,7 +448,12 @@ void vtkSlicerIhepStandGeometryLogic::SetupTreatmentMachineModels()
     this->IECLogic->GetTransformNodeBetween(IEC::TableTopInferiorSuperiorMovement, IEC::PatientSupportRotation);
   if (tableTopStandToFixedReferenceTransformNode)
   {
+//    vtkTransform* tableTopStandToFixedReferenceTransform = vtkTransform::SafeDownCast(tableTopStandToFixedReferenceTransformNode->GetTransformToParent());
+//    rotateZTransform->Concatenate(tableTopStandToFixedReferenceTransform);
+//    transformNode->SetAndObserveTransformToParent(rotateZTransform);
+
     tableTopStandModel->SetAndObserveTransformNodeID(tableTopStandToFixedReferenceTransformNode->GetID());
+//    tableTopStandModel->SetAndObserveTransformNodeID(transformNode->GetID());
     tableTopStandModel->CreateDefaultDisplayNodes();
     tableTopStandModel->GetDisplayNode()->SetColor(0.95, 0.95, 0.95);
   }
@@ -483,7 +500,7 @@ void vtkSlicerIhepStandGeometryLogic::SetupTreatmentMachineModels()
     vtkErrorMacro("SetupTreatmentMachineModels: Unable to access canyon model");
     return;
   }
-  
+
   vtkMRMLLinearTransformNode* fixedReferenceToRasTransformNode =
     this->IECLogic->GetTransformNodeBetween(IEC::FixedReference, IEC::RAS);
   if (fixedReferenceToRasTransformNode)
@@ -492,13 +509,19 @@ void vtkSlicerIhepStandGeometryLogic::SetupTreatmentMachineModels()
     canyonModel->CreateDefaultDisplayNodes();
     canyonModel->GetDisplayNode()->SetColor(0.9, 0.9, 0.9);
   }
-/*
 
+/*
   vtkMRMLLinearTransformNode* fixedReferenceToRasTransformNode =
     this->IECLogic->GetTransformNodeBetween(IEC::FixedReference, IEC::RAS);
 
+  vtkNew<vtkTransform> rotateXYTransform;
+  rotateXYTransform->Identity();
+//  rotateXYTransform->RotateX(-90.);
+//  rotateXYTransform->RotateY(90.);
+  rotateXYTransform->Modified();
+
   vtkNew<vtkGeneralTransform> generalTransform;
-  if (this->IECLogic->GetTransformBetween( IEC::FixedReference, IEC::Collimator, generalTransform))
+  if (this->IECLogic->GetTransformBetween( IEC::Collimator, IEC::Patient, generalTransform))
   {
     // Convert general transform to linear
     // This call also makes hard copy of the transform so that it doesn't change when other beam transforms change
@@ -510,6 +533,9 @@ void vtkSlicerIhepStandGeometryLogic::SetupTreatmentMachineModels()
     }
     // Set transform to node
     vtkWarningMacro("SetupTreatmentMachineModels: Fixed reference to RAS hierarchy is valid");
+
+    linearTransform->PostMultiply();
+    linearTransform->Concatenate(rotateXYTransform);
 
     if (fixedReferenceToRasTransformNode)
     {
@@ -541,16 +567,18 @@ void vtkSlicerIhepStandGeometryLogic::MoveModelsToIsocenter(vtkMRMLIhepStandGeom
     return;
   }
   // Move models
-
+/*
   vtkMRMLRTBeamNode* beamNode = parameterNode->GetBeamNode();
+  this->IECLogic->UpdateBeamTransform(beamNode);
+
   using IEC = vtkSlicerIECTransformLogic::CoordinateSystemIdentifier;
   vtkMRMLLinearTransformNode* fixedReferenceToRasTransformNode =
-    this->IECLogic->GetTransformNodeBetween(IEC::FixedReference, IEC::RAS);
+    this->IECLogic->GetTransformNodeBetween(IEC::Gantry, IEC::FixedReference);
 
   vtkNew<vtkGeneralTransform> generalTransform;
   vtkNew<vtkTransform> linearTransform;
   // FixedReference -> PatientSupport -> TableTopEccentricRotation -> TableTop -> Patient -> RAS
-  if (this->IECLogic->GetTransformBetween( IEC::FixedReference, IEC::RAS, generalTransform))
+  if (this->IECLogic->GetTransformBetween( IEC::Collimator, IEC::RAS, generalTransform))
   {
     // Convert general transform to linear
     // This call also makes hard copy of the transform so that it doesn't change when other beam transforms change
@@ -591,28 +619,73 @@ void vtkSlicerIhepStandGeometryLogic::MoveModelsToIsocenter(vtkMRMLIhepStandGeom
   // Translation back from origin after in-place rotation
   vtkNew<vtkTransform> originToIsocenterTransform;
   originToIsocenterTransform->Identity();
+  originToIsocenterTransform->Translate( isocenter[1], isocenter[0], isocenter[2]);
+  originToIsocenterTransform->Modified();
 //  originToIsocenterTransform->Translate( -isocenter[0], -isocenter[1], -1550. - isocenter[2]);
-  originToIsocenterTransform->Translate( 0., 0., -1550.);
+//  originToIsocenterTransform->Translate( 0., 0., -1550.);
 //  originToIsocenterTransform->RotateY(-90. + beamNode->GetGantryAngle());
 //  originToIsocenterTransform->RotateZ(-1. * beamNode->GetCouchAngle());
+
+  // Extract beam-related parameters needed to compute RT image coordinate system
+  double sourceAxisDistance = beamNode->GetSAD();
+  double gantryAngle = beamNode->GetGantryAngle();
+  double couchAngle = beamNode->GetCouchAngle();
+
+  // Get isocenter coordinates
+  double isocenterWorldCoordinates[3] = {0.0, 0.0, 0.0};
+  if (!beamNode->GetPlanIsocenterPosition(isocenterWorldCoordinates))
+  {
+    vtkErrorMacro( "SetupRtImageGeometry: Failed to get plan isocenter position");
+    return;
+  }
+
+  // Assemble transform from isocenter IEC to RT image RAS
+  vtkSmartPointer<vtkTransform> fixedToIsocenterTransform = vtkSmartPointer<vtkTransform>::New();
+  fixedToIsocenterTransform->Identity();
+  fixedToIsocenterTransform->Translate(isocenterWorldCoordinates);
+
+  vtkSmartPointer<vtkTransform> couchToFixedTransform = vtkSmartPointer<vtkTransform>::New();
+  couchToFixedTransform->Identity();
+  couchToFixedTransform->RotateWXYZ((-1.0)*couchAngle, 0.0, 1.0, 0.0);
+
+  vtkSmartPointer<vtkTransform> gantryToCouchTransform = vtkSmartPointer<vtkTransform>::New();
+  gantryToCouchTransform->Identity();
+  gantryToCouchTransform->RotateWXYZ(gantryAngle, 0.0, 0.0, 1.0);
 
   vtkNew<vtkTransform> canyonToPatientTransform;
   canyonToPatientTransform->Identity();
 
   // 0 angle of the fixed beam is 90 degrees of gantry
-  vtkNew<vtkTransform> rotateZTransform;
-  rotateZTransform->Identity();
-//  rotateZTransform->RotateZ(90.);
+  vtkNew<vtkTransform> rotateXYTransform;
+  rotateXYTransform->Identity();
+  rotateXYTransform->RotateX(-90.);
+  rotateXYTransform->RotateY(90.);
+  rotateXYTransform->Modified();
 //  rotateZTransform->RotateY(-90. + beamNode->GetGantryAngle());
 //  rotateZTransform->RotateZ(-1. * beamNode->GetCouchAngle());
-/////  rotateZTransform->RotateZ(90);
-//  rotateZTransform->RotateX(180.);
+//  rotateZTransform->RotateX(90 - beamNode->GetGantryAngle());
+//  rotateZTransform->RotateZ(-180. - beamNode->GetCouchAngle());
 
-  canyonToPatientTransform->PostMultiply();
-  canyonToPatientTransform->Concatenate(originToIsocenterTransform);
-  canyonToPatientTransform->Concatenate(rotateZTransform);
-  canyonToPatientTransform->Concatenate(linearTransform);
-//  canyonToPatientTransform->Concatenate(beamTransform);
+  vtkNew<vtkTransform> rotateZ1Transform;
+  rotateZ1Transform->Identity();
+  rotateZ1Transform->RotateZ(beamNode->GetGantryAngle());
+  rotateZ1Transform->RotateX(-1. * beamNode->GetCouchAngle());
+  rotateZ1Transform->Modified();
+
+  canyonToPatientTransform->Identity();
+  canyonToPatientTransform->PreMultiply();
+//  canyonToPatientTransform->Concatenate(originToIsocenterTransform);
+//  canyonToPatientTransform->PreMultiply();
+//  canyonToPatientTransform->Concatenate(rotateZ1Transform);
+//  canyonToPatientTransform->Concatenate(rotateXYTransform);
+
+  canyonToPatientTransform->Concatenate(fixedToIsocenterTransform);
+  canyonToPatientTransform->Concatenate(couchToFixedTransform);
+  canyonToPatientTransform->Concatenate(gantryToCouchTransform);
+
+//  canyonToPatientTransform->Concatenate(linearTransform);
+//  canyonToPatientTransform->Modified();
+//  canyonToPatientTransform->Concatenate(fixedReferenceToRasTransform );
   transformNode->SetAndObserveTransformToParent(canyonToPatientTransform);
 
   // Canyon - mandatory
@@ -626,4 +699,5 @@ void vtkSlicerIhepStandGeometryLogic::MoveModelsToIsocenter(vtkMRMLIhepStandGeom
 }
 }
 }
+*/
 }

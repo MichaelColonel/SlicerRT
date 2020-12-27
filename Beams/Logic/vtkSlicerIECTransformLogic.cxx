@@ -565,7 +565,7 @@ bool vtkSlicerIECTransformLogic::GetTransformBetween(CoordinateSystemIdentifier 
         fromTransform->GetMatrixTransformToParent(mat);
         outputTransform->Concatenate(mat);
 
-        vtkDebugMacro("GetTransformBetween: Transform node \"" << fromTransform->GetName() << "\" is valid");
+        vtkWarningMacro("GetTransformBetween: Transform node \"" << fromTransform->GetName() << "\" is valid");
       }
       else
       {
@@ -593,7 +593,7 @@ bool vtkSlicerIECTransformLogic::GetTransformBetween(CoordinateSystemIdentifier 
         mat->Invert();
         outputTransform->Concatenate(mat);
 
-        vtkDebugMacro("GetTransformBetween: Transform node \"" << toTransform->GetName() << "\" is valid");
+        vtkWarningMacro("GetTransformBetween: Transform node \"" << toTransform->GetName() << "\" is valid");
       }
       else
       {
@@ -634,7 +634,7 @@ bool vtkSlicerIECTransformLogic::GetPathToRoot( CoordinateSystemIdentifier frame
       {
         CoordinateSystemIdentifier id = *iter;
 
-        vtkDebugMacro("GetPathToRoot: Checking affine transformation " 
+        vtkWarningMacro("GetPathToRoot: Checking affine transformation " 
           << "\"" << this->CoordinateSystemsMap[id] << "\" -> " 
           << "\"" << this->CoordinateSystemsMap[parent] << "\"");
 
