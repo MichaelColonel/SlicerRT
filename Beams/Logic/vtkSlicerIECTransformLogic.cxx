@@ -523,7 +523,8 @@ vtkMRMLLinearTransformNode* vtkSlicerIECTransformLogic::GetTransformNodeBetween(
 }
 
 //-----------------------------------------------------------------------------
-bool vtkSlicerIECTransformLogic::GetTransformBetween(CoordinateSystemIdentifier fromFrame, CoordinateSystemIdentifier toFrame, vtkGeneralTransform* outputTransform)
+bool vtkSlicerIECTransformLogic::GetTransformBetween(CoordinateSystemIdentifier fromFrame, CoordinateSystemIdentifier toFrame, 
+  vtkGeneralTransform* outputTransform, bool transformForBeam)
 {
   if (!outputTransform)
   {
@@ -565,7 +566,7 @@ bool vtkSlicerIECTransformLogic::GetTransformBetween(CoordinateSystemIdentifier 
         fromTransform->GetMatrixTransformToParent(mat);
         outputTransform->Concatenate(mat);
 
-        vtkWarningMacro("GetTransformBetween: Transform node \"" << fromTransform->GetName() << "\" is valid");
+        vtkDebugMacro("GetTransformBetween: Transform node \"" << fromTransform->GetName() << "\" is valid");
       }
       else
       {
@@ -589,11 +590,18 @@ bool vtkSlicerIECTransformLogic::GetTransformBetween(CoordinateSystemIdentifier 
       if (toTransform)
       {
         vtkNew<vtkMatrix4x4> mat;
-        toTransform->GetMatrixTransformFromParent(mat);
+        if (transformForBeam) // calculation for beam transformation
+        {
+          toTransform->GetMatrixTransformFromParent(mat);
+        }
+        else // calculation for a treatment room models transformations
+        {
+          toTransform->GetMatrixTransformToParent(mat);
+        }
         mat->Invert();
         outputTransform->Concatenate(mat);
 
-        vtkWarningMacro("GetTransformBetween: Transform node \"" << toTransform->GetName() << "\" is valid");
+        vtkDebugMacro("GetTransformBetween: Transform node \"" << toTransform->GetName() << "\" is valid");
       }
       else
       {
@@ -634,7 +642,7 @@ bool vtkSlicerIECTransformLogic::GetPathToRoot( CoordinateSystemIdentifier frame
       {
         CoordinateSystemIdentifier id = *iter;
 
-        vtkWarningMacro("GetPathToRoot: Checking affine transformation " 
+        vtkDebugMacro("GetPathToRoot: Checking affine transformation " 
           << "\"" << this->CoordinateSystemsMap[id] << "\" -> " 
           << "\"" << this->CoordinateSystemsMap[parent] << "\"");
 

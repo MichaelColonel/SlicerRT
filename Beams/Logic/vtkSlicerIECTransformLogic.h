@@ -131,8 +131,9 @@ public:
     CoordinateSystemIdentifier fromFrame, CoordinateSystemIdentifier toFrame );
 
   /// Get transform from one coordinate frame to another
+  /// @param transformForBeam - calculate dynamic transformation for beam model or other models
   /// \return Success flag (false on any error)
-  bool GetTransformBetween(CoordinateSystemIdentifier fromFrame, CoordinateSystemIdentifier toFrame, vtkGeneralTransform* outputTransform);
+  bool GetTransformBetween(CoordinateSystemIdentifier fromFrame, CoordinateSystemIdentifier toFrame, vtkGeneralTransform* outputTransform, bool transformForBeam = true);
 
   /// Update parent transform node of a given beam from the IEC transform hierarchy and the beam parameters
   void UpdateBeamTransform(vtkMRMLRTBeamNode* beamNode);
