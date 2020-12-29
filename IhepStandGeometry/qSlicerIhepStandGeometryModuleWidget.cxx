@@ -232,11 +232,15 @@ void qSlicerIhepStandGeometryModuleWidget::onPatientSupportRotationAngleChanged(
     return;
   }
 
+  parameterNode->DisableModifiedEventOn();
+  parameterNode->SetPatientSupportRotationAngle(rotationAngle);
+  parameterNode->DisableModifiedEventOff();
+
   d->logic()->UpdatePatientSupportRotationToFixedReferenceTransform( parameterNode, rotationAngle);
 }
 
 //-----------------------------------------------------------------------------
-void qSlicerIhepStandGeometryModuleWidget::onLongitudinalTableTopDisplacementChanged(double rotationAngle)
+void qSlicerIhepStandGeometryModuleWidget::onTableTopLongitudinalDisplacementChanged(double longitudinalDisplacement)
 {
   Q_D(qSlicerIhepStandGeometryModuleWidget);
 
@@ -252,11 +256,15 @@ void qSlicerIhepStandGeometryModuleWidget::onLongitudinalTableTopDisplacementCha
     return;
   }
 
-//  d->logic()->UpdatePatientSupportRotationToFixedReferenceTransform( parameterNode, rotationAngle);
+  parameterNode->DisableModifiedEventOn();
+  parameterNode->SetTableTopLongitudinalDisplacement(longitudinalDisplacement);
+  parameterNode->DisableModifiedEventOff();
+
+  d->logic()->UpdateTableTopToTableTopEccentricRotationTransform(parameterNode);
 }
 
 //-----------------------------------------------------------------------------
-void qSlicerIhepStandGeometryModuleWidget::onVerticalTableTopDisplacementChanged(double rotationAngle)
+void qSlicerIhepStandGeometryModuleWidget::onTableTopVerticalDisplacementChanged(double verticalDisplacement)
 {
   Q_D(qSlicerIhepStandGeometryModuleWidget);
 
@@ -272,7 +280,11 @@ void qSlicerIhepStandGeometryModuleWidget::onVerticalTableTopDisplacementChanged
     return;
   }
 
-//  d->logic()->UpdatePatientSupportRotationToFixedReferenceTransform( parameterNode, rotationAngle);
+  parameterNode->DisableModifiedEventOn();
+  parameterNode->SetTableTopVerticalDisplacement(verticalDisplacement);
+  parameterNode->DisableModifiedEventOff();
+
+  d->logic()->UpdateTableTopToTableTopEccentricRotationTransform(parameterNode);
 }
 
 //-----------------------------------------------------------------------------

@@ -66,6 +66,8 @@ void vtkMRMLIhepStandGeometryNode::WriteXML(ostream& of, int nIndent)
   // Write all MRML node attributes into output stream
   vtkMRMLWriteXMLBeginMacro(of);
   vtkMRMLWriteXMLFloatMacro(PatientSupportRotationAngle, PatientSupportRotationAngle);
+  vtkMRMLWriteXMLFloatMacro(TableTopLongitudinalDisplacement, TableTopLongitudinalDisplacement);
+  vtkMRMLWriteXMLFloatMacro(TableTopVerticalDisplacement, TableTopVerticalDisplacement);
   // add new parameters here
   vtkMRMLWriteXMLEndMacro();
 }
@@ -79,6 +81,8 @@ void vtkMRMLIhepStandGeometryNode::ReadXMLAttributes(const char** atts)
 
   vtkMRMLReadXMLBeginMacro(atts);
   vtkMRMLReadXMLFloatMacro(PatientSupportRotationAngle, PatientSupportRotationAngle);
+  vtkMRMLReadXMLFloatMacro(TableTopLongitudinalDisplacement, TableTopLongitudinalDisplacement);
+  vtkMRMLReadXMLFloatMacro(TableTopVerticalDisplacement, TableTopVerticalDisplacement);
   // add new parameters here
   vtkMRMLReadXMLEndMacro();
 
@@ -105,6 +109,8 @@ void vtkMRMLIhepStandGeometryNode::Copy(vtkMRMLNode *anode)
   this->DisableModifiedEventOn();
   vtkMRMLCopyBeginMacro(node);
   vtkMRMLCopyFloatMacro(PatientSupportRotationAngle);
+  vtkMRMLCopyFloatMacro(TableTopLongitudinalDisplacement);
+  vtkMRMLCopyFloatMacro(TableTopVerticalDisplacement);
   // add new parameters here
   vtkMRMLCopyEndMacro(); 
 
@@ -127,6 +133,8 @@ void vtkMRMLIhepStandGeometryNode::CopyContent(vtkMRMLNode *anode, bool deepCopy
 
   vtkMRMLCopyBeginMacro(node);
   vtkMRMLCopyFloatMacro(PatientSupportRotationAngle);
+  vtkMRMLCopyFloatMacro(TableTopLongitudinalDisplacement);
+  vtkMRMLCopyFloatMacro(TableTopVerticalDisplacement);
   // add new parameters here
   vtkMRMLCopyEndMacro();
 }
@@ -138,6 +146,8 @@ void vtkMRMLIhepStandGeometryNode::PrintSelf(ostream& os, vtkIndent indent)
 
   vtkMRMLPrintBeginMacro(os, indent);
   vtkMRMLPrintFloatMacro(PatientSupportRotationAngle);
+  vtkMRMLPrintFloatMacro(TableTopLongitudinalDisplacement);
+  vtkMRMLPrintFloatMacro(TableTopVerticalDisplacement);
   // add new parameters here
   vtkMRMLPrintEndMacro(); 
 }

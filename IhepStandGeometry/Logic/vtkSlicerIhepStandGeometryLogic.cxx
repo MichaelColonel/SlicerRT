@@ -753,3 +753,35 @@ void vtkSlicerIhepStandGeometryLogic::MoveModelsToIsocenter(vtkMRMLIhepStandGeom
 }
 */
 }
+
+//-----------------------------------------------------------------------------
+void vtkSlicerIhepStandGeometryLogic::UpdateTableTopToTableTopEccentricRotationTransform(vtkMRMLIhepStandGeometryNode* parameterNode)
+{
+  vtkMRMLScene* scene = this->GetMRMLScene();
+  if (!scene)
+  {
+    vtkErrorMacro("UpdateTableTopToTableTopEccentricRotationTransform: Invalid scene");
+    return;
+  }
+  if (!parameterNode || !parameterNode->GetTreatmentMachineType())
+  {
+    vtkErrorMacro("UpdateTableTopToTableTopEccentricRotationTransform: Invalid parameter node");
+    return;
+  }
+
+  using IEC = vtkSlicerIECTransformLogic::CoordinateSystemIdentifier;
+  vtkMRMLLinearTransformNode* tableTopToTableTopEccentricRotationTransformNode =
+    this->IECLogic->GetTransformNodeBetween(IEC::TableTop, IEC::TableTopEccentricRotation);
+  vtkTransform* tableTopEccentricRotationToPatientSupportTransform = vtkTransform::SafeDownCast(
+    tableTopToTableTopEccentricRotationTransformNode->GetTransformToParent() );
+
+  double translationArray[3] =
+    { 0., parameterNode->GetTableTopLongitudinalDisplacement(), parameterNode->GetTableTopVerticalDisplacement() };
+
+  vtkNew<vtkMatrix4x4> tableTopEccentricRotationToPatientSupportMatrix;
+  tableTopEccentricRotationToPatientSupportMatrix->SetElement(0,3, translationArray[0]);
+  tableTopEccentricRotationToPatientSupportMatrix->SetElement(1,3, translationArray[1]);
+  tableTopEccentricRotationToPatientSupportMatrix->SetElement(2,3, translationArray[2]);
+  tableTopEccentricRotationToPatientSupportTransform->SetMatrix(tableTopEccentricRotationToPatientSupportMatrix);
+  tableTopEccentricRotationToPatientSupportTransform->Modified();
+}
