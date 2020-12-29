@@ -59,7 +59,7 @@ public:
   void LoadTreatmentMachineModels(vtkMRMLIhepStandGeometryNode* parameterNode);
   void ResetModelsToInitialPosition(vtkMRMLIhepStandGeometryNode* parameterNode);
   /// Apply new patient support rotation angle to transform (Fixed->PatientSupport)
-  void UpdatePatientSupportRotationToFixedReferenceTransform(vtkMRMLIhepStandGeometryNode* parameterNode, double value);
+  void UpdatePatientSupportRotationToFixedReferenceTransform(vtkMRMLIhepStandGeometryNode* parameterNode);
   void UpdateTableTopToTableTopEccentricRotationTransform(vtkMRMLIhepStandGeometryNode* parameterNode);
 
   void MoveModelsToIsocenter(vtkMRMLIhepStandGeometryNode* parameterNode, double isocenter[3]);

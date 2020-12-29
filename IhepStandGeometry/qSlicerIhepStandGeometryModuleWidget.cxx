@@ -135,9 +135,9 @@ void qSlicerIhepStandGeometryModuleWidget::setup()
   connect( d->SliderWidget_PatientSupportRotationAngle, SIGNAL(valueChanged(double)), 
     this, SLOT(onPatientSupportRotationAngleChanged(double)));
   connect( d->SliderWidget_TableTopMovementY, SIGNAL(valueChanged(double)), 
-    this, SLOT(onLongitudinalTableTopDisplacementChanged(double)));
+    this, SLOT(onTableTopLongitudinalDisplacementChanged(double)));
   connect( d->SliderWidget_TableTopMovementZ, SIGNAL(valueChanged(double)), 
-    this, SLOT(onVerticalTableTopDisplacementChanged(double)));
+    this, SLOT(onTableTopVerticalDisplacementChanged(double)));
 
   // Buttons
   connect( d->PushButton_LoadStandModels, SIGNAL(clicked()), this, SLOT(onLoadStandModelsButtonClicked()));
@@ -236,7 +236,8 @@ void qSlicerIhepStandGeometryModuleWidget::onPatientSupportRotationAngleChanged(
   parameterNode->SetPatientSupportRotationAngle(rotationAngle);
   parameterNode->DisableModifiedEventOff();
 
-  d->logic()->UpdatePatientSupportRotationToFixedReferenceTransform( parameterNode, rotationAngle);
+  d->logic()->UpdatePatientSupportRotationToFixedReferenceTransform(parameterNode);
+  d->logic()->SetupTreatmentMachineModels();
 }
 
 //-----------------------------------------------------------------------------
@@ -256,11 +257,16 @@ void qSlicerIhepStandGeometryModuleWidget::onTableTopLongitudinalDisplacementCha
     return;
   }
 
+  double isocenter[3] = {};
+  vtkMRMLRTBeamNode* beam = parameterNode->GetBeamNode();
+  beam->GetPlanIsocenterPosition(isocenter);
+
   parameterNode->DisableModifiedEventOn();
-  parameterNode->SetTableTopLongitudinalDisplacement(longitudinalDisplacement);
+  parameterNode->SetTableTopLongitudinalDisplacement(10. * longitudinalDisplacement + isocenter[1]);
   parameterNode->DisableModifiedEventOff();
 
   d->logic()->UpdateTableTopToTableTopEccentricRotationTransform(parameterNode);
+  d->logic()->SetupTreatmentMachineModels();
 }
 
 //-----------------------------------------------------------------------------
@@ -280,11 +286,16 @@ void qSlicerIhepStandGeometryModuleWidget::onTableTopVerticalDisplacementChanged
     return;
   }
 
+  double isocenter[3] = {};
+  vtkMRMLRTBeamNode* beam = parameterNode->GetBeamNode();
+  beam->GetPlanIsocenterPosition(isocenter);
+
   parameterNode->DisableModifiedEventOn();
-  parameterNode->SetTableTopVerticalDisplacement(verticalDisplacement);
+  parameterNode->SetTableTopVerticalDisplacement(10. * verticalDisplacement + isocenter[2]);
   parameterNode->DisableModifiedEventOff();
 
   d->logic()->UpdateTableTopToTableTopEccentricRotationTransform(parameterNode);
+  d->logic()->SetupTreatmentMachineModels();
 }
 
 //-----------------------------------------------------------------------------

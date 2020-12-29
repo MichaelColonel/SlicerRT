@@ -1,7 +1,7 @@
 color("#676767")
 union() {
-  translate([0, 105, 90+1.25])
-    cube([ 53, 200, 2.5], center=true);
-  translate([0, 105, 90+1.25-3.3])
-    cube([ 40, 200, 6.6], center=true);
+  translate([0, 1050, 900+12.5-1550.])
+    cube([ 530, 2000, 25], center=true);
+  translate([0, 1050, 900+12.5-33-1550.])
+    cube([ 400, 2000, 66], center=true);
 }
