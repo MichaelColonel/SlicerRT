@@ -480,8 +480,56 @@ void vtkSlicerIhepStandGeometryLogic::SetupTreatmentMachineModels()
     }
   }
 
-/*
+
   // Patient support - mandatory
+  // Transform path: RAS -> Patient -> TableTop -> Eccentric -> TableTopInferiorSuperiorMovement -> PatientSupportRotation
+  vtkNew<vtkGeneralTransform> rasToPatientSupportRotationGeneralTransform;
+  vtkNew<vtkTransform> rasToPatientSupportRotationLinearTransform;
+  if (this->IECLogic->GetTransformBetween( IEC::RAS, IEC::PatientSupportRotation, 
+    rasToPatientSupportRotationGeneralTransform, false))
+  {
+    // Convert general transform to linear
+    // This call also makes hard copy of the transform so that it doesn't change when other beam transforms change
+    if (!vtkMRMLTransformNode::IsGeneralTransformLinear( rasToPatientSupportRotationGeneralTransform, 
+      rasToPatientSupportRotationLinearTransform))
+    {
+      vtkErrorMacro("SetupTreatmentMachineModels: Unable to get transform hierarchy from RAS to PatientSupportRotation");
+      return;
+    }
+    // Transform to RAS, set transform to node, transform the model
+    rasToPatientSupportRotationLinearTransform->Concatenate(rotateYTransform);
+
+    // Find RasToTableTopInferiorSuperiorTransform or create it
+    vtkSmartPointer<vtkMRMLLinearTransformNode> rasToPatientSupportRotationTransformNode;
+    if (scene->GetFirstNodeByName("RasToPatientSupportRotationTransform"))
+    {
+      rasToPatientSupportRotationTransformNode = vtkMRMLLinearTransformNode::SafeDownCast(
+        scene->GetFirstNodeByName("RasToPatientSupportRotationTransform"));
+    }
+    else
+    {
+      rasToPatientSupportRotationTransformNode = vtkSmartPointer<vtkMRMLLinearTransformNode>::New();
+      rasToPatientSupportRotationTransformNode->SetName("RasToPatientSupportRotationTransform");
+//      rasToTableTopInferiorSuperiorTransformNode->SetHideFromEditors(1);
+      scene->AddNode(rasToPatientSupportRotationTransformNode);
+    }
+
+    vtkMRMLModelNode* patientSupportRotationModel = vtkMRMLModelNode::SafeDownCast(
+      scene->GetFirstNodeByName(PATIENTSUPPORT_MODEL_NAME) );
+    if (!patientSupportRotationModel)
+    {
+      vtkErrorMacro("SetupTreatmentMachineModels: Unable to access table top stand model");
+      return;
+    }
+    if (rasToPatientSupportRotationTransformNode)
+    {
+      rasToPatientSupportRotationTransformNode->SetAndObserveTransformToParent(rasToPatientSupportRotationLinearTransform);
+      patientSupportRotationModel->SetAndObserveTransformNodeID(rasToPatientSupportRotationTransformNode->GetID());
+      patientSupportRotationModel->CreateDefaultDisplayNodes();
+      patientSupportRotationModel->GetDisplayNode()->SetColor(0.85, 0.85, 0.85);
+    }
+  }
+/*
   vtkMRMLModelNode* patientSupportModel = vtkMRMLModelNode::SafeDownCast(
     this->GetMRMLScene()->GetFirstNodeByName(PATIENTSUPPORT_MODEL_NAME) );
   if (!patientSupportModel)
