@@ -1,3 +1,3 @@
 color("#adb1b3")
-translate([0, 0, -30])
-  cylinder( h=60, d=300, center=true);
+translate([0, 0, -300-1550.])
+  cylinder( h=600, d=3000, center=true);
