@@ -672,3 +672,35 @@ void vtkSlicerIhepStandGeometryLogic::UpdateTableTopToTableTopEccentricRotationT
   tableTopToTableTopEccentricRotationTransform->SetMatrix(tableTopToTableTopEccentricRotationMatrix);
   tableTopToTableTopEccentricRotationTransform->Modified();
 }
+
+//-----------------------------------------------------------------------------
+void vtkSlicerIhepStandGeometryLogic::UpdateTableTopInferiorSuperiorToPatientSupportRotationTransform(vtkMRMLIhepStandGeometryNode* parameterNode)
+{
+  vtkMRMLScene* scene = this->GetMRMLScene();
+  if (!scene)
+  {
+    vtkErrorMacro("UpdateTableTopInferiorSuperiorToPatientSupportRotationTransform: Invalid scene");
+    return;
+  }
+  if (!parameterNode || !parameterNode->GetTreatmentMachineType())
+  {
+    vtkErrorMacro("UpdateTableTopInferiorSuperiorToPatientSupportRotationTransform: Invalid parameter node");
+    return;
+  }
+
+  using IEC = vtkSlicerIECTransformLogic::CoordinateSystemIdentifier;
+  vtkMRMLLinearTransformNode* tableTopInferiorSuperiorToPatientSupportRotationTransformNode =
+    this->IECLogic->GetTransformNodeBetween(IEC::TableTopInferiorSuperiorMovement, IEC::PatientSupportRotation);
+  vtkTransform* tableTopInferiorSuperiorToPatientSupportRotationTransform = vtkTransform::SafeDownCast(
+    tableTopInferiorSuperiorToPatientSupportRotationTransformNode->GetTransformToParent() );
+
+  double translationArray[3] =
+    { 0., 0., -1. * parameterNode->GetTableTopLongitudinalDisplacement() };
+
+  vtkNew<vtkMatrix4x4> tableTopInferiorSuperiorToPatientSupportRotationMatrix;
+  tableTopInferiorSuperiorToPatientSupportRotationMatrix->SetElement(0,3, translationArray[0]);
+  tableTopInferiorSuperiorToPatientSupportRotationMatrix->SetElement(1,3, translationArray[1]);
+  tableTopInferiorSuperiorToPatientSupportRotationMatrix->SetElement(2,3, translationArray[2]);
+  tableTopInferiorSuperiorToPatientSupportRotationTransform->SetMatrix(tableTopInferiorSuperiorToPatientSupportRotationMatrix);
+  tableTopInferiorSuperiorToPatientSupportRotationTransform->Modified();
+}

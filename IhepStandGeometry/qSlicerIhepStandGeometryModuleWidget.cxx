@@ -265,7 +265,7 @@ void qSlicerIhepStandGeometryModuleWidget::onTableTopLongitudinalDisplacementCha
   parameterNode->SetTableTopLongitudinalDisplacement(10. * longitudinalDisplacement + isocenter[1]);
   parameterNode->DisableModifiedEventOff();
 
-  d->logic()->UpdateTableTopToTableTopEccentricRotationTransform(parameterNode);
+  d->logic()->UpdateTableTopInferiorSuperiorToPatientSupportRotationTransform(parameterNode);
   d->logic()->SetupTreatmentMachineModels();
 }
 
