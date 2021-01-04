@@ -49,8 +49,13 @@ vtkMRMLNodeNewMacro(vtkMRMLIhepStandGeometryNode);
 
 //----------------------------------------------------------------------------
 vtkMRMLIhepStandGeometryNode::vtkMRMLIhepStandGeometryNode()
+  :
+  PatientBodySegmentID(nullptr),
+  TreatmentMachineType(nullptr),
+  PatientSupportRotationAngle(0.),
+  TableTopVerticalDisplacement(0.),
+  TableTopLongitudinalDisplacement(0.)
 {
-  PatientSupportRotationAngle = 0.; // theta_s
 }
 
 //----------------------------------------------------------------------------

@@ -176,6 +176,7 @@ void qSlicerIhepStandGeometryModuleWidget::onLoadStandModelsButtonClicked()
   qSlicerLayoutManager* layoutManager = slicerApplication->layoutManager();
   qMRMLThreeDView* threeDView = layoutManager->threeDWidget(0)->threeDView();
   threeDView->resetCamera();
+
 /*
   // Set treatment machine dependent properties
   if (!treatmentMachineType.compare("VarianTrueBeamSTx"))
@@ -237,7 +238,7 @@ void qSlicerIhepStandGeometryModuleWidget::onPatientSupportRotationAngleChanged(
   parameterNode->DisableModifiedEventOff();
 
   d->logic()->UpdatePatientSupportRotationToFixedReferenceTransform(parameterNode);
-  d->logic()->SetupTreatmentMachineModels();
+  d->logic()->SetupTreatmentMachineModels(parameterNode);
 }
 
 //-----------------------------------------------------------------------------
@@ -266,7 +267,7 @@ void qSlicerIhepStandGeometryModuleWidget::onTableTopLongitudinalDisplacementCha
   parameterNode->DisableModifiedEventOff();
 
   d->logic()->UpdateTableTopInferiorSuperiorToPatientSupportRotationTransform(parameterNode);
-  d->logic()->SetupTreatmentMachineModels();
+  d->logic()->SetupTreatmentMachineModels(parameterNode);
 }
 
 //-----------------------------------------------------------------------------
@@ -295,7 +296,7 @@ void qSlicerIhepStandGeometryModuleWidget::onTableTopVerticalDisplacementChanged
   parameterNode->DisableModifiedEventOff();
 
   d->logic()->UpdateTableTopToTableTopEccentricRotationTransform(parameterNode);
-  d->logic()->SetupTreatmentMachineModels();
+  d->logic()->SetupTreatmentMachineModels(parameterNode);
 }
 
 //-----------------------------------------------------------------------------

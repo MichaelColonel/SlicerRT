@@ -141,7 +141,7 @@ void vtkSlicerIECTransformLogic::BuildIECTransformHierarchy()
     {
       vtkSmartPointer<vtkMRMLLinearTransformNode> transformNode = vtkSmartPointer<vtkMRMLLinearTransformNode>::New();
       transformNode->SetName(transformNodeName.c_str());
-      transformNode->SetHideFromEditors(1);
+//      transformNode->SetHideFromEditors(1);
       std::string singletonTag = std::string("IEC_") + transformNodeName;
       transformNode->SetSingletonTag(singletonTag.c_str());
       this->GetMRMLScene()->AddNode(transformNode);
@@ -320,6 +320,7 @@ void vtkSlicerIECTransformLogic::UpdateIECTransformsFromBeam( vtkMRMLRTBeamNode*
   vtkTransform* collimatorToGantryTransform = vtkTransform::SafeDownCast(collimatorToGantryTransformNode->GetTransformToParent());
   collimatorToGantryTransform->Identity();
   collimatorToGantryTransform->RotateZ(beamNode->GetCollimatorAngle());
+//  collimatorToGantryTransform->RotateZ(90.);
   collimatorToGantryTransform->Modified();
 
   vtkMRMLLinearTransformNode* patientSupportRotationToFixedReferenceTransformNode =
@@ -333,7 +334,8 @@ void vtkSlicerIECTransformLogic::UpdateIECTransformsFromBeam( vtkMRMLRTBeamNode*
 //    this->GetTransformNodeBetween(IEC::TableTopEccentricRotation, IEC::TableTopInferiorSuperiorMovement);
 //  vtkTransform* tableTopInferiorSuperiorMovementToEccentricRotationTransform = vtkTransform::SafeDownCast(tableTopInferiorSuperiorMovementToEccentricRotationTransformNode->GetTransformToParent());
 //  tableTopInferiorSuperiorMovementToEccentricRotationTransform->Identity();
-//  tableTopInferiorSuperiorMovementToEccentricRotationTransform->Translate( 0., 0., 0. /* put inverse value here */ );
+////  tableTopInferiorSuperiorMovementToEccentricRotationTransform->Translate( 0., 0., 0. /* put inverse value here */ );
+////  tableTopInferiorSuperiorMovementToEccentricRotationTransform->RotateZ(90. - beamNode->GetCollimatorAngle());
 //  tableTopInferiorSuperiorMovementToEccentricRotationTransform->Modified();
 
   // Update IEC Patient to RAS transform based on the isocenter defined in the beam's parent plan

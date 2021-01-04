@@ -66,7 +66,7 @@ public:
   void MoveModelsToIsocenter(vtkMRMLIhepStandGeometryNode* parameterNode, double isocenter[3]);
 
   /// Set up the IEC transforms and model properties on the treatment machine models
-  void SetupTreatmentMachineModels();
+  void SetupTreatmentMachineModels(vtkMRMLIhepStandGeometryNode* parameterNode);
   /// Create or get transforms taking part in the IEC logic and additional devices, and build the transform hierarchy
   void BuildIhepStangGeometryTransformHierarchy();
 
