@@ -404,6 +404,7 @@ void vtkSlicerIECTransformLogic::UpdateIECTransformsFromBeam( vtkMRMLRTBeamNode*
 //-----------------------------------------------------------------------------
 void vtkSlicerIECTransformLogic::UpdateStandTransform(double patientSupportRotationAngle)
 {
+/*
   // Make sure the transform hierarchy is set up
   this->BuildIECTransformHierarchy();
 
@@ -429,7 +430,7 @@ void vtkSlicerIECTransformLogic::UpdateStandTransform(double patientSupportRotat
   patientSupportToFixedReferenceTransform->Identity();
   patientSupportToFixedReferenceTransform->RotateZ(-1. * patientSupportRotationAngle);//beamNode->GetCouchAngle());
   patientSupportToFixedReferenceTransform->Modified();
-
+*/
 //  vtkMRMLLinearTransformNode* tableTopInferiorSuperiorMovementToEccentricRotationTransformNode =
 //    this->GetTransformNodeBetween(IEC::TableTopEccentricRotation, IEC::TableTopInferiorSuperiorMovement);
 //  vtkTransform* tableTopInferiorSuperiorMovementToEccentricRotationTransform = vtkTransform::SafeDownCast(tableTopInferiorSuperiorMovementToEccentricRotationTransformNode->GetTransformToParent());

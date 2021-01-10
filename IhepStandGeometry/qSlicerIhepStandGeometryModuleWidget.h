@@ -48,13 +48,18 @@ public slots:
   void onSceneClosedEvent();
   void onParameterNodeChanged(vtkMRMLNode*);
   void onRTBeamNodeChanged(vtkMRMLNode*);
+  void onReferenceVolumeNodeChanged(vtkMRMLNode*);
+  void onPatientBodySegmentationNodeChanged(vtkMRMLNode*);
+  void onPatientBodySegmentNameChanged(const QString&);
   void onLogicModified();
   void onLoadStandModelsButtonClicked();
   void onResetToInitialPositionButtonClicked();
   void onPatientSupportRotationAngleChanged(double);
   void onMoveModelsToIsocenter();
-  void onTableTopLongitudinalDisplacementChanged(double);
-  void onTableTopVerticalDisplacementChanged(double);
+  void onTableTopLongitudinalPositionChanged(double);
+  void onTableTopVerticalPositionChanged(double);
+  void onTableTopLongitudinalAngleChanged(double);
+  void onTableTopLateralAngleChanged(double);
 
   /// Update widget GUI from RT Image parameters node
   void updateWidgetFromMRML();

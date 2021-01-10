@@ -81,6 +81,9 @@ protected:
   void OnMRMLSceneNodeAdded(vtkMRMLNode* node) override;
   void OnMRMLSceneNodeRemoved(vtkMRMLNode* node) override;
 
+  /// Handles events registered in the observer manager
+  void ProcessMRMLNodesEvents(vtkObject* caller, unsigned long event, void* callData) override;
+
 protected:
   vtkSlicerIECTransformLogic* IECLogic;
 

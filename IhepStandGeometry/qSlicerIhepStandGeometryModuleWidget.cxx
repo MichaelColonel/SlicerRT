@@ -49,6 +49,7 @@
 #include <vtkMRMLLinearTransformNode.h>
 #include <vtkMRMLDisplayNode.h>
 #include <vtkMRMLModelNode.h>
+#include <vtkMRMLScalarVolumeNode.h>
 #include <vtkMRMLSegmentationNode.h>
 #include <vtkMRMLCameraNode.h>
 #include <vtkMRMLViewNode.h>
@@ -126,18 +127,24 @@ void qSlicerIhepStandGeometryModuleWidget::setup()
   // Nodes
   connect( d->MRMLNodeComboBox_RtBeam, SIGNAL(currentNodeChanged(vtkMRMLNode*)), 
     this, SLOT(onRTBeamNodeChanged(vtkMRMLNode*)));
-//  connect( d->MRMLNodeComboBox_CtVolume, SIGNAL(currentNodeChanged(vtkMRMLNode*)), 
-//    this, SLOT(onCtVolumeNodeChanged(vtkMRMLNode*)));
+  connect( d->MRMLNodeComboBox_ReferenceVolume, SIGNAL(currentNodeChanged(vtkMRMLNode*)), 
+    this, SLOT(onReferenceVolumeNodeChanged(vtkMRMLNode*)));
   connect( d->MRMLNodeComboBox_ParameterSet, SIGNAL(currentNodeChanged(vtkMRMLNode*)), 
     this, SLOT(onParameterNodeChanged(vtkMRMLNode*)));
+
+  // Segmentation
+  connect( d->SegmentSelectorWidget_TargetVolume, SIGNAL(currentNodeChanged(vtkMRMLNode*)), 
+    this, SLOT(onPatientBodySegmentationNodeChanged(vtkMRMLNode*)));
+  connect( d->SegmentSelectorWidget_TargetVolume, SIGNAL(currentSegmentChanged(QString)), 
+    this, SLOT(onPatientBodySegmentNameChanged(QString)));
 
   // Sliders, Coordinates widgets
   connect( d->SliderWidget_PatientSupportRotationAngle, SIGNAL(valueChanged(double)), 
     this, SLOT(onPatientSupportRotationAngleChanged(double)));
-  connect( d->SliderWidget_TableTopMovementY, SIGNAL(valueChanged(double)), 
-    this, SLOT(onTableTopLongitudinalDisplacementChanged(double)));
-  connect( d->SliderWidget_TableTopMovementZ, SIGNAL(valueChanged(double)), 
-    this, SLOT(onTableTopVerticalDisplacementChanged(double)));
+  connect( d->SliderWidget_TableTopLongitudinalPosition, SIGNAL(valueChanged(double)), 
+    this, SLOT(onTableTopLongitudinalPositionChanged(double)));
+  connect( d->SliderWidget_TableTopVerticalPosition, SIGNAL(valueChanged(double)), 
+    this, SLOT(onTableTopVerticalPositionChanged(double)));
 
   // Buttons
   connect( d->PushButton_LoadStandModels, SIGNAL(clicked()), this, SLOT(onLoadStandModelsButtonClicked()));
@@ -242,7 +249,7 @@ void qSlicerIhepStandGeometryModuleWidget::onPatientSupportRotationAngleChanged(
 }
 
 //-----------------------------------------------------------------------------
-void qSlicerIhepStandGeometryModuleWidget::onTableTopLongitudinalDisplacementChanged(double longitudinalDisplacement)
+void qSlicerIhepStandGeometryModuleWidget::onTableTopLongitudinalPositionChanged(double longitudinalPosition)
 {
   Q_D(qSlicerIhepStandGeometryModuleWidget);
 
@@ -263,7 +270,7 @@ void qSlicerIhepStandGeometryModuleWidget::onTableTopLongitudinalDisplacementCha
   beam->GetPlanIsocenterPosition(isocenter);
 
   parameterNode->DisableModifiedEventOn();
-  parameterNode->SetTableTopLongitudinalDisplacement(10. * longitudinalDisplacement + isocenter[1]);
+  parameterNode->SetTableTopLongitudinalPosition(10. * longitudinalPosition + isocenter[1]);
   parameterNode->DisableModifiedEventOff();
 
   d->logic()->UpdateTableTopInferiorSuperiorToPatientSupportRotationTransform(parameterNode);
@@ -271,7 +278,43 @@ void qSlicerIhepStandGeometryModuleWidget::onTableTopLongitudinalDisplacementCha
 }
 
 //-----------------------------------------------------------------------------
-void qSlicerIhepStandGeometryModuleWidget::onTableTopVerticalDisplacementChanged(double verticalDisplacement)
+void qSlicerIhepStandGeometryModuleWidget::onTableTopLongitudinalAngleChanged(double longitudinalAngle)
+{
+  Q_D(qSlicerIhepStandGeometryModuleWidget);
+
+  if (!this->mrmlScene())
+  {
+    qCritical() << Q_FUNC_INFO << ": Invalid scene";
+    return;
+  }
+
+  vtkMRMLIhepStandGeometryNode* parameterNode = vtkMRMLIhepStandGeometryNode::SafeDownCast(d->MRMLNodeComboBox_ParameterSet->currentNode());
+  if (!parameterNode || !d->ModuleWindowInitialized)
+  {
+    return;
+  }
+}
+
+//-----------------------------------------------------------------------------
+void qSlicerIhepStandGeometryModuleWidget::onTableTopLateralAngleChanged(double lateralAngle)
+{
+  Q_D(qSlicerIhepStandGeometryModuleWidget);
+
+  if (!this->mrmlScene())
+  {
+    qCritical() << Q_FUNC_INFO << ": Invalid scene";
+    return;
+  }
+
+  vtkMRMLIhepStandGeometryNode* parameterNode = vtkMRMLIhepStandGeometryNode::SafeDownCast(d->MRMLNodeComboBox_ParameterSet->currentNode());
+  if (!parameterNode || !d->ModuleWindowInitialized)
+  {
+    return;
+  }
+}
+
+//-----------------------------------------------------------------------------
+void qSlicerIhepStandGeometryModuleWidget::onTableTopVerticalPositionChanged(double verticalPosition)
 {
   Q_D(qSlicerIhepStandGeometryModuleWidget);
 
@@ -292,10 +335,11 @@ void qSlicerIhepStandGeometryModuleWidget::onTableTopVerticalDisplacementChanged
   beam->GetPlanIsocenterPosition(isocenter);
 
   parameterNode->DisableModifiedEventOn();
-  parameterNode->SetTableTopVerticalDisplacement(10. * verticalDisplacement + isocenter[2]);
+  parameterNode->SetTableTopVerticalPosition(10. * verticalPosition + isocenter[2]);
   parameterNode->DisableModifiedEventOff();
 
   d->logic()->UpdateTableTopToTableTopEccentricRotationTransform(parameterNode);
+//  d->logic()->UpdateTableTopInferiorSuperiorToPatientSupportRotationTransform(parameterNode);
   d->logic()->SetupTreatmentMachineModels(parameterNode);
 }
 
@@ -390,60 +434,33 @@ void qSlicerIhepStandGeometryModuleWidget::updateWidgetFromMRML()
     qCritical() << Q_FUNC_INFO << ": Invalid parameter node, or module window isn't initialized";
     return;
   }
-  qDebug() << Q_FUNC_INFO << ": GUI initiated successfully";
-/*
-  if (!parameterNode->GetBeamNode())
+
+  if (parameterNode->GetBeamNode())
   {
-    qCritical() << Q_FUNC_INFO << ": Invalid referenced parameter's beam node";
-    return;
+    d->MRMLNodeComboBox_RtBeam->setCurrentNode(parameterNode->GetBeamNode());
   }
 
-  vtkMRMLScalarVolumeNode* ctVolumeNode = vtkMRMLScalarVolumeNode::SafeDownCast(d->MRMLNodeComboBox_CtVolume->currentNode());
-  if (!ctVolumeNode)
+//  vtkMRMLScalarVolumeNode* ctVolumeNode = vtkMRMLScalarVolumeNode::SafeDownCast(d->MRMLNodeComboBox_CtVolume->currentNode());
+  if (parameterNode->GetReferenceVolumeNode())
   {
-    qCritical() << Q_FUNC_INFO << ": Invalid referenced volume node";
-    return;
+    d->MRMLNodeComboBox_ReferenceVolume->setCurrentNode(parameterNode->GetReferenceVolumeNode());
   }
 
-  // Update widgets info from parameter node
-  d->MRMLNodeComboBox_RtBeam->setCurrentNode(parameterNode->GetBeamNode());
-  d->SliderWidget_IsocenterImagerDistance->setValue(parameterNode->GetIsocenterImagerDistance());
-
-  int imagerResolution[2] = {};
-  double imagerRes[2] = {};
-  parameterNode->GetImagerResolution(imagerResolution);
-  imagerRes[0] = static_cast<double>(imagerResolution[0]);
-  imagerRes[1] = static_cast<double>(imagerResolution[1]);
-  d->CoordinatesWidget_ImagerResolution->setCoordinates(imagerRes);
-  d->CoordinatesWidget_ImagerSpacing->setCoordinates(parameterNode->GetImagerSpacing());
-
-  d->RangeWidget_ImageWindowColumns->setMinimum(0.);
-  d->RangeWidget_ImageWindowColumns->setMaximum(double(imagerResolution[0] - 1));
-  d->RangeWidget_ImageWindowRows->setMinimum(0.);
-  d->RangeWidget_ImageWindowRows->setMaximum(double(imagerResolution[1] - 1));
-
-  bool useImageWindow = parameterNode->GetImageWindowFlag();
-  int imageWindow[4] = {};
-  parameterNode->GetImageWindow(imageWindow);
-
-  // TODO: Image window is disabled for now
-  useImageWindow = false;
-  d->CheckBox_UseImageWindow->setChecked(useImageWindow);
-  if (!useImageWindow)
+  if (parameterNode->GetPatientBodySegmentationNode())
   {
-    d->RangeWidget_ImageWindowColumns->setValues( 0., double(imagerResolution[0] - 1));
-    d->RangeWidget_ImageWindowRows->setValues( 0., double(imagerResolution[1] - 1));
+    d->SegmentSelectorWidget_TargetVolume->setCurrentNode(parameterNode->GetPatientBodySegmentationNode());
   }
-  else
+
+  if (parameterNode->GetPatientBodySegmentID())
   {
-    d->RangeWidget_ImageWindowColumns->setValues( 
-      static_cast<double>(std::max<int>( 0, imageWindow[0])),
-      static_cast<double>(std::min<int>( imagerResolution[0] - 1, imageWindow[2])));
-    d->RangeWidget_ImageWindowRows->setValues( 
-      static_cast<double>(std::max<int>( 0, imageWindow[1])), 
-      static_cast<double>(std::min<int>( imagerResolution[1] - 1, imageWindow[3])));
+    QString id(static_cast<char *>(parameterNode->GetPatientBodySegmentID()));
+    d->SegmentSelectorWidget_TargetVolume->setCurrentSegmentID(id);
   }
-*/
+  d->SliderWidget_TableTopLongitudinalPosition->setValue(parameterNode->GetTableTopLongitudinalPosition());
+  d->SliderWidget_TableTopVerticalPosition->setValue(parameterNode->GetTableTopVerticalPosition());
+  d->SliderWidget_PatientSupportRotationAngle->setValue(parameterNode->GetPatientSupportRotationAngle());
+  d->SliderWidget_TableTopLateralAngle->setValue(parameterNode->GetTableTopLateralAngle());
+  d->SliderWidget_TableTopLongitudinalAngle->setValue(parameterNode->GetTableTopLongitudinalAngle());
 }
 
 //-----------------------------------------------------------------------------
@@ -525,7 +542,80 @@ void qSlicerIhepStandGeometryModuleWidget::onRTBeamNodeChanged(vtkMRMLNode* node
   }
 
   parameterNode->SetAndObserveBeamNode(beamNode);
-  parameterNode->Modified(); // Update imager and image markups, DRR arguments in logic
+  parameterNode->Modified();
+}
+
+//-----------------------------------------------------------------------------
+void qSlicerIhepStandGeometryModuleWidget::onReferenceVolumeNodeChanged(vtkMRMLNode* node)
+{
+  Q_D(qSlicerIhepStandGeometryModuleWidget);
+
+  vtkMRMLIhepStandGeometryNode* parameterNode = vtkMRMLIhepStandGeometryNode::SafeDownCast(d->MRMLNodeComboBox_ParameterSet->currentNode());
+
+  if (!parameterNode || !d->ModuleWindowInitialized)
+  {
+    qCritical() << Q_FUNC_INFO << ": Invalid parameter node";
+    return;
+  }
+
+  vtkMRMLScalarVolumeNode* volumeNode = vtkMRMLScalarVolumeNode::SafeDownCast(node);
+  if (!volumeNode)
+  {
+    qCritical() << Q_FUNC_INFO << ": Invalid reference CT volume node";
+    return;
+  }
+  
+  parameterNode->SetAndObserveReferenceVolumeNode(volumeNode);
+  parameterNode->Modified();
+}
+
+//-----------------------------------------------------------------------------
+void qSlicerIhepStandGeometryModuleWidget::onPatientBodySegmentationNodeChanged(vtkMRMLNode* node)
+{
+  Q_D(qSlicerIhepStandGeometryModuleWidget);
+
+  vtkMRMLIhepStandGeometryNode* parameterNode = vtkMRMLIhepStandGeometryNode::SafeDownCast(d->MRMLNodeComboBox_ParameterSet->currentNode());
+
+  if (!parameterNode || !d->ModuleWindowInitialized)
+  {
+    qCritical() << Q_FUNC_INFO << ": Invalid parameter node";
+    return;
+  }
+
+  vtkMRMLSegmentationNode* segmentationNode = vtkMRMLSegmentationNode::SafeDownCast(node);
+  if (!segmentationNode)
+  {
+    qCritical() << Q_FUNC_INFO << ": Invalid body segmentation node";
+    return;
+  }
+
+  parameterNode->SetAndObservePatientBodySegmentationNode(segmentationNode);
+  parameterNode->Modified();
+}
+
+//-----------------------------------------------------------------------------
+void qSlicerIhepStandGeometryModuleWidget::onPatientBodySegmentNameChanged(const QString& bodySegmentName)
+{
+  Q_D(qSlicerIhepStandGeometryModuleWidget);
+
+  vtkMRMLIhepStandGeometryNode* parameterNode = vtkMRMLIhepStandGeometryNode::SafeDownCast(d->MRMLNodeComboBox_ParameterSet->currentNode());
+
+  if (!parameterNode || !d->ModuleWindowInitialized)
+  {
+    qCritical() << Q_FUNC_INFO << ": Invalid parameter node";
+    return;
+  }
+
+  if (bodySegmentName.isEmpty())
+  {
+    qCritical() << Q_FUNC_INFO << ": Body segment name is empty";
+    return;
+  }
+
+  QByteArray byteString = bodySegmentName.toLatin1();
+  const char* name = byteString.constData();
+  parameterNode->SetPatientBodySegmentID(name);
+  parameterNode->Modified();
 }
 
 //-----------------------------------------------------------------------------

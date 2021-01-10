@@ -24,37 +24,37 @@
       </widget>
      </item>
      <item row="2" column="1">
-      <widget class="qMRMLNodeComboBox" name="MRMLNodeComboBox_ReferenceVolume">
-       <property name="nodeTypes">
+      <widget class="qMRMLNodeComboBox" name="MRMLNodeComboBox_ReferenceVolume" native="true">
+       <property name="nodeTypes" stdset="0">
         <stringlist>
          <string>vtkMRMLScalarVolumeNode</string>
         </stringlist>
        </property>
-       <property name="noneEnabled">
+       <property name="noneEnabled" stdset="0">
         <bool>true</bool>
        </property>
-       <property name="addEnabled">
+       <property name="addEnabled" stdset="0">
         <bool>false</bool>
        </property>
-       <property name="removeEnabled">
+       <property name="removeEnabled" stdset="0">
         <bool>false</bool>
        </property>
-       <property name="noneDisplay">
+       <property name="noneDisplay" stdset="0">
         <string>Please select a node</string>
        </property>
       </widget>
      </item>
      <item row="3" column="1">
-      <widget class="qMRMLSegmentSelectorWidget" name="SegmentSelectorWidget_TargetVolume"/>
+      <widget class="qMRMLSegmentSelectorWidget" name="SegmentSelectorWidget_TargetVolume" native="true"/>
      </item>
      <item row="0" column="1">
-      <widget class="qMRMLNodeComboBox" name="MRMLNodeComboBox_ParameterSet">
-       <property name="nodeTypes">
+      <widget class="qMRMLNodeComboBox" name="MRMLNodeComboBox_ParameterSet" native="true">
+       <property name="nodeTypes" stdset="0">
         <stringlist>
          <string>vtkMRMLIhepStandGeometryNode</string>
         </stringlist>
        </property>
-       <property name="noneDisplay">
+       <property name="noneDisplay" stdset="0">
         <string>Please select a node</string>
        </property>
       </widget>
@@ -67,26 +67,26 @@
       </widget>
      </item>
      <item row="1" column="1">
-      <widget class="qMRMLNodeComboBox" name="MRMLNodeComboBox_RtBeam">
-       <property name="nodeTypes">
+      <widget class="qMRMLNodeComboBox" name="MRMLNodeComboBox_RtBeam" native="true">
+       <property name="nodeTypes" stdset="0">
         <stringlist>
          <string>vtkMRMLRTBeamNode</string>
          <string>vtkMRMLRTIonBeamNode</string>
         </stringlist>
        </property>
-       <property name="showChildNodeTypes">
+       <property name="showChildNodeTypes" stdset="0">
         <bool>false</bool>
        </property>
-       <property name="noneEnabled">
+       <property name="noneEnabled" stdset="0">
         <bool>true</bool>
        </property>
-       <property name="addEnabled">
+       <property name="addEnabled" stdset="0">
         <bool>false</bool>
        </property>
-       <property name="removeEnabled">
+       <property name="removeEnabled" stdset="0">
         <bool>false</bool>
        </property>
-       <property name="noneDisplay">
+       <property name="noneDisplay" stdset="0">
         <string>Please select a node</string>
        </property>
       </widget>
@@ -108,15 +108,15 @@
     </layout>
    </item>
    <item row="1" column="0">
-    <widget class="ctkCollapsibleButton" name="CollapsibleButton_DisplayModelsMarkups">
-     <property name="text">
+    <widget class="ctkCollapsibleButton" name="CollapsibleButton_DisplayModelsMarkups" native="true">
+     <property name="text" stdset="0">
       <string>Display models and markups</string>
      </property>
      <layout class="QGridLayout" name="gridLayout_3">
       <item row="0" column="0">
        <layout class="QGridLayout" name="gridLayout_2">
         <item row="1" column="0">
-         <widget class="QCheckBox" name="checkBox_Models">
+         <widget class="QCheckBox" name="checkBox_ShowModels">
           <property name="text">
            <string>Show models</string>
           </property>
@@ -148,20 +148,20 @@
     </widget>
    </item>
    <item row="2" column="0">
-    <widget class="ctkCollapsibleButton" name="CollapsibleButton_ModelsControl">
-     <property name="text">
+    <widget class="ctkCollapsibleButton" name="CollapsibleButton_ModelsControl" native="true">
+     <property name="text" stdset="0">
       <string>Models Control</string>
      </property>
      <layout class="QGridLayout" name="gridLayout_6">
       <item row="0" column="0">
        <layout class="QGridLayout" name="gridLayout_4">
         <item row="1" column="1">
-         <widget class="ctkSliderWidget" name="SliderWidget_TableTopMovementY"/>
+         <widget class="ctkSliderWidget" name="SliderWidget_TableTopLongitudinalPosition" native="true"/>
         </item>
         <item row="3" column="0">
          <widget class="QLabel" name="label_8">
           <property name="text">
-           <string>Table Top Angle Around Y</string>
+           <string>Table Top Longitudinal Angle</string>
           </property>
          </widget>
         </item>
@@ -175,23 +175,23 @@
         <item row="2" column="0">
          <widget class="QLabel" name="label_7">
           <property name="text">
-           <string>Table Top Z Movement</string>
+           <string>Table Top Vertical Position</string>
           </property>
          </widget>
         </item>
         <item row="1" column="0">
          <widget class="QLabel" name="label_3">
           <property name="text">
-           <string>Table Top Y Movement</string>
+           <string>Table Top Longitudinal Position</string>
           </property>
          </widget>
         </item>
         <item row="2" column="1">
-         <widget class="ctkSliderWidget" name="SliderWidget_TableTopMovementZ"/>
+         <widget class="ctkSliderWidget" name="SliderWidget_TableTopVerticalPosition" native="true"/>
         </item>
         <item row="0" column="1">
-         <widget class="ctkSliderWidget" name="SliderWidget_PatientSupportRotationAngle">
-          <property name="maximum">
+         <widget class="ctkSliderWidget" name="SliderWidget_PatientSupportRotationAngle" native="true">
+          <property name="maximum" stdset="0">
            <double>359.990000000000009</double>
           </property>
          </widget>
@@ -199,22 +199,22 @@
         <item row="4" column="0">
          <widget class="QLabel" name="label_9">
           <property name="text">
-           <string>Table Top Angle Around X</string>
+           <string>Table Top Lateral Angle</string>
           </property>
          </widget>
         </item>
         <item row="3" column="1">
-         <widget class="ctkSliderWidget" name="SliderWidget_TableTopAngleY">
-          <property name="minimum">
+         <widget class="ctkSliderWidget" name="SliderWidget_TableTopLongitudinalAngle" native="true">
+          <property name="minimum" stdset="0">
            <double>-20.000000000000000</double>
           </property>
-          <property name="maximum">
+          <property name="maximum" stdset="0">
            <double>20.000000000000000</double>
           </property>
          </widget>
         </item>
         <item row="4" column="1">
-         <widget class="ctkSliderWidget" name="SliderWidget_TableTopAngleX"/>
+         <widget class="ctkSliderWidget" name="SliderWidget_TableTopLateralAngle" native="true"/>
         </item>
        </layout>
       </item>
@@ -236,11 +236,11 @@
     </widget>
    </item>
    <item row="3" column="0">
-    <widget class="ctkCollapsibleButton" name="collapsibleButton_BeamToStandTransformation">
-     <property name="text">
+    <widget class="ctkCollapsibleButton" name="collapsibleButton_BeamToStandTransformation" native="true">
+     <property name="text" stdset="0">
       <string>Beam to stand transformation</string>
      </property>
-     <property name="collapsed">
+     <property name="collapsed" stdset="0">
       <bool>true</bool>
      </property>
      <layout class="QGridLayout" name="gridLayout_5">
@@ -306,6 +306,7 @@
    <class>qMRMLSegmentSelectorWidget</class>
    <extends>qMRMLWidget</extends>
    <header>qMRMLSegmentSelectorWidget.h</header>
+   <container>1</container>
   </customwidget>
   <customwidget>
    <class>qSlicerBeamToStandTransformationWidget</class>

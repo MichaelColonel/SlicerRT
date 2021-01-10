@@ -93,12 +93,20 @@ public:
   vtkGetMacro(PatientSupportRotationAngle, double);
 
   /// Get/Set table top vertical position
-  vtkGetMacro(TableTopVerticalDisplacement, double);
-  vtkSetMacro(TableTopVerticalDisplacement, double);
+  vtkGetMacro(TableTopVerticalPosition, double);
+  vtkSetMacro(TableTopVerticalPosition, double);
 
   /// Get/Set table top longitudinal position
-  vtkGetMacro(TableTopLongitudinalDisplacement, double);
-  vtkSetMacro(TableTopLongitudinalDisplacement, double);
+  vtkGetMacro(TableTopLongitudinalPosition, double);
+  vtkSetMacro(TableTopLongitudinalPosition, double);
+
+  /// Get/Set table top longitudinal angle
+  vtkGetMacro(TableTopLongitudinalAngle, double);
+  vtkSetMacro(TableTopLongitudinalAngle, double);
+
+  /// Get/Set table top lateral angle
+  vtkGetMacro(TableTopLateralAngle, double);
+  vtkSetMacro(TableTopLateralAngle, double);
 
 protected:
   vtkMRMLIhepStandGeometryNode();
@@ -115,10 +123,14 @@ protected:
   /// IEC Patient support rotation angle (theta_s)
   double PatientSupportRotationAngle;
   /// IEC Table top vertical position (Z_t)
-  double TableTopVerticalDisplacement;
+  double TableTopVerticalPosition;
   /// IEC Table top longitudinal position (Y_t)
-  double TableTopLongitudinalDisplacement;
+  double TableTopLongitudinalPosition;
 
+  /// IEC Table top longitudinal angle (phi_t)
+  double TableTopLongitudinalAngle;
+  /// IEC Table top longitudinal angle (psi_t)
+  double TableTopLateralAngle;
 };
 
 #endif
