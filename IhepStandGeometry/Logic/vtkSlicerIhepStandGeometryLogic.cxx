@@ -313,7 +313,8 @@ void vtkSlicerIhepStandGeometryLogic::LoadTreatmentMachineModels(vtkMRMLIhepStan
       vtkErrorMacro("LoadTreatmentMachineModels: Failed to load patient support model");
     }
   }
-
+*/
+/*
   // Table top inferior-superior movement stand - mandatory
   std::string tableTopStandModelSingletonTag = machineType + "_" + TABLETOPSTAND_MODEL_NAME;
   vtkMRMLModelNode* tableTopStandModelNode = vtkMRMLModelNode::SafeDownCast(
@@ -405,7 +406,67 @@ void vtkSlicerIhepStandGeometryLogic::ResetModelsToInitialPosition(vtkMRMLIhepSt
     vtkErrorMacro("ResetModelsToInitialPosition: Invalid parameter node");
     return;
   }
-  this->IECLogic->UpdateStandTransform();
+
+  vtkMRMLRTBeamNode* beamNode = parameterNode->GetBeamNode();
+  using IEC = vtkSlicerIECTransformLogic::CoordinateSystemIdentifier;
+
+  // Update TableTop -> TableTopEccentricRotation
+  vtkMRMLLinearTransformNode* tableTopToTableTopEccentricRotationTransformNode =
+    this->IECLogic->GetTransformNodeBetween(IEC::TableTop, IEC::TableTopEccentricRotation);
+  vtkTransform* tableTopToTableTopEccentricRotationTransform = vtkTransform::SafeDownCast(
+    tableTopToTableTopEccentricRotationTransformNode->GetTransformToParent() );
+
+  tableTopToTableTopEccentricRotationTransform->Modified();
+
+  // Update TableTopInferiorSuperiorMovement -> PatientSupportRotation
+  vtkMRMLLinearTransformNode* tableTopInferiorSuperiorToPatientSupportRotationTransformNode =
+    this->IECLogic->GetTransformNodeBetween(IEC::TableTopInferiorSuperiorMovement, IEC::PatientSupportRotation);
+  vtkTransform* tableTopInferiorSuperiorToPatientSupportRotationTransform = vtkTransform::SafeDownCast(
+    tableTopInferiorSuperiorToPatientSupportRotationTransformNode->GetTransformToParent() );
+
+  tableTopInferiorSuperiorToPatientSupportRotationTransform->Modified();
+
+  // Update PatientSupportRotation -> FixedReference
+  vtkMRMLLinearTransformNode* patientSupportRotationToFixedReferenceTransformNode =
+    this->IECLogic->GetTransformNodeBetween(IEC::PatientSupportRotation, IEC::FixedReference);
+  vtkTransform* patientSupportRotationToFixedReferenceTransform = vtkTransform::SafeDownCast(
+    patientSupportRotationToFixedReferenceTransformNode->GetTransformToParent() );
+  patientSupportRotationToFixedReferenceTransform->Modified();
+
+  // Update Collimator -> Gantry
+  vtkMRMLLinearTransformNode* collimatorToGantryTransformNode =
+   this->IECLogic->GetTransformNodeBetween(IEC::Collimator, IEC::Gantry);
+  vtkTransform* collimatorToGantryTransform = vtkTransform::SafeDownCast(collimatorToGantryTransformNode->GetTransformToParent());
+  collimatorToGantryTransform->Identity();
+  collimatorToGantryTransform->RotateZ(beamNode->GetCollimatorAngle());
+  collimatorToGantryTransform->Modified();
+
+  // Update Patient -> TableTop
+  vtkMRMLLinearTransformNode* patientToTableTopTransformNode =
+    this->IECLogic->GetTransformNodeBetween(IEC::Patient, IEC::TableTop);
+  vtkTransform* patientToTableTopTransform = vtkTransform::SafeDownCast(
+    patientToTableTopTransformNode->GetTransformToParent() );
+
+  patientToTableTopTransform->Identity();
+//  patientToTableTopTransform->Translate( isocenter[0], isocenter[1] + 490, isocenter[2] + 550);
+  patientToTableTopTransform->Translate( 0, 490, 550);
+  patientToTableTopTransform->Modified();
+
+  this->UpdateTableTopToTableTopEccentricRotationTransform(parameterNode);
+
+  // New Treatment machine position
+  this->SetupTreatmentMachineModels(parameterNode);
+
+  // Update table top vertical position according to isocenter position
+//  this->UpdateTableTopToTableTopEccentricRotationTransform(parameterNode);
+  // Update table top longitudinal position according to isocenter position
+//  this->UpdateTableTopToTableTopEccentricRotationTransform(parameterNode);
+  // Update patient support rotation angle
+//  this->UpdatePatientSupportRotationToFixedReferenceTransform(parameterNode);
+
+  // Set required transform to the models
+//  double tmpIsocenter[3] = {};
+//  this->MoveModelsToIsocenter( parameterNode, tmpIsocenter);
 }
 
 //----------------------------------------------------------------------------
@@ -507,56 +568,9 @@ void vtkSlicerIhepStandGeometryLogic::SetupTreatmentMachineModels(vtkMRMLIhepSta
       tableTopInferiorSuperiorModel->GetDisplayNode()->SetColor(0.95, 0.95, 0.95);
     }
   }
+*/
 
-  // Patient support - mandatory
-  // Transform path: RAS -> Patient -> TableTop -> Eccentric -> TableTopInferiorSuperiorMovement -> PatientSupportRotation -> FixedReference
-  vtkNew<vtkGeneralTransform> rasToPatientSupportRotationGeneralTransform;
-  vtkNew<vtkTransform> rasToPatientSupportRotationLinearTransform;
-  if (this->IECLogic->GetTransformBetween( IEC::RAS, IEC::PatientSupportRotation, 
-    rasToPatientSupportRotationGeneralTransform, false))
-  {
-    // Convert general transform to linear
-    // This call also makes hard copy of the transform so that it doesn't change when other beam transforms change
-    if (!vtkMRMLTransformNode::IsGeneralTransformLinear( rasToPatientSupportRotationGeneralTransform, 
-      rasToPatientSupportRotationLinearTransform))
-    {
-      vtkErrorMacro("SetupTreatmentMachineModels: Unable to get transform hierarchy from RAS to PatientSupportRotation");
-      return;
-    }
-    // Transform to RAS, set transform to node, transform the model
-    rasToPatientSupportRotationLinearTransform->Concatenate(rotateYTransform);
-
-    // Find RasToTableTopInferiorSuperiorTransform or create it
-    vtkSmartPointer<vtkMRMLLinearTransformNode> rasToPatientSupportRotationTransformNode;
-    if (scene->GetFirstNodeByName("RasToPatientSupportRotationTransform"))
-    {
-      rasToPatientSupportRotationTransformNode = vtkMRMLLinearTransformNode::SafeDownCast(
-        scene->GetFirstNodeByName("RasToPatientSupportRotationTransform"));
-    }
-    else
-    {
-      rasToPatientSupportRotationTransformNode = vtkSmartPointer<vtkMRMLLinearTransformNode>::New();
-      rasToPatientSupportRotationTransformNode->SetName("RasToPatientSupportRotationTransform");
-//      rasToTableTopInferiorSuperiorTransformNode->SetHideFromEditors(1);
-      scene->AddNode(rasToPatientSupportRotationTransformNode);
-    }
-
-    vtkMRMLModelNode* patientSupportRotationModel = vtkMRMLModelNode::SafeDownCast(
-      scene->GetFirstNodeByName(PATIENTSUPPORT_MODEL_NAME) );
-    if (!patientSupportRotationModel)
-    {
-      vtkErrorMacro("SetupTreatmentMachineModels: Unable to access table top stand model");
-      return;
-    }
-    if (rasToPatientSupportRotationTransformNode)
-    {
-      rasToPatientSupportRotationTransformNode->SetAndObserveTransformToParent(rasToPatientSupportRotationLinearTransform);
-      patientSupportRotationModel->SetAndObserveTransformNodeID(rasToPatientSupportRotationTransformNode->GetID());
-      patientSupportRotationModel->CreateDefaultDisplayNodes();
-      patientSupportRotationModel->GetDisplayNode()->SetColor(0.85, 0.85, 0.85);
-    }
-  }
-
+/*
   // Table top - mandatory
   // Transform path: RAS -> Patient -> TableTop
   vtkNew<vtkGeneralTransform> rasToTableTopGeneralTransform;
@@ -660,7 +674,64 @@ void vtkSlicerIhepStandGeometryLogic::SetupTreatmentMachineModels(vtkMRMLIhepSta
       canyonModel->GetDisplayNode()->SetColor(0.7, 0.65, 0.65);
     }
   }
+/*
+  // Patient support - mandatory
+  // Transform path: RAS -> Patient -> TableTop -> Eccentric -> TableTopInferiorSuperiorMovement -> PatientSupportRotation -> FixedReference
+  vtkNew<vtkGeneralTransform> rasToPatientSupportRotationGeneralTransform;
+  vtkNew<vtkTransform> rasToPatientSupportRotationLinearTransform;
+  if (this->IECLogic->GetTransformBetween( IEC::RAS, IEC::PatientSupportRotation, 
+    rasToPatientSupportRotationGeneralTransform, false))
+  {
+    // Convert general transform to linear
+    // This call also makes hard copy of the transform so that it doesn't change when other beam transforms change
+    if (!vtkMRMLTransformNode::IsGeneralTransformLinear( rasToPatientSupportRotationGeneralTransform, 
+      rasToPatientSupportRotationLinearTransform))
+    {
+      vtkErrorMacro("SetupTreatmentMachineModels: Unable to get transform hierarchy from RAS to PatientSupportRotation");
+      return;
+    }
 
+    vtkMRMLLinearTransformNode* patientSupportRotationToFixedReferenceTransformNode =
+      this->IECLogic->GetTransformNodeBetween(IEC::PatientSupportRotation, IEC::FixedReference);
+    vtkTransform* patientSupportToFixedReferenceTransform = vtkTransform::SafeDownCast(patientSupportRotationToFixedReferenceTransformNode->GetTransformToParent());
+  
+    // Transform to RAS, set transform to node, transform the model
+    rasToPatientSupportRotationLinearTransform->Identity();
+    rasToPatientSupportRotationLinearTransform->Concatenate(rasToFixedReferenceLinearTransform);
+    rasToPatientSupportRotationLinearTransform->Concatenate(patientSupportToFixedReferenceTransform);
+    rasToPatientSupportRotationLinearTransform->Modified();
+
+    // Find RasToTableTopInferiorSuperiorTransform or create it
+    vtkSmartPointer<vtkMRMLLinearTransformNode> rasToPatientSupportRotationTransformNode;
+    if (scene->GetFirstNodeByName("RasToPatientSupportRotationTransform"))
+    {
+      rasToPatientSupportRotationTransformNode = vtkMRMLLinearTransformNode::SafeDownCast(
+        scene->GetFirstNodeByName("RasToPatientSupportRotationTransform"));
+    }
+    else
+    {
+      rasToPatientSupportRotationTransformNode = vtkSmartPointer<vtkMRMLLinearTransformNode>::New();
+      rasToPatientSupportRotationTransformNode->SetName("RasToPatientSupportRotationTransform");
+//      rasToTableTopInferiorSuperiorTransformNode->SetHideFromEditors(1);
+      scene->AddNode(rasToPatientSupportRotationTransformNode);
+    }
+
+    vtkMRMLModelNode* patientSupportRotationModel = vtkMRMLModelNode::SafeDownCast(
+      scene->GetFirstNodeByName(PATIENTSUPPORT_MODEL_NAME) );
+    if (!patientSupportRotationModel)
+    {
+      vtkErrorMacro("SetupTreatmentMachineModels: Unable to access table top stand model");
+      return;
+    }
+    if (rasToPatientSupportRotationTransformNode)
+    {
+      rasToPatientSupportRotationTransformNode->SetAndObserveTransformToParent(rasToPatientSupportRotationLinearTransform);
+      patientSupportRotationModel->SetAndObserveTransformNodeID(rasToPatientSupportRotationTransformNode->GetID());
+      patientSupportRotationModel->CreateDefaultDisplayNodes();
+      patientSupportRotationModel->GetDisplayNode()->SetColor(0.85, 0.85, 0.85);
+    }
+  }
+*/
 }
 
 //----------------------------------------------------------------------------
@@ -726,7 +797,8 @@ void vtkSlicerIhepStandGeometryLogic::MoveModelsToIsocenter(vtkMRMLIhepStandGeom
     patientToTableTopTransformNode->GetTransformToParent() );
 
   patientToTableTopTransform->Identity();
-  patientToTableTopTransform->Translate( isocenter[0], isocenter[1] + 490, isocenter[2] + 550);
+//  patientToTableTopTransform->Translate( isocenter[0], isocenter[1] + 490, isocenter[2] + 550);
+  patientToTableTopTransform->Translate( 0, 490, 550);
   patientToTableTopTransform->Modified();
 
   // New Treatment machine position

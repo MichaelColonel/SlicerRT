@@ -221,6 +221,8 @@ void qSlicerIhepStandGeometryModuleWidget::onResetToInitialPositionButtonClicked
   }
 
   d->logic()->ResetModelsToInitialPosition(parameterNode);
+  parameterNode->Modified();
+  qDebug() << Q_FUNC_INFO << ": finished";
 }
 
 //-----------------------------------------------------------------------------
@@ -246,6 +248,7 @@ void qSlicerIhepStandGeometryModuleWidget::onPatientSupportRotationAngleChanged(
 
   d->logic()->UpdatePatientSupportRotationToFixedReferenceTransform(parameterNode);
   d->logic()->SetupTreatmentMachineModels(parameterNode);
+  qDebug() << Q_FUNC_INFO << ": finished";
 }
 
 //-----------------------------------------------------------------------------
@@ -275,6 +278,7 @@ void qSlicerIhepStandGeometryModuleWidget::onTableTopLongitudinalPositionChanged
 
   d->logic()->UpdateTableTopInferiorSuperiorToPatientSupportRotationTransform(parameterNode);
   d->logic()->SetupTreatmentMachineModels(parameterNode);
+  qDebug() << Q_FUNC_INFO << ": finished";
 }
 
 //-----------------------------------------------------------------------------
@@ -293,6 +297,7 @@ void qSlicerIhepStandGeometryModuleWidget::onTableTopLongitudinalAngleChanged(do
   {
     return;
   }
+  qDebug() << Q_FUNC_INFO << ": finished";
 }
 
 //-----------------------------------------------------------------------------
@@ -311,6 +316,7 @@ void qSlicerIhepStandGeometryModuleWidget::onTableTopLateralAngleChanged(double 
   {
     return;
   }
+  qDebug() << Q_FUNC_INFO << ": finished";
 }
 
 //-----------------------------------------------------------------------------
@@ -341,6 +347,7 @@ void qSlicerIhepStandGeometryModuleWidget::onTableTopVerticalPositionChanged(dou
   d->logic()->UpdateTableTopToTableTopEccentricRotationTransform(parameterNode);
 //  d->logic()->UpdateTableTopInferiorSuperiorToPatientSupportRotationTransform(parameterNode);
   d->logic()->SetupTreatmentMachineModels(parameterNode);
+  qDebug() << Q_FUNC_INFO << ": finished";
 }
 
 //-----------------------------------------------------------------------------
@@ -366,6 +373,7 @@ void qSlicerIhepStandGeometryModuleWidget::onMoveModelsToIsocenter()
   {
     d->logic()->MoveModelsToIsocenter( parameterNode, isocenter);
   }
+  qDebug() << Q_FUNC_INFO << ": finished";
 }
 
 //-----------------------------------------------------------------------------
@@ -374,6 +382,7 @@ void qSlicerIhepStandGeometryModuleWidget::enter()
   Q_D(qSlicerIhepStandGeometryModuleWidget);
   this->Superclass::enter();
   this->onEnter();
+  qDebug() << Q_FUNC_INFO << ": method finished";
 }
 
 //-----------------------------------------------------------------------------
@@ -381,6 +390,7 @@ void qSlicerIhepStandGeometryModuleWidget::exit()
 {
   Q_D(qSlicerIhepStandGeometryModuleWidget);
   this->Superclass::exit();
+  qDebug() << Q_FUNC_INFO << ": method finished";
 }
 
 //-----------------------------------------------------------------------------
@@ -412,6 +422,7 @@ void qSlicerIhepStandGeometryModuleWidget::onEnter()
 
   // All required data for GUI is initiated
   d->ModuleWindowInitialized = true;
+  qDebug() << Q_FUNC_INFO << ": module window initiated ";
 }
 
 //-----------------------------------------------------------------------------
@@ -461,6 +472,7 @@ void qSlicerIhepStandGeometryModuleWidget::updateWidgetFromMRML()
   d->SliderWidget_PatientSupportRotationAngle->setValue(parameterNode->GetPatientSupportRotationAngle());
   d->SliderWidget_TableTopLateralAngle->setValue(parameterNode->GetTableTopLateralAngle());
   d->SliderWidget_TableTopLongitudinalAngle->setValue(parameterNode->GetTableTopLongitudinalAngle());
+  qDebug() << Q_FUNC_INFO << ": finished";
 }
 
 //-----------------------------------------------------------------------------
@@ -504,6 +516,7 @@ void qSlicerIhepStandGeometryModuleWidget::setParameterNode(vtkMRMLNode* node)
     }
   }
   this->updateWidgetFromMRML();
+  qDebug() << Q_FUNC_INFO << ": finished";
 }
 
 /// RTBeam Node (RTBeam or RTIonBeam) changed
@@ -543,6 +556,7 @@ void qSlicerIhepStandGeometryModuleWidget::onRTBeamNodeChanged(vtkMRMLNode* node
 
   parameterNode->SetAndObserveBeamNode(beamNode);
   parameterNode->Modified();
+  qDebug() << Q_FUNC_INFO << ": finished";
 }
 
 //-----------------------------------------------------------------------------
@@ -567,6 +581,7 @@ void qSlicerIhepStandGeometryModuleWidget::onReferenceVolumeNodeChanged(vtkMRMLN
   
   parameterNode->SetAndObserveReferenceVolumeNode(volumeNode);
   parameterNode->Modified();
+  qDebug() << Q_FUNC_INFO << ": finished";
 }
 
 //-----------------------------------------------------------------------------
@@ -591,6 +606,7 @@ void qSlicerIhepStandGeometryModuleWidget::onPatientBodySegmentationNodeChanged(
 
   parameterNode->SetAndObservePatientBodySegmentationNode(segmentationNode);
   parameterNode->Modified();
+  qDebug() << Q_FUNC_INFO << ": finished";
 }
 
 //-----------------------------------------------------------------------------
@@ -616,6 +632,7 @@ void qSlicerIhepStandGeometryModuleWidget::onPatientBodySegmentNameChanged(const
   const char* name = byteString.constData();
   parameterNode->SetPatientBodySegmentID(name);
   parameterNode->Modified();
+  qDebug() << Q_FUNC_INFO << ": finished";
 }
 
 //-----------------------------------------------------------------------------
@@ -623,6 +640,7 @@ void qSlicerIhepStandGeometryModuleWidget::onSceneClosedEvent()
 {
   Q_D(qSlicerIhepStandGeometryModuleWidget);
   this->updateWidgetFromMRML();
+  qDebug() << Q_FUNC_INFO << ": finished";
 }
 
 //-----------------------------------------------------------------------------
@@ -630,6 +648,7 @@ void qSlicerIhepStandGeometryModuleWidget::onSceneImportedEvent()
 {
   Q_D(qSlicerIhepStandGeometryModuleWidget);
   this->onEnter();
+  qDebug() << Q_FUNC_INFO << ": finished";
 }
 
 //-----------------------------------------------------------------------------
@@ -659,4 +678,5 @@ void qSlicerIhepStandGeometryModuleWidget::setMRMLScene(vtkMRMLScene* scene)
       this->setParameterNode(newNode);
     }
   }
+  qDebug() << Q_FUNC_INFO << ": finished";
 }
