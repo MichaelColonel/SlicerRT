@@ -400,11 +400,11 @@ void vtkSlicerIECTransformLogic::UpdateIECTransformsFromBeam( vtkMRMLRTBeamNode*
   fixedReferenceToRasTransform->RotateZ(180.0);
   fixedReferenceToRasTransform->Modified();
 }
-
+/*
 //-----------------------------------------------------------------------------
 void vtkSlicerIECTransformLogic::UpdateStandTransform(double patientSupportRotationAngle)
 {
-/*
+
   // Make sure the transform hierarchy is set up
   this->BuildIECTransformHierarchy();
 
@@ -501,9 +501,9 @@ void vtkSlicerIECTransformLogic::UpdateStandTransform(double patientSupportRotat
   // The "S" direction to be toward the gantry (head first position) by default
   fixedReferenceToRasTransform->RotateZ(180.0);
   fixedReferenceToRasTransform->Modified();
-*/
-}
 
+}
+*/
 //-----------------------------------------------------------------------------
 std::string vtkSlicerIECTransformLogic::GetTransformNodeNameBetween(
   CoordinateSystemIdentifier fromFrame, CoordinateSystemIdentifier toFrame)

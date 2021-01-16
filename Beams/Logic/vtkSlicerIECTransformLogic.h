@@ -145,7 +145,7 @@ public:
   void UpdateIECTransformsFromBeam( vtkMRMLRTBeamNode* beamNode, double* isocenter = nullptr);
 
   /// Update parent transform node of a given beam from the IEC transform hierarchy and the beam parameters
-  void UpdateStandTransform(double patientSupportRotationAngle = 0.0);
+//  void UpdateStandTransform(double patientSupportRotationAngle = 0.0);
 
 protected:
   /// Get name of transform node between two coordinate systems

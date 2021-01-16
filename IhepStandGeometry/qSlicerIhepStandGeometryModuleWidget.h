@@ -36,7 +36,7 @@ public:
 
   typedef qSlicerAbstractModuleWidget Superclass;
   qSlicerIhepStandGeometryModuleWidget(QWidget *parent=0);
-  virtual ~qSlicerIhepStandGeometryModuleWidget();
+  ~qSlicerIhepStandGeometryModuleWidget() override;
 
   void exit() override;
   void enter() override;

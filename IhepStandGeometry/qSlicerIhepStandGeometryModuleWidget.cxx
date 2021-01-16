@@ -252,36 +252,6 @@ void qSlicerIhepStandGeometryModuleWidget::onPatientSupportRotationAngleChanged(
 }
 
 //-----------------------------------------------------------------------------
-void qSlicerIhepStandGeometryModuleWidget::onTableTopLongitudinalPositionChanged(double longitudinalPosition)
-{
-  Q_D(qSlicerIhepStandGeometryModuleWidget);
-
-  if (!this->mrmlScene())
-  {
-    qCritical() << Q_FUNC_INFO << ": Invalid scene";
-    return;
-  }
-
-  vtkMRMLIhepStandGeometryNode* parameterNode = vtkMRMLIhepStandGeometryNode::SafeDownCast(d->MRMLNodeComboBox_ParameterSet->currentNode());
-  if (!parameterNode || !d->ModuleWindowInitialized)
-  {
-    return;
-  }
-
-  double isocenter[3] = {};
-  vtkMRMLRTBeamNode* beam = parameterNode->GetBeamNode();
-  beam->GetPlanIsocenterPosition(isocenter);
-
-  parameterNode->DisableModifiedEventOn();
-  parameterNode->SetTableTopLongitudinalPosition(10. * longitudinalPosition + isocenter[1]);
-  parameterNode->DisableModifiedEventOff();
-
-  d->logic()->UpdateTableTopInferiorSuperiorToPatientSupportRotationTransform(parameterNode);
-  d->logic()->SetupTreatmentMachineModels(parameterNode);
-  qDebug() << Q_FUNC_INFO << ": finished";
-}
-
-//-----------------------------------------------------------------------------
 void qSlicerIhepStandGeometryModuleWidget::onTableTopLongitudinalAngleChanged(double longitudinalAngle)
 {
   Q_D(qSlicerIhepStandGeometryModuleWidget);
@@ -341,11 +311,41 @@ void qSlicerIhepStandGeometryModuleWidget::onTableTopVerticalPositionChanged(dou
   beam->GetPlanIsocenterPosition(isocenter);
 
   parameterNode->DisableModifiedEventOn();
-  parameterNode->SetTableTopVerticalPosition(10. * verticalPosition + isocenter[2]);
+  parameterNode->SetTableTopVerticalPosition(10. * verticalPosition/* + isocenter[2] */);
   parameterNode->DisableModifiedEventOff();
 
   d->logic()->UpdateTableTopToTableTopEccentricRotationTransform(parameterNode);
 //  d->logic()->UpdateTableTopInferiorSuperiorToPatientSupportRotationTransform(parameterNode);
+  d->logic()->SetupTreatmentMachineModels(parameterNode);
+  qDebug() << Q_FUNC_INFO << ": finished";
+}
+
+//-----------------------------------------------------------------------------
+void qSlicerIhepStandGeometryModuleWidget::onTableTopLongitudinalPositionChanged(double longitudinalPosition)
+{
+  Q_D(qSlicerIhepStandGeometryModuleWidget);
+
+  if (!this->mrmlScene())
+  {
+    qCritical() << Q_FUNC_INFO << ": Invalid scene";
+    return;
+  }
+
+  vtkMRMLIhepStandGeometryNode* parameterNode = vtkMRMLIhepStandGeometryNode::SafeDownCast(d->MRMLNodeComboBox_ParameterSet->currentNode());
+  if (!parameterNode || !d->ModuleWindowInitialized)
+  {
+    return;
+  }
+
+  double isocenter[3] = {};
+  vtkMRMLRTBeamNode* beam = parameterNode->GetBeamNode();
+  beam->GetPlanIsocenterPosition(isocenter);
+
+  parameterNode->DisableModifiedEventOn();
+  parameterNode->SetTableTopLongitudinalPosition(10. * longitudinalPosition/* + isocenter[1]*/);
+  parameterNode->DisableModifiedEventOff();
+
+  d->logic()->UpdateTableTopInferiorSuperiorToPatientSupportRotationTransform(parameterNode);
   d->logic()->SetupTreatmentMachineModels(parameterNode);
   qDebug() << Q_FUNC_INFO << ": finished";
 }
@@ -467,8 +467,8 @@ void qSlicerIhepStandGeometryModuleWidget::updateWidgetFromMRML()
     QString id(static_cast<char *>(parameterNode->GetPatientBodySegmentID()));
     d->SegmentSelectorWidget_TargetVolume->setCurrentSegmentID(id);
   }
-  d->SliderWidget_TableTopLongitudinalPosition->setValue(parameterNode->GetTableTopLongitudinalPosition());
-  d->SliderWidget_TableTopVerticalPosition->setValue(parameterNode->GetTableTopVerticalPosition());
+  d->SliderWidget_TableTopLongitudinalPosition->setValue(parameterNode->GetTableTopLongitudinalPosition() / 10.);
+  d->SliderWidget_TableTopVerticalPosition->setValue(parameterNode->GetTableTopVerticalPosition() / 10.);
   d->SliderWidget_PatientSupportRotationAngle->setValue(parameterNode->GetPatientSupportRotationAngle());
   d->SliderWidget_TableTopLateralAngle->setValue(parameterNode->GetTableTopLateralAngle());
   d->SliderWidget_TableTopLongitudinalAngle->setValue(parameterNode->GetTableTopLongitudinalAngle());

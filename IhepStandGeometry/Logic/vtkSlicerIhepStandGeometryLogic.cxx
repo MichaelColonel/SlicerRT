@@ -442,15 +442,19 @@ void vtkSlicerIhepStandGeometryLogic::ResetModelsToInitialPosition(vtkMRMLIhepSt
   collimatorToGantryTransform->Modified();
 
   // Update Patient -> TableTop
-  vtkMRMLLinearTransformNode* patientToTableTopTransformNode =
-    this->IECLogic->GetTransformNodeBetween(IEC::Patient, IEC::TableTop);
-  vtkTransform* patientToTableTopTransform = vtkTransform::SafeDownCast(
-    patientToTableTopTransformNode->GetTransformToParent() );
+//  vtkMRMLLinearTransformNode* patientToTableTopTransformNode =
+//    this->IECLogic->GetTransformNodeBetween(IEC::Patient, IEC::TableTop);
+//  vtkTransform* patientToTableTopTransform = vtkTransform::SafeDownCast(
+//    patientToTableTopTransformNode->GetTransformToParent() );
 
-  patientToTableTopTransform->Identity();
+//  double isocenter[3] = {};
+//  vtkMRMLRTBeamNode* beam = parameterNode->GetBeamNode();
+//  beam->GetPlanIsocenterPosition(isocenter);
+
+//  patientToTableTopTransform->Identity();
 //  patientToTableTopTransform->Translate( isocenter[0], isocenter[1] + 490, isocenter[2] + 550);
-  patientToTableTopTransform->Translate( 0, 490, 550);
-  patientToTableTopTransform->Modified();
+//  patientToTableTopTransform->Translate( 0, 490, 550);
+//  patientToTableTopTransform->Modified();
 
   this->UpdateTableTopToTableTopEccentricRotationTransform(parameterNode);
 
@@ -673,6 +677,10 @@ void vtkSlicerIhepStandGeometryLogic::SetupTreatmentMachineModels(vtkMRMLIhepSta
       canyonModel->CreateDefaultDisplayNodes();
       canyonModel->GetDisplayNode()->SetColor(0.7, 0.65, 0.65);
     }
+
+    // observe ras to fixed frame node for patient support rotation transform
+//    this->IECLogic->GetTransformNodeBetween(IEC::PatientSupportRotation, IEC::FixedReference)->SetAndObserveTransformNodeID(
+//      rasToFixedReferenceTransformNode->GetID() );
   }
 /*
   // Patient support - mandatory
@@ -699,6 +707,8 @@ void vtkSlicerIhepStandGeometryLogic::SetupTreatmentMachineModels(vtkMRMLIhepSta
     rasToPatientSupportRotationLinearTransform->Identity();
     rasToPatientSupportRotationLinearTransform->Concatenate(rasToFixedReferenceLinearTransform);
     rasToPatientSupportRotationLinearTransform->Concatenate(patientSupportToFixedReferenceTransform);
+    // Transform to RAS, set transform to node, transform the model
+    rasToPatientSupportRotationLinearTransform->Concatenate(rotateYTransform);
     rasToPatientSupportRotationLinearTransform->Modified();
 
     // Find RasToTableTopInferiorSuperiorTransform or create it
@@ -830,7 +840,8 @@ void vtkSlicerIhepStandGeometryLogic::UpdateTableTopToTableTopEccentricRotationT
 
   tableTopToTableTopEccentricRotationTransform->Identity();
   tableTopToTableTopEccentricRotationTransform->RotateY(beamNode->GetGantryAngle() - 90.);
-  tableTopToTableTopEccentricRotationTransform->Translate( 0., -1. * parameterNode->GetTableTopLongitudinalPosition(), -1. * parameterNode->GetTableTopVerticalPosition());
+//  tableTopToTableTopEccentricRotationTransform->Translate( 0., -1. * parameterNode->GetTableTopLongitudinalPosition(), -1. * parameterNode->GetTableTopVerticalPosition());
+  tableTopToTableTopEccentricRotationTransform->Translate( 0., 0., -1. * parameterNode->GetTableTopVerticalPosition());
   tableTopToTableTopEccentricRotationTransform->Modified();
 }
 
@@ -857,6 +868,7 @@ void vtkSlicerIhepStandGeometryLogic::UpdateTableTopInferiorSuperiorToPatientSup
 
   tableTopInferiorSuperiorToPatientSupportRotationTransform->Identity();
   tableTopInferiorSuperiorToPatientSupportRotationTransform->Translate( 0., -1. * parameterNode->GetTableTopLongitudinalPosition(), 0.);
+//  tableTopInferiorSuperiorToPatientSupportRotationTransform->Translate( 0., -1. * parameterNode->GetTableTopLongitudinalPosition(), -1. * parameterNode->GetTableTopVerticalPosition());
   tableTopInferiorSuperiorToPatientSupportRotationTransform->Modified();
 
 //  double translationArray[3] =
