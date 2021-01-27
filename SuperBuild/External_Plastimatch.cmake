@@ -3,6 +3,13 @@ set(proj Plastimatch)
 
 # Set dependency list
 set(${proj}_DEPENDS "")
+if(DEFINED Slicer_SOURCE_DIR)
+  list(APPEND ${proj}_DEPENDS
+    DCMTK
+    ITK
+    VTK
+    )
+endif()
 
 # Include dependent projects if any
 ExternalProject_Include_Dependencies(${proj} PROJECT_VAR proj)
@@ -20,13 +27,13 @@ if(NOT DEFINED ${proj}_DIR AND NOT ${CMAKE_PROJECT_NAME}_USE_SYSTEM_${proj})
 
   ExternalProject_SetIfNotDefined(
     ${CMAKE_PROJECT_NAME}_${proj}_GIT_REPOSITORY
-    "https://gitlab.com/MichaelColonel/plastimatch.git" # Gitlab only support https for anonymous checkout
+    "${EP_GIT_PROTOCOL}://github.com/SlicerRt/plastimatch.git"
     QUIET
     )
 
   ExternalProject_SetIfNotDefined(
     ${CMAKE_PROJECT_NAME}_${proj}_GIT_TAG
-    "4bc64806812a0c0b73255391ad373db3fe8844db"
+    "b23dd474cf27c7145c4c650e615ece7c6323eb7d" # slicerrt-1.9.2-2021.01.18-4d1dd4b9
     QUIET
     )
 
