@@ -311,7 +311,7 @@ void qSlicerIhepStandGeometryModuleWidget::onTableTopVerticalPositionChanged(dou
   beam->GetPlanIsocenterPosition(isocenter);
 
   parameterNode->DisableModifiedEventOn();
-  parameterNode->SetTableTopVerticalPosition(10. * verticalPosition/* + isocenter[2] */);
+  parameterNode->SetTableTopVerticalPosition(/* 10. * */verticalPosition/* + isocenter[2] */);
   parameterNode->DisableModifiedEventOff();
 
   d->logic()->UpdateTableTopToTableTopEccentricRotationTransform(parameterNode);
@@ -342,7 +342,7 @@ void qSlicerIhepStandGeometryModuleWidget::onTableTopLongitudinalPositionChanged
   beam->GetPlanIsocenterPosition(isocenter);
 
   parameterNode->DisableModifiedEventOn();
-  parameterNode->SetTableTopLongitudinalPosition(10. * longitudinalPosition/* + isocenter[1]*/);
+  parameterNode->SetTableTopLongitudinalPosition(/*10. * */longitudinalPosition/* + isocenter[1]*/);
   parameterNode->DisableModifiedEventOff();
 
   d->logic()->UpdateTableTopInferiorSuperiorToPatientSupportRotationTransform(parameterNode);

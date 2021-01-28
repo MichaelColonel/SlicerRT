@@ -346,7 +346,7 @@ void vtkSlicerIhepStandGeometryLogic::LoadTreatmentMachineModels(vtkMRMLIhepStan
       vtkErrorMacro("LoadTreatmentMachineModels: Failed to load table top stand model");
     }
   }
-
+*/
   // Table top - mandatory
   std::string tableTopModelSingletonTag = machineType + "_" + TABLETOP_MODEL_NAME;
   vtkMRMLModelNode* tableTopModelNode = vtkMRMLModelNode::SafeDownCast(
@@ -379,6 +379,7 @@ void vtkSlicerIhepStandGeometryLogic::LoadTreatmentMachineModels(vtkMRMLIhepStan
     }
   }
 
+/*
   if ( !canyonModelNode || !canyonModelNode->GetPolyData()
     || !tableTopStandModelNode || !tableTopStandModelNode->GetPolyData()
     || !patientSupportModelNode || !patientSupportModelNode->GetPolyData()
@@ -442,19 +443,19 @@ void vtkSlicerIhepStandGeometryLogic::ResetModelsToInitialPosition(vtkMRMLIhepSt
   collimatorToGantryTransform->Modified();
 
   // Update Patient -> TableTop
-//  vtkMRMLLinearTransformNode* patientToTableTopTransformNode =
-//    this->IECLogic->GetTransformNodeBetween(IEC::Patient, IEC::TableTop);
-//  vtkTransform* patientToTableTopTransform = vtkTransform::SafeDownCast(
-//    patientToTableTopTransformNode->GetTransformToParent() );
+  vtkMRMLLinearTransformNode* patientToTableTopTransformNode =
+    this->IECLogic->GetTransformNodeBetween(IEC::Patient, IEC::TableTop);
+  vtkTransform* patientToTableTopTransform = vtkTransform::SafeDownCast(
+    patientToTableTopTransformNode->GetTransformToParent() );
 
-//  double isocenter[3] = {};
-//  vtkMRMLRTBeamNode* beam = parameterNode->GetBeamNode();
-//  beam->GetPlanIsocenterPosition(isocenter);
+  double isocenter[3] = {};
+  vtkMRMLRTBeamNode* beam = parameterNode->GetBeamNode();
+  beam->GetPlanIsocenterPosition(isocenter);
 
-//  patientToTableTopTransform->Identity();
+  patientToTableTopTransform->Identity();
 //  patientToTableTopTransform->Translate( isocenter[0], isocenter[1] + 490, isocenter[2] + 550);
-//  patientToTableTopTransform->Translate( 0, 490, 550);
-//  patientToTableTopTransform->Modified();
+  patientToTableTopTransform->Translate( 0., -490., 550.);
+  patientToTableTopTransform->Modified();
 
   this->UpdateTableTopToTableTopEccentricRotationTransform(parameterNode);
 
@@ -574,7 +575,6 @@ void vtkSlicerIhepStandGeometryLogic::SetupTreatmentMachineModels(vtkMRMLIhepSta
   }
 */
 
-/*
   // Table top - mandatory
   // Transform path: RAS -> Patient -> TableTop
   vtkNew<vtkGeneralTransform> rasToTableTopGeneralTransform;
@@ -626,7 +626,7 @@ void vtkSlicerIhepStandGeometryLogic::SetupTreatmentMachineModels(vtkMRMLIhepSta
       tableTopModel->GetDisplayNode()->SetColor(0, 0, 0);
     }
   }
-*/
+
   // Fixed Reference (canyon) - mandatory
   // Transform path: RAS -> Patient -> TableTop -> Eccentric -> TableTopInferiorSuperiorMovement -> PatientSupportRotation -> FixedReference
   vtkNew<vtkGeneralTransform> rasToFixedReferenceGeneralTransform;
@@ -808,7 +808,8 @@ void vtkSlicerIhepStandGeometryLogic::MoveModelsToIsocenter(vtkMRMLIhepStandGeom
 
   patientToTableTopTransform->Identity();
 //  patientToTableTopTransform->Translate( isocenter[0], isocenter[1] + 490, isocenter[2] + 550);
-  patientToTableTopTransform->Translate( 0, 490, 550);
+  patientToTableTopTransform->Translate( 0., -490., 550.);
+//  patientToTableTopTransform->Translate( 0, 0, 0);
   patientToTableTopTransform->Modified();
 
   // New Treatment machine position
