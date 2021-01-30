@@ -24,37 +24,37 @@
       </widget>
      </item>
      <item row="2" column="1">
-      <widget class="qMRMLNodeComboBox" name="MRMLNodeComboBox_ReferenceVolume" native="true">
-       <property name="nodeTypes" stdset="0">
+      <widget class="qMRMLNodeComboBox" name="MRMLNodeComboBox_ReferenceVolume">
+       <property name="nodeTypes">
         <stringlist>
          <string>vtkMRMLScalarVolumeNode</string>
         </stringlist>
        </property>
-       <property name="noneEnabled" stdset="0">
+       <property name="noneEnabled">
         <bool>true</bool>
        </property>
-       <property name="addEnabled" stdset="0">
+       <property name="addEnabled">
         <bool>false</bool>
        </property>
-       <property name="removeEnabled" stdset="0">
+       <property name="removeEnabled">
         <bool>false</bool>
        </property>
-       <property name="noneDisplay" stdset="0">
+       <property name="noneDisplay">
         <string>Please select a node</string>
        </property>
       </widget>
      </item>
      <item row="3" column="1">
-      <widget class="qMRMLSegmentSelectorWidget" name="SegmentSelectorWidget_TargetVolume" native="true"/>
+      <widget class="qMRMLSegmentSelectorWidget" name="SegmentSelectorWidget_TargetVolume"/>
      </item>
      <item row="0" column="1">
-      <widget class="qMRMLNodeComboBox" name="MRMLNodeComboBox_ParameterSet" native="true">
-       <property name="nodeTypes" stdset="0">
+      <widget class="qMRMLNodeComboBox" name="MRMLNodeComboBox_ParameterSet">
+       <property name="nodeTypes">
         <stringlist>
          <string>vtkMRMLIhepStandGeometryNode</string>
         </stringlist>
        </property>
-       <property name="noneDisplay" stdset="0">
+       <property name="noneDisplay">
         <string>Please select a node</string>
        </property>
       </widget>
@@ -67,26 +67,26 @@
       </widget>
      </item>
      <item row="1" column="1">
-      <widget class="qMRMLNodeComboBox" name="MRMLNodeComboBox_RtBeam" native="true">
-       <property name="nodeTypes" stdset="0">
+      <widget class="qMRMLNodeComboBox" name="MRMLNodeComboBox_RtBeam">
+       <property name="nodeTypes">
         <stringlist>
          <string>vtkMRMLRTBeamNode</string>
          <string>vtkMRMLRTIonBeamNode</string>
         </stringlist>
        </property>
-       <property name="showChildNodeTypes" stdset="0">
+       <property name="showChildNodeTypes">
         <bool>false</bool>
        </property>
-       <property name="noneEnabled" stdset="0">
+       <property name="noneEnabled">
         <bool>true</bool>
        </property>
-       <property name="addEnabled" stdset="0">
+       <property name="addEnabled">
         <bool>false</bool>
        </property>
-       <property name="removeEnabled" stdset="0">
+       <property name="removeEnabled">
         <bool>false</bool>
        </property>
-       <property name="noneDisplay" stdset="0">
+       <property name="noneDisplay">
         <string>Please select a node</string>
        </property>
       </widget>
@@ -108,8 +108,8 @@
     </layout>
    </item>
    <item row="1" column="0">
-    <widget class="ctkCollapsibleButton" name="CollapsibleButton_DisplayModelsMarkups" native="true">
-     <property name="text" stdset="0">
+    <widget class="ctkCollapsibleButton" name="CollapsibleButton_DisplayModelsMarkups">
+     <property name="text">
       <string>Display models and markups</string>
      </property>
      <layout class="QGridLayout" name="gridLayout_3">
@@ -148,15 +148,22 @@
     </widget>
    </item>
    <item row="2" column="0">
-    <widget class="ctkCollapsibleButton" name="CollapsibleButton_ModelsControl" native="true">
-     <property name="text" stdset="0">
+    <widget class="ctkCollapsibleButton" name="CollapsibleButton_ModelsControl">
+     <property name="text">
       <string>Models Control</string>
      </property>
      <layout class="QGridLayout" name="gridLayout_6">
       <item row="0" column="0">
        <layout class="QGridLayout" name="gridLayout_4">
         <item row="1" column="1">
-         <widget class="ctkSliderWidget" name="SliderWidget_TableTopLongitudinalPosition" native="true"/>
+         <widget class="ctkSliderWidget" name="SliderWidget_TableTopLongitudinalPosition">
+          <property name="minimum">
+           <double>-999.899999999999977</double>
+          </property>
+          <property name="maximum">
+           <double>999.899999999999977</double>
+          </property>
+         </widget>
         </item>
         <item row="3" column="0">
          <widget class="QLabel" name="label_8">
@@ -187,11 +194,18 @@
          </widget>
         </item>
         <item row="2" column="1">
-         <widget class="ctkSliderWidget" name="SliderWidget_TableTopVerticalPosition" native="true"/>
+         <widget class="ctkSliderWidget" name="SliderWidget_TableTopVerticalPosition">
+          <property name="minimum">
+           <double>-999.899999999999977</double>
+          </property>
+          <property name="maximum">
+           <double>999.899999999999977</double>
+          </property>
+         </widget>
         </item>
         <item row="0" column="1">
-         <widget class="ctkSliderWidget" name="SliderWidget_PatientSupportRotationAngle" native="true">
-          <property name="maximum" stdset="0">
+         <widget class="ctkSliderWidget" name="SliderWidget_PatientSupportRotationAngle">
+          <property name="maximum">
            <double>359.990000000000009</double>
           </property>
          </widget>
@@ -204,17 +218,17 @@
          </widget>
         </item>
         <item row="3" column="1">
-         <widget class="ctkSliderWidget" name="SliderWidget_TableTopLongitudinalAngle" native="true">
-          <property name="minimum" stdset="0">
+         <widget class="ctkSliderWidget" name="SliderWidget_TableTopLongitudinalAngle">
+          <property name="minimum">
            <double>-20.000000000000000</double>
           </property>
-          <property name="maximum" stdset="0">
+          <property name="maximum">
            <double>20.000000000000000</double>
           </property>
          </widget>
         </item>
         <item row="4" column="1">
-         <widget class="ctkSliderWidget" name="SliderWidget_TableTopLateralAngle" native="true"/>
+         <widget class="ctkSliderWidget" name="SliderWidget_TableTopLateralAngle"/>
         </item>
        </layout>
       </item>
@@ -236,11 +250,11 @@
     </widget>
    </item>
    <item row="3" column="0">
-    <widget class="ctkCollapsibleButton" name="collapsibleButton_BeamToStandTransformation" native="true">
-     <property name="text" stdset="0">
+    <widget class="ctkCollapsibleButton" name="collapsibleButton_BeamToStandTransformation">
+     <property name="text">
       <string>Beam to stand transformation</string>
      </property>
-     <property name="collapsed" stdset="0">
+     <property name="collapsed">
       <bool>true</bool>
      </property>
      <layout class="QGridLayout" name="gridLayout_5">
