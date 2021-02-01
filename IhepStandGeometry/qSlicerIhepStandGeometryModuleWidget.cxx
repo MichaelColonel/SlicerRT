@@ -467,8 +467,8 @@ void qSlicerIhepStandGeometryModuleWidget::updateWidgetFromMRML()
     QString id(static_cast<char *>(parameterNode->GetPatientBodySegmentID()));
     d->SegmentSelectorWidget_TargetVolume->setCurrentSegmentID(id);
   }
-  d->SliderWidget_TableTopLongitudinalPosition->setValue(parameterNode->GetTableTopLongitudinalPosition() / 10.);
-  d->SliderWidget_TableTopVerticalPosition->setValue(parameterNode->GetTableTopVerticalPosition() / 10.);
+  d->SliderWidget_TableTopLongitudinalPosition->setValue(parameterNode->GetTableTopLongitudinalPosition());
+  d->SliderWidget_TableTopVerticalPosition->setValue(parameterNode->GetTableTopVerticalPosition());
   d->SliderWidget_PatientSupportRotationAngle->setValue(parameterNode->GetPatientSupportRotationAngle());
   d->SliderWidget_TableTopLateralAngle->setValue(parameterNode->GetTableTopLateralAngle());
   d->SliderWidget_TableTopLongitudinalAngle->setValue(parameterNode->GetTableTopLongitudinalAngle());
