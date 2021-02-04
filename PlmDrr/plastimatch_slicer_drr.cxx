@@ -24,6 +24,7 @@
 #include <itkMetaImageIO.h>
 #include <itkRescaleIntensityImageFilter.h>
 #include <itkInvertIntensityImageFilter.h>
+#include <itkThresholdImageFilter.h>
 #include <itkPluginUtilities.h>
 
 // Plastimatch includes
@@ -33,6 +34,9 @@
 #include <plm_math.h>
 #include <proj_image.h>
 #include <threading.h>
+
+// STD includes
+#include <typeinfo>
 
 #include "plastimatch_slicer_drrCLP.h"
 
@@ -180,6 +184,27 @@ int DoIt( int argc, char * argv[], Drr_options& options, TPixel ) throw( std::st
   // Read CT data
   typename InputReaderType::Pointer inputReader = InputReaderType::New();
   inputReader->SetFileName( inputVolume.c_str() );
+  inputReader->Update();
+
+  // Apply threshold if HU > -1000
+  typename InputImageType::Pointer inputImagePointer = inputReader->GetOutput();
+  using ThresholdFilterType = itk::ThresholdImageFilter< InputImageType >;
+  typename ThresholdFilterType::Pointer thresholdFilter = ThresholdFilterType::New();
+  if (thresholdBelow > -1000)
+  {
+    thresholdFilter->SetOutsideValue(-1000);
+    thresholdFilter->ThresholdBelow(thresholdBelow);
+
+    try
+    {
+      thresholdFilter->Update();
+    }
+    catch ( itk::ExceptionObject& excep )
+    {
+      throw;
+    }
+    inputImagePointer = thresholdFilter->GetOutput();
+  }
 
   // Save CT data as MetaImageHeader (*.mha)
   using InputWriterType = itk::ImageFileWriter< InputImageType >;
@@ -201,7 +226,7 @@ int DoIt( int argc, char * argv[], Drr_options& options, TPixel ) throw( std::st
   }
 
   inputWriter->SetFileName(options.input_file.c_str());
-  inputWriter->SetInput(inputReader->GetOutput());
+  inputWriter->SetInput(inputImagePointer);
   try
   {
     inputWriter->Update();
