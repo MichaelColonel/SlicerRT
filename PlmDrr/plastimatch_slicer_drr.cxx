@@ -184,7 +184,7 @@ int DoIt( int argc, char * argv[], Drr_options& options, TPixel ) throw( std::st
   inputReader->SetFileName( inputVolume.c_str() );
   inputReader->Update();
 
-  // Apply threshold if HU threshold below higher than -1000
+  // Apply threshold filter if HU threshold is higher than -1000
   typename InputImageType::Pointer inputImagePointer = inputReader->GetOutput();
   using ThresholdFilterType = itk::ThresholdImageFilter< InputImageType >;
   typename ThresholdFilterType::Pointer thresholdFilter = ThresholdFilterType::New();
