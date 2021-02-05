@@ -78,15 +78,25 @@ void qSlicerDrrImageComputationPlastimatchParametersWidgetPrivate::init()
   QObject::connect( this->RangeWidget_IntensityRange, SIGNAL(valuesChanged( double, double)), 
     q, SLOT(onAutoscaleIntensityRangeChanged( double, double)));
 
+  // Slicer widgets
+  QObject::connect( this->SliderWidget_HounsfieldThreshold, SIGNAL(valueChanged(double)), 
+    q, SLOT(onHUThresholdChanged(double)));
+
   // Buttons
-  QObject::connect( this->CheckBox_UseExponentialMapping, SIGNAL(toggled(bool)), q, SLOT(onUseExponentialMappingToggled(bool)));
-  QObject::connect( this->CheckBox_AutoscaleIntensity, SIGNAL(toggled(bool)), q, SLOT(onAutoscalePixelsRangeToggled(bool)));
-  QObject::connect( this->CheckBox_InvertIntensity, SIGNAL(toggled(bool)), q, SLOT(onInvertIntensityToggled(bool)));
+  QObject::connect( this->CheckBox_UseExponentialMapping, SIGNAL(toggled(bool)), 
+    q, SLOT(onUseExponentialMappingToggled(bool)));
+  QObject::connect( this->CheckBox_AutoscaleIntensity, SIGNAL(toggled(bool)), 
+    q, SLOT(onAutoscalePixelsRangeToggled(bool)));
+  QObject::connect( this->CheckBox_InvertIntensity, SIGNAL(toggled(bool)), 
+    q, SLOT(onInvertIntensityToggled(bool)));
 
   // Button groups
-  QObject::connect( this->ButtonGroup_ReconstructAlgorithm, SIGNAL(buttonClicked(int)), q, SLOT(onReconstructionAlgorithmChanged(int)));
-  QObject::connect( this->ButtonGroup_Threading, SIGNAL(buttonClicked(int)), q, SLOT(onThreadingChanged(int)));
-  QObject::connect( this->ButtonGroup_HuConversion, SIGNAL(buttonClicked(int)), q, SLOT(onHUConversionChanged(int)));
+  QObject::connect( this->ButtonGroup_ReconstructAlgorithm, SIGNAL(buttonClicked(int)), 
+    q, SLOT(onReconstructionAlgorithmChanged(int)));
+  QObject::connect( this->ButtonGroup_Threading, SIGNAL(buttonClicked(int)), 
+    q, SLOT(onThreadingChanged(int)));
+  QObject::connect( this->ButtonGroup_HuConversion, SIGNAL(buttonClicked(int)), 
+    q, SLOT(onHUConversionChanged(int)));
 }
 
 //-----------------------------------------------------------------------------
@@ -142,6 +152,7 @@ void qSlicerDrrImageComputationPlastimatchParametersWidget::updateWidgetFromMRML
   float autoscaleRange[2] = { 0.f, 255.f };
   d->ParameterNode->GetAutoscaleRange(autoscaleRange);
   d->RangeWidget_IntensityRange->setValues( autoscaleRange[0], autoscaleRange[1]);
+  d->SliderWidget_HounsfieldThreshold->setValue(double(d->ParameterNode->GetHUThresholdBelow()));
 
   switch (d->ParameterNode->GetAlgorithmReconstuction())
   {
@@ -308,6 +319,20 @@ void qSlicerDrrImageComputationPlastimatchParametersWidget::onAutoscalePixelsRan
   }
 
   d->ParameterNode->SetAutoscaleFlag(value);
+}
+
+//-----------------------------------------------------------------------------
+void qSlicerDrrImageComputationPlastimatchParametersWidget::onHUThresholdChanged(double value)
+{
+  Q_D(qSlicerDrrImageComputationPlastimatchParametersWidget);
+
+  if (!d->ParameterNode)
+  {
+    qCritical() << Q_FUNC_INFO << ": Invalid parameter node";
+    return;
+  }
+
+  d->ParameterNode->SetHUThresholdBelow(static_cast<int>(value));
 }
 
 //-----------------------------------------------------------------------------

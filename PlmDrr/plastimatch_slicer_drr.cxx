@@ -31,8 +31,6 @@
 #include <plmreconstruct_config.h>
 #include <drr_options.h>
 #include <drr.h>
-#include <plm_math.h>
-#include <proj_image.h>
 #include <threading.h>
 
 // STD includes
@@ -177,7 +175,7 @@ int DoIt( int argc, char * argv[], Drr_options& options, TPixel ) throw( std::st
 
   typedef TPixel InputPixelType; // CT pixel type (short)
   const unsigned int Dimension = 3;
-
+  
   // CT image type and reader
   using InputImageType = itk::Image< InputPixelType, Dimension >;
   using InputReaderType = itk::ImageFileReader< InputImageType >;
@@ -186,7 +184,7 @@ int DoIt( int argc, char * argv[], Drr_options& options, TPixel ) throw( std::st
   inputReader->SetFileName( inputVolume.c_str() );
   inputReader->Update();
 
-  // Apply threshold if HU > -1000
+  // Apply threshold if HU threshold below higher than -1000
   typename InputImageType::Pointer inputImagePointer = inputReader->GetOutput();
   using ThresholdFilterType = itk::ThresholdImageFilter< InputImageType >;
   typename ThresholdFilterType::Pointer thresholdFilter = ThresholdFilterType::New();
@@ -194,6 +192,7 @@ int DoIt( int argc, char * argv[], Drr_options& options, TPixel ) throw( std::st
   {
     thresholdFilter->SetOutsideValue(-1000);
     thresholdFilter->ThresholdBelow(thresholdBelow);
+    thresholdFilter->SetInput(inputImagePointer);
 
     try
     {
