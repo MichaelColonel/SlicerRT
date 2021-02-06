@@ -156,10 +156,10 @@ void qSlicerDrrImageComputationPlastimatchParametersWidget::updateWidgetFromMRML
 
   switch (d->ParameterNode->GetAlgorithmReconstuction())
   {
-    case vtkMRMLDrrImageComputationNode::PlastimatchAlgorithmReconstuctionType::EXACT:
+    case vtkMRMLDrrImageComputationNode::Exact:
       d->ComboBox_ReconstructionAlgorithm->setCurrentIndex(0);
       break;
-    case vtkMRMLDrrImageComputationNode::PlastimatchAlgorithmReconstuctionType::UNIFORM:
+    case vtkMRMLDrrImageComputationNode::Uniform:
       d->ComboBox_ReconstructionAlgorithm->setCurrentIndex(1);
       break;
     default:
@@ -168,13 +168,13 @@ void qSlicerDrrImageComputationPlastimatchParametersWidget::updateWidgetFromMRML
 
   switch (d->ParameterNode->GetHUConversion())
   {
-    case vtkMRMLDrrImageComputationNode::PlastimatchHounsfieldUnitsConversionType::PREPROCESS:
+    case vtkMRMLDrrImageComputationNode::Preprocess:
       d->ComboBox_HounsfieldConversion->setCurrentIndex(0);
       break;
-    case vtkMRMLDrrImageComputationNode::PlastimatchHounsfieldUnitsConversionType::INLINE:
+    case vtkMRMLDrrImageComputationNode::Inline:
       d->ComboBox_HounsfieldConversion->setCurrentIndex(1);
       break;
-    case vtkMRMLDrrImageComputationNode::PlastimatchHounsfieldUnitsConversionType::NONE:
+    case vtkMRMLDrrImageComputationNode::None:
       d->ComboBox_HounsfieldConversion->setCurrentIndex(2);
       break;
     default:
@@ -183,13 +183,13 @@ void qSlicerDrrImageComputationPlastimatchParametersWidget::updateWidgetFromMRML
 
   switch (d->ParameterNode->GetThreading())
   {
-    case vtkMRMLDrrImageComputationNode::PlastimatchThreadingType::CPU:
+    case vtkMRMLDrrImageComputationNode::CPU:
       d->ComboBox_Threading->setCurrentIndex(0);
       break;
-    case vtkMRMLDrrImageComputationNode::PlastimatchThreadingType::CUDA:
+    case vtkMRMLDrrImageComputationNode::CUDA:
       d->ComboBox_Threading->setCurrentIndex(1);
       break;
-    case vtkMRMLDrrImageComputationNode::PlastimatchThreadingType::OPENCL:
+    case vtkMRMLDrrImageComputationNode::OpenCL:
       d->ComboBox_Threading->setCurrentIndex(2);
       break;
     default:
@@ -212,10 +212,10 @@ void qSlicerDrrImageComputationPlastimatchParametersWidget::onReconstructionAlgo
   switch (id)
   {
   case 0:
-    d->ParameterNode->SetAlgorithmReconstuction(vtkMRMLDrrImageComputationNode::PlastimatchAlgorithmReconstuctionType::EXACT);
+    d->ParameterNode->SetAlgorithmReconstuction(vtkMRMLDrrImageComputationNode::Exact);
     break;
   case 1:
-    d->ParameterNode->SetAlgorithmReconstuction(vtkMRMLDrrImageComputationNode::PlastimatchAlgorithmReconstuctionType::UNIFORM);
+    d->ParameterNode->SetAlgorithmReconstuction(vtkMRMLDrrImageComputationNode::Uniform);
     break;
   default:
     qWarning() << Q_FUNC_INFO << ": Invalid reconstruct algorithm button id";
@@ -237,13 +237,13 @@ void qSlicerDrrImageComputationPlastimatchParametersWidget::onThreadingChanged(i
   switch (id)
   {
   case 0:
-    d->ParameterNode->SetThreading(vtkMRMLDrrImageComputationNode::PlastimatchThreadingType::CPU);
+    d->ParameterNode->SetThreading(vtkMRMLDrrImageComputationNode::CPU);
     break;
   case 1:
-    d->ParameterNode->SetThreading(vtkMRMLDrrImageComputationNode::PlastimatchThreadingType::CUDA);
+    d->ParameterNode->SetThreading(vtkMRMLDrrImageComputationNode::CUDA);
     break;
   case 2:
-    d->ParameterNode->SetThreading(vtkMRMLDrrImageComputationNode::PlastimatchThreadingType::OPENCL);
+    d->ParameterNode->SetThreading(vtkMRMLDrrImageComputationNode::OpenCL);
     break;
   default:
     qWarning() << Q_FUNC_INFO << ": Invalid threading button id";
@@ -265,13 +265,13 @@ void qSlicerDrrImageComputationPlastimatchParametersWidget::onHUConversionChange
   switch (id)
   {
   case 0:
-    d->ParameterNode->SetHUConversion(vtkMRMLDrrImageComputationNode::PlastimatchHounsfieldUnitsConversionType::NONE);
+    d->ParameterNode->SetHUConversion(vtkMRMLDrrImageComputationNode::None);
     break;
   case 1:
-    d->ParameterNode->SetHUConversion(vtkMRMLDrrImageComputationNode::PlastimatchHounsfieldUnitsConversionType::INLINE);
+    d->ParameterNode->SetHUConversion(vtkMRMLDrrImageComputationNode::Inline);
     break;
   case 2:
-    d->ParameterNode->SetHUConversion(vtkMRMLDrrImageComputationNode::PlastimatchHounsfieldUnitsConversionType::PREPROCESS);
+    d->ParameterNode->SetHUConversion(vtkMRMLDrrImageComputationNode::Preprocess);
     break;
   default:
     qWarning() << Q_FUNC_INFO << ": Invalid Hounsfield units conversion button id";
