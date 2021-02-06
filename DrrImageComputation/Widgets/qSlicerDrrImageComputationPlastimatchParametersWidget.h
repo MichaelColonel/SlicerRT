@@ -68,7 +68,8 @@ protected slots:
   void onHUConversionChanged(int);
   void onAutoscaleIntensityRangeChanged(double, double);
   /// HU threshold value for processing
-  void onHUThresholdChanged(double);
+  /// @param thresholdBelow - Air HU value (-1000) below that threshold
+  void onHUThresholdChanged(double thresholdBelow);
 
 protected:
   QScopedPointer<qSlicerDrrImageComputationPlastimatchParametersWidgetPrivate> d_ptr;

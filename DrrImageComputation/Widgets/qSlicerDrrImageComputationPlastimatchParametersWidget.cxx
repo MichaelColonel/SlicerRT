@@ -370,13 +370,13 @@ void qSlicerDrrImageComputationPlastimatchParametersWidget::updatePlastimatchDrr
   command << "plastimatch drr ";
   switch (d->ParameterNode->GetThreading())
   {
-    case vtkMRMLDrrImageComputationNode::PlastimatchThreadingType::CPU:
+    case vtkMRMLDrrImageComputationNode::CPU:
       command << "-A cpu \\\n";
       break;
-    case vtkMRMLDrrImageComputationNode::PlastimatchThreadingType::CUDA:
+    case vtkMRMLDrrImageComputationNode::CUDA:
       command << "-A cuda \\\n";
       break;
-    case vtkMRMLDrrImageComputationNode::PlastimatchThreadingType::OPENCL:
+    case vtkMRMLDrrImageComputationNode::OpenCL:
       command << "-A opencl \\\n";
       break;
     default:
@@ -436,10 +436,10 @@ void qSlicerDrrImageComputationPlastimatchParametersWidget::updatePlastimatchDrr
 
   switch (d->ParameterNode->GetAlgorithmReconstuction())
   {
-    case vtkMRMLDrrImageComputationNode::PlastimatchAlgorithmReconstuctionType::EXACT:
+    case vtkMRMLDrrImageComputationNode::Exact:
       command << "-i exact ";
       break;
-    case vtkMRMLDrrImageComputationNode::PlastimatchAlgorithmReconstuctionType::UNIFORM:
+    case vtkMRMLDrrImageComputationNode::Uniform:
       command << "-i uniform ";
       break;
     default:
@@ -448,20 +448,20 @@ void qSlicerDrrImageComputationPlastimatchParametersWidget::updatePlastimatchDrr
 
   switch (d->ParameterNode->GetHUConversion())
   {
-    case vtkMRMLDrrImageComputationNode::PlastimatchHounsfieldUnitsConversionType::NONE:
+    case vtkMRMLDrrImageComputationNode::None:
       command << "-P none ";
       break;
-    case vtkMRMLDrrImageComputationNode::PlastimatchHounsfieldUnitsConversionType::PREPROCESS:
+    case vtkMRMLDrrImageComputationNode::Preprocess:
       command << "-P preprocess ";
       break;
-    case vtkMRMLDrrImageComputationNode::PlastimatchHounsfieldUnitsConversionType::INLINE:
+    case vtkMRMLDrrImageComputationNode::Inline:
       command << "-P inline ";
       break;
     default:
       break;
   }
 
-  command << "-O Out";
+  command << "-O Out -t raw";
 
   d->plainTextEdit_PlastimatchDrrArguments->setPlainText(QString::fromStdString(command.str()));
 }
