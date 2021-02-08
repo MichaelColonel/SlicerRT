@@ -34,13 +34,15 @@
 #include <vtkScalarBarActorInternal.h>
 #include <vtkTextActor.h>
 
-#include <stdio.h> // for snprintf
+#include <cstdio> // for snprintf
 
 #if defined(_WIN32) && !defined(__CYGWIN__)
 #  define SNPRINTF _snprintf
 #else
 #  define SNPRINTF snprintf
 #endif
+
+#define STRING_SIZE 512
 
 vtkStandardNewMacro(vtkSlicerRTScalarBarActor);
 
@@ -73,7 +75,7 @@ void vtkSlicerRTScalarBarActor::LayoutTicks()
 
   // find the best size for the ticks
   double* range = this->LookupTable->GetRange();
-  char string[512];
+  char string[STRING_SIZE];
   double val;
   int i;
 
@@ -86,7 +88,6 @@ void vtkSlicerRTScalarBarActor::LayoutTicks()
 
   // Does this map have its scale set to log?
   int isLogTable = this->LookupTable->UsingLogScale();
-
   for (i = 0; i < this->NumberOfLabels; i++)
     {
     this->P->TextActors[i].TakeReference(vtkTextActor::New());
@@ -135,11 +136,11 @@ void vtkSlicerRTScalarBarActor::LayoutTicks()
         indx = 0.5*this->LookupTable->GetNumberOfAnnotatedValues();
         }
       index = static_cast<int>(indx+0.5);
-      SNPRINTF(string, 511, this->LabelFormat, this->LookupTable->GetAnnotation(index).c_str());
+      SNPRINTF(string, STRING_SIZE - 1, this->LabelFormat, this->LookupTable->GetAnnotation(index).c_str());
       }
     else
       {
-      SNPRINTF(string, 511, this->LabelFormat, val);
+      SNPRINTF(string, STRING_SIZE - 1, this->LabelFormat, val);
       }
 
     this->P->TextActors[i]->SetInput(string);
@@ -245,6 +246,7 @@ void vtkSlicerRTScalarBarActor::LayoutTicks()
         (this->TextPosition == PrecedeScalarBar ? -1 : +1);
       this->P->TickBox.Size[1] -= this->TextPad;
       }
+    vtkWarningMacro("Four");
     }
   this->NumberOfLabelsBuilt = this->NumberOfLabels;
 }

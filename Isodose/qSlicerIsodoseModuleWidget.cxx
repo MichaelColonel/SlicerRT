@@ -126,8 +126,8 @@ qSlicerIsodoseModuleWidgetPrivate::qSlicerIsodoseModuleWidgetPrivate(qSlicerIsod
     actor->UseAnnotationAsLabelOn();
     // It's a 2d actor, position it in screen space by percentages
     actor->SetPosition(0.1, 0.1);
-    actor->SetWidth(0.1);
-    actor->SetHeight(0.8);
+    actor->SetWidth(0.03);
+    actor->SetHeight(0.5);
   }
 }
 
