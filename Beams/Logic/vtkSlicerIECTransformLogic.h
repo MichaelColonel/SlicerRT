@@ -147,6 +147,9 @@ public:
   /// Update parent transform node of a given beam from the IEC transform hierarchy and the beam parameters
 //  void UpdateStandTransform(double patientSupportRotationAngle = 0.0);
 
+  /// Restore IEC transforms
+  void RestoreIECTransformHierarchy();
+
 protected:
   /// Get name of transform node between two coordinate systems
   /// \return Transform node name between the specified coordinate frames.

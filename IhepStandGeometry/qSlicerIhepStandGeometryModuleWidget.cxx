@@ -390,6 +390,7 @@ void qSlicerIhepStandGeometryModuleWidget::exit()
 {
   Q_D(qSlicerIhepStandGeometryModuleWidget);
   this->Superclass::exit();
+  d->logic()->RestoreOriginalGeometryTransformHierarchy();
   qDebug() << Q_FUNC_INFO << ": method finished";
 }
 

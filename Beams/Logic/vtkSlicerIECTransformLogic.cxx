@@ -286,6 +286,29 @@ void vtkSlicerIECTransformLogic::UpdateBeamTransform( vtkMRMLRTBeamNode* beamNod
 }
 
 //-----------------------------------------------------------------------------
+void vtkSlicerIECTransformLogic::RestoreIECTransformHierarchy()
+{
+  using IEC = vtkSlicerIECTransformLogic::CoordinateSystemIdentifier;
+  // TableTop -> TableTopEccentricRotation
+  vtkMRMLLinearTransformNode* tableTopToTableTopEccentricRotationTransformNode =
+    this->GetTransformNodeBetween(IEC::TableTop, IEC::TableTopEccentricRotation);
+  vtkTransform* tableTopToTableTopEccentricRotationTransform = vtkTransform::SafeDownCast(
+    tableTopToTableTopEccentricRotationTransformNode->GetTransformToParent() );
+
+  tableTopToTableTopEccentricRotationTransform->Identity();
+  tableTopToTableTopEccentricRotationTransform->Modified();
+
+  // Patient -> TableTop
+  vtkMRMLLinearTransformNode* patientToTableTopTransformNode =
+    this->GetTransformNodeBetween(IEC::Patient, IEC::TableTop);
+  vtkTransform* patientToTableTopTransform = vtkTransform::SafeDownCast(
+    patientToTableTopTransformNode->GetTransformToParent() );
+
+  patientToTableTopTransform->Identity();
+  patientToTableTopTransform->Modified();
+}
+
+//-----------------------------------------------------------------------------
 void vtkSlicerIECTransformLogic::UpdateIECTransformsFromBeam( vtkMRMLRTBeamNode* beamNode, double* isocenter)
 {
   if (!beamNode)

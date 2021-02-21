@@ -203,6 +203,20 @@ void vtkSlicerIhepStandGeometryLogic::BuildIhepStangGeometryTransformHierarchy()
   this->IECLogic->BuildIECTransformHierarchy();
 }
 
+//---------------------------------------------------------------------------
+void vtkSlicerIhepStandGeometryLogic::RestoreOriginalGeometryTransformHierarchy()
+{
+  vtkMRMLScene* scene = this->GetMRMLScene();
+  if (!scene)
+  {
+    vtkErrorMacro("RestoreOriginalGeometryTransformHierarchy: Invalid MRML scene");
+    return;
+  }
+
+  // Restore IEC hierarchy
+  this->IECLogic->RestoreIECTransformHierarchy();
+}
+
 //----------------------------------------------------------------------------
 void vtkSlicerIhepStandGeometryLogic::LoadTreatmentMachineModels(vtkMRMLIhepStandGeometryNode* parameterNode)
 {
@@ -412,35 +426,35 @@ void vtkSlicerIhepStandGeometryLogic::ResetModelsToInitialPosition(vtkMRMLIhepSt
   using IEC = vtkSlicerIECTransformLogic::CoordinateSystemIdentifier;
 
   // Update TableTop -> TableTopEccentricRotation
-  vtkMRMLLinearTransformNode* tableTopToTableTopEccentricRotationTransformNode =
-    this->IECLogic->GetTransformNodeBetween(IEC::TableTop, IEC::TableTopEccentricRotation);
-  vtkTransform* tableTopToTableTopEccentricRotationTransform = vtkTransform::SafeDownCast(
-    tableTopToTableTopEccentricRotationTransformNode->GetTransformToParent() );
+///  vtkMRMLLinearTransformNode* tableTopToTableTopEccentricRotationTransformNode =
+///    this->IECLogic->GetTransformNodeBetween(IEC::TableTop, IEC::TableTopEccentricRotation);
+///  vtkTransform* tableTopToTableTopEccentricRotationTransform = vtkTransform::SafeDownCast(
+///    tableTopToTableTopEccentricRotationTransformNode->GetTransformToParent() );
 
-  tableTopToTableTopEccentricRotationTransform->Modified();
+//  tableTopToTableTopEccentricRotationTransform->Modified();
 
   // Update TableTopInferiorSuperiorMovement -> PatientSupportRotation
-  vtkMRMLLinearTransformNode* tableTopInferiorSuperiorToPatientSupportRotationTransformNode =
-    this->IECLogic->GetTransformNodeBetween(IEC::TableTopInferiorSuperiorMovement, IEC::PatientSupportRotation);
-  vtkTransform* tableTopInferiorSuperiorToPatientSupportRotationTransform = vtkTransform::SafeDownCast(
-    tableTopInferiorSuperiorToPatientSupportRotationTransformNode->GetTransformToParent() );
+///  vtkMRMLLinearTransformNode* tableTopInferiorSuperiorToPatientSupportRotationTransformNode =
+///    this->IECLogic->GetTransformNodeBetween(IEC::TableTopInferiorSuperiorMovement, IEC::PatientSupportRotation);
+///  vtkTransform* tableTopInferiorSuperiorToPatientSupportRotationTransform = vtkTransform::SafeDownCast(
+///    tableTopInferiorSuperiorToPatientSupportRotationTransformNode->GetTransformToParent() );
 
-  tableTopInferiorSuperiorToPatientSupportRotationTransform->Modified();
+//  tableTopInferiorSuperiorToPatientSupportRotationTransform->Modified();
 
   // Update PatientSupportRotation -> FixedReference
-  vtkMRMLLinearTransformNode* patientSupportRotationToFixedReferenceTransformNode =
-    this->IECLogic->GetTransformNodeBetween(IEC::PatientSupportRotation, IEC::FixedReference);
-  vtkTransform* patientSupportRotationToFixedReferenceTransform = vtkTransform::SafeDownCast(
-    patientSupportRotationToFixedReferenceTransformNode->GetTransformToParent() );
-  patientSupportRotationToFixedReferenceTransform->Modified();
+///  vtkMRMLLinearTransformNode* patientSupportRotationToFixedReferenceTransformNode =
+///    this->IECLogic->GetTransformNodeBetween(IEC::PatientSupportRotation, IEC::FixedReference);
+///  vtkTransform* patientSupportRotationToFixedReferenceTransform = vtkTransform::SafeDownCast(
+///    patientSupportRotationToFixedReferenceTransformNode->GetTransformToParent() );
+///  patientSupportRotationToFixedReferenceTransform->Modified();
 
   // Update Collimator -> Gantry
-  vtkMRMLLinearTransformNode* collimatorToGantryTransformNode =
-   this->IECLogic->GetTransformNodeBetween(IEC::Collimator, IEC::Gantry);
-  vtkTransform* collimatorToGantryTransform = vtkTransform::SafeDownCast(collimatorToGantryTransformNode->GetTransformToParent());
-  collimatorToGantryTransform->Identity();
-  collimatorToGantryTransform->RotateZ(beamNode->GetCollimatorAngle());
-  collimatorToGantryTransform->Modified();
+///  vtkMRMLLinearTransformNode* collimatorToGantryTransformNode =
+///   this->IECLogic->GetTransformNodeBetween(IEC::Collimator, IEC::Gantry);
+///  vtkTransform* collimatorToGantryTransform = vtkTransform::SafeDownCast(collimatorToGantryTransformNode->GetTransformToParent());
+//  collimatorToGantryTransform->Identity();
+//  collimatorToGantryTransform->RotateZ(beamNode->GetCollimatorAngle());
+//  collimatorToGantryTransform->Modified();
 
   // Update Patient -> TableTop
   vtkMRMLLinearTransformNode* patientToTableTopTransformNode =
@@ -453,6 +467,7 @@ void vtkSlicerIhepStandGeometryLogic::ResetModelsToInitialPosition(vtkMRMLIhepSt
   beam->GetPlanIsocenterPosition(isocenter);
 
   patientToTableTopTransform->Identity();
+//  patientToTableTopTransform->Translate( isocenter[0], isocenter[1], isocenter[2]);
 //  patientToTableTopTransform->Translate( isocenter[0], isocenter[1] + 490, isocenter[2] + 550);
   patientToTableTopTransform->Translate( 0., -490., 550.);
   patientToTableTopTransform->Modified();
