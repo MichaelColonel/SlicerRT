@@ -52,7 +52,8 @@ namespace
 {
 
 const char* const SCANSPOT_REFERENCE_ROLE = "ScanSpotRef";
-double FWHM_TO_SIGMA = 1. / (2. * sqrt(2. * log(2.)));
+constexpr double FWHM_TO_SIGMA = 1. / (2. * sqrt(2. * log(2.)));
+const int POINTS_PER_SCANSPOT = 20;
 
 } // namespace
 
@@ -409,19 +410,9 @@ void vtkMRMLRTIonBeamNode::CreateBeamPolyData(vtkPolyData* beamModelPolyData/*=n
   bool yOpened = !vtkSlicerRtCommon::AreEqualWithTolerance( this->Y2Jaw, this->Y1Jaw);
 
   // Scanning spot beam
-  if (scanSpotTableNode)
+  vtkTable* table = nullptr;
+  if (scanSpotTableNode && (table = scanSpotTableNode->GetTable()))
   {
-    std::vector<double> positionX, positionY;
-    vtkIdType rows = scanSpotTableNode->GetNumberOfRows();
-    positionX.resize(rows);
-    positionY.resize(rows);
-    // copy scan scot map data for processing
-    for (vtkIdType row = 0; row < rows; row++)
-    {
-      vtkTable* table = scanSpotTableNode->GetTable();
-      positionX[row] = table->GetValue( row, 0).ToDouble();
-      positionY[row] = table->GetValue( row, 1).ToDouble();
-    }
     double beamTopCap = std::min( this->VSADx, this->VSADy);
     double beamBottomCap = -beamTopCap;
 
@@ -434,74 +425,148 @@ void vtkMRMLRTIonBeamNode::CreateBeamPolyData(vtkPolyData* beamModelPolyData/*=n
     double sigmaX = this->ScanningSpotSize[0] * FWHM_TO_SIGMA;
     double sigmaY = this->ScanningSpotSize[1] * FWHM_TO_SIGMA;
 
-    double borderMinX = *std::min_element( positionX.begin(), positionX.end());
-    double borderMaxX = *std::max_element( positionX.begin(), positionX.end());
-    double borderMinY = *std::min_element( positionY.begin(), positionY.end());
-    double borderMaxY = *std::max_element( positionY.begin(), positionY.end());
-
     double sigmaX1 = M1x * sigmaX;
     double sigmaY1 = M1y * sigmaY;
 
     double sigmaX2 = M2x * sigmaX;
     double sigmaY2 = M2y * sigmaY;
+  
+    vtkIdType rows = scanSpotTableNode->GetNumberOfRows();
+    vtkNew<vtkAppendPolyData> append;
+    bool polydataAppended = false;
+    // ScanSpot map data for processing
+    for (vtkIdType row = 0; row < rows; row++)
+    {
+      vtkNew<vtkPolyData> beamPolyData;
+      vtkNew<vtkPoints> points;
+      vtkNew<vtkCellArray> cellArray;
 
-    // beam begin cap
-    points->InsertPoint( 0, borderMinX - sigmaX1, borderMinY - sigmaY1, beamTopCap);
-    points->InsertPoint( 1, borderMinX - sigmaX1, borderMaxY + sigmaY1, beamTopCap);
-    points->InsertPoint( 2, borderMaxX + sigmaX1, borderMaxY + sigmaY1, beamTopCap);
-    points->InsertPoint( 3, borderMaxX + sigmaX1, borderMinY - sigmaY1, beamTopCap);
+      double positionX = table->GetValue( row, 0).ToDouble();
+      double positionY = table->GetValue( row, 1).ToDouble();
+      double weight = table->GetValue( row, 2).ToDouble();
 
-    // beam end cap
-    points->InsertPoint( 4, borderMinX - sigmaX2, borderMinY - sigmaY2, beamBottomCap);
-    points->InsertPoint( 5, borderMinX - sigmaX2, borderMaxY + sigmaY2, beamBottomCap);
-    points->InsertPoint( 6, borderMaxX + sigmaX2, borderMaxY + sigmaY2, beamBottomCap);
-    points->InsertPoint( 7, borderMaxX + sigmaX2, borderMinY - sigmaY2, beamBottomCap);
+      double x1[POINTS_PER_SCANSPOT] = {};
+      double y1[POINTS_PER_SCANSPOT] = {};
+      double x2[POINTS_PER_SCANSPOT] = {};
+      double y2[POINTS_PER_SCANSPOT] = {};
+      for ( int i = 0; i < POINTS_PER_SCANSPOT; ++i)
+      {
+        double phi = 2. * M_PI * i / POINTS_PER_SCANSPOT;
+        x1[i] = sigmaX1 * cos(phi);
+        y1[i] = sigmaY1 * sin(phi);
+        x2[i] = sigmaX2 * cos(phi);
+        y2[i] = sigmaY2 * sin(phi);
+      }
 
-    // Add the cap to the top
-    cellArray->InsertNextCell(4);
-    cellArray->InsertCellPoint(0);
-    cellArray->InsertCellPoint(1);
-    cellArray->InsertCellPoint(2);
-    cellArray->InsertCellPoint(3);
+      for ( int i = 0; i < POINTS_PER_SCANSPOT; ++i)
+      {
+        // beam begin cap points
+        points->InsertPoint( i, x1[i] - positionX, y1[i] - positionY, beamTopCap);
+        // beam end cap points
+        points->InsertPoint( POINTS_PER_SCANSPOT + i, x2[i] - positionX, y2[i] - positionY, beamBottomCap);
+      }
+      
+      // side cells
+      for ( int i = 0; i < POINTS_PER_SCANSPOT; ++i)
+      {
+        cellArray->InsertNextCell(4);
+        cellArray->InsertCellPoint(i);
+        cellArray->InsertCellPoint(i + 1);
+        cellArray->InsertCellPoint(POINTS_PER_SCANSPOT + i);
+        cellArray->InsertCellPoint(POINTS_PER_SCANSPOT + i + 1);
+      }
+      // last side cell
+      cellArray->InsertNextCell(4);
+      cellArray->InsertCellPoint(POINTS_PER_SCANSPOT - 1);
+      cellArray->InsertCellPoint(0);
+      cellArray->InsertCellPoint(POINTS_PER_SCANSPOT);
+      cellArray->InsertCellPoint(2 * POINTS_PER_SCANSPOT - 1);
+      
+      // beam begin cap
+      cellArray->InsertNextCell(POINTS_PER_SCANSPOT);
+      for ( int i = 0; i < POINTS_PER_SCANSPOT; ++i)
+      {
+        cellArray->InsertCellPoint(i);
+      }
+      cellArray->InsertCellPoint(0);
 
-    // Side polygon 1
-    cellArray->InsertNextCell(4);
-    cellArray->InsertCellPoint(0);
-    cellArray->InsertCellPoint(4);
-    cellArray->InsertCellPoint(5);
-    cellArray->InsertCellPoint(1);
+      // beam end cap
+      cellArray->InsertNextCell(POINTS_PER_SCANSPOT);
+      for ( int i = POINTS_PER_SCANSPOT; i < 2 * POINTS_PER_SCANSPOT; ++i)
+      {
+        cellArray->InsertCellPoint(i);
+      }
+      cellArray->InsertCellPoint(POINTS_PER_SCANSPOT);
+/*
+      points->InsertPoint( 0, borderMinX - sigmaX1, borderMinY - sigmaY1, beamTopCap);
+      points->InsertPoint( 1, borderMinX - sigmaX1, borderMaxY + sigmaY1, beamTopCap);
+      points->InsertPoint( 2, borderMaxX + sigmaX1, borderMaxY + sigmaY1, beamTopCap);
+      points->InsertPoint( 3, borderMaxX + sigmaX1, borderMinY - sigmaY1, beamTopCap);
 
-    // Side polygon 2
-    cellArray->InsertNextCell(4);
-    cellArray->InsertCellPoint(1);
-    cellArray->InsertCellPoint(5);
-    cellArray->InsertCellPoint(6);
-    cellArray->InsertCellPoint(2);
+      // beam end cap
+      points->InsertPoint( 4, borderMinX - sigmaX2, borderMinY - sigmaY2, beamBottomCap);
+      points->InsertPoint( 5, borderMinX - sigmaX2, borderMaxY + sigmaY2, beamBottomCap);
+      points->InsertPoint( 6, borderMaxX + sigmaX2, borderMaxY + sigmaY2, beamBottomCap);
+      points->InsertPoint( 7, borderMaxX + sigmaX2, borderMinY - sigmaY2, beamBottomCap);
 
-    // Side polygon 3
-    cellArray->InsertNextCell(4);
-    cellArray->InsertCellPoint(2);
-    cellArray->InsertCellPoint(6);
-    cellArray->InsertCellPoint(7);
-    cellArray->InsertCellPoint(3);
+      // Add the cap to the top
+      cellArray->InsertNextCell(4);
+      cellArray->InsertCellPoint(0);
+      cellArray->InsertCellPoint(1);
+      cellArray->InsertCellPoint(2);
+      cellArray->InsertCellPoint(3);
 
-    // Side polygon 4
-    cellArray->InsertNextCell(4);
-    cellArray->InsertCellPoint(3);
-    cellArray->InsertCellPoint(7);
-    cellArray->InsertCellPoint(4);
-    cellArray->InsertCellPoint(0);
+      // Side polygon 1
+      cellArray->InsertNextCell(4);
+      cellArray->InsertCellPoint(0);
+      cellArray->InsertCellPoint(4);
+      cellArray->InsertCellPoint(5);
+      cellArray->InsertCellPoint(1);
 
-    // Add the cap to the bottom
-    cellArray->InsertNextCell(4);
-    cellArray->InsertCellPoint(4);
-    cellArray->InsertCellPoint(5);
-    cellArray->InsertCellPoint(6);
-    cellArray->InsertCellPoint(7);
+      // Side polygon 2
+      cellArray->InsertNextCell(4);
+      cellArray->InsertCellPoint(1);
+      cellArray->InsertCellPoint(5);
+      cellArray->InsertCellPoint(6);
+      cellArray->InsertCellPoint(2);
 
-    beamModelPolyData->SetPoints(points);
-    beamModelPolyData->SetPolys(cellArray);
-    return;
+      // Side polygon 3
+      cellArray->InsertNextCell(4);
+      cellArray->InsertCellPoint(2);
+      cellArray->InsertCellPoint(6);
+      cellArray->InsertCellPoint(7);
+      cellArray->InsertCellPoint(3);
+
+      // Side polygon 4
+      cellArray->InsertNextCell(4);
+      cellArray->InsertCellPoint(3);
+      cellArray->InsertCellPoint(7);
+      cellArray->InsertCellPoint(4);
+      cellArray->InsertCellPoint(0);
+
+      // Add the cap to the bottom
+      cellArray->InsertNextCell(4);
+      cellArray->InsertCellPoint(4);
+      cellArray->InsertCellPoint(5);
+      cellArray->InsertCellPoint(6);
+      cellArray->InsertCellPoint(7);
+*/
+      beamPolyData->SetPoints(points);
+      beamPolyData->SetPolys(cellArray);
+      if (!vtkSlicerRtCommon::AreEqualWithTolerance( weight, 0.0))
+      {
+        append->AddInputData(beamPolyData);
+        polydataAppended = true;
+      }
+    }
+
+    if (polydataAppended)
+    {
+      append->Update();
+      beamModelPolyData->DeepCopy(append->GetOutput());
+      vtkDebugMacro("CreateBeamPolyData: Beam \"" << this->GetName() << "\" with ScanSpot data has been created!");
+      return;
+    }
   }
   else if (mlcTableNode && xOpened && yOpened) // MLC with opened Jaws
   {
