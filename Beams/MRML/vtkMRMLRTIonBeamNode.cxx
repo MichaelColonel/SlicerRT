@@ -46,6 +46,7 @@
 #include <vtkTable.h>
 #include <vtkCellArray.h>
 #include <vtkAppendPolyData.h>
+#include <vtkBooleanOperationPolyDataFilter.h>
 
 //------------------------------------------------------------------------------
 namespace
@@ -433,6 +434,8 @@ void vtkMRMLRTIonBeamNode::CreateBeamPolyData(vtkPolyData* beamModelPolyData/*=n
   
     vtkIdType rows = scanSpotTableNode->GetNumberOfRows();
     vtkNew<vtkAppendPolyData> append;
+//    vtkNew<vtkBooleanOperationPolyDataFilter> booleanOperation;
+//    booleanOperation->SetOperationToUnion();
     bool polydataAppended = false;
     // ScanSpot map data for processing
     for (vtkIdType row = 0; row < rows; row++)
@@ -461,13 +464,17 @@ void vtkMRMLRTIonBeamNode::CreateBeamPolyData(vtkPolyData* beamModelPolyData/*=n
       for ( int i = 0; i < POINTS_PER_SCANSPOT; ++i)
       {
         // beam begin cap points
-        points->InsertPoint( i, x1[i] - positionX, y1[i] - positionY, beamTopCap);
-        // beam end cap points
-        points->InsertPoint( POINTS_PER_SCANSPOT + i, x2[i] - positionX, y2[i] - positionY, beamBottomCap);
+        points->InsertPoint( i, positionX - x1[i], positionY - y1[i], 
+          beamTopCap);
       }
-      
-      // side cells
       for ( int i = 0; i < POINTS_PER_SCANSPOT; ++i)
+      {
+        // beam end cap points
+        points->InsertPoint( POINTS_PER_SCANSPOT + i, positionX - x2[i], 
+          positionY - y2[i], beamBottomCap);
+      }
+      // side cells
+      for ( int i = 0; i < POINTS_PER_SCANSPOT - 1; ++i)
       {
         cellArray->InsertNextCell(4);
         cellArray->InsertCellPoint(i);
@@ -483,7 +490,7 @@ void vtkMRMLRTIonBeamNode::CreateBeamPolyData(vtkPolyData* beamModelPolyData/*=n
       cellArray->InsertCellPoint(2 * POINTS_PER_SCANSPOT - 1);
       
       // beam begin cap
-      cellArray->InsertNextCell(POINTS_PER_SCANSPOT);
+      cellArray->InsertNextCell(POINTS_PER_SCANSPOT + 1);
       for ( int i = 0; i < POINTS_PER_SCANSPOT; ++i)
       {
         cellArray->InsertCellPoint(i);
@@ -491,7 +498,7 @@ void vtkMRMLRTIonBeamNode::CreateBeamPolyData(vtkPolyData* beamModelPolyData/*=n
       cellArray->InsertCellPoint(0);
 
       // beam end cap
-      cellArray->InsertNextCell(POINTS_PER_SCANSPOT);
+      cellArray->InsertNextCell(POINTS_PER_SCANSPOT + 1);
       for ( int i = POINTS_PER_SCANSPOT; i < 2 * POINTS_PER_SCANSPOT; ++i)
       {
         cellArray->InsertCellPoint(i);
