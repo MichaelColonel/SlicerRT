@@ -466,9 +466,7 @@ void vtkMRMLRTIonBeamNode::CreateBeamPolyData(vtkPolyData* beamModelPolyData/*=n
         // beam begin cap points
         points->InsertPoint( i, positionX - x1[i], positionY - y1[i], 
           beamTopCap);
-      }
-      for ( int i = 0; i < POINTS_PER_SCANSPOT; ++i)
-      {
+
         // beam end cap points
         points->InsertPoint( POINTS_PER_SCANSPOT + i, positionX - x2[i], 
           positionY - y2[i], beamBottomCap);
@@ -504,63 +502,10 @@ void vtkMRMLRTIonBeamNode::CreateBeamPolyData(vtkPolyData* beamModelPolyData/*=n
         cellArray->InsertCellPoint(i);
       }
       cellArray->InsertCellPoint(POINTS_PER_SCANSPOT);
-/*
-      points->InsertPoint( 0, borderMinX - sigmaX1, borderMinY - sigmaY1, beamTopCap);
-      points->InsertPoint( 1, borderMinX - sigmaX1, borderMaxY + sigmaY1, beamTopCap);
-      points->InsertPoint( 2, borderMaxX + sigmaX1, borderMaxY + sigmaY1, beamTopCap);
-      points->InsertPoint( 3, borderMaxX + sigmaX1, borderMinY - sigmaY1, beamTopCap);
 
-      // beam end cap
-      points->InsertPoint( 4, borderMinX - sigmaX2, borderMinY - sigmaY2, beamBottomCap);
-      points->InsertPoint( 5, borderMinX - sigmaX2, borderMaxY + sigmaY2, beamBottomCap);
-      points->InsertPoint( 6, borderMaxX + sigmaX2, borderMaxY + sigmaY2, beamBottomCap);
-      points->InsertPoint( 7, borderMaxX + sigmaX2, borderMinY - sigmaY2, beamBottomCap);
-
-      // Add the cap to the top
-      cellArray->InsertNextCell(4);
-      cellArray->InsertCellPoint(0);
-      cellArray->InsertCellPoint(1);
-      cellArray->InsertCellPoint(2);
-      cellArray->InsertCellPoint(3);
-
-      // Side polygon 1
-      cellArray->InsertNextCell(4);
-      cellArray->InsertCellPoint(0);
-      cellArray->InsertCellPoint(4);
-      cellArray->InsertCellPoint(5);
-      cellArray->InsertCellPoint(1);
-
-      // Side polygon 2
-      cellArray->InsertNextCell(4);
-      cellArray->InsertCellPoint(1);
-      cellArray->InsertCellPoint(5);
-      cellArray->InsertCellPoint(6);
-      cellArray->InsertCellPoint(2);
-
-      // Side polygon 3
-      cellArray->InsertNextCell(4);
-      cellArray->InsertCellPoint(2);
-      cellArray->InsertCellPoint(6);
-      cellArray->InsertCellPoint(7);
-      cellArray->InsertCellPoint(3);
-
-      // Side polygon 4
-      cellArray->InsertNextCell(4);
-      cellArray->InsertCellPoint(3);
-      cellArray->InsertCellPoint(7);
-      cellArray->InsertCellPoint(4);
-      cellArray->InsertCellPoint(0);
-
-      // Add the cap to the bottom
-      cellArray->InsertNextCell(4);
-      cellArray->InsertCellPoint(4);
-      cellArray->InsertCellPoint(5);
-      cellArray->InsertCellPoint(6);
-      cellArray->InsertCellPoint(7);
-*/
       beamPolyData->SetPoints(points);
       beamPolyData->SetPolys(cellArray);
-      if (!vtkSlicerRtCommon::AreEqualWithTolerance( weight, 0.0))
+      if (weight > 0.0)
       {
         append->AddInputData(beamPolyData);
         polydataAppended = true;
