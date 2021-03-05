@@ -37,6 +37,12 @@
 // MRML includes
 #include <vtkMRMLScene.h>
 #include <vtkMRMLLinearTransformNode.h>
+
+//#include <vtkMRMLMarkupsPlaneNode.h>
+#include <vtkMRMLMarkupsLineNode.h>
+
+#include <vtkMRMLScene.h>
+#include <vtkMRMLLinearTransformNode.h>
 #include <vtkMRMLDisplayNode.h>
 #include <vtkMRMLModelNode.h>
 #include <vtkMRMLViewNode.h>
@@ -75,6 +81,9 @@ const char* vtkSlicerIhepStandGeometryLogic::CANYON_MODEL_NAME = "Canyon";
 const char* vtkSlicerIhepStandGeometryLogic::PATIENTSUPPORT_MODEL_NAME = "PatientSupportRotation";
 const char* vtkSlicerIhepStandGeometryLogic::TABLETOPSTAND_MODEL_NAME = "TableTopStand";
 const char* vtkSlicerIhepStandGeometryLogic::TABLETOP_MODEL_NAME = "TableTop";
+const char* vtkSlicerIhepStandGeometryLogic::BEAMLINE_MARKUPS_NODE_NAME = "BeamLine";
+
+const char* vtkSlicerIhepStandGeometryLogic::BEAMLINE_TRANSFORM_NODE_NAME = "IhepStandGeometryBeamlineTransform";
 
 const char* vtkSlicerIhepStandGeometryLogic::ORIENTATION_MARKER_MODEL_NODE_NAME = "IhepStandGeometryOrientationMarker";
 
@@ -189,6 +198,134 @@ void vtkSlicerIhepStandGeometryLogic::OnMRMLSceneNodeRemoved(vtkMRMLNode* vtkNot
 {
 }
 
+
+//----------------------------------------------------------------------------
+void vtkSlicerIhepStandGeometryLogic::CreateMarkupsNodes(vtkMRMLIhepStandGeometryNode* parameterNode)
+{
+  vtkMRMLScene* scene = this->GetMRMLScene(); 
+  if (!scene)
+  {
+    vtkErrorMacro("CreateMarkupsNodes: Invalid MRML scene");
+    return;
+  }
+
+  if (!parameterNode)
+  {
+    vtkErrorMacro("CreateMarkupsNodes: Invalid parameter node");
+    return;
+  }
+
+  vtkMRMLRTBeamNode* beamNode = parameterNode->GetBeamNode();
+  vtkMRMLTransformNode* transformNode = nullptr;
+  if (beamNode)
+  {
+    transformNode = this->UpdateBeamlineTransformFromBeam(beamNode);
+  }
+
+  // Create markups nodes if they don't exist
+
+  // Beamline markups node
+  vtkSmartPointer<vtkMRMLMarkupsLineNode> beamlineMarkupsNode;
+  if (!scene->GetFirstNodeByName(BEAMLINE_MARKUPS_NODE_NAME))
+  {
+    beamlineMarkupsNode = this->CreateBeamline(parameterNode);
+  }
+  else
+  {
+    beamlineMarkupsNode = vtkMRMLMarkupsLineNode::SafeDownCast(
+      scene->GetFirstNodeByName(BEAMLINE_MARKUPS_NODE_NAME));
+    // Update beamline points using IhepStandGeometry node data
+    if (transformNode)
+    {
+      beamlineMarkupsNode->SetAndObserveTransformNodeID(transformNode->GetID());
+    }
+  }
+}
+
+//----------------------------------------------------------------------------
+void vtkSlicerIhepStandGeometryLogic::UpdateMarkupsNodes(vtkMRMLIhepStandGeometryNode* parameterNode)
+{
+  vtkMRMLScene* scene = this->GetMRMLScene(); 
+  if (!scene)
+  {
+    vtkErrorMacro("UpdateMarkupsNodes: Invalid MRML scene");
+    return;
+  }
+
+  if (!parameterNode)
+  {
+    vtkErrorMacro("UpdateMarkupsNodes: Invalid parameter node");
+    return;
+  }
+
+  vtkMRMLRTBeamNode* beamNode = parameterNode->GetBeamNode();
+  if (!beamNode)
+  {
+    vtkErrorMacro("UpdateMarkupsNodes: Invalid beam node");
+    return;
+  }
+
+  vtkMRMLTransformNode* transformNode = this->UpdateBeamlineTransformFromBeam(beamNode);
+
+  // beamline markups line node
+  if (scene->GetFirstNodeByName(BEAMLINE_MARKUPS_NODE_NAME))
+  {
+    vtkMRMLMarkupsLineNode* beamlineMarkupsNode = vtkMRMLMarkupsLineNode::SafeDownCast(
+      scene->GetFirstNodeByName(BEAMLINE_MARKUPS_NODE_NAME));
+
+    // update points
+    vtkVector3d p0( 0., 0., -5000.);
+    vtkVector3d p1( 0., 0., 5000.);
+
+    double* p = beamlineMarkupsNode->GetNthControlPointPosition(0);
+    if (p)
+    {
+      beamlineMarkupsNode->SetNthControlPointPosition( 0, p0.GetX(), p0.GetY(), p0.GetZ());
+    }
+    else
+    {
+      beamlineMarkupsNode->AddControlPoint(p0);
+    }
+    
+    p = beamlineMarkupsNode->GetNthControlPointPosition(1);
+    if (p)
+    {
+      beamlineMarkupsNode->SetNthControlPointPosition( 1, p1.GetX(), p1.GetY(), p1.GetZ());
+    }
+    else
+    {
+      beamlineMarkupsNode->AddControlPoint(p1);
+    }
+
+    // Update beamline markups transform node if it's changed    
+    vtkMRMLTransformNode* markupsTransformNode = beamlineMarkupsNode->GetParentTransformNode();
+
+    if (markupsTransformNode)
+    {
+      beamlineMarkupsNode->SetAndObserveTransformNodeID(transformNode->GetID());
+    }
+  }
+}
+
+//----------------------------------------------------------------------------
+void vtkSlicerIhepStandGeometryLogic::ShowMarkupsNodes(bool toggled)
+{
+  vtkMRMLScene* scene = this->GetMRMLScene(); 
+  if (!scene)
+  {
+    vtkErrorMacro("ShowMarkupsNodes: Invalid MRML scene");
+    return;
+  }
+
+  // beamline markups line node
+  if (scene->GetFirstNodeByName(BEAMLINE_MARKUPS_NODE_NAME))
+  {
+    vtkMRMLMarkupsLineNode* beamlineMarkupsNode = vtkMRMLMarkupsLineNode::SafeDownCast(
+      scene->GetFirstNodeByName(BEAMLINE_MARKUPS_NODE_NAME));
+    beamlineMarkupsNode->SetDisplayVisibility(int(toggled));
+  }
+}
+
 //---------------------------------------------------------------------------
 void vtkSlicerIhepStandGeometryLogic::BuildIhepStangGeometryTransformHierarchy()
 {
@@ -215,6 +352,94 @@ void vtkSlicerIhepStandGeometryLogic::RestoreOriginalGeometryTransformHierarchy(
 
   // Restore IEC hierarchy
   this->IECLogic->RestoreIECTransformHierarchy();
+
+//------------------------------------------------------------------------------
+vtkMRMLLinearTransformNode* vtkSlicerIhepStandGeometryLogic::UpdateBeamlineTransformFromBeam(vtkMRMLRTBeamNode* beamNode)
+{
+  if (!beamNode)
+  {
+    vtkErrorMacro("UpdateBeamlineTransformFromBeam: Invalid beam node");
+    return nullptr;
+  }
+  vtkMRMLScene* scene = this->GetMRMLScene();
+  if (!scene)
+  {
+    vtkErrorMacro("UpdateBeamlineTransformFromBeam: Invalid MRML scene");
+    return nullptr;
+  }
+
+  vtkSmartPointer<vtkMRMLLinearTransformNode> transformNode;
+  if (!scene->GetFirstNodeByName(BEAMLINE_TRANSFORM_NODE_NAME))
+  {
+    transformNode = vtkSmartPointer<vtkMRMLLinearTransformNode>::New();
+    transformNode->SetName(BEAMLINE_TRANSFORM_NODE_NAME);
+    transformNode->SetHideFromEditors(1);
+    transformNode->SetSingletonTag("IHEP_Transform");
+    scene->AddNode(transformNode);
+  }
+  else
+  {
+    transformNode = vtkMRMLLinearTransformNode::SafeDownCast(
+      scene->GetFirstNodeByName(BEAMLINE_TRANSFORM_NODE_NAME));
+  }
+
+  vtkNew<vtkSlicerIECTransformLogic> iecLogic;
+  iecLogic->SetMRMLScene(scene);
+
+  // Update transforms in IEC logic from beam node parameters
+  iecLogic->UpdateIECTransformsFromBeam(beamNode);
+
+  // Dynamic transform from Gantry to RAS
+  // Transformation path:
+  // Gantry -> FixedReference -> PatientSupport -> TableTopEccentricRotation -> TableTop -> Patient -> RAS
+  vtkNew<vtkGeneralTransform> generalTransform;
+  if (iecLogic->GetTransformBetween( vtkSlicerIECTransformLogic::CoordinateSystemIdentifier::Gantry, 
+    vtkSlicerIECTransformLogic::CoordinateSystemIdentifier::RAS, generalTransform))
+  {
+    // Convert general transform to linear
+    // This call also makes hard copy of the transform so that it doesn't change when other beam transforms change
+    vtkNew<vtkTransform> linearTransform;
+    if (!vtkMRMLTransformNode::IsGeneralTransformLinear(generalTransform, linearTransform))
+    {
+      vtkErrorMacro("UpdateImageTransformFromBeam: Unable to set transform with non-linear components to beam " << beamNode->GetName());
+      return nullptr;
+    }
+    // Set transform to node
+    transformNode->SetAndObserveTransformToParent(linearTransform);
+  }
+  return transformNode;
+}
+
+//----------------------------------------------------------------------------
+vtkMRMLMarkupsLineNode* vtkSlicerIhepStandGeometryLogic::CreateBeamline(vtkMRMLIhepStandGeometryNode* parameterNode)
+{
+  vtkNew<vtkMRMLMarkupsLineNode> beamlineMarkupsNode;
+  this->GetMRMLScene()->AddNode(beamlineMarkupsNode);
+  beamlineMarkupsNode->SetName(BEAMLINE_MARKUPS_NODE_NAME);
+  beamlineMarkupsNode->SetHideFromEditors(1);
+//  std::string singletonTag = std::string("IHEP_") + BEAMLINE_MARKUPS_NODE_NAME;
+//  beamlineMarkupsNode->SetSingletonTag(singletonTag.c_str());
+
+  if (parameterNode)
+  {
+    // add points
+    vtkVector3d p0( 0, 0, -5000.);
+    vtkVector3d p1( 0, 0, 5000.);
+
+    beamlineMarkupsNode->AddControlPoint(p0);
+    beamlineMarkupsNode->AddControlPoint(p1);
+
+    if (vtkMRMLRTBeamNode* beamNode = parameterNode->GetBeamNode())
+    {
+      vtkMRMLTransformNode* transformNode = this->UpdateBeamlineTransformFromBeam(beamNode);
+
+      if (transformNode)
+      {
+        beamlineMarkupsNode->SetAndObserveTransformNodeID(transformNode->GetID());
+      }
+    }
+  }
+  return beamlineMarkupsNode;
 }
 
 //----------------------------------------------------------------------------
