@@ -179,10 +179,12 @@ void qSlicerIhepStandGeometryModuleWidget::onLoadStandModelsButtonClicked()
   d->logic()->LoadTreatmentMachineModels(parameterNode);
 
   // Reset camera
+/*
   qSlicerApplication* slicerApplication = qSlicerApplication::application();
   qSlicerLayoutManager* layoutManager = slicerApplication->layoutManager();
   qMRMLThreeDView* threeDView = layoutManager->threeDWidget(0)->threeDView();
   threeDView->resetCamera();
+*/
 
 /*
   // Set treatment machine dependent properties

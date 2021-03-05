@@ -36,6 +36,10 @@
 class vtkMRMLIhepStandGeometryNode;
 class vtkSlicerIECTransformLogic;
 
+class vtkMRMLRTBeamNode;
+class vtkMRMLLinearTransformNode;
+class vtkMRMLMarkupsLineNode;
+
 /// \ingroup Slicer_QtModules_IhepStandGeometry
 class VTK_SLICER_IHEPSTANDGEOMETRY_MODULE_LOGIC_EXPORT vtkSlicerIhepStandGeometryLogic :
   public vtkSlicerModuleLogic
@@ -46,12 +50,21 @@ public:
   static const char* PATIENTSUPPORT_MODEL_NAME; // Patient Support Rotation
   static const char* TABLETOPSTAND_MODEL_NAME; // Table Top Inferior-Superior Movement Stand
   static const char* TABLETOP_MODEL_NAME;
+  static const char* BEAMLINE_MARKUPS_NODE_NAME; // line
+  static const char* BEAMLINE_TRANSFORM_NODE_NAME;
 
   static const char* ORIENTATION_MARKER_MODEL_NODE_NAME;
 
   static vtkSlicerIhepStandGeometryLogic *New();
   vtkTypeMacro(vtkSlicerIhepStandGeometryLogic, vtkSlicerModuleLogic);
   void PrintSelf(ostream& os, vtkIndent indent);
+
+  /// Create markups nodes for visualization
+  void CreateMarkupsNodes(vtkMRMLIhepStandGeometryNode* parameterNode);
+  /// Update markups nodes using parameter node data
+  void UpdateMarkupsNodes(vtkMRMLIhepStandGeometryNode* parameterNode);
+  /// Show markups
+  void ShowMarkupsNodes(bool toggled = false);
 
   /// Load pre-defined components of the treatment machine into the scene
   /// \param parameterNode Parameter node contains the type of treatment machine
@@ -88,6 +101,9 @@ protected:
   vtkSlicerIECTransformLogic* IECLogic;
 
 private:
+
+  vtkMRMLLinearTransformNode* UpdateBeamlineTransformFromBeam(vtkMRMLRTBeamNode* beamNode);
+  vtkMRMLMarkupsLineNode* CreateBeamline(vtkMRMLIhepStandGeometryNode* parameterNode);
 
   vtkSlicerIhepStandGeometryLogic(const vtkSlicerIhepStandGeometryLogic&) = delete;
   void operator=(const vtkSlicerIhepStandGeometryLogic&) = delete;
