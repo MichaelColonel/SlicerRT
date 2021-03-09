@@ -352,6 +352,7 @@ void vtkSlicerIhepStandGeometryLogic::RestoreOriginalGeometryTransformHierarchy(
 
   // Restore IEC hierarchy
   this->IECLogic->RestoreIECTransformHierarchy();
+}
 
 //------------------------------------------------------------------------------
 vtkMRMLLinearTransformNode* vtkSlicerIhepStandGeometryLogic::UpdateBeamlineTransformFromBeam(vtkMRMLRTBeamNode* beamNode)
@@ -649,6 +650,7 @@ void vtkSlicerIhepStandGeometryLogic::ResetModelsToInitialPosition(vtkMRMLIhepSt
 
   vtkMRMLRTBeamNode* beamNode = parameterNode->GetBeamNode();
   using IEC = vtkSlicerIECTransformLogic::CoordinateSystemIdentifier;
+  this->IECLogic->UpdateIECTransformsFromBeam(beamNode);
 
   // Update TableTop -> TableTopEccentricRotation
 ///  vtkMRMLLinearTransformNode* tableTopToTableTopEccentricRotationTransformNode =
@@ -819,6 +821,7 @@ void vtkSlicerIhepStandGeometryLogic::SetupTreatmentMachineModels(vtkMRMLIhepSta
   // Transform path: RAS -> Patient -> TableTop
   vtkNew<vtkGeneralTransform> rasToTableTopGeneralTransform;
   vtkNew<vtkTransform> rasToTableTopLinearTransform;
+//  this->IECLogic->RestoreIECTransformHierarchy();
   if (this->IECLogic->GetTransformBetween( IEC::RAS, IEC::TableTop, 
     rasToTableTopGeneralTransform, false))
   {
@@ -1048,7 +1051,7 @@ void vtkSlicerIhepStandGeometryLogic::MoveModelsToIsocenter(vtkMRMLIhepStandGeom
 
   patientToTableTopTransform->Identity();
 //  patientToTableTopTransform->Translate( isocenter[0], isocenter[1] + 490, isocenter[2] + 550);
-  patientToTableTopTransform->Translate( 0., -490., 550.);
+//  patientToTableTopTransform->Translate( 0., -490., 550.);
 //  patientToTableTopTransform->Translate( 0, 0, 0);
   patientToTableTopTransform->Modified();
 

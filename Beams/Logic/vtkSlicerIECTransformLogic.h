@@ -94,7 +94,7 @@ Legend:
 class VTK_SLICER_BEAMS_LOGIC_EXPORT vtkSlicerIECTransformLogic : public vtkMRMLAbstractLogic
 {
 public:
-  enum class CoordinateSystemIdentifier : int
+  enum CoordinateSystemIdentifier
   {
     RAS = 0,
     FixedReference,

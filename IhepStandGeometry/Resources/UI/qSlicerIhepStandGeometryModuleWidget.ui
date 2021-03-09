@@ -6,14 +6,198 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>404</width>
-    <height>601</height>
+    <width>385</width>
+    <height>628</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>Form</string>
   </property>
   <layout class="QGridLayout" name="gridLayout_7">
+   <item row="1" column="0">
+    <widget class="ctkCollapsibleButton" name="CollapsibleButton_DisplayModelsMarkups">
+     <property name="text">
+      <string>Display models and markups</string>
+     </property>
+     <layout class="QGridLayout" name="gridLayout_3">
+      <item row="0" column="0">
+       <layout class="QGridLayout" name="gridLayout_2">
+        <item row="1" column="0">
+         <widget class="QCheckBox" name="checkBox_ShowModels">
+          <property name="text">
+           <string>Show models</string>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="0">
+         <widget class="QCheckBox" name="checkBox_ShowMarkups">
+          <property name="text">
+           <string>Show markups</string>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="1" rowspan="2">
+         <widget class="QPushButton" name="PushButton_LoadStandModels">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="text">
+           <string>Load stand models</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item row="4" column="0">
+    <widget class="ctkCollapsibleButton" name="collapsibleButton_BeamToStandTransformation">
+     <property name="text">
+      <string>Beam to stand transformation</string>
+     </property>
+     <property name="collapsed">
+      <bool>true</bool>
+     </property>
+     <layout class="QGridLayout" name="gridLayout_5">
+      <item row="0" column="0">
+       <widget class="qSlicerBeamToStandTransformationWidget" name="beamToStandTransformationWidget" native="true">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item row="5" column="0">
+    <spacer name="verticalSpacer">
+     <property name="orientation">
+      <enum>Qt::Vertical</enum>
+     </property>
+     <property name="sizeHint" stdset="0">
+      <size>
+       <width>0</width>
+       <height>0</height>
+      </size>
+     </property>
+    </spacer>
+   </item>
+   <item row="3" column="0">
+    <widget class="ctkCollapsibleButton" name="CollapsibleButton_ModelsControl">
+     <property name="text">
+      <string>Models Control</string>
+     </property>
+     <layout class="QGridLayout" name="gridLayout_6">
+      <item row="3" column="0">
+       <widget class="QPushButton" name="PushButton_MoveModelsToIsocenter">
+        <property name="text">
+         <string>Move models to isocenter</string>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="0">
+       <layout class="QGridLayout" name="gridLayout_4">
+        <item row="1" column="1">
+         <widget class="ctkSliderWidget" name="SliderWidget_TableTopLongitudinalPosition">
+          <property name="minimum">
+           <double>-999.899999999999977</double>
+          </property>
+          <property name="maximum">
+           <double>999.899999999999977</double>
+          </property>
+         </widget>
+        </item>
+        <item row="3" column="0">
+         <widget class="QLabel" name="label_8">
+          <property name="text">
+           <string>Table Top Longitudinal Angle</string>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="0">
+         <widget class="QLabel" name="label_6">
+          <property name="text">
+           <string>Patient Support Rotation Angle</string>
+          </property>
+         </widget>
+        </item>
+        <item row="2" column="0">
+         <widget class="QLabel" name="label_7">
+          <property name="text">
+           <string>Table Top Vertical Position</string>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="0">
+         <widget class="QLabel" name="label_3">
+          <property name="text">
+           <string>Table Top Longitudinal Position</string>
+          </property>
+         </widget>
+        </item>
+        <item row="2" column="1">
+         <widget class="ctkSliderWidget" name="SliderWidget_TableTopVerticalPosition">
+          <property name="minimum">
+           <double>-999.899999999999977</double>
+          </property>
+          <property name="maximum">
+           <double>999.899999999999977</double>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="1">
+         <widget class="ctkSliderWidget" name="SliderWidget_PatientSupportRotationAngle">
+          <property name="maximum">
+           <double>359.990000000000009</double>
+          </property>
+         </widget>
+        </item>
+        <item row="4" column="0">
+         <widget class="QLabel" name="label_9">
+          <property name="text">
+           <string>Table Top Lateral Angle</string>
+          </property>
+         </widget>
+        </item>
+        <item row="3" column="1">
+         <widget class="ctkSliderWidget" name="SliderWidget_TableTopLongitudinalAngle">
+          <property name="minimum">
+           <double>-20.000000000000000</double>
+          </property>
+          <property name="maximum">
+           <double>20.000000000000000</double>
+          </property>
+         </widget>
+        </item>
+        <item row="4" column="1">
+         <widget class="ctkSliderWidget" name="SliderWidget_TableTopLateralAngle"/>
+        </item>
+       </layout>
+      </item>
+      <item row="2" column="0">
+       <widget class="QPushButton" name="PushButton_ResetModelsInitialPosition">
+        <property name="text">
+         <string>Reset models to initial position</string>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="0">
+       <widget class="QCheckBox" name="checkBox_UseStandSystem">
+        <property name="text">
+         <string>Use Stand System</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
    <item row="0" column="0">
     <layout class="QGridLayout" name="gridLayout">
      <item row="0" column="0">
@@ -106,183 +290,6 @@
       </widget>
      </item>
     </layout>
-   </item>
-   <item row="1" column="0">
-    <widget class="ctkCollapsibleButton" name="CollapsibleButton_DisplayModelsMarkups">
-     <property name="text">
-      <string>Display models and markups</string>
-     </property>
-     <layout class="QGridLayout" name="gridLayout_3">
-      <item row="0" column="0">
-       <layout class="QGridLayout" name="gridLayout_2">
-        <item row="1" column="0">
-         <widget class="QCheckBox" name="checkBox_ShowModels">
-          <property name="text">
-           <string>Show models</string>
-          </property>
-         </widget>
-        </item>
-        <item row="0" column="0">
-         <widget class="QCheckBox" name="checkBox_ShowMarkups">
-          <property name="text">
-           <string>Show markups</string>
-          </property>
-         </widget>
-        </item>
-        <item row="0" column="1" rowspan="2">
-         <widget class="QPushButton" name="PushButton_LoadStandModels">
-          <property name="sizePolicy">
-           <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
-            <horstretch>0</horstretch>
-            <verstretch>0</verstretch>
-           </sizepolicy>
-          </property>
-          <property name="text">
-           <string>Load stand models</string>
-          </property>
-         </widget>
-        </item>
-       </layout>
-      </item>
-     </layout>
-    </widget>
-   </item>
-   <item row="2" column="0">
-    <widget class="ctkCollapsibleButton" name="CollapsibleButton_ModelsControl">
-     <property name="text">
-      <string>Models Control</string>
-     </property>
-     <layout class="QGridLayout" name="gridLayout_6">
-      <item row="0" column="0">
-       <layout class="QGridLayout" name="gridLayout_4">
-        <item row="1" column="1">
-         <widget class="ctkSliderWidget" name="SliderWidget_TableTopLongitudinalPosition">
-          <property name="minimum">
-           <double>-999.899999999999977</double>
-          </property>
-          <property name="maximum">
-           <double>999.899999999999977</double>
-          </property>
-         </widget>
-        </item>
-        <item row="3" column="0">
-         <widget class="QLabel" name="label_8">
-          <property name="text">
-           <string>Table Top Longitudinal Angle</string>
-          </property>
-         </widget>
-        </item>
-        <item row="0" column="0">
-         <widget class="QLabel" name="label_6">
-          <property name="text">
-           <string>Patient Support Rotation Angle</string>
-          </property>
-         </widget>
-        </item>
-        <item row="2" column="0">
-         <widget class="QLabel" name="label_7">
-          <property name="text">
-           <string>Table Top Vertical Position</string>
-          </property>
-         </widget>
-        </item>
-        <item row="1" column="0">
-         <widget class="QLabel" name="label_3">
-          <property name="text">
-           <string>Table Top Longitudinal Position</string>
-          </property>
-         </widget>
-        </item>
-        <item row="2" column="1">
-         <widget class="ctkSliderWidget" name="SliderWidget_TableTopVerticalPosition">
-          <property name="minimum">
-           <double>-999.899999999999977</double>
-          </property>
-          <property name="maximum">
-           <double>999.899999999999977</double>
-          </property>
-         </widget>
-        </item>
-        <item row="0" column="1">
-         <widget class="ctkSliderWidget" name="SliderWidget_PatientSupportRotationAngle">
-          <property name="maximum">
-           <double>359.990000000000009</double>
-          </property>
-         </widget>
-        </item>
-        <item row="4" column="0">
-         <widget class="QLabel" name="label_9">
-          <property name="text">
-           <string>Table Top Lateral Angle</string>
-          </property>
-         </widget>
-        </item>
-        <item row="3" column="1">
-         <widget class="ctkSliderWidget" name="SliderWidget_TableTopLongitudinalAngle">
-          <property name="minimum">
-           <double>-20.000000000000000</double>
-          </property>
-          <property name="maximum">
-           <double>20.000000000000000</double>
-          </property>
-         </widget>
-        </item>
-        <item row="4" column="1">
-         <widget class="ctkSliderWidget" name="SliderWidget_TableTopLateralAngle"/>
-        </item>
-       </layout>
-      </item>
-      <item row="1" column="0">
-       <widget class="QPushButton" name="PushButton_ResetModelsInitialPosition">
-        <property name="text">
-         <string>Reset models to initial position</string>
-        </property>
-       </widget>
-      </item>
-      <item row="2" column="0">
-       <widget class="QPushButton" name="PushButton_MoveModelsToIsocenter">
-        <property name="text">
-         <string>Move models to isocenter</string>
-        </property>
-       </widget>
-      </item>
-     </layout>
-    </widget>
-   </item>
-   <item row="3" column="0">
-    <widget class="ctkCollapsibleButton" name="collapsibleButton_BeamToStandTransformation">
-     <property name="text">
-      <string>Beam to stand transformation</string>
-     </property>
-     <property name="collapsed">
-      <bool>true</bool>
-     </property>
-     <layout class="QGridLayout" name="gridLayout_5">
-      <item row="0" column="0">
-       <widget class="qSlicerBeamToStandTransformationWidget" name="beamToStandTransformationWidget" native="true">
-        <property name="sizePolicy">
-         <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
-          <horstretch>0</horstretch>
-          <verstretch>0</verstretch>
-         </sizepolicy>
-        </property>
-       </widget>
-      </item>
-     </layout>
-    </widget>
-   </item>
-   <item row="4" column="0">
-    <spacer name="verticalSpacer">
-     <property name="orientation">
-      <enum>Qt::Vertical</enum>
-     </property>
-     <property name="sizeHint" stdset="0">
-      <size>
-       <width>0</width>
-       <height>0</height>
-      </size>
-     </property>
-    </spacer>
    </item>
   </layout>
  </widget>
@@ -396,4 +403,7 @@
    </hints>
   </connection>
  </connections>
+ <buttongroups>
+  <buttongroup name="buttonGroup_CoordinateSystem"/>
+ </buttongroups>
 </ui>

@@ -559,7 +559,7 @@ void qSlicerIhepStandGeometryModuleWidget::onRTBeamNodeChanged(vtkMRMLNode* node
 
   parameterNode->SetAndObserveBeamNode(beamNode);
   parameterNode->Modified();
-  qDebug() << Q_FUNC_INFO << ": finished";
+  qDebug() << Q_FUNC_INFO << beamNode->GetName() << ": finished";
 }
 
 //-----------------------------------------------------------------------------

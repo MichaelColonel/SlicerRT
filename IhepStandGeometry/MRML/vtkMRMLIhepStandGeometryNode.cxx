@@ -56,7 +56,8 @@ vtkMRMLIhepStandGeometryNode::vtkMRMLIhepStandGeometryNode()
   TableTopVerticalPosition(0.),
   TableTopLongitudinalPosition(0.),
   TableTopLongitudinalAngle(0.),
-  TableTopLateralAngle(0.)
+  TableTopLateralAngle(0.),
+  UseStandCoordinateSystem(false)
 {
 }
 
@@ -77,6 +78,7 @@ void vtkMRMLIhepStandGeometryNode::WriteXML(ostream& of, int nIndent)
   vtkMRMLWriteXMLFloatMacro(TableTopVerticalPosition, TableTopVerticalPosition);
   vtkMRMLWriteXMLFloatMacro(TableTopLongitudinalAngle, TableTopLongitudinalAngle);
   vtkMRMLWriteXMLFloatMacro(TableTopLateralAngle, TableTopLateralAngle);
+  vtkMRMLWriteXMLBooleanMacro(UseStandCoordinateSystem, UseStandCoordinateSystem);
   // add new parameters here
   vtkMRMLWriteXMLEndMacro();
 }
@@ -94,6 +96,7 @@ void vtkMRMLIhepStandGeometryNode::ReadXMLAttributes(const char** atts)
   vtkMRMLReadXMLFloatMacro(TableTopVerticalPosition, TableTopVerticalPosition);
   vtkMRMLReadXMLFloatMacro(TableTopLongitudinalAngle, TableTopLongitudinalAngle);
   vtkMRMLReadXMLFloatMacro(TableTopLateralAngle, TableTopLateralAngle);  
+  vtkMRMLReadXMLBooleanMacro(UseStandCoordinateSystem, UseStandCoordinateSystem);  
   // add new parameters here
   vtkMRMLReadXMLEndMacro();
 
@@ -124,6 +127,7 @@ void vtkMRMLIhepStandGeometryNode::Copy(vtkMRMLNode *anode)
   vtkMRMLCopyFloatMacro(TableTopVerticalPosition);
   vtkMRMLCopyFloatMacro(TableTopLongitudinalAngle);
   vtkMRMLCopyFloatMacro(TableTopLateralAngle);
+  vtkMRMLCopyBooleanMacro(UseStandCoordinateSystem);
   // add new parameters here
   vtkMRMLCopyEndMacro(); 
 
@@ -150,6 +154,7 @@ void vtkMRMLIhepStandGeometryNode::CopyContent(vtkMRMLNode *anode, bool deepCopy
   vtkMRMLCopyFloatMacro(TableTopVerticalPosition);
   vtkMRMLCopyFloatMacro(TableTopLongitudinalAngle);
   vtkMRMLCopyFloatMacro(TableTopLateralAngle);
+  vtkMRMLCopyBooleanMacro(UseStandCoordinateSystem);
   // add new parameters here
   vtkMRMLCopyEndMacro();
 }
@@ -165,6 +170,7 @@ void vtkMRMLIhepStandGeometryNode::PrintSelf(ostream& os, vtkIndent indent)
   vtkMRMLPrintFloatMacro(TableTopVerticalPosition);
   vtkMRMLPrintFloatMacro(TableTopLongitudinalAngle);
   vtkMRMLPrintFloatMacro(TableTopLateralAngle);
+  vtkMRMLPrintBooleanMacro(UseStandCoordinateSystem);
   // add new parameters here
   vtkMRMLPrintEndMacro(); 
 }

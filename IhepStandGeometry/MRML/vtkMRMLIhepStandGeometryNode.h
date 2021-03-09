@@ -108,6 +108,10 @@ public:
   vtkGetMacro(TableTopLateralAngle, double);
   vtkSetMacro(TableTopLateralAngle, double);
 
+  /// Get/Set use stand coordinate system
+  vtkGetMacro(UseStandCoordinateSystem, bool);
+  vtkSetMacro(UseStandCoordinateSystem, bool);
+
 protected:
   vtkMRMLIhepStandGeometryNode();
   ~vtkMRMLIhepStandGeometryNode();
@@ -131,6 +135,8 @@ protected:
   double TableTopLongitudinalAngle;
   /// IEC Table top longitudinal angle (psi_t)
   double TableTopLateralAngle;
+  /// Use IHEP stand system coordimate for the beam or IEC system coordinate
+  bool UseStandCoordinateSystem;
 };
 
 #endif

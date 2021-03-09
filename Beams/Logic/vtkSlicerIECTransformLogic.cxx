@@ -306,6 +306,15 @@ void vtkSlicerIECTransformLogic::RestoreIECTransformHierarchy()
 
   patientToTableTopTransform->Identity();
   patientToTableTopTransform->Modified();
+
+  // TableTopInferiorSuperior -> PatientSupportRotation
+  vtkMRMLLinearTransformNode* tableTopInferiorSuperiorToPatientSupportRotationTransformNode =
+    this->GetTransformNodeBetween(IEC::TableTopInferiorSuperiorMovement, IEC::PatientSupportRotation);
+  vtkTransform* tableTopInferiorSuperiorToPatientSupportRotationTransform = vtkTransform::SafeDownCast(
+    tableTopInferiorSuperiorToPatientSupportRotationTransformNode->GetTransformToParent() );
+
+  tableTopInferiorSuperiorToPatientSupportRotationTransform->Identity();
+  tableTopInferiorSuperiorToPatientSupportRotationTransform->Modified();
 }
 
 //-----------------------------------------------------------------------------
