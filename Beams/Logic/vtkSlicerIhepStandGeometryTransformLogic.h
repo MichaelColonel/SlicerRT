@@ -36,61 +36,6 @@ class vtkGeneralTransform;
 class vtkMRMLRTBeamNode;
 class vtkMRMLLinearTransformNode;
 
-/// \ingroup SlicerRt_QtModules_Beams
-/// \brief Logic representing the IEC standard coordinate systems and transforms.
-///
-/// The IEC standard describes coordinate systems and a transform hierarchy to
-/// represent objects taking part in an external beam radiation therapy delivery in 3D space.
-/// With this logic class it is possible to get a transform from any defined coordinate
-/// system to another by simply inputting the coordinate systems. The logic can observe an
-/// RT beam node to get the geometrical parameters defining the state of the objects involved.
-/// Image describing these coordinate frames:
-/// http://perk.cs.queensu.ca/sites/perkd7.cs.queensu.ca/files/Project/IEC_Transformations.PNG
-///
-
-/*
-                          "IEC 61217:2011 Hierarchy"
-
-                   -------------------("f")---------------------
-                   |                    |                      |
-        ---------("g")                ("i")                  ("s")
-        |          |                    |                      |
-      ("r")      ("b")                ("o")                  ("e")
-                   |                                           |
-                 ("w")                                       ("t")
-                                                               |
-                                                             ("p")
-
-Legend:
-  ("f") - Fixed reference system
-  ("g") - GANTRY coordinate system
-  ("b") - BEAM LIMITING DEVICE or DELINEATOR coordinate system
-  ("w") - WEDGE FILTER coordinate system
-  ("r") - X-RAY IMAGE RECEPTOR coordinate system
-  ("s") - PATIENT SUPPORT coordinate system
-  ("e") - Table top eccentric rotation coordinate system
-  ("t") - Table top coordinate system
-  ("p") - PATIENT coordinate system
-  ("i") - Imager coordinate system
-  ("o") - Focus coordinate system
-*/
-/*
- IEC Patient to DICOM Patient transformation:
-     Counter clockwise rotation around X-axis, angle = -90 
-
-                       1 0  0 
-     Rotation Matrix = 0 0 -1
-                       0 1  0
-
- IEC Patient to RAS Patient transformation:
-     Counter clockwise rotation around X-axis, angle = -90 
-     Clockwise rotation around Z-axis, angle = 180 
-
-                       -1 0 0 
-     Rotation Matrix =  0 0 1
-                        0 1 0
-*/
-
 class VTK_SLICER_BEAMS_LOGIC_EXPORT vtkSlicerIhepStandGeometryTransformLogic : public vtkMRMLAbstractLogic
 {
 public:
@@ -107,15 +52,57 @@ public:
   };
   typedef std::list< CoordinateSystemIdentifier > CoordinateSystemsList;
 
-public:
   static vtkSlicerIhepStandGeometryTransformLogic *New();
   vtkTypeMacro(vtkSlicerIhepStandGeometryTransformLogic, vtkMRMLAbstractLogic);
   void PrintSelf(ostream& os, vtkIndent indent) override;
+/*
+  /// Create or get transforms taking part in the IEC logic, and build the transform hierarchy
+  void BuildIECTransformHierarchy();
 
+  /// Get transform node between two coordinate systems is exists
+  /// \return Transform node if there is a direct transform between the specified coordinate frames, nullptr otherwise
+  ///   Note: If IEC does not specify a transform between the given coordinate frames, then there will be no node with the returned name.
+  vtkMRMLLinearTransformNode* GetTransformNodeBetween(
+    CoordinateSystemIdentifier fromFrame, CoordinateSystemIdentifier toFrame );
+
+  /// Get transform from one coordinate frame to another
+  /// @param transformForBeam - calculate dynamic transformation for beam model or other models
+  /// \return Success flag (false on any error)
+  bool GetTransformBetween(CoordinateSystemIdentifier fromFrame, CoordinateSystemIdentifier toFrame, vtkGeneralTransform* outputTransform, bool transformForBeam = true);
+
+  /// Update parent transform node of a given beam from the IHEP transform hierarchy and the beam parameters
+  void UpdateBeamTransform(vtkMRMLRTBeamNode* beamNode);
+
+  /// Update IHEP transforms according to beam node
+  void UpdateIHEPTransformsFromBeam( vtkMRMLRTBeamNode* beamNode, double* isocenter = nullptr);
+*/
 protected:
   vtkSlicerIhepStandGeometryTransformLogic();
   ~vtkSlicerIhepStandGeometryTransformLogic() override;
+/*
+  /// Get name of transform node between two coordinate systems
+  /// \return Transform node name between the specified coordinate frames.
+  ///   Note: If IHEP does not specify a transform between the given coordinate frames, then there will be no node with the returned name.
+  std::string GetTransformNodeNameBetween(CoordinateSystemIdentifier fromFrame, CoordinateSystemIdentifier toFrame);
 
+  /// @brief Get coordinate system identifiers from frame system up to root system
+  /// Root system = FixedReference system
+  bool GetPathToRoot( CoordinateSystemIdentifier frame, CoordinateSystemsList& path);
+
+  /// @brief Get coordinate system identifiers from root system down to frame system
+  /// Root system = FixedReference system
+  bool GetPathFromRoot( CoordinateSystemIdentifier frame, CoordinateSystemsList& path);
+
+  /// Map from \sa CoordinateSystemIdentifier to coordinate system name. Used for getting transforms
+  std::map<CoordinateSystemIdentifier, std::string> CoordinateSystemsMap;
+
+  /// List of IEC transforms
+  std::vector< std::pair<CoordinateSystemIdentifier, CoordinateSystemIdentifier> > IhepTransforms;
+
+  // TODO: for hierarchy use tree with nodes, something like graph
+  /// Map of IHEP coordinate systems hierarchy
+  std::map< CoordinateSystemIdentifier, CoordinateSystemsList > CoordinateSystemsHierarchy;
+*/
 private:
   vtkSlicerIhepStandGeometryTransformLogic(const vtkSlicerIhepStandGeometryTransformLogic&) = delete;
   void operator=(const vtkSlicerIhepStandGeometryTransformLogic&) = delete;
