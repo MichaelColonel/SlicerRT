@@ -44,16 +44,616 @@ vtkStandardNewMacro(vtkSlicerIhepStandGeometryTransformLogic);
 //-----------------------------------------------------------------------------
 vtkSlicerIhepStandGeometryTransformLogic::vtkSlicerIhepStandGeometryTransformLogic()
 {
-  using IEC = CoordinateSystemIdentifier;
+  using IHEP = CoordinateSystemIdentifier;
+  // Setup coordinate system ID to name map
+  this->CoordinateSystemsMap.clear();
+  this->CoordinateSystemsMap[IHEP::RAS] = "Ras";
+  this->CoordinateSystemsMap[IHEP::FixedReference] = "FixedReference";
+  this->CoordinateSystemsMap[IHEP::Collimator] = "Collimator";
+  this->CoordinateSystemsMap[IHEP::PatientSupport] = "PatientSupport";
+  this->CoordinateSystemsMap[IHEP::TableTopInferiorSuperiorMovement] = "TableTopInferiorSuperiorMovement";
+  this->CoordinateSystemsMap[IHEP::TableTop] = "TableTop";
+  this->CoordinateSystemsMap[IHEP::Patient] = "Patient";
+
+  this->IhepTransforms.clear();
+  this->IhepTransforms.push_back(std::make_pair(IHEP::FixedReference, IHEP::RAS));
+  this->IhepTransforms.push_back(std::make_pair(IHEP::Collimator, IHEP::FixedReference)); // Collimator
+  this->IhepTransforms.push_back(std::make_pair(IHEP::PatientSupport, IHEP::FixedReference)); // Rotation component of patient support transform
+  this->IhepTransforms.push_back(std::make_pair(IHEP::TableTopInferiorSuperiorMovement, IHEP::PatientSupport)); // Horizontal movement of the table top base and table top
+  this->IhepTransforms.push_back(std::make_pair(IHEP::TableTop, IHEP::TableTopInferiorSuperiorMovement)); // Vertical movement and rotation of table top
+  this->IhepTransforms.push_back(std::make_pair(IHEP::Patient, IHEP::TableTop));
+  this->IhepTransforms.push_back(std::make_pair(IHEP::RAS, IHEP::Patient));
+
+  this->CoordinateSystemsHierarchy.clear();
+  // key - parent, value - children
+  this->CoordinateSystemsHierarchy[IHEP::FixedReference] = { IHEP::Collimator, IHEP::PatientSupport };
+  this->CoordinateSystemsHierarchy[IHEP::PatientSupport] = { IHEP::TableTopInferiorSuperiorMovement };
+  this->CoordinateSystemsHierarchy[IHEP::TableTopInferiorSuperiorMovement] = { IHEP::TableTop };
+  this->CoordinateSystemsHierarchy[IHEP::TableTop] = { IHEP::Patient };
+  this->CoordinateSystemsHierarchy[IHEP::Patient] = { IHEP::RAS };
 }
 
 //-----------------------------------------------------------------------------
 vtkSlicerIhepStandGeometryTransformLogic::~vtkSlicerIhepStandGeometryTransformLogic()
 {
+  this->CoordinateSystemsMap.clear();
+  this->IhepTransforms.clear();
 }
 
 //----------------------------------------------------------------------------
 void vtkSlicerIhepStandGeometryTransformLogic::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
+
+  // Transforms
+  os << indent << "Transforms:" << std::endl;
+  vtkSmartPointer<vtkMatrix4x4> matrix = vtkSmartPointer<vtkMatrix4x4>::New();
+  for ( auto& transformPair : this->IhepTransforms)
+  {
+    std::string transformNodeName = this->GetTransformNodeNameBetween( transformPair.first, transformPair.second);
+    vtkMRMLLinearTransformNode* transformNode = vtkMRMLLinearTransformNode::SafeDownCast(
+      this->GetMRMLScene()->GetFirstNodeByName(transformNodeName.c_str()) );
+
+    os << indent.GetNextIndent() << transformNodeName << std::endl;
+    transformNode->GetMatrixTransformToParent(matrix);
+    for (int i = 0; i < 4; i++)
+    {
+      os << indent.GetNextIndent() << indent.GetNextIndent();
+      for (int j = 0; j < 4; j++)
+      {
+        os << matrix->GetElement(i,j) << " ";
+      }
+      os << std::endl;
+    }
+  }
+}
+
+//---------------------------------------------------------------------------
+void vtkSlicerIhepStandGeometryTransformLogic::BuildIHEPTransformHierarchy()
+{
+  if (!this->GetMRMLScene())
+  {
+    vtkErrorMacro("BuildIHEPTransformHierarchy: Invalid MRML scene");
+    return;
+  }
+
+  // Create transform nodes if they do not exist
+  for ( auto& transformPair : this->IhepTransforms)
+  {
+    std::string transformNodeName = this->GetTransformNodeNameBetween( transformPair.first, transformPair.second);
+    if (!this->GetMRMLScene()->GetFirstNodeByName(transformNodeName.c_str()))
+    {
+      vtkSmartPointer<vtkMRMLLinearTransformNode> transformNode = vtkSmartPointer<vtkMRMLLinearTransformNode>::New();
+      transformNode->SetName(transformNodeName.c_str());
+//      transformNode->SetHideFromEditors(1);
+      std::string singletonTag = std::string("IHEP_") + transformNodeName;
+      transformNode->SetSingletonTag(singletonTag.c_str());
+      this->GetMRMLScene()->AddNode(transformNode);
+    }
+  }
+
+  using IHEP = CoordinateSystemIdentifier;
+  // Organize transforms into hierarchy based on IHEP geometry
+  
+  // Fixed Reference parent
+  this->GetTransformNodeBetween(IHEP::Collimator, IHEP::FixedReference)->SetAndObserveTransformNodeID(
+    this->GetTransformNodeBetween(IHEP::FixedReference, IHEP::RAS)->GetID() );
+  this->GetTransformNodeBetween(IHEP::PatientSupport, IHEP::FixedReference)->SetAndObserveTransformNodeID(
+    this->GetTransformNodeBetween(IHEP::FixedReference, IHEP::RAS)->GetID() );
+
+  // Patient support parent
+  this->GetTransformNodeBetween(IHEP::PatientSupport, IHEP::TableTopInferiorSuperiorMovement)->SetAndObserveTransformNodeID(
+    this->GetTransformNodeBetween(IHEP::PatientSupport, IHEP::FixedReference)->GetID() );
+
+  // Table top inferior superior movement parent
+  this->GetTransformNodeBetween(IHEP::TableTop, IHEP::TableTopInferiorSuperiorMovement)->SetAndObserveTransformNodeID(
+    this->GetTransformNodeBetween(IHEP::PatientSupport, IHEP::TableTopInferiorSuperiorMovement)->GetID() );
+
+  // Table top parent
+  this->GetTransformNodeBetween( IHEP::Patient, IHEP::TableTop)->SetAndObserveTransformNodeID(
+    this->GetTransformNodeBetween(IHEP::TableTop, IHEP::TableTopInferiorSuperiorMovement)->GetID() );
+
+  // Patient parent
+  this->GetTransformNodeBetween( IHEP::RAS, IHEP::Patient)->SetAndObserveTransformNodeID(
+    this->GetTransformNodeBetween( IHEP::Patient, IHEP::TableTop)->GetID() );
+}
+
+//-----------------------------------------------------------------------------
+void vtkSlicerIhepStandGeometryTransformLogic::UpdateBeamTransform(vtkMRMLRTBeamNode* beamNode)
+{
+  //TODO: Observe beam node's geometry modified event (vtkMRMLRTBeamNode::BeamGeometryModified)
+  // and its parent plan's POI markups fiducial's point modified event (vtkMRMLMarkupsNode::PointModifiedEvent)
+  // so that UpdateTransformsFromBeamGeometry is called. It may be needed to change the signature of the
+  // update function. It may be also needed to store a reference to the beam node (see defined nodes in SlicerRT)
+
+  if (!beamNode)
+  {
+    vtkErrorMacro("UpdateBeamTransform: Invalid beam node");
+    return;
+  }
+
+  // Make sure transform node exists
+  beamNode->CreateDefaultTransformNode();
+
+  // Update transform for beam
+  vtkMRMLLinearTransformNode* beamTransformNode = vtkMRMLLinearTransformNode::SafeDownCast(
+    beamNode->GetParentTransformNode() );
+  if (!beamTransformNode)
+  {
+    vtkErrorMacro("UpdateBeamTransform: Failed to access transform node of beam " << beamNode->GetName());
+    return;
+  }
+
+  // Update transforms in IHEP logic from beam node parameters
+  this->UpdateIHEPTransformsFromBeam(beamNode);
+
+  // Dynamic transform from Collimator to RAS
+  // Transformation path:
+  // Collimator -> FixedReference -> PatientSupport -> TableTopInferiorSuperiorMovement -> TableTop -> Patient -> RAS
+  vtkSmartPointer<vtkGeneralTransform> beamGeneralTransform = vtkSmartPointer<vtkGeneralTransform>::New();
+  using IHEP = CoordinateSystemIdentifier;
+  if (this->GetTransformBetween( IHEP::Collimator, IHEP::RAS, beamGeneralTransform))
+  {
+    // Convert general transform to linear
+    // This call also makes hard copy of the transform so that it doesn't change when other beam transforms change
+    vtkSmartPointer<vtkTransform> beamLinearTransform = vtkSmartPointer<vtkTransform>::New();
+    if (!vtkMRMLTransformNode::IsGeneralTransformLinear(beamGeneralTransform, beamLinearTransform))
+    {
+      vtkErrorMacro("UpdateBeamTransform: Unable to set transform with non-linear components to beam " << beamNode->GetName());
+      return;
+    }
+
+    // Set transform to beam node
+    beamTransformNode->SetAndObserveTransformToParent(beamLinearTransform);
+
+    // Update the name of the transform node too
+    // (the user may have renamed the beam, but it's very expensive to update the transform name on every beam modified event)
+    std::string transformName = std::string(beamNode->GetName()) + vtkMRMLRTBeamNode::BEAM_TRANSFORM_NODE_NAME_POSTFIX;
+  }
+}
+
+//-----------------------------------------------------------------------------
+void vtkSlicerIhepStandGeometryTransformLogic::UpdateBeamTransform( vtkMRMLRTBeamNode* beamNode, vtkMRMLLinearTransformNode* beamTransformNode, double* isocenter)
+{
+  //TODO: Observe beam node's geometry modified event (vtkMRMLRTBeamNode::BeamGeometryModified)
+  // and its parent plan's POI markups fiducial's point modified event (vtkMRMLMarkupsNode::PointModifiedEvent)
+  // so that UpdateTransformsFromBeamGeometry is called. It may be needed to change the signature of the
+  // update function. It may be also needed to store a reference to the beam node (see defined nodes in SlicerRT)
+
+  if (!beamNode)
+  {
+    vtkErrorMacro("UpdateBeamTransform: Invalid beam node");
+    return;
+  }
+
+  if (!beamTransformNode)
+  {
+    vtkErrorMacro("UpdateBeamTransform: Invalid beam transform node");
+    return;
+  }
+
+  // Update transforms in IHEP logic from beam node parameters
+  this->UpdateIHEPTransformsFromBeam( beamNode, isocenter);
+
+  // Dynamic transform from Collimator to RAS
+  // Transformation path:
+  // Collimator -> FixedReference -> PatientSupport -> TableTopEccentricRotation -> TableTop -> Patient -> RAS
+  vtkSmartPointer<vtkGeneralTransform> beamGeneralTransform = vtkSmartPointer<vtkGeneralTransform>::New();
+  using IHEP = CoordinateSystemIdentifier;
+  if (this->GetTransformBetween( IHEP::Collimator, IHEP::RAS, beamGeneralTransform))
+  {
+    // Convert general transform to linear
+    // This call also makes hard copy of the transform so that it doesn't change when other beam transforms change
+    vtkSmartPointer<vtkTransform> beamLinearTransform = vtkSmartPointer<vtkTransform>::New();
+    if (!vtkMRMLTransformNode::IsGeneralTransformLinear(beamGeneralTransform, beamLinearTransform))
+    {
+      vtkErrorMacro("UpdateBeamTransform: Unable to set transform with non-linear components to beam " << beamNode->GetName());
+      return;
+    }
+
+    // Set transform to beam node
+    beamTransformNode->SetAndObserveTransformToParent(beamLinearTransform);
+
+    // Update the name of the transform node too
+    // (the user may have renamed the beam, but it's very expensive to update the transform name on every beam modified event)
+    std::string transformName = std::string(beamNode->GetName()) + vtkMRMLRTBeamNode::BEAM_TRANSFORM_NODE_NAME_POSTFIX;
+  }
+}
+
+
+//-----------------------------------------------------------------------------
+void vtkSlicerIhepStandGeometryTransformLogic::UpdateIHEPTransformsFromBeam( vtkMRMLRTBeamNode* beamNode, double* isocenter)
+{
+  if (!beamNode)
+  {
+    vtkErrorMacro("UpdateIHEPTransformsFromBeam: Invalid beam node");
+    return;
+  }
+  if (!isocenter)
+  {
+    vtkMRMLScene* scene = beamNode->GetScene();
+    if (!scene || this->GetMRMLScene() != scene)
+    {
+      vtkErrorMacro("UpdateIHEPTransformsFromBeam: Invalid MRML scene");
+      return;
+    }
+  }
+
+  // Make sure the transform hierarchy is set up
+  this->BuildIHEPTransformHierarchy();
+
+  //TODO: Code duplication (RevLogic::Update...)
+  using IHEP = CoordinateSystemIdentifier;
+  vtkMRMLLinearTransformNode* collimatorToFixedReferenceTransformNode =
+    this->GetTransformNodeBetween(IHEP::Collimator, IHEP::FixedReference);
+  vtkTransform* collimatorToFixedReferenceTransform = vtkTransform::SafeDownCast(collimatorToFixedReferenceTransformNode->GetTransformToParent());
+  collimatorToFixedReferenceTransform->Identity();
+  collimatorToFixedReferenceTransform->RotateY(90. - beamNode->GetGantryAngle());
+  collimatorToFixedReferenceTransform->Modified();
+
+  vtkMRMLLinearTransformNode* patientSupportToFixedReferenceTransformNode =
+    this->GetTransformNodeBetween(IHEP::PatientSupport, IHEP::FixedReference);
+  vtkTransform* patientSupportToFixedReferenceTransform = vtkTransform::SafeDownCast(patientSupportToFixedReferenceTransformNode->GetTransformToParent());
+  patientSupportToFixedReferenceTransform->Identity();
+  patientSupportToFixedReferenceTransform->RotateZ(-1. * beamNode->GetCouchAngle());
+  patientSupportToFixedReferenceTransform->Modified();
+
+  vtkMRMLLinearTransformNode* tableTopInferiorSuperiorMovementToPatientSupportTransformNode =
+    this->GetTransformNodeBetween(IHEP::TableTopInferiorSuperiorMovement, IHEP::PatientSupport);
+  vtkTransform* tableTopInferiorSuperiorMovementToPatientSupportTransform = vtkTransform::SafeDownCast(
+    tableTopInferiorSuperiorMovementToPatientSupportTransformNode->GetTransformToParent());
+  tableTopInferiorSuperiorMovementToPatientSupportTransform->Identity();
+////  tableTopInferiorSuperiorMovementToEccentricRotationTransform->Translate( 0., 0., 0. /* put inverse value here */ );
+  tableTopInferiorSuperiorMovementToPatientSupportTransform->RotateY(beamNode->GetCollimatorAngle());
+  tableTopInferiorSuperiorMovementToPatientSupportTransform->RotateX(beamNode->GetCollimatorAngle());
+  tableTopInferiorSuperiorMovementToPatientSupportTransform->Modified();
+
+  // Update IHEP Patient to RAS transform based on the isocenter defined in the beam's parent plan
+  vtkMRMLLinearTransformNode* rasToPatientReferenceTransformNode = 
+    this->GetTransformNodeBetween( IHEP::RAS, IHEP::Patient);
+  vtkTransform* rasToPatientReferenceTransform = vtkTransform::SafeDownCast(rasToPatientReferenceTransformNode->GetTransformToParent());
+  rasToPatientReferenceTransform->Identity();
+  // Apply isocenter translation
+  std::array< double, 3 > isocenterPosition = { 0.0, 0.0, 0.0 };
+  if (isocenter)
+  {
+    // This is dirty hack for dynamic beams, the actual translation 
+    // will be in vtkSlicerDicomRtImportExportModuleLogic::vtkInternal::LoadDynamicBeamSequence method  
+    rasToPatientReferenceTransform->Translate(isocenterPosition[0], isocenterPosition[1], isocenterPosition[2]);
+  }
+  else
+  {
+    // translation for a static beam
+    if (beamNode->GetPlanIsocenterPosition(isocenterPosition.data()))
+    {
+      rasToPatientReferenceTransform->Translate(isocenterPosition[0], isocenterPosition[1], isocenterPosition[2]);
+    }
+    else
+    {
+      vtkErrorMacro("UpdateIECTransformsFromBeam: Failed to get isocenter position for beam " << beamNode->GetName());
+    }
+  }
+
+  rasToPatientReferenceTransform->RotateX(-90.);
+  rasToPatientReferenceTransform->RotateZ(180.);
+  rasToPatientReferenceTransform->Modified();
+
+  // Update IHEP FixedReference to RAS transform based on the isocenter defined in the beam's parent plan
+  vtkMRMLLinearTransformNode* fixedReferenceToRasTransformNode =
+    this->GetTransformNodeBetween(IHEP::FixedReference, IHEP::RAS);
+  vtkTransform* fixedReferenceToRasTransform = vtkTransform::SafeDownCast(fixedReferenceToRasTransformNode->GetTransformToParent());
+  fixedReferenceToRasTransform->Identity();
+
+  // Apply isocenter translation
+  if (isocenter)
+  {
+    // Once again the dirty hack for dynamic beams, the actual translation 
+    // will be in vtkSlicerDicomRtImportExportModuleLogic::vtkInternal::LoadDynamicBeamSequence method  
+    rasToPatientReferenceTransform->Translate(isocenterPosition[0], isocenterPosition[1], isocenterPosition[2]);
+  }
+  else
+  {
+    // translation for a static beam
+    if (beamNode->GetPlanIsocenterPosition(isocenterPosition.data()))
+    {
+      fixedReferenceToRasTransform->Translate(isocenterPosition[0], isocenterPosition[1], isocenterPosition[2]);
+    }
+    else
+    {
+      vtkErrorMacro("UpdateIHEPTransformsFromBeam: Failed to get isocenter position for beam " << beamNode->GetName());
+    }
+  }
+
+  // The "S" direction in RAS is the "A" direction in FixedReference
+  fixedReferenceToRasTransform->RotateX(-90.0);
+  // The "S" direction to be toward the gantry (head first position) by default
+  fixedReferenceToRasTransform->RotateZ(180.0);
+  fixedReferenceToRasTransform->Modified();
+}
+/*
+//-----------------------------------------------------------------------------
+void vtkSlicerIECTransformLogic::UpdateStandTransform(double patientSupportRotationAngle)
+{
+
+  // Make sure the transform hierarchy is set up
+  this->BuildIECTransformHierarchy();
+
+  //TODO: Code duplication (RevLogic::Update...)
+  using IEC = CoordinateSystemIdentifier;
+  vtkMRMLLinearTransformNode* gantryToFixedReferenceTransformNode =
+    this->GetTransformNodeBetween(IEC::Gantry, IEC::FixedReference);
+  vtkTransform* gantryToFixedReferenceTransform = vtkTransform::SafeDownCast(gantryToFixedReferenceTransformNode->GetTransformToParent());
+  gantryToFixedReferenceTransform->Identity();
+  gantryToFixedReferenceTransform->RotateY(0.0);//beamNode->GetGantryAngle());
+  gantryToFixedReferenceTransform->Modified();
+
+  vtkMRMLLinearTransformNode* collimatorToGantryTransformNode =
+    this->GetTransformNodeBetween(IEC::Collimator, IEC::Gantry);
+  vtkTransform* collimatorToGantryTransform = vtkTransform::SafeDownCast(collimatorToGantryTransformNode->GetTransformToParent());
+  collimatorToGantryTransform->Identity();
+  collimatorToGantryTransform->RotateZ(0.0);//beamNode->GetCollimatorAngle());
+  collimatorToGantryTransform->Modified();
+
+  vtkMRMLLinearTransformNode* patientSupportRotationToFixedReferenceTransformNode =
+    this->GetTransformNodeBetween(IEC::PatientSupportRotation, IEC::FixedReference);
+  vtkTransform* patientSupportToFixedReferenceTransform = vtkTransform::SafeDownCast(patientSupportRotationToFixedReferenceTransformNode->GetTransformToParent());
+  patientSupportToFixedReferenceTransform->Identity();
+  patientSupportToFixedReferenceTransform->RotateZ(-1. * patientSupportRotationAngle);//beamNode->GetCouchAngle());
+  patientSupportToFixedReferenceTransform->Modified();
+*/
+//  vtkMRMLLinearTransformNode* tableTopInferiorSuperiorMovementToEccentricRotationTransformNode =
+//    this->GetTransformNodeBetween(IEC::TableTopEccentricRotation, IEC::TableTopInferiorSuperiorMovement);
+//  vtkTransform* tableTopInferiorSuperiorMovementToEccentricRotationTransform = vtkTransform::SafeDownCast(tableTopInferiorSuperiorMovementToEccentricRotationTransformNode->GetTransformToParent());
+//  tableTopInferiorSuperiorMovementToEccentricRotationTransform->Identity();
+//  tableTopInferiorSuperiorMovementToEccentricRotationTransform->Translate( 0., 0., 0. /* put inverse value here */ );
+//  tableTopInferiorSuperiorMovementToEccentricRotationTransform->Modified();
+
+/*
+  // Update IEC Patient to RAS transform based on the isocenter defined in the beam's parent plan
+  vtkMRMLLinearTransformNode* rasToPatientReferenceTransformNode =
+    this->GetTransformNodeBetween( IEC::RAS, IEC::Patient);
+  vtkTransform* rasToPatientReferenceTransform = vtkTransform::SafeDownCast(rasToPatientReferenceTransformNode->GetTransformToParent());
+  rasToPatientReferenceTransform->Identity();
+  // Apply isocenter translation
+  std::array< double, 3 > isocenterPosition = { 0.0, 0.0, 0.0 };
+  if (isocenter)
+  {
+    // This is dirty hack for dynamic beams, the actual translation 
+    // will be in vtkSlicerDicomRtImportExportModuleLogic::vtkInternal::LoadDynamicBeamSequence method  
+    rasToPatientReferenceTransform->Translate(isocenterPosition[0], isocenterPosition[1], isocenterPosition[2]);
+  }
+  else
+  {
+    // translation for a static beam
+    if (beamNode->GetPlanIsocenterPosition(isocenterPosition.data()))
+    {
+      rasToPatientReferenceTransform->Translate(isocenterPosition[0], isocenterPosition[1], isocenterPosition[2]);
+    }
+    else
+    {
+      vtkErrorMacro("UpdateIECTransformsFromBeam: Failed to get isocenter position for beam " << beamNode->GetName());
+    }
+  }
+
+  rasToPatientReferenceTransform->RotateX(-90.);
+  rasToPatientReferenceTransform->RotateZ(180.);
+  rasToPatientReferenceTransform->Modified();
+*/
+/*
+  // Update IEC FixedReference to RAS transform based on the isocenter defined in the beam's parent plan
+  vtkMRMLLinearTransformNode* fixedReferenceToRasTransformNode =
+    this->GetTransformNodeBetween(IEC::FixedReference, IEC::RAS);
+  vtkTransform* fixedReferenceToRasTransform = vtkTransform::SafeDownCast(fixedReferenceToRasTransformNode->GetTransformToParent());
+  fixedReferenceToRasTransform->Identity();
+
+  // Apply isocenter translation
+  if (isocenter)
+  {
+    // Once again the dirty hack for dynamic beams, the actual translation 
+    // will be in vtkSlicerDicomRtImportExportModuleLogic::vtkInternal::LoadDynamicBeamSequence method  
+    rasToPatientReferenceTransform->Translate(isocenterPosition[0], isocenterPosition[1], isocenterPosition[2]);
+  }
+  else
+  {
+    // translation for a static beam
+    if (beamNode->GetPlanIsocenterPosition(isocenterPosition.data()))
+    {
+      fixedReferenceToRasTransform->Translate(isocenterPosition[0], isocenterPosition[1], isocenterPosition[2]);
+    }
+    else
+    {
+      vtkErrorMacro("UpdateIECTransformsFromBeam: Failed to get isocenter position for beam " << beamNode->GetName());
+    }
+  }
+
+  // The "S" direction in RAS is the "A" direction in FixedReference
+  fixedReferenceToRasTransform->RotateX(-90.0);
+  // The "S" direction to be toward the gantry (head first position) by default
+  fixedReferenceToRasTransform->RotateZ(180.0);
+  fixedReferenceToRasTransform->Modified();
+
+}
+*/
+//-----------------------------------------------------------------------------
+std::string vtkSlicerIhepStandGeometryTransformLogic::GetTransformNodeNameBetween(
+  CoordinateSystemIdentifier fromFrame, CoordinateSystemIdentifier toFrame)
+{
+  return this->CoordinateSystemsMap[fromFrame] + "To" + this->CoordinateSystemsMap[toFrame] + "Transform";
+}
+
+//-----------------------------------------------------------------------------
+vtkMRMLLinearTransformNode* vtkSlicerIhepStandGeometryTransformLogic::GetTransformNodeBetween(
+  CoordinateSystemIdentifier fromFrame, CoordinateSystemIdentifier toFrame )
+{
+  if (!this->GetMRMLScene())
+  {
+    vtkErrorMacro("GetTransformNodeBetween: Invalid MRML scene");
+    return nullptr;
+  }
+
+  return vtkMRMLLinearTransformNode::SafeDownCast(
+    this->GetMRMLScene()->GetFirstNodeByName( this->GetTransformNodeNameBetween(fromFrame, toFrame).c_str() ) );
+}
+
+//-----------------------------------------------------------------------------
+bool vtkSlicerIhepStandGeometryTransformLogic::GetTransformBetween(
+  CoordinateSystemIdentifier fromFrame, CoordinateSystemIdentifier toFrame, 
+  vtkGeneralTransform* outputTransform, bool transformForBeam)
+{
+  if (!outputTransform)
+  {
+    vtkErrorMacro("GetTransformBetween: Invalid output transform node");
+    return false;
+  }
+  if (!this->GetMRMLScene())
+  {
+    vtkErrorMacro("GetTransformBetween: Invalid MRML scene");
+    return false;
+  }
+
+  CoordinateSystemsList fromFramePath, toFramePath;
+  if (this->GetPathToRoot( fromFrame, fromFramePath) && this->GetPathFromRoot( toFrame, toFramePath))
+  {
+    std::vector< CoordinateSystemIdentifier > toFrameVector(toFramePath.size());
+    std::vector< CoordinateSystemIdentifier > fromFrameVector(fromFramePath.size());
+
+    std::copy( toFramePath.begin(), toFramePath.end(), toFrameVector.begin());
+    std::copy( fromFramePath.begin(), fromFramePath.end(), fromFrameVector.begin());
+
+    outputTransform->Identity();
+    outputTransform->PostMultiply();
+    for ( size_t i = 0; i < fromFrameVector.size() - 1; ++i)
+    {
+      CoordinateSystemIdentifier parent, child;
+      child = fromFrameVector[i];
+      parent = fromFrameVector[i + 1];
+
+      if (child == parent)
+      {
+        continue;
+      }
+
+      vtkMRMLLinearTransformNode* fromTransform = this->GetTransformNodeBetween( child, parent);
+      if (fromTransform)
+      {
+        vtkNew<vtkMatrix4x4> mat;
+        fromTransform->GetMatrixTransformToParent(mat);
+        outputTransform->Concatenate(mat);
+
+        vtkDebugMacro("GetTransformBetween: Transform node \"" << fromTransform->GetName() << "\" is valid");
+      }
+      else
+      {
+        vtkErrorMacro("GetTransformBetween: Transform node \"" << fromTransform->GetName() << "\" is invalid");
+        return false;
+      }
+    }
+
+    for ( size_t i = 0; i < toFrameVector.size() - 1; ++i)
+    {
+      CoordinateSystemIdentifier parent, child;
+      parent = toFrameVector[i];
+      child = toFrameVector[i + 1];
+
+      if (child == parent)
+      {
+        continue;
+      }
+
+      vtkMRMLLinearTransformNode* toTransform = this->GetTransformNodeBetween( child, parent);
+      if (toTransform)
+      {
+        vtkNew<vtkMatrix4x4> mat;
+        if (transformForBeam) // calculation for beam transformation
+        {
+          toTransform->GetMatrixTransformFromParent(mat);
+        }
+        else // calculation for a treatment room models transformations
+        {
+          toTransform->GetMatrixTransformToParent(mat);
+        }
+        mat->Invert();
+        outputTransform->Concatenate(mat);
+
+        vtkDebugMacro("GetTransformBetween: Transform node \"" << toTransform->GetName() << "\" is valid");
+      }
+      else
+      {
+        vtkErrorMacro("GetTransformBetween: Transform node \"" << toTransform->GetName() << "\" is invalid");
+        return false;
+      }
+    }
+
+    outputTransform->Modified();
+    return true;
+  }
+
+  vtkErrorMacro("GetTransformBetween: Failed to get transform " << this->GetTransformNodeNameBetween(fromFrame, toFrame));
+  return false;
+}
+
+//-----------------------------------------------------------------------------
+bool vtkSlicerIhepStandGeometryTransformLogic::GetPathToRoot( CoordinateSystemIdentifier frame, 
+  CoordinateSystemsList& path)
+{
+  using IHEP = CoordinateSystemIdentifier;
+  if (frame == IHEP::FixedReference)
+  {
+    path.push_back(IHEP::FixedReference);
+    return true;
+  }
+
+  bool found = false;
+  do
+  {
+    for ( auto& pair : this->CoordinateSystemsHierarchy)
+    {
+      CoordinateSystemIdentifier parent = pair.first;
+
+      auto& children = pair.second;
+      auto iter = std::find( children.begin(), children.end(), frame);
+      if (iter != children.end())
+      {
+        CoordinateSystemIdentifier id = *iter;
+
+        vtkDebugMacro("GetPathToRoot: Checking affine transformation " 
+          << "\"" << this->CoordinateSystemsMap[id] << "\" -> " 
+          << "\"" << this->CoordinateSystemsMap[parent] << "\"");
+
+        frame = parent;
+        path.push_back(id);
+        if (frame != IHEP::FixedReference)
+        {
+          found = true;
+          break;
+        }
+        else
+        {
+          path.push_back(IHEP::FixedReference);
+        }
+      }
+      else
+      {
+        found = false;
+      }
+    }
+  }
+  while (found);
+
+  return (path.size() > 0);
+}
+
+//-----------------------------------------------------------------------------
+bool vtkSlicerIhepStandGeometryTransformLogic::GetPathFromRoot( CoordinateSystemIdentifier frame, 
+  CoordinateSystemsList& path)
+{
+  if (this->GetPathToRoot( frame, path))
+  {
+    std::reverse( path.begin(), path.end());
+    return true;
+  }
+  else
+  {
+    return false;
+  }
 }

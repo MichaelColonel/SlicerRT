@@ -55,9 +55,9 @@ public:
   static vtkSlicerIhepStandGeometryTransformLogic *New();
   vtkTypeMacro(vtkSlicerIhepStandGeometryTransformLogic, vtkMRMLAbstractLogic);
   void PrintSelf(ostream& os, vtkIndent indent) override;
-/*
+
   /// Create or get transforms taking part in the IEC logic, and build the transform hierarchy
-  void BuildIECTransformHierarchy();
+  void BuildIHEPTransformHierarchy();
 
   /// Get transform node between two coordinate systems is exists
   /// \return Transform node if there is a direct transform between the specified coordinate frames, nullptr otherwise
@@ -72,14 +72,16 @@ public:
 
   /// Update parent transform node of a given beam from the IHEP transform hierarchy and the beam parameters
   void UpdateBeamTransform(vtkMRMLRTBeamNode* beamNode);
+  void UpdateBeamTransform( vtkMRMLRTBeamNode* beamNode, 
+    vtkMRMLLinearTransformNode* beamTransformNode, double* isocenter = nullptr);
 
   /// Update IHEP transforms according to beam node
   void UpdateIHEPTransformsFromBeam( vtkMRMLRTBeamNode* beamNode, double* isocenter = nullptr);
-*/
+
 protected:
   vtkSlicerIhepStandGeometryTransformLogic();
   ~vtkSlicerIhepStandGeometryTransformLogic() override;
-/*
+
   /// Get name of transform node between two coordinate systems
   /// \return Transform node name between the specified coordinate frames.
   ///   Note: If IHEP does not specify a transform between the given coordinate frames, then there will be no node with the returned name.
@@ -102,7 +104,7 @@ protected:
   // TODO: for hierarchy use tree with nodes, something like graph
   /// Map of IHEP coordinate systems hierarchy
   std::map< CoordinateSystemIdentifier, CoordinateSystemsList > CoordinateSystemsHierarchy;
-*/
+
 private:
   vtkSlicerIhepStandGeometryTransformLogic(const vtkSlicerIhepStandGeometryTransformLogic&) = delete;
   void operator=(const vtkSlicerIhepStandGeometryTransformLogic&) = delete;
