@@ -10,29 +10,33 @@ from slicer.util import VTKObservationMixin
 #
 
 class IhepRegistration(ScriptedLoadableModule):
-  """Uses ScriptedLoadableModule base class, available at:
+  """
+  Uses ScriptedLoadableModule base class, available at:
   https://github.com/Slicer/Slicer/blob/master/Base/Python/slicer/ScriptedLoadableModule.py
   """
 
   def __init__(self, parent):
     ScriptedLoadableModule.__init__(self, parent)
-    self.parent.title = "IhepRegistration"  # TODO: make this more human readable by adding spaces
-    self.parent.categories = ["Examples"]  # TODO: set categories (folders where the module shows up in the module selector)
-    self.parent.dependencies = []  # TODO: add here list of module names that this module requires
-    self.parent.contributors = ["John Doe (AnyWare Corp.)"]  # TODO: replace with "Firstname Lastname (Organization)"
-    # TODO: update with short description of the module and a link to online module documentation
+    self.parent.title = """
+    IHEP Registration
+    """
+
+    self.parent.categories = ["Radiotherapy"]
+    self.parent.dependencies = ["BRAINSFit", "DrrImageComputation", "Beams"]
+    self.parent.contributors = ["Mikhail Polkovnikov (NRC \"Kurchatov Institute\" - IHEP)"]
     self.parent.helpText = """
-This is an example of scripted loadable module bundled in an extension.
-See more information in <a href="https://github.com/organization/projectname#IhepRegistration">module documentation</a>.
-"""
-    # TODO: replace with organization, grant and thanks
+    This is a scripted module that registrate a digitally reconstructed radiograph (DRR),
+    and image from X-Ray system for patient position process on the radiobiological stand in IHEP.
+
+    This is an example of scripted loadable module bundled in an extension.
+    See more information in <a href="https://github.com/organization/projectname#IhepRegistration">module documentation</a>.
+    """
     self.parent.acknowledgementText = """
-This file was originally developed by Jean-Christophe Fillion-Robin, Kitware Inc., Andras Lasso, PerkLab,
-and Steve Pieper, Isomics, Inc. and was partially funded by NIH grant 3P41RR013218-12S1.
-"""
+    This work was supported by Slicer Community.
+    """
 
     # Additional initialization step after application startup is complete
-    slicer.app.connect("startupCompleted()", registerSampleData)
+#    slicer.app.connect("startupCompleted()", registerSampleData)
 
 #
 # Register sample data sets in Sample Data module
@@ -88,7 +92,8 @@ def registerSampleData():
 #
 
 class IhepRegistrationWidget(ScriptedLoadableModuleWidget, VTKObservationMixin):
-  """Uses ScriptedLoadableModuleWidget base class, available at:
+  """
+  Uses ScriptedLoadableModuleWidget base class, available at:
   https://github.com/Slicer/Slicer/blob/master/Base/Python/slicer/ScriptedLoadableModule.py
   """
 
@@ -131,7 +136,7 @@ class IhepRegistrationWidget(ScriptedLoadableModuleWidget, VTKObservationMixin):
 
     # These connections ensure that whenever user changes some settings on the GUI, that is saved in the MRML scene
     # (in the selected parameter node).
-    self.ui.inputSelector.connect("currentNodeChanged(vtkMRMLNode*)", self.updateParameterNodeFromGUI)
+    self.ui.MRMLNodeComboBox_inputVolume.connect("currentNodeChanged(vtkMRMLNode*)", self.updateParameterNodeFromGUI)
     self.ui.outputSelector.connect("currentNodeChanged(vtkMRMLNode*)", self.updateParameterNodeFromGUI)
     self.ui.imageThresholdSliderWidget.connect("valueChanged(double)", self.updateParameterNodeFromGUI)
     self.ui.invertOutputCheckBox.connect("toggled(bool)", self.updateParameterNodeFromGUI)
@@ -227,7 +232,7 @@ class IhepRegistrationWidget(ScriptedLoadableModuleWidget, VTKObservationMixin):
     self._updatingGUIFromParameterNode = True
 
     # Update node selectors and sliders
-    self.ui.inputSelector.setCurrentNode(self._parameterNode.GetNodeReference("InputVolume"))
+    self.ui.MRMLNodeComboBox_inputVolume.setCurrentNode(self._parameterNode.GetNodeReference("InputVolume"))
     self.ui.outputSelector.setCurrentNode(self._parameterNode.GetNodeReference("OutputVolume"))
     self.ui.invertedOutputSelector.setCurrentNode(self._parameterNode.GetNodeReference("OutputVolumeInverse"))
     self.ui.imageThresholdSliderWidget.value = float(self._parameterNode.GetParameter("Threshold"))
@@ -255,7 +260,7 @@ class IhepRegistrationWidget(ScriptedLoadableModuleWidget, VTKObservationMixin):
 
     wasModified = self._parameterNode.StartModify()  # Modify all properties in a single batch
 
-    self._parameterNode.SetNodeReferenceID("InputVolume", self.ui.inputSelector.currentNodeID)
+    self._parameterNode.SetNodeReferenceID("InputVolume", self.ui.MRMLNodeComboBox_inputVolume.currentNodeID)
     self._parameterNode.SetNodeReferenceID("OutputVolume", self.ui.outputSelector.currentNodeID)
     self._parameterNode.SetParameter("Threshold", str(self.ui.imageThresholdSliderWidget.value))
     self._parameterNode.SetParameter("Invert", "true" if self.ui.invertOutputCheckBox.checked else "false")
@@ -290,7 +295,8 @@ class IhepRegistrationWidget(ScriptedLoadableModuleWidget, VTKObservationMixin):
 #
 
 class IhepRegistrationLogic(ScriptedLoadableModuleLogic):
-  """This class should implement all the actual
+  """
+  This class should implement all the actual
   computation done by your module.  The interface
   should be such that other python code can import
   this class and make use of the functionality without
@@ -358,18 +364,21 @@ class IhepRegistrationTest(ScriptedLoadableModuleTest):
   """
 
   def setUp(self):
-    """ Do whatever is needed to reset the state - typically a scene clear will be enough.
+    """ 
+    Do whatever is needed to reset the state - typically a scene clear will be enough.
     """
     slicer.mrmlScene.Clear()
 
   def runTest(self):
-    """Run as few or as many tests as needed here.
+    """
+    Run as few or as many tests as needed here.
     """
     self.setUp()
     self.test_IhepRegistration1()
 
   def test_IhepRegistration1(self):
-    """ Ideally you should have several levels of tests.  At the lowest level
+    """
+    Ideally you should have several levels of tests.  At the lowest level
     tests should exercise the functionality of the logic with different inputs
     (both valid and invalid).  At higher levels your tests should emulate the
     way the user would interact with your code and confirm that it still works

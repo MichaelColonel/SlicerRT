@@ -45,8 +45,8 @@ public:
     FixedReference,
     Collimator,
     PatientSupport, // Rotation of patient support
-    TableTopInferiorSuperiorMovement, // Inferior-Superior movement of the table top
-    TableTop, // Rotation and Vectical movement of table top
+    TableTopInferiorSuperiorMovement, // Inferior-Superior and Left-Right movement of the table top
+    TableTop, // Rotations and Vectical movement of table top
     Patient,
     LastIECCoordinateFrame // Last index used for adding more coordinate systems externally
   };
@@ -61,7 +61,7 @@ public:
 
   /// Get transform node between two coordinate systems is exists
   /// \return Transform node if there is a direct transform between the specified coordinate frames, nullptr otherwise
-  ///   Note: If IEC does not specify a transform between the given coordinate frames, then there will be no node with the returned name.
+  ///   Note: If IHEP does not specify a transform between the given coordinate frames, then there will be no node with the returned name.
   vtkMRMLLinearTransformNode* GetTransformNodeBetween(
     CoordinateSystemIdentifier fromFrame, CoordinateSystemIdentifier toFrame );
 

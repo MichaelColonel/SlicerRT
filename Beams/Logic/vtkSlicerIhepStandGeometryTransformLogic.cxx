@@ -117,6 +117,8 @@ void vtkSlicerIhepStandGeometryTransformLogic::BuildIHEPTransformHierarchy()
     return;
   }
 
+  vtkWarningMacro("BuildIHEPTransformHierarchy: 1");
+
   // Create transform nodes if they do not exist
   for ( auto& transformPair : this->IhepTransforms)
   {
@@ -132,6 +134,7 @@ void vtkSlicerIhepStandGeometryTransformLogic::BuildIHEPTransformHierarchy()
     }
   }
 
+  vtkWarningMacro("BuildIHEPTransformHierarchy: 2");
   using IHEP = CoordinateSystemIdentifier;
   // Organize transforms into hierarchy based on IHEP geometry
   
@@ -141,21 +144,24 @@ void vtkSlicerIhepStandGeometryTransformLogic::BuildIHEPTransformHierarchy()
   this->GetTransformNodeBetween(IHEP::PatientSupport, IHEP::FixedReference)->SetAndObserveTransformNodeID(
     this->GetTransformNodeBetween(IHEP::FixedReference, IHEP::RAS)->GetID() );
 
+  vtkWarningMacro("BuildIHEPTransformHierarchy: 3");
   // Patient support parent
-  this->GetTransformNodeBetween(IHEP::PatientSupport, IHEP::TableTopInferiorSuperiorMovement)->SetAndObserveTransformNodeID(
+  this->GetTransformNodeBetween(IHEP::TableTopInferiorSuperiorMovement, IHEP::PatientSupport)->SetAndObserveTransformNodeID(
     this->GetTransformNodeBetween(IHEP::PatientSupport, IHEP::FixedReference)->GetID() );
 
+  vtkWarningMacro("BuildIHEPTransformHierarchy: 4");
   // Table top inferior superior movement parent
   this->GetTransformNodeBetween(IHEP::TableTop, IHEP::TableTopInferiorSuperiorMovement)->SetAndObserveTransformNodeID(
-    this->GetTransformNodeBetween(IHEP::PatientSupport, IHEP::TableTopInferiorSuperiorMovement)->GetID() );
-
+    this->GetTransformNodeBetween(IHEP::TableTopInferiorSuperiorMovement, IHEP::PatientSupport)->GetID() );
+  vtkWarningMacro("BuildIHEPTransformHierarchy: 5");
   // Table top parent
   this->GetTransformNodeBetween( IHEP::Patient, IHEP::TableTop)->SetAndObserveTransformNodeID(
     this->GetTransformNodeBetween(IHEP::TableTop, IHEP::TableTopInferiorSuperiorMovement)->GetID() );
-
+  vtkWarningMacro("BuildIHEPTransformHierarchy: 6");
   // Patient parent
   this->GetTransformNodeBetween( IHEP::RAS, IHEP::Patient)->SetAndObserveTransformNodeID(
     this->GetTransformNodeBetween( IHEP::Patient, IHEP::TableTop)->GetID() );
+  vtkWarningMacro("BuildIHEPTransformHierarchy: 7");
 }
 
 //-----------------------------------------------------------------------------
@@ -282,15 +288,17 @@ void vtkSlicerIhepStandGeometryTransformLogic::UpdateIHEPTransformsFromBeam( vtk
   // Make sure the transform hierarchy is set up
   this->BuildIHEPTransformHierarchy();
 
-  //TODO: Code duplication (RevLogic::Update...)
   using IHEP = CoordinateSystemIdentifier;
+  // Collimator (beam) -> Fixed Reference
   vtkMRMLLinearTransformNode* collimatorToFixedReferenceTransformNode =
     this->GetTransformNodeBetween(IHEP::Collimator, IHEP::FixedReference);
   vtkTransform* collimatorToFixedReferenceTransform = vtkTransform::SafeDownCast(collimatorToFixedReferenceTransformNode->GetTransformToParent());
   collimatorToFixedReferenceTransform->Identity();
-  collimatorToFixedReferenceTransform->RotateY(90. - beamNode->GetGantryAngle());
+//  collimatorToFixedReferenceTransform->RotateY(90. - beamNode->GetGantryAngle());
+  collimatorToFixedReferenceTransform->RotateY(90.);
   collimatorToFixedReferenceTransform->Modified();
 
+  // Patient support (Patient suppport rotation) -> Fixed Reference
   vtkMRMLLinearTransformNode* patientSupportToFixedReferenceTransformNode =
     this->GetTransformNodeBetween(IHEP::PatientSupport, IHEP::FixedReference);
   vtkTransform* patientSupportToFixedReferenceTransform = vtkTransform::SafeDownCast(patientSupportToFixedReferenceTransformNode->GetTransformToParent());
@@ -298,15 +306,26 @@ void vtkSlicerIhepStandGeometryTransformLogic::UpdateIHEPTransformsFromBeam( vtk
   patientSupportToFixedReferenceTransform->RotateZ(-1. * beamNode->GetCouchAngle());
   patientSupportToFixedReferenceTransform->Modified();
 
+  // Inferior-Superior and Left-Right -> Patient support (Patient suppport rotation)
   vtkMRMLLinearTransformNode* tableTopInferiorSuperiorMovementToPatientSupportTransformNode =
     this->GetTransformNodeBetween(IHEP::TableTopInferiorSuperiorMovement, IHEP::PatientSupport);
   vtkTransform* tableTopInferiorSuperiorMovementToPatientSupportTransform = vtkTransform::SafeDownCast(
     tableTopInferiorSuperiorMovementToPatientSupportTransformNode->GetTransformToParent());
   tableTopInferiorSuperiorMovementToPatientSupportTransform->Identity();
 ////  tableTopInferiorSuperiorMovementToEccentricRotationTransform->Translate( 0., 0., 0. /* put inverse value here */ );
-  tableTopInferiorSuperiorMovementToPatientSupportTransform->RotateY(beamNode->GetCollimatorAngle());
-  tableTopInferiorSuperiorMovementToPatientSupportTransform->RotateX(beamNode->GetCollimatorAngle());
+  tableTopInferiorSuperiorMovementToPatientSupportTransform->RotateX(0.);
   tableTopInferiorSuperiorMovementToPatientSupportTransform->Modified();
+
+  vtkMRMLLinearTransformNode* tableTopToTableTopInferiorSuperiorMovementTransformNode =
+    this->GetTransformNodeBetween(IHEP::TableTop, IHEP::TableTopInferiorSuperiorMovement);
+  vtkTransform* tableTopToTableTopInferiorSuperiorMovementTransform = vtkTransform::SafeDownCast(
+    tableTopToTableTopInferiorSuperiorMovementTransformNode->GetTransformToParent());
+  tableTopToTableTopInferiorSuperiorMovementTransform->Identity();
+////  tableTopInferiorSuperiorMovementToEccentricRotationTransform->Translate( 0., 0., 0. /* put inverse value here */ );
+///  tableTopToTableTopInferiorSuperiorMovementTransform->RotateY(-90. + beamNode->GetGantryAngle());
+  tableTopToTableTopInferiorSuperiorMovementTransform->RotateY(0.);
+  tableTopToTableTopInferiorSuperiorMovementTransform->RotateX(0.);
+  tableTopToTableTopInferiorSuperiorMovementTransform->Modified();
 
   // Update IHEP Patient to RAS transform based on the isocenter defined in the beam's parent plan
   vtkMRMLLinearTransformNode* rasToPatientReferenceTransformNode = 

@@ -141,6 +141,9 @@ void qSlicerIhepStandGeometryModuleWidget::setup()
   // Sliders, Coordinates widgets
   connect( d->SliderWidget_PatientSupportRotationAngle, SIGNAL(valueChanged(double)), 
     this, SLOT(onPatientSupportRotationAngleChanged(double)));
+  connect( d->SliderWidget_TableTopLongitudinalAngle, SIGNAL(valueChanged(double)), 
+    this, SLOT(onTableTopLongitudinalAngleChanged(double)));
+
   connect( d->SliderWidget_TableTopLongitudinalPosition, SIGNAL(valueChanged(double)), 
     this, SLOT(onTableTopLongitudinalPositionChanged(double)));
   connect( d->SliderWidget_TableTopVerticalPosition, SIGNAL(valueChanged(double)), 
@@ -269,6 +272,13 @@ void qSlicerIhepStandGeometryModuleWidget::onTableTopLongitudinalAngleChanged(do
   {
     return;
   }
+
+  parameterNode->DisableModifiedEventOn();
+  parameterNode->SetTableTopLongitudinalAngle(longitudinalAngle);
+  parameterNode->DisableModifiedEventOff();
+
+  d->logic()->UpdateTableTopToTableTopMovementTransform(parameterNode);
+  d->logic()->SetupTreatmentMachineModels(parameterNode);
   qDebug() << Q_FUNC_INFO << ": finished";
 }
 
