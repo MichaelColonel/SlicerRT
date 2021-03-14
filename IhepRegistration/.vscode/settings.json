@@ -1,0 +1,15 @@
+{
+    "python.autoComplete.extraPaths": [
+        "/opt/Slicer",
+        "/opt/Slicer/lib/Python",
+        "/opt/Slicer/lib/QtPlugins",
+        "/opt/Slicer/lib/Slicer-4.13",
+        "/opt/Slicer/bin/",
+        "/opt/Slicer/bin/Python/",
+        "/opt/Slicer/bin/Python/vtkmodules"
+    ],
+    "python.linting.pylintPath": "/opt/Slicer/lib/Python/bin/pylint",
+    "python.formatting.autopep8Path": "/opt/Slicer/lib/Python/bin/autopep8",
+    "python.linting.enabled": true,
+    "git.autofetch": true
+}
