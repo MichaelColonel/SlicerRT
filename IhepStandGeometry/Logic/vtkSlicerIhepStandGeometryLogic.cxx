@@ -660,7 +660,7 @@ void vtkSlicerIhepStandGeometryLogic::ResetModelsToInitialPosition(vtkMRMLIhepSt
 
   vtkMRMLRTBeamNode* beamNode = parameterNode->GetBeamNode();
   using IHEP = vtkSlicerIhepStandGeometryTransformLogic::CoordinateSystemIdentifier;
-  this->IhepLogic->UpdateIHEPTransformsFromBeam(beamNode);
+//  this->IhepLogic->UpdateIHEPTransformsFromBeam(beamNode);
 
   // Update TableTop -> TableTopEccentricRotation
 ///  vtkMRMLLinearTransformNode* tableTopToTableTopEccentricRotationTransformNode =
@@ -709,7 +709,7 @@ void vtkSlicerIhepStandGeometryLogic::ResetModelsToInitialPosition(vtkMRMLIhepSt
 //  patientToTableTopTransform->Translate( 0., -490., 550.);
   patientToTableTopTransform->Modified();
 
-  this->UpdateTableTopToTableTopEccentricRotationTransform(parameterNode);
+//  this->UpdateTableTopToTableTopEccentricRotationTransform(parameterNode);
 
   // New Treatment machine position
   this->SetupTreatmentMachineModels(parameterNode);
@@ -748,8 +748,10 @@ void vtkSlicerIhepStandGeometryLogic::UpdatePatientSupportRotationToFixedReferen
   if (patientSupportToFixedReferenceTransformNode)
   {
     double rotationAngle = parameterNode->GetPatientSupportRotationAngle();
+//    double rotationAngle1 = parameterNode->GetTableTopLongitudinalAngle();
     vtkNew<vtkTransform> patientSupportToRotatedPatientSupportTransform;
     patientSupportToRotatedPatientSupportTransform->RotateZ(-1. * rotationAngle);
+//    patientSupportToRotatedPatientSupportTransform->RotateY(rotationAngle1);
     patientSupportToFixedReferenceTransformNode->SetAndObserveTransformToParent(patientSupportToRotatedPatientSupportTransform);
   }
 }
@@ -775,9 +777,11 @@ void vtkSlicerIhepStandGeometryLogic::UpdateTableTopToTableTopMovementTransform(
 
   if (tableTopToTableTopMovementTransformNode)
   {
-    double rotationAngle = parameterNode->GetTableTopLongitudinalAngle();
+    double longitudinalRotationAngle = parameterNode->GetTableTopLongitudinalAngle();
+    double lateralRotationAngle = parameterNode->GetTableTopLateralAngle();
     vtkNew<vtkTransform> tableTopToTableTopMovementTransform;
-    tableTopToTableTopMovementTransform->RotateY(-1. * rotationAngle);
+    tableTopToTableTopMovementTransform->RotateY(-1. * longitudinalRotationAngle);
+    tableTopToTableTopMovementTransform->RotateX(-1. * lateralRotationAngle);
     tableTopToTableTopMovementTransformNode->SetAndObserveTransformToParent(tableTopToTableTopMovementTransform);
   }
 }
@@ -796,6 +800,8 @@ void vtkSlicerIhepStandGeometryLogic::SetupTreatmentMachineModels(vtkMRMLIhepSta
   vtkMRMLRTBeamNode* beamNode = parameterNode->GetBeamNode();
   //TODO: Store treatment machine component color and other properties in JSON
 
+//  this->IhepLogic->UpdateIHEPTransformsFromBeam(beamNode);
+  
   // Display all pieces of the treatment room and sets each piece a color to provide realistic representation
   using IHEP = vtkSlicerIhepStandGeometryTransformLogic::CoordinateSystemIdentifier;
 
@@ -911,7 +917,7 @@ void vtkSlicerIhepStandGeometryLogic::SetupTreatmentMachineModels(vtkMRMLIhepSta
   // Transform path: RAS -> Patient -> TableTop -> Eccentric -> TableTopInferiorSuperiorMovement -> PatientSupportRotation -> FixedReference
   vtkNew<vtkGeneralTransform> rasToFixedReferenceGeneralTransform;
   vtkNew<vtkTransform> rasToFixedReferenceLinearTransform;
-  if (this->IhepLogic->GetTransformBetween( IHEP::RAS, IHEP::FixedReference, 
+  if (this->IhepLogic->GetTransformBetween( IHEP::RAS, IHEP::PatientSupport, 
     rasToFixedReferenceGeneralTransform, false))
   {
     // Convert general transform to linear
@@ -964,7 +970,7 @@ void vtkSlicerIhepStandGeometryLogic::SetupTreatmentMachineModels(vtkMRMLIhepSta
   }
 
   // Patient support - mandatory
-  // Transform path: RAS -> Patient -> TableTop -> TableTopInferiorSuperiorMovement -> PatientSupport
+  // Transform path: RAS -> Patient -> TableTop -> TableTopInferiorSuperiorMovement -> PatientSupport -> FixedReference
   vtkNew<vtkGeneralTransform> rasToPatientSupportGeneralTransform;
   vtkNew<vtkTransform> rasToPatientSupportLinearTransform;
   if (this->IhepLogic->GetTransformBetween( IHEP::RAS, IHEP::PatientSupport, 

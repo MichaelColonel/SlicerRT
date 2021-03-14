@@ -295,7 +295,7 @@ void vtkSlicerIhepStandGeometryTransformLogic::UpdateIHEPTransformsFromBeam( vtk
   vtkTransform* collimatorToFixedReferenceTransform = vtkTransform::SafeDownCast(collimatorToFixedReferenceTransformNode->GetTransformToParent());
   collimatorToFixedReferenceTransform->Identity();
 //  collimatorToFixedReferenceTransform->RotateY(90. - beamNode->GetGantryAngle());
-  collimatorToFixedReferenceTransform->RotateY(90.);
+//  collimatorToFixedReferenceTransform->RotateY(90.);
   collimatorToFixedReferenceTransform->Modified();
 
   // Patient support (Patient suppport rotation) -> Fixed Reference
