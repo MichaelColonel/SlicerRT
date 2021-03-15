@@ -17,9 +17,7 @@ class IhepRegistration(ScriptedLoadableModule):
 
   def __init__(self, parent):
     ScriptedLoadableModule.__init__(self, parent)
-    self.parent.title = """
-    IHEP Registration
-    """
+    self.parent.title = 'IHEP Registration'
 
     self.parent.categories = ["Radiotherapy"]
     self.parent.dependencies = ["BRAINSFit", "DrrImageComputation", "Beams"]
