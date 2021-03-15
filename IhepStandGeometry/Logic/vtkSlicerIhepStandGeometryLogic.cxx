@@ -679,11 +679,13 @@ void vtkSlicerIhepStandGeometryLogic::ResetModelsToInitialPosition(vtkMRMLIhepSt
 //  tableTopInferiorSuperiorToPatientSupportRotationTransform->Modified();
 
   // Update PatientSupportRotation -> FixedReference
-///  vtkMRMLLinearTransformNode* patientSupportRotationToFixedReferenceTransformNode =
-///    this->IECLogic->GetTransformNodeBetween(IEC::PatientSupportRotation, IEC::FixedReference);
-///  vtkTransform* patientSupportRotationToFixedReferenceTransform = vtkTransform::SafeDownCast(
-///    patientSupportRotationToFixedReferenceTransformNode->GetTransformToParent() );
-///  patientSupportRotationToFixedReferenceTransform->Modified();
+  vtkMRMLLinearTransformNode* patientSupportRotationToFixedReferenceTransformNode =
+    this->IhepLogic->GetTransformNodeBetween(IHEP::PatientSupport, IHEP::FixedReference);
+  vtkTransform* patientSupportRotationToFixedReferenceTransform = vtkTransform::SafeDownCast(
+    patientSupportRotationToFixedReferenceTransformNode->GetTransformToParent() );
+  patientSupportRotationToFixedReferenceTransform->Identity();
+//  patientSupportRotationToFixedReferenceTransform->Translate( 0., 490., -550.);
+  patientSupportRotationToFixedReferenceTransform->Modified();
 
   // Update Collimator -> Gantry
 ///  vtkMRMLLinearTransformNode* collimatorToGantryTransformNode =
@@ -706,7 +708,7 @@ void vtkSlicerIhepStandGeometryLogic::ResetModelsToInitialPosition(vtkMRMLIhepSt
   patientToTableTopTransform->Identity();
 //  patientToTableTopTransform->Translate( isocenter[0], isocenter[1], isocenter[2]);
 //  patientToTableTopTransform->Translate( isocenter[0], isocenter[1] + 490, isocenter[2] + 550);
-//  patientToTableTopTransform->Translate( 0., -490., 550.);
+  patientToTableTopTransform->Translate( 0., -490., 550.);
   patientToTableTopTransform->Modified();
 
 //  this->UpdateTableTopToTableTopEccentricRotationTransform(parameterNode);
@@ -750,7 +752,11 @@ void vtkSlicerIhepStandGeometryLogic::UpdatePatientSupportRotationToFixedReferen
     double rotationAngle = parameterNode->GetPatientSupportRotationAngle();
 //    double rotationAngle1 = parameterNode->GetTableTopLongitudinalAngle();
     vtkNew<vtkTransform> patientSupportToRotatedPatientSupportTransform;
+    patientSupportToRotatedPatientSupportTransform->Identity();
+//    patientSupportToRotatedPatientSupportTransform->Translate( 550., -490., 0.);
+//    patientSupportToRotatedPatientSupportTransform->Translate( 0., 490., -550.);
     patientSupportToRotatedPatientSupportTransform->RotateZ(-1. * rotationAngle);
+    
 //    patientSupportToRotatedPatientSupportTransform->RotateY(rotationAngle1);
     patientSupportToFixedReferenceTransformNode->SetAndObserveTransformToParent(patientSupportToRotatedPatientSupportTransform);
   }
@@ -917,7 +923,7 @@ void vtkSlicerIhepStandGeometryLogic::SetupTreatmentMachineModels(vtkMRMLIhepSta
   // Transform path: RAS -> Patient -> TableTop -> Eccentric -> TableTopInferiorSuperiorMovement -> PatientSupportRotation -> FixedReference
   vtkNew<vtkGeneralTransform> rasToFixedReferenceGeneralTransform;
   vtkNew<vtkTransform> rasToFixedReferenceLinearTransform;
-  if (this->IhepLogic->GetTransformBetween( IHEP::RAS, IHEP::PatientSupport, 
+  if (this->IhepLogic->GetTransformBetween( IHEP::RAS, IHEP::FixedReference, 
     rasToFixedReferenceGeneralTransform, false))
   {
     // Convert general transform to linear
@@ -1096,7 +1102,7 @@ void vtkSlicerIhepStandGeometryLogic::MoveModelsToIsocenter(vtkMRMLIhepStandGeom
     this->IECLogic->GetTransformNodeBetween(IEC::PatientSupportRotation, IEC::FixedReference);
   vtkTransform* patientSupportRotationToFixedReferenceTransform = vtkTransform::SafeDownCast(
     patientSupportRotationToFixedReferenceTransformNode->GetTransformToParent() );
-//  patientSupportRotationToFixedReferenceTransform->Identity();
+  patientSupportRotationToFixedReferenceTransform->Identity();
 //  patientSupportRotationToFixedReferenceTransform->RotateZ(-1. * beamNode->GetCouchAngle());
   patientSupportRotationToFixedReferenceTransform->Modified();
 
@@ -1116,7 +1122,7 @@ void vtkSlicerIhepStandGeometryLogic::MoveModelsToIsocenter(vtkMRMLIhepStandGeom
 
   patientToTableTopTransform->Identity();
 //  patientToTableTopTransform->Translate( isocenter[0], isocenter[1] + 490, isocenter[2] + 550);
-//  patientToTableTopTransform->Translate( 0., -490., 550.);
+  patientToTableTopTransform->Translate( 0., -490., 550.);
 //  patientToTableTopTransform->Translate( 0, 0, 0);
   patientToTableTopTransform->Modified();
 
