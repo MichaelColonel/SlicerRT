@@ -48,7 +48,7 @@ public:
     TableTopInferiorSuperiorMovement, // Inferior-Superior and Left-Right movement of the table top
     TableTop, // Rotations and Vectical movement of table top
     Patient,
-    LastIECCoordinateFrame // Last index used for adding more coordinate systems externally
+    LastIhepCoordinateFrame // Last index used for adding more coordinate systems externally
   };
   typedef std::list< CoordinateSystemIdentifier > CoordinateSystemsList;
 
@@ -98,7 +98,7 @@ protected:
   /// Map from \sa CoordinateSystemIdentifier to coordinate system name. Used for getting transforms
   std::map<CoordinateSystemIdentifier, std::string> CoordinateSystemsMap;
 
-  /// List of IEC transforms
+  /// List of IHEP transforms
   std::vector< std::pair<CoordinateSystemIdentifier, CoordinateSystemIdentifier> > IhepTransforms;
 
   // TODO: for hierarchy use tree with nodes, something like graph

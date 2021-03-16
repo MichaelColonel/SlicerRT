@@ -178,36 +178,8 @@ void qSlicerIhepStandGeometryModuleWidget::onLoadStandModelsButtonClicked()
   }
 
   // Load and setup models
-//  QString treatmentMachineType(d->TreatmentMachineComboBox->currentData().toString());
-//  paramNode->SetTreatmentMachineType(treatmentMachineType.toUtf8().constData());
   parameterNode->SetTreatmentMachineType("IHEPStand");
   d->logic()->LoadTreatmentMachineModels(parameterNode);
-
-  // Reset camera
-/*
-  qSlicerApplication* slicerApplication = qSlicerApplication::application();
-  qSlicerLayoutManager* layoutManager = slicerApplication->layoutManager();
-  qMRMLThreeDView* threeDView = layoutManager->threeDWidget(0)->threeDView();
-  threeDView->resetCamera();
-*/
-
-/*
-  // Set treatment machine dependent properties
-  if (!treatmentMachineType.compare("VarianTrueBeamSTx"))
-  {
-    d->LateralTableTopDisplacementSlider->setMinimum(-230.0);
-    d->LateralTableTopDisplacementSlider->setMaximum(230.0);
-  }
-  else if (!treatmentMachineType.compare("SiemensArtiste"))
-  {
-    d->LateralTableTopDisplacementSlider->setMinimum(-250.0);
-    d->LateralTableTopDisplacementSlider->setMaximum(250.0);
-  }
-*/
-  // Set orientation marker
-  //TODO: Add new option 'Treatment room' to orientation marker choices and merged model with actual colors (surface scalars?)
-  //vtkMRMLViewNode* viewNode = threeDView->mrmlViewNode();
-  //viewNode->SetOrientationMarkerHumanModelNodeID(this->mrmlScene()->GetFirstNodeByName("EBRTOrientationMarkerModel")->GetID());
 }
 
 //-----------------------------------------------------------------------------
@@ -228,7 +200,6 @@ void qSlicerIhepStandGeometryModuleWidget::onResetToInitialPositionButtonClicked
   }
 
   d->logic()->ResetModelsToInitialPosition(parameterNode);
-//  parameterNode->Modified();
   qDebug() << Q_FUNC_INFO << ": finished";
 }
 
