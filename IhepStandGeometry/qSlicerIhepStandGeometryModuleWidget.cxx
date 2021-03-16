@@ -302,11 +302,10 @@ void qSlicerIhepStandGeometryModuleWidget::onTableTopVerticalPositionChanged(dou
   beam->GetPlanIsocenterPosition(isocenter);
 
   parameterNode->DisableModifiedEventOn();
-  parameterNode->SetTableTopVerticalPosition(/* 10. * */verticalPosition/* + isocenter[2] */);
+  parameterNode->SetTableTopVerticalPosition(verticalPosition);
   parameterNode->DisableModifiedEventOff();
 
-  d->logic()->UpdateTableTopToTableTopEccentricRotationTransform(parameterNode);
-//  d->logic()->UpdateTableTopInferiorSuperiorToPatientSupportRotationTransform(parameterNode);
+  d->logic()->UpdateTableTopToTableTopMovementTransform(parameterNode);
   d->logic()->SetupTreatmentMachineModels(parameterNode);
   qDebug() << Q_FUNC_INFO << ": finished";
 }
@@ -333,10 +332,10 @@ void qSlicerIhepStandGeometryModuleWidget::onTableTopLongitudinalPositionChanged
   beam->GetPlanIsocenterPosition(isocenter);
 
   parameterNode->DisableModifiedEventOn();
-  parameterNode->SetTableTopLongitudinalPosition(/*10. * */longitudinalPosition/* + isocenter[1]*/);
+  parameterNode->SetTableTopLongitudinalPosition(longitudinalPosition);
   parameterNode->DisableModifiedEventOff();
 
-  d->logic()->UpdateTableTopInferiorSuperiorToPatientSupportRotationTransform(parameterNode);
+  d->logic()->UpdateTableTopMovementToPatientSupportTransform(parameterNode);
   d->logic()->SetupTreatmentMachineModels(parameterNode);
   qDebug() << Q_FUNC_INFO << ": finished";
 }

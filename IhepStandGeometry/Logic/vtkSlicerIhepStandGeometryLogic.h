@@ -34,7 +34,6 @@
 #include "vtkSlicerIhepStandGeometryModuleLogicExport.h"
 
 class vtkMRMLIhepStandGeometryNode;
-class vtkSlicerIECTransformLogic;
 class vtkSlicerIhepStandGeometryTransformLogic;
 
 class vtkMRMLRTBeamNode;
@@ -74,9 +73,10 @@ public:
   void ResetModelsToInitialPosition(vtkMRMLIhepStandGeometryNode* parameterNode);
   /// Apply new patient support rotation angle to transform (Fixed->PatientSupport)
   void UpdatePatientSupportRotationToFixedReferenceTransform(vtkMRMLIhepStandGeometryNode* parameterNode);
-  void UpdateTableTopToTableTopEccentricRotationTransform(vtkMRMLIhepStandGeometryNode* parameterNode);
+//  void UpdateTableTopToTableTopEccentricRotationTransform(vtkMRMLIhepStandGeometryNode* parameterNode);
   void UpdateTableTopToTableTopMovementTransform(vtkMRMLIhepStandGeometryNode* parameterNode);
-  void UpdateTableTopInferiorSuperiorToPatientSupportRotationTransform(vtkMRMLIhepStandGeometryNode* parameterNode);
+  void UpdateTableTopMovementToPatientSupportTransform(vtkMRMLIhepStandGeometryNode* parameterNode);
+//  void UpdateTableTopInferiorSuperiorToPatientSupportRotationTransform(vtkMRMLIhepStandGeometryNode* parameterNode);
 
   void MoveModelsToIsocenter(vtkMRMLIhepStandGeometryNode* parameterNode, double isocenter[3]);
 
@@ -101,7 +101,6 @@ protected:
   void ProcessMRMLNodesEvents(vtkObject* caller, unsigned long event, void* callData) override;
 
 protected:
-  vtkSlicerIECTransformLogic* IECLogic;
   vtkSlicerIhepStandGeometryTransformLogic* IhepLogic;
 
 private:

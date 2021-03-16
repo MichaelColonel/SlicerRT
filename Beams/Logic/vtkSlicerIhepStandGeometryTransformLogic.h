@@ -35,6 +35,7 @@
 class vtkGeneralTransform;
 class vtkMRMLRTBeamNode;
 class vtkMRMLLinearTransformNode;
+class vtkMRMLIhepStandGeometryNode;
 
 class VTK_SLICER_BEAMS_LOGIC_EXPORT vtkSlicerIhepStandGeometryTransformLogic : public vtkMRMLAbstractLogic
 {
@@ -77,6 +78,7 @@ public:
 
   /// Update IHEP transforms according to beam node
   void UpdateIHEPTransformsFromBeam( vtkMRMLRTBeamNode* beamNode, double* isocenter = nullptr);
+  void UpdateIHEPTransformsFromParameter( vtkMRMLIhepStandGeometryNode* parameterNode, double* isocenter = nullptr);
 
 protected:
   vtkSlicerIhepStandGeometryTransformLogic();
