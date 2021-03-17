@@ -778,7 +778,7 @@ void qSlicerRoomsEyeViewModuleWidget::onBeamsEyeViewButtonClicked()
   for (int i = 0; i < cameras->GetNumberOfItems(); i++)
   {
     cameraNode = vtkMRMLCameraNode::SafeDownCast(cameras->GetItemAsObject(i));
-    std::string viewUniqueName = std::string("vtkMRMLViewNode") + cameraNode->GetLayoutName();
+    std::string viewUniqueName = std::string(viewNode->GetNodeTagName()) + cameraNode->GetLayoutName();
     if (viewUniqueName == viewNode->GetID())
     {
       break;

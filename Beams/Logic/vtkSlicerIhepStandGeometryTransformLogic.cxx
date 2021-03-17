@@ -120,12 +120,13 @@ void vtkSlicerIhepStandGeometryTransformLogic::BuildIHEPTransformHierarchy()
     return;
   }
 
-  vtkWarningMacro("BuildIHEPTransformHierarchy: 1");
+//  vtkWarningMacro("BuildIHEPTransformHierarchy: 1");
 
   // Create transform nodes if they do not exist
   for ( auto& transformPair : this->IhepTransforms)
   {
     std::string transformNodeName = this->GetTransformNodeNameBetween( transformPair.first, transformPair.second);
+    
     if (!this->GetMRMLScene()->GetFirstNodeByName(transformNodeName.c_str()))
     {
       vtkSmartPointer<vtkMRMLLinearTransformNode> transformNode = vtkSmartPointer<vtkMRMLLinearTransformNode>::New();
@@ -133,6 +134,7 @@ void vtkSlicerIhepStandGeometryTransformLogic::BuildIHEPTransformHierarchy()
 //      transformNode->SetHideFromEditors(1);
       std::string singletonTag = std::string("IHEP_") + transformNodeName;
       transformNode->SetSingletonTag(singletonTag.c_str());
+      vtkWarningMacro("BuildIHEPTransformHierarchy: " << transformNodeName);
       this->GetMRMLScene()->AddNode(transformNode);
     }
   }
