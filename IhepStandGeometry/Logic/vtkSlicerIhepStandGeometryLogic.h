@@ -48,7 +48,7 @@ public:
 
   static const char* CANYON_MODEL_NAME;
   static const char* PATIENTSUPPORT_MODEL_NAME; // Patient Support Rotation
-  static const char* TABLETOPSTAND_MODEL_NAME; // Table Top Inferior-Superior Movement Stand
+  static const char* TABLETOPSTAND_MODEL_NAME; // Table Top Inferior-Superior Movement, and Left-Right Movement (Lateral) Stand
   static const char* TABLETOP_MODEL_NAME;
   static const char* BEAMLINE_MARKUPS_NODE_NAME; // line
   static const char* BEAMLINE_TRANSFORM_NODE_NAME;
@@ -73,14 +73,13 @@ public:
   void ResetModelsToInitialPosition(vtkMRMLIhepStandGeometryNode* parameterNode);
   /// Apply new patient support rotation angle to transform (Fixed->PatientSupport)
   void UpdatePatientSupportToFixedReferenceTransform(vtkMRMLIhepStandGeometryNode* parameterNode);
-//  void UpdateTableTopToTableTopEccentricRotationTransform(vtkMRMLIhepStandGeometryNode* parameterNode);
-  void UpdateTableTopToTableTopMovementTransform(vtkMRMLIhepStandGeometryNode* parameterNode);
-  void UpdateTableTopMovementToPatientSupportTransform(vtkMRMLIhepStandGeometryNode* parameterNode);
-//  void UpdateTableTopInferiorSuperiorToPatientSupportRotationTransform(vtkMRMLIhepStandGeometryNode* parameterNode);
+  void UpdateTableTopToTableTopStandTransform(vtkMRMLIhepStandGeometryNode* parameterNode);
+  void UpdateTableTopStandToPatientSupportTransform(vtkMRMLIhepStandGeometryNode* parameterNode);
+  void UpdatePatientToTableTopTransform(vtkMRMLIhepStandGeometryNode* parameterNode);
 
   void MoveModelsToIsocenter(vtkMRMLIhepStandGeometryNode* parameterNode, double isocenter[3]);
 
-  /// Set up the IEC transforms and model properties on the treatment machine models
+  /// Set up the IHEP transforms and model properties on the treatment machine models
   void SetupTreatmentMachineModels(vtkMRMLIhepStandGeometryNode* parameterNode);
   /// Create or get transforms taking part in the IEC logic and additional devices, and build the transform hierarchy
   void BuildIhepStangGeometryTransformHierarchy();

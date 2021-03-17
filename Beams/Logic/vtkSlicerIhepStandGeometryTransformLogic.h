@@ -46,7 +46,7 @@ public:
     FixedReference,
     Collimator,
     PatientSupport, // Rotation of patient support
-    TableTopInferiorSuperiorMovement, // Inferior-Superior and Left-Right movement of the table top
+    TableTopStand, // Inferior-Superior (Longitudinal) and Left-Right (Lateral) movement of the table top
     TableTop, // Rotations and Vectical movement of table top
     Patient,
     LastIhepCoordinateFrame // Last index used for adding more coordinate systems externally
