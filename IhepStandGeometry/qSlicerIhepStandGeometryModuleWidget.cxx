@@ -224,7 +224,7 @@ void qSlicerIhepStandGeometryModuleWidget::onPatientSupportRotationAngleChanged(
   parameterNode->SetPatientSupportRotationAngle(rotationAngle);
   parameterNode->DisableModifiedEventOff();
 
-  d->logic()->UpdatePatientSupportRotationToFixedReferenceTransform(parameterNode);
+  d->logic()->UpdatePatientSupportToFixedReferenceTransform(parameterNode);
   d->logic()->SetupTreatmentMachineModels(parameterNode);
   qDebug() << Q_FUNC_INFO << ": finished";
 }
