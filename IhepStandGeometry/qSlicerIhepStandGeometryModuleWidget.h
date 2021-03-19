@@ -53,6 +53,11 @@ public slots:
   void onPatientBodySegmentNameChanged(const QString&);
   void onLogicModified();
   void onLoadStandModelsButtonClicked();
+  void onBeamsEyeViewPlusXButtonClicked();
+  void onBeamsEyeViewMinusXButtonClicked();
+  void onBeamsEyeViewPlusYButtonClicked();
+  void onBeamsEyeViewMinusYButtonClicked();
+
   void onResetToInitialPositionButtonClicked();
   void onPatientSupportRotationAngleChanged(double);
   void onMoveModelsToIsocenter();
@@ -71,6 +76,8 @@ protected:
   void onEnter();
 
 private:
+  void onBeamsEyeViewButtonClicked(const double viewUpVector[4]);
+
   Q_DECLARE_PRIVATE(qSlicerIhepStandGeometryModuleWidget);
   Q_DISABLE_COPY(qSlicerIhepStandGeometryModuleWidget);
 };

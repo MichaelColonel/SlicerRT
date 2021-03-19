@@ -737,6 +737,8 @@ void vtkSlicerIhepStandGeometryLogic::SetupTreatmentMachineModels(vtkMRMLIhepSta
   // Display all pieces of the treatment room and sets each piece a color to provide realistic representation
   using IHEP = vtkSlicerIhepStandGeometryTransformLogic::CoordinateSystemIdentifier;
 
+//  this->IhepLogic->UpdateIHEPTransformsFromBeam(beamNode);
+
   // Transform IHEP stand models to RAS
   vtkNew<vtkTransform> rotateYTransform;
   rotateYTransform->Identity();
@@ -918,7 +920,7 @@ void vtkSlicerIhepStandGeometryLogic::SetupTreatmentMachineModels(vtkMRMLIhepSta
     }
 
     rasToFixedReferenceLinearTransform->Concatenate(rotateYTransform);
-/*
+
     // Find RasToFixedReferenceTransform or create it
     vtkSmartPointer<vtkMRMLLinearTransformNode> rasToFixedReferenceTransformNode;
     if (scene->GetFirstNodeByName("RasToFixedReferenceTransform"))
@@ -938,8 +940,8 @@ void vtkSlicerIhepStandGeometryLogic::SetupTreatmentMachineModels(vtkMRMLIhepSta
     {
       rasToFixedReferenceTransformNode->SetAndObserveTransformToParent(rasToFixedReferenceLinearTransform);
     }
-*/
 
+/*
     // Find RasToPatientSupportTransform or create it
     vtkSmartPointer<vtkMRMLLinearTransformNode> rasToPatientSupportTransformNode;
     if (scene->GetFirstNodeByName("RasToPatientSupportTransform"))
@@ -981,7 +983,7 @@ void vtkSlicerIhepStandGeometryLogic::SetupTreatmentMachineModels(vtkMRMLIhepSta
       patientSupportToFixedReferenceTransformNode1->SetAndObserveTransformToParent(
         patientSupportToFixedReferenceTransform);
     }
-
+*/
     vtkMRMLModelNode* canyonModel = vtkMRMLModelNode::SafeDownCast(
       this->GetMRMLScene()->GetFirstNodeByName(CANYON_MODEL_NAME) );
     if (!canyonModel)
@@ -989,11 +991,11 @@ void vtkSlicerIhepStandGeometryLogic::SetupTreatmentMachineModels(vtkMRMLIhepSta
       vtkErrorMacro("SetupTreatmentMachineModels: Unable to access table top model");
       return;
     }
-//    if (rasToFixedReferenceTransformNode)
-    if (patientSupportToFixedReferenceTransformNode1)
+    if (rasToFixedReferenceTransformNode)
+//    if (patientSupportToFixedReferenceTransformNode1)
     {
-//      canyonModel->SetAndObserveTransformNodeID(rasToFixedReferenceTransformNode->GetID());
-      canyonModel->SetAndObserveTransformNodeID(patientSupportToFixedReferenceTransformNode1->GetID());
+      canyonModel->SetAndObserveTransformNodeID(rasToFixedReferenceTransformNode->GetID());
+//      canyonModel->SetAndObserveTransformNodeID(patientSupportToFixedReferenceTransformNode1->GetID());
       canyonModel->CreateDefaultDisplayNodes();
       canyonModel->GetDisplayNode()->SetColor(0.7, 0.65, 0.65);
     }
