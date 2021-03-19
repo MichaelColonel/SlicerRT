@@ -104,6 +104,7 @@ public:
     RightImagingPanel,
     PatientSupportRotation, // Not part of the standard, but useful for visualization
     PatientSupport,
+    TableTopInferiorSuperiorMovement, // Inferior-Superior movement of the table top
     TableTopEccentricRotation,
     TableTop,
     FlatPanel,
@@ -130,8 +131,9 @@ public:
     CoordinateSystemIdentifier fromFrame, CoordinateSystemIdentifier toFrame );
 
   /// Get transform from one coordinate frame to another
+  /// @param transformForBeam - calculate dynamic transformation for beam model or other models
   /// \return Success flag (false on any error)
-  bool GetTransformBetween(CoordinateSystemIdentifier fromFrame, CoordinateSystemIdentifier toFrame, vtkGeneralTransform* outputTransform);
+  bool GetTransformBetween(CoordinateSystemIdentifier fromFrame, CoordinateSystemIdentifier toFrame, vtkGeneralTransform* outputTransform, bool transformForBeam = true);
 
   /// Update parent transform node of a given beam from the IEC transform hierarchy and the beam parameters
   void UpdateBeamTransform(vtkMRMLRTBeamNode* beamNode);
@@ -141,6 +143,12 @@ public:
 
   /// Update IEC transforms according to beam node
   void UpdateIECTransformsFromBeam( vtkMRMLRTBeamNode* beamNode, double* isocenter = nullptr);
+
+  /// Update parent transform node of a given beam from the IEC transform hierarchy and the beam parameters
+//  void UpdateStandTransform(double patientSupportRotationAngle = 0.0);
+
+  /// Restore IEC transforms
+  void RestoreIECTransformHierarchy();
 
 protected:
   /// Get name of transform node between two coordinate systems
@@ -165,7 +173,7 @@ protected:
 
   // TODO: for hierarchy use tree with nodes, something like graph
   /// Map of IEC coordinate systems hierarchy
-  std::map< CoordinateSystemIdentifier, std::list< CoordinateSystemIdentifier > > CoordinateSystemsHierarchy;
+  std::map< CoordinateSystemIdentifier, CoordinateSystemsList > CoordinateSystemsHierarchy;
 
 protected:
   vtkSlicerIECTransformLogic();

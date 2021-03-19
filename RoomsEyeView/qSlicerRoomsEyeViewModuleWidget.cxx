@@ -662,12 +662,13 @@ void qSlicerRoomsEyeViewModuleWidget::onLoadCustomCollimatorMountedDeviceButtonC
   vtkSmartPointer<vtkCollection> loadedModelsCollection = vtkSmartPointer<vtkCollection>::New();
   ioManager->openDialog("ModelFile", qSlicerDataDialog::Read, qSlicerIO::IOProperties(), loadedModelsCollection);
   
+  using IEC = vtkSlicerIECTransformLogic::CoordinateSystemIdentifier;
   for (int modelIndex=0; modelIndex<loadedModelsCollection->GetNumberOfItems(); ++modelIndex)
   {
     vtkMRMLModelNode* loadedModelNode = vtkMRMLModelNode::SafeDownCast(
       loadedModelsCollection->GetItemAsObject(modelIndex) );
     vtkMRMLLinearTransformNode* collimatorModelTransforms = d->logic()->GetIECLogic()->GetTransformNodeBetween(
-      vtkSlicerIECTransformLogic::Collimator, vtkSlicerIECTransformLogic::Gantry );
+      IEC::Collimator, IEC::Gantry );
     loadedModelNode->SetAndObserveTransformNodeID(collimatorModelTransforms->GetID());
   }
 
@@ -777,7 +778,8 @@ void qSlicerRoomsEyeViewModuleWidget::onBeamsEyeViewButtonClicked()
   for (int i = 0; i < cameras->GetNumberOfItems(); i++)
   {
     cameraNode = vtkMRMLCameraNode::SafeDownCast(cameras->GetItemAsObject(i));
-    if (cameraNode->GetActiveTag() == viewNode->GetID())
+    std::string viewUniqueName = std::string(viewNode->GetNodeTagName()) + cameraNode->GetLayoutName();
+    if (viewUniqueName == viewNode->GetID())
     {
       break;
     }

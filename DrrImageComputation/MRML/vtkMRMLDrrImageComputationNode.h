@@ -30,11 +30,7 @@
 #include <vtkSlicerPlanarImageModuleLogic.h>
 #include <vtkMRMLPlanarImageNode.h>
 
-class vtkMRMLLinearTransformNode;
 class vtkMRMLRTBeamNode;
-class vtkMRMLMarkupsClosedCurveNode;
-class vtkMRMLMarkupsFiducialNode;
-class vtkMRMLMarkupsLineNode;
 
 /// \ingroup SlicerRt_QtModules_DrrImageComputation
 /// 
