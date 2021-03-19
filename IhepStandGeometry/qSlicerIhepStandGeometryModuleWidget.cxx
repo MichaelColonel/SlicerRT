@@ -155,6 +155,10 @@ void qSlicerIhepStandGeometryModuleWidget::setup()
   connect( d->PushButton_LoadStandModels, SIGNAL(clicked()), this, SLOT(onLoadStandModelsButtonClicked()));
   connect( d->PushButton_ResetModelsInitialPosition, SIGNAL(clicked()), this, SLOT(onResetToInitialPositionButtonClicked()));
   connect( d->PushButton_MoveModelsToIsocenter, SIGNAL(clicked()), this, SLOT(onMoveModelsToIsocenter()));
+  connect( d->PushButton_BevPlusX, SIGNAL(clicked()), this, SLOT(onBeamsEyeViewPlusXButtonClicked()));
+  connect( d->PushButton_BevPlusY, SIGNAL(clicked()), this, SLOT(onBeamsEyeViewPlusYButtonClicked()));
+  connect( d->PushButton_BevMinusX, SIGNAL(clicked()), this, SLOT(onBeamsEyeViewMinusXButtonClicked()));
+  connect( d->PushButton_BevMinusY, SIGNAL(clicked()), this, SLOT(onBeamsEyeViewMinusYButtonClicked()));
 
   // Handle scene change event if occurs
   qvtkConnect( d->logic(), vtkCommand::ModifiedEvent, this, SLOT(onLogicModified()));
@@ -367,6 +371,42 @@ void qSlicerIhepStandGeometryModuleWidget::onMoveModelsToIsocenter()
 }
 
 //-----------------------------------------------------------------------------
+void qSlicerIhepStandGeometryModuleWidget::onBeamsEyeViewPlusXButtonClicked()
+{
+  Q_D(qSlicerIhepStandGeometryModuleWidget);
+  double viewUpVector[4] = { 1., 0., 0., 0. };
+  this->onBeamsEyeViewButtonClicked(viewUpVector);
+  d->Label_BevOrientation->setText(tr("+X"));
+}
+
+//-----------------------------------------------------------------------------
+void qSlicerIhepStandGeometryModuleWidget::onBeamsEyeViewMinusXButtonClicked()
+{
+  Q_D(qSlicerIhepStandGeometryModuleWidget);
+  double viewUpVector[4] = { -1., 0., 0., 0. };
+  this->onBeamsEyeViewButtonClicked(viewUpVector);
+  d->Label_BevOrientation->setText(tr("-X"));
+}
+
+//-----------------------------------------------------------------------------
+void qSlicerIhepStandGeometryModuleWidget::onBeamsEyeViewPlusYButtonClicked()
+{
+  Q_D(qSlicerIhepStandGeometryModuleWidget);
+  double viewUpVector[4] = { 0., 1., 0., 0. };
+  this->onBeamsEyeViewButtonClicked(viewUpVector);
+  d->Label_BevOrientation->setText(tr("+Y"));
+}
+
+//-----------------------------------------------------------------------------
+void qSlicerIhepStandGeometryModuleWidget::onBeamsEyeViewMinusYButtonClicked()
+{
+  Q_D(qSlicerIhepStandGeometryModuleWidget);
+  double viewUpVector[4] = { 0., -1., 0., 0. };
+  this->onBeamsEyeViewButtonClicked(viewUpVector);
+  d->Label_BevOrientation->setText(tr("-Y"));
+}
+
+//-----------------------------------------------------------------------------
 void qSlicerIhepStandGeometryModuleWidget::enter()
 {
   Q_D(qSlicerIhepStandGeometryModuleWidget);
@@ -380,7 +420,8 @@ void qSlicerIhepStandGeometryModuleWidget::exit()
 {
   Q_D(qSlicerIhepStandGeometryModuleWidget);
   this->Superclass::exit();
-  d->logic()->RestoreOriginalGeometryTransformHierarchy();
+//  d->logic()->RestoreOriginalGeometryTransformHierarchy();
+  d->Label_BevOrientation->setText("");
   qDebug() << Q_FUNC_INFO << ": method exit";
 }
 
@@ -670,4 +711,85 @@ void qSlicerIhepStandGeometryModuleWidget::setMRMLScene(vtkMRMLScene* scene)
     }
   }
   qDebug() << Q_FUNC_INFO << ": finished";
+}
+
+//-----------------------------------------------------------------------------
+void qSlicerIhepStandGeometryModuleWidget::onBeamsEyeViewButtonClicked(const double viewUpVector[4])
+{
+  Q_D(qSlicerIhepStandGeometryModuleWidget);
+
+  // Get 3D view node
+  qSlicerApplication* slicerApplication = qSlicerApplication::application();
+  qSlicerLayoutManager* layoutManager = slicerApplication->layoutManager();
+  qMRMLThreeDView* threeDView = layoutManager->threeDWidget(0)->threeDView();
+  vtkMRMLViewNode* viewNode = threeDView->mrmlViewNode();
+
+  // Get camera node for view
+  vtkCollection* cameras = this->mrmlScene()->GetNodesByClass("vtkMRMLCameraNode");
+  vtkMRMLCameraNode* cameraNode = nullptr;
+  for (int i = 0; i < cameras->GetNumberOfItems(); i++)
+  {
+    cameraNode = vtkMRMLCameraNode::SafeDownCast(cameras->GetItemAsObject(i));
+    std::string viewUniqueName = std::string(viewNode->GetNodeTagName()) + cameraNode->GetLayoutName();
+    if (viewUniqueName == viewNode->GetID())
+    {
+      break;
+    }
+  }
+  if (!cameraNode)
+  {
+    qCritical() << Q_FUNC_INFO << "Failed to find camera for view " << (viewNode ? viewNode->GetID() : "(null)");
+    cameras->Delete();
+    return;
+  }
+
+  vtkMRMLRTBeamNode* beamNode = vtkMRMLRTBeamNode::SafeDownCast(d->MRMLNodeComboBox_RtBeam->currentNode());
+  double sourcePosition[3] = {0.0, 0.0, 0.0};
+  double isocenter[3] = {0.0, 0.0, 0.0};
+
+  if (beamNode && beamNode->GetSourcePosition(sourcePosition))
+  {
+    vtkMRMLTransformNode* beamTransformNode = beamNode->GetParentTransformNode();
+    vtkTransform* beamTransform = nullptr;
+    vtkNew<vtkMatrix4x4> mat;
+    mat->Identity();
+
+    if (beamTransformNode)
+    {
+      beamTransform = vtkTransform::SafeDownCast(beamTransformNode->GetTransformToParent());
+      beamTransform->GetMatrix(mat);
+    }
+    else
+    {
+      qCritical() << Q_FUNC_INFO << "Beam transform node is invalid";
+      cameras->Delete();
+      return;
+    }
+
+//    double viewUpVector[4] = { -1., 0., 0., 0. }; // beam negative X-axis
+    double vup[4];
+  
+    mat->MultiplyPoint( viewUpVector, vup);
+    //vtkMRMLModelNode* collimatorModel = vtkMRMLModelNode::SafeDownCast(this->mrmlScene()->GetFirstNodeByName("CollimatorModel"));
+    //vtkPolyData* collimatorModelPolyData = collimatorModel->GetPolyData();
+
+    //double collimatorCenterOfRotation[3] = {0.0, 0.0, 0.0};
+    //double collimatorModelBounds[6] = { 0, 0, 0, 0, 0, 0 };
+
+    //collimatorModelPolyData->GetBounds(collimatorModelBounds);
+    //collimatorCenterOfRotation[0] = (collimatorModelBounds[0] + collimatorModelBounds[1]) / 2;
+    //collimatorCenterOfRotation[1] = (collimatorModelBounds[2] + collimatorModelBounds[3]) / 2;
+    //collimatorCenterOfRotation[2] = collimatorModelBounds[4];
+
+    //cameraNode->GetCamera()->SetPosition(collimatorCenterOfRotation);
+    cameraNode->GetCamera()->SetPosition(sourcePosition);
+    if (beamNode->GetPlanIsocenterPosition(isocenter))
+    {
+      cameraNode->GetCamera()->SetFocalPoint(isocenter);
+    }
+    cameraNode->SetViewUp(vup);
+  }
+  
+  cameraNode->GetCamera()->Elevation(0.);
+  cameras->Delete();
 }
