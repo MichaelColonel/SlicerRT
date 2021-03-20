@@ -1003,6 +1003,80 @@ void vtkSlicerIhepStandGeometryLogic::SetupTreatmentMachineModels(vtkMRMLIhepSta
 }
 
 //----------------------------------------------------------------------------
+void vtkSlicerIhepStandGeometryLogic::CalculateAngles(vtkMRMLIhepStandGeometryNode* parameterNode)
+{
+  vtkMRMLRTBeamNode* beamNode = parameterNode->GetBeamNode();
+  if (beamNode)
+  {
+    vtkMRMLTransformNode* beamTransformNode = beamNode->GetParentTransformNode();
+    vtkTransform* beamTransform = nullptr;
+    vtkNew<vtkMatrix4x4> mat;
+    mat->Identity();
+
+    if (beamTransformNode)
+    {
+      beamTransform = vtkTransform::SafeDownCast(beamTransformNode->GetTransformToParent());
+      beamTransform->GetMatrix(mat);
+    }
+    else
+    {
+      vtkErrorMacro("CalculateAngles: Beam transform node is invalid");
+      return;
+    }
+
+    double tableLongitudinalAngle = 0.0;
+    double couchRotationAngle = 0.0;
+
+    if (beamNode->GetGantryAngle() >= 0. && beamNode->GetGantryAngle() <= 180. &&
+      beamNode->GetCouchAngle() == 0.0)
+    {
+      tableLongitudinalAngle = beamNode->GetGantryAngle() - 90.;
+      couchRotationAngle = 0.0;
+    }
+    else if (beamNode->GetGantryAngle() >= 270. && beamNode->GetGantryAngle() <= 360. &&
+      beamNode->GetCouchAngle() == 0.0)
+    {
+      tableLongitudinalAngle = beamNode->GetGantryAngle() - 270.;
+      couchRotationAngle = 180.0;
+    }
+
+    double viewUpVector[4] = { -1., 0., 0., 0. }; // beam negative X-axis
+    double viewUpVector[4] = { -1., 0., 0., 0. }; // beam negative X-axis
+    double viewUpVector[4] = { -1., 0., 0., 0. }; // beam negative X-axis
+    double viewUpVector[4] = { -1., 0., 0., 0. }; // beam negative X-axis
+    double vup[4];
+  
+    mat->MultiplyPoint( viewUpVector, vup);
+
+    // Translation to origin for in-place rotation
+
+    qDebug() << "Beam view-up Vector " << viewUpVector[0] << " " \
+      << viewUpVector[1] << " " << viewUpVector[2]; 
+
+    qDebug() << "Beam view-up Vector in RAS " << vup[0] << " " << vup[1] << " " << vup[2]; 
+
+    //vtkMRMLModelNode* collimatorModel = vtkMRMLModelNode::SafeDownCast(this->mrmlScene()->GetFirstNodeByName("CollimatorModel"));
+    //vtkPolyData* collimatorModelPolyData = collimatorModel->GetPolyData();
+
+    //double collimatorCenterOfRotation[3] = {0.0, 0.0, 0.0};
+    //double collimatorModelBounds[6] = { 0, 0, 0, 0, 0, 0 };
+
+    //collimatorModelPolyData->GetBounds(collimatorModelBounds);
+    //collimatorCenterOfRotation[0] = (collimatorModelBounds[0] + collimatorModelBounds[1]) / 2;
+    //collimatorCenterOfRotation[1] = (collimatorModelBounds[2] + collimatorModelBounds[3]) / 2;
+    //collimatorCenterOfRotation[2] = collimatorModelBounds[4];
+
+    //cameraNode->GetCamera()->SetPosition(collimatorCenterOfRotation);
+    cameraNode->GetCamera()->SetPosition(sourcePosition);
+    if (beamNode->GetPlanIsocenterPosition(isocenter))
+    {
+      cameraNode->GetCamera()->SetFocalPoint(isocenter);
+    }
+    cameraNode->SetViewUp(vup);
+  }
+}
+
+//----------------------------------------------------------------------------
 void vtkSlicerIhepStandGeometryLogic::MoveModelsToIsocenter(vtkMRMLIhepStandGeometryNode* parameterNode, double isocenter[3])
 {
 

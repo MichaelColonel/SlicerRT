@@ -576,6 +576,42 @@ void qSlicerIhepStandGeometryModuleWidget::onRTBeamNodeChanged(vtkMRMLNode* node
     return;
   }
 
+  vtkMRMLTransformNode* beamTransformNode = beamNode->GetParentTransformNode();
+  vtkTransform* beamTransform = nullptr;
+  vtkNew<vtkMatrix4x4> mat;
+
+  if (beamTransformNode)
+  {
+    beamTransform = vtkTransform::SafeDownCast(beamTransformNode->GetTransformToParent());
+    beamTransform->GetMatrix(mat);
+  }
+  else
+  {
+    qCritical() << Q_FUNC_INFO << "Beam transform node is invalid";
+    return;
+  }
+
+  double xP[4] = { 1., 0., 0., 0. }; // beam negative X-axis
+  double xM[4] = { -1., 0., 0., 0. }; // beam negative X-axis
+  double yP[4] = { 0., 1., 0., 0. }; // beam negative X-axis
+  double yM[4] = { 0., -1., 0., 0. }; // beam negative X-axis
+  double zP[4] = { 0., 0., 1., 0. }; // beam negative X-axis
+  double zM[4] = { 0., 0., -1., 0. }; // beam negative X-axis
+  
+  double vup[4];
+  mat->MultiplyPoint( xP, vup);
+  qDebug() << "xP " << vup[0] << " " << vup[1] << " " << vup[2];
+  mat->MultiplyPoint( xM, vup);
+  qDebug() << "xM " << vup[0] << " " << vup[1] << " " << vup[2]; 
+  mat->MultiplyPoint( yP, vup);
+  qDebug() << "yP " << vup[0] << " " << vup[1] << " " << vup[2]; 
+  mat->MultiplyPoint( yM, vup);
+  qDebug() << "yM " << vup[0] << " " << vup[1] << " " << vup[2]; 
+  mat->MultiplyPoint( zP, vup);
+  qDebug() << "zP " << vup[0] << " " << vup[1] << " " << vup[2]; 
+  mat->MultiplyPoint( zM, vup);
+  qDebug() << "zM " << vup[0] << " " << vup[1] << " " << vup[2];
+
   vtkMRMLRTIonBeamNode* ionBeamNode = vtkMRMLRTIonBeamNode::SafeDownCast(node);
   Q_UNUSED(ionBeamNode);
 
@@ -770,6 +806,14 @@ void qSlicerIhepStandGeometryModuleWidget::onBeamsEyeViewButtonClicked(const dou
     double vup[4];
   
     mat->MultiplyPoint( viewUpVector, vup);
+
+    // Translation to origin for in-place rotation
+
+    qDebug() << "Beam view-up Vector " << viewUpVector[0] << " " \
+      << viewUpVector[1] << " " << viewUpVector[2]; 
+
+    qDebug() << "Beam view-up Vector in RAS " << vup[0] << " " << vup[1] << " " << vup[2]; 
+
     //vtkMRMLModelNode* collimatorModel = vtkMRMLModelNode::SafeDownCast(this->mrmlScene()->GetFirstNodeByName("CollimatorModel"));
     //vtkPolyData* collimatorModelPolyData = collimatorModel->GetPolyData();
 

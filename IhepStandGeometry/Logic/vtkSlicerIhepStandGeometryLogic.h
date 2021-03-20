@@ -84,6 +84,7 @@ public:
   /// Create or get transforms taking part in the IEC logic and additional devices, and build the transform hierarchy
   void BuildIhepStangGeometryTransformHierarchy();
   void RestoreOriginalGeometryTransformHierarchy();
+  void CalculateAngles(vtkMRMLIhepStandGeometryNode* parameterNode);
 
 protected:
   vtkSlicerIhepStandGeometryLogic();
