@@ -310,7 +310,7 @@ void vtkSlicerIhepStandGeometryTransformLogic::UpdateIHEPTransformsFromBeam( vtk
   vtkTransform* tableTopStandToPatientSupportTransform = vtkTransform::SafeDownCast(
     tableTopStandToPatientSupportTransformNode->GetTransformToParent());
   tableTopStandToPatientSupportTransform->Identity();
-  tableTopStandToPatientSupportTransform->RotateY(-1. * beamNode->GetGantryAngle());
+//  tableTopStandToPatientSupportTransform->RotateY(-1. * beamNode->GetGantryAngle());
   tableTopStandToPatientSupportTransform->Modified();
 
   vtkMRMLLinearTransformNode* tableTopToTableTopStandTransformNode =
