@@ -1041,38 +1041,20 @@ void vtkSlicerIhepStandGeometryLogic::CalculateAngles(vtkMRMLIhepStandGeometryNo
     }
 
     double viewUpVector[4] = { -1., 0., 0., 0. }; // beam negative X-axis
-    double viewUpVector[4] = { -1., 0., 0., 0. }; // beam negative X-axis
-    double viewUpVector[4] = { -1., 0., 0., 0. }; // beam negative X-axis
-    double viewUpVector[4] = { -1., 0., 0., 0. }; // beam negative X-axis
+//    double viewUpVector[4] = { -1., 0., 0., 0. }; // beam negative X-axis
+//    double viewUpVector[4] = { -1., 0., 0., 0. }; // beam negative X-axis
+//    double viewUpVector[4] = { -1., 0., 0., 0. }; // beam negative X-axis
     double vup[4];
   
     mat->MultiplyPoint( viewUpVector, vup);
 
     // Translation to origin for in-place rotation
 
-    qDebug() << "Beam view-up Vector " << viewUpVector[0] << " " \
-      << viewUpVector[1] << " " << viewUpVector[2]; 
+    vtkWarningMacro("CalculateAngles: Beam view-up Vector " << viewUpVector[0] << " " \
+      << viewUpVector[1] << " " << viewUpVector[2]); 
 
-    qDebug() << "Beam view-up Vector in RAS " << vup[0] << " " << vup[1] << " " << vup[2]; 
-
-    //vtkMRMLModelNode* collimatorModel = vtkMRMLModelNode::SafeDownCast(this->mrmlScene()->GetFirstNodeByName("CollimatorModel"));
-    //vtkPolyData* collimatorModelPolyData = collimatorModel->GetPolyData();
-
-    //double collimatorCenterOfRotation[3] = {0.0, 0.0, 0.0};
-    //double collimatorModelBounds[6] = { 0, 0, 0, 0, 0, 0 };
-
-    //collimatorModelPolyData->GetBounds(collimatorModelBounds);
-    //collimatorCenterOfRotation[0] = (collimatorModelBounds[0] + collimatorModelBounds[1]) / 2;
-    //collimatorCenterOfRotation[1] = (collimatorModelBounds[2] + collimatorModelBounds[3]) / 2;
-    //collimatorCenterOfRotation[2] = collimatorModelBounds[4];
-
-    //cameraNode->GetCamera()->SetPosition(collimatorCenterOfRotation);
-    cameraNode->GetCamera()->SetPosition(sourcePosition);
-    if (beamNode->GetPlanIsocenterPosition(isocenter))
-    {
-      cameraNode->GetCamera()->SetFocalPoint(isocenter);
-    }
-    cameraNode->SetViewUp(vup);
+    vtkWarningMacro("CalculateAngles: Beam view-up Vector in RAS " << vup[0] << " " \
+      << vup[1] << " " << vup[2]); 
   }
 }
 
