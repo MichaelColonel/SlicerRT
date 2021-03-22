@@ -739,8 +739,6 @@ void vtkSlicerIhepStandGeometryLogic::SetupTreatmentMachineModels(vtkMRMLIhepSta
   // Display all pieces of the treatment room and sets each piece a color to provide realistic representation
   using IHEP = vtkSlicerIhepStandGeometryTransformLogic::CoordinateSystemIdentifier;
 
-  this->IhepLogic->UpdateIHEPTransformsFromBeam(beamNode);
-
   // Transform IHEP stand models to RAS
   vtkNew<vtkTransform> rotateYTransform;
   rotateYTransform->Identity();
@@ -1025,7 +1023,7 @@ void vtkSlicerIhepStandGeometryLogic::CalculateAngles(vtkMRMLIhepStandGeometryNo
       vtkErrorMacro("CalculateAngles: Beam transform node is invalid");
       return;
     }
-
+/*
     double tableLongitudinalAngle = 0.0;
     double couchRotationAngle = 0.0;
 
@@ -1041,7 +1039,9 @@ void vtkSlicerIhepStandGeometryLogic::CalculateAngles(vtkMRMLIhepStandGeometryNo
       tableLongitudinalAngle = beamNode->GetGantryAngle() - 270.;
       couchRotationAngle = 180.0;
     }
-
+*/
+    this->IhepLogic->UpdateIHEPTransformsFromBeam(beamNode);
+/*
     double viewUpVector[4] = { -1., 0., 0., 0. }; // beam negative X-axis
 //    double viewUpVector[4] = { -1., 0., 0., 0. }; // beam negative X-axis
 //    double viewUpVector[4] = { -1., 0., 0., 0. }; // beam negative X-axis
@@ -1057,7 +1057,49 @@ void vtkSlicerIhepStandGeometryLogic::CalculateAngles(vtkMRMLIhepStandGeometryNo
 
     vtkWarningMacro("CalculateAngles: Beam view-up Vector in RAS " << vup[0] << " " \
       << vup[1] << " " << vup[2]); 
+*/
   }
+  // Transform IHEP stand models to RAS
+  vtkNew<vtkTransform> rotateYTransform;
+  rotateYTransform->Identity();
+  rotateYTransform->RotateX(-90.);
+  rotateYTransform->RotateZ(180.);
+
+  using IHEP = vtkSlicerIhepStandGeometryTransformLogic::CoordinateSystemIdentifier;
+  // Fixed Reference (canyon) - mandatory
+  // Transform path: RAS -> Patient -> TableTop -> TableTopStand -> PatientSupport -> FixedReference
+  vtkNew<vtkGeneralTransform> rasToFixedReferenceGeneralTransform;
+  vtkNew<vtkTransform> rasToFixedReferenceLinearTransform;
+  if (this->IhepLogic->GetTransformBetween( IHEP::TableTop, IHEP::FixedReference, 
+    rasToFixedReferenceGeneralTransform, false))
+  {
+    // Convert general transform to linear
+    // This call also makes hard copy of the transform so that it doesn't change when other beam transforms change
+    if (!vtkMRMLTransformNode::IsGeneralTransformLinear( rasToFixedReferenceGeneralTransform, 
+      rasToFixedReferenceLinearTransform))
+    {
+      vtkErrorMacro("CalculateAngles: Unable to get transform hierarchy from RAS to FixedReference");
+      return;
+    }
+
+    rasToFixedReferenceLinearTransform->Concatenate(rotateYTransform);
+  }
+  vtkWarningMacro("CalculateAngles: " << rasToFixedReferenceLinearTransform->GetMatrix()->GetElement( 0, 0) << " " \
+    << rasToFixedReferenceLinearTransform->GetMatrix()->GetElement( 0, 1) << " " \
+    << rasToFixedReferenceLinearTransform->GetMatrix()->GetElement( 0, 2) << " " \
+    << rasToFixedReferenceLinearTransform->GetMatrix()->GetElement( 0, 3) << " " \
+    << rasToFixedReferenceLinearTransform->GetMatrix()->GetElement( 1, 0) << " " \
+    << rasToFixedReferenceLinearTransform->GetMatrix()->GetElement( 1, 1) << " " \
+    << rasToFixedReferenceLinearTransform->GetMatrix()->GetElement( 1, 2) << " " \
+    << rasToFixedReferenceLinearTransform->GetMatrix()->GetElement( 1, 3) << " " \
+    << rasToFixedReferenceLinearTransform->GetMatrix()->GetElement( 2, 0) << " " \
+    << rasToFixedReferenceLinearTransform->GetMatrix()->GetElement( 2, 1) << " " \
+    << rasToFixedReferenceLinearTransform->GetMatrix()->GetElement( 2, 2) << " " \
+    << rasToFixedReferenceLinearTransform->GetMatrix()->GetElement( 2, 3) << " " \
+    << rasToFixedReferenceLinearTransform->GetMatrix()->GetElement( 3, 0) << " " \
+    << rasToFixedReferenceLinearTransform->GetMatrix()->GetElement( 3, 1) << " " \
+    << rasToFixedReferenceLinearTransform->GetMatrix()->GetElement( 3, 2) << " " \
+    << rasToFixedReferenceLinearTransform->GetMatrix()->GetElement( 3, 3));
 }
 
 //----------------------------------------------------------------------------

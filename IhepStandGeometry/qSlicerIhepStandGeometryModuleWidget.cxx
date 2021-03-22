@@ -590,7 +590,7 @@ void qSlicerIhepStandGeometryModuleWidget::onRTBeamNodeChanged(vtkMRMLNode* node
     qCritical() << Q_FUNC_INFO << "Beam transform node is invalid";
     return;
   }
-
+/*
   double xP[4] = { 1., 0., 0., 0. }; // beam negative X-axis
   double xM[4] = { -1., 0., 0., 0. }; // beam negative X-axis
   double yP[4] = { 0., 1., 0., 0. }; // beam negative X-axis
@@ -611,7 +611,7 @@ void qSlicerIhepStandGeometryModuleWidget::onRTBeamNodeChanged(vtkMRMLNode* node
   qDebug() << "zP " << vup[0] << " " << vup[1] << " " << vup[2]; 
   mat->MultiplyPoint( zM, vup);
   qDebug() << "zM " << vup[0] << " " << vup[1] << " " << vup[2];
-
+*/
   vtkMRMLRTIonBeamNode* ionBeamNode = vtkMRMLRTIonBeamNode::SafeDownCast(node);
   Q_UNUSED(ionBeamNode);
 
@@ -621,10 +621,12 @@ void qSlicerIhepStandGeometryModuleWidget::onRTBeamNodeChanged(vtkMRMLNode* node
     qCritical() << Q_FUNC_INFO << ": Invalid parameter node";
     return;
   }
-
+  
   parameterNode->SetAndObserveBeamNode(beamNode);
   parameterNode->Modified();
   qDebug() << Q_FUNC_INFO << beamNode->GetName() << ": finished";
+
+  d->logic()->CalculateAngles(parameterNode);
 }
 
 //-----------------------------------------------------------------------------

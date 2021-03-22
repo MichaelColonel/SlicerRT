@@ -289,8 +289,8 @@ void vtkSlicerIhepStandGeometryTransformLogic::UpdateIHEPTransformsFromBeam( vtk
 
   double theta = beamNode->GetGantryAngle() * M_PI / 180.;
   double phi = beamNode->GetCouchAngle() * M_PI / 180.;
-  double angle1 = atan( cos(theta) / (sin(theta) * cos(phi))) * 180. / M_PI;
-  double angle2 = atan( cos(theta) / (sin(theta) * sin(phi))) * 180. / M_PI;
+  double angle1 = atan(cos(theta) / (sin(theta) * cos(phi))) * 180. / M_PI;
+  double angle2 = atan(cos(theta) / (sin(theta) * sin(phi))) * 180. / M_PI;
 
   vtkWarningMacro("UpdateIHEPTransformsFromBeam: Angle1 " << angle1 << " angel2 " << angle2);
 
