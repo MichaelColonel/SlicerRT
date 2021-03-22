@@ -642,7 +642,8 @@ void vtkSlicerIhepStandGeometryLogic::ResetModelsToInitialPosition(vtkMRMLIhepSt
     vtkErrorMacro("ResetModelsToInitialPosition: Invalid parameter node");
     return;
   }
-
+  this->SetupTreatmentMachineModels(parameterNode);
+/*
   vtkMRMLRTBeamNode* beamNode = parameterNode->GetBeamNode();
   using IHEP = vtkSlicerIhepStandGeometryTransformLogic::CoordinateSystemIdentifier;
 
@@ -654,8 +655,8 @@ void vtkSlicerIhepStandGeometryLogic::ResetModelsToInitialPosition(vtkMRMLIhepSt
     tableTopToTableTopStandTransformNode->GetTransformToParent() );
   tableTopToTableTopStandTransform->Identity();
 //  tableTopToTableTopStandTransform->Translate( 0., 490., -550.);
-  tableTopToTableTopStandTransform->RotateY(-1. * parameterNode->GetTableTopLongitudinalAngle());
-  tableTopToTableTopStandTransform->RotateX(-1. * parameterNode->GetTableTopLateralAngle());
+//  tableTopToTableTopStandTransform->RotateY(-1. * parameterNode->GetTableTopLongitudinalAngle());
+//  tableTopToTableTopStandTransform->RotateX(-1. * parameterNode->GetTableTopLateralAngle());
   tableTopToTableTopStandTransform->Modified();
 
   // Update TableTopInferiorSuperiorMovement -> PatientSupport
@@ -718,6 +719,7 @@ void vtkSlicerIhepStandGeometryLogic::ResetModelsToInitialPosition(vtkMRMLIhepSt
   // Set required transform to the models
 //  double tmpIsocenter[3] = {};
 //  this->MoveModelsToIsocenter( parameterNode, tmpIsocenter);
+*/
 }
 
 //----------------------------------------------------------------------------

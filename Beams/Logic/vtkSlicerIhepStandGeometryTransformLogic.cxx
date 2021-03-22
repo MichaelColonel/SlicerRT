@@ -287,6 +287,13 @@ void vtkSlicerIhepStandGeometryTransformLogic::UpdateIHEPTransformsFromBeam( vtk
   // Make sure the transform hierarchy is set up
   this->BuildIHEPTransformHierarchy();
 
+  double theta = beamNode->GetGantryAngle() * M_PI / 180.;
+  double phi = beamNode->GetCouchAngle() * M_PI / 180.;
+  double angle1 = atan( cos(theta) / (sin(theta) * cos(phi))) * 180. / M_PI;
+  double angle2 = atan( cos(theta) / (sin(theta) * sin(phi))) * 180. / M_PI;
+
+  vtkWarningMacro("UpdateIHEPTransformsFromBeam: Angle1 " << angle1 << " angel2 " << angle2);
+
   using IHEP = CoordinateSystemIdentifier;
   // Collimator (beam) -> Fixed Reference
   vtkMRMLLinearTransformNode* collimatorToFixedReferenceTransformNode =
@@ -310,7 +317,7 @@ void vtkSlicerIhepStandGeometryTransformLogic::UpdateIHEPTransformsFromBeam( vtk
   vtkTransform* tableTopStandToPatientSupportTransform = vtkTransform::SafeDownCast(
     tableTopStandToPatientSupportTransformNode->GetTransformToParent());
   tableTopStandToPatientSupportTransform->Identity();
-//  tableTopStandToPatientSupportTransform->RotateY(-1. * beamNode->GetGantryAngle());
+//  tableTopStandToPatientSupportTransform->RotateY(90. - beamNode->GetGantryAngle());
   tableTopStandToPatientSupportTransform->Modified();
 
   vtkMRMLLinearTransformNode* tableTopToTableTopStandTransformNode =
@@ -318,6 +325,7 @@ void vtkSlicerIhepStandGeometryTransformLogic::UpdateIHEPTransformsFromBeam( vtk
   vtkTransform* tableTopToTableTopStandTransform = vtkTransform::SafeDownCast(
     tableTopToTableTopStandTransformNode->GetTransformToParent());
   tableTopToTableTopStandTransform->Identity();
+  tableTopToTableTopStandTransform->RotateY(-90. + beamNode->GetGantryAngle());
   tableTopToTableTopStandTransform->Modified();
 
   // Update IHEP Patient to RAS transform based on the isocenter defined in the beam's parent plan
