@@ -317,7 +317,7 @@ void vtkSlicerIhepStandGeometryTransformLogic::UpdateIHEPTransformsFromBeam( vtk
   vtkTransform* tableTopStandToPatientSupportTransform = vtkTransform::SafeDownCast(
     tableTopStandToPatientSupportTransformNode->GetTransformToParent());
   tableTopStandToPatientSupportTransform->Identity();
-//  tableTopStandToPatientSupportTransform->RotateY(90. - beamNode->GetGantryAngle());
+  tableTopStandToPatientSupportTransform->RotateY(90. - beamNode->GetGantryAngle());
   tableTopStandToPatientSupportTransform->Modified();
 
   vtkMRMLLinearTransformNode* tableTopToTableTopStandTransformNode =
@@ -325,7 +325,7 @@ void vtkSlicerIhepStandGeometryTransformLogic::UpdateIHEPTransformsFromBeam( vtk
   vtkTransform* tableTopToTableTopStandTransform = vtkTransform::SafeDownCast(
     tableTopToTableTopStandTransformNode->GetTransformToParent());
   tableTopToTableTopStandTransform->Identity();
-  tableTopToTableTopStandTransform->RotateY(-90. + beamNode->GetGantryAngle());
+//  tableTopToTableTopStandTransform->RotateY(-90. + beamNode->GetGantryAngle());
   tableTopToTableTopStandTransform->Modified();
 
   // Update IHEP Patient to RAS transform based on the isocenter defined in the beam's parent plan
