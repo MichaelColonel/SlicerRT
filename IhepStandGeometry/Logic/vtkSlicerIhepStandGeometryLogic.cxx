@@ -742,8 +742,8 @@ void vtkSlicerIhepStandGeometryLogic::SetupTreatmentMachineModels(vtkMRMLIhepSta
   // Transform IHEP stand models to RAS
   vtkNew<vtkTransform> rotateYTransform;
   rotateYTransform->Identity();
-  rotateYTransform->RotateX(-90.);
-  rotateYTransform->RotateZ(180.);
+//  rotateYTransform->RotateX(-90.);
+//  rotateYTransform->RotateZ(180.);
 
   // Table top stand (Inferior<->Superior movement) model - mandatory
   // Transform path: RAS -> Patient -> TableTop -> TableTopStand

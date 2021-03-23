@@ -334,8 +334,8 @@ void vtkSlicerIhepStandGeometryTransformLogic::UpdateIHEPTransformsFromBeam( vtk
   vtkTransform* rasToPatientTransform = vtkTransform::SafeDownCast(rasToPatientTransformNode->GetTransformToParent());
   rasToPatientTransform->Identity();
 
-  rasToPatientTransform->RotateX(-90.);
-  rasToPatientTransform->RotateZ(180.);
+//  rasToPatientTransform->RotateX(-90.);
+//  rasToPatientTransform->RotateZ(180.);
   rasToPatientTransform->Modified();
 
   // Update IHEP FixedReference to RAS transform based on the isocenter defined in the beam's parent plan
