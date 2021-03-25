@@ -742,8 +742,8 @@ void vtkSlicerIhepStandGeometryLogic::SetupTreatmentMachineModels(vtkMRMLIhepSta
   // Transform IHEP stand models to RAS
   vtkNew<vtkTransform> rotateYTransform;
   rotateYTransform->Identity();
-//  rotateYTransform->RotateX(-90.);
-//  rotateYTransform->RotateZ(180.);
+  rotateYTransform->RotateX(-90.);
+  rotateYTransform->RotateZ(180.);
 
   // Table top stand (Inferior<->Superior movement) model - mandatory
   // Transform path: RAS -> Patient -> TableTop -> TableTopStand
@@ -1064,6 +1064,7 @@ void vtkSlicerIhepStandGeometryLogic::CalculateAngles(vtkMRMLIhepStandGeometryNo
   rotateYTransform->Identity();
   rotateYTransform->RotateX(-90.);
   rotateYTransform->RotateZ(180.);
+  rotateYTransform->Inverse();
 
   using IHEP = vtkSlicerIhepStandGeometryTransformLogic::CoordinateSystemIdentifier;
   // Fixed Reference (canyon) - mandatory
@@ -1083,23 +1084,53 @@ void vtkSlicerIhepStandGeometryLogic::CalculateAngles(vtkMRMLIhepStandGeometryNo
     }
 
     rasToFixedReferenceLinearTransform->Concatenate(rotateYTransform);
+    rasToFixedReferenceLinearTransform->Concatenate(rotateYTransform);
   }
-  vtkWarningMacro("CalculateAngles: " << rasToFixedReferenceLinearTransform->GetMatrix()->GetElement( 0, 0) << " " \
+
+  vtkWarningMacro("CalculateAngles: \n" << rasToFixedReferenceLinearTransform->GetMatrix()->GetElement( 0, 0) << " " \
     << rasToFixedReferenceLinearTransform->GetMatrix()->GetElement( 0, 1) << " " \
     << rasToFixedReferenceLinearTransform->GetMatrix()->GetElement( 0, 2) << " " \
-    << rasToFixedReferenceLinearTransform->GetMatrix()->GetElement( 0, 3) << " " \
+    << rasToFixedReferenceLinearTransform->GetMatrix()->GetElement( 0, 3) << "\n" \
     << rasToFixedReferenceLinearTransform->GetMatrix()->GetElement( 1, 0) << " " \
     << rasToFixedReferenceLinearTransform->GetMatrix()->GetElement( 1, 1) << " " \
     << rasToFixedReferenceLinearTransform->GetMatrix()->GetElement( 1, 2) << " " \
-    << rasToFixedReferenceLinearTransform->GetMatrix()->GetElement( 1, 3) << " " \
+    << rasToFixedReferenceLinearTransform->GetMatrix()->GetElement( 1, 3) << "\n" \
     << rasToFixedReferenceLinearTransform->GetMatrix()->GetElement( 2, 0) << " " \
     << rasToFixedReferenceLinearTransform->GetMatrix()->GetElement( 2, 1) << " " \
     << rasToFixedReferenceLinearTransform->GetMatrix()->GetElement( 2, 2) << " " \
-    << rasToFixedReferenceLinearTransform->GetMatrix()->GetElement( 2, 3) << " " \
+    << rasToFixedReferenceLinearTransform->GetMatrix()->GetElement( 2, 3) << "\n" \
     << rasToFixedReferenceLinearTransform->GetMatrix()->GetElement( 3, 0) << " " \
     << rasToFixedReferenceLinearTransform->GetMatrix()->GetElement( 3, 1) << " " \
     << rasToFixedReferenceLinearTransform->GetMatrix()->GetElement( 3, 2) << " " \
     << rasToFixedReferenceLinearTransform->GetMatrix()->GetElement( 3, 3));
+
+  double zVector[4] = { 0., 0., 1., 0. };
+  double yVector[4] = { 0., 1., 0., 0. };
+  double collimatorY[4];
+  double collimatorZ[4];
+  
+  rasToFixedReferenceLinearTransform->MultiplyPoint( zVector, collimatorZ);
+  rasToFixedReferenceLinearTransform->MultiplyPoint( yVector, collimatorY);
+
+  vtkWarningMacro("Angle to Y[0]: " << acos(collimatorY[0]) * 180. / M_PI << "\n" <<
+    "Angle to Y[1]: " << acos(collimatorY[1]) * 180. / M_PI << "\n" <<
+    "Angle to Y[2]: " << acos(collimatorY[2]) * 180. / M_PI);
+
+  vtkWarningMacro("Angle to Z[0]: " << acos(collimatorZ[0]) * 180. / M_PI << "\n" <<
+    "Angle to Z[1]: " << acos(collimatorZ[1]) * 180. / M_PI << "\n" <<
+    "Angle to Z[2]: " << acos(collimatorZ[2]) * 180. / M_PI);
+
+  vtkWarningMacro("TableTop Lateral angle: " << 90. - acos(collimatorZ[1]) * 180. / M_PI);
+
+  vtkWarningMacro("Angle to X-TableTop to Z-FixedReference: " << acos(rasToFixedReferenceLinearTransform->GetMatrix()->GetElement( 0, 2)) * 180. / M_PI << "\n"
+    "Angle to Y-TableTop to Y-FixedReference: " << acos(rasToFixedReferenceLinearTransform->GetMatrix()->GetElement( 1, 1)) * 180. / M_PI << "\n"
+    "Angle to Z-TableTop to Z-FixedReference: " << acos(rasToFixedReferenceLinearTransform->GetMatrix()->GetElement( 2, 2)) * 180. / M_PI);
+
+  vtkWarningMacro("Y-Z matrix: " << rasToFixedReferenceLinearTransform->GetMatrix()->GetElement( 1, 1) << " "
+    << rasToFixedReferenceLinearTransform->GetMatrix()->GetElement( 1, 2) << "\n"
+    << rasToFixedReferenceLinearTransform->GetMatrix()->GetElement( 2, 1) << " "
+    << rasToFixedReferenceLinearTransform->GetMatrix()->GetElement( 2, 2) << "\n");
+
 }
 
 //----------------------------------------------------------------------------

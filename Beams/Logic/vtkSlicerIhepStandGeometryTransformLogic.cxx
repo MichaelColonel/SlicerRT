@@ -286,21 +286,21 @@ void vtkSlicerIhepStandGeometryTransformLogic::UpdateIHEPTransformsFromBeam( vtk
 
   // Make sure the transform hierarchy is set up
   this->BuildIHEPTransformHierarchy();
-
+/*
   double theta = beamNode->GetGantryAngle() * M_PI / 180.;
   double phi = beamNode->GetCouchAngle() * M_PI / 180.;
   double angle1 = atan(cos(theta) / (sin(theta) * cos(phi))) * 180. / M_PI;
   double angle2 = atan(cos(theta) / (sin(theta) * sin(phi))) * 180. / M_PI;
 
   vtkWarningMacro("UpdateIHEPTransformsFromBeam: Angle1 " << angle1 << " angel2 " << angle2);
-
+*/
   using IHEP = CoordinateSystemIdentifier;
   // Collimator (beam) -> Fixed Reference
   vtkMRMLLinearTransformNode* collimatorToFixedReferenceTransformNode =
     this->GetTransformNodeBetween(IHEP::Collimator, IHEP::FixedReference);
   vtkTransform* collimatorToFixedReferenceTransform = vtkTransform::SafeDownCast(collimatorToFixedReferenceTransformNode->GetTransformToParent());
   collimatorToFixedReferenceTransform->Identity();
-  collimatorToFixedReferenceTransform->RotateY(beamNode->GetGantryAngle());
+//  collimatorToFixedReferenceTransform->RotateY(beamNode->GetGantryAngle());
   collimatorToFixedReferenceTransform->Modified();
 
   // Patient support (Patient suppport rotation) -> Fixed Reference
@@ -317,7 +317,7 @@ void vtkSlicerIhepStandGeometryTransformLogic::UpdateIHEPTransformsFromBeam( vtk
   vtkTransform* tableTopStandToPatientSupportTransform = vtkTransform::SafeDownCast(
     tableTopStandToPatientSupportTransformNode->GetTransformToParent());
   tableTopStandToPatientSupportTransform->Identity();
-  tableTopStandToPatientSupportTransform->RotateY(90. - beamNode->GetGantryAngle());
+//  tableTopStandToPatientSupportTransform->RotateY(90. - beamNode->GetGantryAngle());
   tableTopStandToPatientSupportTransform->Modified();
 
   vtkMRMLLinearTransformNode* tableTopToTableTopStandTransformNode =
@@ -325,7 +325,15 @@ void vtkSlicerIhepStandGeometryTransformLogic::UpdateIHEPTransformsFromBeam( vtk
   vtkTransform* tableTopToTableTopStandTransform = vtkTransform::SafeDownCast(
     tableTopToTableTopStandTransformNode->GetTransformToParent());
   tableTopToTableTopStandTransform->Identity();
-//  tableTopToTableTopStandTransform->RotateY(-90. + beamNode->GetGantryAngle());
+  if (beamNode->GetGantryAngle() >= 0 && beamNode->GetGantryAngle() <= 180.)
+  {
+    tableTopToTableTopStandTransform->RotateY(-90. + beamNode->GetGantryAngle());
+  }
+  else if (beamNode->GetGantryAngle() > 180. && beamNode->GetGantryAngle() < 360)
+  {
+    tableTopToTableTopStandTransform->RotateY(-270. + beamNode->GetGantryAngle());
+  }
+
   tableTopToTableTopStandTransform->Modified();
 
   // Update IHEP Patient to RAS transform based on the isocenter defined in the beam's parent plan
@@ -334,8 +342,8 @@ void vtkSlicerIhepStandGeometryTransformLogic::UpdateIHEPTransformsFromBeam( vtk
   vtkTransform* rasToPatientTransform = vtkTransform::SafeDownCast(rasToPatientTransformNode->GetTransformToParent());
   rasToPatientTransform->Identity();
 
-//  rasToPatientTransform->RotateX(-90.);
-//  rasToPatientTransform->RotateZ(180.);
+  rasToPatientTransform->RotateX(-90.);
+  rasToPatientTransform->RotateZ(180.);
   rasToPatientTransform->Modified();
 
   // Update IHEP FixedReference to RAS transform based on the isocenter defined in the beam's parent plan
