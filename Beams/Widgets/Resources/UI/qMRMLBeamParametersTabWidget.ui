@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>427</width>
-    <height>425</height>
+    <width>428</width>
+    <height>529</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -245,6 +245,105 @@
       </property>
      </widget>
     </item>
+    <item row="8" column="0">
+     <widget class="QCheckBox" name="checkBox_FixedBeamLine">
+      <property name="text">
+       <string>Fixed beam line:</string>
+      </property>
+     </widget>
+    </item>
+    <item row="8" column="1">
+     <layout class="QHBoxLayout" name="horizontalLayout_FixedBeamLine">
+      <item>
+       <widget class="QLabel" name="label">
+        <property name="text">
+         <string>Angle:</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QRadioButton" name="radioButton_FixedBeamDegree90">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
+        <property name="text">
+         <string>90°</string>
+        </property>
+        <property name="checked">
+         <bool>true</bool>
+        </property>
+        <attribute name="buttonGroup">
+         <string notr="true">buttonGroup_FixedBeamLineDegree</string>
+        </attribute>
+       </widget>
+      </item>
+      <item>
+       <widget class="QRadioButton" name="radioButton_FixedBeamDegree270">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
+        <property name="text">
+         <string>270°</string>
+        </property>
+        <attribute name="buttonGroup">
+         <string notr="true">buttonGroup_FixedBeamLineDegree</string>
+        </attribute>
+       </widget>
+      </item>
+     </layout>
+    </item>
+    <item row="14" column="0">
+     <widget class="QLabel" name="label_TableTopPitchAngle">
+      <property name="text">
+       <string>Table top pitch angle (°):</string>
+      </property>
+     </widget>
+    </item>
+    <item row="15" column="0">
+     <widget class="QLabel" name="label_TableTopRollAngle">
+      <property name="text">
+       <string>Table top roll angle (°):</string>
+      </property>
+     </widget>
+    </item>
+    <item row="14" column="1">
+     <widget class="ctkSliderWidget" name="SliderWidget_TableTopPitchAngle">
+      <property name="enabled">
+       <bool>false</bool>
+      </property>
+      <property name="singleStep">
+       <double>0.010000000000000</double>
+      </property>
+      <property name="pageStep">
+       <double>0.500000000000000</double>
+      </property>
+      <property name="minimum">
+       <double>-15.000000000000000</double>
+      </property>
+      <property name="maximum">
+       <double>15.000000000000000</double>
+      </property>
+     </widget>
+    </item>
+    <item row="15" column="1">
+     <widget class="ctkSliderWidget" name="SliderWidget_TableTopRollAngle">
+      <property name="enabled">
+       <bool>false</bool>
+      </property>
+      <property name="singleStep">
+       <double>0.010000000000000</double>
+      </property>
+      <property name="pageStep">
+       <double>0.500000000000000</double>
+      </property>
+      <property name="minimum">
+       <double>-15.000000000000000</double>
+      </property>
+      <property name="maximum">
+       <double>15.000000000000000</double>
+      </property>
+     </widget>
+    </item>
    </layout>
   </widget>
   <widget class="QWidget" name="tabVisualization">
@@ -473,8 +572,90 @@
  <resources>
   <include location="../../../../DicomRtImportExport/SubjectHierarchyPlugins/Resources/qSlicerDicomRtImportExportSubjectHierarchyPlugins.qrc"/>
  </resources>
- <connections/>
+ <connections>
+  <connection>
+   <sender>checkBox_FixedBeamLine</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>SliderWidget_GantryAngle</receiver>
+   <slot>setDisabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>76</x>
+     <y>338</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>298</x>
+     <y>438</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>checkBox_FixedBeamLine</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>SliderWidget_TableTopPitchAngle</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>76</x>
+     <y>272</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>298</x>
+     <y>471</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>checkBox_FixedBeamLine</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>SliderWidget_TableTopRollAngle</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>76</x>
+     <y>272</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>298</x>
+     <y>504</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>checkBox_FixedBeamLine</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>radioButton_FixedBeamDegree270</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>76</x>
+     <y>272</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>378</x>
+     <y>273</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>checkBox_FixedBeamLine</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>radioButton_FixedBeamDegree90</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>76</x>
+     <y>272</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>298</x>
+     <y>273</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
  <buttongroups>
+  <buttongroup name="buttonGroup_FixedBeamLineDegree"/>
   <buttongroup name="buttonGroup_MLCType"/>
  </buttongroups>
 </ui>
