@@ -33,6 +33,7 @@
 #include <vtkMRMLRTPlanNode.h>
 #include <vtkMRMLRTBeamNode.h>
 #include <vtkMRMLRTIonBeamNode.h>
+#include <vtkSlicerRtCommon.h>
 
 // MRML includes
 #include <vtkMRMLScene.h>
@@ -1112,25 +1113,39 @@ void vtkSlicerIhepStandGeometryLogic::CalculateAngles(vtkMRMLIhepStandGeometryNo
   rasToFixedReferenceLinearTransform->MultiplyPoint( zVector, collimatorZ);
   rasToFixedReferenceLinearTransform->MultiplyPoint( yVector, collimatorY);
 
-  vtkWarningMacro("Angle to Y[0]: " << acos(collimatorY[0]) * 180. / M_PI << "\n" <<
-    "Angle to Y[1]: " << acos(collimatorY[1]) * 180. / M_PI << "\n" <<
-    "Angle to Y[2]: " << acos(collimatorY[2]) * 180. / M_PI);
+//  vtkWarningMacro("Angle to Y[0]: " << acos(collimatorY[0]) * 180. / M_PI << "\n" <<
+//    "Angle to Y[1]: " << acos(collimatorY[1]) * 180. / M_PI << "\n" <<
+//    "Angle to Y[2]: " << acos(collimatorY[2]) * 180. / M_PI);
 
-  vtkWarningMacro("Angle to Z[0]: " << acos(collimatorZ[0]) * 180. / M_PI << "\n" <<
-    "Angle to Z[1]: " << acos(collimatorZ[1]) * 180. / M_PI << "\n" <<
-    "Angle to Z[2]: " << acos(collimatorZ[2]) * 180. / M_PI);
+//  vtkWarningMacro("Angle to Z[0]: " << acos(collimatorZ[0]) * 180. / M_PI << "\n" <<
+//    "Angle to Z[1]: " << acos(collimatorZ[1]) * 180. / M_PI << "\n" <<
+//    "Angle to Z[2]: " << acos(collimatorZ[2]) * 180. / M_PI);
 
-  vtkWarningMacro("TableTop Lateral angle: " << 90. - acos(collimatorZ[1]) * 180. / M_PI);
-
-  vtkWarningMacro("Angle to X-TableTop to Z-FixedReference: " << acos(rasToFixedReferenceLinearTransform->GetMatrix()->GetElement( 0, 2)) * 180. / M_PI << "\n"
-    "Angle to Y-TableTop to Y-FixedReference: " << acos(rasToFixedReferenceLinearTransform->GetMatrix()->GetElement( 1, 1)) * 180. / M_PI << "\n"
+  vtkWarningMacro("TableTop Lateral (Pitch) angle: " << 90. - acos(collimatorZ[1]) * 180. / M_PI);
+  vtkWarningMacro("TableTop Longitudinal (Roll) angle: " << acos(collimatorZ[2]) * 180. / M_PI);
+/*  if (vtkSlicerRtCommon::AreEqualWithTolerance( collimatorZ[1], -1.))
+  {
+    vtkWarningMacro("Patient Support Rotation angle: 180");
+  }
+  else if (vtkSlicerRtCommon::AreEqualWithTolerance( collimatorZ[1], 1.))
+  {
+    vtkWarningMacro("Patient Support Rotation angle: 0");
+  }
+  else
+  {
+    vtkWarningMacro("Patient Support Rotation angle: " << acos(collimatorY[1]) * 180. / M_PI);
+  }
+  
+  vtkWarningMacro("Angle to X-TableTop to Z-FixedReference: " << acos(rasToFixedReferenceLinearTransform->GetMatrix()->GetElement( 0, 2)) * 180. / M_PI << "\n" \
+    "Angle to X-TableTop to X-FixedReference: " << acos(rasToFixedReferenceLinearTransform->GetMatrix()->GetElement( 0, 0)) * 180. / M_PI << "\n" \
+    "Angle to Y-TableTop to Y-FixedReference: " << acos(rasToFixedReferenceLinearTransform->GetMatrix()->GetElement( 1, 1)) * 180. / M_PI << "\n" \
     "Angle to Z-TableTop to Z-FixedReference: " << acos(rasToFixedReferenceLinearTransform->GetMatrix()->GetElement( 2, 2)) * 180. / M_PI);
 
   vtkWarningMacro("Y-Z matrix: " << rasToFixedReferenceLinearTransform->GetMatrix()->GetElement( 1, 1) << " "
     << rasToFixedReferenceLinearTransform->GetMatrix()->GetElement( 1, 2) << "\n"
     << rasToFixedReferenceLinearTransform->GetMatrix()->GetElement( 2, 1) << " "
     << rasToFixedReferenceLinearTransform->GetMatrix()->GetElement( 2, 2) << "\n");
-
+*/
 }
 
 //----------------------------------------------------------------------------

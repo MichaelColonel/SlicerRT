@@ -300,7 +300,7 @@ void vtkSlicerIhepStandGeometryTransformLogic::UpdateIHEPTransformsFromBeam( vtk
     this->GetTransformNodeBetween(IHEP::Collimator, IHEP::FixedReference);
   vtkTransform* collimatorToFixedReferenceTransform = vtkTransform::SafeDownCast(collimatorToFixedReferenceTransformNode->GetTransformToParent());
   collimatorToFixedReferenceTransform->Identity();
-//  collimatorToFixedReferenceTransform->RotateY(beamNode->GetGantryAngle());
+//  collimatorToFixedReferenceTransform->RotateY(90.);
   collimatorToFixedReferenceTransform->Modified();
 
   // Patient support (Patient suppport rotation) -> Fixed Reference
@@ -308,7 +308,15 @@ void vtkSlicerIhepStandGeometryTransformLogic::UpdateIHEPTransformsFromBeam( vtk
     this->GetTransformNodeBetween(IHEP::PatientSupport, IHEP::FixedReference);
   vtkTransform* patientSupportToFixedReferenceTransform = vtkTransform::SafeDownCast(patientSupportToFixedReferenceTransformNode->GetTransformToParent());
   patientSupportToFixedReferenceTransform->Identity();
-  patientSupportToFixedReferenceTransform->RotateZ(-1. * beamNode->GetCouchAngle());
+  if (beamNode->GetGantryAngle() >= 0 && beamNode->GetGantryAngle() <= 180.)
+  {
+    patientSupportToFixedReferenceTransform->RotateZ(-1. * beamNode->GetCouchAngle());
+  }
+  else if (beamNode->GetGantryAngle() > 180. && beamNode->GetGantryAngle() < 360)
+  {
+    patientSupportToFixedReferenceTransform->RotateZ(180. - beamNode->GetCouchAngle());
+  }
+//  patientSupportToFixedReferenceTransform->RotateZ(-1. * beamNode->GetCouchAngle());
   patientSupportToFixedReferenceTransform->Modified();
 
   // Table top stand -> Patient support (Patient suppport rotation)
@@ -325,15 +333,15 @@ void vtkSlicerIhepStandGeometryTransformLogic::UpdateIHEPTransformsFromBeam( vtk
   vtkTransform* tableTopToTableTopStandTransform = vtkTransform::SafeDownCast(
     tableTopToTableTopStandTransformNode->GetTransformToParent());
   tableTopToTableTopStandTransform->Identity();
-  if (beamNode->GetGantryAngle() >= 0 && beamNode->GetGantryAngle() <= 180.)
+  if (beamNode->GetGantryAngle() >= 0. && beamNode->GetGantryAngle() <= 180.)
   {
     tableTopToTableTopStandTransform->RotateY(-90. + beamNode->GetGantryAngle());
   }
-  else if (beamNode->GetGantryAngle() > 180. && beamNode->GetGantryAngle() < 360)
+  else if (beamNode->GetGantryAngle() > 180. && beamNode->GetGantryAngle() < 360.)
   {
-    tableTopToTableTopStandTransform->RotateY(-270. + beamNode->GetGantryAngle());
+    tableTopToTableTopStandTransform->RotateY(270. - beamNode->GetGantryAngle());
   }
-
+//  tableTopToTableTopStandTransform->RotateY(beamNode->GetGantryAngle());
   tableTopToTableTopStandTransform->Modified();
 
   // Update IHEP Patient to RAS transform based on the isocenter defined in the beam's parent plan
