@@ -81,6 +81,8 @@ public:
 
   /// Set up the IHEP transforms and model properties on the treatment machine models
   void SetupTreatmentMachineModels(vtkMRMLIhepStandGeometryNode* parameterNode);
+  void SetupTreatmentMachineModelsHierarchy(vtkMRMLIhepStandGeometryNode* parameterNode);
+
   /// Create or get transforms taking part in the IEC logic and additional devices, and build the transform hierarchy
   void BuildIhepStangGeometryTransformHierarchy();
   void RestoreOriginalGeometryTransformHierarchy();
