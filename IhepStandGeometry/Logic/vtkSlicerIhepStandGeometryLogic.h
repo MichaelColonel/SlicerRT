@@ -73,7 +73,8 @@ public:
   void ResetModelsToInitialPosition(vtkMRMLIhepStandGeometryNode* parameterNode);
   /// Apply new patient support rotation angle to transform (Fixed->PatientSupport)
   void UpdatePatientSupportToFixedReferenceTransform(vtkMRMLIhepStandGeometryNode* parameterNode);
-  void UpdateTableTopToTableTopStandTransform(vtkMRMLIhepStandGeometryNode* parameterNode);
+  void UpdateTableTopToTableTopVerticalTransform(vtkMRMLIhepStandGeometryNode* parameterNode);
+  void UpdateTableTopVerticalToTableTopStandTransform(vtkMRMLIhepStandGeometryNode* parameterNode);
   void UpdateTableTopStandToPatientSupportTransform(vtkMRMLIhepStandGeometryNode* parameterNode);
   void UpdatePatientToTableTopTransform(vtkMRMLIhepStandGeometryNode* parameterNode);
 
