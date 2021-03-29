@@ -644,10 +644,10 @@ void vtkSlicerIhepStandGeometryLogic::ResetModelsToInitialPosition(vtkMRMLIhepSt
     return;
   }
   this->SetupTreatmentMachineModels(parameterNode);
-/*
+
   vtkMRMLRTBeamNode* beamNode = parameterNode->GetBeamNode();
   using IHEP = vtkSlicerIhepStandGeometryTransformLogic::CoordinateSystemIdentifier;
-
+/*
   // Update TableTop -> TableTopInferiorSuperiorMovement
   // Translation and rotation of the model
   vtkMRMLLinearTransformNode* tableTopToTableTopStandTransformNode =
@@ -687,7 +687,7 @@ void vtkSlicerIhepStandGeometryLogic::ResetModelsToInitialPosition(vtkMRMLIhepSt
   collimatorToFixedReferenceTransform->Identity();
   collimatorToFixedReferenceTransform->RotateZ(90 - parameterNode->GetTableTopLongitudinalAngle());
   collimatorToFixedReferenceTransform->Modified();
-
+*/
   // Update Patient -> TableTop
   // Translation
   vtkMRMLLinearTransformNode* patientToTableTopTransformNode =
@@ -695,16 +695,16 @@ void vtkSlicerIhepStandGeometryLogic::ResetModelsToInitialPosition(vtkMRMLIhepSt
   vtkTransform* patientToTableTopTransform = vtkTransform::SafeDownCast(
     patientToTableTopTransformNode->GetTransformToParent() );
 
-//  double isocenter[3] = {};
+  double isocenter[3] = {};
 //  vtkMRMLRTBeamNode* beam = parameterNode->GetBeamNode();
-//  beam->GetPlanIsocenterPosition(isocenter);
+  beamNode->GetPlanIsocenterPosition(isocenter);
 
   patientToTableTopTransform->Identity();
 //  patientToTableTopTransform->Translate( isocenter[0], isocenter[1], isocenter[2]);
-//  patientToTableTopTransform->Translate( isocenter[0], isocenter[1] - 490, isocenter[2] + 550);
-  patientToTableTopTransform->Translate( 0., -490., 550.);
+  patientToTableTopTransform->Translate( isocenter[0], isocenter[1] - 490, isocenter[2] + 550);
+//  patientToTableTopTransform->Translate( 0., -490., 550.);
   patientToTableTopTransform->Modified();
-
+/*
 //  this->UpdateTableTopToTableTopEccentricRotationTransform(parameterNode);
 
   // New Treatment machine position

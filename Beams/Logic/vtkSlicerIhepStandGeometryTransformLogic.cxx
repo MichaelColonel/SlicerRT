@@ -55,6 +55,7 @@ vtkSlicerIhepStandGeometryTransformLogic::vtkSlicerIhepStandGeometryTransformLog
   this->CoordinateSystemsMap[IHEP::Collimator] = "Collimator";
   this->CoordinateSystemsMap[IHEP::PatientSupport] = "PatientSupport";
   this->CoordinateSystemsMap[IHEP::TableTopStand] = "TableTopStand";
+  this->CoordinateSystemsMap[IHEP::TableTopVertical] = "TableTopVertical";
   this->CoordinateSystemsMap[IHEP::TableTop] = "TableTop";
   this->CoordinateSystemsMap[IHEP::Patient] = "Patient";
 
@@ -63,7 +64,8 @@ vtkSlicerIhepStandGeometryTransformLogic::vtkSlicerIhepStandGeometryTransformLog
   this->IhepTransforms.push_back(std::make_pair(IHEP::Collimator, IHEP::FixedReference)); // Collimator in canyon system
   this->IhepTransforms.push_back(std::make_pair(IHEP::PatientSupport, IHEP::FixedReference)); // Rotation of patient support platform
   this->IhepTransforms.push_back(std::make_pair(IHEP::TableTopStand, IHEP::PatientSupport)); // Horizontal movements of the table top stand and table top
-  this->IhepTransforms.push_back(std::make_pair(IHEP::TableTop, IHEP::TableTopStand)); // Vertical movement and rotation of table top
+  this->IhepTransforms.push_back(std::make_pair(IHEP::TableTop, IHEP::TableTopVertical)); // Vertical movement of table top
+  this->IhepTransforms.push_back(std::make_pair(IHEP::TableTopVertical, IHEP::TableTopStand)); // Rotation of table top
   this->IhepTransforms.push_back(std::make_pair(IHEP::Patient, IHEP::TableTop));
   this->IhepTransforms.push_back(std::make_pair(IHEP::RAS, IHEP::Patient));
 
@@ -71,7 +73,8 @@ vtkSlicerIhepStandGeometryTransformLogic::vtkSlicerIhepStandGeometryTransformLog
   // key - parent, value - children
   this->CoordinateSystemsHierarchy[IHEP::FixedReference] = { IHEP::Collimator, IHEP::PatientSupport };
   this->CoordinateSystemsHierarchy[IHEP::PatientSupport] = { IHEP::TableTopStand };
-  this->CoordinateSystemsHierarchy[IHEP::TableTopStand] = { IHEP::TableTop };
+  this->CoordinateSystemsHierarchy[IHEP::TableTopStand] = { IHEP::TableTopVertical };
+  this->CoordinateSystemsHierarchy[IHEP::TableTopVertical] = { IHEP::TableTop };
   this->CoordinateSystemsHierarchy[IHEP::TableTop] = { IHEP::Patient };
   this->CoordinateSystemsHierarchy[IHEP::Patient] = { IHEP::RAS };
 }
@@ -150,13 +153,17 @@ void vtkSlicerIhepStandGeometryTransformLogic::BuildIHEPTransformHierarchy()
   this->GetTransformNodeBetween(IHEP::TableTopStand, IHEP::PatientSupport)->SetAndObserveTransformNodeID(
     this->GetTransformNodeBetween(IHEP::PatientSupport, IHEP::FixedReference)->GetID() );
 
-  // Table top inferior superior movement parent
-  this->GetTransformNodeBetween(IHEP::TableTop, IHEP::TableTopStand)->SetAndObserveTransformNodeID(
+  // Table top inferior-superior, left-right movement parent
+  this->GetTransformNodeBetween(IHEP::TableTopVertical, IHEP::TableTopStand)->SetAndObserveTransformNodeID(
     this->GetTransformNodeBetween(IHEP::TableTopStand, IHEP::PatientSupport)->GetID() );
+
+  // Table top vertical movement parent
+  this->GetTransformNodeBetween( IHEP::TableTop, IHEP::TableTopVertical)->SetAndObserveTransformNodeID(
+    this->GetTransformNodeBetween(IHEP::TableTopVertical, IHEP::TableTopStand)->GetID() );
 
   // Table top parent
   this->GetTransformNodeBetween( IHEP::Patient, IHEP::TableTop)->SetAndObserveTransformNodeID(
-    this->GetTransformNodeBetween(IHEP::TableTop, IHEP::TableTopStand)->GetID() );
+    this->GetTransformNodeBetween(IHEP::TableTop, IHEP::TableTopVertical)->GetID() );
 
   // Patient parent
   this->GetTransformNodeBetween( IHEP::RAS, IHEP::Patient)->SetAndObserveTransformNodeID(
@@ -329,7 +336,7 @@ void vtkSlicerIhepStandGeometryTransformLogic::UpdateIHEPTransformsFromBeam( vtk
   tableTopStandToPatientSupportTransform->Modified();
 
   vtkMRMLLinearTransformNode* tableTopToTableTopStandTransformNode =
-    this->GetTransformNodeBetween(IHEP::TableTop, IHEP::TableTopStand);
+    this->GetTransformNodeBetween(IHEP::TableTop, IHEP::TableTopVertical);
   vtkTransform* tableTopToTableTopStandTransform = vtkTransform::SafeDownCast(
     tableTopToTableTopStandTransformNode->GetTransformToParent());
   tableTopToTableTopStandTransform->Identity();
