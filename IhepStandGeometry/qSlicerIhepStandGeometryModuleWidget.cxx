@@ -255,7 +255,7 @@ void qSlicerIhepStandGeometryModuleWidget::onTableTopLongitudinalAngleChanged(do
   parameterNode->DisableModifiedEventOff();
 
   d->logic()->UpdateTableTopToTableTopVerticalTransform(parameterNode);
-  d->logic()->SetupTreatmentMachineModelsHierarchy(parameterNode);
+  d->logic()->SetupTreatmentMachineModels(parameterNode);
   qDebug() << Q_FUNC_INFO << ": finished";
 }
 
@@ -280,7 +280,7 @@ void qSlicerIhepStandGeometryModuleWidget::onTableTopLateralAngleChanged(double 
   parameterNode->DisableModifiedEventOff();
 
   d->logic()->UpdateTableTopToTableTopVerticalTransform(parameterNode);
-  d->logic()->SetupTreatmentMachineModelsHierarchy(parameterNode);
+  d->logic()->SetupTreatmentMachineModels(parameterNode);
   qDebug() << Q_FUNC_INFO << ": finished";
 }
 
@@ -310,7 +310,7 @@ void qSlicerIhepStandGeometryModuleWidget::onTableTopVerticalPositionChanged(dou
   parameterNode->DisableModifiedEventOff();
 
   d->logic()->UpdateTableTopVerticalToTableTopStandTransform(parameterNode);
-  d->logic()->SetupTreatmentMachineModelsHierarchy(parameterNode);
+  d->logic()->SetupTreatmentMachineModels(parameterNode);
   qDebug() << Q_FUNC_INFO << ": finished";
 }
 

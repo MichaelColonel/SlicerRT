@@ -487,7 +487,7 @@ void vtkSlicerIhepStandGeometryLogic::LoadTreatmentMachineModels(vtkMRMLIhepStan
 
   //
   // Load treatment machine models
-/*
+
   // Canyon - mandatory
   std::string canyonModelSingletonTag = machineType + "_" + CANYON_MODEL_NAME;
   vtkMRMLModelNode* canyonModelNode = vtkMRMLModelNode::SafeDownCast(
@@ -551,7 +551,7 @@ void vtkSlicerIhepStandGeometryLogic::LoadTreatmentMachineModels(vtkMRMLIhepStan
       vtkErrorMacro("LoadTreatmentMachineModels: Failed to load patient support model");
     }
   }
-*/
+
   // Table top stand - mandatory
   std::string tableTopStandModelSingletonTag = machineType + "_" + TABLETOPSTAND_MODEL_NAME;
   vtkMRMLModelNode* tableTopStandModelNode = vtkMRMLModelNode::SafeDownCast(
