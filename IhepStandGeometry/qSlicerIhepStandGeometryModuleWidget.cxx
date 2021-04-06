@@ -151,10 +151,12 @@ void qSlicerIhepStandGeometryModuleWidget::setup()
   connect( d->SliderWidget_TableTopVerticalPosition, SIGNAL(valueChanged(double)), 
     this, SLOT(onTableTopVerticalPositionChanged(double)));
 
+  connect( d->CoordinatesWidget_PatientTableTopTranslation, SIGNAL(coordinatesChanged(double*)), 
+    this, SLOT(onPatientTableTopTranslationChanged(double*)));
+
   // Buttons
   connect( d->PushButton_LoadStandModels, SIGNAL(clicked()), this, SLOT(onLoadStandModelsButtonClicked()));
   connect( d->PushButton_ResetModelsInitialPosition, SIGNAL(clicked()), this, SLOT(onResetToInitialPositionButtonClicked()));
-  connect( d->PushButton_MoveModelsToIsocenter, SIGNAL(clicked()), this, SLOT(onMoveModelsToIsocenter()));
   connect( d->PushButton_BevPlusX, SIGNAL(clicked()), this, SLOT(onBeamsEyeViewPlusXButtonClicked()));
   connect( d->PushButton_BevPlusY, SIGNAL(clicked()), this, SLOT(onBeamsEyeViewPlusYButtonClicked()));
   connect( d->PushButton_BevMinusX, SIGNAL(clicked()), this, SLOT(onBeamsEyeViewMinusXButtonClicked()));
@@ -223,7 +225,7 @@ void qSlicerIhepStandGeometryModuleWidget::onPatientSupportRotationAngleChanged(
   {
     return;
   }
-
+/*
   parameterNode->DisableModifiedEventOn();
   parameterNode->SetPatientSupportRotationAngle(rotationAngle);
   parameterNode->DisableModifiedEventOff();
@@ -231,6 +233,7 @@ void qSlicerIhepStandGeometryModuleWidget::onPatientSupportRotationAngleChanged(
   d->logic()->UpdatePatientSupportToFixedReferenceTransform(parameterNode);
   d->logic()->SetupTreatmentMachineModels(parameterNode);
   qDebug() << Q_FUNC_INFO << ": finished";
+*/
 }
 
 //-----------------------------------------------------------------------------
@@ -315,6 +318,30 @@ void qSlicerIhepStandGeometryModuleWidget::onTableTopVerticalPositionChanged(dou
 }
 
 //-----------------------------------------------------------------------------
+void qSlicerIhepStandGeometryModuleWidget::onPatientTableTopTranslationChanged(double* position)
+{
+  Q_D(qSlicerIhepStandGeometryModuleWidget);
+
+  if (!this->mrmlScene())
+  {
+    qCritical() << Q_FUNC_INFO << ": Invalid scene";
+    return;
+  }
+
+  vtkMRMLIhepStandGeometryNode* parameterNode = vtkMRMLIhepStandGeometryNode::SafeDownCast(d->MRMLNodeComboBox_ParameterSet->currentNode());
+  if (!parameterNode || !d->ModuleWindowInitialized)
+  {
+    return;
+  }
+
+  parameterNode->SetPatientToTableTopTranslation(position);
+
+  d->logic()->UpdatePatientToTableTopTransform(parameterNode);
+  d->logic()->SetupTreatmentMachineModels(parameterNode);
+  qDebug() << Q_FUNC_INFO << ": finished";
+}
+
+//-----------------------------------------------------------------------------
 void qSlicerIhepStandGeometryModuleWidget::onTableTopLongitudinalPositionChanged(double longitudinalPosition)
 {
   Q_D(qSlicerIhepStandGeometryModuleWidget);
@@ -341,32 +368,6 @@ void qSlicerIhepStandGeometryModuleWidget::onTableTopLongitudinalPositionChanged
 
   d->logic()->UpdateTableTopStandToPatientSupportTransform(parameterNode);
   d->logic()->SetupTreatmentMachineModels(parameterNode);
-  qDebug() << Q_FUNC_INFO << ": finished";
-}
-
-//-----------------------------------------------------------------------------
-void qSlicerIhepStandGeometryModuleWidget::onMoveModelsToIsocenter()
-{
-  Q_D(qSlicerIhepStandGeometryModuleWidget);
-
-  if (!this->mrmlScene())
-  {
-    qCritical() << Q_FUNC_INFO << ": Invalid scene";
-    return;
-  }
-
-  vtkMRMLIhepStandGeometryNode* parameterNode = vtkMRMLIhepStandGeometryNode::SafeDownCast(d->MRMLNodeComboBox_ParameterSet->currentNode());
-  if (!parameterNode || !d->ModuleWindowInitialized)
-  {
-    return;
-  }
-
-  double isocenter[3] = {};
-  vtkMRMLRTBeamNode* beam = parameterNode->GetBeamNode();
-  if (beam->GetPlanIsocenterPosition(isocenter))
-  {
-    d->logic()->MoveModelsToIsocenter( parameterNode, isocenter);
-  }
   qDebug() << Q_FUNC_INFO << ": finished";
 }
 
@@ -626,7 +627,7 @@ void qSlicerIhepStandGeometryModuleWidget::onRTBeamNodeChanged(vtkMRMLNode* node
   parameterNode->Modified();
   qDebug() << Q_FUNC_INFO << beamNode->GetName() << ": finished";
 
-  d->logic()->CalculateAngles(parameterNode);
+//  d->logic()->CalculateAngles(parameterNode);
 }
 
 //-----------------------------------------------------------------------------

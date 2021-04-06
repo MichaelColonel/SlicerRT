@@ -39,6 +39,7 @@ class vtkSlicerIhepStandGeometryTransformLogic;
 class vtkMRMLRTBeamNode;
 class vtkMRMLLinearTransformNode;
 class vtkMRMLMarkupsLineNode;
+class vtkMRMLMarkupsFiducialNode;
 
 /// \ingroup Slicer_QtModules_IhepStandGeometry
 class VTK_SLICER_IHEPSTANDGEOMETRY_MODULE_LOGIC_EXPORT vtkSlicerIhepStandGeometryLogic :
@@ -46,22 +47,20 @@ class VTK_SLICER_IHEPSTANDGEOMETRY_MODULE_LOGIC_EXPORT vtkSlicerIhepStandGeometr
 {
 public:
 
-  static const char* CANYON_MODEL_NAME;
   static const char* PATIENTSUPPORT_MODEL_NAME; // Patient Support Rotation
   static const char* TABLETOPSTAND_MODEL_NAME; // Table Top Inferior-Superior Movement, and Left-Right Movement (Lateral) Stand
   static const char* TABLETOP_MODEL_NAME;
-  static const char* BEAMLINE_MARKUPS_NODE_NAME; // line
-  static const char* BEAMLINE_TRANSFORM_NODE_NAME;
 
-  static const char* ORIENTATION_MARKER_MODEL_NODE_NAME;
+  static const char* TABLETOPSTAND_FIDUCIALS_MARKUPS_NODE_NAME; // Three fiducials show TableTop position Z origin, mirror, middle respectively
+  static const char* TABLETOPSTAND_FIDUCIALS_TRANSFORM_NODE_NAME; // Transform for fiducials for proper positioning
 
   static vtkSlicerIhepStandGeometryLogic *New();
   vtkTypeMacro(vtkSlicerIhepStandGeometryLogic, vtkSlicerModuleLogic);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   /// Create markups nodes for visualization
-  void CreateMarkupsNodes(vtkMRMLIhepStandGeometryNode* parameterNode);
-  /// Update markups nodes using parameter node data
+  vtkMRMLMarkupsFiducialNode* CreateMarkupsNodes(vtkMRMLIhepStandGeometryNode* parameterNode);
+  /// Update markups nodes using parameter node data and geometry hierarchy
   void UpdateMarkupsNodes(vtkMRMLIhepStandGeometryNode* parameterNode);
   /// Show markups
   void ShowMarkupsNodes(bool toggled = false);
@@ -70,24 +69,30 @@ public:
   /// \param parameterNode Parameter node contains the type of treatment machine
   ///        (must match folder name where the models can be found)
   void LoadTreatmentMachineModels(vtkMRMLIhepStandGeometryNode* parameterNode);
-  void ResetModelsToInitialPosition(vtkMRMLIhepStandGeometryNode* parameterNode);
-  /// Apply new patient support rotation angle to transform (Fixed->PatientSupport)
-  void UpdatePatientSupportToFixedReferenceTransform(vtkMRMLIhepStandGeometryNode* parameterNode);
-  void UpdateTableTopToTableTopVerticalTransform(vtkMRMLIhepStandGeometryNode* parameterNode);
-  void UpdateTableTopVerticalToTableTopStandTransform(vtkMRMLIhepStandGeometryNode* parameterNode);
-  void UpdateTableTopStandToPatientSupportTransform(vtkMRMLIhepStandGeometryNode* parameterNode);
-  void UpdatePatientToTableTopTransform(vtkMRMLIhepStandGeometryNode* parameterNode);
 
-  void MoveModelsToIsocenter(vtkMRMLIhepStandGeometryNode* parameterNode, double isocenter[3]);
+  /// All angles to zero and only translation applied
+  void ResetModelsToInitialPosition(vtkMRMLIhepStandGeometryNode* parameterNode);
+
+  /// Apply new patient support rotation angle to transform (Fixed->PatientSupport)
+  void UpdateTableTopToTableTopVerticalTransform(vtkMRMLIhepStandGeometryNode* parameterNode);
+
+  /// Apply new TableTopVertical to TableTopStand translate (TableTopVertical->TableTopStand)
+  void UpdateTableTopVerticalToTableTopStandTransform(vtkMRMLIhepStandGeometryNode* parameterNode);
+
+  /// Apply new TableTopStand to PatientSupport translate (TableTopStand->PatientSupport)
+  void UpdateTableTopStandToPatientSupportTransform(vtkMRMLIhepStandGeometryNode* parameterNode);
+
+  /// Apply new Patient to TableTop translate (Patient->TableTop)
+  void UpdatePatientToTableTopTransform(vtkMRMLIhepStandGeometryNode* parameterNode);
 
   /// Set up the IHEP transforms and model properties on the treatment machine models
   void SetupTreatmentMachineModels(vtkMRMLIhepStandGeometryNode* parameterNode);
-  void SetupTreatmentMachineModelsHierarchy(vtkMRMLIhepStandGeometryNode* parameterNode);
 
-  /// Create or get transforms taking part in the IEC logic and additional devices, and build the transform hierarchy
+  /// Create or get transforms taking part in the IHEP logic and additional devices, and build the transform hierarchy
   void BuildIhepStangGeometryTransformHierarchy();
-  void RestoreOriginalGeometryTransformHierarchy();
-  void CalculateAngles(vtkMRMLIhepStandGeometryNode* parameterNode);
+
+  /// 
+  vtkMRMLLinearTransformNode* UpdateFiducialTransform(vtkMRMLIhepStandGeometryNode* parameterNode);
 
 protected:
   vtkSlicerIhepStandGeometryLogic();

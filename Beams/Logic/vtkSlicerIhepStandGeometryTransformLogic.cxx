@@ -201,7 +201,7 @@ void vtkSlicerIhepStandGeometryTransformLogic::UpdateBeamTransform(vtkMRMLRTBeam
 
   // Dynamic transform from Collimator to RAS
   // Transformation path:
-  // Collimator -> FixedReference -> PatientSupport -> TableTopInferiorSuperiorMovement -> TableTop -> Patient -> RAS
+  // Collimator -> FixedReference -> PatientSupport -> TableTopStand -> TableTopVectical -> TableTop -> Patient -> RAS
   vtkSmartPointer<vtkGeneralTransform> beamGeneralTransform = vtkSmartPointer<vtkGeneralTransform>::New();
   using IHEP = CoordinateSystemIdentifier;
   if (this->GetTransformBetween( IHEP::Collimator, IHEP::RAS, beamGeneralTransform))
@@ -249,7 +249,7 @@ void vtkSlicerIhepStandGeometryTransformLogic::UpdateBeamTransform( vtkMRMLRTBea
 
   // Dynamic transform from Collimator to RAS
   // Transformation path:
-  // Collimator -> FixedReference -> PatientSupport -> TableTopEccentricRotation -> TableTop -> Patient -> RAS
+  // Collimator -> FixedReference -> PatientSupport -> TableTopStand -> TableTopVectical -> TableTop -> Patient -> RAS
   vtkSmartPointer<vtkGeneralTransform> beamGeneralTransform = vtkSmartPointer<vtkGeneralTransform>::New();
   using IHEP = CoordinateSystemIdentifier;
   if (this->GetTransformBetween( IHEP::Collimator, IHEP::RAS, beamGeneralTransform))

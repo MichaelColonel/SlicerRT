@@ -95,6 +95,12 @@ public:
   /// Get/Set table top vertical position
   vtkGetMacro(TableTopVerticalPosition, double);
   vtkSetMacro(TableTopVerticalPosition, double);
+  vtkGetMacro(TableTopVerticalPositionOrigin, double);
+  vtkSetMacro(TableTopVerticalPositionOrigin, double);
+  vtkGetMacro(TableTopVerticalPositionMiddle, double);
+  vtkSetMacro(TableTopVerticalPositionMiddle, double);
+  vtkGetMacro(TableTopVerticalPositionMirror, double);
+  vtkSetMacro(TableTopVerticalPositionMirror, double);
 
   /// Get/Set table top longitudinal position
   vtkGetMacro(TableTopLongitudinalPosition, double);
@@ -112,6 +118,10 @@ public:
   vtkGetMacro(UseStandCoordinateSystem, bool);
   vtkSetMacro(UseStandCoordinateSystem, bool);
 
+  /// Get/Set Patient to TableTop translation
+  vtkGetVector3Macro(PatientToTableTopTranslation, double);
+  vtkSetVector3Macro(PatientToTableTopTranslation, double);
+
 protected:
   vtkMRMLIhepStandGeometryNode();
   ~vtkMRMLIhepStandGeometryNode();
@@ -127,7 +137,10 @@ protected:
   /// IEC Patient support rotation angle (theta_s)
   double PatientSupportRotationAngle;
   /// IEC Table top vertical position (Z_t)
-  double TableTopVerticalPosition;
+  double TableTopVerticalPosition; // Total
+  double TableTopVerticalPositionOrigin; // Origin
+  double TableTopVerticalPositionMirror; // Mirror
+  double TableTopVerticalPositionMiddle; // Middle
   /// IEC Table top longitudinal position (Y_t)
   double TableTopLongitudinalPosition;
 
@@ -135,6 +148,9 @@ protected:
   double TableTopLongitudinalAngle;
   /// IEC Table top longitudinal angle (psi_t)
   double TableTopLateralAngle;
+  /// Translate Patient to TableTop
+  double PatientToTableTopTranslation[3];
+
   /// Use IHEP stand system coordimate for the beam or IEC system coordinate
   bool UseStandCoordinateSystem;
 };
