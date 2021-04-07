@@ -201,9 +201,14 @@ vtkMRMLMarkupsFiducialNode* vtkSlicerIhepStandGeometryLogic::CreateMarkupsNodes(
   if (parameterNode)
   {
     // add points
-    vtkVector3d p0( 250., 0., parameterNode->GetTableTopVerticalPositionOrigin()); // Origin
-    vtkVector3d p1( -250., 0., parameterNode->GetTableTopVerticalPositionMirror()); // Mirror
-    vtkVector3d p2( 0., 650., parameterNode->GetTableTopVerticalPositionMiddle()); // Middle
+    double PatientTableTopTranslation[3] = {};
+    parameterNode->GetPatientToTableTopTranslation(PatientTableTopTranslation);
+    vtkVector3d p0( 250. - PatientTableTopTranslation[0], 1400. - PatientTableTopTranslation[1], 
+      -845. - PatientTableTopTranslation[2]); // Origin
+    vtkVector3d p1( -250. - PatientTableTopTranslation[0], 1400. - PatientTableTopTranslation[1], 
+      -845. - PatientTableTopTranslation[2]); // Mirror
+    vtkVector3d p2( 0. - PatientTableTopTranslation[0], 2000. - PatientTableTopTranslation[1], 
+      -845. - PatientTableTopTranslation[2]); // Middle
 
     pointsMarkupsNode->AddControlPoint( p0, "Origin");
     pointsMarkupsNode->AddControlPoint( p1, "Mirror");
@@ -254,9 +259,17 @@ void vtkSlicerIhepStandGeometryLogic::UpdateMarkupsNodes(vtkMRMLIhepStandGeometr
       scene->GetFirstNodeByName(TABLETOPSTAND_FIDUCIALS_MARKUPS_NODE_NAME));
 
     // update points
-    vtkVector3d p0( 250., 0., parameterNode->GetTableTopVerticalPositionOrigin()); // Origin
-    vtkVector3d p1( -250., 0., parameterNode->GetTableTopVerticalPositionMirror()); // Mirror
-    vtkVector3d p2( 0., 650., parameterNode->GetTableTopVerticalPositionMiddle()); // Middle
+    double PatientTableTopTranslation[3] = {};
+    parameterNode->GetPatientToTableTopTranslation(PatientTableTopTranslation);
+    vtkVector3d p0( 250. + PatientTableTopTranslation[0], 1400. + PatientTableTopTranslation[1], 
+      -845. + PatientTableTopTranslation[2]); // Origin
+    vtkVector3d p1( -250. + PatientTableTopTranslation[0], 1400. + PatientTableTopTranslation[1], 
+      -845. + PatientTableTopTranslation[2]); // Mirror
+    vtkVector3d p2( 0. + PatientTableTopTranslation[0], 2000. + PatientTableTopTranslation[1], 
+      -845. + PatientTableTopTranslation[2]); // Middle
+//    vtkVector3d p0( 250., 1400., -845. + parameterNode->GetTableTopVerticalPositionOrigin()); // Origin
+//    vtkVector3d p1( -250., 1400., -845. + parameterNode->GetTableTopVerticalPositionMirror()); // Mirror
+//    vtkVector3d p2( 0., 2000., -845. + parameterNode->GetTableTopVerticalPositionMiddle()); // Middle
 
     double* p = pointsMarkupsNode->GetNthControlPointPosition(0);
     if (p)
@@ -295,6 +308,10 @@ void vtkSlicerIhepStandGeometryLogic::UpdateMarkupsNodes(vtkMRMLIhepStandGeometr
     {
       pointsMarkupsNode->SetAndObserveTransformNodeID(transformNode->GetID());
     }
+  }
+  else
+  {
+    this->CreateMarkupsNodes(parameterNode);
   }
 }
 
@@ -357,7 +374,7 @@ void vtkSlicerIhepStandGeometryLogic::LoadTreatmentMachineModels(vtkMRMLIhepStan
   {
     vtkNew<vtkTransform> tableTopStandToPatientSupportTransform;
     tableTopStandToPatientSupportTransform->Identity();
-    tableTopStandToPatientSupportTransform->Translate( 0., 0., -800.);
+//    tableTopStandToPatientSupportTransform->Translate( 0., 0., -800.);
     tableTopStandToPatientSupportTransform->Modified();
     tableTopStandToPatientSupportTransformNode->SetAndObserveTransformToParent(tableTopStandToPatientSupportTransform);
   }
@@ -807,6 +824,7 @@ void vtkSlicerIhepStandGeometryLogic::SetupTreatmentMachineModels(vtkMRMLIhepSta
       patientSupportModel->GetDisplayNode()->SetColor(0.85, 0.85, 0.85);
     }
   }
+  this->UpdateMarkupsNodes(parameterNode);
 }
 
 //----------------------------------------------------------------------------
@@ -995,6 +1013,11 @@ vtkMRMLLinearTransformNode* vtkSlicerIhepStandGeometryLogic::UpdateFiducialTrans
       scene->GetFirstNodeByName(TABLETOPSTAND_FIDUCIALS_TRANSFORM_NODE_NAME));
   }
 
+//  vtkNew<vtkTransform> rotateYTransform;
+//  rotateYTransform->Identity();
+//  rotateYTransform->RotateX(-90.);
+//  rotateYTransform->RotateZ(180.);
+
   using IHEP = vtkSlicerIhepStandGeometryTransformLogic::CoordinateSystemIdentifier;
   // Dynamic transform from Gantry to RAS
   // Transformation path: RAS -> Patient -> TableTop -> TableTopVertical -> TableTopStand
@@ -1010,6 +1033,9 @@ vtkMRMLLinearTransformNode* vtkSlicerIhepStandGeometryLogic::UpdateFiducialTrans
       vtkErrorMacro("UpdateFiducialTransform: Unable to set transform with non-linear components");
       return nullptr;
     }
+    
+//    linearTransform->Concatenate(rotateYTransform);
+
     // Set transform to node
     transformNode->SetAndObserveTransformToParent(linearTransform);
   }
