@@ -187,6 +187,21 @@ void vtkSlicerIhepStandGeometryLogic::OnMRMLSceneNodeRemoved(vtkMRMLNode* vtkNot
 {
 }
 
+//---------------------------------------------------------------------------
+void vtkSlicerIhepStandGeometryLogic::InitialSetupTransformTranslations(vtkMRMLIhepStandGeometryNode* parameterNode)
+{
+
+  using IHEP = vtkSlicerIhepStandGeometryTransformLogic::CoordinateSystemIdentifier;
+  // Update TableTopVertical -> TableTopStand
+  // Translation of the TableTop from TableTopStand
+  vtkMRMLLinearTransformNode* tableTopVerticalToTableTopStandTransformNode =
+    this->IhepLogic->GetTransformNodeBetween(IHEP::TableTopVertical, IHEP::TableTopStand);
+  vtkTransform* tableTopVerticalToTableTopStandTransform = vtkTransform::SafeDownCast(
+    tableTopVerticalToTableTopStandTransformNode->GetTransformToParent() );
+  tableTopVerticalToTableTopStandTransform->Identity();
+  tableTopVerticalToTableTopStandTransform->Translate( 0., -500., 0.);
+  tableTopVerticalToTableTopStandTransform->Modified();
+}
 
 //----------------------------------------------------------------------------
 vtkMRMLMarkupsFiducialNode* vtkSlicerIhepStandGeometryLogic::CreateMarkupsNodes(vtkMRMLIhepStandGeometryNode* parameterNode)
@@ -198,29 +213,45 @@ vtkMRMLMarkupsFiducialNode* vtkSlicerIhepStandGeometryLogic::CreateMarkupsNodes(
 //  std::string singletonTag = std::string("RTIMAGE_") + FIDUCIALS_MARKUPS_NODE_NAME;
 //  pointsMarkupsNode->SetSingletonTag(singletonTag.c_str());
 
+  vtkMRMLScene* scene = this->GetMRMLScene();
+  if (!scene)
+  {
+    vtkErrorMacro("CreateMarkupsNodes: Invalid MRML scene");
+    return nullptr;
+  }
+
   if (parameterNode)
   {
     // add points
     double PatientTableTopTranslation[3] = {};
     parameterNode->GetPatientToTableTopTranslation(PatientTableTopTranslation);
-    vtkVector3d p0( 250. - PatientTableTopTranslation[0], 1400. - PatientTableTopTranslation[1], 
-      -845. - PatientTableTopTranslation[2]); // Origin
-    vtkVector3d p1( -250. - PatientTableTopTranslation[0], 1400. - PatientTableTopTranslation[1], 
-      -845. - PatientTableTopTranslation[2]); // Mirror
-    vtkVector3d p2( 0. - PatientTableTopTranslation[0], 2000. - PatientTableTopTranslation[1], 
-      -845. - PatientTableTopTranslation[2]); // Middle
+    vtkVector3d p0( -250. + PatientTableTopTranslation[0], -120. + PatientTableTopTranslation[1], 0. + PatientTableTopTranslation[2]); // Origin
+    vtkVector3d p1( 250. + PatientTableTopTranslation[0], -120. + PatientTableTopTranslation[1], 0. + PatientTableTopTranslation[2]); // Mirror
+    vtkVector3d p2( 0. + PatientTableTopTranslation[0], -120. + PatientTableTopTranslation[1], 600. + PatientTableTopTranslation[2]); // Middle
+
+//    vtkVector3d p0( -250. - PatientTableTopTranslation[0], -120. - PatientTableTopTranslation[1], 0. - PatientTableTopTranslation[2]); // Origin
+//    vtkVector3d p1( 250. - PatientTableTopTranslation[0], -120. - PatientTableTopTranslation[1], 0. - PatientTableTopTranslation[2]); // Mirror
+//    vtkVector3d p2( 0. - PatientTableTopTranslation[0], -120. - PatientTableTopTranslation[1], 600. - PatientTableTopTranslation[2]); // Middle
 
     pointsMarkupsNode->AddControlPoint( p0, "Origin");
     pointsMarkupsNode->AddControlPoint( p1, "Mirror");
     pointsMarkupsNode->AddControlPoint( p2, "Middle");
 
-    if (vtkMRMLRTBeamNode* beamNode = parameterNode->GetBeamNode())
+//    if (vtkMRMLRTBeamNode* beamNode = parameterNode->GetBeamNode())
     {
-      vtkMRMLTransformNode* transformNode = this->UpdateFiducialTransform(parameterNode);
+//      vtkMRMLTransformNode* transformNode = this->UpdateFiducialTransform(parameterNode);
 
-      if (transformNode)
+      vtkSmartPointer<vtkMRMLLinearTransformNode> rasToTableTopTransformNode;
+      if (scene->GetFirstNodeByName("RasToTableTopTransform"))
       {
-        pointsMarkupsNode->SetAndObserveTransformNodeID(transformNode->GetID());
+        rasToTableTopTransformNode = vtkMRMLLinearTransformNode::SafeDownCast(
+          scene->GetFirstNodeByName("RasToTableTopTransform"));
+      }
+
+      if (rasToTableTopTransformNode)
+      {
+        vtkWarningMacro("CreateMarkupsNodes: RasToTableTopTransform is valid");
+        pointsMarkupsNode->SetAndObserveTransformNodeID(rasToTableTopTransformNode->GetID());
       }
     }
   }
@@ -255,21 +286,26 @@ void vtkSlicerIhepStandGeometryLogic::UpdateMarkupsNodes(vtkMRMLIhepStandGeometr
   // fiducial markups line node
   if (scene->GetFirstNodeByName(TABLETOPSTAND_FIDUCIALS_MARKUPS_NODE_NAME))
   {
+    vtkWarningMacro("UpdateMarkupsNodes: Update fiducials");
     vtkMRMLMarkupsFiducialNode* pointsMarkupsNode = vtkMRMLMarkupsFiducialNode::SafeDownCast(
       scene->GetFirstNodeByName(TABLETOPSTAND_FIDUCIALS_MARKUPS_NODE_NAME));
 
     // update points
     double PatientTableTopTranslation[3] = {};
     parameterNode->GetPatientToTableTopTranslation(PatientTableTopTranslation);
-    vtkVector3d p0( 250. + PatientTableTopTranslation[0], 1400. + PatientTableTopTranslation[1], 
-      -845. + PatientTableTopTranslation[2]); // Origin
-    vtkVector3d p1( -250. + PatientTableTopTranslation[0], 1400. + PatientTableTopTranslation[1], 
-      -845. + PatientTableTopTranslation[2]); // Mirror
-    vtkVector3d p2( 0. + PatientTableTopTranslation[0], 2000. + PatientTableTopTranslation[1], 
-      -845. + PatientTableTopTranslation[2]); // Middle
-//    vtkVector3d p0( 250., 1400., -845. + parameterNode->GetTableTopVerticalPositionOrigin()); // Origin
-//    vtkVector3d p1( -250., 1400., -845. + parameterNode->GetTableTopVerticalPositionMirror()); // Mirror
-//    vtkVector3d p2( 0., 2000., -845. + parameterNode->GetTableTopVerticalPositionMiddle()); // Middle
+//    vtkVector3d p0( -250., -120., 0.); // Origin
+//    vtkVector3d p1( 250., -120., 0.); // Mirror
+//    vtkVector3d p2( 0., -120., 600.); // Middle
+    vtkVector3d p0( -250. + PatientTableTopTranslation[0], -120. + PatientTableTopTranslation[1] + parameterNode->GetTableTopVerticalPositionOrigin(), 0. + PatientTableTopTranslation[2]); // Origin
+    vtkVector3d p1( 250. + PatientTableTopTranslation[0], -120. + PatientTableTopTranslation[1] + parameterNode->GetTableTopVerticalPositionMirror(), 0. + PatientTableTopTranslation[2]); // Mirror
+    vtkVector3d p2( 0. + PatientTableTopTranslation[0], -120. + PatientTableTopTranslation[1] + parameterNode->GetTableTopVerticalPositionMiddle(), 600. + PatientTableTopTranslation[2]); // Middle
+
+ //   vtkVector3d p0( 250. + PatientTableTopTranslation[0], 0. + PatientTableTopTranslation[1], 
+ //     -120. + PatientTableTopTranslation[2]); // Origin
+ //   vtkVector3d p1( -250. + PatientTableTopTranslation[0], 0. + PatientTableTopTranslation[1], 
+ //     -120. + PatientTableTopTranslation[2]); // Mirror
+ //   vtkVector3d p2( 0. + PatientTableTopTranslation[0], 600. + PatientTableTopTranslation[1], 
+ //     -120. + PatientTableTopTranslation[2]); // Middle
 
     double* p = pointsMarkupsNode->GetNthControlPointPosition(0);
     if (p)
@@ -306,11 +342,13 @@ void vtkSlicerIhepStandGeometryLogic::UpdateMarkupsNodes(vtkMRMLIhepStandGeometr
 
     if (markupsTransformNode)
     {
+      vtkWarningMacro("UpdateMarkupsNodes: Update fiducials transform");
       pointsMarkupsNode->SetAndObserveTransformNodeID(transformNode->GetID());
     }
   }
   else
   {
+    vtkWarningMacro("UpdateMarkupsNodes: Create fiducials");
     this->CreateMarkupsNodes(parameterNode);
   }
 }
@@ -439,7 +477,7 @@ void vtkSlicerIhepStandGeometryLogic::LoadTreatmentMachineModels(vtkMRMLIhepStan
       vtkErrorMacro("LoadTreatmentMachineModels: Failed to load canyon model");
     }
   }
-*/
+
   // Patient support - mandatory
   std::string patientSupportModelSingletonTag = machineType + "_" + PATIENTSUPPORT_MODEL_NAME;
   vtkMRMLModelNode* patientSupportModelNode = vtkMRMLModelNode::SafeDownCast(
@@ -471,7 +509,7 @@ void vtkSlicerIhepStandGeometryLogic::LoadTreatmentMachineModels(vtkMRMLIhepStan
       vtkErrorMacro("LoadTreatmentMachineModels: Failed to load patient support model");
     }
   }
-
+*/
   // Table top stand - mandatory
   std::string tableTopStandModelSingletonTag = machineType + "_" + TABLETOPSTAND_MODEL_NAME;
   vtkMRMLModelNode* tableTopStandModelNode = vtkMRMLModelNode::SafeDownCast(
@@ -538,13 +576,14 @@ void vtkSlicerIhepStandGeometryLogic::LoadTreatmentMachineModels(vtkMRMLIhepStan
 
   if (/* !canyonModelNode || !canyonModelNode->GetPolyData()
     || */!tableTopStandModelNode || !tableTopStandModelNode->GetPolyData()
-    || !patientSupportModelNode || !patientSupportModelNode->GetPolyData() 
+    /* || !patientSupportModelNode || !patientSupportModelNode->GetPolyData() */
     || !tableTopModelNode || !tableTopModelNode->GetPolyData() )
   {
     vtkErrorMacro("LoadTreatmentMachineModels: Failed to load every mandatory treatment machine component");
     return;
   }
 
+  // Create markups node
   this->CreateMarkupsNodes(parameterNode);
   // Setup treatment machine model display and transforms
 //  this->SetupTreatmentMachineModels(parameterNode);
@@ -564,7 +603,7 @@ void vtkSlicerIhepStandGeometryLogic::ResetModelsToInitialPosition(vtkMRMLIhepSt
     vtkErrorMacro("ResetModelsToInitialPosition: Invalid parameter node");
     return;
   }
-  this->SetupTreatmentMachineModels(parameterNode);
+//  this->SetupTreatmentMachineModels(parameterNode);
 
   vtkMRMLRTBeamNode* beamNode = parameterNode->GetBeamNode();
   using IHEP = vtkSlicerIhepStandGeometryTransformLogic::CoordinateSystemIdentifier;
@@ -620,28 +659,18 @@ void vtkSlicerIhepStandGeometryLogic::ResetModelsToInitialPosition(vtkMRMLIhepSt
 //  vtkMRMLRTBeamNode* beam = parameterNode->GetBeamNode();
   beamNode->GetPlanIsocenterPosition(isocenter);
 
-  patientToTableTopTransform->Identity();
+//  patientToTableTopTransform->Identity();
 //  patientToTableTopTransform->Translate( isocenter[0], isocenter[1], isocenter[2]);
 //  patientToTableTopTransform->Translate( isocenter[0], isocenter[1] - 490, isocenter[2] + 550);
 //  patientToTableTopTransform->Translate( 0., -490., 550.);
-  patientToTableTopTransform->Modified();
+//  patientToTableTopTransform->Modified();
 
 //  this->UpdateTableTopToTableTopEccentricRotationTransform(parameterNode);
 
-  // New Treatment machine position
+  // Initial transforms for the models
+  this->InitialSetupTransformTranslations(parameterNode);
+  // Setup / update models accordint to the transforms
   this->SetupTreatmentMachineModels(parameterNode);
-/*
-  // Update table top vertical position according to isocenter position
-//  this->UpdateTableTopToTableTopEccentricRotationTransform(parameterNode);
-  // Update table top longitudinal position according to isocenter position
-//  this->UpdateTableTopToTableTopEccentricRotationTransform(parameterNode);
-  // Update patient support rotation angle
-//  this->UpdatePatientSupportRotationToFixedReferenceTransform(parameterNode);
-
-  // Set required transform to the models
-//  double tmpIsocenter[3] = {};
-//  this->MoveModelsToIsocenter( parameterNode, tmpIsocenter);
-*/
 }
 
 //----------------------------------------------------------------------------
@@ -664,8 +693,8 @@ void vtkSlicerIhepStandGeometryLogic::SetupTreatmentMachineModels(vtkMRMLIhepSta
   // Transform IHEP stand models to RAS
   vtkNew<vtkTransform> rotateYTransform;
   rotateYTransform->Identity();
-  rotateYTransform->RotateX(-90.);
-  rotateYTransform->RotateZ(180.);
+//  rotateYTransform->RotateX(-90.);
+//  rotateYTransform->RotateZ(180.);
 
   // Table top stand model - mandatory
   // Transform path: RAS -> Patient -> TableTop -> TableTopVertical -> TableTopStand
@@ -753,6 +782,7 @@ void vtkSlicerIhepStandGeometryLogic::SetupTreatmentMachineModels(vtkMRMLIhepSta
     if (rasToTableTopTransformNode)
     {
       rasToTableTopTransformNode->SetAndObserveTransformToParent(rasToTableTopLinearTransform);
+      this->UpdateMarkupsNodes(parameterNode);
     }
 
     vtkMRMLModelNode* tableTopModel = vtkMRMLModelNode::SafeDownCast(
@@ -824,68 +854,6 @@ void vtkSlicerIhepStandGeometryLogic::SetupTreatmentMachineModels(vtkMRMLIhepSta
       patientSupportModel->GetDisplayNode()->SetColor(0.85, 0.85, 0.85);
     }
   }
-  this->UpdateMarkupsNodes(parameterNode);
-}
-
-//----------------------------------------------------------------------------
-void vtkSlicerIhepStandGeometryLogic::UpdateTableTopToTableTopVerticalTransform(vtkMRMLIhepStandGeometryNode* parameterNode)
-{
-  vtkMRMLScene* scene = this->GetMRMLScene();
-  if (!scene)
-  {
-    vtkErrorMacro("UpdateTableTopToTableTopStandTransform: Invalid scene");
-    return;
-  }
-  if (!parameterNode || !parameterNode->GetTreatmentMachineType())
-  {
-    vtkErrorMacro("UpdateTableTopToTableTopStandTransform: Invalid parameter node");
-    return;
-  }
-
-  vtkMRMLModelNode* tableTopModel = vtkMRMLModelNode::SafeDownCast(this->GetMRMLScene()->GetFirstNodeByName(TABLETOP_MODEL_NAME));
-  if (!tableTopModel)
-  {
-    vtkDebugMacro("UpdateTableTopToTableTopStandTransform: Table top model not found");
-    return;
-  }
-
-  // Translation to origin for in-place rotation
-  vtkPolyData* tableTopModelPolyData = tableTopModel->GetPolyData();
-
-  double tableTopModelBounds[6] = { 0, 0, 0, 0, 0, 0 };
-  tableTopModelPolyData->GetBounds(tableTopModelBounds);
-
-  vtkWarningMacro("UpdateTableTopToTableTopStandTransform: Table top bounds " <<
-    tableTopModelBounds[0] << " " << tableTopModelBounds[1] << " " <<
-    tableTopModelBounds[2] << " " << tableTopModelBounds[3] << " " <<
-    tableTopModelBounds[4] << " " << tableTopModelBounds[5]);
-
-  using IHEP = vtkSlicerIhepStandGeometryTransformLogic::CoordinateSystemIdentifier;
-  vtkMRMLLinearTransformNode* tableTopToTableTopVerticalMovementTransformNode =
-    this->IhepLogic->GetTransformNodeBetween(IHEP::TableTop, IHEP::TableTopVertical);
-
-  double tableCenterX = tableTopModelBounds[1] - tableTopModelBounds[0] / 2.;
-  double tableCenterY = tableTopModelBounds[3] - tableTopModelBounds[2] / 2.;
-
-  double fiducialPos[3] = { -tableTopModelBounds[1], -tableTopModelBounds[3], -tableTopModelBounds[5]};
-
-  if (tableTopToTableTopVerticalMovementTransformNode)
-  {
-    double longitudinalRotationAngle = parameterNode->GetTableTopLongitudinalAngle();
-    double lateralRotationAngle = parameterNode->GetTableTopLateralAngle();
-
-    vtkNew<vtkTransform> tableTopToTableTopVerticalMovementTransform;
-    vtkNew<vtkTransform> translateTransform;
-    translateTransform->Translate(fiducialPos);
-
-    tableTopToTableTopVerticalMovementTransform->RotateY(-1. * longitudinalRotationAngle);
-    tableTopToTableTopVerticalMovementTransform->RotateX(-1. * lateralRotationAngle);
-
-    translateTransform->Concatenate(tableTopToTableTopVerticalMovementTransform);
-    translateTransform->Translate(-1. * fiducialPos[0], -1. * fiducialPos[1], -1. * fiducialPos[2]);
-    
-    tableTopToTableTopVerticalMovementTransformNode->SetAndObserveTransformToParent(translateTransform);
-  }
 }
 
 //----------------------------------------------------------------------------
@@ -917,37 +885,8 @@ void vtkSlicerIhepStandGeometryLogic::UpdateTableTopVerticalToTableTopStandTrans
   if (tableTopVerticalToTableTopStandMovementTransformNode)
   {
     vtkNew<vtkTransform> tableTopVerticalToTableTopStandMovementTransform;
-    tableTopVerticalToTableTopStandMovementTransform->Translate( 0., 0., -1. * parameterNode->GetTableTopVerticalPosition());
+    tableTopVerticalToTableTopStandMovementTransform->Translate( 0., -1. * parameterNode->GetTableTopVerticalPosition(), 0.);
     tableTopVerticalToTableTopStandMovementTransformNode->SetAndObserveTransformToParent(tableTopVerticalToTableTopStandMovementTransform);
-  }
-}
-
-//----------------------------------------------------------------------------
-void vtkSlicerIhepStandGeometryLogic::UpdateTableTopStandToPatientSupportTransform(vtkMRMLIhepStandGeometryNode* parameterNode)
-{
-  vtkMRMLScene* scene = this->GetMRMLScene();
-  if (!scene)
-  {
-    vtkErrorMacro("UpdateTableTopStandToPatientSupportTransform: Invalid scene");
-    return;
-  }
-  if (!parameterNode || !parameterNode->GetTreatmentMachineType())
-  {
-    vtkErrorMacro("UpdateTableTopStandToPatientSupportTransform: Invalid parameter node");
-    return;
-  }
-
-  using IHEP = vtkSlicerIhepStandGeometryTransformLogic::CoordinateSystemIdentifier;
-  vtkMRMLLinearTransformNode* tableTopStandToPatientSupportTransformNode =
-    this->IhepLogic->GetTransformNodeBetween(IHEP::TableTopStand, IHEP::PatientSupport);
-
-  if (tableTopStandToPatientSupportTransformNode)
-  {
-    vtkNew<vtkTransform> tableTopStandToPatientSupportTransform;
-    tableTopStandToPatientSupportTransform->Identity();
-    tableTopStandToPatientSupportTransform->Translate( 0., -1. * parameterNode->GetTableTopLongitudinalPosition(), 0);
-    tableTopStandToPatientSupportTransform->Modified();
-    tableTopStandToPatientSupportTransformNode->SetAndObserveTransformToParent(tableTopStandToPatientSupportTransform);
   }
 }
 
@@ -991,7 +930,7 @@ vtkMRMLLinearTransformNode* vtkSlicerIhepStandGeometryLogic::UpdateFiducialTrans
     vtkErrorMacro("UpdateFiducialTransform: Invalid parameter node");
     return nullptr;
   }
-  vtkMRMLScene* scene = this->GetMRMLScene();
+/*  vtkMRMLScene* scene = this->GetMRMLScene();
   if (!scene)
   {
     vtkErrorMacro("UpdateFiducialTransform: Invalid MRML scene");
@@ -1023,7 +962,7 @@ vtkMRMLLinearTransformNode* vtkSlicerIhepStandGeometryLogic::UpdateFiducialTrans
   // Transformation path: RAS -> Patient -> TableTop -> TableTopVertical -> TableTopStand
   vtkNew<vtkGeneralTransform> generalTransform;
   if (this->IhepLogic->GetTransformBetween( IHEP::RAS, 
-    IHEP::TableTopStand, generalTransform, false))
+    IHEP::TableTop, generalTransform, false))
   {
     // Convert general transform to linear
     // This call also makes hard copy of the transform so that it doesn't change when other beam transforms change
@@ -1040,5 +979,6 @@ vtkMRMLLinearTransformNode* vtkSlicerIhepStandGeometryLogic::UpdateFiducialTrans
     transformNode->SetAndObserveTransformToParent(linearTransform);
   }
   return transformNode;
+*/
 }
 

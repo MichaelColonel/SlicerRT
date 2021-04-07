@@ -60,7 +60,7 @@ vtkMRMLIhepStandGeometryNode::vtkMRMLIhepStandGeometryNode()
   TableTopLongitudinalPosition(0.),
   TableTopLongitudinalAngle(0.),
   TableTopLateralAngle(0.),
-  PatientToTableTopTranslation({}),
+  PatientToTableTopTranslation(),
   UseStandCoordinateSystem(false)
 {
 }

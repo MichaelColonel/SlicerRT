@@ -73,20 +73,17 @@ public:
   /// All angles to zero and only translation applied
   void ResetModelsToInitialPosition(vtkMRMLIhepStandGeometryNode* parameterNode);
 
-  /// Apply new patient support rotation angle to transform (Fixed->PatientSupport)
-  void UpdateTableTopToTableTopVerticalTransform(vtkMRMLIhepStandGeometryNode* parameterNode);
-
   /// Apply new TableTopVertical to TableTopStand translate (TableTopVertical->TableTopStand)
   void UpdateTableTopVerticalToTableTopStandTransform(vtkMRMLIhepStandGeometryNode* parameterNode);
-
-  /// Apply new TableTopStand to PatientSupport translate (TableTopStand->PatientSupport)
-  void UpdateTableTopStandToPatientSupportTransform(vtkMRMLIhepStandGeometryNode* parameterNode);
 
   /// Apply new Patient to TableTop translate (Patient->TableTop)
   void UpdatePatientToTableTopTransform(vtkMRMLIhepStandGeometryNode* parameterNode);
 
   /// Set up the IHEP transforms and model properties on the treatment machine models
   void SetupTreatmentMachineModels(vtkMRMLIhepStandGeometryNode* parameterNode);
+
+  /// Initial Translation for different transforms
+  void InitialSetupTransformTranslations(vtkMRMLIhepStandGeometryNode* parameterNode);
 
   /// Create or get transforms taking part in the IHEP logic and additional devices, and build the transform hierarchy
   void BuildIhepStangGeometryTransformHierarchy();

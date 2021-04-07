@@ -139,18 +139,14 @@ void qSlicerIhepStandGeometryModuleWidget::setup()
     this, SLOT(onPatientBodySegmentNameChanged(QString)));
 
   // Sliders, Coordinates widgets
-  connect( d->SliderWidget_PatientSupportRotationAngle, SIGNAL(valueChanged(double)), 
-    this, SLOT(onPatientSupportRotationAngleChanged(double)));
-  connect( d->SliderWidget_TableTopLongitudinalAngle, SIGNAL(valueChanged(double)), 
-    this, SLOT(onTableTopLongitudinalAngleChanged(double)));
-  connect( d->SliderWidget_TableTopLateralAngle, SIGNAL(valueChanged(double)), 
-    this, SLOT(onTableTopLateralAngleChanged(double)));
-
-  connect( d->SliderWidget_TableTopLongitudinalPosition, SIGNAL(valueChanged(double)), 
-    this, SLOT(onTableTopLongitudinalPositionChanged(double)));
   connect( d->SliderWidget_TableTopVerticalPosition, SIGNAL(valueChanged(double)), 
     this, SLOT(onTableTopVerticalPositionChanged(double)));
-
+  connect( d->SliderWidget_TableTopVerticalPositionMiddle, SIGNAL(valueChanged(double)), 
+    this, SLOT(onTableTopVerticalMiddlePositionChanged(double)));
+  connect( d->SliderWidget_TableTopVerticalPositionMirror, SIGNAL(valueChanged(double)), 
+    this, SLOT(onTableTopVerticalMirrorPositionChanged(double)));
+  connect( d->SliderWidget_TableTopVerticalPositionOrigin, SIGNAL(valueChanged(double)), 
+    this, SLOT(onTableTopVerticalOriginPositionChanged(double)));
   connect( d->CoordinatesWidget_PatientTableTopTranslation, SIGNAL(coordinatesChanged(double*)), 
     this, SLOT(onPatientTableTopTranslationChanged(double*)));
 
@@ -206,115 +202,7 @@ void qSlicerIhepStandGeometryModuleWidget::onResetToInitialPositionButtonClicked
   }
 
   d->logic()->ResetModelsToInitialPosition(parameterNode);
-  qDebug() << Q_FUNC_INFO << ": finished";
-}
-
-//-----------------------------------------------------------------------------
-void qSlicerIhepStandGeometryModuleWidget::onPatientSupportRotationAngleChanged(double rotationAngle)
-{
-  Q_D(qSlicerIhepStandGeometryModuleWidget);
-
-  if (!this->mrmlScene())
-  {
-    qCritical() << Q_FUNC_INFO << ": Invalid scene";
-    return;
-  }
-
-  vtkMRMLIhepStandGeometryNode* parameterNode = vtkMRMLIhepStandGeometryNode::SafeDownCast(d->MRMLNodeComboBox_ParameterSet->currentNode());
-  if (!parameterNode || !d->ModuleWindowInitialized)
-  {
-    return;
-  }
-/*
-  parameterNode->DisableModifiedEventOn();
-  parameterNode->SetPatientSupportRotationAngle(rotationAngle);
-  parameterNode->DisableModifiedEventOff();
-
-  d->logic()->UpdatePatientSupportToFixedReferenceTransform(parameterNode);
-  d->logic()->SetupTreatmentMachineModels(parameterNode);
-  qDebug() << Q_FUNC_INFO << ": finished";
-*/
-}
-
-//-----------------------------------------------------------------------------
-void qSlicerIhepStandGeometryModuleWidget::onTableTopLongitudinalAngleChanged(double longitudinalAngle)
-{
-  Q_D(qSlicerIhepStandGeometryModuleWidget);
-
-  if (!this->mrmlScene())
-  {
-    qCritical() << Q_FUNC_INFO << ": Invalid scene";
-    return;
-  }
-
-  vtkMRMLIhepStandGeometryNode* parameterNode = vtkMRMLIhepStandGeometryNode::SafeDownCast(d->MRMLNodeComboBox_ParameterSet->currentNode());
-  if (!parameterNode || !d->ModuleWindowInitialized)
-  {
-    return;
-  }
-
-  parameterNode->DisableModifiedEventOn();
-  parameterNode->SetTableTopLongitudinalAngle(longitudinalAngle);
-  parameterNode->DisableModifiedEventOff();
-
-  d->logic()->UpdateTableTopToTableTopVerticalTransform(parameterNode);
-  d->logic()->SetupTreatmentMachineModels(parameterNode);
-  qDebug() << Q_FUNC_INFO << ": finished";
-}
-
-//-----------------------------------------------------------------------------
-void qSlicerIhepStandGeometryModuleWidget::onTableTopLateralAngleChanged(double lateralAngle)
-{
-  Q_D(qSlicerIhepStandGeometryModuleWidget);
-
-  if (!this->mrmlScene())
-  {
-    qCritical() << Q_FUNC_INFO << ": Invalid scene";
-    return;
-  }
-
-  vtkMRMLIhepStandGeometryNode* parameterNode = vtkMRMLIhepStandGeometryNode::SafeDownCast(d->MRMLNodeComboBox_ParameterSet->currentNode());
-  if (!parameterNode || !d->ModuleWindowInitialized)
-  {
-    return;
-  }
-  parameterNode->DisableModifiedEventOn();
-  parameterNode->SetTableTopLateralAngle(lateralAngle);
-  parameterNode->DisableModifiedEventOff();
-
-  d->logic()->UpdateTableTopToTableTopVerticalTransform(parameterNode);
-  d->logic()->SetupTreatmentMachineModels(parameterNode);
-  qDebug() << Q_FUNC_INFO << ": finished";
-}
-
-//-----------------------------------------------------------------------------
-void qSlicerIhepStandGeometryModuleWidget::onTableTopVerticalPositionChanged(double verticalPosition)
-{
-  Q_D(qSlicerIhepStandGeometryModuleWidget);
-
-  if (!this->mrmlScene())
-  {
-    qCritical() << Q_FUNC_INFO << ": Invalid scene";
-    return;
-  }
-
-  vtkMRMLIhepStandGeometryNode* parameterNode = vtkMRMLIhepStandGeometryNode::SafeDownCast(d->MRMLNodeComboBox_ParameterSet->currentNode());
-  if (!parameterNode || !d->ModuleWindowInitialized)
-  {
-    return;
-  }
-
-  double isocenter[3] = {};
-  vtkMRMLRTBeamNode* beam = parameterNode->GetBeamNode();
-  beam->GetPlanIsocenterPosition(isocenter);
-
-  parameterNode->DisableModifiedEventOn();
-  parameterNode->SetTableTopVerticalPosition(verticalPosition);
-  parameterNode->DisableModifiedEventOff();
-
-  d->logic()->UpdateTableTopVerticalToTableTopStandTransform(parameterNode);
-  d->logic()->SetupTreatmentMachineModels(parameterNode);
-  qDebug() << Q_FUNC_INFO << ": finished";
+ // qDebug() << Q_FUNC_INFO << ": finished";
 }
 
 //-----------------------------------------------------------------------------
@@ -338,11 +226,11 @@ void qSlicerIhepStandGeometryModuleWidget::onPatientTableTopTranslationChanged(d
 
   d->logic()->UpdatePatientToTableTopTransform(parameterNode);
   d->logic()->SetupTreatmentMachineModels(parameterNode);
-  qDebug() << Q_FUNC_INFO << ": finished";
+//  qDebug() << Q_FUNC_INFO << ": finished";
 }
 
 //-----------------------------------------------------------------------------
-void qSlicerIhepStandGeometryModuleWidget::onTableTopLongitudinalPositionChanged(double longitudinalPosition)
+void qSlicerIhepStandGeometryModuleWidget::onTableTopVerticalPositionChanged(double position)
 {
   Q_D(qSlicerIhepStandGeometryModuleWidget);
 
@@ -358,17 +246,81 @@ void qSlicerIhepStandGeometryModuleWidget::onTableTopLongitudinalPositionChanged
     return;
   }
 
-  double isocenter[3] = {};
-  vtkMRMLRTBeamNode* beam = parameterNode->GetBeamNode();
-  beam->GetPlanIsocenterPosition(isocenter);
+  parameterNode->SetTableTopVerticalPosition(position);
 
-  parameterNode->DisableModifiedEventOn();
-  parameterNode->SetTableTopLongitudinalPosition(longitudinalPosition);
-  parameterNode->DisableModifiedEventOff();
-
-  d->logic()->UpdateTableTopStandToPatientSupportTransform(parameterNode);
+  d->logic()->UpdateTableTopVerticalToTableTopStandTransform(parameterNode);
   d->logic()->SetupTreatmentMachineModels(parameterNode);
-  qDebug() << Q_FUNC_INFO << ": finished";
+//  qDebug() << Q_FUNC_INFO << ": finished";
+}
+
+//-----------------------------------------------------------------------------
+void qSlicerIhepStandGeometryModuleWidget::onTableTopVerticalMiddlePositionChanged(double position)
+{
+  Q_D(qSlicerIhepStandGeometryModuleWidget);
+
+  if (!this->mrmlScene())
+  {
+    qCritical() << Q_FUNC_INFO << ": Invalid scene";
+    return;
+  }
+
+  vtkMRMLIhepStandGeometryNode* parameterNode = vtkMRMLIhepStandGeometryNode::SafeDownCast(d->MRMLNodeComboBox_ParameterSet->currentNode());
+  if (!parameterNode || !d->ModuleWindowInitialized)
+  {
+    return;
+  }
+
+  parameterNode->SetTableTopVerticalPositionMiddle(position);
+
+  d->logic()->UpdateMarkupsNodes(parameterNode);
+  d->logic()->SetupTreatmentMachineModels(parameterNode);
+//  qDebug() << Q_FUNC_INFO << ": finished";
+}
+
+//-----------------------------------------------------------------------------
+void qSlicerIhepStandGeometryModuleWidget::onTableTopVerticalMirrorPositionChanged(double position)
+{
+  Q_D(qSlicerIhepStandGeometryModuleWidget);
+
+  if (!this->mrmlScene())
+  {
+    qCritical() << Q_FUNC_INFO << ": Invalid scene";
+    return;
+  }
+
+  vtkMRMLIhepStandGeometryNode* parameterNode = vtkMRMLIhepStandGeometryNode::SafeDownCast(d->MRMLNodeComboBox_ParameterSet->currentNode());
+  if (!parameterNode || !d->ModuleWindowInitialized)
+  {
+    return;
+  }
+
+  parameterNode->SetTableTopVerticalPositionMirror(position);
+  d->logic()->UpdateMarkupsNodes(parameterNode);
+  d->logic()->SetupTreatmentMachineModels(parameterNode);
+//  qDebug() << Q_FUNC_INFO << ": finished";
+}
+
+//-----------------------------------------------------------------------------
+void qSlicerIhepStandGeometryModuleWidget::onTableTopVerticalOriginPositionChanged(double position)
+{
+  Q_D(qSlicerIhepStandGeometryModuleWidget);
+
+  if (!this->mrmlScene())
+  {
+    qCritical() << Q_FUNC_INFO << ": Invalid scene";
+    return;
+  }
+
+  vtkMRMLIhepStandGeometryNode* parameterNode = vtkMRMLIhepStandGeometryNode::SafeDownCast(d->MRMLNodeComboBox_ParameterSet->currentNode());
+  if (!parameterNode || !d->ModuleWindowInitialized)
+  {
+    return;
+  }
+
+  parameterNode->SetTableTopVerticalPositionOrigin(position);
+  d->logic()->UpdateMarkupsNodes(parameterNode);
+  d->logic()->SetupTreatmentMachineModels(parameterNode);
+//  qDebug() << Q_FUNC_INFO << ": finished";
 }
 
 //-----------------------------------------------------------------------------
@@ -500,11 +452,13 @@ void qSlicerIhepStandGeometryModuleWidget::updateWidgetFromMRML()
     QString id(static_cast<char *>(parameterNode->GetPatientBodySegmentID()));
     d->SegmentSelectorWidget_TargetVolume->setCurrentSegmentID(id);
   }
-  d->SliderWidget_TableTopLongitudinalPosition->setValue(parameterNode->GetTableTopLongitudinalPosition());
   d->SliderWidget_TableTopVerticalPosition->setValue(parameterNode->GetTableTopVerticalPosition());
-  d->SliderWidget_PatientSupportRotationAngle->setValue(parameterNode->GetPatientSupportRotationAngle());
-  d->SliderWidget_TableTopLateralAngle->setValue(parameterNode->GetTableTopLateralAngle());
-  d->SliderWidget_TableTopLongitudinalAngle->setValue(parameterNode->GetTableTopLongitudinalAngle());
+  
+  double patientToTableTopTranslation[3] = {};
+  parameterNode->GetPatientToTableTopTranslation(patientToTableTopTranslation);
+
+  d->CoordinatesWidget_PatientTableTopTranslation->setCoordinates(patientToTableTopTranslation);
+
   qDebug() << Q_FUNC_INFO << ": finished";
 }
 
