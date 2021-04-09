@@ -106,6 +106,10 @@ public:
   vtkGetMacro(TableTopLongitudinalPosition, double);
   vtkSetMacro(TableTopLongitudinalPosition, double);
 
+  /// Get/Set table top lateral position
+  vtkGetMacro(TableTopLateralPosition, double);
+  vtkSetMacro(TableTopLateralPosition, double);
+
   /// Get/Set table top longitudinal angle
   vtkGetMacro(TableTopLongitudinalAngle, double);
   vtkSetMacro(TableTopLongitudinalAngle, double);
@@ -143,6 +147,8 @@ protected:
   double TableTopVerticalPositionMiddle; // Middle
   /// IEC Table top longitudinal position (Y_t)
   double TableTopLongitudinalPosition;
+  /// IEC Table top lateral position (X_t)
+  double TableTopLateralPosition;
 
   /// IEC Table top longitudinal angle (phi_t)
   double TableTopLongitudinalAngle;

@@ -63,6 +63,8 @@ public slots:
   void onTableTopVerticalMirrorPositionChanged(double);
   void onTableTopVerticalOriginPositionChanged(double);
   void onTableTopVerticalMiddlePositionChanged(double);
+  void onTableTopStandLongitudinalPositionChanged(double);
+  void onTableTopStandLateralPositionChanged(double);
   void onPatientTableTopTranslationChanged(double*);
 
   /// Update widget GUI from RT Image parameters node

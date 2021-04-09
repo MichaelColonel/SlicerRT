@@ -40,6 +40,7 @@ class vtkMRMLRTBeamNode;
 class vtkMRMLLinearTransformNode;
 class vtkMRMLMarkupsLineNode;
 class vtkMRMLMarkupsFiducialNode;
+class vtkMRMLMarkupsPlaneNode;
 
 /// \ingroup Slicer_QtModules_IhepStandGeometry
 class VTK_SLICER_IHEPSTANDGEOMETRY_MODULE_LOGIC_EXPORT vtkSlicerIhepStandGeometryLogic :
@@ -51,6 +52,7 @@ public:
   static const char* TABLETOPSTAND_MODEL_NAME; // Table Top Inferior-Superior Movement, and Left-Right Movement (Lateral) Stand
   static const char* TABLETOP_MODEL_NAME;
 
+  static const char* TABLETOP_PLANE_MARKUPS_NODE_NAME; // TableTop plane position and orientation from three fiducials below
   static const char* TABLETOPSTAND_FIDUCIALS_MARKUPS_NODE_NAME; // Three fiducials show TableTop position Z origin, mirror, middle respectively
   static const char* TABLETOPSTAND_FIDUCIALS_TRANSFORM_NODE_NAME; // Transform for fiducials for proper positioning
 
@@ -75,6 +77,9 @@ public:
 
   /// Apply new TableTopVertical to TableTopStand translate (TableTopVertical->TableTopStand)
   void UpdateTableTopVerticalToTableTopStandTransform(vtkMRMLIhepStandGeometryNode* parameterNode);
+
+  /// Apply new TableTopStand to PatientSupport translate (TableTopStand->PatientSupport)
+  void UpdateTableTopStandToPatientSupportTransfrom(vtkMRMLIhepStandGeometryNode* parameterNode);
 
   /// Apply new Patient to TableTop translate (Patient->TableTop)
   void UpdatePatientToTableTopTransform(vtkMRMLIhepStandGeometryNode* parameterNode);
