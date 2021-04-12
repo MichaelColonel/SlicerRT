@@ -5,6 +5,7 @@
 set(MACHINE_NAME IHEPStand)
 
 set(MACHINE_MODELS
+  Canyon.stl
   PatientSupportRotation.stl
   TableTopStand.stl
   TableTop.stl

@@ -48,6 +48,7 @@ class VTK_SLICER_IHEPSTANDGEOMETRY_MODULE_LOGIC_EXPORT vtkSlicerIhepStandGeometr
 {
 public:
 
+  static const char* CANYON_MODEL_NAME; // Canyon
   static const char* PATIENTSUPPORT_MODEL_NAME; // Patient Support Rotation
   static const char* TABLETOPSTAND_MODEL_NAME; // Table Top Inferior-Superior Movement, and Left-Right Movement (Lateral) Stand
   static const char* TABLETOP_MODEL_NAME;
@@ -56,14 +57,29 @@ public:
   static const char* TABLETOPSTAND_FIDUCIALS_MARKUPS_NODE_NAME; // Three fiducials show TableTop position Z origin, mirror, middle respectively
   static const char* TABLETOPSTAND_FIDUCIALS_TRANSFORM_NODE_NAME; // Transform for fiducials for proper positioning
 
+  static const char* FIXEDREFERENCE_LINE_MARKUPS_NODE_NAME; //  Beam axis line in fixed reference frame
+  static const char* FIXEDREFERENCE_LINE_TRANSFORM_NODE_NAME; // Transform for beam axis line for proper positioning
+
   static vtkSlicerIhepStandGeometryLogic *New();
   vtkTypeMacro(vtkSlicerIhepStandGeometryLogic, vtkSlicerModuleLogic);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  /// Create markups nodes for visualization
-  vtkMRMLMarkupsFiducialNode* CreateMarkupsNodes(vtkMRMLIhepStandGeometryNode* parameterNode);
-  /// Update markups nodes using parameter node data and geometry hierarchy
-  void UpdateMarkupsNodes(vtkMRMLIhepStandGeometryNode* parameterNode);
+  /// Create TableTopStand fiducial markups node for visualization
+  vtkMRMLMarkupsFiducialNode* CreateTableTopStandFiducialNode(vtkMRMLIhepStandGeometryNode* parameterNode);
+  /// Create TableTopStand plane markups node for visualization
+  vtkMRMLMarkupsPlaneNode* CreateTableTopStandPlaneNode( vtkMRMLIhepStandGeometryNode* parameterNode,
+    vtkMRMLMarkupsFiducialNode* fiducialNode);
+  /// Create FixedReference line markups node for visualization
+  vtkMRMLMarkupsLineNode* CreateFixedReferenceLineNode(vtkMRMLIhepStandGeometryNode* parameterNode);
+
+  /// Update TableTopStand markups fiducial node using parameter node data and geometry hierarchy
+  void UpdateTableTopStandFiducialNode(vtkMRMLIhepStandGeometryNode* parameterNode);
+  /// Update TableTopStand markups plane node using parameter node data and geometry hierarchy
+  void UpdateTableTopStandPlaneNode( vtkMRMLIhepStandGeometryNode* parameterNode,
+    vtkMRMLMarkupsFiducialNode* fiducialNode);
+  /// Update FixedReference markups line node using parameter node data and geometry hierarchy
+  void UpdateFixedReferenceLineNode(vtkMRMLIhepStandGeometryNode* parameterNode);
+
   /// Show markups
   void ShowMarkupsNodes(bool toggled = false);
 
@@ -79,7 +95,10 @@ public:
   void UpdateTableTopVerticalToTableTopStandTransform(vtkMRMLIhepStandGeometryNode* parameterNode);
 
   /// Apply new TableTopStand to PatientSupport translate (TableTopStand->PatientSupport)
-  void UpdateTableTopStandToPatientSupportTransfrom(vtkMRMLIhepStandGeometryNode* parameterNode);
+  void UpdateTableTopStandToPatientSupportTransform(vtkMRMLIhepStandGeometryNode* parameterNode);
+
+  /// Apply new PatientSupport to FixedReference translate (PatientSupport->FixedReference)
+  void UpdatePatientSupportToFixedReferenceTransform(vtkMRMLIhepStandGeometryNode* parameterNode);
 
   /// Apply new Patient to TableTop translate (Patient->TableTop)
   void UpdatePatientToTableTopTransform(vtkMRMLIhepStandGeometryNode* parameterNode);
@@ -93,8 +112,10 @@ public:
   /// Create or get transforms taking part in the IHEP logic and additional devices, and build the transform hierarchy
   void BuildIhepStangGeometryTransformHierarchy();
 
-  /// 
-  vtkMRMLLinearTransformNode* UpdateFiducialTransform(vtkMRMLIhepStandGeometryNode* parameterNode);
+  /// Update transform for fiducial and plane markups nodes
+  vtkMRMLLinearTransformNode* UpdateTableTopStandMarkupsTransform(vtkMRMLIhepStandGeometryNode* parameterNode);
+  /// Update transform for line markups node
+  vtkMRMLLinearTransformNode* UpdateFixedReferenceMarkupsTransform(vtkMRMLIhepStandGeometryNode* parameterNode);
 
 protected:
   vtkSlicerIhepStandGeometryLogic();

@@ -151,7 +151,9 @@ void qSlicerIhepStandGeometryModuleWidget::setup()
     this, SLOT(onTableTopStandLongitudinalPositionChanged(double)));
   connect( d->SliderWidget_TableTopStandLateralPosition, SIGNAL(valueChanged(double)), 
     this, SLOT(onTableTopStandLateralPositionChanged(double)));
-
+  connect( d->SliderWidget_PatientSupportRotationAngle, SIGNAL(valueChanged(double)), 
+    this, SLOT(onPatientSupportFixedReferenceAngleChanged(double)));
+  
   connect( d->CoordinatesWidget_PatientTableTopTranslation, SIGNAL(coordinatesChanged(double*)), 
     this, SLOT(onPatientTableTopTranslationChanged(double*)));
 
@@ -277,7 +279,8 @@ void qSlicerIhepStandGeometryModuleWidget::onTableTopVerticalMiddlePositionChang
 
   parameterNode->SetTableTopVerticalPositionMiddle(position);
 
-  d->logic()->UpdateMarkupsNodes(parameterNode);
+  d->logic()->UpdateTableTopStandFiducialNode(parameterNode);
+  d->logic()->UpdateFixedReferenceLineNode(parameterNode);
   d->logic()->SetupTreatmentMachineModels(parameterNode);
 //  qDebug() << Q_FUNC_INFO << ": finished";
 }
@@ -300,7 +303,8 @@ void qSlicerIhepStandGeometryModuleWidget::onTableTopVerticalMirrorPositionChang
   }
 
   parameterNode->SetTableTopVerticalPositionMirror(position);
-  d->logic()->UpdateMarkupsNodes(parameterNode);
+  d->logic()->UpdateTableTopStandFiducialNode(parameterNode);
+  d->logic()->UpdateFixedReferenceLineNode(parameterNode);
   d->logic()->SetupTreatmentMachineModels(parameterNode);
 //  qDebug() << Q_FUNC_INFO << ": finished";
 }
@@ -323,7 +327,8 @@ void qSlicerIhepStandGeometryModuleWidget::onTableTopVerticalOriginPositionChang
   }
 
   parameterNode->SetTableTopVerticalPositionOrigin(position);
-  d->logic()->UpdateMarkupsNodes(parameterNode);
+  d->logic()->UpdateTableTopStandFiducialNode(parameterNode);
+  d->logic()->UpdateFixedReferenceLineNode(parameterNode);
   d->logic()->SetupTreatmentMachineModels(parameterNode);
 //  qDebug() << Q_FUNC_INFO << ": finished";
 }
@@ -347,8 +352,9 @@ void qSlicerIhepStandGeometryModuleWidget::onTableTopStandLongitudinalPositionCh
 
   parameterNode->SetTableTopLongitudinalPosition(position);
   // update table top stand to patient support rotation transform
-  d->logic()->UpdateTableTopStandToPatientSupportTransfrom(parameterNode);
-  d->logic()->UpdateMarkupsNodes(parameterNode);
+  d->logic()->UpdateTableTopStandToPatientSupportTransform(parameterNode);
+  d->logic()->UpdateTableTopStandFiducialNode(parameterNode);
+  d->logic()->UpdateFixedReferenceLineNode(parameterNode);
   d->logic()->SetupTreatmentMachineModels(parameterNode);
 //  qDebug() << Q_FUNC_INFO << ": finished";
 }
@@ -372,8 +378,34 @@ void qSlicerIhepStandGeometryModuleWidget::onTableTopStandLateralPositionChanged
 
   parameterNode->SetTableTopLateralPosition(position);
   // update table top stand to patient support rotation transform
-  d->logic()->UpdateTableTopStandToPatientSupportTransfrom(parameterNode);
-  d->logic()->UpdateMarkupsNodes(parameterNode);
+  d->logic()->UpdateTableTopStandToPatientSupportTransform(parameterNode);
+  d->logic()->UpdateTableTopStandFiducialNode(parameterNode);
+  d->logic()->UpdateFixedReferenceLineNode(parameterNode);
+  d->logic()->SetupTreatmentMachineModels(parameterNode);
+//  qDebug() << Q_FUNC_INFO << ": finished";
+}
+
+//-----------------------------------------------------------------------------
+void qSlicerIhepStandGeometryModuleWidget::onPatientSupportFixedReferenceAngleChanged(double angle)
+{
+  Q_D(qSlicerIhepStandGeometryModuleWidget);
+
+  if (!this->mrmlScene())
+  {
+    qCritical() << Q_FUNC_INFO << ": Invalid scene";
+    return;
+  }
+
+  vtkMRMLIhepStandGeometryNode* parameterNode = vtkMRMLIhepStandGeometryNode::SafeDownCast(d->MRMLNodeComboBox_ParameterSet->currentNode());
+  if (!parameterNode || !d->ModuleWindowInitialized)
+  {
+    return;
+  }
+
+  parameterNode->SetPatientSupportRotationAngle(angle);
+  // update table top stand to patient support rotation transform
+  d->logic()->UpdatePatientSupportToFixedReferenceTransform(parameterNode);
+//  d->logic()->UpdateMarkupsNodes(parameterNode);
   d->logic()->SetupTreatmentMachineModels(parameterNode);
 //  qDebug() << Q_FUNC_INFO << ": finished";
 }
