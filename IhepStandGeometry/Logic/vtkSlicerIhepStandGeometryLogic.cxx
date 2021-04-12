@@ -350,8 +350,8 @@ vtkMRMLMarkupsLineNode* vtkSlicerIhepStandGeometryLogic::CreateFixedReferenceLin
   if (parameterNode)
   {
     // add points to line node
-    vtkVector3d p0( 5000., 0., 0.); // FixedBegin
-    vtkVector3d p2( -4000., 0., 0.); // FixedEnd
+    vtkVector3d p0( -4000., 0., 0.); // FixedBegin
+    vtkVector3d p2( 4000., 0., 0.); // FixedEnd
 
     lineMarkupsNode->AddControlPoint( p0, "FixedBegin");
     lineMarkupsNode->AddControlPoint( p2, "FixedEnd");
@@ -389,8 +389,6 @@ void vtkSlicerIhepStandGeometryLogic::UpdateTableTopStandFiducialNode(vtkMRMLIhe
     vtkErrorMacro("UpdateTableTopStandFiducialNode: Invalid beam node");
     return;
   }
-
-  vtkMRMLTransformNode* transformNode = this->UpdateTableTopStandMarkupsTransform(parameterNode);
 
   // fiducial markups node
   if (scene->GetFirstNodeByName(TABLETOPSTAND_FIDUCIALS_MARKUPS_NODE_NAME))
@@ -444,7 +442,7 @@ void vtkSlicerIhepStandGeometryLogic::UpdateTableTopStandFiducialNode(vtkMRMLIhe
 
     if (markupsTransformNode)
     {
-      pointsMarkupsNode->SetAndObserveTransformNodeID(transformNode->GetID());
+      pointsMarkupsNode->SetAndObserveTransformNodeID(markupsTransformNode->GetID());
     }
   }
   else
@@ -515,8 +513,6 @@ void vtkSlicerIhepStandGeometryLogic::UpdateFixedReferenceLineNode(vtkMRMLIhepSt
     return;
   }
 
-  vtkMRMLTransformNode* transformNode = this->UpdateFixedReferenceMarkupsTransform(parameterNode);
-
   // line markups node
   if (scene->GetFirstNodeByName(FIXEDREFERENCE_LINE_MARKUPS_NODE_NAME))
   {
@@ -524,8 +520,8 @@ void vtkSlicerIhepStandGeometryLogic::UpdateFixedReferenceLineNode(vtkMRMLIhepSt
       scene->GetFirstNodeByName(FIXEDREFERENCE_LINE_MARKUPS_NODE_NAME));
 
     // update points in line node
-    vtkVector3d p0( 5000., 0., 0.); // FixedBegin
-    vtkVector3d p2( -4000., 0., 0.); // FixedEnd
+    vtkVector3d p0( -4000., 0., 0.); // FixedBegin
+    vtkVector3d p2( 4000., 0., 0.); // FixedEnd
 
     // update pints
     double* p = lineMarkupsNode->GetNthControlPointPosition(0);
@@ -553,7 +549,7 @@ void vtkSlicerIhepStandGeometryLogic::UpdateFixedReferenceLineNode(vtkMRMLIhepSt
 
     if (markupsTransformNode)
     {
-      lineMarkupsNode->SetAndObserveTransformNodeID(transformNode->GetID());
+      lineMarkupsNode->SetAndObserveTransformNodeID(markupsTransformNode->GetID());
     }
   }
   else
@@ -1070,17 +1066,17 @@ void vtkSlicerIhepStandGeometryLogic::SetupTreatmentMachineModels(vtkMRMLIhepSta
       return;
     }
     // Transform to RAS, set transform to node, transform the model
-    rasToFixedReferenceLinearTransform->Concatenate(patientToRasTransform);
+//    rasToFixedReferenceLinearTransform->Concatenate(patientToRasTransform);
 
     // Update to new origin because of Patient to TableTop translate vector
     double PatientTableTopTranslation[4] = { 0., 0., 0., 1. };
     parameterNode->GetPatientToTableTopTranslation(PatientTableTopTranslation);
 
-    double pos[4] = {};
-    patientToRasTransform->MultiplyPoint( PatientTableTopTranslation, pos);
-    vtkWarningMacro("SetupTreatmentMachineModels: " << PatientTableTopTranslation[0] << " " <<
-      PatientTableTopTranslation[1] << " " << PatientTableTopTranslation[2] << " " <<
-      pos[0] << " " << pos[1] << " " << pos[2]);
+//    double pos[4] = {};
+//    patientToRasTransform->MultiplyPoint( PatientTableTopTranslation, pos);
+//    vtkWarningMacro("SetupTreatmentMachineModels: " << PatientTableTopTranslation[0] << " " <<
+//      PatientTableTopTranslation[1] << " " << PatientTableTopTranslation[2] << " " <<
+//      pos[0] << " " << pos[1] << " " << pos[2]);
 
     vtkNew<vtkTransform> patientSupportToFixedReferenceTransform;
     // Move to Origin
@@ -1089,10 +1085,12 @@ void vtkSlicerIhepStandGeometryLogic::SetupTreatmentMachineModels(vtkMRMLIhepSta
     patientSupportToFixedReferenceTransform->Translate( -1. * PatientTableTopTranslation[0], 
       -1. * PatientTableTopTranslation[1], -1. * PatientTableTopTranslation[2]);
     // Apply rotation matrix
+    patientSupportToFixedReferenceTransform->Concatenate(patientToRasTransform);
     patientSupportToFixedReferenceTransform->Concatenate(rasToFixedReferenceLinearTransform);
     // Move back
 //    patientSupportToFixedReferenceTransform->Translate(pos);
-    patientSupportToFixedReferenceTransform->Translate(PatientTableTopTranslation);
+    patientSupportToFixedReferenceTransform->Translate( 1. * PatientTableTopTranslation[0], 
+      1. * PatientTableTopTranslation[1], 1. * PatientTableTopTranslation[2]);
 
     // Find RasToFixedReferenceTransform or create it
     vtkSmartPointer<vtkMRMLLinearTransformNode> rasToFixedReferenceTransformNode;
@@ -1133,6 +1131,11 @@ void vtkSlicerIhepStandGeometryLogic::SetupTreatmentMachineModels(vtkMRMLIhepSta
     scene->GetFirstNodeByName(TABLETOPSTAND_FIDUCIALS_MARKUPS_NODE_NAME));
 
   this->UpdateTableTopStandFiducialNode(parameterNode);
+
+  if (pointsMarkupsNode)
+  {
+    this->UpdateTableTopStandPlaneNode(parameterNode, pointsMarkupsNode);
+  }
   this->UpdateFixedReferenceLineNode(parameterNode);
 }
 
@@ -1371,15 +1374,15 @@ vtkMRMLLinearTransformNode* vtkSlicerIhepStandGeometryLogic::UpdateFixedReferenc
       return nullptr;
     }
 
-    // Update to new origin because of Patient to TableTop translate vector
-    double PatientTableTopTranslation[3] = {};
-    parameterNode->GetPatientToTableTopTranslation(PatientTableTopTranslation);
-    vtkNew<vtkTransform> linearTransform;
-    linearTransform->Translate( -1. * PatientTableTopTranslation[0], 
-      -1. * PatientTableTopTranslation[1], -1. * PatientTableTopTranslation[2]);
-    linearTransform->Concatenate(rasToFixedReferenceTransform);
-    linearTransform->Translate(PatientTableTopTranslation);
+    vtkNew<vtkTransform> rasToPatientTransform;
+    rasToPatientTransform->Identity();
+    rasToPatientTransform->RotateX(-90.);
+    rasToPatientTransform->RotateZ(180.);
 
+    // Update transform for beam axis
+    vtkNew<vtkTransform> linearTransform;
+    linearTransform->Concatenate(rasToPatientTransform);
+    linearTransform->Concatenate(rasToFixedReferenceTransform);
     // Set transform to node
     transformNode->SetAndObserveTransformToParent(linearTransform);
   }
