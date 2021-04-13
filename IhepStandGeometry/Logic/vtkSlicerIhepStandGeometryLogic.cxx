@@ -1066,7 +1066,7 @@ void vtkSlicerIhepStandGeometryLogic::SetupTreatmentMachineModels(vtkMRMLIhepSta
       return;
     }
     // Transform to RAS, set transform to node, transform the model
-//    rasToFixedReferenceLinearTransform->Concatenate(patientToRasTransform);
+    rasToFixedReferenceLinearTransform->Concatenate(patientToRasTransform);
 
     // Update to new origin because of Patient to TableTop translate vector
     double PatientTableTopTranslation[4] = { 0., 0., 0., 1. };
@@ -1085,12 +1085,13 @@ void vtkSlicerIhepStandGeometryLogic::SetupTreatmentMachineModels(vtkMRMLIhepSta
     patientSupportToFixedReferenceTransform->Translate( -1. * PatientTableTopTranslation[0], 
       -1. * PatientTableTopTranslation[1], -1. * PatientTableTopTranslation[2]);
     // Apply rotation matrix
-    patientSupportToFixedReferenceTransform->Concatenate(patientToRasTransform);
+//    patientSupportToFixedReferenceTransform->Concatenate(patientToRasTransform);
     patientSupportToFixedReferenceTransform->Concatenate(rasToFixedReferenceLinearTransform);
     // Move back
 //    patientSupportToFixedReferenceTransform->Translate(pos);
     patientSupportToFixedReferenceTransform->Translate( 1. * PatientTableTopTranslation[0], 
       1. * PatientTableTopTranslation[1], 1. * PatientTableTopTranslation[2]);
+//    patientSupportToFixedReferenceTransform->Concatenate(patientToRasTransform);
 
     // Find RasToFixedReferenceTransform or create it
     vtkSmartPointer<vtkMRMLLinearTransformNode> rasToFixedReferenceTransformNode;
