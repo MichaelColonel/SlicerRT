@@ -407,7 +407,7 @@ void vtkSlicerIhepStandGeometryLogic::UpdateTableTopStandFiducialNode(vtkMRMLIhe
     vtkVector3d p2( 0., 
       2050. + parameterNode->GetTableTopVerticalPosition(), 
       -120. - 650. + parameterNode->GetTableTopVerticalPositionMiddle()); // Middle
-    vtkVector3d p3( 0., 0., 0.); // NewIso
+    vtkVector3d p3( 0., parameterNode->GetTableTopVerticalPosition(), 0.); // NewIso
     // update fiducials
     double* p = pointsMarkupsNode->GetNthControlPointPosition(0);
     if (p)
@@ -1096,8 +1096,8 @@ void vtkSlicerIhepStandGeometryLogic::SetupTreatmentMachineModels(vtkMRMLIhepSta
 //    vtkWarningMacro("SetupTreatmentMachineModels: " << pos1[0] << " " << pos1[1] << " " << pos1[2]);
 
     // Update to new origin because of Patient to TableTop translate vector
-//    double PatientTableTopTranslation[4] = { 0., 0., 0., 1. };
-//    parameterNode->GetPatientToTableTopTranslation(PatientTableTopTranslation);
+    double PatientTableTopTranslation[4] = { 0., 0., 0., 1. };
+    parameterNode->GetPatientToTableTopTranslation(PatientTableTopTranslation);
     vtkNew<vtkTransform> patientSupportToFixedReferenceTransform;
     // Move to Origin
 //    patientSupportToFixedReferenceTransform->Translate( -1. * pos1[0], 
