@@ -61,6 +61,7 @@
 // VTK includes
 #include <vtkSmartPointer.h>
 #include <vtkObjectFactory.h>
+#include <vtkMatrix4x4.h>
 #include <vtkTransform.h>
 #include <vtkAppendPolyData.h>
 #include <vtkPolyDataReader.h>
@@ -1077,7 +1078,7 @@ void vtkSlicerIhepStandGeometryLogic::SetupTreatmentMachineModels(vtkMRMLIhepSta
   // Transform path: RAS -> Patient -> TableTop -> TableTopStand -> PatientSupport -> FixedReference
   vtkNew<vtkGeneralTransform> rasToFixedReferenceGeneralTransform;
   vtkNew<vtkTransform> rasToFixedReferenceLinearTransform;
-  if (this->IhepLogic->GetTransformBetween( IHEP::RAS, IHEP::FixedReference, 
+  if (this->IhepLogic->GetTransformBetween( IHEP::RAS, IHEP::PatientSupport, 
     rasToFixedReferenceGeneralTransform, false))
   {
     // Convert general transform to linear
@@ -1111,14 +1112,16 @@ void vtkSlicerIhepStandGeometryLogic::SetupTreatmentMachineModels(vtkMRMLIhepSta
     tableTopStandFiducialNode->GetNthControlPointPositionWorld( 3, newIsoWorld);
     vtkMRMLMarkupsLineNode* fixedReferenceLineNode = vtkMRMLMarkupsLineNode::SafeDownCast(
         scene->GetFirstNodeByName(FIXEDREFERENCE_LINE_MARKUPS_NODE_NAME));
-    double pos[3];
-    fixedReferenceLineNode->GetNthControlPointPositionWorld( 1, pos);
+    double fixedIsoWorld[3] = {};
+    fixedReferenceLineNode->GetNthControlPointPositionWorld( 1, fixedIsoWorld);
 //    vtkTransform* fixedReferenceLineTransform = 
 //      vtkTransform::SafeDownCast(fixedReferenceLineTransformNode->GetTransformToParent());
 //    fixedReferenceLineTransform->MultiplyPoint( PatientTableTopTranslation, pos);
     vtkWarningMacro("UpdateTableTopStandFiducialNode: NewIsoWorld: " 
       << newIsoWorld[0] << " " << newIsoWorld[1] << " " << newIsoWorld[2] 
-      << " Pos: " << pos[0] << " " << pos[1] << " " << pos[2]);
+      << " Pos: " << fixedIsoWorld[0] << " " << fixedIsoWorld[1] << " " << fixedIsoWorld[2]
+      << " Diff: " << fixedIsoWorld[0] - newIsoWorld[0] << " " << fixedIsoWorld[1] - newIsoWorld[1]
+      << " " << fixedIsoWorld[2] - newIsoWorld[2]);
 /*
     vtkMRMLTransformNode* tableTopFiducialsTransformNode = vtkMRMLLinearTransformNode::SafeDownCast(
         scene->GetFirstNodeByName(TABLETOPSTAND_FIDUCIALS_TRANSFORM_NODE_NAME));
@@ -1142,6 +1145,13 @@ void vtkSlicerIhepStandGeometryLogic::SetupTreatmentMachineModels(vtkMRMLIhepSta
     // Apply rotation matrix
     patientSupportToFixedReferenceTransform->Concatenate(patientToRasTransform);
     patientSupportToFixedReferenceTransform->Concatenate(rasToFixedReferenceLinearTransform);
+//    vtkMatrix4x4* matrix = patientSupportToFixedReferenceTransform->GetMatrix();
+//    matrix->SetElement( 0, 3, newIsoWorld[0]);
+//    matrix->SetElement( 1, 3, newIsoWorld[1]);
+//    matrix->SetElement( 1, 3, newIsoWorld[2]);
+//    patientSupportToFixedReferenceTransform->Update();
+    
+//    patientSupportToFixedReferenceTransform->Translate( newIsoWorld[0]-fixedIsoWorld[0], 0., newIsoWorld[2]-fixedIsoWorld[2]);
     // Move back
 //    patientSupportToFixedReferenceTransform->Translate( 1. * pos1[0], 
 //      1. * pos1[1], 1. * pos1[2]);
@@ -1436,7 +1446,7 @@ vtkMRMLLinearTransformNode* vtkSlicerIhepStandGeometryLogic::UpdateFixedReferenc
   // Transformation path: RAS -> Patient -> TableTop -> TableTopVertical -> TableTopStand -> FixedReference
   vtkNew<vtkGeneralTransform> generalTransform;
   if (transformNode && this->IhepLogic->GetTransformBetween( IHEP::RAS, 
-    IHEP::FixedReference, generalTransform, false))
+    IHEP::PatientSupport, generalTransform, false))
   {
     // Convert general transform to linear
     // This call also makes hard copy of the transform so that it doesn't change when other beam transforms change
