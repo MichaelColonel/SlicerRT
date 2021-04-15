@@ -353,10 +353,10 @@ vtkMRMLMarkupsLineNode* vtkSlicerIhepStandGeometryLogic::CreateFixedReferenceLin
   {
     // add points to line node
     vtkVector3d p0( -4000., 0., 0.); // FixedBegin
-    vtkVector3d p2( 4000., 0., 0.); // FixedEnd
+    vtkVector3d p1( 0., 0., 0.); // FixedIsocenter
 
     lineMarkupsNode->AddControlPoint( p0, "FixedBegin");
-    lineMarkupsNode->AddControlPoint( p2, "FixedEnd");
+    lineMarkupsNode->AddControlPoint( p1, "FixedIsocenter");
 
     vtkMRMLTransformNode* transformNode = this->UpdateFixedReferenceMarkupsTransform(parameterNode);
 
@@ -533,7 +533,7 @@ void vtkSlicerIhepStandGeometryLogic::UpdateFixedReferenceLineNode(vtkMRMLIhepSt
 
     // update points in line node
     vtkVector3d p0( -4000., 0., 0.); // FixedBegin
-    vtkVector3d p2( 4000., 0., 0.); // FixedEnd
+    vtkVector3d p2( 0., 0., 0.); // FixedIsocenter
 
     // update pints
     double* p = lineMarkupsNode->GetNthControlPointPosition(0);
@@ -1104,7 +1104,22 @@ void vtkSlicerIhepStandGeometryLogic::SetupTreatmentMachineModels(vtkMRMLIhepSta
     /// To put PatientSupportRotation into FixedReference you must 
     /// Translate FixedLineMarkupsTransform to vector
     /// TableTopMarkupsTransform(0 ,0, 0) - FixedLineMarkupsTransform(0,0,0)
-    
+
+    vtkMRMLMarkupsFiducialNode* tableTopStandFiducialNode = vtkMRMLMarkupsFiducialNode::SafeDownCast(
+        scene->GetFirstNodeByName(TABLETOPSTAND_FIDUCIALS_MARKUPS_NODE_NAME));
+    double newIsoWorld[3] = {};
+    tableTopStandFiducialNode->GetNthControlPointPositionWorld( 3, newIsoWorld);
+    vtkMRMLMarkupsLineNode* fixedReferenceLineNode = vtkMRMLMarkupsLineNode::SafeDownCast(
+        scene->GetFirstNodeByName(FIXEDREFERENCE_LINE_MARKUPS_NODE_NAME));
+    double pos[3];
+    fixedReferenceLineNode->GetNthControlPointPositionWorld( 1, pos);
+//    vtkTransform* fixedReferenceLineTransform = 
+//      vtkTransform::SafeDownCast(fixedReferenceLineTransformNode->GetTransformToParent());
+//    fixedReferenceLineTransform->MultiplyPoint( PatientTableTopTranslation, pos);
+    vtkWarningMacro("UpdateTableTopStandFiducialNode: NewIsoWorld: " 
+      << newIsoWorld[0] << " " << newIsoWorld[1] << " " << newIsoWorld[2] 
+      << " Pos: " << pos[0] << " " << pos[1] << " " << pos[2]);
+/*
     vtkMRMLTransformNode* tableTopFiducialsTransformNode = vtkMRMLLinearTransformNode::SafeDownCast(
         scene->GetFirstNodeByName(TABLETOPSTAND_FIDUCIALS_TRANSFORM_NODE_NAME));
     vtkMRMLTransformNode* fixedReferenceLineTransformNode = vtkMRMLLinearTransformNode::SafeDownCast(
@@ -1120,7 +1135,7 @@ void vtkSlicerIhepStandGeometryLogic::SetupTreatmentMachineModels(vtkMRMLIhepSta
       << pos1[0] << " " << pos1[1] << " " << pos1[2] 
       << " " << pos2[0] << " " << pos2[1] << " " << pos2[2]
       << " " << dist[0] << " " << dist[1] << " " << dist[2]);
-
+*/
     // Move to Origin
 //    patientSupportToFixedReferenceTransform->Translate( -1. * pos1[0], 
 //      -1. * pos1[1], -1. * pos1[2]);
