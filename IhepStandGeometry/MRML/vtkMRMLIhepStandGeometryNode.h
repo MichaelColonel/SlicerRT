@@ -25,12 +25,7 @@
 #include <vtkMRML.h>
 #include <vtkMRMLNode.h>
 
-class vtkMRMLLinearTransformNode;
 class vtkMRMLRTBeamNode;
-class vtkMRMLMarkupsClosedCurveNode;
-class vtkMRMLMarkupsFiducialNode;
-class vtkMRMLMarkupsLineNode;
-
 class vtkMRMLSegmentationNode;
 class vtkMRMLScalarVolumeNode;
 
@@ -62,7 +57,9 @@ public:
   /// Get unique node XML tag name
   const char* GetNodeTagName() override { return "IhepStandGeometry"; };
 
-public:
+  /// Reset position parameters of the node
+  void ResetModelsToInitialPositions();
+
   /// Get beam node
   vtkMRMLRTBeamNode* GetBeamNode();
   /// Set and observe beam node. This updates Normal and View-Up vectors.
@@ -132,7 +129,6 @@ protected:
   vtkMRMLIhepStandGeometryNode(const vtkMRMLIhepStandGeometryNode&);
   void operator=(const vtkMRMLIhepStandGeometryNode&);
 
-protected:
   /// Patient body segment ID in selected segmentation node
   char* PatientBodySegmentID;
 

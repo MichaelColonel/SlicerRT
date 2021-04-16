@@ -205,6 +205,23 @@ void vtkMRMLIhepStandGeometryNode::PrintSelf(ostream& os, vtkIndent indent)
   vtkMRMLPrintEndMacro(); 
 }
 
+void vtkMRMLIhepStandGeometryNode::ResetModelsToInitialPositions()
+{
+  PatientSupportRotationAngle = 0.;
+  TableTopVerticalPosition = 0.;
+  TableTopVerticalPositionOrigin = 0.;
+  TableTopVerticalPositionMirror = 0.;
+  TableTopVerticalPositionMiddle = 0.;
+  TableTopLongitudinalPosition = 0.;
+  TableTopLateralPosition = 0.;
+  TableTopLongitudinalAngle = 0.;
+  TableTopLateralAngle = 0.;
+  PatientToTableTopTranslation[0] = 0.,
+  PatientToTableTopTranslation[1] = 0.,
+  PatientToTableTopTranslation[2] = 0.,
+  UseStandCoordinateSystem = false;
+}
+
 //----------------------------------------------------------------------------
 vtkMRMLRTBeamNode* vtkMRMLIhepStandGeometryNode::GetBeamNode()
 {

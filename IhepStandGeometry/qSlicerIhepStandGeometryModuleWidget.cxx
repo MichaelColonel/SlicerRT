@@ -188,7 +188,9 @@ void qSlicerIhepStandGeometryModuleWidget::onLoadStandModelsButtonClicked()
 
   // Load and setup models
   parameterNode->SetTreatmentMachineType("IHEPStand");
+
   d->logic()->LoadTreatmentMachineModels(parameterNode);
+  d->logic()->ResetModelsToInitialPosition(parameterNode);
 }
 
 //-----------------------------------------------------------------------------
@@ -209,7 +211,6 @@ void qSlicerIhepStandGeometryModuleWidget::onResetToInitialPositionButtonClicked
   }
 
   d->logic()->ResetModelsToInitialPosition(parameterNode);
- // qDebug() << Q_FUNC_INFO << ": finished";
 }
 
 //-----------------------------------------------------------------------------
@@ -229,11 +230,16 @@ void qSlicerIhepStandGeometryModuleWidget::onPatientTableTopTranslationChanged(d
     return;
   }
 
+  parameterNode->DisableModifiedEventOn();
   parameterNode->SetPatientToTableTopTranslation(position);
+  parameterNode->DisableModifiedEventOff();
 
   d->logic()->UpdatePatientToTableTopTransform(parameterNode);
+  
+  parameterNode->Modified();
+  
+  // Update in logic
   d->logic()->SetupTreatmentMachineModels(parameterNode);
-//  qDebug() << Q_FUNC_INFO << ": finished";
 }
 
 //-----------------------------------------------------------------------------
@@ -253,11 +259,15 @@ void qSlicerIhepStandGeometryModuleWidget::onTableTopVerticalPositionChanged(dou
     return;
   }
 
+  parameterNode->DisableModifiedEventOn();
   parameterNode->SetTableTopVerticalPosition(position);
+  parameterNode->DisableModifiedEventOff();
 
   d->logic()->UpdateTableTopVerticalToTableTopStandTransform(parameterNode);
+  parameterNode->Modified();
+  
+  // Update in logic
   d->logic()->SetupTreatmentMachineModels(parameterNode);
-//  qDebug() << Q_FUNC_INFO << ": finished";
 }
 
 //-----------------------------------------------------------------------------
@@ -277,12 +287,14 @@ void qSlicerIhepStandGeometryModuleWidget::onTableTopVerticalMiddlePositionChang
     return;
   }
 
+  parameterNode->DisableModifiedEventOn();
   parameterNode->SetTableTopVerticalPositionMiddle(position);
+  parameterNode->DisableModifiedEventOff();
 
-//  d->logic()->UpdateTableTopStandFiducialNode(parameterNode);
-//  d->logic()->UpdateFixedReferenceLineNode(parameterNode);
+  parameterNode->Modified();
+
+  // Update Middle TableTop markups
   d->logic()->SetupTreatmentMachineModels(parameterNode);
-//  qDebug() << Q_FUNC_INFO << ": finished";
 }
 
 //-----------------------------------------------------------------------------
@@ -302,11 +314,14 @@ void qSlicerIhepStandGeometryModuleWidget::onTableTopVerticalMirrorPositionChang
     return;
   }
 
+  parameterNode->DisableModifiedEventOn();
   parameterNode->SetTableTopVerticalPositionMirror(position);
-//  d->logic()->UpdateTableTopStandFiducialNode(parameterNode);
-//  d->logic()->UpdateFixedReferenceLineNode(parameterNode);
+  parameterNode->DisableModifiedEventOn();
+  
+  parameterNode->Modified();
+
+  // Update Mirror TableTop markups
   d->logic()->SetupTreatmentMachineModels(parameterNode);
-//  qDebug() << Q_FUNC_INFO << ": finished";
 }
 
 //-----------------------------------------------------------------------------
@@ -326,11 +341,14 @@ void qSlicerIhepStandGeometryModuleWidget::onTableTopVerticalOriginPositionChang
     return;
   }
 
+  parameterNode->DisableModifiedEventOn();
   parameterNode->SetTableTopVerticalPositionOrigin(position);
-//  d->logic()->UpdateTableTopStandMarkupsTransform(parameterNode);
-//  d->logic()->UpdateFixedReferenceLineNode(parameterNode);
+  parameterNode->DisableModifiedEventOff();
+
+  parameterNode->Modified();
+
+  // Update Origin TableTop markups
   d->logic()->SetupTreatmentMachineModels(parameterNode);
-//  qDebug() << Q_FUNC_INFO << ": finished";
 }
 
 //-----------------------------------------------------------------------------
@@ -350,13 +368,14 @@ void qSlicerIhepStandGeometryModuleWidget::onTableTopStandLongitudinalPositionCh
     return;
   }
 
+  parameterNode->DisableModifiedEventOn();
   parameterNode->SetTableTopLongitudinalPosition(position);
-  // update table top stand to patient support rotation transform
+  parameterNode->DisableModifiedEventOff();
+  
   d->logic()->UpdateTableTopStandToPatientSupportTransform(parameterNode);
-//  d->logic()->UpdateTableTopStandFiducialNode(parameterNode);
-//  d->logic()->UpdateFixedReferenceLineNode(parameterNode);
+
+  // Update in logic
   d->logic()->SetupTreatmentMachineModels(parameterNode);
-//  qDebug() << Q_FUNC_INFO << ": finished";
 }
 
 //-----------------------------------------------------------------------------
@@ -376,13 +395,17 @@ void qSlicerIhepStandGeometryModuleWidget::onTableTopStandLateralPositionChanged
     return;
   }
 
+  parameterNode->DisableModifiedEventOn();
   parameterNode->SetTableTopLateralPosition(position);
+  parameterNode->DisableModifiedEventOff();
+
   // update table top stand to patient support rotation transform
   d->logic()->UpdateTableTopStandToPatientSupportTransform(parameterNode);
-//  d->logic()->UpdateTableTopStandFiducialNode(parameterNode);
-//  d->logic()->UpdateFixedReferenceLineNode(parameterNode);
+
+  parameterNode->Modified();
+
+  // Update in logic
   d->logic()->SetupTreatmentMachineModels(parameterNode);
-//  qDebug() << Q_FUNC_INFO << ": finished";
 }
 
 //-----------------------------------------------------------------------------
@@ -402,13 +425,17 @@ void qSlicerIhepStandGeometryModuleWidget::onPatientSupportFixedReferenceAngleCh
     return;
   }
 
+  parameterNode->DisableModifiedEventOn();
   parameterNode->SetPatientSupportRotationAngle(angle);
+  parameterNode->DisableModifiedEventOff();
+
   // update table top stand to patient support rotation transform
   d->logic()->UpdatePatientSupportToFixedReferenceTransform(parameterNode);
-//  d->logic()->UpdateFixedReferenceLineNode(parameterNode);
-//  d->logic()->UpdateMarkupsNodes(parameterNode);
+
+  parameterNode->Modified();
+
+  // Update in logic
   d->logic()->SetupTreatmentMachineModels(parameterNode);
-//  qDebug() << Q_FUNC_INFO << ": finished";
 }
 
 //-----------------------------------------------------------------------------
@@ -461,9 +488,9 @@ void qSlicerIhepStandGeometryModuleWidget::exit()
 {
   Q_D(qSlicerIhepStandGeometryModuleWidget);
   this->Superclass::exit();
-//  d->logic()->RestoreOriginalGeometryTransformHierarchy();
+
   d->Label_BevOrientation->setText("");
-  qDebug() << Q_FUNC_INFO << ": method exit";
+  qDebug() << Q_FUNC_INFO << ": method finished";
 }
 
 //-----------------------------------------------------------------------------
@@ -491,11 +518,16 @@ void qSlicerIhepStandGeometryModuleWidget::onEnter()
     parameterNode = vtkMRMLIhepStandGeometryNode::SafeDownCast(node);
   }
 
+  if (parameterNode)
+  {
+    ;
+  }
+
   this->updateWidgetFromMRML();
 
   // All required data for GUI is initiated
   d->ModuleWindowInitialized = true;
-  qDebug() << Q_FUNC_INFO << ": module window initiated ";
+  qDebug() << Q_FUNC_INFO << ": module window initiated";
 }
 
 //-----------------------------------------------------------------------------
@@ -546,8 +578,6 @@ void qSlicerIhepStandGeometryModuleWidget::updateWidgetFromMRML()
   parameterNode->GetPatientToTableTopTranslation(patientToTableTopTranslation);
 
   d->CoordinatesWidget_PatientTableTopTranslation->setCoordinates(patientToTableTopTranslation);
-
-  qDebug() << Q_FUNC_INFO << ": finished";
 }
 
 //-----------------------------------------------------------------------------
@@ -591,7 +621,6 @@ void qSlicerIhepStandGeometryModuleWidget::setParameterNode(vtkMRMLNode* node)
     }
   }
   this->updateWidgetFromMRML();
-  qDebug() << Q_FUNC_INFO << ": finished";
 }
 
 /// RTBeam Node (RTBeam or RTIonBeam) changed
@@ -665,11 +694,11 @@ void qSlicerIhepStandGeometryModuleWidget::onRTBeamNodeChanged(vtkMRMLNode* node
     return;
   }
   
+  parameterNode->DisableModifiedEventOn();
   parameterNode->SetAndObserveBeamNode(beamNode);
-  parameterNode->Modified();
-  qDebug() << Q_FUNC_INFO << beamNode->GetName() << ": finished";
+  parameterNode->DisableModifiedEventOff();
 
-//  d->logic()->CalculateAngles(parameterNode);
+  parameterNode->Modified();
 }
 
 //-----------------------------------------------------------------------------
@@ -692,9 +721,11 @@ void qSlicerIhepStandGeometryModuleWidget::onReferenceVolumeNodeChanged(vtkMRMLN
     return;
   }
   
+  parameterNode->DisableModifiedEventOn();
   parameterNode->SetAndObserveReferenceVolumeNode(volumeNode);
+  parameterNode->DisableModifiedEventOff();
+
   parameterNode->Modified();
-  qDebug() << Q_FUNC_INFO << ": finished";
 }
 
 //-----------------------------------------------------------------------------
@@ -717,9 +748,11 @@ void qSlicerIhepStandGeometryModuleWidget::onPatientBodySegmentationNodeChanged(
     return;
   }
 
+  parameterNode->DisableModifiedEventOn();
   parameterNode->SetAndObservePatientBodySegmentationNode(segmentationNode);
+  parameterNode->DisableModifiedEventOff();
+
   parameterNode->Modified();
-  qDebug() << Q_FUNC_INFO << ": finished";
 }
 
 //-----------------------------------------------------------------------------
@@ -743,9 +776,12 @@ void qSlicerIhepStandGeometryModuleWidget::onPatientBodySegmentNameChanged(const
 
   QByteArray byteString = bodySegmentName.toLatin1();
   const char* name = byteString.constData();
+
+  parameterNode->DisableModifiedEventOn();
   parameterNode->SetPatientBodySegmentID(name);
+  parameterNode->DisableModifiedEventOff();
+
   parameterNode->Modified();
-  qDebug() << Q_FUNC_INFO << ": finished";
 }
 
 //-----------------------------------------------------------------------------
@@ -753,7 +789,6 @@ void qSlicerIhepStandGeometryModuleWidget::onSceneClosedEvent()
 {
   Q_D(qSlicerIhepStandGeometryModuleWidget);
   this->updateWidgetFromMRML();
-  qDebug() << Q_FUNC_INFO << ": finished";
 }
 
 //-----------------------------------------------------------------------------
@@ -761,7 +796,6 @@ void qSlicerIhepStandGeometryModuleWidget::onSceneImportedEvent()
 {
   Q_D(qSlicerIhepStandGeometryModuleWidget);
   this->onEnter();
-  qDebug() << Q_FUNC_INFO << ": finished";
 }
 
 //-----------------------------------------------------------------------------
@@ -791,7 +825,6 @@ void qSlicerIhepStandGeometryModuleWidget::setMRMLScene(vtkMRMLScene* scene)
       this->setParameterNode(newNode);
     }
   }
-  qDebug() << Q_FUNC_INFO << ": finished";
 }
 
 //-----------------------------------------------------------------------------
