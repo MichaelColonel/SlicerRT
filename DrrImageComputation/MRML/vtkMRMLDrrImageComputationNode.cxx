@@ -69,8 +69,8 @@ vtkMRMLDrrImageComputationNode::vtkMRMLDrrImageComputationNode()
   ImageCenter[0] = ImageWindow[0] + (ImageWindow[2] - ImageWindow[0]) / 2.f; // column
   ImageCenter[1] = ImageWindow[1] + (ImageWindow[3] - ImageWindow[1]) / 2.f; // row
 
-  AlgorithmReconstuction = UNIFORM;
-  HUConversion = PREPROCESS;
+  AlgorithmReconstuction = Uniform;
+  HUConversion = Preprocess;
   Threading = CPU;
   ExponentialMappingFlag = true;
   AutoscaleFlag = true;
@@ -79,6 +79,7 @@ vtkMRMLDrrImageComputationNode::vtkMRMLDrrImageComputationNode()
   InvertIntensityFlag = false;
 
   IsocenterImagerDistance = 300.;
+  HUThresholdBelow = -1000;
 }
 
 //----------------------------------------------------------------------------
@@ -108,6 +109,7 @@ void vtkMRMLDrrImageComputationNode::WriteXML(ostream& of, int nIndent)
   vtkMRMLWriteXMLVectorMacro(AutoscaleRange, AutoscaleRange, float, 2); 
   vtkMRMLWriteXMLIntMacro(AlgorithmReconstuction, AlgorithmReconstuction);
   vtkMRMLWriteXMLIntMacro(HUConversion, HUConversion);
+  vtkMRMLWriteXMLIntMacro(HUThresholdBelow, HUThresholdBelow);
   vtkMRMLWriteXMLIntMacro(Threading, Threading);
   // add new parameters here
   vtkMRMLWriteXMLEndMacro(); 
@@ -135,6 +137,7 @@ void vtkMRMLDrrImageComputationNode::ReadXMLAttributes(const char** atts)
   vtkMRMLReadXMLVectorMacro(AutoscaleRange, AutoscaleRange, float, 2);
   vtkMRMLReadXMLIntMacro(AlgorithmReconstuction, AlgorithmReconstuction);
   vtkMRMLReadXMLIntMacro(HUConversion, HUConversion);
+  vtkMRMLReadXMLIntMacro(HUThresholdBelow, HUThresholdBelow);
   vtkMRMLReadXMLIntMacro(Threading, Threading);
   // add new parameters here
   vtkMRMLReadXMLEndMacro();
@@ -176,6 +179,7 @@ void vtkMRMLDrrImageComputationNode::Copy(vtkMRMLNode *anode)
   vtkMRMLCopyVectorMacro(AutoscaleRange, float, 2);
   vtkMRMLCopyIntMacro(AlgorithmReconstuction);
   vtkMRMLCopyIntMacro(HUConversion);
+  vtkMRMLCopyIntMacro(HUThresholdBelow);
   vtkMRMLCopyIntMacro(Threading);
   // add new parameters here
   vtkMRMLCopyEndMacro(); 
@@ -213,6 +217,7 @@ void vtkMRMLDrrImageComputationNode::CopyContent(vtkMRMLNode *anode, bool deepCo
   vtkMRMLCopyVectorMacro(AutoscaleRange, float, 2);
   vtkMRMLCopyIntMacro(AlgorithmReconstuction);
   vtkMRMLCopyIntMacro(HUConversion);
+  vtkMRMLCopyIntMacro(HUThresholdBelow);
   vtkMRMLCopyIntMacro(Threading);
   // add new parameters here
   vtkMRMLCopyEndMacro();
@@ -239,6 +244,7 @@ void vtkMRMLDrrImageComputationNode::PrintSelf(ostream& os, vtkIndent indent)
   vtkMRMLPrintVectorMacro(AutoscaleRange, float, 2);
   vtkMRMLPrintIntMacro(AlgorithmReconstuction);
   vtkMRMLPrintIntMacro(HUConversion);
+  vtkMRMLPrintIntMacro(HUThresholdBelow);
   vtkMRMLPrintIntMacro(Threading);
   // add new parameters here
   vtkMRMLPrintEndMacro(); 
@@ -286,11 +292,11 @@ void vtkMRMLDrrImageComputationNode::SetAlgorithmReconstuction(int algorithmReco
   switch (algorithmReconstuction)
   {
     case 1:
-      SetAlgorithmReconstuction(PlastimatchAlgorithmReconstuctionType::UNIFORM);
+      SetAlgorithmReconstuction(PlastimatchAlgorithmReconstuctionType::Uniform);
       break;
     case 0:
     default:
-      SetAlgorithmReconstuction(PlastimatchAlgorithmReconstuctionType::EXACT);
+      SetAlgorithmReconstuction(PlastimatchAlgorithmReconstuctionType::Exact);
       break;
   };
 }
@@ -301,14 +307,14 @@ void vtkMRMLDrrImageComputationNode::SetHUConversion(int huConvension)
   switch (huConvension)
   {
     case 1:
-      SetHUConversion(PlastimatchHounsfieldUnitsConversionType::INLINE);
+      SetHUConversion(PlastimatchHounsfieldUnitsConversionType::Inline);
       break;
     case 2:
-      SetHUConversion(PlastimatchHounsfieldUnitsConversionType::NONE);
+      SetHUConversion(PlastimatchHounsfieldUnitsConversionType::None);
       break;
     case 0:
     default:
-      SetHUConversion(PlastimatchHounsfieldUnitsConversionType::PREPROCESS);
+      SetHUConversion(PlastimatchHounsfieldUnitsConversionType::Preprocess);
       break;
   };
 }
@@ -322,7 +328,7 @@ void vtkMRMLDrrImageComputationNode::SetThreading(int threading)
       SetThreading(PlastimatchThreadingType::CUDA);
       break;
     case 2:
-      SetThreading(PlastimatchThreadingType::OPENCL);
+      SetThreading(PlastimatchThreadingType::OpenCL);
       break;
     case 0:
     default:

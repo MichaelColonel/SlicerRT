@@ -78,15 +78,25 @@ void qSlicerDrrImageComputationPlastimatchParametersWidgetPrivate::init()
   QObject::connect( this->RangeWidget_IntensityRange, SIGNAL(valuesChanged( double, double)), 
     q, SLOT(onAutoscaleIntensityRangeChanged( double, double)));
 
-  // Buttons
-  QObject::connect( this->CheckBox_UseExponentialMapping, SIGNAL(toggled(bool)), q, SLOT(onUseExponentialMappingToggled(bool)));
-  QObject::connect( this->CheckBox_AutoscaleIntensity, SIGNAL(toggled(bool)), q, SLOT(onAutoscalePixelsRangeToggled(bool)));
-  QObject::connect( this->CheckBox_InvertIntensity, SIGNAL(toggled(bool)), q, SLOT(onInvertIntensityToggled(bool)));
+  // Slicer widgets
+  QObject::connect( this->SliderWidget_HounsfieldThreshold, SIGNAL(valueChanged(double)), 
+    q, SLOT(onHUThresholdChanged(double)));
 
-  // Button groups
-  QObject::connect( this->ButtonGroup_ReconstructAlgorithm, SIGNAL(buttonClicked(int)), q, SLOT(onReconstructionAlgorithmChanged(int)));
-  QObject::connect( this->ButtonGroup_Threading, SIGNAL(buttonClicked(int)), q, SLOT(onThreadingChanged(int)));
-  QObject::connect( this->ButtonGroup_HuConversion, SIGNAL(buttonClicked(int)), q, SLOT(onHUConversionChanged(int)));
+  // Buttons
+  QObject::connect( this->CheckBox_UseExponentialMapping, SIGNAL(toggled(bool)), 
+    q, SLOT(onUseExponentialMappingToggled(bool)));
+  QObject::connect( this->CheckBox_AutoscaleIntensity, SIGNAL(toggled(bool)), 
+    q, SLOT(onAutoscalePixelsRangeToggled(bool)));
+  QObject::connect( this->CheckBox_InvertIntensity, SIGNAL(toggled(bool)), 
+    q, SLOT(onInvertIntensityToggled(bool)));
+
+  // Combo Boxes
+  QObject::connect( this->ComboBox_ReconstructionAlgorithm, SIGNAL(currentIndexChanged(int)), 
+    q, SLOT(onReconstructionAlgorithmChanged(int)));
+  QObject::connect( this->ComboBox_Threading, SIGNAL(currentIndexChanged(int)), 
+    q, SLOT(onThreadingChanged(int)));
+  QObject::connect( this->ComboBox_HounsfieldConversion, SIGNAL(currentIndexChanged(int)), 
+    q, SLOT(onHUConversionChanged(int)));
 }
 
 //-----------------------------------------------------------------------------
@@ -142,14 +152,15 @@ void qSlicerDrrImageComputationPlastimatchParametersWidget::updateWidgetFromMRML
   float autoscaleRange[2] = { 0.f, 255.f };
   d->ParameterNode->GetAutoscaleRange(autoscaleRange);
   d->RangeWidget_IntensityRange->setValues( autoscaleRange[0], autoscaleRange[1]);
+  d->SliderWidget_HounsfieldThreshold->setValue(double(d->ParameterNode->GetHUThresholdBelow()));
 
   switch (d->ParameterNode->GetAlgorithmReconstuction())
   {
-    case vtkMRMLDrrImageComputationNode::PlastimatchAlgorithmReconstuctionType::EXACT:
-      d->RadioButton_Exact->setChecked(true);
+    case vtkMRMLDrrImageComputationNode::Exact:
+      d->ComboBox_ReconstructionAlgorithm->setCurrentIndex(0);
       break;
-    case vtkMRMLDrrImageComputationNode::PlastimatchAlgorithmReconstuctionType::UNIFORM:
-      d->RadioButton_Uniform->setChecked(true);
+    case vtkMRMLDrrImageComputationNode::Uniform:
+      d->ComboBox_ReconstructionAlgorithm->setCurrentIndex(1);
       break;
     default:
       break;
@@ -157,14 +168,14 @@ void qSlicerDrrImageComputationPlastimatchParametersWidget::updateWidgetFromMRML
 
   switch (d->ParameterNode->GetHUConversion())
   {
-    case vtkMRMLDrrImageComputationNode::PlastimatchHounsfieldUnitsConversionType::PREPROCESS:
-      d->RadioButton_Preprocess->setChecked(true);
+    case vtkMRMLDrrImageComputationNode::Preprocess:
+      d->ComboBox_HounsfieldConversion->setCurrentIndex(0);
       break;
-    case vtkMRMLDrrImageComputationNode::PlastimatchHounsfieldUnitsConversionType::INLINE:
-      d->RadioButton_Inline->setChecked(true);
+    case vtkMRMLDrrImageComputationNode::Inline:
+      d->ComboBox_HounsfieldConversion->setCurrentIndex(1);
       break;
-    case vtkMRMLDrrImageComputationNode::PlastimatchHounsfieldUnitsConversionType::NONE:
-      d->RadioButton_None->setChecked(true);
+    case vtkMRMLDrrImageComputationNode::None:
+      d->ComboBox_HounsfieldConversion->setCurrentIndex(2);
       break;
     default:
       break;
@@ -172,14 +183,14 @@ void qSlicerDrrImageComputationPlastimatchParametersWidget::updateWidgetFromMRML
 
   switch (d->ParameterNode->GetThreading())
   {
-    case vtkMRMLDrrImageComputationNode::PlastimatchThreadingType::CPU:
-      d->RadioButton_CPU->setChecked(true);
+    case vtkMRMLDrrImageComputationNode::CPU:
+      d->ComboBox_Threading->setCurrentIndex(0);
       break;
-    case vtkMRMLDrrImageComputationNode::PlastimatchThreadingType::CUDA:
-      d->RadioButton_CUDA->setChecked(true);
+    case vtkMRMLDrrImageComputationNode::CUDA:
+      d->ComboBox_Threading->setCurrentIndex(1);
       break;
-    case vtkMRMLDrrImageComputationNode::PlastimatchThreadingType::OPENCL:
-      d->RadioButton_OpenCL->setChecked(true);
+    case vtkMRMLDrrImageComputationNode::OpenCL:
+      d->ComboBox_Threading->setCurrentIndex(2);
       break;
     default:
       break;
@@ -188,7 +199,7 @@ void qSlicerDrrImageComputationPlastimatchParametersWidget::updateWidgetFromMRML
 }
 
 //-----------------------------------------------------------------------------
-void qSlicerDrrImageComputationPlastimatchParametersWidget::onReconstructionAlgorithmChanged(int button_id)
+void qSlicerDrrImageComputationPlastimatchParametersWidget::onReconstructionAlgorithmChanged(int id)
 {
   Q_D(qSlicerDrrImageComputationPlastimatchParametersWidget);
 
@@ -198,26 +209,22 @@ void qSlicerDrrImageComputationPlastimatchParametersWidget::onReconstructionAlgo
     return;
   }
 
-  QAbstractButton* button = d->ButtonGroup_ReconstructAlgorithm->button(button_id);
-  QRadioButton* rbutton = qobject_cast<QRadioButton*>(button);
-
-  if (rbutton == d->RadioButton_Exact)
+  switch (id)
   {
-    d->ParameterNode->SetAlgorithmReconstuction(vtkMRMLDrrImageComputationNode::PlastimatchAlgorithmReconstuctionType::EXACT);
-  }
-  else if (rbutton == d->RadioButton_Uniform)
-  {
-    d->ParameterNode->SetAlgorithmReconstuction(vtkMRMLDrrImageComputationNode::PlastimatchAlgorithmReconstuctionType::UNIFORM);
-  }
-  else
-  {
+  case 0:
+    d->ParameterNode->SetAlgorithmReconstuction(vtkMRMLDrrImageComputationNode::Exact);
+    break;
+  case 1:
+    d->ParameterNode->SetAlgorithmReconstuction(vtkMRMLDrrImageComputationNode::Uniform);
+    break;
+  default:
     qWarning() << Q_FUNC_INFO << ": Invalid reconstruct algorithm button id";
-    return;
+    break;
   }
 }
 
 //-----------------------------------------------------------------------------
-void qSlicerDrrImageComputationPlastimatchParametersWidget::onThreadingChanged(int button_id)
+void qSlicerDrrImageComputationPlastimatchParametersWidget::onThreadingChanged(int id)
 {
   Q_D(qSlicerDrrImageComputationPlastimatchParametersWidget);
 
@@ -227,30 +234,25 @@ void qSlicerDrrImageComputationPlastimatchParametersWidget::onThreadingChanged(i
     return;
   }
 
-  QAbstractButton* button = d->ButtonGroup_Threading->button(button_id);
-  QRadioButton* rbutton = qobject_cast<QRadioButton*>(button);
-
-  if (rbutton == d->RadioButton_CPU)
+  switch (id)
   {
-    d->ParameterNode->SetThreading(vtkMRMLDrrImageComputationNode::PlastimatchThreadingType::CPU);
-  }
-  else if (rbutton == d->RadioButton_CUDA)
-  {
-    d->ParameterNode->SetThreading(vtkMRMLDrrImageComputationNode::PlastimatchThreadingType::CUDA);
-  }
-  else if (rbutton == d->RadioButton_OpenCL)
-  {
-    d->ParameterNode->SetThreading(vtkMRMLDrrImageComputationNode::PlastimatchThreadingType::OPENCL);
-  }
-  else
-  {
+  case 0:
+    d->ParameterNode->SetThreading(vtkMRMLDrrImageComputationNode::CPU);
+    break;
+  case 1:
+    d->ParameterNode->SetThreading(vtkMRMLDrrImageComputationNode::CUDA);
+    break;
+  case 2:
+    d->ParameterNode->SetThreading(vtkMRMLDrrImageComputationNode::OpenCL);
+    break;
+  default:
     qWarning() << Q_FUNC_INFO << ": Invalid threading button id";
-    return;
+    break;
   }
 }
 
 //-----------------------------------------------------------------------------
-void qSlicerDrrImageComputationPlastimatchParametersWidget::onHUConversionChanged(int button_id)
+void qSlicerDrrImageComputationPlastimatchParametersWidget::onHUConversionChanged(int id)
 {
   Q_D(qSlicerDrrImageComputationPlastimatchParametersWidget);
 
@@ -260,25 +262,20 @@ void qSlicerDrrImageComputationPlastimatchParametersWidget::onHUConversionChange
     return;
   }
 
-  QAbstractButton* button = d->ButtonGroup_HuConversion->button(button_id);
-  QRadioButton* rbutton = qobject_cast<QRadioButton*>(button);
-
-  if (rbutton == d->RadioButton_None)
+  switch (id)
   {
-    d->ParameterNode->SetHUConversion(vtkMRMLDrrImageComputationNode::PlastimatchHounsfieldUnitsConversionType::NONE);
-  }
-  else if (rbutton == d->RadioButton_Inline)
-  {
-    d->ParameterNode->SetHUConversion(vtkMRMLDrrImageComputationNode::PlastimatchHounsfieldUnitsConversionType::INLINE);
-  }
-  else if (rbutton == d->RadioButton_Preprocess)
-  {
-    d->ParameterNode->SetHUConversion(vtkMRMLDrrImageComputationNode::PlastimatchHounsfieldUnitsConversionType::PREPROCESS);
-  }
-  else
-  {
+  case 0:
+    d->ParameterNode->SetHUConversion(vtkMRMLDrrImageComputationNode::None);
+    break;
+  case 1:
+    d->ParameterNode->SetHUConversion(vtkMRMLDrrImageComputationNode::Inline);
+    break;
+  case 2:
+    d->ParameterNode->SetHUConversion(vtkMRMLDrrImageComputationNode::Preprocess);
+    break;
+  default:
     qWarning() << Q_FUNC_INFO << ": Invalid Hounsfield units conversion button id";
-    return;
+    break;
   }
 }
 
@@ -308,6 +305,20 @@ void qSlicerDrrImageComputationPlastimatchParametersWidget::onAutoscalePixelsRan
   }
 
   d->ParameterNode->SetAutoscaleFlag(value);
+}
+
+//-----------------------------------------------------------------------------
+void qSlicerDrrImageComputationPlastimatchParametersWidget::onHUThresholdChanged(double value)
+{
+  Q_D(qSlicerDrrImageComputationPlastimatchParametersWidget);
+
+  if (!d->ParameterNode)
+  {
+    qCritical() << Q_FUNC_INFO << ": Invalid parameter node";
+    return;
+  }
+
+  d->ParameterNode->SetHUThresholdBelow(static_cast<int>(value));
 }
 
 //-----------------------------------------------------------------------------
@@ -359,13 +370,13 @@ void qSlicerDrrImageComputationPlastimatchParametersWidget::updatePlastimatchDrr
   command << "plastimatch drr ";
   switch (d->ParameterNode->GetThreading())
   {
-    case vtkMRMLDrrImageComputationNode::PlastimatchThreadingType::CPU:
+    case vtkMRMLDrrImageComputationNode::CPU:
       command << "-A cpu \\\n";
       break;
-    case vtkMRMLDrrImageComputationNode::PlastimatchThreadingType::CUDA:
+    case vtkMRMLDrrImageComputationNode::CUDA:
       command << "-A cuda \\\n";
       break;
-    case vtkMRMLDrrImageComputationNode::PlastimatchThreadingType::OPENCL:
+    case vtkMRMLDrrImageComputationNode::OpenCL:
       command << "-A opencl \\\n";
       break;
     default:
@@ -425,10 +436,10 @@ void qSlicerDrrImageComputationPlastimatchParametersWidget::updatePlastimatchDrr
 
   switch (d->ParameterNode->GetAlgorithmReconstuction())
   {
-    case vtkMRMLDrrImageComputationNode::PlastimatchAlgorithmReconstuctionType::EXACT:
+    case vtkMRMLDrrImageComputationNode::Exact:
       command << "-i exact ";
       break;
-    case vtkMRMLDrrImageComputationNode::PlastimatchAlgorithmReconstuctionType::UNIFORM:
+    case vtkMRMLDrrImageComputationNode::Uniform:
       command << "-i uniform ";
       break;
     default:
@@ -437,20 +448,20 @@ void qSlicerDrrImageComputationPlastimatchParametersWidget::updatePlastimatchDrr
 
   switch (d->ParameterNode->GetHUConversion())
   {
-    case vtkMRMLDrrImageComputationNode::PlastimatchHounsfieldUnitsConversionType::NONE:
+    case vtkMRMLDrrImageComputationNode::None:
       command << "-P none ";
       break;
-    case vtkMRMLDrrImageComputationNode::PlastimatchHounsfieldUnitsConversionType::PREPROCESS:
+    case vtkMRMLDrrImageComputationNode::Preprocess:
       command << "-P preprocess ";
       break;
-    case vtkMRMLDrrImageComputationNode::PlastimatchHounsfieldUnitsConversionType::INLINE:
+    case vtkMRMLDrrImageComputationNode::Inline:
       command << "-P inline ";
       break;
     default:
       break;
   }
 
-  command << "-O Out";
+  command << "-O Out -t raw";
 
   d->plainTextEdit_PlastimatchDrrArguments->setPlainText(QString::fromStdString(command.str()));
 }

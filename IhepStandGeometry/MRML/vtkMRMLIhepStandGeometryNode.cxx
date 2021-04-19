@@ -54,9 +54,14 @@ vtkMRMLIhepStandGeometryNode::vtkMRMLIhepStandGeometryNode()
   TreatmentMachineType(nullptr),
   PatientSupportRotationAngle(0.),
   TableTopVerticalPosition(0.),
+  TableTopVerticalPositionOrigin(0.),
+  TableTopVerticalPositionMirror(0.),
+  TableTopVerticalPositionMiddle(0.),
   TableTopLongitudinalPosition(0.),
+  TableTopLateralPosition(0.),
   TableTopLongitudinalAngle(0.),
   TableTopLateralAngle(0.),
+  PatientToTableTopTranslation(),
   UseStandCoordinateSystem(false)
 {
 }
@@ -75,9 +80,14 @@ void vtkMRMLIhepStandGeometryNode::WriteXML(ostream& of, int nIndent)
   vtkMRMLWriteXMLBeginMacro(of);
   vtkMRMLWriteXMLFloatMacro(PatientSupportRotationAngle, PatientSupportRotationAngle);
   vtkMRMLWriteXMLFloatMacro(TableTopLongitudinalPosition, TableTopLongitudinalPosition);
+  vtkMRMLWriteXMLFloatMacro(TableTopLateralPosition, TableTopLateralPosition);
   vtkMRMLWriteXMLFloatMacro(TableTopVerticalPosition, TableTopVerticalPosition);
+  vtkMRMLWriteXMLFloatMacro(TableTopVerticalPositionOrigin, TableTopVerticalPositionOrigin);
+  vtkMRMLWriteXMLFloatMacro(TableTopVerticalPositionMirror, TableTopVerticalPositionMirror);
+  vtkMRMLWriteXMLFloatMacro(TableTopVerticalPositionMiddle, TableTopVerticalPositionMiddle);
   vtkMRMLWriteXMLFloatMacro(TableTopLongitudinalAngle, TableTopLongitudinalAngle);
   vtkMRMLWriteXMLFloatMacro(TableTopLateralAngle, TableTopLateralAngle);
+  vtkMRMLWriteXMLVectorMacro(PatientToTableTopTranslation, PatientToTableTopTranslation, double, 3);
   vtkMRMLWriteXMLBooleanMacro(UseStandCoordinateSystem, UseStandCoordinateSystem);
   // add new parameters here
   vtkMRMLWriteXMLEndMacro();
@@ -93,9 +103,14 @@ void vtkMRMLIhepStandGeometryNode::ReadXMLAttributes(const char** atts)
   vtkMRMLReadXMLBeginMacro(atts);
   vtkMRMLReadXMLFloatMacro(PatientSupportRotationAngle, PatientSupportRotationAngle);
   vtkMRMLReadXMLFloatMacro(TableTopLongitudinalPosition, TableTopLongitudinalPosition);
+  vtkMRMLReadXMLFloatMacro(TableTopLateralPosition, TableTopLateralPosition);
   vtkMRMLReadXMLFloatMacro(TableTopVerticalPosition, TableTopVerticalPosition);
+  vtkMRMLReadXMLFloatMacro(TableTopVerticalPositionOrigin, TableTopVerticalPositionOrigin);
+  vtkMRMLReadXMLFloatMacro(TableTopVerticalPositionMirror, TableTopVerticalPositionMirror);
+  vtkMRMLReadXMLFloatMacro(TableTopVerticalPositionMiddle, TableTopVerticalPositionMiddle);
   vtkMRMLReadXMLFloatMacro(TableTopLongitudinalAngle, TableTopLongitudinalAngle);
-  vtkMRMLReadXMLFloatMacro(TableTopLateralAngle, TableTopLateralAngle);  
+  vtkMRMLReadXMLFloatMacro(TableTopLateralAngle, TableTopLateralAngle);
+  vtkMRMLReadXMLVectorMacro(PatientToTableTopTranslation, PatientToTableTopTranslation, double, 3);
   vtkMRMLReadXMLBooleanMacro(UseStandCoordinateSystem, UseStandCoordinateSystem);  
   // add new parameters here
   vtkMRMLReadXMLEndMacro();
@@ -124,9 +139,14 @@ void vtkMRMLIhepStandGeometryNode::Copy(vtkMRMLNode *anode)
   vtkMRMLCopyBeginMacro(node);
   vtkMRMLCopyFloatMacro(PatientSupportRotationAngle);
   vtkMRMLCopyFloatMacro(TableTopLongitudinalPosition);
+  vtkMRMLCopyFloatMacro(TableTopLateralPosition);
   vtkMRMLCopyFloatMacro(TableTopVerticalPosition);
+  vtkMRMLCopyFloatMacro(TableTopVerticalPositionOrigin);
+  vtkMRMLCopyFloatMacro(TableTopVerticalPositionMirror);
+  vtkMRMLCopyFloatMacro(TableTopVerticalPositionMiddle);
   vtkMRMLCopyFloatMacro(TableTopLongitudinalAngle);
   vtkMRMLCopyFloatMacro(TableTopLateralAngle);
+  vtkMRMLCopyVectorMacro(PatientToTableTopTranslation, double, 3);
   vtkMRMLCopyBooleanMacro(UseStandCoordinateSystem);
   // add new parameters here
   vtkMRMLCopyEndMacro(); 
@@ -151,9 +171,14 @@ void vtkMRMLIhepStandGeometryNode::CopyContent(vtkMRMLNode *anode, bool deepCopy
   vtkMRMLCopyBeginMacro(node);
   vtkMRMLCopyFloatMacro(PatientSupportRotationAngle);
   vtkMRMLCopyFloatMacro(TableTopLongitudinalPosition);
+  vtkMRMLCopyFloatMacro(TableTopLateralPosition);
   vtkMRMLCopyFloatMacro(TableTopVerticalPosition);
+  vtkMRMLCopyFloatMacro(TableTopVerticalPositionOrigin);
+  vtkMRMLCopyFloatMacro(TableTopVerticalPositionMirror);
+  vtkMRMLCopyFloatMacro(TableTopVerticalPositionMiddle);
   vtkMRMLCopyFloatMacro(TableTopLongitudinalAngle);
   vtkMRMLCopyFloatMacro(TableTopLateralAngle);
+  vtkMRMLCopyVectorMacro(PatientToTableTopTranslation, double, 3);
   vtkMRMLCopyBooleanMacro(UseStandCoordinateSystem);
   // add new parameters here
   vtkMRMLCopyEndMacro();
@@ -167,12 +192,34 @@ void vtkMRMLIhepStandGeometryNode::PrintSelf(ostream& os, vtkIndent indent)
   vtkMRMLPrintBeginMacro(os, indent);
   vtkMRMLPrintFloatMacro(PatientSupportRotationAngle);
   vtkMRMLPrintFloatMacro(TableTopLongitudinalPosition);
+  vtkMRMLPrintFloatMacro(TableTopLateralPosition);
   vtkMRMLPrintFloatMacro(TableTopVerticalPosition);
+  vtkMRMLPrintFloatMacro(TableTopVerticalPositionOrigin);
+  vtkMRMLPrintFloatMacro(TableTopVerticalPositionMirror);
+  vtkMRMLPrintFloatMacro(TableTopVerticalPositionMiddle);
   vtkMRMLPrintFloatMacro(TableTopLongitudinalAngle);
   vtkMRMLPrintFloatMacro(TableTopLateralAngle);
+  vtkMRMLPrintVectorMacro(PatientToTableTopTranslation, double, 3);
   vtkMRMLPrintBooleanMacro(UseStandCoordinateSystem);
   // add new parameters here
   vtkMRMLPrintEndMacro(); 
+}
+
+void vtkMRMLIhepStandGeometryNode::ResetModelsToInitialPositions()
+{
+  PatientSupportRotationAngle = 0.;
+  TableTopVerticalPosition = 0.;
+  TableTopVerticalPositionOrigin = 0.;
+  TableTopVerticalPositionMirror = 0.;
+  TableTopVerticalPositionMiddle = 0.;
+  TableTopLongitudinalPosition = 0.;
+  TableTopLateralPosition = 0.;
+  TableTopLongitudinalAngle = 0.;
+  TableTopLateralAngle = 0.;
+  PatientToTableTopTranslation[0] = 0.,
+  PatientToTableTopTranslation[1] = 0.,
+  PatientToTableTopTranslation[2] = 0.,
+  UseStandCoordinateSystem = false;
 }
 
 //----------------------------------------------------------------------------

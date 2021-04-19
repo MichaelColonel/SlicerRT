@@ -35,6 +35,7 @@
 class vtkGeneralTransform;
 class vtkMRMLRTBeamNode;
 class vtkMRMLLinearTransformNode;
+class vtkMRMLIhepStandGeometryNode;
 
 class VTK_SLICER_BEAMS_LOGIC_EXPORT vtkSlicerIhepStandGeometryTransformLogic : public vtkMRMLAbstractLogic
 {
@@ -45,10 +46,11 @@ public:
     FixedReference,
     Collimator,
     PatientSupport, // Rotation of patient support
-    TableTopInferiorSuperiorMovement, // Inferior-Superior movement of the table top
-    TableTop, // Rotation and Vectical movement of table top
+    TableTopStand, // Inferior-Superior (Longitudinal), Left-Right (Lateral) movement of the table top
+    TableTopVertical, // Posterior-Anterior (Vertical) movement of table top
+    TableTop, // Rotations of table top (by movement of TableTopStand three vertical basements)
     Patient,
-    LastIECCoordinateFrame // Last index used for adding more coordinate systems externally
+    LastIhepCoordinateFrame // Last index used for adding more coordinate systems externally
   };
   typedef std::list< CoordinateSystemIdentifier > CoordinateSystemsList;
 
@@ -61,7 +63,7 @@ public:
 
   /// Get transform node between two coordinate systems is exists
   /// \return Transform node if there is a direct transform between the specified coordinate frames, nullptr otherwise
-  ///   Note: If IEC does not specify a transform between the given coordinate frames, then there will be no node with the returned name.
+  ///   Note: If IHEP does not specify a transform between the given coordinate frames, then there will be no node with the returned name.
   vtkMRMLLinearTransformNode* GetTransformNodeBetween(
     CoordinateSystemIdentifier fromFrame, CoordinateSystemIdentifier toFrame );
 
@@ -70,13 +72,20 @@ public:
   /// \return Success flag (false on any error)
   bool GetTransformBetween(CoordinateSystemIdentifier fromFrame, CoordinateSystemIdentifier toFrame, vtkGeneralTransform* outputTransform, bool transformForBeam = true);
 
+  /// Reset RAS to Patient isocenter translate, required for correct
+  /// IHEP stand models transforms 
+  void ResetRasToPatientIsocenterTranslate();
+  /// Restore RAS to Patient isocenter translate
+  void RestoreRasToPatientIsocenterTranslate(double isocenter[3]);
+  
   /// Update parent transform node of a given beam from the IHEP transform hierarchy and the beam parameters
-  void UpdateBeamTransform(vtkMRMLRTBeamNode* beamNode);
-  void UpdateBeamTransform( vtkMRMLRTBeamNode* beamNode, 
-    vtkMRMLLinearTransformNode* beamTransformNode, double* isocenter = nullptr);
+//  void UpdateBeamTransform(vtkMRMLRTBeamNode* beamNode);
+//  void UpdateBeamTransform( vtkMRMLRTBeamNode* beamNode, 
+//    vtkMRMLLinearTransformNode* beamTransformNode, double* isocenter = nullptr);
 
   /// Update IHEP transforms according to beam node
-  void UpdateIHEPTransformsFromBeam( vtkMRMLRTBeamNode* beamNode, double* isocenter = nullptr);
+//  void UpdateIHEPTransformsFromBeam( vtkMRMLRTBeamNode* beamNode, double* isocenter = nullptr);
+//  void UpdateIHEPTransformsFromParameter( vtkMRMLIhepStandGeometryNode* parameterNode, double* isocenter = nullptr);
 
 protected:
   vtkSlicerIhepStandGeometryTransformLogic();
@@ -98,7 +107,7 @@ protected:
   /// Map from \sa CoordinateSystemIdentifier to coordinate system name. Used for getting transforms
   std::map<CoordinateSystemIdentifier, std::string> CoordinateSystemsMap;
 
-  /// List of IEC transforms
+  /// List of IHEP transforms
   std::vector< std::pair<CoordinateSystemIdentifier, CoordinateSystemIdentifier> > IhepTransforms;
 
   // TODO: for hierarchy use tree with nodes, something like graph

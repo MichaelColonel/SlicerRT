@@ -8,6 +8,7 @@ import sys
 import logging
 from DICOMLib import DICOMUtils
 
+slicer.exit_when_finished = True
 
 # ------------------------------------------------------------------------------
 # BatchStructureSetConversion
@@ -86,10 +87,10 @@ class BatchStructureSetConversionLogic(ScriptedLoadableModuleLogic):
           logging.error('Failed to get reference image with ID ' + str(ref_image_node_id) + '. Using image referenced by DICOM')
 
       # Get all segmentation nodes from the scene
-      segmentationNodes = slicer.util.getNodes('vtkMRMLSegmentationNode*')
+      segmentationNodes = slicer.util.getNodesByClass('vtkMRMLSegmentationNode')
 
-      for segmentationNode in segmentationNodes.values():
-        logging.info('  Converting structure set ' + segmentationNode.GetName())
+      for segmentationNode in segmentationNodes:
+        logging.info(f'  Converting structure set {segmentationNode.GetName()} to labelmap')
         # Set referenced volume as rasterization reference from DICOM if not explicitly specified
         if referenceVolume is None and use_ref_image == True:
           referenceVolume = slicer.vtkSlicerDicomRtImportExportModuleLogic.GetReferencedVolumeByDicomForSegmentation(
@@ -163,6 +164,17 @@ class BatchStructureSetConversionLogic(ScriptedLoadableModuleLogic):
         if not success:
           logging.error('Failed to save image volume: ' + filePath)
 
+    def SaveModels(self, outputDir):
+      import vtkSegmentationCorePython as vtkSegmentationCore
+      success = True
+      segmentationNodes = slicer.util.getNodesByClass('vtkMRMLSegmentationNode')
+      for segmentationNode in segmentationNodes:
+        logging.info(f'  Exporting structure set {segmentationNode.GetName()} to model files')
+        if not slicer.vtkSlicerSegmentationsModuleLogic.ExportSegmentsClosedSurfaceRepresentationToFiles(
+          outputDir, segmentationNode, None, "STL"):
+          logging.error(f'Error occurred while exporting structure set {segmentationNode.GetName()} to model files')
+          success = False
+      return success
 
 # ------------------------------------------------------------------------------
 # BatchStructureSetConversionTest
@@ -270,7 +282,10 @@ class BatchStructureSetConversionTest(ScriptedLoadableModuleTest):
 
 
 def main(argv):
+
   try:
+    logging.info("Start batch RTSTRUCT conversion")
+
     # Parse command-line arguments
     parser = argparse.ArgumentParser(description="Batch Structure Set Conversion")
     parser.add_argument("-i", "--input-folder", dest="input_folder", metavar="PATH",
@@ -291,8 +306,25 @@ def main(argv):
     parser.add_argument("-o", "--output-folder", dest="output_folder", metavar="PATH",
                         default=".",
                         help="Folder for output labelmaps")
+    parser.add_argument("-s", "--export-surfaces", dest="export_surfaces",
+                        default=False, required=False, action='store_true',
+                        help="Export surface mesh representation")
+    parser.add_argument("-c", "--show-python-console", dest="show_python_console",
+                        default=False, required=False, action='store_true',
+                        help="If this flag is specified then messages are displayed in an interactive Python console and the application does not quit when the script is finished.")
 
     args = parser.parse_args(argv)
+
+    if args.show_python_console:
+      slicer.util.pythonShell().show()
+      slicer.exit_when_finished = False
+
+    # Check if SlicerRT is installed
+    try:
+      slicer.modules.dicomrtimportexport
+    except AttributeError:
+      logging.error("Please install SlicerRT extension")
+      return 1
 
     # Check required arguments
     if args.input_folder == "-":
@@ -308,6 +340,7 @@ def main(argv):
     use_ref_image = args.use_ref_image
     exist_db = args.exist_db
     export_images = args.export_images
+    export_surfaces = args.export_surfaces
 
     # Perform batch conversion
     logic = BatchStructureSetConversionLogic()
@@ -318,6 +351,8 @@ def main(argv):
 
       logging.info("Save labelmaps to directory " + output_dir)
       logic.SaveLabelmaps(labelmaps, output_dir)
+      if export_surfaces:
+        logic.SaveModels(output_dir)
       if export_images:
         logic.SaveImages(output_dir)
       logging.info("DONE")
@@ -326,7 +361,7 @@ def main(argv):
       logging.info('BatchStructureSet running in existing database mode')
       DICOMUtils.openDatabase(input_folder)
       all_patients = slicer.dicomDatabase.patients()
-      logging.info('Must Process Patients %s' % len(all_patients))
+      logging.info('Processing %d patients...' % len(all_patients))
 
       for patient in all_patients:
         slicer.mrmlScene.Clear(0) # clear the scene
@@ -337,30 +372,54 @@ def main(argv):
         save_rtslices(output_dir, use_ref_image)
 
     else:
-      ref_image_node_id = None
+      logging.info('BatchStructureSet running in file mode')
+      ref_volume_file_path = None
       if os.path.isdir(ref_dicom_folder):
-        # If reference DICOM folder is given and valid, then load that volume
+        # If reference DICOM folder is given and valid, then import reference patient and save its ID
         logging.info("Import reference anatomy DICOM data from " + ref_dicom_folder)
         DICOMUtils.openTemporaryDatabase()
         DICOMUtils.importDicom(ref_dicom_folder)
+        # Save first volume to be used as reference
         logic.LoadFirstPatientIntoSlicer()
-        # Remember first volume
         scalarVolumeNodes = list(slicer.util.getNodes('vtkMRMLScalarVolume*').values())
         if len(scalarVolumeNodes) > 0:
-          ref_image_node_id = scalarVolumeNodes[0].GetID()
+          refVolNode = scalarVolumeNodes[0]
+          refVolStorageNode = refVolNode.CreateDefaultStorageNode()
+          ref_volume_file_path = os.path.join(output_folder, 'refVolume.nrrd')
+          refVolStorageNode.SetFileName(ref_volume_file_path)
+          refVolStorageNode.WriteData(refVolNode)        
 
       logging.info("Import DICOM data from " + input_folder)
       DICOMUtils.openTemporaryDatabase()
       DICOMUtils.importDicom(input_folder)
 
-      logging.info("Load first patient into Slicer")
-      logic.LoadFirstPatientIntoSlicer()
-      save_rtslices(output_folder, use_ref_image, ref_image_node_id)
+      all_patients = slicer.dicomDatabase.patients()
+      logging.info('Processing %d patients...' % len(all_patients))
+      for patient in all_patients:
+        slicer.mrmlScene.Clear(0) # clear the scene
+        DICOMUtils.loadPatientByUID(patient)
+        output_dir = os.path.join(output_folder,patient)
+        if not os.access(output_dir, os.F_OK):
+          os.mkdir(output_dir)
+        ref_volume_node_id = None
+        if ref_volume_file_path:
+          try:
+            refVolNode = slicer.util.loadVolume(ref_volume_file_path)
+            ref_volume_node_id = refVolNode.GetID()
+          except:
+            pass
+        save_rtslices(output_dir, use_ref_image, ref_volume_node_id)
 
   except Exception as e:
+      import traceback
+      traceback.print_exc()
       print(e)
-  sys.exit(0)
+      return 1
+
+  return 0
 
 
 if __name__ == "__main__":
-  main(sys.argv[1:])
+  errorCode = main(sys.argv[1:])
+  if slicer.exit_when_finished:
+    sys.exit(errorCode)

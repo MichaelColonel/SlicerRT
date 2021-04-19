@@ -25,12 +25,7 @@
 #include <vtkMRML.h>
 #include <vtkMRMLNode.h>
 
-class vtkMRMLLinearTransformNode;
 class vtkMRMLRTBeamNode;
-class vtkMRMLMarkupsClosedCurveNode;
-class vtkMRMLMarkupsFiducialNode;
-class vtkMRMLMarkupsLineNode;
-
 class vtkMRMLSegmentationNode;
 class vtkMRMLScalarVolumeNode;
 
@@ -62,7 +57,9 @@ public:
   /// Get unique node XML tag name
   const char* GetNodeTagName() override { return "IhepStandGeometry"; };
 
-public:
+  /// Reset position parameters of the node
+  void ResetModelsToInitialPositions();
+
   /// Get beam node
   vtkMRMLRTBeamNode* GetBeamNode();
   /// Set and observe beam node. This updates Normal and View-Up vectors.
@@ -95,10 +92,20 @@ public:
   /// Get/Set table top vertical position
   vtkGetMacro(TableTopVerticalPosition, double);
   vtkSetMacro(TableTopVerticalPosition, double);
+  vtkGetMacro(TableTopVerticalPositionOrigin, double);
+  vtkSetMacro(TableTopVerticalPositionOrigin, double);
+  vtkGetMacro(TableTopVerticalPositionMiddle, double);
+  vtkSetMacro(TableTopVerticalPositionMiddle, double);
+  vtkGetMacro(TableTopVerticalPositionMirror, double);
+  vtkSetMacro(TableTopVerticalPositionMirror, double);
 
   /// Get/Set table top longitudinal position
   vtkGetMacro(TableTopLongitudinalPosition, double);
   vtkSetMacro(TableTopLongitudinalPosition, double);
+
+  /// Get/Set table top lateral position
+  vtkGetMacro(TableTopLateralPosition, double);
+  vtkSetMacro(TableTopLateralPosition, double);
 
   /// Get/Set table top longitudinal angle
   vtkGetMacro(TableTopLongitudinalAngle, double);
@@ -112,13 +119,16 @@ public:
   vtkGetMacro(UseStandCoordinateSystem, bool);
   vtkSetMacro(UseStandCoordinateSystem, bool);
 
+  /// Get/Set Patient to TableTop translation
+  vtkGetVector3Macro(PatientToTableTopTranslation, double);
+  vtkSetVector3Macro(PatientToTableTopTranslation, double);
+
 protected:
   vtkMRMLIhepStandGeometryNode();
   ~vtkMRMLIhepStandGeometryNode();
   vtkMRMLIhepStandGeometryNode(const vtkMRMLIhepStandGeometryNode&);
   void operator=(const vtkMRMLIhepStandGeometryNode&);
 
-protected:
   /// Patient body segment ID in selected segmentation node
   char* PatientBodySegmentID;
 
@@ -127,14 +137,22 @@ protected:
   /// IEC Patient support rotation angle (theta_s)
   double PatientSupportRotationAngle;
   /// IEC Table top vertical position (Z_t)
-  double TableTopVerticalPosition;
+  double TableTopVerticalPosition; // Total
+  double TableTopVerticalPositionOrigin; // Origin
+  double TableTopVerticalPositionMirror; // Mirror
+  double TableTopVerticalPositionMiddle; // Middle
   /// IEC Table top longitudinal position (Y_t)
   double TableTopLongitudinalPosition;
+  /// IEC Table top lateral position (X_t)
+  double TableTopLateralPosition;
 
   /// IEC Table top longitudinal angle (phi_t)
   double TableTopLongitudinalAngle;
   /// IEC Table top longitudinal angle (psi_t)
   double TableTopLateralAngle;
+  /// Translate Patient to TableTop
+  double PatientToTableTopTranslation[3];
+
   /// Use IHEP stand system coordimate for the beam or IEC system coordinate
   bool UseStandCoordinateSystem;
 };

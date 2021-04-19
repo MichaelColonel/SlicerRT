@@ -43,9 +43,9 @@ class vtkMRMLRTBeamNode;
 class VTK_SLICER_DRRIMAGECOMPUTATION_MODULE_MRML_EXPORT vtkMRMLDrrImageComputationNode : public vtkMRMLPlanarImageNode
 {
 public:
-  enum PlastimatchAlgorithmReconstuctionType { EXACT, UNIFORM };
-  enum PlastimatchHounsfieldUnitsConversionType { PREPROCESS, INLINE, NONE };
-  enum PlastimatchThreadingType { CPU, CUDA, OPENCL };
+  enum PlastimatchAlgorithmReconstuctionType { Exact, Uniform };
+  enum PlastimatchHounsfieldUnitsConversionType { Preprocess, Inline, None };
+  enum PlastimatchThreadingType { CPU, CUDA, OpenCL };
 
   static vtkMRMLDrrImageComputationNode *New();
   vtkTypeMacro(vtkMRMLDrrImageComputationNode,vtkMRMLPlanarImageNode);
@@ -122,6 +122,9 @@ public:
   vtkGetMacro(ImageWindowFlag, bool);
   vtkSetMacro(ImageWindowFlag, bool);
 
+  vtkGetMacro(HUThresholdBelow, int);
+  vtkSetMacro(HUThresholdBelow, int);
+
   vtkGetMacro(InvertIntensityFlag, bool);
   vtkSetMacro(InvertIntensityFlag, bool);
 
@@ -155,6 +158,7 @@ protected:
   bool AutoscaleFlag;
   bool InvertIntensityFlag;
   float AutoscaleRange[2];
+  int HUThresholdBelow;
 };
 
 #endif

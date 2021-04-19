@@ -8,6 +8,7 @@ set(${KIT}_INCLUDE_DIRECTORIES
   ${SlicerRtCommon_INCLUDE_DIRS}
   ${vtkSlicerBeamsModuleMRML_INCLUDE_DIRS}
   ${vtkSlicerSubjectHierarchyModuleLogic_INCLUDE_DIRS}
+  ${vtkSlicerIhepStandGeometryModuleMRML_INCLUDE_DIRS}
   )
 
 set(${KIT}_SRCS
@@ -28,6 +29,7 @@ set(${KIT}_TARGET_LIBRARIES
   vtkSlicerRtCommon
   vtkSlicerMarkupsModuleMRML
   vtkSlicerSubjectHierarchyModuleLogic
+  vtkSlicerIhepStandGeometryModuleMRML
   ${ITK_LIBRARIES}
   )
 
