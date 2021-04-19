@@ -76,6 +76,7 @@ public:
   vtkSlicerIhepStandGeometryLogic* logic() const;
 
   bool ModuleWindowInitialized;
+  vtkMRMLCameraNode* ThreeDViewCameraNode;
 };
 
 //-----------------------------------------------------------------------------
@@ -85,7 +86,8 @@ public:
 qSlicerIhepStandGeometryModuleWidgetPrivate::qSlicerIhepStandGeometryModuleWidgetPrivate(qSlicerIhepStandGeometryModuleWidget &object)
   :
   q_ptr(&object),
-  ModuleWindowInitialized(false)
+  ModuleWindowInitialized(false),
+  ThreeDViewCameraNode(nullptr)
 {
 }
 
@@ -123,7 +125,6 @@ void qSlicerIhepStandGeometryModuleWidget::setup()
   d->setupUi(this);
   this->Superclass::setup();
 
-
   // Nodes
   connect( d->MRMLNodeComboBox_RtBeam, SIGNAL(currentNodeChanged(vtkMRMLNode*)), 
     this, SLOT(onRTBeamNodeChanged(vtkMRMLNode*)));
@@ -157,6 +158,8 @@ void qSlicerIhepStandGeometryModuleWidget::setup()
   connect( d->CoordinatesWidget_PatientTableTopTranslation, SIGNAL(coordinatesChanged(double*)), 
     this, SLOT(onPatientTableTopTranslationChanged(double*)));
 
+  connect( d->checkBox_FixedReferenceCamera, SIGNAL(toggled(bool)), this, SLOT(updateFixedReferenceCamera(bool)));
+
   // Buttons
   connect( d->PushButton_LoadStandModels, SIGNAL(clicked()), this, SLOT(onLoadStandModelsButtonClicked()));
   connect( d->PushButton_ResetModelsInitialPosition, SIGNAL(clicked()), this, SLOT(onResetToInitialPositionButtonClicked()));
@@ -187,10 +190,14 @@ void qSlicerIhepStandGeometryModuleWidget::onLoadStandModelsButtonClicked()
   }
 
   // Load and setup models
+  parameterNode->DisableModifiedEventOn();
   parameterNode->SetTreatmentMachineType("IHEPStand");
-
   d->logic()->LoadTreatmentMachineModels(parameterNode);
   d->logic()->ResetModelsToInitialPosition(parameterNode);
+  parameterNode->DisableModifiedEventOff();
+  
+
+  parameterNode->Modified();
 }
 
 //-----------------------------------------------------------------------------
@@ -211,6 +218,8 @@ void qSlicerIhepStandGeometryModuleWidget::onResetToInitialPositionButtonClicked
   }
 
   d->logic()->ResetModelsToInitialPosition(parameterNode);
+
+  parameterNode->Modified();
 }
 
 //-----------------------------------------------------------------------------
@@ -237,9 +246,6 @@ void qSlicerIhepStandGeometryModuleWidget::onPatientTableTopTranslationChanged(d
   d->logic()->UpdatePatientToTableTopTransform(parameterNode);
   
   parameterNode->Modified();
-  
-  // Update in logic
-  d->logic()->SetupTreatmentMachineModels(parameterNode);
 }
 
 //-----------------------------------------------------------------------------
@@ -264,10 +270,8 @@ void qSlicerIhepStandGeometryModuleWidget::onTableTopVerticalPositionChanged(dou
   parameterNode->DisableModifiedEventOff();
 
   d->logic()->UpdateTableTopVerticalToTableTopStandTransform(parameterNode);
-  parameterNode->Modified();
   
-  // Update in logic
-  d->logic()->SetupTreatmentMachineModels(parameterNode);
+  parameterNode->Modified();
 }
 
 //-----------------------------------------------------------------------------
@@ -292,9 +296,6 @@ void qSlicerIhepStandGeometryModuleWidget::onTableTopVerticalMiddlePositionChang
   parameterNode->DisableModifiedEventOff();
 
   parameterNode->Modified();
-
-  // Update Middle TableTop markups
-  d->logic()->SetupTreatmentMachineModels(parameterNode);
 }
 
 //-----------------------------------------------------------------------------
@@ -319,9 +320,6 @@ void qSlicerIhepStandGeometryModuleWidget::onTableTopVerticalMirrorPositionChang
   parameterNode->DisableModifiedEventOn();
   
   parameterNode->Modified();
-
-  // Update Mirror TableTop markups
-  d->logic()->SetupTreatmentMachineModels(parameterNode);
 }
 
 //-----------------------------------------------------------------------------
@@ -346,9 +344,6 @@ void qSlicerIhepStandGeometryModuleWidget::onTableTopVerticalOriginPositionChang
   parameterNode->DisableModifiedEventOff();
 
   parameterNode->Modified();
-
-  // Update Origin TableTop markups
-  d->logic()->SetupTreatmentMachineModels(parameterNode);
 }
 
 //-----------------------------------------------------------------------------
@@ -374,8 +369,7 @@ void qSlicerIhepStandGeometryModuleWidget::onTableTopStandLongitudinalPositionCh
   
   d->logic()->UpdateTableTopStandToPatientSupportTransform(parameterNode);
 
-  // Update in logic
-  d->logic()->SetupTreatmentMachineModels(parameterNode);
+  parameterNode->Modified();
 }
 
 //-----------------------------------------------------------------------------
@@ -403,9 +397,6 @@ void qSlicerIhepStandGeometryModuleWidget::onTableTopStandLateralPositionChanged
   d->logic()->UpdateTableTopStandToPatientSupportTransform(parameterNode);
 
   parameterNode->Modified();
-
-  // Update in logic
-  d->logic()->SetupTreatmentMachineModels(parameterNode);
 }
 
 //-----------------------------------------------------------------------------
@@ -433,9 +424,6 @@ void qSlicerIhepStandGeometryModuleWidget::onPatientSupportFixedReferenceAngleCh
   d->logic()->UpdatePatientSupportToFixedReferenceTransform(parameterNode);
 
   parameterNode->Modified();
-
-  // Update in logic
-  d->logic()->SetupTreatmentMachineModels(parameterNode);
 }
 
 //-----------------------------------------------------------------------------
@@ -527,6 +515,8 @@ void qSlicerIhepStandGeometryModuleWidget::onEnter()
 
   // All required data for GUI is initiated
   d->ModuleWindowInitialized = true;
+  d->ThreeDViewCameraNode = this->Get3DViewCameraNode();
+  d->logic()->SetFixedReferenceCamera(d->ThreeDViewCameraNode);
   qDebug() << Q_FUNC_INFO << ": module window initiated";
 }
 
@@ -573,11 +563,18 @@ void qSlicerIhepStandGeometryModuleWidget::updateWidgetFromMRML()
     d->SegmentSelectorWidget_TargetVolume->setCurrentSegmentID(id);
   }
   d->SliderWidget_TableTopVerticalPosition->setValue(parameterNode->GetTableTopVerticalPosition());
+  d->SliderWidget_TableTopVerticalPositionMiddle->setValue(parameterNode->GetTableTopVerticalPositionMiddle());
+  d->SliderWidget_TableTopVerticalPositionOrigin->setValue(parameterNode->GetTableTopVerticalPositionOrigin());
+  d->SliderWidget_TableTopVerticalPositionMirror->setValue(parameterNode->GetTableTopVerticalPositionMirror());
+  d->SliderWidget_TableTopStandLongitudinalPosition->setValue(parameterNode->GetTableTopLongitudinalPosition());
+  d->SliderWidget_TableTopStandLateralPosition->setValue(parameterNode->GetTableTopLateralPosition());
+  d->SliderWidget_PatientSupportRotationAngle->setValue(parameterNode->GetPatientSupportRotationAngle());
   
   double patientToTableTopTranslation[3] = {};
   parameterNode->GetPatientToTableTopTranslation(patientToTableTopTranslation);
 
   d->CoordinatesWidget_PatientTableTopTranslation->setCoordinates(patientToTableTopTranslation);
+  d->checkBox_FixedReferenceCamera->setChecked(parameterNode->GetUseStandCoordinateSystem());
 }
 
 //-----------------------------------------------------------------------------
@@ -914,4 +911,129 @@ void qSlicerIhepStandGeometryModuleWidget::onBeamsEyeViewButtonClicked(const dou
   
   cameraNode->GetCamera()->Elevation(0.);
   cameras->Delete();
+}
+
+//-----------------------------------------------------------------------------
+void qSlicerIhepStandGeometryModuleWidget::updateFixedReferenceCamera(bool update/* = true */)
+{
+  Q_D(qSlicerIhepStandGeometryModuleWidget);
+
+  vtkMRMLIhepStandGeometryNode* parameterNode = vtkMRMLIhepStandGeometryNode::SafeDownCast(d->MRMLNodeComboBox_ParameterSet->currentNode());
+
+  parameterNode->DisableModifiedEventOn();
+  parameterNode->SetUseStandCoordinateSystem(update);
+  parameterNode->DisableModifiedEventOff();
+
+  parameterNode->Modified();
+  
+// Disable camera update in GUI, use camera update in logic
+#if defined (commentout)
+
+  if (!update)
+  {
+    return;
+  }
+
+  // Get 3D view node
+  qSlicerApplication* slicerApplication = qSlicerApplication::application();
+  qSlicerLayoutManager* layoutManager = slicerApplication->layoutManager();
+  qMRMLThreeDView* threeDView = layoutManager->threeDWidget(0)->threeDView();
+  vtkMRMLViewNode* viewNode = threeDView->mrmlViewNode();
+
+  // Get camera node for view
+  vtkCollection* cameras = this->mrmlScene()->GetNodesByClass("vtkMRMLCameraNode");
+  vtkMRMLCameraNode* cameraNode = nullptr;
+  for (int i = 0; i < cameras->GetNumberOfItems(); i++)
+  {
+    cameraNode = vtkMRMLCameraNode::SafeDownCast(cameras->GetItemAsObject(i));
+    std::string viewUniqueName = std::string(viewNode->GetNodeTagName()) + cameraNode->GetLayoutName();
+    if (viewUniqueName == viewNode->GetID())
+    {
+      break;
+    }
+  }
+  if (!cameraNode)
+  {
+    qCritical() << Q_FUNC_INFO << "Failed to find camera for view " << (viewNode ? viewNode->GetID() : "(null)");
+    cameras->Delete();
+    return;
+  }
+
+  vtkMRMLTransformNode* fixedReferenceTransformNode = d->logic()->GetFixedReferenceMarkupsTransform();
+  if (fixedReferenceTransformNode)
+  {
+    vtkTransform* fixedReferenceTransform = nullptr;
+    vtkNew<vtkMatrix4x4> mat;
+    mat->Identity();
+
+    if (fixedReferenceTransformNode)
+    {
+      fixedReferenceTransform = vtkTransform::SafeDownCast(fixedReferenceTransformNode->GetTransformToParent());
+      fixedReferenceTransform->GetMatrix(mat);
+    }
+    else
+    {
+      qCritical() << Q_FUNC_INFO << "FixedReference transform node is invalid";
+      cameras->Delete();
+      return;
+    }
+
+    double viewUpVector[4] = { 0., 1., 0., 0. }; // positive Y-axis
+    double vup[4];
+  
+    mat->MultiplyPoint( viewUpVector, vup);
+
+    double fixedIsocenter[4] = { 0., 0., 0., 1. }; // origin in FixedReference transform
+    double isocenterWorld[4];
+
+    double sourcePosition[4] = { 0., 0., -4000., 1. }; // origin in FixedReference transform
+    double sourcePositionWorld[4];
+
+    mat->MultiplyPoint( fixedIsocenter, isocenterWorld);
+    mat->MultiplyPoint( sourcePosition, sourcePositionWorld);
+
+    cameraNode->GetCamera()->SetPosition(sourcePositionWorld);
+    cameraNode->GetCamera()->SetFocalPoint(isocenterWorld);
+
+    cameraNode->SetViewUp(vup);
+  }
+  
+  cameraNode->GetCamera()->Elevation(30.);
+  cameraNode->GetCamera()->Azimuth(-45.);
+  cameras->Delete();
+
+#endif
+}
+
+//-----------------------------------------------------------------------------
+vtkMRMLCameraNode* qSlicerIhepStandGeometryModuleWidget::Get3DViewCameraNode()
+{
+  Q_D(qSlicerIhepStandGeometryModuleWidget);
+
+  // Get 3D view node
+  qSlicerApplication* slicerApplication = qSlicerApplication::application();
+  qSlicerLayoutManager* layoutManager = slicerApplication->layoutManager();
+  qMRMLThreeDView* threeDView = layoutManager->threeDWidget(0)->threeDView();
+  vtkMRMLViewNode* viewNode = threeDView->mrmlViewNode();
+
+  // Get camera node for view
+  vtkCollection* cameras = this->mrmlScene()->GetNodesByClass("vtkMRMLCameraNode");
+  vtkMRMLCameraNode* cameraNode = nullptr;
+  for (int i = 0; i < cameras->GetNumberOfItems(); i++)
+  {
+    cameraNode = vtkMRMLCameraNode::SafeDownCast(cameras->GetItemAsObject(i));
+    std::string viewUniqueName = std::string(viewNode->GetNodeTagName()) + cameraNode->GetLayoutName();
+    if (viewUniqueName == viewNode->GetID())
+    {
+      break;
+    }
+  }
+  if (!cameraNode)
+  {
+    qCritical() << Q_FUNC_INFO << "Failed to find camera for view " << (viewNode ? viewNode->GetID() : "(null)");
+    cameras->Delete();
+    return nullptr;
+  }
+  cameras->Delete();
+  return cameraNode;
 }

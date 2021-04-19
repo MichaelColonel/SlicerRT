@@ -41,6 +41,7 @@ class vtkMRMLLinearTransformNode;
 class vtkMRMLMarkupsLineNode;
 class vtkMRMLMarkupsFiducialNode;
 class vtkMRMLMarkupsPlaneNode;
+class vtkMRMLCameraNode;
 
 /// \ingroup Slicer_QtModules_IhepStandGeometry
 class VTK_SLICER_IHEPSTANDGEOMETRY_MODULE_LOGIC_EXPORT vtkSlicerIhepStandGeometryLogic :
@@ -109,13 +110,11 @@ public:
   /// Initial Translation for different transforms
   void InitialSetupTransformTranslations(vtkMRMLIhepStandGeometryNode* parameterNode);
 
-  /// Create or get transforms taking part in the IHEP logic and additional devices, and build the transform hierarchy
-  void BuildIhepStangGeometryTransformHierarchy();
+  /// Get transform node for line markups node
+  vtkMRMLLinearTransformNode* GetFixedReferenceMarkupsTransform();
 
-  /// Update transform for fiducial and plane markups nodes
-  vtkMRMLLinearTransformNode* UpdateTableTopStandMarkupsTransform(vtkMRMLIhepStandGeometryNode* parameterNode);
-  /// Update transform for line markups node
-  vtkMRMLLinearTransformNode* UpdateFixedReferenceMarkupsTransform(vtkMRMLIhepStandGeometryNode* parameterNode);
+  /// Set 3D View camera for FixedReference model
+  void SetFixedReferenceCamera(vtkMRMLCameraNode* cameraNode);
 
 protected:
   vtkSlicerIhepStandGeometryLogic();
@@ -131,13 +130,21 @@ protected:
   /// Handles events registered in the observer manager
   void ProcessMRMLNodesEvents(vtkObject* caller, unsigned long event, void* callData) override;
 
-protected:
+  /// IHEP Geometry transform hierarchy logic
   vtkSlicerIhepStandGeometryTransformLogic* IhepLogic;
+  /// Camera node for 3D view
+  vtkMRMLCameraNode* Camera3DViewNode;
 
 private:
+  /// Create or get transforms taking part in the IHEP logic and additional devices, and build the transform hierarchy
+  void BuildIhepStangGeometryTransformHierarchy();
 
-  vtkMRMLLinearTransformNode* UpdateBeamlineTransformFromBeam(vtkMRMLRTBeamNode* beamNode);
-  vtkMRMLMarkupsLineNode* CreateBeamline(vtkMRMLIhepStandGeometryNode* parameterNode);
+  /// Update transform for fiducial and plane markups nodes
+  vtkMRMLLinearTransformNode* UpdateTableTopStandMarkupsTransform(vtkMRMLIhepStandGeometryNode* parameterNode);
+  /// Update transform for line markups node
+  vtkMRMLLinearTransformNode* UpdateFixedReferenceMarkupsTransform(vtkMRMLIhepStandGeometryNode* parameterNode);
+  /// Update FixedReference 3D view camera position
+  void UpdateFixedReferenceCamera(vtkMRMLIhepStandGeometryNode* parameterNode, vtkMRMLCameraNode* cameraNode = nullptr);
 
   vtkSlicerIhepStandGeometryLogic(const vtkSlicerIhepStandGeometryLogic&) = delete;
   void operator=(const vtkSlicerIhepStandGeometryLogic&) = delete;

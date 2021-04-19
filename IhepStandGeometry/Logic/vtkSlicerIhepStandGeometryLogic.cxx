@@ -48,6 +48,7 @@
 #include <vtkMRMLDisplayNode.h>
 #include <vtkMRMLModelNode.h>
 #include <vtkMRMLViewNode.h>
+#include <vtkMRMLCameraNode.h>
 #include <vtkMRMLModelHierarchyNode.h>
 #include <vtkMRMLModelDisplayNode.h>
 
@@ -59,16 +60,18 @@
 #include <vtkSegmentationConverter.h>
 
 // VTK includes
+#include <vtksys/SystemTools.hxx>
+
 #include <vtkSmartPointer.h>
 #include <vtkObjectFactory.h>
 #include <vtkMatrix4x4.h>
 #include <vtkTransform.h>
 #include <vtkAppendPolyData.h>
 #include <vtkPolyDataReader.h>
-#include <vtksys/SystemTools.hxx>
 #include <vtkTransformPolyDataFilter.h>
 #include <vtkGeneralTransform.h>
 #include <vtkTransformFilter.h>
+#include <vtkCamera.h>
 
 //----------------------------------------------------------------------------
 // Treatment machine component names
@@ -89,7 +92,8 @@ vtkStandardNewMacro(vtkSlicerIhepStandGeometryLogic);
 //----------------------------------------------------------------------------
 vtkSlicerIhepStandGeometryLogic::vtkSlicerIhepStandGeometryLogic()
   :
-  IhepLogic(vtkSlicerIhepStandGeometryTransformLogic::New())
+  IhepLogic(vtkSlicerIhepStandGeometryTransformLogic::New()),
+  Camera3DViewNode(nullptr)
 {
 }
 
@@ -168,6 +172,14 @@ void vtkSlicerIhepStandGeometryLogic::ProcessMRMLNodesEvents(vtkObject* caller, 
     if (event == vtkCommand::ModifiedEvent)
     {
       // Update model transforms using node data
+      if (parameterNode->GetTreatmentMachineType())
+      {
+        this->SetupTreatmentMachineModels(parameterNode);
+      }
+      if (parameterNode->GetUseStandCoordinateSystem())
+      {
+        this->UpdateFixedReferenceCamera(parameterNode);
+      }
     }
   }
 }
@@ -204,6 +216,8 @@ void vtkSlicerIhepStandGeometryLogic::InitialSetupTransformTranslations(vtkMRMLI
 //  rotateYTransform->RotateZ(180.);
 
   using IHEP = vtkSlicerIhepStandGeometryTransformLogic::CoordinateSystemIdentifier;
+
+  this->IhepLogic->ResetRasToPatientIsocenterTranslate();
 
   // Update TableTop -> TableTopVertical
   // Translation of the TableTop from TableTopStand
@@ -772,10 +786,18 @@ void vtkSlicerIhepStandGeometryLogic::LoadTreatmentMachineModels(vtkMRMLIhepStan
     return;
   }
 
-  // Create markups node
-  vtkMRMLMarkupsFiducialNode* tableTopStandFiducialNode = this->CreateTableTopStandFiducialNode(parameterNode);
-  this->CreateTableTopStandPlaneNode( parameterNode, tableTopStandFiducialNode);
-  this->CreateFixedReferenceLineNode(parameterNode);
+  // Create / Update markups nodes if they already exists 
+  // Update markups (TableTop fiducials and plane nodes and FixedReference line node)
+  vtkMRMLMarkupsFiducialNode* pointsMarkupsNode = vtkMRMLMarkupsFiducialNode::SafeDownCast(
+    scene->GetFirstNodeByName(TABLETOPSTAND_FIDUCIALS_MARKUPS_NODE_NAME));
+
+  this->UpdateTableTopStandFiducialNode(parameterNode);
+
+  if (pointsMarkupsNode)
+  {
+    this->UpdateTableTopStandPlaneNode(parameterNode, pointsMarkupsNode);
+  }
+  this->UpdateFixedReferenceLineNode(parameterNode);
 }
 
 //----------------------------------------------------------------------------
@@ -792,75 +814,11 @@ void vtkSlicerIhepStandGeometryLogic::ResetModelsToInitialPosition(vtkMRMLIhepSt
     vtkErrorMacro("ResetModelsToInitialPosition: Invalid parameter node");
     return;
   }
+  // Reset all positions into zeros
   parameterNode->ResetModelsToInitialPositions();
-//  this->SetupTreatmentMachineModels(parameterNode);
-
-//  vtkMRMLRTBeamNode* beamNode = parameterNode->GetBeamNode();
-//  using IHEP = vtkSlicerIhepStandGeometryTransformLogic::CoordinateSystemIdentifier;
-/*
-  // Update TableTop -> TableTopInferiorSuperiorMovement
-  // Translation and rotation of the model
-  vtkMRMLLinearTransformNode* tableTopToTableTopStandTransformNode =
-    this->IhepLogic->GetTransformNodeBetween(IHEP::TableTop, IHEP::TableTopStand);
-  vtkTransform* tableTopToTableTopStandTransform = vtkTransform::SafeDownCast(
-    tableTopToTableTopStandTransformNode->GetTransformToParent() );
-  tableTopToTableTopStandTransform->Identity();
-//  tableTopToTableTopStandTransform->Translate( 0., 490., -550.);
-//  tableTopToTableTopStandTransform->RotateY(-1. * parameterNode->GetTableTopLongitudinalAngle());
-//  tableTopToTableTopStandTransform->RotateX(-1. * parameterNode->GetTableTopLateralAngle());
-  tableTopToTableTopStandTransform->Modified();
-
-  // Update TableTopInferiorSuperiorMovement -> PatientSupport
-  // Translation of the model
-  vtkMRMLLinearTransformNode* tableTopStandToPatientSupportTransformNode =
-    this->IhepLogic->GetTransformNodeBetween(IHEP::TableTopStand, IHEP::PatientSupport);
-  vtkTransform* tableTopStandToPatientSupportTransform = vtkTransform::SafeDownCast(
-    tableTopStandToPatientSupportTransformNode->GetTransformToParent() );
-  tableTopStandToPatientSupportTransform->Identity();
-//  tableTopStandToPatientSupportTransform->Translate( 0., -490., 550.);
-  tableTopStandToPatientSupportTransform->Modified();
-
-  // Update PatientSupport -> FixedReference
-  vtkMRMLLinearTransformNode* patientSupportRotationToFixedReferenceTransformNode =
-    this->IhepLogic->GetTransformNodeBetween(IHEP::PatientSupport, IHEP::FixedReference);
-  vtkTransform* patientSupportRotationToFixedReferenceTransform = vtkTransform::SafeDownCast(
-    patientSupportRotationToFixedReferenceTransformNode->GetTransformToParent() );
-  patientSupportRotationToFixedReferenceTransform->Identity();
-//  patientSupportRotationToFixedReferenceTransform->Translate( 0., 490., -550.);
-  patientSupportRotationToFixedReferenceTransform->RotateZ(-1. * parameterNode->GetPatientSupportRotationAngle());
-  patientSupportRotationToFixedReferenceTransform->Modified();
-
-  // Update Collimator -> FixedFerence
-  vtkMRMLLinearTransformNode* collimatorToFixedReferenceTransformNode =
-   this->IhepLogic->GetTransformNodeBetween(IHEP::Collimator, IHEP::FixedReference);
-  vtkTransform* collimatorToFixedReferenceTransform = vtkTransform::SafeDownCast(collimatorToFixedReferenceTransformNode->GetTransformToParent());
-  collimatorToFixedReferenceTransform->Identity();
-  collimatorToFixedReferenceTransform->RotateZ(90 - parameterNode->GetTableTopLongitudinalAngle());
-  collimatorToFixedReferenceTransform->Modified();
-*/
-  // Update Patient -> TableTop
-  // Translation
-//  vtkMRMLLinearTransformNode* patientToTableTopTransformNode =
-//    this->IhepLogic->GetTransformNodeBetween(IHEP::Patient, IHEP::TableTop);
-//  vtkTransform* patientToTableTopTransform = vtkTransform::SafeDownCast(
-//    patientToTableTopTransformNode->GetTransformToParent() );
-
-//  double isocenter[3] = {};
-//  vtkMRMLRTBeamNode* beam = parameterNode->GetBeamNode();
-//  beamNode->GetPlanIsocenterPosition(isocenter);
-
-//  patientToTableTopTransform->Identity();
-//  patientToTableTopTransform->Translate( isocenter[0], isocenter[1], isocenter[2]);
-//  patientToTableTopTransform->Translate( isocenter[0], isocenter[1] - 490, isocenter[2] + 550);
-//  patientToTableTopTransform->Translate( 0., -490., 550.);
-//  patientToTableTopTransform->Modified();
-
-//  this->UpdateTableTopToTableTopEccentricRotationTransform(parameterNode);
 
   // Initial transforms for the models (if any)
   this->InitialSetupTransformTranslations(parameterNode);
-  // Setup / update models according to the transforms
-  this->SetupTreatmentMachineModels(parameterNode);
 }
 
 //----------------------------------------------------------------------------
@@ -972,7 +930,6 @@ void vtkSlicerIhepStandGeometryLogic::SetupTreatmentMachineModels(vtkMRMLIhepSta
     if (rasToTableTopTransformNode)
     {
       rasToTableTopTransformNode->SetAndObserveTransformToParent(rasToTableTopLinearTransform);
-//      this->UpdateMarkupsNodes(parameterNode);
     }
 
     vtkMRMLModelNode* tableTopModel = vtkMRMLModelNode::SafeDownCast(
@@ -1100,7 +1057,7 @@ void vtkSlicerIhepStandGeometryLogic::SetupTreatmentMachineModels(vtkMRMLIhepSta
     }
   }
 
-  // Update markups (TableTop fiducials and FixedReference line)
+  // Update markups (TableTop fiducials and plane nodes and FixedReference line node)
   vtkMRMLMarkupsFiducialNode* pointsMarkupsNode = vtkMRMLMarkupsFiducialNode::SafeDownCast(
     scene->GetFirstNodeByName(TABLETOPSTAND_FIDUCIALS_MARKUPS_NODE_NAME));
 
@@ -1363,4 +1320,95 @@ vtkMRMLLinearTransformNode* vtkSlicerIhepStandGeometryLogic::UpdateFixedReferenc
     transformNode->SetAndObserveTransformToParent(rasToFixedReferenceTransform);
   }
   return transformNode;
+}
+
+//------------------------------------------------------------------------------
+vtkMRMLLinearTransformNode* vtkSlicerIhepStandGeometryLogic::GetFixedReferenceMarkupsTransform()
+{
+  vtkMRMLScene* scene = this->GetMRMLScene();
+  if (!scene)
+  {
+    vtkErrorMacro("UpdateFixedReferenceMarkupsTransform: Invalid MRML scene");
+    return nullptr;
+  }
+
+  vtkSmartPointer<vtkMRMLLinearTransformNode> transformNode;
+  if (vtkMRMLNode* node = scene->GetFirstNodeByName(FIXEDREFERENCE_LINE_TRANSFORM_NODE_NAME))
+  {
+    transformNode = vtkMRMLLinearTransformNode::SafeDownCast(node);
+  }
+
+  return transformNode;
+}
+
+//------------------------------------------------------------------------------
+void vtkSlicerIhepStandGeometryLogic::UpdateFixedReferenceCamera(vtkMRMLIhepStandGeometryNode* parameterNode, 
+  vtkMRMLCameraNode* cameraNode /* = nullptr */)
+{
+  if (!cameraNode && !this->Camera3DViewNode)
+  {
+    return;
+  }
+
+  if (cameraNode)
+  {
+    this->Camera3DViewNode = cameraNode;
+  }
+
+  if (!cameraNode && this->Camera3DViewNode)
+  {
+    vtkDebugMacro("UpdateFixedReferenceCamera: Use member camera node");
+  }
+
+  vtkMRMLTransformNode* fixedReferenceTransformNode = this->GetFixedReferenceMarkupsTransform();
+  if (fixedReferenceTransformNode)
+  {
+    vtkTransform* fixedReferenceTransform = nullptr;
+    vtkNew<vtkMatrix4x4> mat;
+    mat->Identity();
+
+    fixedReferenceTransform = vtkTransform::SafeDownCast(fixedReferenceTransformNode->GetTransformToParent());
+    if (fixedReferenceTransform)
+    {
+      fixedReferenceTransform->GetMatrix(mat);
+
+      double viewUpVector[4] = { 0., 1., 0., 0. }; // positive Y-axis
+      double vup[4];
+  
+      mat->MultiplyPoint( viewUpVector, vup);
+
+      double fixedIsocenter[4] = { 0., 0., 0., 1. }; // origin in FixedReference transform
+      double isocenterWorld[4];
+
+      double sourcePosition[4] = { 0., 0., -4000., 1. }; // origin in FixedReference transform
+      double sourcePositionWorld[4];
+
+      mat->MultiplyPoint( fixedIsocenter, isocenterWorld);
+      mat->MultiplyPoint( sourcePosition, sourcePositionWorld);
+
+      this->Camera3DViewNode->GetCamera()->SetPosition(sourcePositionWorld);
+      this->Camera3DViewNode->GetCamera()->SetFocalPoint(isocenterWorld);
+
+      this->Camera3DViewNode->SetViewUp(vup);
+    
+      this->Camera3DViewNode->GetCamera()->Elevation(30.);
+      this->Camera3DViewNode->GetCamera()->Azimuth(-45.);
+    }
+  }
+}
+
+//------------------------------------------------------------------------------
+void vtkSlicerIhepStandGeometryLogic::SetFixedReferenceCamera(vtkMRMLCameraNode* cameraNode)
+{
+  if (!cameraNode && !this->Camera3DViewNode)
+  {
+    vtkErrorMacro("SetFixedReferenceCamera: Both argument pointer and member pointer to camera node are invalid");
+    return;
+  }
+
+  if (cameraNode)
+  {
+    vtkDebugMacro("SetFixedReferenceCamera: Set member camera node");
+    this->Camera3DViewNode = cameraNode;
+  }
 }

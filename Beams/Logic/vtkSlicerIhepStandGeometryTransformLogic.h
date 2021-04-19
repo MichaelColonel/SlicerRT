@@ -72,14 +72,20 @@ public:
   /// \return Success flag (false on any error)
   bool GetTransformBetween(CoordinateSystemIdentifier fromFrame, CoordinateSystemIdentifier toFrame, vtkGeneralTransform* outputTransform, bool transformForBeam = true);
 
+  /// Reset RAS to Patient isocenter translate, required for correct
+  /// IHEP stand models transforms 
+  void ResetRasToPatientIsocenterTranslate();
+  /// Restore RAS to Patient isocenter translate
+  void RestoreRasToPatientIsocenterTranslate(double isocenter[3]);
+  
   /// Update parent transform node of a given beam from the IHEP transform hierarchy and the beam parameters
-  void UpdateBeamTransform(vtkMRMLRTBeamNode* beamNode);
-  void UpdateBeamTransform( vtkMRMLRTBeamNode* beamNode, 
-    vtkMRMLLinearTransformNode* beamTransformNode, double* isocenter = nullptr);
+//  void UpdateBeamTransform(vtkMRMLRTBeamNode* beamNode);
+//  void UpdateBeamTransform( vtkMRMLRTBeamNode* beamNode, 
+//    vtkMRMLLinearTransformNode* beamTransformNode, double* isocenter = nullptr);
 
   /// Update IHEP transforms according to beam node
-  void UpdateIHEPTransformsFromBeam( vtkMRMLRTBeamNode* beamNode, double* isocenter = nullptr);
-  void UpdateIHEPTransformsFromParameter( vtkMRMLIhepStandGeometryNode* parameterNode, double* isocenter = nullptr);
+//  void UpdateIHEPTransformsFromBeam( vtkMRMLRTBeamNode* beamNode, double* isocenter = nullptr);
+//  void UpdateIHEPTransformsFromParameter( vtkMRMLIhepStandGeometryNode* parameterNode, double* isocenter = nullptr);
 
 protected:
   vtkSlicerIhepStandGeometryTransformLogic();

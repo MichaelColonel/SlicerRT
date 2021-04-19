@@ -25,6 +25,7 @@
 
 class qSlicerIhepStandGeometryModuleWidgetPrivate;
 class vtkMRMLNode;
+class vtkMRMLCameraNode;
 
 /// \ingroup Slicer_QtModules_IhepStandGeometry
 class Q_SLICER_QTMODULES_IHEPSTANDGEOMETRY_EXPORT qSlicerIhepStandGeometryModuleWidget :
@@ -71,6 +72,8 @@ public slots:
 
   /// Update widget GUI from RT Image parameters node
   void updateWidgetFromMRML();
+  /// Update fixed reference camera in 3D view
+  void updateFixedReferenceCamera(bool update = true);
 
 protected:
   QScopedPointer<qSlicerIhepStandGeometryModuleWidgetPrivate> d_ptr;
@@ -80,6 +83,7 @@ protected:
 
 private:
   void onBeamsEyeViewButtonClicked(const double viewUpVector[4]);
+  vtkMRMLCameraNode* Get3DViewCameraNode();
 
   Q_DECLARE_PRIVATE(qSlicerIhepStandGeometryModuleWidget);
   Q_DISABLE_COPY(qSlicerIhepStandGeometryModuleWidget);
