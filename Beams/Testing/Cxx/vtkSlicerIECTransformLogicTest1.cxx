@@ -53,6 +53,7 @@ bool IsEqual(vtkMatrix4x4* lhs, vtkMatrix4x4* rhs);
 //----------------------------------------------------------------------------
 int vtkSlicerIECTransformLogicTest1(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
 {
+  using IEC = vtkSlicerIECTransformLogic::CoordinateSystemIdentifier;
   // Create scene
   vtkSmartPointer<vtkMRMLScene> mrmlScene = vtkSmartPointer<vtkMRMLScene>::New();
 
@@ -115,7 +116,7 @@ int vtkSlicerIECTransformLogicTest1(int vtkNotUsed(argc), char* vtkNotUsed(argv)
   double expectedFixedReferenceToRasTransform_Origin_MatrixElements[16] =
     {  -1, 0, 0, 0,   0, 0, 1, 0,   0, 1, 0, 0,   0, 0, 0, 1  };
   if ( !IsTransformMatrixEqualTo(mrmlScene,
-      iecLogic->GetTransformNodeBetween(vtkSlicerIECTransformLogic::FixedReference, vtkSlicerIECTransformLogic::RAS),
+      iecLogic->GetTransformNodeBetween(IEC::FixedReference, IEC::RAS),
       expectedFixedReferenceToRasTransform_Origin_MatrixElements ) )
     {
     std::cerr << __LINE__ << ": FixedReferenceToRasTransform transform does not match baseline for origin" << std::endl;
@@ -139,7 +140,7 @@ int vtkSlicerIECTransformLogicTest1(int vtkNotUsed(argc), char* vtkNotUsed(argv)
   double expectedFixedReferenceToRasTransform_Translated_MatrixElements[16] =
     {  -1, 0, 0, 1000,   0, 0, 1, 200,   0, 1, 0, 0,   0, 0, 0, 1  };
   if ( !IsTransformMatrixEqualTo(mrmlScene,
-      iecLogic->GetTransformNodeBetween(vtkSlicerIECTransformLogic::FixedReference, vtkSlicerIECTransformLogic::RAS),
+      iecLogic->GetTransformNodeBetween(IEC::FixedReference, IEC::RAS),
       expectedFixedReferenceToRasTransform_Translated_MatrixElements ) )
     {
     std::cerr << __LINE__ << ": FixedReferenceToRasTransform transform does not match baseline for translated isocenter" << std::endl;
@@ -168,7 +169,7 @@ int vtkSlicerIECTransformLogicTest1(int vtkNotUsed(argc), char* vtkNotUsed(argv)
   double expectedGantryToFixedReferenceTransform_1_MatrixElements[16] =
     {  0.999848, 0, 0.0174524, 0,   0, 1, 0, 0,   -0.0174524, 0, 0.999848, 0,   0, 0, 0, 1  };
   if ( !IsTransformMatrixEqualTo(mrmlScene,
-      iecLogic->GetTransformNodeBetween(vtkSlicerIECTransformLogic::Gantry, vtkSlicerIECTransformLogic::FixedReference),
+      iecLogic->GetTransformNodeBetween(IEC::Gantry, IEC::FixedReference),
       expectedGantryToFixedReferenceTransform_1_MatrixElements ) )
     {
     std::cerr << __LINE__ << ": GantryToFixedReferenceTransform does not match baseline for 1 degree angle" << std::endl;
@@ -190,7 +191,7 @@ int vtkSlicerIECTransformLogicTest1(int vtkNotUsed(argc), char* vtkNotUsed(argv)
   double expectedGantryToFixedReference_90_MatrixElements[16] =
     {  0, 0, 1, 0,   0, 1, 0, 0,   -1, 0, 0, 0,   0, 0, 0, 1  };
   if ( !IsTransformMatrixEqualTo(mrmlScene,
-      iecLogic->GetTransformNodeBetween(vtkSlicerIECTransformLogic::Gantry, vtkSlicerIECTransformLogic::FixedReference),
+      iecLogic->GetTransformNodeBetween(IEC::Gantry, IEC::FixedReference),
       expectedGantryToFixedReference_90_MatrixElements ) )
     {
     std::cerr << __LINE__ << ": GantryToFixedReferenceTransform does not match baseline for 90 degrees angle" << std::endl;
@@ -220,7 +221,7 @@ int vtkSlicerIECTransformLogicTest1(int vtkNotUsed(argc), char* vtkNotUsed(argv)
   double expectedCollimatorToGantryTransform_1_MatrixElements[16] =
     {  0.999848, -0.0174524, 0, 0,   0.0174524, 0.999848, 0, 0,   0, 0, 1, 0,   0, 0, 0, 1  };
   if ( !IsTransformMatrixEqualTo(mrmlScene,
-      iecLogic->GetTransformNodeBetween(vtkSlicerIECTransformLogic::Collimator, vtkSlicerIECTransformLogic::Gantry),
+      iecLogic->GetTransformNodeBetween(IEC::Collimator, IEC::Gantry),
       expectedCollimatorToGantryTransform_1_MatrixElements ) )
     {
     std::cerr << __LINE__ << ": CollimatorToGantry does not match baseline" << std::endl;
@@ -242,7 +243,7 @@ int vtkSlicerIECTransformLogicTest1(int vtkNotUsed(argc), char* vtkNotUsed(argv)
   double expectedCollimatorToGantryTransform_90_MatrixElements[16] =
     {  0, -1, 0, 0,   1, 0, 0, 0,   0, 0, 1, 0,   0, 0, 0, 1  };
   if ( !IsTransformMatrixEqualTo(mrmlScene,
-      iecLogic->GetTransformNodeBetween(vtkSlicerIECTransformLogic::Collimator, vtkSlicerIECTransformLogic::Gantry),
+      iecLogic->GetTransformNodeBetween(IEC::Collimator, IEC::Gantry),
       expectedCollimatorToGantryTransform_90_MatrixElements ) )
     {
     std::cerr << __LINE__ << ": CollimatorToGantry does not match baseline" << std::endl;

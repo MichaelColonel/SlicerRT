@@ -206,8 +206,9 @@ void vtkSlicerRoomsEyeViewModuleLogic::BuildRoomsEyeViewTransformHierarchy()
   }
 
   // Get IEC transform nodes that are used below
+  using IEC = vtkSlicerIECTransformLogic::CoordinateSystemIdentifier;
   vtkMRMLLinearTransformNode* collimatorToGantryTransformNode =
-    this->IECLogic->GetTransformNodeBetween(vtkSlicerIECTransformLogic::Collimator, vtkSlicerIECTransformLogic::Gantry);
+    this->IECLogic->GetTransformNodeBetween(IEC::Collimator, IEC::Gantry);
   if (!collimatorToGantryTransformNode)
   {
     vtkErrorMacro("BuildRoomsEyeViewTransformHierarchy: Failed to access collimatorToGantryTransformNode");
@@ -539,8 +540,9 @@ void vtkSlicerRoomsEyeViewModuleLogic::SetupTreatmentMachineModels()
     vtkErrorMacro("SetupTreatmentMachineModels: Unable to access gantry model");
     return;
   }
+  using IEC = vtkSlicerIECTransformLogic::CoordinateSystemIdentifier;
   vtkMRMLLinearTransformNode* gantryToFixedReferenceTransformNode =
-    this->IECLogic->GetTransformNodeBetween(vtkSlicerIECTransformLogic::Gantry, vtkSlicerIECTransformLogic::FixedReference);
+    this->IECLogic->GetTransformNodeBetween(IEC::Gantry, IEC::FixedReference);
   gantryModel->SetAndObserveTransformNodeID(gantryToFixedReferenceTransformNode->GetID());
   gantryModel->CreateDefaultDisplayNodes();
   gantryModel->GetDisplayNode()->SetColor(0.95, 0.95, 0.95);
@@ -554,7 +556,7 @@ void vtkSlicerRoomsEyeViewModuleLogic::SetupTreatmentMachineModels()
     return;
   }
   vtkMRMLLinearTransformNode* collimatorToGantryTransformNode =
-    this->IECLogic->GetTransformNodeBetween(vtkSlicerIECTransformLogic::Collimator, vtkSlicerIECTransformLogic::Gantry);
+    this->IECLogic->GetTransformNodeBetween(IEC::Collimator, IEC::Gantry);
   collimatorModel->SetAndObserveTransformNodeID(collimatorToGantryTransformNode->GetID());
   collimatorModel->CreateDefaultDisplayNodes();
   collimatorModel->GetDisplayNode()->SetColor(0.7, 0.7, 0.95);
@@ -568,7 +570,7 @@ void vtkSlicerRoomsEyeViewModuleLogic::SetupTreatmentMachineModels()
     return;
   }
   vtkMRMLLinearTransformNode* patientSupportToPatientSupportRotationTransformNode =
-    this->IECLogic->GetTransformNodeBetween(vtkSlicerIECTransformLogic::PatientSupport, vtkSlicerIECTransformLogic::PatientSupportRotation);
+    this->IECLogic->GetTransformNodeBetween(IEC::PatientSupport, IEC::PatientSupportRotation);
   patientSupportModel->SetAndObserveTransformNodeID(patientSupportToPatientSupportRotationTransformNode->GetID());
   patientSupportModel->CreateDefaultDisplayNodes();
   patientSupportModel->GetDisplayNode()->SetColor(0.85, 0.85, 0.85);
@@ -582,7 +584,7 @@ void vtkSlicerRoomsEyeViewModuleLogic::SetupTreatmentMachineModels()
     return;
   }
   vtkMRMLLinearTransformNode* tableTopToTableTopEccentricRotationTransformNode =
-    this->IECLogic->GetTransformNodeBetween(vtkSlicerIECTransformLogic::TableTop, vtkSlicerIECTransformLogic::TableTopEccentricRotation);
+    this->IECLogic->GetTransformNodeBetween(IEC::TableTop, IEC::TableTopEccentricRotation);
   tableTopModel->SetAndObserveTransformNodeID(tableTopToTableTopEccentricRotationTransformNode->GetID());
   tableTopModel->CreateDefaultDisplayNodes();
   tableTopModel->GetDisplayNode()->SetColor(0, 0, 0);
@@ -593,7 +595,7 @@ void vtkSlicerRoomsEyeViewModuleLogic::SetupTreatmentMachineModels()
   if (linacBodyModel)
   {
     vtkMRMLLinearTransformNode* fixedReferenceToRasTransformNode =
-      this->IECLogic->GetTransformNodeBetween(vtkSlicerIECTransformLogic::FixedReference, vtkSlicerIECTransformLogic::RAS);
+      this->IECLogic->GetTransformNodeBetween(IEC::FixedReference, IEC::RAS);
     linacBodyModel->SetAndObserveTransformNodeID(fixedReferenceToRasTransformNode->GetID());
     linacBodyModel->CreateDefaultDisplayNodes();
     linacBodyModel->GetDisplayNode()->SetColor(0.9, 0.9, 0.9);
@@ -605,7 +607,7 @@ void vtkSlicerRoomsEyeViewModuleLogic::SetupTreatmentMachineModels()
   if (leftImagingPanelModel)
   {
     vtkMRMLLinearTransformNode* leftImagingPanelToGantryTransformNode =
-      this->IECLogic->GetTransformNodeBetween(vtkSlicerIECTransformLogic::LeftImagingPanel, vtkSlicerIECTransformLogic::Gantry);
+      this->IECLogic->GetTransformNodeBetween(IEC::LeftImagingPanel, IEC::Gantry);
     leftImagingPanelModel->SetAndObserveTransformNodeID(leftImagingPanelToGantryTransformNode->GetID());
     leftImagingPanelModel->CreateDefaultDisplayNodes();
     leftImagingPanelModel->GetDisplayNode()->SetColor(0.95, 0.95, 0.95);
@@ -617,7 +619,7 @@ void vtkSlicerRoomsEyeViewModuleLogic::SetupTreatmentMachineModels()
   if (rightImagingPanelModel)
   {
     vtkMRMLLinearTransformNode* rightImagingPanelToGantryTransformNode =
-      this->IECLogic->GetTransformNodeBetween(vtkSlicerIECTransformLogic::RightImagingPanel, vtkSlicerIECTransformLogic::Gantry);
+      this->IECLogic->GetTransformNodeBetween(IEC::RightImagingPanel, IEC::Gantry);
     rightImagingPanelModel->SetAndObserveTransformNodeID(rightImagingPanelToGantryTransformNode->GetID());
     rightImagingPanelModel->CreateDefaultDisplayNodes();
     rightImagingPanelModel->GetDisplayNode()->SetColor(0.95, 0.95, 0.95);
@@ -629,7 +631,7 @@ void vtkSlicerRoomsEyeViewModuleLogic::SetupTreatmentMachineModels()
   if (flatPanelModel)
   {
     vtkMRMLLinearTransformNode* flatPanelToGantryTransformNode =
-      this->IECLogic->GetTransformNodeBetween(vtkSlicerIECTransformLogic::FlatPanel, vtkSlicerIECTransformLogic::Gantry);
+      this->IECLogic->GetTransformNodeBetween(IEC::FlatPanel, IEC::Gantry);
     flatPanelModel->SetAndObserveTransformNodeID(flatPanelToGantryTransformNode->GetID());
     flatPanelModel->CreateDefaultDisplayNodes();
     flatPanelModel->GetDisplayNode()->SetColor(0.95, 0.95, 0.95);
@@ -788,13 +790,13 @@ vtkMRMLModelNode* vtkSlicerRoomsEyeViewModuleLogic::UpdateTreatmentOrientationMa
 
   //
   // Mandatory models
-
+  using IEC = vtkSlicerIECTransformLogic::CoordinateSystemIdentifier;
   // Gantry
   vtkNew<vtkPolyData> gantryModelPolyData;
   gantryModelPolyData->DeepCopy(gantryModel->GetPolyData());
 
   vtkMRMLLinearTransformNode* gantryToFixedReferenceTransformNode =
-    this->IECLogic->GetTransformNodeBetween(vtkSlicerIECTransformLogic::Gantry, vtkSlicerIECTransformLogic::FixedReference);
+    this->IECLogic->GetTransformNodeBetween(IEC::Gantry, IEC::FixedReference);
   vtkNew<vtkTransformFilter> gantryTransformFilter;
   gantryTransformFilter->SetInputData(gantryModelPolyData);
   vtkNew<vtkGeneralTransform> gantryToFixedReferenceTransform;
@@ -810,7 +812,7 @@ vtkMRMLModelNode* vtkSlicerRoomsEyeViewModuleLogic::UpdateTreatmentOrientationMa
   collimatorModelPolyData->DeepCopy(collimatorModel->GetPolyData());
 
   vtkMRMLLinearTransformNode* collimatorToGantryTransformNode =
-    this->IECLogic->GetTransformNodeBetween(vtkSlicerIECTransformLogic::Collimator, vtkSlicerIECTransformLogic::Gantry);
+    this->IECLogic->GetTransformNodeBetween(IEC::Collimator, IEC::Gantry);
   vtkNew<vtkTransformFilter> collimatorTransformFilter;
   collimatorTransformFilter->SetInputData(collimatorModelPolyData);
   vtkNew<vtkGeneralTransform> collimatorToGantryTransform;
@@ -826,7 +828,7 @@ vtkMRMLModelNode* vtkSlicerRoomsEyeViewModuleLogic::UpdateTreatmentOrientationMa
   patientSupportModelPolyData->DeepCopy(patientSupportModel->GetPolyData());
 
   vtkMRMLLinearTransformNode* patientSupportToPatientSupportRotationTransformNode =
-    this->IECLogic->GetTransformNodeBetween(vtkSlicerIECTransformLogic::PatientSupport, vtkSlicerIECTransformLogic::PatientSupportRotation);
+    this->IECLogic->GetTransformNodeBetween(IEC::PatientSupport, IEC::PatientSupportRotation);
   vtkNew<vtkTransformFilter> patientSupportTransformFilter;
   patientSupportTransformFilter->SetInputData(patientSupportModelPolyData);
   vtkNew<vtkGeneralTransform> patientSupportToPatientSupportRotationTransform;
@@ -842,7 +844,7 @@ vtkMRMLModelNode* vtkSlicerRoomsEyeViewModuleLogic::UpdateTreatmentOrientationMa
   tableTopModelPolyData->DeepCopy(tableTopModel->GetPolyData());
 
   vtkMRMLLinearTransformNode* tableTopToTableTopEccentricRotationTransformNode =
-    this->IECLogic->GetTransformNodeBetween(vtkSlicerIECTransformLogic::TableTop, vtkSlicerIECTransformLogic::TableTopEccentricRotation);
+    this->IECLogic->GetTransformNodeBetween(IEC::TableTop, IEC::TableTopEccentricRotation);
   vtkNew<vtkTransformFilter> tableTopTransformFilter;
   tableTopTransformFilter->SetInputData(tableTopModelPolyData);
   vtkNew<vtkGeneralTransform> tableTopModelTransform;
@@ -861,7 +863,7 @@ vtkMRMLModelNode* vtkSlicerRoomsEyeViewModuleLogic::UpdateTreatmentOrientationMa
     leftImagingPanelModelPolyData->DeepCopy(leftImagingPanelModel->GetPolyData());
 
     vtkMRMLLinearTransformNode* leftImagingPanelToGantryTransformNode =
-      this->IECLogic->GetTransformNodeBetween(vtkSlicerIECTransformLogic::LeftImagingPanel, vtkSlicerIECTransformLogic::Gantry);
+      this->IECLogic->GetTransformNodeBetween(IEC::LeftImagingPanel, IEC::Gantry);
     vtkNew<vtkTransformFilter> leftImagingPanelTransformFilter;
     leftImagingPanelTransformFilter->SetInputData(leftImagingPanelModelPolyData);
     vtkNew<vtkGeneralTransform> leftImagingPanelToGantryTransform;
@@ -879,7 +881,7 @@ vtkMRMLModelNode* vtkSlicerRoomsEyeViewModuleLogic::UpdateTreatmentOrientationMa
     rightImagingPanelModelPolyData->DeepCopy(rightImagingPanelModel->GetPolyData());
 
     vtkMRMLLinearTransformNode* rightImagingPanelToGantryTransformNode =
-      this->IECLogic->GetTransformNodeBetween(vtkSlicerIECTransformLogic::RightImagingPanel, vtkSlicerIECTransformLogic::Gantry);
+      this->IECLogic->GetTransformNodeBetween(IEC::RightImagingPanel, IEC::Gantry);
     vtkNew<vtkTransformFilter> rightImagingPanelTransformFilter;
     rightImagingPanelTransformFilter->SetInputData(rightImagingPanelModelPolyData);
     vtkNew<vtkGeneralTransform> rightImagingPanelToGantryTransform;
@@ -897,7 +899,7 @@ vtkMRMLModelNode* vtkSlicerRoomsEyeViewModuleLogic::UpdateTreatmentOrientationMa
     flatPanelModelPolyData->DeepCopy(flatPanelModel->GetPolyData());
 
     vtkMRMLLinearTransformNode* flatPanelToGantryTransformNode =
-      this->IECLogic->GetTransformNodeBetween(vtkSlicerIECTransformLogic::FlatPanel, vtkSlicerIECTransformLogic::Gantry);
+      this->IECLogic->GetTransformNodeBetween(IEC::FlatPanel, IEC::Gantry);
     vtkNew<vtkTransformFilter> flatPanelTransformFilter;
     flatPanelTransformFilter->SetInputData(flatPanelModelPolyData);
     vtkNew<vtkGeneralTransform> flatPanelToGantryTransform;
@@ -964,8 +966,9 @@ void vtkSlicerRoomsEyeViewModuleLogic::UpdateCollimatorToGantryTransform(vtkMRML
     return;
   }
 
+  using IEC = vtkSlicerIECTransformLogic::CoordinateSystemIdentifier;
   vtkMRMLLinearTransformNode* collimatorToGantryTransformNode =
-    this->IECLogic->GetTransformNodeBetween(vtkSlicerIECTransformLogic::Collimator, vtkSlicerIECTransformLogic::Gantry);
+    this->IECLogic->GetTransformNodeBetween(IEC::Collimator, IEC::Gantry);
 
   vtkNew<vtkTransform> collimatorToGantryTransform;
   collimatorToGantryTransform->RotateZ(parameterNode->GetCollimatorRotationAngle());
@@ -981,8 +984,9 @@ void vtkSlicerRoomsEyeViewModuleLogic::UpdateGantryToFixedReferenceTransform(vtk
     return;
   }
 
+  using IEC = vtkSlicerIECTransformLogic::CoordinateSystemIdentifier;
   vtkMRMLLinearTransformNode* gantryToFixedReferenceTransformNode =
-    this->IECLogic->GetTransformNodeBetween(vtkSlicerIECTransformLogic::Gantry, vtkSlicerIECTransformLogic::FixedReference);
+    this->IECLogic->GetTransformNodeBetween(IEC::Gantry, IEC::FixedReference);
 
   vtkNew<vtkTransform> gantryToFixedReferenceTransform;
   gantryToFixedReferenceTransform->RotateY(parameterNode->GetGantryRotationAngle());
@@ -1049,8 +1053,9 @@ void vtkSlicerRoomsEyeViewModuleLogic::UpdateLeftImagingPanelToGantryTransform(v
   }
 
   // Assemble transform and update node
+  using IEC = vtkSlicerIECTransformLogic::CoordinateSystemIdentifier;
   vtkMRMLLinearTransformNode* leftImagingPanelToGantryTransformNode =
-    this->IECLogic->GetTransformNodeBetween(vtkSlicerIECTransformLogic::LeftImagingPanel, vtkSlicerIECTransformLogic::Gantry);
+    this->IECLogic->GetTransformNodeBetween(IEC::LeftImagingPanel, IEC::Gantry);
   vtkNew<vtkTransform> leftImagingPanelToGantryTransform;
   leftImagingPanelToGantryTransform->PostMultiply();
   leftImagingPanelToGantryTransform->Concatenate(leftImagingPanelToRasTransform);
@@ -1118,8 +1123,9 @@ void vtkSlicerRoomsEyeViewModuleLogic::UpdateRightImagingPanelToGantryTransform(
   }
 
   // Assemble transform and update node
+  using IEC = vtkSlicerIECTransformLogic::CoordinateSystemIdentifier;
   vtkMRMLLinearTransformNode* rightImagingPanelToGantryTransformNode =
-    this->IECLogic->GetTransformNodeBetween(vtkSlicerIECTransformLogic::RightImagingPanel, vtkSlicerIECTransformLogic::Gantry);
+    this->IECLogic->GetTransformNodeBetween(IEC::RightImagingPanel, IEC::Gantry);
   vtkNew<vtkTransform> rightImagingPanelToGantryTransform;
   rightImagingPanelToGantryTransform->PostMultiply();
   rightImagingPanelToGantryTransform->Concatenate(rightImagingPanelToRasTransform);
@@ -1151,8 +1157,9 @@ void vtkSlicerRoomsEyeViewModuleLogic::UpdatePatientSupportRotationToFixedRefere
     return;
   }
 
+  using IEC = vtkSlicerIECTransformLogic::CoordinateSystemIdentifier;
   vtkMRMLLinearTransformNode* patientSupportRotationToFixedReferenceTransformNode =
-    this->IECLogic->GetTransformNodeBetween(vtkSlicerIECTransformLogic::PatientSupportRotation, vtkSlicerIECTransformLogic::FixedReference);
+    this->IECLogic->GetTransformNodeBetween(IEC::PatientSupportRotation, IEC::FixedReference);
 
   double rotationAngle = parameterNode->GetPatientSupportRotationAngle();
   vtkNew<vtkTransform> patientSupportToRotatedPatientSupportTransform;
@@ -1206,8 +1213,9 @@ void vtkSlicerRoomsEyeViewModuleLogic::UpdatePatientSupportToPatientSupportRotat
   scaledRasToFixedReferenceTransform->Translate(patientSupportTranslationFromOrigin);
 
   // Assemble transform and update node
+  using IEC = vtkSlicerIECTransformLogic::CoordinateSystemIdentifier;
   vtkMRMLLinearTransformNode* patientSupportToPatientSupportRotationTransformNode =
-    this->IECLogic->GetTransformNodeBetween(vtkSlicerIECTransformLogic::PatientSupport, vtkSlicerIECTransformLogic::PatientSupportRotation);
+    this->IECLogic->GetTransformNodeBetween(IEC::PatientSupport, IEC::PatientSupportRotation);
   vtkNew<vtkTransform> patientSupportToFixedReferenceTransform;
   patientSupportToFixedReferenceTransform->PostMultiply();
   patientSupportToFixedReferenceTransform->Concatenate(patientSupportRotationToRasTransform);
@@ -1231,8 +1239,9 @@ void vtkSlicerRoomsEyeViewModuleLogic::UpdateTableTopToTableTopEccentricRotation
     return;
   }
 
+  using IEC = vtkSlicerIECTransformLogic::CoordinateSystemIdentifier;
   vtkMRMLLinearTransformNode* tableTopToTableTopEccentricRotationTransformNode =
-    this->IECLogic->GetTransformNodeBetween(vtkSlicerIECTransformLogic::TableTop, vtkSlicerIECTransformLogic::TableTopEccentricRotation);
+    this->IECLogic->GetTransformNodeBetween(IEC::TableTop, IEC::TableTopEccentricRotation);
   vtkTransform* tableTopEccentricRotationToPatientSupportTransform = vtkTransform::SafeDownCast(
     tableTopToTableTopEccentricRotationTransformNode->GetTransformToParent() );
 
@@ -1325,16 +1334,16 @@ std::string vtkSlicerRoomsEyeViewModuleLogic::CheckForCollisions(vtkMRMLRoomsEye
   }
 
   std::string statusString = "";
-
+  using IEC = vtkSlicerIECTransformLogic::CoordinateSystemIdentifier;
   // Get transforms used in the collision detection filters
   vtkMRMLLinearTransformNode* gantryToFixedReferenceTransformNode =
-    this->IECLogic->GetTransformNodeBetween(vtkSlicerIECTransformLogic::Gantry, vtkSlicerIECTransformLogic::FixedReference);
+    this->IECLogic->GetTransformNodeBetween(IEC::Gantry, IEC::FixedReference);
   vtkMRMLLinearTransformNode* patientSupportToPatientSupportRotationTransformNode =
-    this->IECLogic->GetTransformNodeBetween(vtkSlicerIECTransformLogic::PatientSupport, vtkSlicerIECTransformLogic::PatientSupportRotation);
+    this->IECLogic->GetTransformNodeBetween(IEC::PatientSupport, IEC::PatientSupportRotation);
   vtkMRMLLinearTransformNode* collimatorToGantryTransformNode =
-    this->IECLogic->GetTransformNodeBetween(vtkSlicerIECTransformLogic::Collimator, vtkSlicerIECTransformLogic::Gantry);
+    this->IECLogic->GetTransformNodeBetween(IEC::Collimator, IEC::Gantry);
   vtkMRMLLinearTransformNode* tableTopToTableTopEccentricRotationTransformNode =
-    this->IECLogic->GetTransformNodeBetween(vtkSlicerIECTransformLogic::TableTop, vtkSlicerIECTransformLogic::TableTopEccentricRotation);
+    this->IECLogic->GetTransformNodeBetween(IEC::TableTop, IEC::TableTopEccentricRotation);
 
   if ( !gantryToFixedReferenceTransformNode || !patientSupportToPatientSupportRotationTransformNode
     || !collimatorToGantryTransformNode || !tableTopToTableTopEccentricRotationTransformNode )
