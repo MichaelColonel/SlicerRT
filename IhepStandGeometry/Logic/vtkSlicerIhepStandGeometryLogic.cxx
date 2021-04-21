@@ -495,6 +495,7 @@ void vtkSlicerIhepStandGeometryLogic::UpdateTableTopStandPlaneNode(
     pointsMarkupsNode->GetNthControlPointPositionWorld( 1, mirrorWorld);
     pointsMarkupsNode->GetNthControlPointPositionWorld( 2, middleWorld);
 
+    vtkWarningMacro("UpdateTableTopStandPlaneNode: Mirrow world point " << mirrorWorld[0] << " " << mirrorWorld[1] << " " << mirrorWorld[2]);
     vtkVector3d plane1( mirrorWorld[0], mirrorWorld[1], mirrorWorld[2]); // Mirror
     vtkVector3d plane2( middleWorld[0], middleWorld[1], middleWorld[2]); // Middle
 

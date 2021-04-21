@@ -317,7 +317,7 @@ void qSlicerIhepStandGeometryModuleWidget::onTableTopVerticalMirrorPositionChang
 
   parameterNode->DisableModifiedEventOn();
   parameterNode->SetTableTopVerticalPositionMirror(position);
-  parameterNode->DisableModifiedEventOn();
+  parameterNode->DisableModifiedEventOff();
   
   parameterNode->Modified();
 }

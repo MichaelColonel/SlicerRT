@@ -2,6 +2,7 @@ import os
 import unittest
 import logging
 import vtk, qt, ctk, slicer
+import numpy as np
 from slicer.ScriptedLoadableModule import *
 from slicer.util import VTKObservationMixin
 
@@ -20,7 +21,7 @@ class IhepRegistration(ScriptedLoadableModule):
     self.parent.title = 'IHEP Registration'
 
     self.parent.categories = ["Radiotherapy"]
-    self.parent.dependencies = ["BRAINSFit", "DrrImageComputation", "Beams"]
+    self.parent.dependencies = ["BRAINSFit", "DrrImageComputation", "Beams", "IhepStandGeometry"]
     self.parent.contributors = ["Mikhail Polkovnikov (NRC \"Kurchatov Institute\" - IHEP)"]
     self.parent.helpText = """
     This is a scripted module that registrate a digitally reconstructed radiograph (DRR),
