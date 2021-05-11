@@ -134,14 +134,15 @@ class IhepRegistrationWidget(ScriptedLoadableModuleWidget, VTKObservationMixin):
 
     # These connections ensure that whenever user changes some settings on the GUI, that is saved in the MRML scene
     # (in the selected parameter node).
-    self.ui.MRMLNodeComboBox_inputVolume.connect("currentNodeChanged(vtkMRMLNode*)", self.updateParameterNodeFromGUI)
-    self.ui.outputSelector.connect("currentNodeChanged(vtkMRMLNode*)", self.updateParameterNodeFromGUI)
-    self.ui.imageThresholdSliderWidget.connect("valueChanged(double)", self.updateParameterNodeFromGUI)
-    self.ui.invertOutputCheckBox.connect("toggled(bool)", self.updateParameterNodeFromGUI)
-    self.ui.invertedOutputSelector.connect("currentNodeChanged(vtkMRMLNode*)", self.updateParameterNodeFromGUI)
+    self.ui.MRMLNodeComboBox_FixedDrrImage.connect("currentNodeChanged(vtkMRMLNode*)", self.updateParameterNodeFromGUI)
+    self.ui.MRMLNodeComboBox_ExtXrayImage.connect("currentNodeChanged(vtkMRMLNode*)", self.updateParameterNodeFromGUI)
+    self.ui.CheckButton_RigidTransform.connect("toggled(bool)", self.updateParameterNodeFromGUI)
+    self.ui.ComboBox_TypeOfRigidTransform.connect("currentIndexChanged(QString*)", self.updateParameterNodeFromGUI)
+    # Rigid output transformation 
+    self.ui.MRMLNodeComboBox_RigidTransform.connect("currentNodeChanged(vtkMRMLNode*)", self.updateParameterNodeFromGUI)
 
     # Buttons
-    self.ui.applyButton.connect('clicked(bool)', self.onApplyButton)
+    self.ui.PushButton_Calculate.connect('clicked()', self.onCalculateButton)
 
     # Make sure parameter node is initialized (needed for module reload)
     self.initializeParameterNode()
@@ -191,10 +192,10 @@ class IhepRegistrationWidget(ScriptedLoadableModuleWidget, VTKObservationMixin):
     self.setParameterNode(self.logic.getParameterNode())
 
     # Select default input nodes if nothing is selected yet to save a few clicks for the user
-    if not self._parameterNode.GetNodeReference("InputVolume"):
+    if not self._parameterNode.GetNodeReference("DrrVolume"):
       firstVolumeNode = slicer.mrmlScene.GetFirstNodeByClass("vtkMRMLScalarVolumeNode")
       if firstVolumeNode:
-        self._parameterNode.SetNodeReferenceID("InputVolume", firstVolumeNode.GetID())
+        self._parameterNode.SetNodeReferenceID("DrrVolume", firstVolumeNode.GetID())
 
   def setParameterNode(self, inputParameterNode):
     """
@@ -230,19 +231,19 @@ class IhepRegistrationWidget(ScriptedLoadableModuleWidget, VTKObservationMixin):
     self._updatingGUIFromParameterNode = True
 
     # Update node selectors and sliders
-    self.ui.MRMLNodeComboBox_inputVolume.setCurrentNode(self._parameterNode.GetNodeReference("InputVolume"))
-    self.ui.outputSelector.setCurrentNode(self._parameterNode.GetNodeReference("OutputVolume"))
-    self.ui.invertedOutputSelector.setCurrentNode(self._parameterNode.GetNodeReference("OutputVolumeInverse"))
-    self.ui.imageThresholdSliderWidget.value = float(self._parameterNode.GetParameter("Threshold"))
-    self.ui.invertOutputCheckBox.checked = (self._parameterNode.GetParameter("Invert") == "true")
+    self.ui.MRMLNodeComboBox_FixedDrrImage.setCurrentNode(self._parameterNode.GetNodeReference("DrrVolume"))
+    self.ui.MRMLNodeComboBox_ExtXrayImage.setCurrentNode(self._parameterNode.GetNodeReference("ExtVolume"))
+    self.ui.MRMLNodeComboBox_RigidTransform.setCurrentNode(self._parameterNode.GetNodeReference("OutputRigidTransform"))
+    self.ui.CheckBox_RigidTransform.checked = (self._parameterNode.GetParameter("RigidTransformFlag") == "true")
+  #  self.ui.ComboBox_TypeOfRigidTransform.checked = (self._parameterNode.GetParameter("Invert") == "true")
 
     # Update buttons states and tooltips
-    if self._parameterNode.GetNodeReference("InputVolume") and self._parameterNode.GetNodeReference("OutputVolume"):
-      self.ui.applyButton.toolTip = "Compute output volume"
-      self.ui.applyButton.enabled = True
+    if self._parameterNode.GetNodeReference("DrrVolume") and self._parameterNode.GetNodeReference("ExtVolume") and self._parameterNode.GetNodeReference("OutputRigidTransform"):
+      self.ui.PushButton_Calculate.toolTip = "Calculate transform"
+      self.ui.PushButton_Calculate.enabled = True
     else:
-      self.ui.applyButton.toolTip = "Select input and output volume nodes"
-      self.ui.applyButton.enabled = False
+      self.ui.PushButton_Calculate.toolTip = "Select DRR and external X-ray volume nodes, and output transform node"
+      self.ui.PushButton_Calculate.enabled = False
 
     # All the GUI updates are done
     self._updatingGUIFromParameterNode = False
@@ -258,11 +259,11 @@ class IhepRegistrationWidget(ScriptedLoadableModuleWidget, VTKObservationMixin):
 
     wasModified = self._parameterNode.StartModify()  # Modify all properties in a single batch
 
-    self._parameterNode.SetNodeReferenceID("InputVolume", self.ui.MRMLNodeComboBox_inputVolume.currentNodeID)
-    self._parameterNode.SetNodeReferenceID("OutputVolume", self.ui.outputSelector.currentNodeID)
-    self._parameterNode.SetParameter("Threshold", str(self.ui.imageThresholdSliderWidget.value))
-    self._parameterNode.SetParameter("Invert", "true" if self.ui.invertOutputCheckBox.checked else "false")
-    self._parameterNode.SetNodeReferenceID("OutputVolumeInverse", self.ui.invertedOutputSelector.currentNodeID)
+    self._parameterNode.SetNodeReferenceID("DrrVolume", self.ui.MRMLNodeComboBox_FixedDrrVolume.currentNodeID)
+    self._parameterNode.SetNodeReferenceID("ExtVolume", self.ui.MRMLNodeComboBox_ExtXrayVolume.currentNodeID)
+    self._parameterNode.SetNodeReferenceID("OutputRigidTransform", self.ui.MRMLNodeComboBox_RigidTransform.currentNodeID)
+    self._parameterNode.SetParameter("RigidTransformType", str(self.ui.ComboBox_RigidTransformType.currentIndex))
+    self._parameterNode.SetParameter("RigidTransformFlag", "true" if self.ui.CheckBox_RigidTransform.checked else "false")
 
     self._parameterNode.EndModify(wasModified)
 
