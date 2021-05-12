@@ -136,8 +136,8 @@ class IhepRegistrationWidget(ScriptedLoadableModuleWidget, VTKObservationMixin):
     # (in the selected parameter node).
     self.ui.MRMLNodeComboBox_FixedDrrImage.connect("currentNodeChanged(vtkMRMLNode*)", self.updateParameterNodeFromGUI)
     self.ui.MRMLNodeComboBox_ExtXrayImage.connect("currentNodeChanged(vtkMRMLNode*)", self.updateParameterNodeFromGUI)
-    self.ui.CheckButton_RigidTransform.connect("toggled(bool)", self.updateParameterNodeFromGUI)
-    self.ui.ComboBox_TypeOfRigidTransform.connect("currentIndexChanged(QString*)", self.updateParameterNodeFromGUI)
+    self.ui.CheckBox_RigidTransform.connect("toggled(bool)", self.updateParameterNodeFromGUI)
+    self.ui.ComboBox_RigidTransformType.connect("currentIndexChanged(QString*)", self.updateParameterNodeFromGUI)
     # Rigid output transformation 
     self.ui.MRMLNodeComboBox_RigidTransform.connect("currentNodeChanged(vtkMRMLNode*)", self.updateParameterNodeFromGUI)
 
@@ -267,9 +267,9 @@ class IhepRegistrationWidget(ScriptedLoadableModuleWidget, VTKObservationMixin):
 
     self._parameterNode.EndModify(wasModified)
 
-  def onApplyButton(self):
+  def onCalculateButton(self):
     """
-    Run processing when user clicks "Apply" button.
+    Run processing when user clicks "Calculate" button.
     """
     try:
 
