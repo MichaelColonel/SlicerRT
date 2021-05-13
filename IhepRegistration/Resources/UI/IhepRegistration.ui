@@ -231,5 +231,37 @@
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>IhepRegistration</sender>
+   <signal>mrmlSceneChanged(vtkMRMLScene*)</signal>
+   <receiver>MRMLNodeComboBox_ExtXrayImage</receiver>
+   <slot>setMRMLScene(vtkMRMLScene*)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>198</x>
+     <y>245</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>266</x>
+     <y>81</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>IhepRegistration</sender>
+   <signal>mrmlSceneChanged(vtkMRMLScene*)</signal>
+   <receiver>MRMLNodeComboBox_FixedDrrImage</receiver>
+   <slot>setMRMLScene(vtkMRMLScene*)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>198</x>
+     <y>245</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>266</x>
+     <y>52</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
 </ui>
