@@ -137,7 +137,7 @@ class IhepRegistrationWidget(ScriptedLoadableModuleWidget, VTKObservationMixin):
     self.ui.MRMLNodeComboBox_FixedDrrImage.connect("currentNodeChanged(vtkMRMLNode*)", self.updateParameterNodeFromGUI)
     self.ui.MRMLNodeComboBox_ExtXrayImage.connect("currentNodeChanged(vtkMRMLNode*)", self.updateParameterNodeFromGUI)
     self.ui.CheckBox_RigidTransform.connect("toggled(bool)", self.updateParameterNodeFromGUI)
-    self.ui.ComboBox_RigidTransformType.connect("currentIndexChanged(QString*)", self.updateParameterNodeFromGUI)
+    self.ui.ComboBox_RigidTransformType.connect("currentIndexChanged(QString)", self.updateParameterNodeFromGUI)
     # Rigid output transformation 
     self.ui.MRMLNodeComboBox_RigidTransform.connect("currentNodeChanged(vtkMRMLNode*)", self.updateParameterNodeFromGUI)
 
@@ -235,7 +235,8 @@ class IhepRegistrationWidget(ScriptedLoadableModuleWidget, VTKObservationMixin):
     self.ui.MRMLNodeComboBox_ExtXrayImage.setCurrentNode(self._parameterNode.GetNodeReference("ExtVolume"))
     self.ui.MRMLNodeComboBox_RigidTransform.setCurrentNode(self._parameterNode.GetNodeReference("OutputRigidTransform"))
     self.ui.CheckBox_RigidTransform.checked = (self._parameterNode.GetParameter("RigidTransformFlag") == "true")
-  #  self.ui.ComboBox_TypeOfRigidTransform.checked = (self._parameterNode.GetParameter("Invert") == "true")
+    if self._parameterNode.GetParameter("RigidTransformType") != '':
+      self.ui.ComboBox_RigidTransformType.currentIndex = int(self._parameterNode.GetParameter("RigidTransformType"))
 
     # Update buttons states and tooltips
     if self._parameterNode.GetNodeReference("DrrVolume") and self._parameterNode.GetNodeReference("ExtVolume") and self._parameterNode.GetNodeReference("OutputRigidTransform"):
@@ -248,7 +249,7 @@ class IhepRegistrationWidget(ScriptedLoadableModuleWidget, VTKObservationMixin):
     # All the GUI updates are done
     self._updatingGUIFromParameterNode = False
 
-  def updateParameterNodeFromGUI(self, caller=None, event=None):
+  def updateParameterNodeFromGUI(self, caller = None, event = None):
     """
     This method is called when the user makes any change in the GUI.
     The changes are saved into the parameter node (so that they are restored when the scene is saved and loaded).
@@ -274,8 +275,10 @@ class IhepRegistrationWidget(ScriptedLoadableModuleWidget, VTKObservationMixin):
     try:
 
       # Compute output
-      self.logic.process(self.ui.inputSelector.currentNode(), self.ui.outputSelector.currentNode(),
-        self.ui.imageThresholdSliderWidget.value, self.ui.invertOutputCheckBox.checked)
+      self.logic.process( self.ui.MRMLNodeComboBox_FixedDrrImage.currentNode(), 
+        self.ui.MRMLNodeComboBox_ExtXrayImage.currentNode(),
+        self.ui.ComboBox_RigidTransformType.currentIndex, 
+        self.ui.CheckBox_RigidTransform.checked)
 
       # Compute inverted output (if needed)
       if self.ui.invertedOutputSelector.currentNode():
@@ -314,24 +317,24 @@ class IhepRegistrationLogic(ScriptedLoadableModuleLogic):
     """
     Initialize parameter node with default settings.
     """
-    if not parameterNode.GetParameter("Threshold"):
-      parameterNode.SetParameter("Threshold", "100.0")
-    if not parameterNode.GetParameter("Invert"):
-      parameterNode.SetParameter("Invert", "false")
+    if not parameterNode.GetParameter("RigidTransformType"):
+      parameterNode.SetParameter("RigidTransformType", "")
+    if not parameterNode.GetParameter("RigidTransformFlag"):
+      parameterNode.SetParameter("RigidTransformFlag", "false")
 
-  def process(self, inputVolume, outputVolume, imageThreshold, invert=False, showResult=True):
+  def process(self, fixedDrrVolume, extXrayVolume, outputTransform, rigidTransform=True, rigidTransformType=0):
     """
     Run the processing algorithm.
     Can be used without GUI widget.
-    :param inputVolume: volume to be thresholded
-    :param outputVolume: thresholding result
-    :param imageThreshold: values above/below this threshold will be set to 0
-    :param invert: if True then values above the threshold will be set to 0, otherwise values below are set to 0
-    :param showResult: show output volume in slice viewers
+    :param fixedDrrVolume: Fixed DRR volume
+    :param extXrayVolume: X-ray image from external (portal) system 
+    :param outputTransform: Output transformation of the x-ray image to the DRR image 
+    :param rigidTransform: if True then use rigid transform, otherwise use "default" transform
+    :param rigidTransformType: Type of rigid transform (0 for 6-DOF, 1 for 7-DOF=6-DOF + Scale)
     """
 
-    if not inputVolume or not outputVolume:
-      raise ValueError("Input or output volume is invalid")
+    if not fixedDrrVolume or not extXrayVolume:
+      raise ValueError("Input DRR or external x-ray volume is invalid")
 
     import time
     startTime = time.time()
@@ -339,12 +342,13 @@ class IhepRegistrationLogic(ScriptedLoadableModuleLogic):
 
     # Compute the thresholded output volume using the "Threshold Scalar Volume" CLI module
     cliParams = {
-      'InputVolume': inputVolume.GetID(),
-      'OutputVolume': outputVolume.GetID(),
-      'ThresholdValue' : imageThreshold,
-      'ThresholdType' : 'Above' if invert else 'Below'
-      }
-    cliNode = slicer.cli.run(slicer.modules.thresholdscalarvolume, None, cliParams, wait_for_completion=True, update_display=showResult)
+      'drrVolume' : fixedDrrVolume.GetID(),
+      'xrayVolume' : extXrayVolume.GetID(),
+      'outputTransform' : outputTransform.GetID(),
+      'rigidTransformFlag' : rigidTransform,
+      'rigidTransformType' : rigidTransformType
+    }
+    cliNode = slicer.cli.run( slicer.modules.thresholdscalarvolume, None, cliParams, wait_for_completion=True, update_display=showResult)
     # We don't need the CLI module node anymore, remove it to not clutter the scene with it
     slicer.mrmlScene.RemoveNode(cliNode)
 
