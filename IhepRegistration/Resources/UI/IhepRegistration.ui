@@ -36,7 +36,7 @@
       <item row="1" column="0">
        <widget class="QLabel" name="label_7">
         <property name="text">
-         <string>External X-Ray image:</string>
+         <string>External x-ray image:</string>
         </property>
        </widget>
       </item>
@@ -61,12 +61,12 @@
       <item row="0" column="0">
        <widget class="QLabel" name="label_2">
         <property name="text">
-         <string>Rigid transform:</string>
+         <string>Registration transform:</string>
         </property>
        </widget>
       </item>
       <item row="0" column="1">
-       <widget class="qMRMLNodeComboBox" name="MRMLNodeComboBox_RigidTransform">
+       <widget class="qMRMLNodeComboBox" name="MRMLNodeComboBox_RegistrationTransform">
         <property name="toolTip">
          <string>Pick the output to the algorithm.</string>
         </property>
@@ -100,46 +100,41 @@
      <property name="collapsed">
       <bool>false</bool>
      </property>
-     <layout class="QFormLayout" name="formLayout_3">
+     <layout class="QGridLayout" name="gridLayout_2">
       <item row="0" column="0">
-       <widget class="QLabel" name="label_4">
-        <property name="text">
-         <string>Rigid transform: </string>
+       <widget class="QGroupBox" name="GroupBox_RigidTransform">
+        <property name="title">
+         <string>Rigid transform</string>
         </property>
-       </widget>
-      </item>
-      <item row="0" column="1">
-       <widget class="QCheckBox" name="CheckBox_RigidTransform">
-        <property name="toolTip">
-         <string>If checked, values above threshold are set to 0. If unchecked, values below are set to 0.</string>
+        <property name="checkable">
+         <bool>true</bool>
         </property>
-        <property name="text">
-         <string/>
-        </property>
-       </widget>
-      </item>
-      <item row="1" column="0">
-       <widget class="QLabel" name="label_3">
-        <property name="text">
-         <string>Rigid transform type: </string>
-        </property>
-       </widget>
-      </item>
-      <item row="1" column="1">
-       <widget class="ctkComboBox" name="ComboBox_RigidTransformType">
-        <property name="enabled">
-         <bool>false</bool>
-        </property>
-        <item>
-         <property name="text">
-          <string>Rigid (6 DOF)</string>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>Rigid+Scale (7 DOF)</string>
-         </property>
-        </item>
+        <layout class="QGridLayout" name="gridLayout">
+         <item row="0" column="0" rowspan="2" colspan="2">
+          <widget class="QLabel" name="label_3">
+           <property name="text">
+            <string>Rigid transform type: </string>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="1">
+          <widget class="ctkComboBox" name="ComboBox_RigidTransformType">
+           <property name="enabled">
+            <bool>false</bool>
+           </property>
+           <item>
+            <property name="text">
+             <string>Rigid (6 DOF)</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>Rigid+Scale (7 DOF)</string>
+            </property>
+           </item>
+          </widget>
+         </item>
+        </layout>
        </widget>
       </item>
      </layout>
@@ -202,7 +197,7 @@
   <connection>
    <sender>IhepRegistration</sender>
    <signal>mrmlSceneChanged(vtkMRMLScene*)</signal>
-   <receiver>MRMLNodeComboBox_RigidTransform</receiver>
+   <receiver>MRMLNodeComboBox_RegistrationTransform</receiver>
    <slot>setMRMLScene(vtkMRMLScene*)</slot>
    <hints>
     <hint type="sourcelabel">
@@ -212,22 +207,6 @@
     <hint type="destinationlabel">
      <x>220</x>
      <y>161</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>CheckBox_RigidTransform</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>ComboBox_RigidTransformType</receiver>
-   <slot>setEnabled(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>246</x>
-     <y>281</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>246</x>
-     <y>306</y>
     </hint>
    </hints>
   </connection>
@@ -260,6 +239,22 @@
     <hint type="destinationlabel">
      <x>266</x>
      <y>52</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>GroupBox_RigidTransform</sender>
+   <signal>clicked(bool)</signal>
+   <receiver>ComboBox_RigidTransformType</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>198</x>
+     <y>245</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>284</x>
+     <y>257</y>
     </hint>
    </hints>
   </connection>

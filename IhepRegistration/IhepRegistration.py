@@ -234,7 +234,7 @@ class IhepRegistrationWidget(ScriptedLoadableModuleWidget, VTKObservationMixin):
     self.ui.MRMLNodeComboBox_FixedDrrImage.setCurrentNode(self._parameterNode.GetNodeReference("DrrVolume"))
     self.ui.MRMLNodeComboBox_ExtXrayImage.setCurrentNode(self._parameterNode.GetNodeReference("ExtVolume"))
     self.ui.MRMLNodeComboBox_RigidTransform.setCurrentNode(self._parameterNode.GetNodeReference("OutputRigidTransform"))
-    self.ui.CheckBox_RigidTransform.checked = (self._parameterNode.GetParameter("RigidTransformFlag") == "true")
+    self.ui.GroupBox_RigidTransform.checked = (self._parameterNode.GetParameter("RigidTransformFlag") == "true")
     if self._parameterNode.GetParameter("RigidTransformType") != '':
       self.ui.ComboBox_RigidTransformType.currentIndex = int(self._parameterNode.GetParameter("RigidTransformType"))
 
