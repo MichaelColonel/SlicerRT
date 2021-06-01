@@ -253,6 +253,29 @@ void vtkMRMLDrrImageComputationNode::PrintSelf(ostream& os, vtkIndent indent)
 }
 
 //----------------------------------------------------------------------------
+void vtkMRMLDrrImageComputationNode::ProcessMRMLEvents(vtkObject *caller, unsigned long eventID, void *callData)
+{
+  Superclass::ProcessMRMLEvents(caller, eventID, callData);
+
+  if (!this->Scene)
+  {
+    vtkErrorMacro("ProcessMRMLEvents: Invalid MRML scene");
+    return;
+  }
+  if (this->Scene->IsBatchProcessing())
+  {
+    return;
+  }
+
+  if (eventID == vtkCommand::ModifiedEvent && caller == this->GetCameraNode())
+  {
+    // Update the beam from camera
+    vtkErrorMacro("ProcessMRMLEvents: Camera modified event");
+//    this->InvokeCustomModifiedEvent(vtkMRMLDrrImageComputationNode::CameraModifiedEvent);
+  }
+}
+
+//----------------------------------------------------------------------------
 vtkMRMLRTBeamNode* vtkMRMLDrrImageComputationNode::GetBeamNode()
 {
   return vtkMRMLRTBeamNode::SafeDownCast( this->GetNodeReference(BEAM_REFERENCE_ROLE) );
@@ -285,7 +308,19 @@ void vtkMRMLDrrImageComputationNode::SetAndObserveCameraNode(vtkMRMLCameraNode* 
     return;
   }
 
+  if(vtkMRMLCameraNode* observedNode = this->GetCameraNode())
+  {
+    vtkUnObserveMRMLObjectMacro(observedNode);
+  }
+
   this->SetNodeReferenceID(CAMERA_REFERENCE_ROLE, (node ? node->GetID() : nullptr));
+
+  if (node)
+  {
+    vtkNew<vtkIntArray> events;
+    events->InsertNextValue(vtkCommand::ModifiedEvent);
+    vtkObserveMRMLObjectEventsMacro(node, events);
+  }
 }
 
 //----------------------------------------------------------------------------

@@ -119,14 +119,7 @@ void vtkSlicerDrrImageComputationLogic::RegisterNodes()
     vtkErrorMacro("RegisterNodes: Invalid MRML scene");
     return;
   }
-//  if (!scene->IsNodeClassRegistered("vtkMRMLRTPlanNode"))
-//  {
-//    scene->RegisterNodeClass(vtkSmartPointer<vtkMRMLRTPlanNode>::New());
-//  }
-//  if (!scene->IsNodeClassRegistered("vtkMRMLRTBeamNode"))
-//  {
-//    scene->RegisterNodeClass(vtkSmartPointer<vtkMRMLRTBeamNode>::New());
-//  }
+
   if (!scene->IsNodeClassRegistered("vtkMRMLDrrImageComputationNode"))
   {
     scene->RegisterNodeClass(vtkSmartPointer<vtkMRMLDrrImageComputationNode>::New());
@@ -153,15 +146,7 @@ void vtkSlicerDrrImageComputationLogic::OnMRMLSceneNodeAdded(vtkMRMLNode* node)
     return;
   }
 
-//  if (node->IsA("vtkMRMLRTBeamNode"))
-//  {
-//    // Observe beam events
-//    vtkSmartPointer<vtkIntArray> events = vtkSmartPointer<vtkIntArray>::New();
-//    events->InsertNextValue(vtkMRMLRTBeamNode::BeamGeometryModified);
-//    events->InsertNextValue(vtkMRMLRTBeamNode::BeamTransformModified);
-//    vtkObserveMRMLNodeEventsMacro(node, events);
-//  }
-  if (node->IsA("vtkMRMLDrrImageComputationNode"))
+  else if (node->IsA("vtkMRMLDrrImageComputationNode"))
   {
     vtkNew<vtkIntArray> events;
     events->InsertNextValue(vtkCommand::ModifiedEvent);
@@ -195,16 +180,6 @@ void vtkSlicerDrrImageComputationLogic::ProcessMRMLNodesEvents(vtkObject* caller
     return;
   }
 
-//  if (caller->IsA("vtkMRMLRTBeamNode"))
-//  {
-//    vtkMRMLRTBeamNode* beamNode = vtkMRMLRTBeamNode::SafeDownCast(caller);
-//    if (event == vtkMRMLRTBeamNode::BeamTransformModified)
-//    {
-//    }
-//    else if (event == vtkMRMLRTBeamNode::BeamGeometryModified)
-//    {
-//    }
-//  }
   if (caller->IsA("vtkMRMLDrrImageComputationNode"))
   {
     vtkMRMLDrrImageComputationNode* parameterNode = vtkMRMLDrrImageComputationNode::SafeDownCast(caller);

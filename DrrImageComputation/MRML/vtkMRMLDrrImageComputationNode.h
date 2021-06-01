@@ -74,6 +74,9 @@ public:
   /// Get unique node XML tag name
   const char* GetNodeTagName() override { return "DrrImageComputation"; };
 
+  /// Handles events registered in the observer manager
+  void ProcessMRMLEvents(vtkObject *caller, unsigned long eventID, void *callData) override;
+
   void GetRTImagePosition(double position[2]);
   void GetIsocenterPositionLPS(double position[3]);
 
