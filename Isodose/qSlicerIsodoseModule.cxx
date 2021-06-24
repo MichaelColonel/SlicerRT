@@ -30,6 +30,21 @@
 #include "qSlicerIsodoseModule.h"
 #include "qSlicerIsodoseModuleWidget.h"
 
+// SlicerQt includes
+#include <qSlicerCoreApplication.h>
+#include <qSlicerModuleManager.h>
+
+// VTK includes
+#include <vtkOpenGLGPUVolumeRayCastMapper.h>
+
+// MRML includes
+#include <vtkSlicerVolumeRenderingLogic.h>
+#include <vtkMRMLThreeDViewDisplayableManagerFactory.h>
+#include <vtkMRMLGPURayCastVolumeRenderingDisplayNode.h>
+
+// Qt includes
+#include <QDebug>
+
 //-----------------------------------------------------------------------------
 #if (QT_VERSION < QT_VERSION_CHECK(5, 0, 0))
 #include <QtPlugin>
@@ -107,6 +122,24 @@ void qSlicerIsodoseModule::setup()
 
   // Register Subject Hierarchy plugins
   qSlicerSubjectHierarchyPluginHandler::instance()->registerPlugin(new qSlicerSubjectHierarchyIsodosePlugin());
+  
+  vtkMRMLThreeDViewDisplayableManagerFactory::GetInstance()->
+    RegisterDisplayableManager("vtkMRMLIsosurfaceGPUVolumeRenderingDisplayableManager");
+
+  qSlicerAbstractCoreModule* volumeRenderingModule =
+    qSlicerCoreApplication::application()->moduleManager()->module("VolumeRendering");
+  if (volumeRenderingModule)
+  {
+    vtkNew<vtkMRMLGPURayCastVolumeRenderingDisplayNode> displayNode;
+    vtkSlicerVolumeRenderingLogic* volumeRenderingLogic =
+      vtkSlicerVolumeRenderingLogic::SafeDownCast(volumeRenderingModule->logic());
+    volumeRenderingLogic->RegisterRenderingMethod(
+      "IsosurfaceGPUVolumeRendering", displayNode->GetClassName());
+  }
+  else
+  {
+    qWarning() << Q_FUNC_INFO << "Volume Rendering module is not found";
+  }
 }
 
 //-----------------------------------------------------------------------------

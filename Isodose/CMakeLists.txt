@@ -22,6 +22,7 @@ set(MODULE_INCLUDE_DIRECTORIES
   ${CMAKE_CURRENT_SOURCE_DIR}/SubjectHierarchyPlugins
   ${CMAKE_CURRENT_BINARY_DIR}/SubjectHierarchyPlugins
   ${qSlicerSubjectHierarchyModuleWidgets_INCLUDE_DIRS}
+  ${vtkSlicerVolumeRenderingModuleMRML_INCLUDE_DIRS}
   )
 
 set(MODULE_SRCS
@@ -42,6 +43,9 @@ set(MODULE_UI_SRCS
 )
 
 set(MODULE_TARGET_LIBRARIES
+  vtkSlicerVolumeRenderingModuleLogic
+  vtkSlicerVolumeRenderingModuleMRML
+  vtkSlicerVolumeRenderingModuleMRMLDisplayableManager
   vtkSlicer${MODULE_NAME}ModuleLogic
   vtkSlicer${MODULE_NAME}ModuleWidgets
   qSlicer${MODULE_NAME}SubjectHierarchyPlugins
