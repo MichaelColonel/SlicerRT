@@ -49,6 +49,7 @@
 #include <vtkMRMLModelNode.h>
 #include <vtkMRMLModelHierarchyNode.h>
 #include <vtkMRMLScalarVolumeNode.h>
+#include <vtkMRMLScalarBarDisplayNode.h>
 #include <vtkMRMLScene.h>
 #include <vtkMRMLSubjectHierarchyNode.h>
 
@@ -84,6 +85,7 @@ public:
   vtkSlicerRTScalarBarActor* ScalarBarActor2DGreen;
 
   std::vector<vtkScalarBarWidget*> ScalarBarWidgets;
+  vtkSmartPointer<vtkMRMLScalarBarDisplayNode> ScalarBarNode;
 };
 
 //-----------------------------------------------------------------------------
@@ -114,6 +116,8 @@ qSlicerIsodoseModuleWidgetPrivate::qSlicerIsodoseModuleWidgetPrivate(qSlicerIsod
   this->ScalarBarWidget2DGreen = vtkScalarBarWidget::New();
   this->ScalarBarWidget2DGreen->SetScalarBarActor(this->ScalarBarActor2DGreen);
   this->ScalarBarWidgets.push_back(this->ScalarBarWidget2DGreen);
+
+//  this->ScalarBarNode = vtkSmartPointer<vtkMRMLScalarBarDisplayNode>::New();
 
   for (vtkScalarBarWidget* scalarBarWidget : ScalarBarWidgets)
   {
@@ -205,6 +209,13 @@ void qSlicerIsodoseModuleWidget::setMRMLScene(vtkMRMLScene* scene)
 
   qvtkReconnect( d->logic(), scene, vtkMRMLScene::EndImportEvent, this, SLOT(onSceneImportedEvent()) );
   qvtkReconnect( d->logic(), scene, vtkMRMLScene::EndCloseEvent, this, SLOT(onSceneClosedEvent()) );
+
+  if (scene)
+  {
+    vtkMRMLNode* node = scene->GetFirstNodeByClass("vtkMRMLScalarBarDisplayNode");
+    vtkMRMLScalarBarDisplayNode* sbNode = vtkMRMLScalarBarDisplayNode::SafeDownCast(node);
+    d->ScalarBarNode = vtkSmartPointer<vtkMRMLScalarBarDisplayNode>::Take(sbNode);
+  }
 
   // Find parameters node or create it if there is no one in the scene
   if (scene && d->MRMLNodeComboBox_ParameterSet->currentNode() == nullptr)
@@ -968,6 +979,8 @@ void qSlicerIsodoseModuleWidget::updateScalarBarsFromSelectedColorTable()
     qCritical() << Q_FUNC_INFO << ": Failed to access subject hierarchy node";
     return;
   }
+
+  d->ScalarBarNode->SetAndObserveColorTableNode(selectedColorNode);
 
   int newNumberOfColors = selectedColorNode->GetNumberOfColors();
 
