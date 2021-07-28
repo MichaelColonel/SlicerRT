@@ -776,7 +776,7 @@ bool vtkSlicerIhepStandGeometryTransformLogic::GetPathToRoot( CoordinateSystemId
   bool found = false;
   do
   {
-    for ( auto& pair : this->CoordinateSystemsHierarchy)
+    for (auto& pair : this->CoordinateSystemsHierarchy)
     {
       CoordinateSystemIdentifier parent = pair.first;
 

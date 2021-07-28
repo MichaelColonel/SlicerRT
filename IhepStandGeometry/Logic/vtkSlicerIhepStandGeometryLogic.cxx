@@ -345,6 +345,24 @@ vtkMRMLMarkupsPlaneNode* vtkSlicerIhepStandGeometryLogic::CreateTableTopStandPla
 }
 
 //----------------------------------------------------------------------------
+void vtkSlicerIhepStandGeometryLogic::UpdateTableTopToTableTopVerticalTransform(double posOrigin[3], 
+  double posMirror[3], double posMiddle[3])
+{
+  using IHEP = vtkSlicerIhepStandGeometryTransformLogic::CoordinateSystemIdentifier;
+
+  // Update TableTopVertical -> TableTopStand
+  // Translation of the TableTop from TableTopStand
+  vtkMRMLLinearTransformNode* tableTopVerticalToTableTopStandTransformNode =
+    this->IhepLogic->GetTransformNodeBetween(IHEP::TableTopVertical, IHEP::TableTopStand);
+  vtkTransform* tableTopVerticalToTableTopStandTransform = vtkTransform::SafeDownCast(
+    tableTopVerticalToTableTopStandTransformNode->GetTransformToParent() );
+
+  // Calculate transform from tree points
+  tableTopVerticalToTableTopStandTransform->Identity();
+  tableTopVerticalToTableTopStandTransform->Modified();
+}
+
+//----------------------------------------------------------------------------
 vtkMRMLMarkupsLineNode* vtkSlicerIhepStandGeometryLogic::CreateFixedReferenceLineNode(vtkMRMLIhepStandGeometryNode* parameterNode)
 {
   vtkNew<vtkMRMLMarkupsLineNode> lineMarkupsNode;

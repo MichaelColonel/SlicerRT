@@ -81,6 +81,8 @@ public:
   /// Update FixedReference markups line node using parameter node data and geometry hierarchy
   void UpdateFixedReferenceLineNode(vtkMRMLIhepStandGeometryNode* parameterNode);
 
+  void UpdateTableTopToTableTopVerticalTransform( double posOrigin[3], double posMirror[3], double posMiddle[3]);
+
   /// Show markups
   void ShowMarkupsNodes(bool toggled = false);
 
