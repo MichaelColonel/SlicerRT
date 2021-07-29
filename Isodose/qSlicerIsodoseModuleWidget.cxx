@@ -117,7 +117,7 @@ qSlicerIsodoseModuleWidgetPrivate::qSlicerIsodoseModuleWidgetPrivate(qSlicerIsod
   this->ScalarBarWidget2DGreen->SetScalarBarActor(this->ScalarBarActor2DGreen);
   this->ScalarBarWidgets.push_back(this->ScalarBarWidget2DGreen);
 
-//  this->ScalarBarNode = vtkSmartPointer<vtkMRMLScalarBarDisplayNode>::New();
+  this->ScalarBarNode = vtkSmartPointer<vtkMRMLScalarBarDisplayNode>::New();
 
   for (vtkScalarBarWidget* scalarBarWidget : ScalarBarWidgets)
   {
@@ -217,6 +217,11 @@ void qSlicerIsodoseModuleWidget::setMRMLScene(vtkMRMLScene* scene)
     {
       vtkMRMLScalarBarDisplayNode* sbNode = vtkMRMLScalarBarDisplayNode::SafeDownCast(node);
       d->ScalarBarNode = vtkSmartPointer<vtkMRMLScalarBarDisplayNode>::Take(sbNode);
+    }
+    else
+    {
+      d->ScalarBarNode = vtkSmartPointer<vtkMRMLScalarBarDisplayNode>::New();
+      scene->AddNode(d->ScalarBarNode);
     }
   }
 
@@ -983,7 +988,7 @@ void qSlicerIsodoseModuleWidget::updateScalarBarsFromSelectedColorTable()
     return;
   }
 
-//  d->ScalarBarNode->SetAndObserveColorTableNode(selectedColorNode);
+  d->ScalarBarNode->SetAndObserveColorTableNode(selectedColorNode);
 
   int newNumberOfColors = selectedColorNode->GetNumberOfColors();
 
