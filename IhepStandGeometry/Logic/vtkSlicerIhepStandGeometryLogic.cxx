@@ -345,7 +345,7 @@ vtkMRMLMarkupsPlaneNode* vtkSlicerIhepStandGeometryLogic::CreateTableTopStandPla
 }
 
 //----------------------------------------------------------------------------
-void vtkSlicerIhepStandGeometryLogic::UpdateTableTopToTableTopVerticalTransform(double posOrigin[3], 
+void vtkSlicerIhepStandGeometryLogic::UpdateTableTopToTableTopVerticalTransform( double posOrigin[3], 
   double posMirror[3], double posMiddle[3])
 {
   using IHEP = vtkSlicerIhepStandGeometryTransformLogic::CoordinateSystemIdentifier;

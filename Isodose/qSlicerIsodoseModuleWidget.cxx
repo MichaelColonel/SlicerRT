@@ -213,8 +213,11 @@ void qSlicerIsodoseModuleWidget::setMRMLScene(vtkMRMLScene* scene)
   if (scene)
   {
     vtkMRMLNode* node = scene->GetFirstNodeByClass("vtkMRMLScalarBarDisplayNode");
-    vtkMRMLScalarBarDisplayNode* sbNode = vtkMRMLScalarBarDisplayNode::SafeDownCast(node);
-    d->ScalarBarNode = vtkSmartPointer<vtkMRMLScalarBarDisplayNode>::Take(sbNode);
+    if (node)
+    {
+      vtkMRMLScalarBarDisplayNode* sbNode = vtkMRMLScalarBarDisplayNode::SafeDownCast(node);
+      d->ScalarBarNode = vtkSmartPointer<vtkMRMLScalarBarDisplayNode>::Take(sbNode);
+    }
   }
 
   // Find parameters node or create it if there is no one in the scene
@@ -980,7 +983,7 @@ void qSlicerIsodoseModuleWidget::updateScalarBarsFromSelectedColorTable()
     return;
   }
 
-  d->ScalarBarNode->SetAndObserveColorTableNode(selectedColorNode);
+//  d->ScalarBarNode->SetAndObserveColorTableNode(selectedColorNode);
 
   int newNumberOfColors = selectedColorNode->GetNumberOfColors();
 
