@@ -35,16 +35,21 @@ class Q_SLICER_QTMODULES_SCALARBAR_EXPORT qSlicerScalarBarModuleWidget :
 public:
 
   typedef qSlicerAbstractModuleWidget Superclass;
-  qSlicerScalarBarModuleWidget(QWidget *parent=0);
-  virtual ~qSlicerScalarBarModuleWidget();
+  qSlicerScalarBarModuleWidget(QWidget* parent = nullptr);
+  ~qSlicerScalarBarModuleWidget() override;
+
+  void exit() override;
+  void enter() override;
 
 public slots:
+  void setMRMLScene(vtkMRMLScene*) override;
 
 
 protected:
   QScopedPointer<qSlicerScalarBarModuleWidgetPrivate> d_ptr;
 
-  virtual void setup();
+  void setup() override;
+  void onEnter();
 
 private:
   Q_DECLARE_PRIVATE(qSlicerScalarBarModuleWidget);

@@ -22,20 +22,47 @@
 #include "qSlicerScalarBarModuleWidget.h"
 #include "ui_qSlicerScalarBarModuleWidget.h"
 
+#include "vtkMRMLScene.h"
+ 
+#include "vtkSlicerScalarBarLogic.h"
+
 //-----------------------------------------------------------------------------
 /// \ingroup Slicer_QtModules_ExtensionTemplate
 class qSlicerScalarBarModuleWidgetPrivate: public Ui_qSlicerScalarBarModuleWidget
 {
+  Q_DECLARE_PUBLIC(qSlicerScalarBarModuleWidget);
+protected:
+  qSlicerScalarBarModuleWidget* const q_ptr;
+
 public:
-  qSlicerScalarBarModuleWidgetPrivate();
+  qSlicerScalarBarModuleWidgetPrivate(qSlicerScalarBarModuleWidget &object);
+  virtual ~qSlicerScalarBarModuleWidgetPrivate();
+
+  vtkSlicerScalarBarLogic* logic() const;
+  bool ModuleWindowInitialized;
 };
 
 //-----------------------------------------------------------------------------
 // qSlicerScalarBarModuleWidgetPrivate methods
 
 //-----------------------------------------------------------------------------
-qSlicerScalarBarModuleWidgetPrivate::qSlicerScalarBarModuleWidgetPrivate()
+qSlicerScalarBarModuleWidgetPrivate::qSlicerScalarBarModuleWidgetPrivate(qSlicerScalarBarModuleWidget &object)
+  :
+  q_ptr(&object),
+  ModuleWindowInitialized(false)
 {
+}
+
+//-----------------------------------------------------------------------------
+qSlicerScalarBarModuleWidgetPrivate::~qSlicerScalarBarModuleWidgetPrivate()
+{
+}
+
+//-----------------------------------------------------------------------------
+vtkSlicerScalarBarLogic* qSlicerScalarBarModuleWidgetPrivate::logic() const
+{
+  Q_Q(const qSlicerScalarBarModuleWidget);
+  return vtkSlicerScalarBarLogic::SafeDownCast(q->logic());
 }
 
 //-----------------------------------------------------------------------------
@@ -44,7 +71,7 @@ qSlicerScalarBarModuleWidgetPrivate::qSlicerScalarBarModuleWidgetPrivate()
 //-----------------------------------------------------------------------------
 qSlicerScalarBarModuleWidget::qSlicerScalarBarModuleWidget(QWidget* _parent)
   : Superclass( _parent )
-  , d_ptr( new qSlicerScalarBarModuleWidgetPrivate )
+  , d_ptr( new qSlicerScalarBarModuleWidgetPrivate(*this) )
 {
 }
 
@@ -59,4 +86,47 @@ void qSlicerScalarBarModuleWidget::setup()
   Q_D(qSlicerScalarBarModuleWidget);
   d->setupUi(this);
   this->Superclass::setup();
+}
+
+//-----------------------------------------------------------------------------
+void qSlicerScalarBarModuleWidget::setMRMLScene(vtkMRMLScene* scene)
+{
+  Q_D(qSlicerScalarBarModuleWidget);
+  this->Superclass::setMRMLScene(scene);
+
+  qvtkReconnect( d->logic(), scene, vtkMRMLScene::EndImportEvent, this, SLOT(onSceneImportedEvent()));
+  qvtkReconnect( d->logic(), scene, vtkMRMLScene::EndCloseEvent, this, SLOT(onSceneClosedEvent()));
+
+  // Find parameters node or create it if there is none in the scene
+  if (scene)
+  {
+//    if (d->MRMLNodeComboBox_ParameterSet->currentNode())
+//    {
+//      this->setParameterNode(d->MRMLNodeComboBox_ParameterSet->currentNode());
+//    }
+//    else if (vtkMRMLNode* node = scene->GetNthNodeByClass( 0, "vtkMRMLDrrImageComputationNode"))
+//    {
+//      this->setParameterNode(node);
+//    }
+//    else
+//    {
+//      vtkNew<vtkMRMLDrrImageComputationNode> newNode;
+//      this->mrmlScene()->AddNode(newNode);
+//      this->setParameterNode(newNode);
+//    }
+  }
+}
+
+//-----------------------------------------------------------------------------
+void qSlicerScalarBarModuleWidget::exit()
+{
+  Q_D(qSlicerScalarBarModuleWidget);
+  this->Superclass::exit();
+}
+
+//-----------------------------------------------------------------------------
+void qSlicerScalarBarModuleWidget::enter()
+{
+  Q_D(qSlicerScalarBarModuleWidget);
+  this->Superclass::enter();
 }

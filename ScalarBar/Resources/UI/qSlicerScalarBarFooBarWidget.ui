@@ -6,26 +6,42 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>103</width>
-    <height>27</height>
+    <width>262</width>
+    <height>479</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>Foo bar</string>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
-   <property name="margin">
+   <property name="leftMargin">
+    <number>0</number>
+   </property>
+   <property name="topMargin">
+    <number>0</number>
+   </property>
+   <property name="rightMargin">
+    <number>0</number>
+   </property>
+   <property name="bottomMargin">
     <number>0</number>
    </property>
    <item>
-    <widget class="QPushButton" name="FooBarButton">
-     <property name="text">
-      <string>Foo Bar</string>
+    <widget class="ctkVTKScalarBarWidget" name="VTKScalarBar">
+     <property name="enabled">
+      <bool>false</bool>
      </property>
     </widget>
    </item>
   </layout>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>ctkVTKScalarBarWidget</class>
+   <extends>QWidget</extends>
+   <header>ctkVTKScalarBarWidget.h</header>
+  </customwidget>
+ </customwidgets>
  <resources/>
  <connections/>
 </ui>
