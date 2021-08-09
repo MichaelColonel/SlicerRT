@@ -43,7 +43,18 @@ public:
 
 public slots:
   void setMRMLScene(vtkMRMLScene*) override;
+  /// Update widget GUI from RT Image parameters node
+  void updateWidgetFromMRML();
 
+  void setParameterNode(vtkMRMLNode*);
+  void onSceneImportedEvent();
+  void onSceneClosedEvent();
+
+  void onParameterNodeChanged(vtkMRMLNode*);
+  void onColorTableNodeChanged(vtkMRMLNode*);
+  void onShowScalarBarToggled(bool);
+
+  void onLogicModified();
 
 protected:
   QScopedPointer<qSlicerScalarBarModuleWidgetPrivate> d_ptr;
