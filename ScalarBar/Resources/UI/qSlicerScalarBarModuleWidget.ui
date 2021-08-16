@@ -16,36 +16,39 @@
   <layout class="QGridLayout" name="gridLayout_2">
    <item row="0" column="0">
     <layout class="QGridLayout" name="gridLayout">
+     <item row="0" column="0">
+      <widget class="QLabel" name="Label_ScalarVolumeNode">
+       <property name="text">
+        <string>Scalar volume node:</string>
+       </property>
+      </widget>
+     </item>
      <item row="0" column="1">
-      <widget class="qMRMLNodeComboBox" name="MRMLNodeComboBox_ParameterNode">
+      <widget class="qMRMLNodeComboBox" name="MRMLNodeComboBox_ScalarVolumeNode">
        <property name="nodeTypes">
         <stringlist>
-         <string>vtkMRMLScalarBarDisplayNode</string>
+         <string>vtkMRMLScalarVolumeNode</string>
         </stringlist>
        </property>
       </widget>
      </item>
-     <item row="0" column="0">
-      <widget class="QLabel" name="Label_ParameterNode">
-       <property name="text">
-        <string>Parameter node:</string>
-       </property>
-      </widget>
-     </item>
      <item row="2" column="0" colspan="2">
-      <widget class="QCheckBox" name="CheckBox_ShowScalarBar">
+      <widget class="QCheckBox" name="CheckBox_ShowColorBar">
+       <property name="enabled">
+        <bool>false</bool>
+       </property>
        <property name="text">
-        <string>Show scalar bar</string>
+        <string>Show color bar</string>
        </property>
       </widget>
      </item>
-     <item row="1" column="1">
-      <widget class="qMRMLColorTableComboBox" name="MRMLNodeComboBox_ColorTableNode"/>
-     </item>
-     <item row="1" column="0">
-      <widget class="QLabel" name="Label_ColorTableNode">
+     <item row="1" column="0" colspan="2">
+      <widget class="QPushButton" name="PushButton_AddColorBarDisplayNode">
+       <property name="enabled">
+        <bool>false</bool>
+       </property>
        <property name="text">
-        <string>Color table node:</string>
+        <string>Add color bar display node</string>
        </property>
       </widget>
      </item>
@@ -89,11 +92,6 @@
    <container>1</container>
   </customwidget>
   <customwidget>
-   <class>qMRMLColorTableComboBox</class>
-   <extends>qMRMLNodeComboBox</extends>
-   <header>qMRMLColorTableComboBox.h</header>
-  </customwidget>
-  <customwidget>
    <class>qMRMLNodeComboBox</class>
    <extends>QWidget</extends>
    <header>qMRMLNodeComboBox.h</header>
@@ -116,7 +114,7 @@
   <connection>
    <sender>qSlicerScalarBarModuleWidget</sender>
    <signal>mrmlSceneChanged(vtkMRMLScene*)</signal>
-   <receiver>MRMLNodeComboBox_ParameterNode</receiver>
+   <receiver>MRMLNodeComboBox_ScalarVolumeNode</receiver>
    <slot>setMRMLScene(vtkMRMLScene*)</slot>
    <hints>
     <hint type="sourcelabel">
@@ -126,22 +124,6 @@
     <hint type="destinationlabel">
      <x>251</x>
      <y>21</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>qSlicerScalarBarModuleWidget</sender>
-   <signal>mrmlSceneChanged(vtkMRMLScene*)</signal>
-   <receiver>MRMLNodeComboBox_ColorTableNode</receiver>
-   <slot>setMRMLScene(vtkMRMLScene*)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>199</x>
-     <y>147</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>251</x>
-     <y>50</y>
     </hint>
    </hints>
   </connection>

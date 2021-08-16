@@ -26,11 +26,7 @@
  
 #include "vtkSlicerScalarBarLogic.h"
 
-#include "vtkMRMLScalarBarDisplayNode.h"
-
-#include <vtkMRMLColorNode.h>
-#include <vtkMRMLColorTableNode.h>
-#include <vtkMRMLProceduralColorNode.h>
+#include <vtkMRMLScalarVolumeNode.h>
 
 //-----------------------------------------------------------------------------
 /// \ingroup Slicer_QtModules_ExtensionTemplate
@@ -45,6 +41,7 @@ public:
   virtual ~qSlicerScalarBarModuleWidgetPrivate();
 
   vtkSlicerScalarBarLogic* logic() const;
+  vtkMRMLScalarVolumeNode* VolumeNode;
   bool ModuleWindowInitialized;
 };
 
@@ -55,6 +52,7 @@ public:
 qSlicerScalarBarModuleWidgetPrivate::qSlicerScalarBarModuleWidgetPrivate(qSlicerScalarBarModuleWidget &object)
   :
   q_ptr(&object),
+  VolumeNode(nullptr),
   ModuleWindowInitialized(false)
 {
 }
@@ -94,14 +92,14 @@ void qSlicerScalarBarModuleWidget::setup()
   this->Superclass::setup();
 
   // Nodes
-  connect( d->MRMLNodeComboBox_ParameterNode, SIGNAL(currentNodeChanged(vtkMRMLNode*)), 
-    this, SLOT(onParameterNodeChanged(vtkMRMLNode*)));
-  connect( d->MRMLNodeComboBox_ColorTableNode, SIGNAL(currentNodeChanged(vtkMRMLNode*)), 
-    this, SLOT(onColorTableNodeChanged(vtkMRMLNode*)));
+  connect( d->MRMLNodeComboBox_ScalarVolumeNode, SIGNAL(currentNodeChanged(vtkMRMLNode*)), 
+    this, SLOT(onScalarVolumeNodeChanged(vtkMRMLNode*)));
+  connect( d->PushButton_AddColorBarDisplayNode, SIGNAL(clicked()), 
+    this, SLOT(onAddColorBarDisplayNodeClicked()));
 
   // CheckButton
-  connect( d->CheckBox_ShowScalarBar, SIGNAL(toggled(bool)), 
-    this, SLOT(onShowScalarBarToggled(bool)));
+  connect( d->CheckBox_ShowColorBar, SIGNAL(toggled(bool)), 
+    this, SLOT(onShowColorBarToggled(bool)));
 
   // Handle scene change event if occurs
   qvtkConnect( d->logic(), vtkCommand::ModifiedEvent, this, SLOT(onLogicModified()));
@@ -120,48 +118,19 @@ void qSlicerScalarBarModuleWidget::setMRMLScene(vtkMRMLScene* scene)
   // Find parameters node or create it if there is none in the scene
   if (scene)
   {
-    if (d->MRMLNodeComboBox_ParameterNode->currentNode())
+    if (d->MRMLNodeComboBox_ScalarVolumeNode->currentNode())
     {
-      qDebug() << Q_FUNC_INFO << "Current node is valid";
-      this->setParameterNode(d->MRMLNodeComboBox_ParameterNode->currentNode());
-    }
-    else if (vtkMRMLNode* node = scene->GetFirstNodeByClass("vtkMRMLScalarBarDisplayNode"))
-    {
-      qDebug() << Q_FUNC_INFO << "Get first node";
-      this->setParameterNode(node);
+      qDebug() << Q_FUNC_INFO << "Scalar volume node is valid";
+      d->VolumeNode = vtkMRMLScalarVolumeNode::SafeDownCast(d->MRMLNodeComboBox_ScalarVolumeNode->currentNode());
     }
     else
     {
-      qDebug() << Q_FUNC_INFO << "Create a new node";
-      vtkNew<vtkMRMLScalarBarDisplayNode> newNode;
-      this->mrmlScene()->AddNode(newNode);
-      this->setParameterNode(newNode);
+      d->VolumeNode = nullptr;
     }
   }
-}
 
-//-----------------------------------------------------------------------------
-void qSlicerScalarBarModuleWidget::setParameterNode(vtkMRMLNode *node)
-{
-  Q_D(qSlicerScalarBarModuleWidget);
+  d->PushButton_AddColorBarDisplayNode->setEnabled(d->VolumeNode);
 
-  vtkMRMLScalarBarDisplayNode* parameterNode = vtkMRMLScalarBarDisplayNode::SafeDownCast(node);
-
-  // Make sure the parameter set node is selected (in case the function was not called by the selector combobox signal)
-  d->MRMLNodeComboBox_ParameterNode->setCurrentNode(node);
-//  d->MRMLNodeComboBox_ParameterNode->setEnabled(node);
- 
-  // Each time the node is modified, the UI widgets are updated
-  qvtkReconnect( parameterNode, vtkCommand::ModifiedEvent, this, SLOT(updateWidgetFromMRML()));
-
-  // Set selected MRML nodes in comboboxes in the parameter set if it was nullptr there
-  // (then in the meantime the comboboxes selected the first one from the scene and we have to set that)
-  if (parameterNode)
-  {
-    qDebug() << Q_FUNC_INFO << "Current node is valid";
-  }
-  this->updateWidgetFromMRML();
-  qDebug() << Q_FUNC_INFO;
 }
 
 //-----------------------------------------------------------------------------
@@ -169,20 +138,25 @@ void qSlicerScalarBarModuleWidget::updateWidgetFromMRML()
 {
   Q_D(qSlicerScalarBarModuleWidget);
 
-  vtkMRMLScalarBarDisplayNode* parameterNode = vtkMRMLScalarBarDisplayNode::SafeDownCast(d->MRMLNodeComboBox_ParameterNode->currentNode());
+  d->VolumeNode = vtkMRMLScalarVolumeNode::SafeDownCast(d->MRMLNodeComboBox_ScalarVolumeNode->currentNode());
 
   if (!this->mrmlScene())
   {
     qCritical() << Q_FUNC_INFO << ": Invalid scene";
+    d->PushButton_AddColorBarDisplayNode->setEnabled(false);
+    d->CheckBox_ShowColorBar->setEnabled(false);
     return;
   }
   
-  if (!parameterNode || !d->ModuleWindowInitialized)
+  if (!d->VolumeNode || !d->ModuleWindowInitialized)
   {
     qCritical() << Q_FUNC_INFO << ": Invalid parameter node, or module window isn't initialized";
+    d->PushButton_AddColorBarDisplayNode->setEnabled(false);
+    d->CheckBox_ShowColorBar->setEnabled(false);
     return;
   }
-
+  d->PushButton_AddColorBarDisplayNode->setEnabled(d->VolumeNode);
+  d->CheckBox_ShowColorBar->setEnabled(d->VolumeNode);
 }
 
 //-----------------------------------------------------------------------------
@@ -219,60 +193,30 @@ void qSlicerScalarBarModuleWidget::exit()
 }
 
 //-----------------------------------------------------------------------------
-void qSlicerScalarBarModuleWidget::onParameterNodeChanged(vtkMRMLNode* node)
+void qSlicerScalarBarModuleWidget::onScalarVolumeNodeChanged(vtkMRMLNode* node)
 {
   Q_D(qSlicerScalarBarModuleWidget);
-  vtkMRMLScalarBarDisplayNode* parameterNode = vtkMRMLScalarBarDisplayNode::SafeDownCast(node);
+  d->VolumeNode = vtkMRMLScalarVolumeNode::SafeDownCast(node);
 
-  if (!parameterNode || !d->ModuleWindowInitialized)
+  if (!d->VolumeNode || !d->ModuleWindowInitialized)
   {
-    qCritical() << Q_FUNC_INFO << ": Invalid parameter node, or module window isn't initialized";
+    qCritical() << Q_FUNC_INFO << ": Invalid volume node, or module window isn't initialized";
     return;
   }
 
-  this->setParameterNode(parameterNode);
   qDebug() << Q_FUNC_INFO;
 }
 
 //-----------------------------------------------------------------------------
-void qSlicerScalarBarModuleWidget::onColorTableNodeChanged(vtkMRMLNode* node)
+void qSlicerScalarBarModuleWidget::onAddColorBarDisplayNodeClicked()
 {
   Q_D(qSlicerScalarBarModuleWidget);
-
-
-  vtkMRMLScalarBarDisplayNode* parameterNode = vtkMRMLScalarBarDisplayNode::SafeDownCast(d->MRMLNodeComboBox_ParameterNode->currentNode());
-
-  vtkMRMLColorNode* colorNode = vtkMRMLColorNode::SafeDownCast(node);
-  if (!colorNode)
-  {
-    qDebug() << Q_FUNC_INFO << "Colour node is invalid";
-    return;
-  }
-
-  vtkMRMLColorTableNode *colorTableNode = vtkMRMLColorTableNode::SafeDownCast(colorNode);
-  vtkMRMLProceduralColorNode *procColorNode = vtkMRMLProceduralColorNode::SafeDownCast(colorNode);
-
-  if (colorTableNode)
-  {
-    qDebug() << Q_FUNC_INFO << "Set and observe colour table node";
-    parameterNode->SetAndObserveColorTableNode(colorTableNode);
-//    parameterNode->Modified();
-  }
 }
 
 //-----------------------------------------------------------------------------
-void qSlicerScalarBarModuleWidget::onShowScalarBarToggled(bool toggled)
+void qSlicerScalarBarModuleWidget::onShowColorBarToggled(bool toggled)
 {
   Q_D(qSlicerScalarBarModuleWidget);
-
-  vtkMRMLScalarBarDisplayNode* parameterNode = vtkMRMLScalarBarDisplayNode::SafeDownCast(d->MRMLNodeComboBox_ParameterNode->currentNode());
-  
-  if (!parameterNode)
-  {
-    qCritical() << Q_FUNC_INFO << ": Invalid parameter node";
-    return;
-  }
-  parameterNode->SetVisibilityOnSliceViewsFlag(toggled);
 }
 
 //-----------------------------------------------------------------------------
@@ -293,30 +237,21 @@ void qSlicerScalarBarModuleWidget::onEnter()
     return;
   }
 
-  vtkMRMLScalarBarDisplayNode* parameterNode = nullptr; 
   // Try to find one in the scene
-  if (vtkMRMLNode* node = this->mrmlScene()->GetFirstNodeByClass("vtkMRMLScalarBarDisplayNode"))
+  if (vtkMRMLNode* node = this->mrmlScene()->GetFirstNodeByClass("vtkMRMLScalarVolumeNode"))
   {
-    parameterNode = vtkMRMLScalarBarDisplayNode::SafeDownCast(node);
+    d->VolumeNode = vtkMRMLScalarVolumeNode::SafeDownCast(node);
+  }
+  else
+  {
+    d->VolumeNode = nullptr;
   }
 
-  vtkMRMLScalarBarDisplayNode* paramNode = vtkMRMLScalarBarDisplayNode::SafeDownCast(d->MRMLNodeComboBox_ParameterNode->currentNode());
-
   // If we have a parameter node select it
-  if (!paramNode)
+  if (!d->VolumeNode)
   {
-    vtkMRMLNode* node = this->mrmlScene()->GetFirstNodeByClass("vtkMRMLScalarBarDisplayNode");
-    if (node)
-    {
-      this->setParameterNode(node);
-    }
-    else 
-    {
-      qDebug() << Q_FUNC_INFO << "Create a new node";
-      vtkNew<vtkMRMLScalarBarDisplayNode> newNode;
-      this->mrmlScene()->AddNode(newNode);
-      this->setParameterNode(newNode);
-    }
+    d->PushButton_AddColorBarDisplayNode->setEnabled(false);
+    d->CheckBox_ShowColorBar->setEnabled(false);
   }
   else
   {

@@ -46,13 +46,12 @@ public slots:
   /// Update widget GUI from RT Image parameters node
   void updateWidgetFromMRML();
 
-  void setParameterNode(vtkMRMLNode*);
   void onSceneImportedEvent();
   void onSceneClosedEvent();
 
-  void onParameterNodeChanged(vtkMRMLNode*);
-  void onColorTableNodeChanged(vtkMRMLNode*);
-  void onShowScalarBarToggled(bool);
+  void onScalarVolumeNodeChanged(vtkMRMLNode*);
+  void onAddColorBarDisplayNodeClicked();
+  void onShowColorBarToggled(bool);
 
   void onLogicModified();
 
