@@ -250,6 +250,7 @@ void qSlicerScalarBarModuleWidget::onAddColorBarDisplayNodeClicked()
   cbNode->SetPositionPreset(vtkMRMLColorBarDisplayNode::VerticalRight);
   
   d->VolumeNode->SetNodeReferenceID( "ColorBarRef", cbNode->GetID());
+  cbNode->SetAndObserveDisplayableNode(d->VolumeNode);
   d->CheckBox_ShowColorBar->setEnabled(true);
 }
 
