@@ -51,7 +51,8 @@ public slots:
 
   void onScalarVolumeNodeChanged(vtkMRMLNode*);
   void onAddColorBarDisplayNodeClicked();
-  void onShowColorBarToggled(bool);
+  void onShowColorBar2DToggled(bool);
+  void onShowColorBar3DToggled(bool);
 
   void onLogicModified();
 

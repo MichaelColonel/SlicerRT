@@ -24,21 +24,11 @@
       </widget>
      </item>
      <item row="0" column="1">
-      <widget class="qMRMLNodeComboBox" name="MRMLNodeComboBox_ScalarVolumeNode">
-       <property name="nodeTypes">
+      <widget class="qMRMLNodeComboBox" name="MRMLNodeComboBox_ScalarVolumeNode" native="true">
+       <property name="nodeTypes" stdset="0">
         <stringlist>
          <string>vtkMRMLScalarVolumeNode</string>
         </stringlist>
-       </property>
-      </widget>
-     </item>
-     <item row="2" column="0" colspan="2">
-      <widget class="QCheckBox" name="CheckBox_ShowColorBar">
-       <property name="enabled">
-        <bool>false</bool>
-       </property>
-       <property name="text">
-        <string>Show color bar</string>
        </property>
       </widget>
      </item>
@@ -49,6 +39,26 @@
        </property>
        <property name="text">
         <string>Add color bar display node</string>
+       </property>
+      </widget>
+     </item>
+     <item row="2" column="0" colspan="2">
+      <widget class="QCheckBox" name="CheckBox_ShowColorBar2D">
+       <property name="enabled">
+        <bool>false</bool>
+       </property>
+       <property name="text">
+        <string>Show color bar 2D</string>
+       </property>
+      </widget>
+     </item>
+     <item row="3" column="0" colspan="2">
+      <widget class="QCheckBox" name="CheckBox_ShowColorBar3D">
+       <property name="enabled">
+        <bool>false</bool>
+       </property>
+       <property name="text">
+        <string>Show color bar 3D</string>
        </property>
       </widget>
      </item>
@@ -92,15 +102,15 @@
    <container>1</container>
   </customwidget>
   <customwidget>
-   <class>qMRMLNodeComboBox</class>
-   <extends>QWidget</extends>
-   <header>qMRMLNodeComboBox.h</header>
-  </customwidget>
-  <customwidget>
    <class>qSlicerWidget</class>
    <extends>QWidget</extends>
    <header>qSlicerWidget.h</header>
    <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>qMRMLNodeComboBox</class>
+   <extends>QWidget</extends>
+   <header>qMRMLNodeComboBox.h</header>
   </customwidget>
   <customwidget>
    <class>qSlicerScalarBarFooBarWidget</class>
