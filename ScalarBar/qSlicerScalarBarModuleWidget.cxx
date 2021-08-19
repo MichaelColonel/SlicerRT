@@ -272,15 +272,21 @@ void qSlicerScalarBarModuleWidget::onShowColorBarToggled(bool toggled)
     {
       if (toggled)
       {
+        displayNode->DisableModifiedEventOn();
         displayNode->SetVisibility2D(true);
         displayNode->SetVisibility3D(true);
         displayNode->SetPositionPreset(vtkMRMLColorBarDisplayNode::VerticalLeft);
+        displayNode->DisableModifiedEventOff();
+        displayNode->Modified();
       }
       else
       {
+        displayNode->DisableModifiedEventOn();
         displayNode->SetVisibility2D(false);
         displayNode->SetVisibility3D(false);
         displayNode->SetPositionPreset(vtkMRMLColorBarDisplayNode::VerticalRight);
+        displayNode->DisableModifiedEventOff();
+        displayNode->Modified();
       }
     }
   }
