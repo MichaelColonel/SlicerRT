@@ -53,6 +53,7 @@ public slots:
   void onAddColorBarDisplayNodeClicked();
   void onShowColorBar2DToggled(bool);
   void onShowColorBar3DToggled(bool);
+  void onColocrBarPositionIndexChanged(int);
 
   void onLogicModified();
 

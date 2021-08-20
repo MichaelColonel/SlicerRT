@@ -102,6 +102,10 @@ void qSlicerScalarBarModuleWidget::setup()
   connect( d->CheckBox_ShowColorBar2D, SIGNAL(toggled(bool)), 
     this, SLOT(onShowColorBar2DToggled(bool)));
 
+  // ComboBox
+  connect( d->ComboBox_ColorBarPosition, SIGNAL(currentIndexChanged(int)),
+    this, SLOT(onColocrBarPositionIndexChanged(int)));
+
   // Handle scene change event if occurs
   qvtkConnect( d->logic(), vtkCommand::ModifiedEvent, this, SLOT(onLogicModified()));
   qDebug() << Q_FUNC_INFO;
@@ -147,6 +151,7 @@ void qSlicerScalarBarModuleWidget::updateWidgetFromMRML()
     d->PushButton_AddColorBarDisplayNode->setEnabled(false);
     d->CheckBox_ShowColorBar2D->setEnabled(false);
     d->CheckBox_ShowColorBar3D->setEnabled(false);
+    d->ComboBox_ColorBarPosition->setEnabled(false);
     return;
   }
   
@@ -156,6 +161,7 @@ void qSlicerScalarBarModuleWidget::updateWidgetFromMRML()
     d->PushButton_AddColorBarDisplayNode->setEnabled(false);
     d->CheckBox_ShowColorBar2D->setEnabled(false);
     d->CheckBox_ShowColorBar3D->setEnabled(false);
+    d->ComboBox_ColorBarPosition->setEnabled(false);
     return;
   }
   else
@@ -163,6 +169,7 @@ void qSlicerScalarBarModuleWidget::updateWidgetFromMRML()
     d->PushButton_AddColorBarDisplayNode->setEnabled(true);
     d->CheckBox_ShowColorBar2D->setEnabled(false);
     d->CheckBox_ShowColorBar3D->setEnabled(false);
+    d->ComboBox_ColorBarPosition->setEnabled(false);
   }
   
   if (vtkMRMLNode* node = d->VolumeNode->GetNodeReference("ColorBarRef"))
@@ -173,12 +180,14 @@ void qSlicerScalarBarModuleWidget::updateWidgetFromMRML()
       d->PushButton_AddColorBarDisplayNode->setEnabled(false);
       d->CheckBox_ShowColorBar2D->setEnabled(true);
       d->CheckBox_ShowColorBar3D->setEnabled(true);
+      d->ComboBox_ColorBarPosition->setEnabled(true);
     }
     else
     {
       d->PushButton_AddColorBarDisplayNode->setEnabled(true);
       d->CheckBox_ShowColorBar2D->setEnabled(false);
       d->CheckBox_ShowColorBar3D->setEnabled(false);
+      d->ComboBox_ColorBarPosition->setEnabled(false);
     }
   }
 }
@@ -227,6 +236,7 @@ void qSlicerScalarBarModuleWidget::onScalarVolumeNodeChanged(vtkMRMLNode* node)
     d->PushButton_AddColorBarDisplayNode->setEnabled(false);
     d->CheckBox_ShowColorBar2D->setEnabled(false);
     d->CheckBox_ShowColorBar3D->setEnabled(false);
+    d->ComboBox_ColorBarPosition->setEnabled(false);
     qCritical() << Q_FUNC_INFO << ": Invalid volume node, or module window isn't initialized";
     return;
   }
@@ -235,6 +245,7 @@ void qSlicerScalarBarModuleWidget::onScalarVolumeNodeChanged(vtkMRMLNode* node)
     vtkMRMLNode* node = d->VolumeNode->GetNodeReference("ColorBarRef");
     d->CheckBox_ShowColorBar2D->setEnabled(node);
     d->CheckBox_ShowColorBar3D->setEnabled(node);
+    d->ComboBox_ColorBarPosition->setEnabled(node);
   }
   
   d->PushButton_AddColorBarDisplayNode->setEnabled(true);
@@ -262,6 +273,7 @@ void qSlicerScalarBarModuleWidget::onAddColorBarDisplayNodeClicked()
   cbNode->SetAndObserveDisplayableNode(d->VolumeNode);
   d->CheckBox_ShowColorBar2D->setEnabled(true);
   d->CheckBox_ShowColorBar3D->setEnabled(true);
+  d->ComboBox_ColorBarPosition->setEnabled(true);
 }
 
 //-----------------------------------------------------------------------------
@@ -327,6 +339,7 @@ void qSlicerScalarBarModuleWidget::onEnter()
   d->PushButton_AddColorBarDisplayNode->setEnabled(false);
   d->CheckBox_ShowColorBar2D->setEnabled(false);
   d->CheckBox_ShowColorBar3D->setEnabled(false);
+  d->ComboBox_ColorBarPosition->setEnabled(false);
 
   // Try to find one in the scene
   if (vtkMRMLNode* node = this->mrmlScene()->GetFirstNodeByClass("vtkMRMLScalarVolumeNode"))
@@ -346,4 +359,45 @@ void qSlicerScalarBarModuleWidget::onLogicModified()
 {
   this->updateWidgetFromMRML();
   qDebug() << Q_FUNC_INFO;
+}
+
+void qSlicerScalarBarModuleWidget::onColocrBarPositionIndexChanged(int positionIndex)
+{
+  Q_D(qSlicerScalarBarModuleWidget);
+
+  if (!d->VolumeNode)
+  {
+    qDebug() << Q_FUNC_INFO << "Volume node is invalid";
+    return;
+  }
+
+  vtkMRMLColorBarDisplayNode* displayNode = nullptr;
+  if (vtkMRMLNode* node = d->VolumeNode->GetNodeReference("ColorBarRef"))
+  {
+    displayNode = vtkMRMLColorBarDisplayNode::SafeDownCast(node);
+  }
+
+  if (!displayNode)
+  {
+    qDebug() << Q_FUNC_INFO << "Color bar display node is invalid";
+    return;
+  }
+
+  switch (positionIndex)
+  {
+  case 0:
+    displayNode->SetPositionPreset(vtkMRMLColorBarDisplayNode::VerticalRight);
+    break;
+  case 1:
+    displayNode->SetPositionPreset(vtkMRMLColorBarDisplayNode::VerticalLeft);
+    break;
+  case 2:
+    displayNode->SetPositionPreset(vtkMRMLColorBarDisplayNode::HorizontalTop);
+    break;
+  case 3:
+    displayNode->SetPositionPreset(vtkMRMLColorBarDisplayNode::HorizontalBottom);
+    break;
+  default:
+    break;
+  }
 }
