@@ -34,8 +34,8 @@
       </widget>
      </item>
      <item row="0" column="1">
-      <widget class="qMRMLNodeComboBox" name="MRMLNodeComboBox_ScalarVolumeNode" native="true">
-       <property name="nodeTypes" stdset="0">
+      <widget class="qMRMLNodeComboBox" name="MRMLNodeComboBox_ScalarVolumeNode">
+       <property name="nodeTypes">
         <stringlist>
          <string>vtkMRMLScalarVolumeNode</string>
         </stringlist>
@@ -72,22 +72,12 @@
        </property>
        <item>
         <property name="text">
-         <string>Vertical Right</string>
+         <string>Horizontal</string>
         </property>
        </item>
        <item>
         <property name="text">
-         <string>Vertical Left</string>
-        </property>
-       </item>
-       <item>
-        <property name="text">
-         <string>Horizontal Right</string>
-        </property>
-       </item>
-       <item>
-        <property name="text">
-         <string>Horizontal Left</string>
+         <string>Vertical</string>
         </property>
        </item>
       </widget>
@@ -137,15 +127,15 @@
    <header>ctkComboBox.h</header>
   </customwidget>
   <customwidget>
+   <class>qMRMLNodeComboBox</class>
+   <extends>QWidget</extends>
+   <header>qMRMLNodeComboBox.h</header>
+  </customwidget>
+  <customwidget>
    <class>qSlicerWidget</class>
    <extends>QWidget</extends>
    <header>qSlicerWidget.h</header>
    <container>1</container>
-  </customwidget>
-  <customwidget>
-   <class>qMRMLNodeComboBox</class>
-   <extends>QWidget</extends>
-   <header>qMRMLNodeComboBox.h</header>
   </customwidget>
   <customwidget>
    <class>qSlicerScalarBarFooBarWidget</class>

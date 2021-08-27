@@ -174,13 +174,14 @@ void qSlicerScalarBarModuleWidget::updateWidgetFromMRML()
   
   if (vtkMRMLNode* node = d->VolumeNode->GetNodeReference("ColorBarRef"))
   {
-    vtkMRMLDisplayNode* displayNode = vtkMRMLDisplayNode::SafeDownCast(node);
+    vtkMRMLColorBarDisplayNode* displayNode = vtkMRMLColorBarDisplayNode::SafeDownCast(node);
     if (displayNode)
     {
       d->PushButton_AddColorBarDisplayNode->setEnabled(false);
       d->CheckBox_ShowColorBar2D->setEnabled(true);
       d->CheckBox_ShowColorBar3D->setEnabled(true);
       d->ComboBox_ColorBarPosition->setEnabled(true);
+      d->ComboBox_ColorBarPosition->setCurrentIndex(displayNode->GetPositionPreset());
     }
     else
     {
@@ -267,7 +268,7 @@ void qSlicerScalarBarModuleWidget::onAddColorBarDisplayNodeClicked()
   vtkNew<vtkMRMLColorBarDisplayNode> cbNode;
   this->mrmlScene()->AddNode(cbNode);
 
-  cbNode->SetPositionPreset(vtkMRMLColorBarDisplayNode::VerticalRight);
+  cbNode->SetPositionPreset(vtkMRMLColorBarDisplayNode::Vertical);
   
   d->VolumeNode->SetNodeReferenceID( "ColorBarRef", cbNode->GetID());
   cbNode->SetAndObserveDisplayableNode(d->VolumeNode);
@@ -386,16 +387,10 @@ void qSlicerScalarBarModuleWidget::onColocrBarPositionIndexChanged(int positionI
   switch (positionIndex)
   {
   case 0:
-    displayNode->SetPositionPreset(vtkMRMLColorBarDisplayNode::VerticalRight);
+    displayNode->SetPositionPreset(vtkMRMLColorBarDisplayNode::Horizontal);
     break;
   case 1:
-    displayNode->SetPositionPreset(vtkMRMLColorBarDisplayNode::VerticalLeft);
-    break;
-  case 2:
-    displayNode->SetPositionPreset(vtkMRMLColorBarDisplayNode::HorizontalTop);
-    break;
-  case 3:
-    displayNode->SetPositionPreset(vtkMRMLColorBarDisplayNode::HorizontalBottom);
+    displayNode->SetPositionPreset(vtkMRMLColorBarDisplayNode::Vertical);
     break;
   default:
     break;
