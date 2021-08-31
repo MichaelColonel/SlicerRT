@@ -172,7 +172,7 @@ void qSlicerScalarBarModuleWidget::updateWidgetFromMRML()
     d->ComboBox_ColorBarPosition->setEnabled(false);
   }
   
-  if (vtkMRMLNode* node = d->VolumeNode->GetNodeReference("ColorBarRef"))
+  if (vtkMRMLNode* node = d->VolumeNode->GetNodeReference(vtkMRMLColorBarDisplayNode::COLOR_BAR_REFERENCE_ROLE))
   {
     vtkMRMLColorBarDisplayNode* displayNode = vtkMRMLColorBarDisplayNode::SafeDownCast(node);
     if (displayNode)
@@ -243,7 +243,7 @@ void qSlicerScalarBarModuleWidget::onScalarVolumeNodeChanged(vtkMRMLNode* node)
   }
   else
   {
-    vtkMRMLNode* node = d->VolumeNode->GetNodeReference("ColorBarRef");
+    vtkMRMLNode* node = d->VolumeNode->GetNodeReference(vtkMRMLColorBarDisplayNode::COLOR_BAR_REFERENCE_ROLE);
     d->CheckBox_ShowColorBar2D->setEnabled(node);
     d->CheckBox_ShowColorBar3D->setEnabled(node);
     d->ComboBox_ColorBarPosition->setEnabled(node);
@@ -270,7 +270,7 @@ void qSlicerScalarBarModuleWidget::onAddColorBarDisplayNodeClicked()
 
   cbNode->SetOrientationPreset(vtkMRMLColorBarDisplayNode::Vertical);
   
-  d->VolumeNode->SetNodeReferenceID( "ColorBarRef", cbNode->GetID());
+  d->VolumeNode->SetNodeReferenceID(vtkMRMLColorBarDisplayNode::COLOR_BAR_REFERENCE_ROLE, cbNode->GetID());
   cbNode->SetAndObserveDisplayableNode(d->VolumeNode);
   d->CheckBox_ShowColorBar2D->setEnabled(true);
   d->CheckBox_ShowColorBar3D->setEnabled(true);
@@ -288,7 +288,7 @@ void qSlicerScalarBarModuleWidget::onShowColorBar2DToggled(bool toggled)
     return;
   }
 
-  if (vtkMRMLNode* node = d->VolumeNode->GetNodeReference("ColorBarRef"))
+  if (vtkMRMLNode* node = d->VolumeNode->GetNodeReference(vtkMRMLColorBarDisplayNode::COLOR_BAR_REFERENCE_ROLE))
   {
     vtkMRMLColorBarDisplayNode* displayNode = vtkMRMLColorBarDisplayNode::SafeDownCast(node);
     if (displayNode)
@@ -309,7 +309,7 @@ void qSlicerScalarBarModuleWidget::onShowColorBar3DToggled(bool toggled)
     return;
   }
 
-  if (vtkMRMLNode* node = d->VolumeNode->GetNodeReference("ColorBarRef"))
+  if (vtkMRMLNode* node = d->VolumeNode->GetNodeReference(vtkMRMLColorBarDisplayNode::COLOR_BAR_REFERENCE_ROLE))
   {
     vtkMRMLColorBarDisplayNode* displayNode = vtkMRMLColorBarDisplayNode::SafeDownCast(node);
     if (displayNode)
@@ -373,7 +373,7 @@ void qSlicerScalarBarModuleWidget::onColocrBarOrientationIndexChanged(int orient
   }
 
   vtkMRMLColorBarDisplayNode* displayNode = nullptr;
-  if (vtkMRMLNode* node = d->VolumeNode->GetNodeReference("ColorBarRef"))
+  if (vtkMRMLNode* node = d->VolumeNode->GetNodeReference(vtkMRMLColorBarDisplayNode::COLOR_BAR_REFERENCE_ROLE))
   {
     displayNode = vtkMRMLColorBarDisplayNode::SafeDownCast(node);
   }
