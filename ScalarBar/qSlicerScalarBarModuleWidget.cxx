@@ -104,7 +104,7 @@ void qSlicerScalarBarModuleWidget::setup()
 
   // ComboBox
   connect( d->ComboBox_ColorBarPosition, SIGNAL(currentIndexChanged(int)),
-    this, SLOT(onColocrBarPositionIndexChanged(int)));
+    this, SLOT(onColocrBarOrientationIndexChanged(int)));
 
   // Handle scene change event if occurs
   qvtkConnect( d->logic(), vtkCommand::ModifiedEvent, this, SLOT(onLogicModified()));
@@ -181,7 +181,7 @@ void qSlicerScalarBarModuleWidget::updateWidgetFromMRML()
       d->CheckBox_ShowColorBar2D->setEnabled(true);
       d->CheckBox_ShowColorBar3D->setEnabled(true);
       d->ComboBox_ColorBarPosition->setEnabled(true);
-      d->ComboBox_ColorBarPosition->setCurrentIndex(displayNode->GetPositionPreset());
+      d->ComboBox_ColorBarPosition->setCurrentIndex(displayNode->GetOrientationPreset());
     }
     else
     {
@@ -268,7 +268,7 @@ void qSlicerScalarBarModuleWidget::onAddColorBarDisplayNodeClicked()
   vtkNew<vtkMRMLColorBarDisplayNode> cbNode;
   this->mrmlScene()->AddNode(cbNode);
 
-  cbNode->SetPositionPreset(vtkMRMLColorBarDisplayNode::Vertical);
+  cbNode->SetOrientationPreset(vtkMRMLColorBarDisplayNode::Vertical);
   
   d->VolumeNode->SetNodeReferenceID( "ColorBarRef", cbNode->GetID());
   cbNode->SetAndObserveDisplayableNode(d->VolumeNode);
@@ -362,7 +362,7 @@ void qSlicerScalarBarModuleWidget::onLogicModified()
   qDebug() << Q_FUNC_INFO;
 }
 
-void qSlicerScalarBarModuleWidget::onColocrBarPositionIndexChanged(int positionIndex)
+void qSlicerScalarBarModuleWidget::onColocrBarOrientationIndexChanged(int orientationIndex)
 {
   Q_D(qSlicerScalarBarModuleWidget);
 
@@ -384,13 +384,13 @@ void qSlicerScalarBarModuleWidget::onColocrBarPositionIndexChanged(int positionI
     return;
   }
 
-  switch (positionIndex)
+  switch (orientationIndex)
   {
   case 0:
-    displayNode->SetPositionPreset(vtkMRMLColorBarDisplayNode::Horizontal);
+    displayNode->SetOrientationPreset(vtkMRMLColorBarDisplayNode::Horizontal);
     break;
   case 1:
-    displayNode->SetPositionPreset(vtkMRMLColorBarDisplayNode::Vertical);
+    displayNode->SetOrientationPreset(vtkMRMLColorBarDisplayNode::Vertical);
     break;
   default:
     break;
