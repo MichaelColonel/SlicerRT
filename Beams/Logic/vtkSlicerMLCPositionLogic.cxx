@@ -81,6 +81,7 @@
 #include <vtkMath.h> // cross, dot vector operations
 
 // SlicerRtCommon includes
+#include <vtkSlicerRtCommonConfigure.h>
 #include <vtkSlicerRtCommon.h>
 #include <vtkCollisionDetectionFilter.h>
 
@@ -1016,9 +1017,20 @@ bool vtkSlicerMLCPositionLogic::FindLeafAndTargetCollision( vtkMRMLRTBeamNode* v
   vtkNew<vtkTransform> leafTransform; // moving leaf transform
   leafTransform->Identity();
   vtkNew<vtkCollisionDetectionFilter> collide;
+
+#if defined (Slicer_VTK_VERSION_MAJOR) && (Slicer_VTK_VERSION_MAJOR == 9)
+  collide->SetInputData( 0, leafPolyData); // moving leaf polydata
+#else
   collide->SetInput( 0, leafPolyData); // moving leaf polydata
+#endif
+
   collide->SetTransform( 0, leafTransform);
+#if defined (Slicer_VTK_VERSION_MAJOR) && (Slicer_VTK_VERSION_MAJOR == 9)
+  collide->SetInputData( 1, targetPolyData); // stationary target polydata
+#else
   collide->SetInput( 1, targetPolyData); // stationary target polydata
+#endif
+
   collide->SetMatrix( 1, targetMatrix);
   collide->SetBoxTolerance(0.0);
   collide->SetCellTolerance(0.0);

@@ -11,3 +11,5 @@
 #ifndef BUILD_SHARED_LIBS
 #define vtkSlicerRtCommon_STATIC
 #endif
+
+#define Slicer_VTK_VERSION_MAJOR @Slicer_VTK_VERSION_MAJOR@

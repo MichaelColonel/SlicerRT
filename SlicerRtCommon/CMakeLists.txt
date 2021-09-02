@@ -13,24 +13,45 @@ configure_file(
 # Sources
 # --------------------------------------------------------------------------
 
-SET (SlicerRtCommon_SRCS
-  vtkSlicerRtCommon.cxx
-  vtkSlicerRtCommon.h
-  vtkSlicerRtCommon.txx
-  vtkLabelmapToModelFilter.cxx
-  vtkLabelmapToModelFilter.h
-  vtkPolyDataToLabelmapFilter.cxx
-  vtkPolyDataToLabelmapFilter.h
-  vtkSlicerAutoWindowLevelLogic.cxx
-  vtkSlicerAutoWindowLevelLogic.h
-  vtkCollisionDetectionFilter.cxx
-  vtkCollisionDetectionFilter.h
-  vtkFractionalImageAccumulate.cxx
-  vtkFractionalImageAccumulate.h
-  vtkSlicerDicomReaderBase.cxx
-  vtkSlicerDicomReaderBase.h
-  vtkSlicerDicomReaderBase.txx
-  )
+# Files without vtkCollisionDetectionFilter, since it's already in VTK9
+IF ("${Slicer_VTK_VERSION_MAJOR}" STREQUAL "9")
+  SET (SlicerRtCommon_SRCS
+    vtkSlicerRtCommon.cxx
+    vtkSlicerRtCommon.h
+    vtkSlicerRtCommon.txx
+    vtkLabelmapToModelFilter.cxx
+    vtkLabelmapToModelFilter.h
+    vtkPolyDataToLabelmapFilter.cxx
+    vtkPolyDataToLabelmapFilter.h
+    vtkSlicerAutoWindowLevelLogic.cxx
+    vtkSlicerAutoWindowLevelLogic.h
+    vtkFractionalImageAccumulate.cxx
+    vtkFractionalImageAccumulate.h
+    vtkSlicerDicomReaderBase.cxx
+    vtkSlicerDicomReaderBase.h
+    vtkSlicerDicomReaderBase.txx
+    )
+ELSE () # Files with vtkCollisionDetectionFilter
+  SET (SlicerRtCommon_SRCS
+    vtkSlicerRtCommon.cxx
+    vtkSlicerRtCommon.h
+    vtkSlicerRtCommon.txx
+    vtkLabelmapToModelFilter.cxx
+    vtkLabelmapToModelFilter.h
+    vtkPolyDataToLabelmapFilter.cxx
+    vtkPolyDataToLabelmapFilter.h
+    vtkSlicerAutoWindowLevelLogic.cxx
+    vtkSlicerAutoWindowLevelLogic.h
+    vtkCollisionDetectionFilter.cxx
+    vtkCollisionDetectionFilter.h
+    vtkFractionalImageAccumulate.cxx
+    vtkFractionalImageAccumulate.h
+    vtkSlicerDicomReaderBase.cxx
+    vtkSlicerDicomReaderBase.h
+    vtkSlicerDicomReaderBase.txx
+    )
+ENDIF ()
+
 
 SET (SlicerRtCommon_INCLUDE_DIRS ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_CURRENT_BINARY_DIR} ${Slicer_Libs_INCLUDE_DIRS} ${vtkSegmentationCore_INCLUDE_DIRS} CACHE INTERNAL "" FORCE)
 

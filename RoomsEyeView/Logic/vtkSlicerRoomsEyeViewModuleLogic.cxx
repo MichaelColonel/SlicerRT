@@ -25,7 +25,6 @@
 
 // SlicerRT includes
 #include "vtkMRMLRTBeamNode.h"
-#include "vtkCollisionDetectionFilter.h"
 
 // MRML includes
 #include <vtkMRMLScene.h>
@@ -53,6 +52,7 @@
 #include <vtkTransformPolyDataFilter.h>
 #include <vtkGeneralTransform.h>
 #include <vtkTransformFilter.h>
+#include <vtkCollisionDetectionFilter.h>
 
 //----------------------------------------------------------------------------
 // Treatment machine component names
@@ -637,6 +637,16 @@ void vtkSlicerRoomsEyeViewModuleLogic::SetupTreatmentMachineModels()
 
   //
   // Set up collision detection between components
+#if defined (Slicer_VTK_VERSION_MAJOR) && (Slicer_VTK_VERSION_MAJOR == 9)
+  this->GantryTableTopCollisionDetection->SetInputData(0, gantryModel->GetPolyData());
+  this->GantryTableTopCollisionDetection->SetInputData(1, tableTopModel->GetPolyData());
+
+  this->GantryPatientSupportCollisionDetection->SetInputData(0, gantryModel->GetPolyData());
+  this->GantryPatientSupportCollisionDetection->SetInputData(1, patientSupportModel->GetPolyData());
+
+  this->CollimatorTableTopCollisionDetection->SetInputData(0, collimatorModel->GetPolyData());
+  this->CollimatorTableTopCollisionDetection->SetInputData(1, tableTopModel->GetPolyData());
+#else
   this->GantryTableTopCollisionDetection->SetInput(0, gantryModel->GetPolyData());
   this->GantryTableTopCollisionDetection->SetInput(1, tableTopModel->GetPolyData());
 
@@ -645,6 +655,7 @@ void vtkSlicerRoomsEyeViewModuleLogic::SetupTreatmentMachineModels()
 
   this->CollimatorTableTopCollisionDetection->SetInput(0, collimatorModel->GetPolyData());
   this->CollimatorTableTopCollisionDetection->SetInput(1, tableTopModel->GetPolyData());
+#endif
 
   //TODO: Whole patient (segmentation, CT) will need to be transformed when the table top is transformed
   //vtkMRMLLinearTransformNode* patientModelTransforms = vtkMRMLLinearTransformNode::SafeDownCast(
@@ -652,8 +663,14 @@ void vtkSlicerRoomsEyeViewModuleLogic::SetupTreatmentMachineModels()
   //patientModel->SetAndObserveTransformNodeID(patientModelTransforms->GetID());
 
   // Patient model is set when calculating collisions, as it can be changed dynamically
+#if defined (Slicer_VTK_VERSION_MAJOR) && (Slicer_VTK_VERSION_MAJOR == 9)
+  this->GantryPatientCollisionDetection->SetInputData(0, gantryModel->GetPolyData());
+  this->CollimatorPatientCollisionDetection->SetInputData(0, collimatorModel->GetPolyData());
+#else
   this->GantryPatientCollisionDetection->SetInput(0, gantryModel->GetPolyData());
   this->CollimatorPatientCollisionDetection->SetInput(0, collimatorModel->GetPolyData());
+#endif
+
   // Set identity transform for patient (parent transform is taken into account when getting poly data from segmentation)
   vtkNew<vtkTransform> identityTransform;
   identityTransform->Identity();
@@ -1414,15 +1431,22 @@ std::string vtkSlicerRoomsEyeViewModuleLogic::CheckForCollisions(vtkMRMLRoomsEye
   vtkNew<vtkPolyData> patientBodyPolyData;
   if (this->GetPatientBodyPolyData(parameterNode, patientBodyPolyData))
   {
+#if defined (Slicer_VTK_VERSION_MAJOR) && (Slicer_VTK_VERSION_MAJOR == 9)
+    this->GantryPatientCollisionDetection->SetInputData(1, patientBodyPolyData);
+#else
     this->GantryPatientCollisionDetection->SetInput(1, patientBodyPolyData);
+#endif
     this->GantryPatientCollisionDetection->SetTransform(0, vtkLinearTransform::SafeDownCast(gantryToRasTransform));
     this->GantryPatientCollisionDetection->Update();
     if (this->GantryPatientCollisionDetection->GetNumberOfContacts() > 0)
     {
       statusString = statusString + "Collision between gantry and patient\n";
     }
-
+#if defined (Slicer_VTK_VERSION_MAJOR) && (Slicer_VTK_VERSION_MAJOR == 9)
+    this->CollimatorPatientCollisionDetection->SetInputData(1, patientBodyPolyData);
+#else
     this->CollimatorPatientCollisionDetection->SetInput(1, patientBodyPolyData);
+#endif
     this->CollimatorPatientCollisionDetection->SetTransform(0, vtkLinearTransform::SafeDownCast(collimatorToRasTransform));
     this->CollimatorPatientCollisionDetection->Update();
     if (this->CollimatorPatientCollisionDetection->GetNumberOfContacts() > 0)
