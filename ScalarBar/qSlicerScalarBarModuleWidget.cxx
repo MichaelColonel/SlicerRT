@@ -271,7 +271,7 @@ void qSlicerScalarBarModuleWidget::onAddColorBarDisplayNodeClicked()
   cbNode->SetOrientationPreset(vtkMRMLColorBarDisplayNode::Vertical);
   
   d->VolumeNode->SetNodeReferenceID(vtkMRMLColorBarDisplayNode::COLOR_BAR_REFERENCE_ROLE, cbNode->GetID());
-  cbNode->SetAndObserveDisplayableNode(d->VolumeNode);
+//  cbNode->SetAndObserveDisplayableNode(d->VolumeNode);
   d->CheckBox_ShowColorBar2D->setEnabled(true);
   d->CheckBox_ShowColorBar3D->setEnabled(true);
   d->ComboBox_ColorBarPosition->setEnabled(true);
