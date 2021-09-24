@@ -56,6 +56,9 @@ vtkSlicerIhepStandGeometryTransformLogic::vtkSlicerIhepStandGeometryTransformLog
   this->CoordinateSystemsMap[IHEP::PatientSupport] = "PatientSupport";
   this->CoordinateSystemsMap[IHEP::TableTopStand] = "TableTopStand";
   this->CoordinateSystemsMap[IHEP::TableTopVertical] = "TableTopVertical";
+  this->CoordinateSystemsMap[IHEP::TableTopVerticalOrigin] = "TableTopVerticalOrigin";
+  this->CoordinateSystemsMap[IHEP::TableTopVerticalMiddle] = "TableTopVerticalMiddle";
+  this->CoordinateSystemsMap[IHEP::TableTopVerticalMirror] = "TableTopVerticalMirror";
   this->CoordinateSystemsMap[IHEP::TableTop] = "TableTop";
   this->CoordinateSystemsMap[IHEP::Patient] = "Patient";
 
@@ -65,7 +68,13 @@ vtkSlicerIhepStandGeometryTransformLogic::vtkSlicerIhepStandGeometryTransformLog
   this->IhepTransforms.push_back(std::make_pair(IHEP::PatientSupport, IHEP::FixedReference)); // Rotation of patient support platform
   this->IhepTransforms.push_back(std::make_pair(IHEP::TableTopStand, IHEP::PatientSupport)); // Horizontal movements of the table top stand and table top
   this->IhepTransforms.push_back(std::make_pair(IHEP::TableTop, IHEP::TableTopVertical)); // Vertical movement of table top
+  this->IhepTransforms.push_back(std::make_pair(IHEP::TableTop, IHEP::TableTopVerticalOrigin)); // Vertical movement of table top origin
+  this->IhepTransforms.push_back(std::make_pair(IHEP::TableTop, IHEP::TableTopVerticalMirror)); // Vertical movement of table top mirror
+  this->IhepTransforms.push_back(std::make_pair(IHEP::TableTop, IHEP::TableTopVerticalMiddle)); // Vertical movement of table top middle
   this->IhepTransforms.push_back(std::make_pair(IHEP::TableTopVertical, IHEP::TableTopStand)); // Rotation of table top
+  this->IhepTransforms.push_back(std::make_pair(IHEP::TableTopVerticalOrigin, IHEP::TableTopStand)); // Rotation of table top
+  this->IhepTransforms.push_back(std::make_pair(IHEP::TableTopVerticalMirror, IHEP::TableTopStand)); // Rotation of table top
+  this->IhepTransforms.push_back(std::make_pair(IHEP::TableTopVerticalMiddle, IHEP::TableTopStand)); // Rotation of table top
   this->IhepTransforms.push_back(std::make_pair(IHEP::Patient, IHEP::TableTop));
   this->IhepTransforms.push_back(std::make_pair(IHEP::RAS, IHEP::Patient));
 
@@ -73,7 +82,7 @@ vtkSlicerIhepStandGeometryTransformLogic::vtkSlicerIhepStandGeometryTransformLog
   // key - parent, value - children
   this->CoordinateSystemsHierarchy[IHEP::FixedReference] = { IHEP::Collimator, IHEP::PatientSupport };
   this->CoordinateSystemsHierarchy[IHEP::PatientSupport] = { IHEP::TableTopStand };
-  this->CoordinateSystemsHierarchy[IHEP::TableTopStand] = { IHEP::TableTopVertical };
+  this->CoordinateSystemsHierarchy[IHEP::TableTopStand] = { IHEP::TableTopVertical, IHEP::TableTopVerticalOrigin, IHEP::TableTopVerticalMiddle, IHEP::TableTopVerticalMirror };
   this->CoordinateSystemsHierarchy[IHEP::TableTopVertical] = { IHEP::TableTop };
   this->CoordinateSystemsHierarchy[IHEP::TableTop] = { IHEP::Patient };
   this->CoordinateSystemsHierarchy[IHEP::Patient] = { IHEP::RAS };
@@ -160,6 +169,15 @@ void vtkSlicerIhepStandGeometryTransformLogic::BuildIHEPTransformHierarchy()
   // Table top vertical movement parent
   this->GetTransformNodeBetween( IHEP::TableTop, IHEP::TableTopVertical)->SetAndObserveTransformNodeID(
     this->GetTransformNodeBetween(IHEP::TableTopVertical, IHEP::TableTopStand)->GetID() );
+
+  // Table top vertical movement parent
+  this->GetTransformNodeBetween( IHEP::TableTop, IHEP::TableTopVertical)->SetAndObserveTransformNodeID(
+    this->GetTransformNodeBetween(IHEP::TableTopVertical, IHEP::TableTopStand)->GetID() );
+  this->GetTransformNodeBetween( IHEP::TableTop, IHEP::TableTopVertical)->SetAndObserveTransformNodeID(
+    this->GetTransformNodeBetween(IHEP::TableTopVertical, IHEP::TableTopStand)->GetID() );
+  this->GetTransformNodeBetween( IHEP::TableTop, IHEP::TableTopVertical)->SetAndObserveTransformNodeID(
+    this->GetTransformNodeBetween(IHEP::TableTopVertical, IHEP::TableTopStand)->GetID() );
+
 
   // Table top parent
   this->GetTransformNodeBetween( IHEP::Patient, IHEP::TableTop)->SetAndObserveTransformNodeID(
