@@ -75,9 +75,15 @@
 
 //----------------------------------------------------------------------------
 // Treatment machine component names
-const char* vtkSlicerIhepStandGeometryLogic::CANYON_MODEL_NAME = "Canyon";
-const char* vtkSlicerIhepStandGeometryLogic::PATIENTSUPPORT_MODEL_NAME = "PatientSupportRotation";
+const char* vtkSlicerIhepStandGeometryLogic::FIXEDREFERENCE_MODEL_NAME = "FixedReference";
+const char* vtkSlicerIhepStandGeometryLogic::PATIENTSUPPORT_MODEL_NAME = "PatientSupportRotationNew";
 const char* vtkSlicerIhepStandGeometryLogic::TABLETOPSTAND_MODEL_NAME = "TableTopStand";
+
+const char* vtkSlicerIhepStandGeometryLogic::TABLETOPSTAND_MOVEMENTY_MODEL_NAME = "TableTopStandMoveY";
+const char* vtkSlicerIhepStandGeometryLogic::TABLETOP_ORIGIN_MODEL_NAME = "TableTopStandOrigin";
+const char* vtkSlicerIhepStandGeometryLogic::TABLETOP_MIRROR_MODEL_NAME = "TableTopStandMirror";
+const char* vtkSlicerIhepStandGeometryLogic::TABLETOP_MIDDLE_MODEL_NAME = "TableTopStandMiddle";
+  
 const char* vtkSlicerIhepStandGeometryLogic::TABLETOP_MODEL_NAME = "TableTop";
 const char* vtkSlicerIhepStandGeometryLogic::TABLETOP_PLANE_MARKUPS_NODE_NAME = "TableTopMarkupsPlane";
 const char* vtkSlicerIhepStandGeometryLogic::TABLETOPSTAND_FIDUCIALS_MARKUPS_NODE_NAME = "TableTopMarkupsFiducials";
@@ -668,7 +674,7 @@ void vtkSlicerIhepStandGeometryLogic::LoadTreatmentMachineModels(vtkMRMLIhepStan
   // Load treatment machine models
 
   // Canyon - mandatory
-  std::string canyonModelSingletonTag = machineType + "_" + CANYON_MODEL_NAME;
+  std::string canyonModelSingletonTag = machineType + "_" + FIXEDREFERENCE_MODEL_NAME;
   vtkMRMLModelNode* canyonModelNode = vtkMRMLModelNode::SafeDownCast(
     scene->GetSingletonNode(canyonModelSingletonTag.c_str(), "vtkMRMLModelNode") );
   if (canyonModelNode && !canyonModelNode->GetPolyData())
@@ -679,7 +685,7 @@ void vtkSlicerIhepStandGeometryLogic::LoadTreatmentMachineModels(vtkMRMLIhepStan
   }
   if (!canyonModelNode)
   {
-    std::string canyonModelFilePath = treatmentMachineModelsDirectory + "/" + CANYON_MODEL_NAME + ".stl";
+    std::string canyonModelFilePath = treatmentMachineModelsDirectory + "/" + FIXEDREFERENCE_MODEL_NAME + ".stl";
     if (vtksys::SystemTools::FileExists(canyonModelFilePath))
     {
       canyonModelNode = modelsLogic->AddModel(canyonModelFilePath.c_str());
@@ -1061,7 +1067,7 @@ void vtkSlicerIhepStandGeometryLogic::SetupTreatmentMachineModels(vtkMRMLIhepSta
     }
 
     vtkMRMLModelNode* canyonModel = vtkMRMLModelNode::SafeDownCast(
-      this->GetMRMLScene()->GetFirstNodeByName(CANYON_MODEL_NAME) );
+      this->GetMRMLScene()->GetFirstNodeByName(FIXEDREFERENCE_MODEL_NAME) );
     if (!canyonModel)
     {
       vtkErrorMacro("SetupTreatmentMachineModels: Unable to access table top model");

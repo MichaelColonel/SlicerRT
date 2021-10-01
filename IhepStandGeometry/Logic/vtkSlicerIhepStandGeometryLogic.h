@@ -49,9 +49,14 @@ class VTK_SLICER_IHEPSTANDGEOMETRY_MODULE_LOGIC_EXPORT vtkSlicerIhepStandGeometr
 {
 public:
 
-  static const char* CANYON_MODEL_NAME; // Canyon
+  static const char* FIXEDREFERENCE_MODEL_NAME; // Fixed Reference
   static const char* PATIENTSUPPORT_MODEL_NAME; // Patient Support Rotation
-  static const char* TABLETOPSTAND_MODEL_NAME; // Table Top Inferior-Superior Movement, and Left-Right Movement (Lateral) Stand
+  static const char* TABLETOPSTAND_MOVEMENTY_MODEL_NAME; // Table Top Inferior-Superior Movement Stand
+  static const char* TABLETOPSTAND_MODEL_NAME; // Table Top Left-Right Movement (Lateral) Stand
+  static const char* TABLETOP_ORIGIN_MODEL_NAME; // Table Top Left-Right Movement (Lateral) Stand
+  static const char* TABLETOP_MIRROR_MODEL_NAME; // Table Top Left-Right Movement (Lateral) Stand
+  static const char* TABLETOP_MIDDLE_MODEL_NAME; // Table Top Left-Right Movement (Lateral) Stand
+  
   static const char* TABLETOP_MODEL_NAME;
 
   static const char* TABLETOP_PLANE_MARKUPS_NODE_NAME; // TableTop plane position and orientation from three fiducials below

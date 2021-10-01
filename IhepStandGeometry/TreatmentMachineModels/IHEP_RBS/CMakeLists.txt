@@ -2,7 +2,7 @@
 # Add models
 #-----------------------------------------------------------------------------
 
-set(MACHINE_NAME IHEP_RBS)
+set(MACHINE_NAME IHEPStand)
 
 set(MACHINE_MODELS
   FixedReference.stl
