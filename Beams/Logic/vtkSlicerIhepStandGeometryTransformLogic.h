@@ -46,11 +46,10 @@ public:
     FixedReference,
     Collimator,
     PatientSupport, // Rotation of patient support
-    TableTopStand, // Inferior-Superior (Longitudinal), Left-Right (Lateral) movement of the table top
+    TableTopStandMovementY, // Inferior-Superior (Longitudinal) movement of the table top stand
+    TableTopStandMovementX, // Left-Right (Lateral) movement of the table top stand
     TableTopVertical, // Posterior-Anterior (Vertical) movement of table top
     TableTopVerticalOrigin, // Posterior-Anterior (Vertical) movement of table top of the origin (fixed point)
-    TableTopVerticalMirror, // Posterior-Anterior (Vertical) movement of table top of the mirror (not fixed point)
-    TableTopVerticalMiddle, // Posterior-Anterior (Vertical) movement of table top of the middle (not fixed point)
     TableTop, // Rotations of table top (by movement of TableTopStand three vertical basements)
     Patient,
     LastIhepCoordinateFrame // Last index used for adding more coordinate systems externally
@@ -80,15 +79,6 @@ public:
   void ResetRasToPatientIsocenterTranslate();
   /// Restore RAS to Patient isocenter translate
   void RestoreRasToPatientIsocenterTranslate(double isocenter[3]);
-  
-  /// Update parent transform node of a given beam from the IHEP transform hierarchy and the beam parameters
-//  void UpdateBeamTransform(vtkMRMLRTBeamNode* beamNode);
-//  void UpdateBeamTransform( vtkMRMLRTBeamNode* beamNode, 
-//    vtkMRMLLinearTransformNode* beamTransformNode, double* isocenter = nullptr);
-
-  /// Update IHEP transforms according to beam node
-//  void UpdateIHEPTransformsFromBeam( vtkMRMLRTBeamNode* beamNode, double* isocenter = nullptr);
-//  void UpdateIHEPTransformsFromParameter( vtkMRMLIhepStandGeometryNode* parameterNode, double* isocenter = nullptr);
 
 protected:
   vtkSlicerIhepStandGeometryTransformLogic();
