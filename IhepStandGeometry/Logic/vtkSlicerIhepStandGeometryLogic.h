@@ -56,8 +56,7 @@ public:
   static const char* TABLETOP_ORIGIN_MODEL_NAME; // Table Top Origin Stand
   static const char* TABLETOP_MIRROR_MODEL_NAME; // Table Top Mirror Stand
   static const char* TABLETOP_MIDDLE_MODEL_NAME; // Table Top Middle Stand
-  
-  static const char* TABLETOP_MODEL_NAME;
+  static const char* TABLETOP_MODEL_NAME; // Table Top
 
   static const char* TABLETOP_PLANE_MARKUPS_NODE_NAME; // TableTop plane position and orientation from three fiducials below
   static const char* TABLETOPSTAND_FIDUCIALS_MARKUPS_NODE_NAME; // Three fiducials show TableTop position Z origin, mirror, middle respectively
@@ -99,11 +98,19 @@ public:
   /// All angles to zero and only translation applied
   void ResetModelsToInitialPosition(vtkMRMLIhepStandGeometryNode* parameterNode);
 
-  /// Apply new TableTopVertical to TableTopStand translate (TableTopVertical->TableTopStand)
+  /// Apply new TableTopVertical to TableTopStand translate (TableTopVertical->TableTopMovementX)
   void UpdateTableTopVerticalToTableTopStandTransform(vtkMRMLIhepStandGeometryNode* parameterNode);
 
-  /// Apply new TableTopStand to PatientSupport translate (TableTopStand->PatientSupport)
-  void UpdateTableTopStandToPatientSupportTransform(vtkMRMLIhepStandGeometryNode* parameterNode);
+  /// Apply new TableTopVerticalOrigin to TableTopStand translate (TableTopVerticalOrigin->TableTopMovementX)
+  void UpdateTableTopVerticalOriginToTableTopStandTransform(vtkMRMLIhepStandGeometryNode* parameterNode);
+
+  /// Apply new TableTopStand to TableStandPlatform translate (TableTopOrigin->TableTopMovementX)
+  void UpdateTableTopOriginToTableTopStandTransform(vtkMRMLIhepStandGeometryNode* parameterNode);
+
+  /// Apply new TableStandPlatform to PatientSupport translate (TableTopMovementY->PatientSupport)
+  void UpdateTableStandPlatformToPatientSupportTransform(vtkMRMLIhepStandGeometryNode* parameterNode);
+  /// Apply new TableTopStand to TableStandPlatform translate (TableTopMovementX->TableTopMovementY)
+  void UpdateTableTopStandToTableStandPlatformTransform(vtkMRMLIhepStandGeometryNode* parameterNode);
 
   /// Apply new PatientSupport to FixedReference translate (PatientSupport->FixedReference)
   void UpdatePatientSupportToFixedReferenceTransform(vtkMRMLIhepStandGeometryNode* parameterNode);

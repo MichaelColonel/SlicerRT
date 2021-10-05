@@ -146,9 +146,9 @@ void qSlicerIhepStandGeometryModuleWidget::setup()
 //  connect( d->SliderWidget_TableTopVerticalPositionMirror, SIGNAL(valueChanged(double)), 
 //    this, SLOT(onTableTopVerticalMirrorPositionChanged(double)));
   connect( d->SliderWidget_TableTopVerticalPositionOrigin, SIGNAL(valueChanged(double)), 
-    this, SLOT(onTableTopVerticalOriginPositionChanged(double)));
+    this, SLOT(onTableTopOriginPositionChanged(double)));
   connect( d->SliderWidget_TableTopStandLongitudinalPosition, SIGNAL(valueChanged(double)), 
-    this, SLOT(onTableTopStandLongitudinalPositionChanged(double)));
+    this, SLOT(onTableTopPlatformLongitudinalPositionChanged(double)));
   connect( d->SliderWidget_TableTopStandLateralPosition, SIGNAL(valueChanged(double)), 
     this, SLOT(onTableTopStandLateralPositionChanged(double)));
   connect( d->SliderWidget_PatientSupportRotationAngle, SIGNAL(valueChanged(double)), 
@@ -339,11 +339,15 @@ void qSlicerIhepStandGeometryModuleWidget::onTableTopOriginPositionChanged(doubl
     return;
   }
 
-//  parameterNode->DisableModifiedEventOn();
+  parameterNode->DisableModifiedEventOn();
   parameterNode->SetTableTopVerticalPositionOrigin(position);
-//  parameterNode->DisableModifiedEventOff();
+  parameterNode->SetTableTopVerticalPosition(position);
+  parameterNode->DisableModifiedEventOff();
 
-//  parameterNode->Modified();
+  d->logic()->UpdateTableTopVerticalOriginToTableTopStandTransform(parameterNode);
+  d->logic()->UpdateTableTopVerticalToTableTopStandTransform(parameterNode);
+
+  parameterNode->Modified();
 }
 
 //-----------------------------------------------------------------------------
@@ -364,10 +368,10 @@ void qSlicerIhepStandGeometryModuleWidget::onTableTopPlatformLongitudinalPositio
   }
 
   parameterNode->DisableModifiedEventOn();
-  parameterNode->SetTableTopLongitudinalPosition(position);
+  parameterNode->SetTableTopLongitudinalPosition(position);  // Inferior-Superior movement along Y-axis
   parameterNode->DisableModifiedEventOff();
   
-  d->logic()->UpdateTableTopStandToPatientSupportTransform(parameterNode);
+  d->logic()->UpdateTableStandPlatformToPatientSupportTransform(parameterNode);
 
   parameterNode->Modified();
 }
@@ -390,11 +394,11 @@ void qSlicerIhepStandGeometryModuleWidget::onTableTopStandLateralPositionChanged
   }
 
   parameterNode->DisableModifiedEventOn();
-  parameterNode->SetTableTopLateralPosition(position);
+  parameterNode->SetTableTopLateralPosition(position); // Left-Right movement along X-axis
   parameterNode->DisableModifiedEventOff();
 
   // update table top stand to patient support rotation transform
-  d->logic()->UpdateTableTopStandToPatientSupportTransform(parameterNode);
+  d->logic()->UpdateTableTopStandToTableStandPlatformTransform(parameterNode);
 
   parameterNode->Modified();
 }
