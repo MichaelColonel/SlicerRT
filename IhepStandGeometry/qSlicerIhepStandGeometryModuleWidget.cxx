@@ -25,14 +25,13 @@
 // Logic includes
 #include "vtkSlicerIhepStandGeometryLogic.h"
 
-// SlicerRT MRML IhepStandGeometry includes
+// SlicerRT MRML IEC and IhepStandGeometry includes
+#include "vtkSlicerIECTransformLogic.h"
 #include "vtkMRMLIhepStandGeometryNode.h"
 
-// Beams includes
-//#include "vtkSlicerIECTransformLogic.h"
 #include <vtkMRMLRTBeamNode.h>
 #include <vtkMRMLRTIonBeamNode.h>
-//#include "vtkMRMLRTPlanNode.h"
+#include "vtkMRMLRTPlanNode.h"
 
 // Slicer includes
 #include <qSlicerApplication.h>
@@ -140,12 +139,12 @@ void qSlicerIhepStandGeometryModuleWidget::setup()
     this, SLOT(onPatientBodySegmentNameChanged(QString)));
 
   // Sliders, Coordinates widgets
-  connect( d->SliderWidget_TableTopVerticalPosition, SIGNAL(valueChanged(double)), 
-    this, SLOT(onTableTopVerticalPositionChanged(double)));
-  connect( d->SliderWidget_TableTopVerticalPositionMiddle, SIGNAL(valueChanged(double)), 
-    this, SLOT(onTableTopVerticalMiddlePositionChanged(double)));
-  connect( d->SliderWidget_TableTopVerticalPositionMirror, SIGNAL(valueChanged(double)), 
-    this, SLOT(onTableTopVerticalMirrorPositionChanged(double)));
+//  connect( d->SliderWidget_TableTopVerticalPosition, SIGNAL(valueChanged(double)), 
+//    this, SLOT(onTableTopVerticalPositionChanged(double)));
+//  connect( d->SliderWidget_TableTopVerticalPositionMiddle, SIGNAL(valueChanged(double)), 
+//    this, SLOT(onTableTopVerticalMiddlePositionChanged(double)));
+//  connect( d->SliderWidget_TableTopVerticalPositionMirror, SIGNAL(valueChanged(double)), 
+//    this, SLOT(onTableTopVerticalMirrorPositionChanged(double)));
   connect( d->SliderWidget_TableTopVerticalPositionOrigin, SIGNAL(valueChanged(double)), 
     this, SLOT(onTableTopVerticalOriginPositionChanged(double)));
   connect( d->SliderWidget_TableTopStandLongitudinalPosition, SIGNAL(valueChanged(double)), 
@@ -249,6 +248,7 @@ void qSlicerIhepStandGeometryModuleWidget::onPatientTableTopTranslationChanged(d
 }
 
 //-----------------------------------------------------------------------------
+/*
 void qSlicerIhepStandGeometryModuleWidget::onTableTopVerticalPositionChanged(double position)
 {
   Q_D(qSlicerIhepStandGeometryModuleWidget);
@@ -321,9 +321,9 @@ void qSlicerIhepStandGeometryModuleWidget::onTableTopVerticalMirrorPositionChang
   
   parameterNode->Modified();
 }
-
+*/
 //-----------------------------------------------------------------------------
-void qSlicerIhepStandGeometryModuleWidget::onTableTopVerticalOriginPositionChanged(double position)
+void qSlicerIhepStandGeometryModuleWidget::onTableTopOriginPositionChanged(double position)
 {
   Q_D(qSlicerIhepStandGeometryModuleWidget);
 
@@ -339,15 +339,15 @@ void qSlicerIhepStandGeometryModuleWidget::onTableTopVerticalOriginPositionChang
     return;
   }
 
-  parameterNode->DisableModifiedEventOn();
+//  parameterNode->DisableModifiedEventOn();
   parameterNode->SetTableTopVerticalPositionOrigin(position);
-  parameterNode->DisableModifiedEventOff();
+//  parameterNode->DisableModifiedEventOff();
 
-  parameterNode->Modified();
+//  parameterNode->Modified();
 }
 
 //-----------------------------------------------------------------------------
-void qSlicerIhepStandGeometryModuleWidget::onTableTopStandLongitudinalPositionChanged(double position)
+void qSlicerIhepStandGeometryModuleWidget::onTableTopPlatformLongitudinalPositionChanged(double position)
 {
   Q_D(qSlicerIhepStandGeometryModuleWidget);
 

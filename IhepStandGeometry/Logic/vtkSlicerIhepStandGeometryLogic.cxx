@@ -77,9 +77,9 @@
 // Treatment machine component names
 const char* vtkSlicerIhepStandGeometryLogic::FIXEDREFERENCE_MODEL_NAME = "FixedReference";
 const char* vtkSlicerIhepStandGeometryLogic::PATIENTSUPPORT_MODEL_NAME = "PatientSupportRotationNew";
-const char* vtkSlicerIhepStandGeometryLogic::TABLETOPSTAND_MODEL_NAME = "TableTopStand";
 
-const char* vtkSlicerIhepStandGeometryLogic::TABLETOPSTAND_MOVEMENTY_MODEL_NAME = "TableTopStandMoveY";
+const char* vtkSlicerIhepStandGeometryLogic::TABLETOPSTAND_MOVEMENTY_MODEL_NAME = "PatientSupportStandY";
+const char* vtkSlicerIhepStandGeometryLogic::TABLETOPSTAND_MOVEMENTX_MODEL_NAME = "TableTopStand";
 const char* vtkSlicerIhepStandGeometryLogic::TABLETOP_ORIGIN_MODEL_NAME = "TableTopStandOrigin";
 const char* vtkSlicerIhepStandGeometryLogic::TABLETOP_MIRROR_MODEL_NAME = "TableTopStandMirror";
 const char* vtkSlicerIhepStandGeometryLogic::TABLETOP_MIDDLE_MODEL_NAME = "TableTopStandMiddle";
@@ -749,7 +749,7 @@ void vtkSlicerIhepStandGeometryLogic::LoadTreatmentMachineModels(vtkMRMLIhepStan
   }
 
   // Table top stand - mandatory
-  std::string tableTopStandModelSingletonTag = machineType + "_" + TABLETOPSTAND_MODEL_NAME;
+  std::string tableTopStandModelSingletonTag = machineType + "_" + TABLETOPSTAND_MOVEMENTX_MODEL_NAME;
   vtkMRMLModelNode* tableTopStandModelNode = vtkMRMLModelNode::SafeDownCast(
     scene->GetSingletonNode(tableTopStandModelSingletonTag.c_str(), "vtkMRMLModelNode") );
   if (tableTopStandModelNode && !tableTopStandModelNode->GetPolyData())
@@ -760,7 +760,7 @@ void vtkSlicerIhepStandGeometryLogic::LoadTreatmentMachineModels(vtkMRMLIhepStan
   }
   if (!tableTopStandModelNode)
   {
-    std::string tableTopStandModelFilePath = treatmentMachineModelsDirectory + "/" + TABLETOPSTAND_MODEL_NAME + ".stl";
+    std::string tableTopStandModelFilePath = treatmentMachineModelsDirectory + "/" + TABLETOPSTAND_MOVEMENTX_MODEL_NAME + ".stl";
     if (vtksys::SystemTools::FileExists(tableTopStandModelFilePath))
     {
       tableTopStandModelNode = modelsLogic->AddModel(tableTopStandModelFilePath.c_str());
@@ -914,7 +914,7 @@ void vtkSlicerIhepStandGeometryLogic::SetupTreatmentMachineModels(vtkMRMLIhepSta
     }
 
     vtkMRMLModelNode* tableTopStandModel = vtkMRMLModelNode::SafeDownCast(
-      scene->GetFirstNodeByName(TABLETOPSTAND_MODEL_NAME) );
+      scene->GetFirstNodeByName(TABLETOPSTAND_MOVEMENTX_MODEL_NAME) );
     if (!tableTopStandModel)
     {
       vtkErrorMacro("SetupTreatmentMachineModels: Unable to access table top stand model");

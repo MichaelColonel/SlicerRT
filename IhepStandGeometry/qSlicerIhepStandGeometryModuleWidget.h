@@ -60,14 +60,14 @@ public slots:
 
   void onLoadStandModelsButtonClicked();
   void onResetToInitialPositionButtonClicked();
-  void onTableTopVerticalPositionChanged(double);
-  void onTableTopVerticalMirrorPositionChanged(double);
-  void onTableTopVerticalOriginPositionChanged(double);
-  void onTableTopVerticalMiddlePositionChanged(double);
-  void onTableTopStandLongitudinalPositionChanged(double);
-  void onPatientSupportFixedReferenceAngleChanged(double);
-  
+//  void onTableTopVerticalPositionChanged(double);
+//  void onTableTopVerticalMirrorPositionChanged(double);
+  void onTableTopOriginPositionChanged(double);
+//  void onTableTopVerticalMiddlePositionChanged(double);
+  void onTableTopPlatformLongitudinalPositionChanged(double);
   void onTableTopStandLateralPositionChanged(double);
+  void onPatientSupportFixedReferenceAngleChanged(double);
+
   void onPatientTableTopTranslationChanged(double*);
 
   /// Update widget GUI from RT Image parameters node

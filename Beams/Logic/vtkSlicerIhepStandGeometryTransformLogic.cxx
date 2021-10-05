@@ -67,8 +67,9 @@ vtkSlicerIhepStandGeometryTransformLogic::vtkSlicerIhepStandGeometryTransformLog
   this->IhepTransforms.push_back(std::make_pair(IHEP::PatientSupport, IHEP::FixedReference)); // Rotation of patient support platform
   this->IhepTransforms.push_back(std::make_pair(IHEP::TableTopStandMovementY, IHEP::PatientSupport)); // Horizontal movement along Y-axis of the table top stand and table top
   this->IhepTransforms.push_back(std::make_pair(IHEP::TableTopStandMovementX, IHEP::TableTopStandMovementY)); // Horizontal movement along X-axis of the table top stand and table top
-  this->IhepTransforms.push_back(std::make_pair(IHEP::TableTopVerticalOrigin, IHEP::TableTopStandMovementX)); // Vertical movement of table top
-  this->IhepTransforms.push_back(std::make_pair(IHEP::TableTop, IHEP::TableTopVerticalOrigin)); // Vertical movement of table top origin
+  this->IhepTransforms.push_back(std::make_pair(IHEP::TableTopVerticalOrigin, IHEP::TableTopStandMovementX)); // Vertical movement of table top origin
+  this->IhepTransforms.push_back(std::make_pair(IHEP::TableTopVertical, IHEP::TableTopStandMovementX)); // Transform of table top to table top stand
+  this->IhepTransforms.push_back(std::make_pair(IHEP::TableTop, IHEP::TableTopVertical)); // Vertical movement of table top origin
   this->IhepTransforms.push_back(std::make_pair(IHEP::Patient, IHEP::TableTop));
   this->IhepTransforms.push_back(std::make_pair(IHEP::RAS, IHEP::Patient));
 

@@ -51,11 +51,11 @@ public:
 
   static const char* FIXEDREFERENCE_MODEL_NAME; // Fixed Reference
   static const char* PATIENTSUPPORT_MODEL_NAME; // Patient Support Rotation
-  static const char* TABLETOPSTAND_MOVEMENTY_MODEL_NAME; // Table Top Inferior-Superior Movement Stand
-  static const char* TABLETOPSTAND_MODEL_NAME; // Table Top Left-Right Movement (Lateral) Stand
-  static const char* TABLETOP_ORIGIN_MODEL_NAME; // Table Top Left-Right Movement (Lateral) Stand
-  static const char* TABLETOP_MIRROR_MODEL_NAME; // Table Top Left-Right Movement (Lateral) Stand
-  static const char* TABLETOP_MIDDLE_MODEL_NAME; // Table Top Left-Right Movement (Lateral) Stand
+  static const char* TABLETOPSTAND_MOVEMENTY_MODEL_NAME; // Table Top Inferior-Superior Movement Stand Platform
+  static const char* TABLETOPSTAND_MOVEMENTX_MODEL_NAME; // Table Top Left-Right Movement (Lateral) Stand
+  static const char* TABLETOP_ORIGIN_MODEL_NAME; // Table Top Origin Stand
+  static const char* TABLETOP_MIRROR_MODEL_NAME; // Table Top Mirror Stand
+  static const char* TABLETOP_MIDDLE_MODEL_NAME; // Table Top Middle Stand
   
   static const char* TABLETOP_MODEL_NAME;
 
