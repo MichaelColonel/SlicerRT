@@ -285,12 +285,11 @@ void vtkSlicerIhepStandGeometryLogic::InitialSetupTransformTranslations(vtkMRMLI
 //----------------------------------------------------------------------------
 vtkMRMLMarkupsFiducialNode* vtkSlicerIhepStandGeometryLogic::CreateTableTopStandFiducialNode(vtkMRMLIhepStandGeometryNode* parameterNode)
 {
-  vtkNew<vtkMRMLMarkupsFiducialNode> pointsMarkupsNode;
-  this->GetMRMLScene()->AddNode(pointsMarkupsNode);
+  vtkMRMLMarkupsFiducialNode* pointsMarkupsNode = vtkMRMLMarkupsFiducialNode::SafeDownCast(this->GetMRMLScene()->AddNewNodeByClass("vtkMRMLMarkupsFiducialNode"));
   pointsMarkupsNode->SetName(TABLETOPSTAND_FIDUCIALS_MARKUPS_NODE_NAME);
-//  pointsMarkupsNode->SetHideFromEditors(1);
-//  std::string singletonTag = std::string("IHEP_") + TABLETOPSTAND_FIDUCIALS_MARKUPS_NODE_NAME;
-//  pointsMarkupsNode->SetSingletonTag(singletonTag.c_str());
+  pointsMarkupsNode->SetHideFromEditors(1);
+  std::string singletonTag = std::string("IHEP_") + TABLETOPSTAND_FIDUCIALS_MARKUPS_NODE_NAME;
+  pointsMarkupsNode->SetSingletonTag(singletonTag.c_str());
 
   vtkMRMLScene* scene = this->GetMRMLScene();
   if (!scene)
@@ -446,6 +445,21 @@ void vtkSlicerIhepStandGeometryLogic::UpdateTableTopStandFiducialNode(vtkMRMLIhe
     vtkMRMLMarkupsFiducialNode* pointsMarkupsNode = vtkMRMLMarkupsFiducialNode::SafeDownCast(
       scene->GetFirstNodeByName(TABLETOPSTAND_FIDUCIALS_MARKUPS_NODE_NAME));
 
+//    vtkVector3d p0( 265.5, 1116.6, -352.); // Origin
+//    vtkVector3d p1( -264.5, 1116.6, -352.); // Mirror
+//    vtkVector3d p2( 0.5, 1771.6, -352.); // Middle
+
+    vtkVector3d p0( 265.5, 
+      1116.6 + parameterNode->GetTableTopVerticalPosition(),
+      -352. + parameterNode->GetTableTopVerticalPositionOrigin()); // Origin
+    vtkVector3d p1( -264.5, 
+      1116.6 + parameterNode->GetTableTopVerticalPosition(), 
+      -352. + parameterNode->GetTableTopVerticalPositionMirror()); // Mirror
+    vtkVector3d p2( 0.5, 
+      1771.6 + parameterNode->GetTableTopVerticalPosition(), 
+      -352. + parameterNode->GetTableTopVerticalPositionMiddle()); // Middle
+
+/*
     vtkVector3d p0( 250., 
       1450. + parameterNode->GetTableTopVerticalPosition(),
       -120. - 650. + parameterNode->GetTableTopVerticalPositionOrigin()); // Origin
@@ -455,6 +469,7 @@ void vtkSlicerIhepStandGeometryLogic::UpdateTableTopStandFiducialNode(vtkMRMLIhe
     vtkVector3d p2( 0., 
       2050. + parameterNode->GetTableTopVerticalPosition(), 
       -120. - 650. + parameterNode->GetTableTopVerticalPositionMiddle()); // Middle
+*/
     // update fiducials
     double* p = pointsMarkupsNode->GetNthControlPointPosition(0);
     if (p)
