@@ -287,9 +287,9 @@ vtkMRMLMarkupsFiducialNode* vtkSlicerIhepStandGeometryLogic::CreateTableTopStand
 {
   vtkMRMLMarkupsFiducialNode* pointsMarkupsNode = vtkMRMLMarkupsFiducialNode::SafeDownCast(this->GetMRMLScene()->AddNewNodeByClass("vtkMRMLMarkupsFiducialNode"));
   pointsMarkupsNode->SetName(TABLETOPSTAND_FIDUCIALS_MARKUPS_NODE_NAME);
-  pointsMarkupsNode->SetHideFromEditors(1);
-  std::string singletonTag = std::string("IHEP_") + TABLETOPSTAND_FIDUCIALS_MARKUPS_NODE_NAME;
-  pointsMarkupsNode->SetSingletonTag(singletonTag.c_str());
+//  pointsMarkupsNode->SetHideFromEditors(1);
+//  std::string singletonTag = std::string("IHEP_") + TABLETOPSTAND_FIDUCIALS_MARKUPS_NODE_NAME;
+//  pointsMarkupsNode->SetSingletonTag(singletonTag.c_str());
 
   vtkMRMLScene* scene = this->GetMRMLScene();
   if (!scene)
@@ -450,14 +450,14 @@ void vtkSlicerIhepStandGeometryLogic::UpdateTableTopStandFiducialNode(vtkMRMLIhe
 //    vtkVector3d p2( 0.5, 1771.6, -352.); // Middle
 
     vtkVector3d p0( 265.5, 
-      1116.6 + parameterNode->GetTableTopVerticalPosition(),
-      -352. + parameterNode->GetTableTopVerticalPositionOrigin()); // Origin
+      1116.6 - parameterNode->GetTableTopVerticalPosition(),
+      -352. - parameterNode->GetTableTopVerticalPositionOrigin()); // Origin
     vtkVector3d p1( -264.5, 
-      1116.6 + parameterNode->GetTableTopVerticalPosition(), 
-      -352. + parameterNode->GetTableTopVerticalPositionMirror()); // Mirror
+      1116.6/* + parameterNode->GetTableTopVerticalPosition() */, 
+      -352./* + parameterNode->GetTableTopVerticalPositionMirror() */); // Mirror
     vtkVector3d p2( 0.5, 
-      1771.6 + parameterNode->GetTableTopVerticalPosition(), 
-      -352. + parameterNode->GetTableTopVerticalPositionMiddle()); // Middle
+      1771.6/* + parameterNode->GetTableTopVerticalPosition() */, 
+      -352./* + parameterNode->GetTableTopVerticalPositionMiddle() */); // Middle
 
 /*
     vtkVector3d p0( 250., 
@@ -1542,6 +1542,7 @@ vtkMRMLLinearTransformNode* vtkSlicerIhepStandGeometryLogic::UpdateTableTopStand
       scene->GetFirstNodeByName(TABLETOPSTAND_FIDUCIALS_TRANSFORM_NODE_NAME));
   }
 
+//  use RasToTableTopVerticalOriginTransform instead
   using IHEP = vtkSlicerIhepStandGeometryTransformLogic::CoordinateSystemIdentifier;
   // Dynamic transform from Gantry to RAS
   // Transformation path: RAS -> Patient -> TableTop -> TableTopVertical -> TableTopStandMovementX
