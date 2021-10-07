@@ -50,6 +50,8 @@ public:
     TableTopStandMovementX, // Left-Right (Lateral) movement of the table top stand
     TableTopVertical, // Posterior-Anterior (Vertical) movement of table top
     TableTopVerticalOrigin, // Posterior-Anterior (Vertical) movement of table top of the origin (fixed point)
+    TableTopVerticalMirror, // Posterior-Anterior (Vertical) movement of table top of the mirror (not fixed point)
+    TableTopVerticalMiddle, // Posterior-Anterior (Vertical) movement of table top of the middle (not fixed point)
     TableTop, // Rotations of table top (by movement of three table top vertical basements)
     Patient,
     LastIhepCoordinateFrame // Last index used for adding more coordinate systems externally

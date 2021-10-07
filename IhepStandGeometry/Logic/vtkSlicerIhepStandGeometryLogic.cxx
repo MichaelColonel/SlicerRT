@@ -860,6 +860,70 @@ void vtkSlicerIhepStandGeometryLogic::LoadTreatmentMachineModels(vtkMRMLIhepStan
     }
   }
 
+  // Table top mirror - mandatory
+  std::string tableTopMirrorModelSingletonTag = machineType + "_" + TABLETOP_MIRROR_MODEL_NAME;
+  vtkMRMLModelNode* tableTopMirrorModelNode = vtkMRMLModelNode::SafeDownCast(
+    scene->GetSingletonNode(tableTopMirrorModelSingletonTag.c_str(), "vtkMRMLModelNode") );
+  if (tableTopMirrorModelNode && !tableTopMirrorModelNode->GetPolyData())
+  {
+    // Remove node if contains empty polydata (e.g. after closing scene), so that it can be loaded again
+    scene->RemoveNode(tableTopMirrorModelNode);
+    tableTopMirrorModelNode = nullptr;
+  }
+  if (!tableTopMirrorModelNode)
+  {
+    std::string tableTopMirrorModelFilePath = treatmentMachineModelsDirectory + "/" + TABLETOP_MIRROR_MODEL_NAME + ".stl";
+    if (vtksys::SystemTools::FileExists(tableTopMirrorModelFilePath))
+    {
+      tableTopMirrorModelNode = modelsLogic->AddModel(tableTopMirrorModelFilePath.c_str());
+    }
+    if (tableTopMirrorModelNode)
+    {
+      tableTopMirrorModelNode->SetSingletonTag(tableTopMirrorModelSingletonTag.c_str());
+      vtkNew<vtkMRMLModelHierarchyNode> tableTopMirrorModelHierarchyNode;
+      scene->AddNode(tableTopMirrorModelHierarchyNode);
+      tableTopMirrorModelHierarchyNode->SetModelNodeID(tableTopMirrorModelNode->GetID());
+      tableTopMirrorModelHierarchyNode->SetParentNodeID(rootModelHierarchyNode->GetID());
+      tableTopMirrorModelHierarchyNode->HideFromEditorsOn();
+    }
+    else
+    {
+      vtkErrorMacro("LoadTreatmentMachineModels: Failed to load table top mirror model");
+    }
+  }
+
+  // Table top middle - mandatory
+  std::string tableTopMiddleModelSingletonTag = machineType + "_" + TABLETOP_MIDDLE_MODEL_NAME;
+  vtkMRMLModelNode* tableTopMiddleModelNode = vtkMRMLModelNode::SafeDownCast(
+    scene->GetSingletonNode(tableTopMiddleModelSingletonTag.c_str(), "vtkMRMLModelNode") );
+  if (tableTopMiddleModelNode && !tableTopMiddleModelNode->GetPolyData())
+  {
+    // Remove node if contains empty polydata (e.g. after closing scene), so that it can be loaded again
+    scene->RemoveNode(tableTopMiddleModelNode);
+    tableTopMiddleModelNode = nullptr;
+  }
+  if (!tableTopMiddleModelNode)
+  {
+    std::string tableTopMiddleModelFilePath = treatmentMachineModelsDirectory + "/" + TABLETOP_MIDDLE_MODEL_NAME + ".stl";
+    if (vtksys::SystemTools::FileExists(tableTopMiddleModelFilePath))
+    {
+      tableTopMiddleModelNode = modelsLogic->AddModel(tableTopMiddleModelFilePath.c_str());
+    }
+    if (tableTopMiddleModelNode)
+    {
+      tableTopMiddleModelNode->SetSingletonTag(tableTopMiddleModelSingletonTag.c_str());
+      vtkNew<vtkMRMLModelHierarchyNode> tableTopMiddleModelHierarchyNode;
+      scene->AddNode(tableTopMiddleModelHierarchyNode);
+      tableTopMiddleModelHierarchyNode->SetModelNodeID(tableTopMiddleModelNode->GetID());
+      tableTopMiddleModelHierarchyNode->SetParentNodeID(rootModelHierarchyNode->GetID());
+      tableTopMiddleModelHierarchyNode->HideFromEditorsOn();
+    }
+    else
+    {
+      vtkErrorMacro("LoadTreatmentMachineModels: Failed to load table top middle model");
+    }
+  }
+
   // Table top - mandatory
   std::string tableTopModelSingletonTag = machineType + "_" + TABLETOP_MODEL_NAME;
   vtkMRMLModelNode* tableTopModelNode = vtkMRMLModelNode::SafeDownCast(
@@ -1063,6 +1127,112 @@ void vtkSlicerIhepStandGeometryLogic::SetupTreatmentMachineModels(vtkMRMLIhepSta
       tableTopVerticalOriginModel->SetAndObserveTransformNodeID(rasToTableTopVerticalOriginTransformNode->GetID());
       tableTopVerticalOriginModel->CreateDefaultDisplayNodes();
       tableTopVerticalOriginModel->GetDisplayNode()->SetColor(0.3, 0.3, 0.3);
+    }
+  }
+
+  // Table top mirror - mandatory
+  // Transform path: RAS -> Patient -> TableTop -> TableTopVerticalMirror
+  vtkNew<vtkGeneralTransform> rasToTableTopVerticalMirrorGeneralTransform;
+  vtkNew<vtkTransform> rasToTableTopVerticalMirrorLinearTransform;
+  if (this->IhepLogic->GetTransformBetween( IHEP::RAS, IHEP::TableTopVerticalMirror, 
+    rasToTableTopVerticalMirrorGeneralTransform, false))
+  {
+    // Convert general transform to linear
+    // This call also makes hard copy of the transform so that it doesn't change when other beam transforms change
+    if (!vtkMRMLTransformNode::IsGeneralTransformLinear( rasToTableTopVerticalMirrorGeneralTransform, 
+      rasToTableTopVerticalMirrorLinearTransform))
+    {
+      vtkErrorMacro("SetupTreatmentMachineModels: Unable to get transform hierarchy from RAS to TableTopVerticalMirror");
+      return;
+    }
+    // Transform to RAS, set transform to node, transform the model
+    rasToTableTopVerticalMirrorLinearTransform->Concatenate(patientToRasTransform);
+
+    // Find RasToTableTopTransform or create it
+    vtkSmartPointer<vtkMRMLLinearTransformNode> rasToTableTopVerticalMirrorTransformNode;
+    if (scene->GetFirstNodeByName("RasToTableTopVerticalMirrorTransform"))
+    {
+      rasToTableTopVerticalMirrorTransformNode = vtkMRMLLinearTransformNode::SafeDownCast(
+        scene->GetFirstNodeByName("RasToTableTopVerticalMirrorTransform"));
+    }
+    else
+    {
+      rasToTableTopVerticalMirrorTransformNode = vtkSmartPointer<vtkMRMLLinearTransformNode>::New();
+      rasToTableTopVerticalMirrorTransformNode->SetName("RasToTableTopVerticalMirrorTransform");
+//      rasToTableTopTransformNode->SetHideFromEditors(1);
+//      rasToTableTopTransformNode->SetSingletonTag("IHEP_");
+      scene->AddNode(rasToTableTopVerticalMirrorTransformNode);
+    }
+    if (rasToTableTopVerticalMirrorTransformNode)
+    {
+      rasToTableTopVerticalMirrorTransformNode->SetAndObserveTransformToParent(rasToTableTopVerticalMirrorLinearTransform);
+    }
+
+    vtkMRMLModelNode* tableTopVerticalMirrorModel = vtkMRMLModelNode::SafeDownCast(
+      this->GetMRMLScene()->GetFirstNodeByName(TABLETOP_MIRROR_MODEL_NAME) );
+    if (!tableTopVerticalMirrorModel)
+    {
+      vtkErrorMacro("SetupTreatmentMachineModels: Unable to access table top model vertical mirror");
+      return;
+    }
+    if (rasToTableTopVerticalMirrorTransformNode)
+    {
+      tableTopVerticalMirrorModel->SetAndObserveTransformNodeID(rasToTableTopVerticalMirrorTransformNode->GetID());
+      tableTopVerticalMirrorModel->CreateDefaultDisplayNodes();
+      tableTopVerticalMirrorModel->GetDisplayNode()->SetColor(0.3, 0.3, 0.3);
+    }
+  }
+
+  // Table top middle - mandatory
+  // Transform path: RAS -> Patient -> TableTop -> TableTopVerticalMiddle
+  vtkNew<vtkGeneralTransform> rasToTableTopVerticalMiddleGeneralTransform;
+  vtkNew<vtkTransform> rasToTableTopVerticalMiddleLinearTransform;
+  if (this->IhepLogic->GetTransformBetween( IHEP::RAS, IHEP::TableTopVerticalMiddle, 
+    rasToTableTopVerticalMiddleGeneralTransform, false))
+  {
+    // Convert general transform to linear
+    // This call also makes hard copy of the transform so that it doesn't change when other beam transforms change
+    if (!vtkMRMLTransformNode::IsGeneralTransformLinear( rasToTableTopVerticalMiddleGeneralTransform, 
+      rasToTableTopVerticalMiddleLinearTransform))
+    {
+      vtkErrorMacro("SetupTreatmentMachineModels: Unable to get transform hierarchy from RAS to TableTopVerticalMiddle");
+      return;
+    }
+    // Transform to RAS, set transform to node, transform the model
+    rasToTableTopVerticalMiddleLinearTransform->Concatenate(patientToRasTransform);
+
+    // Find RasToTableTopTransform or create it
+    vtkSmartPointer<vtkMRMLLinearTransformNode> rasToTableTopVerticalMiddleTransformNode;
+    if (scene->GetFirstNodeByName("RasToTableTopVerticalMiddleTransform"))
+    {
+      rasToTableTopVerticalMiddleTransformNode = vtkMRMLLinearTransformNode::SafeDownCast(
+        scene->GetFirstNodeByName("RasToTableTopVerticalMiddleTransform"));
+    }
+    else
+    {
+      rasToTableTopVerticalMiddleTransformNode = vtkSmartPointer<vtkMRMLLinearTransformNode>::New();
+      rasToTableTopVerticalMiddleTransformNode->SetName("RasToTableTopVerticalMiddleTransform");
+//      rasToTableTopTransformNode->SetHideFromEditors(1);
+//      rasToTableTopTransformNode->SetSingletonTag("IHEP_");
+      scene->AddNode(rasToTableTopVerticalMiddleTransformNode);
+    }
+    if (rasToTableTopVerticalMiddleTransformNode)
+    {
+      rasToTableTopVerticalMiddleTransformNode->SetAndObserveTransformToParent(rasToTableTopVerticalMiddleLinearTransform);
+    }
+
+    vtkMRMLModelNode* tableTopVerticalMiddleModel = vtkMRMLModelNode::SafeDownCast(
+      this->GetMRMLScene()->GetFirstNodeByName(TABLETOP_MIDDLE_MODEL_NAME) );
+    if (!tableTopVerticalMiddleModel)
+    {
+      vtkErrorMacro("SetupTreatmentMachineModels: Unable to access table top model vertical middle");
+      return;
+    }
+    if (rasToTableTopVerticalMiddleTransformNode)
+    {
+      tableTopVerticalMiddleModel->SetAndObserveTransformNodeID(rasToTableTopVerticalMiddleTransformNode->GetID());
+      tableTopVerticalMiddleModel->CreateDefaultDisplayNodes();
+      tableTopVerticalMiddleModel->GetDisplayNode()->SetColor(0.3, 0.3, 0.3);
     }
   }
 

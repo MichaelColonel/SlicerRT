@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>458</width>
-    <height>804</height>
+    <height>833</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -191,7 +191,7 @@
         <item row="3" column="0">
          <widget class="QLabel" name="label_12">
           <property name="enabled">
-           <bool>false</bool>
+           <bool>true</bool>
           </property>
           <property name="text">
            <string>Table Top Position Z Mirror</string>
@@ -228,7 +228,7 @@
         <item row="3" column="1">
          <widget class="ctkSliderWidget" name="SliderWidget_TableTopVerticalPositionMirror">
           <property name="enabled">
-           <bool>false</bool>
+           <bool>true</bool>
           </property>
           <property name="minimum">
            <double>-999.899999999999977</double>
@@ -248,7 +248,7 @@
         <item row="4" column="1">
          <widget class="ctkSliderWidget" name="SliderWidget_TableTopVerticalPositionMiddle">
           <property name="enabled">
-           <bool>false</bool>
+           <bool>true</bool>
           </property>
           <property name="minimum">
            <double>-999.899999999999977</double>
@@ -271,7 +271,7 @@
         <item row="4" column="0">
          <widget class="QLabel" name="label_13">
           <property name="enabled">
-           <bool>false</bool>
+           <bool>true</bool>
           </property>
           <property name="text">
            <string>Table Top Position Z Middle</string>
