@@ -103,9 +103,11 @@ public:
 
   /// Apply new TableTopVerticalOrigin to TableTopStand translate (TableTopVerticalOrigin->TableTopMovementX)
   void UpdateTableTopVerticalOriginToTableTopStandTransform(vtkMRMLIhepStandGeometryNode* parameterNode);
+  void UpdateTableTopVerticalMirrorToTableTopStandTransform(vtkMRMLIhepStandGeometryNode* parameterNode);
+  void UpdateTableTopVerticalMiddleToTableTopStandTransform(vtkMRMLIhepStandGeometryNode* parameterNode);
 
   /// Apply new TableTopStand to TableStandPlatform translate (TableTopOrigin->TableTopMovementX)
-  void UpdateTableTopOriginToTableTopStandTransform(vtkMRMLIhepStandGeometryNode* parameterNode);
+//  void UpdateTableTopOriginToTableTopStandTransform(vtkMRMLIhepStandGeometryNode* parameterNode);
 
   /// Apply new TableStandPlatform to PatientSupport translate (TableTopMovementY->PatientSupport)
   void UpdateTableStandPlatformToPatientSupportTransform(vtkMRMLIhepStandGeometryNode* parameterNode);

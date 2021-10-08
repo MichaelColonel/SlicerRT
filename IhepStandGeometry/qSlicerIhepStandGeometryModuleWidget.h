@@ -61,9 +61,9 @@ public slots:
   void onLoadStandModelsButtonClicked();
   void onResetToInitialPositionButtonClicked();
 //  void onTableTopVerticalPositionChanged(double);
-//  void onTableTopVerticalMirrorPositionChanged(double);
+  void onTableTopMirrorPositionChanged(double);
   void onTableTopOriginPositionChanged(double);
-//  void onTableTopVerticalMiddlePositionChanged(double);
+  void onTableTopMiddlePositionChanged(double);
   void onTableTopPlatformLongitudinalPositionChanged(double);
   void onTableTopStandLateralPositionChanged(double);
   void onPatientSupportFixedReferenceAngleChanged(double);
