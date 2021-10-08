@@ -451,14 +451,14 @@ void vtkSlicerIhepStandGeometryLogic::UpdateTableTopStandFiducialNode(vtkMRMLIhe
 //    vtkVector3d p2( 0.5, 1771.6, -352.); // Middle
 
     vtkVector3d p0( 265.5, 
-      1116.6 + parameterNode->GetTableTopVerticalPosition(),
+      1116.6 + parameterNode->GetTableTopVerticalPositionOrigin(),
       -352./* - parameterNode->GetTableTopVerticalPositionOrigin()*/); // Origin
     vtkVector3d p1( -264.5, 
-      1116.6 + parameterNode->GetTableTopVerticalPosition(), 
-      -352. + parameterNode->GetTableTopVerticalPositionMirror()); // Mirror
+      1116.6 + parameterNode->GetTableTopVerticalPositionMirror(), 
+      -352./* + parameterNode->GetTableTopVerticalPositionMirror()*/); // Mirror
     vtkVector3d p2( 0.5, 
-      1771.6 + parameterNode->GetTableTopVerticalPosition(), 
-      -352. + parameterNode->GetTableTopVerticalPositionMiddle()); // Middle
+      1771.6 + parameterNode->GetTableTopVerticalPositionMiddle(), 
+      -352./* + parameterNode->GetTableTopVerticalPositionMiddle()*/); // Middle
 
 /*
     vtkVector3d p0( 250., 
