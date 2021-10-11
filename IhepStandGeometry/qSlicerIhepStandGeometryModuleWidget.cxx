@@ -139,20 +139,18 @@ void qSlicerIhepStandGeometryModuleWidget::setup()
     this, SLOT(onPatientBodySegmentNameChanged(QString)));
 
   // Sliders, Coordinates widgets
-//  connect( d->SliderWidget_TableTopVerticalPosition, SIGNAL(valueChanged(double)), 
-//    this, SLOT(onTableTopVerticalPositionChanged(double)));
   connect( d->SliderWidget_TableTopVerticalPositionMiddle, SIGNAL(valueChanged(double)), 
-    this, SLOT(onTableTopMiddlePositionChanged(double)));
+    this, SLOT(onTableMiddleVerticalPositionChanged(double)));
   connect( d->SliderWidget_TableTopVerticalPositionMirror, SIGNAL(valueChanged(double)), 
-    this, SLOT(onTableTopMirrorPositionChanged(double)));
+    this, SLOT(onTableMirrorVerticalPositionChanged(double)));
   connect( d->SliderWidget_TableTopVerticalPositionOrigin, SIGNAL(valueChanged(double)), 
-    this, SLOT(onTableTopOriginPositionChanged(double)));
+    this, SLOT(onTableOriginVerticalPositionChanged(double)));
   connect( d->SliderWidget_TableTopStandLongitudinalPosition, SIGNAL(valueChanged(double)), 
-    this, SLOT(onTableTopPlatformLongitudinalPositionChanged(double)));
+    this, SLOT(onTableLongitudinalPositionChanged(double)));
   connect( d->SliderWidget_TableTopStandLateralPosition, SIGNAL(valueChanged(double)), 
-    this, SLOT(onTableTopStandLateralPositionChanged(double)));
+    this, SLOT(onTableLateralPositionChanged(double)));
   connect( d->SliderWidget_PatientSupportRotationAngle, SIGNAL(valueChanged(double)), 
-    this, SLOT(onPatientSupportFixedReferenceAngleChanged(double)));
+    this, SLOT(onPatientSupportRotationAngleChanged(double)));
   
   connect( d->CoordinatesWidget_PatientTableTopTranslation, SIGNAL(coordinatesChanged(double*)), 
     this, SLOT(onPatientTableTopTranslationChanged(double*)));
@@ -160,7 +158,7 @@ void qSlicerIhepStandGeometryModuleWidget::setup()
   connect( d->checkBox_FixedReferenceCamera, SIGNAL(toggled(bool)), this, SLOT(updateFixedReferenceCamera(bool)));
 
   // Buttons
-  connect( d->PushButton_LoadStandModels, SIGNAL(clicked()), this, SLOT(onLoadStandModelsButtonClicked()));
+  connect( d->PushButton_LoadStandModels, SIGNAL(clicked()), this, SLOT(onLoadModelsButtonClicked()));
   connect( d->PushButton_ResetModelsInitialPosition, SIGNAL(clicked()), this, SLOT(onResetToInitialPositionButtonClicked()));
   connect( d->PushButton_BevPlusX, SIGNAL(clicked()), this, SLOT(onBeamsEyeViewPlusXButtonClicked()));
   connect( d->PushButton_BevPlusY, SIGNAL(clicked()), this, SLOT(onBeamsEyeViewPlusYButtonClicked()));
@@ -172,7 +170,7 @@ void qSlicerIhepStandGeometryModuleWidget::setup()
 }
 
 //-----------------------------------------------------------------------------
-void qSlicerIhepStandGeometryModuleWidget::onLoadStandModelsButtonClicked()
+void qSlicerIhepStandGeometryModuleWidget::onLoadModelsButtonClicked()
 {
   Q_D(qSlicerIhepStandGeometryModuleWidget);
 
@@ -248,34 +246,7 @@ void qSlicerIhepStandGeometryModuleWidget::onPatientTableTopTranslationChanged(d
 }
 
 //-----------------------------------------------------------------------------
-/*
-void qSlicerIhepStandGeometryModuleWidget::onTableTopVerticalPositionChanged(double position)
-{
-  Q_D(qSlicerIhepStandGeometryModuleWidget);
-
-  if (!this->mrmlScene())
-  {
-    qCritical() << Q_FUNC_INFO << ": Invalid scene";
-    return;
-  }
-
-  vtkMRMLIhepStandGeometryNode* parameterNode = vtkMRMLIhepStandGeometryNode::SafeDownCast(d->MRMLNodeComboBox_ParameterSet->currentNode());
-  if (!parameterNode || !d->ModuleWindowInitialized)
-  {
-    return;
-  }
-
-  parameterNode->DisableModifiedEventOn();
-  parameterNode->SetTableTopVerticalPosition(position);
-  parameterNode->DisableModifiedEventOff();
-
-  d->logic()->UpdateTableTopVerticalToTableTopStandTransform(parameterNode);
-  
-  parameterNode->Modified();
-}
-*/
-//-----------------------------------------------------------------------------
-void qSlicerIhepStandGeometryModuleWidget::onTableTopMiddlePositionChanged(double position)
+void qSlicerIhepStandGeometryModuleWidget::onTableMiddleVerticalPositionChanged(double position)
 {
   Q_D(qSlicerIhepStandGeometryModuleWidget);
 
@@ -295,14 +266,13 @@ void qSlicerIhepStandGeometryModuleWidget::onTableTopMiddlePositionChanged(doubl
   parameterNode->SetTableTopVerticalPositionMiddle(position);
   parameterNode->DisableModifiedEventOff();
 
-  d->logic()->UpdateTableTopVerticalMiddleToTableTopStandTransform(parameterNode);
-//  d->logic()->UpdateTableTopVerticalToTableTopStandTransform(parameterNode);
+  d->logic()->UpdateTableMiddleToTableLateralTransform(parameterNode);
 
   parameterNode->Modified();
 }
 
 //-----------------------------------------------------------------------------
-void qSlicerIhepStandGeometryModuleWidget::onTableTopMirrorPositionChanged(double position)
+void qSlicerIhepStandGeometryModuleWidget::onTableMirrorVerticalPositionChanged(double position)
 {
   Q_D(qSlicerIhepStandGeometryModuleWidget);
 
@@ -322,14 +292,13 @@ void qSlicerIhepStandGeometryModuleWidget::onTableTopMirrorPositionChanged(doubl
   parameterNode->SetTableTopVerticalPositionMirror(position);
   parameterNode->DisableModifiedEventOff();
 
-  d->logic()->UpdateTableTopVerticalMirrorToTableTopStandTransform(parameterNode);
-//  d->logic()->UpdateTableTopVerticalToTableTopStandTransform(parameterNode);
+  d->logic()->UpdateTableMirrorToTableLateralTransform(parameterNode);
 
   parameterNode->Modified();
 }
 
 //-----------------------------------------------------------------------------
-void qSlicerIhepStandGeometryModuleWidget::onTableTopOriginPositionChanged(double position)
+void qSlicerIhepStandGeometryModuleWidget::onTableOriginVerticalPositionChanged(double position)
 {
   Q_D(qSlicerIhepStandGeometryModuleWidget);
 
@@ -347,17 +316,15 @@ void qSlicerIhepStandGeometryModuleWidget::onTableTopOriginPositionChanged(doubl
 
   parameterNode->DisableModifiedEventOn();
   parameterNode->SetTableTopVerticalPositionOrigin(position);
-//  parameterNode->SetTableTopVerticalPosition(position);
   parameterNode->DisableModifiedEventOff();
 
-  d->logic()->UpdateTableTopVerticalOriginToTableTopStandTransform(parameterNode);
-//  d->logic()->UpdateTableTopVerticalToTableTopStandTransform(parameterNode);
+  d->logic()->UpdateTableOriginToTableLateralTransform(parameterNode);
 
   parameterNode->Modified();
 }
 
 //-----------------------------------------------------------------------------
-void qSlicerIhepStandGeometryModuleWidget::onTableTopPlatformLongitudinalPositionChanged(double position)
+void qSlicerIhepStandGeometryModuleWidget::onTableLongitudinalPositionChanged(double position)
 {
   Q_D(qSlicerIhepStandGeometryModuleWidget);
 
@@ -377,13 +344,13 @@ void qSlicerIhepStandGeometryModuleWidget::onTableTopPlatformLongitudinalPositio
   parameterNode->SetTableTopLongitudinalPosition(position);  // Inferior-Superior movement along Y-axis
   parameterNode->DisableModifiedEventOff();
   
-  d->logic()->UpdateTableStandPlatformToPatientSupportTransform(parameterNode);
+  d->logic()->UpdateTableLongitudinalToPatientSupportTransform(parameterNode);
 
   parameterNode->Modified();
 }
 
 //-----------------------------------------------------------------------------
-void qSlicerIhepStandGeometryModuleWidget::onTableTopStandLateralPositionChanged(double position)
+void qSlicerIhepStandGeometryModuleWidget::onTableLateralPositionChanged(double position)
 {
   Q_D(qSlicerIhepStandGeometryModuleWidget);
 
@@ -404,13 +371,13 @@ void qSlicerIhepStandGeometryModuleWidget::onTableTopStandLateralPositionChanged
   parameterNode->DisableModifiedEventOff();
 
   // update table top stand to patient support rotation transform
-  d->logic()->UpdateTableTopStandToTableStandPlatformTransform(parameterNode);
+  d->logic()->UpdateTableLateralToTableLongitudinalTransform(parameterNode);
 
   parameterNode->Modified();
 }
 
 //-----------------------------------------------------------------------------
-void qSlicerIhepStandGeometryModuleWidget::onPatientSupportFixedReferenceAngleChanged(double angle)
+void qSlicerIhepStandGeometryModuleWidget::onPatientSupportRotationAngleChanged(double angle)
 {
   Q_D(qSlicerIhepStandGeometryModuleWidget);
 

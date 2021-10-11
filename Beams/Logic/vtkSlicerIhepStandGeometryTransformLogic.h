@@ -45,14 +45,13 @@ public:
     RAS = 0,
     FixedReference,
     Collimator,
-    PatientSupport, // Rotation of patient support
-    TableTopStandMovementY, // Inferior-Superior (Longitudinal) movement of the table top stand
-    TableTopStandMovementX, // Left-Right (Lateral) movement of the table top stand
-//    TableTopVertical, // Posterior-Anterior (Vertical) movement of table top
-    TableTopVerticalOrigin, // Posterior-Anterior (Vertical) movement of table top of the origin (fixed point)
-    TableTopVerticalMirror, // Posterior-Anterior (Vertical) movement of table top of the mirror (not fixed point)
-    TableTopVerticalMiddle, // Posterior-Anterior (Vertical) movement of table top of the middle (not fixed point)
-    TableTop, // Rotations of table top (by movement of three table top vertical basements)
+    PatientSupportRotation, // Rotation of patient support along Zt-axis
+    TableLongitudinalMovement, // Inferior-Superior (Longitudinal) movement of the table platform, Yt-axis
+    TableLateralMovement, // Left-Right (Lateral) movement of the table support, Xt-axis
+    TableOriginVerticalMovement, // Posterior-Anterior (Vertical) movement of the table origin support (fixed point), Zt-axis
+    TableMirrorVerticalMovement, // Posterior-Anterior (Vertical) movement of the table mirror support (not fixed point), Zt-axis
+    TableMiddleVerticalMovement, // Posterior-Anterior (Vertical) movement of the table middle support (not fixed point), Zt-axis
+    TableTop, // Rotations of table top (by movement of three table supports)
     Patient,
     LastIhepCoordinateFrame // Last index used for adding more coordinate systems externally
   };

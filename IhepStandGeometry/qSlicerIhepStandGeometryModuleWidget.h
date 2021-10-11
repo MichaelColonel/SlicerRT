@@ -58,15 +58,14 @@ public slots:
   void onBeamsEyeViewPlusYButtonClicked();
   void onBeamsEyeViewMinusYButtonClicked();
 
-  void onLoadStandModelsButtonClicked();
+  void onLoadModelsButtonClicked();
   void onResetToInitialPositionButtonClicked();
-//  void onTableTopVerticalPositionChanged(double);
-  void onTableTopMirrorPositionChanged(double);
-  void onTableTopOriginPositionChanged(double);
-  void onTableTopMiddlePositionChanged(double);
-  void onTableTopPlatformLongitudinalPositionChanged(double);
-  void onTableTopStandLateralPositionChanged(double);
-  void onPatientSupportFixedReferenceAngleChanged(double);
+  void onTableMirrorVerticalPositionChanged(double);
+  void onTableOriginVerticalPositionChanged(double);
+  void onTableMiddleVerticalPositionChanged(double);
+  void onTableLongitudinalPositionChanged(double);
+  void onTableLateralPositionChanged(double);
+  void onPatientSupportRotationAngleChanged(double);
 
   void onPatientTableTopTranslationChanged(double*);
 
