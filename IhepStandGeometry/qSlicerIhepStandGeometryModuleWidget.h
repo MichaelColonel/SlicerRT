@@ -65,6 +65,8 @@ public slots:
   void onTableMiddleVerticalPositionChanged(double);
   void onTableLongitudinalPositionChanged(double);
   void onTableLateralPositionChanged(double);
+  void onTableTopLongitudinalAngleChanged(double);
+  void onTableTopLateralAngleChanged(double);
   void onPatientSupportRotationAngleChanged(double);
 
   void onPatientTableTopTranslationChanged(double*);

@@ -1493,8 +1493,19 @@ void vtkSlicerIhepStandGeometryLogic::UpdateTableTopToTableLateralTransform(vtkM
 
   if (tableTopToTableLateralMovementTransformNode)
   {
+    double PatientTableTopTranslation[3] = {};
+    parameterNode->GetPatientToTableTopTranslation(PatientTableTopTranslation);
+
+    double originWorld[3] = { 265.5 + PatientTableTopTranslation[0], 1116.6 + PatientTableTopTranslation[1], -352. + PatientTableTopTranslation[2] - -1. * parameterNode->GetTableTopVerticalPositionOrigin()};
+
     vtkNew<vtkTransform> tableTopToTableLateralMovementTransform;
-    tableTopToTableLateralMovementTransform->Translate( 0., 0., -1. * parameterNode->GetTableTopVerticalPositionOrigin());
+    // Move TableTop model to RAS origin
+    tableTopToTableLateralMovementTransform->Translate(originWorld);
+    // Apply transform (rotation)
+    tableTopToTableLateralMovementTransform->RotateX(parameterNode->GetTableTopLongitudinalAngle());
+    tableTopToTableLateralMovementTransform->RotateY(parameterNode->GetTableTopLateralAngle());
+    // Move back
+    tableTopToTableLateralMovementTransform->Translate(-1. * originWorld[0], -1. * originWorld[1], -1. * originWorld[2]);
     tableTopToTableLateralMovementTransformNode->SetAndObserveTransformToParent(tableTopToTableLateralMovementTransform);
   }
 }
@@ -1642,7 +1653,7 @@ void vtkSlicerIhepStandGeometryLogic::UpdateTableLateralToTableLongitudinalTrans
   if (tableLateralToTableLongitudinalTransformNode)
   {
     vtkNew<vtkTransform> tableLateralToTableLongitudinalTransform;
-    
+
     tableLateralToTableLongitudinalTransform->Translate( -1. * parameterNode->GetTableTopLateralPosition(), 0., 0.);
 
     tableLateralToTableLongitudinalTransformNode->SetAndObserveTransformToParent(tableLateralToTableLongitudinalTransform);

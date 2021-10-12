@@ -151,7 +151,12 @@ void qSlicerIhepStandGeometryModuleWidget::setup()
     this, SLOT(onTableLateralPositionChanged(double)));
   connect( d->SliderWidget_PatientSupportRotationAngle, SIGNAL(valueChanged(double)), 
     this, SLOT(onPatientSupportRotationAngleChanged(double)));
-  
+
+  connect( d->SliderWidget_TableTopLongitudinalAngle, SIGNAL(valueChanged(double)), 
+    this, SLOT(onTableTopLongitudinalAngleChanged(double)));
+  connect( d->SliderWidget_TableTopLateralAngle, SIGNAL(valueChanged(double)), 
+    this, SLOT(onTableTopLateralAngleChanged(double)));
+
   connect( d->CoordinatesWidget_PatientTableTopTranslation, SIGNAL(coordinatesChanged(double*)), 
     this, SLOT(onPatientTableTopTranslationChanged(double*)));
 
@@ -372,6 +377,60 @@ void qSlicerIhepStandGeometryModuleWidget::onTableLateralPositionChanged(double 
 
   // update table top stand to patient support rotation transform
   d->logic()->UpdateTableLateralToTableLongitudinalTransform(parameterNode);
+
+  parameterNode->Modified();
+}
+
+//-----------------------------------------------------------------------------
+void qSlicerIhepStandGeometryModuleWidget::onTableTopLongitudinalAngleChanged(double angle)
+{
+  Q_D(qSlicerIhepStandGeometryModuleWidget);
+
+  if (!this->mrmlScene())
+  {
+    qCritical() << Q_FUNC_INFO << ": Invalid scene";
+    return;
+  }
+
+  vtkMRMLIhepStandGeometryNode* parameterNode = vtkMRMLIhepStandGeometryNode::SafeDownCast(d->MRMLNodeComboBox_ParameterSet->currentNode());
+  if (!parameterNode || !d->ModuleWindowInitialized)
+  {
+    return;
+  }
+
+  parameterNode->DisableModifiedEventOn();
+  parameterNode->SetTableTopLongitudinalAngle(angle);
+  parameterNode->DisableModifiedEventOff();
+
+  // update table top to table lateral movement
+  d->logic()->UpdateTableTopToTableLateralTransform(parameterNode);
+
+  parameterNode->Modified();
+}
+
+//-----------------------------------------------------------------------------
+void qSlicerIhepStandGeometryModuleWidget::onTableTopLateralAngleChanged(double angle)
+{
+  Q_D(qSlicerIhepStandGeometryModuleWidget);
+
+  if (!this->mrmlScene())
+  {
+    qCritical() << Q_FUNC_INFO << ": Invalid scene";
+    return;
+  }
+
+  vtkMRMLIhepStandGeometryNode* parameterNode = vtkMRMLIhepStandGeometryNode::SafeDownCast(d->MRMLNodeComboBox_ParameterSet->currentNode());
+  if (!parameterNode || !d->ModuleWindowInitialized)
+  {
+    return;
+  }
+
+  parameterNode->DisableModifiedEventOn();
+  parameterNode->SetTableTopLateralAngle(angle);
+  parameterNode->DisableModifiedEventOff();
+
+  // update table top to table lateral movement
+  d->logic()->UpdateTableTopToTableLateralTransform(parameterNode);
 
   parameterNode->Modified();
 }
