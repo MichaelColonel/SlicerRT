@@ -1496,7 +1496,8 @@ void vtkSlicerIhepStandGeometryLogic::UpdateTableTopToTableLateralTransform(vtkM
     double PatientTableTopTranslation[3] = {};
     parameterNode->GetPatientToTableTopTranslation(PatientTableTopTranslation);
 
-    double originWorld[3] = { 265.5 + PatientTableTopTranslation[0], 1116.6 + PatientTableTopTranslation[1], -352. + PatientTableTopTranslation[2] - -1. * parameterNode->GetTableTopVerticalPositionOrigin()};
+    double originWorld[3] = { 265.5 + PatientTableTopTranslation[0], 1116.6 + PatientTableTopTranslation[1], -352. + PatientTableTopTranslation[2] };
+//    double originWorld[3] = { };
 
     vtkNew<vtkTransform> tableTopToTableLateralMovementTransform;
     // Move TableTop model to RAS origin
@@ -1533,6 +1534,9 @@ void vtkSlicerIhepStandGeometryLogic::UpdateTableOriginToTableLateralTransform(v
   {
     vtkNew<vtkTransform> tableOriginToTableLateralTransform;
     tableOriginToTableLateralTransform->Translate( 0., 0., -1. * parameterNode->GetTableTopVerticalPositionOrigin());
+    tableOriginToTableLateralTransform->RotateX(parameterNode->GetTableTopLongitudinalAngle());
+    tableOriginToTableLateralTransform->RotateY(parameterNode->GetTableTopLateralAngle());
+
     tableOriginToTableLateralTransformNode->SetAndObserveTransformToParent(tableOriginToTableLateralTransform);
   }
 }
@@ -1560,6 +1564,9 @@ void vtkSlicerIhepStandGeometryLogic::UpdateTableMirrorToTableLateralTransform(v
   {
     vtkNew<vtkTransform> tableMirrorToTableLateralTransform;
     tableMirrorToTableLateralTransform->Translate( 0., 0., -1. * parameterNode->GetTableTopVerticalPositionMirror());
+    tableMirrorToTableLateralTransform->RotateX(parameterNode->GetTableTopLongitudinalAngle());
+    tableMirrorToTableLateralTransform->RotateY(parameterNode->GetTableTopLateralAngle());
+
     tableMirrorToTableLateralTransformNode->SetAndObserveTransformToParent(tableMirrorToTableLateralTransform);
   }
 }
@@ -1587,6 +1594,9 @@ void vtkSlicerIhepStandGeometryLogic::UpdateTableMiddleToTableLateralTransform(v
   {
     vtkNew<vtkTransform> tableMiddleToTableLateralTransform;
     tableMiddleToTableLateralTransform->Translate( 0., 0., -1. * parameterNode->GetTableTopVerticalPositionMiddle());
+    tableMiddleToTableLateralTransform->RotateX(parameterNode->GetTableTopLongitudinalAngle());
+    tableMiddleToTableLateralTransform->RotateY(parameterNode->GetTableTopLateralAngle());
+
     tableMiddleToTableLateralTransformNode->SetAndObserveTransformToParent(tableMiddleToTableLateralTransform);
   }
 }
