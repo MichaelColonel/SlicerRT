@@ -271,7 +271,7 @@ void qSlicerIhepStandGeometryModuleWidget::onTableMiddleVerticalPositionChanged(
   parameterNode->SetTableTopVerticalPositionMiddle(position);
   parameterNode->DisableModifiedEventOff();
 
-  d->logic()->UpdateTableMiddleToTableLateralTransform(parameterNode);
+  d->logic()->UpdateTableMiddleToTableOriginTransform(parameterNode);
 
   parameterNode->Modified();
 }
@@ -297,7 +297,7 @@ void qSlicerIhepStandGeometryModuleWidget::onTableMirrorVerticalPositionChanged(
   parameterNode->SetTableTopVerticalPositionMirror(position);
   parameterNode->DisableModifiedEventOff();
 
-  d->logic()->UpdateTableMirrorToTableLateralTransform(parameterNode);
+  d->logic()->UpdateTableMirrorToTableOriginTransform(parameterNode);
 
   parameterNode->Modified();
 }
@@ -402,8 +402,8 @@ void qSlicerIhepStandGeometryModuleWidget::onTableTopLongitudinalAngleChanged(do
   parameterNode->SetTableTopLongitudinalAngle(angle);
   parameterNode->DisableModifiedEventOff();
 
-  // update table top to table lateral movement
-  d->logic()->UpdateTableTopToTableLateralTransform(parameterNode);
+  // update table top to table origin vertical movement
+  d->logic()->UpdateTableTopToTableOriginTransform(parameterNode);
 
   parameterNode->Modified();
 }
@@ -429,8 +429,8 @@ void qSlicerIhepStandGeometryModuleWidget::onTableTopLateralAngleChanged(double 
   parameterNode->SetTableTopLateralAngle(angle);
   parameterNode->DisableModifiedEventOff();
 
-  // update table top to table lateral movement
-  d->logic()->UpdateTableTopToTableLateralTransform(parameterNode);
+  // update table top to table origin vertical movement
+  d->logic()->UpdateTableTopToTableOriginTransform(parameterNode);
 
   parameterNode->Modified();
 }

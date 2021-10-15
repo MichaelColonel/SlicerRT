@@ -98,15 +98,15 @@ public:
   /// All angles to zero and only translation applied
   void ResetModelsToInitialPosition(vtkMRMLIhepStandGeometryNode* parameterNode);
 
-  /// Apply new TableTop to TableLateralMovement translate (TableTop->TableLateralMovement)
-  void UpdateTableTopToTableLateralTransform(vtkMRMLIhepStandGeometryNode* parameterNode);
+  /// Apply new TableTop to TableOrigin translate (TableTop->TableOrigin)
+  void UpdateTableTopToTableOriginTransform(vtkMRMLIhepStandGeometryNode* parameterNode);
 
   /// Apply new TableOrigin to TableLateral translate (TableOriginVerticalMovement->TableLateralMovement)
   void UpdateTableOriginToTableLateralTransform(vtkMRMLIhepStandGeometryNode* parameterNode);
-  /// Apply new TableMirror to TableLateral translate (TableMirrorVerticalMovement->TableLateralMovement)
-  void UpdateTableMirrorToTableLateralTransform(vtkMRMLIhepStandGeometryNode* parameterNode);
-  /// Apply new TableMiddle to TableLateral translate (TableMiddleVerticalMovement->TableLateralMovement)
-  void UpdateTableMiddleToTableLateralTransform(vtkMRMLIhepStandGeometryNode* parameterNode);
+  /// Apply new TableMirror to TableOrigin translate (TableMirrorVerticalMovement->TableOrigin)
+  void UpdateTableMirrorToTableOriginTransform(vtkMRMLIhepStandGeometryNode* parameterNode);
+  /// Apply new TableMiddle to TableOrigin translate (TableMiddleVerticalMovement->TableOrigin)
+  void UpdateTableMiddleToTableOriginTransform(vtkMRMLIhepStandGeometryNode* parameterNode);
 
   /// Apply new TableLateral to TableLongitudinal translate (TableLateralMovement->TableLongitudinalMovement)
   void UpdateTableLateralToTableLongitudinalTransform(vtkMRMLIhepStandGeometryNode* parameterNode);
