@@ -1699,16 +1699,29 @@ void vtkSlicerIhepStandGeometryLogic::UpdatePatientSupportToFixedReferenceTransf
 
     double PatientTableTopTranslation[3] = {};
     parameterNode->GetPatientToTableTopTranslation(PatientTableTopTranslation);
-    // Move to Origin
-    patientSupportToFixedReferenceTransform->Translate( -1. * parameterNode->GetTableTopLateralPosition() + PatientTableTopTranslation[0], 
+    double pos[4] = { -1. * parameterNode->GetTableTopLateralPosition() + PatientTableTopTranslation[0], 
       parameterNode->GetTableTopLongitudinalPosition() + PatientTableTopTranslation[1], 
-      -1. * parameterNode->GetTableTopVerticalPosition() + PatientTableTopTranslation[2]);
+      -1. * parameterNode->GetTableTopVerticalPosition() + PatientTableTopTranslation[2], 1. };
+
+    patientSupportToFixedReferenceTransform->Translate(pos);
     // Apply rotation
     patientSupportToFixedReferenceTransform->RotateZ(-1. * parameterNode->GetPatientSupportRotationAngle());
     // Move back
-    patientSupportToFixedReferenceTransform->Translate( parameterNode->GetTableTopLateralPosition() - PatientTableTopTranslation[0], 
-      -1. * parameterNode->GetTableTopLongitudinalPosition() - PatientTableTopTranslation[1], 
-      parameterNode->GetTableTopVerticalPosition() - PatientTableTopTranslation[2]);
+    patientSupportToFixedReferenceTransform->Translate( -1. * pos[0], -1. * pos[1], -1. * pos[2]);
+
+//    double lateralPosTableLongitudinal[4];
+    // Get translation of the origin in a new table top coordinate
+//    tableTopToTableOriginTransform->MultiplyPoint( pos, lateralPosTableLongitudinal);
+    // Move to Origin
+ //   patientSupportToFixedReferenceTransform->Translate( lateralPosTableLongitudinal[0],
+//      lateralPosTableLongitudinal[1], 
+//      lateralPosTableLongitudinal[2]);
+    // Apply rotation
+//    patientSupportToFixedReferenceTransform->RotateZ(-1. * parameterNode->GetPatientSupportRotationAngle());
+    // Move back
+//    patientSupportToFixedReferenceTransform->Translate( -lateralPosTableLongitudinal[0],
+//      -lateralPosTableLongitudinal[1], 
+//      -lateralPosTableLongitudinal[2]);
 
 //    patientSupportToFixedReferenceTransform->Concatenate(tableTopToTableOriginTransform);
 
