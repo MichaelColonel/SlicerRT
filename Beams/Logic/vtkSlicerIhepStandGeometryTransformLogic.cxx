@@ -51,9 +51,9 @@ vtkSlicerIhepStandGeometryTransformLogic::vtkSlicerIhepStandGeometryTransformLog
   // Setup coordinate system ID to name map
   this->CoordinateSystemsMap.clear();
   this->CoordinateSystemsMap[IHEP::RAS] = "Ras";
-  this->CoordinateSystemsMap[IHEP::FixedReference] = "FixedReference";
+  this->CoordinateSystemsMap[IHEP::FixedReferenceCanyon] = "FixedReferenceCanyon";
   this->CoordinateSystemsMap[IHEP::Collimator] = "Collimator";
-  this->CoordinateSystemsMap[IHEP::PatientSupportRotation] = "PatientSupportRotation";
+  this->CoordinateSystemsMap[IHEP::TableSupportRotation] = "TableSupportRotation";
   this->CoordinateSystemsMap[IHEP::TableLongitudinalMovement] = "TableLongitudinalMovement";
   this->CoordinateSystemsMap[IHEP::TableLateralMovement] = "TableLateralMovement";
   this->CoordinateSystemsMap[IHEP::TableOriginVerticalMovement] = "TableOriginVerticalMovement";
@@ -63,25 +63,25 @@ vtkSlicerIhepStandGeometryTransformLogic::vtkSlicerIhepStandGeometryTransformLog
   this->CoordinateSystemsMap[IHEP::Patient] = "Patient";
 
   this->IhepTransforms.clear();
-  this->IhepTransforms.push_back(std::make_pair(IHEP::FixedReference, IHEP::RAS));
-  this->IhepTransforms.push_back(std::make_pair(IHEP::Collimator, IHEP::FixedReference)); // Collimator in canyon system
-  this->IhepTransforms.push_back(std::make_pair(IHEP::PatientSupportRotation, IHEP::FixedReference)); // Rotation of patient support platform
-  this->IhepTransforms.push_back(std::make_pair(IHEP::TableLongitudinalMovement, IHEP::PatientSupportRotation)); // Longitudinal movement along Y-axis of the table top
+  this->IhepTransforms.push_back(std::make_pair(IHEP::FixedReferenceCanyon, IHEP::RAS)); // Dummy
+  this->IhepTransforms.push_back(std::make_pair(IHEP::Collimator, IHEP::FixedReferenceCanyon)); // Collimator in canyon system
+  this->IhepTransforms.push_back(std::make_pair(IHEP::TableSupportRotation, IHEP::FixedReferenceCanyon)); // Rotation of table support platform
+  this->IhepTransforms.push_back(std::make_pair(IHEP::TableLongitudinalMovement, IHEP::TableSupportRotation)); // Longitudinal movement along Y-axis of the table top
   this->IhepTransforms.push_back(std::make_pair(IHEP::TableLateralMovement, IHEP::TableLongitudinalMovement)); // Lateral movement along X-axis of the table top
   this->IhepTransforms.push_back(std::make_pair(IHEP::TableOriginVerticalMovement, IHEP::TableLateralMovement)); // Vertical movement of table top origin
-  this->IhepTransforms.push_back(std::make_pair(IHEP::TableMiddleVerticalMovement, IHEP::TableOriginVerticalMovement)); // Vertical movement of table top middle
-  this->IhepTransforms.push_back(std::make_pair(IHEP::TableMirrorVerticalMovement, IHEP::TableOriginVerticalMovement)); // Vertical movement of table top mirror
-  this->IhepTransforms.push_back(std::make_pair(IHEP::TableTop, IHEP::TableOriginVerticalMovement)); // Movement and rotation of table top
+  this->IhepTransforms.push_back(std::make_pair(IHEP::TableMiddleVerticalMovement, IHEP::TableLateralMovement)); // Vertical movement of table top middle
+  this->IhepTransforms.push_back(std::make_pair(IHEP::TableMirrorVerticalMovement, IHEP::TableLateralMovement)); // Vertical movement of table top mirror
+  this->IhepTransforms.push_back(std::make_pair(IHEP::TableTop, IHEP::TableOriginVerticalMovement)); // Movement and rotation of table top on origin point
   this->IhepTransforms.push_back(std::make_pair(IHEP::Patient, IHEP::TableTop));
   this->IhepTransforms.push_back(std::make_pair(IHEP::RAS, IHEP::Patient));
 
   this->CoordinateSystemsHierarchy.clear();
   // key - parent, value - children
-  this->CoordinateSystemsHierarchy[IHEP::FixedReference] = { IHEP::Collimator, IHEP::PatientSupportRotation };
-  this->CoordinateSystemsHierarchy[IHEP::PatientSupportRotation] = { IHEP::TableLongitudinalMovement };
+  this->CoordinateSystemsHierarchy[IHEP::FixedReferenceCanyon] = { IHEP::Collimator, IHEP::TableSupportRotation };
+  this->CoordinateSystemsHierarchy[IHEP::TableSupportRotation] = { IHEP::TableLongitudinalMovement };
   this->CoordinateSystemsHierarchy[IHEP::TableLongitudinalMovement] = { IHEP::TableLateralMovement };
-  this->CoordinateSystemsHierarchy[IHEP::TableLateralMovement] = { IHEP::TableOriginVerticalMovement };
-  this->CoordinateSystemsHierarchy[IHEP::TableOriginVerticalMovement] = { IHEP::TableTop, IHEP::TableMiddleVerticalMovement, IHEP::TableMirrorVerticalMovement };
+  this->CoordinateSystemsHierarchy[IHEP::TableLateralMovement] = { IHEP::TableOriginVerticalMovement, IHEP::TableMiddleVerticalMovement, IHEP::TableMirrorVerticalMovement };
+  this->CoordinateSystemsHierarchy[IHEP::TableOriginVerticalMovement] = { IHEP::TableTop };
   this->CoordinateSystemsHierarchy[IHEP::TableTop] = { IHEP::Patient };
   this->CoordinateSystemsHierarchy[IHEP::Patient] = { IHEP::RAS };
 }
@@ -151,29 +151,29 @@ void vtkSlicerIhepStandGeometryTransformLogic::BuildIHEPTransformHierarchy()
   // Organize transforms into hierarchy based on IHEP RBS geometry
 
   // FixedReference parent
-  this->GetTransformNodeBetween(IHEP::Collimator, IHEP::FixedReference)->SetAndObserveTransformNodeID(
-    this->GetTransformNodeBetween(IHEP::FixedReference, IHEP::RAS)->GetID() );
+  this->GetTransformNodeBetween(IHEP::Collimator, IHEP::FixedReferenceCanyon)->SetAndObserveTransformNodeID(
+    this->GetTransformNodeBetween(IHEP::FixedReferenceCanyon, IHEP::RAS)->GetID() );
   // FixedReference parent, rotation of patient support
-  this->GetTransformNodeBetween(IHEP::PatientSupportRotation, IHEP::FixedReference)->SetAndObserveTransformNodeID(
-    this->GetTransformNodeBetween(IHEP::FixedReference, IHEP::RAS)->GetID() );
+  this->GetTransformNodeBetween(IHEP::TableSupportRotation, IHEP::FixedReferenceCanyon)->SetAndObserveTransformNodeID(
+    this->GetTransformNodeBetween(IHEP::FixedReferenceCanyon, IHEP::RAS)->GetID() );
 
   // PatientSupport parent, longitudinal movement of table top
-  this->GetTransformNodeBetween(IHEP::TableLongitudinalMovement, IHEP::PatientSupportRotation)->SetAndObserveTransformNodeID(
-    this->GetTransformNodeBetween(IHEP::PatientSupportRotation, IHEP::FixedReference)->GetID() );
+  this->GetTransformNodeBetween(IHEP::TableLongitudinalMovement, IHEP::TableSupportRotation)->SetAndObserveTransformNodeID(
+    this->GetTransformNodeBetween(IHEP::TableSupportRotation, IHEP::FixedReferenceCanyon)->GetID() );
 
   // TableLongitudinalMovement parent, lateral movement of table top
   this->GetTransformNodeBetween(IHEP::TableLateralMovement, IHEP::TableLongitudinalMovement)->SetAndObserveTransformNodeID(
-    this->GetTransformNodeBetween(IHEP::TableLongitudinalMovement, IHEP::PatientSupportRotation)->GetID() );
+    this->GetTransformNodeBetween(IHEP::TableLongitudinalMovement, IHEP::TableSupportRotation)->GetID() );
 
   // TableLateralMovement parent, table origin vertical movement
   this->GetTransformNodeBetween(IHEP::TableOriginVerticalMovement, IHEP::TableLateralMovement)->SetAndObserveTransformNodeID(
     this->GetTransformNodeBetween(IHEP::TableLateralMovement, IHEP::TableLongitudinalMovement)->GetID() );
   // TableLateralMovement parent, table mirror vertical movement
-  this->GetTransformNodeBetween(IHEP::TableMirrorVerticalMovement, IHEP::TableOriginVerticalMovement)->SetAndObserveTransformNodeID(
-    this->GetTransformNodeBetween(IHEP::TableOriginVerticalMovement, IHEP::TableLateralMovement)->GetID() );
+  this->GetTransformNodeBetween(IHEP::TableMirrorVerticalMovement, IHEP::TableLateralMovement)->SetAndObserveTransformNodeID(
+    this->GetTransformNodeBetween(IHEP::TableLateralMovement, IHEP::TableLongitudinalMovement)->GetID() );
   // TableLateralMovement parent, table middle vertical movement
-  this->GetTransformNodeBetween(IHEP::TableMiddleVerticalMovement, IHEP::TableOriginVerticalMovement)->SetAndObserveTransformNodeID(
-    this->GetTransformNodeBetween(IHEP::TableOriginVerticalMovement, IHEP::TableLateralMovement)->GetID() );
+  this->GetTransformNodeBetween(IHEP::TableMiddleVerticalMovement, IHEP::TableLateralMovement)->SetAndObserveTransformNodeID(
+    this->GetTransformNodeBetween(IHEP::TableLateralMovement, IHEP::TableLongitudinalMovement)->GetID() );
 
   // TableOriginVerticalMovement parent, inverse movement of the table top 
   this->GetTransformNodeBetween(IHEP::TableTop, IHEP::TableOriginVerticalMovement)->SetAndObserveTransformNodeID(
@@ -336,13 +336,34 @@ bool vtkSlicerIhepStandGeometryTransformLogic::GetTransformBetween(
 }
 
 //-----------------------------------------------------------------------------
+bool vtkSlicerIhepStandGeometryTransformLogic::GetTransformBetween(
+  CoordinateSystemIdentifier fromFrame, CoordinateSystemIdentifier toFrame, 
+  vtkTransform* outputLinearTransform, bool transformForBeam)
+{
+  vtkNew<vtkGeneralTransform> inputGeneralTransform;
+  if (!this->GetTransformBetween( fromFrame, toFrame, inputGeneralTransform, transformForBeam))
+  {
+    return false;
+  }
+
+  // Convert general transform to linear
+  // This call also makes hard copy of the transform so that it doesn't change when input transform changed
+  if (!vtkMRMLTransformNode::IsGeneralTransformLinear( inputGeneralTransform, outputLinearTransform))
+  {
+    vtkErrorMacro("GetTransformBetween: Can't transform general transform to linear! General trasform is not linear.");
+    return false;
+  }
+  return true;
+}
+
+//-----------------------------------------------------------------------------
 bool vtkSlicerIhepStandGeometryTransformLogic::GetPathToRoot( CoordinateSystemIdentifier frame, 
   CoordinateSystemsList& path)
 {
   using IHEP = CoordinateSystemIdentifier;
-  if (frame == IHEP::FixedReference)
+  if (frame == IHEP::FixedReferenceCanyon)
   {
-    path.push_back(IHEP::FixedReference);
+    path.push_back(IHEP::FixedReferenceCanyon);
     return true;
   }
 
@@ -365,14 +386,14 @@ bool vtkSlicerIhepStandGeometryTransformLogic::GetPathToRoot( CoordinateSystemId
 
         frame = parent;
         path.push_back(id);
-        if (frame != IHEP::FixedReference)
+        if (frame != IHEP::FixedReferenceCanyon)
         {
           found = true;
           break;
         }
         else
         {
-          path.push_back(IHEP::FixedReference);
+          path.push_back(IHEP::FixedReferenceCanyon);
         }
       }
       else

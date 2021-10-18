@@ -241,29 +241,29 @@ void vtkSlicerIhepStandGeometryLogic::InitialSetupTransformTranslations(vtkMRMLI
 //  tableTopToTableOriginTransform->Concatenate(rotateYTransform);
   tableTopToTableOriginTransform->Modified();
 
-  // Update TableMiddle -> TableOrigin
-  // Translation of the TableMiddle to TableOrigin
-  vtkMRMLLinearTransformNode* tableMiddleToTableOriginTransformNode =
-    this->IhepLogic->GetTransformNodeBetween(IHEP::TableMiddleVerticalMovement, IHEP::TableOriginVerticalMovement);
+  // Update TableMiddle -> TableLateral
+  // Translation of the TableMiddle to TableLateral
+  vtkMRMLLinearTransformNode* tableMiddleToTableLateralTransformNode =
+    this->IhepLogic->GetTransformNodeBetween(IHEP::TableMiddleVerticalMovement, IHEP::TableLateralMovement);
 
-  vtkTransform* tableMiddleToTableOriginTransform = vtkTransform::SafeDownCast(
-    tableMiddleToTableOriginTransformNode->GetTransformToParent() );
-  tableMiddleToTableOriginTransform->Identity();
-//  tableMiddleToTableOriginTransform->Translate( 0.,-1400., -675.);
-//  tableMiddleToTableOriginTransform->Concatenate(rotateYTransform);
-  tableMiddleToTableOriginTransform->Modified();
+  vtkTransform* tableMiddleToTableLateralTransform = vtkTransform::SafeDownCast(
+    tableMiddleToTableLateralTransformNode->GetTransformToParent() );
+  tableMiddleToTableLateralTransform->Identity();
+//  tableMiddleToTableLateralTransform->Translate( 0.,-1400., -675.);
+//  tableMiddleToTableLateralTransform->Concatenate(rotateYTransform);
+  tableMiddleToTableLateralTransform->Modified();
 
-  // Update TableMirror -> TableOrigin
-  // Translation of the TableMirror to TableOrigin
-  vtkMRMLLinearTransformNode* tableMirrorToTableOriginTransformNode =
-    this->IhepLogic->GetTransformNodeBetween(IHEP::TableMirrorVerticalMovement, IHEP::TableOriginVerticalMovement);
+  // Update TableMirror -> TableLateral
+  // Translation of the TableMirror to TableLateral
+  vtkMRMLLinearTransformNode* tableMirrorToTableLateralTransformNode =
+    this->IhepLogic->GetTransformNodeBetween(IHEP::TableMirrorVerticalMovement, IHEP::TableLateralMovement);
 
-  vtkTransform* tableMirrorToTableOriginTransform = vtkTransform::SafeDownCast(
-    tableMirrorToTableOriginTransformNode->GetTransformToParent() );
-  tableMirrorToTableOriginTransform->Identity();
-//  tableMirrorToTableOriginTransform->Translate( 0.,-1400., -675.);
-//  tableMirrorToTableOriginTransform->Concatenate(rotateYTransform);
-  tableMirrorToTableOriginTransform->Modified();
+  vtkTransform* tableMirrorToTableLateralTransform = vtkTransform::SafeDownCast(
+    tableMirrorToTableLateralTransformNode->GetTransformToParent() );
+  tableMirrorToTableLateralTransform->Identity();
+//  tableMirrorToTableLateralTransform->Translate( 0.,-1400., -675.);
+//  tableMirrorToTableLateralTransform->Concatenate(rotateYTransform);
+  tableMirrorToTableLateralTransform->Modified();
 
   // Update TableOrigin -> TableLateral
   // Translation of the TableOrigin to TableLateral
@@ -291,7 +291,7 @@ void vtkSlicerIhepStandGeometryLogic::InitialSetupTransformTranslations(vtkMRMLI
   // Update TableLongitudinalMovement -> PatientSupportRotation
   // Transformation (translation) of the TableLongitudinal to PatientSupport
   vtkMRMLLinearTransformNode* tableLongitudinalToPatientSupportTransformNode =
-    this->IhepLogic->GetTransformNodeBetween(IHEP::TableLongitudinalMovement, IHEP::PatientSupportRotation);
+    this->IhepLogic->GetTransformNodeBetween(IHEP::TableLongitudinalMovement, IHEP::TableSupportRotation);
   vtkTransform* tableLongitudinalToPatientSupportTransform = vtkTransform::SafeDownCast(
     tableLongitudinalToPatientSupportTransformNode->GetTransformToParent() );
   tableLongitudinalToPatientSupportTransform->Identity();
@@ -303,7 +303,7 @@ void vtkSlicerIhepStandGeometryLogic::InitialSetupTransformTranslations(vtkMRMLI
   // Update PatientSupportRotation -> FixedReference
   // Translation of the PatientSupport to FixedReference
   vtkMRMLLinearTransformNode* patientSupportToFixedReferenceTransformNode =
-    this->IhepLogic->GetTransformNodeBetween(IHEP::PatientSupportRotation, IHEP::FixedReference);
+    this->IhepLogic->GetTransformNodeBetween(IHEP::TableSupportRotation, IHEP::FixedReferenceCanyon);
   vtkTransform* patientSupportToFixedReferenceTransform = vtkTransform::SafeDownCast(
     patientSupportToFixedReferenceTransformNode->GetTransformToParent() );
   patientSupportToFixedReferenceTransform->Identity();
@@ -1075,19 +1075,10 @@ void vtkSlicerIhepStandGeometryLogic::SetupTreatmentMachineModels(vtkMRMLIhepSta
 
   // Table top - mandatory
   // Transform path: RAS -> Patient -> TableTop
-  vtkNew<vtkGeneralTransform> rasToTableTopGeneralTransform;
   vtkNew<vtkTransform> rasToTableTopLinearTransform;
   if (this->IhepLogic->GetTransformBetween( IHEP::RAS, IHEP::TableTop, 
-    rasToTableTopGeneralTransform, false))
+    rasToTableTopLinearTransform, false))
   {
-    // Convert general transform to linear
-    // This call also makes hard copy of the transform so that it doesn't change when other beam transforms change
-    if (!vtkMRMLTransformNode::IsGeneralTransformLinear( rasToTableTopGeneralTransform, 
-      rasToTableTopLinearTransform))
-    {
-      vtkErrorMacro("SetupTreatmentMachineModels: Unable to get transform hierarchy from RAS to TableTop");
-      return;
-    }
     // Transform to RAS, set transform to node, transform the model
     rasToTableTopLinearTransform->Concatenate(patientToRasTransform);
 
@@ -1128,19 +1119,10 @@ void vtkSlicerIhepStandGeometryLogic::SetupTreatmentMachineModels(vtkMRMLIhepSta
 
   // Table origin - mandatory
   // Transform path: RAS -> Patient -> TableTop -> TableOriginVerticalMovement
-  vtkNew<vtkGeneralTransform> rasToTableOriginGeneralTransform;
   vtkNew<vtkTransform> rasToTableOriginLinearTransform;
   if (this->IhepLogic->GetTransformBetween( IHEP::RAS, IHEP::TableOriginVerticalMovement, 
-    rasToTableOriginGeneralTransform, false))
+    rasToTableOriginLinearTransform, false))
   {
-    // Convert general transform to linear
-    // This call also makes hard copy of the transform so that it doesn't change when other beam transforms change
-    if (!vtkMRMLTransformNode::IsGeneralTransformLinear( rasToTableOriginGeneralTransform, 
-      rasToTableOriginLinearTransform))
-    {
-      vtkErrorMacro("SetupTreatmentMachineModels: Unable to get transform hierarchy from RAS to TableOriginVerticalMovement");
-      return;
-    }
     // Transform to RAS, set transform to node, transform the model
     rasToTableOriginLinearTransform->Concatenate(patientToRasTransform);
 
@@ -1180,20 +1162,11 @@ void vtkSlicerIhepStandGeometryLogic::SetupTreatmentMachineModels(vtkMRMLIhepSta
   }
 
   // Table mirror - mandatory
-  // Transform path: RAS -> Patient -> TableTop -> TableOriginVerticalMovement -> TableMirrorVerticalMovement
-  vtkNew<vtkGeneralTransform> rasToTableMirrorGeneralTransform;
+  // Transform path: RAS -> Patient -> TableTop -> TableMirrorVerticalMovement
   vtkNew<vtkTransform> rasToTableMirrorLinearTransform;
   if (this->IhepLogic->GetTransformBetween( IHEP::RAS, IHEP::TableMirrorVerticalMovement, 
-    rasToTableMirrorGeneralTransform, false))
+    rasToTableMirrorLinearTransform, false))
   {
-    // Convert general transform to linear
-    // This call also makes hard copy of the transform so that it doesn't change when other beam transforms change
-    if (!vtkMRMLTransformNode::IsGeneralTransformLinear( rasToTableMirrorGeneralTransform, 
-      rasToTableMirrorLinearTransform))
-    {
-      vtkErrorMacro("SetupTreatmentMachineModels: Unable to get transform hierarchy from RAS to TableMirrorVerticalMovement");
-      return;
-    }
     // Transform to RAS, set transform to node, transform the model
     rasToTableMirrorLinearTransform->Concatenate(patientToRasTransform);
 
@@ -1233,20 +1206,11 @@ void vtkSlicerIhepStandGeometryLogic::SetupTreatmentMachineModels(vtkMRMLIhepSta
   }
 
   // Table middle - mandatory
-  // Transform path: RAS -> Patient -> TableTop -> TableOriginVerticalMovement -> TableMiddleVerticalMovement
-  vtkNew<vtkGeneralTransform> rasToTableMiddleGeneralTransform;
+  // Transform path: RAS -> Patient -> TableTop -> TableMiddleVerticalMovement
   vtkNew<vtkTransform> rasToTableMiddleLinearTransform;
   if (this->IhepLogic->GetTransformBetween( IHEP::RAS, IHEP::TableMiddleVerticalMovement, 
-    rasToTableMiddleGeneralTransform, false))
+    rasToTableMiddleLinearTransform, false))
   {
-    // Convert general transform to linear
-    // This call also makes hard copy of the transform so that it doesn't change when other beam transforms change
-    if (!vtkMRMLTransformNode::IsGeneralTransformLinear( rasToTableMiddleGeneralTransform, 
-      rasToTableMiddleLinearTransform))
-    {
-      vtkErrorMacro("SetupTreatmentMachineModels: Unable to get transform hierarchy from RAS to TableMiddleVerticalMovement");
-      return;
-    }
     // Transform to RAS, set transform to node, transform the model
     rasToTableMiddleLinearTransform->Concatenate(patientToRasTransform);
 
@@ -1287,19 +1251,10 @@ void vtkSlicerIhepStandGeometryLogic::SetupTreatmentMachineModels(vtkMRMLIhepSta
 
   // Table support lateral movement model - mandatory
   // Transform path: RAS -> Patient -> TableTop -> TableOriginVerticalMovement -> TableLateralMovement
-  vtkNew<vtkGeneralTransform> rasToTableLateralGeneralTransform;
   vtkNew<vtkTransform> rasToTableLateralLinearTransform;
   if (this->IhepLogic->GetTransformBetween( IHEP::RAS, IHEP::TableLateralMovement, 
-    rasToTableLateralGeneralTransform, false))
+    rasToTableLateralLinearTransform, false))
   {
-    // Convert general transform to linear
-    // This call also makes hard copy of the transform so that it doesn't change when other beam transforms change
-    if (!vtkMRMLTransformNode::IsGeneralTransformLinear( rasToTableLateralGeneralTransform, 
-      rasToTableLateralLinearTransform))
-    {
-      vtkErrorMacro("SetupTreatmentMachineModels: Unable to get transform hierarchy from RAS to TableLateralMovement");
-      return;
-    }
     // Transform to RAS, set transform to node, transform the model
     rasToTableLateralLinearTransform->Concatenate(patientToRasTransform);
 
@@ -1337,19 +1292,10 @@ void vtkSlicerIhepStandGeometryLogic::SetupTreatmentMachineModels(vtkMRMLIhepSta
 
   // Table platform longitudinal movement model - mandatory
   // Transform path: RAS -> Patient -> TableTop -> TableOriginVerticalMovement -> TableLateralMovement -> TableLongitudinalMovement
-  vtkNew<vtkGeneralTransform> rasToTableLongitudinalGeneralTransform;
   vtkNew<vtkTransform> rasToTableLongitudinalLinearTransform;
   if (this->IhepLogic->GetTransformBetween( IHEP::RAS, IHEP::TableLongitudinalMovement, 
-    rasToTableLongitudinalGeneralTransform, false))
+    rasToTableLongitudinalLinearTransform, false))
   {
-    // Convert general transform to linear
-    // This call also makes hard copy of the transform so that it doesn't change when other beam transforms change
-    if (!vtkMRMLTransformNode::IsGeneralTransformLinear( rasToTableLongitudinalGeneralTransform, 
-      rasToTableLongitudinalLinearTransform))
-    {
-      vtkErrorMacro("SetupTreatmentMachineModels: Unable to get transform hierarchy from RAS to TableLongitudinalMovement");
-      return;
-    }
     // Transform to RAS, set transform to node, transform the model
     rasToTableLongitudinalLinearTransform->Concatenate(patientToRasTransform);
 
@@ -1387,20 +1333,10 @@ void vtkSlicerIhepStandGeometryLogic::SetupTreatmentMachineModels(vtkMRMLIhepSta
 
   // Patient support - mandatory
   // Transform path: RAS -> Patient -> TableTop -> TableOriginVerticalMovement -> TableLateralMovement -> TableLongitudinalMovement -> PatientSupportRotation
-  vtkNew<vtkGeneralTransform> rasToPatientSupportGeneralTransform;
   vtkNew<vtkTransform> rasToPatientSupportLinearTransform;
-  if (this->IhepLogic->GetTransformBetween( IHEP::RAS, IHEP::PatientSupportRotation, 
-    rasToPatientSupportGeneralTransform, false))
+  if (this->IhepLogic->GetTransformBetween( IHEP::RAS, IHEP::TableSupportRotation, 
+    rasToPatientSupportLinearTransform, false))
   {
-    // Convert general transform to linear
-    // This call also makes hard copy of the transform so that it doesn't change when other beam transforms change
-    if (!vtkMRMLTransformNode::IsGeneralTransformLinear( rasToPatientSupportGeneralTransform, 
-      rasToPatientSupportLinearTransform))
-    {
-      vtkErrorMacro("SetupTreatmentMachineModels: Unable to get transform hierarchy from RAS to PatientSupport");
-      return;
-    }
-
     // Transform to RAS, set transform to node, transform the model
     rasToPatientSupportLinearTransform->Concatenate(patientToRasTransform);
 
@@ -1442,19 +1378,10 @@ void vtkSlicerIhepStandGeometryLogic::SetupTreatmentMachineModels(vtkMRMLIhepSta
 
   // Fixed Reference - mandatory
   // Transform path: RAS -> Patient -> TableTop -> TableOriginVerticalMovement -> TableLateralMovement -> TableLongitudinalMovement -> PatientSupportRotation -> FixedReference
-  vtkNew<vtkGeneralTransform> rasToFixedReferenceGeneralTransform;
   vtkNew<vtkTransform> rasToFixedReferenceLinearTransform;
-  if (this->IhepLogic->GetTransformBetween( IHEP::RAS, IHEP::FixedReference, 
-    rasToFixedReferenceGeneralTransform, false))
+  if (this->IhepLogic->GetTransformBetween( IHEP::RAS, IHEP::FixedReferenceCanyon, 
+    rasToFixedReferenceLinearTransform, false))
   {
-    // Convert general transform to linear
-    // This call also makes hard copy of the transform so that it doesn't change when other beam transforms change
-    if (!vtkMRMLTransformNode::IsGeneralTransformLinear( rasToFixedReferenceGeneralTransform, 
-      rasToFixedReferenceLinearTransform))
-    {
-      vtkErrorMacro("SetupTreatmentMachineModels: Unable to get transform hierarchy from RAS to FixedReference");
-      return;
-    }
     // Transform to RAS, set transform to node, transform the model
     vtkNew<vtkTransform> patientSupportToFixedReferenceTransform;
 
@@ -1568,13 +1495,21 @@ void vtkSlicerIhepStandGeometryLogic::UpdateTableOriginToTableLateralTransform(v
 
   if (tableOriginToTableLateralTransformNode)
   {
-    vtkNew<vtkTransform> tableOriginToTableLateralTransform;
-  
     // TableTop to TableOrigin rotation matrix
     vtkNew<vtkTransform> tableTopToTableOriginTransform;
-    // Apply transform (rotation)
-    tableTopToTableOriginTransform->RotateX(parameterNode->GetTableTopLongitudinalAngle());
-    tableTopToTableOriginTransform->RotateY(parameterNode->GetTableTopLateralAngle());
+    vtkMRMLLinearTransformNode* tableTopToTableOriginTransformNode =
+      this->IhepLogic->GetTransformNodeBetween(IHEP::TableTop, IHEP::TableOriginVerticalMovement);
+    if (tableTopToTableOriginTransformNode)
+    {
+      vtkNew<vtkMatrix4x4> tableTopToTableOriginMatrix;
+      tableTopToTableOriginTransformNode->GetMatrixTransformToParent(tableTopToTableOriginMatrix);
+      tableTopToTableOriginMatrix->SetElement( 0, 3, 0.);
+      tableTopToTableOriginMatrix->SetElement( 1, 3, 0.);
+      tableTopToTableOriginMatrix->SetElement( 2, 3, 0.);
+      tableTopToTableOriginTransform->Concatenate(tableTopToTableOriginMatrix);
+    }
+
+    vtkNew<vtkTransform> tableOriginToTableLateralTransform;
     // Vertical translation of the TableOrigin in TableLateralMovement system (Table stand)
     double originPosTableTop[4] = { 0., 0., -1. * parameterNode->GetTableTopVerticalPositionOrigin(), 1. }; // origin in FixedReference transform
     double originPosTableLateral[4];
@@ -1588,82 +1523,98 @@ void vtkSlicerIhepStandGeometryLogic::UpdateTableOriginToTableLateralTransform(v
 }
 
 //----------------------------------------------------------------------------
-void vtkSlicerIhepStandGeometryLogic::UpdateTableMirrorToTableOriginTransform(vtkMRMLIhepStandGeometryNode* parameterNode)
+void vtkSlicerIhepStandGeometryLogic::UpdateTableMirrorToTableLateralTransform(vtkMRMLIhepStandGeometryNode* parameterNode)
 {
   vtkMRMLScene* scene = this->GetMRMLScene();
   if (!scene)
   {
-    vtkErrorMacro("UpdateTableMirrorToTableOriginTransform: Invalid scene");
+    vtkErrorMacro("UpdateTableMirrorToTableLateralTransform: Invalid scene");
     return;
   }
   if (!parameterNode || !parameterNode->GetTreatmentMachineType())
   {
-    vtkErrorMacro("UpdateTableMirrorToTableOriginTransform: Invalid parameter node");
+    vtkErrorMacro("UpdateTableMirrorToTableLateralTransform: Invalid parameter node");
     return;
   }
 
   using IHEP = vtkSlicerIhepStandGeometryTransformLogic::CoordinateSystemIdentifier;
-  vtkMRMLLinearTransformNode* tableMirrorToTableOriginTransformNode =
-    this->IhepLogic->GetTransformNodeBetween(IHEP::TableMirrorVerticalMovement, IHEP::TableOriginVerticalMovement);
+  vtkMRMLLinearTransformNode* tableMirrorToTableLateralTransformNode =
+    this->IhepLogic->GetTransformNodeBetween(IHEP::TableMirrorVerticalMovement, IHEP::TableLateralMovement);
 
-  if (tableMirrorToTableOriginTransformNode)
+  if (tableMirrorToTableLateralTransformNode)
   {
-    vtkNew<vtkTransform> tableMirrorToTableOriginTransform;
-
     // TableTop to TableOrigin rotation matrix
     vtkNew<vtkTransform> tableTopToTableOriginTransform;
-    // Apply transform (rotation)
-    tableTopToTableOriginTransform->RotateX(parameterNode->GetTableTopLongitudinalAngle());
-    tableTopToTableOriginTransform->RotateY(parameterNode->GetTableTopLateralAngle());
+    vtkMRMLLinearTransformNode* tableTopToTableOriginTransformNode =
+      this->IhepLogic->GetTransformNodeBetween(IHEP::TableTop, IHEP::TableOriginVerticalMovement);
+    if (tableTopToTableOriginTransformNode)
+    {
+      vtkNew<vtkMatrix4x4> tableTopToTableOriginMatrix;
+      tableTopToTableOriginTransformNode->GetMatrixTransformToParent(tableTopToTableOriginMatrix);
+      tableTopToTableOriginMatrix->SetElement( 0, 3, 0.);
+      tableTopToTableOriginMatrix->SetElement( 1, 3, 0.);
+      tableTopToTableOriginMatrix->SetElement( 2, 3, 0.);
+      tableTopToTableOriginTransform->Concatenate(tableTopToTableOriginMatrix);
+    }
+
+    vtkNew<vtkTransform> tableMirrorToTableLateralTransform;
     // Vertical translation of the TableMirror in TableLateralMovement system (Table stand)
     double mirrorPosTableTop[4] = { 0., 0., -1. * parameterNode->GetTableTopVerticalPositionMirror(), 1. }; // origin in FixedReference transform
     double mirrorPosTableLateral[4];
     // Get translation of the origin in a new table top coordinate
     tableTopToTableOriginTransform->MultiplyPoint( mirrorPosTableTop, mirrorPosTableLateral);
     // Apply translation to TableLateralMovement system
-    tableMirrorToTableOriginTransform->Translate(mirrorPosTableLateral);
+    tableMirrorToTableLateralTransform->Translate(mirrorPosTableLateral);
 
-    tableMirrorToTableOriginTransformNode->SetAndObserveTransformToParent(tableMirrorToTableOriginTransform);
+    tableMirrorToTableLateralTransformNode->SetAndObserveTransformToParent(tableMirrorToTableLateralTransform);
   }
 }
 
 //----------------------------------------------------------------------------
-void vtkSlicerIhepStandGeometryLogic::UpdateTableMiddleToTableOriginTransform(vtkMRMLIhepStandGeometryNode* parameterNode)
+void vtkSlicerIhepStandGeometryLogic::UpdateTableMiddleToTableLateralTransform(vtkMRMLIhepStandGeometryNode* parameterNode)
 {
   vtkMRMLScene* scene = this->GetMRMLScene();
   if (!scene)
   {
-    vtkErrorMacro("UpdateTableMiddleToTableOriginTransform: Invalid scene");
+    vtkErrorMacro("UpdateTableMiddleToTableLateralTransform: Invalid scene");
     return;
   }
   if (!parameterNode || !parameterNode->GetTreatmentMachineType())
   {
-    vtkErrorMacro("UpdateTableMiddleToTableOriginTransform: Invalid parameter node");
+    vtkErrorMacro("UpdateTableMiddleToTableLateralTransform: Invalid parameter node");
     return;
   }
 
   using IHEP = vtkSlicerIhepStandGeometryTransformLogic::CoordinateSystemIdentifier;
-  vtkMRMLLinearTransformNode* tableMiddleToTableOriginTransformNode =
-    this->IhepLogic->GetTransformNodeBetween(IHEP::TableMiddleVerticalMovement, IHEP::TableOriginVerticalMovement);
+  vtkMRMLLinearTransformNode* tableMiddleToTableLateralTransformNode =
+    this->IhepLogic->GetTransformNodeBetween(IHEP::TableMiddleVerticalMovement, IHEP::TableLateralMovement);
 
-  if (tableMiddleToTableOriginTransformNode)
+  if (tableMiddleToTableLateralTransformNode)
   {
-    vtkNew<vtkTransform> tableMiddleToTableOriginTransform;
-
     // TableTop to TableOrigin rotation matrix
     vtkNew<vtkTransform> tableTopToTableOriginTransform;
-    // Apply transform (rotation)
-    tableTopToTableOriginTransform->RotateX(parameterNode->GetTableTopLongitudinalAngle());
-    tableTopToTableOriginTransform->RotateY(parameterNode->GetTableTopLateralAngle());
+    vtkMRMLLinearTransformNode* tableTopToTableOriginTransformNode =
+      this->IhepLogic->GetTransformNodeBetween(IHEP::TableTop, IHEP::TableOriginVerticalMovement);
+    if (tableTopToTableOriginTransformNode)
+    {
+      vtkNew<vtkMatrix4x4> tableTopToTableOriginMatrix;
+      tableTopToTableOriginTransformNode->GetMatrixTransformToParent(tableTopToTableOriginMatrix);
+      tableTopToTableOriginMatrix->SetElement( 0, 3, 0.);
+      tableTopToTableOriginMatrix->SetElement( 1, 3, 0.);
+      tableTopToTableOriginMatrix->SetElement( 2, 3, 0.);
+      tableTopToTableOriginTransform->Concatenate(tableTopToTableOriginMatrix);
+    }
+
+    vtkNew<vtkTransform> tableMiddleToTableLateralTransform;
     // Vertical translation of the TableMiddle in TableLateralMovement system (Table stand)
     double middlePosTableTop[4] = { 0., 0., -1. * parameterNode->GetTableTopVerticalPositionMiddle(), 1. }; // origin in FixedReference transform
     double middlePosTableLateral[4];
     // Get translation of the origin in a new table top coordinate
     tableTopToTableOriginTransform->MultiplyPoint( middlePosTableTop, middlePosTableLateral);
     // Apply translation to TableLateralMovement system
-    tableMiddleToTableOriginTransform->Translate(middlePosTableLateral);
+    tableMiddleToTableLateralTransform->Translate(middlePosTableLateral);
 
-    tableMiddleToTableOriginTransformNode->SetAndObserveTransformToParent(tableMiddleToTableOriginTransform);
+    tableMiddleToTableLateralTransformNode->SetAndObserveTransformToParent(tableMiddleToTableLateralTransform);
   }
 }
 
@@ -1684,18 +1635,73 @@ void vtkSlicerIhepStandGeometryLogic::UpdatePatientSupportToFixedReferenceTransf
 
   using IHEP = vtkSlicerIhepStandGeometryTransformLogic::CoordinateSystemIdentifier;
   vtkMRMLLinearTransformNode* patientSupportToFixedReferenceTransformNode =
-    this->IhepLogic->GetTransformNodeBetween(IHEP::PatientSupportRotation, IHEP::FixedReference);
+    this->IhepLogic->GetTransformNodeBetween(IHEP::TableSupportRotation, IHEP::FixedReferenceCanyon);
 
   if (patientSupportToFixedReferenceTransformNode)
   {
     // TableTop to TableOrigin rotation matrix
     vtkNew<vtkTransform> tableTopToTableOriginTransform;
-    // Apply transform (rotation)
-    tableTopToTableOriginTransform->RotateX(parameterNode->GetTableTopLongitudinalAngle());
-    tableTopToTableOriginTransform->RotateY(parameterNode->GetTableTopLateralAngle());
+    vtkMRMLLinearTransformNode* tableTopToTableOriginTransformNode =
+      this->IhepLogic->GetTransformNodeBetween(IHEP::TableTop, IHEP::TableOriginVerticalMovement);
+    if (tableTopToTableOriginTransformNode)
+    {
+      vtkNew<vtkMatrix4x4> tableTopToTableOriginMatrix;
+      tableTopToTableOriginTransformNode->GetMatrixTransformToParent(tableTopToTableOriginMatrix);
+      tableTopToTableOriginMatrix->SetElement( 0, 3, 0.);
+      tableTopToTableOriginMatrix->SetElement( 1, 3, 0.);
+      tableTopToTableOriginMatrix->SetElement( 2, 3, 0.);
+      tableTopToTableOriginTransform->Concatenate(tableTopToTableOriginMatrix);
+      tableTopToTableOriginTransform->Inverse();
+    }
 
+    vtkNew<vtkTransform> patientSupportToFixedReferenceTransform;
+    // Apply rotation
+    patientSupportToFixedReferenceTransform->RotateZ(-1. * parameterNode->GetPatientSupportRotationAngle());
+    patientSupportToFixedReferenceTransform->Concatenate(tableTopToTableOriginTransform);
+
+    patientSupportToFixedReferenceTransformNode->SetAndObserveTransformToParent(patientSupportToFixedReferenceTransform);
+
+/*
+    // TableTop to TableOrigin rotation matrix
+    vtkNew<vtkTransform> tableTopToTableOriginTransform;
+    vtkMRMLLinearTransformNode* tableTopToTableOriginTransformNode =
+      this->IhepLogic->GetTransformNodeBetween(IHEP::TableTop, IHEP::TableOriginVerticalMovement);
+    if (tableTopToTableOriginTransformNode)
+    {
+      vtkNew<vtkMatrix4x4> tableTopToTableOriginMatrix;
+      tableTopToTableOriginTransformNode->GetMatrixTransformToParent(tableTopToTableOriginMatrix);
+      tableTopToTableOriginMatrix->SetElement( 0, 3, 0.);
+      tableTopToTableOriginMatrix->SetElement( 1, 3, 0.);
+      tableTopToTableOriginMatrix->SetElement( 2, 3, 0.);
+      tableTopToTableOriginTransform->Concatenate(tableTopToTableOriginMatrix);
+    }
+
+    vtkNew<vtkTransform> tableLateralToTableLongitudinalTransform;
+    // Horizontal translation of the TableLateral in TableLongitudinalMovement system (Table platform)
+    double lateralPosTableTop[4] = { -1. * parameterNode->GetTableTopLateralPosition(), 0., 0., 1. }; // origin in FixedReference transform
+    double lateralPosTableLongitudinal[4];
+    // Get translation of the origin in a new table top coordinate
+    tableTopToTableOriginTransform->MultiplyPoint( lateralPosTableTop, lateralPosTableLongitudinal);
+    // Apply translation to TableLongitudinalMovement system
+    tableLateralToTableLongitudinalTransform->Translate(lateralPosTableLongitudinal);
+*/
+    // Patient Support To Fixed Reference rotation matrix
+///    vtkNew<vtkTransform> patientSupportToFixedReferenceTransform;
+
+//    patientSupportToFixedReferenceTransform->Translate(pos);
+    // Apply rotation
+///    patientSupportToFixedReferenceTransform->RotateZ(-1. * parameterNode->GetPatientSupportRotationAngle());
+    
+//    tableLateralToTableLongitudinalTransform->Concatenate(patientSupportToFixedReferenceTransform);
+    // Apply rotation
+//    patientSupportToFixedReferenceTransform->RotateZ(-1. * parameterNode->GetPatientSupportRotationAngle());
+
+//    patientSupportToFixedReferenceTransform->Concatenate(tableTopToTableOriginTransform);
+
+/*
     // Patient Support To Fixed Reference rotation matrix
     vtkNew<vtkTransform> patientSupportToFixedReferenceTransform;
+//    patientSupportToFixedReferenceTransform->Concatenate(tableTopToTableOriginTransform);
 
     double PatientTableTopTranslation[3] = {};
     parameterNode->GetPatientToTableTopTranslation(PatientTableTopTranslation);
@@ -1703,17 +1709,17 @@ void vtkSlicerIhepStandGeometryLogic::UpdatePatientSupportToFixedReferenceTransf
       parameterNode->GetTableTopLongitudinalPosition() + PatientTableTopTranslation[1], 
       -1. * parameterNode->GetTableTopVerticalPosition() + PatientTableTopTranslation[2], 1. };
 
-    patientSupportToFixedReferenceTransform->Translate(pos);
+//    patientSupportToFixedReferenceTransform->Translate(pos);
     // Apply rotation
     patientSupportToFixedReferenceTransform->RotateZ(-1. * parameterNode->GetPatientSupportRotationAngle());
     // Move back
-    patientSupportToFixedReferenceTransform->Translate( -1. * pos[0], -1. * pos[1], -1. * pos[2]);
+//    patientSupportToFixedReferenceTransform->Translate( -1. * pos[0], -1. * pos[1], -1. * pos[2]);
 
 //    double lateralPosTableLongitudinal[4];
     // Get translation of the origin in a new table top coordinate
 //    tableTopToTableOriginTransform->MultiplyPoint( pos, lateralPosTableLongitudinal);
     // Move to Origin
- //   patientSupportToFixedReferenceTransform->Translate( lateralPosTableLongitudinal[0],
+//   patientSupportToFixedReferenceTransform->Translate( lateralPosTableLongitudinal[0],
 //      lateralPosTableLongitudinal[1], 
 //      lateralPosTableLongitudinal[2]);
     // Apply rotation
@@ -1724,9 +1730,10 @@ void vtkSlicerIhepStandGeometryLogic::UpdatePatientSupportToFixedReferenceTransf
 //      -lateralPosTableLongitudinal[2]);
 
 //    patientSupportToFixedReferenceTransform->Concatenate(tableTopToTableOriginTransform);
-
+*/
     // Observe transform
-    patientSupportToFixedReferenceTransformNode->SetAndObserveTransformToParent(patientSupportToFixedReferenceTransform);
+///    patientSupportToFixedReferenceTransformNode->SetAndObserveTransformToParent(patientSupportToFixedReferenceTransform);
+//    patientSupportToFixedReferenceTransformNode->SetAndObserveTransformToParent(tableLateralToTableLongitudinalTransform);
   }
 }
 
@@ -1751,13 +1758,21 @@ void vtkSlicerIhepStandGeometryLogic::UpdateTableLateralToTableLongitudinalTrans
 
   if (tableLateralToTableLongitudinalTransformNode)
   {
-    vtkNew<vtkTransform> tableLateralToTableLongitudinalTransform;
-
     // TableTop to TableOrigin rotation matrix
     vtkNew<vtkTransform> tableTopToTableOriginTransform;
-    // Apply transform (rotation)
-    tableTopToTableOriginTransform->RotateX(parameterNode->GetTableTopLongitudinalAngle());
-    tableTopToTableOriginTransform->RotateY(parameterNode->GetTableTopLateralAngle());
+    vtkMRMLLinearTransformNode* tableTopToTableOriginTransformNode =
+      this->IhepLogic->GetTransformNodeBetween(IHEP::TableTop, IHEP::TableOriginVerticalMovement);
+    if (tableTopToTableOriginTransformNode)
+    {
+      vtkNew<vtkMatrix4x4> tableTopToTableOriginMatrix;
+      tableTopToTableOriginTransformNode->GetMatrixTransformToParent(tableTopToTableOriginMatrix);
+      tableTopToTableOriginMatrix->SetElement( 0, 3, 0.);
+      tableTopToTableOriginMatrix->SetElement( 1, 3, 0.);
+      tableTopToTableOriginMatrix->SetElement( 2, 3, 0.);
+      tableTopToTableOriginTransform->Concatenate(tableTopToTableOriginMatrix);
+    }
+
+    vtkNew<vtkTransform> tableLateralToTableLongitudinalTransform;
     // Horizontal translation of the TableLateral in TableLongitudinalMovement system (Table platform)
     double lateralPosTableTop[4] = { -1. * parameterNode->GetTableTopLateralPosition(), 0., 0., 1. }; // origin in FixedReference transform
     double lateralPosTableLongitudinal[4];
@@ -1789,17 +1804,25 @@ void vtkSlicerIhepStandGeometryLogic::UpdateTableLongitudinalToPatientSupportTra
 
   using IHEP = vtkSlicerIhepStandGeometryTransformLogic::CoordinateSystemIdentifier;
   vtkMRMLLinearTransformNode* tableLongitudinalToPatientSupportTransformNode =
-    this->IhepLogic->GetTransformNodeBetween(IHEP::TableLongitudinalMovement, IHEP::PatientSupportRotation);
+    this->IhepLogic->GetTransformNodeBetween(IHEP::TableLongitudinalMovement, IHEP::TableSupportRotation);
 
   if (tableLongitudinalToPatientSupportTransformNode)
   {
-    vtkNew<vtkTransform> tableLongitudinalToPatientSupportTransform;
-
     // TableTop to TableOrigin rotation matrix
     vtkNew<vtkTransform> tableTopToTableOriginTransform;
-    // Apply transform (rotation)
-    tableTopToTableOriginTransform->RotateX(parameterNode->GetTableTopLongitudinalAngle());
-    tableTopToTableOriginTransform->RotateY(parameterNode->GetTableTopLateralAngle());
+    vtkMRMLLinearTransformNode* tableTopToTableOriginTransformNode =
+      this->IhepLogic->GetTransformNodeBetween(IHEP::TableTop, IHEP::TableOriginVerticalMovement);
+    if (tableTopToTableOriginTransformNode)
+    {
+      vtkNew<vtkMatrix4x4> tableTopToTableOriginMatrix;
+      tableTopToTableOriginTransformNode->GetMatrixTransformToParent(tableTopToTableOriginMatrix);
+      tableTopToTableOriginMatrix->SetElement( 0, 3, 0.);
+      tableTopToTableOriginMatrix->SetElement( 1, 3, 0.);
+      tableTopToTableOriginMatrix->SetElement( 2, 3, 0.);
+      tableTopToTableOriginTransform->Concatenate(tableTopToTableOriginMatrix);
+    }
+
+    vtkNew<vtkTransform> tableLongitudinalToPatientSupportTransform;
     // Horizontal translation of the TableLongitudinal in PatientSupportRotation system (PatientSupport)
     double longitudinalPosTableTop[4] = {  0., parameterNode->GetTableTopLongitudinalPosition(), 0., 1. }; // origin in FixedReference transform
     double longitudinalPosPatientSupport[4];
@@ -1943,7 +1966,7 @@ vtkMRMLLinearTransformNode* vtkSlicerIhepStandGeometryLogic::UpdateFixedReferenc
   // Transformation path: RAS -> Patient -> TableTop -> TableLateralMovement -> TableLongitudinalMovement -> PatientSupportRotation -> FixedReference
   vtkNew<vtkGeneralTransform> generalTransform;
   if (transformNode && this->IhepLogic->GetTransformBetween( IHEP::RAS, 
-    IHEP::FixedReference, generalTransform, false))
+    IHEP::FixedReferenceCanyon, generalTransform, false))
   {
     // Convert general transform to linear
     // This call also makes hard copy of the transform so that it doesn't change when other beam transforms change

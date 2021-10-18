@@ -33,6 +33,7 @@
 #include <list>
 
 class vtkGeneralTransform;
+class vtkTransform;
 class vtkMRMLRTBeamNode;
 class vtkMRMLLinearTransformNode;
 class vtkMRMLIhepStandGeometryNode;
@@ -43,9 +44,9 @@ public:
   enum CoordinateSystemIdentifier
   {
     RAS = 0,
-    FixedReference,
+    FixedReferenceCanyon,
     Collimator,
-    PatientSupportRotation, // Rotation of patient support along Zt-axis
+    TableSupportRotation, // Rotation of table support along Zt-axis
     TableLongitudinalMovement, // Inferior-Superior (Longitudinal) movement of the table platform, Yt-axis
     TableLateralMovement, // Left-Right (Lateral) movement of the table support, Xt-axis
     TableOriginVerticalMovement, // Posterior-Anterior (Vertical) movement of the table origin support (fixed point), Zt-axis
@@ -70,10 +71,14 @@ public:
   vtkMRMLLinearTransformNode* GetTransformNodeBetween(
     CoordinateSystemIdentifier fromFrame, CoordinateSystemIdentifier toFrame );
 
-  /// Get transform from one coordinate frame to another
+  /// Get general transform from one coordinate frame to another
   /// @param transformForBeam - calculate dynamic transformation for beam model or other models
   /// \return Success flag (false on any error)
   bool GetTransformBetween(CoordinateSystemIdentifier fromFrame, CoordinateSystemIdentifier toFrame, vtkGeneralTransform* outputTransform, bool transformForBeam = true);
+  /// Get linear transform from one coordinate frame to another
+  /// @param transformForBeam - calculate dynamic transformation for beam model or other models
+  /// \return Success flag (false on any error)
+  bool GetTransformBetween(CoordinateSystemIdentifier fromFrame, CoordinateSystemIdentifier toFrame, vtkTransform* outputTransform, bool transformForBeam = true);
 
   /// Reset RAS to Patient isocenter translate, required for correct
   /// IHEP stand models transforms 
