@@ -1651,15 +1651,17 @@ void vtkSlicerIhepStandGeometryLogic::UpdatePatientSupportToFixedReferenceTransf
       tableTopToTableOriginMatrix->SetElement( 1, 3, 0.);
       tableTopToTableOriginMatrix->SetElement( 2, 3, 0.);
       tableTopToTableOriginTransform->Concatenate(tableTopToTableOriginMatrix);
-      tableTopToTableOriginTransform->Inverse();
+//      tableTopToTableOriginTransform->Inverse();
     }
 
     vtkNew<vtkTransform> patientSupportToFixedReferenceTransform;
     // Apply rotation
+//    patientSupportToFixedReferenceTransform->Concatenate(tableTopToTableOriginTransform);    
     patientSupportToFixedReferenceTransform->RotateZ(-1. * parameterNode->GetPatientSupportRotationAngle());
-    patientSupportToFixedReferenceTransform->Concatenate(tableTopToTableOriginTransform);
-
-    patientSupportToFixedReferenceTransformNode->SetAndObserveTransformToParent(patientSupportToFixedReferenceTransform);
+    tableTopToTableOriginTransform->Concatenate(patientSupportToFixedReferenceTransform);
+    tableTopToTableOriginTransform->Inverse();
+//    patientSupportToFixedReferenceTransformNode->SetAndObserveTransformToParent(patientSupportToFixedReferenceTransform);
+    patientSupportToFixedReferenceTransformNode->SetAndObserveTransformToParent(tableTopToTableOriginTransform);
 
 /*
     // TableTop to TableOrigin rotation matrix
@@ -1784,7 +1786,7 @@ void vtkSlicerIhepStandGeometryLogic::UpdateTableLateralToTableLongitudinalTrans
     tableLateralToTableLongitudinalTransformNode->SetAndObserveTransformToParent(tableLateralToTableLongitudinalTransform);
   }
 
-  this->UpdatePatientSupportToFixedReferenceTransform(parameterNode);
+//  this->UpdatePatientSupportToFixedReferenceTransform(parameterNode);
 }
 
 //----------------------------------------------------------------------------
@@ -1964,18 +1966,18 @@ vtkMRMLLinearTransformNode* vtkSlicerIhepStandGeometryLogic::UpdateFixedReferenc
   using IHEP = vtkSlicerIhepStandGeometryTransformLogic::CoordinateSystemIdentifier;
   // Dynamic transform from RAS to FixedReference
   // Transformation path: RAS -> Patient -> TableTop -> TableLateralMovement -> TableLongitudinalMovement -> PatientSupportRotation -> FixedReference
-  vtkNew<vtkGeneralTransform> generalTransform;
+  vtkNew<vtkGeneralTransform> rasToFixedReferenceTransform;
   if (transformNode && this->IhepLogic->GetTransformBetween( IHEP::RAS, 
-    IHEP::FixedReferenceCanyon, generalTransform, false))
+    IHEP::FixedReferenceCanyon, rasToFixedReferenceTransform, false))
   {
     // Convert general transform to linear
     // This call also makes hard copy of the transform so that it doesn't change when other beam transforms change
-    vtkNew<vtkTransform> rasToFixedReferenceTransform;
-    if (!vtkMRMLTransformNode::IsGeneralTransformLinear(generalTransform, rasToFixedReferenceTransform))
-    {
-      vtkErrorMacro("UpdateFixedReferenceMarkupsTransform: Unable to set transform with non-linear components");
-      return nullptr;
-    }
+//    vtkNew<vtkTransform> rasToFixedReferenceTransform;
+//    if (!vtkMRMLTransformNode::IsGeneralTransformLinear(generalTransform, rasToFixedReferenceTransform))
+//    {
+//      vtkErrorMacro("UpdateFixedReferenceMarkupsTransform: Unable to set transform with non-linear components");
+//      return nullptr;
+//    }
 
     // Transform IHEP stand models (IEC Patient) to RAS
     vtkNew<vtkTransform> rasToPatientTransform;
