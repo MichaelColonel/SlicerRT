@@ -240,7 +240,6 @@ void qSlicerIhepStandGeometryModuleWidget::onPatientTableTopTranslationChanged(d
   {
     return;
   }
-
   parameterNode->DisableModifiedEventOn();
   parameterNode->SetPatientToTableTopTranslation(position);
   parameterNode->DisableModifiedEventOff();
