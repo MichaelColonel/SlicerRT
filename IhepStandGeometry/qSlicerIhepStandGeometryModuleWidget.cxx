@@ -169,6 +169,7 @@ void qSlicerIhepStandGeometryModuleWidget::setup()
   connect( d->PushButton_BevPlusY, SIGNAL(clicked()), this, SLOT(onBeamsEyeViewPlusYButtonClicked()));
   connect( d->PushButton_BevMinusX, SIGNAL(clicked()), this, SLOT(onBeamsEyeViewMinusXButtonClicked()));
   connect( d->PushButton_BevMinusY, SIGNAL(clicked()), this, SLOT(onBeamsEyeViewMinusYButtonClicked()));
+  connect( d->PushButton_Test, SIGNAL(clicked()), this, SLOT(onTestClicked()));
 
   // Handle scene change event if occurs
   qvtkConnect( d->logic(), vtkCommand::ModifiedEvent, this, SLOT(onLogicModified()));
@@ -498,6 +499,35 @@ void qSlicerIhepStandGeometryModuleWidget::onBeamsEyeViewMinusYButtonClicked()
   double viewUpVector[4] = { 0., -1., 0., 0. };
   this->onBeamsEyeViewButtonClicked(viewUpVector);
   d->Label_BevOrientation->setText(tr("-Y"));
+}
+
+//-----------------------------------------------------------------------------
+void qSlicerIhepStandGeometryModuleWidget::onTestClicked()
+{
+  Q_D(qSlicerIhepStandGeometryModuleWidget);
+
+  if (!this->mrmlScene())
+  {
+    qCritical() << Q_FUNC_INFO << ": Invalid scene";
+    return;
+  }
+
+  // First check the logic if it has a parameter node
+  if (!d->logic())
+  {
+    qCritical() << Q_FUNC_INFO << ": Invalid logic";
+    return;
+  }
+
+  vtkMRMLIhepStandGeometryNode* parameterNode = vtkMRMLIhepStandGeometryNode::SafeDownCast(d->MRMLNodeComboBox_ParameterSet->currentNode());
+
+  if (!parameterNode || !d->ModuleWindowInitialized)
+  {
+    qCritical() << Q_FUNC_INFO << ": Invalid parameter node";
+    return;
+  }
+  
+  d->logic()->UpdateRasToFixedReferenceTransform(parameterNode);
 }
 
 //-----------------------------------------------------------------------------

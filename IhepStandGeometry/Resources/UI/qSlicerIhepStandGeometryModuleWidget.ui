@@ -25,36 +25,13 @@
      <layout class="QGridLayout" name="gridLayout_6">
       <item row="0" column="0">
        <layout class="QGridLayout" name="gridLayout_4">
-        <item row="3" column="1">
-         <widget class="ctkSliderWidget" name="SliderWidget_TableTopVerticalPositionMirror">
-          <property name="enabled">
-           <bool>true</bool>
-          </property>
+        <item row="6" column="1">
+         <widget class="ctkSliderWidget" name="SliderWidget_TableTopStandLateralPosition">
           <property name="minimum">
            <double>-999.899999999999977</double>
           </property>
           <property name="maximum">
            <double>999.899999999999977</double>
-          </property>
-         </widget>
-        </item>
-        <item row="1" column="1">
-         <widget class="ctkSliderWidget" name="SliderWidget_TableTopVerticalPosition">
-          <property name="enabled">
-           <bool>false</bool>
-          </property>
-          <property name="minimum">
-           <double>-999.899999999999977</double>
-          </property>
-          <property name="maximum">
-           <double>999.899999999999977</double>
-          </property>
-         </widget>
-        </item>
-        <item row="0" column="0">
-         <widget class="QLabel" name="label_14">
-          <property name="text">
-           <string>Patient to Table Top Translation</string>
           </property>
          </widget>
         </item>
@@ -68,10 +45,10 @@
           </property>
          </widget>
         </item>
-        <item row="7" column="0">
-         <widget class="QLabel" name="label_8">
+        <item row="2" column="0">
+         <widget class="QLabel" name="label_11">
           <property name="text">
-           <string>Patient Support Rotation Angle</string>
+           <string>Table Top Position Z Origin</string>
           </property>
          </widget>
         </item>
@@ -82,30 +59,17 @@
           </property>
          </widget>
         </item>
-        <item row="5" column="1">
-         <widget class="ctkSliderWidget" name="SliderWidget_TableTopStandLongitudinalPosition">
+        <item row="7" column="1">
+         <widget class="ctkSliderWidget" name="SliderWidget_PatientSupportRotationAngle">
           <property name="maximum">
-           <double>999.899999999999977</double>
+           <double>359.990000000000009</double>
           </property>
          </widget>
         </item>
-        <item row="2" column="1">
-         <widget class="ctkSliderWidget" name="SliderWidget_TableTopVerticalPositionOrigin">
-          <property name="minimum">
-           <double>-999.899999999999977</double>
-          </property>
-          <property name="maximum">
-           <double>999.899999999999977</double>
-          </property>
-         </widget>
-        </item>
-        <item row="6" column="1">
-         <widget class="ctkSliderWidget" name="SliderWidget_TableTopStandLateralPosition">
-          <property name="minimum">
-           <double>-999.899999999999977</double>
-          </property>
-          <property name="maximum">
-           <double>999.899999999999977</double>
+        <item row="0" column="0">
+         <widget class="QLabel" name="label_14">
+          <property name="text">
+           <string>Patient to Table Top Translation</string>
           </property>
          </widget>
         </item>
@@ -122,40 +86,6 @@
           </property>
          </widget>
         </item>
-        <item row="2" column="0">
-         <widget class="QLabel" name="label_11">
-          <property name="text">
-           <string>Table Top Position Z Origin</string>
-          </property>
-         </widget>
-        </item>
-        <item row="7" column="1">
-         <widget class="ctkSliderWidget" name="SliderWidget_PatientSupportRotationAngle">
-          <property name="maximum">
-           <double>359.990000000000009</double>
-          </property>
-         </widget>
-        </item>
-        <item row="4" column="0">
-         <widget class="QLabel" name="label_13">
-          <property name="enabled">
-           <bool>true</bool>
-          </property>
-          <property name="text">
-           <string>Table Top Position Z Middle</string>
-          </property>
-         </widget>
-        </item>
-        <item row="1" column="0">
-         <widget class="QLabel" name="label_7">
-          <property name="enabled">
-           <bool>false</bool>
-          </property>
-          <property name="text">
-           <string>Table Top Position Z Total</string>
-          </property>
-         </widget>
-        </item>
         <item row="0" column="1">
          <widget class="ctkCoordinatesWidget" name="CoordinatesWidget_PatientTableTopTranslation">
           <property name="minimum">
@@ -166,6 +96,13 @@
           </property>
          </widget>
         </item>
+        <item row="5" column="1">
+         <widget class="ctkSliderWidget" name="SliderWidget_TableTopStandLongitudinalPosition">
+          <property name="maximum">
+           <double>999.899999999999977</double>
+          </property>
+         </widget>
+        </item>
         <item row="6" column="0">
          <widget class="QLabel" name="label_6">
           <property name="text">
@@ -173,7 +110,7 @@
           </property>
          </widget>
         </item>
-        <item row="8" column="0" colspan="2">
+        <item row="9" column="0" colspan="2">
          <widget class="ctkCollapsibleButton" name="CollapsibleButton_TableTopAngles">
           <property name="text">
            <string>Table Top Angles</string>
@@ -221,6 +158,76 @@
             </layout>
            </item>
           </layout>
+         </widget>
+        </item>
+        <item row="7" column="0">
+         <widget class="QLabel" name="label_8">
+          <property name="text">
+           <string>Patient Support Rotation Angle</string>
+          </property>
+         </widget>
+        </item>
+        <item row="3" column="1">
+         <widget class="ctkSliderWidget" name="SliderWidget_TableTopVerticalPositionMirror">
+          <property name="enabled">
+           <bool>true</bool>
+          </property>
+          <property name="minimum">
+           <double>-999.899999999999977</double>
+          </property>
+          <property name="maximum">
+           <double>999.899999999999977</double>
+          </property>
+         </widget>
+        </item>
+        <item row="2" column="1">
+         <widget class="ctkSliderWidget" name="SliderWidget_TableTopVerticalPositionOrigin">
+          <property name="minimum">
+           <double>-999.899999999999977</double>
+          </property>
+          <property name="maximum">
+           <double>999.899999999999977</double>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="0">
+         <widget class="QLabel" name="label_7">
+          <property name="enabled">
+           <bool>false</bool>
+          </property>
+          <property name="text">
+           <string>Table Top Position Z Total</string>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="1">
+         <widget class="ctkSliderWidget" name="SliderWidget_TableTopVerticalPosition">
+          <property name="enabled">
+           <bool>false</bool>
+          </property>
+          <property name="minimum">
+           <double>-999.899999999999977</double>
+          </property>
+          <property name="maximum">
+           <double>999.899999999999977</double>
+          </property>
+         </widget>
+        </item>
+        <item row="4" column="0">
+         <widget class="QLabel" name="label_13">
+          <property name="enabled">
+           <bool>true</bool>
+          </property>
+          <property name="text">
+           <string>Table Top Position Z Middle</string>
+          </property>
+         </widget>
+        </item>
+        <item row="8" column="1">
+         <widget class="QPushButton" name="PushButton_Test">
+          <property name="text">
+           <string>PushButton</string>
+          </property>
          </widget>
         </item>
        </layout>

@@ -116,6 +116,7 @@ public:
 
   /// Apply new PatientSupport to FixedReference translate (PatientSupportRotation->FixedReference)
   void UpdatePatientSupportToFixedReferenceTransform(vtkMRMLIhepStandGeometryNode* parameterNode);
+  void UpdateRasToFixedReferenceTransform(vtkMRMLIhepStandGeometryNode* parameterNode);
 
   /// Apply new Patient to TableTop translate (Patient->TableTop)
   void UpdatePatientToTableTopTransform(vtkMRMLIhepStandGeometryNode* parameterNode);
