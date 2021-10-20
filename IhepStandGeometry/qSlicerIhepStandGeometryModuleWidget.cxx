@@ -460,6 +460,7 @@ void qSlicerIhepStandGeometryModuleWidget::onPatientSupportRotationAngleChanged(
 
   // update table top stand to patient support rotation transform
   d->logic()->UpdateTableTopToTableOriginTransform(parameterNode);
+  d->logic()->UpdateTableOriginToTableLateralTransform(parameterNode);
   d->logic()->UpdatePatientSupportToFixedReferenceTransform(parameterNode);
 
   parameterNode->Modified();

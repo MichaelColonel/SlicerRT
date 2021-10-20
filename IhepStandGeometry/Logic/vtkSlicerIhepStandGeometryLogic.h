@@ -165,6 +165,7 @@ private:
 
   vtkSlicerIhepStandGeometryLogic(const vtkSlicerIhepStandGeometryLogic&) = delete;
   void operator=(const vtkSlicerIhepStandGeometryLogic&) = delete;
+  bool rotate{ false };
 };
 
 #endif
