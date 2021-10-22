@@ -99,7 +99,7 @@ public:
   void ResetModelsToInitialPosition(vtkMRMLIhepStandGeometryNode* parameterNode);
 
   /// Apply new TableTop to TableOrigin translate (TableTop->TableOrigin)
-  void UpdateTableTopToTableOriginTransform(vtkMRMLIhepStandGeometryNode* parameterNode, bool rotation = false);
+  void UpdateTableTopToTableOriginTransform(vtkMRMLIhepStandGeometryNode* parameterNode);
 
   /// Apply new TableOrigin to TableLateral translate (TableOriginVerticalMovement->TableLateralMovement)
   void UpdateTableOriginToTableLateralTransform(vtkMRMLIhepStandGeometryNode* parameterNode);
@@ -116,7 +116,6 @@ public:
 
   /// Apply new PatientSupport to FixedReference translate (PatientSupportRotation->FixedReference)
   void UpdatePatientSupportToFixedReferenceTransform(vtkMRMLIhepStandGeometryNode* parameterNode);
-  void UpdateRasToFixedReferenceTransform(vtkMRMLIhepStandGeometryNode* parameterNode);
 
   /// Apply new Patient to TableTop translate (Patient->TableTop)
   void UpdatePatientToTableTopTransform(vtkMRMLIhepStandGeometryNode* parameterNode);

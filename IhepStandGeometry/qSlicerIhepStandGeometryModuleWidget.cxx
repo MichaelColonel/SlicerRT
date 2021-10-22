@@ -169,8 +169,6 @@ void qSlicerIhepStandGeometryModuleWidget::setup()
   connect( d->PushButton_BevPlusY, SIGNAL(clicked()), this, SLOT(onBeamsEyeViewPlusYButtonClicked()));
   connect( d->PushButton_BevMinusX, SIGNAL(clicked()), this, SLOT(onBeamsEyeViewMinusXButtonClicked()));
   connect( d->PushButton_BevMinusY, SIGNAL(clicked()), this, SLOT(onBeamsEyeViewMinusYButtonClicked()));
-  connect( d->PushButton_Test, SIGNAL(clicked()), this, SLOT(onTestClicked()));
-
   // Handle scene change event if occurs
   qvtkConnect( d->logic(), vtkCommand::ModifiedEvent, this, SLOT(onLogicModified()));
 }
@@ -243,9 +241,17 @@ void qSlicerIhepStandGeometryModuleWidget::onPatientTableTopTranslationChanged(d
   }
   parameterNode->DisableModifiedEventOn();
   parameterNode->SetPatientToTableTopTranslation(position);
-  parameterNode->DisableModifiedEventOff();
 
   d->logic()->UpdatePatientToTableTopTransform(parameterNode);
+  d->logic()->UpdateTableTopToTableOriginTransform(parameterNode);
+  d->logic()->UpdateTableOriginToTableLateralTransform(parameterNode);
+  d->logic()->UpdateTableMirrorToTableLateralTransform(parameterNode);
+  d->logic()->UpdateTableMiddleToTableLateralTransform(parameterNode);
+  d->logic()->UpdateTableLateralToTableLongitudinalTransform(parameterNode);
+  d->logic()->UpdateTableLongitudinalToPatientSupportTransform(parameterNode);
+  d->logic()->UpdatePatientSupportToFixedReferenceTransform(parameterNode);
+
+  parameterNode->DisableModifiedEventOff();
   
   parameterNode->Modified();
 }
@@ -269,9 +275,15 @@ void qSlicerIhepStandGeometryModuleWidget::onTableMiddleVerticalPositionChanged(
 
   parameterNode->DisableModifiedEventOn();
   parameterNode->SetTableTopVerticalPositionMiddle(position);
-  parameterNode->DisableModifiedEventOff();
 
+  d->logic()->UpdateTableOriginToTableLateralTransform(parameterNode);
+  d->logic()->UpdateTableMirrorToTableLateralTransform(parameterNode);
   d->logic()->UpdateTableMiddleToTableLateralTransform(parameterNode);
+  d->logic()->UpdateTableLateralToTableLongitudinalTransform(parameterNode);
+  d->logic()->UpdateTableLongitudinalToPatientSupportTransform(parameterNode);
+  d->logic()->UpdatePatientSupportToFixedReferenceTransform(parameterNode);
+
+  parameterNode->DisableModifiedEventOff();
 
   parameterNode->Modified();
 }
@@ -295,9 +307,15 @@ void qSlicerIhepStandGeometryModuleWidget::onTableMirrorVerticalPositionChanged(
 
   parameterNode->DisableModifiedEventOn();
   parameterNode->SetTableTopVerticalPositionMirror(position);
-  parameterNode->DisableModifiedEventOff();
 
+  d->logic()->UpdateTableOriginToTableLateralTransform(parameterNode);
   d->logic()->UpdateTableMirrorToTableLateralTransform(parameterNode);
+  d->logic()->UpdateTableMiddleToTableLateralTransform(parameterNode);
+  d->logic()->UpdateTableLateralToTableLongitudinalTransform(parameterNode);
+  d->logic()->UpdateTableLongitudinalToPatientSupportTransform(parameterNode);
+  d->logic()->UpdatePatientSupportToFixedReferenceTransform(parameterNode);
+
+  parameterNode->DisableModifiedEventOff();
 
   parameterNode->Modified();
 }
@@ -321,9 +339,15 @@ void qSlicerIhepStandGeometryModuleWidget::onTableOriginVerticalPositionChanged(
 
   parameterNode->DisableModifiedEventOn();
   parameterNode->SetTableTopVerticalPositionOrigin(position);
-  parameterNode->DisableModifiedEventOff();
 
   d->logic()->UpdateTableOriginToTableLateralTransform(parameterNode);
+  d->logic()->UpdateTableMirrorToTableLateralTransform(parameterNode);
+  d->logic()->UpdateTableMiddleToTableLateralTransform(parameterNode);
+  d->logic()->UpdateTableLateralToTableLongitudinalTransform(parameterNode);
+  d->logic()->UpdateTableLongitudinalToPatientSupportTransform(parameterNode);
+  d->logic()->UpdatePatientSupportToFixedReferenceTransform(parameterNode);
+
+  parameterNode->DisableModifiedEventOff();
 
   parameterNode->Modified();
 }
@@ -347,9 +371,11 @@ void qSlicerIhepStandGeometryModuleWidget::onTableLongitudinalPositionChanged(do
 
   parameterNode->DisableModifiedEventOn();
   parameterNode->SetTableTopLongitudinalPosition(position);  // Inferior-Superior movement along Y-axis
-  parameterNode->DisableModifiedEventOff();
-  
+
   d->logic()->UpdateTableLongitudinalToPatientSupportTransform(parameterNode);
+  d->logic()->UpdatePatientSupportToFixedReferenceTransform(parameterNode);
+
+  parameterNode->DisableModifiedEventOff();
 
   parameterNode->Modified();
 }
@@ -373,10 +399,13 @@ void qSlicerIhepStandGeometryModuleWidget::onTableLateralPositionChanged(double 
 
   parameterNode->DisableModifiedEventOn();
   parameterNode->SetTableTopLateralPosition(position); // Left-Right movement along X-axis
-  parameterNode->DisableModifiedEventOff();
 
   // update table top stand to patient support rotation transform
   d->logic()->UpdateTableLateralToTableLongitudinalTransform(parameterNode);
+  d->logic()->UpdateTableLongitudinalToPatientSupportTransform(parameterNode);
+  d->logic()->UpdatePatientSupportToFixedReferenceTransform(parameterNode);
+
+  parameterNode->DisableModifiedEventOff();
 
   parameterNode->Modified();
 }
@@ -400,11 +429,17 @@ void qSlicerIhepStandGeometryModuleWidget::onTableTopLongitudinalAngleChanged(do
 
   parameterNode->DisableModifiedEventOn();
   parameterNode->SetTableTopLongitudinalAngle(angle);
-  parameterNode->DisableModifiedEventOff();
 
   // update table top to table origin vertical movement
   d->logic()->UpdateTableTopToTableOriginTransform(parameterNode);
   d->logic()->UpdateTableOriginToTableLateralTransform(parameterNode);
+  d->logic()->UpdateTableMirrorToTableLateralTransform(parameterNode);
+  d->logic()->UpdateTableMiddleToTableLateralTransform(parameterNode);
+  d->logic()->UpdateTableLateralToTableLongitudinalTransform(parameterNode);
+  d->logic()->UpdateTableLongitudinalToPatientSupportTransform(parameterNode);
+  d->logic()->UpdatePatientSupportToFixedReferenceTransform(parameterNode);
+
+  parameterNode->DisableModifiedEventOff();
 
   parameterNode->Modified();
 }
@@ -428,12 +463,18 @@ void qSlicerIhepStandGeometryModuleWidget::onTableTopLateralAngleChanged(double 
 
   parameterNode->DisableModifiedEventOn();
   parameterNode->SetTableTopLateralAngle(angle);
-  parameterNode->DisableModifiedEventOff();
 
   // update table top to table origin vertical movement
   d->logic()->UpdateTableTopToTableOriginTransform(parameterNode);
   d->logic()->UpdateTableOriginToTableLateralTransform(parameterNode);
-  
+  d->logic()->UpdateTableMirrorToTableLateralTransform(parameterNode);
+  d->logic()->UpdateTableMiddleToTableLateralTransform(parameterNode);
+  d->logic()->UpdateTableLateralToTableLongitudinalTransform(parameterNode);
+  d->logic()->UpdateTableLongitudinalToPatientSupportTransform(parameterNode);
+  d->logic()->UpdatePatientSupportToFixedReferenceTransform(parameterNode);
+
+  parameterNode->DisableModifiedEventOff();
+
   parameterNode->Modified();
 }
 
@@ -459,8 +500,6 @@ void qSlicerIhepStandGeometryModuleWidget::onPatientSupportRotationAngleChanged(
   parameterNode->DisableModifiedEventOff();
 
   // update table top stand to patient support rotation transform
-  d->logic()->UpdateTableTopToTableOriginTransform(parameterNode);
-  d->logic()->UpdateTableOriginToTableLateralTransform(parameterNode);
   d->logic()->UpdatePatientSupportToFixedReferenceTransform(parameterNode);
 
   parameterNode->Modified();
@@ -500,35 +539,6 @@ void qSlicerIhepStandGeometryModuleWidget::onBeamsEyeViewMinusYButtonClicked()
   double viewUpVector[4] = { 0., -1., 0., 0. };
   this->onBeamsEyeViewButtonClicked(viewUpVector);
   d->Label_BevOrientation->setText(tr("-Y"));
-}
-
-//-----------------------------------------------------------------------------
-void qSlicerIhepStandGeometryModuleWidget::onTestClicked()
-{
-  Q_D(qSlicerIhepStandGeometryModuleWidget);
-
-  if (!this->mrmlScene())
-  {
-    qCritical() << Q_FUNC_INFO << ": Invalid scene";
-    return;
-  }
-
-  // First check the logic if it has a parameter node
-  if (!d->logic())
-  {
-    qCritical() << Q_FUNC_INFO << ": Invalid logic";
-    return;
-  }
-
-  vtkMRMLIhepStandGeometryNode* parameterNode = vtkMRMLIhepStandGeometryNode::SafeDownCast(d->MRMLNodeComboBox_ParameterSet->currentNode());
-
-  if (!parameterNode || !d->ModuleWindowInitialized)
-  {
-    qCritical() << Q_FUNC_INFO << ": Invalid parameter node";
-    return;
-  }
-  
-  d->logic()->UpdateRasToFixedReferenceTransform(parameterNode);
 }
 
 //-----------------------------------------------------------------------------

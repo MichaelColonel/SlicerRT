@@ -57,7 +57,6 @@ public slots:
   void onBeamsEyeViewMinusXButtonClicked();
   void onBeamsEyeViewPlusYButtonClicked();
   void onBeamsEyeViewMinusYButtonClicked();
-  void onTestClicked();
 
   void onLoadModelsButtonClicked();
   void onResetToInitialPositionButtonClicked();
