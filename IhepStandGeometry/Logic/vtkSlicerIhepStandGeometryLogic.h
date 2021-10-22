@@ -99,7 +99,7 @@ public:
   void ResetModelsToInitialPosition(vtkMRMLIhepStandGeometryNode* parameterNode);
 
   /// Apply new TableTop to TableOrigin translate (TableTop->TableOrigin)
-  void UpdateTableTopToTableOriginTransform(vtkMRMLIhepStandGeometryNode* parameterNode);
+  void UpdateTableTopToTableOriginTransform(vtkMRMLIhepStandGeometryNode* parameterNode, bool rotation = false);
 
   /// Apply new TableOrigin to TableLateral translate (TableOriginVerticalMovement->TableLateralMovement)
   void UpdateTableOriginToTableLateralTransform(vtkMRMLIhepStandGeometryNode* parameterNode);

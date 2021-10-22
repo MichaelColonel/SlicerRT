@@ -745,7 +745,7 @@ void vtkSlicerIhepStandGeometryLogic::LoadTreatmentMachineModels(vtkMRMLIhepStan
 
   //
   // Load treatment machine models
-
+/*
   // FixedReference - mandatory
   std::string fixedReferenceModelSingletonTag = machineType + "_" + FIXEDREFERENCE_MODEL_NAME;
   vtkMRMLModelNode* fixedReferenceModelNode = vtkMRMLModelNode::SafeDownCast(
@@ -841,7 +841,7 @@ void vtkSlicerIhepStandGeometryLogic::LoadTreatmentMachineModels(vtkMRMLIhepStan
       vtkErrorMacro("LoadTreatmentMachineModels: Failed to load table platform model for longitudinal movement");
     }
   }
-
+*/
   // Table support for lateral movement  - mandatory
   std::string tableSupportModelSingletonTag = machineType + "_" + TABLE_LATERAL_MODEL_NAME;
   vtkMRMLModelNode* tableSupportModelNode = vtkMRMLModelNode::SafeDownCast(
@@ -905,7 +905,7 @@ void vtkSlicerIhepStandGeometryLogic::LoadTreatmentMachineModels(vtkMRMLIhepStan
       vtkErrorMacro("LoadTreatmentMachineModels: Failed to load table origin model for vertical movement");
     }
   }
-
+/*
   // Table mirror - mandatory
   std::string tableMirrorModelSingletonTag = machineType + "_" + TABLE_MIRROR_MODEL_NAME;
   vtkMRMLModelNode* tableMirrorModelNode = vtkMRMLModelNode::SafeDownCast(
@@ -969,7 +969,7 @@ void vtkSlicerIhepStandGeometryLogic::LoadTreatmentMachineModels(vtkMRMLIhepStan
       vtkErrorMacro("LoadTreatmentMachineModels: Failed to load table middle model for vertical movement");
     }
   }
-
+*/
   // Table top - mandatory
   std::string tableTopModelSingletonTag = machineType + "_" + TABLETOP_MODEL_NAME;
   vtkMRMLModelNode* tableTopModelNode = vtkMRMLModelNode::SafeDownCast(
@@ -1001,7 +1001,7 @@ void vtkSlicerIhepStandGeometryLogic::LoadTreatmentMachineModels(vtkMRMLIhepStan
       vtkErrorMacro("LoadTreatmentMachineModels: Failed to load table top model");
     }
   }
-
+/*
   if (!fixedReferenceModelNode || !fixedReferenceModelNode->GetPolyData() 
     || !tableSupportModelNode || !tableSupportModelNode->GetPolyData() 
     || !tablePlatformModelNode || !tablePlatformModelNode->GetPolyData() 
@@ -1014,8 +1014,8 @@ void vtkSlicerIhepStandGeometryLogic::LoadTreatmentMachineModels(vtkMRMLIhepStan
     vtkErrorMacro("LoadTreatmentMachineModels: Failed to load every mandatory treatment machine component");
     return;
   }
+*/
 
-/*
   if (!tableSupportModelNode || !tableSupportModelNode->GetPolyData()  
     || !tableTopModelNode || !tableTopModelNode->GetPolyData()
     || !tableOriginModelNode || !tableOriginModelNode->GetPolyData())
@@ -1023,7 +1023,7 @@ void vtkSlicerIhepStandGeometryLogic::LoadTreatmentMachineModels(vtkMRMLIhepStan
     vtkErrorMacro("LoadTreatmentMachineModels: Failed to load every mandatory treatment machine component");
     return;
   }
-*/
+
   // Create / Update markups nodes if they already exists 
   // Update markups (Table fiducials and plane nodes and FixedReference line node)
 //  vtkMRMLMarkupsFiducialNode* pointsMarkupsNode = vtkMRMLMarkupsFiducialNode::SafeDownCast(
@@ -1169,7 +1169,7 @@ void vtkSlicerIhepStandGeometryLogic::SetupTreatmentMachineModels(vtkMRMLIhepSta
       tableOriginModel->GetDisplayNode()->SetColor(0.3, 0.3, 0.3);
     }
   }
-
+/*
   // Table mirror - mandatory
   // Transform path: RAS -> Patient -> TableTop -> TableMirrorVerticalMovement
   vtkNew<vtkTransform> rasToTableMirrorLinearTransform;
@@ -1257,7 +1257,7 @@ void vtkSlicerIhepStandGeometryLogic::SetupTreatmentMachineModels(vtkMRMLIhepSta
       tableMiddleModel->GetDisplayNode()->SetColor(0.3, 0.3, 0.3);
     }
   }
-
+*/
   // Table support lateral movement model - mandatory
   // Transform path: RAS -> Patient -> TableTop -> TableOriginVerticalMovement -> TableLateralMovement
   vtkNew<vtkTransform> rasToTableLateralLinearTransform;
@@ -1298,7 +1298,7 @@ void vtkSlicerIhepStandGeometryLogic::SetupTreatmentMachineModels(vtkMRMLIhepSta
       tableLateralModel->GetDisplayNode()->SetColor(0.95, 0.95, 0.95);
     }
   }
-
+/*
   // Table platform longitudinal movement model - mandatory
   // Transform path: RAS -> Patient -> TableTop -> TableOriginVerticalMovement -> TableLateralMovement -> TableLongitudinalMovement
   vtkNew<vtkTransform> rasToTableLongitudinalLinearTransform;
@@ -1430,7 +1430,7 @@ void vtkSlicerIhepStandGeometryLogic::SetupTreatmentMachineModels(vtkMRMLIhepSta
       fixedReferenceModel->GetDisplayNode()->SetColor(0.7, 0.65, 0.65);
     }
   }
-
+*/
   // Update markups (TableTop fiducials and plane nodes and FixedReference line node)
 //  vtkMRMLMarkupsFiducialNode* pointsMarkupsNode = vtkMRMLMarkupsFiducialNode::SafeDownCast(
 //    scene->GetFirstNodeByName(TABLE_FIDUCIALS_MARKUPS_NODE_NAME));
@@ -1445,7 +1445,7 @@ void vtkSlicerIhepStandGeometryLogic::SetupTreatmentMachineModels(vtkMRMLIhepSta
 }
 
 //----------------------------------------------------------------------------
-void vtkSlicerIhepStandGeometryLogic::UpdateTableTopToTableOriginTransform(vtkMRMLIhepStandGeometryNode* parameterNode)
+void vtkSlicerIhepStandGeometryLogic::UpdateTableTopToTableOriginTransform(vtkMRMLIhepStandGeometryNode* parameterNode, bool rotation)
 {
   vtkMRMLScene* scene = this->GetMRMLScene();
   if (!scene)
@@ -1492,6 +1492,10 @@ void vtkSlicerIhepStandGeometryLogic::UpdateTableTopToTableOriginTransform(vtkMR
     tableTopToTableOriginTransform->Translate(originTranslation);
     tableTopToTableOriginTransform->Translate(PatientTableTopTranslation);
     // Apply transform (rotation)
+    if (rotation)
+    {
+      tableTopToTableOriginTransform->RotateZ(-parameterNode->GetPatientSupportRotationAngle());
+    }
     tableTopToTableOriginTransform->RotateX(parameterNode->GetTableTopLongitudinalAngle());
     tableTopToTableOriginTransform->RotateY(parameterNode->GetTableTopLateralAngle());
     // Move back
@@ -1529,49 +1533,57 @@ void vtkSlicerIhepStandGeometryLogic::UpdateTableOriginToTableLateralTransform(v
   {
     // TableTop to TableOrigin rotation matrix
     vtkNew<vtkTransform> tableTopToTableOriginTransform;
+    vtkNew<vtkTransform> tableTopToTableOriginTransform1;
     vtkMRMLLinearTransformNode* tableTopToTableOriginTransformNode =
       this->IhepLogic->GetTransformNodeBetween(IHEP::TableTop, IHEP::TableOriginVerticalMovement);
     if (tableTopToTableOriginTransformNode)
     {
       vtkNew<vtkMatrix4x4> tableTopToTableOriginMatrix;
       tableTopToTableOriginTransformNode->GetMatrixTransformToParent(tableTopToTableOriginMatrix);
-      tableTopToTableOriginMatrix->SetElement( 0, 3, 0.);
-      tableTopToTableOriginMatrix->SetElement( 1, 3, 0.);
-      tableTopToTableOriginMatrix->SetElement( 2, 3, 0.);
+//      tableTopToTableOriginMatrix->SetElement( 0, 3, 0.);
+//      tableTopToTableOriginMatrix->SetElement( 1, 3, 0.);
+//      tableTopToTableOriginMatrix->SetElement( 2, 3, 0.);
       tableTopToTableOriginTransform->Concatenate(tableTopToTableOriginMatrix);
-/*
-    double PatientTableTopTranslation[3] = {};
-    double originTranslation[3] = { 265.5, 1116.6, -352. }; // translation of table top origin to origin of fixed reference (RAS)
-    parameterNode->GetPatientToTableTopTranslation(PatientTableTopTranslation);
-    PatientTableTopTranslation[0] *= 0.;
-    PatientTableTopTranslation[1] *= 0.;
-    PatientTableTopTranslation[2] *= 0.;
-
-//    double originWorld[3] = { 265.5 + PatientTableTopTranslation[0], 1116.6 + PatientTableTopTranslation[1], -352. + PatientTableTopTranslation[2] };
-
-    vtkNew<vtkTransform> testTransform;
-    // Move TableTop model to RAS origin
-    testTransform->Translate(originTranslation);
-    testTransform->Translate(PatientTableTopTranslation);
-    // Apply transform (rotation)
-    testTransform->RotateZ(parameterNode->GetPatientSupportRotationAngle());
-    // Move back
-    testTransform->Translate(-1. * originTranslation[0], -1. * originTranslation[1], -1. * originTranslation[2]);
-    testTransform->Translate(-1. * PatientTableTopTranslation[0], -1. * PatientTableTopTranslation[1], -1. * PatientTableTopTranslation[2]);
-      tableTopToTableOriginTransform->Concatenate(testTransform);
-*/
+      tableTopToTableOriginTransform1->Concatenate(tableTopToTableOriginMatrix);
     }
 
     vtkNew<vtkTransform> tableOriginToTableLateralTransform;
+//    tableOriginToTableLateralTransform->PostMultiply();
     // Vertical translation of the TableOrigin in TableLateralMovement system (Table stand)
     double originPosTableTop[4] = { 0., 0., -1. * parameterNode->GetTableTopVerticalPositionOrigin(), 1. }; // origin in FixedReference transform
     double originPosTableLateral[4];
     // Get translation of the origin in a new table top coordinate
     tableTopToTableOriginTransform->MultiplyPoint( originPosTableTop, originPosTableLateral);
-    // Apply translation to TableLateralMovement system
-    tableOriginToTableLateralTransform->Translate(originPosTableLateral);
 
-    tableOriginToTableLateralTransformNode->SetAndObserveTransformToParent(tableOriginToTableLateralTransform);
+    double PatientTableTopTranslation[3] = {};
+    double originTranslation[3] = { 265.5, 1116.6, -352. }; // translation of table top origin to origin of fixed reference (RAS)
+    parameterNode->GetPatientToTableTopTranslation(PatientTableTopTranslation);
+    PatientTableTopTranslation[0] *= -1.;
+    PatientTableTopTranslation[1] *= -1.;
+    PatientTableTopTranslation[2] *= -1.;
+
+ //   vtkNew<vtkTransform> tableTopToTableOriginTransform;
+//    tableTopToTableOriginTransform->PreMultiply();
+
+    tableTopToTableOriginTransform->Inverse();
+    // Move TableTop model to RAS origin
+    tableOriginToTableLateralTransform->Translate(originTranslation);
+    tableOriginToTableLateralTransform->Translate(PatientTableTopTranslation);
+    // Apply transform (rotation)
+    tableOriginToTableLateralTransform->RotateZ(-parameterNode->GetPatientSupportRotationAngle());
+    // Move back
+    tableOriginToTableLateralTransform->Translate(-1. * originTranslation[0], -1. * originTranslation[1], -1. * originTranslation[2]);
+    tableOriginToTableLateralTransform->Translate(-1. * PatientTableTopTranslation[0], -1. * PatientTableTopTranslation[1], -1. * PatientTableTopTranslation[2]);
+
+
+    tableOriginToTableLateralTransform->Concatenate(tableTopToTableOriginTransform);
+    tableTopToTableOriginTransform1->Concatenate(tableOriginToTableLateralTransform);
+//    tableTopToTableOriginTransform->Inverse();
+
+    // Apply translation to TableLateralMovement system
+//    tableOriginToTableLateralTransform->Translate(originPosTableLateral);
+
+    tableOriginToTableLateralTransformNode->SetAndObserveTransformToParent(tableTopToTableOriginTransform1);
   }
 }
 
