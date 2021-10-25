@@ -51,16 +51,17 @@ public:
 
   static const char* FIXEDREFERENCE_MODEL_NAME; // Fixed Reference
   static const char* PATIENTSUPPORT_MODEL_NAME; // Patient Support Rotation
-  static const char* TABLE_LONGITUDINAL_MODEL_NAME; // Table Platform Inferior-Superior Movement (Longitudinal)
-  static const char* TABLE_LATERAL_MODEL_NAME; // Table Support Left-Right Movement (Lateral)
+  static const char* TABLE_PLATFORM_MODEL_NAME; // Table Platform Inferior-Superior Movement (Lateral)
+  static const char* TABLE_SUPPORT_MODEL_NAME; // Table Support Left-Right Movement (Longitudinal)
   static const char* TABLE_ORIGIN_MODEL_NAME; // Table Origin Support
   static const char* TABLE_MIRROR_MODEL_NAME; // Table Mirror Support
   static const char* TABLE_MIDDLE_MODEL_NAME; // Table Middle Support
   static const char* TABLETOP_MODEL_NAME; // Table Top
 
-  static const char* TABLETOP_PLANE_MARKUPS_NODE_NAME; // TableTop plane position and orientation from three fiducials below
-  static const char* TABLE_FIDUCIALS_MARKUPS_NODE_NAME; // Three fiducials show TableTop position Z origin, mirror, middle respectively
-  static const char* TABLE_FIDUCIALS_TRANSFORM_NODE_NAME; // Transform for fiducials for proper positioning
+//  static const char* TABLETOP_PLANE_MARKUPS_NODE_NAME; // TableTop plane position and orientation from three fiducials below
+//  static const char* TABLETOP_PLANE_MARKUPS_TRANSFORM_ NODE_NAME; // Transform of plane for proper positioning
+  static const char* TABLE_SUPPORT_FIDUCIALS_MARKUPS_NODE_NAME; // Three fiducials show TableTop position Z origin, mirror, middle respectively
+  static const char* TABLE_SUPPORT_FIDUCIALS_TRANSFORM_NODE_NAME; // Transform for fiducials for proper positioning
 
   static const char* FIXEDREFERENCE_LINE_MARKUPS_NODE_NAME; //  Beam axis line in fixed reference frame
   static const char* FIXEDREFERENCE_LINE_TRANSFORM_NODE_NAME; // Transform for beam axis line for proper positioning
@@ -72,20 +73,20 @@ public:
   /// Create Table fiducial markups node for visualization
   vtkMRMLMarkupsFiducialNode* CreateTableFiducialNode(vtkMRMLIhepStandGeometryNode* parameterNode);
   /// Create TableTop plane markups node for visualization
-  vtkMRMLMarkupsPlaneNode* CreateTableTopPlaneNode( vtkMRMLIhepStandGeometryNode* parameterNode,
-    vtkMRMLMarkupsFiducialNode* fiducialNode);
+//  vtkMRMLMarkupsPlaneNode* CreateTableTopPlaneNode( vtkMRMLIhepStandGeometryNode* parameterNode,
+//    vtkMRMLMarkupsFiducialNode* fiducialNode);
   /// Create FixedReference line markups node for visualization
   vtkMRMLMarkupsLineNode* CreateFixedReferenceLineNode(vtkMRMLIhepStandGeometryNode* parameterNode);
 
   /// Update Table markups fiducial node using parameter node data and geometry hierarchy
   void UpdateTableFiducialNode(vtkMRMLIhepStandGeometryNode* parameterNode);
   /// Update TableTop markups plane node using parameter node data and geometry hierarchy
-  void UpdateTableTopPlaneNode( vtkMRMLIhepStandGeometryNode* parameterNode,
-    vtkMRMLMarkupsFiducialNode* fiducialNode);
+//  void UpdateTableTopPlaneNode( vtkMRMLIhepStandGeometryNode* parameterNode,
+//    vtkMRMLMarkupsFiducialNode* fiducialNode);
   /// Update FixedReference markups line node using parameter node data and geometry hierarchy
   void UpdateFixedReferenceLineNode(vtkMRMLIhepStandGeometryNode* parameterNode);
 
-  void UpdateTableTopToTableLateralTransform(double posOrigin[3], double posMirror[3], double posMiddle[3]);
+  void UpdateTableTopToTableTopSupportTransform(double posOrigin[3], double posMirror[3], double posMiddle[3]);
 
   /// Show markups
   void ShowMarkupsNodes(bool toggled = false);
@@ -98,23 +99,27 @@ public:
   /// All angles to zero and only translation applied
   void ResetModelsToInitialPosition(vtkMRMLIhepStandGeometryNode* parameterNode);
 
-  /// Apply new TableTop to TableOrigin translate (TableTop->TableOrigin)
+  /// Apply new TableTop to TableTopOrigin transform (TableTop->TableTopOrigin)
   void UpdateTableTopToTableOriginTransform(vtkMRMLIhepStandGeometryNode* parameterNode);
 
-  /// Apply new TableOrigin to TableLateral translate (TableOriginVerticalMovement->TableLateralMovement)
-  void UpdateTableOriginToTableLateralTransform(vtkMRMLIhepStandGeometryNode* parameterNode);
-  /// Apply new TableMirror to TableLateral translate (TableMirrorVerticalMovement->TableLateralMovement)
-  void UpdateTableMirrorToTableLateralTransform(vtkMRMLIhepStandGeometryNode* parameterNode);
-  /// Apply new TableMiddle to TableLateral translate (TableMiddleVerticalMovement->TableLateralMovement)
-  void UpdateTableMiddleToTableLateralTransform(vtkMRMLIhepStandGeometryNode* parameterNode);
+  /// Apply new TableTopOrigin to TableTopSupport translate (TableTopOrigin->TableTopSupport)
+  void UpdateTableOriginToTableSupportTransform(vtkMRMLIhepStandGeometryNode* parameterNode);
+  /// Apply new TableMirror to TableTopSupport translate (TableTopMirror->TableTopSupport)
+  void UpdateTableMirrorToTableSupportTransform(vtkMRMLIhepStandGeometryNode* parameterNode);
+  /// Apply new TableMiddle to TableTopSupport translate (TableTopMiddle->TableTopSupport)
+  void UpdateTableMiddleToTableSupportTransform(vtkMRMLIhepStandGeometryNode* parameterNode);
 
-  /// Apply new TableLateral to TableLongitudinal translate (TableLateralMovement->TableLongitudinalMovement)
-  void UpdateTableLateralToTableLongitudinalTransform(vtkMRMLIhepStandGeometryNode* parameterNode);
-  /// Apply new TableLongitudinal to PatientSupport translate (TableLongitudinalMovement->PatientSupportRotation)
-  void UpdateTableLongitudinalToPatientSupportTransform(vtkMRMLIhepStandGeometryNode* parameterNode);
+  /// Apply new TableTopSupport to TablePlatform translate (TableTopSupport->TablePlatform)
+  /// Longitudinal movement of the table top
+  void UpdateTableSupportToTablePlatformTransform(vtkMRMLIhepStandGeometryNode* parameterNode);
+  
+  /// Apply new TablePlatform to PatientSupport translate (TablePlatform->PatientSupport)
+  /// Lateral movement of the table top
+  void UpdateTablePlatformToPatientSupportTransform(vtkMRMLIhepStandGeometryNode* parameterNode);
 
 
-  /// Apply new PatientSupport to FixedReference translate (PatientSupportRotation->FixedReference)
+  /// Apply new PatientSupport to FixedReference transform (PatientSupport->FixedReference)
+  /// Rotation around Zt-axis
   void UpdatePatientSupportToFixedReferenceTransform(vtkMRMLIhepStandGeometryNode* parameterNode);
 
   /// Apply new Patient to TableTop translate (Patient->TableTop)
@@ -122,6 +127,31 @@ public:
 
   /// Set up the IHEP transforms and model properties on the treatment machine models
   void SetupTreatmentMachineModels(vtkMRMLIhepStandGeometryNode* parameterNode);
+
+//  void SetupFixedReferenceModel(vtkMRMLIhepStandGeometryNode* parameterNode);
+//  void UpdateFixedReferenceModel(vtkMRMLIhepStandGeometryNode* parameterNode);
+  
+//  void SetupPatientSupportModel(vtkMRMLIhepStandGeometryNode* parameterNode);
+//  void UpdatePatientSupportModel(vtkMRMLIhepStandGeometryNode* parameterNode);
+
+//  void SetupTablePlatformModel(vtkMRMLIhepStandGeometryNode* parameterNode);
+//  void UpdateTablePlatformModel(vtkMRMLIhepStandGeometryNode* parameterNode);
+
+//  void SetupTableTopSupportModel(vtkMRMLIhepStandGeometryNode* parameterNode);
+//  void UpdateTableTopSupportModel(vtkMRMLIhepStandGeometryNode* parameterNode);
+
+//  void SetupTableTopOriginModel(vtkMRMLIhepStandGeometryNode* parameterNode);
+//  void UpdateTableTopOriginModel(vtkMRMLIhepStandGeometryNode* parameterNode);
+
+//  void SetupTableTopMiddleModel(vtkMRMLIhepStandGeometryNode* parameterNode);
+//  void UpdateTableTopMiddleModel(vtkMRMLIhepStandGeometryNode* parameterNode);
+
+//  void SetupTableTopMirrorModel(vtkMRMLIhepStandGeometryNode* parameterNode);
+//  void UpdateTableTopMirrorModel(vtkMRMLIhepStandGeometryNode* parameterNode);
+
+//  void SetupTableTopModel(vtkMRMLIhepStandGeometryNode* parameterNode);
+//  void UpdateTableTopModel(vtkMRMLIhepStandGeometryNode* parameterNode);
+  
 
   /// Initial Translation for different transforms
   void InitialSetupTransformTranslations(vtkMRMLIhepStandGeometryNode* parameterNode);
@@ -155,8 +185,10 @@ private:
   /// Create or get transforms taking part in the IHEP logic and additional devices, and build the transform hierarchy
   void BuildIhepStangGeometryTransformHierarchy();
 
-  /// Update transform for fiducial and plane markups nodes
+  /// Update transform for fiducial markups node
   vtkMRMLLinearTransformNode* UpdateTableMarkupsTransform(vtkMRMLIhepStandGeometryNode* parameterNode);
+//  vtkMRMLLinearTransformNode* UpdateTableTopPlaneTransform(vtkMRMLIhepStandGeometryNode* parameterNode);
+  
   /// Update transform for line markups node
   vtkMRMLLinearTransformNode* UpdateFixedReferenceMarkupsTransform(vtkMRMLIhepStandGeometryNode* parameterNode);
   /// Update FixedReference 3D view camera position

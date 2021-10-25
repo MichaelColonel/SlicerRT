@@ -44,15 +44,15 @@ public:
   enum CoordinateSystemIdentifier
   {
     RAS = 0,
-    FixedReferenceCanyon,
+    FixedReference,
     Collimator,
-    TableSupportRotation, // Rotation of table support along Zt-axis
-    TableLongitudinalMovement, // Inferior-Superior (Longitudinal) movement of the table platform, Yt-axis
-    TableLateralMovement, // Left-Right (Lateral) movement of the table support, Xt-axis
-    TableOriginVerticalMovement, // Posterior-Anterior (Vertical) movement of the table origin support (fixed point), Zt-axis
-    TableMirrorVerticalMovement, // Posterior-Anterior (Vertical) movement of the table mirror support (not fixed point), Zt-axis
-    TableMiddleVerticalMovement, // Posterior-Anterior (Vertical) movement of the table middle support (not fixed point), Zt-axis
-    TableTop, // Rotations of table top (by movement of three table supports)
+    PatientSupport, // Rotation of patient support along Zt-axis
+    TablePlatform, // Inferior-Superior (Lateral) movement of the table platform, Yt-axis
+    TableTopSupport, // Left-Right (Longitudinal) movement of the table support, Xt-axis
+    TableTopOrigin, // Posterior-Anterior (Vertical) movement of the table origin support (fixed point), Zt-axis
+    TableTopMirror, // Posterior-Anterior (Vertical) movement of the table mirror support (not fixed point), Zt-axis
+    TableTopMiddle, // Posterior-Anterior (Vertical) movement of the table middle support (not fixed point), Zt-axis
+    TableTop, // Rotations of table top (by movement of three table top supports)
     Patient,
     LastIhepCoordinateFrame // Last index used for adding more coordinate systems externally
   };

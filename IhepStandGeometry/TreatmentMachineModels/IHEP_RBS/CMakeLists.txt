@@ -6,13 +6,13 @@ set(MACHINE_NAME IHEPStand)
 
 set(MACHINE_MODELS
   FixedReference.stl
-  PatientSupportRotation.stl
-  PatientSupportRotationNew.stl
-  PatientSupportStandY.stl
-  TableTopStand.stl
-  TableTopStandMirror.stl
-  TableTopStandOrigin.stl
-  TableTopStandMiddle.stl
+  PatientSupportFull.stl
+  PatientSupportPart.stl
+  TablePlatform.stl
+  TableTopSupport.stl
+  TableTopMirror.stl
+  TableTopOrigin.stl
+  TableTopMiddle.stl
   TableTop.stl
 )
 
