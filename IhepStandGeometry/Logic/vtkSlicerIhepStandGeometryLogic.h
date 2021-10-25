@@ -58,13 +58,14 @@ public:
   static const char* TABLE_MIDDLE_MODEL_NAME; // Table Middle Support
   static const char* TABLETOP_MODEL_NAME; // Table Top
 
-//  static const char* TABLETOP_PLANE_MARKUPS_NODE_NAME; // TableTop plane position and orientation from three fiducials below
-//  static const char* TABLETOP_PLANE_MARKUPS_TRANSFORM_ NODE_NAME; // Transform of plane for proper positioning
-  static const char* TABLE_SUPPORT_FIDUCIALS_MARKUPS_NODE_NAME; // Three fiducials show TableTop position Z origin, mirror, middle respectively
-  static const char* TABLE_SUPPORT_FIDUCIALS_TRANSFORM_NODE_NAME; // Transform for fiducials for proper positioning
+  static const char* TABLETOP_MARKUPS_PLANE_NODE_NAME; // TableTop plane position and orientation from three fiducials below
+  static const char* TABLETOP_MARKUPS_PLANE_TRANSFORM_NODE_NAME; // Transform of plane for proper positioning
 
-  static const char* FIXEDREFERENCE_LINE_MARKUPS_NODE_NAME; //  Beam axis line in fixed reference frame
-  static const char* FIXEDREFERENCE_LINE_TRANSFORM_NODE_NAME; // Transform for beam axis line for proper positioning
+  static const char* TABLE_SUPPORT_MARKUPS_FIDUCIALS_NODE_NAME; // Three fiducials show TableTop position Z origin, mirror, middle respectively
+  static const char* TABLE_SUPPORT_MARKUPS_FIDUCIALS_TRANSFORM_NODE_NAME; // Transform for fiducials for proper positioning
+
+  static const char* FIXEDREFERENCE_MARKUPS_LINE_NODE_NAME; //  Beam axis line in fixed reference frame
+  static const char* FIXEDREFERENCE_MARKUPS_LINE_TRANSFORM_NODE_NAME; // Transform for beam axis line for proper positioning
 
   static vtkSlicerIhepStandGeometryLogic *New();
   vtkTypeMacro(vtkSlicerIhepStandGeometryLogic, vtkSlicerModuleLogic);

@@ -79,23 +79,27 @@
 //----------------------------------------------------------------------------
 // Treatment machine component names
 const char* vtkSlicerIhepStandGeometryLogic::FIXEDREFERENCE_MODEL_NAME = "FixedReference";
+
 const char* vtkSlicerIhepStandGeometryLogic::PATIENTSUPPORT_MODEL_NAME = "PatientSupportPart";
 
 const char* vtkSlicerIhepStandGeometryLogic::TABLE_PLATFORM_MODEL_NAME = "TablePlatform";
+
 const char* vtkSlicerIhepStandGeometryLogic::TABLE_SUPPORT_MODEL_NAME = "TableTopSupport";
+
 const char* vtkSlicerIhepStandGeometryLogic::TABLE_ORIGIN_MODEL_NAME = "TableTopOrigin";
 const char* vtkSlicerIhepStandGeometryLogic::TABLE_MIRROR_MODEL_NAME = "TableTopMirror";
 const char* vtkSlicerIhepStandGeometryLogic::TABLE_MIDDLE_MODEL_NAME = "TableTopMiddle";
-  
+
 const char* vtkSlicerIhepStandGeometryLogic::TABLETOP_MODEL_NAME = "TableTop";
-//const char* vtkSlicerIhepStandGeometryLogic::TABLETOP_PLANE_MARKUPS_NODE_NAME = "TableTopMarkupsPlane";
-//const char* vtkSlicerIhepStandGeometryLogic::TABLETOP_PLANE_MARKUPS_TRANSFORM_NODE_NAME = "TableTopMarkupsPlaneTransform";
 
-const char* vtkSlicerIhepStandGeometryLogic::TABLE_FIDUCIALS_MARKUPS_NODE_NAME = "TableMarkupsFiducials";
-const char* vtkSlicerIhepStandGeometryLogic::TABLE_FIDUCIALS_TRANSFORM_NODE_NAME = "TableMarkupsFiducialsTransform";
+const char* vtkSlicerIhepStandGeometryLogic::TABLETOP_MARKUPS_PLANE_NODE_NAME = "TableTopMarkupsPlane";
+const char* vtkSlicerIhepStandGeometryLogic::TABLETOP_MARKUPS_PLANE_TRANSFORM_NODE_NAME = "TableTopMarkupsPlaneTransform";
 
-const char* vtkSlicerIhepStandGeometryLogic::FIXEDREFERENCE_LINE_MARKUPS_NODE_NAME = "FixedReferenceMarkupsLine";
-const char* vtkSlicerIhepStandGeometryLogic::FIXEDREFERENCE_LINE_TRANSFORM_NODE_NAME = "FixedReferenceMarkupsLineTransform";
+const char* vtkSlicerIhepStandGeometryLogic::TABLE_SUPPORT_MARKUPS_FIDUCIALS_NODE_NAME = "TableSupportMarkupsFiducials";
+const char* vtkSlicerIhepStandGeometryLogic::TABLE_SUPPORT_MARKUPS_FIDUCIALS_TRANSFORM_NODE_NAME = "TableSupportMarkupsFiducialsTransform";
+
+const char* vtkSlicerIhepStandGeometryLogic::FIXEDREFERENCE_MARKUPS_LINE_NODE_NAME = "FixedReferenceMarkupsLine";
+const char* vtkSlicerIhepStandGeometryLogic::FIXEDREFERENCE_MARKUPS_LINE_TRANSFORM_NODE_NAME = "FixedReferenceMarkupsLineTransform";
 
 //----------------------------------------------------------------------------
 vtkStandardNewMacro(vtkSlicerIhepStandGeometryLogic);
@@ -335,9 +339,9 @@ void vtkSlicerIhepStandGeometryLogic::InitialSetupTransformTranslations(vtkMRMLI
 vtkMRMLMarkupsFiducialNode* vtkSlicerIhepStandGeometryLogic::CreateTableFiducialNode(vtkMRMLIhepStandGeometryNode* parameterNode)
 {
   vtkMRMLMarkupsFiducialNode* pointsMarkupsNode = vtkMRMLMarkupsFiducialNode::SafeDownCast(this->GetMRMLScene()->AddNewNodeByClass("vtkMRMLMarkupsFiducialNode"));
-  pointsMarkupsNode->SetName(TABLE_FIDUCIALS_MARKUPS_NODE_NAME);
+  pointsMarkupsNode->SetName(TABLE_SUPPORT_MARKUPS_FIDUCIALS_NODE_NAME);
 //  pointsMarkupsNode->SetHideFromEditors(1);
-  std::string singletonTag = std::string("IHEP_") + TABLE_FIDUCIALS_MARKUPS_NODE_NAME;
+  std::string singletonTag = std::string("IHEP_") + TABLE_SUPPORT_MARKUPS_FIDUCIALS_NODE_NAME;
   pointsMarkupsNode->SetSingletonTag(singletonTag.c_str());
 
   vtkMRMLScene* scene = this->GetMRMLScene();
@@ -466,9 +470,9 @@ vtkMRMLMarkupsLineNode* vtkSlicerIhepStandGeometryLogic::CreateFixedReferenceLin
 {
   vtkNew<vtkMRMLMarkupsLineNode> lineMarkupsNode;
   this->GetMRMLScene()->AddNode(lineMarkupsNode);
-  lineMarkupsNode->SetName(FIXEDREFERENCE_LINE_MARKUPS_NODE_NAME);
+  lineMarkupsNode->SetName(FIXEDREFERENCE_MARKUPS_LINE_NODE_NAME);
 //  pointsMarkupsNode->SetHideFromEditors(1);
-  std::string singletonTag = std::string("IHEP_") + FIXEDREFERENCE_LINE_MARKUPS_NODE_NAME;
+  std::string singletonTag = std::string("IHEP_") + FIXEDREFERENCE_MARKUPS_LINE_NODE_NAME;
   lineMarkupsNode->SetSingletonTag(singletonTag.c_str());
 
 
@@ -523,10 +527,10 @@ void vtkSlicerIhepStandGeometryLogic::UpdateTableFiducialNode(vtkMRMLIhepStandGe
   }
 
   // fiducial markups node
-  if (scene->GetFirstNodeByName(TABLE_FIDUCIALS_MARKUPS_NODE_NAME))
+  if (scene->GetFirstNodeByName(TABLE_SUPPORT_MARKUPS_FIDUCIALS_NODE_NAME))
   {
     vtkMRMLMarkupsFiducialNode* pointsMarkupsNode = vtkMRMLMarkupsFiducialNode::SafeDownCast(
-      scene->GetFirstNodeByName(TABLE_FIDUCIALS_MARKUPS_NODE_NAME));
+      scene->GetFirstNodeByName(TABLE_SUPPORT_MARKUPS_FIDUCIALS_NODE_NAME));
 
     vtkVector3d p0( 265.5, 1116.6,
       -352. + parameterNode->GetTableTopVerticalPositionOrigin()); // Origin
@@ -651,10 +655,10 @@ void vtkSlicerIhepStandGeometryLogic::UpdateFixedReferenceLineNode(vtkMRMLIhepSt
   }
 
   // line markups node
-  if (scene->GetFirstNodeByName(FIXEDREFERENCE_LINE_MARKUPS_NODE_NAME))
+  if (scene->GetFirstNodeByName(FIXEDREFERENCE_MARKUPS_LINE_NODE_NAME))
   {
     vtkMRMLMarkupsLineNode* lineMarkupsNode = vtkMRMLMarkupsLineNode::SafeDownCast(
-      scene->GetFirstNodeByName(FIXEDREFERENCE_LINE_MARKUPS_NODE_NAME));
+      scene->GetFirstNodeByName(FIXEDREFERENCE_MARKUPS_LINE_NODE_NAME));
 
     // update points in line node
     vtkVector3d p0( -4000., 0., 0.); // FixedBegin
@@ -706,10 +710,10 @@ void vtkSlicerIhepStandGeometryLogic::ShowMarkupsNodes(bool toggled)
   }
 
   // beamline markups line node
-  if (scene->GetFirstNodeByName(TABLE_FIDUCIALS_MARKUPS_NODE_NAME))
+  if (scene->GetFirstNodeByName(TABLE_SUPPORT_MARKUPS_FIDUCIALS_NODE_NAME))
   {
     vtkMRMLMarkupsFiducialNode* pointsMarkupsNode = vtkMRMLMarkupsFiducialNode::SafeDownCast(
-      scene->GetFirstNodeByName(TABLE_FIDUCIALS_MARKUPS_NODE_NAME));
+      scene->GetFirstNodeByName(TABLE_SUPPORT_MARKUPS_FIDUCIALS_NODE_NAME));
     pointsMarkupsNode->SetDisplayVisibility(int(toggled));
   }
 }
@@ -1871,10 +1875,10 @@ vtkMRMLLinearTransformNode* vtkSlicerIhepStandGeometryLogic::UpdateTableMarkupsT
   }
 
   vtkSmartPointer<vtkMRMLLinearTransformNode> transformNode;
-  if (!scene->GetFirstNodeByName(TABLE_FIDUCIALS_TRANSFORM_NODE_NAME))
+  if (!scene->GetFirstNodeByName(TABLE_SUPPORT_MARKUPS_FIDUCIALS_TRANSFORM_NODE_NAME))
   {
     transformNode = vtkSmartPointer<vtkMRMLLinearTransformNode>::New();
-    transformNode->SetName(TABLE_FIDUCIALS_TRANSFORM_NODE_NAME);
+    transformNode->SetName(TABLE_SUPPORT_MARKUPS_FIDUCIALS_TRANSFORM_NODE_NAME);
 //    transformNode->SetHideFromEditors(1);
     transformNode->SetSingletonTag("TABLE_FIDUCIALS_Transform");
     scene->AddNode(transformNode);
@@ -1882,7 +1886,7 @@ vtkMRMLLinearTransformNode* vtkSlicerIhepStandGeometryLogic::UpdateTableMarkupsT
   else
   {
     transformNode = vtkMRMLLinearTransformNode::SafeDownCast(
-      scene->GetFirstNodeByName(TABLE_FIDUCIALS_TRANSFORM_NODE_NAME));
+      scene->GetFirstNodeByName(TABLE_SUPPORT_MARKUPS_FIDUCIALS_TRANSFORM_NODE_NAME));
   }
 
   using IHEP = vtkSlicerIhepStandGeometryTransformLogic::CoordinateSystemIdentifier;
@@ -1983,10 +1987,10 @@ vtkMRMLLinearTransformNode* vtkSlicerIhepStandGeometryLogic::UpdateFixedReferenc
   }
 
   vtkSmartPointer<vtkMRMLLinearTransformNode> transformNode;
-  if (!scene->GetFirstNodeByName(FIXEDREFERENCE_LINE_TRANSFORM_NODE_NAME))
+  if (!scene->GetFirstNodeByName(FIXEDREFERENCE_MARKUPS_LINE_TRANSFORM_NODE_NAME))
   {
     transformNode = vtkSmartPointer<vtkMRMLLinearTransformNode>::New();
-    transformNode->SetName(FIXEDREFERENCE_LINE_TRANSFORM_NODE_NAME);
+    transformNode->SetName(FIXEDREFERENCE_MARKUPS_LINE_TRANSFORM_NODE_NAME);
 //    transformNode->SetHideFromEditors(1);
     transformNode->SetSingletonTag("FIXEDREFERENCE_LINE_Transform");
     scene->AddNode(transformNode);
@@ -1994,7 +1998,7 @@ vtkMRMLLinearTransformNode* vtkSlicerIhepStandGeometryLogic::UpdateFixedReferenc
   else
   {
     transformNode = vtkMRMLLinearTransformNode::SafeDownCast(
-      scene->GetFirstNodeByName(FIXEDREFERENCE_LINE_TRANSFORM_NODE_NAME));
+      scene->GetFirstNodeByName(FIXEDREFERENCE_MARKUPS_LINE_TRANSFORM_NODE_NAME));
   }
 
   using IHEP = vtkSlicerIhepStandGeometryTransformLogic::CoordinateSystemIdentifier;
@@ -2029,7 +2033,7 @@ vtkMRMLLinearTransformNode* vtkSlicerIhepStandGeometryLogic::GetFixedReferenceMa
   }
 
   vtkSmartPointer<vtkMRMLLinearTransformNode> transformNode;
-  if (vtkMRMLNode* node = scene->GetFirstNodeByName(FIXEDREFERENCE_LINE_TRANSFORM_NODE_NAME))
+  if (vtkMRMLNode* node = scene->GetFirstNodeByName(FIXEDREFERENCE_MARKUPS_LINE_TRANSFORM_NODE_NAME))
   {
     transformNode = vtkMRMLLinearTransformNode::SafeDownCast(node);
   }
