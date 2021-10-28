@@ -283,6 +283,8 @@ void qSlicerIhepStandGeometryModuleWidget::onTableMiddleVerticalPositionChanged(
   d->logic()->UpdateTablePlatformToPatientSupportTransform(parameterNode);
   d->logic()->UpdatePatientSupportToFixedReferenceTransform(parameterNode);
 
+//  d->logic()->UpdateTableFiducialNode(parameterNode);
+
   parameterNode->DisableModifiedEventOff();
 
   parameterNode->Modified();
@@ -315,6 +317,8 @@ void qSlicerIhepStandGeometryModuleWidget::onTableMirrorVerticalPositionChanged(
   d->logic()->UpdateTablePlatformToPatientSupportTransform(parameterNode);
   d->logic()->UpdatePatientSupportToFixedReferenceTransform(parameterNode);
 
+//  d->logic()->UpdateTableFiducialNode(parameterNode);
+
   parameterNode->DisableModifiedEventOff();
 
   parameterNode->Modified();
@@ -346,6 +350,8 @@ void qSlicerIhepStandGeometryModuleWidget::onTableOriginVerticalPositionChanged(
   d->logic()->UpdateTableSupportToTablePlatformTransform(parameterNode);
   d->logic()->UpdateTablePlatformToPatientSupportTransform(parameterNode);
   d->logic()->UpdatePatientSupportToFixedReferenceTransform(parameterNode);
+
+//  d->logic()->UpdateTableFiducialNode(parameterNode);
 
   parameterNode->DisableModifiedEventOff();
 
