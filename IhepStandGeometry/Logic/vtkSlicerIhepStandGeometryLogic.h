@@ -61,8 +61,14 @@ public:
   static const char* TABLETOP_MARKUPS_PLANE_NODE_NAME; // TableTop plane position and orientation from three fiducials below
   static const char* TABLETOP_MARKUPS_PLANE_TRANSFORM_NODE_NAME; // Transform of plane for proper positioning
 
-  static const char* TABLE_SUPPORT_MARKUPS_FIDUCIALS_NODE_NAME; // Three fiducials show TableTop position Z origin, mirror, middle respectively
-  static const char* TABLE_SUPPORT_MARKUPS_FIDUCIALS_TRANSFORM_NODE_NAME; // Transform for fiducials for proper positioning
+  static const char* TABLE_ORIGIN_MARKUPS_FIDUCIAL_NODE_NAME; // Fiducial shows TableTop position Z origin
+  static const char* TABLE_ORIGIN_MARKUPS_FIDUCIAL_TRANSFORM_NODE_NAME; // Transform for fiducial for proper positioning
+
+  static const char* TABLE_MIRROR_MARKUPS_FIDUCIAL_NODE_NAME; // Fiducial shows TableTop position Z mirror
+  static const char* TABLE_MIRROR_MARKUPS_FIDUCIAL_TRANSFORM_NODE_NAME; // Transform for fiducial for proper positioning
+
+  static const char* TABLE_MIDDLE_MARKUPS_FIDUCIAL_NODE_NAME; // Fiducial shows TableTop position Z middle
+  static const char* TABLE_MIDDLE_MARKUPS_FIDUCIAL_TRANSFORM_NODE_NAME; // Transform for fiducial for proper positioning
 
   static const char* FIXEDREFERENCE_MARKUPS_LINE_NODE_NAME; //  Beam axis line in fixed reference frame
   static const char* FIXEDREFERENCE_MARKUPS_LINE_TRANSFORM_NODE_NAME; // Transform for beam axis line for proper positioning
@@ -72,7 +78,7 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
 
   /// Create Table fiducial markups node for visualization
-  vtkMRMLMarkupsFiducialNode* CreateTableFiducialNode(vtkMRMLIhepStandGeometryNode* parameterNode);
+  vtkMRMLMarkupsFiducialNode* CreateTableOriginFiducialNode(vtkMRMLIhepStandGeometryNode* parameterNode);
   /// Create TableTop plane markups node for visualization
 //  vtkMRMLMarkupsPlaneNode* CreateTableTopPlaneNode( vtkMRMLIhepStandGeometryNode* parameterNode,
 //    vtkMRMLMarkupsFiducialNode* fiducialNode);
@@ -80,7 +86,10 @@ public:
   vtkMRMLMarkupsLineNode* CreateFixedReferenceLineNode(vtkMRMLIhepStandGeometryNode* parameterNode);
 
   /// Update Table markups fiducial node using parameter node data and geometry hierarchy
-  void UpdateTableFiducialNode(vtkMRMLIhepStandGeometryNode* parameterNode);
+  void UpdateTableOriginFiducialNode(vtkMRMLIhepStandGeometryNode* parameterNode);
+//  void UpdateTableMiddleFiducialNode(vtkMRMLIhepStandGeometryNode* parameterNode);
+//  void UpdateTableMirrorFiducialNode(vtkMRMLIhepStandGeometryNode* parameterNode);
+
   /// Update TableTop markups plane node using parameter node data and geometry hierarchy
 //  void UpdateTableTopPlaneNode( vtkMRMLIhepStandGeometryNode* parameterNode,
 //    vtkMRMLMarkupsFiducialNode* fiducialNode);
@@ -186,8 +195,11 @@ private:
   /// Create or get transforms taking part in the IHEP logic and additional devices, and build the transform hierarchy
   void BuildIhepStangGeometryTransformHierarchy();
 
-  /// Update transform for fiducial markups node
-  vtkMRMLLinearTransformNode* UpdateTableMarkupsTransform(vtkMRMLIhepStandGeometryNode* parameterNode);
+  /// Update transform for fiducial markups nodes
+  vtkMRMLLinearTransformNode* UpdateTableOriginMarkupsTransform(vtkMRMLIhepStandGeometryNode* parameterNode);
+//  vtkMRMLLinearTransformNode* UpdateTableMiddleMarkupsTransform(vtkMRMLIhepStandGeometryNode* parameterNode);
+//  vtkMRMLLinearTransformNode* UpdateTableMirrorMarkupsTransform(vtkMRMLIhepStandGeometryNode* parameterNode);
+
 //  vtkMRMLLinearTransformNode* UpdateTableTopPlaneTransform(vtkMRMLIhepStandGeometryNode* parameterNode);
   
   /// Update transform for line markups node
