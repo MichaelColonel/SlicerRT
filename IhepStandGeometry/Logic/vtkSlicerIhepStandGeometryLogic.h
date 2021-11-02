@@ -85,12 +85,14 @@ public:
   void UpdateTableMirrorFiducialNode(vtkMRMLIhepStandGeometryNode* parameterNode);
 
   /// Update TableTop markups plane node using parameter node data and geometry hierarchy
-  void UpdateTableTopPlaneNode( vtkMRMLIhepStandGeometryNode* parameterNode);
+  void UpdateTableTopPlaneNode(vtkMRMLIhepStandGeometryNode* parameterNode);
 
   /// Update FixedReference markups line node using parameter node data and geometry hierarchy
   void UpdateFixedReferenceLineNode(vtkMRMLIhepStandGeometryNode* parameterNode);
 
   void UpdateTableTopToTableTopSupportTransform(double posOrigin[3], double posMirror[3], double posMiddle[3]);
+  /// Update TableTopOrigin, TableTopMirror, TableTopMiddle from TableTopToTableOriginTransform
+  void UpdateTableTopPositions( vtkMRMLIhepStandGeometryNode* parameterNode, double posOrigin[3], double posMirror[3], double posMiddle[3]);
 
   /// Show markups
   void ShowMarkupsNodes(bool toggled = false);

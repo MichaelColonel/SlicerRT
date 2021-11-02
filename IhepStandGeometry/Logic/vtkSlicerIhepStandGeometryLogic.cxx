@@ -365,7 +365,9 @@ vtkMRMLMarkupsFiducialNode* vtkSlicerIhepStandGeometryLogic::CreateTableOriginFi
   {
     // add point to fiducial node (initial position)
     vtkVector3d p0( -1. * TableTopOriginFixedReference[0], TableTopOriginFixedReference[2], TableTopOriginFixedReference[1]); // Origin
+    vtkVector3d p1( -1. * TableTopOriginFixedReference[0], TableTopOriginFixedReference[2] + 142., TableTopOriginFixedReference[1]); // Origin Table Top
     pointMarkupsNode->AddControlPoint( p0, "Origin");
+    pointMarkupsNode->AddControlPoint( p1, "OriginTableTop");
     vtkMRMLTransformNode* transformNode = this->UpdateTableOriginMarkupsTransform(parameterNode);
 
     // add transform to fiducial node
@@ -397,7 +399,9 @@ vtkMRMLMarkupsFiducialNode* vtkSlicerIhepStandGeometryLogic::CreateTableMirrorFi
   {
     // add point to fiducial node (initial position)
     vtkVector3d p0( -1. * TableTopMirrorFixedReference[0], TableTopMirrorFixedReference[2], TableTopMirrorFixedReference[1]); // Mirror
-    pointMarkupsNode->AddControlPoint( p0, "Middle");
+    vtkVector3d p1( -1. * TableTopMirrorFixedReference[0], TableTopMirrorFixedReference[2] + 142., TableTopMirrorFixedReference[1]); // Mirror Table Top
+    pointMarkupsNode->AddControlPoint( p0, "Mirror");
+    pointMarkupsNode->AddControlPoint( p1, "MirrorTableTop");
     vtkMRMLTransformNode* transformNode = this->UpdateTableMirrorMarkupsTransform(parameterNode);
 
     // add transform to fiducial node
@@ -429,7 +433,9 @@ vtkMRMLMarkupsFiducialNode* vtkSlicerIhepStandGeometryLogic::CreateTableMiddleFi
   {
     // add point to fiducial node (initial position)
     vtkVector3d p0( -1. * TableTopMiddleFixedReference[0], TableTopMiddleFixedReference[2], TableTopMiddleFixedReference[1]); // Mirror
+    vtkVector3d p1( -1. * TableTopMiddleFixedReference[0], TableTopMiddleFixedReference[2] + 142., TableTopMiddleFixedReference[1]); // Mirror Table Top
     pointMarkupsNode->AddControlPoint( p0, "Middle");
+    pointMarkupsNode->AddControlPoint( p1, "MiddleTableTop");
     vtkMRMLTransformNode* transformNode = this->UpdateTableMiddleMarkupsTransform(parameterNode);
 
     // add transform to fiducial node
@@ -538,6 +544,109 @@ void vtkSlicerIhepStandGeometryLogic::UpdateTableTopToTableTopSupportTransform( 
   // Calculate transform from tree points
 //  tableTopToTableLateralTransform->Identity();
 //  tableTopToTableLateralTransform->Modified();
+}
+
+//----------------------------------------------------------------------------
+void vtkSlicerIhepStandGeometryLogic::UpdateTableTopPositions( vtkMRMLIhepStandGeometryNode* parameterNode,
+  double posOrigin[3], double posMirror[3], double posMiddle[3])
+{
+  vtkMRMLScene* scene = this->GetMRMLScene(); 
+  if (!scene)
+  {
+    vtkErrorMacro("UpdateTableTopPositions: Invalid MRML scene");
+    return;
+  }
+
+  if (!parameterNode)
+  {
+    vtkErrorMacro("UpdateTableTopPositions: Invalid parameter node");
+    return;
+  }
+
+  vtkMRMLMarkupsFiducialNode* originMarkupsNode = nullptr;
+  vtkMRMLMarkupsFiducialNode* middleMarkupsNode = nullptr;
+  vtkMRMLMarkupsFiducialNode* mirrorMarkupsNode = nullptr;
+  vtkMRMLMarkupsPlaneNode* tableTopPlaneNode = nullptr;
+
+  // Find RasToTableTopTransform
+  vtkSmartPointer<vtkMRMLLinearTransformNode> rasToTableTopTransformNode;
+  if (scene->GetFirstNodeByName("RasToTableTopTransform"))
+  {
+    rasToTableTopTransformNode = vtkMRMLLinearTransformNode::SafeDownCast(
+      scene->GetFirstNodeByName("RasToTableTopTransform"));
+  }
+  
+  // Find RasToTableTopOriginTransform
+  vtkSmartPointer<vtkMRMLLinearTransformNode> rasToTableTopOriginTransformNode;
+  if (scene->GetFirstNodeByName("RasToTableTopOriginTransform"))
+  {
+    rasToTableTopOriginTransformNode = vtkMRMLLinearTransformNode::SafeDownCast(
+      scene->GetFirstNodeByName("RasToTableTopOriginTransform"));
+  }
+
+  // Find RasToTableTopMiddleTransform
+  vtkSmartPointer<vtkMRMLLinearTransformNode> rasToTableTopMiddleTransformNode;
+  if (scene->GetFirstNodeByName("RasToTableTopMiddleTransform"))
+  {
+    rasToTableTopMiddleTransformNode = vtkMRMLLinearTransformNode::SafeDownCast(
+      scene->GetFirstNodeByName("RasToTableTopMiddleTransform"));
+  }
+
+  // Find RasToTableTopMirrorTransform
+  vtkSmartPointer<vtkMRMLLinearTransformNode> rasToTableTopMirrorTransformNode;
+  if (scene->GetFirstNodeByName("RasToTableTopMirrorTransform"))
+  {
+    rasToTableTopMirrorTransformNode = vtkMRMLLinearTransformNode::SafeDownCast(
+      scene->GetFirstNodeByName("RasToTableTopMirrorTransform"));
+  }
+
+  // Find RasToTableTopSupportTransform
+  vtkSmartPointer<vtkMRMLLinearTransformNode> rasToTableTopSupportTransformNode;
+  if (scene->GetFirstNodeByName("RasToTableTopSupportTransform"))
+  {
+    rasToTableTopSupportTransformNode = vtkMRMLLinearTransformNode::SafeDownCast(
+      scene->GetFirstNodeByName("RasToTableTopSupportTransform"));
+  }
+
+  // origin fiducial markups node
+  if (scene->GetFirstNodeByName(TABLE_ORIGIN_MARKUPS_FIDUCIAL_NODE_NAME))
+  {
+    originMarkupsNode = vtkMRMLMarkupsFiducialNode::SafeDownCast(scene->GetFirstNodeByName(TABLE_ORIGIN_MARKUPS_FIDUCIAL_NODE_NAME));
+  }
+  // middle fiducial markups node
+  if (scene->GetFirstNodeByName(TABLE_MIDDLE_MARKUPS_FIDUCIAL_NODE_NAME))
+  {
+    middleMarkupsNode = vtkMRMLMarkupsFiducialNode::SafeDownCast(scene->GetFirstNodeByName(TABLE_MIDDLE_MARKUPS_FIDUCIAL_NODE_NAME));
+  }
+  // mirror fiducial markups node
+  if (scene->GetFirstNodeByName(TABLE_MIRROR_MARKUPS_FIDUCIAL_NODE_NAME))
+  {
+    mirrorMarkupsNode = vtkMRMLMarkupsFiducialNode::SafeDownCast(scene->GetFirstNodeByName(TABLE_MIRROR_MARKUPS_FIDUCIAL_NODE_NAME));
+  }
+  // table top plane markups node
+  if (scene->GetFirstNodeByName(TABLETOP_MARKUPS_PLANE_NODE_NAME))
+  {
+    tableTopPlaneNode = vtkMRMLMarkupsPlaneNode::SafeDownCast(scene->GetFirstNodeByName(TABLETOP_MARKUPS_PLANE_NODE_NAME));
+  }
+
+  if (originMarkupsNode)
+  {
+    double* pos = originMarkupsNode->GetNthControlPointPosition(0);
+  }
+  if (middleMarkupsNode)
+  {
+    double* pos = middleMarkupsNode->GetNthControlPointPosition(0);
+  }
+  if (mirrorMarkupsNode)
+  {
+    double* pos = mirrorMarkupsNode->GetNthControlPointPosition(0);
+  }
+  if (tableTopPlaneNode)
+  {
+    double n[3], nw[3];
+    tableTopPlaneNode->GetNormal(n);
+    tableTopPlaneNode->GetNormalWorld(nw);
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -1550,6 +1659,8 @@ void vtkSlicerIhepStandGeometryLogic::SetupTreatmentMachineModels(vtkMRMLIhepSta
   this->UpdateTableTopPlaneNode(parameterNode);
   this->UpdateFixedReferenceLineNode(parameterNode);
 
+  double origin[3], mirror[3], middle[3];
+  this->UpdateTableTopPositions(parameterNode, origin, mirror, middle);    
 }
 
 //----------------------------------------------------------------------------
