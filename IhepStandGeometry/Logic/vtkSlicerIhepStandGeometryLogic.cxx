@@ -353,6 +353,7 @@ vtkMRMLMarkupsFiducialNode* vtkSlicerIhepStandGeometryLogic::CreateTableOriginFi
 //  pointsMarkupsNode->SetHideFromEditors(1);
   std::string singletonTag = std::string("IHEP_") + TABLE_ORIGIN_MARKUPS_FIDUCIAL_NODE_NAME;
   pointMarkupsNode->SetSingletonTag(singletonTag.c_str());
+  pointMarkupsNode->LockedOn();
 
   vtkMRMLScene* scene = this->GetMRMLScene();
   if (!scene)
@@ -387,6 +388,7 @@ vtkMRMLMarkupsFiducialNode* vtkSlicerIhepStandGeometryLogic::CreateTableMirrorFi
 //  pointsMarkupsNode->SetHideFromEditors(1);
   std::string singletonTag = std::string("IHEP_") + TABLE_MIRROR_MARKUPS_FIDUCIAL_NODE_NAME;
   pointMarkupsNode->SetSingletonTag(singletonTag.c_str());
+  pointMarkupsNode->LockedOn();
 
   vtkMRMLScene* scene = this->GetMRMLScene();
   if (!scene)
@@ -410,6 +412,7 @@ vtkMRMLMarkupsFiducialNode* vtkSlicerIhepStandGeometryLogic::CreateTableMirrorFi
       pointMarkupsNode->SetAndObserveTransformNodeID(transformNode->GetID());
     }
   }
+
   return pointMarkupsNode;
 }
 
@@ -421,6 +424,7 @@ vtkMRMLMarkupsFiducialNode* vtkSlicerIhepStandGeometryLogic::CreateTableMiddleFi
 //  pointsMarkupsNode->SetHideFromEditors(1);
   std::string singletonTag = std::string("IHEP_") + TABLE_MIDDLE_MARKUPS_FIDUCIAL_NODE_NAME;
   pointMarkupsNode->SetSingletonTag(singletonTag.c_str());
+  pointMarkupsNode->LockedOn();
 
   vtkMRMLScene* scene = this->GetMRMLScene();
   if (!scene)
@@ -444,6 +448,7 @@ vtkMRMLMarkupsFiducialNode* vtkSlicerIhepStandGeometryLogic::CreateTableMiddleFi
       pointMarkupsNode->SetAndObserveTransformNodeID(transformNode->GetID());
     }
   }
+
   return pointMarkupsNode;
 }
 
@@ -456,6 +461,7 @@ vtkMRMLMarkupsPlaneNode* vtkSlicerIhepStandGeometryLogic::CreateTableTopPlaneNod
 //  tableTopPlaneNode->SetHideFromEditors(1);
   std::string singletonTag = std::string("IHEP_") + TABLETOP_MARKUPS_PLANE_NODE_NAME;
   tableTopPlaneNode->SetSingletonTag(singletonTag.c_str());
+  tableTopPlaneNode->LockedOn();
 
   vtkMRMLScene* scene = this->GetMRMLScene();
   if (!scene)
@@ -500,6 +506,7 @@ vtkMRMLMarkupsPlaneNode* vtkSlicerIhepStandGeometryLogic::CreateTableTopPlaneNod
       tableTopPlaneNode->SetAndObserveTransformNodeID(transformNode->GetID());
     }
   }
+
   return tableTopPlaneNode;
 }
 
@@ -575,7 +582,7 @@ void vtkSlicerIhepStandGeometryLogic::UpdateTableTopPositions( vtkMRMLIhepStandG
     rasToTableTopTransformNode = vtkMRMLLinearTransformNode::SafeDownCast(
       scene->GetFirstNodeByName("RasToTableTopTransform"));
   }
-  
+
   // Find RasToTableTopOriginTransform
   vtkSmartPointer<vtkMRMLLinearTransformNode> rasToTableTopOriginTransformNode;
   if (scene->GetFirstNodeByName("RasToTableTopOriginTransform"))
@@ -647,6 +654,52 @@ void vtkSlicerIhepStandGeometryLogic::UpdateTableTopPositions( vtkMRMLIhepStandG
     tableTopPlaneNode->GetNormal(n);
     tableTopPlaneNode->GetNormalWorld(nw);
   }
+
+  double* posOriginInTableTopOrigin = originMarkupsNode->GetNthControlPointPosition(0);
+  double originPos[4] = { posOriginInTableTopOrigin[0], posOriginInTableTopOrigin[1], posOriginInTableTopOrigin[2], 1. };
+  double originPosInRAS[4] = {};
+  double originPosInTableTopSupport[4] = {};
+  
+  // get table top transform to ras
+  vtkNew<vtkMatrix4x4> rasToTableTopOriginTransform;
+  rasToTableTopOriginTransformNode->GetMatrixTransformToParent(rasToTableTopOriginTransform);
+  rasToTableTopOriginTransform->MultiplyPoint( originPos, originPosInRAS);
+
+  // get table top support transform to ras and invert it to get
+  // ras to table top support transform
+  vtkNew<vtkMatrix4x4> rasToTableTopSupportTransform;
+  rasToTableTopSupportTransformNode->GetMatrixTransformToParent(rasToTableTopSupportTransform);
+  rasToTableTopSupportTransform->Invert();
+  rasToTableTopSupportTransform->MultiplyPoint( originPosInRAS, originPosInTableTopSupport);
+
+  vtkWarningMacro("UpdateTableTopPositions: Origin position " << originPos[0] << " " << originPos[1] << " " << originPos[2]);
+//  vtkWarningMacro("UpdateTableTopPositions: Origin position in RAS " << originPosInRAS[0] << " " << originPosInRAS[1] << " " << originPosInRAS[2]);
+  vtkWarningMacro("UpdateTableTopPositions: Origin position in table top support " << originPosInTableTopSupport[0] << " " << originPosInTableTopSupport[1] << " " << originPosInTableTopSupport[2]);
+
+
+/*
+  vtkNew<vtkTransform> TableTopMiddleToTableTopSupportTransform;
+  if (this->IhepLogic->GetTransformBetween( IHEP::TableTop, IHEP::TableTopSupport, 
+    TableTopMiddleToTableTopSupportTransform, false))
+  {
+    double* posMiddle = middleMarkupsNode->GetNthControlPointPosition(0);
+    double middlePos[4] = { posMiddle[0], posMiddle[1], posMiddle[2], 1. };
+    double middlePosInTableTopSupport[4] = {};
+    TableTopMiddleToTableTopSupportTransform->MultiplyPoint( middlePos, middlePosInTableTopSupport);
+    vtkWarningMacro("UpdateTableTopPositions: Middle position in table top support " << middlePosInTableTopSupport[0] << " " << middlePosInTableTopSupport[1] << " " << middlePosInTableTopSupport[2]);
+  }
+
+  vtkNew<vtkTransform> TableTopMirrorToTableTopSupportTransform;
+  if (this->IhepLogic->GetTransformBetween( IHEP::TableTop, IHEP::TableTopSupport, 
+    TableTopMirrorToTableTopSupportTransform, false))
+  {
+    double* posMirror = mirrorMarkupsNode->GetNthControlPointPosition(0);
+    double mirrorPos[4] = { posMirror[0], posMirror[1], posMirror[2], 1. };
+    double mirrorPosInTableTopSupport[4] = {};
+    TableTopMirrorToTableTopSupportTransform->MultiplyPoint( mirrorPos, mirrorPosInTableTopSupport);
+    vtkWarningMacro("UpdateTableTopPositions: Mirror position in table top support " << mirrorPosInTableTopSupport[0] << " " << mirrorPosInTableTopSupport[1] << " " << mirrorPosInTableTopSupport[2]);
+  }
+*/
 }
 
 //----------------------------------------------------------------------------
@@ -658,7 +711,7 @@ vtkMRMLMarkupsLineNode* vtkSlicerIhepStandGeometryLogic::CreateFixedReferenceLin
 //  pointsMarkupsNode->SetHideFromEditors(1);
   std::string singletonTag = std::string("IHEP_") + FIXEDREFERENCE_MARKUPS_LINE_NODE_NAME;
   lineMarkupsNode->SetSingletonTag(singletonTag.c_str());
-
+  lineMarkupsNode->LockedOn();
 
   vtkMRMLScene* scene = this->GetMRMLScene();
   if (!scene)
@@ -684,6 +737,7 @@ vtkMRMLMarkupsLineNode* vtkSlicerIhepStandGeometryLogic::CreateFixedReferenceLin
       lineMarkupsNode->SetAndObserveTransformNodeID(transformNode->GetID());
     }
   }
+
   return lineMarkupsNode;
 }
 
