@@ -239,6 +239,59 @@ vtkMRMLLinearTransformNode* vtkSlicerIhepStandGeometryTransformLogic::GetTransfo
 }
 
 //-----------------------------------------------------------------------------
+bool vtkSlicerIhepStandGeometryTransformLogic::GetTransformForPointThroughtRAS( 
+  CoordinateSystemIdentifier fromFrame, CoordinateSystemIdentifier toFrame,
+  const double fromFramePoint[3], double toFramePoint[3], bool transformForBeam)
+{
+  // Display all pieces of the treatment room and sets each piece a color to provide realistic representation
+  using IHEP = vtkSlicerIhepStandGeometryTransformLogic::CoordinateSystemIdentifier;
+
+  // Transform IHEP stand models (IEC Patient) to RAS
+//  vtkNew<vtkTransform> patientToRasTransform;
+//  patientToRasTransform->Identity();
+//  patientToRasTransform->RotateX(-90.);
+//  patientToRasTransform->RotateZ(180.);
+
+  double pointFromFrame[4] = { fromFramePoint[0], fromFramePoint[1], fromFramePoint[2], 1. };
+  double pointInRas[4] = {};
+
+  // RAS -> FromFrame
+  vtkNew<vtkTransform> rasFromFrameTransform;
+  if (this->GetTransformBetween( IHEP::RAS, fromFrame, 
+    rasFromFrameTransform, transformForBeam))
+  {
+    // Transform to RAS, set transform to node, transform the model
+//    rasFromFrameTransform->Concatenate(patientToRasTransform);
+    rasFromFrameTransform->MultiplyPoint( pointFromFrame, pointInRas);
+  }
+  else
+  {
+    return false;
+  }
+
+  double pointToFrame[4] = {};
+  // RAS -> ToFrame
+  vtkNew<vtkTransform> rasToFrameTransform;
+  if (this->GetTransformBetween( IHEP::RAS, toFrame, 
+    rasToFrameTransform, transformForBeam))
+  {
+    // Transform to RAS, set transform to node, transform the model
+//    rasToFrameTransform->Concatenate(patientToRasTransform);
+    rasToFrameTransform->Inverse();
+    rasToFrameTransform->MultiplyPoint( pointInRas, pointToFrame);
+  }
+  else
+  {
+    return false;
+  }
+
+  toFramePoint[0] = pointToFrame[0];
+  toFramePoint[1] = pointToFrame[1];
+  toFramePoint[2] = pointToFrame[2];
+
+  return true;
+}
+//-----------------------------------------------------------------------------
 bool vtkSlicerIhepStandGeometryTransformLogic::GetTransformBetween(
   CoordinateSystemIdentifier fromFrame, CoordinateSystemIdentifier toFrame, 
   vtkGeneralTransform* outputTransform, bool transformForBeam)

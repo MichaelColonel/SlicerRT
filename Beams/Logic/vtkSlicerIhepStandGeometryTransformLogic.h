@@ -80,6 +80,15 @@ public:
   /// \return Success flag (false on any error)
   bool GetTransformBetween(CoordinateSystemIdentifier fromFrame, CoordinateSystemIdentifier toFrame, vtkTransform* outputTransform, bool transformForBeam = true);
 
+  /// Get point coordinate transform from one coordinate frame to another
+  /// 1. Calculate point coordinate fromFrame system into RAS (RAS -> fromFrame transform)
+  /// 2. Calculate point coordinate from RAS into toFrame system (RAS -> toFrame inverse transform)
+  /// Dynamic Path, fromFrame (point in fromFrame) -> RAS (point in RAS) -> toFrame (point in toFrame)
+  /// @param transformForBeam - calculate dynamic transformation for beam model or other models
+  /// \return Success flag (false on any error)
+  bool GetTransformForPointThroughtRAS( CoordinateSystemIdentifier fromFrame, CoordinateSystemIdentifier toFrame,
+    const double fromFramePoint[3], double toFramePoint[3], bool transformForBeam = true);
+
   /// Reset RAS to Patient isocenter translate, required for correct
   /// IHEP stand models transforms 
   void ResetRasToPatientIsocenterTranslate();

@@ -574,7 +574,7 @@ void vtkSlicerIhepStandGeometryLogic::UpdateTableTopPositions( vtkMRMLIhepStandG
   vtkMRMLMarkupsFiducialNode* middleMarkupsNode = nullptr;
   vtkMRMLMarkupsFiducialNode* mirrorMarkupsNode = nullptr;
   vtkMRMLMarkupsPlaneNode* tableTopPlaneNode = nullptr;
-
+/*
   // Find RasToTableTopTransform
   vtkSmartPointer<vtkMRMLLinearTransformNode> rasToTableTopTransformNode;
   if (scene->GetFirstNodeByName("RasToTableTopTransform"))
@@ -614,7 +614,7 @@ void vtkSlicerIhepStandGeometryLogic::UpdateTableTopPositions( vtkMRMLIhepStandG
     rasToTableTopSupportTransformNode = vtkMRMLLinearTransformNode::SafeDownCast(
       scene->GetFirstNodeByName("RasToTableTopSupportTransform"));
   }
-
+*/
   // origin fiducial markups node
   if (scene->GetFirstNodeByName(TABLE_ORIGIN_MARKUPS_FIDUCIAL_NODE_NAME))
   {
@@ -659,7 +659,7 @@ void vtkSlicerIhepStandGeometryLogic::UpdateTableTopPositions( vtkMRMLIhepStandG
   double originPos[4] = { posOriginInTableTopOrigin[0], posOriginInTableTopOrigin[1], posOriginInTableTopOrigin[2], 1. };
   double originPosInRAS[4] = {};
   double originPosInTableTopSupport[4] = {};
-  
+/*
   // get table top transform to ras
   vtkNew<vtkMatrix4x4> rasToTableTopOriginTransform;
   rasToTableTopOriginTransformNode->GetMatrixTransformToParent(rasToTableTopOriginTransform);
@@ -671,11 +671,16 @@ void vtkSlicerIhepStandGeometryLogic::UpdateTableTopPositions( vtkMRMLIhepStandG
   rasToTableTopSupportTransformNode->GetMatrixTransformToParent(rasToTableTopSupportTransform);
   rasToTableTopSupportTransform->Invert();
   rasToTableTopSupportTransform->MultiplyPoint( originPosInRAS, originPosInTableTopSupport);
-
+*/
   vtkWarningMacro("UpdateTableTopPositions: Origin position " << originPos[0] << " " << originPos[1] << " " << originPos[2]);
 //  vtkWarningMacro("UpdateTableTopPositions: Origin position in RAS " << originPosInRAS[0] << " " << originPosInRAS[1] << " " << originPosInRAS[2]);
-  vtkWarningMacro("UpdateTableTopPositions: Origin position in table top support " << originPosInTableTopSupport[0] << " " << originPosInTableTopSupport[1] << " " << originPosInTableTopSupport[2]);
+//  vtkWarningMacro("UpdateTableTopPositions: Origin position in table top support " << originPosInTableTopSupport[0] << " " << originPosInTableTopSupport[1] << " " << originPosInTableTopSupport[2]);
 
+  using IHEP = vtkSlicerIhepStandGeometryTransformLogic::CoordinateSystemIdentifier;
+
+  this->IhepLogic->GetTransformForPointThroughtRAS( IHEP::TableTopOrigin, 
+    IHEP::TableTopSupport, originPos, originPosInTableTopSupport);
+  vtkWarningMacro("UpdateTableTopPositions New: Origin position in table top " << originPosInTableTopSupport[0] << " " << originPosInTableTopSupport[1] << " " << originPosInTableTopSupport[2]);
 
 /*
   vtkNew<vtkTransform> TableTopMiddleToTableTopSupportTransform;
