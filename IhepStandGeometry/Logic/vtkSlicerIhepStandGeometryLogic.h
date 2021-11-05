@@ -91,8 +91,9 @@ public:
   void UpdateFixedReferenceLineNode(vtkMRMLIhepStandGeometryNode* parameterNode);
 
   void UpdateTableTopToTableTopSupportTransform(double posOrigin[3], double posMirror[3], double posMiddle[3]);
-  /// Update TableTopOrigin, TableTopMirror, TableTopMiddle from TableTopToTableOriginTransform
-  void UpdateTableTopPositions( vtkMRMLIhepStandGeometryNode* parameterNode, double posOrigin[3], double posMirror[3], double posMiddle[3]);
+  /// Calculate positions of TableTopMirror and TableTopMiddle from 
+  /// TableTopToTableOriginTransform, TableTopToTableSupportTransform and TableTopPlaneNode
+  void CalculateTableTopPositionsFromPlaneNode( vtkMRMLIhepStandGeometryNode* parameterNode, double& mirrorPosition, double& middlePosition);
 
   /// Show markups
   void ShowMarkupsNodes(bool toggled = false);

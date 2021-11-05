@@ -439,7 +439,22 @@ void qSlicerIhepStandGeometryModuleWidget::onTableTopLongitudinalAngleChanged(do
   d->logic()->UpdateTablePlatformToPatientSupportTransform(parameterNode);
   d->logic()->UpdatePatientSupportToFixedReferenceTransform(parameterNode);
 
+  double mirrorPos, middlePos;
+  d->logic()->CalculateTableTopPositionsFromPlaneNode(parameterNode, mirrorPos, middlePos);
+  
+  parameterNode->SetTableTopVerticalPositionMirror(mirrorPos + parameterNode->GetTableTopVerticalPositionOrigin());
+  parameterNode->SetTableTopVerticalPositionMiddle(middlePos + parameterNode->GetTableTopVerticalPositionOrigin());
+  
   parameterNode->DisableModifiedEventOff();
+
+  double originPos = d->SliderWidget_TableTopVerticalPositionOrigin->value();
+  
+  d->SliderWidget_TableTopVerticalPositionMiddle->blockSignals(true);
+  d->SliderWidget_TableTopVerticalPositionMirror->blockSignals(true);
+  d->SliderWidget_TableTopVerticalPositionMiddle->setValue(originPos + middlePos);
+  d->SliderWidget_TableTopVerticalPositionMirror->setValue(originPos + mirrorPos);
+  d->SliderWidget_TableTopVerticalPositionMiddle->blockSignals(false);
+  d->SliderWidget_TableTopVerticalPositionMirror->blockSignals(false);
 
   parameterNode->Modified();
 }
@@ -473,7 +488,22 @@ void qSlicerIhepStandGeometryModuleWidget::onTableTopLateralAngleChanged(double 
   d->logic()->UpdateTablePlatformToPatientSupportTransform(parameterNode);
   d->logic()->UpdatePatientSupportToFixedReferenceTransform(parameterNode);
 
+  double mirrorPos, middlePos;
+  d->logic()->CalculateTableTopPositionsFromPlaneNode(parameterNode, mirrorPos, middlePos);
+  
+  parameterNode->SetTableTopVerticalPositionMirror(mirrorPos + parameterNode->GetTableTopVerticalPositionOrigin());
+  parameterNode->SetTableTopVerticalPositionMiddle(middlePos + parameterNode->GetTableTopVerticalPositionOrigin());
+  
   parameterNode->DisableModifiedEventOff();
+
+  double originPos = d->SliderWidget_TableTopVerticalPositionOrigin->value();
+  
+  d->SliderWidget_TableTopVerticalPositionMiddle->blockSignals(true);
+  d->SliderWidget_TableTopVerticalPositionMirror->blockSignals(true);
+  d->SliderWidget_TableTopVerticalPositionMiddle->setValue(originPos + middlePos);
+  d->SliderWidget_TableTopVerticalPositionMirror->setValue(originPos + mirrorPos);
+  d->SliderWidget_TableTopVerticalPositionMiddle->blockSignals(false);
+  d->SliderWidget_TableTopVerticalPositionMirror->blockSignals(false);
 
   parameterNode->Modified();
 }

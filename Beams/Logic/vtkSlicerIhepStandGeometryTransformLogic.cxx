@@ -246,44 +246,57 @@ bool vtkSlicerIhepStandGeometryTransformLogic::GetTransformForPointThroughtRAS(
   // Display all pieces of the treatment room and sets each piece a color to provide realistic representation
   using IHEP = vtkSlicerIhepStandGeometryTransformLogic::CoordinateSystemIdentifier;
 
-  // Transform IHEP stand models (IEC Patient) to RAS
-//  vtkNew<vtkTransform> patientToRasTransform;
-//  patientToRasTransform->Identity();
-//  patientToRasTransform->RotateX(-90.);
-//  patientToRasTransform->RotateZ(180.);
-
   double pointFromFrame[4] = { fromFramePoint[0], fromFramePoint[1], fromFramePoint[2], 1. };
   double pointInRas[4] = {};
 
   // RAS -> FromFrame
   vtkNew<vtkTransform> rasFromFrameTransform;
-  if (this->GetTransformBetween( IHEP::RAS, fromFrame, 
+  if (this->GetTransformBetween( IHEP::RAS, toFrame,  
+//  if (this->GetTransformBetween( IHEP::RAS, fromFrame,  
     rasFromFrameTransform, transformForBeam))
   {
-    // Transform to RAS, set transform to node, transform the model
-//    rasFromFrameTransform->Concatenate(patientToRasTransform);
     rasFromFrameTransform->MultiplyPoint( pointFromFrame, pointInRas);
+//    rasFromFrameTransform->Concatenate(patientToRasTransform);
   }
   else
   {
     return false;
   }
 
+//  vtkNew<vtkMatrix4x4> matrix;
+//  rasFromFrameTransform->GetMatrix(matrix);
+//  vtkWarningMacro("GetTransformForPointThroughtRAS: Ras -> fromFrame matrix " <<
+//    matrix->GetElement( 0, 0) << " " << matrix->GetElement( 0, 1) << " " << matrix->GetElement( 0, 2) << " " << matrix->GetElement( 0, 3) << "\n" <<
+//    matrix->GetElement( 1, 0) << " " << matrix->GetElement( 1, 1) << " " << matrix->GetElement( 1, 2) << " " << matrix->GetElement( 1, 3) << "\n" <<
+//    matrix->GetElement( 2, 0) << " " << matrix->GetElement( 2, 1) << " " << matrix->GetElement( 2, 2) << " " << matrix->GetElement( 2, 3) << "\n" <<
+//    matrix->GetElement( 3, 0) << " " << matrix->GetElement( 3, 1) << " " << matrix->GetElement( 3, 2) << " " << matrix->GetElement( 3, 3));
+
   double pointToFrame[4] = {};
   // RAS -> ToFrame
   vtkNew<vtkTransform> rasToFrameTransform;
-  if (this->GetTransformBetween( IHEP::RAS, toFrame, 
+  if (this->GetTransformBetween( IHEP::RAS, fromFrame, 
+//  if (this->GetTransformBetween( IHEP::RAS, toFrame, 
     rasToFrameTransform, transformForBeam))
   {
-    // Transform to RAS, set transform to node, transform the model
-//    rasToFrameTransform->Concatenate(patientToRasTransform);
     rasToFrameTransform->Inverse();
     rasToFrameTransform->MultiplyPoint( pointInRas, pointToFrame);
+//    rasToFrameTransform->Concatenate(patientToRasTransform);
   }
   else
   {
     return false;
   }
+
+//  rasToFrameTransform->GetMatrix(matrix);
+//  vtkWarningMacro("GetTransformForPointThroughtRAS: Ras -> toFrame matrix " <<
+//    matrix->GetElement( 0, 0) << " " << matrix->GetElement( 0, 1) << " " << matrix->GetElement( 0, 2) << " " << matrix->GetElement( 0, 3) << "\n" <<
+//    matrix->GetElement( 1, 0) << " " << matrix->GetElement( 1, 1) << " " << matrix->GetElement( 1, 2) << " " << matrix->GetElement( 1, 3) << "\n" <<
+//    matrix->GetElement( 2, 0) << " " << matrix->GetElement( 2, 1) << " " << matrix->GetElement( 2, 2) << " " << matrix->GetElement( 2, 3) << "\n" <<
+//    matrix->GetElement( 3, 0) << " " << matrix->GetElement( 3, 1) << " " << matrix->GetElement( 3, 2) << " " << matrix->GetElement( 3, 3));
+
+//  rasFromFrameTransform->MultiplyPoint( pointFromFrame, pointInRas);
+//  rasToFrameTransform->Inverse();
+//  rasToFrameTransform->MultiplyPoint( pointInRas, pointToFrame);
 
   toFramePoint[0] = pointToFrame[0];
   toFramePoint[1] = pointToFrame[1];
