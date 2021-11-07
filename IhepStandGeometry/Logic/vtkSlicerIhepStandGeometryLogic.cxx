@@ -554,66 +554,26 @@ void vtkSlicerIhepStandGeometryLogic::UpdateTableTopToTableTopSupportTransform( 
 }
 
 //----------------------------------------------------------------------------
-void vtkSlicerIhepStandGeometryLogic::CalculateTableTopPositionsFromPlaneNode( vtkMRMLIhepStandGeometryNode* parameterNode, double& mirrorPosition, double& middlePosition)
+bool vtkSlicerIhepStandGeometryLogic::CalculateTableTopPositionsFromPlaneNode( vtkMRMLIhepStandGeometryNode* parameterNode, double& mirrorPosition, double& middlePosition)
 {
   vtkMRMLScene* scene = this->GetMRMLScene(); 
   if (!scene)
   {
     vtkErrorMacro("UpdateTableTopPositions: Invalid MRML scene");
-    return;
+    return false;
   }
 
   if (!parameterNode)
   {
     vtkErrorMacro("UpdateTableTopPositions: Invalid parameter node");
-    return;
+    return false;
   }
 
   vtkMRMLMarkupsFiducialNode* originMarkupsNode = nullptr;
   vtkMRMLMarkupsFiducialNode* middleMarkupsNode = nullptr;
   vtkMRMLMarkupsFiducialNode* mirrorMarkupsNode = nullptr;
   vtkMRMLMarkupsPlaneNode* tableTopPlaneNode = nullptr;
-/*
-  // Find RasToTableTopTransform
-  vtkSmartPointer<vtkMRMLLinearTransformNode> rasToTableTopTransformNode;
-  if (scene->GetFirstNodeByName("RasToTableTopTransform"))
-  {
-    rasToTableTopTransformNode = vtkMRMLLinearTransformNode::SafeDownCast(
-      scene->GetFirstNodeByName("RasToTableTopTransform"));
-  }
 
-  // Find RasToTableTopOriginTransform
-  vtkSmartPointer<vtkMRMLLinearTransformNode> rasToTableTopOriginTransformNode;
-  if (scene->GetFirstNodeByName("RasToTableTopOriginTransform"))
-  {
-    rasToTableTopOriginTransformNode = vtkMRMLLinearTransformNode::SafeDownCast(
-      scene->GetFirstNodeByName("RasToTableTopOriginTransform"));
-  }
-
-  // Find RasToTableTopMiddleTransform
-  vtkSmartPointer<vtkMRMLLinearTransformNode> rasToTableTopMiddleTransformNode;
-  if (scene->GetFirstNodeByName("RasToTableTopMiddleTransform"))
-  {
-    rasToTableTopMiddleTransformNode = vtkMRMLLinearTransformNode::SafeDownCast(
-      scene->GetFirstNodeByName("RasToTableTopMiddleTransform"));
-  }
-
-  // Find RasToTableTopMirrorTransform
-  vtkSmartPointer<vtkMRMLLinearTransformNode> rasToTableTopMirrorTransformNode;
-  if (scene->GetFirstNodeByName("RasToTableTopMirrorTransform"))
-  {
-    rasToTableTopMirrorTransformNode = vtkMRMLLinearTransformNode::SafeDownCast(
-      scene->GetFirstNodeByName("RasToTableTopMirrorTransform"));
-  }
-
-  // Find RasToTableTopSupportTransform
-  vtkSmartPointer<vtkMRMLLinearTransformNode> rasToTableTopSupportTransformNode;
-  if (scene->GetFirstNodeByName("RasToTableTopSupportTransform"))
-  {
-    rasToTableTopSupportTransformNode = vtkMRMLLinearTransformNode::SafeDownCast(
-      scene->GetFirstNodeByName("RasToTableTopSupportTransform"));
-  }
-*/
   // origin fiducial markups node
   if (scene->GetFirstNodeByName(TABLE_ORIGIN_MARKUPS_FIDUCIAL_NODE_NAME))
   {
@@ -634,27 +594,6 @@ void vtkSlicerIhepStandGeometryLogic::CalculateTableTopPositionsFromPlaneNode( v
   {
     tableTopPlaneNode = vtkMRMLMarkupsPlaneNode::SafeDownCast(scene->GetFirstNodeByName(TABLETOP_MARKUPS_PLANE_NODE_NAME));
   }
-/*
-  if (originMarkupsNode)
-  {
-    double* pos = originMarkupsNode->GetNthControlPointPosition(0);
-  }
-  if (middleMarkupsNode)
-  {
-    double* pos = middleMarkupsNode->GetNthControlPointPosition(0);
-  }
-  if (mirrorMarkupsNode)
-  {
-    double* pos = mirrorMarkupsNode->GetNthControlPointPosition(0);
-  }
-*/
-//  double n[4] = {}, nn[4] = {};
-//  if (tableTopPlaneNode)
-//  {
-//    double nw[3];
-//    tableTopPlaneNode->GetNormal(n);
-//    tableTopPlaneNode->GetNormalWorld(nw);
-//  }
 
   double* posMiddleInTableTopOrigin = middleMarkupsNode->GetNthControlPointPosition(0);
   double* posMirrorInTableTopOrigin = mirrorMarkupsNode->GetNthControlPointPosition(0);
@@ -662,7 +601,6 @@ void vtkSlicerIhepStandGeometryLogic::CalculateTableTopPositionsFromPlaneNode( v
 
   double* posMiddleInTableTopOrigin1 = middleMarkupsNode->GetNthControlPointPosition(1);
   double* posMirrorInTableTopOrigin1 = mirrorMarkupsNode->GetNthControlPointPosition(1);
-//  double* posOriginInTableTopOrigin1 = originMarkupsNode->GetNthControlPointPosition(1);
 
   double* planeOrigin = tableTopPlaneNode->GetOrigin();
   double* planePoint1 = tableTopPlaneNode->GetNthControlPointPosition(1);
@@ -676,14 +614,8 @@ void vtkSlicerIhepStandGeometryLogic::CalculateTableTopPositionsFromPlaneNode( v
   double middlePos[4] = { posMiddleInTableTopOrigin[0], posMiddleInTableTopOrigin[1], posMiddleInTableTopOrigin[2], 1. };
   double mirrorPos[4] = { posMirrorInTableTopOrigin[0], posMirrorInTableTopOrigin[1], posMirrorInTableTopOrigin[2], 1. };
 
-//  double originPos1[4] = { posOriginInTableTopOrigin1[0], posOriginInTableTopOrigin1[1], posOriginInTableTopOrigin1[2], 1. };
   double middlePos1[4] = { posMiddleInTableTopOrigin1[0], posMiddleInTableTopOrigin1[1], posMiddleInTableTopOrigin1[2], 1. };
   double mirrorPos1[4] = { posMirrorInTableTopOrigin1[0], posMirrorInTableTopOrigin1[1], posMirrorInTableTopOrigin1[2], 1. };
-
-//  double originPosInRAS[4] = {};
-//  double originPosInTableTopSupport[4] = {};
-//  double mirrorPosInTableTopSupport[4] = {};
-//  double middlePosInTableTopSupport[4] = {};
 
   double planePos0InTableTopSupport[4] = {};
   double planePos1InTableTopSupport[4] = {};
@@ -692,15 +624,19 @@ void vtkSlicerIhepStandGeometryLogic::CalculateTableTopPositionsFromPlaneNode( v
   using IHEP = vtkSlicerIhepStandGeometryTransformLogic::CoordinateSystemIdentifier;
 
 
+  // table top plane origin point in table top support frame
   this->IhepLogic->GetTransformForPointThroughtRAS( IHEP::TableTop, 
     IHEP::TableTopSupport, planeOriginPos, planePos0InTableTopSupport);
 
+  // table top plane point-1 in table top support frame
   this->IhepLogic->GetTransformForPointThroughtRAS( IHEP::TableTop, 
     IHEP::TableTopSupport, planePoint1Pos, planePos1InTableTopSupport);
 
+  // table top plane point-2 in table top support frame
   this->IhepLogic->GetTransformForPointThroughtRAS( IHEP::TableTop, 
     IHEP::TableTopSupport, planePoint2Pos, planePos2InTableTopSupport);
 
+  // Calculate table top plane normal
   vtkNew<vtkPlaneSource> planeSource;
   planeSource->SetOrigin(planePos0InTableTopSupport);
   planeSource->SetPoint1(planePos1InTableTopSupport);
@@ -708,8 +644,8 @@ void vtkSlicerIhepStandGeometryLogic::CalculateTableTopPositionsFromPlaneNode( v
   planeSource->Update();
   double norm[3];
   planeSource->GetNormal(norm);
-  vtkWarningMacro("UpdateTableTopPositions: TableTop normal  " << norm[0] << " " << norm[1] << " " << norm[2]);
 
+  // set vertical line coordinate lenght about 2 meters to calculate intersection point
   middlePos[1] -= 1000.;
   middlePos1[1] += 1000.;
 
@@ -720,79 +656,22 @@ void vtkSlicerIhepStandGeometryLogic::CalculateTableTopPositionsFromPlaneNode( v
   if (vtkPlane::IntersectWithLine( mirrorPos, mirrorPos1, norm, originPos, t, mirrorLine))
   {
     mirrorPosition = mirrorLine[1] - posMirrorInTableTopOrigin[1];
-//    vtkWarningMacro("UpdateTableTopPositions: Mirror intersection line " << t << " " << mirrorLine[0] << " " << mirrorLine[1] << " " << mirrorLine[2]);
-//    vtkWarningMacro("UpdateTableTopPositions: Mirror diff " << mirrorLine[0] - posMirrorInTableTopOrigin[0] << " " << mirrorLine[1] - posMirrorInTableTopOrigin[1] << " " << mirrorLine[2] - posMirrorInTableTopOrigin[2]);
   }
-//  else
-//  {
-//    vtkErrorMacro("UpdateTableTopPositions: Mirror diff ERROR");
-//  }
+  else
+  {
+    return false;
+  }
 
   if (vtkPlane::IntersectWithLine( middlePos, middlePos1, norm, originPos, t, middleLine))
   {
     middlePosition = middleLine[1] - posMiddleInTableTopOrigin[1];
-//    vtkWarningMacro("UpdateTableTopPositions: Middle intersection line " << t << " " << middleLine[0] << " " << middleLine[1] << " " << middleLine[2]);
-//    vtkWarningMacro("UpdateTableTopPositions: Middle diff " << middleLine[0] - posMiddleInTableTopOrigin[0] << " " << middleLine[1] - posMiddleInTableTopOrigin[1] << " " << middleLine[2] - posMiddleInTableTopOrigin[2]);
   }
-//  else
-//  {
-//    vtkErrorMacro("UpdateTableTopPositions: Middle diff ERROR");
-//  }
-/*
-  // get table top transform to ras
-  vtkNew<vtkMatrix4x4> rasToTableTopOriginTransform;
-  rasToTableTopOriginTransformNode->GetMatrixTransformToParent(rasToTableTopOriginTransform);
-  rasToTableTopOriginTransform->MultiplyPoint( originPos, originPosInRAS);
-
-  // get table top support transform to ras and invert it to get
-  // ras to table top support transform
-  vtkNew<vtkMatrix4x4> rasToTableTopTransform;
-  rasToTableTopTransformNode->GetMatrixTransformToParent(rasToTableTopTransform);
-  rasToTableTopTransform->Invert();
-  rasToTableTopTransform->MultiplyPoint( originPosInRAS, originPosInTableTopSupport);
-
-  vtkWarningMacro("UpdateTableTopPositions: Origin position " << originPos[0] << " " << originPos[1] << " " << originPos[2]);
-//  vtkWarningMacro("UpdateTableTopPositions: Origin position in RAS " << originPosInRAS[0] << " " << originPosInRAS[1] << " " << originPosInRAS[2]);
-  vtkWarningMacro("UpdateTableTopPositions: Origin position in table top support " << originPosInTableTopSupport[0] << " " << originPosInTableTopSupport[1] << " " << originPosInTableTopSupport[2]);
-
-  using IHEP = vtkSlicerIhepStandGeometryTransformLogic::CoordinateSystemIdentifier;
-
-  this->IhepLogic->GetTransformForPointThroughtRAS( IHEP::TableTopOrigin, 
-    IHEP::TableTopSupport, originPos, originPosInTableTopSupport);
-  vtkWarningMacro("UpdateTableTopPositions: Origin position in table top support new " << originPosInTableTopSupport[0] << " " << originPosInTableTopSupport[1] << " " << originPosInTableTopSupport[2]);
-
-  this->IhepLogic->GetTransformForPointThroughtRAS( IHEP::TableTop, 
-    IHEP::TableTopSupport, originPos, originPosInTableTopSupport);
-  vtkWarningMacro("UpdateTableTopPositions: Origin position in table top new " << originPosInTableTopSupport[0] << " " << originPosInTableTopSupport[1] << " " << originPosInTableTopSupport[2]);
-
-  this->IhepLogic->GetTransformForPointThroughtRAS( IHEP::TableTop, 
-    IHEP::TableTopSupport, middlePos, originPosInTableTopSupport);
-  vtkWarningMacro("UpdateTableTopPositions: Middle position in table top new " << originPosInTableTopSupport[0] << " " << originPosInTableTopSupport[1] << " " << originPosInTableTopSupport[2]);
-*/
-
-/*
-  vtkNew<vtkTransform> TableTopMiddleToTableTopSupportTransform;
-  if (this->IhepLogic->GetTransformBetween( IHEP::TableTop, IHEP::TableTopSupport, 
-    TableTopMiddleToTableTopSupportTransform, false))
+  else
   {
-    double* posMiddle = middleMarkupsNode->GetNthControlPointPosition(0);
-    double middlePos[4] = { posMiddle[0], posMiddle[1], posMiddle[2], 1. };
-    double middlePosInTableTopSupport[4] = {};
-    TableTopMiddleToTableTopSupportTransform->MultiplyPoint( middlePos, middlePosInTableTopSupport);
-    vtkWarningMacro("UpdateTableTopPositions: Middle position in table top support " << middlePosInTableTopSupport[0] << " " << middlePosInTableTopSupport[1] << " " << middlePosInTableTopSupport[2]);
+    return false;
   }
 
-  vtkNew<vtkTransform> TableTopMirrorToTableTopSupportTransform;
-  if (this->IhepLogic->GetTransformBetween( IHEP::TableTop, IHEP::TableTopSupport, 
-    TableTopMirrorToTableTopSupportTransform, false))
-  {
-    double* posMirror = mirrorMarkupsNode->GetNthControlPointPosition(0);
-    double mirrorPos[4] = { posMirror[0], posMirror[1], posMirror[2], 1. };
-    double mirrorPosInTableTopSupport[4] = {};
-    TableTopMirrorToTableTopSupportTransform->MultiplyPoint( mirrorPos, mirrorPosInTableTopSupport);
-    vtkWarningMacro("UpdateTableTopPositions: Mirror position in table top support " << mirrorPosInTableTopSupport[0] << " " << mirrorPosInTableTopSupport[1] << " " << mirrorPosInTableTopSupport[2]);
-  }
-*/
+  return true;
 }
 
 //----------------------------------------------------------------------------
