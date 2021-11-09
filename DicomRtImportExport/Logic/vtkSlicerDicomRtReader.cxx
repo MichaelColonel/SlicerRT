@@ -802,6 +802,7 @@ void vtkSlicerDicomRtReader::vtkInternal::LoadRTPlan(DcmDataset* dataset)
   }
 
   vtkDebugWithObjectMacro(this->External, "LoadRTPlan: Load RT Plan object");
+  bool hasFractionSchemeModule = true;
   if (rtPlan.isRTFractionSchemeModulePresent(OFTrue) == OFTrue)
   {
     vtkDebugWithObjectMacro( this->External, "LoadRTPlan: Fraction Scheme is correct");
@@ -816,8 +817,8 @@ void vtkSlicerDicomRtReader::vtkInternal::LoadRTPlan(DcmDataset* dataset)
   }
   else
   {
-    vtkErrorWithObjectMacro( this->External, "LoadRTPlan: Fraction Scheme is absent");
-    return;
+    vtkWarningWithObjectMacro( this->External, "LoadRTPlan: Fraction Scheme is absent");
+    hasFractionSchemeModule = false;
   }
 
   // Check beams module
@@ -897,7 +898,10 @@ void vtkSlicerDicomRtReader::vtkInternal::LoadRTPlan(DcmDataset* dataset)
 
   }
 
-  if ((hasBeamsModule && haveBeams) || (hasBrachyApplicationSetupsModule && haveBrachy))
+  if ((!hasFractionSchemeModule && hasBeamsModule) || // only has beams module
+    (hasFractionSchemeModule && hasBeamsModule && haveBeams) || // has both beams and fraction scheme modules, number of beams is greater than zero for one or more fraction groups
+    (!hasBeamsModule && hasBrachyApplicationSetupsModule && haveBrachy) || // doesn't have beams module, has both brachy and fraction scheme modules, number of brachy application setups is greater than zero for one or more fraction groups
+    (!hasBeamsModule && hasBrachyApplicationSetupsModule)) // only has brachy application setups module
   {
     vtkDebugWithObjectMacro( this->External, "LoadRTPlan: Data is available for loading");
   }
