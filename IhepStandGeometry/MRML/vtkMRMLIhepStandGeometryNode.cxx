@@ -62,7 +62,8 @@ vtkMRMLIhepStandGeometryNode::vtkMRMLIhepStandGeometryNode()
   TableTopLongitudinalAngle(0.),
   TableTopLateralAngle(0.),
   PatientToTableTopTranslation(),
-  UseStandCoordinateSystem(false)
+  UseStandCoordinateSystem(false),
+  PatientHeadFeetRotation(false)
 {
 }
 
@@ -89,6 +90,7 @@ void vtkMRMLIhepStandGeometryNode::WriteXML(ostream& of, int nIndent)
   vtkMRMLWriteXMLFloatMacro(TableTopLateralAngle, TableTopLateralAngle);
   vtkMRMLWriteXMLVectorMacro(PatientToTableTopTranslation, PatientToTableTopTranslation, double, 3);
   vtkMRMLWriteXMLBooleanMacro(UseStandCoordinateSystem, UseStandCoordinateSystem);
+  vtkMRMLWriteXMLBooleanMacro(PatientHeadFeetRotation, PatientHeadFeetRotation);
   // add new parameters here
   vtkMRMLWriteXMLEndMacro();
 }
@@ -112,6 +114,7 @@ void vtkMRMLIhepStandGeometryNode::ReadXMLAttributes(const char** atts)
   vtkMRMLReadXMLFloatMacro(TableTopLateralAngle, TableTopLateralAngle);
   vtkMRMLReadXMLVectorMacro(PatientToTableTopTranslation, PatientToTableTopTranslation, double, 3);
   vtkMRMLReadXMLBooleanMacro(UseStandCoordinateSystem, UseStandCoordinateSystem);  
+  vtkMRMLReadXMLBooleanMacro(PatientHeadFeetRotation, PatientHeadFeetRotation);  
   // add new parameters here
   vtkMRMLReadXMLEndMacro();
 
@@ -148,6 +151,7 @@ void vtkMRMLIhepStandGeometryNode::Copy(vtkMRMLNode *anode)
   vtkMRMLCopyFloatMacro(TableTopLateralAngle);
   vtkMRMLCopyVectorMacro(PatientToTableTopTranslation, double, 3);
   vtkMRMLCopyBooleanMacro(UseStandCoordinateSystem);
+  vtkMRMLCopyBooleanMacro(PatientHeadFeetRotation);
   // add new parameters here
   vtkMRMLCopyEndMacro(); 
 
@@ -180,6 +184,7 @@ void vtkMRMLIhepStandGeometryNode::CopyContent(vtkMRMLNode *anode, bool deepCopy
   vtkMRMLCopyFloatMacro(TableTopLateralAngle);
   vtkMRMLCopyVectorMacro(PatientToTableTopTranslation, double, 3);
   vtkMRMLCopyBooleanMacro(UseStandCoordinateSystem);
+  vtkMRMLCopyBooleanMacro(PatientHeadFeetRotation);
   // add new parameters here
   vtkMRMLCopyEndMacro();
 }
@@ -201,6 +206,7 @@ void vtkMRMLIhepStandGeometryNode::PrintSelf(ostream& os, vtkIndent indent)
   vtkMRMLPrintFloatMacro(TableTopLateralAngle);
   vtkMRMLPrintVectorMacro(PatientToTableTopTranslation, double, 3);
   vtkMRMLPrintBooleanMacro(UseStandCoordinateSystem);
+  vtkMRMLPrintBooleanMacro(PatientHeadFeetRotation);
   // add new parameters here
   vtkMRMLPrintEndMacro(); 
 }
@@ -220,6 +226,7 @@ void vtkMRMLIhepStandGeometryNode::ResetModelsToInitialPositions()
   PatientToTableTopTranslation[1] = 0.,
   PatientToTableTopTranslation[2] = 0.,
   UseStandCoordinateSystem = false;
+  PatientHeadFeetRotation = false;
 }
 
 //----------------------------------------------------------------------------

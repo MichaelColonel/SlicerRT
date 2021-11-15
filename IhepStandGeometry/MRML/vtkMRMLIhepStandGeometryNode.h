@@ -119,6 +119,10 @@ public:
   vtkGetMacro(UseStandCoordinateSystem, bool);
   vtkSetMacro(UseStandCoordinateSystem, bool);
 
+  /// Get/Set use stand coordinate system
+  vtkGetMacro(PatientHeadFeetRotation, bool);
+  vtkSetMacro(PatientHeadFeetRotation, bool);
+
   /// Get/Set Patient to TableTop translation
   vtkGetVector3Macro(PatientToTableTopTranslation, double);
   vtkSetVector3Macro(PatientToTableTopTranslation, double);
@@ -155,6 +159,8 @@ protected:
 
   /// Use IHEP stand system coordimate for the beam or IEC system coordinate
   bool UseStandCoordinateSystem;
+  /// Head first or feet first rotation
+  bool PatientHeadFeetRotation;
 };
 
 #endif

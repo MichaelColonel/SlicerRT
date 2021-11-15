@@ -139,6 +139,9 @@ public:
   /// Set up the IHEP transforms and model properties on the treatment machine models
   void SetupTreatmentMachineModels(vtkMRMLIhepStandGeometryNode* parameterNode);
 
+  /// Set up the IHEP transforms and model properties on the treatment machine models
+  void CalculateMovementsForBeam(vtkMRMLIhepStandGeometryNode* parameterNode);
+
 //  void SetupFixedReferenceModel(vtkMRMLIhepStandGeometryNode* parameterNode);
 //  void UpdateFixedReferenceModel(vtkMRMLIhepStandGeometryNode* parameterNode);
   

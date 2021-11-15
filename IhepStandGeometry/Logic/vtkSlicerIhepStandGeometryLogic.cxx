@@ -1320,7 +1320,10 @@ void vtkSlicerIhepStandGeometryLogic::SetupTreatmentMachineModels(vtkMRMLIhepSta
   vtkNew<vtkTransform> patientToRasTransform;
   patientToRasTransform->Identity();
   patientToRasTransform->RotateX(-90.);
-  patientToRasTransform->RotateZ(180.);
+  if (!parameterNode->GetPatientHeadFeetRotation())
+  {
+    patientToRasTransform->RotateZ(180.);
+  }
 
   // Table top - mandatory
   // Transform path: RAS -> Patient -> TableTop
@@ -2467,4 +2470,58 @@ void vtkSlicerIhepStandGeometryLogic::SetFixedReferenceCamera(vtkMRMLCameraNode*
     vtkDebugMacro("SetFixedReferenceCamera: Set member camera node");
     this->Camera3DViewNode = cameraNode;
   }
+}
+
+//----------------------------------------------------------------------------
+void vtkSlicerIhepStandGeometryLogic::CalculateMovementsForBeam(vtkMRMLIhepStandGeometryNode* parameterNode)
+{
+  vtkMRMLScene* scene = this->GetMRMLScene();
+
+  if (!scene)
+  {
+    vtkErrorMacro("SetupTreatmentMachineModels: Invalid scene");
+    return;
+  }
+  
+  if (!parameterNode)
+  {
+    vtkErrorMacro("UpdateFixedReferenceMarkupsTransform: Invalid parameter node");
+    return;
+  }
+  
+  vtkMRMLRTBeamNode* beamNode = parameterNode->GetBeamNode();
+
+
+  // Display all pieces of the treatment room and sets each piece a color to provide realistic representation
+  using IHEP = vtkSlicerIhepStandGeometryTransformLogic::CoordinateSystemIdentifier;
+
+
+  vtkMRMLMarkupsLineNode* fixedReferenceLineNode = nullptr;
+
+  // origin fiducial markups node
+  if (scene->GetFirstNodeByName(FIXEDREFERENCE_MARKUPS_LINE_NODE_NAME))
+  {
+    fixedReferenceLineNode = vtkMRMLMarkupsLineNode::SafeDownCast(scene->GetFirstNodeByName(FIXEDREFERENCE_MARKUPS_LINE_NODE_NAME));
+  }
+
+
+  double* posBegin = fixedReferenceLineNode->GetNthControlPointPosition(0);
+  double* posEnd = fixedReferenceLineNode->GetNthControlPointPosition(1);
+
+  double posFixedReferenceBegin[4] = { posBegin[0], posBegin[1], posBegin[2], 1. };
+  double posFixedReferenceEnd[4] = { posEnd[0], posEnd[1], posEnd[2], 1. };
+
+  double posTableTopBegin[4] = {};
+  double posTableTopEnd[4] = {};
+
+  // table top plane origin point in table top support frame
+  this->IhepLogic->GetTransformForPointThroughtRAS( IHEP::FixedReference, 
+    IHEP::TableTop, posFixedReferenceBegin, posTableTopBegin);
+
+  // table top plane point-1 in table top support frame
+  this->IhepLogic->GetTransformForPointThroughtRAS( IHEP::FixedReference, 
+    IHEP::TableTop, posFixedReferenceEnd, posTableTopEnd);
+
+  // Get isocenter position in table top frame
+  
 }

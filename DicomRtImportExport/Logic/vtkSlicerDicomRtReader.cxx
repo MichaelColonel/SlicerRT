@@ -811,10 +811,6 @@ void vtkSlicerDicomRtReader::vtkInternal::LoadRTPlan(DcmDataset* dataset)
   {
     vtkWarningWithObjectMacro( this->External, "LoadRTPlan: Fraction Scheme is partially correct");
   }
-  else if (rtPlan.isRTFractionSchemeModulePresent() == OFTrue)
-  {
-    vtkWarningWithObjectMacro( this->External, "LoadRTPlan: Fraction Scheme is partially correct");
-  }
   else
   {
     vtkWarningWithObjectMacro( this->External, "LoadRTPlan: Fraction Scheme is absent");
