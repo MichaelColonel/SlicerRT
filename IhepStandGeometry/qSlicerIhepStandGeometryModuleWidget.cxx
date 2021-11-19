@@ -429,6 +429,9 @@ void qSlicerIhepStandGeometryModuleWidget::onTableTopLongitudinalAngleChanged(do
   }
 
   parameterNode->DisableModifiedEventOn();
+  double patientSupportRotationAngle = parameterNode->GetPatientSupportRotationAngle(); // backup
+  parameterNode->SetPatientSupportRotationAngle(0.0);
+
   parameterNode->SetTableTopLongitudinalAngle(angle);
 
   // update table top to table origin vertical movement
@@ -452,7 +455,8 @@ void qSlicerIhepStandGeometryModuleWidget::onTableTopLongitudinalAngleChanged(do
   
   d->SliderWidget_TableTopVerticalPositionMiddle->setValue(originPos + middlePos);
   d->SliderWidget_TableTopVerticalPositionMirror->setValue(originPos + mirrorPos);
-
+  
+  parameterNode->SetPatientSupportRotationAngle(patientSupportRotationAngle); // restore
   parameterNode->Modified();
 }
 
@@ -474,6 +478,9 @@ void qSlicerIhepStandGeometryModuleWidget::onTableTopLateralAngleChanged(double 
   }
 
   parameterNode->DisableModifiedEventOn();
+  double patientSupportRotationAngle = parameterNode->GetPatientSupportRotationAngle(); // backup
+  parameterNode->SetPatientSupportRotationAngle(0.0);
+
   parameterNode->SetTableTopLateralAngle(angle);
 
   // update table top to table origin vertical movement
@@ -490,6 +497,7 @@ void qSlicerIhepStandGeometryModuleWidget::onTableTopLateralAngleChanged(double 
   
   parameterNode->SetTableTopVerticalPositionMirror(mirrorPos + parameterNode->GetTableTopVerticalPositionOrigin());
   parameterNode->SetTableTopVerticalPositionMiddle(middlePos + parameterNode->GetTableTopVerticalPositionOrigin());
+
   parameterNode->DisableModifiedEventOff();
 
   double originPos = d->SliderWidget_TableTopVerticalPositionOrigin->value();
@@ -497,6 +505,7 @@ void qSlicerIhepStandGeometryModuleWidget::onTableTopLateralAngleChanged(double 
   d->SliderWidget_TableTopVerticalPositionMiddle->setValue(originPos + middlePos);
   d->SliderWidget_TableTopVerticalPositionMirror->setValue(originPos + mirrorPos);
 
+  parameterNode->SetPatientSupportRotationAngle(patientSupportRotationAngle); // restore
   parameterNode->Modified();
 }
 

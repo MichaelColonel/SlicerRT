@@ -734,6 +734,14 @@ void vtkSlicerIhepStandGeometryLogic::UpdateTableOriginFiducialNode(vtkMRMLIhepS
   {
     vtkMRMLMarkupsFiducialNode* pointMarkupsNode = vtkMRMLMarkupsFiducialNode::SafeDownCast(
       scene->GetFirstNodeByName(TABLE_ORIGIN_MARKUPS_FIDUCIAL_NODE_NAME));
+    if (pointMarkupsNode && pointMarkupsNode->GetNumberOfControlPoints() == 0)
+    {
+      // add points to fiducial node once again
+      vtkVector3d p0( -1. * TableTopOriginFixedReference[0], TableTopOriginFixedReference[2], TableTopOriginFixedReference[1]); // Origin
+      vtkVector3d p1( -1. * TableTopOriginFixedReference[0], TableTopOriginFixedReference[2] + 142., TableTopOriginFixedReference[1]); // Origin Table Top
+      pointMarkupsNode->AddControlPoint( p0, "Origin");
+      pointMarkupsNode->AddControlPoint( p1, "OriginTableTop");
+    }
 
     // Update fiducial markups transform node if it's changed    
     vtkMRMLTransformNode* markupsTransformNode = this->UpdateTableOriginMarkupsTransform(parameterNode);
@@ -771,6 +779,14 @@ void vtkSlicerIhepStandGeometryLogic::UpdateTableMirrorFiducialNode(vtkMRMLIhepS
   {
     vtkMRMLMarkupsFiducialNode* pointMarkupsNode = vtkMRMLMarkupsFiducialNode::SafeDownCast(
       scene->GetFirstNodeByName(TABLE_MIRROR_MARKUPS_FIDUCIAL_NODE_NAME));
+    if (pointMarkupsNode && pointMarkupsNode->GetNumberOfControlPoints() == 0)
+    {
+      // add points to fiducial node once again
+      vtkVector3d p0( -1. * TableTopMirrorFixedReference[0], TableTopMirrorFixedReference[2], TableTopMirrorFixedReference[1]); // Mirror
+      vtkVector3d p1( -1. * TableTopMirrorFixedReference[0], TableTopMirrorFixedReference[2] + 142., TableTopMirrorFixedReference[1]); // Mirror Table Top
+      pointMarkupsNode->AddControlPoint( p0, "Mirror");
+      pointMarkupsNode->AddControlPoint( p1, "MirrorTableTop");
+    }
 
     // Update fiducial markups transform node if it's changed    
     vtkMRMLTransformNode* markupsTransformNode = this->UpdateTableMirrorMarkupsTransform(parameterNode);
@@ -808,7 +824,14 @@ void vtkSlicerIhepStandGeometryLogic::UpdateTableMiddleFiducialNode(vtkMRMLIhepS
   {
     vtkMRMLMarkupsFiducialNode* pointMarkupsNode = vtkMRMLMarkupsFiducialNode::SafeDownCast(
       scene->GetFirstNodeByName(TABLE_MIDDLE_MARKUPS_FIDUCIAL_NODE_NAME));
-
+    if (pointMarkupsNode && pointMarkupsNode->GetNumberOfControlPoints() == 0)
+    {
+      // add points to fiducial node once again
+      vtkVector3d p0( -1. * TableTopMiddleFixedReference[0], TableTopMiddleFixedReference[2], TableTopMiddleFixedReference[1]); // Mirror
+      vtkVector3d p1( -1. * TableTopMiddleFixedReference[0], TableTopMiddleFixedReference[2] + 142., TableTopMiddleFixedReference[1]); // Mirror Table Top
+      pointMarkupsNode->AddControlPoint( p0, "Middle");
+      pointMarkupsNode->AddControlPoint( p1, "MiddleTableTop");
+    }
     // Update fiducial markups transform node if it's changed    
     vtkMRMLTransformNode* markupsTransformNode = this->UpdateTableMiddleMarkupsTransform(parameterNode);
 
@@ -844,6 +867,27 @@ void vtkSlicerIhepStandGeometryLogic::UpdateTableTopPlaneNode(vtkMRMLIhepStandGe
   {
     vtkMRMLMarkupsPlaneNode* tableTopPlaneNode = vtkMRMLMarkupsPlaneNode::SafeDownCast(
       scene->GetFirstNodeByName(TABLETOP_MARKUPS_PLANE_NODE_NAME));
+    if (tableTopPlaneNode && tableTopPlaneNode->GetNumberOfControlPoints() == 0)
+    {
+      // add points to markups fiducial node once again
+      double originWorld[3] = { -0.5, -210., 736.6 };
+      double mirrorWorld[3] = { 264.5, -210., 736.6 };
+      double middleWorld[3] = { -0.5, -210., 1821.6 };
+
+//      originWorld[1] += 142.;
+//      mirrorWorld[1] += 142.;
+//      middleWorld[1] += 142.;
+
+//      vtkVector3d plane0( originWorld[0], originWorld[1], originWorld[2]); // Origin
+      vtkVector3d plane1( mirrorWorld[0], mirrorWorld[1], mirrorWorld[2]); // Mirror
+      vtkVector3d plane2( middleWorld[0], middleWorld[1], middleWorld[2]); // Middle
+
+      tableTopPlaneNode->SetOrigin(originWorld);
+      tableTopPlaneNode->AddControlPoint( plane1, "MirrorPlane");
+      tableTopPlaneNode->AddControlPoint( plane2, "MiddlePlane");
+
+      this->UpdateTableTopToTableTopSupportTransform(originWorld, mirrorWorld, middleWorld);
+    }
 
     // Update markups plane transform node if it's changed    
     vtkMRMLTransformNode* markupsPlaneTransformNode = this->UpdateTableTopPlaneTransform(parameterNode);
@@ -880,6 +924,16 @@ void vtkSlicerIhepStandGeometryLogic::UpdateFixedReferenceLineNode(vtkMRMLIhepSt
   {
     vtkMRMLMarkupsLineNode* lineMarkupsNode = vtkMRMLMarkupsLineNode::SafeDownCast(
       scene->GetFirstNodeByName(FIXEDREFERENCE_MARKUPS_LINE_NODE_NAME));
+    if (lineMarkupsNode && lineMarkupsNode->GetNumberOfControlPoints() == 0)
+    {
+      // create points once again
+      // add points to line node
+      vtkVector3d p0( -4000., 0., 0.); // FixedBegin
+      vtkVector3d p1( 4000., 0., 0.); // FixedEnd
+
+      lineMarkupsNode->AddControlPoint( p0, "FixedBegin");
+      lineMarkupsNode->AddControlPoint( p1, "FixedEnd");
+    }
 /*
     // update points in line node
     vtkVector3d p0( -4000., 0., 0.); // FixedBegin
