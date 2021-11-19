@@ -70,6 +70,7 @@ public slots:
   void onPatientSupportRotationAngleChanged(double);
 
   void onPatientTableTopTranslationChanged(double*);
+  void onRotatePatientHeadFeetToggled(bool toggled);
 
   /// Update widget GUI from RT Image parameters node
   void updateWidgetFromMRML();

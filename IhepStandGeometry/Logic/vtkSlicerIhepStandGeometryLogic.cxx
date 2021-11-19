@@ -2112,7 +2112,10 @@ vtkMRMLLinearTransformNode* vtkSlicerIhepStandGeometryLogic::UpdateTableOriginMa
   vtkNew<vtkTransform> patientToRasTransform;
   patientToRasTransform->Identity();
   patientToRasTransform->RotateX(-90.);
-  patientToRasTransform->RotateZ(180.);
+  if (!parameterNode->GetPatientHeadFeetRotation())
+  {
+    patientToRasTransform->RotateZ(180.);
+  }
 
   // Transform path: RAS -> Patient -> TableTop -> TableTopOrigin
 
@@ -2170,7 +2173,10 @@ vtkMRMLLinearTransformNode* vtkSlicerIhepStandGeometryLogic::UpdateTableMirrorMa
   vtkNew<vtkTransform> patientToRasTransform;
   patientToRasTransform->Identity();
   patientToRasTransform->RotateX(-90.);
-  patientToRasTransform->RotateZ(180.);
+  if (!parameterNode->GetPatientHeadFeetRotation())
+  {
+    patientToRasTransform->RotateZ(180.);
+  }
 
   // Transform path: RAS -> Patient -> TableTop -> TableTopMirror
 
@@ -2228,7 +2234,10 @@ vtkMRMLLinearTransformNode* vtkSlicerIhepStandGeometryLogic::UpdateTableMiddleMa
   vtkNew<vtkTransform> patientToRasTransform;
   patientToRasTransform->Identity();
   patientToRasTransform->RotateX(-90.);
-  patientToRasTransform->RotateZ(180.);
+  if (!parameterNode->GetPatientHeadFeetRotation())
+  {
+    patientToRasTransform->RotateZ(180.);
+  }
 
   // Transform path: RAS -> Patient -> TableTop -> TableTopMiddle
 
@@ -2286,7 +2295,10 @@ vtkMRMLLinearTransformNode* vtkSlicerIhepStandGeometryLogic::UpdateTableTopPlane
   vtkNew<vtkTransform> patientToRasTransform;
   patientToRasTransform->Identity();
   patientToRasTransform->RotateX(-90.);
-  patientToRasTransform->RotateZ(180.);
+  if (!parameterNode->GetPatientHeadFeetRotation())
+  {
+    patientToRasTransform->RotateZ(180.);
+  }
 
   // Transform path: RAS -> Patient -> TableTop
 
@@ -2341,10 +2353,14 @@ vtkMRMLLinearTransformNode* vtkSlicerIhepStandGeometryLogic::UpdateFixedReferenc
   using IHEP = vtkSlicerIhepStandGeometryTransformLogic::CoordinateSystemIdentifier;
 
   // Transform IHEP stand models (IEC Patient) to RAS
+  // Transform IHEP stand models (IEC Patient) to RAS
   vtkNew<vtkTransform> patientToRasTransform;
   patientToRasTransform->Identity();
   patientToRasTransform->RotateX(-90.);
-  patientToRasTransform->RotateZ(180.);
+  if (!parameterNode->GetPatientHeadFeetRotation())
+  {
+    patientToRasTransform->RotateZ(180.);
+  }
 
   // Transformation path: RAS -> Patient -> TableTop -> TableTopOrigin -> TableTopSupport -> TablePlatform -> PatientSupport -> FixedReference
 

@@ -160,7 +160,8 @@ void qSlicerIhepStandGeometryModuleWidget::setup()
   connect( d->CoordinatesWidget_PatientTableTopTranslation, SIGNAL(coordinatesChanged(double*)), 
     this, SLOT(onPatientTableTopTranslationChanged(double*)));
 
-  connect( d->checkBox_FixedReferenceCamera, SIGNAL(toggled(bool)), this, SLOT(updateFixedReferenceCamera(bool)));
+  connect( d->CheckBox_FixedReferenceCamera, SIGNAL(toggled(bool)), this, SLOT(updateFixedReferenceCamera(bool)));
+  connect( d->CheckBox_RotatePatientHeadFeet, SIGNAL(toggled(bool)), this, SLOT(onRotatePatientHeadFeetToggled(bool)));
 
   // Buttons
   connect( d->PushButton_LoadStandModels, SIGNAL(clicked()), this, SLOT(onLoadModelsButtonClicked()));
@@ -674,7 +675,8 @@ void qSlicerIhepStandGeometryModuleWidget::updateWidgetFromMRML()
   parameterNode->GetPatientToTableTopTranslation(patientToTableTopTranslation);
 
   d->CoordinatesWidget_PatientTableTopTranslation->setCoordinates(patientToTableTopTranslation);
-  d->checkBox_FixedReferenceCamera->setChecked(parameterNode->GetUseStandCoordinateSystem());
+  d->CheckBox_RotatePatientHeadFeet->setChecked(parameterNode->GetPatientHeadFeetRotation());
+  d->CheckBox_FixedReferenceCamera->setChecked(parameterNode->GetUseStandCoordinateSystem());
 }
 
 //-----------------------------------------------------------------------------
@@ -1103,6 +1105,16 @@ void qSlicerIhepStandGeometryModuleWidget::updateFixedReferenceCamera(bool updat
   cameras->Delete();
 
 #endif
+}
+
+//-----------------------------------------------------------------------------
+void qSlicerIhepStandGeometryModuleWidget::onRotatePatientHeadFeetToggled(bool toggled)
+{
+  Q_D(qSlicerIhepStandGeometryModuleWidget);
+
+  vtkMRMLIhepStandGeometryNode* parameterNode = vtkMRMLIhepStandGeometryNode::SafeDownCast(d->MRMLNodeComboBox_ParameterSet->currentNode());
+
+  parameterNode->SetPatientHeadFeetRotation(toggled);
 }
 
 //-----------------------------------------------------------------------------
