@@ -72,6 +72,13 @@ public:
   /// Get visibility icon for a visibility state
   Q_INVOKABLE virtual QIcon visibilityIcon(int visible);
 
+  /// Set display visibility of a owned subject hierarchy item
+  void setDisplayVisibility(vtkIdType itemID, int visible) override;
+
+  /// Get display visibility of a owned subject hierarchy item
+  /// \return Display visibility (0: hidden, 1: shown, 2: partially shown)
+  int getDisplayVisibility(vtkIdType itemID)const override;
+
 protected:
   QScopedPointer<qSlicerSubjectHierarchyRTBeamPluginPrivate> d_ptr;
 

@@ -34,6 +34,8 @@
 #include <vtkMRMLScene.h>
 #include <vtkMRMLModelNode.h>
 #include <vtkMRMLRTBeamNode.h>
+#include <vtkMRMLDisplayNode.h>
+#include <vtkMRMLModelDisplayNode.h>
 
 // MRML Widgets includes
 #include <qMRMLNodeComboBox.h>
@@ -163,4 +165,106 @@ QIcon qSlicerSubjectHierarchyRTBeamPlugin::visibilityIcon(int visible)
 {
   // Have the default plugin (which is not registered) take care of this
   return qSlicerSubjectHierarchyPluginHandler::instance()->defaultPlugin()->visibilityIcon(visible);
+}
+
+//---------------------------------------------------------------------------
+void qSlicerSubjectHierarchyRTBeamPlugin::setDisplayVisibility(vtkIdType itemID, int visible)
+{
+  if (itemID == vtkMRMLSubjectHierarchyNode::INVALID_ITEM_ID)
+    {
+    qCritical() << Q_FUNC_INFO << ": Invalid input item";
+    return;
+    }
+  vtkMRMLSubjectHierarchyNode* shNode = qSlicerSubjectHierarchyPluginHandler::instance()->subjectHierarchyNode();
+  if (!shNode)
+    {
+    qCritical() << Q_FUNC_INFO << ": Failed to access subject hierarchy node";
+    return;
+    }
+
+  qDebug() << Q_FUNC_INFO << " Test";
+ 
+  // Model
+  vtkMRMLModelNode* associatedModelNode = vtkMRMLModelNode::SafeDownCast(shNode->GetItemDataNode(itemID));
+  if (associatedModelNode)
+    {
+    // Return with 1 if volume is shown using volume rendering
+    int numberOfDisplayNodes = associatedModelNode->GetNumberOfDisplayNodes();
+    for (int displayNodeIndex = 0; displayNodeIndex < numberOfDisplayNodes; displayNodeIndex++)
+      {
+      vtkMRMLDisplayNode* displayNode = associatedModelNode->GetNthDisplayNode(displayNodeIndex);
+      if (!displayNode)
+        {
+        continue;
+        }
+//      if (displayNode->IsA("vtkMRMLColorBarDisplayNode"))
+//        {
+//        displayNode->SetVisibility(false);
+//        continue;
+        // scalar volume display node does not control visibility, visibility in those
+        // views will be collected from slice views below
+//        displayNode->VisibilityOff();
+//        }
+      if (displayNode && displayNode->IsA("vtkMRMLModelDisplayNode"))
+        {
+        displayNode->SetVisibility(visible);
+        }
+      }
+    }
+  // Default
+  else
+    {
+    qSlicerSubjectHierarchyPluginHandler::instance()->defaultPlugin()->setDisplayVisibility(itemID, visible);
+    }
+}
+
+//-----------------------------------------------------------------------------
+int qSlicerSubjectHierarchyRTBeamPlugin::getDisplayVisibility(vtkIdType itemID)const
+{
+  if (itemID == vtkMRMLSubjectHierarchyNode::INVALID_ITEM_ID)
+    {
+    qCritical() << Q_FUNC_INFO << ": Invalid input item";
+    return -1;
+    }
+  vtkMRMLSubjectHierarchyNode* shNode = qSlicerSubjectHierarchyPluginHandler::instance()->subjectHierarchyNode();
+  if (!shNode)
+    {
+    qCritical() << Q_FUNC_INFO << ": Failed to access subject hierarchy node";
+    return -1;
+    }
+
+  // Sanity checks for model
+  vtkMRMLRTBeamNode* rtBeamNode = vtkMRMLRTBeamNode::SafeDownCast(shNode->GetItemDataNode(itemID));
+  if (!rtBeamNode)
+    {
+    return -1;
+    }
+
+  // Return with 1 if volume is shown using volume rendering
+  int numberOfDisplayNodes = rtBeamNode->GetNumberOfDisplayNodes();
+  for (int displayNodeIndex = 0; displayNodeIndex < numberOfDisplayNodes; displayNodeIndex++)
+    {
+    vtkMRMLDisplayNode* displayNode = rtBeamNode->GetNthDisplayNode(displayNodeIndex);
+    if (!displayNode)
+      {
+      continue;
+      }
+    if (displayNode->IsA("vtkMRMLColorBarDisplayNode"))
+      {
+      // scalar volume display node does not control visibility, visibility in those
+      // views will be collected from slice views below
+      return 0;
+      }
+//    if (displayNode->IsA("vtkMRMLColorBarDisplayNode"))
+//      {
+      // scalar volume display node does not control visibility, visibility in those
+      // views will be collected from slice views below
+//      return 0.3;
+//      }
+    if (displayNode->GetVisibility())
+      {
+      return 1;
+      }
+    }
+  return 0;
 }
