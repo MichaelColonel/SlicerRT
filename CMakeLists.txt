@@ -87,6 +87,10 @@ if (SLICERRT_ENABLE_EXPERIMENTAL_MODULES)
   # Registration validation routines
   add_subdirectory(PlmSynth)
   add_subdirectory(PlmVectorFieldAnalysis)
+
+  # IHEP-RBS modules
+  add_subdirectory(IhepStandGeometry)
+  add_subdirectory(IhepRegistration)
 endif()
 
 if(BUILD_TESTING)
