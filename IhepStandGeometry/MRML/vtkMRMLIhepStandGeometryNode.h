@@ -65,6 +65,11 @@ public:
   /// Set and observe beam node. This updates Normal and View-Up vectors.
   void SetAndObserveBeamNode(vtkMRMLRTBeamNode* node);
 
+  /// Get fixed reference beam node
+  vtkMRMLRTBeamNode* GetFixedBeamNode();
+  /// Set and observe fixed reference beam node.
+  void SetAndObserveFixedBeamNode(vtkMRMLRTBeamNode* node);
+
   /// Get patient body segmentation node
   vtkMRMLSegmentationNode* GetPatientBodySegmentationNode();
   /// Set and observe patient body segmentation node

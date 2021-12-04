@@ -129,7 +129,6 @@ public:
   /// Lateral movement of the table top
   void UpdateTablePlatformToPatientSupportTransform(vtkMRMLIhepStandGeometryNode* parameterNode);
 
-
   /// Apply new PatientSupport to FixedReference transform (PatientSupport->FixedReference)
   /// Rotation around Zt-axis
   void UpdatePatientSupportToFixedReferenceTransform(vtkMRMLIhepStandGeometryNode* parameterNode);
@@ -142,6 +141,14 @@ public:
 
   /// Set up the IHEP transforms and model properties on the treatment machine models
   void CalculateMovementsForBeam(vtkMRMLIhepStandGeometryNode* parameterNode);
+
+  /// Create fixed reference beam and plan and add beam to the parameter node
+  void CreateFixedBeamPlanAndNode(vtkMRMLIhepStandGeometryNode* parameterNode);
+
+  /// Calculate table top translation for patient isocenter to fixed beam isocenter
+  void CalculateTableTopTranslation( vtkMRMLIhepStandGeometryNode* parameterNode, const double patientIsocenter[3], const double fixedIsocenter[3]);
+  /// Calculate transform matrix between RT patient beam and fixed reference beam
+  void CalculateTransformBetweenBeams( vtkMRMLIhepStandGeometryNode* parameterNode, vtkMRMLRTBeamNode* patientBeam, vtkMRMLRTBeamNode* fixedBeam);
 
 //  void SetupFixedReferenceModel(vtkMRMLIhepStandGeometryNode* parameterNode);
 //  void UpdateFixedReferenceModel(vtkMRMLIhepStandGeometryNode* parameterNode);

@@ -363,56 +363,6 @@
    </item>
    <item row="0" column="0">
     <layout class="QGridLayout" name="gridLayout">
-     <item row="0" column="0">
-      <widget class="QLabel" name="label">
-       <property name="text">
-        <string>Parameter set:</string>
-       </property>
-      </widget>
-     </item>
-     <item row="2" column="1">
-      <widget class="qMRMLNodeComboBox" name="MRMLNodeComboBox_ReferenceVolume">
-       <property name="nodeTypes">
-        <stringlist>
-         <string>vtkMRMLScalarVolumeNode</string>
-        </stringlist>
-       </property>
-       <property name="noneEnabled">
-        <bool>true</bool>
-       </property>
-       <property name="addEnabled">
-        <bool>false</bool>
-       </property>
-       <property name="removeEnabled">
-        <bool>false</bool>
-       </property>
-       <property name="noneDisplay">
-        <string>Please select a node</string>
-       </property>
-      </widget>
-     </item>
-     <item row="3" column="1">
-      <widget class="qMRMLSegmentSelectorWidget" name="SegmentSelectorWidget_TargetVolume"/>
-     </item>
-     <item row="0" column="1">
-      <widget class="qMRMLNodeComboBox" name="MRMLNodeComboBox_ParameterSet">
-       <property name="nodeTypes">
-        <stringlist>
-         <string>vtkMRMLIhepStandGeometryNode</string>
-        </stringlist>
-       </property>
-       <property name="noneDisplay">
-        <string>Please select a node</string>
-       </property>
-      </widget>
-     </item>
-     <item row="1" column="0">
-      <widget class="QLabel" name="label_4">
-       <property name="text">
-        <string>Beam:</string>
-       </property>
-      </widget>
-     </item>
      <item row="1" column="1">
       <widget class="qMRMLNodeComboBox" name="MRMLNodeComboBox_RtBeam">
        <property name="nodeTypes">
@@ -438,17 +388,84 @@
        </property>
       </widget>
      </item>
-     <item row="2" column="0">
+     <item row="0" column="0">
+      <widget class="QLabel" name="label">
+       <property name="text">
+        <string>Parameter set:</string>
+       </property>
+      </widget>
+     </item>
+     <item row="3" column="1">
+      <widget class="qMRMLNodeComboBox" name="MRMLNodeComboBox_ReferenceVolume">
+       <property name="nodeTypes">
+        <stringlist>
+         <string>vtkMRMLScalarVolumeNode</string>
+        </stringlist>
+       </property>
+       <property name="noneEnabled">
+        <bool>true</bool>
+       </property>
+       <property name="addEnabled">
+        <bool>false</bool>
+       </property>
+       <property name="removeEnabled">
+        <bool>false</bool>
+       </property>
+       <property name="noneDisplay">
+        <string>Please select a node</string>
+       </property>
+      </widget>
+     </item>
+     <item row="4" column="1">
+      <widget class="qMRMLSegmentSelectorWidget" name="SegmentSelectorWidget_TargetVolume"/>
+     </item>
+     <item row="0" column="1">
+      <widget class="qMRMLNodeComboBox" name="MRMLNodeComboBox_ParameterSet">
+       <property name="nodeTypes">
+        <stringlist>
+         <string>vtkMRMLIhepStandGeometryNode</string>
+        </stringlist>
+       </property>
+       <property name="noneDisplay">
+        <string>Please select a node</string>
+       </property>
+      </widget>
+     </item>
+     <item row="1" column="0">
+      <widget class="QLabel" name="label_4">
+       <property name="text">
+        <string>RT Beam:</string>
+       </property>
+      </widget>
+     </item>
+     <item row="4" column="0">
+      <widget class="QLabel" name="label_5">
+       <property name="text">
+        <string>Target volume:</string>
+       </property>
+      </widget>
+     </item>
+     <item row="3" column="0">
       <widget class="QLabel" name="label_2">
        <property name="text">
         <string>Reference volume:</string>
        </property>
       </widget>
      </item>
-     <item row="3" column="0">
-      <widget class="QLabel" name="label_5">
+     <item row="2" column="0">
+      <widget class="QLabel" name="label_15">
        <property name="text">
-        <string>Target volume:</string>
+        <string>Fixed Beam:</string>
+       </property>
+      </widget>
+     </item>
+     <item row="2" column="1">
+      <widget class="qMRMLNodeComboBox" name="MRMLNodeComboBox_FixedBeam">
+       <property name="nodeTypes">
+        <stringlist>
+         <string>vtkMRMLRTBeamNode</string>
+         <string>vtkMRMLRTIonBeamNode</string>
+        </stringlist>
        </property>
       </widget>
      </item>
@@ -577,6 +594,22 @@
     <hint type="destinationlabel">
      <x>318</x>
      <y>160</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>qSlicerIhepStandGeometryModuleWidget</sender>
+   <signal>mrmlSceneChanged(vtkMRMLScene*)</signal>
+   <receiver>MRMLNodeComboBox_FixedBeam</receiver>
+   <slot>setMRMLScene(vtkMRMLScene*)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>233</x>
+     <y>460</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>291</x>
+     <y>79</y>
     </hint>
    </hints>
   </connection>

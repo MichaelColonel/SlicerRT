@@ -136,10 +136,10 @@ class IhepRegistrationWidget(ScriptedLoadableModuleWidget, VTKObservationMixin):
     # (in the selected parameter node).
     self.ui.MRMLNodeComboBox_FixedDrrImage.connect("currentNodeChanged(vtkMRMLNode*)", self.updateParameterNodeFromGUI)
     self.ui.MRMLNodeComboBox_ExtXrayImage.connect("currentNodeChanged(vtkMRMLNode*)", self.updateParameterNodeFromGUI)
-    self.ui.CheckBox_RigidTransform.connect("toggled(bool)", self.updateParameterNodeFromGUI)
+    self.ui.GroupBox_RigidTransform.connect("toggled(bool)", self.updateParameterNodeFromGUI)
     self.ui.ComboBox_RigidTransformType.connect("currentIndexChanged(QString)", self.updateParameterNodeFromGUI)
     # Rigid output transformation 
-    self.ui.MRMLNodeComboBox_RigidTransform.connect("currentNodeChanged(vtkMRMLNode*)", self.updateParameterNodeFromGUI)
+    self.ui.MRMLNodeComboBox_RegistrationTransform.connect("currentNodeChanged(vtkMRMLNode*)", self.updateParameterNodeFromGUI)
 
     # Buttons
     self.ui.PushButton_Calculate.connect('clicked()', self.onCalculateButton)
@@ -233,7 +233,7 @@ class IhepRegistrationWidget(ScriptedLoadableModuleWidget, VTKObservationMixin):
     # Update node selectors and sliders
     self.ui.MRMLNodeComboBox_FixedDrrImage.setCurrentNode(self._parameterNode.GetNodeReference("DrrVolume"))
     self.ui.MRMLNodeComboBox_ExtXrayImage.setCurrentNode(self._parameterNode.GetNodeReference("ExtVolume"))
-    self.ui.MRMLNodeComboBox_RigidTransform.setCurrentNode(self._parameterNode.GetNodeReference("OutputRigidTransform"))
+    self.ui.MRMLNodeComboBox_RegistrationTransform.setCurrentNode(self._parameterNode.GetNodeReference("OutputRigidTransform"))
     self.ui.GroupBox_RigidTransform.checked = (self._parameterNode.GetParameter("RigidTransformFlag") == "true")
     if self._parameterNode.GetParameter("RigidTransformType") != '':
       self.ui.ComboBox_RigidTransformType.currentIndex = int(self._parameterNode.GetParameter("RigidTransformType"))
@@ -262,7 +262,7 @@ class IhepRegistrationWidget(ScriptedLoadableModuleWidget, VTKObservationMixin):
 
     self._parameterNode.SetNodeReferenceID("DrrVolume", self.ui.MRMLNodeComboBox_FixedDrrVolume.currentNodeID)
     self._parameterNode.SetNodeReferenceID("ExtVolume", self.ui.MRMLNodeComboBox_ExtXrayVolume.currentNodeID)
-    self._parameterNode.SetNodeReferenceID("OutputRigidTransform", self.ui.MRMLNodeComboBox_RigidTransform.currentNodeID)
+    self._parameterNode.SetNodeReferenceID("OutputRigidTransform", self.ui.MRMLNodeComboBox_RegistrationTransform.currentNodeID)
     self._parameterNode.SetParameter("RigidTransformType", str(self.ui.ComboBox_RigidTransformType.currentIndex))
     self._parameterNode.SetParameter("RigidTransformFlag", "true" if self.ui.CheckBox_RigidTransform.checked else "false")
 
@@ -278,7 +278,7 @@ class IhepRegistrationWidget(ScriptedLoadableModuleWidget, VTKObservationMixin):
       self.logic.process( self.ui.MRMLNodeComboBox_FixedDrrImage.currentNode(), 
         self.ui.MRMLNodeComboBox_ExtXrayImage.currentNode(),
         self.ui.ComboBox_RigidTransformType.currentIndex, 
-        self.ui.CheckBox_RigidTransform.checked)
+        self.ui.GroupBox_RigidTransform.checked)
 
       # Compute inverted output (if needed)
       if self.ui.invertedOutputSelector.currentNode():

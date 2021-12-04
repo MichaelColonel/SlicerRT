@@ -39,6 +39,7 @@ namespace
 {
 
 const char* BEAM_REFERENCE_ROLE = "beamRef";
+const char* FIXED_BEAM_REFERENCE_ROLE = "fixedBeamRef";
 const char* PATIENT_BODY_SEGMENTATION_REFERENCE_ROLE = "patientBodySegmentationRef";
 const char* PATIENT_BODY_VOLUME_REFERENCE_ROLE = "patientBodyVolumeRef";
 
@@ -245,6 +246,30 @@ void vtkMRMLIhepStandGeometryNode::SetAndObserveBeamNode(vtkMRMLRTBeamNode* node
   }
 
   this->SetNodeReferenceID(BEAM_REFERENCE_ROLE, (node ? node->GetID() : nullptr));
+}
+
+//----------------------------------------------------------------------------
+vtkMRMLRTBeamNode* vtkMRMLIhepStandGeometryNode::GetFixedBeamNode()
+{
+  return vtkMRMLRTBeamNode::SafeDownCast( this->GetNodeReference(FIXED_BEAM_REFERENCE_ROLE) );
+}
+
+//----------------------------------------------------------------------------
+void vtkMRMLIhepStandGeometryNode::SetAndObserveFixedBeamNode(vtkMRMLRTBeamNode* node)
+{
+  if (node && this->Scene != node->GetScene())
+  {
+    vtkErrorMacro("SetAndObserveFixedBeamNode: Cannot set reference, the referenced and referencing node are not in the same scene");
+    return;
+  }
+
+  this->SetNodeReferenceID(FIXED_BEAM_REFERENCE_ROLE, (node ? node->GetID() : nullptr));
+}
+
+//----------------------------------------------------------------------------
+vtkMRMLSegmentationNode* vtkMRMLIhepStandGeometryNode::GetPatientBodySegmentationNode()
+{
+  return vtkMRMLSegmentationNode::SafeDownCast( this->GetNodeReference(PATIENT_BODY_SEGMENTATION_REFERENCE_ROLE) );
 }
 
 //----------------------------------------------------------------------------
