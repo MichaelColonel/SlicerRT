@@ -273,12 +273,6 @@ vtkMRMLSegmentationNode* vtkMRMLIhepStandGeometryNode::GetPatientBodySegmentatio
 }
 
 //----------------------------------------------------------------------------
-vtkMRMLSegmentationNode* vtkMRMLIhepStandGeometryNode::GetPatientBodySegmentationNode()
-{
-  return vtkMRMLSegmentationNode::SafeDownCast( this->GetNodeReference(PATIENT_BODY_SEGMENTATION_REFERENCE_ROLE) );
-}
-
-//----------------------------------------------------------------------------
 void vtkMRMLIhepStandGeometryNode::SetAndObservePatientBodySegmentationNode(vtkMRMLSegmentationNode* node)
 {
   if (node && this->Scene != node->GetScene())
