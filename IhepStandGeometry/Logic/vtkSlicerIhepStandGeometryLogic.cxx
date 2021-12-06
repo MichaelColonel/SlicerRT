@@ -21,6 +21,11 @@
 // SlicerRT MRML includes
 #include <vtkMRMLIhepStandGeometryNode.h>
 
+// SubjectHierarchy includes
+#include "vtkMRMLSubjectHierarchyConstants.h"
+#include "vtkMRMLSubjectHierarchyNode.h"
+#include "vtkSlicerSubjectHierarchyModuleLogic.h"
+
 // VTK includes
 #include <vtkIntArray.h>
 #include <vtkNew.h>
@@ -32,7 +37,7 @@
 // SlicerRT includes
 #include <vtkMRMLRTPlanNode.h>
 #include <vtkMRMLRTBeamNode.h>
-#include <vtkMRMLRTIonBeamNode.h>
+#include <vtkMRMLRTFixedIonBeamNode.h>
 #include <vtkSlicerRtCommon.h>
 
 // MRML includes
@@ -2597,7 +2602,6 @@ void vtkSlicerIhepStandGeometryLogic::CalculateMovementsForBeam(vtkMRMLIhepStand
     fixedReferenceLineNode = vtkMRMLMarkupsLineNode::SafeDownCast(scene->GetFirstNodeByName(FIXEDREFERENCE_MARKUPS_LINE_NODE_NAME));
   }
 
-
   double* posBegin = fixedReferenceLineNode->GetNthControlPointPosition(0);
   double* posEnd = fixedReferenceLineNode->GetNthControlPointPosition(1);
 
@@ -2630,6 +2634,13 @@ void vtkSlicerIhepStandGeometryLogic::CreateFixedBeamPlanAndNode(vtkMRMLIhepStan
     return;
   }
 
+  vtkMRMLSubjectHierarchyNode* shNode = vtkMRMLSubjectHierarchyNode::GetSubjectHierarchyNode(scene);
+  if (!shNode)
+  {
+    vtkErrorMacro("CreateFixedBeamPlanAndNode: Failed to access subject hierarchy node");
+    return;
+  }
+
   if (!parameterNode)
   {
     vtkErrorMacro("CreateFixedBeamPlanAndNode: Invalid parameter node");
@@ -2641,7 +2652,7 @@ void vtkSlicerIhepStandGeometryLogic::CreateFixedBeamPlanAndNode(vtkMRMLIhepStan
   vtkSmartPointer<vtkMRMLRTBeamNode> beamNode;
   if (fixedPlanNode->GetIonPlanFlag())
   {
-    beamNode = vtkSmartPointer<vtkMRMLRTIonBeamNode>::New();
+    beamNode = vtkSmartPointer<vtkMRMLRTFixedIonBeamNode>::New();
   }
   else
   {
@@ -2660,9 +2671,21 @@ void vtkSlicerIhepStandGeometryLogic::CreateFixedBeamPlanAndNode(vtkMRMLIhepStan
   fixedPlanNode->AddBeam(beamNode);
   if (fixedIsocenterNode)
   {
+    // Get fixed plan and isocenter Subject Hierarchy ID
+    vtkIdType fixedIsocenterShId = vtkMRMLSubjectHierarchyNode::INVALID_ITEM_ID;
+    vtkIdType fixedPlanShId = vtkMRMLSubjectHierarchyNode::INVALID_ITEM_ID;
+    // set fixed plan ID as a parent of fixed isocenter
+    fixedPlanShId = shNode->GetItemByDataNode(fixedPlanNode);
+    fixedIsocenterShId = shNode->GetItemByDataNode(fixedIsocenterNode);
+    if (fixedPlanShId != vtkMRMLSubjectHierarchyNode::INVALID_ITEM_ID && 
+      fixedIsocenterShId != vtkMRMLSubjectHierarchyNode::INVALID_ITEM_ID)
+    {
+      shNode->SetItemParent( fixedIsocenterShId, fixedPlanShId);
+    }
+
     fixedPlanNode->SetAndObservePoisMarkupsFiducialNode(fixedIsocenterNode);
   }
-  beamNode->SetGantryAngle(90.);
+
   vtkMRMLTransformNode* beamTranfsormNode = beamNode->GetParentTransformNode();
   // Find RasToFixedReferenceTransform or create it
   vtkMRMLLinearTransformNode* rasToFixedReferenceTransformNode = nullptr;

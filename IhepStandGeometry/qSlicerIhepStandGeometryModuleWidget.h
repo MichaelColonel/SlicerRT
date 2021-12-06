@@ -49,6 +49,7 @@ public slots:
   void onSceneClosedEvent();
   void onParameterNodeChanged(vtkMRMLNode*);
   void onRTBeamNodeChanged(vtkMRMLNode*);
+  void onRTFixedIonBeamNodeChanged(vtkMRMLNode*);
   void onReferenceVolumeNodeChanged(vtkMRMLNode*);
   void onPatientBodySegmentationNodeChanged(vtkMRMLNode*);
   void onPatientBodySegmentNameChanged(const QString&);

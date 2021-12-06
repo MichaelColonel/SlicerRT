@@ -42,14 +42,13 @@ vtkMRMLRTFixedIonBeamNode::vtkMRMLRTFixedIonBeamNode()
 //----------------------------------------------------------------------------
 vtkMRMLRTFixedIonBeamNode::~vtkMRMLRTFixedIonBeamNode()
 {
-  Superclass::~Superclass();
 }
 
 //----------------------------------------------------------------------------
 void vtkMRMLRTFixedIonBeamNode::CreateDefaultDisplayNodes()
 {
   // Create default model display node
-  Superclass::CreateDefaultDisplayNodes();
+  this->vtkMRMLModelNode::CreateDefaultDisplayNodes();
 
   // Set beam-specific parameters
   vtkMRMLModelDisplayNode* displayNode = vtkMRMLModelDisplayNode::SafeDownCast(this->GetDisplayNode());
@@ -59,5 +58,9 @@ void vtkMRMLRTFixedIonBeamNode::CreateDefaultDisplayNodes()
     return;
   }
 
-  displayNode->SetColor(0.2, 0.0, 1.);
+  displayNode->SetColor(0.3, 0.1, 1.0);
+  displayNode->SetOpacity(0.3);
+  displayNode->SetBackfaceCulling(0); // Disable backface culling to make the back side of the contour visible as well
+  displayNode->VisibilityOn();
+  displayNode->Visibility2DOn();
 }
