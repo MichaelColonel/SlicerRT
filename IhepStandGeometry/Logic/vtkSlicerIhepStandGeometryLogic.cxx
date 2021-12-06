@@ -1353,6 +1353,7 @@ void vtkSlicerIhepStandGeometryLogic::LoadTreatmentMachineModels(vtkMRMLIhepStan
   this->UpdateTableMiddleFiducialNode(parameterNode);
   this->UpdateTableTopPlaneNode(parameterNode);
   this->UpdateFixedReferenceLineNode(parameterNode);
+  this->CreateFixedBeamPlanAndNode(parameterNode);
 }
 
 //----------------------------------------------------------------------------
@@ -2564,22 +2565,6 @@ void vtkSlicerIhepStandGeometryLogic::SetFixedReferenceCamera(vtkMRMLCameraNode*
   }
 }
 
-//------------------------------------------------------------------------------
-void vtkSlicerIhepStandGeometryLogic::SetFixedReferenceCamera(vtkMRMLCameraNode* cameraNode)
-{
-  if (!cameraNode && !this->Camera3DViewNode)
-  {
-    vtkErrorMacro("SetFixedReferenceCamera: Both argument pointer and member pointer to camera node are invalid");
-    return;
-  }
-
-  if (cameraNode)
-  {
-    vtkDebugMacro("SetFixedReferenceCamera: Set member camera node");
-    this->Camera3DViewNode = cameraNode;
-  }
-}
-
 //----------------------------------------------------------------------------
 void vtkSlicerIhepStandGeometryLogic::CalculateMovementsForBeam(vtkMRMLIhepStandGeometryNode* parameterNode)
 {
@@ -2641,33 +2626,63 @@ void vtkSlicerIhepStandGeometryLogic::CreateFixedBeamPlanAndNode(vtkMRMLIhepStan
 
   if (!scene)
   {
-    vtkErrorMacro("SetupTreatmentMachineModels: Invalid scene");
+    vtkErrorMacro("CreateFixedBeamPlanAndNode: Invalid scene");
     return;
   }
 
   if (!parameterNode)
   {
-    vtkErrorMacro("UpdateFixedReferenceMarkupsTransform: Invalid parameter node");
+    vtkErrorMacro("CreateFixedBeamPlanAndNode: Invalid parameter node");
     return;
   }
-  vtkMRMLRTPlanNode* fixedPlanNode = vtkMRMLRTPlanNode::SafeDownCast(scene->AddNodeByClass( "vtkMRMLRTPlanNode", "FixedPlan"));
-  vtkMRMLRTIonBeamNode* fixedBeamNode = vtkMRMLRTIonBeamNode::SafeDownCast(scene->AddNodeByClass( "vtkMRMLRTIonBeamNode", "FixedBeam"));
-  fixedPlanNode->AddBeam(fixedBeamNode);
-  fixedBeamNode->SetGantryAngle(90.);
-  vtkMRMLTransformNode* beamTranfsormNode = fixedBeamNode->GetParentTransformNode();
-  
-    // PatientSupport parent, lateral movement of table platform
-  this->GetTransformNodeBetween(IHEP::TablePlatform, IHEP::PatientSupport)->SetAndObserveTransformNodeID(
-    this->GetTransformNodeBetween(IHEP::PatientSupport, IHEP::FixedReference)->GetID() );
+  vtkMRMLRTPlanNode* fixedPlanNode = vtkMRMLRTPlanNode::SafeDownCast(scene->AddNewNodeByClass( "vtkMRMLRTPlanNode", "FixedPlan"));
+  fixedPlanNode->SetIonPlanFlag(true);
+  // Create beam and add to scene
+  vtkSmartPointer<vtkMRMLRTBeamNode> beamNode;
+  if (fixedPlanNode->GetIonPlanFlag())
+  {
+    beamNode = vtkSmartPointer<vtkMRMLRTIonBeamNode>::New();
+  }
+  else
+  {
+    beamNode = vtkSmartPointer<vtkMRMLRTBeamNode>::New();
+  }
 
-  // Find RasToTableTopMiddleTransform or create it
-  vtkSmartPointer<vtkMRMLLinearTransformNode> rasToTableTopMiddleTransformNode;
-  if (scene->GetFirstNodeByName("RasToTableTopMiddleTransform"))
+  vtkMRMLMarkupsFiducialNode* fixedIsocenterNode = nullptr;
+
+  // fixed isocenter fiducial markups node
+  if (scene->GetFirstNodeByName(FIXEDISOCENTER_MARKUPS_FIDUCIAL_NODE_NAME))
   {
-    rasToTableTopMiddleTransformNode = vtkMRMLLinearTransformNode::SafeDownCast(
-      scene->GetFirstNodeByName("RasToTableTopMiddleTransform"));
+    fixedIsocenterNode = vtkMRMLMarkupsFiducialNode::SafeDownCast(scene->GetFirstNodeByName(FIXEDISOCENTER_MARKUPS_FIDUCIAL_NODE_NAME));
   }
-  if (rasToTableTopMiddleTransformNode)
+  beamNode->SetName(fixedPlanNode->GenerateNewBeamName().c_str());
+  fixedPlanNode->GetScene()->AddNode(beamNode);
+  fixedPlanNode->AddBeam(beamNode);
+  if (fixedIsocenterNode)
   {
+    fixedPlanNode->SetAndObservePoisMarkupsFiducialNode(fixedIsocenterNode);
   }
+  beamNode->SetGantryAngle(90.);
+  vtkMRMLTransformNode* beamTranfsormNode = beamNode->GetParentTransformNode();
+  // Find RasToFixedReferenceTransform or create it
+  vtkMRMLLinearTransformNode* rasToFixedReferenceTransformNode = nullptr;
+  if (scene->GetFirstNodeByName("RasToFixedReferenceTransform"))
+  {
+    rasToFixedReferenceTransformNode = vtkMRMLLinearTransformNode::SafeDownCast(
+      scene->GetFirstNodeByName("RasToFixedReferenceTransform"));
+  }
+  if (beamTranfsormNode && rasToFixedReferenceTransformNode)
+  {
+    beamTranfsormNode->SetAndObserveTransformNodeID( rasToFixedReferenceTransformNode->GetID() );
+  }
+}
+
+//----------------------------------------------------------------------------
+void vtkSlicerIhepStandGeometryLogic::CalculateTableTopTranslation( vtkMRMLIhepStandGeometryNode* parameterNode, const double patientIsocenter[3], const double fixedIsocenter[3])
+{
+}
+
+//----------------------------------------------------------------------------
+void vtkSlicerIhepStandGeometryLogic::CalculateTransformBetweenBeams( vtkMRMLIhepStandGeometryNode* parameterNode, vtkMRMLRTBeamNode* patientBeam, vtkMRMLRTBeamNode* fixedBeam)
+{
 }
