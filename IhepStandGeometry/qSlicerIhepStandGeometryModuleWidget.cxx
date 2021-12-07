@@ -31,6 +31,7 @@
 
 #include <vtkMRMLRTBeamNode.h>
 #include <vtkMRMLRTIonBeamNode.h>
+#include <vtkMRMLRTFixedIonBeamNode.h>
 #include "vtkMRMLRTPlanNode.h"
 
 // Slicer includes
@@ -127,6 +128,8 @@ void qSlicerIhepStandGeometryModuleWidget::setup()
   // Nodes
   connect( d->MRMLNodeComboBox_RtBeam, SIGNAL(currentNodeChanged(vtkMRMLNode*)), 
     this, SLOT(onRTBeamNodeChanged(vtkMRMLNode*)));
+  connect( d->MRMLNodeComboBox_FixedBeam, SIGNAL(currentNodeChanged(vtkMRMLNode*)), 
+    this, SLOT(onRTFixedIonBeamNodeChanged(vtkMRMLNode*)));
   connect( d->MRMLNodeComboBox_ReferenceVolume, SIGNAL(currentNodeChanged(vtkMRMLNode*)), 
     this, SLOT(onReferenceVolumeNodeChanged(vtkMRMLNode*)));
   connect( d->MRMLNodeComboBox_ParameterSet, SIGNAL(currentNodeChanged(vtkMRMLNode*)), 
@@ -667,6 +670,16 @@ void qSlicerIhepStandGeometryModuleWidget::updateWidgetFromMRML()
     d->SegmentSelectorWidget_TargetVolume->setCurrentNode(parameterNode->GetPatientBodySegmentationNode());
   }
 
+  if (parameterNode->GetFixedBeamNode())
+  {
+    d->MRMLNodeComboBox_FixedBeam->setCurrentNode(parameterNode->GetFixedBeamNode());
+  }
+
+  if (parameterNode->GetPatientBodySegmentationNode())
+  {
+    d->SegmentSelectorWidget_TargetVolume->setCurrentNode(parameterNode->GetPatientBodySegmentationNode());
+  }
+
   if (parameterNode->GetPatientBodySegmentID())
   {
     QString id(static_cast<char *>(parameterNode->GetPatientBodySegmentID()));
@@ -804,6 +817,45 @@ void qSlicerIhepStandGeometryModuleWidget::onRTBeamNodeChanged(vtkMRMLNode* node
   
   parameterNode->DisableModifiedEventOn();
   parameterNode->SetAndObserveBeamNode(beamNode);
+  parameterNode->DisableModifiedEventOff();
+
+  parameterNode->Modified();
+}
+
+/// RTBeam Node (RTBeam or RTIonBeam) changed
+void qSlicerIhepStandGeometryModuleWidget::onRTFixedIonBeamNodeChanged(vtkMRMLNode* node)
+{
+  Q_D(qSlicerIhepStandGeometryModuleWidget);
+
+  if (!this->mrmlScene())
+  {
+    qCritical() << Q_FUNC_INFO << ": Invalid scene";
+    return;
+  }
+
+//  vtkMRMLSubjectHierarchyNode* shNode = vtkMRMLSubjectHierarchyNode::GetSubjectHierarchyNode(this->mrmlScene());
+//  if (!shNode)
+//  {
+//    qCritical() << Q_FUNC_INFO << ": Failed to access subject hierarchy";
+//    return;
+//  }
+
+  vtkMRMLRTFixedIonBeamNode* beamNode = vtkMRMLRTFixedIonBeamNode::SafeDownCast(node);
+  if (!beamNode)
+  {
+    qCritical() << Q_FUNC_INFO << ": Invalid beam node";
+    return;
+  }
+
+  vtkMRMLIhepStandGeometryNode* parameterNode = vtkMRMLIhepStandGeometryNode::SafeDownCast(d->MRMLNodeComboBox_ParameterSet->currentNode());
+  if (!parameterNode || !d->ModuleWindowInitialized)
+  {
+    qCritical() << Q_FUNC_INFO << ": Invalid parameter node";
+    return;
+  }
+  
+  parameterNode->DisableModifiedEventOn();
+  parameterNode->SetAndObserveFixedBeamNode(beamNode);
   parameterNode->DisableModifiedEventOff();
 
   parameterNode->Modified();

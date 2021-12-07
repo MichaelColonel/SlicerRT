@@ -81,7 +81,6 @@ vtkMRMLRTIonBeamNode::vtkMRMLRTIonBeamNode()
 //----------------------------------------------------------------------------
 vtkMRMLRTIonBeamNode::~vtkMRMLRTIonBeamNode()
 {
-  this->SetBeamDescription(nullptr);
 }
 
 //----------------------------------------------------------------------------

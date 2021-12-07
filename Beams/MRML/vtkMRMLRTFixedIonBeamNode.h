@@ -45,7 +45,7 @@ public:
 
 protected:
   vtkMRMLRTFixedIonBeamNode();
-  ~vtkMRMLRTFixedIonBeamNode();
+  ~vtkMRMLRTFixedIonBeamNode() override;
   vtkMRMLRTFixedIonBeamNode(const vtkMRMLRTFixedIonBeamNode&);
   void operator=(const vtkMRMLRTFixedIonBeamNode&);
 };
