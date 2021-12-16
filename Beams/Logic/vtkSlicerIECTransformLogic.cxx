@@ -43,46 +43,50 @@ vtkStandardNewMacro(vtkSlicerIECTransformLogic);
 //-----------------------------------------------------------------------------
 vtkSlicerIECTransformLogic::vtkSlicerIECTransformLogic()
 {
+  using IEC = CoordinateSystemIdentifier;
   // Setup coordinate system ID to name map
   this->CoordinateSystemsMap.clear();
-  this->CoordinateSystemsMap[RAS] = "Ras";
-  this->CoordinateSystemsMap[FixedReference] = "FixedReference";
-  this->CoordinateSystemsMap[Gantry] = "Gantry";
-  this->CoordinateSystemsMap[Collimator] = "Collimator";
-  this->CoordinateSystemsMap[LeftImagingPanel] = "LeftImagingPanel";
-  this->CoordinateSystemsMap[RightImagingPanel] = "RightImagingPanel";
-  this->CoordinateSystemsMap[PatientSupportRotation] = "PatientSupportRotation";
-  this->CoordinateSystemsMap[PatientSupport] = "PatientSupport";
-  this->CoordinateSystemsMap[TableTopEccentricRotation] = "TableTopEccentricRotation";
-  this->CoordinateSystemsMap[TableTop] = "TableTop";
-  this->CoordinateSystemsMap[FlatPanel] = "FlatPanel";
-  this->CoordinateSystemsMap[WedgeFilter] = "WedgeFilter";
-  this->CoordinateSystemsMap[Patient] = "Patient";
+  this->CoordinateSystemsMap[IEC::RAS] = "Ras";
+  this->CoordinateSystemsMap[IEC::FixedReference] = "FixedReference";
+  this->CoordinateSystemsMap[IEC::Gantry] = "Gantry";
+  this->CoordinateSystemsMap[IEC::Collimator] = "Collimator";
+  this->CoordinateSystemsMap[IEC::LeftImagingPanel] = "LeftImagingPanel";
+  this->CoordinateSystemsMap[IEC::RightImagingPanel] = "RightImagingPanel";
+  this->CoordinateSystemsMap[IEC::PatientSupportRotation] = "PatientSupportRotation";
+  this->CoordinateSystemsMap[IEC::PatientSupport] = "PatientSupport";
+  this->CoordinateSystemsMap[IEC::TableTopEccentricRotation] = "TableTopEccentricRotation";
+  this->CoordinateSystemsMap[IEC::TableTopInferiorSuperiorMovement] = "TableTopInferiorSuperiorMovement";
+  this->CoordinateSystemsMap[IEC::TableTop] = "TableTop";
+  this->CoordinateSystemsMap[IEC::FlatPanel] = "FlatPanel";
+  this->CoordinateSystemsMap[IEC::WedgeFilter] = "WedgeFilter";
+  this->CoordinateSystemsMap[IEC::Patient] = "Patient";
 
   this->IecTransforms.clear();
-  this->IecTransforms.push_back(std::make_pair(FixedReference, RAS));
-  this->IecTransforms.push_back(std::make_pair(Gantry, FixedReference));
-  this->IecTransforms.push_back(std::make_pair(Collimator, Gantry));
-  this->IecTransforms.push_back(std::make_pair(WedgeFilter, Collimator));
-  this->IecTransforms.push_back(std::make_pair(LeftImagingPanel, Gantry));
-  this->IecTransforms.push_back(std::make_pair(RightImagingPanel, Gantry));
-  this->IecTransforms.push_back(std::make_pair(PatientSupportRotation, FixedReference)); // Rotation component of patient support transform
-  this->IecTransforms.push_back(std::make_pair(PatientSupport, PatientSupportRotation)); // Scaling component of patient support transform
-  this->IecTransforms.push_back(std::make_pair(TableTopEccentricRotation, PatientSupportRotation)); // NOTE: Currently not supported by REV
-  this->IecTransforms.push_back(std::make_pair(TableTop, TableTopEccentricRotation));
-  this->IecTransforms.push_back(std::make_pair(Patient, TableTop));
-  this->IecTransforms.push_back(std::make_pair(RAS, Patient));
-  this->IecTransforms.push_back(std::make_pair(FlatPanel, Gantry));
+  this->IecTransforms.push_back(std::make_pair(IEC::FixedReference, IEC::RAS));
+  this->IecTransforms.push_back(std::make_pair(IEC::Gantry, IEC::FixedReference));
+  this->IecTransforms.push_back(std::make_pair(IEC::Collimator, IEC::Gantry));
+  this->IecTransforms.push_back(std::make_pair(IEC::WedgeFilter, IEC::Collimator));
+  this->IecTransforms.push_back(std::make_pair(IEC::LeftImagingPanel, IEC::Gantry));
+  this->IecTransforms.push_back(std::make_pair(IEC::RightImagingPanel, IEC::Gantry));
+  this->IecTransforms.push_back(std::make_pair(IEC::PatientSupportRotation, IEC::FixedReference)); // Rotation component of patient support transform
+  this->IecTransforms.push_back(std::make_pair(IEC::PatientSupport, IEC::PatientSupportRotation)); // Scaling component of patient support transform
+  this->IecTransforms.push_back(std::make_pair(IEC::TableTopInferiorSuperiorMovement, IEC::PatientSupportRotation)); // NOTE: Currently not supported by REV
+  this->IecTransforms.push_back(std::make_pair(IEC::TableTopEccentricRotation, IEC::TableTopInferiorSuperiorMovement)); // NOTE: Currently not supported by REV
+  this->IecTransforms.push_back(std::make_pair(IEC::TableTop, IEC::TableTopEccentricRotation));
+  this->IecTransforms.push_back(std::make_pair(IEC::Patient, IEC::TableTop));
+  this->IecTransforms.push_back(std::make_pair(IEC::RAS, IEC::Patient));
+  this->IecTransforms.push_back(std::make_pair(IEC::FlatPanel, IEC::Gantry));
 
   this->CoordinateSystemsHierarchy.clear();
   // key - parent, value - children
-  this->CoordinateSystemsHierarchy[FixedReference] = { Gantry, PatientSupportRotation };
-  this->CoordinateSystemsHierarchy[Gantry] = { Collimator, LeftImagingPanel, RightImagingPanel, FlatPanel };
-  this->CoordinateSystemsHierarchy[Collimator] = { WedgeFilter };
-  this->CoordinateSystemsHierarchy[PatientSupportRotation] = { PatientSupport, TableTopEccentricRotation };
-  this->CoordinateSystemsHierarchy[TableTopEccentricRotation] = { TableTop };
-  this->CoordinateSystemsHierarchy[TableTop] = { Patient };
-  this->CoordinateSystemsHierarchy[Patient] = { RAS };
+  this->CoordinateSystemsHierarchy[IEC::FixedReference] = { IEC::Gantry, IEC::PatientSupportRotation };
+  this->CoordinateSystemsHierarchy[IEC::Gantry] = { IEC::Collimator, IEC::LeftImagingPanel, IEC::RightImagingPanel, IEC::FlatPanel };
+  this->CoordinateSystemsHierarchy[IEC::Collimator] = { IEC::WedgeFilter };
+  this->CoordinateSystemsHierarchy[IEC::PatientSupportRotation] = { IEC::PatientSupport, IEC::TableTopInferiorSuperiorMovement };
+  this->CoordinateSystemsHierarchy[IEC::TableTopInferiorSuperiorMovement] = { IEC::TableTopEccentricRotation };
+  this->CoordinateSystemsHierarchy[IEC::TableTopEccentricRotation] = { IEC::TableTop };
+  this->CoordinateSystemsHierarchy[IEC::TableTop] = { IEC::Patient };
+  this->CoordinateSystemsHierarchy[IEC::Patient] = { IEC::RAS };
 }
 
 //-----------------------------------------------------------------------------
@@ -137,40 +141,46 @@ void vtkSlicerIECTransformLogic::BuildIECTransformHierarchy()
     {
       vtkSmartPointer<vtkMRMLLinearTransformNode> transformNode = vtkSmartPointer<vtkMRMLLinearTransformNode>::New();
       transformNode->SetName(transformNodeName.c_str());
-      transformNode->SetHideFromEditors(1);
+//      transformNode->SetHideFromEditors(1);
       std::string singletonTag = std::string("IEC_") + transformNodeName;
       transformNode->SetSingletonTag(singletonTag.c_str());
       this->GetMRMLScene()->AddNode(transformNode);
     }
   }
 
+  using IEC = CoordinateSystemIdentifier;
   // Organize transforms into hierarchy based on IEC Standard 61217
-  this->GetTransformNodeBetween(Gantry, FixedReference)->SetAndObserveTransformNodeID(
-    this->GetTransformNodeBetween(FixedReference, RAS)->GetID() );
-  this->GetTransformNodeBetween(Collimator, Gantry)->SetAndObserveTransformNodeID(
-    this->GetTransformNodeBetween(Gantry, FixedReference)->GetID() );
-  this->GetTransformNodeBetween(WedgeFilter, Collimator)->SetAndObserveTransformNodeID(
-    this->GetTransformNodeBetween(Collimator, Gantry)->GetID() );
+  this->GetTransformNodeBetween(IEC::Gantry, IEC::FixedReference)->SetAndObserveTransformNodeID(
+    this->GetTransformNodeBetween(IEC::FixedReference, IEC::RAS)->GetID() );
+  this->GetTransformNodeBetween(IEC::Collimator, IEC::Gantry)->SetAndObserveTransformNodeID(
+    this->GetTransformNodeBetween(IEC::Gantry, IEC::FixedReference)->GetID() );
+  this->GetTransformNodeBetween(IEC::WedgeFilter, IEC::Collimator)->SetAndObserveTransformNodeID(
+    this->GetTransformNodeBetween(IEC::Collimator, IEC::Gantry)->GetID() );
 
-  this->GetTransformNodeBetween(LeftImagingPanel, Gantry)->SetAndObserveTransformNodeID(
-    this->GetTransformNodeBetween(Gantry, FixedReference)->GetID() );
-  this->GetTransformNodeBetween(RightImagingPanel, Gantry)->SetAndObserveTransformNodeID(
-    this->GetTransformNodeBetween(Gantry, FixedReference)->GetID() );
-  this->GetTransformNodeBetween(FlatPanel, Gantry)->SetAndObserveTransformNodeID(
-    this->GetTransformNodeBetween(Gantry, FixedReference)->GetID() );
+  this->GetTransformNodeBetween(IEC::LeftImagingPanel, IEC::Gantry)->SetAndObserveTransformNodeID(
+    this->GetTransformNodeBetween(IEC::Gantry, IEC::FixedReference)->GetID() );
+  this->GetTransformNodeBetween(IEC::RightImagingPanel, IEC::Gantry)->SetAndObserveTransformNodeID(
+    this->GetTransformNodeBetween(IEC::Gantry, IEC::FixedReference)->GetID() );
+  this->GetTransformNodeBetween(IEC::FlatPanel, IEC::Gantry)->SetAndObserveTransformNodeID(
+    this->GetTransformNodeBetween(IEC::Gantry, IEC::FixedReference)->GetID() );
 
-  this->GetTransformNodeBetween(PatientSupportRotation, FixedReference)->SetAndObserveTransformNodeID(
-    this->GetTransformNodeBetween(FixedReference, RAS)->GetID() );
-  this->GetTransformNodeBetween(PatientSupport, PatientSupportRotation)->SetAndObserveTransformNodeID(
-    this->GetTransformNodeBetween(PatientSupportRotation, FixedReference)->GetID() );
-  this->GetTransformNodeBetween(TableTopEccentricRotation, PatientSupportRotation)->SetAndObserveTransformNodeID(
-    this->GetTransformNodeBetween(PatientSupportRotation, FixedReference)->GetID() );
-  this->GetTransformNodeBetween(TableTop, TableTopEccentricRotation)->SetAndObserveTransformNodeID(
-    this->GetTransformNodeBetween(TableTopEccentricRotation, PatientSupportRotation)->GetID() );
-  this->GetTransformNodeBetween( Patient, TableTop)->SetAndObserveTransformNodeID(
-    this->GetTransformNodeBetween(TableTop, TableTopEccentricRotation)->GetID() );
-  this->GetTransformNodeBetween( RAS, Patient)->SetAndObserveTransformNodeID(
-    this->GetTransformNodeBetween( Patient, TableTop)->GetID() );
+  this->GetTransformNodeBetween(IEC::PatientSupportRotation, IEC::FixedReference)->SetAndObserveTransformNodeID(
+    this->GetTransformNodeBetween(IEC::FixedReference, IEC::RAS)->GetID() );
+  this->GetTransformNodeBetween(IEC::PatientSupport, IEC::PatientSupportRotation)->SetAndObserveTransformNodeID(
+    this->GetTransformNodeBetween(IEC::PatientSupportRotation, IEC::FixedReference)->GetID() );
+
+  this->GetTransformNodeBetween(IEC::TableTopInferiorSuperiorMovement, IEC::PatientSupportRotation)->SetAndObserveTransformNodeID(
+    this->GetTransformNodeBetween(IEC::PatientSupportRotation, IEC::FixedReference)->GetID() );
+
+  this->GetTransformNodeBetween(IEC::TableTopEccentricRotation, IEC::TableTopInferiorSuperiorMovement)->SetAndObserveTransformNodeID(
+    this->GetTransformNodeBetween(IEC::TableTopInferiorSuperiorMovement, IEC::PatientSupportRotation)->GetID() );
+
+  this->GetTransformNodeBetween(IEC::TableTop, IEC::TableTopEccentricRotation)->SetAndObserveTransformNodeID(
+    this->GetTransformNodeBetween(IEC::TableTopEccentricRotation, IEC::TableTopInferiorSuperiorMovement)->GetID() );
+  this->GetTransformNodeBetween( IEC::Patient, IEC::TableTop)->SetAndObserveTransformNodeID(
+    this->GetTransformNodeBetween(IEC::TableTop, IEC::TableTopEccentricRotation)->GetID() );
+  this->GetTransformNodeBetween( IEC::RAS, IEC::Patient)->SetAndObserveTransformNodeID(
+    this->GetTransformNodeBetween( IEC::Patient, IEC::TableTop)->GetID() );
 }
 
 //-----------------------------------------------------------------------------
@@ -204,9 +214,10 @@ void vtkSlicerIECTransformLogic::UpdateBeamTransform(vtkMRMLRTBeamNode* beamNode
 
   // Dynamic transform from Collimator to RAS
   // Transformation path:
-  // Collimator -> Gantry -> FixedReference -> PatientSupport -> TableTopEccentricRotation -> TableTop -> Patient -> RAS
+  // Collimator -> Gantry -> FixedReference -> PatientSupport -> TableTopInferiorSuperiorMovement -> TableTopEccentricRotation -> TableTop -> Patient -> RAS
   vtkSmartPointer<vtkGeneralTransform> beamGeneralTransform = vtkSmartPointer<vtkGeneralTransform>::New();
-  if (this->GetTransformBetween( Collimator, RAS, beamGeneralTransform))
+  using IEC = CoordinateSystemIdentifier;
+  if (this->GetTransformBetween( IEC::Collimator, IEC::RAS, beamGeneralTransform))
   {
     // Convert general transform to linear
     // This call also makes hard copy of the transform so that it doesn't change when other beam transforms change
@@ -253,7 +264,8 @@ void vtkSlicerIECTransformLogic::UpdateBeamTransform( vtkMRMLRTBeamNode* beamNod
   // Transformation path:
   // Collimator -> Gantry -> FixedReference -> PatientSupport -> TableTopEccentricRotation -> TableTop -> Patient -> RAS
   vtkSmartPointer<vtkGeneralTransform> beamGeneralTransform = vtkSmartPointer<vtkGeneralTransform>::New();
-  if (this->GetTransformBetween( Collimator, RAS, beamGeneralTransform))
+  using IEC = CoordinateSystemIdentifier;
+  if (this->GetTransformBetween( IEC::Collimator, IEC::RAS, beamGeneralTransform))
   {
     // Convert general transform to linear
     // This call also makes hard copy of the transform so that it doesn't change when other beam transforms change
@@ -295,22 +307,23 @@ void vtkSlicerIECTransformLogic::UpdateIECTransformsFromBeam( vtkMRMLRTBeamNode*
   this->BuildIECTransformHierarchy();
 
   //TODO: Code duplication (RevLogic::Update...)
+  using IEC = CoordinateSystemIdentifier;
   vtkMRMLLinearTransformNode* gantryToFixedReferenceTransformNode =
-    this->GetTransformNodeBetween(Gantry, FixedReference);
+    this->GetTransformNodeBetween(IEC::Gantry, IEC::FixedReference);
   vtkTransform* gantryToFixedReferenceTransform = vtkTransform::SafeDownCast(gantryToFixedReferenceTransformNode->GetTransformToParent());
   gantryToFixedReferenceTransform->Identity();
   gantryToFixedReferenceTransform->RotateY(beamNode->GetGantryAngle());
   gantryToFixedReferenceTransform->Modified();
 
   vtkMRMLLinearTransformNode* collimatorToGantryTransformNode =
-    this->GetTransformNodeBetween(Collimator, Gantry);
+    this->GetTransformNodeBetween(IEC::Collimator, IEC::Gantry);
   vtkTransform* collimatorToGantryTransform = vtkTransform::SafeDownCast(collimatorToGantryTransformNode->GetTransformToParent());
   collimatorToGantryTransform->Identity();
   collimatorToGantryTransform->RotateZ(beamNode->GetCollimatorAngle());
   collimatorToGantryTransform->Modified();
 
   vtkMRMLLinearTransformNode* patientSupportRotationToFixedReferenceTransformNode =
-    this->GetTransformNodeBetween(PatientSupportRotation, FixedReference);
+    this->GetTransformNodeBetween(IEC::PatientSupportRotation, IEC::FixedReference);
   vtkTransform* patientSupportToFixedReferenceTransform = vtkTransform::SafeDownCast(patientSupportRotationToFixedReferenceTransformNode->GetTransformToParent());
   patientSupportToFixedReferenceTransform->Identity();
   patientSupportToFixedReferenceTransform->RotateZ(-1. * beamNode->GetCouchAngle());
@@ -318,7 +331,7 @@ void vtkSlicerIECTransformLogic::UpdateIECTransformsFromBeam( vtkMRMLRTBeamNode*
 
   // Update IEC Patient to RAS transform based on the isocenter defined in the beam's parent plan
   vtkMRMLLinearTransformNode* rasToPatientReferenceTransformNode =
-    this->GetTransformNodeBetween( RAS, Patient);
+    this->GetTransformNodeBetween( IEC::RAS, IEC::Patient);
   vtkTransform* rasToPatientReferenceTransform = vtkTransform::SafeDownCast(rasToPatientReferenceTransformNode->GetTransformToParent());
   rasToPatientReferenceTransform->Identity();
   // Apply isocenter translation
@@ -348,7 +361,7 @@ void vtkSlicerIECTransformLogic::UpdateIECTransformsFromBeam( vtkMRMLRTBeamNode*
 
   // Update IEC FixedReference to RAS transform based on the isocenter defined in the beam's parent plan
   vtkMRMLLinearTransformNode* fixedReferenceToRasTransformNode =
-    this->GetTransformNodeBetween(FixedReference, RAS);
+    this->GetTransformNodeBetween(IEC::FixedReference, IEC::RAS);
   vtkTransform* fixedReferenceToRasTransform = vtkTransform::SafeDownCast(fixedReferenceToRasTransformNode->GetTransformToParent());
   fixedReferenceToRasTransform->Identity();
 
@@ -402,7 +415,7 @@ vtkMRMLLinearTransformNode* vtkSlicerIECTransformLogic::GetTransformNodeBetween(
 
 //-----------------------------------------------------------------------------
 bool vtkSlicerIECTransformLogic::GetTransformBetween(CoordinateSystemIdentifier fromFrame, CoordinateSystemIdentifier toFrame, 
-  vtkGeneralTransform* outputTransform, bool transformForBeam/* = true*/)
+  vtkGeneralTransform* outputTransform, bool transformForBeam)
 {
   if (!outputTransform)
   {
@@ -500,9 +513,10 @@ bool vtkSlicerIECTransformLogic::GetTransformBetween(CoordinateSystemIdentifier 
 bool vtkSlicerIECTransformLogic::GetPathToRoot( CoordinateSystemIdentifier frame, 
   CoordinateSystemsList& path)
 {
-  if (frame == FixedReference)
+  using IEC = CoordinateSystemIdentifier;
+  if (frame == IEC::FixedReference)
   {
-    path.push_back(FixedReference);
+    path.push_back(IEC::FixedReference);
     return true;
   }
 
@@ -525,14 +539,14 @@ bool vtkSlicerIECTransformLogic::GetPathToRoot( CoordinateSystemIdentifier frame
 
         frame = parent;
         path.push_back(id);
-        if (frame != FixedReference)
+        if (frame != IEC::FixedReference)
         {
           found = true;
           break;
         }
         else
         {
-          path.push_back(FixedReference);
+          path.push_back(IEC::FixedReference);
         }
       }
       else

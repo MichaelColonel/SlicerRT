@@ -104,6 +104,7 @@ public:
     RightImagingPanel,
     PatientSupportRotation, // Not part of the standard, but useful for visualization
     PatientSupport,
+    TableTopInferiorSuperiorMovement, // Inferior-Superior movement of the table top
     TableTopEccentricRotation,
     TableTop,
     FlatPanel,
@@ -130,15 +131,10 @@ public:
     CoordinateSystemIdentifier fromFrame, CoordinateSystemIdentifier toFrame );
 
   /// Get transform from one coordinate frame to another
-  /// @param fromFrame - start transformation from frame
-  /// @param toFrame - proceed transformation to frame
-  /// @param outputTransform - General (linear) transform matrix fromFrame -> toFrame. Matrix is correct if return flag is true.  
   /// @param transformForBeam - calculate dynamic transformation for beam model or other models
-  /// (e.g. transformation from Patient RAS frame to Collimation frame: RAS -> Patient -> TableTop -> Eccentric -> Patient Support -> Fixed reference -> Gantry -> Collimator)
   /// \return Success flag (false on any error)
-  bool GetTransformBetween(CoordinateSystemIdentifier fromFrame, CoordinateSystemIdentifier toFrame, 
-    vtkGeneralTransform* outputTransform, bool transformForBeam = true);
-  
+  bool GetTransformBetween(CoordinateSystemIdentifier fromFrame, CoordinateSystemIdentifier toFrame, vtkGeneralTransform* outputTransform, bool transformForBeam = true);
+
   /// Update parent transform node of a given beam from the IEC transform hierarchy and the beam parameters
   void UpdateBeamTransform(vtkMRMLRTBeamNode* beamNode);
   /// Update parent transform node of a given beam from the IEC transform hierarchy and the beam parameters
@@ -171,7 +167,7 @@ protected:
 
   // TODO: for hierarchy use tree with nodes, something like graph
   /// Map of IEC coordinate systems hierarchy
-  std::map< CoordinateSystemIdentifier, std::list< CoordinateSystemIdentifier > > CoordinateSystemsHierarchy;
+  std::map< CoordinateSystemIdentifier, CoordinateSystemsList > CoordinateSystemsHierarchy;
 
 protected:
   vtkSlicerIECTransformLogic();

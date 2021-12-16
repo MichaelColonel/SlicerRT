@@ -210,7 +210,7 @@ protected:
 
 protected:
   vtkMRMLRTBeamNode();
-  ~vtkMRMLRTBeamNode();
+  ~vtkMRMLRTBeamNode() override;
   vtkMRMLRTBeamNode(const vtkMRMLRTBeamNode&);
   void operator=(const vtkMRMLRTBeamNode&);
 
@@ -261,8 +261,6 @@ protected:
   void CreateMLCPointsFromSectionBorder( double jawBegin, double jawEnd, 
     bool mlcType, const MLCSectionVector::value_type& sectionBorder, 
     MLCVisiblePointVector& side12);
-
-  static bool AreEqual( double v1, double v2);
 };
 
 #endif // __vtkMRMLRTBeamNode_h
