@@ -68,8 +68,8 @@
 // SlicerRT includes
 #include <vtkSlicerRtCommon.h>
 
-const char* vtkSlicerDrrImageComputationLogic::IMAGER_BOUNDARY_MARKUPS_NODE_NAME = "ImagerBoundary"; // curve
-const char* vtkSlicerDrrImageComputationLogic::IMAGE_WINDOW_MARKUPS_NODE_NAME = "ImageWindow"; // curve
+const char* vtkSlicerDrrImageComputationLogic::IMAGER_BOUNDARY_MARKUPS_NODE_NAME = "ImagerBoundary"; // plane
+const char* vtkSlicerDrrImageComputationLogic::IMAGE_WINDOW_MARKUPS_NODE_NAME = "ImageWindow"; // plane
 const char* vtkSlicerDrrImageComputationLogic::FIDUCIALS_MARKUPS_NODE_NAME = "FiducialPoints"; // fiducial
 const char* vtkSlicerDrrImageComputationLogic::NORMAL_VECTOR_MARKUPS_NODE_NAME = "NormalVector"; // line
 const char* vtkSlicerDrrImageComputationLogic::VUP_VECTOR_MARKUPS_NODE_NAME = "VupVector"; // line
