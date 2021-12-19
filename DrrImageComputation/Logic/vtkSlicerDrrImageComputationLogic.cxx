@@ -386,9 +386,9 @@ void vtkSlicerDrrImageComputationLogic::UpdateMarkupsNodes(vtkMRMLDrrImageComput
     imagerMarkupsNode->SetOrigin(originWorld);
     imagerMarkupsNode->SetPlaneBounds( -1. * y, y, -1. * x, x);
     imagerMarkupsNode->SetSize( 2. * y, 2. * x);
-    imagerMarkupsNode->SetNormal( 0., 0., 1.);
-    imagerMarkupsNode->SetSizeMode(vtkMRMLMarkupsPlaneNode::SizeModeAuto);
-    imagerMarkupsNode->SetPlaneType(vtkMRMLMarkupsPlaneNode::PlaneType3Points);
+//    imagerMarkupsNode->SetNormal( 0., 0., 1.);
+//    imagerMarkupsNode->SetSizeMode(vtkMRMLMarkupsPlaneNode::SizeModeAuto);
+//    imagerMarkupsNode->SetPlaneType(vtkMRMLMarkupsPlaneNode::PlaneType3Points);
 
 /*
     // add points
@@ -463,10 +463,10 @@ void vtkSlicerDrrImageComputationLogic::UpdateMarkupsNodes(vtkMRMLDrrImageComput
     double c2 = imagerP0.GetY() + imageWindow[2] * spacing[0];
 
     // update points
-    vtkVector3d imageP0( r1, c1, -distance);
-    vtkVector3d imageP1( r1, c2, -distance);
-    vtkVector3d imageP2( r2, c2, -distance);
-    vtkVector3d imageP3( r2, c1, -distance);
+//    vtkVector3d imageP0( r1, c1, -distance);
+//    vtkVector3d imageP1( r1, c2, -distance);
+//    vtkVector3d imageP2( r2, c2, -distance);
+//    vtkVector3d imageP3( r2, c1, -distance);
 
     // add points from markups fiducial node
     double originWorld[3] = { r1 + (r2 - r1) / 2., c1 + (c2 - c1) / 2., -1. * distance };
@@ -474,9 +474,9 @@ void vtkSlicerDrrImageComputationLogic::UpdateMarkupsNodes(vtkMRMLDrrImageComput
     imageWindowMarkupsNode->SetOrigin(originWorld);
     imageWindowMarkupsNode->SetPlaneBounds( -1. * (r2 - r1) / 2., (r2 - r1) / 2., -1. * (c2 - c1) / 2., (c2 - c1) / 2.);
     imageWindowMarkupsNode->SetSize( r2 - r1, c2 - c1);
-    imageWindowMarkupsNode->SetNormal( 0., 0., 1.);
-    imageWindowMarkupsNode->SetSizeMode(vtkMRMLMarkupsPlaneNode::SizeModeAuto);
-    imageWindowMarkupsNode->SetPlaneType(vtkMRMLMarkupsPlaneNode::PlaneType3Points);
+//    imageWindowMarkupsNode->SetNormal( 0., 0., 1.);
+//    imageWindowMarkupsNode->SetSizeMode(vtkMRMLMarkupsPlaneNode::SizeModeAuto);
+//    imageWindowMarkupsNode->SetPlaneType(vtkMRMLMarkupsPlaneNode::PlaneType3Points);
 /*
     double* p = imageWindowMarkupsNode->GetNthControlPointPosition(0);
     if (p)
@@ -727,7 +727,7 @@ vtkMRMLMarkupsPlaneNode* vtkSlicerDrrImageComputationLogic::CreateImagerBoundary
   this->GetMRMLScene()->AddNode(imagerMarkupsNode);
   imagerMarkupsNode->SetName(IMAGER_BOUNDARY_MARKUPS_NODE_NAME);
 //  imagerMarkupsNode->SetCurveTypeToLinear();
-  imagerMarkupsNode->SetHideFromEditors(1);
+//  imagerMarkupsNode->SetHideFromEditors(1);
 //  std::string singletonTag = std::string("RTIMAGE_") + IMAGER_BOUNDARY_MARKUPS_NODE_NAME;
 //  imagerMarkupsNode->SetSingletonTag(singletonTag.c_str());
 
@@ -758,7 +758,7 @@ vtkMRMLMarkupsPlaneNode* vtkSlicerDrrImageComputationLogic::CreateImagerBoundary
     imagerMarkupsNode->SetSize( 2. * y, 2. * x);
     imagerMarkupsNode->SetNormal( 0., 0., 1.);
     imagerMarkupsNode->SetSizeMode(vtkMRMLMarkupsPlaneNode::SizeModeAuto);
-    imagerMarkupsNode->SetPlaneType(vtkMRMLMarkupsPlaneNode::PlaneType3Points);
+    imagerMarkupsNode->SetPlaneType(vtkMRMLMarkupsPlaneNode::PlaneTypePointNormal);
 
 /*
     // add points
@@ -792,7 +792,7 @@ vtkMRMLMarkupsPlaneNode* vtkSlicerDrrImageComputationLogic::CreateImageWindow(vt
   this->GetMRMLScene()->AddNode(imageWindowMarkupsNode);
   imageWindowMarkupsNode->SetName(IMAGE_WINDOW_MARKUPS_NODE_NAME);
 //  imageWindowMarkupsNode->SetCurveTypeToLinear();
-  imageWindowMarkupsNode->SetHideFromEditors(1);
+//  imageWindowMarkupsNode->SetHideFromEditors(1);
 //  std::string singletonTag = std::string("RTIMAGE_") + IMAGE_WINDOW_MARKUPS_NODE_NAME;
 //  imageWindowMarkupsNode->SetSingletonTag(singletonTag.c_str());
 
@@ -827,10 +827,10 @@ vtkMRMLMarkupsPlaneNode* vtkSlicerDrrImageComputationLogic::CreateImageWindow(vt
     double c2 = imagerP0.GetY() + imageWindow[2] * spacing[0];
 
     // add points
-    vtkVector3d imageP0( r1, c1, -distance);
-    vtkVector3d imageP1( r1, c2, -distance);
-    vtkVector3d imageP2( r2, c2, -distance);
-    vtkVector3d imageP3( r2, c1, -distance);
+//    vtkVector3d imageP0( r1, c1, -distance);
+//    vtkVector3d imageP1( r1, c2, -distance);
+//    vtkVector3d imageP2( r2, c2, -distance);
+//    vtkVector3d imageP3( r2, c1, -distance);
 /*
     imageWindowMarkupsNode->AddControlPoint(imageP0); // r1, c1
     imageWindowMarkupsNode->AddControlPoint(imageP1); // r2, c1
@@ -846,7 +846,7 @@ vtkMRMLMarkupsPlaneNode* vtkSlicerDrrImageComputationLogic::CreateImageWindow(vt
     imageWindowMarkupsNode->SetSize( r2 - r1, c2 - c1);
     imageWindowMarkupsNode->SetNormal( 0., 0., 1.);
     imageWindowMarkupsNode->SetSizeMode(vtkMRMLMarkupsPlaneNode::SizeModeAuto);
-    imageWindowMarkupsNode->SetPlaneType(vtkMRMLMarkupsPlaneNode::PlaneType3Points);
+    imageWindowMarkupsNode->SetPlaneType(vtkMRMLMarkupsPlaneNode::PlaneTypePointNormal);
 
     if (vtkMRMLRTBeamNode* beamNode = parameterNode->GetBeamNode())
     {
@@ -867,7 +867,7 @@ vtkMRMLMarkupsLineNode* vtkSlicerDrrImageComputationLogic::CreateImagerNormal(vt
   vtkNew<vtkMRMLMarkupsLineNode> vectorMarkupsNode;
   this->GetMRMLScene()->AddNode(vectorMarkupsNode);
   vectorMarkupsNode->SetName(NORMAL_VECTOR_MARKUPS_NODE_NAME);
-  vectorMarkupsNode->SetHideFromEditors(1);
+//  vectorMarkupsNode->SetHideFromEditors(1);
 //  std::string singletonTag = std::string("RTIMAGE_") + NORMAL_VECTOR_MARKUPS_NODE_NAME;
 //  vectorMarkupsNode->SetSingletonTag(singletonTag.c_str());
 
@@ -901,7 +901,7 @@ vtkMRMLMarkupsLineNode* vtkSlicerDrrImageComputationLogic::CreateImagerVUP(vtkMR
   vtkNew<vtkMRMLMarkupsLineNode> vectorMarkupsNode;
   this->GetMRMLScene()->AddNode(vectorMarkupsNode);
   vectorMarkupsNode->SetName(VUP_VECTOR_MARKUPS_NODE_NAME);
-  vectorMarkupsNode->SetHideFromEditors(1);
+//  vectorMarkupsNode->SetHideFromEditors(1);
 //  std::string singletonTag = std::string("RTIMAGE_") + VUP_VECTOR_MARKUPS_NODE_NAME;
 //  vectorMarkupsNode->SetSingletonTag(singletonTag.c_str());
 
@@ -947,7 +947,7 @@ vtkMRMLMarkupsFiducialNode* vtkSlicerDrrImageComputationLogic::CreateFiducials(v
   vtkNew<vtkMRMLMarkupsFiducialNode> pointsMarkupsNode;
   this->GetMRMLScene()->AddNode(pointsMarkupsNode);
   pointsMarkupsNode->SetName(FIDUCIALS_MARKUPS_NODE_NAME);
-  pointsMarkupsNode->SetHideFromEditors(1);
+//  pointsMarkupsNode->SetHideFromEditors(1);
 //  std::string singletonTag = std::string("RTIMAGE_") + FIDUCIALS_MARKUPS_NODE_NAME;
 //  pointsMarkupsNode->SetSingletonTag(singletonTag.c_str());
 
