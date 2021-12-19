@@ -31,7 +31,7 @@
 #include <vtkMRMLLinearTransformNode.h>
 #include <vtkMRMLCameraNode.h>
 
-//#include <vtkMRMLMarkupsPlaneNode.h>
+#include <vtkMRMLMarkupsPlaneNode.h>
 #include <vtkMRMLMarkupsClosedCurveNode.h>
 #include <vtkMRMLMarkupsFiducialNode.h>
 #include <vtkMRMLMarkupsLineNode.h>
@@ -245,14 +245,14 @@ void vtkSlicerDrrImageComputationLogic::CreateMarkupsNodes(vtkMRMLDrrImageComput
   // Create markups nodes if they don't exist
 
   // Imager boundary markups node
-  vtkSmartPointer<vtkMRMLMarkupsClosedCurveNode> imagerMarkupsNode;
+  vtkSmartPointer<vtkMRMLMarkupsPlaneNode> imagerMarkupsNode;
   if (!scene->GetFirstNodeByName(IMAGER_BOUNDARY_MARKUPS_NODE_NAME))
   {
     imagerMarkupsNode = this->CreateImagerBoundary(parameterNode);
   }
   else
   {
-    imagerMarkupsNode = vtkMRMLMarkupsClosedCurveNode::SafeDownCast(
+    imagerMarkupsNode = vtkMRMLMarkupsPlaneNode::SafeDownCast(
       scene->GetFirstNodeByName(IMAGER_BOUNDARY_MARKUPS_NODE_NAME));
     // Update imager points using DrrImageComputation node data
     if (transformNode)
@@ -262,14 +262,14 @@ void vtkSlicerDrrImageComputationLogic::CreateMarkupsNodes(vtkMRMLDrrImageComput
   }
 
   // Image window markups node
-  vtkSmartPointer<vtkMRMLMarkupsClosedCurveNode> imageWindowMarkupsNode;
+  vtkSmartPointer<vtkMRMLMarkupsPlaneNode> imageWindowMarkupsNode;
   if (!scene->GetFirstNodeByName(IMAGE_WINDOW_MARKUPS_NODE_NAME))
   {
     imageWindowMarkupsNode = this->CreateImageWindow(parameterNode);
   }
   else
   {
-    imageWindowMarkupsNode = vtkMRMLMarkupsClosedCurveNode::SafeDownCast(
+    imageWindowMarkupsNode = vtkMRMLMarkupsPlaneNode::SafeDownCast(
       scene->GetFirstNodeByName(IMAGE_WINDOW_MARKUPS_NODE_NAME));
     // Update image window points using DrrImageComputation node data
     if (transformNode)
@@ -377,9 +377,20 @@ void vtkSlicerDrrImageComputationLogic::UpdateMarkupsNodes(vtkMRMLDrrImageComput
   // Imager boundary markups node
   if (scene->GetFirstNodeByName(IMAGER_BOUNDARY_MARKUPS_NODE_NAME))
   {
-    vtkMRMLMarkupsClosedCurveNode* imagerMarkupsNode = vtkMRMLMarkupsClosedCurveNode::SafeDownCast(
+    vtkMRMLMarkupsPlaneNode* imagerMarkupsNode = vtkMRMLMarkupsPlaneNode::SafeDownCast(
       scene->GetFirstNodeByName(IMAGER_BOUNDARY_MARKUPS_NODE_NAME));
 
+    // add points from markups fiducial node
+    double originWorld[3] = { offset[0], offset[1], -1. * distance };
+
+    imagerMarkupsNode->SetOrigin(originWorld);
+    imagerMarkupsNode->SetPlaneBounds( -1. * y, y, -1. * x, x);
+    imagerMarkupsNode->SetSize( 2. * y, 2. * x);
+    imagerMarkupsNode->SetNormal( 0., 0., 1.);
+    imagerMarkupsNode->SetSizeMode(vtkMRMLMarkupsPlaneNode::SizeModeAuto);
+    imagerMarkupsNode->SetPlaneType(vtkMRMLMarkupsPlaneNode::PlaneType3Points);
+
+/*
     // add points
     vtkVector3d imagerP0( -1. * y + offset[0], x + offset[1], -distance);
     vtkVector3d imagerP1( y + offset[0], x + offset[1], -distance);
@@ -425,7 +436,7 @@ void vtkSlicerDrrImageComputationLogic::UpdateMarkupsNodes(vtkMRMLDrrImageComput
     {
       imagerMarkupsNode->AddControlPoint(imagerP3);
     }
-    
+*/
     // Update imager boundary markups transform node if it's changed    
     vtkMRMLTransformNode* markupsTransformNode = imagerMarkupsNode->GetParentTransformNode();
 
@@ -438,7 +449,7 @@ void vtkSlicerDrrImageComputationLogic::UpdateMarkupsNodes(vtkMRMLDrrImageComput
   // Image window markups node
   if (scene->GetFirstNodeByName(IMAGE_WINDOW_MARKUPS_NODE_NAME))
   {
-    vtkMRMLMarkupsClosedCurveNode* imageWindowMarkupsNode = vtkMRMLMarkupsClosedCurveNode::SafeDownCast(
+    vtkMRMLMarkupsPlaneNode* imageWindowMarkupsNode = vtkMRMLMarkupsPlaneNode::SafeDownCast(
       scene->GetFirstNodeByName(IMAGE_WINDOW_MARKUPS_NODE_NAME));
 
     imageWindowMarkupsNode->SetDisplayVisibility(parameterNode->GetImageWindowFlag());
@@ -457,6 +468,16 @@ void vtkSlicerDrrImageComputationLogic::UpdateMarkupsNodes(vtkMRMLDrrImageComput
     vtkVector3d imageP2( r2, c2, -distance);
     vtkVector3d imageP3( r2, c1, -distance);
 
+    // add points from markups fiducial node
+    double originWorld[3] = { r1 + (r2 - r1) / 2., c1 + (c2 - c1) / 2., -1. * distance };
+
+    imageWindowMarkupsNode->SetOrigin(originWorld);
+    imageWindowMarkupsNode->SetPlaneBounds( -1. * (r2 - r1) / 2., (r2 - r1) / 2., -1. * (c2 - c1) / 2., (c2 - c1) / 2.);
+    imageWindowMarkupsNode->SetSize( r2 - r1, c2 - c1);
+    imageWindowMarkupsNode->SetNormal( 0., 0., 1.);
+    imageWindowMarkupsNode->SetSizeMode(vtkMRMLMarkupsPlaneNode::SizeModeAuto);
+    imageWindowMarkupsNode->SetPlaneType(vtkMRMLMarkupsPlaneNode::PlaneType3Points);
+/*
     double* p = imageWindowMarkupsNode->GetNthControlPointPosition(0);
     if (p)
     {
@@ -496,7 +517,7 @@ void vtkSlicerDrrImageComputationLogic::UpdateMarkupsNodes(vtkMRMLDrrImageComput
     {
       imageWindowMarkupsNode->AddControlPoint(imageP3);
     }
-    
+*/
 
     // Update image window markups transform node if it's changed    
     vtkMRMLTransformNode* markupsTransformNode = imageWindowMarkupsNode->GetParentTransformNode();
@@ -661,7 +682,7 @@ void vtkSlicerDrrImageComputationLogic::ShowMarkupsNodes(bool toggled)
   // Imager boundary markups node
   if (scene->GetFirstNodeByName(IMAGER_BOUNDARY_MARKUPS_NODE_NAME))
   {
-    vtkMRMLMarkupsClosedCurveNode* imagerMarkupsNode = vtkMRMLMarkupsClosedCurveNode::SafeDownCast(
+    vtkMRMLMarkupsPlaneNode* imagerMarkupsNode = vtkMRMLMarkupsPlaneNode::SafeDownCast(
       scene->GetFirstNodeByName(IMAGER_BOUNDARY_MARKUPS_NODE_NAME));
     imagerMarkupsNode->SetDisplayVisibility(int(toggled));
   }
@@ -669,7 +690,7 @@ void vtkSlicerDrrImageComputationLogic::ShowMarkupsNodes(bool toggled)
   // Image window markups node
   if (scene->GetFirstNodeByName(IMAGE_WINDOW_MARKUPS_NODE_NAME))
   {
-    vtkMRMLMarkupsClosedCurveNode* imageWindowMarkupsNode = vtkMRMLMarkupsClosedCurveNode::SafeDownCast(
+    vtkMRMLMarkupsPlaneNode* imageWindowMarkupsNode = vtkMRMLMarkupsPlaneNode::SafeDownCast(
       scene->GetFirstNodeByName(IMAGE_WINDOW_MARKUPS_NODE_NAME));
     imageWindowMarkupsNode->SetDisplayVisibility(int(toggled));
   }
@@ -700,12 +721,12 @@ void vtkSlicerDrrImageComputationLogic::ShowMarkupsNodes(bool toggled)
 }
 
 //----------------------------------------------------------------------------
-vtkMRMLMarkupsClosedCurveNode* vtkSlicerDrrImageComputationLogic::CreateImagerBoundary(vtkMRMLDrrImageComputationNode* parameterNode)
+vtkMRMLMarkupsPlaneNode* vtkSlicerDrrImageComputationLogic::CreateImagerBoundary(vtkMRMLDrrImageComputationNode* parameterNode)
 {
-  vtkNew<vtkMRMLMarkupsClosedCurveNode> imagerMarkupsNode;
+  vtkNew<vtkMRMLMarkupsPlaneNode> imagerMarkupsNode;
   this->GetMRMLScene()->AddNode(imagerMarkupsNode);
   imagerMarkupsNode->SetName(IMAGER_BOUNDARY_MARKUPS_NODE_NAME);
-  imagerMarkupsNode->SetCurveTypeToLinear();
+//  imagerMarkupsNode->SetCurveTypeToLinear();
   imagerMarkupsNode->SetHideFromEditors(1);
 //  std::string singletonTag = std::string("RTIMAGE_") + IMAGER_BOUNDARY_MARKUPS_NODE_NAME;
 //  imagerMarkupsNode->SetSingletonTag(singletonTag.c_str());
@@ -729,6 +750,17 @@ vtkMRMLMarkupsClosedCurveNode* vtkSlicerDrrImageComputationLogic::CreateImagerBo
     double& x = imagerHalfWidth;
     double& y = imagerHalfHeight;
 
+    // add points from markups fiducial node
+    double originWorld[3] = { offset[0], offset[1], -1. * distance };
+
+    imagerMarkupsNode->SetOrigin(originWorld);
+    imagerMarkupsNode->SetPlaneBounds( -1. * y, y, -1. * x, x);
+    imagerMarkupsNode->SetSize( 2. * y, 2. * x);
+    imagerMarkupsNode->SetNormal( 0., 0., 1.);
+    imagerMarkupsNode->SetSizeMode(vtkMRMLMarkupsPlaneNode::SizeModeAuto);
+    imagerMarkupsNode->SetPlaneType(vtkMRMLMarkupsPlaneNode::PlaneType3Points);
+
+/*
     // add points
     vtkVector3d imagerP0( -1. * y + offset[0], x + offset[1], -distance);
     vtkVector3d imagerP1( y + offset[0], x + offset[1], -distance);
@@ -739,7 +771,7 @@ vtkMRMLMarkupsClosedCurveNode* vtkSlicerDrrImageComputationLogic::CreateImagerBo
     imagerMarkupsNode->AddControlPoint(imagerP1); // "Upper Right", "x,y"
     imagerMarkupsNode->AddControlPoint(imagerP2); // "Lower Right", "x,-y"
     imagerMarkupsNode->AddControlPoint(imagerP3); // "Lower Left", "-x,-y"
-
+*/
     if (vtkMRMLRTBeamNode* beamNode = parameterNode->GetBeamNode())
     {
       vtkMRMLTransformNode* transformNode = this->UpdateImageTransformFromBeam(beamNode);
@@ -754,12 +786,12 @@ vtkMRMLMarkupsClosedCurveNode* vtkSlicerDrrImageComputationLogic::CreateImagerBo
 }
 
 //----------------------------------------------------------------------------
-vtkMRMLMarkupsClosedCurveNode* vtkSlicerDrrImageComputationLogic::CreateImageWindow(vtkMRMLDrrImageComputationNode* parameterNode)
+vtkMRMLMarkupsPlaneNode* vtkSlicerDrrImageComputationLogic::CreateImageWindow(vtkMRMLDrrImageComputationNode* parameterNode)
 {
-  vtkNew<vtkMRMLMarkupsClosedCurveNode> imageWindowMarkupsNode;
+  vtkNew<vtkMRMLMarkupsPlaneNode> imageWindowMarkupsNode;
   this->GetMRMLScene()->AddNode(imageWindowMarkupsNode);
   imageWindowMarkupsNode->SetName(IMAGE_WINDOW_MARKUPS_NODE_NAME);
-  imageWindowMarkupsNode->SetCurveTypeToLinear();
+//  imageWindowMarkupsNode->SetCurveTypeToLinear();
   imageWindowMarkupsNode->SetHideFromEditors(1);
 //  std::string singletonTag = std::string("RTIMAGE_") + IMAGE_WINDOW_MARKUPS_NODE_NAME;
 //  imageWindowMarkupsNode->SetSingletonTag(singletonTag.c_str());
@@ -799,11 +831,22 @@ vtkMRMLMarkupsClosedCurveNode* vtkSlicerDrrImageComputationLogic::CreateImageWin
     vtkVector3d imageP1( r1, c2, -distance);
     vtkVector3d imageP2( r2, c2, -distance);
     vtkVector3d imageP3( r2, c1, -distance);
-
+/*
     imageWindowMarkupsNode->AddControlPoint(imageP0); // r1, c1
     imageWindowMarkupsNode->AddControlPoint(imageP1); // r2, c1
     imageWindowMarkupsNode->AddControlPoint(imageP2); // r2, c2
     imageWindowMarkupsNode->AddControlPoint(imageP3); // r1, c2
+*/
+
+    // add points from markups fiducial node
+    double originWorld[3] = { r1 + (r2 - r1) / 2., c1 + (c2 - c1) / 2., -1. * distance };
+
+    imageWindowMarkupsNode->SetOrigin(originWorld);
+    imageWindowMarkupsNode->SetPlaneBounds( -1. * (r2 - r1) / 2., (r2 - r1) / 2., -1. * (c2 - c1) / 2., (c2 - c1) / 2.);
+    imageWindowMarkupsNode->SetSize( r2 - r1, c2 - c1);
+    imageWindowMarkupsNode->SetNormal( 0., 0., 1.);
+    imageWindowMarkupsNode->SetSizeMode(vtkMRMLMarkupsPlaneNode::SizeModeAuto);
+    imageWindowMarkupsNode->SetPlaneType(vtkMRMLMarkupsPlaneNode::PlaneType3Points);
 
     if (vtkMRMLRTBeamNode* beamNode = parameterNode->GetBeamNode())
     {
