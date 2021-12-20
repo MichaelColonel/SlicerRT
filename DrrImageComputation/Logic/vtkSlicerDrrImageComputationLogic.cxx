@@ -32,7 +32,6 @@
 #include <vtkMRMLCameraNode.h>
 
 #include <vtkMRMLMarkupsPlaneNode.h>
-#include <vtkMRMLMarkupsClosedCurveNode.h>
 #include <vtkMRMLMarkupsFiducialNode.h>
 #include <vtkMRMLMarkupsLineNode.h>
 
@@ -380,63 +379,13 @@ void vtkSlicerDrrImageComputationLogic::UpdateMarkupsNodes(vtkMRMLDrrImageComput
     vtkMRMLMarkupsPlaneNode* imagerMarkupsNode = vtkMRMLMarkupsPlaneNode::SafeDownCast(
       scene->GetFirstNodeByName(IMAGER_BOUNDARY_MARKUPS_NODE_NAME));
 
-    // add points from markups fiducial node
+    // update imager plane node
     double originWorld[3] = { offset[0], offset[1], -1. * distance };
 
     imagerMarkupsNode->SetOrigin(originWorld);
     imagerMarkupsNode->SetPlaneBounds( -1. * y, y, -1. * x, x);
     imagerMarkupsNode->SetSize( 2. * y, 2. * x);
-//    imagerMarkupsNode->SetNormal( 0., 0., 1.);
-//    imagerMarkupsNode->SetSizeMode(vtkMRMLMarkupsPlaneNode::SizeModeAuto);
-//    imagerMarkupsNode->SetPlaneType(vtkMRMLMarkupsPlaneNode::PlaneType3Points);
 
-/*
-    // add points
-    vtkVector3d imagerP0( -1. * y + offset[0], x + offset[1], -distance);
-    vtkVector3d imagerP1( y + offset[0], x + offset[1], -distance);
-    vtkVector3d imagerP2( y + offset[0], -1. * x + offset[1], -distance);
-    vtkVector3d imagerP3( -1. * y + offset[0], -1. * x + offset[1], -distance);
-
-    double* p = imagerMarkupsNode->GetNthControlPointPosition(0);
-    if (p)
-    {
-      imagerMarkupsNode->SetNthControlPointPosition( 0, imagerP0.GetX(), imagerP0.GetY(), imagerP0.GetZ());
-    }
-    else
-    {
-      imagerMarkupsNode->AddControlPoint(imagerP0);
-    }
-    
-    p = imagerMarkupsNode->GetNthControlPointPosition(1);
-    if (p)
-    {
-      imagerMarkupsNode->SetNthControlPointPosition( 1, imagerP1.GetX(), imagerP1.GetY(), imagerP1.GetZ());
-    }
-    else
-    {
-      imagerMarkupsNode->AddControlPoint(imagerP1);
-    }
-    
-    p = imagerMarkupsNode->GetNthControlPointPosition(2);
-    if (p)
-    {
-      imagerMarkupsNode->SetNthControlPointPosition( 2, imagerP2.GetX(), imagerP2.GetY(), imagerP2.GetZ());
-    }
-    else
-    {
-      imagerMarkupsNode->AddControlPoint(imagerP2);
-    }
-    
-    p = imagerMarkupsNode->GetNthControlPointPosition(3);
-    if (p)
-    {
-      imagerMarkupsNode->SetNthControlPointPosition( 3, imagerP3.GetX(), imagerP3.GetY(), imagerP3.GetZ());
-    }
-    else
-    {
-      imagerMarkupsNode->AddControlPoint(imagerP3);
-    }
-*/
     // Update imager boundary markups transform node if it's changed    
     vtkMRMLTransformNode* markupsTransformNode = imagerMarkupsNode->GetParentTransformNode();
 
@@ -462,62 +411,12 @@ void vtkSlicerDrrImageComputationLogic::UpdateMarkupsNodes(vtkMRMLDrrImageComput
     double r2 = imagerP0.GetX() + imageWindow[3] * spacing[1];
     double c2 = imagerP0.GetY() + imageWindow[2] * spacing[0];
 
-    // update points
-//    vtkVector3d imageP0( r1, c1, -distance);
-//    vtkVector3d imageP1( r1, c2, -distance);
-//    vtkVector3d imageP2( r2, c2, -distance);
-//    vtkVector3d imageP3( r2, c1, -distance);
-
-    // add points from markups fiducial node
+    // update image window plane node
     double originWorld[3] = { r1 + (r2 - r1) / 2., c1 + (c2 - c1) / 2., -1. * distance };
 
     imageWindowMarkupsNode->SetOrigin(originWorld);
     imageWindowMarkupsNode->SetPlaneBounds( -1. * (r2 - r1) / 2., (r2 - r1) / 2., -1. * (c2 - c1) / 2., (c2 - c1) / 2.);
     imageWindowMarkupsNode->SetSize( r2 - r1, c2 - c1);
-//    imageWindowMarkupsNode->SetNormal( 0., 0., 1.);
-//    imageWindowMarkupsNode->SetSizeMode(vtkMRMLMarkupsPlaneNode::SizeModeAuto);
-//    imageWindowMarkupsNode->SetPlaneType(vtkMRMLMarkupsPlaneNode::PlaneType3Points);
-/*
-    double* p = imageWindowMarkupsNode->GetNthControlPointPosition(0);
-    if (p)
-    {
-      imageWindowMarkupsNode->SetNthControlPointPosition( 0, imageP0.GetX(), imageP0.GetY(), imageP0.GetZ());
-    }
-    else
-    {
-      imageWindowMarkupsNode->AddControlPoint(imageP0);
-    }
-    
-    p = imageWindowMarkupsNode->GetNthControlPointPosition(1);
-    if (p)
-    {
-      imageWindowMarkupsNode->SetNthControlPointPosition( 1, imageP1.GetX(), imageP1.GetY(), imageP1.GetZ());
-    }
-    else
-    {
-      imageWindowMarkupsNode->AddControlPoint(imageP1);
-    }
-    
-    p = imageWindowMarkupsNode->GetNthControlPointPosition(2);
-    if (p)
-    {
-      imageWindowMarkupsNode->SetNthControlPointPosition( 2, imageP2.GetX(), imageP2.GetY(), imageP2.GetZ());
-    }
-    else
-    {
-      imageWindowMarkupsNode->AddControlPoint(imageP2);
-    }
-    
-    p = imageWindowMarkupsNode->GetNthControlPointPosition(3);
-    if (p)
-    {
-      imageWindowMarkupsNode->SetNthControlPointPosition( 3, imageP3.GetX(), imageP3.GetY(), imageP3.GetZ());
-    }
-    else
-    {
-      imageWindowMarkupsNode->AddControlPoint(imageP3);
-    }
-*/
 
     // Update image window markups transform node if it's changed    
     vtkMRMLTransformNode* markupsTransformNode = imageWindowMarkupsNode->GetParentTransformNode();
@@ -723,13 +622,28 @@ void vtkSlicerDrrImageComputationLogic::ShowMarkupsNodes(bool toggled)
 //----------------------------------------------------------------------------
 vtkMRMLMarkupsPlaneNode* vtkSlicerDrrImageComputationLogic::CreateImagerBoundary(vtkMRMLDrrImageComputationNode* parameterNode)
 {
-  vtkNew<vtkMRMLMarkupsPlaneNode> imagerMarkupsNode;
-  this->GetMRMLScene()->AddNode(imagerMarkupsNode);
-  imagerMarkupsNode->SetName(IMAGER_BOUNDARY_MARKUPS_NODE_NAME);
-//  imagerMarkupsNode->SetCurveTypeToLinear();
-//  imagerMarkupsNode->SetHideFromEditors(1);
-//  std::string singletonTag = std::string("RTIMAGE_") + IMAGER_BOUNDARY_MARKUPS_NODE_NAME;
-//  imagerMarkupsNode->SetSingletonTag(singletonTag.c_str());
+  vtkMRMLScene* scene = this->GetMRMLScene(); 
+  if (!scene)
+  {
+    vtkErrorMacro("CreateImagerVUP: Invalid MRML scene");
+    return nullptr;
+  }
+  vtkMRMLNode* node = scene->AddNewNodeByClass( "vtkMRMLMarkupsPlaneNode", IMAGER_BOUNDARY_MARKUPS_NODE_NAME);
+
+  vtkMRMLMarkupsPlaneNode* imagerMarkupsNode = nullptr;
+  if (node)
+  {
+    imagerMarkupsNode = vtkMRMLMarkupsPlaneNode::SafeDownCast(node);
+  }
+  if (!imagerMarkupsNode)
+  {
+    vtkErrorMacro("CreateImagerVUP: Invalid imager plane node");
+    return nullptr;
+  }
+  imagerMarkupsNode->SetHideFromEditors(1);
+  std::string singletonTag = std::string("RTIMAGE_") + IMAGER_BOUNDARY_MARKUPS_NODE_NAME;
+  imagerMarkupsNode->SetSingletonTag(singletonTag.c_str());
+  imagerMarkupsNode->LockedOn();
 
   if (parameterNode)
   {
@@ -760,18 +674,6 @@ vtkMRMLMarkupsPlaneNode* vtkSlicerDrrImageComputationLogic::CreateImagerBoundary
     imagerMarkupsNode->SetSizeMode(vtkMRMLMarkupsPlaneNode::SizeModeAuto);
     imagerMarkupsNode->SetPlaneType(vtkMRMLMarkupsPlaneNode::PlaneTypePointNormal);
 
-/*
-    // add points
-    vtkVector3d imagerP0( -1. * y + offset[0], x + offset[1], -distance);
-    vtkVector3d imagerP1( y + offset[0], x + offset[1], -distance);
-    vtkVector3d imagerP2( y + offset[0], -1. * x + offset[1], -distance);
-    vtkVector3d imagerP3( -1. * y + offset[0], -1. * x + offset[1], -distance);
-
-    imagerMarkupsNode->AddControlPoint(imagerP0); // "Upper Left", "-x,y"
-    imagerMarkupsNode->AddControlPoint(imagerP1); // "Upper Right", "x,y"
-    imagerMarkupsNode->AddControlPoint(imagerP2); // "Lower Right", "x,-y"
-    imagerMarkupsNode->AddControlPoint(imagerP3); // "Lower Left", "-x,-y"
-*/
     if (vtkMRMLRTBeamNode* beamNode = parameterNode->GetBeamNode())
     {
       vtkMRMLTransformNode* transformNode = this->UpdateImageTransformFromBeam(beamNode);
@@ -788,13 +690,28 @@ vtkMRMLMarkupsPlaneNode* vtkSlicerDrrImageComputationLogic::CreateImagerBoundary
 //----------------------------------------------------------------------------
 vtkMRMLMarkupsPlaneNode* vtkSlicerDrrImageComputationLogic::CreateImageWindow(vtkMRMLDrrImageComputationNode* parameterNode)
 {
-  vtkNew<vtkMRMLMarkupsPlaneNode> imageWindowMarkupsNode;
-  this->GetMRMLScene()->AddNode(imageWindowMarkupsNode);
-  imageWindowMarkupsNode->SetName(IMAGE_WINDOW_MARKUPS_NODE_NAME);
-//  imageWindowMarkupsNode->SetCurveTypeToLinear();
-//  imageWindowMarkupsNode->SetHideFromEditors(1);
-//  std::string singletonTag = std::string("RTIMAGE_") + IMAGE_WINDOW_MARKUPS_NODE_NAME;
-//  imageWindowMarkupsNode->SetSingletonTag(singletonTag.c_str());
+  vtkMRMLScene* scene = this->GetMRMLScene(); 
+  if (!scene)
+  {
+    vtkErrorMacro("CreateImagerVUP: Invalid MRML scene");
+    return nullptr;
+  }
+  vtkMRMLNode* node = scene->AddNewNodeByClass( "vtkMRMLMarkupsPlaneNode", IMAGE_WINDOW_MARKUPS_NODE_NAME);
+
+  vtkMRMLMarkupsPlaneNode* imageWindowMarkupsNode = nullptr;
+  if (node)
+  {
+    imageWindowMarkupsNode = vtkMRMLMarkupsPlaneNode::SafeDownCast(node);
+  }
+  if (!imageWindowMarkupsNode)
+  {
+    vtkErrorMacro("CreateImagerVUP: Invalid image window plane node");
+    return nullptr;
+  }
+  imageWindowMarkupsNode->SetHideFromEditors(1);
+  std::string singletonTag = std::string("RTIMAGE_") + IMAGE_WINDOW_MARKUPS_NODE_NAME;
+  imageWindowMarkupsNode->SetSingletonTag(singletonTag.c_str());
+  imageWindowMarkupsNode->LockedOn();
 
   if (parameterNode)
   {
@@ -826,18 +743,6 @@ vtkMRMLMarkupsPlaneNode* vtkSlicerDrrImageComputationLogic::CreateImageWindow(vt
     double r2 = imagerP0.GetX() + imageWindow[3] * spacing[1];
     double c2 = imagerP0.GetY() + imageWindow[2] * spacing[0];
 
-    // add points
-//    vtkVector3d imageP0( r1, c1, -distance);
-//    vtkVector3d imageP1( r1, c2, -distance);
-//    vtkVector3d imageP2( r2, c2, -distance);
-//    vtkVector3d imageP3( r2, c1, -distance);
-/*
-    imageWindowMarkupsNode->AddControlPoint(imageP0); // r1, c1
-    imageWindowMarkupsNode->AddControlPoint(imageP1); // r2, c1
-    imageWindowMarkupsNode->AddControlPoint(imageP2); // r2, c2
-    imageWindowMarkupsNode->AddControlPoint(imageP3); // r1, c2
-*/
-
     // add points from markups fiducial node
     double originWorld[3] = { r1 + (r2 - r1) / 2., c1 + (c2 - c1) / 2., -1. * distance };
 
@@ -864,12 +769,28 @@ vtkMRMLMarkupsPlaneNode* vtkSlicerDrrImageComputationLogic::CreateImageWindow(vt
 //----------------------------------------------------------------------------
 vtkMRMLMarkupsLineNode* vtkSlicerDrrImageComputationLogic::CreateImagerNormal(vtkMRMLDrrImageComputationNode* parameterNode)
 {
-  vtkNew<vtkMRMLMarkupsLineNode> vectorMarkupsNode;
-  this->GetMRMLScene()->AddNode(vectorMarkupsNode);
-  vectorMarkupsNode->SetName(NORMAL_VECTOR_MARKUPS_NODE_NAME);
-//  vectorMarkupsNode->SetHideFromEditors(1);
-//  std::string singletonTag = std::string("RTIMAGE_") + NORMAL_VECTOR_MARKUPS_NODE_NAME;
-//  vectorMarkupsNode->SetSingletonTag(singletonTag.c_str());
+  vtkMRMLScene* scene = this->GetMRMLScene(); 
+  if (!scene)
+  {
+    vtkErrorMacro("CreateImagerVUP: Invalid MRML scene");
+    return nullptr;
+  }
+  vtkMRMLNode* node = scene->AddNewNodeByClass( "vtkMRMLMarkupsLineNode", NORMAL_VECTOR_MARKUPS_NODE_NAME);
+
+  vtkMRMLMarkupsLineNode* vectorMarkupsNode = nullptr;
+  if (node)
+  {
+    vectorMarkupsNode = vtkMRMLMarkupsLineNode::SafeDownCast(node);
+  }
+  if (!vectorMarkupsNode)
+  {
+    vtkErrorMacro("CreateImagerVUP: Invalid normal line node");
+    return nullptr;
+  }
+  vectorMarkupsNode->SetHideFromEditors(1);
+  std::string singletonTag = std::string("RTIMAGE_") + NORMAL_VECTOR_MARKUPS_NODE_NAME;
+  vectorMarkupsNode->SetSingletonTag(singletonTag.c_str());
+  vectorMarkupsNode->LockedOn();
 
   if (parameterNode)
   {
@@ -898,12 +819,28 @@ vtkMRMLMarkupsLineNode* vtkSlicerDrrImageComputationLogic::CreateImagerNormal(vt
 //----------------------------------------------------------------------------
 vtkMRMLMarkupsLineNode* vtkSlicerDrrImageComputationLogic::CreateImagerVUP(vtkMRMLDrrImageComputationNode* parameterNode)
 {
-  vtkNew<vtkMRMLMarkupsLineNode> vectorMarkupsNode;
-  this->GetMRMLScene()->AddNode(vectorMarkupsNode);
-  vectorMarkupsNode->SetName(VUP_VECTOR_MARKUPS_NODE_NAME);
-//  vectorMarkupsNode->SetHideFromEditors(1);
-//  std::string singletonTag = std::string("RTIMAGE_") + VUP_VECTOR_MARKUPS_NODE_NAME;
-//  vectorMarkupsNode->SetSingletonTag(singletonTag.c_str());
+  vtkMRMLScene* scene = this->GetMRMLScene(); 
+  if (!scene)
+  {
+    vtkErrorMacro("CreateImagerVUP: Invalid MRML scene");
+    return nullptr;
+  }
+  vtkMRMLNode* node = scene->AddNewNodeByClass( "vtkMRMLMarkupsLineNode", VUP_VECTOR_MARKUPS_NODE_NAME);
+
+  vtkMRMLMarkupsLineNode* vectorMarkupsNode = nullptr;
+  if (node)
+  {
+    vectorMarkupsNode = vtkMRMLMarkupsLineNode::SafeDownCast(node);
+  }
+  if (!vectorMarkupsNode)
+  {
+    vtkErrorMacro("CreateImagerVUP: Invalid VUP line node");
+    return nullptr;
+  }
+  vectorMarkupsNode->SetHideFromEditors(1);
+  std::string singletonTag = std::string("RTIMAGE_") + VUP_VECTOR_MARKUPS_NODE_NAME;
+  vectorMarkupsNode->SetSingletonTag(singletonTag.c_str());
+  vectorMarkupsNode->LockedOn();
 
   if (parameterNode)
   {
@@ -944,12 +881,28 @@ vtkMRMLMarkupsLineNode* vtkSlicerDrrImageComputationLogic::CreateImagerVUP(vtkMR
 //----------------------------------------------------------------------------
 vtkMRMLMarkupsFiducialNode* vtkSlicerDrrImageComputationLogic::CreateFiducials(vtkMRMLDrrImageComputationNode* parameterNode)
 {
-  vtkNew<vtkMRMLMarkupsFiducialNode> pointsMarkupsNode;
-  this->GetMRMLScene()->AddNode(pointsMarkupsNode);
-  pointsMarkupsNode->SetName(FIDUCIALS_MARKUPS_NODE_NAME);
-//  pointsMarkupsNode->SetHideFromEditors(1);
-//  std::string singletonTag = std::string("RTIMAGE_") + FIDUCIALS_MARKUPS_NODE_NAME;
-//  pointsMarkupsNode->SetSingletonTag(singletonTag.c_str());
+  vtkMRMLScene* scene = this->GetMRMLScene(); 
+  if (!scene)
+  {
+    vtkErrorMacro("CreateImagerVUP: Invalid MRML scene");
+    return nullptr;
+  }
+  vtkMRMLNode* node = scene->AddNewNodeByClass( "vtkMRMLMarkupsFiducialNode", FIDUCIALS_MARKUPS_NODE_NAME);
+
+  vtkMRMLMarkupsFiducialNode* pointsMarkupsNode = nullptr;
+  if (node)
+  {
+    pointsMarkupsNode = vtkMRMLMarkupsFiducialNode::SafeDownCast(node);
+  }
+  if (!pointsMarkupsNode)
+  {
+    vtkErrorMacro("CreateImagerVUP: Invalid fiducials node");
+    return nullptr;
+  }
+  pointsMarkupsNode->SetHideFromEditors(1);
+  std::string singletonTag = std::string("RTIMAGE_") + FIDUCIALS_MARKUPS_NODE_NAME;
+  pointsMarkupsNode->SetSingletonTag(singletonTag.c_str());
+  pointsMarkupsNode->LockedOn();
 
   if (parameterNode)
   {

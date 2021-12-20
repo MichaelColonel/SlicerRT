@@ -40,7 +40,6 @@ class vtkMRMLScalarVolumeNode;
 class vtkMRMLDrrImageComputationNode;
 class vtkMRMLRTBeamNode;
 class vtkMRMLMarkupsPlaneNode;
-class vtkMRMLMarkupsClosedCurveNode;
 class vtkMRMLMarkupsFiducialNode;
 class vtkMRMLMarkupsLineNode;
 
