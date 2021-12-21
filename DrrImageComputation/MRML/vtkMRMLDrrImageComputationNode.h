@@ -32,9 +32,6 @@
 
 class vtkMRMLLinearTransformNode;
 class vtkMRMLRTBeamNode;
-class vtkMRMLMarkupsClosedCurveNode;
-class vtkMRMLMarkupsFiducialNode;
-class vtkMRMLMarkupsLineNode;
 class vtkMRMLCameraNode;
 
 /// \ingroup SlicerRt_QtModules_DrrImageComputation
@@ -48,9 +45,13 @@ class vtkMRMLCameraNode;
 class VTK_SLICER_DRRIMAGECOMPUTATION_MODULE_MRML_EXPORT vtkMRMLDrrImageComputationNode : public vtkMRMLPlanarImageNode
 {
 public:
-  enum PlastimatchAlgorithmReconstuctionType { Exact, Uniform };
-  enum PlastimatchHounsfieldUnitsConversionType { Preprocess, Inline, None };
-  enum PlastimatchThreadingType { CPU, CUDA, OpenCL };
+
+  /// What library use for DRR computation
+  enum LibraryType : int { Plastimatch = 0, OpenRTK, Library_Last };
+
+  enum PlastimatchReconstuctionAlgorithmType : int { Exact = 0, Uniform, PlastimatchReconstuctionAlgorithm_Last };
+  enum PlastimatchHounsfieldUnitsConversionType : int { Preprocess = 0, Inline, None, PlastimatchHounsfieldUnitsConversion_Last };
+  enum PlastimatchThreadingType : int { CPU = 0, CUDA, OpenCL, PlastimatchThreading_Last };
 
   static vtkMRMLDrrImageComputationNode *New();
   vtkTypeMacro(vtkMRMLDrrImageComputationNode,vtkMRMLPlanarImageNode);
@@ -91,20 +92,23 @@ public:
   /// if camera was used to calculate beam parameters from direction cosines.   
   void SetAndObserveCameraNode(vtkMRMLCameraNode* node);
 
+  vtkGetMacro(Library, LibraryType);
+  vtkSetMacro(Library, LibraryType);
+
   vtkGetVector3Macro(NormalVector, double);
   vtkSetVector3Macro(NormalVector, double);
 
   vtkGetVector3Macro(ViewUpVector, double);
   vtkSetVector3Macro(ViewUpVector, double);
 
-  vtkGetMacro(AlgorithmReconstuction, PlastimatchAlgorithmReconstuctionType);
-  vtkSetMacro(AlgorithmReconstuction, PlastimatchAlgorithmReconstuctionType);
+  vtkGetMacro(PlastimatchReconstuctionAlgorithm, PlastimatchReconstuctionAlgorithmType);
+  vtkSetMacro(PlastimatchReconstuctionAlgorithm, PlastimatchReconstuctionAlgorithmType);
 
-  vtkGetMacro(HUConversion, PlastimatchHounsfieldUnitsConversionType);
-  vtkSetMacro(HUConversion, PlastimatchHounsfieldUnitsConversionType);
+  vtkGetMacro(PlastimatchHounsfieldUnitsConversion, PlastimatchHounsfieldUnitsConversionType);
+  vtkSetMacro(PlastimatchHounsfieldUnitsConversion, PlastimatchHounsfieldUnitsConversionType);
 
-  vtkGetMacro(Threading, PlastimatchThreadingType);
-  vtkSetMacro(Threading, PlastimatchThreadingType);
+  vtkGetMacro(PlastimatchThreading, PlastimatchThreadingType);
+  vtkSetMacro(PlastimatchThreading, PlastimatchThreadingType);
 
   vtkGetMacro(ExponentialMappingFlag, bool);
   vtkSetMacro(ExponentialMappingFlag, bool);
@@ -135,8 +139,8 @@ public:
   vtkGetMacro(ImageWindowFlag, bool);
   vtkSetMacro(ImageWindowFlag, bool);
 
-  vtkGetMacro(HUThresholdBelow, int);
-  vtkSetMacro(HUThresholdBelow, int);
+  vtkGetMacro(HounsfieldUnitsThresholdBelow, int);
+  vtkSetMacro(HounsfieldUnitsThresholdBelow, int);
 
   vtkGetMacro(InvertIntensityFlag, bool);
   vtkSetMacro(InvertIntensityFlag, bool);
@@ -150,11 +154,24 @@ protected:
   vtkMRMLDrrImageComputationNode(const vtkMRMLDrrImageComputationNode&);
   void operator=(const vtkMRMLDrrImageComputationNode&);
 
-  void SetAlgorithmReconstuction(int algorithmReconstuction = 0);
-  void SetHUConversion(int huConversion = 0);
-  void SetThreading(int threading = 0);
+  static const char* GetLibraryAsString(int id);
+  static int GetLibraryFromString(const char* name);
+  void SetLibrary(int id);
+
+  static const char* GetPlastimatchReconstuctionAlgorithmAsString(int id);
+  static int GetPlastimatchReconstuctionAlgorithmFromString(const char* name);
+  void SetPlastimatchReconstuctionAlgorithm(int id);
+
+  static const char* GetPlastimatchHounsfieldUnitsConversionAsString(int id);
+  static int GetPlastimatchHounsfieldUnitsConversionFromString(const char* name);
+  void SetPlastimatchHounsfieldUnitsConversion(int id);
+
+  static const char* GetPlastimatchThreadingAsString(int id);
+  static int GetPlastimatchThreadingFromString(const char* name);
+  void SetPlastimatchThreading(int id);
 
 protected:
+  LibraryType Library;
   double NormalVector[3]; // updated in logic
   double ViewUpVector[3]; // updated in logic
   double IsocenterImagerDistance; // fabs(SID - SAD)
@@ -164,14 +181,17 @@ protected:
   int ImageCenter[2]; // column, row (calculated from imager offset and image data)
   bool ImageWindowFlag; // use image window
   int ImageWindow[4]; // column1, row1, column2, row2 (y0, x0, y1, x1)
-  PlastimatchAlgorithmReconstuctionType AlgorithmReconstuction;
-  PlastimatchHounsfieldUnitsConversionType HUConversion;
-  PlastimatchThreadingType Threading;
+  PlastimatchReconstuctionAlgorithmType PlastimatchReconstuctionAlgorithm;
+  PlastimatchHounsfieldUnitsConversionType PlastimatchHounsfieldUnitsConversion;
+  PlastimatchThreadingType PlastimatchThreading;
   bool ExponentialMappingFlag;
   bool AutoscaleFlag;
   bool InvertIntensityFlag;
   float AutoscaleRange[2];
-  int HUThresholdBelow;
+  int HounsfieldUnitsThresholdBelow;
+  double RtkImagerInPlaneAngle;
+  double RtkImagerOutOfPlaneAngle;
+  double RtkCylindricalDetectorRadius;
 };
 
 #endif

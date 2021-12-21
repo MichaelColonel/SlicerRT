@@ -1049,10 +1049,10 @@ bool vtkSlicerDrrImageComputationLogic::ComputePlastimatchDRR( vtkMRMLDrrImageCo
   cmdNode->SetParameterAsString( "autoscaleRange", autoscaleRangeStream.str());
 
   cmdNode->SetParameterAsBool( "exponentialMapping", parameterNode->GetExponentialMappingFlag());
-  cmdNode->SetParameterAsInt( "thresholdBelow", parameterNode->GetHUThresholdBelow());
+  cmdNode->SetParameterAsInt( "thresholdBelow", parameterNode->GetHounsfieldUnitsThresholdBelow());
   
   std::string threadingString = "cpu";
-  switch (parameterNode->GetThreading())
+  switch (parameterNode->GetPlastimatchThreading())
   {
   case vtkMRMLDrrImageComputationNode::CPU:
     threadingString = "cpu";
@@ -1069,7 +1069,7 @@ bool vtkSlicerDrrImageComputationLogic::ComputePlastimatchDRR( vtkMRMLDrrImageCo
   cmdNode->SetParameterAsString( "threading", threadingString);
 
   std::string huconversionString = "preprocess";
-  switch (parameterNode->GetHUConversion())
+  switch (parameterNode->GetPlastimatchHounsfieldUnitsConversion())
   {
   case vtkMRMLDrrImageComputationNode::Inline:
     huconversionString = "inline";
@@ -1086,7 +1086,7 @@ bool vtkSlicerDrrImageComputationLogic::ComputePlastimatchDRR( vtkMRMLDrrImageCo
   cmdNode->SetParameterAsString( "huconversion", huconversionString);
 
   std::string algorithmString = "exact";
-  switch (parameterNode->GetAlgorithmReconstuction())
+  switch (parameterNode->GetPlastimatchReconstuctionAlgorithm())
   {
   case vtkMRMLDrrImageComputationNode::Exact:
     algorithmString = "exact";

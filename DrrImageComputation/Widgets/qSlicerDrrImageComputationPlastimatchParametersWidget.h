@@ -65,11 +65,11 @@ protected slots:
   /// Type of computation threading
   void onThreadingChanged(int);
   /// Type Hounsfield Units conversion
-  void onHUConversionChanged(int);
+  void onHounsfieldUnitsConversionChanged(int);
   void onAutoscaleIntensityRangeChanged(double, double);
-  /// HU threshold value for processing
+  /// Hounsfield Units threshold value for processing
   /// @param thresholdBelow - Air HU value (-1000) below that threshold
-  void onHUThresholdChanged(double thresholdBelow);
+  void onHounsfieldUnitsThresholdChanged(double thresholdBelow);
 
 protected:
   QScopedPointer<qSlicerDrrImageComputationPlastimatchParametersWidgetPrivate> d_ptr;

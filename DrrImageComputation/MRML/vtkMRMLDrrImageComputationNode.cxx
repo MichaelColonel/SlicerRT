@@ -32,6 +32,9 @@
 
 #include "vtkMRMLDrrImageComputationNode.h"
 
+// STD includes
+#include <cstring>
+
 //------------------------------------------------------------------------------
 namespace
 {
@@ -47,6 +50,7 @@ vtkMRMLNodeNewMacro(vtkMRMLDrrImageComputationNode);
 //----------------------------------------------------------------------------
 vtkMRMLDrrImageComputationNode::vtkMRMLDrrImageComputationNode()
 {
+  Library = vtkMRMLDrrImageComputationNode::Plastimatch;
   NormalVector[0] = 0.;
   NormalVector[1] = 0.;
   NormalVector[2] = 1.;
@@ -71,9 +75,10 @@ vtkMRMLDrrImageComputationNode::vtkMRMLDrrImageComputationNode()
   ImageCenter[0] = ImageWindow[0] + (ImageWindow[2] - ImageWindow[0]) / 2.f; // column
   ImageCenter[1] = ImageWindow[1] + (ImageWindow[3] - ImageWindow[1]) / 2.f; // row
 
-  AlgorithmReconstuction = Uniform;
-  HUConversion = Preprocess;
-  Threading = CPU;
+  PlastimatchReconstuctionAlgorithm = vtkMRMLDrrImageComputationNode::Exact;
+  PlastimatchHounsfieldUnitsConversion = vtkMRMLDrrImageComputationNode::Preprocess;
+  PlastimatchThreading = vtkMRMLDrrImageComputationNode::CPU;
+
   ExponentialMappingFlag = true;
   AutoscaleFlag = true;
   AutoscaleRange[0] = 0.;
@@ -81,7 +86,11 @@ vtkMRMLDrrImageComputationNode::vtkMRMLDrrImageComputationNode()
   InvertIntensityFlag = true;
 
   IsocenterImagerDistance = 300.;
-  HUThresholdBelow = -1000;
+  HounsfieldUnitsThresholdBelow = -1000;
+
+  RtkImagerInPlaneAngle = 0.;
+  RtkImagerOutOfPlaneAngle = 0.;
+  RtkCylindricalDetectorRadius = 0.;
 }
 
 //----------------------------------------------------------------------------
@@ -96,6 +105,7 @@ void vtkMRMLDrrImageComputationNode::WriteXML(ostream& of, int nIndent)
 
   // Write all MRML node attributes into output stream
   vtkMRMLWriteXMLBeginMacro(of);
+  vtkMRMLWriteXMLEnumMacro(Library, Library);
   vtkMRMLWriteXMLVectorMacro(NormalVector, NormalVector, double, 3);
   vtkMRMLWriteXMLVectorMacro(ViewUpVector, ViewUpVector, double, 3);
   vtkMRMLWriteXMLFloatMacro(IsocenterImagerDistance, IsocenterImagerDistance);
@@ -109,10 +119,10 @@ void vtkMRMLDrrImageComputationNode::WriteXML(ostream& of, int nIndent)
   vtkMRMLWriteXMLBooleanMacro(AutoscaleFlag, AutoscaleFlag);
   vtkMRMLWriteXMLBooleanMacro(InvertIntensityFlag, InvertIntensityFlag);
   vtkMRMLWriteXMLVectorMacro(AutoscaleRange, AutoscaleRange, float, 2); 
-  vtkMRMLWriteXMLIntMacro(AlgorithmReconstuction, AlgorithmReconstuction);
-  vtkMRMLWriteXMLIntMacro(HUConversion, HUConversion);
-  vtkMRMLWriteXMLIntMacro(HUThresholdBelow, HUThresholdBelow);
-  vtkMRMLWriteXMLIntMacro(Threading, Threading);
+  vtkMRMLWriteXMLEnumMacro(PlastimatchReconstuctionAlgorithm, PlastimatchReconstuctionAlgorithm);
+  vtkMRMLWriteXMLEnumMacro(PlastimatchHounsfieldUnitsConversion, PlastimatchHounsfieldUnitsConversion);
+  vtkMRMLWriteXMLIntMacro(HounsfieldUnitsThresholdBelow, HounsfieldUnitsThresholdBelow);
+  vtkMRMLWriteXMLEnumMacro(PlastimatchThreading, PlastimatchThreading);
   // add new parameters here
   vtkMRMLWriteXMLEndMacro(); 
 }
@@ -124,6 +134,7 @@ void vtkMRMLDrrImageComputationNode::ReadXMLAttributes(const char** atts)
   vtkMRMLNode::ReadXMLAttributes(atts);
 
   vtkMRMLReadXMLBeginMacro(atts);
+  vtkMRMLReadXMLEnumMacro(Library, Library);
   vtkMRMLReadXMLVectorMacro(NormalVector, NormalVector, double, 3);
   vtkMRMLReadXMLVectorMacro(ViewUpVector, ViewUpVector, double, 3);
   vtkMRMLReadXMLFloatMacro(IsocenterImagerDistance, IsocenterImagerDistance);
@@ -137,10 +148,10 @@ void vtkMRMLDrrImageComputationNode::ReadXMLAttributes(const char** atts)
   vtkMRMLReadXMLBooleanMacro(AutoscaleFlag, AutoscaleFlag);
   vtkMRMLReadXMLBooleanMacro(InvertIntensityFlag, InvertIntensityFlag);
   vtkMRMLReadXMLVectorMacro(AutoscaleRange, AutoscaleRange, float, 2);
-  vtkMRMLReadXMLIntMacro(AlgorithmReconstuction, AlgorithmReconstuction);
-  vtkMRMLReadXMLIntMacro(HUConversion, HUConversion);
-  vtkMRMLReadXMLIntMacro(HUThresholdBelow, HUThresholdBelow);
-  vtkMRMLReadXMLIntMacro(Threading, Threading);
+  vtkMRMLReadXMLEnumMacro(PlastimatchReconstuctionAlgorithm, PlastimatchReconstuctionAlgorithm);
+  vtkMRMLReadXMLEnumMacro(PlastimatchHounsfieldUnitsConversion, PlastimatchHounsfieldUnitsConversion);
+  vtkMRMLReadXMLIntMacro(HounsfieldUnitsThresholdBelow, HounsfieldUnitsThresholdBelow);
+  vtkMRMLReadXMLEnumMacro(PlastimatchThreading, PlastimatchThreading);
   // add new parameters here
   vtkMRMLReadXMLEndMacro();
 
@@ -166,6 +177,7 @@ void vtkMRMLDrrImageComputationNode::Copy(vtkMRMLNode *anode)
   // Copy beam parameters
   this->DisableModifiedEventOn();
   vtkMRMLCopyBeginMacro(node);
+  vtkMRMLCopyEnumMacro(Library);
   vtkMRMLCopyVectorMacro(NormalVector, double, 3);
   vtkMRMLCopyVectorMacro(ViewUpVector, double, 3);
   vtkMRMLCopyFloatMacro(IsocenterImagerDistance);
@@ -179,10 +191,10 @@ void vtkMRMLDrrImageComputationNode::Copy(vtkMRMLNode *anode)
   vtkMRMLCopyBooleanMacro(AutoscaleFlag);
   vtkMRMLCopyBooleanMacro(InvertIntensityFlag);
   vtkMRMLCopyVectorMacro(AutoscaleRange, float, 2);
-  vtkMRMLCopyIntMacro(AlgorithmReconstuction);
-  vtkMRMLCopyIntMacro(HUConversion);
-  vtkMRMLCopyIntMacro(HUThresholdBelow);
-  vtkMRMLCopyIntMacro(Threading);
+  vtkMRMLCopyEnumMacro(PlastimatchReconstuctionAlgorithm);
+  vtkMRMLCopyEnumMacro(PlastimatchHounsfieldUnitsConversion);
+  vtkMRMLCopyIntMacro(HounsfieldUnitsThresholdBelow);
+  vtkMRMLCopyEnumMacro(PlastimatchThreading);
   // add new parameters here
   vtkMRMLCopyEndMacro(); 
 
@@ -204,6 +216,7 @@ void vtkMRMLDrrImageComputationNode::CopyContent(vtkMRMLNode *anode, bool deepCo
   }
 
   vtkMRMLCopyBeginMacro(node);
+  vtkMRMLCopyEnumMacro(Library);
   vtkMRMLCopyVectorMacro(NormalVector, double, 3);
   vtkMRMLCopyVectorMacro(ViewUpVector, double, 3);
   vtkMRMLCopyFloatMacro(IsocenterImagerDistance);
@@ -217,10 +230,10 @@ void vtkMRMLDrrImageComputationNode::CopyContent(vtkMRMLNode *anode, bool deepCo
   vtkMRMLCopyBooleanMacro(AutoscaleFlag);
   vtkMRMLCopyBooleanMacro(InvertIntensityFlag);
   vtkMRMLCopyVectorMacro(AutoscaleRange, float, 2);
-  vtkMRMLCopyIntMacro(AlgorithmReconstuction);
-  vtkMRMLCopyIntMacro(HUConversion);
-  vtkMRMLCopyIntMacro(HUThresholdBelow);
-  vtkMRMLCopyIntMacro(Threading);
+  vtkMRMLCopyEnumMacro(PlastimatchReconstuctionAlgorithm);
+  vtkMRMLCopyEnumMacro(PlastimatchHounsfieldUnitsConversion);
+  vtkMRMLCopyIntMacro(HounsfieldUnitsThresholdBelow);
+  vtkMRMLCopyEnumMacro(PlastimatchThreading);
   // add new parameters here
   vtkMRMLCopyEndMacro();
 }
@@ -231,6 +244,7 @@ void vtkMRMLDrrImageComputationNode::PrintSelf(ostream& os, vtkIndent indent)
   Superclass::PrintSelf(os,indent);
 
   vtkMRMLPrintBeginMacro(os, indent);
+  vtkMRMLPrintEnumMacro(Library);
   vtkMRMLPrintVectorMacro(NormalVector, double, 3);
   vtkMRMLPrintVectorMacro(ViewUpVector, double, 3);
   vtkMRMLPrintFloatMacro(IsocenterImagerDistance);
@@ -244,10 +258,10 @@ void vtkMRMLDrrImageComputationNode::PrintSelf(ostream& os, vtkIndent indent)
   vtkMRMLPrintBooleanMacro(AutoscaleFlag);
   vtkMRMLPrintBooleanMacro(InvertIntensityFlag);
   vtkMRMLPrintVectorMacro(AutoscaleRange, float, 2);
-  vtkMRMLPrintIntMacro(AlgorithmReconstuction);
-  vtkMRMLPrintIntMacro(HUConversion);
-  vtkMRMLPrintIntMacro(HUThresholdBelow);
-  vtkMRMLPrintIntMacro(Threading);
+  vtkMRMLPrintEnumMacro(PlastimatchReconstuctionAlgorithm);
+  vtkMRMLPrintEnumMacro(PlastimatchHounsfieldUnitsConversion);
+  vtkMRMLPrintIntMacro(HounsfieldUnitsThresholdBelow);
+  vtkMRMLPrintEnumMacro(PlastimatchThreading);
   // add new parameters here
   vtkMRMLPrintEndMacro(); 
 }
@@ -306,55 +320,206 @@ void vtkMRMLDrrImageComputationNode::GetRTImagePosition(double position[2])
   }
 }
 
-//----------------------------------------------------------------------------
-void vtkMRMLDrrImageComputationNode::SetAlgorithmReconstuction(int algorithmReconstuction)
+//---------------------------------------------------------------------------
+void vtkMRMLDrrImageComputationNode::SetLibrary(int id)
 {
-  switch (algorithmReconstuction)
+  switch (id)
   {
-    case 1:
-      SetAlgorithmReconstuction(PlastimatchAlgorithmReconstuctionType::Uniform);
-      break;
     case 0:
-    default:
-      SetAlgorithmReconstuction(PlastimatchAlgorithmReconstuctionType::Exact);
+      this->SetLibrary(vtkMRMLDrrImageComputationNode::Plastimatch);
       break;
-  };
+    case 1:
+    default:
+      this->SetLibrary(vtkMRMLDrrImageComputationNode::OpenRTK);
+      break;
+  }
 }
 
-//----------------------------------------------------------------------------
-void vtkMRMLDrrImageComputationNode::SetHUConversion(int huConvension)
+//---------------------------------------------------------------------------
+const char* vtkMRMLDrrImageComputationNode::GetLibraryAsString(int id)
 {
-  switch (huConvension)
+  switch (id)
   {
-    case 1:
-      SetHUConversion(PlastimatchHounsfieldUnitsConversionType::Inline);
-      break;
-    case 2:
-      SetHUConversion(PlastimatchHounsfieldUnitsConversionType::None);
-      break;
-    case 0:
+    case vtkMRMLDrrImageComputationNode::OpenRTK:
+      return "OpenRTK";
+    case vtkMRMLDrrImageComputationNode::Plastimatch:
     default:
-      SetHUConversion(PlastimatchHounsfieldUnitsConversionType::Preprocess);
-      break;
-  };
+      return "Plastimatch";
+  }
 }
 
-//----------------------------------------------------------------------------
-void vtkMRMLDrrImageComputationNode::SetThreading(int threading)
+//-----------------------------------------------------------
+int vtkMRMLDrrImageComputationNode::GetLibraryFromString(const char* name)
 {
-  switch (threading)
+  if (name == nullptr)
   {
+    // invalid name
+    return -1;
+  }
+  for (int i = 0; i < vtkMRMLDrrImageComputationNode::Library_Last; i++)
+  {
+    if (std::strcmp(name, vtkMRMLDrrImageComputationNode::GetLibraryAsString(i)) == 0)
+    {
+      // found a matching name
+      return i;
+    }
+  }
+  // unknown name
+  return -1;
+}
+
+//---------------------------------------------------------------------------
+void vtkMRMLDrrImageComputationNode::SetPlastimatchReconstuctionAlgorithm(int id)
+{
+  switch (id)
+  {
+    case 0:
+      this->SetPlastimatchReconstuctionAlgorithm(vtkMRMLDrrImageComputationNode::Exact);
+      break;
     case 1:
-      SetThreading(PlastimatchThreadingType::CUDA);
+    default:
+      this->SetPlastimatchReconstuctionAlgorithm(vtkMRMLDrrImageComputationNode::Uniform);
+      break;
+  }
+}
+
+//---------------------------------------------------------------------------
+const char* vtkMRMLDrrImageComputationNode::GetPlastimatchReconstuctionAlgorithmAsString(int id)
+{
+  switch (id)
+  {
+    case vtkMRMLDrrImageComputationNode::Exact:
+      return "Exact";
+    case vtkMRMLDrrImageComputationNode::Uniform:
+    default:
+      return "Uniform";
+  }
+}
+
+//-----------------------------------------------------------
+int vtkMRMLDrrImageComputationNode::GetPlastimatchReconstuctionAlgorithmFromString(const char* name)
+{
+  if (name == nullptr)
+  {
+    // invalid name
+    return -1;
+  }
+  for (int i = 0; i < vtkMRMLDrrImageComputationNode::PlastimatchReconstuctionAlgorithm_Last; i++)
+  {
+    if (std::strcmp(name, vtkMRMLDrrImageComputationNode::GetPlastimatchReconstuctionAlgorithmAsString(i)) == 0)
+    {
+      // found a matching name
+      return i;
+    }
+  }
+  // unknown name
+  return -1;
+}
+
+//---------------------------------------------------------------------------
+void vtkMRMLDrrImageComputationNode::SetPlastimatchHounsfieldUnitsConversion(int id)
+{
+  switch (id)
+  {
+    case 0:
+      this->SetPlastimatchHounsfieldUnitsConversion(vtkMRMLDrrImageComputationNode::Preprocess);
+      break;
+    case 1:
+      this->SetPlastimatchHounsfieldUnitsConversion(vtkMRMLDrrImageComputationNode::Inline);
       break;
     case 2:
-      SetThreading(PlastimatchThreadingType::OpenCL);
-      break;
-    case 0:
     default:
-      SetThreading(PlastimatchThreadingType::CPU);
+      this->SetPlastimatchHounsfieldUnitsConversion(vtkMRMLDrrImageComputationNode::None);
       break;
-  };
+  }
+}
+
+//---------------------------------------------------------------------------
+const char* vtkMRMLDrrImageComputationNode::GetPlastimatchHounsfieldUnitsConversionAsString(int id)
+{
+  switch (id)
+  {
+    case vtkMRMLDrrImageComputationNode::Preprocess:
+      return "Preprocess";
+    case vtkMRMLDrrImageComputationNode::Inline:
+      return "Inline";
+    case vtkMRMLDrrImageComputationNode::None:
+    default:
+      return "None";
+  }
+}
+
+//-----------------------------------------------------------
+int vtkMRMLDrrImageComputationNode::GetPlastimatchHounsfieldUnitsConversionFromString(const char* name)
+{
+  if (name == nullptr)
+  {
+    // invalid name
+    return -1;
+  }
+  for (int i = 0; i < vtkMRMLDrrImageComputationNode::PlastimatchHounsfieldUnitsConversion_Last; i++)
+  {
+    if (std::strcmp(name, vtkMRMLDrrImageComputationNode::GetPlastimatchHounsfieldUnitsConversionAsString(i)) == 0)
+    {
+      // found a matching name
+      return i;
+    }
+  }
+  // unknown name
+  return -1;
+}
+
+//---------------------------------------------------------------------------
+void vtkMRMLDrrImageComputationNode::SetPlastimatchThreading(int id)
+{
+  switch (id)
+  {
+    case 0:
+      this->SetPlastimatchHounsfieldUnitsConversion(vtkMRMLDrrImageComputationNode::CPU);
+      break;
+    case 1:
+      this->SetPlastimatchHounsfieldUnitsConversion(vtkMRMLDrrImageComputationNode::CUDA);
+      break;
+    case 2:
+    default:
+      this->SetPlastimatchHounsfieldUnitsConversion(vtkMRMLDrrImageComputationNode::OpenCL);
+      break;
+  }
+}
+
+//---------------------------------------------------------------------------
+const char* vtkMRMLDrrImageComputationNode::GetPlastimatchThreadingAsString(int id)
+{
+  switch (id)
+  {
+    case vtkMRMLDrrImageComputationNode::OpenCL:
+      return "OpenCL";
+    case vtkMRMLDrrImageComputationNode::CUDA:
+      return "CUDA";
+    case vtkMRMLDrrImageComputationNode::CPU:
+    default:
+      return "CPU";
+  }
+}
+
+//-----------------------------------------------------------
+int vtkMRMLDrrImageComputationNode::GetPlastimatchThreadingFromString(const char* name)
+{
+  if (name == nullptr)
+  {
+    // invalid name
+    return -1;
+  }
+  for (int i = 0; i < vtkMRMLDrrImageComputationNode::PlastimatchThreading_Last; i++)
+  {
+    if (std::strcmp(name, vtkMRMLDrrImageComputationNode::GetPlastimatchThreadingAsString(i)) == 0)
+    {
+      // found a matching name
+      return i;
+    }
+  }
+  // unknown name
+  return -1;
 }
 
 //----------------------------------------------------------------------------
