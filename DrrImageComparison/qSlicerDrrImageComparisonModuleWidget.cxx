@@ -60,3 +60,20 @@ void qSlicerDrrImageComparisonModuleWidget::setup()
   d->setupUi(this);
   this->Superclass::setup();
 }
+
+//-----------------------------------------------------------------------------
+void qSlicerDrrImageComparisonModuleWidget::enter()
+{
+  Q_D(qSlicerDrrImageComparisonModuleWidget);
+  this->Superclass::enter();
+  qDebug() << Q_FUNC_INFO << "module widget enter";
+}
+
+//-----------------------------------------------------------------------------
+void qSlicerDrrImageComparisonModuleWidget::exit()
+{
+  Q_D(qSlicerDrrImageComparisonModuleWidget);
+
+  this->Superclass::exit();
+  qDebug() << Q_FUNC_INFO << "module widget exit";
+}

@@ -38,6 +38,9 @@ public:
   qSlicerDrrImageComparisonModuleWidget(QWidget *parent=0);
   virtual ~qSlicerDrrImageComparisonModuleWidget();
 
+  void exit() override;
+  void enter() override;
+
 public slots:
 
 
