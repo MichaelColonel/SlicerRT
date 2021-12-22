@@ -205,7 +205,7 @@ protected:
 
 protected:
   vtkMRMLRTPlanNode();
-  ~vtkMRMLRTPlanNode();
+  ~vtkMRMLRTPlanNode() override;
   vtkMRMLRTPlanNode(const vtkMRMLRTPlanNode&);
   void operator=(const vtkMRMLRTPlanNode&);
 

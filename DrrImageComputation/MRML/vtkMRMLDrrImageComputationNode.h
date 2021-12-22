@@ -150,7 +150,7 @@ public:
 
 protected:
   vtkMRMLDrrImageComputationNode();
-  ~vtkMRMLDrrImageComputationNode();
+  ~vtkMRMLDrrImageComputationNode() override;
   vtkMRMLDrrImageComputationNode(const vtkMRMLDrrImageComputationNode&);
   void operator=(const vtkMRMLDrrImageComputationNode&);
 
