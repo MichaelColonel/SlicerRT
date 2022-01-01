@@ -52,6 +52,8 @@ protected:
 private:
   Q_DECLARE_PRIVATE(qSlicerDrrImageComparisonModuleWidget);
   Q_DISABLE_COPY(qSlicerDrrImageComparisonModuleWidget);
+  QWidget* testLabel{ nullptr };
+  int previousLayout{ 0 };
 };
 
 #endif

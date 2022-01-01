@@ -17,10 +17,19 @@
 
 // Qt includes
 #include <QDebug>
+#include <QLabel>
 
 // Slicer includes
+#include <qSlicerSingletonViewFactory.h>
+#include <qSlicerLayoutManager.h>
+#include <qSlicerApplication.h>
+
 #include "qSlicerDrrImageComparisonModuleWidget.h"
 #include "ui_qSlicerDrrImageComparisonModuleWidget.h"
+
+// MRML includes
+#include <vtkMRMLLayoutNode.h>
+#include <vtkMRMLLayoutLogic.h>
 
 //-----------------------------------------------------------------------------
 /// \ingroup Slicer_QtModules_ExtensionTemplate
@@ -59,21 +68,81 @@ void qSlicerDrrImageComparisonModuleWidget::setup()
   Q_D(qSlicerDrrImageComparisonModuleWidget);
   d->setupUi(this);
   this->Superclass::setup();
-}
+  this->testLabel = new QLabel(tr("Test me"));
 
-//-----------------------------------------------------------------------------
-void qSlicerDrrImageComparisonModuleWidget::enter()
-{
-  Q_D(qSlicerDrrImageComparisonModuleWidget);
-  this->Superclass::enter();
-  qDebug() << Q_FUNC_INFO << "module widget enter";
+  qSlicerSingletonViewFactory* viewFactory = new qSlicerSingletonViewFactory();
+  viewFactory->setWidget(this->testLabel);
+  viewFactory->setTagName("helloLayout");
+
+  const char* layoutString = \
+    "<layout type=\"horizontal\">" \
+    " <item>" \
+    "  <helloLayout></helloLayout>" \
+    " </item>" \
+    "</layout>";
+
+  // Get layout manager
+  qSlicerApplication* slicerApplication = qSlicerApplication::application();
+  qSlicerLayoutManager* layoutManager = slicerApplication->layoutManager();
+  layoutManager->registerViewFactory(viewFactory);
+
+  int customLayoutId = 42;
+
+  vtkMRMLLayoutNode* layoutNode = layoutManager->layoutLogic()->GetLayoutNode();
+  if (layoutNode)
+    {
+    layoutNode->AddLayoutDescription( customLayoutId, layoutString);
+    }
+
+//  layoutManager.setLayout(customLayoutId)
+
 }
 
 //-----------------------------------------------------------------------------
 void qSlicerDrrImageComparisonModuleWidget::exit()
 {
   Q_D(qSlicerDrrImageComparisonModuleWidget);
-
   this->Superclass::exit();
-  qDebug() << Q_FUNC_INFO << "module widget exit";
+
+  // Get layout manager
+  qSlicerApplication* slicerApplication = qSlicerApplication::application();
+  qSlicerLayoutManager* layoutManager = slicerApplication->layoutManager();
+  layoutManager->setLayout(this->previousLayout);
+}
+
+
+//-----------------------------------------------------------------------------
+void qSlicerDrrImageComparisonModuleWidget::enter()
+{
+  Q_D(qSlicerDrrImageComparisonModuleWidget);
+  this->Superclass::enter();
+
+  // Get layout manager
+  qSlicerApplication* slicerApplication = qSlicerApplication::application();
+  qSlicerLayoutManager* layoutManager = slicerApplication->layoutManager();
+  this->previousLayout = layoutManager->layout();
+  layoutManager->setLayout(42);
+
+/*
+viewFactory = slicer.qSlicerSingletonViewFactory()
+viewFactory.setWidget(mywidget)
+viewFactory.setTagName("helloLayout")
+layoutManager.registerViewFactory(viewFactory)
+
+layout = (
+    "<layout type=\"horizontal\">"
+    " <item>"
+    "  <helloLayout></helloLayout>"
+    " </item>"
+    "</layout>"
+)
+
+customLayoutId = 42
+
+layoutNode = slicer.app.layoutManager().layoutLogic().GetLayoutNode()
+layoutNode.AddLayoutDescription(customLayoutId, layout)
+
+layoutManager.setLayout(customLayoutId)
+*/
+
 }
