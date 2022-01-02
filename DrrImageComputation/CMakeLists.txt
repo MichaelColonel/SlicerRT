@@ -39,6 +39,7 @@ set(MODULE_MOC_SRCS
 set(MODULE_UI_SRCS
   Resources/UI/qSlicer${MODULE_NAME}ModuleWidget.ui
   Resources/UI/qSlicer${MODULE_NAME}PlastimatchParametersWidget.ui
+  Resources/UI/qSlicer${MODULE_NAME}RtkParametersWidget.ui
   )
 
 set(MODULE_TARGET_LIBRARIES
