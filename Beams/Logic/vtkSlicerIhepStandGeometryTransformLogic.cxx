@@ -282,7 +282,6 @@ bool vtkSlicerIhepStandGeometryTransformLogic::GetTransformForPointThroughtRAS(
 
   //return true;
 
-
   using IHEP = vtkSlicerIhepStandGeometryTransformLogic::CoordinateSystemIdentifier;
 
   double pointFromFrame[4] = { fromFramePoint[0], fromFramePoint[1], fromFramePoint[2], 1. };

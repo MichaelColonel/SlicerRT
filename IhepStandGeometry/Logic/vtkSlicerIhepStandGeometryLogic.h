@@ -37,11 +37,15 @@ class vtkMRMLIhepStandGeometryNode;
 class vtkSlicerIhepStandGeometryTransformLogic;
 
 class vtkMRMLRTBeamNode;
+class vtkMRMLRTIonBeamNode;
+class vtkMRMLRTFixedIonBeamNode;
 class vtkMRMLLinearTransformNode;
 class vtkMRMLMarkupsLineNode;
 class vtkMRMLMarkupsFiducialNode;
 class vtkMRMLMarkupsPlaneNode;
 class vtkMRMLCameraNode;
+
+class vtkTransform;
 
 /// \ingroup Slicer_QtModules_IhepStandGeometry
 class VTK_SLICER_IHEPSTANDGEOMETRY_MODULE_LOGIC_EXPORT vtkSlicerIhepStandGeometryLogic :
@@ -178,11 +182,36 @@ public:
   /// Initial Translation for different transforms
   void InitialSetupTransformTranslations(vtkMRMLIhepStandGeometryNode* parameterNode);
 
-  /// Get transform node for line markups node
-  vtkMRMLLinearTransformNode* GetFixedReferenceMarkupsTransform();
+  /// Get transform node for line markups node (FixedReference)
+  vtkMRMLLinearTransformNode* GetFixedReferenceTransform();
+  vtkMRMLLinearTransformNode* GetPatientTransform();
+  vtkMRMLLinearTransformNode* GetTableTopTransform();
+  vtkMRMLLinearTransformNode* GetTableTopSupportTransform();
+  vtkMRMLLinearTransformNode* GetTableTopOriginTransform();
+  vtkMRMLLinearTransformNode* GetTableTopMiddleTransform();
+  vtkMRMLLinearTransformNode* GetTableTopMirrorTransform();
+  vtkMRMLLinearTransformNode* GetTablePlatformTransform();
+  vtkMRMLLinearTransformNode* GetPatientSupportTransform();
 
   /// Set 3D View camera for FixedReference model
   void SetFixedReferenceCamera(vtkMRMLCameraNode* cameraNode);
+
+  /// Calculate TableTop center to FixedIsocenter translate
+  /// \param translateTableTopFrame - translation of the TableTop frame
+  /// \return true if success, false otherwise
+  bool GetTableTopCenterToFixedIsocenterTranslate(vtkMRMLIhepStandGeometryNode* parameterNode, double translateTableTopFrame[3]);
+
+  /// Calculate Patient isocenter to FixedIsocenter translate
+  /// \param translatePatientFrame - translation of the Patient frame
+  /// \return true if success, false otherwise
+  bool GetPatientIsocenterToFixedIsocenterTranslate(vtkMRMLIhepStandGeometryNode* parameterNode, double translatePatientFrame[3]);
+
+  /// Calculate DRRBeam to FixedBeam trasform
+  /// \param drrBeam - DRR beam transform in patient (RAS)
+  /// \param fixedBeam - Fixed ion beam transform in RAS
+  /// \param transform - resulted transform
+  /// \return true if success, false otherwise
+  bool GetPatientBeamToFixedBeamTransform(vtkMRMLIhepStandGeometryNode* parameterNode, vtkMRMLRTBeamNode* drrBeam, vtkMRMLRTFixedIonBeamNode* fixedBeam, vtkTransform* transform);
 
 protected:
   vtkSlicerIhepStandGeometryLogic();

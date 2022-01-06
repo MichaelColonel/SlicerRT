@@ -37,6 +37,7 @@
 // SlicerRT includes
 #include <vtkMRMLRTPlanNode.h>
 #include <vtkMRMLRTBeamNode.h>
+#include <vtkMRMLRTIonBeamNode.h>
 #include <vtkMRMLRTFixedIonBeamNode.h>
 #include <vtkSlicerRtCommon.h>
 
@@ -91,6 +92,24 @@ const double TableTopUpLeftFixedReference[3] = { -264.5, 1821.6, -210. }; // tab
 const double TableTopUpRightFixedReference[3] = { 265.5, 1821.6, -210. }; // table top point B, LPS coordinate system
 const double TableTopDownRightFixedReference[3] = { 265.5, -348.4, -210. }; // table top point C, LPS coordinate system
 const double TableTopDownLeftFixedReference[3] = { -264.5, -348.4, -210. }; // table top point D, LPS coordinate system
+
+const double TableTopCenterFixedReference[3] = {
+  TableTopUpLeftFixedReference[0] + (TableTopUpRightFixedReference[0] - TableTopUpLeftFixedReference[0]) / 2.,
+  TableTopDownRightFixedReference[1] + (TableTopUpRightFixedReference[1] - TableTopDownRightFixedReference[1]) / 2., 
+  TableTopDownRightFixedReference[2] + (TableTopUpRightFixedReference[2] - TableTopDownRightFixedReference[2]) / 2.
+  }; // table top center, LPS coordinate system
+
+const double TableTopUpFixedReference[3] = {
+  TableTopUpLeftFixedReference[0] + (TableTopUpRightFixedReference[0] - TableTopUpLeftFixedReference[0]) / 2.,
+  TableTopUpLeftFixedReference[1] + (TableTopUpRightFixedReference[1] - TableTopUpLeftFixedReference[1]) / 2., 
+  TableTopUpLeftFixedReference[2] + (TableTopUpRightFixedReference[2] - TableTopUpLeftFixedReference[2]) / 2.
+  }; // table top middle up, LPS coordinate system
+
+const double TableTopLeftFixedReference[3] = {
+  TableTopUpLeftFixedReference[0] + (TableTopDownLeftFixedReference[0] - TableTopUpLeftFixedReference[0]) / 2.,
+  TableTopUpLeftFixedReference[1] + (TableTopDownLeftFixedReference[1] - TableTopUpLeftFixedReference[1]) / 2., 
+  TableTopUpLeftFixedReference[2] + (TableTopDownLeftFixedReference[2] - TableTopUpLeftFixedReference[2]) / 2.
+  }; // table top mirror left, LPS coordinate system
 
 }
 
@@ -470,6 +489,18 @@ vtkMRMLMarkupsPlaneNode* vtkSlicerIhepStandGeometryLogic::CreateTableTopPlaneNod
   tableTopPlaneNode->SetSingletonTag(singletonTag.c_str());
   tableTopPlaneNode->LockedOn();
 
+  // Transform IHEP stand models (IEC Patient) to RAS
+  vtkNew<vtkMatrix4x4> patientToRasMatrix;
+  vtkNew<vtkTransform> patientToRasTransform;
+  patientToRasTransform->Identity();
+  patientToRasTransform->RotateX(-90.);
+  if (!parameterNode->GetPatientHeadFeetRotation())
+  {
+    patientToRasTransform->RotateZ(180.);
+  }
+  patientToRasTransform->GetMatrix(patientToRasMatrix);
+
+
   vtkMRMLScene* scene = this->GetMRMLScene();
   if (!scene)
   {
@@ -487,18 +518,28 @@ vtkMRMLMarkupsPlaneNode* vtkSlicerIhepStandGeometryLogic::CreateTableTopPlaneNod
   if (parameterNode)
   {
     // add points from markups fiducial node
-    double originWorld[3] = { -0.5, -210., 736.6 };
-    double mirrorWorld[3] = { 264.5, -210., 736.6 };
-    double middleWorld[3] = { -0.5, -210., 1821.6 };
+//    double originWorld[3] = { -0.5, -210., 736.6 };
+//    double mirrorWorld[3] = { 264.5, -210., 736.6 };
+//    double middleWorld[3] = { -0.5, -210., 1821.6 };
 
-    tableTopPlaneNode->SetOrigin(originWorld);
+    double tableTopCenter[4] = { TableTopCenterFixedReference[0], TableTopCenterFixedReference[1], TableTopCenterFixedReference[2], 1. };
+    double tableTopCenterRAS[4] = { };
+    double tableTopUp[4] = { TableTopUpFixedReference[0], TableTopUpFixedReference[1], TableTopUpFixedReference[2], 1. };
+    double tableTopUpRAS[4] = { };
+    double tableTopLeft[4] = { TableTopLeftFixedReference[0], TableTopLeftFixedReference[1], TableTopLeftFixedReference[2], 1. };
+    double tableTopLeftRAS[4] = { };
+    patientToRasMatrix->MultiplyPoint( tableTopCenter, tableTopCenterRAS);
+    patientToRasMatrix->MultiplyPoint( tableTopUp, tableTopUpRAS);
+    patientToRasMatrix->MultiplyPoint( tableTopLeft, tableTopLeftRAS);
+
+    tableTopPlaneNode->SetOrigin(tableTopCenterRAS);
     tableTopPlaneNode->SetPlaneBounds( -264.5, 265.5, -1085., 1085.);
     tableTopPlaneNode->SetSize( 530., 2170.);
     tableTopPlaneNode->SetNormal( 0., 1., 0.);
     tableTopPlaneNode->SetSizeMode(vtkMRMLMarkupsPlaneNode::SizeModeAuto);
     tableTopPlaneNode->SetPlaneType(vtkMRMLMarkupsPlaneNode::PlaneType3Points);
 
-    this->UpdateTableTopToTableTopSupportTransform(originWorld, mirrorWorld, middleWorld);
+    this->UpdateTableTopToTableTopSupportTransform(tableTopCenterRAS, tableTopLeftRAS, tableTopUpRAS);
 
     vtkMRMLTransformNode* transformNode = this->UpdateTableTopPlaneTransform(parameterNode);
 
@@ -624,7 +665,6 @@ bool vtkSlicerIhepStandGeometryLogic::CalculateTableTopPositionsFromPlaneNode( v
   double planePos2InTableTopSupport[4] = {};
 
   using IHEP = vtkSlicerIhepStandGeometryTransformLogic::CoordinateSystemIdentifier;
-
 
   // table top plane origin point in table top support frame
   this->IhepLogic->GetTransformForPointThroughtRAS( IHEP::TableTop, 
@@ -876,30 +916,52 @@ void vtkSlicerIhepStandGeometryLogic::UpdateTableTopPlaneNode(vtkMRMLIhepStandGe
     return;
   }
 
+  // Transform IHEP stand models (IEC Patient) to RAS
+  vtkNew<vtkMatrix4x4> patientToRasMatrix;
+  vtkNew<vtkTransform> patientToRasTransform;
+  patientToRasTransform->Identity();
+  patientToRasTransform->RotateX(-90.);
+  if (!parameterNode->GetPatientHeadFeetRotation())
+  {
+    patientToRasTransform->RotateZ(180.);
+  }
+  patientToRasTransform->GetMatrix(patientToRasMatrix);
+
   if (scene->GetFirstNodeByName(TABLETOP_MARKUPS_PLANE_NODE_NAME))
   {
     vtkMRMLMarkupsPlaneNode* tableTopPlaneNode = vtkMRMLMarkupsPlaneNode::SafeDownCast(
       scene->GetFirstNodeByName(TABLETOP_MARKUPS_PLANE_NODE_NAME));
     if (tableTopPlaneNode && tableTopPlaneNode->GetNumberOfControlPoints() == 0)
     {
+
+      double tableTopCenter[4] = { TableTopCenterFixedReference[0], TableTopCenterFixedReference[1], TableTopCenterFixedReference[2], 1. };
+      double tableTopCenterRAS[4] = { };
+      double tableTopUp[4] = { TableTopUpFixedReference[0], TableTopUpFixedReference[1], TableTopUpFixedReference[2], 1. };
+      double tableTopUpRAS[4] = { };
+      double tableTopLeft[4] = { TableTopLeftFixedReference[0], TableTopLeftFixedReference[1], TableTopLeftFixedReference[2], 1. };
+      double tableTopLeftRAS[4] = { };
+      patientToRasMatrix->MultiplyPoint( tableTopCenter, tableTopCenterRAS);
+      patientToRasMatrix->MultiplyPoint( tableTopUp, tableTopUpRAS);
+      patientToRasMatrix->MultiplyPoint( tableTopLeft, tableTopLeftRAS);
+
       // add points to markups fiducial node once again
-      double originWorld[3] = { -0.5, -210., 736.6 };
-      double mirrorWorld[3] = { 264.5, -210., 736.6 };
-      double middleWorld[3] = { -0.5, -210., 1821.6 };
+//      double originWorld[3] = { -0.5, -210., 736.6 };
+//      double mirrorWorld[3] = { 264.5, -210., 736.6 };
+//      double middleWorld[3] = { -0.5, -210., 1821.6 };
 
 //      originWorld[1] += 142.;
 //      mirrorWorld[1] += 142.;
 //      middleWorld[1] += 142.;
 
 //      vtkVector3d plane0( originWorld[0], originWorld[1], originWorld[2]); // Origin
-      vtkVector3d plane1( mirrorWorld[0], mirrorWorld[1], mirrorWorld[2]); // Mirror
-      vtkVector3d plane2( middleWorld[0], middleWorld[1], middleWorld[2]); // Middle
+      vtkVector3d plane1( tableTopLeftRAS[0], tableTopLeftRAS[1], tableTopLeftRAS[2]); // Mirror
+      vtkVector3d plane2( tableTopUpRAS[0], tableTopUpRAS[1], tableTopUpRAS[2]); // Middle
 
-      tableTopPlaneNode->SetOrigin(originWorld);
+      tableTopPlaneNode->SetOrigin(tableTopCenterRAS);
       tableTopPlaneNode->AddControlPoint( plane1, "MirrorPlane");
       tableTopPlaneNode->AddControlPoint( plane2, "MiddlePlane");
 
-      this->UpdateTableTopToTableTopSupportTransform(originWorld, mirrorWorld, middleWorld);
+      this->UpdateTableTopToTableTopSupportTransform(tableTopCenterRAS, tableTopLeftRAS, tableTopUpRAS);
     }
 
     // Update markups plane transform node if it's changed    
@@ -1769,7 +1831,9 @@ void vtkSlicerIhepStandGeometryLogic::SetupTreatmentMachineModels(vtkMRMLIhepSta
   this->UpdateTableMirrorFiducialNode(parameterNode);
   this->UpdateTableMiddleFiducialNode(parameterNode);
   this->UpdateTableTopPlaneNode(parameterNode);
-  this->UpdateFixedReferenceLineNode(parameterNode); 
+  this->UpdateFixedReferenceLineNode(parameterNode);
+  double tmp[3];
+  this->GetTableTopCenterToFixedIsocenterTranslate(parameterNode, tmp);
 }
 
 //----------------------------------------------------------------------------
@@ -2479,17 +2543,169 @@ vtkMRMLLinearTransformNode* vtkSlicerIhepStandGeometryLogic::UpdateFixedReferenc
 }
 
 //------------------------------------------------------------------------------
-vtkMRMLLinearTransformNode* vtkSlicerIhepStandGeometryLogic::GetFixedReferenceMarkupsTransform()
+vtkMRMLLinearTransformNode* vtkSlicerIhepStandGeometryLogic::GetFixedReferenceTransform()
 {
   vtkMRMLScene* scene = this->GetMRMLScene();
   if (!scene)
   {
-    vtkErrorMacro("UpdateFixedReferenceMarkupsTransform: Invalid MRML scene");
+    vtkErrorMacro("GetFixedReferenceTransform: Invalid MRML scene");
     return nullptr;
   }
 
   vtkSmartPointer<vtkMRMLLinearTransformNode> transformNode;
   if (vtkMRMLNode* node = scene->GetFirstNodeByName("RasToFixedReferenceTransform"))
+  {
+    transformNode = vtkMRMLLinearTransformNode::SafeDownCast(node);
+  }
+
+  return transformNode;
+}
+
+//------------------------------------------------------------------------------
+vtkMRMLLinearTransformNode* vtkSlicerIhepStandGeometryLogic::GetPatientTransform()
+{
+  vtkMRMLScene* scene = this->GetMRMLScene();
+  if (!scene)
+  {
+    vtkErrorMacro("GetPatientTransform: Invalid MRML scene");
+    return nullptr;
+  }
+
+  vtkSmartPointer<vtkMRMLLinearTransformNode> transformNode;
+  if (vtkMRMLNode* node = scene->GetFirstNodeByName("RasToPatientTransform"))
+  {
+    transformNode = vtkMRMLLinearTransformNode::SafeDownCast(node);
+  }
+
+  return transformNode;
+}
+
+//------------------------------------------------------------------------------
+vtkMRMLLinearTransformNode* vtkSlicerIhepStandGeometryLogic::GetTableTopTransform()
+{
+  vtkMRMLScene* scene = this->GetMRMLScene();
+  if (!scene)
+  {
+    vtkErrorMacro("GetTableTopTransform: Invalid MRML scene");
+    return nullptr;
+  }
+
+  vtkSmartPointer<vtkMRMLLinearTransformNode> transformNode;
+  if (vtkMRMLNode* node = scene->GetFirstNodeByName("RasToTableTopTransform"))
+  {
+    transformNode = vtkMRMLLinearTransformNode::SafeDownCast(node);
+  }
+
+  return transformNode;
+}
+
+//------------------------------------------------------------------------------
+vtkMRMLLinearTransformNode* vtkSlicerIhepStandGeometryLogic::GetTableTopOriginTransform()
+{
+  vtkMRMLScene* scene = this->GetMRMLScene();
+  if (!scene)
+  {
+    vtkErrorMacro("GetTableTopOriginTransform: Invalid MRML scene");
+    return nullptr;
+  }
+
+  vtkSmartPointer<vtkMRMLLinearTransformNode> transformNode;
+  if (vtkMRMLNode* node = scene->GetFirstNodeByName("RasToTableTopOriginTransform"))
+  {
+    transformNode = vtkMRMLLinearTransformNode::SafeDownCast(node);
+  }
+
+  return transformNode;
+}
+
+//------------------------------------------------------------------------------
+vtkMRMLLinearTransformNode* vtkSlicerIhepStandGeometryLogic::GetTableTopMiddleTransform()
+{
+  vtkMRMLScene* scene = this->GetMRMLScene();
+  if (!scene)
+  {
+    vtkErrorMacro("GetTableTopMiddleTransform: Invalid MRML scene");
+    return nullptr;
+  }
+
+  vtkSmartPointer<vtkMRMLLinearTransformNode> transformNode;
+  if (vtkMRMLNode* node = scene->GetFirstNodeByName("RasToTableTopMiddleTransform"))
+  {
+    transformNode = vtkMRMLLinearTransformNode::SafeDownCast(node);
+  }
+
+  return transformNode;
+}
+
+//------------------------------------------------------------------------------
+vtkMRMLLinearTransformNode* vtkSlicerIhepStandGeometryLogic::GetTableTopMirrorTransform()
+{
+  vtkMRMLScene* scene = this->GetMRMLScene();
+  if (!scene)
+  {
+    vtkErrorMacro("GetTableTopMirrorTransform: Invalid MRML scene");
+    return nullptr;
+  }
+
+  vtkSmartPointer<vtkMRMLLinearTransformNode> transformNode;
+  if (vtkMRMLNode* node = scene->GetFirstNodeByName("RasToTableTopMirrorTransform"))
+  {
+    transformNode = vtkMRMLLinearTransformNode::SafeDownCast(node);
+  }
+
+  return transformNode;
+}
+
+//------------------------------------------------------------------------------
+vtkMRMLLinearTransformNode* vtkSlicerIhepStandGeometryLogic::GetTableTopSupportTransform()
+{
+  vtkMRMLScene* scene = this->GetMRMLScene();
+  if (!scene)
+  {
+    vtkErrorMacro("GetTableTopSupportTransform: Invalid MRML scene");
+    return nullptr;
+  }
+
+  vtkSmartPointer<vtkMRMLLinearTransformNode> transformNode;
+  if (vtkMRMLNode* node = scene->GetFirstNodeByName("RasToTableTopSupportTransform"))
+  {
+    transformNode = vtkMRMLLinearTransformNode::SafeDownCast(node);
+  }
+
+  return transformNode;
+}
+
+//------------------------------------------------------------------------------
+vtkMRMLLinearTransformNode* vtkSlicerIhepStandGeometryLogic::GetTablePlatformTransform()
+{
+  vtkMRMLScene* scene = this->GetMRMLScene();
+  if (!scene)
+  {
+    vtkErrorMacro("GetTablePlatformTransform: Invalid MRML scene");
+    return nullptr;
+  }
+
+  vtkSmartPointer<vtkMRMLLinearTransformNode> transformNode;
+  if (vtkMRMLNode* node = scene->GetFirstNodeByName("RasToTablePlatformTransform"))
+  {
+    transformNode = vtkMRMLLinearTransformNode::SafeDownCast(node);
+  }
+
+  return transformNode;
+}
+
+//------------------------------------------------------------------------------
+vtkMRMLLinearTransformNode* vtkSlicerIhepStandGeometryLogic::GetPatientSupportTransform()
+{
+  vtkMRMLScene* scene = this->GetMRMLScene();
+  if (!scene)
+  {
+    vtkErrorMacro("GetPatientSupportTransform: Invalid MRML scene");
+    return nullptr;
+  }
+
+  vtkSmartPointer<vtkMRMLLinearTransformNode> transformNode;
+  if (vtkMRMLNode* node = scene->GetFirstNodeByName("RasToPatientSupportTransform"))
   {
     transformNode = vtkMRMLLinearTransformNode::SafeDownCast(node);
   }
@@ -2517,7 +2733,7 @@ void vtkSlicerIhepStandGeometryLogic::UpdateFixedReferenceCamera(vtkMRMLIhepStan
     vtkDebugMacro("UpdateFixedReferenceCamera: Use member camera node");
   }
 
-  vtkMRMLTransformNode* fixedReferenceTransformNode = this->GetFixedReferenceMarkupsTransform();
+  vtkMRMLTransformNode* fixedReferenceTransformNode = this->GetFixedReferenceTransform();
   if (fixedReferenceTransformNode)
   {
     vtkTransform* fixedReferenceTransform = nullptr;
@@ -2699,6 +2915,426 @@ void vtkSlicerIhepStandGeometryLogic::CreateFixedBeamPlanAndNode(vtkMRMLIhepStan
     beamTranfsormNode->SetAndObserveTransformNodeID( rasToFixedReferenceTransformNode->GetID() );
   }
 }
+
+//----------------------------------------------------------------------------
+bool vtkSlicerIhepStandGeometryLogic::GetTableTopCenterToFixedIsocenterTranslate( vtkMRMLIhepStandGeometryNode* parameterNode, double* translateTableTopFrame)
+{
+  vtkMRMLScene* scene = this->GetMRMLScene(); 
+  if (!scene)
+  {
+    vtkErrorMacro("GetTableTopCenterToFixedIsocenterTranslate: Invalid MRML scene");
+    return false;
+  }
+
+  if (!parameterNode)
+  {
+    vtkErrorMacro("GetTableTopCenterToFixedIsocenterTranslate: Invalid parameter node");
+    return false;
+  }
+
+  // Transform IHEP stand models (IEC Patient) to RAS
+  vtkNew<vtkTransform> patientToRasTransform;
+  patientToRasTransform->Identity();
+  patientToRasTransform->RotateX(-90.);
+  if (!parameterNode->GetPatientHeadFeetRotation())
+  {
+    patientToRasTransform->RotateZ(180.);
+  }
+
+  double tableTopCenter[4] = { TableTopCenterFixedReference[0], TableTopCenterFixedReference[1], TableTopCenterFixedReference[2], 1. };
+  double tableTopCenterRAS[4] = { 0., 0., 0., 1. };
+  double tableTopCenterTableTop[4] = { 0., 0., 0., 1. };
+  double tableTopCenterFixedReference[4] = { 0., 0., 0., 1. };
+  
+  patientToRasTransform->MultiplyPoint( tableTopCenter, tableTopCenterRAS);
+/*
+  vtkWarningMacro("GetTableTopCenterToFixedIsocenterTranslate: TableTop center in TableTop " << tableTopCenterRAS[0] << " " << tableTopCenterRAS[1] << " " << tableTopCenterRAS[2]);
+
+  vtkMRMLTransformNode* tableTopTransformNode = this->GetTableTopTransform();
+  if (tableTopTransformNode)
+  {
+    vtkTransform* tableTopTransform = nullptr;
+    vtkNew<vtkMatrix4x4> mat;
+
+    tableTopTransform = vtkTransform::SafeDownCast(tableTopTransformNode->GetTransformToParent());
+    if (tableTopTransform)
+    {
+      tableTopTransform->GetMatrix(mat);
+
+      mat->Invert(); // table top to ras
+      mat->MultiplyPoint( tableTopCenterRAS, tableTopCenter);
+      vtkWarningMacro("GetTableTopCenterToFixedIsocenterTranslate: " << tableTopCenter[0] << " " << tableTopCenter[1] << " " << tableTopCenter[2]);
+    }
+  }
+*/
+  double tmp1[3] = {};
+  double tmp2[3] = {};
+  using IHEP = vtkSlicerIhepStandGeometryTransformLogic::CoordinateSystemIdentifier;
+  this->IhepLogic->GetTransformForPointThroughtRAS( IHEP::FixedReference, IHEP::RAS, tmp1, tmp2);
+  vtkWarningMacro("GetTableTopCenterToFixedIsocenterTranslate: FixedReference in RAS " << tmp2[0] << " " << tmp2[1] << " " << tmp2[2]);
+/*
+  vtkWarningMacro("GetTableTopCenterToFixedIsocenterTranslate: TableTopCenter in FixedReference " << tableTopCenterFixedReference[0] << " " << tableTopCenterFixedReference[1] << " " << tableTopCenterFixedReference[2]);
+
+  this->IhepLogic->GetTransformForPointThroughtRAS( IHEP::TableTop, 
+    IHEP::RAS, tableTopCenterRAS, tableTopCenterTableTop);
+  vtkWarningMacro("GetTableTopCenterToFixedIsocenterTranslate: TableTopCenter in TableTop " << tableTopCenterTableTop[0] << " " << tableTopCenterTableTop[1] << " " << tableTopCenterTableTop[2]);
+*/
+/*
+  double fixedReferenceCenter[4] = { 0., 0., 0., 1. };
+  double fixedReferenceRAS[4] = { };
+  vtkMRMLTransformNode* fixedReferenceTransformNode = this->GetFixedReferenceTransform();
+  if (fixedReferenceTransformNode)
+  {
+    vtkTransform* fixedReferenceTransform = nullptr;
+    vtkNew<vtkMatrix4x4> mat;
+
+    fixedReferenceTransform = vtkTransform::SafeDownCast(fixedReferenceTransformNode->GetTransformToParent());
+    if (fixedReferenceTransform)
+    {
+      fixedReferenceTransform->GetMatrix(mat);
+
+      mat->Invert(); // fixed reference to ras
+      mat->MultiplyPoint( fixedReferenceCenter, fixedReferenceRAS);
+      vtkWarningMacro("GetTableTopCenterToFixedIsocenterTranslate: FixedReferenceOrigin in RAS " << fixedReferenceRAS[0] << " " << fixedReferenceRAS[1] << " " << fixedReferenceRAS[2]);
+    }
+  }
+
+  vtkMRMLTransformNode* tableTopTransformNode = this->GetTableTopTransform();
+  if (tableTopTransformNode)
+  {
+    vtkTransform* tableTopTransform = nullptr;
+    vtkNew<vtkMatrix4x4> mat;
+
+    tableTopTransform = vtkTransform::SafeDownCast(tableTopTransformNode->GetTransformToParent());
+    if (tableTopTransform)
+    {
+      tableTopTransform->GetMatrix(mat);
+
+      double fixedReferenceTableTop[4] = { };
+      mat->MultiplyPoint( fixedReferenceRAS, fixedReferenceTableTop);
+      vtkWarningMacro("GetTableTopCenterToFixedIsocenterTranslate: FixedReferenceOrigin in TableTop " << fixedReferenceTableTop[0] << " " << fixedReferenceTableTop[1] << " " << fixedReferenceTableTop[2]);
+    }
+  }
+*/
+/*
+  // Transform IHEP stand models (IEC Patient) to RAS
+  vtkNew<vtkTransform> patientToRasTransform;
+  patientToRasTransform->Identity();
+  patientToRasTransform->RotateX(-90.);
+  if (!parameterNode->GetPatientHeadFeetRotation())
+  {
+    patientToRasTransform->RotateZ(180.);
+  }
+
+  double tableTopCenter[4] = { TableTopCenterFixedReference[0], TableTopCenterFixedReference[1], TableTopCenterFixedReference[2], 1. };
+  double tableTopCenterRAS[4] = { };
+  patientToRasTransform->MultiplyPoint( tableTopCenter, tableTopCenterRAS);
+
+  vtkWarningMacro("GetTableTopCenterToFixedIsocenterTranslate: TableTop center in TableTop " << tableTopCenterRAS[0] << " " << tableTopCenterRAS[1] << " " << tableTopCenterRAS[2]);
+
+  vtkMRMLTransformNode* tableTopTransformNode = this->GetTableTopTransform();
+  if (tableTopTransformNode)
+  {
+    vtkTransform* tableTopTransform = nullptr;
+    vtkNew<vtkMatrix4x4> mat;
+
+    tableTopTransform = vtkTransform::SafeDownCast(tableTopTransformNode->GetTransformToParent());
+    if (tableTopTransform)
+    {
+      tableTopTransform->GetMatrix(mat);
+
+      mat->Invert(); // table top to ras
+      mat->MultiplyPoint( tableTopCenterRAS, tableTopCenter);
+      vtkWarningMacro("GetTableTopCenterToFixedIsocenterTranslate: " << tableTopCenter[0] << " " << tableTopCenter[1] << " " << tableTopCenter[2]);
+    }
+  }
+*/
+
+/*
+  double fixedReferenceIsocenter[4] = { 0., 0., 0., 1. };
+  double fixedReferenceIsocenterTableTop[4] = { };
+
+  using IHEP = vtkSlicerIhepStandGeometryTransformLogic::CoordinateSystemIdentifier;
+
+  // table top center point in table top frame
+  this->IhepLogic->GetTransformForPointThroughtRAS( IHEP::FixedReference, 
+    IHEP::TableTop, fixedReferenceIsocenter, fixedReferenceIsocenterTableTop);
+
+  vtkWarningMacro("GetTableTopCenterToFixedIsocenterTranslate: FixedReference isocenter in TableTop " << fixedReferenceIsocenterTableTop[0] << " " << fixedReferenceIsocenterTableTop[1] << " " << fixedReferenceIsocenterTableTop[2]);
+*/
+/*
+  double translate[3] = {
+    fixedReferenceIsocenterTableTop[0] - tableTopCenterRAS[0],
+    fixedReferenceIsocenterTableTop[1] - tableTopCenterRAS[1],
+    fixedReferenceIsocenterTableTop[2] - tableTopCenterRAS[2] };
+
+  vtkWarningMacro("GetTableTopCenterToFixedIsocenterTranslate: " << translate[0] << " " << translate[1] << " " << translate[2]);
+*/
+//  translateTableTopFrame[0] = translate[0];
+//  translateTableTopFrame[1] = translate[1];
+//  translateTableTopFrame[2] = translate[2];
+
+/*
+  vtkMRMLMarkupsPlaneNode* tableTopPlaneNode = nullptr;
+
+  // table top plane markups node
+  if (scene->GetFirstNodeByName(TABLETOP_MARKUPS_PLANE_NODE_NAME))
+  {
+    tableTopPlaneNode = vtkMRMLMarkupsPlaneNode::SafeDownCast(scene->GetFirstNodeByName(TABLETOP_MARKUPS_PLANE_NODE_NAME));
+  }
+
+  double tableTopOrigin[4] = { 0., 0., 0., 1. };
+  double tableTopRAS[4] = { };
+  double tableTopFixedReference[4] = { };
+
+  if (tableTopPlaneNode)
+  {
+    double* planeOrigin = tableTopPlaneNode->GetOrigin();
+    double planeOriginTableTop[4] = { planeOrigin[0], planeOrigin[1], planeOrigin[2], 1. };
+    double planeOriginFixedReference[4] = {};
+
+    using IHEP = vtkSlicerIhepStandGeometryTransformLogic::CoordinateSystemIdentifier;
+    // table top center point in table top support frame
+    this->IhepLogic->GetTransformForPointThroughtRAS( IHEP::TableTop, 
+      IHEP::RAS, planeOriginTableTop, planeOriginFixedReference);
+    
+//    vtkWarningMacro("GetTableTopCenterToFixedIsocenterTranslate: " << planeOriginTableTop[0] << " " << planeOriginTableTop[1] << " " << planeOriginTableTop[2]);
+//    vtkWarningMacro("GetTableTopCenterToFixedIsocenterTranslate: " << planeOriginFixedReference[0] << " " << planeOriginFixedReference[1] << " " << planeOriginFixedReference[2]);
+
+    vtkSmartPointer<vtkMRMLLinearTransformNode> rasToTableTopTransformNode;
+    vtkTransform* rasToTableTopTransform = nullptr;
+    vtkNew<vtkMatrix4x4> rasToTableTopMatrix;
+    if (scene->GetFirstNodeByName("RasToTableTopTransform"))
+    {
+      rasToTableTopTransformNode = vtkMRMLLinearTransformNode::SafeDownCast(
+        scene->GetFirstNodeByName("RasToTableTopTransform"));
+      rasToTableTopTransform = vtkTransform::SafeDownCast(rasToTableTopTransformNode->GetTransformToParent());
+    }
+    if (rasToTableTopTransform)
+    {
+      rasToTableTopTransform->GetMatrix(rasToTableTopMatrix);
+    }
+    rasToTableTopMatrix->Invert();
+    rasToTableTopMatrix->MultiplyPoint( tableTopOrigin, tableTopRAS);
+//    vtkWarningMacro("GetTableTopCenterToFixedIsocenterTranslate: tableTopCenterRAS " << tableTopRAS[0] << " " << tableTopRAS[1] << " " << tableTopRAS[2]);
+  }
+*/
+/*
+  vtkMRMLMarkupsPlaneNode* tableTopPlaneNode = nullptr;
+
+  // table top plane markups node
+  if (scene->GetFirstNodeByName(TABLETOP_MARKUPS_PLANE_NODE_NAME))
+  {
+    tableTopPlaneNode = vtkMRMLMarkupsPlaneNode::SafeDownCast(scene->GetFirstNodeByName(TABLETOP_MARKUPS_PLANE_NODE_NAME));
+  }
+
+  double tableTopOriginWorld[4] = { 0., 0., 0., 1. };
+  double tableTopOriginTableTop[4] = { 0., 0., 0., 1. };
+  if (tableTopPlaneNode)
+  {
+    tableTopPlaneNode->GetOriginWorld(tableTopOriginWorld);
+  }
+
+  double fixedReferenceLocal[4] = { 0., 0., 0., 1. };
+  double fixedReferenceWorld[4] = { };
+  double fixedReferenceTableTop[4] = { };
+
+  vtkSmartPointer<vtkMRMLLinearTransformNode> rasToFixedReferenceTransformNode;
+  vtkTransform* rasToFixedReferenceTransform = nullptr;
+  vtkNew<vtkMatrix4x4> rasToFixedReferenceMatrix;
+  if (scene->GetFirstNodeByName("RasToFixedReferenceTransform"))
+  {
+    rasToFixedReferenceTransformNode = vtkMRMLLinearTransformNode::SafeDownCast(
+      scene->GetFirstNodeByName("RasToFixedReferenceTransform"));
+//    rasToFixedReferenceTransform = vtkTransform::SafeDownCast(rasToFixedReferenceTransformNode->GetTransformToWorld(rasToFixedReferenceMatrix));
+  }
+  if (rasToFixedReferenceTransformNode)
+  {
+    rasToFixedReferenceTransformNode->GetMatrixTransformToWorld(rasToFixedReferenceMatrix);
+  }
+  rasToFixedReferenceMatrix->MultiplyPoint( fixedReferenceLocal, fixedReferenceWorld);
+  vtkWarningMacro("GetTableTopCenterToFixedIsocenterTranslate: FixedReference in World " << fixedReferenceWorld[0] << " " << fixedReferenceWorld[1] << " " << fixedReferenceWorld[2]);
+
+  vtkSmartPointer<vtkMRMLLinearTransformNode> rasToTableTopTransformNode;
+  vtkTransform* rasToTableTopTransform = nullptr;
+  vtkNew<vtkMatrix4x4> rasToTableTopMatrix;
+  if (scene->GetFirstNodeByName("RasToTableTopTransform"))
+  {
+    vtkErrorMacro("GetTableTopCenterToFixedIsocenterTranslate: 1");
+    rasToTableTopTransformNode = vtkMRMLLinearTransformNode::SafeDownCast(
+      scene->GetFirstNodeByName("RasToTableTopTransform"));
+//    rasToTableTopTransform = vtkTransform::SafeDownCast(rasToTableTopTransformNode->GetTransformFromWorld());
+  }
+  if (rasToTableTopTransformNode)
+  {
+    vtkErrorMacro("GetTableTopCenterToFixedIsocenterTranslate: 2");
+    rasToTableTopTransformNode->GetMatrixTransformToWorld(rasToTableTopMatrix);
+  }
+  rasToTableTopMatrix->Invert();
+  rasToTableTopMatrix->MultiplyPoint( tableTopOriginWorld, tableTopOriginTableTop);
+  vtkWarningMacro("GetTableTopCenterToFixedIsocenterTranslate: TableTopOrigin in TableTop " << tableTopOriginTableTop[0] << " " << tableTopOriginTableTop[1] << " " << tableTopOriginTableTop[2]);
+*/
+//  rasToFixedReferenceMatrix->Invert(); // World to fixed reference
+//  rasToFixedReferenceMatrix->MultiplyPoint( tableTopOriginWorld, fixedReferenceWorld);
+/*
+  using IHEP = vtkSlicerIhepStandGeometryTransformLogic::CoordinateSystemIdentifier;
+
+  // Transform IHEP stand models (IEC Patient) to RAS
+  vtkNew<vtkMatrix4x4> patientToRasMatrix;
+  vtkNew<vtkTransform> patientToRasTransform;
+  patientToRasTransform->Identity();
+  patientToRasTransform->RotateX(-90.);
+  if (!parameterNode->GetPatientHeadFeetRotation())
+  {
+    patientToRasTransform->RotateZ(180.);
+  }
+  patientToRasTransform->GetMatrix(patientToRasMatrix);
+
+  double tableTopCenter[4] = { TableTopCenterFixedReference[0], TableTopCenterFixedReference[1], TableTopCenterFixedReference[2], 1. };
+  double tableTopCenterRAS[4] = { };
+
+//  patientToRasMatrix->MultiplyPoint( tableTopCenter, tableTopCenterRAS);
+
+  double tableTopCenterRAS1[4] = { };
+  this->IhepLogic->GetTransformForPointThroughtRAS( IHEP::FixedReference,
+    IHEP::TableTop, tableTopCenter, tableTopCenterRAS);
+
+  vtkWarningMacro("GetTableTopCenterToFixedIsocenterTranslate: " << tableTopCenterRAS[0] << " " << tableTopCenterRAS[1] << " " << tableTopCenterRAS[2]);
+//  vtkWarningMacro("GetTableTopCenterToFixedIsocenterTranslate: " << tableTopCenterRAS1[0] << " " << tableTopCenterRAS1[1] << " " << tableTopCenterRAS1[2]);
+*/
+/*
+  vtkSmartPointer<vtkMRMLLinearTransformNode> rasToTableTopTransformNode;
+  vtkTransform* rasToTableTopTransform = nullptr;
+  vtkNew<vtkMatrix4x4> rasToTableMatrix;
+  if (scene->GetFirstNodeByName("RasToTableTopTransform"))
+  {
+    rasToTableTopTransformNode = vtkMRMLLinearTransformNode::SafeDownCast(
+      scene->GetFirstNodeByName("RasToTableTopTransform"));
+    rasToTableTopTransform = vtkTransform::SafeDownCast(rasToTableTopTransformNode->GetTransformToParent());
+  }
+  if (rasToTableTopTransform)
+  {
+    rasToTableTopTransform->GetMatrix(rasToTableMatrix);
+  }
+  double tableTopCenter[4] = { 0., 0., 0., 1. };
+  double tableTopCenterRAS[4] = { };
+  rasToTableTopTransform->MultiplyPoint( tableTopCenter, tableTopCenterRAS);
+  vtkWarningMacro("GetTableTopCenterToFixedIsocenterTranslate: tableTopCenterRAS " << tableTopCenterRAS[0] << " " << tableTopCenterRAS[1] << " " << tableTopCenterRAS[2]);
+
+  vtkSmartPointer<vtkMRMLLinearTransformNode> rasToFixedReferenceTransformNode;
+  vtkTransform* rasToFixedReferenceTransform = nullptr;
+  vtkNew<vtkMatrix4x4> rasToFixedReferenceMatrix;
+  if (scene->GetFirstNodeByName("RasToFixedReferenceTransform"))
+  {
+    rasToFixedReferenceTransformNode = vtkMRMLLinearTransformNode::SafeDownCast(
+      scene->GetFirstNodeByName("RasToFixedReferenceTransform"));
+    rasToFixedReferenceTransform = vtkTransform::SafeDownCast(rasToFixedReferenceTransformNode->GetTransformToParent());
+  }
+  if (rasToFixedReferenceTransform)
+  {
+    rasToFixedReferenceTransform->GetMatrix(rasToFixedReferenceMatrix);
+  }
+  double fixedIsocenter[4] = { 0., 0., 0., 1. };
+  double fixedIsocenterRAS[4] = { };
+  rasToFixedReferenceTransform->MultiplyPoint( fixedIsocenter, fixedIsocenterRAS);
+  vtkWarningMacro("GetTableTopCenterToFixedIsocenterTranslate: fixedIsocenterRAS " << fixedIsocenterRAS[0] << " " << fixedIsocenterRAS[1] << " " << fixedIsocenterRAS[2]);
+*/
+/*
+  // Transform IHEP stand models (IEC Patient) to RAS
+  vtkNew<vtkMatrix4x4> patientToRasMatrix;
+  vtkNew<vtkTransform> patientToRasTransform;
+  patientToRasTransform->Identity();
+  patientToRasTransform->RotateX(-90.);
+  if (!parameterNode->GetPatientHeadFeetRotation())
+  {
+    patientToRasTransform->RotateZ(180.);
+  }
+  patientToRasTransform->GetMatrix(patientToRasMatrix);
+
+  double tableTopCenter[4] = { TableTopCenterFixedReference[0], TableTopCenterFixedReference[1], TableTopCenterFixedReference[2], 1. };
+  double tableTopCenterRAS[4] = { };
+  patientToRasMatrix->MultiplyPoint( tableTopCenter, tableTopCenterRAS);
+
+  vtkMRMLMarkupsPlaneNode* tableTopPlaneNode = nullptr;
+
+  // table top plane markups node
+  if (scene->GetFirstNodeByName(TABLETOP_MARKUPS_PLANE_NODE_NAME))
+  {
+    tableTopPlaneNode = vtkMRMLMarkupsPlaneNode::SafeDownCast(scene->GetFirstNodeByName(TABLETOP_MARKUPS_PLANE_NODE_NAME));
+  }
+
+  // Display all pieces of the treatment room and sets each piece a color to provide realistic representation
+  using IHEP = vtkSlicerIhepStandGeometryTransformLogic::CoordinateSystemIdentifier;
+
+  vtkMRMLMarkupsLineNode* fixedReferenceLineNode = nullptr;
+
+  // origin fiducial markups node
+  if (scene->GetFirstNodeByName(FIXEDREFERENCE_MARKUPS_LINE_NODE_NAME))
+  {
+    fixedReferenceLineNode = vtkMRMLMarkupsLineNode::SafeDownCast(scene->GetFirstNodeByName(FIXEDREFERENCE_MARKUPS_LINE_NODE_NAME));
+  }
+
+  double fixedIsocenter[4] = { 0., 0., 0., 1. };
+  double fixedIsocenterRAS[4] = { };
+  double fixedIsocenterRAS1[4] = { };
+
+  vtkMRMLTransformNode* fixedReferenceTransformNode = this->GetFixedReferenceTransform();
+  if (fixedReferenceTransformNode)
+  {
+    vtkTransform* fixedReferenceTransform = nullptr;
+    vtkNew<vtkMatrix4x4> mat;
+
+    fixedReferenceTransform = vtkTransform::SafeDownCast(fixedReferenceTransformNode->GetTransformToParent());
+    if (fixedReferenceTransform)
+    {
+      fixedReferenceTransform->GetMatrix(mat);
+
+      mat->MultiplyPoint( fixedIsocenter, fixedIsocenterRAS);
+//      vtkWarningMacro("GetTableTopCenterToFixedIsocenterTranslate: " << fixedIsocenterRAS[0] << " " << fixedIsocenterRAS[1] << " " << fixedIsocenterRAS[2]);
+    }
+  }
+
+  // fixed isocenter point in table top frame
+  this->IhepLogic->GetTransformForPointThroughtRAS( IHEP::FixedReference, 
+    IHEP::TableTop, fixedIsocenter, fixedIsocenterRAS);
+
+  this->IhepLogic->GetTransformForPointThroughtRAS( IHEP::RAS, 
+    IHEP::TableTop, fixedIsocenter, fixedIsocenterRAS);
+
+//  double tableTopCenter[4] = { TableTopCenterFixedReference[0], TableTopCenterFixedReference[1], TableTopCenterFixedReference[2], 1. };
+//  double tableTopCenterRAS[4] = { };
+
+  // table top center point in table top frame
+//  this->IhepLogic->GetTransformForPointThroughtRAS( IHEP::RAS, 
+//    IHEP::TableTop, tableTopCenter, tableTopCenterRAS);
+
+  double translate[3] = {
+    fixedIsocenterRAS[0] - tableTopCenterRAS[0],
+    fixedIsocenterRAS[1] - tableTopCenterRAS[1],
+    fixedIsocenterRAS[2] - tableTopCenterRAS[2] };
+
+  vtkWarningMacro("GetTableTopCenterToFixedIsocenterTranslate: " << fixedIsocenterRAS[0] << " " << fixedIsocenterRAS[1] << " " << fixedIsocenterRAS[2]);
+//  vtkWarningMacro("GetTableTopCenterToFixedIsocenterTranslate: " << translate[0] << " " << translate[1] << " " << translate[2]);
+
+//  translateTableTopFrame[0] = translate[0];
+//  translateTableTopFrame[1] = translate[1];
+//  translateTableTopFrame[2] = translate[2];
+*/
+  return true;
+}
+
+//----------------------------------------------------------------------------
+bool vtkSlicerIhepStandGeometryLogic::GetPatientIsocenterToFixedIsocenterTranslate(vtkMRMLIhepStandGeometryNode* parameterNode, double* translatePatientFrame)
+{
+  return true;
+}
+
+//----------------------------------------------------------------------------
+bool vtkSlicerIhepStandGeometryLogic::GetPatientBeamToFixedBeamTransform(vtkMRMLIhepStandGeometryNode* parameterNode, vtkMRMLRTBeamNode* drrBeam, vtkMRMLRTFixedIonBeamNode* fixedBeam, vtkTransform* transform)
+{
+  return true;
+}
+
 
 //----------------------------------------------------------------------------
 void vtkSlicerIhepStandGeometryLogic::CalculateTableTopTranslation( vtkMRMLIhepStandGeometryNode* parameterNode, const double patientIsocenter[3], const double fixedIsocenter[3])
