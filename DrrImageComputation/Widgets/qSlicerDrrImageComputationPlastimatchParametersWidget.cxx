@@ -486,3 +486,18 @@ void qSlicerDrrImageComputationPlastimatchParametersWidget::updatePlastimatchDrr
 
   d->plainTextEdit_PlastimatchDrrArguments->setPlainText(QString::fromStdString(command.str()));
 }
+
+//-----------------------------------------------------------------------------
+void qSlicerDrrImageComputationPlastimatchParametersWidget::setCollapsed(bool collapsed)
+{
+  Q_D(qSlicerDrrImageComputationPlastimatchParametersWidget);
+
+  if (!d->ParameterNode)
+  {
+    qCritical() << Q_FUNC_INFO << ": Invalid parameter node";
+    return;
+  }
+
+  d->CollapsibleButton_PlastimatchDrrImageProcessing->setCollapsed(collapsed);
+  d->CollapsibleButton_PlastimatchDrrArguments->setCollapsed(collapsed);
+}

@@ -175,3 +175,16 @@ void qSlicerDrrImageComputationRtkParametersWidget::onOutOfPlaneAngleChanged(dou
   d->ParameterNode->DisableModifiedEventOn();
   d->ParameterNode->DisableModifiedEventOff();
 }
+//-----------------------------------------------------------------------------
+void qSlicerDrrImageComputationRtkParametersWidget::setCollapsed(bool collapsed)
+{
+  Q_D(qSlicerDrrImageComputationRtkParametersWidget);
+
+  if (!d->ParameterNode)
+  {
+    qCritical() << Q_FUNC_INFO << ": Invalid parameter node";
+    return;
+  }
+  d->CollapsibleButton_RtkDrrImageParameters->setCollapsed(collapsed);
+}
+

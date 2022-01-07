@@ -96,7 +96,15 @@ void qSlicerDrrImageComputationModuleWidget::setup()
 {
   Q_D(qSlicerDrrImageComputationModuleWidget);
   d->setupUi(this);
+
   this->Superclass::setup();
+
+  d->RadioButton_Plastimatch->setChecked(true);
+  d->PlastimatchParametersWidget->setEnabled(true);
+  d->PlastimatchParametersWidget->setCollapsed(false);
+
+  d->RtkParametersWidget->setEnabled(false);
+  d->RtkParametersWidget->setCollapsed(true);
 
   // Nodes
   connect( d->MRMLNodeComboBox_RtBeam, SIGNAL(currentNodeChanged(vtkMRMLNode*)), 
@@ -127,6 +135,8 @@ void qSlicerDrrImageComputationModuleWidget::setup()
   connect( d->CheckBox_ShowDrrMarkups, SIGNAL(toggled(bool)), this, SLOT(onShowMarkupsToggled(bool)));
   connect( d->GroupBox_ImageWindowParameters, SIGNAL(toggled(bool)), this, SLOT(onUseImageWindowToggled(bool)));
   connect( d->PushButton_UpdateBeamFromCamera, SIGNAL(clicked()), this, SLOT(onUpdateBeamFromCameraClicked()));
+  // Radio buttons
+  connect( d->ButtonGroup_DrrComputationLibrary, SIGNAL(buttonClicked(QAbstractButton*)), this, SLOT(onComputationLibraryChanged(QAbstractButton*)));
 
   // Handle scene change event if occurs
   qvtkConnect( d->logic(), vtkCommand::ModifiedEvent, this, SLOT(onLogicModified()));
@@ -437,6 +447,37 @@ void qSlicerDrrImageComputationModuleWidget::onEnter()
 void qSlicerDrrImageComputationModuleWidget::onLogicModified()
 {
   this->updateWidgetFromMRML();
+}
+
+//-----------------------------------------------------------------------------
+void qSlicerDrrImageComputationModuleWidget::onComputationLibraryChanged(QAbstractButton* aButton)
+{
+  Q_D(qSlicerDrrImageComputationModuleWidget);
+  vtkMRMLDrrImageComputationNode* parameterNode = vtkMRMLDrrImageComputationNode::SafeDownCast(d->MRMLNodeComboBox_ParameterSet->currentNode());
+  if (!parameterNode)
+  {
+    qCritical() << Q_FUNC_INFO << ": Invalid parameter node";
+    return;
+  }
+  QRadioButton* rButton = qobject_cast<QRadioButton*>(aButton);
+  if (rButton == d->RadioButton_Plastimatch)
+  {
+    qDebug() << Q_FUNC_INFO << ": Plastimatch";
+    d->PlastimatchParametersWidget->setEnabled(true);
+    d->PlastimatchParametersWidget->setCollapsed(false);
+
+    d->RtkParametersWidget->setEnabled(false);
+    d->RtkParametersWidget->setCollapsed(true);
+  }
+  else if (rButton == d->RadioButton_RTK)
+  {
+    qDebug() << Q_FUNC_INFO << ": RTK";
+    d->PlastimatchParametersWidget->setEnabled(false);
+    d->PlastimatchParametersWidget->setCollapsed(true);
+
+    d->RtkParametersWidget->setEnabled(true);
+    d->RtkParametersWidget->setCollapsed(false);
+  }
 }
 
 //-----------------------------------------------------------------------------

@@ -52,6 +52,8 @@ public slots:
   void setParameterNode(vtkMRMLNode* node);
   /// Update widget GUI from RT Image parameters node
   void updateWidgetFromMRML();
+  /// Collapse or expand collapsible buttons
+  void setCollapsed(bool collapsed);
 
 protected slots:
   /// Exponential mapping flag

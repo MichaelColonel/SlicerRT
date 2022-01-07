@@ -259,9 +259,4 @@
  </customwidgets>
  <resources/>
  <connections/>
- <buttongroups>
-  <buttongroup name="ButtonGroup_ReconstructAlgorithm"/>
-  <buttongroup name="ButtonGroup_Threading"/>
-  <buttongroup name="ButtonGroup_HuConversion"/>
- </buttongroups>
 </ui>
