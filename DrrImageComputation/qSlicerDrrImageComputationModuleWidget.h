@@ -23,6 +23,8 @@
 
 #include "qSlicerDrrImageComputationModuleExport.h"
 
+class QAbstractButton;
+
 class qSlicerDrrImageComputationModuleWidgetPrivate;
 class vtkMRMLNode;
 
@@ -53,6 +55,7 @@ public slots:
   void onCameraNodeChanged(vtkMRMLNode*);
 
   void onLogicModified();
+  void onComputationLibraryChanged(QAbstractButton*);
   void onIsocenterImagerDistanceValueChanged(double);
   void onImageWindowColumnsValuesChanged( double, double);
   void onImageWindowRowsValuesChanged( double, double);

@@ -20,7 +20,7 @@
       <string>RTK DRR image parameters</string>
      </property>
      <property name="collapsed">
-      <bool>false</bool>
+      <bool>true</bool>
      </property>
      <layout class="QGridLayout" name="gridLayout_5">
       <item row="0" column="0">
