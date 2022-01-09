@@ -8,7 +8,6 @@ set(${KIT}_INCLUDE_DIRECTORIES
   ${SlicerRtCommon_INCLUDE_DIRS}
   ${vtkSlicerBeamsModuleMRML_INCLUDE_DIRS}
   ${vtkSlicerSubjectHierarchyModuleLogic_INCLUDE_DIRS}
-  ${vtkSlicerIhepStandGeometryModuleMRML_INCLUDE_DIRS}
   )
 
 set(${KIT}_SRCS
@@ -16,8 +15,6 @@ set(${KIT}_SRCS
   vtkSlicer${MODULE_NAME}ModuleLogic.h
   vtkSlicerIECTransformLogic.cxx
   vtkSlicerIECTransformLogic.h
-  vtkSlicerIhepStandGeometryTransformLogic.cxx
-  vtkSlicerIhepStandGeometryTransformLogic.h
   vtkSlicerMLCPositionLogic.cxx
   vtkSlicerMLCPositionLogic.h
   )
@@ -29,7 +26,6 @@ set(${KIT}_TARGET_LIBRARIES
   vtkSlicerRtCommon
   vtkSlicerMarkupsModuleMRML
   vtkSlicerSubjectHierarchyModuleLogic
-  vtkSlicerIhepStandGeometryModuleMRML
   ${ITK_LIBRARIES}
   )
 

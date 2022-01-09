@@ -36,7 +36,6 @@ class vtkGeneralTransform;
 class vtkTransform;
 class vtkMRMLRTBeamNode;
 class vtkMRMLLinearTransformNode;
-class vtkMRMLIhepStandGeometryNode;
 
 class VTK_SLICER_BEAMS_LOGIC_EXPORT vtkSlicerIhepStandGeometryTransformLogic : public vtkMRMLAbstractLogic
 {
