@@ -29,6 +29,9 @@
 #include <vtkMRMLScene.h>
 #include <vtkMRMLLinearTransformNode.h>
 
+// IHEP stand geometry MRML node
+//#include <vtkMRMLIhepStandGeometryNode.h>
+
 // VTK includes
 #include <vtkNew.h>
 #include <vtkObjectFactory.h>
