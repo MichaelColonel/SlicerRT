@@ -2988,23 +2988,34 @@ bool vtkSlicerIhepStandGeometryLogic::GetTableTopCenterToFixedIsocenterTranslate
   using IHEP = vtkSlicerIhepStandGeometryTransformLogic::CoordinateSystemIdentifier;
 
   vtkNew<vtkTransform> rasToFixedReferenceTransform;
-  this->IhepLogic->GetTransformBetween( IHEP::RAS, IHEP::FixedReference, rasToFixedReferenceTransform, false);
   double rasOrigin[4] = { 0., 0., 0., 1. };
-  double rasFixedReferenceNoOffset[4] = {};
-  rasToFixedReferenceTransform->MultiplyPoint( rasOrigin, rasFixedReferenceNoOffset);
-  vtkWarningMacro("GetTableTopCenterToFixedIsocenterTranslate: RAS->FixedReference " << rasFixedReferenceNoOffset[0] << " " << rasFixedReferenceNoOffset[1] << " " << rasFixedReferenceNoOffset[2]);
+  if (this->IhepLogic->GetTransformBetween( IHEP::RAS, IHEP::FixedReference, rasToFixedReferenceTransform, false))
+  {
+    double rasFixedReferenceNoOffset[4] = {};
+    rasToFixedReferenceTransform->MultiplyPoint( rasOrigin, rasFixedReferenceNoOffset);
+    vtkWarningMacro("GetTableTopCenterToFixedIsocenterTranslate: RAS->FixedReference " << rasFixedReferenceNoOffset[0] << " " << rasFixedReferenceNoOffset[1] << " " << rasFixedReferenceNoOffset[2]);
+  }
 
   vtkNew<vtkTransform> rasToTableTopTransform;
-  this->IhepLogic->GetTransformBetween( IHEP::RAS, IHEP::TableTop, rasToTableTopTransform, false);
-  double rasTableTopNoOffset[4] = {};
-  rasToTableTopTransform->MultiplyPoint( rasOrigin, rasTableTopNoOffset);
-  vtkWarningMacro("GetTableTopCenterToFixedIsocenterTranslate: RAS->TableTop " << rasTableTopNoOffset[0] << " " << rasTableTopNoOffset[1] << " " << rasTableTopNoOffset[2]);
+  if (this->IhepLogic->GetTransformBetween( IHEP::RAS, IHEP::TableTop, rasToTableTopTransform, false))
+  {
+    double rasTableTopNoOffset[4] = {};
+    rasToTableTopTransform->MultiplyPoint( rasOrigin, rasTableTopNoOffset);
+    vtkWarningMacro("GetTableTopCenterToFixedIsocenterTranslate: RAS->TableTop " << rasTableTopNoOffset[0] << " " << rasTableTopNoOffset[1] << " " << rasTableTopNoOffset[2]);
+  }
 
   vtkNew<vtkTransform> fixedReferenceToTableTopTransform;
-  this->IhepLogic->GetTransformBetween( IHEP::FixedReference, IHEP::TableTop, fixedReferenceToTableTopTransform, false);
   double fixedReferenceToTableTopNoOffset[4] = {};
-  fixedReferenceToTableTopTransform->MultiplyPoint( rasOrigin, fixedReferenceToTableTopNoOffset);
-  vtkWarningMacro("GetTableTopCenterToFixedIsocenterTranslate: FixedReference->TableTop " << fixedReferenceToTableTopNoOffset[0] << " " << fixedReferenceToTableTopNoOffset[1] << " " << fixedReferenceToTableTopNoOffset[2]);
+  if (this->IhepLogic->GetTransformBetween( IHEP::FixedReference, IHEP::TableTop, fixedReferenceToTableTopTransform, false))
+  {
+    fixedReferenceToTableTopTransform->MultiplyPoint( rasOrigin, fixedReferenceToTableTopNoOffset);
+    vtkWarningMacro("GetTableTopCenterToFixedIsocenterTranslate: FixedReference->TableTop " << fixedReferenceToTableTopNoOffset[0] << " " << fixedReferenceToTableTopNoOffset[1] << " " << fixedReferenceToTableTopNoOffset[2]);
+  }
+
+  if (this->IhepLogic->GetTransformPointThroughtRAS( IHEP::FixedReference, IHEP::TableTop, rasOrigin, fixedReferenceToTableTopNoOffset, false))
+  {
+    vtkWarningMacro("GetTableTopCenterToFixedIsocenterTranslate: FixedReference->TableTop " << fixedReferenceToTableTopNoOffset[0] << " " << fixedReferenceToTableTopNoOffset[1] << " " << fixedReferenceToTableTopNoOffset[2]);
+  }
 
 /*
   vtkWarningMacro("GetTableTopCenterToFixedIsocenterTranslate: TableTopCenter in FixedReference " << tableTopCenterFixedReference[0] << " " << tableTopCenterFixedReference[1] << " " << tableTopCenterFixedReference[2]);
