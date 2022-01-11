@@ -247,13 +247,13 @@ void qSlicerIhepStandGeometryModuleWidget::onPatientTableTopTranslationChanged(d
   parameterNode->SetPatientToTableTopTranslation(position);
 
   d->logic()->UpdatePatientToTableTopTransform(parameterNode);
-//  d->logic()->UpdateTableTopToTableOriginTransform(parameterNode);
-//  d->logic()->UpdateTableOriginToTableSupportTransform(parameterNode);
-//  d->logic()->UpdateTableMirrorToTableSupportTransform(parameterNode);
-//  d->logic()->UpdateTableMiddleToTableSupportTransform(parameterNode);
-//  d->logic()->UpdateTableSupportToTablePlatformTransform(parameterNode);
-//  d->logic()->UpdateTablePlatformToPatientSupportTransform(parameterNode);
-//  d->logic()->UpdatePatientSupportToFixedReferenceTransform(parameterNode);
+  d->logic()->UpdateTableTopToTableOriginTransform(parameterNode);
+  d->logic()->UpdateTableOriginToTableSupportTransform(parameterNode);
+  d->logic()->UpdateTableMirrorToTableSupportTransform(parameterNode);
+  d->logic()->UpdateTableMiddleToTableSupportTransform(parameterNode);
+  d->logic()->UpdateTableSupportToTablePlatformTransform(parameterNode);
+  d->logic()->UpdateTablePlatformToPatientSupportTransform(parameterNode);
+  d->logic()->UpdatePatientSupportToFixedReferenceTransform(parameterNode);
 
   parameterNode->DisableModifiedEventOff();
   

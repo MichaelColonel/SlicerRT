@@ -1834,6 +1834,7 @@ void vtkSlicerIhepStandGeometryLogic::SetupTreatmentMachineModels(vtkMRMLIhepSta
   this->UpdateFixedReferenceLineNode(parameterNode);
   double tmp[3];
   this->GetTableTopCenterToFixedIsocenterTranslate(parameterNode, tmp);
+  this->GetPatientIsocenterToFixedIsocenterTranslate(parameterNode, tmp);
 }
 
 //----------------------------------------------------------------------------
@@ -2953,7 +2954,6 @@ bool vtkSlicerIhepStandGeometryLogic::GetTableTopCenterToFixedIsocenterTranslate
   
   patientToRasTransform->MultiplyPoint( tableTopCenter, tableTopCenterRAS);
 
-
   vtkWarningMacro("GetTableTopCenterToFixedIsocenterTranslate: TableTop center in TableTop " << tableTopCenterRAS[0] << " " << tableTopCenterRAS[1] << " " << tableTopCenterRAS[2]);
 /*
   vtkMRMLTransformNode* tableTopTransformNode = this->GetTableTopTransform();
@@ -2995,7 +2995,7 @@ bool vtkSlicerIhepStandGeometryLogic::GetTableTopCenterToFixedIsocenterTranslate
     rasToFixedReferenceTransform->MultiplyPoint( rasOrigin, rasFixedReferenceNoOffset);
     vtkWarningMacro("GetTableTopCenterToFixedIsocenterTranslate: RAS->FixedReference " << rasFixedReferenceNoOffset[0] << " " << rasFixedReferenceNoOffset[1] << " " << rasFixedReferenceNoOffset[2]);
   }
-
+/*
   vtkNew<vtkTransform> rasToTableTopTransform;
   if (this->IhepLogic->GetTransformBetween( IHEP::RAS, IHEP::TableTop, rasToTableTopTransform, false))
   {
@@ -3011,12 +3011,29 @@ bool vtkSlicerIhepStandGeometryLogic::GetTableTopCenterToFixedIsocenterTranslate
     fixedReferenceToTableTopTransform->MultiplyPoint( rasOrigin, fixedReferenceToTableTopNoOffset);
     vtkWarningMacro("GetTableTopCenterToFixedIsocenterTranslate: FixedReference->TableTop " << fixedReferenceToTableTopNoOffset[0] << " " << fixedReferenceToTableTopNoOffset[1] << " " << fixedReferenceToTableTopNoOffset[2]);
   }
+*/
 
+  double fixedReferenceToTableTopNoOffset[4] = {};
   if (this->IhepLogic->GetTransformPointThroughtRAS( IHEP::FixedReference, IHEP::TableTop, rasOrigin, fixedReferenceToTableTopNoOffset, false))
   {
-    vtkWarningMacro("GetTableTopCenterToFixedIsocenterTranslate: FixedReference->TableTop " << fixedReferenceToTableTopNoOffset[0] << " " << fixedReferenceToTableTopNoOffset[1] << " " << fixedReferenceToTableTopNoOffset[2]);
+    vtkWarningMacro("GetTableTopCenterToFixedIsocenterTranslate: FixedReference->TableTop on offset " << fixedReferenceToTableTopNoOffset[0] << " " << fixedReferenceToTableTopNoOffset[1] << " " << fixedReferenceToTableTopNoOffset[2]);
   }
+  fixedReferenceToTableTopNoOffset[0] -= tableTopCenterRAS[0];
+  fixedReferenceToTableTopNoOffset[1] -= tableTopCenterRAS[1];
+  fixedReferenceToTableTopNoOffset[2] -= tableTopCenterRAS[2];
+  vtkWarningMacro("GetTableTopCenterToFixedIsocenterTranslate: FixedReference->TableTop with offset " << fixedReferenceToTableTopNoOffset[0] << " " << fixedReferenceToTableTopNoOffset[1] << " " << fixedReferenceToTableTopNoOffset[2]);
 
+  translateTableTopFrame[0] = fixedReferenceToTableTopNoOffset[0];
+  translateTableTopFrame[1] = fixedReferenceToTableTopNoOffset[1];
+  translateTableTopFrame[2] = fixedReferenceToTableTopNoOffset[2];
+
+/*
+  double fixedReferenceToPatientNoOffset[4] = {};
+  if (this->IhepLogic->GetTransformPointThroughtRAS( IHEP::FixedReference, IHEP::Patient, rasOrigin, fixedReferenceToPatientNoOffset, false))
+  {
+    vtkWarningMacro("GetTableTopCenterToFixedIsocenterTranslate: FixedReference->Patient on offset " << fixedReferenceToPatientNoOffset[0] << " " << fixedReferenceToPatientNoOffset[1] << " " << fixedReferenceToPatientNoOffset[2]);
+  }
+*/
 /*
   vtkWarningMacro("GetTableTopCenterToFixedIsocenterTranslate: TableTopCenter in FixedReference " << tableTopCenterFixedReference[0] << " " << tableTopCenterFixedReference[1] << " " << tableTopCenterFixedReference[2]);
 
@@ -3371,6 +3388,50 @@ bool vtkSlicerIhepStandGeometryLogic::GetTableTopCenterToFixedIsocenterTranslate
 //----------------------------------------------------------------------------
 bool vtkSlicerIhepStandGeometryLogic::GetPatientIsocenterToFixedIsocenterTranslate(vtkMRMLIhepStandGeometryNode* parameterNode, double* translatePatientFrame)
 {
+  vtkMRMLScene* scene = this->GetMRMLScene(); 
+  if (!scene)
+  {
+    vtkErrorMacro("GetPatientIsocenterToFixedIsocenterTranslate: Invalid MRML scene");
+    return false;
+  }
+
+  if (!parameterNode)
+  {
+    vtkErrorMacro("GetPatientIsocenterToFixedIsocenterTranslate: Invalid parameter node");
+    return false;
+  }
+
+  vtkMRMLRTBeamNode* beamNode = parameterNode->GetBeamNode();
+
+  if (!beamNode)
+  {
+    vtkErrorMacro("GetPatientIsocenterToFixedIsocenterTranslate: Invalid beam node");
+    return false;
+  }
+
+  double planIsocenterRAS[3];
+  if (!beamNode->GetPlanIsocenterPosition(planIsocenterRAS))
+  {
+    return false;
+  }
+
+  using IHEP = vtkSlicerIhepStandGeometryTransformLogic::CoordinateSystemIdentifier;
+
+  double fixedReferenceOrigin[4] = { 0., 0., 0., 1. };
+  double fixedReferenceToPatientNoOffset[4] = {};
+  if (this->IhepLogic->GetTransformPointThroughtRAS( IHEP::FixedReference, IHEP::Patient, fixedReferenceOrigin, fixedReferenceToPatientNoOffset, false))
+  {
+    vtkWarningMacro("GetPatientIsocenterToFixedIsocenterTranslate: FixedReference->Patient on offset " << fixedReferenceToPatientNoOffset[0] << " " << fixedReferenceToPatientNoOffset[1] << " " << fixedReferenceToPatientNoOffset[2]);
+  }
+  fixedReferenceToPatientNoOffset[0] -= planIsocenterRAS[0];
+  fixedReferenceToPatientNoOffset[1] -= planIsocenterRAS[1];
+  fixedReferenceToPatientNoOffset[2] -= planIsocenterRAS[2];
+  vtkWarningMacro("GetPatientIsocenterToFixedIsocenterTranslate: FixedReference->Patient with offset " << fixedReferenceToPatientNoOffset[0] << " " << fixedReferenceToPatientNoOffset[1] << " " << fixedReferenceToPatientNoOffset[2]);
+
+  translatePatientFrame[0] = fixedReferenceToPatientNoOffset[0];
+  translatePatientFrame[1] = fixedReferenceToPatientNoOffset[1];
+  translatePatientFrame[2] = fixedReferenceToPatientNoOffset[2];
+
   return true;
 }
 
