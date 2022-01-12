@@ -199,19 +199,23 @@ public:
   /// Calculate TableTop center to FixedIsocenter translate
   /// \param translateTableTopFrame - translation of the TableTop frame
   /// \return true if success, false otherwise
-  bool GetTableTopCenterToFixedIsocenterTranslate(vtkMRMLIhepStandGeometryNode* parameterNode, double translateTableTopFrame[3]);
+  bool GetTableTopCenterToFixedIsocenterTranslate(vtkMRMLIhepStandGeometryNode* parameterNode,
+    double translateTableTopFrame[3]);
 
   /// Calculate Patient isocenter to FixedIsocenter translate
   /// \param translatePatientFrame - translation of the Patient frame
   /// \return true if success, false otherwise
-  bool GetPatientIsocenterToFixedIsocenterTranslate(vtkMRMLIhepStandGeometryNode* parameterNode, double translatePatientFrame[3]);
+  bool GetPatientIsocenterToFixedIsocenterTranslate(vtkMRMLIhepStandGeometryNode* parameterNode,
+    double translatePatientFrame[3]);
 
   /// Calculate DRRBeam to FixedBeam trasform
-  /// \param drrBeam - DRR beam transform in patient (RAS)
-  /// \param fixedBeam - Fixed ion beam transform in RAS
+  /// \param patientBeamNode - DRR beam transform in patient (RAS)
+  /// \param fixedBeamNode - Fixed ion beam transform in RAS
   /// \param transform - resulted transform
   /// \return true if success, false otherwise
-  bool GetPatientBeamToFixedBeamTransform(vtkMRMLIhepStandGeometryNode* parameterNode, vtkMRMLRTBeamNode* drrBeam, vtkMRMLRTFixedIonBeamNode* fixedBeam, vtkTransform* transform);
+  bool GetPatientBeamToFixedBeamTransform(vtkMRMLIhepStandGeometryNode* parameterNode,
+    vtkMRMLRTBeamNode* patientBeamNode, vtkMRMLRTFixedIonBeamNode* fixedBeamNode,
+    vtkTransform* transform);
 
 protected:
   vtkSlicerIhepStandGeometryLogic();

@@ -293,17 +293,18 @@ bool vtkSlicerIhepStandGeometryTransformLogic::GetTransformForPointThroughtRAS(
   }
 
   double pointToFrame[4] = {};
-  // FromFrame -> Ras (inversed RAS -> ToFrame)
+  // FromFrame -> RAS (inversed RAS -> ToFrame)
   vtkNew<vtkTransform> rasToFrameTransform;
   if (this->GetTransformBetween( IHEP::RAS, fromFrame, rasToFrameTransform, transformForBeam))
   {
-    rasToFrameTransform->Inverse(); // inverse to get (FromFrame -> Ras)
+    rasToFrameTransform->Inverse(); // inverse to get (FromFrame -> RAS)
   }
   else
   {
     return false;
   }
 
+  // Get transform toFrame -> fromFrame
   rasFromFrameTransform->Concatenate(rasToFrameTransform);
   rasFromFrameTransform->MultiplyPoint( pointFromFrame, pointToFrame);
 
@@ -315,7 +316,7 @@ bool vtkSlicerIhepStandGeometryTransformLogic::GetTransformForPointThroughtRAS(
 }
 
 //-----------------------------------------------------------------------------
-bool vtkSlicerIhepStandGeometryTransformLogic::GetTransformPointThroughtRAS( 
+bool vtkSlicerIhepStandGeometryTransformLogic::GetTransformForPointBetweenFrames( 
   CoordinateSystemIdentifier fromFrame, CoordinateSystemIdentifier toFrame,
   const double fromFramePoint[3], double toFramePoint[3], bool transformForBeam)
 {
@@ -342,6 +343,7 @@ bool vtkSlicerIhepStandGeometryTransformLogic::GetTransformPointThroughtRAS(
     return false;
   }
 
+  // get transform fromFrame -> toFrame
   rasFromFrameTransform->Concatenate(rasToFrameTransform);
   rasFromFrameTransform->MultiplyPoint( pointFromFrame, pointToFrame);
 

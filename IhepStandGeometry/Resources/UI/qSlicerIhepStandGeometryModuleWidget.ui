@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>432</width>
+    <width>461</width>
     <height>832</height>
    </rect>
   </property>
@@ -207,7 +207,7 @@
       <string>Patient To Fixed Beam Transform</string>
      </property>
      <property name="collapsed">
-      <bool>true</bool>
+      <bool>false</bool>
      </property>
      <layout class="QGridLayout" name="gridLayout_12">
       <item row="0" column="0">
@@ -231,6 +231,7 @@
           <property name="nodeTypes">
            <stringlist>
             <string>vtkMRMLRTFixedIonBeamNode</string>
+            <string>vtkMRMLRTIonBeamNode</string>
            </stringlist>
           </property>
           <property name="showChildNodeTypes">
