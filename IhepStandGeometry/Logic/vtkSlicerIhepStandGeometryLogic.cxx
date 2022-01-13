@@ -1837,19 +1837,7 @@ void vtkSlicerIhepStandGeometryLogic::SetupTreatmentMachineModels(vtkMRMLIhepSta
   vtkNew< vtkTransform > beamToFixedBeamTransform;
 
   vtkMRMLRTBeamNode* beamNode = parameterNode->GetBeamNode();
-
-  if (!beamNode)
-  {
-    vtkErrorMacro("GetPatientBeamToFixedBeamTransform: Invalid beam node");
-  }
-
   vtkMRMLRTBeamNode* fixedBeam = parameterNode->GetFixedBeamNode();
-
-  if (!fixedBeam)
-  {
-    vtkErrorMacro("GetPatientBeamToFixedBeamTransform: Invalid fixed beam node");
-  }
-
   vtkMRMLRTFixedIonBeamNode* fixedBeamNode = vtkMRMLRTFixedIonBeamNode::SafeDownCast(fixedBeam);
 
   this->GetTableTopCenterToFixedIsocenterTranslate(parameterNode, tmp);
@@ -3066,6 +3054,19 @@ bool vtkSlicerIhepStandGeometryLogic::GetPatientBeamToFixedBeamTransform(
     return false;
   }
 
+  if (!patientBeamNode)
+  {
+    vtkErrorMacro("GetPatientBeamToFixedBeamTransform: Invalid beam node");
+    return false;
+  }
+
+
+  if (!fixedBeamNode)
+  {
+    vtkErrorMacro("GetPatientBeamToFixedBeamTransform: Invalid fixed beam node");
+    return false;
+  }
+  
   vtkMRMLTransformNode* beamTransformNode = patientBeamNode->GetParentTransformNode();
   vtkMRMLTransformNode* fixedBeamTransformNode = fixedBeamNode->GetParentTransformNode();
 

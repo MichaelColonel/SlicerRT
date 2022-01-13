@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>314</width>
-    <height>565</height>
+    <width>260</width>
+    <height>147</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -15,127 +15,15 @@
   </property>
   <layout class="QGridLayout" name="gridLayout_6">
    <item row="0" column="0">
-    <widget class="ctkCollapsibleButton" name="CollapsibleButton_TableTopCenterToFixedIsocenterTranslate">
-     <property name="text">
-      <string>Table Top Center To Fixed Isocenter Translate</string>
-     </property>
-     <layout class="QGridLayout" name="gridLayout_2">
-      <item row="0" column="0">
-       <layout class="QGridLayout" name="gridLayout">
-        <item row="0" column="1" rowspan="2">
-         <widget class="ctkSliderWidget" name="SliderWidget_TableTopCenterToFixedIsocenterTranslateX"/>
-        </item>
-        <item row="2" column="1" rowspan="2">
-         <widget class="ctkSliderWidget" name="SliderWidget_TableTopCenterToFixedIsocenterTranslateY"/>
-        </item>
-        <item row="4" column="1">
-         <widget class="ctkSliderWidget" name="SliderWidget_TableTopCenterToFixedIsocenterTranslateZ"/>
-        </item>
-        <item row="5" column="0" colspan="2">
-         <widget class="ctkMatrixWidget" name="MatrixWidget_TableTopCenterToFixedIsocenterTranslate"/>
-        </item>
-        <item row="4" column="0">
-         <widget class="QLabel" name="Label_TableTopCenterToFixedIsocenterTranslateZ">
-          <property name="text">
-           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Z&lt;span style=&quot; vertical-align:sub;&quot;&gt;t&lt;/span&gt;:&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-          </property>
-         </widget>
-        </item>
-        <item row="2" column="0" rowspan="2">
-         <widget class="QLabel" name="Label_TableTopCenterToFixedIsocenterTranslateY">
-          <property name="text">
-           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Y&lt;span style=&quot; vertical-align:sub;&quot;&gt;t&lt;/span&gt;:&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-          </property>
-         </widget>
-        </item>
-        <item row="0" column="0" rowspan="2">
-         <widget class="QLabel" name="Label_TableTopCenterToFixedIsocenterTranslateX">
-          <property name="text">
-           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;X&lt;span style=&quot; vertical-align:sub;&quot;&gt;t&lt;/span&gt;:&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-          </property>
-         </widget>
-        </item>
-       </layout>
-      </item>
-     </layout>
-    </widget>
-   </item>
-   <item row="1" column="0">
-    <widget class="ctkCollapsibleButton" name="CollapsibleButton_IsocenterToFixedIsocenterTranslate">
-     <property name="text">
-      <string>Isocenter To Fixed Isocenter Translate</string>
-     </property>
-     <layout class="QGridLayout" name="gridLayout_4">
-      <item row="0" column="0">
-       <layout class="QGridLayout" name="gridLayout_3">
-        <item row="0" column="0">
-         <widget class="QLabel" name="Label_IsocenterToFixedIsocenterTranslateX">
-          <property name="text">
-           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;X&lt;span style=&quot; vertical-align:sub;&quot;&gt;p&lt;/span&gt;:&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-          </property>
-         </widget>
-        </item>
-        <item row="0" column="1">
-         <widget class="ctkSliderWidget" name="SliderWidget_IsocenterToFixedIsocenterTranslateX"/>
-        </item>
-        <item row="1" column="0">
-         <widget class="QLabel" name="Label_IsocenterToFixedIsocenterTranslateY">
-          <property name="text">
-           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Y&lt;span style=&quot; vertical-align:sub;&quot;&gt;p&lt;/span&gt;:&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-          </property>
-         </widget>
-        </item>
-        <item row="1" column="1">
-         <widget class="ctkSliderWidget" name="SliderWidget_IsocenterToFixedIsocenterTranslateY"/>
-        </item>
-        <item row="2" column="0">
-         <widget class="QLabel" name="Label_IsocenterToFixedIsocenterTranslateZ">
-          <property name="text">
-           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Z&lt;span style=&quot; vertical-align:sub;&quot;&gt;p&lt;/span&gt;:&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-          </property>
-         </widget>
-        </item>
-        <item row="2" column="1">
-         <widget class="ctkSliderWidget" name="SliderWidget_IsocenterToFixedIsocenterTranslateZ"/>
-        </item>
-        <item row="3" column="0" colspan="2">
-         <widget class="ctkMatrixWidget" name="MatrixWidget_IsocenterToFixedIsocenterTranslate"/>
-        </item>
-       </layout>
-      </item>
-     </layout>
-    </widget>
-   </item>
-   <item row="2" column="0">
-    <widget class="ctkCollapsibleButton" name="CollapsibleButton_BeamToFixedBeam">
-     <property name="text">
-      <string>Beam To Fixed Beam Transform</string>
-     </property>
-     <layout class="QGridLayout" name="gridLayout_5">
-      <item row="0" column="0">
-       <widget class="ctkMatrixWidget" name="MatrixWidget_BeamToFixedBeam"/>
-      </item>
-     </layout>
-    </widget>
+    <widget class="ctkMatrixWidget" name="MatrixWidget_BeamToFixedBeam"/>
    </item>
   </layout>
  </widget>
  <customwidgets>
   <customwidget>
-   <class>ctkCollapsibleButton</class>
-   <extends>QWidget</extends>
-   <header>ctkCollapsibleButton.h</header>
-   <container>1</container>
-  </customwidget>
-  <customwidget>
    <class>ctkMatrixWidget</class>
    <extends>QWidget</extends>
    <header>ctkMatrixWidget.h</header>
-  </customwidget>
-  <customwidget>
-   <class>ctkSliderWidget</class>
-   <extends>QWidget</extends>
-   <header>ctkSliderWidget.h</header>
   </customwidget>
   <customwidget>
    <class>qSlicerWidget</class>
