@@ -44,6 +44,9 @@
         </item>
         <item row="8" column="1">
          <widget class="ctkSliderWidget" name="SliderWidget_PatientSupportRotationAngle">
+          <property name="decimals">
+           <number>2</number>
+          </property>
           <property name="minimum">
            <double>0.000000000000000</double>
           </property>
@@ -61,6 +64,9 @@
         </item>
         <item row="6" column="1">
          <widget class="ctkSliderWidget" name="SliderWidget_TableTopStandLongitudinalPosition">
+          <property name="decimals">
+           <number>4</number>
+          </property>
           <property name="maximum">
            <double>875.000000000000000</double>
           </property>
@@ -172,6 +178,9 @@
           <property name="enabled">
            <bool>false</bool>
           </property>
+          <property name="decimals">
+           <number>4</number>
+          </property>
           <property name="minimum">
            <double>-999.899999999999977</double>
           </property>
@@ -190,7 +199,7 @@
         <item row="7" column="1">
          <widget class="ctkSliderWidget" name="SliderWidget_TableTopStandLateralPosition">
           <property name="decimals">
-           <number>3</number>
+           <number>4</number>
           </property>
           <property name="minimum">
            <double>-209.375000000000000</double>
@@ -202,6 +211,9 @@
         </item>
         <item row="3" column="1">
          <widget class="ctkSliderWidget" name="SliderWidget_TableTopVerticalPositionOrigin">
+          <property name="decimals">
+           <number>4</number>
+          </property>
           <property name="minimum">
            <double>0.000000000000000</double>
           </property>
@@ -214,6 +226,9 @@
          <widget class="ctkSliderWidget" name="SliderWidget_TableTopVerticalPositionMirror">
           <property name="enabled">
            <bool>true</bool>
+          </property>
+          <property name="decimals">
+           <number>4</number>
           </property>
           <property name="minimum">
            <double>-687.500000000000000</double>
@@ -230,6 +245,9 @@
          <widget class="ctkSliderWidget" name="SliderWidget_TableTopVerticalPositionMiddle">
           <property name="enabled">
            <bool>true</bool>
+          </property>
+          <property name="decimals">
+           <number>4</number>
           </property>
           <property name="minimum">
            <double>-687.500000000000000</double>

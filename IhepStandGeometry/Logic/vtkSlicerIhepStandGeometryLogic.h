@@ -202,8 +202,14 @@ public:
   bool GetTableTopCenterToFixedIsocenterTranslate(vtkMRMLIhepStandGeometryNode* parameterNode,
     double translateTableTopFrame[3]);
 
+  /// Calculate Patient isocenter to PatientSupport translate
+  /// \param translatePatientFrame - translation of the Patient isocenter into PatientSupport origin
+  /// \return true if success, false otherwise
+  bool GetPatientIsocenterToPatientSupportTranslate(vtkMRMLIhepStandGeometryNode* parameterNode,
+    double translatePatientIsocenter[3]);
+
   /// Calculate Patient isocenter to FixedIsocenter translate
-  /// \param translatePatientFrame - translation of the Patient frame
+  /// \param translatePatientFrame - translation of the Patient isocenter into FixedReference origin
   /// \return true if success, false otherwise
   bool GetPatientIsocenterToFixedIsocenterTranslate(vtkMRMLIhepStandGeometryNode* parameterNode,
     double translatePatientFrame[3]);
