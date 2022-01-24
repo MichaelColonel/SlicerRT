@@ -199,14 +199,14 @@ public:
   /// Calculate TableTop center to FixedIsocenter translate
   /// \param translateTableTopFrame - translation of the TableTop frame
   /// \return true if success, false otherwise
-  bool GetTableTopCenterToFixedIsocenterTranslate(vtkMRMLIhepStandGeometryNode* parameterNode,
-    double translateTableTopFrame[3]);
+//  bool GetTableTopCenterToFixedIsocenterTranslate(vtkMRMLIhepStandGeometryNode* parameterNode,
+//    double translateTableTopFrame[3]);
 
   /// Calculate Patient isocenter to PatientSupport translate
   /// \param translatePatientFrame - translation of the Patient isocenter into PatientSupport origin
   /// \return true if success, false otherwise
-  bool GetPatientIsocenterToPatientSupportTranslate(vtkMRMLIhepStandGeometryNode* parameterNode,
-    double translatePatientIsocenter[3]);
+//  bool GetPatientIsocenterToPatientSupportTranslate(vtkMRMLIhepStandGeometryNode* parameterNode,
+//    double translatePatientIsocenter[3]);
 
   /// Calculate Patient isocenter to FixedIsocenter translate
   /// \param translatePatientFrame - translation of the Patient isocenter into FixedReference origin
