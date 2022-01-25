@@ -3165,8 +3165,9 @@ bool vtkSlicerIhepStandGeometryLogic::GetPatientBeamToFixedBeamTransform(
   
   vtkNew< vtkMatrix4x4 > transformMatrix;
   
-  if (vtkMRMLTransformNode::GetMatrixTransformBetweenNodes( patientBeamTransformNode, fixedBeamTransformNode, transformMatrix))
+  if (vtkMRMLTransformNode::GetMatrixTransformBetweenNodes( fixedBeamTransformNode, patientBeamTransformNode, transformMatrix))
   {
+    transform->SetMatrix(transformMatrix);
     std::stringstream ss;
     for (int i = 0; i < 4; i++)
     {

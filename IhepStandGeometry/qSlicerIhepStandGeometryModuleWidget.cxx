@@ -614,7 +614,7 @@ void qSlicerIhepStandGeometryModuleWidget::onEnter()
 
   vtkMRMLIhepStandGeometryNode* parameterNode = nullptr; 
   // Try to find one in the scene
-  if (vtkMRMLNode* node = this->mrmlScene()->GetNthNodeByClass( 0, "vtkMRMLIhepStandGeometryNode"))
+  if (vtkMRMLNode* node = this->mrmlScene()->GetFirstNodeByClass("vtkMRMLIhepStandGeometryNode"))
   {
     parameterNode = vtkMRMLIhepStandGeometryNode::SafeDownCast(node);
   }
@@ -974,14 +974,15 @@ void qSlicerIhepStandGeometryModuleWidget::setMRMLScene(vtkMRMLScene* scene)
     {
       this->setParameterNode(d->MRMLNodeComboBox_ParameterSet->currentNode());
     }
-    else if (vtkMRMLNode* node = scene->GetNthNodeByClass( 0, "vtkMRMLIhepStandGeometryNode"))
+    else if (vtkMRMLNode* node = scene->GetFirstNodeByClass("vtkMRMLIhepStandGeometryNode"))
     {
       this->setParameterNode(node);
     }
     else
     {
-      vtkNew<vtkMRMLIhepStandGeometryNode> newNode;
-      this->mrmlScene()->AddNode(newNode);
+      vtkMRMLNode* newNode = scene->AddNewNodeByClass( "vtkMRMLIhepStandGeometryNode", "Channel25");
+      std::string singletonTag = std::string("IhepStand_") + newNode->GetName();
+      newNode->SetSingletonTag(singletonTag.c_str());
       this->setParameterNode(newNode);
     }
   }

@@ -6,24 +6,64 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>260</width>
-    <height>147</height>
+    <width>300</width>
+    <height>227</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>Beam to stand geometry</string>
   </property>
-  <layout class="QGridLayout" name="gridLayout_6">
+  <layout class="QGridLayout" name="gridLayout_3">
    <item row="0" column="0">
-    <widget class="ctkMatrixWidget" name="MatrixWidget_BeamToFixedBeam"/>
+    <widget class="ctkCollapsibleButton" name="CollapsibleButton_BeamToFixedIsocenterTranslate">
+     <property name="text">
+      <string>Beam to fixed isocenter translate (mm)</string>
+     </property>
+     <layout class="QGridLayout" name="gridLayout">
+      <item row="0" column="0">
+       <widget class="qMRMLCoordinatesWidget" name="MRMLCoordinatesWidget_BeamToFixedIsocenterTranslate"/>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item row="1" column="0">
+    <widget class="ctkCollapsibleButton" name="CollapsibleButton_BeamToFixedBeamTransform">
+     <property name="toolTip">
+      <string>Translation of patient beam to fixed beam in PatientSupport frame</string>
+     </property>
+     <property name="text">
+      <string>Beam to fixed beam transform</string>
+     </property>
+     <layout class="QGridLayout" name="gridLayout_2">
+      <item row="0" column="0">
+       <widget class="ctkMatrixWidget" name="MatrixWidget_BeamToFixedBeamTransform"/>
+      </item>
+     </layout>
+    </widget>
    </item>
   </layout>
  </widget>
  <customwidgets>
   <customwidget>
+   <class>ctkCollapsibleButton</class>
+   <extends>QWidget</extends>
+   <header>ctkCollapsibleButton.h</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>ctkCoordinatesWidget</class>
+   <extends>QWidget</extends>
+   <header>ctkCoordinatesWidget.h</header>
+  </customwidget>
+  <customwidget>
    <class>ctkMatrixWidget</class>
    <extends>QWidget</extends>
    <header>ctkMatrixWidget.h</header>
+  </customwidget>
+  <customwidget>
+   <class>qMRMLCoordinatesWidget</class>
+   <extends>ctkCoordinatesWidget</extends>
+   <header>qMRMLCoordinatesWidget.h</header>
   </customwidget>
   <customwidget>
    <class>qSlicerWidget</class>
