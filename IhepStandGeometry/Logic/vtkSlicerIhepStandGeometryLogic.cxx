@@ -3094,8 +3094,8 @@ bool vtkSlicerIhepStandGeometryLogic::GetPatientIsocenterToFixedIsocenterTransla
 
   using IHEP = vtkSlicerIhepStandGeometryTransformLogic::CoordinateSystemIdentifier;
 
-  double fixedReferenceOrigin[4] = { 0., 0., 0., 1. };
-  double fixedReferenceToPatientNoOffset[4] = {};
+  double fixedReferenceOrigin[3] = { 0., 0., 0. };
+  double fixedReferenceToPatientNoOffset[3] = {};
   if (this->IhepLogic->GetTransformForPointBetweenFrames( IHEP::FixedReference, IHEP::RAS, fixedReferenceOrigin, fixedReferenceToPatientNoOffset, false))
   {
     vtkWarningMacro("GetPatientIsocenterToFixedIsocenterTranslate: FixedReference->Patient on offset " << fixedReferenceToPatientNoOffset[0] << " " << fixedReferenceToPatientNoOffset[1] << " " << fixedReferenceToPatientNoOffset[2]);
@@ -3108,6 +3108,7 @@ bool vtkSlicerIhepStandGeometryLogic::GetPatientIsocenterToFixedIsocenterTransla
   translatePatientFrame[0] = fixedReferenceToPatientNoOffset[0];
   translatePatientFrame[1] = fixedReferenceToPatientNoOffset[1];
   translatePatientFrame[2] = fixedReferenceToPatientNoOffset[2];
+
 /*
   double fixedReferenceOrigin[4] = { 0., 0., 0., 1. };
   double fixedReferenceToPatientNoOffset[4] = {};
