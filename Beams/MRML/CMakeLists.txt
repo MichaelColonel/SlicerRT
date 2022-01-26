@@ -23,6 +23,8 @@ set(${KIT}_SRCS
   vtkMRMLRTIonBeamNode.h
   vtkMRMLRTFixedIonBeamNode.cxx
   vtkMRMLRTFixedIonBeamNode.h
+  vtkMRMLRTFixedBeamNode.cxx
+  vtkMRMLRTFixedBeamNode.h
   )
 
 SET (${KIT}_INCLUDE_DIRS

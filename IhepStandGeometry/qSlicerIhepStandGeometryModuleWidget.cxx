@@ -77,6 +77,7 @@ public:
 
   bool ModuleWindowInitialized;
   vtkMRMLCameraNode* ThreeDViewCameraNode;
+  vtkSmartPointer< vtkMRMLIhepStandGeometryNode > ParameterNode;
 };
 
 //-----------------------------------------------------------------------------
@@ -132,8 +133,6 @@ void qSlicerIhepStandGeometryModuleWidget::setup()
     this, SLOT(onRTFixedIonBeamNodeChanged(vtkMRMLNode*)));
   connect( d->MRMLNodeComboBox_ReferenceVolume, SIGNAL(currentNodeChanged(vtkMRMLNode*)), 
     this, SLOT(onReferenceVolumeNodeChanged(vtkMRMLNode*)));
-  connect( d->MRMLNodeComboBox_ParameterSet, SIGNAL(currentNodeChanged(vtkMRMLNode*)), 
-    this, SLOT(onParameterNodeChanged(vtkMRMLNode*)));
 
   // Segmentation
   connect( d->SegmentSelectorWidget_TargetVolume, SIGNAL(currentNodeChanged(vtkMRMLNode*)), 
@@ -188,21 +187,19 @@ void qSlicerIhepStandGeometryModuleWidget::onLoadModelsButtonClicked()
     return;
   }
 
-  vtkMRMLIhepStandGeometryNode* parameterNode = vtkMRMLIhepStandGeometryNode::SafeDownCast(d->MRMLNodeComboBox_ParameterSet->currentNode());
-  if (!parameterNode || !d->ModuleWindowInitialized)
+  if (!d->ParameterNode)
   {
     return;
   }
 
   // Load and setup models
-  parameterNode->DisableModifiedEventOn();
-  parameterNode->SetTreatmentMachineType("IHEPStand");
-  d->logic()->LoadTreatmentMachineModels(parameterNode);
-  d->logic()->ResetModelsToInitialPosition(parameterNode);
-  parameterNode->DisableModifiedEventOff();
-  
+  d->ParameterNode->DisableModifiedEventOn();
+  d->ParameterNode->SetTreatmentMachineType("IHEPStand");
+  d->logic()->LoadTreatmentMachineModels(d->ParameterNode);
+  d->logic()->ResetModelsToInitialPosition(d->ParameterNode);
 
-  parameterNode->Modified();
+  d->ParameterNode->DisableModifiedEventOff();
+  d->ParameterNode->Modified();
 }
 
 //-----------------------------------------------------------------------------
@@ -216,15 +213,14 @@ void qSlicerIhepStandGeometryModuleWidget::onResetToInitialPositionButtonClicked
     return;
   }
 
-  vtkMRMLIhepStandGeometryNode* parameterNode = vtkMRMLIhepStandGeometryNode::SafeDownCast(d->MRMLNodeComboBox_ParameterSet->currentNode());
-  if (!parameterNode || !d->ModuleWindowInitialized)
+  if (!d->ParameterNode || !d->ModuleWindowInitialized)
   {
     return;
   }
 
-  d->logic()->ResetModelsToInitialPosition(parameterNode);
+  d->logic()->ResetModelsToInitialPosition(d->ParameterNode);
 
-  parameterNode->Modified();
+  d->ParameterNode->Modified();
 }
 
 //-----------------------------------------------------------------------------
@@ -238,26 +234,25 @@ void qSlicerIhepStandGeometryModuleWidget::onPatientTableTopTranslationChanged(d
     return;
   }
 
-  vtkMRMLIhepStandGeometryNode* parameterNode = vtkMRMLIhepStandGeometryNode::SafeDownCast(d->MRMLNodeComboBox_ParameterSet->currentNode());
-  if (!parameterNode || !d->ModuleWindowInitialized)
+  if (!d->ParameterNode || !d->ModuleWindowInitialized)
   {
     return;
   }
-  parameterNode->DisableModifiedEventOn();
-  parameterNode->SetPatientToTableTopTranslation(position);
+  d->ParameterNode->DisableModifiedEventOn();
+  d->ParameterNode->SetPatientToTableTopTranslation(position);
 
-  d->logic()->UpdatePatientToTableTopTransform(parameterNode);
-  d->logic()->UpdateTableTopToTableOriginTransform(parameterNode);
-  d->logic()->UpdateTableOriginToTableSupportTransform(parameterNode);
-  d->logic()->UpdateTableMirrorToTableSupportTransform(parameterNode);
-  d->logic()->UpdateTableMiddleToTableSupportTransform(parameterNode);
-  d->logic()->UpdateTableSupportToTablePlatformTransform(parameterNode);
-  d->logic()->UpdateTablePlatformToPatientSupportTransform(parameterNode);
-  d->logic()->UpdatePatientSupportToFixedReferenceTransform(parameterNode);
+  d->logic()->UpdatePatientToTableTopTransform(d->ParameterNode);
+  d->logic()->UpdateTableTopToTableOriginTransform(d->ParameterNode);
+  d->logic()->UpdateTableOriginToTableSupportTransform(d->ParameterNode);
+  d->logic()->UpdateTableMirrorToTableSupportTransform(d->ParameterNode);
+  d->logic()->UpdateTableMiddleToTableSupportTransform(d->ParameterNode);
+  d->logic()->UpdateTableSupportToTablePlatformTransform(d->ParameterNode);
+  d->logic()->UpdateTablePlatformToPatientSupportTransform(d->ParameterNode);
+  d->logic()->UpdatePatientSupportToFixedReferenceTransform(d->ParameterNode);
 
-  parameterNode->DisableModifiedEventOff();
+  d->ParameterNode->DisableModifiedEventOff();
   
-  parameterNode->Modified();
+  d->ParameterNode->Modified();
 }
 
 //-----------------------------------------------------------------------------
@@ -271,25 +266,24 @@ void qSlicerIhepStandGeometryModuleWidget::onTableMiddleVerticalPositionChanged(
     return;
   }
 
-  vtkMRMLIhepStandGeometryNode* parameterNode = vtkMRMLIhepStandGeometryNode::SafeDownCast(d->MRMLNodeComboBox_ParameterSet->currentNode());
-  if (!parameterNode || !d->ModuleWindowInitialized)
+  if (!d->ParameterNode || !d->ModuleWindowInitialized)
   {
     return;
   }
 
-  parameterNode->DisableModifiedEventOn();
-  parameterNode->SetTableTopVerticalPositionMiddle(position);
+  d->ParameterNode->DisableModifiedEventOn();
+  d->ParameterNode->SetTableTopVerticalPositionMiddle(position);
 
 //  d->logic()->UpdateTableOriginToTableSupportTransform(parameterNode);
 //  d->logic()->UpdateTableMirrorToTableSupportTransform(parameterNode);
-  d->logic()->UpdateTableMiddleToTableSupportTransform(parameterNode);
+  d->logic()->UpdateTableMiddleToTableSupportTransform(d->ParameterNode);
 //  d->logic()->UpdateTableSupportToTablePlatformTransform(parameterNode);
 //  d->logic()->UpdateTablePlatformToPatientSupportTransform(parameterNode);
 //  d->logic()->UpdatePatientSupportToFixedReferenceTransform(parameterNode);
 
-  parameterNode->DisableModifiedEventOff();
+  d->ParameterNode->DisableModifiedEventOff();
 
-  parameterNode->Modified();
+  d->ParameterNode->Modified();
 }
 
 //-----------------------------------------------------------------------------
@@ -303,25 +297,23 @@ void qSlicerIhepStandGeometryModuleWidget::onTableMirrorVerticalPositionChanged(
     return;
   }
 
-  vtkMRMLIhepStandGeometryNode* parameterNode = vtkMRMLIhepStandGeometryNode::SafeDownCast(d->MRMLNodeComboBox_ParameterSet->currentNode());
-  if (!parameterNode || !d->ModuleWindowInitialized)
+  if (!d->ParameterNode || !d->ModuleWindowInitialized)
   {
     return;
   }
 
-  parameterNode->DisableModifiedEventOn();
-  parameterNode->SetTableTopVerticalPositionMirror(position);
+  d->ParameterNode->DisableModifiedEventOn();
+  d->ParameterNode->SetTableTopVerticalPositionMirror(position);
 
 //  d->logic()->UpdateTableOriginToTableSupportTransform(parameterNode);
-  d->logic()->UpdateTableMirrorToTableSupportTransform(parameterNode);
+  d->logic()->UpdateTableMirrorToTableSupportTransform(d->ParameterNode);
 //  d->logic()->UpdateTableMiddleToTableSupportTransform(parameterNode);
 //  d->logic()->UpdateTableSupportToTablePlatformTransform(parameterNode);
 //  d->logic()->UpdateTablePlatformToPatientSupportTransform(parameterNode);
 //  d->logic()->UpdatePatientSupportToFixedReferenceTransform(parameterNode);
 
-  parameterNode->DisableModifiedEventOff();
-
-  parameterNode->Modified();
+  d->ParameterNode->DisableModifiedEventOff();
+  d->ParameterNode->Modified();
 }
 
 //-----------------------------------------------------------------------------
@@ -335,25 +327,23 @@ void qSlicerIhepStandGeometryModuleWidget::onTableOriginVerticalPositionChanged(
     return;
   }
 
-  vtkMRMLIhepStandGeometryNode* parameterNode = vtkMRMLIhepStandGeometryNode::SafeDownCast(d->MRMLNodeComboBox_ParameterSet->currentNode());
-  if (!parameterNode || !d->ModuleWindowInitialized)
+  if (!d->ParameterNode || !d->ModuleWindowInitialized)
   {
     return;
   }
 
-  parameterNode->DisableModifiedEventOn();
-  parameterNode->SetTableTopVerticalPositionOrigin(position);
+  d->ParameterNode->DisableModifiedEventOn();
+  d->ParameterNode->SetTableTopVerticalPositionOrigin(position);
 
-  d->logic()->UpdateTableOriginToTableSupportTransform(parameterNode);
+  d->logic()->UpdateTableOriginToTableSupportTransform(d->ParameterNode);
 //  d->logic()->UpdateTableMirrorToTableSupportTransform(parameterNode);
 //  d->logic()->UpdateTableMiddleToTableSupportTransform(parameterNode);
 //  d->logic()->UpdateTableSupportToTablePlatformTransform(parameterNode);
 //  d->logic()->UpdateTablePlatformToPatientSupportTransform(parameterNode);
 //  d->logic()->UpdatePatientSupportToFixedReferenceTransform(parameterNode);
 
-  parameterNode->DisableModifiedEventOff();
-
-  parameterNode->Modified();
+  d->ParameterNode->DisableModifiedEventOff();
+  d->ParameterNode->Modified();
 }
 
 //-----------------------------------------------------------------------------
@@ -367,21 +357,19 @@ void qSlicerIhepStandGeometryModuleWidget::onTableLongitudinalPositionChanged(do
     return;
   }
 
-  vtkMRMLIhepStandGeometryNode* parameterNode = vtkMRMLIhepStandGeometryNode::SafeDownCast(d->MRMLNodeComboBox_ParameterSet->currentNode());
-  if (!parameterNode || !d->ModuleWindowInitialized)
+  if (!d->ParameterNode || !d->ModuleWindowInitialized)
   {
     return;
   }
 
-  parameterNode->DisableModifiedEventOn();
-  parameterNode->SetTableTopLongitudinalPosition(position);  // Inferior-Superior movement along Y-axis
+  d->ParameterNode->DisableModifiedEventOn();
+  d->ParameterNode->SetTableTopLongitudinalPosition(position);  // Inferior-Superior movement along Y-axis
 
-  d->logic()->UpdateTablePlatformToPatientSupportTransform(parameterNode);
-  d->logic()->UpdatePatientSupportToFixedReferenceTransform(parameterNode);
+  d->logic()->UpdateTablePlatformToPatientSupportTransform(d->ParameterNode);
+  d->logic()->UpdatePatientSupportToFixedReferenceTransform(d->ParameterNode);
 
-  parameterNode->DisableModifiedEventOff();
-
-  parameterNode->Modified();
+  d->ParameterNode->DisableModifiedEventOff();
+  d->ParameterNode->Modified();
 }
 
 //-----------------------------------------------------------------------------
@@ -395,23 +383,21 @@ void qSlicerIhepStandGeometryModuleWidget::onTableLateralPositionChanged(double 
     return;
   }
 
-  vtkMRMLIhepStandGeometryNode* parameterNode = vtkMRMLIhepStandGeometryNode::SafeDownCast(d->MRMLNodeComboBox_ParameterSet->currentNode());
-  if (!parameterNode || !d->ModuleWindowInitialized)
+  if (!d->ParameterNode || !d->ModuleWindowInitialized)
   {
     return;
   }
 
-  parameterNode->DisableModifiedEventOn();
-  parameterNode->SetTableTopLateralPosition(position); // Left-Right movement along X-axis
+  d->ParameterNode->DisableModifiedEventOn();
+  d->ParameterNode->SetTableTopLateralPosition(position); // Left-Right movement along X-axis
 
   // update table top stand to patient support rotation transform
-  d->logic()->UpdateTableSupportToTablePlatformTransform(parameterNode);
-  d->logic()->UpdateTablePlatformToPatientSupportTransform(parameterNode);
-  d->logic()->UpdatePatientSupportToFixedReferenceTransform(parameterNode);
+  d->logic()->UpdateTableSupportToTablePlatformTransform(d->ParameterNode);
+  d->logic()->UpdateTablePlatformToPatientSupportTransform(d->ParameterNode);
+  d->logic()->UpdatePatientSupportToFixedReferenceTransform(d->ParameterNode);
 
-  parameterNode->DisableModifiedEventOff();
-
-  parameterNode->Modified();
+  d->ParameterNode->DisableModifiedEventOff();
+  d->ParameterNode->Modified();
 }
 
 //-----------------------------------------------------------------------------
@@ -425,42 +411,41 @@ void qSlicerIhepStandGeometryModuleWidget::onTableTopLongitudinalAngleChanged(do
     return;
   }
 
-  vtkMRMLIhepStandGeometryNode* parameterNode = vtkMRMLIhepStandGeometryNode::SafeDownCast(d->MRMLNodeComboBox_ParameterSet->currentNode());
-  if (!parameterNode || !d->ModuleWindowInitialized)
+  if (!d->ParameterNode || !d->ModuleWindowInitialized)
   {
     return;
   }
 
-  parameterNode->DisableModifiedEventOn();
-  double patientSupportRotationAngle = parameterNode->GetPatientSupportRotationAngle(); // backup
-  parameterNode->SetPatientSupportRotationAngle(0.0);
+  d->ParameterNode->DisableModifiedEventOn();
+  double patientSupportRotationAngle = d->ParameterNode->GetPatientSupportRotationAngle(); // backup
+  d->ParameterNode->SetPatientSupportRotationAngle(0.0);
 
-  parameterNode->SetTableTopLongitudinalAngle(angle);
+  d->ParameterNode->SetTableTopLongitudinalAngle(angle);
 
   // update table top to table origin vertical movement
-  d->logic()->UpdateTableTopToTableOriginTransform(parameterNode);
-  d->logic()->UpdateTableOriginToTableSupportTransform(parameterNode);
-  d->logic()->UpdateTableMirrorToTableSupportTransform(parameterNode);
-  d->logic()->UpdateTableMiddleToTableSupportTransform(parameterNode);
-  d->logic()->UpdateTableSupportToTablePlatformTransform(parameterNode);
-  d->logic()->UpdateTablePlatformToPatientSupportTransform(parameterNode);
-  d->logic()->UpdatePatientSupportToFixedReferenceTransform(parameterNode);
+  d->logic()->UpdateTableTopToTableOriginTransform(d->ParameterNode);
+  d->logic()->UpdateTableOriginToTableSupportTransform(d->ParameterNode);
+  d->logic()->UpdateTableMirrorToTableSupportTransform(d->ParameterNode);
+  d->logic()->UpdateTableMiddleToTableSupportTransform(d->ParameterNode);
+  d->logic()->UpdateTableSupportToTablePlatformTransform(d->ParameterNode);
+  d->logic()->UpdateTablePlatformToPatientSupportTransform(d->ParameterNode);
+  d->logic()->UpdatePatientSupportToFixedReferenceTransform(d->ParameterNode);
 
   double mirrorPos, middlePos;
-  d->logic()->CalculateTableTopPositionsFromPlaneNode( parameterNode, mirrorPos, middlePos);
+  d->logic()->CalculateTableTopPositionsFromPlaneNode( d->ParameterNode, mirrorPos, middlePos);
   
-  parameterNode->SetTableTopVerticalPositionMirror(mirrorPos + parameterNode->GetTableTopVerticalPositionOrigin());
-  parameterNode->SetTableTopVerticalPositionMiddle(middlePos + parameterNode->GetTableTopVerticalPositionOrigin());
+  d->ParameterNode->SetTableTopVerticalPositionMirror(mirrorPos + d->ParameterNode->GetTableTopVerticalPositionOrigin());
+  d->ParameterNode->SetTableTopVerticalPositionMiddle(middlePos + d->ParameterNode->GetTableTopVerticalPositionOrigin());
   
-  parameterNode->DisableModifiedEventOff();
+  d->ParameterNode->DisableModifiedEventOff();
 
   double originPos = d->SliderWidget_TableTopVerticalPositionOrigin->value();
   
   d->SliderWidget_TableTopVerticalPositionMiddle->setValue(originPos + middlePos);
   d->SliderWidget_TableTopVerticalPositionMirror->setValue(originPos + mirrorPos);
   
-  parameterNode->SetPatientSupportRotationAngle(patientSupportRotationAngle); // restore
-  parameterNode->Modified();
+  d->ParameterNode->SetPatientSupportRotationAngle(patientSupportRotationAngle); // restore
+  d->ParameterNode->Modified();
 }
 
 //-----------------------------------------------------------------------------
@@ -474,42 +459,41 @@ void qSlicerIhepStandGeometryModuleWidget::onTableTopLateralAngleChanged(double 
     return;
   }
 
-  vtkMRMLIhepStandGeometryNode* parameterNode = vtkMRMLIhepStandGeometryNode::SafeDownCast(d->MRMLNodeComboBox_ParameterSet->currentNode());
-  if (!parameterNode || !d->ModuleWindowInitialized)
+  if (!d->ParameterNode || !d->ModuleWindowInitialized)
   {
     return;
   }
 
-  parameterNode->DisableModifiedEventOn();
-  double patientSupportRotationAngle = parameterNode->GetPatientSupportRotationAngle(); // backup
-  parameterNode->SetPatientSupportRotationAngle(0.0);
+  d->ParameterNode->DisableModifiedEventOn();
+  double patientSupportRotationAngle = d->ParameterNode->GetPatientSupportRotationAngle(); // backup
+  d->ParameterNode->SetPatientSupportRotationAngle(0.0);
 
-  parameterNode->SetTableTopLateralAngle(angle);
+  d->ParameterNode->SetTableTopLateralAngle(angle);
 
   // update table top to table origin vertical movement
-  d->logic()->UpdateTableTopToTableOriginTransform(parameterNode);
-  d->logic()->UpdateTableOriginToTableSupportTransform(parameterNode);
-  d->logic()->UpdateTableMirrorToTableSupportTransform(parameterNode);
-  d->logic()->UpdateTableMiddleToTableSupportTransform(parameterNode);
-  d->logic()->UpdateTableSupportToTablePlatformTransform(parameterNode);
-  d->logic()->UpdateTablePlatformToPatientSupportTransform(parameterNode);
-  d->logic()->UpdatePatientSupportToFixedReferenceTransform(parameterNode);
+  d->logic()->UpdateTableTopToTableOriginTransform(d->ParameterNode);
+  d->logic()->UpdateTableOriginToTableSupportTransform(d->ParameterNode);
+  d->logic()->UpdateTableMirrorToTableSupportTransform(d->ParameterNode);
+  d->logic()->UpdateTableMiddleToTableSupportTransform(d->ParameterNode);
+  d->logic()->UpdateTableSupportToTablePlatformTransform(d->ParameterNode);
+  d->logic()->UpdateTablePlatformToPatientSupportTransform(d->ParameterNode);
+  d->logic()->UpdatePatientSupportToFixedReferenceTransform(d->ParameterNode);
 
   double mirrorPos, middlePos;
-  d->logic()->CalculateTableTopPositionsFromPlaneNode( parameterNode, mirrorPos, middlePos);
+  d->logic()->CalculateTableTopPositionsFromPlaneNode( d->ParameterNode, mirrorPos, middlePos);
   
-  parameterNode->SetTableTopVerticalPositionMirror(mirrorPos + parameterNode->GetTableTopVerticalPositionOrigin());
-  parameterNode->SetTableTopVerticalPositionMiddle(middlePos + parameterNode->GetTableTopVerticalPositionOrigin());
+  d->ParameterNode->SetTableTopVerticalPositionMirror(mirrorPos + d->ParameterNode->GetTableTopVerticalPositionOrigin());
+  d->ParameterNode->SetTableTopVerticalPositionMiddle(middlePos + d->ParameterNode->GetTableTopVerticalPositionOrigin());
 
-  parameterNode->DisableModifiedEventOff();
+  d->ParameterNode->DisableModifiedEventOff();
 
   double originPos = d->SliderWidget_TableTopVerticalPositionOrigin->value();
 
   d->SliderWidget_TableTopVerticalPositionMiddle->setValue(originPos + middlePos);
   d->SliderWidget_TableTopVerticalPositionMirror->setValue(originPos + mirrorPos);
 
-  parameterNode->SetPatientSupportRotationAngle(patientSupportRotationAngle); // restore
-  parameterNode->Modified();
+  d->ParameterNode->SetPatientSupportRotationAngle(patientSupportRotationAngle); // restore
+  d->ParameterNode->Modified();
 }
 
 //-----------------------------------------------------------------------------
@@ -523,20 +507,19 @@ void qSlicerIhepStandGeometryModuleWidget::onPatientSupportRotationAngleChanged(
     return;
   }
 
-  vtkMRMLIhepStandGeometryNode* parameterNode = vtkMRMLIhepStandGeometryNode::SafeDownCast(d->MRMLNodeComboBox_ParameterSet->currentNode());
-  if (!parameterNode || !d->ModuleWindowInitialized)
+  if (!d->ParameterNode || !d->ModuleWindowInitialized)
   {
     return;
   }
 
-  parameterNode->DisableModifiedEventOn();
-  parameterNode->SetPatientSupportRotationAngle(angle);
-  parameterNode->DisableModifiedEventOff();
+  d->ParameterNode->DisableModifiedEventOn();
+  d->ParameterNode->SetPatientSupportRotationAngle(angle);
+  d->ParameterNode->DisableModifiedEventOff();
 
   // update table top stand to patient support rotation transform
-  d->logic()->UpdatePatientSupportToFixedReferenceTransform(parameterNode);
+  d->logic()->UpdatePatientSupportToFixedReferenceTransform(d->ParameterNode);
 
-  parameterNode->Modified();
+  d->ParameterNode->Modified();
 }
 
 //-----------------------------------------------------------------------------
@@ -612,14 +595,13 @@ void qSlicerIhepStandGeometryModuleWidget::onEnter()
     return;
   }
 
-  vtkMRMLIhepStandGeometryNode* parameterNode = nullptr; 
   // Try to find one in the scene
   if (vtkMRMLNode* node = this->mrmlScene()->GetFirstNodeByClass("vtkMRMLIhepStandGeometryNode"))
   {
-    parameterNode = vtkMRMLIhepStandGeometryNode::SafeDownCast(node);
+    d->ParameterNode = vtkMRMLIhepStandGeometryNode::SafeDownCast(node);
   }
 
-  if (parameterNode)
+  if (d->ParameterNode)
   {
     ;
   }
@@ -638,8 +620,6 @@ void qSlicerIhepStandGeometryModuleWidget::updateWidgetFromMRML()
 {
   Q_D(qSlicerIhepStandGeometryModuleWidget);
 
-  vtkMRMLIhepStandGeometryNode* parameterNode = vtkMRMLIhepStandGeometryNode::SafeDownCast(d->MRMLNodeComboBox_ParameterSet->currentNode());
-
   if (!this->mrmlScene())
   {
     qCritical() << Q_FUNC_INFO << ": Invalid scene";
@@ -648,67 +628,61 @@ void qSlicerIhepStandGeometryModuleWidget::updateWidgetFromMRML()
 
   // Enable widgets
   
-  if (!parameterNode || !d->ModuleWindowInitialized)
+  if (!d->ParameterNode || !d->ModuleWindowInitialized)
   {
     qCritical() << Q_FUNC_INFO << ": Invalid parameter node, or module window isn't initialized";
     return;
   }
 
-  if (parameterNode->GetBeamNode())
+  if (d->ParameterNode->GetBeamNode())
   {
-    d->MRMLNodeComboBox_RtBeam->setCurrentNode(parameterNode->GetBeamNode());
+    d->MRMLNodeComboBox_RtBeam->setCurrentNode(d->ParameterNode->GetBeamNode());
   }
 
 //  vtkMRMLScalarVolumeNode* ctVolumeNode = vtkMRMLScalarVolumeNode::SafeDownCast(d->MRMLNodeComboBox_CtVolume->currentNode());
-  if (parameterNode->GetReferenceVolumeNode())
+  if (d->ParameterNode->GetReferenceVolumeNode())
   {
-    d->MRMLNodeComboBox_ReferenceVolume->setCurrentNode(parameterNode->GetReferenceVolumeNode());
+    d->MRMLNodeComboBox_ReferenceVolume->setCurrentNode(d->ParameterNode->GetReferenceVolumeNode());
   }
 
-  if (parameterNode->GetPatientBodySegmentationNode())
+  if (d->ParameterNode->GetPatientBodySegmentationNode())
   {
-    d->SegmentSelectorWidget_TargetVolume->setCurrentNode(parameterNode->GetPatientBodySegmentationNode());
+    d->SegmentSelectorWidget_TargetVolume->setCurrentNode(d->ParameterNode->GetPatientBodySegmentationNode());
   }
 
-  if (parameterNode->GetFixedBeamNode())
+  if (d->ParameterNode->GetFixedBeamNode())
   {
-    d->MRMLNodeComboBox_FixedBeam->setCurrentNode(parameterNode->GetFixedBeamNode());
+    d->MRMLNodeComboBox_FixedBeam->setCurrentNode(d->ParameterNode->GetFixedBeamNode());
   }
 
-  if (parameterNode->GetPatientBodySegmentationNode())
+  if (d->ParameterNode->GetPatientBodySegmentationNode())
   {
-    d->SegmentSelectorWidget_TargetVolume->setCurrentNode(parameterNode->GetPatientBodySegmentationNode());
+    d->SegmentSelectorWidget_TargetVolume->setCurrentNode(d->ParameterNode->GetPatientBodySegmentationNode());
   }
 
-  if (parameterNode->GetPatientBodySegmentID())
+  if (d->ParameterNode->GetPatientBodySegmentID())
   {
-    QString id(static_cast<char *>(parameterNode->GetPatientBodySegmentID()));
+    QString id(static_cast<char *>(d->ParameterNode->GetPatientBodySegmentID()));
     d->SegmentSelectorWidget_TargetVolume->setCurrentSegmentID(id);
   }
-  d->SliderWidget_TableTopVerticalPosition->setValue(parameterNode->GetTableTopVerticalPosition());
-  d->SliderWidget_TableTopVerticalPositionMiddle->setValue(parameterNode->GetTableTopVerticalPositionMiddle());
-  d->SliderWidget_TableTopVerticalPositionOrigin->setValue(parameterNode->GetTableTopVerticalPositionOrigin());
-  d->SliderWidget_TableTopVerticalPositionMirror->setValue(parameterNode->GetTableTopVerticalPositionMirror());
-  d->SliderWidget_TableTopStandLongitudinalPosition->setValue(parameterNode->GetTableTopLongitudinalPosition());
-  d->SliderWidget_TableTopStandLateralPosition->setValue(parameterNode->GetTableTopLateralPosition());
-  d->SliderWidget_PatientSupportRotationAngle->setValue(parameterNode->GetPatientSupportRotationAngle());
+  d->SliderWidget_TableTopVerticalPosition->setValue(d->ParameterNode->GetTableTopVerticalPosition());
+  d->SliderWidget_TableTopVerticalPositionMiddle->setValue(d->ParameterNode->GetTableTopVerticalPositionMiddle());
+  d->SliderWidget_TableTopVerticalPositionOrigin->setValue(d->ParameterNode->GetTableTopVerticalPositionOrigin());
+  d->SliderWidget_TableTopVerticalPositionMirror->setValue(d->ParameterNode->GetTableTopVerticalPositionMirror());
+  d->SliderWidget_TableTopStandLongitudinalPosition->setValue(d->ParameterNode->GetTableTopLongitudinalPosition());
+  d->SliderWidget_TableTopStandLateralPosition->setValue(d->ParameterNode->GetTableTopLateralPosition());
+  d->SliderWidget_PatientSupportRotationAngle->setValue(d->ParameterNode->GetPatientSupportRotationAngle());
   
   double patientToTableTopTranslation[3] = {};
-  parameterNode->GetPatientToTableTopTranslation(patientToTableTopTranslation);
+  d->ParameterNode->GetPatientToTableTopTranslation(patientToTableTopTranslation);
 
   d->CoordinatesWidget_PatientTableTopTranslation->setCoordinates(patientToTableTopTranslation);
-  d->CheckBox_RotatePatientHeadFeet->setChecked(parameterNode->GetPatientHeadFeetRotation());
-  d->CheckBox_FixedReferenceCamera->setChecked(parameterNode->GetUseStandCoordinateSystem());
+  d->CheckBox_RotatePatientHeadFeet->setChecked(d->ParameterNode->GetPatientHeadFeetRotation());
+  d->CheckBox_FixedReferenceCamera->setChecked(d->ParameterNode->GetUseStandCoordinateSystem());
 }
 
 //-----------------------------------------------------------------------------
 void qSlicerIhepStandGeometryModuleWidget::onLogicModified()
-{
-  Q_D(qSlicerIhepStandGeometryModuleWidget);
-}
-
-//-----------------------------------------------------------------------------
-void qSlicerIhepStandGeometryModuleWidget::onParameterNodeChanged(vtkMRMLNode*)
 {
   Q_D(qSlicerIhepStandGeometryModuleWidget);
 }
@@ -719,13 +693,12 @@ void qSlicerIhepStandGeometryModuleWidget::setParameterNode(vtkMRMLNode* node)
   Q_D(qSlicerIhepStandGeometryModuleWidget);
 
   vtkMRMLIhepStandGeometryNode* parameterNode = vtkMRMLIhepStandGeometryNode::SafeDownCast(node);
+  if (!parameterNode)
+  {
+    qCritical() << Q_FUNC_INFO << ": Parameter node is invalid!";
+    return;
+  }
 
-  // Make sure the parameter set node is selected (in case the function was not called by the selector combobox signal)
-  d->MRMLNodeComboBox_ParameterSet->setCurrentNode(node);
-
-  // Set parameter node to children widgets (PlastimatchParameters)
-//  d->PlastimatchParametersWidget->setParameterNode(node);
- 
   // Each time the node is modified, the UI widgets are updated
   qvtkReconnect( parameterNode, vtkCommand::ModifiedEvent, this, SLOT(updateWidgetFromMRML()));
 
@@ -808,18 +781,17 @@ void qSlicerIhepStandGeometryModuleWidget::onRTBeamNodeChanged(vtkMRMLNode* node
   vtkMRMLRTIonBeamNode* ionBeamNode = vtkMRMLRTIonBeamNode::SafeDownCast(node);
   Q_UNUSED(ionBeamNode);
 
-  vtkMRMLIhepStandGeometryNode* parameterNode = vtkMRMLIhepStandGeometryNode::SafeDownCast(d->MRMLNodeComboBox_ParameterSet->currentNode());
-  if (!parameterNode || !d->ModuleWindowInitialized)
+  if (!d->ParameterNode || !d->ModuleWindowInitialized)
   {
     qCritical() << Q_FUNC_INFO << ": Invalid parameter node";
     return;
   }
   
-  parameterNode->DisableModifiedEventOn();
-  parameterNode->SetAndObserveBeamNode(beamNode);
-  parameterNode->DisableModifiedEventOff();
+  d->ParameterNode->DisableModifiedEventOn();
+  d->ParameterNode->SetAndObserveBeamNode(beamNode);
+  d->ParameterNode->DisableModifiedEventOff();
 
-  parameterNode->Modified();
+  d->ParameterNode->Modified();
 }
 
 /// RTBeam Node (RTBeam or RTIonBeam) changed
@@ -847,18 +819,17 @@ void qSlicerIhepStandGeometryModuleWidget::onRTFixedIonBeamNodeChanged(vtkMRMLNo
     return;
   }
 
-  vtkMRMLIhepStandGeometryNode* parameterNode = vtkMRMLIhepStandGeometryNode::SafeDownCast(d->MRMLNodeComboBox_ParameterSet->currentNode());
-  if (!parameterNode || !d->ModuleWindowInitialized)
+  if (!d->ParameterNode || !d->ModuleWindowInitialized)
   {
     qCritical() << Q_FUNC_INFO << ": Invalid parameter node";
     return;
   }
   
-  parameterNode->DisableModifiedEventOn();
-  parameterNode->SetAndObserveFixedBeamNode(beamNode);
-  parameterNode->DisableModifiedEventOff();
+  d->ParameterNode->DisableModifiedEventOn();
+  d->ParameterNode->SetAndObserveFixedBeamNode(beamNode);
+  d->ParameterNode->DisableModifiedEventOff();
 
-  parameterNode->Modified();
+  d->ParameterNode->Modified();
 }
 
 //-----------------------------------------------------------------------------
@@ -866,9 +837,7 @@ void qSlicerIhepStandGeometryModuleWidget::onReferenceVolumeNodeChanged(vtkMRMLN
 {
   Q_D(qSlicerIhepStandGeometryModuleWidget);
 
-  vtkMRMLIhepStandGeometryNode* parameterNode = vtkMRMLIhepStandGeometryNode::SafeDownCast(d->MRMLNodeComboBox_ParameterSet->currentNode());
-
-  if (!parameterNode || !d->ModuleWindowInitialized)
+  if (!d->ParameterNode || !d->ModuleWindowInitialized)
   {
     qCritical() << Q_FUNC_INFO << ": Invalid parameter node";
     return;
@@ -881,11 +850,11 @@ void qSlicerIhepStandGeometryModuleWidget::onReferenceVolumeNodeChanged(vtkMRMLN
     return;
   }
   
-  parameterNode->DisableModifiedEventOn();
-  parameterNode->SetAndObserveReferenceVolumeNode(volumeNode);
-  parameterNode->DisableModifiedEventOff();
+  d->ParameterNode->DisableModifiedEventOn();
+  d->ParameterNode->SetAndObserveReferenceVolumeNode(volumeNode);
+  d->ParameterNode->DisableModifiedEventOff();
 
-  parameterNode->Modified();
+  d->ParameterNode->Modified();
 }
 
 //-----------------------------------------------------------------------------
@@ -893,9 +862,7 @@ void qSlicerIhepStandGeometryModuleWidget::onPatientBodySegmentationNodeChanged(
 {
   Q_D(qSlicerIhepStandGeometryModuleWidget);
 
-  vtkMRMLIhepStandGeometryNode* parameterNode = vtkMRMLIhepStandGeometryNode::SafeDownCast(d->MRMLNodeComboBox_ParameterSet->currentNode());
-
-  if (!parameterNode || !d->ModuleWindowInitialized)
+  if (!d->ParameterNode || !d->ModuleWindowInitialized)
   {
     qCritical() << Q_FUNC_INFO << ": Invalid parameter node";
     return;
@@ -908,11 +875,11 @@ void qSlicerIhepStandGeometryModuleWidget::onPatientBodySegmentationNodeChanged(
     return;
   }
 
-  parameterNode->DisableModifiedEventOn();
-  parameterNode->SetAndObservePatientBodySegmentationNode(segmentationNode);
-  parameterNode->DisableModifiedEventOff();
+  d->ParameterNode->DisableModifiedEventOn();
+  d->ParameterNode->SetAndObservePatientBodySegmentationNode(segmentationNode);
+  d->ParameterNode->DisableModifiedEventOff();
 
-  parameterNode->Modified();
+  d->ParameterNode->Modified();
 }
 
 //-----------------------------------------------------------------------------
@@ -920,9 +887,7 @@ void qSlicerIhepStandGeometryModuleWidget::onPatientBodySegmentNameChanged(const
 {
   Q_D(qSlicerIhepStandGeometryModuleWidget);
 
-  vtkMRMLIhepStandGeometryNode* parameterNode = vtkMRMLIhepStandGeometryNode::SafeDownCast(d->MRMLNodeComboBox_ParameterSet->currentNode());
-
-  if (!parameterNode || !d->ModuleWindowInitialized)
+  if (!d->ParameterNode || !d->ModuleWindowInitialized)
   {
     qCritical() << Q_FUNC_INFO << ": Invalid parameter node";
     return;
@@ -937,11 +902,11 @@ void qSlicerIhepStandGeometryModuleWidget::onPatientBodySegmentNameChanged(const
   QByteArray byteString = bodySegmentName.toLatin1();
   const char* name = byteString.constData();
 
-  parameterNode->DisableModifiedEventOn();
-  parameterNode->SetPatientBodySegmentID(name);
-  parameterNode->DisableModifiedEventOff();
+  d->ParameterNode->DisableModifiedEventOn();
+  d->ParameterNode->SetPatientBodySegmentID(name);
+  d->ParameterNode->DisableModifiedEventOff();
 
-  parameterNode->Modified();
+  d->ParameterNode->Modified();
 }
 
 //-----------------------------------------------------------------------------
@@ -970,20 +935,27 @@ void qSlicerIhepStandGeometryModuleWidget::setMRMLScene(vtkMRMLScene* scene)
   // Find parameters node or create it if there is none in the scene
   if (scene)
   {
-    if (d->MRMLNodeComboBox_ParameterSet->currentNode())
+    if (d->ParameterNode)
     {
-      this->setParameterNode(d->MRMLNodeComboBox_ParameterSet->currentNode());
+      this->setParameterNode(d->ParameterNode);
     }
     else if (vtkMRMLNode* node = scene->GetFirstNodeByClass("vtkMRMLIhepStandGeometryNode"))
     {
+      d->ParameterNode = vtkMRMLIhepStandGeometryNode::SafeDownCast(node);
       this->setParameterNode(node);
     }
     else
     {
       vtkMRMLNode* newNode = scene->AddNewNodeByClass( "vtkMRMLIhepStandGeometryNode", "Channel25");
-      std::string singletonTag = std::string("IhepStand_") + newNode->GetName();
-      newNode->SetSingletonTag(singletonTag.c_str());
-      this->setParameterNode(newNode);
+      d->ParameterNode = vtkMRMLIhepStandGeometryNode::SafeDownCast(newNode);
+      if (d->ParameterNode)
+      {
+        std::string singletonTag = std::string("IhepStand_") + d->ParameterNode->GetName();
+        d->ParameterNode->SetSingletonTag(singletonTag.c_str());
+        this->setParameterNode(d->ParameterNode);
+        this->onLoadModelsButtonClicked();
+        qDebug() << Q_FUNC_INFO << ": Load models";
+      }
     }
   }
 }
@@ -1082,13 +1054,11 @@ void qSlicerIhepStandGeometryModuleWidget::updateFixedReferenceCamera(bool updat
 {
   Q_D(qSlicerIhepStandGeometryModuleWidget);
 
-  vtkMRMLIhepStandGeometryNode* parameterNode = vtkMRMLIhepStandGeometryNode::SafeDownCast(d->MRMLNodeComboBox_ParameterSet->currentNode());
+  d->ParameterNode->DisableModifiedEventOn();
+  d->ParameterNode->SetUseStandCoordinateSystem(update);
+  d->ParameterNode->DisableModifiedEventOff();
 
-  parameterNode->DisableModifiedEventOn();
-  parameterNode->SetUseStandCoordinateSystem(update);
-  parameterNode->DisableModifiedEventOff();
-
-  parameterNode->Modified();
+  d->ParameterNode->Modified();
   
 // Disable camera update in GUI, use camera update in logic
 #if defined (commentout)
@@ -1174,9 +1144,13 @@ void qSlicerIhepStandGeometryModuleWidget::onRotatePatientHeadFeetToggled(bool t
 {
   Q_D(qSlicerIhepStandGeometryModuleWidget);
 
-  vtkMRMLIhepStandGeometryNode* parameterNode = vtkMRMLIhepStandGeometryNode::SafeDownCast(d->MRMLNodeComboBox_ParameterSet->currentNode());
+  if (d->ParameterNode)
+  {
+    qCritical() << Q_FUNC_INFO << ": Parameter node is invalid!";
+    return;
+  }
 
-  parameterNode->SetPatientHeadFeetRotation(toggled);
+  d->ParameterNode->SetPatientHeadFeetRotation(toggled);
 }
 
 //-----------------------------------------------------------------------------
