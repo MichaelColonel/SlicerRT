@@ -127,7 +127,7 @@ void vtkSlicerIsodoseModuleLogic::SetMRMLSceneInternal(vtkMRMLScene* newScene)
       }
       colorNode->Delete();
     }
-    // Create dose color table for relative abnd absolute doses
+    // Create dose color table for relative and absolute doses
     vtkSlicerIsodoseModuleLogic::CreateDefaultDoseColorTable(newScene);
     vtkSlicerIsodoseModuleLogic::CreateRelativeDoseColorTable(newScene);
   }
@@ -297,7 +297,16 @@ vtkMRMLColorTableNode* vtkSlicerIsodoseModuleLogic::GetDefaultIsodoseColorTable(
     }
 
     vtkMRMLColorTableNode* isodoseColorTableNode = vtkMRMLColorTableNode::SafeDownCast(defaultIsodoseColorTableNodes->GetItemAsObject(0));
-    return isodoseColorTableNode;
+    if (isodoseColorTableNode && isodoseColorTableNode->GetLookupTable())
+    {
+      vtkWarningWithObjectMacro(scene, "GetDefaultIsodoseColorTable: OK");
+      return isodoseColorTableNode;
+    }
+    else
+    {
+      vtkWarningWithObjectMacro(scene, "GetDefaultIsodoseColorTable: Invalid");
+      return nullptr;
+    }
   }
 
   // Create default isodose color table if does not yet exist
@@ -383,8 +392,7 @@ vtkMRMLColorTableNode* vtkSlicerIsodoseModuleLogic::LoadDefaultIsodoseColorTable
 
     // Create temporary lookup table storing the color data while the type of the loaded color table is set to user
     // (workaround for bug #409)
-    vtkSmartPointer<vtkLookupTable> tempLookupTable = vtkSmartPointer<vtkLookupTable>::New();
-    tempLookupTable->DeepCopy(loadedColorNode->GetLookupTable());
+    vtkSmartPointer<vtkLookupTable> tempLookupTable = vtkSmartPointer<vtkLookupTable>::Take(loadedColorNode->CreateLookupTableCopy());
 
     colorTableNode = vtkMRMLColorTableNode::SafeDownCast(loadedColorNode);
     colorTableNode->SetName(DEFAULT_ISODOSE_COLOR_TABLE_NODE_NAME);

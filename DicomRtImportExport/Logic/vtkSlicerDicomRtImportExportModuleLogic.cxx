@@ -553,6 +553,9 @@ bool vtkSlicerDicomRtImportExportModuleLogic::vtkInternal::LoadRtDose(vtkSlicerD
   // Get default isodose color table and default dose color table
   vtkMRMLColorTableNode* defaultIsodoseColorTable = vtkSlicerIsodoseModuleLogic::GetDefaultIsodoseColorTable(scene);
   vtkMRMLColorTableNode* defaultDoseColorTable = vtkSlicerIsodoseModuleLogic::CreateDefaultDoseColorTable(scene);
+
+//  vtkSmartPointer<vtkLookupTable> lut = vtkSmartPointer<vtkLookupTable>::Take(colorNode->CreateLookupTableCopy());
+
   if (!defaultIsodoseColorTable || !defaultDoseColorTable)
   {
     vtkErrorWithObjectMacro(this->External, "LoadRtDose: Failed to get default color tables");
@@ -659,6 +662,7 @@ bool vtkSlicerDicomRtImportExportModuleLogic::vtkInternal::LoadRtDose(vtkSlicerD
       this->External->GetApplicationLogic()->PropagateVolumeSelection();
     }
   }
+
   return true;
 }
 
