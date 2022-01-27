@@ -166,7 +166,7 @@ void qSlicerIhepStandGeometryModuleWidget::setup()
   connect( d->CheckBox_RotatePatientHeadFeet, SIGNAL(toggled(bool)), this, SLOT(onRotatePatientHeadFeetToggled(bool)));
 
   // Buttons
-  connect( d->PushButton_LoadStandModels, SIGNAL(clicked()), this, SLOT(onLoadModelsButtonClicked()));
+//  connect( d->PushButton_LoadStandModels, SIGNAL(clicked()), this, SLOT(onLoadModelsButtonClicked()));
   connect( d->PushButton_ResetModelsInitialPosition, SIGNAL(clicked()), this, SLOT(onResetToInitialPositionButtonClicked()));
   connect( d->PushButton_BevPlusX, SIGNAL(clicked()), this, SLOT(onBeamsEyeViewPlusXButtonClicked()));
   connect( d->PushButton_BevPlusY, SIGNAL(clicked()), this, SLOT(onBeamsEyeViewPlusYButtonClicked()));

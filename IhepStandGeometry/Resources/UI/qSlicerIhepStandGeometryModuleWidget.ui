@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>485</width>
-    <height>926</height>
+    <width>305</width>
+    <height>1037</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -20,150 +20,21 @@
       <string>Models</string>
      </property>
      <property name="collapsed">
-      <bool>false</bool>
+      <bool>true</bool>
      </property>
      <layout class="QGridLayout" name="gridLayout_6">
-      <item row="0" column="0">
-       <widget class="ctkCollapsibleGroupBox" name="CollapsibleGroupBox_ModelsAndMarkupsVisibility">
-        <property name="title">
-         <string>Visibility</string>
-        </property>
-        <property name="collapsed">
-         <bool>false</bool>
-        </property>
-        <layout class="QGridLayout" name="GroupBox">
-         <item row="0" column="0">
-          <layout class="QGridLayout" name="gridLayout_2">
-           <item row="1" column="0">
-            <widget class="QCheckBox" name="checkBox_ShowModels">
-             <property name="text">
-              <string>Show models</string>
-             </property>
-            </widget>
-           </item>
-           <item row="0" column="0">
-            <widget class="QCheckBox" name="checkBox_ShowMarkups">
-             <property name="text">
-              <string>Show markups</string>
-             </property>
-            </widget>
-           </item>
-           <item row="0" column="1" rowspan="2">
-            <widget class="QPushButton" name="PushButton_LoadStandModels">
-             <property name="sizePolicy">
-              <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
-               <horstretch>0</horstretch>
-               <verstretch>0</verstretch>
-              </sizepolicy>
-             </property>
-             <property name="text">
-              <string>Load stand models</string>
-             </property>
-            </widget>
-           </item>
-          </layout>
-         </item>
-        </layout>
-       </widget>
-      </item>
-      <item row="1" column="0">
+      <item row="2" column="0">
        <widget class="ctkCollapsibleGroupBox" name="CollapsibleGroupBox_ModelsControl">
         <property name="title">
-         <string>Control</string>
+         <string>Software Position Control</string>
         </property>
         <property name="collapsed">
-         <bool>false</bool>
+         <bool>true</bool>
         </property>
-        <layout class="QGridLayout" name="gridLayout_3">
+        <layout class="QGridLayout" name="gridLayout_4">
          <item row="0" column="0">
-          <layout class="QGridLayout" name="gridLayout_4">
-           <item row="7" column="0">
-            <widget class="QLabel" name="label_6">
-             <property name="text">
-              <string>Table Top Position X</string>
-             </property>
-            </widget>
-           </item>
-           <item row="8" column="1">
-            <widget class="ctkSliderWidget" name="SliderWidget_PatientSupportRotationAngle">
-             <property name="decimals">
-              <number>2</number>
-             </property>
-             <property name="minimum">
-              <double>0.000000000000000</double>
-             </property>
-             <property name="maximum">
-              <double>360.000000000000000</double>
-             </property>
-            </widget>
-           </item>
-           <item row="3" column="0">
-            <widget class="QLabel" name="label_11">
-             <property name="text">
-              <string>Table Top Position Z Origin</string>
-             </property>
-            </widget>
-           </item>
-           <item row="5" column="1">
-            <widget class="ctkSliderWidget" name="SliderWidget_TableTopVerticalPositionMiddle">
-             <property name="enabled">
-              <bool>false</bool>
-             </property>
-             <property name="decimals">
-              <number>4</number>
-             </property>
-             <property name="minimum">
-              <double>-687.500000000000000</double>
-             </property>
-             <property name="maximum">
-              <double>687.500000000000000</double>
-             </property>
-            </widget>
-           </item>
-           <item row="6" column="1">
-            <widget class="ctkSliderWidget" name="SliderWidget_TableTopStandLongitudinalPosition">
-             <property name="decimals">
-              <number>4</number>
-             </property>
-             <property name="maximum">
-              <double>875.000000000000000</double>
-             </property>
-            </widget>
-           </item>
-           <item row="5" column="0">
-            <widget class="QLabel" name="label_13">
-             <property name="enabled">
-              <bool>false</bool>
-             </property>
-             <property name="text">
-              <string>Table Top Position Z Middle</string>
-             </property>
-            </widget>
-           </item>
-           <item row="2" column="1">
-            <widget class="ctkSliderWidget" name="SliderWidget_TableTopVerticalPosition">
-             <property name="enabled">
-              <bool>false</bool>
-             </property>
-             <property name="decimals">
-              <number>4</number>
-             </property>
-             <property name="minimum">
-              <double>-999.899999999999977</double>
-             </property>
-             <property name="maximum">
-              <double>999.899999999999977</double>
-             </property>
-            </widget>
-           </item>
-           <item row="8" column="0">
-            <widget class="QLabel" name="label_8">
-             <property name="text">
-              <string>Patient Support Rotation Angle</string>
-             </property>
-            </widget>
-           </item>
-           <item row="0" column="0" colspan="2">
+          <layout class="QGridLayout" name="gridLayout_3">
+           <item row="0" column="0">
             <widget class="QCheckBox" name="CheckBox_RotatePatientHeadFeet">
              <property name="text">
               <string>Rotate Patient Head-Feet</string>
@@ -171,101 +42,213 @@
             </widget>
            </item>
            <item row="1" column="0">
-            <widget class="QLabel" name="label_14">
-             <property name="text">
+            <widget class="ctkCollapsibleGroupBox" name="CollapsibleGroupBox_PatientToTableTopTranslation">
+             <property name="title">
               <string>Patient to Table Top Translation</string>
              </property>
-            </widget>
-           </item>
-           <item row="1" column="1">
-            <widget class="ctkCoordinatesWidget" name="CoordinatesWidget_PatientTableTopTranslation">
-             <property name="minimum">
-              <double>-5000.000000000000000</double>
+             <property name="collapsed">
+              <bool>true</bool>
              </property>
-             <property name="maximum">
-              <double>5000.000000000000000</double>
-             </property>
-            </widget>
-           </item>
-           <item row="4" column="0">
-            <widget class="QLabel" name="label_12">
-             <property name="enabled">
-              <bool>false</bool>
-             </property>
-             <property name="text">
-              <string>Table Top Position Z Mirror</string>
-             </property>
-            </widget>
-           </item>
-           <item row="6" column="0">
-            <widget class="QLabel" name="label_3">
-             <property name="text">
-              <string>Table Top Position Y</string>
-             </property>
+             <layout class="QGridLayout" name="gridLayout_13">
+              <item row="0" column="0">
+               <widget class="ctkCoordinatesWidget" name="CoordinatesWidget_PatientTableTopTranslation">
+                <property name="minimum">
+                 <double>-5000.000000000000000</double>
+                </property>
+                <property name="maximum">
+                 <double>5000.000000000000000</double>
+                </property>
+               </widget>
+              </item>
+             </layout>
             </widget>
            </item>
            <item row="2" column="0">
-            <widget class="QLabel" name="label_7">
-             <property name="enabled">
-              <bool>false</bool>
+            <widget class="ctkCollapsibleGroupBox" name="CollapsibleGroupBox_TableTop">
+             <property name="title">
+              <string>Table Top Positions</string>
              </property>
-             <property name="text">
-              <string>Table Top Position Z Total</string>
+             <property name="collapsed">
+              <bool>true</bool>
              </property>
+             <layout class="QGridLayout" name="gridLayout_15">
+              <item row="0" column="0">
+               <layout class="QGridLayout" name="gridLayout_14">
+                <item row="1" column="1">
+                 <widget class="ctkSliderWidget" name="SliderWidget_TableTopVerticalPositionOrigin">
+                  <property name="decimals">
+                   <number>4</number>
+                  </property>
+                  <property name="minimum">
+                   <double>0.000000000000000</double>
+                  </property>
+                  <property name="maximum">
+                   <double>687.500000000000000</double>
+                  </property>
+                 </widget>
+                </item>
+                <item row="0" column="0">
+                 <widget class="QLabel" name="label_7">
+                  <property name="enabled">
+                   <bool>false</bool>
+                  </property>
+                  <property name="text">
+                   <string>Z Total</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="0" column="1">
+                 <widget class="ctkSliderWidget" name="SliderWidget_TableTopVerticalPosition">
+                  <property name="enabled">
+                   <bool>false</bool>
+                  </property>
+                  <property name="decimals">
+                   <number>4</number>
+                  </property>
+                  <property name="minimum">
+                   <double>-999.899999999999977</double>
+                  </property>
+                  <property name="maximum">
+                   <double>999.899999999999977</double>
+                  </property>
+                 </widget>
+                </item>
+                <item row="4" column="1">
+                 <widget class="ctkSliderWidget" name="SliderWidget_TableTopStandLongitudinalPosition">
+                  <property name="decimals">
+                   <number>4</number>
+                  </property>
+                  <property name="maximum">
+                   <double>875.000000000000000</double>
+                  </property>
+                 </widget>
+                </item>
+                <item row="4" column="0">
+                 <widget class="QLabel" name="label_3">
+                  <property name="text">
+                   <string>Y</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="1" column="0">
+                 <widget class="QLabel" name="label_11">
+                  <property name="text">
+                   <string>Z Origin</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="2" column="0">
+                 <widget class="QLabel" name="label_12">
+                  <property name="enabled">
+                   <bool>false</bool>
+                  </property>
+                  <property name="text">
+                   <string>Z Mirror</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="3" column="1">
+                 <widget class="ctkSliderWidget" name="SliderWidget_TableTopVerticalPositionMiddle">
+                  <property name="enabled">
+                   <bool>false</bool>
+                  </property>
+                  <property name="decimals">
+                   <number>4</number>
+                  </property>
+                  <property name="minimum">
+                   <double>-687.500000000000000</double>
+                  </property>
+                  <property name="maximum">
+                   <double>687.500000000000000</double>
+                  </property>
+                 </widget>
+                </item>
+                <item row="3" column="0">
+                 <widget class="QLabel" name="label_13">
+                  <property name="enabled">
+                   <bool>false</bool>
+                  </property>
+                  <property name="text">
+                   <string>Z Middle</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="2" column="1">
+                 <widget class="ctkSliderWidget" name="SliderWidget_TableTopVerticalPositionMirror">
+                  <property name="enabled">
+                   <bool>false</bool>
+                  </property>
+                  <property name="decimals">
+                   <number>4</number>
+                  </property>
+                  <property name="minimum">
+                   <double>-687.500000000000000</double>
+                  </property>
+                  <property name="maximum">
+                   <double>687.500000000000000</double>
+                  </property>
+                  <property name="value">
+                   <double>0.000000000000000</double>
+                  </property>
+                 </widget>
+                </item>
+                <item row="5" column="0">
+                 <widget class="QLabel" name="label_6">
+                  <property name="text">
+                   <string>X</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="5" column="1">
+                 <widget class="ctkSliderWidget" name="SliderWidget_TableTopStandLateralPosition">
+                  <property name="decimals">
+                   <number>4</number>
+                  </property>
+                  <property name="minimum">
+                   <double>-209.375000000000000</double>
+                  </property>
+                  <property name="maximum">
+                   <double>209.375000000000000</double>
+                  </property>
+                 </widget>
+                </item>
+               </layout>
+              </item>
+             </layout>
             </widget>
            </item>
-           <item row="7" column="1">
-            <widget class="ctkSliderWidget" name="SliderWidget_TableTopStandLateralPosition">
-             <property name="decimals">
-              <number>4</number>
+           <item row="3" column="0">
+            <widget class="ctkCollapsibleGroupBox" name="CollapsibleGroupBox_PatientSupportRotationAngle">
+             <property name="title">
+              <string>Patient Support Rotation Angle</string>
              </property>
-             <property name="minimum">
-              <double>-209.375000000000000</double>
+             <property name="collapsed">
+              <bool>true</bool>
              </property>
-             <property name="maximum">
-              <double>209.375000000000000</double>
-             </property>
+             <layout class="QGridLayout" name="gridLayout_16">
+              <item row="0" column="0">
+               <widget class="ctkSliderWidget" name="SliderWidget_PatientSupportRotationAngle">
+                <property name="decimals">
+                 <number>2</number>
+                </property>
+                <property name="minimum">
+                 <double>0.000000000000000</double>
+                </property>
+                <property name="maximum">
+                 <double>360.000000000000000</double>
+                </property>
+               </widget>
+              </item>
+             </layout>
             </widget>
            </item>
-           <item row="4" column="1">
-            <widget class="ctkSliderWidget" name="SliderWidget_TableTopVerticalPositionMirror">
-             <property name="enabled">
-              <bool>false</bool>
-             </property>
-             <property name="decimals">
-              <number>4</number>
-             </property>
-             <property name="minimum">
-              <double>-687.500000000000000</double>
-             </property>
-             <property name="maximum">
-              <double>687.500000000000000</double>
-             </property>
-             <property name="value">
-              <double>0.000000000000000</double>
-             </property>
-            </widget>
-           </item>
-           <item row="3" column="1">
-            <widget class="ctkSliderWidget" name="SliderWidget_TableTopVerticalPositionOrigin">
-             <property name="decimals">
-              <number>4</number>
-             </property>
-             <property name="minimum">
-              <double>0.000000000000000</double>
-             </property>
-             <property name="maximum">
-              <double>687.500000000000000</double>
-             </property>
-            </widget>
-           </item>
-           <item row="9" column="0" colspan="2">
+           <item row="4" column="0">
             <widget class="ctkCollapsibleButton" name="CollapsibleButton_TableTopAngles">
              <property name="text">
               <string>Table Top Angles</string>
              </property>
              <property name="collapsed">
-              <bool>false</bool>
+              <bool>true</bool>
              </property>
              <layout class="QGridLayout" name="gridLayout_11">
               <item row="0" column="0">
@@ -293,14 +276,14 @@
                 <item row="0" column="0">
                  <widget class="QLabel" name="label_9">
                   <property name="text">
-                   <string>Longitudinal Angle</string>
+                   <string>Longitudinal</string>
                   </property>
                  </widget>
                 </item>
                 <item row="1" column="0">
                  <widget class="QLabel" name="label_10">
                   <property name="text">
-                   <string>Lateral Angle</string>
+                   <string>Lateral</string>
                   </property>
                  </widget>
                 </item>
@@ -309,17 +292,91 @@
              </layout>
             </widget>
            </item>
+           <item row="5" column="0">
+            <widget class="QPushButton" name="PushButton_ResetModelsInitialPosition">
+             <property name="text">
+              <string>Reset models to initial position</string>
+             </property>
+            </widget>
+           </item>
           </layout>
-         </item>
-         <item row="1" column="0">
-          <widget class="QPushButton" name="PushButton_ResetModelsInitialPosition">
-           <property name="text">
-            <string>Reset models to initial position</string>
-           </property>
-          </widget>
          </item>
         </layout>
        </widget>
+      </item>
+      <item row="1" column="0">
+       <widget class="ctkCollapsibleGroupBox" name="CollapsibleGroupBox_ModelsAndMarkupsVisibility">
+        <property name="title">
+         <string>Visibility</string>
+        </property>
+        <property name="collapsed">
+         <bool>true</bool>
+        </property>
+        <layout class="QGridLayout" name="GroupBox">
+         <item row="0" column="0">
+          <layout class="QGridLayout" name="gridLayout_2">
+           <item row="0" column="0">
+            <widget class="QCheckBox" name="checkBox_ShowMarkups">
+             <property name="text">
+              <string>Show markups</string>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="0">
+            <widget class="QCheckBox" name="checkBox_ShowModels">
+             <property name="text">
+              <string>Show models</string>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </item>
+        </layout>
+       </widget>
+      </item>
+      <item row="3" column="0">
+       <widget class="ctkCollapsibleGroupBox" name="CollapsibleGroupBox">
+        <property name="title">
+         <string>Hardware Apparatus Position</string>
+        </property>
+        <property name="collapsed">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="0">
+       <layout class="QHBoxLayout" name="horizontalLayout_2">
+        <item>
+         <widget class="QLabel" name="label_17">
+          <property name="text">
+           <string>Control:</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QRadioButton" name="RadioButton_ModelsSoftwareControl">
+          <property name="text">
+           <string>Software</string>
+          </property>
+          <property name="checked">
+           <bool>true</bool>
+          </property>
+          <attribute name="buttonGroup">
+           <string notr="true">ButtonGroup_ModelsControl</string>
+          </attribute>
+         </widget>
+        </item>
+        <item>
+         <widget class="QRadioButton" name="RadioButton_ModelsHardwareControl">
+          <property name="text">
+           <string>Hardware</string>
+          </property>
+          <attribute name="buttonGroup">
+           <string notr="true">ButtonGroup_ModelsControl</string>
+          </attribute>
+         </widget>
+        </item>
+       </layout>
       </item>
      </layout>
     </widget>
@@ -726,4 +783,7 @@
    </hints>
   </connection>
  </connections>
+ <buttongroups>
+  <buttongroup name="ButtonGroup_ModelsControl"/>
+ </buttongroups>
 </ui>
