@@ -1144,7 +1144,7 @@ void qSlicerIhepStandGeometryModuleWidget::onRotatePatientHeadFeetToggled(bool t
 {
   Q_D(qSlicerIhepStandGeometryModuleWidget);
 
-  if (d->ParameterNode)
+  if (!d->ParameterNode)
   {
     qCritical() << Q_FUNC_INFO << ": Parameter node is invalid!";
     return;

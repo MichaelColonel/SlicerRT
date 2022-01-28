@@ -3069,12 +3069,12 @@ bool vtkSlicerIhepStandGeometryLogic::GetPatientIsocenterToFixedIsocenterTransla
     return false;
   }
 
-  double planIsocenterRAS[3];
+  double planIsocenterRAS[4] = { 0., 0., 0., 1. };
   if (!beamNode->GetPlanIsocenterPosition(planIsocenterRAS))
   {
     return false;
   }
-
+/*
   // Transform IHEP stand models (IEC Patient) to RAS
   vtkNew<vtkTransform> patientToRasTransform;
   patientToRasTransform->Identity();
@@ -3108,7 +3108,35 @@ bool vtkSlicerIhepStandGeometryLogic::GetPatientIsocenterToFixedIsocenterTransla
   translatePatientFrame[0] = fixedReferenceToPatientNoOffset[0];
   translatePatientFrame[1] = fixedReferenceToPatientNoOffset[1];
   translatePatientFrame[2] = fixedReferenceToPatientNoOffset[2];
+*/
+  // Get PatientSupport->RAS Transform
+  vtkMRMLLinearTransformNode* patientSupportTransformNode = this->GetPatientSupportTransform();
+  // Get FixedReference->RAS Transform
+  vtkMRMLLinearTransformNode* fixedReferenceTransformNode = this->GetFixedReferenceTransform();
 
+  vtkNew< vtkMatrix4x4 > patientSupportTransform;
+  vtkNew< vtkMatrix4x4 > fixedReferenceTransform;
+  patientSupportTransformNode->GetMatrixTransformToWorld(patientSupportTransform);
+  fixedReferenceTransformNode->GetMatrixTransformToWorld(fixedReferenceTransform);
+
+  double fixedIsocenterOrigin[4] = { 0., 0., 0., 1. };
+  double fixedIsocenterRAS[4] = {}; // RAS == World
+  fixedReferenceTransform->MultiplyPoint( fixedIsocenterOrigin, fixedIsocenterRAS);
+
+  double fixedIsocenterInPatientSupport[4] = {};
+  double patientIsocenterInPatientSupport[4] = {};
+  patientSupportTransform->Invert(); // RAS -> PatientSupport
+  patientSupportTransform->MultiplyPoint( fixedIsocenterRAS, fixedIsocenterInPatientSupport);
+  patientSupportTransform->MultiplyPoint( planIsocenterRAS, patientIsocenterInPatientSupport);
+
+  fixedIsocenterInPatientSupport[0] -= patientIsocenterInPatientSupport[0];
+  fixedIsocenterInPatientSupport[1] -= patientIsocenterInPatientSupport[1];
+  fixedIsocenterInPatientSupport[2] -= patientIsocenterInPatientSupport[2];
+  vtkWarningMacro("GetPatientIsocenterToFixedIsocenterTranslate: Translate " << fixedIsocenterInPatientSupport[0] << " " << fixedIsocenterInPatientSupport[1] << " " << fixedIsocenterInPatientSupport[2]);
+
+  translatePatientFrame[0] = fixedIsocenterInPatientSupport[0]; // +X
+  translatePatientFrame[1] = fixedIsocenterInPatientSupport[1]; // -Z
+  translatePatientFrame[2] = fixedIsocenterInPatientSupport[2]; // -Y
 /*
   double fixedReferenceOrigin[4] = { 0., 0., 0., 1. };
   double fixedReferenceToPatientNoOffset[4] = {};

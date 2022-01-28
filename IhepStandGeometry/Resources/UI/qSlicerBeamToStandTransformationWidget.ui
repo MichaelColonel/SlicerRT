@@ -19,6 +19,9 @@
      <property name="text">
       <string>Beam to fixed isocenter translate (mm)</string>
      </property>
+     <property name="collapsed">
+      <bool>true</bool>
+     </property>
      <layout class="QGridLayout" name="gridLayout">
       <item row="0" column="0">
        <widget class="qMRMLCoordinatesWidget" name="MRMLCoordinatesWidget_BeamToFixedIsocenterTranslate"/>
@@ -33,6 +36,9 @@
      </property>
      <property name="text">
       <string>Beam to fixed beam transform</string>
+     </property>
+     <property name="collapsed">
+      <bool>true</bool>
      </property>
      <layout class="QGridLayout" name="gridLayout_2">
       <item row="0" column="0">

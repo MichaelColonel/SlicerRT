@@ -16,12 +16,14 @@ set(MODULE_EXPORT_DIRECTIVE "Q_SLICER_QTMODULES_${MODULE_NAME_UPPER}_EXPORT")
 
 # Current_{source,binary} and Slicer_{Libs,Base} already included
 set(MODULE_INCLUDE_DIRECTORIES
+  ${CMAKE_CURRENT_SOURCE_DIR}/MRML
+  ${CMAKE_CURRENT_BINARY_DIR}/MRML
   ${CMAKE_CURRENT_SOURCE_DIR}/Logic
   ${CMAKE_CURRENT_BINARY_DIR}/Logic
   ${CMAKE_CURRENT_SOURCE_DIR}/Widgets
   ${CMAKE_CURRENT_BINARY_DIR}/Widgets
   ${SlicerRtCommon_INCLUDE_DIRS}
-  ${vtkSlicer${MODULE_NAME}ModuleMRML_INCLUDE_DIRS}
+#  ${vtkSlicer${MODULE_NAME}ModuleMRML_INCLUDE_DIRS}
   ${vtkSlicerBeamsModuleLogic_INCLUDE_DIRS}
   ${qSlicerSubjectHierarchyModuleWidgets_INCLUDE_DIRS}
   )
@@ -40,6 +42,7 @@ set(MODULE_MOC_SRCS
 
 set(MODULE_UI_SRCS
   Resources/UI/qSlicer${MODULE_NAME}ModuleWidget.ui
+  Resources/UI/qSlicerBeamToStandTransformationWidget.ui
   )
 
 set(MODULE_TARGET_LIBRARIES

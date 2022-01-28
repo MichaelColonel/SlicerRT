@@ -14,6 +14,259 @@
    <string>Form</string>
   </property>
   <layout class="QGridLayout" name="gridLayout_7">
+   <item row="4" column="0">
+    <widget class="ctkCollapsibleButton" name="CollapsibleButton_Camera">
+     <property name="text">
+      <string>Camera</string>
+     </property>
+     <property name="collapsed">
+      <bool>true</bool>
+     </property>
+     <layout class="QGridLayout" name="gridLayout_9">
+      <item row="0" column="0">
+       <widget class="QCheckBox" name="CheckBox_FixedReferenceCamera">
+        <property name="text">
+         <string>Fix Camera</string>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="0">
+       <widget class="QGroupBox" name="groupBox">
+        <property name="title">
+         <string>Beam's Eye View Camera</string>
+        </property>
+        <layout class="QGridLayout" name="gridLayout_5">
+         <item row="0" column="0">
+          <layout class="QGridLayout" name="gridLayout_8">
+           <item row="1" column="2">
+            <widget class="QPushButton" name="PushButton_BevPlusX">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="text">
+              <string>+X</string>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="0">
+            <widget class="QPushButton" name="PushButton_BevMinusX">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="text">
+              <string>-X</string>
+             </property>
+            </widget>
+           </item>
+           <item row="0" column="1">
+            <widget class="QPushButton" name="PushButton_BevPlusY">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="text">
+              <string>+Y</string>
+             </property>
+            </widget>
+           </item>
+           <item row="2" column="1">
+            <widget class="QPushButton" name="PushButton_BevMinusY">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="text">
+              <string>-Y</string>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="1">
+            <widget class="QLabel" name="Label_BevOrientation">
+             <property name="text">
+              <string/>
+             </property>
+             <property name="alignment">
+              <set>Qt::AlignCenter</set>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </item>
+        </layout>
+       </widget>
+      </item>
+      <item row="1" column="0">
+       <layout class="QHBoxLayout" name="horizontalLayout">
+        <item>
+         <widget class="QLabel" name="label_16">
+          <property name="text">
+           <string>Beam:</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="qMRMLNodeComboBox" name="MRMLNodeComboBox_CameraBeam">
+          <property name="nodeTypes">
+           <stringlist>
+            <string>vtkMRMLRTBeamNode</string>
+           </stringlist>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item row="8" column="0">
+    <spacer name="verticalSpacer">
+     <property name="orientation">
+      <enum>Qt::Vertical</enum>
+     </property>
+     <property name="sizeType">
+      <enum>QSizePolicy::Expanding</enum>
+     </property>
+     <property name="sizeHint" stdset="0">
+      <size>
+       <width>0</width>
+       <height>0</height>
+      </size>
+     </property>
+    </spacer>
+   </item>
+   <item row="0" column="0">
+    <widget class="ctkCollapsibleButton" name="CollapsibleButton">
+     <property name="text">
+      <string>Parameter Set</string>
+     </property>
+     <layout class="QGridLayout" name="gridLayout_12">
+      <item row="0" column="0">
+       <layout class="QGridLayout" name="gridLayout">
+        <item row="2" column="1">
+         <widget class="qMRMLNodeComboBox" name="MRMLNodeComboBox_RtBeam">
+          <property name="nodeTypes">
+           <stringlist>
+            <string>vtkMRMLRTBeamNode</string>
+            <string>vtkMRMLRTIonBeamNode</string>
+            <string>vtkMRMLRTFixedIonBeamNode</string>
+           </stringlist>
+          </property>
+          <property name="noneEnabled">
+           <bool>true</bool>
+          </property>
+          <property name="addEnabled">
+           <bool>false</bool>
+          </property>
+          <property name="removeEnabled">
+           <bool>false</bool>
+          </property>
+          <property name="noneDisplay">
+           <string>Please select a beam node</string>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="0">
+         <widget class="QLabel" name="label_2">
+          <property name="text">
+           <string>Reference volume:</string>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="1">
+         <widget class="qMRMLNodeComboBox" name="MRMLNodeComboBox_ReferenceVolume">
+          <property name="nodeTypes">
+           <stringlist>
+            <string>vtkMRMLScalarVolumeNode</string>
+           </stringlist>
+          </property>
+          <property name="noneEnabled">
+           <bool>true</bool>
+          </property>
+          <property name="addEnabled">
+           <bool>false</bool>
+          </property>
+          <property name="removeEnabled">
+           <bool>false</bool>
+          </property>
+          <property name="noneDisplay">
+           <string>Please select a node</string>
+          </property>
+         </widget>
+        </item>
+        <item row="4" column="0">
+         <widget class="QLabel" name="label_5">
+          <property name="text">
+           <string>Target volume:</string>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="0">
+         <widget class="QLabel" name="label_15">
+          <property name="text">
+           <string>Fixed Beam:</string>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="1">
+         <widget class="qMRMLNodeComboBox" name="MRMLNodeComboBox_FixedBeam">
+          <property name="nodeTypes">
+           <stringlist>
+            <string>vtkMRMLRTFixedIonBeamNode</string>
+            <string>vtkMRMLRTIonBeamNode</string>
+           </stringlist>
+          </property>
+          <property name="showChildNodeTypes">
+           <bool>false</bool>
+          </property>
+          <property name="noneEnabled">
+           <bool>true</bool>
+          </property>
+          <property name="addEnabled">
+           <bool>false</bool>
+          </property>
+          <property name="removeEnabled">
+           <bool>false</bool>
+          </property>
+          <property name="noneDisplay">
+           <string>Please select a fixed beam node</string>
+          </property>
+         </widget>
+        </item>
+        <item row="2" column="0">
+         <widget class="QLabel" name="label_4">
+          <property name="text">
+           <string>Patient Beam:</string>
+          </property>
+         </widget>
+        </item>
+        <item row="4" column="1">
+         <widget class="qMRMLSegmentSelectorWidget" name="SegmentSelectorWidget_TargetVolume"/>
+        </item>
+        <item row="3" column="0">
+         <widget class="QLabel" name="label">
+          <property name="text">
+           <string>Fixed DRR Beam:</string>
+          </property>
+         </widget>
+        </item>
+        <item row="3" column="1">
+         <widget class="qMRMLNodeComboBox" name="MRMLNodeComboBox_FixedDrrBeam"/>
+        </item>
+       </layout>
+      </item>
+     </layout>
+    </widget>
+   </item>
    <item row="1" column="0">
     <widget class="ctkCollapsibleButton" name="CollapsibleButton_Models">
      <property name="text">
@@ -381,258 +634,8 @@
      </layout>
     </widget>
    </item>
-   <item row="0" column="0">
-    <widget class="ctkCollapsibleButton" name="CollapsibleButton">
-     <property name="text">
-      <string>Parameter Set</string>
-     </property>
-     <layout class="QGridLayout" name="gridLayout_12">
-      <item row="0" column="0">
-       <layout class="QGridLayout" name="gridLayout">
-        <item row="2" column="1">
-         <widget class="qMRMLNodeComboBox" name="MRMLNodeComboBox_RtBeam">
-          <property name="nodeTypes">
-           <stringlist>
-            <string>vtkMRMLRTBeamNode</string>
-            <string>vtkMRMLRTIonBeamNode</string>
-            <string>vtkMRMLRTFixedIonBeamNode</string>
-           </stringlist>
-          </property>
-          <property name="noneEnabled">
-           <bool>true</bool>
-          </property>
-          <property name="addEnabled">
-           <bool>false</bool>
-          </property>
-          <property name="removeEnabled">
-           <bool>false</bool>
-          </property>
-          <property name="noneDisplay">
-           <string>Please select a beam node</string>
-          </property>
-         </widget>
-        </item>
-        <item row="1" column="0">
-         <widget class="QLabel" name="label_2">
-          <property name="text">
-           <string>Reference volume:</string>
-          </property>
-         </widget>
-        </item>
-        <item row="1" column="1">
-         <widget class="qMRMLNodeComboBox" name="MRMLNodeComboBox_ReferenceVolume">
-          <property name="nodeTypes">
-           <stringlist>
-            <string>vtkMRMLScalarVolumeNode</string>
-           </stringlist>
-          </property>
-          <property name="noneEnabled">
-           <bool>true</bool>
-          </property>
-          <property name="addEnabled">
-           <bool>false</bool>
-          </property>
-          <property name="removeEnabled">
-           <bool>false</bool>
-          </property>
-          <property name="noneDisplay">
-           <string>Please select a node</string>
-          </property>
-         </widget>
-        </item>
-        <item row="4" column="0">
-         <widget class="QLabel" name="label_5">
-          <property name="text">
-           <string>Target volume:</string>
-          </property>
-         </widget>
-        </item>
-        <item row="0" column="0">
-         <widget class="QLabel" name="label_15">
-          <property name="text">
-           <string>Fixed Beam:</string>
-          </property>
-         </widget>
-        </item>
-        <item row="0" column="1">
-         <widget class="qMRMLNodeComboBox" name="MRMLNodeComboBox_FixedBeam">
-          <property name="nodeTypes">
-           <stringlist>
-            <string>vtkMRMLRTFixedIonBeamNode</string>
-            <string>vtkMRMLRTIonBeamNode</string>
-           </stringlist>
-          </property>
-          <property name="showChildNodeTypes">
-           <bool>false</bool>
-          </property>
-          <property name="noneEnabled">
-           <bool>true</bool>
-          </property>
-          <property name="addEnabled">
-           <bool>false</bool>
-          </property>
-          <property name="removeEnabled">
-           <bool>false</bool>
-          </property>
-          <property name="noneDisplay">
-           <string>Please select a fixed beam node</string>
-          </property>
-         </widget>
-        </item>
-        <item row="2" column="0">
-         <widget class="QLabel" name="label_4">
-          <property name="text">
-           <string>Patient Beam:</string>
-          </property>
-         </widget>
-        </item>
-        <item row="4" column="1">
-         <widget class="qMRMLSegmentSelectorWidget" name="SegmentSelectorWidget_TargetVolume"/>
-        </item>
-        <item row="3" column="0">
-         <widget class="QLabel" name="label">
-          <property name="text">
-           <string>Fixed DRR Beam:</string>
-          </property>
-         </widget>
-        </item>
-        <item row="3" column="1">
-         <widget class="qMRMLNodeComboBox" name="MRMLNodeComboBox_FixedDrrBeam"/>
-        </item>
-       </layout>
-      </item>
-     </layout>
-    </widget>
-   </item>
-   <item row="9" column="0">
-    <spacer name="verticalSpacer">
-     <property name="orientation">
-      <enum>Qt::Vertical</enum>
-     </property>
-     <property name="sizeType">
-      <enum>QSizePolicy::Expanding</enum>
-     </property>
-     <property name="sizeHint" stdset="0">
-      <size>
-       <width>0</width>
-       <height>0</height>
-      </size>
-     </property>
-    </spacer>
-   </item>
-   <item row="4" column="0">
-    <widget class="ctkCollapsibleButton" name="CollapsibleButton_Camera">
-     <property name="text">
-      <string>Camera</string>
-     </property>
-     <property name="collapsed">
-      <bool>true</bool>
-     </property>
-     <layout class="QGridLayout" name="gridLayout_9">
-      <item row="0" column="0">
-       <widget class="QCheckBox" name="CheckBox_FixedReferenceCamera">
-        <property name="text">
-         <string>Fix Camera</string>
-        </property>
-       </widget>
-      </item>
-      <item row="2" column="0">
-       <widget class="QGroupBox" name="groupBox">
-        <property name="title">
-         <string>Beam's Eye View Camera</string>
-        </property>
-        <layout class="QGridLayout" name="gridLayout_5">
-         <item row="0" column="0">
-          <layout class="QGridLayout" name="gridLayout_8">
-           <item row="1" column="2">
-            <widget class="QPushButton" name="PushButton_BevPlusX">
-             <property name="sizePolicy">
-              <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-               <horstretch>0</horstretch>
-               <verstretch>0</verstretch>
-              </sizepolicy>
-             </property>
-             <property name="text">
-              <string>+X</string>
-             </property>
-            </widget>
-           </item>
-           <item row="1" column="0">
-            <widget class="QPushButton" name="PushButton_BevMinusX">
-             <property name="sizePolicy">
-              <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-               <horstretch>0</horstretch>
-               <verstretch>0</verstretch>
-              </sizepolicy>
-             </property>
-             <property name="text">
-              <string>-X</string>
-             </property>
-            </widget>
-           </item>
-           <item row="0" column="1">
-            <widget class="QPushButton" name="PushButton_BevPlusY">
-             <property name="sizePolicy">
-              <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-               <horstretch>0</horstretch>
-               <verstretch>0</verstretch>
-              </sizepolicy>
-             </property>
-             <property name="text">
-              <string>+Y</string>
-             </property>
-            </widget>
-           </item>
-           <item row="2" column="1">
-            <widget class="QPushButton" name="PushButton_BevMinusY">
-             <property name="sizePolicy">
-              <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-               <horstretch>0</horstretch>
-               <verstretch>0</verstretch>
-              </sizepolicy>
-             </property>
-             <property name="text">
-              <string>-Y</string>
-             </property>
-            </widget>
-           </item>
-           <item row="1" column="1">
-            <widget class="QLabel" name="Label_BevOrientation">
-             <property name="text">
-              <string/>
-             </property>
-             <property name="alignment">
-              <set>Qt::AlignCenter</set>
-             </property>
-            </widget>
-           </item>
-          </layout>
-         </item>
-        </layout>
-       </widget>
-      </item>
-      <item row="1" column="0">
-       <layout class="QHBoxLayout" name="horizontalLayout">
-        <item>
-         <widget class="QLabel" name="label_16">
-          <property name="text">
-           <string>Beam:</string>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="qMRMLNodeComboBox" name="MRMLNodeComboBox_CameraBeam">
-          <property name="nodeTypes">
-           <stringlist>
-            <string>vtkMRMLRTBeamNode</string>
-           </stringlist>
-          </property>
-         </widget>
-        </item>
-       </layout>
-      </item>
-     </layout>
-    </widget>
+   <item row="5" column="0">
+    <widget class="qSlicerBeamToStandTransformationWidget" name="SlicerWidget"/>
    </item>
   </layout>
  </widget>
@@ -683,6 +686,13 @@
    <header>qMRMLSegmentSelectorWidget.h</header>
    <container>1</container>
   </customwidget>
+  <customwidget>
+   <class>qSlicerBeamToStandTransformationWidget</class>
+   <extends>qSlicerWidget</extends>
+   <header>qSlicerBeamToStandTransformationWidget.h</header>
+   <container>1</container>
+  </customwidget>
+
  </customwidgets>
  <resources/>
  <connections>
