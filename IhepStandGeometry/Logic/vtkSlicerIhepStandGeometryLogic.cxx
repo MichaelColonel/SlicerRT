@@ -1833,16 +1833,16 @@ void vtkSlicerIhepStandGeometryLogic::SetupTreatmentMachineModels(vtkMRMLIhepSta
   this->UpdateTableTopPlaneNode(parameterNode);
   this->UpdateFixedReferenceLineNode(parameterNode);
 
-  double tmp[3];
+  // Calculate transform and translation
+  double translate[3] = {};
   vtkNew< vtkTransform > beamToFixedBeamTransform;
 
   vtkMRMLRTBeamNode* beamNode = parameterNode->GetBeamNode();
   vtkMRMLRTBeamNode* fixedBeam = parameterNode->GetFixedBeamNode();
   vtkMRMLRTFixedIonBeamNode* fixedBeamNode = vtkMRMLRTFixedIonBeamNode::SafeDownCast(fixedBeam);
 
-//  this->GetTableTopCenterToFixedIsocenterTranslate(parameterNode, tmp);
-//  this->GetPatientIsocenterToPatientSupportTranslate(parameterNode, tmp);
-  this->GetPatientIsocenterToFixedIsocenterTranslate(parameterNode, tmp);
+  this->CalculateTableTopCenterToFixedIsocenterTranslation(parameterNode, translate);
+  this->GetPatientIsocenterToFixedIsocenterTranslate(parameterNode, translate);
   this->GetPatientBeamToFixedBeamTransform( parameterNode, beamNode, fixedBeamNode, beamToFixedBeamTransform);
 }
 
@@ -2797,56 +2797,22 @@ void vtkSlicerIhepStandGeometryLogic::SetFixedReferenceCamera(vtkMRMLCameraNode*
 }
 
 //----------------------------------------------------------------------------
-void vtkSlicerIhepStandGeometryLogic::CalculateMovementsForBeam(vtkMRMLIhepStandGeometryNode* parameterNode)
+bool vtkSlicerIhepStandGeometryLogic::CalculateTableTopAnglesForTableTopPositions(vtkMRMLIhepStandGeometryNode* parameterNode)
 {
   vtkMRMLScene* scene = this->GetMRMLScene();
 
   if (!scene)
   {
-    vtkErrorMacro("SetupTreatmentMachineModels: Invalid scene");
-    return;
+    vtkErrorMacro("CalculateTableTopAnglesForTableTopPositions: Invalid scene");
+    return false;
   }
   
   if (!parameterNode)
   {
-    vtkErrorMacro("UpdateFixedReferenceMarkupsTransform: Invalid parameter node");
-    return;
+    vtkErrorMacro("CalculateTableTopAnglesForTableTopPositions: Invalid parameter node");
+    return false;
   }
-  
-  vtkMRMLRTBeamNode* beamNode = parameterNode->GetBeamNode();
-
-
-  // Display all pieces of the treatment room and sets each piece a color to provide realistic representation
-  using IHEP = vtkSlicerIhepStandGeometryTransformLogic::CoordinateSystemIdentifier;
-
-
-  vtkMRMLMarkupsLineNode* fixedReferenceLineNode = nullptr;
-
-  // origin fiducial markups node
-  if (scene->GetFirstNodeByName(FIXEDREFERENCE_MARKUPS_LINE_NODE_NAME))
-  {
-    fixedReferenceLineNode = vtkMRMLMarkupsLineNode::SafeDownCast(scene->GetFirstNodeByName(FIXEDREFERENCE_MARKUPS_LINE_NODE_NAME));
-  }
-
-  double* posBegin = fixedReferenceLineNode->GetNthControlPointPosition(0);
-  double* posEnd = fixedReferenceLineNode->GetNthControlPointPosition(1);
-
-  double posFixedReferenceBegin[4] = { posBegin[0], posBegin[1], posBegin[2], 1. };
-  double posFixedReferenceEnd[4] = { posEnd[0], posEnd[1], posEnd[2], 1. };
-
-  double posTableTopBegin[4] = {};
-  double posTableTopEnd[4] = {};
-
-  // table top plane origin point in table top support frame
-  this->IhepLogic->GetTransformForPointThroughtRAS( IHEP::FixedReference, 
-    IHEP::TableTop, posFixedReferenceBegin, posTableTopBegin);
-
-  // table top plane point-1 in table top support frame
-  this->IhepLogic->GetTransformForPointThroughtRAS( IHEP::FixedReference, 
-    IHEP::TableTop, posFixedReferenceEnd, posTableTopEnd);
-
-  // Get isocenter position in table top frame
-  
+  return true;
 }
 
 //----------------------------------------------------------------------------
@@ -2935,116 +2901,7 @@ void vtkSlicerIhepStandGeometryLogic::CreateFixedBeamPlanAndNode(vtkMRMLIhepStan
     beamTranfsormNode->SetAndObserveTransformNodeID(rasToFixedReferenceTransformNode->GetID() );
   }
 }
-/*
-//----------------------------------------------------------------------------
-bool vtkSlicerIhepStandGeometryLogic::GetTableTopCenterToFixedIsocenterTranslate( vtkMRMLIhepStandGeometryNode* parameterNode, double* translateTableTopFrame)
-{
-  vtkMRMLScene* scene = this->GetMRMLScene(); 
-  if (!scene)
-  {
-    vtkErrorMacro("GetTableTopCenterToFixedIsocenterTranslate: Invalid MRML scene");
-    return false;
-  }
 
-  if (!parameterNode)
-  {
-    vtkErrorMacro("GetTableTopCenterToFixedIsocenterTranslate: Invalid parameter node");
-    return false;
-  }
-
-  // Transform IHEP stand models (IEC Patient) to RAS
-  vtkNew<vtkTransform> patientToRasTransform;
-  patientToRasTransform->Identity();
-  patientToRasTransform->RotateX(-90.);
-  if (!parameterNode->GetPatientHeadFeetRotation())
-  {
-    patientToRasTransform->RotateZ(180.);
-  }
-
-  double tableTopCenter[4] = { TableTopCenterFixedReference[0], TableTopCenterFixedReference[1], TableTopCenterFixedReference[2], 1. };
-  double tableTopCenterRAS[4] = { 0., 0., 0., 1. };
-  
-  patientToRasTransform->MultiplyPoint( tableTopCenter, tableTopCenterRAS);
-
-  vtkWarningMacro("GetTableTopCenterToFixedIsocenterTranslate: TableTop center in TableTop " << tableTopCenterRAS[0] << " " << tableTopCenterRAS[1] << " " << tableTopCenterRAS[2]);
-
-  using IHEP = vtkSlicerIhepStandGeometryTransformLogic::CoordinateSystemIdentifier;
-
-  double rasOrigin[3] = { 0., 0., 0. };
-  double rasFixedReferenceNoOffset[3] = {};
-  if (this->IhepLogic->GetTransformForPointBetweenFrames( IHEP::RAS, IHEP::FixedReference, rasOrigin, rasFixedReferenceNoOffset, false))
-  {
-    vtkWarningMacro("GetTableTopCenterToFixedIsocenterTranslate: RAS->FixedReference " << rasFixedReferenceNoOffset[0] << " " << rasFixedReferenceNoOffset[1] << " " << rasFixedReferenceNoOffset[2]);
-  }
-
-  double fixedReferenceOrigin[3] = { 0., 0., 0. };
-  double fixedReferenceToTableTopNoOffset[3] = {};
-  if (this->IhepLogic->GetTransformForPointBetweenFrames( IHEP::FixedReference, IHEP::TableTop, fixedReferenceOrigin, fixedReferenceToTableTopNoOffset, false))
-  {
-    vtkWarningMacro("GetTableTopCenterToFixedIsocenterTranslate: FixedReference->TableTop on offset " << fixedReferenceToTableTopNoOffset[0] << " " << fixedReferenceToTableTopNoOffset[1] << " " << fixedReferenceToTableTopNoOffset[2]);
-  }
-  fixedReferenceToTableTopNoOffset[0] -= tableTopCenterRAS[0];
-  fixedReferenceToTableTopNoOffset[1] -= tableTopCenterRAS[1];
-  fixedReferenceToTableTopNoOffset[2] -= tableTopCenterRAS[2];
-  vtkWarningMacro("GetTableTopCenterToFixedIsocenterTranslate: FixedReference->TableTop with offset " << fixedReferenceToTableTopNoOffset[0] << " " << fixedReferenceToTableTopNoOffset[1] << " " << fixedReferenceToTableTopNoOffset[2]);
-
-  translateTableTopFrame[0] = fixedReferenceToTableTopNoOffset[0];
-  translateTableTopFrame[1] = fixedReferenceToTableTopNoOffset[1];
-  translateTableTopFrame[2] = fixedReferenceToTableTopNoOffset[2];
-
-  return true;
-}
-
-//----------------------------------------------------------------------------
-bool vtkSlicerIhepStandGeometryLogic::GetPatientIsocenterToPatientSupportTranslate(vtkMRMLIhepStandGeometryNode* parameterNode, double* translatePatientIsocenter)
-{
-  vtkMRMLScene* scene = this->GetMRMLScene(); 
-  if (!scene)
-  {
-    vtkErrorMacro("GetPatientIsocenterToPatientSupportTranslate: Invalid MRML scene");
-    return false;
-  }
-
-  if (!parameterNode)
-  {
-    vtkErrorMacro("GetPatientIsocenterToPatientSupportTranslate: Invalid parameter node");
-    return false;
-  }
-
-  vtkMRMLRTBeamNode* beamNode = parameterNode->GetBeamNode();
-
-  if (!beamNode)
-  {
-    vtkErrorMacro("GetPatientIsocenterToPatientSupportTranslate: Invalid beam node");
-    return false;
-  }
-
-  double planIsocenterRAS[3];
-  if (!beamNode->GetPlanIsocenterPosition(planIsocenterRAS))
-  {
-    return false;
-  }
-
-  using IHEP = vtkSlicerIhepStandGeometryTransformLogic::CoordinateSystemIdentifier;
-
-  double patientSupportOrigin[4] = { 0., 0., 0., 1. };
-  double patientSupportToPatientNoOffset[4] = {};
-  if (this->IhepLogic->GetTransformForPointBetweenFrames( IHEP::PatientSupport, IHEP::Patient, patientSupportOrigin, patientSupportToPatientNoOffset, false))
-  {
-    vtkWarningMacro("GetPatientIsocenterToPatientSupportTranslate: PatientSupport->Patient on offset " << patientSupportToPatientNoOffset[0] << " " << patientSupportToPatientNoOffset[1] << " " << patientSupportToPatientNoOffset[2]);
-  }
-  patientSupportToPatientNoOffset[0] -= planIsocenterRAS[0];
-  patientSupportToPatientNoOffset[1] -= planIsocenterRAS[1];
-  patientSupportToPatientNoOffset[2] -= planIsocenterRAS[2];
-  vtkWarningMacro("GetPatientIsocenterToPatientSupportTranslate: PatientSupport->Patient with offset " << patientSupportToPatientNoOffset[0] << " " << patientSupportToPatientNoOffset[1] << " " << patientSupportToPatientNoOffset[2]);
-
-  translatePatientIsocenter[0] = patientSupportToPatientNoOffset[0];
-  translatePatientIsocenter[1] = patientSupportToPatientNoOffset[1];
-  translatePatientIsocenter[2] = patientSupportToPatientNoOffset[2];
-
-  return true;
-}
-*/
 //----------------------------------------------------------------------------
 bool vtkSlicerIhepStandGeometryLogic::GetPatientIsocenterToFixedIsocenterTranslate(vtkMRMLIhepStandGeometryNode* parameterNode, double* translatePatientFrame)
 {
@@ -3074,41 +2931,7 @@ bool vtkSlicerIhepStandGeometryLogic::GetPatientIsocenterToFixedIsocenterTransla
   {
     return false;
   }
-/*
-  // Transform IHEP stand models (IEC Patient) to RAS
-  vtkNew<vtkTransform> patientToRasTransform;
-  patientToRasTransform->Identity();
-  patientToRasTransform->RotateX(-90.);
-  if (!parameterNode->GetPatientHeadFeetRotation())
-  {
-    patientToRasTransform->RotateZ(180.);
-  }
-  patientToRasTransform->Inverse(); // RAS->Patient transform
 
-  double isocenterRAS[4] = { planIsocenterRAS[0], planIsocenterRAS[1], planIsocenterRAS[2], 1. };
-  double isocenterPatient[4] = { };
-  patientToRasTransform->MultiplyPoint( isocenterRAS, isocenterPatient);
-
-  vtkWarningMacro("GetPatientIsocenterToFixedIsocenterTranslate: PlanIsocenterRAS " << planIsocenterRAS[0] << " " << planIsocenterRAS[1] << " " << planIsocenterRAS[2]);
-  vtkWarningMacro("GetPatientIsocenterToFixedIsocenterTranslate: PlanIsocenterPatient " << isocenterPatient[0] << " " << isocenterPatient[1] << " " << isocenterPatient[2]);
-
-  using IHEP = vtkSlicerIhepStandGeometryTransformLogic::CoordinateSystemIdentifier;
-
-  double fixedReferenceOrigin[3] = { 0., 0., 0. };
-  double fixedReferenceToPatientNoOffset[3] = {};
-  if (this->IhepLogic->GetTransformForPointBetweenFrames( IHEP::FixedReference, IHEP::RAS, fixedReferenceOrigin, fixedReferenceToPatientNoOffset, false))
-  {
-    vtkWarningMacro("GetPatientIsocenterToFixedIsocenterTranslate: FixedReference->Patient on offset " << fixedReferenceToPatientNoOffset[0] << " " << fixedReferenceToPatientNoOffset[1] << " " << fixedReferenceToPatientNoOffset[2]);
-  }
-  fixedReferenceToPatientNoOffset[0] -= isocenterPatient[0];
-  fixedReferenceToPatientNoOffset[1] -= isocenterPatient[1];
-  fixedReferenceToPatientNoOffset[2] -= isocenterPatient[2];
-  vtkWarningMacro("GetPatientIsocenterToFixedIsocenterTranslate: FixedReference->Patient with offset " << fixedReferenceToPatientNoOffset[0] << " " << fixedReferenceToPatientNoOffset[1] << " " << fixedReferenceToPatientNoOffset[2]);
-
-  translatePatientFrame[0] = fixedReferenceToPatientNoOffset[0];
-  translatePatientFrame[1] = fixedReferenceToPatientNoOffset[1];
-  translatePatientFrame[2] = fixedReferenceToPatientNoOffset[2];
-*/
   // Get PatientSupport->RAS Transform
   vtkMRMLLinearTransformNode* patientSupportTransformNode = this->GetPatientSupportTransform();
   // Get FixedReference->RAS Transform
@@ -3125,7 +2948,7 @@ bool vtkSlicerIhepStandGeometryLogic::GetPatientIsocenterToFixedIsocenterTransla
 
   double fixedIsocenterInPatientSupport[4] = {};
   double patientIsocenterInPatientSupport[4] = {};
-  patientSupportTransform->Invert(); // RAS -> PatientSupport
+  patientSupportTransform->Invert(); // RAS->PatientSupport
   patientSupportTransform->MultiplyPoint( fixedIsocenterRAS, fixedIsocenterInPatientSupport);
   patientSupportTransform->MultiplyPoint( planIsocenterRAS, patientIsocenterInPatientSupport);
 
@@ -3137,22 +2960,6 @@ bool vtkSlicerIhepStandGeometryLogic::GetPatientIsocenterToFixedIsocenterTransla
   translatePatientFrame[0] = fixedIsocenterInPatientSupport[0]; // +X
   translatePatientFrame[1] = fixedIsocenterInPatientSupport[1]; // -Z
   translatePatientFrame[2] = fixedIsocenterInPatientSupport[2]; // -Y
-/*
-  double fixedReferenceOrigin[4] = { 0., 0., 0., 1. };
-  double fixedReferenceToPatientNoOffset[4] = {};
-  if (this->IhepLogic->GetTransformForPointBetweenFrames( IHEP::FixedReference, IHEP::Patient, fixedReferenceOrigin, fixedReferenceToPatientNoOffset, false))
-  {
-    vtkWarningMacro("GetPatientIsocenterToFixedIsocenterTranslate: FixedReference->Patient on offset " << fixedReferenceToPatientNoOffset[0] << " " << fixedReferenceToPatientNoOffset[1] << " " << fixedReferenceToPatientNoOffset[2]);
-  }
-  fixedReferenceToPatientNoOffset[0] -= planIsocenterRAS[0];
-  fixedReferenceToPatientNoOffset[1] -= planIsocenterRAS[1];
-  fixedReferenceToPatientNoOffset[2] -= planIsocenterRAS[2];
-  vtkWarningMacro("GetPatientIsocenterToFixedIsocenterTranslate: FixedReference->Patient with offset " << fixedReferenceToPatientNoOffset[0] << " " << fixedReferenceToPatientNoOffset[1] << " " << fixedReferenceToPatientNoOffset[2]);
-
-  translatePatientFrame[0] = fixedReferenceToPatientNoOffset[0];
-  translatePatientFrame[1] = fixedReferenceToPatientNoOffset[1];
-  translatePatientFrame[2] = fixedReferenceToPatientNoOffset[2];
-*/
 
   return true;
 }
@@ -3182,8 +2989,6 @@ bool vtkSlicerIhepStandGeometryLogic::GetPatientBeamToFixedBeamTransform(
   }
   // Patient beam node transform
   vtkMRMLTransformNode* patientBeamTransformNode = patientBeamNode->GetParentTransformNode();
-//  vtkNew< vtkMatrix4x4 > patientBeamMatrix;
-//  patientBeamTransformNode->GetMatrixTransformToWorld(patientBeamMatrix);
 
   if (!fixedBeamNode)
   {
@@ -3208,274 +3013,12 @@ bool vtkSlicerIhepStandGeometryLogic::GetPatientBeamToFixedBeamTransform(
     }
     vtkWarningMacro("TransformMatrix: \n" << ss.str());
   }
-//  vtkNew< vtkMatrix4x4 > fixedBeamMatrix;
-//  fixedBeamTransformNode->GetMatrixTransformToWorld(fixedBeamMatrix);
-/*
-  // Transform IHEP stand models (IEC Patient) to RAS
-  vtkNew< vtkTransform > patientToRasTransform;
-  vtkNew< vtkMatrix4x4 > patientToRasMatrix;
-  patientToRasTransform->Identity();
-  patientToRasTransform->RotateX(-90.);
-  if (!parameterNode->GetPatientHeadFeetRotation())
-  {
-    patientToRasTransform->RotateZ(180.);
-  }
-  patientToRasTransform->GetMatrix(patientToRasMatrix);
-
-  std::stringstream ss0;
-  for (int i = 0; i < 4; i++)
-  {
-    for (int j = 0; j < 4; j++)
-    {
-      ss0 << std::to_string(patientBeamMatrix->GetElement( i, j )) << " ";
-    }
-    ss0 << " \n";
-  }
-  vtkWarningMacro("PatientBeamTransformMatrix: \n" << ss0.str());
-
-  std::stringstream ss1;
-  for (int i = 0; i < 4; i++)
-  {
-    for (int j = 0; j < 4; j++)
-    {
-      ss1 << std::to_string(fixedBeamMatrix->GetElement( i, j )) << " ";
-    }
-    ss1 << " \n";
-  }
-  vtkWarningMacro("FixedBeamTransformMatrix: \n" << ss1.str());
-
-  using IHEP = vtkSlicerIhepStandGeometryTransformLogic::CoordinateSystemIdentifier;
-  vtkNew<vtkTransform> patientToFixedReferenceTransform;
-  // Transform from FixedReference->Patient
-  if (!this->IhepLogic->GetTransformBetween( IHEP::Patient, IHEP::FixedReference, patientToFixedReferenceTransform, false))
-  {
-    vtkWarningMacro("GetPatientBeamToFixedBeamTransform: Patient->FixedReference transform is invalid");
-    return false;
-  }
-  patientToFixedReferenceTransform->Inverse(); // Transform from Patient->FixedReference
-
-  std::stringstream ss2;
-  for (int i = 0; i < 4; i++)
-  {
-    for (int j = 0; j < 4; j++)
-    {
-      ss2 << std::to_string(patientToFixedReferenceTransform->GetMatrix()->GetElement( i, j )) << " ";
-    }
-    ss2 << " \n";
-  }
-  vtkWarningMacro("Patient->FixedReference matrix: \n" << ss2.str());
-
-  vtkNew<vtkTransform> transform1;
-  transform1->RotateX(90);
-  transform1->RotateZ(-180);
-//  transform1->RotateY(90);
-  transform1->Concatenate(patientToFixedReferenceTransform);
-
-  std::stringstream ss3;
-  for (int i = 0; i < 4; i++)
-  {
-    for (int j = 0; j < 4; j++)
-    {
-      ss3 << std::to_string(transform1->GetMatrix()->GetElement( i, j )) << " ";
-    }
-    ss3 << " \n";
-  }
-  vtkWarningMacro("Result matrix: \n" << ss3.str());
-*/
-/*
-  // Transform IHEP stand models (IEC Patient) to RAS
-  vtkNew< vtkTransform > patientToRasTransform;
-  vtkNew< vtkMatrix4x4 > patientToRasMatrix;
-  patientToRasTransform->Identity();
-  patientToRasTransform->RotateX(-90.);
-  if (!parameterNode->GetPatientHeadFeetRotation())
-  {
-    patientToRasTransform->RotateZ(180.);
-  }
-  patientToRasTransform->Concatenate(patientBeamMatrix);
-  patientToRasTransform->GetMatrix(patientToRasMatrix);
-
-  using IHEP = vtkSlicerIhepStandGeometryTransformLogic::CoordinateSystemIdentifier;
-  vtkNew<vtkTransform> fixedReferenceToPatientTransform;
-  // Transform from FixedReference->Patient
-  if (!this->IhepLogic->GetTransformBetween( IHEP::Patient, IHEP::FixedReference, fixedReferenceToPatientTransform, false))
-  {
-    vtkWarningMacro("GetPatientBeamToFixedBeamTransform: FixedReference->Patient transform is invalid");
-    return false;
-  }
-  fixedReferenceToPatientTransform->Inverse(); // Transform from Patient->FixedReference
-
-  vtkNew<vtkMatrix4x4> patientToFixedReferenceMatrix;
-  fixedReferenceToPatientTransform->GetMatrix(patientToFixedReferenceMatrix);
-
-  std::stringstream s;
-  for (int i = 0; i < 4; i++)
-  {
-    for (int j = 0; j < 4; j++)
-    {
-      s << std::to_string(patientToRasMatrix->GetElement( i, j )) << " ";
-    }
-    s << " \n";
-  }
-  vtkWarningMacro("PatientBeamTransformMatrix (Patient->RAS) Matrix: \n" << s.str());
-
-  std::stringstream ss4;
-  for (int i = 0; i < 4; i++)
-  {
-    for (int j = 0; j < 4; j++)
-    {
-      ss4 << std::to_string(patientToFixedReferenceMatrix->GetElement( i, j )) << " ";
-    }
-    ss4 << " \n";
-  }
-  vtkWarningMacro("Patient->FixedReference matrix: \n" << ss4.str());
-
-  std::stringstream ss0;
-  for (int i = 0; i < 4; i++)
-  {
-    for (int j = 0; j < 4; j++)
-    {
-      ss0 << std::to_string(patientBeamMatrix->GetElement( i, j )) << " ";
-    }
-    ss0 << " \n";
-  }
-  vtkWarningMacro("PatientBeamTransformMatrix: \n" << ss0.str());
-
-  std::stringstream ss1;
-  for (int i = 0; i < 4; i++)
-  {
-    for (int j = 0; j < 4; j++)
-    {
-      ss1 << std::to_string(fixedBeamMatrix->GetElement( i, j )) << " ";
-    }
-    ss1 << " \n";
-  }
-  vtkWarningMacro("FixedBeamTransformMatrix: \n" << ss1.str());
-
-//  fixedBeamMatrix->Invert();
-  vtkNew<vtkTransform> patientBeamToFixedBeamTransform;
-  patientBeamToFixedBeamTransform->SetMatrix(patientBeamMatrix);
-//  patientBeamToFixedBeamTransform->Inverse(); // Patient->DRR_Beam
-//  patientToFixedReferenceMatrix->Invert();
-//  drrBeamToFixedReferenceTransform->Concatenate(patientToRasTransform);
-  patientBeamToFixedBeamTransform->Concatenate(patientToFixedReferenceMatrix);
-
-  std::stringstream ss2;
-  for (int i = 0; i < 4; i++)
-  {
-    for (int j = 0; j < 4; j++)
-    {
-      ss2 << std::to_string(patientBeamToFixedBeamTransform->GetMatrix()->GetElement( i, j )) << " ";
-    }
-    ss2 << " \n";
-  }
-  vtkWarningMacro("PatientBeam->FixedBeam: \n" << ss2.str());
-*/
-/*
-  vtkNew< vtkTransform > drrToPatientTransform;
-  drrToPatientTransform->Concatenate(beamMatrix);
-  drrToPatientTransform->Concatenate(patientToRasTransform);
-//  beamTransformNode->GetMatrixTransformToParent(drrToPatientTransformMatrix);
-//  patientToRasTransform->GetMatrix(drrToPatientTransformMatrix);
-
-//  patientToRasTransform->SetMatrix(patientToRasMatrix);
-
-  vtkMRMLTransformNode* fixedBeamTransformNode = fixedBeamNode->GetParentTransformNode();
-  vtkNew< vtkMatrix4x4 > fixedBeamMatrix;
-  fixedBeamTransformNode->GetMatrixTransformToParent(fixedBeamMatrix);
-
-  double planIsocenterRAS[3];
-  if (!patientBeamNode->GetPlanIsocenterPosition(planIsocenterRAS))
-  {
-    return false;
-  }
-
-  using IHEP = vtkSlicerIhepStandGeometryTransformLogic::CoordinateSystemIdentifier;
-
-  vtkNew<vtkTransform> fixedReferenceToPatientTransform;
-  if (!this->IhepLogic->GetTransformBetween( IHEP::Patient, IHEP::FixedReference, fixedReferenceToPatientTransform, false))
-  {
-    vtkWarningMacro("GetPatientBeamToFixedBeamTransform: FixedReference->Patient transform is invalid");
-    return false;
-  }
-  // Transform from Patient->FixedReference
-  fixedReferenceToPatientTransform->Inverse();
-  fixedReferenceToPatientTransform->Concatenate(patientToRasTransform);
-
-  vtkNew<vtkMatrix4x4> patientToFixedReferenceMatrix;
-  fixedReferenceToPatientTransform->GetMatrix(patientToFixedReferenceMatrix);
-  std::stringstream ss;
-  for (int i = 0; i < 4; i++)
-  {
-    for (int j = 0; j < 4; j++)
-    {
-      ss << std::to_string(patientToFixedReferenceMatrix->GetElement( i, j )) << " ";
-    }
-    ss << " \n";
-  }
-  vtkWarningMacro("Patient->FixedReference matrix: \n" << ss.str());
-
-  std::stringstream ss0;
-  for (int i = 0; i < 4; i++)
-  {
-    for (int j = 0; j < 4; j++)
-    {
-      ss0 << std::to_string(drrToPatientTransform->GetMatrix()->GetElement( i, j )) << " ";
-    }
-    ss0 << " \n";
-  }
-  vtkWarningMacro("0: \n" << ss0.str());
-
-  std::stringstream ss1;
-  for (int i = 0; i < 4; i++)
-  {
-    for (int j = 0; j < 4; j++)
-    {
-      ss1 << std::to_string(beamMatrix->GetElement( i, j )) << " ";
-    }
-    ss1 << " \n";
-  }
-  vtkWarningMacro("DRR_Beam->Patient matrix: \n" << ss1.str());
-
-  std::stringstream ss2;
-  for (int i = 0; i < 4; i++)
-  {
-    for (int j = 0; j < 4; j++)
-    {
-      ss2 << std::to_string(fixedBeamMatrix->GetElement( i, j )) << " ";
-    }
-    ss2 << " \n";
-  }
-  vtkWarningMacro("FixedBeam matrix: \n" << ss2.str());
-
-  vtkNew<vtkTransform> drrBeamToFixedReferenceTransform;
-  drrBeamToFixedReferenceTransform->SetMatrix(beamMatrix);
-//  drrBeamToFixedReferenceTransform->Inverse(); // Patient->DRR_Beam
-//  patientToFixedReferenceMatrix->Invert();
-  drrBeamToFixedReferenceTransform->Concatenate(patientToRasTransform);
-//  drrBeamToFixedReferenceTransform->Concatenate(patientToFixedReferenceMatrix);
-
-  std::stringstream ss3;
-  for (int i = 0; i < 4; i++)
-  {
-    for (int j = 0; j < 4; j++)
-    {
-      ss3 << std::to_string(drrBeamToFixedReferenceTransform->GetMatrix()->GetElement( i, j )) << " ";
-    }
-    ss3 << " \n";
-  }
-  vtkWarningMacro("DRR_Beam->FixedBeam: \n" << ss3.str());
-*/
   return true;
 }
 
 
 //----------------------------------------------------------------------------
-void vtkSlicerIhepStandGeometryLogic::CalculateTableTopTranslation( vtkMRMLIhepStandGeometryNode* parameterNode, const double patientIsocenter[3], const double fixedIsocenter[3])
+bool vtkSlicerIhepStandGeometryLogic::CalculateTableTopCenterToFixedIsocenterTranslation( vtkMRMLIhepStandGeometryNode* parameterNode, double translate[3])
 {
-}
-
-//----------------------------------------------------------------------------
-void vtkSlicerIhepStandGeometryLogic::CalculateTransformBetweenBeams( vtkMRMLIhepStandGeometryNode* parameterNode, vtkMRMLRTBeamNode* patientBeam, vtkMRMLRTBeamNode* fixedBeam)
-{
+  return true;
 }

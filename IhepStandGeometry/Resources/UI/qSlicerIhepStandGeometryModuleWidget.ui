@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>305</width>
+    <width>435</width>
     <height>1037</height>
    </rect>
   </property>
@@ -273,7 +273,7 @@
       <string>Models</string>
      </property>
      <property name="collapsed">
-      <bool>true</bool>
+      <bool>false</bool>
      </property>
      <layout class="QGridLayout" name="gridLayout_6">
       <item row="2" column="0">
@@ -282,7 +282,7 @@
          <string>Software Position Control</string>
         </property>
         <property name="collapsed">
-         <bool>true</bool>
+         <bool>false</bool>
         </property>
         <layout class="QGridLayout" name="gridLayout_4">
          <item row="0" column="0">
@@ -297,10 +297,10 @@
            <item row="1" column="0">
             <widget class="ctkCollapsibleGroupBox" name="CollapsibleGroupBox_PatientToTableTopTranslation">
              <property name="title">
-              <string>Patient to Table Top Translation</string>
+              <string>Patient to Table Top Translation (mm)</string>
              </property>
              <property name="collapsed">
-              <bool>true</bool>
+              <bool>false</bool>
              </property>
              <layout class="QGridLayout" name="gridLayout_13">
               <item row="0" column="0">
@@ -319,10 +319,10 @@
            <item row="2" column="0">
             <widget class="ctkCollapsibleGroupBox" name="CollapsibleGroupBox_TableTop">
              <property name="title">
-              <string>Table Top Positions</string>
+              <string>Table Top Positions (mm)</string>
              </property>
              <property name="collapsed">
-              <bool>true</bool>
+              <bool>false</bool>
              </property>
              <layout class="QGridLayout" name="gridLayout_15">
               <item row="0" column="0">
@@ -473,10 +473,10 @@
            <item row="3" column="0">
             <widget class="ctkCollapsibleGroupBox" name="CollapsibleGroupBox_PatientSupportRotationAngle">
              <property name="title">
-              <string>Patient Support Rotation Angle</string>
+              <string>Patient Support Rotation Angle (°)</string>
              </property>
              <property name="collapsed">
-              <bool>true</bool>
+              <bool>false</bool>
              </property>
              <layout class="QGridLayout" name="gridLayout_16">
               <item row="0" column="0">
@@ -498,10 +498,10 @@
            <item row="4" column="0">
             <widget class="ctkCollapsibleButton" name="CollapsibleButton_TableTopAngles">
              <property name="text">
-              <string>Table Top Angles</string>
+              <string>Table Top Angles (°)</string>
              </property>
              <property name="collapsed">
-              <bool>true</bool>
+              <bool>false</bool>
              </property>
              <layout class="QGridLayout" name="gridLayout_11">
               <item row="0" column="0">
@@ -568,17 +568,23 @@
         <layout class="QGridLayout" name="GroupBox">
          <item row="0" column="0">
           <layout class="QGridLayout" name="gridLayout_2">
-           <item row="0" column="0">
-            <widget class="QCheckBox" name="checkBox_ShowMarkups">
+           <item row="0" column="1">
+            <widget class="ctkCheckBox" name="CheckBox_MarkupsVisibility"/>
+           </item>
+           <item row="1" column="0">
+            <widget class="QLabel" name="label_8">
              <property name="text">
-              <string>Show markups</string>
+              <string>Models Visibility:</string>
              </property>
             </widget>
            </item>
-           <item row="1" column="0">
-            <widget class="QCheckBox" name="checkBox_ShowModels">
+           <item row="1" column="1">
+            <widget class="ctkCheckBox" name="CheckBox_ModelsVisibility"/>
+           </item>
+           <item row="0" column="0">
+            <widget class="QLabel" name="label_14">
              <property name="text">
-              <string>Show models</string>
+              <string>Markups Visibility:</string>
              </property>
             </widget>
            </item>
@@ -635,11 +641,16 @@
     </widget>
    </item>
    <item row="5" column="0">
-    <widget class="qSlicerBeamToStandTransformationWidget" name="SlicerWidget"/>
+    <widget class="qSlicerBeamToStandTransformationWidget" name="SlicerWidget_BeamToStandTransformation"/>
    </item>
   </layout>
  </widget>
  <customwidgets>
+  <customwidget>
+   <class>ctkCheckBox</class>
+   <extends>QCheckBox</extends>
+   <header>ctkCheckBox.h</header>
+  </customwidget>
   <customwidget>
    <class>ctkCollapsibleButton</class>
    <extends>QWidget</extends>
@@ -692,7 +703,6 @@
    <header>qSlicerBeamToStandTransformationWidget.h</header>
    <container>1</container>
   </customwidget>
-
  </customwidgets>
  <resources/>
  <connections>

@@ -143,46 +143,24 @@ public:
   /// Set up the IHEP transforms and model properties on the treatment machine models
   void SetupTreatmentMachineModels(vtkMRMLIhepStandGeometryNode* parameterNode);
 
-  /// Set up the IHEP transforms and model properties on the treatment machine models
-  void CalculateMovementsForBeam(vtkMRMLIhepStandGeometryNode* parameterNode);
+  /// Calculate table top angles for table top position in PatientSupport frame
+  /// and in FixedIonBeam frame
+  /// \return true if success, false otherwise
+  bool CalculateTableTopAnglesForTableTopPositions(vtkMRMLIhepStandGeometryNode* parameterNode);
 
   /// Create fixed reference beam and plan and add beam to the parameter node
   void CreateFixedBeamPlanAndNode(vtkMRMLIhepStandGeometryNode* parameterNode);
 
-  /// Calculate table top translation for patient isocenter to fixed beam isocenter
-  void CalculateTableTopTranslation( vtkMRMLIhepStandGeometryNode* parameterNode, const double patientIsocenter[3], const double fixedIsocenter[3]);
-  /// Calculate transform matrix between RT patient beam and fixed reference beam
-  void CalculateTransformBetweenBeams( vtkMRMLIhepStandGeometryNode* parameterNode, vtkMRMLRTBeamNode* patientBeam, vtkMRMLRTBeamNode* fixedBeam);
-
-//  void SetupFixedReferenceModel(vtkMRMLIhepStandGeometryNode* parameterNode);
-//  void UpdateFixedReferenceModel(vtkMRMLIhepStandGeometryNode* parameterNode);
-  
-//  void SetupPatientSupportModel(vtkMRMLIhepStandGeometryNode* parameterNode);
-//  void UpdatePatientSupportModel(vtkMRMLIhepStandGeometryNode* parameterNode);
-
-//  void SetupTablePlatformModel(vtkMRMLIhepStandGeometryNode* parameterNode);
-//  void UpdateTablePlatformModel(vtkMRMLIhepStandGeometryNode* parameterNode);
-
-//  void SetupTableTopSupportModel(vtkMRMLIhepStandGeometryNode* parameterNode);
-//  void UpdateTableTopSupportModel(vtkMRMLIhepStandGeometryNode* parameterNode);
-
-//  void SetupTableTopOriginModel(vtkMRMLIhepStandGeometryNode* parameterNode);
-//  void UpdateTableTopOriginModel(vtkMRMLIhepStandGeometryNode* parameterNode);
-
-//  void SetupTableTopMiddleModel(vtkMRMLIhepStandGeometryNode* parameterNode);
-//  void UpdateTableTopMiddleModel(vtkMRMLIhepStandGeometryNode* parameterNode);
-
-//  void SetupTableTopMirrorModel(vtkMRMLIhepStandGeometryNode* parameterNode);
-//  void UpdateTableTopMirrorModel(vtkMRMLIhepStandGeometryNode* parameterNode);
-
-//  void SetupTableTopModel(vtkMRMLIhepStandGeometryNode* parameterNode);
-//  void UpdateTableTopModel(vtkMRMLIhepStandGeometryNode* parameterNode);
-  
+  /// Calculate table top center to fixed beam isocenter translation
+  /// @param parameterNode - parameter set
+  /// @param translate - translation in PatientSupport frame
+  /// \return true if success, false otherwise
+  bool CalculateTableTopCenterToFixedIsocenterTranslation(vtkMRMLIhepStandGeometryNode* parameterNode, double translate[3]);
 
   /// Initial Translation for different transforms
   void InitialSetupTransformTranslations(vtkMRMLIhepStandGeometryNode* parameterNode);
 
-  /// Get transform node for line markups node (FixedReference)
+  /// Get transform node for line markups node (FixedReference->RAS)
   vtkMRMLLinearTransformNode* GetFixedReferenceTransform();
   vtkMRMLLinearTransformNode* GetPatientTransform();
   vtkMRMLLinearTransformNode* GetTableTopTransform();
@@ -195,18 +173,6 @@ public:
 
   /// Set 3D View camera for FixedReference model
   void SetFixedReferenceCamera(vtkMRMLCameraNode* cameraNode);
-
-  /// Calculate TableTop center to FixedIsocenter translate
-  /// \param translateTableTopFrame - translation of the TableTop frame
-  /// \return true if success, false otherwise
-//  bool GetTableTopCenterToFixedIsocenterTranslate(vtkMRMLIhepStandGeometryNode* parameterNode,
-//    double translateTableTopFrame[3]);
-
-  /// Calculate Patient isocenter to PatientSupport translate
-  /// \param translatePatientFrame - translation of the Patient isocenter into PatientSupport origin
-  /// \return true if success, false otherwise
-//  bool GetPatientIsocenterToPatientSupportTranslate(vtkMRMLIhepStandGeometryNode* parameterNode,
-//    double translatePatientIsocenter[3]);
 
   /// Calculate Patient isocenter to FixedIsocenter translate
   /// \param translatePatientFrame - translation of the Patient isocenter into FixedReference origin
