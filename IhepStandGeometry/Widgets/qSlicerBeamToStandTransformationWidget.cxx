@@ -18,6 +18,10 @@
 
 ==============================================================================*/
 
+// VTK includes
+#include <vtkTransform.h>
+#include <vtkMatrix4x4.h>
+
 // FooBar Widgets includes
 #include "qSlicerBeamToStandTransformationWidget.h"
 #include "ui_qSlicerBeamToStandTransformationWidget.h"
@@ -66,4 +70,33 @@ qSlicerBeamToStandTransformationWidget
 //-----------------------------------------------------------------------------
 qSlicerBeamToStandTransformationWidget::~qSlicerBeamToStandTransformationWidget()
 {
+}
+
+//-----------------------------------------------------------------------------
+void qSlicerBeamToStandTransformationWidget::setIsocenterTranslation(double translate[3])
+{
+  Q_D(qSlicerBeamToStandTransformationWidget);
+  d->CoordinatesWidget_BeamToFixedIsocenterTranslate->setCoordinates(translate);
+}
+
+//-----------------------------------------------------------------------------
+void qSlicerBeamToStandTransformationWidget::setTransformMatrix(const vtkMatrix4x4* transformMatrix)
+{
+  Q_D(qSlicerBeamToStandTransformationWidget);
+  for (int i = 0; i < 4; i++)
+  {
+    for (int j = 0; j < 4; j++)
+    {
+      double v = transformMatrix->GetElement( i, j );
+      d->MatrixWidget_BeamToFixedBeamTransform->setValue( i, j, v );
+    }
+  }
+}
+
+//-----------------------------------------------------------------------------
+void qSlicerBeamToStandTransformationWidget::setTransformMatrix(vtkTransform* transform)
+{
+  Q_D(qSlicerBeamToStandTransformationWidget);
+  vtkMatrix4x4* matrix = transform->GetMatrix();
+  this->setTransformMatrix(matrix);
 }

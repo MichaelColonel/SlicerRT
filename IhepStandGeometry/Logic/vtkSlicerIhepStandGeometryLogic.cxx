@@ -667,15 +667,15 @@ bool vtkSlicerIhepStandGeometryLogic::CalculateTableTopPositionsFromPlaneNode( v
   using IHEP = vtkSlicerIhepStandGeometryTransformLogic::CoordinateSystemIdentifier;
 
   // table top plane origin point in table top support frame
-  this->IhepLogic->GetTransformForPointThroughtRAS( IHEP::TableTop, 
+  this->IhepLogic->GetTransformForPointBetweenFrames( IHEP::TableTop, 
     IHEP::TableTopSupport, planeOriginPos, planePos0InTableTopSupport);
 
   // table top plane point-1 in table top support frame
-  this->IhepLogic->GetTransformForPointThroughtRAS( IHEP::TableTop, 
+  this->IhepLogic->GetTransformForPointBetweenFrames( IHEP::TableTop, 
     IHEP::TableTopSupport, planePoint1Pos, planePos1InTableTopSupport);
 
   // table top plane point-2 in table top support frame
-  this->IhepLogic->GetTransformForPointThroughtRAS( IHEP::TableTop, 
+  this->IhepLogic->GetTransformForPointBetweenFrames( IHEP::TableTop, 
     IHEP::TableTopSupport, planePoint2Pos, planePos2InTableTopSupport);
 
   // Calculate table top plane normal
@@ -1454,8 +1454,7 @@ void vtkSlicerIhepStandGeometryLogic::SetupTreatmentMachineModels(vtkMRMLIhepSta
     vtkErrorMacro("SetupTreatmentMachineModels: Invalid scene");
     return;
   }
-  
-//  vtkMRMLRTBeamNode* beamNode = parameterNode->GetBeamNode();
+
   //TODO: Store treatment machine component color and other properties in JSON
 
   // Display all pieces of the treatment room and sets each piece a color to provide realistic representation
@@ -1832,18 +1831,6 @@ void vtkSlicerIhepStandGeometryLogic::SetupTreatmentMachineModels(vtkMRMLIhepSta
   this->UpdateTableMiddleFiducialNode(parameterNode);
   this->UpdateTableTopPlaneNode(parameterNode);
   this->UpdateFixedReferenceLineNode(parameterNode);
-
-  // Calculate transform and translation
-  double translate[3] = {};
-  vtkNew< vtkTransform > beamToFixedBeamTransform;
-
-  vtkMRMLRTBeamNode* beamNode = parameterNode->GetBeamNode();
-  vtkMRMLRTBeamNode* fixedBeam = parameterNode->GetFixedBeamNode();
-  vtkMRMLRTFixedIonBeamNode* fixedBeamNode = vtkMRMLRTFixedIonBeamNode::SafeDownCast(fixedBeam);
-
-  this->CalculateTableTopCenterToFixedIsocenterTranslation(parameterNode, translate);
-  this->GetPatientIsocenterToFixedIsocenterTranslate(parameterNode, translate);
-  this->GetPatientBeamToFixedBeamTransform( parameterNode, beamNode, fixedBeamNode, beamToFixedBeamTransform);
 }
 
 //----------------------------------------------------------------------------
@@ -1933,10 +1920,10 @@ void vtkSlicerIhepStandGeometryLogic::UpdateTableOriginToTableSupportTransform(v
 
     vtkNew<vtkTransform> tableOriginToTableSupportTransform;
     // Vertical translation of the TableOrigin in TableTopSupport system (in table top support local system)
-    double originPosTableTop[4] = { 0., 0., -1. * parameterNode->GetTableTopVerticalPositionOrigin(), 1. }; // Translation of table origin in table top support system
-    double originPosTableLateral[4];
+    double originPosTableTop[3] = { 0., 0., -1. * parameterNode->GetTableTopVerticalPositionOrigin() }; // Translation of table origin in table top support system
+    double originPosTableLateral[3] = {};
     // Get translation of the origin in a new table top coordinate
-    tableTopToTableOriginTransform->MultiplyPoint( originPosTableTop, originPosTableLateral);
+    tableTopToTableOriginTransform->TransformPoint( originPosTableTop, originPosTableLateral);
     // Apply translation to TableTopSupport system
     tableOriginToTableSupportTransform->Translate(originPosTableLateral);
     tableOriginToTableSupportTransformNode->SetAndObserveTransformToParent(tableOriginToTableSupportTransform);
@@ -1981,10 +1968,10 @@ void vtkSlicerIhepStandGeometryLogic::UpdateTableMirrorToTableSupportTransform(v
 
     vtkNew<vtkTransform> tableMirrorToTableSupportTransform;
     // Vertical translation of the TableMirror in TableTopSupport system (in table top support local system)
-    double mirrorPosTableTop[4] = { 0., 0., -1. * parameterNode->GetTableTopVerticalPositionMirror(), 1. }; // Translation of table mirror in table top support system
-    double mirrorPosTableLateral[4];
+    double mirrorPosTableTop[3] = { 0., 0., -1. * parameterNode->GetTableTopVerticalPositionMirror() }; // Translation of table mirror in table top support system
+    double mirrorPosTableLateral[3] = {};
     // Get translation of the mirror in a new table top coordinate
-    tableTopToTableOriginTransform->MultiplyPoint( mirrorPosTableTop, mirrorPosTableLateral);
+    tableTopToTableOriginTransform->TransformPoint( mirrorPosTableTop, mirrorPosTableLateral);
     // Apply translation to TableTopSupport system
     tableMirrorToTableSupportTransform->Translate(mirrorPosTableLateral);
 
@@ -2029,10 +2016,10 @@ void vtkSlicerIhepStandGeometryLogic::UpdateTableMiddleToTableSupportTransform(v
     }
     vtkNew<vtkTransform> tableMiddleToTableSupportTransform;
     // Vertical translation of the TableMiddle in TableTopSupport system (in table top support local system)
-    double middlePosTableTop[4] = { 0., 0., -1. * parameterNode->GetTableTopVerticalPositionMiddle(), 1. }; // Translation of table middle in table top support system
-    double middlePosTableLateral[4];
+    double middlePosTableTop[3] = { 0., 0., -1. * parameterNode->GetTableTopVerticalPositionMiddle() }; // Translation of table middle in table top support system
+    double middlePosTableLateral[3] = {};
     // Get translation of the middle in a new table top coordinate
-    tableTopToTableOriginTransform->MultiplyPoint( middlePosTableTop, middlePosTableLateral);
+    tableTopToTableOriginTransform->TransformPoint( middlePosTableTop, middlePosTableLateral);
     // Apply translation to TableTopSupport system
     tableMiddleToTableSupportTransform->Translate(middlePosTableLateral);
 
@@ -2080,10 +2067,10 @@ void vtkSlicerIhepStandGeometryLogic::UpdatePatientSupportToFixedReferenceTransf
     vtkNew<vtkTransform> fixedReferenceToRasTransform;
     fixedReferenceToRasTransform->PreMultiply();
     // Vertical translation of the TableOrigin in TableTopSupport system (in table top support local system)
-    double originPosTableTop[4] = { 0., 0., -1. * parameterNode->GetTableTopVerticalPositionOrigin(), 1. }; // Translation of table origin in table top support system
-    double originPosTableLateral[4];
+    double originPosTableTop[3] = { 0., 0., -1. * parameterNode->GetTableTopVerticalPositionOrigin() }; // Translation of table origin in table top support system
+    double originPosTableLateral[3] = {};
     // Get translation of the origin in a new table top coordinate
-    tableOriginToTableTopTransform->MultiplyPoint( originPosTableTop, originPosTableLateral);
+    tableOriginToTableTopTransform->TransformPoint( originPosTableTop, originPosTableLateral);
 
     double PatientTableTopTranslation[3] = {};
     // Translation to the origin of fixed reference and patient
@@ -2153,10 +2140,10 @@ void vtkSlicerIhepStandGeometryLogic::UpdateTableSupportToTablePlatformTransform
 
     vtkNew<vtkTransform> tableSupportToTablePlatformTransform;
     // Horizontal translation of the TableTopSupport in TablePlatfrom system (Table platform)
-    double supportPosTableTop[4] = { -1. * parameterNode->GetTableTopLateralPosition(), 0., 0., 1. }; // origin in FixedReference transform
-    double supportPosTablePlatform[4];
+    double supportPosTableTop[3] = { -1. * parameterNode->GetTableTopLateralPosition(), 0., 0. }; // origin in FixedReference transform
+    double supportPosTablePlatform[3] = {};
     // Get translation of the origin in a new table top coordinate
-    tableTopToTableOriginTransform->MultiplyPoint( supportPosTableTop, supportPosTablePlatform);
+    tableTopToTableOriginTransform->TransformPoint( supportPosTableTop, supportPosTablePlatform);
     // Apply translation to TablePlatform system
     tableSupportToTablePlatformTransform->Translate(supportPosTablePlatform);
 
@@ -2202,10 +2189,10 @@ void vtkSlicerIhepStandGeometryLogic::UpdateTablePlatformToPatientSupportTransfo
 
     vtkNew<vtkTransform> tablePlatformToPatientSupportTransform;
     // Horizontal translation of the TablePlatform in PatientSupport system (PatientSupport)
-    double platformPosTableTop[4] = {  0., parameterNode->GetTableTopLongitudinalPosition(), 0., 1. }; // origin in FixedReference transform
-    double platformPosPatientSupport[4];
+    double platformPosTableTop[3] = {  0., parameterNode->GetTableTopLongitudinalPosition(), 0. }; // origin in FixedReference transform
+    double platformPosPatientSupport[3] = {};
     // Get translation of the origin in a new table top coordinate
-    tableTopToTableOriginTransform->MultiplyPoint( platformPosTableTop, platformPosPatientSupport);
+    tableTopToTableOriginTransform->TransformPoint( platformPosTableTop, platformPosPatientSupport);
     // Apply translation to TablePlatform system
     tablePlatformToPatientSupportTransform->Translate(platformPosPatientSupport);
 
@@ -2812,6 +2799,19 @@ bool vtkSlicerIhepStandGeometryLogic::CalculateTableTopAnglesForTableTopPosition
     vtkErrorMacro("CalculateTableTopAnglesForTableTopPositions: Invalid parameter node");
     return false;
   }
+
+  // Get TableTop->RAS Transform
+  vtkMRMLLinearTransformNode* tableTopTransformNode = this->GetTableTopTransform();
+  // Get FixedReference->RAS Transform
+  vtkMRMLLinearTransformNode* fixedReferenceTransformNode = this->GetFixedReferenceTransform();
+
+  vtkNew< vtkMatrix4x4 > tableTopTransformMatrix;
+  vtkNew< vtkMatrix4x4 > fixedReferenceTransformMatrix;
+  tableTopTransformNode->GetMatrixTransformToWorld(tableTopTransformMatrix);
+  fixedReferenceTransformNode->GetMatrixTransformToWorld(fixedReferenceTransformMatrix);
+
+  tableTopTransformMatrix->Invert(); // RAS->TableTop
+
   return true;
 }
 
@@ -2937,20 +2937,20 @@ bool vtkSlicerIhepStandGeometryLogic::GetPatientIsocenterToFixedIsocenterTransla
   // Get FixedReference->RAS Transform
   vtkMRMLLinearTransformNode* fixedReferenceTransformNode = this->GetFixedReferenceTransform();
 
-  vtkNew< vtkMatrix4x4 > patientSupportTransform;
-  vtkNew< vtkMatrix4x4 > fixedReferenceTransform;
-  patientSupportTransformNode->GetMatrixTransformToWorld(patientSupportTransform);
-  fixedReferenceTransformNode->GetMatrixTransformToWorld(fixedReferenceTransform);
+  vtkNew< vtkMatrix4x4 > patientSupportTransformMatrix;
+  vtkNew< vtkMatrix4x4 > fixedReferenceTransformMatrix;
+  patientSupportTransformNode->GetMatrixTransformToWorld(patientSupportTransformMatrix);
+  fixedReferenceTransformNode->GetMatrixTransformToWorld(fixedReferenceTransformMatrix);
 
   double fixedIsocenterOrigin[4] = { 0., 0., 0., 1. };
   double fixedIsocenterRAS[4] = {}; // RAS == World
-  fixedReferenceTransform->MultiplyPoint( fixedIsocenterOrigin, fixedIsocenterRAS);
+  fixedReferenceTransformMatrix->MultiplyPoint( fixedIsocenterOrigin, fixedIsocenterRAS);
 
   double fixedIsocenterInPatientSupport[4] = {};
   double patientIsocenterInPatientSupport[4] = {};
-  patientSupportTransform->Invert(); // RAS->PatientSupport
-  patientSupportTransform->MultiplyPoint( fixedIsocenterRAS, fixedIsocenterInPatientSupport);
-  patientSupportTransform->MultiplyPoint( planIsocenterRAS, patientIsocenterInPatientSupport);
+  patientSupportTransformMatrix->Invert(); // RAS->PatientSupport
+  patientSupportTransformMatrix->MultiplyPoint( fixedIsocenterRAS, fixedIsocenterInPatientSupport);
+  patientSupportTransformMatrix->MultiplyPoint( planIsocenterRAS, patientIsocenterInPatientSupport);
 
   fixedIsocenterInPatientSupport[0] -= patientIsocenterInPatientSupport[0];
   fixedIsocenterInPatientSupport[1] -= patientIsocenterInPatientSupport[1];
@@ -2999,20 +2999,12 @@ bool vtkSlicerIhepStandGeometryLogic::GetPatientBeamToFixedBeamTransform(
   
   vtkNew< vtkMatrix4x4 > transformMatrix;
   
-  if (vtkMRMLTransformNode::GetMatrixTransformBetweenNodes( fixedBeamTransformNode, patientBeamTransformNode, transformMatrix))
+  if (!vtkMRMLTransformNode::GetMatrixTransformBetweenNodes( fixedBeamTransformNode, patientBeamTransformNode, transformMatrix))
   {
-    transform->SetMatrix(transformMatrix);
-    std::stringstream ss;
-    for (int i = 0; i < 4; i++)
-    {
-      for (int j = 0; j < 4; j++)
-      {
-        ss << std::to_string(transformMatrix->GetElement( i, j )) << " ";
-      }
-      ss << " \n";
-    }
-    vtkWarningMacro("TransformMatrix: \n" << ss.str());
+    vtkErrorMacro("GetPatientBeamToFixedBeamTransform: Unable calculate transform between patient beam node and fixed beam node");
+    return false;
   }
+  transform->SetMatrix(transformMatrix);
   return true;
 }
 

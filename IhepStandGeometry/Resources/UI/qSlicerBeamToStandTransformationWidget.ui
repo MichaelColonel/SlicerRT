@@ -14,22 +14,7 @@
    <string>Beam to stand geometry</string>
   </property>
   <layout class="QGridLayout" name="gridLayout_3">
-   <item row="0" column="0">
-    <widget class="ctkCollapsibleButton" name="CollapsibleButton_BeamToFixedIsocenterTranslate">
-     <property name="text">
-      <string>Beam to fixed isocenter translate (mm)</string>
-     </property>
-     <property name="collapsed">
-      <bool>true</bool>
-     </property>
-     <layout class="QGridLayout" name="gridLayout">
-      <item row="0" column="0">
-       <widget class="qMRMLCoordinatesWidget" name="MRMLCoordinatesWidget_BeamToFixedIsocenterTranslate"/>
-      </item>
-     </layout>
-    </widget>
-   </item>
-   <item row="1" column="0">
+   <item row="2" column="0">
     <widget class="ctkCollapsibleButton" name="CollapsibleButton_BeamToFixedBeamTransform">
      <property name="toolTip">
       <string>Translation of patient beam to fixed beam in PatientSupport frame</string>
@@ -38,11 +23,43 @@
       <string>Beam to fixed beam transform</string>
      </property>
      <property name="collapsed">
-      <bool>true</bool>
+      <bool>false</bool>
      </property>
      <layout class="QGridLayout" name="gridLayout_2">
       <item row="0" column="0">
-       <widget class="ctkMatrixWidget" name="MatrixWidget_BeamToFixedBeamTransform"/>
+       <widget class="ctkMatrixWidget" name="MatrixWidget_BeamToFixedBeamTransform">
+        <property name="editable">
+         <bool>false</bool>
+        </property>
+        <property name="minimum">
+         <double>-10000.000000000000000</double>
+        </property>
+        <property name="maximum">
+         <double>10000.000000000000000</double>
+        </property>
+        <property name="decimals">
+         <number>3</number>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item row="0" column="0">
+    <widget class="ctkCollapsibleButton" name="CollapsibleButton_BeamToFixedIsocenterTranslate">
+     <property name="text">
+      <string>Beam to fixed isocenter translate (mm)</string>
+     </property>
+     <property name="collapsed">
+      <bool>false</bool>
+     </property>
+     <layout class="QGridLayout" name="gridLayout">
+      <item row="0" column="0">
+       <widget class="ctkCoordinatesWidget" name="CoordinatesWidget_BeamToFixedIsocenterTranslate">
+        <property name="readOnly">
+         <bool>true</bool>
+        </property>
+       </widget>
       </item>
      </layout>
     </widget>
@@ -65,11 +82,6 @@
    <class>ctkMatrixWidget</class>
    <extends>QWidget</extends>
    <header>ctkMatrixWidget.h</header>
-  </customwidget>
-  <customwidget>
-   <class>qMRMLCoordinatesWidget</class>
-   <extends>ctkCoordinatesWidget</extends>
-   <header>qMRMLCoordinatesWidget.h</header>
   </customwidget>
   <customwidget>
    <class>qSlicerWidget</class>

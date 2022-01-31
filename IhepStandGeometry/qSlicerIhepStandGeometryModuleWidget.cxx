@@ -679,6 +679,21 @@ void qSlicerIhepStandGeometryModuleWidget::updateWidgetFromMRML()
   d->CoordinatesWidget_PatientTableTopTranslation->setCoordinates(patientToTableTopTranslation);
   d->CheckBox_RotatePatientHeadFeet->setChecked(d->ParameterNode->GetPatientHeadFeetRotation());
   d->CheckBox_FixedReferenceCamera->setChecked(d->ParameterNode->GetUseStandCoordinateSystem());
+
+  // Calculate transform and translation
+  double translate[3] = {};
+  vtkNew< vtkTransform > beamToFixedBeamTransform;
+
+  vtkMRMLRTBeamNode* beamNode = d->ParameterNode->GetBeamNode();
+  vtkMRMLRTBeamNode* fixedBeam = d->ParameterNode->GetFixedBeamNode();
+  vtkMRMLRTFixedIonBeamNode* fixedBeamNode = vtkMRMLRTFixedIonBeamNode::SafeDownCast(fixedBeam);
+
+  d->logic()->CalculateTableTopCenterToFixedIsocenterTranslation(d->ParameterNode, translate);
+  d->logic()->GetPatientIsocenterToFixedIsocenterTranslate(d->ParameterNode, translate);
+  d->logic()->GetPatientBeamToFixedBeamTransform( d->ParameterNode, beamNode, fixedBeamNode, beamToFixedBeamTransform);
+
+  d->SlicerWidget_BeamToStandTransformation->setIsocenterTranslation(translate);
+  d->SlicerWidget_BeamToStandTransformation->setTransformMatrix(beamToFixedBeamTransform);
 }
 
 //-----------------------------------------------------------------------------

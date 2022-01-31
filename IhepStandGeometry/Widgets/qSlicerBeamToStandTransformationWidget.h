@@ -26,6 +26,9 @@
 // IhepStandGeometry Widgets includes
 #include "qSlicerIhepStandGeometryModuleWidgetsExport.h"
 
+class vtkMatrix4x4;
+class vtkTransform;
+
 class qSlicerBeamToStandTransformationWidgetPrivate;
 
 /// \ingroup Slicer_QtModules_IhepStandGeometry
@@ -38,6 +41,9 @@ public:
   typedef qSlicerWidget Superclass;
   qSlicerBeamToStandTransformationWidget(QWidget *parent=0);
   virtual ~qSlicerBeamToStandTransformationWidget();
+  void setIsocenterTranslation(double translate[3]);
+  void setTransformMatrix(const vtkMatrix4x4* transformMatrix);
+  void setTransformMatrix(vtkTransform* transformMatrix);
 
 protected slots:
 
