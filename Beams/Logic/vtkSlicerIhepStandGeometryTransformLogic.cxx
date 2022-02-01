@@ -286,17 +286,17 @@ bool vtkSlicerIhepStandGeometryTransformLogic::GetTransformForPointBetweenFrames
 
   // RAS == World
   // toFrame->RAS transform
-  vtkNew<vtkTransform> rasFromFrameTransform;
-  if (!this->GetTransformBetween( IHEP::RAS, toFrame, rasFromFrameTransform, transformForBeam))
+  vtkNew<vtkTransform> toFrameToRasTransform;
+  if (!this->GetTransformBetween( IHEP::RAS, toFrame, toFrameToRasTransform, transformForBeam))
   {
     return false;
   }
 
   // fromFrame->RAS
-  vtkNew<vtkTransform> rasToFrameTransform;
-  if (this->GetTransformBetween( IHEP::RAS, fromFrame, rasToFrameTransform, transformForBeam))
+  vtkNew<vtkTransform> rasToFromFrameTransform;
+  if (this->GetTransformBetween( IHEP::RAS, fromFrame, rasToFromFrameTransform, transformForBeam))
   {
-    rasToFrameTransform->Inverse(); // inverse to get (RAS->fromFrame)
+    rasToFromFrameTransform->Inverse(); // inverse to get (RAS->fromFrame)
   }
   else
   {
@@ -305,8 +305,8 @@ bool vtkSlicerIhepStandGeometryTransformLogic::GetTransformForPointBetweenFrames
 
   // Get transform toFrame -> fromFrame
   // toFrame -> RAS -> fromFrame
-  rasFromFrameTransform->Concatenate(rasToFrameTransform);
-  rasFromFrameTransform->TransformPoint( fromFramePoint, toFramePoint);
+  toFrameToRasTransform->Concatenate(rasToFromFrameTransform);
+  toFrameToRasTransform->TransformPoint( fromFramePoint, toFramePoint);
 
   return true;
 }

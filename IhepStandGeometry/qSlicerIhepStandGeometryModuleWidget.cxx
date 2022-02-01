@@ -335,12 +335,35 @@ void qSlicerIhepStandGeometryModuleWidget::onTableOriginVerticalPositionChanged(
   d->ParameterNode->DisableModifiedEventOn();
   d->ParameterNode->SetTableTopVerticalPositionOrigin(position);
 
+  // First update table top angles, when patient support rotation angle is zero, then everything else
+  d->ParameterNode->DisableModifiedEventOn();
+  double patientSupportRotationAngle = d->ParameterNode->GetPatientSupportRotationAngle(); // backup
+  d->ParameterNode->SetPatientSupportRotationAngle(0.0);
+
+  // update table top to table origin vertical movement
+  d->logic()->UpdateTableTopToTableOriginTransform(d->ParameterNode);
   d->logic()->UpdateTableOriginToTableSupportTransform(d->ParameterNode);
-//  d->logic()->UpdateTableMirrorToTableSupportTransform(parameterNode);
-//  d->logic()->UpdateTableMiddleToTableSupportTransform(parameterNode);
-//  d->logic()->UpdateTableSupportToTablePlatformTransform(parameterNode);
-//  d->logic()->UpdateTablePlatformToPatientSupportTransform(parameterNode);
-//  d->logic()->UpdatePatientSupportToFixedReferenceTransform(parameterNode);
+  d->logic()->UpdateTableMirrorToTableSupportTransform(d->ParameterNode);
+  d->logic()->UpdateTableMiddleToTableSupportTransform(d->ParameterNode);
+  d->logic()->UpdateTableSupportToTablePlatformTransform(d->ParameterNode);
+  d->logic()->UpdateTablePlatformToPatientSupportTransform(d->ParameterNode);
+  d->logic()->UpdatePatientSupportToFixedReferenceTransform(d->ParameterNode);
+
+  double mirrorPos, middlePos;
+  d->logic()->CalculateTableTopPositionsFromPlaneNode( d->ParameterNode, mirrorPos, middlePos);
+  
+  d->ParameterNode->SetTableTopVerticalPositionMirror(mirrorPos + d->ParameterNode->GetTableTopVerticalPositionOrigin());
+  d->ParameterNode->SetTableTopVerticalPositionMiddle(middlePos + d->ParameterNode->GetTableTopVerticalPositionOrigin());
+  
+  d->ParameterNode->DisableModifiedEventOff();
+
+  double originPos = d->SliderWidget_TableTopVerticalPositionOrigin->value();
+  
+  d->SliderWidget_TableTopVerticalPositionMiddle->setValue(originPos + middlePos);
+  d->SliderWidget_TableTopVerticalPositionMirror->setValue(originPos + mirrorPos);
+  
+  // Restore patient support rotation angle
+  d->ParameterNode->SetPatientSupportRotationAngle(patientSupportRotationAngle); // restore
 
   d->ParameterNode->DisableModifiedEventOff();
   d->ParameterNode->Modified();
@@ -416,6 +439,7 @@ void qSlicerIhepStandGeometryModuleWidget::onTableTopLongitudinalAngleChanged(do
     return;
   }
 
+  // First table top longitudinal angle, when patient support rotation angle is zero, then everything else
   d->ParameterNode->DisableModifiedEventOn();
   double patientSupportRotationAngle = d->ParameterNode->GetPatientSupportRotationAngle(); // backup
   d->ParameterNode->SetPatientSupportRotationAngle(0.0);
@@ -444,6 +468,7 @@ void qSlicerIhepStandGeometryModuleWidget::onTableTopLongitudinalAngleChanged(do
   d->SliderWidget_TableTopVerticalPositionMiddle->setValue(originPos + middlePos);
   d->SliderWidget_TableTopVerticalPositionMirror->setValue(originPos + mirrorPos);
   
+  // Restore patient support rotation angle
   d->ParameterNode->SetPatientSupportRotationAngle(patientSupportRotationAngle); // restore
   d->ParameterNode->Modified();
 }
@@ -464,6 +489,7 @@ void qSlicerIhepStandGeometryModuleWidget::onTableTopLateralAngleChanged(double 
     return;
   }
 
+  // First table top lateral angle, when patient support rotation angle is zero, then everything else
   d->ParameterNode->DisableModifiedEventOn();
   double patientSupportRotationAngle = d->ParameterNode->GetPatientSupportRotationAngle(); // backup
   d->ParameterNode->SetPatientSupportRotationAngle(0.0);
@@ -492,6 +518,7 @@ void qSlicerIhepStandGeometryModuleWidget::onTableTopLateralAngleChanged(double 
   d->SliderWidget_TableTopVerticalPositionMiddle->setValue(originPos + middlePos);
   d->SliderWidget_TableTopVerticalPositionMirror->setValue(originPos + mirrorPos);
 
+  // Restore patient support rotation angle
   d->ParameterNode->SetPatientSupportRotationAngle(patientSupportRotationAngle); // restore
   d->ParameterNode->Modified();
 }

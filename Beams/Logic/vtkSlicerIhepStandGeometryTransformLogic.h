@@ -71,11 +71,11 @@ public:
   vtkMRMLLinearTransformNode* GetTransformNodeBetween(
     CoordinateSystemIdentifier fromFrame, CoordinateSystemIdentifier toFrame );
 
-  /// Get general transform from one coordinate frame to another
+  /// Get general transform from one coordinate frame to another (toFrame->fromFrame)
   /// @param transformForBeam - calculate dynamic transformation for beam model or other models
   /// \return Success flag (false on any error)
   bool GetTransformBetween(CoordinateSystemIdentifier fromFrame, CoordinateSystemIdentifier toFrame, vtkGeneralTransform* outputTransform, bool transformForBeam = true);
-  /// Get linear transform from one coordinate frame to another
+  /// Get linear transform from one coordinate frame to another (toFrame->fromFrame)
   /// @param transformForBeam - calculate dynamic transformation for beam model or other models
   /// \return Success flag (false on any error)
   bool GetTransformBetween(CoordinateSystemIdentifier fromFrame, CoordinateSystemIdentifier toFrame, vtkTransform* outputTransform, bool transformForBeam = true);
