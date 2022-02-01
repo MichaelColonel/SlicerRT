@@ -1831,6 +1831,10 @@ void vtkSlicerIhepStandGeometryLogic::SetupTreatmentMachineModels(vtkMRMLIhepSta
   this->UpdateTableMiddleFiducialNode(parameterNode);
   this->UpdateTableTopPlaneNode(parameterNode);
   this->UpdateFixedReferenceLineNode(parameterNode);
+
+  // Calatualte table top angles
+  this->CalculateTableTopAnglesForTableTopPositions(parameterNode);
+
 }
 
 //----------------------------------------------------------------------------
@@ -2810,7 +2814,47 @@ bool vtkSlicerIhepStandGeometryLogic::CalculateTableTopAnglesForTableTopPosition
   tableTopTransformNode->GetMatrixTransformToWorld(tableTopTransformMatrix);
   fixedReferenceTransformNode->GetMatrixTransformToWorld(fixedReferenceTransformMatrix);
 
-  tableTopTransformMatrix->Invert(); // RAS->TableTop
+  fixedReferenceTransformMatrix->Invert(); // RAS->FixedReference
+
+  double tableTopBasisX[4] = { 1., 0., 0., 0. };
+  double tableTopBasisXInRas[4] = {};
+  double tableTopBasisY[4] = { 0., 1., 0., 0. };
+  double tableTopBasisYInRas[4] = {};
+  double tableTopBasisZ[4] = { 0., 0., 1., 0. };
+  double tableTopBasisZInRas[4] = {};
+  tableTopTransformMatrix->MultiplyPoint(tableTopBasisX, tableTopBasisXInRas);
+  tableTopTransformMatrix->MultiplyPoint(tableTopBasisY, tableTopBasisYInRas);
+  tableTopTransformMatrix->MultiplyPoint(tableTopBasisZ, tableTopBasisZInRas);
+
+  vtkMRMLRTBeamNode* beamNode = parameterNode->GetBeamNode();
+
+  if (!beamNode)
+  {
+    vtkErrorMacro("GetPatientIsocenterToFixedIsocenterTranslate: Invalid beam node");
+    return false;
+  }
+
+  vtkMRMLTransformNode* beamTransformNode = beamNode->GetParentTransformNode();
+  vtkNew< vtkMatrix4x4 > beamTransformMatrix; // RAS->PatientBeam
+  if (beamTransformNode)
+  {
+    beamTransformNode->GetMatrixTransformFromWorld(beamTransformMatrix);
+  }
+  else
+  {
+    return false;
+  }
+
+  double tableTopBasisXInBeam[4] = {};
+  double tableTopBasisYInBeam[4] = {};
+  double tableTopBasisZInBeam[4] = {};
+  beamTransformMatrix->MultiplyPoint( tableTopBasisXInRas, tableTopBasisXInBeam);
+  beamTransformMatrix->MultiplyPoint( tableTopBasisYInRas, tableTopBasisYInBeam);
+  beamTransformMatrix->MultiplyPoint( tableTopBasisZInRas, tableTopBasisZInBeam);
+
+  vtkWarningMacro("CalculateTableTopAnglesForTableTopPositions: X in beam " << tableTopBasisXInBeam[0] << " " << tableTopBasisXInBeam[1] << " " << tableTopBasisXInBeam[2]);
+  vtkWarningMacro("CalculateTableTopAnglesForTableTopPositions: Y in beam " << tableTopBasisYInBeam[0] << " " << tableTopBasisYInBeam[1] << " " << tableTopBasisYInBeam[2]);
+  vtkWarningMacro("CalculateTableTopAnglesForTableTopPositions: Z in beam " << tableTopBasisZInBeam[0] << " " << tableTopBasisZInBeam[1] << " " << tableTopBasisZInBeam[2]);
 
   return true;
 }
@@ -2955,7 +2999,7 @@ bool vtkSlicerIhepStandGeometryLogic::GetPatientIsocenterToFixedIsocenterTransla
   fixedIsocenterInPatientSupport[0] -= patientIsocenterInPatientSupport[0];
   fixedIsocenterInPatientSupport[1] -= patientIsocenterInPatientSupport[1];
   fixedIsocenterInPatientSupport[2] -= patientIsocenterInPatientSupport[2];
-  vtkWarningMacro("GetPatientIsocenterToFixedIsocenterTranslate: Translate " << fixedIsocenterInPatientSupport[0] << " " << fixedIsocenterInPatientSupport[1] << " " << fixedIsocenterInPatientSupport[2]);
+//  vtkWarningMacro("GetPatientIsocenterToFixedIsocenterTranslate: Translate " << fixedIsocenterInPatientSupport[0] << " " << fixedIsocenterInPatientSupport[1] << " " << fixedIsocenterInPatientSupport[2]);
 
   translatePatientFrame[0] = fixedIsocenterInPatientSupport[0]; // +X
   translatePatientFrame[1] = fixedIsocenterInPatientSupport[1]; // -Z
@@ -2998,7 +3042,9 @@ bool vtkSlicerIhepStandGeometryLogic::GetPatientBeamToFixedBeamTransform(
   vtkMRMLTransformNode* fixedBeamTransformNode = fixedBeamNode->GetParentTransformNode();
   
   vtkNew< vtkMatrix4x4 > transformMatrix;
-  
+  // fixedBeamTransformNode - Source
+  // patientBeamTransformNode - Target
+  // Source -> Target transform
   if (!vtkMRMLTransformNode::GetMatrixTransformBetweenNodes( fixedBeamTransformNode, patientBeamTransformNode, transformMatrix))
   {
     vtkErrorMacro("GetPatientBeamToFixedBeamTransform: Unable calculate transform between patient beam node and fixed beam node");
