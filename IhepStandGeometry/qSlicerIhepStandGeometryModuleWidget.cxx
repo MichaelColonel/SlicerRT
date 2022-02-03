@@ -655,7 +655,7 @@ void qSlicerIhepStandGeometryModuleWidget::updateWidgetFromMRML()
 
   // Enable widgets
   
-  if (!d->ParameterNode || !d->ModuleWindowInitialized)
+  if (!d->ParameterNode/* || !d->ModuleWindowInitialized */)
   {
     qCritical() << Q_FUNC_INFO << ": Invalid parameter node, or module window isn't initialized";
     return;
@@ -995,8 +995,17 @@ void qSlicerIhepStandGeometryModuleWidget::setMRMLScene(vtkMRMLScene* scene)
         std::string singletonTag = std::string("IhepStand_") + d->ParameterNode->GetName();
         d->ParameterNode->SetSingletonTag(singletonTag.c_str());
         this->setParameterNode(d->ParameterNode);
-        this->onLoadModelsButtonClicked();
+
         qDebug() << Q_FUNC_INFO << ": Load models";
+
+        // Load and setup models
+        d->ParameterNode->DisableModifiedEventOn();
+        d->ParameterNode->SetTreatmentMachineType("IHEPStand");
+        d->logic()->LoadTreatmentMachineModels(d->ParameterNode);
+        d->logic()->ResetModelsToInitialPosition(d->ParameterNode);
+
+        d->ParameterNode->DisableModifiedEventOff();
+        d->ParameterNode->Modified();
       }
     }
   }
@@ -1032,9 +1041,9 @@ void qSlicerIhepStandGeometryModuleWidget::onBeamsEyeViewButtonClicked(const dou
     return;
   }
 
-  vtkMRMLRTBeamNode* beamNode = vtkMRMLRTBeamNode::SafeDownCast(d->MRMLNodeComboBox_RtBeam->currentNode());
-  double sourcePosition[3] = {0.0, 0.0, 0.0};
-  double isocenter[3] = {0.0, 0.0, 0.0};
+  vtkMRMLRTBeamNode* beamNode = vtkMRMLRTBeamNode::SafeDownCast(d->MRMLNodeComboBox_CameraBeam->currentNode());
+  double sourcePosition[3] = {};
+  double isocenter[3] = {};
 
   if (beamNode && beamNode->GetSourcePosition(sourcePosition))
   {
@@ -1058,11 +1067,18 @@ void qSlicerIhepStandGeometryModuleWidget::onBeamsEyeViewButtonClicked(const dou
 //    double viewUpVector[4] = { -1., 0., 0., 0. }; // beam negative X-axis
     double vup[4];
   
-    mat->MultiplyPoint( viewUpVector, vup);
-
+    if (beamTransform)
+    {
+      mat->MultiplyPoint( viewUpVector, vup);
+//      beamTransform->TransformPoint( viewUpVector, vup);
+    }
+    else
+    {
+      return;
+    }
     // Translation to origin for in-place rotation
 
-    qDebug() << "Beam view-up Vector " << viewUpVector[0] << " " \
+    qDebug() << Q_FUNC_INFO << "Beam view-up Vector " << viewUpVector[0] << " " \
       << viewUpVector[1] << " " << viewUpVector[2]; 
 
     qDebug() << "Beam view-up Vector in RAS " << vup[0] << " " << vup[1] << " " << vup[2]; 
