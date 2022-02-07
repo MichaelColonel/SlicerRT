@@ -409,6 +409,26 @@ bool vtkMRMLRTBeamNode::GetPlanIsocenterPosition(double isocenter[3])
 }
 
 //----------------------------------------------------------------------------
+bool vtkMRMLRTBeamNode::GetPlanIsocenterPositionWorld(double isocenter[3])
+{
+  vtkMRMLRTPlanNode* parentPlanNode = this->GetParentPlanNode();
+  if (!parentPlanNode)
+  {
+    vtkErrorMacro("GetPlanIsocenterPositionWorld: Failed to access parent plan node");
+    return false;
+  }
+  vtkMRMLMarkupsFiducialNode* poisMarkupsNode = parentPlanNode->CreatePoisMarkupsFiducialNode();
+  if (!poisMarkupsNode)
+  {
+    vtkErrorMacro("GetPlanIsocenterPositionWorld: Failed to access POIs markups node");
+    return false;
+  }
+
+  poisMarkupsNode->GetNthControlPointPositionWorld(vtkMRMLRTPlanNode::ISOCENTER_FIDUCIAL_INDEX, isocenter);
+  return true;
+}
+
+//----------------------------------------------------------------------------
 bool vtkMRMLRTBeamNode::GetSourcePosition(double source[3])
 {
   double sourcePosition_Beam[3] = {0.0, 0.0, this->SAD};

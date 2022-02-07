@@ -152,7 +152,7 @@ public:
   void CreateFixedBeamPlanAndNode(vtkMRMLIhepStandGeometryNode* parameterNode);
 
   /// Calculate table top center to fixed beam isocenter translation
-  /// @param parameterNode - parameter set
+  /// @param parameterNode - A parameter set
   /// @param translate - translation in PatientSupport frame
   /// \return true if success, false otherwise
   bool CalculateTableTopCenterToFixedIsocenterTranslation(vtkMRMLIhepStandGeometryNode* parameterNode, double translate[3]);
@@ -175,12 +175,14 @@ public:
   void SetFixedReferenceCamera(vtkMRMLCameraNode* cameraNode);
 
   /// Calculate Patient isocenter to FixedIsocenter translate
+  /// @param parameterNode - A parameter set
   /// \param translatePatientFrame - translation of the Patient isocenter into FixedReference origin
   /// \return true if success, false otherwise
   bool GetPatientIsocenterToFixedIsocenterTranslate(vtkMRMLIhepStandGeometryNode* parameterNode,
     double translatePatientFrame[3]);
 
-  /// Calculate DRRBeam to FixedBeam trasform
+  /// Calculate DRRBeam to FixedBeam transform
+  /// @param parameterNode - A parameter set
   /// \param patientBeamNode - DRR beam transform in patient (RAS)
   /// \param fixedBeamNode - Fixed ion beam transform in RAS
   /// \param transform - resulted transform
@@ -188,6 +190,24 @@ public:
   bool GetPatientBeamToFixedBeamTransform(vtkMRMLIhepStandGeometryNode* parameterNode,
     vtkMRMLRTBeamNode* patientBeamNode, vtkMRMLRTFixedIonBeamNode* fixedBeamNode,
     vtkTransform* transform);
+
+  /// Calculate TableTop to DRRBeam transform
+  /// @param parameterNode - A parameter set
+  /// \param patientBeamNode - DRR beam transform in patient (RAS)
+  /// \param transform - resulted transform
+  /// \return true if success, false otherwise
+  bool GetTableTopToPatientBeamTransform(vtkMRMLIhepStandGeometryNode* parameterNode,
+    vtkMRMLRTBeamNode* patientBeamNode, vtkTransform* transform);
+
+  /// Calculate TableTop angles from Patient Beam
+  /// \param parameterNode - A parameter node
+  /// \param longitudinalAngle - Table top longitudinal angle
+  /// \param lateralAngle - Table top lateral angle
+  /// \param patientSupportAngle - Table top patient support angle
+  /// \return true if success, false otherwise
+  bool GetTableTopAnglesFromPatientBeam(vtkMRMLIhepStandGeometryNode* parameterNode,
+    vtkMRMLRTBeamNode* patientBeamNode, double& longitudinalAngle,
+    double& lateralAngle, double& patientSupportAngle);
 
 protected:
   vtkSlicerIhepStandGeometryLogic();

@@ -127,6 +127,10 @@ public:
   /// \return Success flag
   bool GetPlanIsocenterPosition(double isocenter[3]);
 
+  /// Get isocenter position from parent plan in World (RAS) ccordinates
+  /// \return Success flag
+  bool GetPlanIsocenterPositionWorld(double source[3]);
+
   /// Calculate source position using gantry angle, SAD, and isocenter
   /// \return Success flag
   bool GetSourcePosition(double source[3]);

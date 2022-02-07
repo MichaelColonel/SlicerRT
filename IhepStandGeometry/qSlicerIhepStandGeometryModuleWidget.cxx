@@ -717,7 +717,9 @@ void qSlicerIhepStandGeometryModuleWidget::updateWidgetFromMRML()
 
   d->logic()->CalculateTableTopCenterToFixedIsocenterTranslation(d->ParameterNode, translate);
   d->logic()->GetPatientIsocenterToFixedIsocenterTranslate(d->ParameterNode, translate);
+  d->logic()->GetTableTopToPatientBeamTransform( d->ParameterNode, beamNode, beamToFixedBeamTransform);
   d->logic()->GetPatientBeamToFixedBeamTransform( d->ParameterNode, beamNode, fixedBeamNode, beamToFixedBeamTransform);
+
 
   d->SlicerWidget_BeamToStandTransformation->setIsocenterTranslation(translate);
   d->SlicerWidget_BeamToStandTransformation->setTransformMatrix(beamToFixedBeamTransform);
@@ -1096,7 +1098,7 @@ void qSlicerIhepStandGeometryModuleWidget::onBeamsEyeViewButtonClicked(const dou
 
     //cameraNode->GetCamera()->SetPosition(collimatorCenterOfRotation);
     cameraNode->GetCamera()->SetPosition(sourcePosition);
-    if (beamNode->GetPlanIsocenterPosition(isocenter))
+    if (beamNode->GetPlanIsocenterPositionWorld(isocenter))
     {
       cameraNode->GetCamera()->SetFocalPoint(isocenter);
     }

@@ -1489,7 +1489,7 @@ void vtkSlicerIhepStandGeometryLogic::SetupTreatmentMachineModels(vtkMRMLIhepSta
     {
       rasToTableTopTransformNode = vtkSmartPointer<vtkMRMLLinearTransformNode>::New();
       rasToTableTopTransformNode->SetName("RasToTableTopTransform");
-//      rasToTableTopTransformNode->SetHideFromEditors(1);
+      rasToTableTopTransformNode->SetHideFromEditors(1);
       std::string singletonTag = std::string("IHEP_") + "RasToTableTopTransform";
       rasToTableTopTransformNode->SetSingletonTag(singletonTag.c_str());
 
@@ -1535,7 +1535,7 @@ void vtkSlicerIhepStandGeometryLogic::SetupTreatmentMachineModels(vtkMRMLIhepSta
     {
       rasToTableTopOriginTransformNode = vtkSmartPointer<vtkMRMLLinearTransformNode>::New();
       rasToTableTopOriginTransformNode->SetName("RasToTableTopOriginTransform");
-//      rasToTableTopOriginTransformNode->SetHideFromEditors(1);
+      rasToTableTopOriginTransformNode->SetHideFromEditors(1);
       std::string singletonTag = std::string("IHEP_") + "RasToTableTopOriginTransform";
       rasToTableTopOriginTransformNode->SetSingletonTag(singletonTag.c_str());
       scene->AddNode(rasToTableTopOriginTransformNode);
@@ -1580,7 +1580,7 @@ void vtkSlicerIhepStandGeometryLogic::SetupTreatmentMachineModels(vtkMRMLIhepSta
     {
       rasToTableTopMirrorTransformNode = vtkSmartPointer<vtkMRMLLinearTransformNode>::New();
       rasToTableTopMirrorTransformNode->SetName("RasToTableTopMirrorTransform");
-//      rasToTableTopMirrorTransformNode->SetHideFromEditors(1);
+      rasToTableTopMirrorTransformNode->SetHideFromEditors(1);
       std::string singletonTag = std::string("IHEP_") + "RasToTableTopMirrorTransform";
       rasToTableTopMirrorTransformNode->SetSingletonTag(singletonTag.c_str());
       scene->AddNode(rasToTableTopMirrorTransformNode);
@@ -1625,7 +1625,7 @@ void vtkSlicerIhepStandGeometryLogic::SetupTreatmentMachineModels(vtkMRMLIhepSta
     {
       rasToTableTopMiddleTransformNode = vtkSmartPointer<vtkMRMLLinearTransformNode>::New();
       rasToTableTopMiddleTransformNode->SetName("RasToTableTopMiddleTransform");
-//      rasToTableTopMiddleTransformNode->SetHideFromEditors(1);
+      rasToTableTopMiddleTransformNode->SetHideFromEditors(1);
       std::string singletonTag = std::string("IHEP_") + "RasToTableTopMiddleTransform";
       rasToTableTopMiddleTransformNode->SetSingletonTag(singletonTag.c_str());
       scene->AddNode(rasToTableTopMiddleTransformNode);
@@ -1670,7 +1670,7 @@ void vtkSlicerIhepStandGeometryLogic::SetupTreatmentMachineModels(vtkMRMLIhepSta
     {
       rasToTableTopSupportTransformNode = vtkSmartPointer<vtkMRMLLinearTransformNode>::New();
       rasToTableTopSupportTransformNode->SetName("RasToTableTopSupportTransform");
-//      rasToTableLateralTransformNode->SetHideFromEditors(1);
+      rasToTableTopSupportTransformNode->SetHideFromEditors(1);
       std::string singletonTag = std::string("IHEP_") + "RasToTableTopSupportTransform";
       rasToTableTopSupportTransformNode->SetSingletonTag(singletonTag.c_str());
       scene->AddNode(rasToTableTopSupportTransformNode);
@@ -1712,7 +1712,7 @@ void vtkSlicerIhepStandGeometryLogic::SetupTreatmentMachineModels(vtkMRMLIhepSta
     {
       rasToTablePlatformTransformNode = vtkSmartPointer<vtkMRMLLinearTransformNode>::New();
       rasToTablePlatformTransformNode->SetName("RasToTablePlatformTransform");
-//      rasToTablePlatformTransformNode->SetHideFromEditors(1);
+      rasToTablePlatformTransformNode->SetHideFromEditors(1);
       std::string singletonTag = std::string("IHEP_") + "RasToTablePlatformTransform";
       rasToTablePlatformTransformNode->SetSingletonTag(singletonTag.c_str());
       scene->AddNode(rasToTablePlatformTransformNode);
@@ -1754,7 +1754,7 @@ void vtkSlicerIhepStandGeometryLogic::SetupTreatmentMachineModels(vtkMRMLIhepSta
     {
       rasToPatientSupportTransformNode = vtkSmartPointer<vtkMRMLLinearTransformNode>::New();
       rasToPatientSupportTransformNode->SetName("RasToPatientSupportTransform");
-//      rasToPatientSupportTransformNode->SetHideFromEditors(1);
+      rasToPatientSupportTransformNode->SetHideFromEditors(1);
       std::string singletonTag = std::string("IHEP_") + "RasToPatientSupportTransform";
       rasToPatientSupportTransformNode->SetSingletonTag(singletonTag.c_str());
       scene->AddNode(rasToPatientSupportTransformNode);
@@ -1800,7 +1800,7 @@ void vtkSlicerIhepStandGeometryLogic::SetupTreatmentMachineModels(vtkMRMLIhepSta
     {
       rasToFixedReferenceTransformNode = vtkSmartPointer<vtkMRMLLinearTransformNode>::New();
       rasToFixedReferenceTransformNode->SetName("RasToFixedReferenceTransform");
-//      rasToFixedReferenceTransformNode->SetHideFromEditors(1);
+      rasToFixedReferenceTransformNode->SetHideFromEditors(1);
       std::string singletonTag = std::string("IHEP_") + "RasToFixedReferenceTransform";
       rasToFixedReferenceTransformNode->SetSingletonTag(singletonTag.c_str());
       scene->AddNode(rasToFixedReferenceTransformNode);
@@ -1832,7 +1832,7 @@ void vtkSlicerIhepStandGeometryLogic::SetupTreatmentMachineModels(vtkMRMLIhepSta
   this->UpdateTableTopPlaneNode(parameterNode);
   this->UpdateFixedReferenceLineNode(parameterNode);
 
-  // Calatualte table top angles
+  // Calculate table top angles
   this->CalculateTableTopAnglesForTableTopPositions(parameterNode);
 
 }
@@ -2804,93 +2804,19 @@ bool vtkSlicerIhepStandGeometryLogic::CalculateTableTopAnglesForTableTopPosition
     return false;
   }
 
-  vtkMRMLRTBeamNode* patientBeamNode = parameterNode->GetBeamNode();
-  vtkMRMLRTFixedIonBeamNode* fixedBeamNode = vtkMRMLRTFixedIonBeamNode::SafeDownCast(parameterNode->GetFixedBeamNode());
-
-  if (!patientBeamNode)
-  {
-    vtkErrorMacro("CalculateTableTopAnglesForTableTopPositions: Invalid beam node");
-    return false;
-  }
-  // Patient beam node transform
-  vtkMRMLTransformNode* patientBeamTransformNode = patientBeamNode->GetParentTransformNode();
-
-  if (!fixedBeamNode)
-  {
-    vtkErrorMacro("CalculateTableTopAnglesForTableTopPositions: Invalid fixed beam node");
-    return false;
-  }
-  vtkMRMLTransformNode* fixedBeamTransformNode = fixedBeamNode->GetParentTransformNode();
-
-  vtkNew< vtkTransform > beamToFixedBeamTransform;
-  this->GetPatientBeamToFixedBeamTransform( parameterNode, patientBeamNode, fixedBeamNode, beamToFixedBeamTransform);
-  // PatientBeam -> FixedBeam
-  double posPatientBeamX[4] = { 1., 0., 0. };
-  double posPatientBeamY[4] = { 0., 1., 0. };
-  double posPatientBeamZ[4] = { 0., 0., 1. };
-  double posFixedBeamX[4] = {};
-  double posFixedBeamY[4] = {};
-  double posFixedBeamZ[4] = {};
-  beamToFixedBeamTransform->GetMatrix()->MultiplyPoint( posPatientBeamX, posFixedBeamX);
-  beamToFixedBeamTransform->GetMatrix()->MultiplyPoint( posPatientBeamY, posFixedBeamY);
-  beamToFixedBeamTransform->GetMatrix()->MultiplyPoint( posPatientBeamZ, posFixedBeamZ);
-  vtkWarningMacro("CalculateTableTopAnglesForTableTopPositions: beam X-axis in fixed " << vtkMath::DegreesFromRadians(acos(posFixedBeamX[0])) << " " << vtkMath::DegreesFromRadians(acos(posFixedBeamX[1])) << " " << vtkMath::DegreesFromRadians(acos(posFixedBeamX[2])));
-  vtkWarningMacro("CalculateTableTopAnglesForTableTopPositions: beam Y-axis in fixed " << vtkMath::DegreesFromRadians(acos(posFixedBeamY[0])) << " " << vtkMath::DegreesFromRadians(acos(posFixedBeamY[1])) << " " << vtkMath::DegreesFromRadians(acos(posFixedBeamY[2])));
-  vtkWarningMacro("CalculateTableTopAnglesForTableTopPositions: beam Z-axis in fixed " << vtkMath::DegreesFromRadians(acos(posFixedBeamZ[0])) << " " << vtkMath::DegreesFromRadians(acos(posFixedBeamZ[1])) << " " << vtkMath::DegreesFromRadians(acos(posFixedBeamZ[2])));
-
-/*
-  // Get TableTop->RAS Transform
-  vtkMRMLLinearTransformNode* tableTopTransformNode = this->GetTableTopTransform();
-  // Get FixedReference->RAS Transform
-  vtkMRMLLinearTransformNode* fixedReferenceTransformNode = this->GetFixedReferenceTransform();
-
-  vtkNew< vtkMatrix4x4 > tableTopTransformMatrix;
-  vtkNew< vtkMatrix4x4 > fixedReferenceTransformMatrix;
-  tableTopTransformNode->GetMatrixTransformToWorld(tableTopTransformMatrix);
-  fixedReferenceTransformNode->GetMatrixTransformToWorld(fixedReferenceTransformMatrix);
-
-  fixedReferenceTransformMatrix->Invert(); // RAS->FixedReference
-
   vtkMRMLRTBeamNode* beamNode = parameterNode->GetBeamNode();
 
   if (!beamNode)
   {
-    vtkErrorMacro("GetPatientIsocenterToFixedIsocenterTranslate: Invalid beam node");
+    vtkErrorMacro("CalculateTableTopAnglesForTableTopPositions: Invalid beam node");
     return false;
   }
 
-  vtkMRMLTransformNode* beamTransformNode = beamNode->GetParentTransformNode();
-  vtkNew< vtkMatrix4x4 > beamTransformMatrix; // RAS->PatientBeam
-  if (beamTransformNode)
-  {
-    beamTransformNode->GetMatrixTransformFromWorld(beamTransformMatrix);
-  }
-  else
-  {
-    return false;
-  }
+  double longitudinalAngle;
+  double lateralAngle;
+  double patientSupportAngle;
+  this->GetTableTopAnglesFromPatientBeam( parameterNode, beamNode, longitudinalAngle, lateralAngle, patientSupportAngle);
 
-  double tableTopBasisX[4] = { 1., 0., 0., 0. };
-  double tableTopBasisXInRas[4] = {};
-  double tableTopBasisY[4] = { 0., 1., 0., 0. };
-  double tableTopBasisYInRas[4] = {};
-  double tableTopBasisZ[4] = { 0., 0., 1., 0. };
-  double tableTopBasisZInRas[4] = {};
-  beamTransformMatrix->MultiplyPoint(tableTopBasisX, tableTopBasisXInRas);
-  beamTransformMatrix->MultiplyPoint(tableTopBasisY, tableTopBasisYInRas);
-  beamTransformMatrix->MultiplyPoint(tableTopBasisZ, tableTopBasisZInRas);
-
-  double tableTopBasisXInBeam[4] = {};
-  double tableTopBasisYInBeam[4] = {};
-  double tableTopBasisZInBeam[4] = {};
-  fixedReferenceTransformMatrix->MultiplyPoint( tableTopBasisXInRas, tableTopBasisXInBeam);
-  fixedReferenceTransformMatrix->MultiplyPoint( tableTopBasisYInRas, tableTopBasisYInBeam);
-  fixedReferenceTransformMatrix->MultiplyPoint( tableTopBasisZInRas, tableTopBasisZInBeam);
-
-  vtkWarningMacro("CalculateTableTopAnglesForTableTopPositions: X in beam " << vtkMath::DegreesFromRadians(acos(tableTopBasisXInBeam[0])) << " " << vtkMath::DegreesFromRadians(acos(tableTopBasisXInBeam[1])) << " " << vtkMath::DegreesFromRadians(acos(tableTopBasisXInBeam[2])));
-  vtkWarningMacro("CalculateTableTopAnglesForTableTopPositions: Y in beam " << vtkMath::DegreesFromRadians(acos(tableTopBasisYInBeam[0])) << " " << vtkMath::DegreesFromRadians(acos(tableTopBasisYInBeam[1])) << " " << vtkMath::DegreesFromRadians(acos(tableTopBasisYInBeam[2])));
-  vtkWarningMacro("CalculateTableTopAnglesForTableTopPositions: Z in beam " << vtkMath::DegreesFromRadians(acos(tableTopBasisZInBeam[0])) << " " << vtkMath::DegreesFromRadians(acos(tableTopBasisZInBeam[1])) << " " << vtkMath::DegreesFromRadians(acos(tableTopBasisZInBeam[2])));
-*/
   return true;
 }
 
@@ -2930,8 +2856,6 @@ void vtkSlicerIhepStandGeometryLogic::CreateFixedBeamPlanAndNode(vtkMRMLIhepStan
     beamNode = vtkSmartPointer<vtkMRMLRTBeamNode>::New();
   }
 
-  vtkMRMLMarkupsFiducialNode* prevIsocenterNode = fixedPlanNode->GetPoisMarkupsFiducialNode();
-
   vtkMRMLMarkupsFiducialNode* fixedIsocenterNode = nullptr;
 
   // fixed isocenter fiducial markups node
@@ -2958,13 +2882,14 @@ void vtkSlicerIhepStandGeometryLogic::CreateFixedBeamPlanAndNode(vtkMRMLIhepStan
       shNode->SetItemParent( fixedIsocenterShId, fixedPlanShId);
     }
 
+    vtkMRMLMarkupsFiducialNode* prevIsocenterNode = fixedPlanNode->GetPoisMarkupsFiducialNode();
     fixedPlanNode->SetAndObservePoisMarkupsFiducialNode(fixedIsocenterNode);
-  }
-
-  if (prevIsocenterNode)
-  {
-    scene->RemoveNode(prevIsocenterNode);
-    prevIsocenterNode = nullptr;
+    if (prevIsocenterNode)
+    {
+      vtkErrorMacro("CreateFixedBeamPlanAndNode: Delete previous isocenter markups");
+      scene->RemoveNode(prevIsocenterNode);
+      prevIsocenterNode = nullptr;
+    }
   }
 
   vtkMRMLTransformNode* beamTranfsormNode = beamNode->GetParentTransformNode();
@@ -3069,6 +2994,7 @@ bool vtkSlicerIhepStandGeometryLogic::GetPatientBeamToFixedBeamTransform(
     vtkErrorMacro("GetPatientBeamToFixedBeamTransform: Invalid beam node");
     return false;
   }
+
   // Patient beam node transform
   vtkMRMLTransformNode* patientBeamTransformNode = patientBeamNode->GetParentTransformNode();
 
@@ -3092,6 +3018,168 @@ bool vtkSlicerIhepStandGeometryLogic::GetPatientBeamToFixedBeamTransform(
   return true;
 }
 
+//----------------------------------------------------------------------------
+bool vtkSlicerIhepStandGeometryLogic::GetTableTopToPatientBeamTransform(
+  vtkMRMLIhepStandGeometryNode* parameterNode, vtkMRMLRTBeamNode* patientBeamNode, vtkTransform* transform)
+{
+  vtkMRMLScene* scene = this->GetMRMLScene(); 
+  if (!scene)
+  {
+    vtkErrorMacro("GetTableTopToPatientBeamTransform: Invalid MRML scene");
+    return false;
+  }
+
+  if (!parameterNode)
+  {
+    vtkErrorMacro("GetTableTopToPatientBeamTransform: Invalid parameter node");
+    return false;
+  }
+
+  if (!patientBeamNode)
+  {
+    vtkErrorMacro("GetTableTopToPatientBeamTransform: Invalid beam node");
+    return false;
+  }
+
+  // Get TableTop->RAS Transform
+  vtkMRMLLinearTransformNode* tableTopTransformNode = this->GetTableTopTransform();
+
+  if (!tableTopTransformNode)
+  {
+    vtkErrorMacro("GetTableTopToPatientBeamTransform: Invalid TableTop->RAS transform node");
+    return false;
+  }
+
+  // Patient beam node transform
+  vtkMRMLTransformNode* patientBeamTransformNode = patientBeamNode->GetParentTransformNode();
+
+  vtkNew< vtkMatrix4x4 > transformMatrix;
+  // tableTopTransformNode - Source
+  // patientBeamTransformNode - Target
+  // Source -> Target transform
+  if (!vtkMRMLTransformNode::GetMatrixTransformBetweenNodes( tableTopTransformNode, patientBeamTransformNode, transformMatrix))
+  {
+    vtkErrorMacro("GetTableTopToPatientBeamTransform: Unable calculate transform between TableTop and patient beam nodes");
+    return false;
+  }
+  transform->SetMatrix(transformMatrix);
+  return true;
+}
+
+//----------------------------------------------------------------------------
+bool vtkSlicerIhepStandGeometryLogic::GetTableTopAnglesFromPatientBeam(
+  vtkMRMLIhepStandGeometryNode* parameterNode,
+  vtkMRMLRTBeamNode* patientBeamNode, double& longitudinalAngle,
+  double& lateralAngle, double& patientSupportAngle)
+{
+  vtkMRMLScene* scene = this->GetMRMLScene(); 
+  if (!scene)
+  {
+    vtkErrorMacro("GetTableTopAnglesFromPatientBeam: Invalid MRML scene");
+    return false;
+  }
+
+  if (!parameterNode)
+  {
+    vtkErrorMacro("GetTableTopAnglesFromPatientBeam: Invalid parameter node");
+    return false;
+  }
+
+  if (!patientBeamNode)
+  {
+    vtkErrorMacro("GetTableTopAnglesFromPatientBeam: Invalid beam node");
+    return false;
+  }
+  // Patient beam node transform
+  vtkMRMLTransformNode* patientBeamTransformNode = patientBeamNode->GetParentTransformNode();
+
+  vtkNew< vtkTransform > tableTopToBeamTransform;
+
+  this->GetTableTopToPatientBeamTransform( parameterNode, patientBeamNode, tableTopToBeamTransform);
+
+  // TableTop -> PatientBeam
+  double tableTopUnityX[4] = { 1., 0., 0., 0. };
+  double tableTopUnityY[4] = { 0., 1., 0., 0. };
+  double tableTopUnityZ[4] = { 0., 0., 1., 0. };
+  double tableTopUnityXInPatientBeam[4] = {};
+  double tableTopUnityYInPatientBeam[4] = {};
+  double tableTopUnityZInPatientBeam[4] = {};
+  tableTopToBeamTransform->GetMatrix()->MultiplyPoint( tableTopUnityX, tableTopUnityXInPatientBeam);
+  tableTopToBeamTransform->GetMatrix()->MultiplyPoint( tableTopUnityY, tableTopUnityYInPatientBeam);
+  tableTopToBeamTransform->GetMatrix()->MultiplyPoint( tableTopUnityZ, tableTopUnityZInPatientBeam);
+
+  lateralAngle = vtkMath::DegreesFromRadians(acos(tableTopUnityXInPatientBeam[0])) - 90.;
+  longitudinalAngle = vtkMath::DegreesFromRadians(acos(tableTopUnityZInPatientBeam[0])) - 90.;
+  if (patientBeamNode->GetGantryAngle() > 180.)
+  {
+    patientSupportAngle = 360. - vtkMath::DegreesFromRadians(acos(tableTopUnityZInPatientBeam[1]));
+  }
+  else
+  {
+    patientSupportAngle = vtkMath::DegreesFromRadians(acos(tableTopUnityZInPatientBeam[1]));
+  }
+  vtkWarningMacro("GetTableTopAnglesFromPatientBeam: Lateral angle " << lateralAngle);
+  vtkWarningMacro("GetTableTopAnglesFromPatientBeam: Longitudinal angle " << longitudinalAngle);
+  vtkWarningMacro("GetTableTopAnglesFromPatientBeam: Patient support angle " << patientSupportAngle);
+  return true;
+//  vtkWarningMacro("CalculateTableTopAnglesForTableTopPositions: beam X-axis in fixed " << vtkMath::DegreesFromRadians(acos(posFixedBeamX[0])) << " " << vtkMath::DegreesFromRadians(acos(posFixedBeamX[1])) << " " << vtkMath::DegreesFromRadians(acos(posFixedBeamX[2])));
+//  vtkWarningMacro("CalculateTableTopAnglesForTableTopPositions: beam Y-axis in fixed " << vtkMath::DegreesFromRadians(acos(posFixedBeamY[0])) << " " << vtkMath::DegreesFromRadians(acos(posFixedBeamY[1])) << " " << vtkMath::DegreesFromRadians(acos(posFixedBeamY[2])));
+//  vtkWarningMacro("CalculateTableTopAnglesForTableTopPositions: beam Z-axis in fixed " << vtkMath::DegreesFromRadians(acos(posFixedBeamZ[0])) << " " << vtkMath::DegreesFromRadians(acos(posFixedBeamZ[1])) << " " << vtkMath::DegreesFromRadians(acos(posFixedBeamZ[2])));
+
+/*
+  // Get TableTop->RAS Transform
+  vtkMRMLLinearTransformNode* tableTopTransformNode = this->GetTableTopTransform();
+  // Get FixedReference->RAS Transform
+  vtkMRMLLinearTransformNode* fixedReferenceTransformNode = this->GetFixedReferenceTransform();
+
+  vtkNew< vtkMatrix4x4 > tableTopTransformMatrix;
+  vtkNew< vtkMatrix4x4 > fixedReferenceTransformMatrix;
+  tableTopTransformNode->GetMatrixTransformToWorld(tableTopTransformMatrix);
+  fixedReferenceTransformNode->GetMatrixTransformToWorld(fixedReferenceTransformMatrix);
+
+  fixedReferenceTransformMatrix->Invert(); // RAS->FixedReference
+
+  vtkMRMLRTBeamNode* beamNode = parameterNode->GetBeamNode();
+
+  if (!beamNode)
+  {
+    vtkErrorMacro("GetPatientIsocenterToFixedIsocenterTranslate: Invalid beam node");
+    return false;
+  }
+
+  vtkMRMLTransformNode* beamTransformNode = beamNode->GetParentTransformNode();
+  vtkNew< vtkMatrix4x4 > beamTransformMatrix; // RAS->PatientBeam
+  if (beamTransformNode)
+  {
+    beamTransformNode->GetMatrixTransformFromWorld(beamTransformMatrix);
+  }
+  else
+  {
+    return false;
+  }
+
+  double tableTopBasisX[4] = { 1., 0., 0., 0. };
+  double tableTopBasisXInRas[4] = {};
+  double tableTopBasisY[4] = { 0., 1., 0., 0. };
+  double tableTopBasisYInRas[4] = {};
+  double tableTopBasisZ[4] = { 0., 0., 1., 0. };
+  double tableTopBasisZInRas[4] = {};
+  beamTransformMatrix->MultiplyPoint(tableTopBasisX, tableTopBasisXInRas);
+  beamTransformMatrix->MultiplyPoint(tableTopBasisY, tableTopBasisYInRas);
+  beamTransformMatrix->MultiplyPoint(tableTopBasisZ, tableTopBasisZInRas);
+
+  double tableTopBasisXInBeam[4] = {};
+  double tableTopBasisYInBeam[4] = {};
+  double tableTopBasisZInBeam[4] = {};
+  fixedReferenceTransformMatrix->MultiplyPoint( tableTopBasisXInRas, tableTopBasisXInBeam);
+  fixedReferenceTransformMatrix->MultiplyPoint( tableTopBasisYInRas, tableTopBasisYInBeam);
+  fixedReferenceTransformMatrix->MultiplyPoint( tableTopBasisZInRas, tableTopBasisZInBeam);
+
+  vtkWarningMacro("CalculateTableTopAnglesForTableTopPositions: X in beam " << vtkMath::DegreesFromRadians(acos(tableTopBasisXInBeam[0])) << " " << vtkMath::DegreesFromRadians(acos(tableTopBasisXInBeam[1])) << " " << vtkMath::DegreesFromRadians(acos(tableTopBasisXInBeam[2])));
+  vtkWarningMacro("CalculateTableTopAnglesForTableTopPositions: Y in beam " << vtkMath::DegreesFromRadians(acos(tableTopBasisYInBeam[0])) << " " << vtkMath::DegreesFromRadians(acos(tableTopBasisYInBeam[1])) << " " << vtkMath::DegreesFromRadians(acos(tableTopBasisYInBeam[2])));
+  vtkWarningMacro("CalculateTableTopAnglesForTableTopPositions: Z in beam " << vtkMath::DegreesFromRadians(acos(tableTopBasisZInBeam[0])) << " " << vtkMath::DegreesFromRadians(acos(tableTopBasisZInBeam[1])) << " " << vtkMath::DegreesFromRadians(acos(tableTopBasisZInBeam[2])));
+*/
+}
 
 //----------------------------------------------------------------------------
 bool vtkSlicerIhepStandGeometryLogic::CalculateTableTopCenterToFixedIsocenterTranslation( vtkMRMLIhepStandGeometryNode* parameterNode, double translate[3])
