@@ -38,8 +38,9 @@
 namespace
 {
 
-const char* BEAM_REFERENCE_ROLE = "beamRef";
+const char* PATIENT_BEAM_REFERENCE_ROLE = "patientBeamRef";
 const char* FIXED_BEAM_REFERENCE_ROLE = "fixedBeamRef";
+const char* EXTERNAL_XRAY_BEAM_REFERENCE_ROLE = "extXrayBeamRef";
 const char* PATIENT_BODY_SEGMENTATION_REFERENCE_ROLE = "patientBodySegmentationRef";
 const char* PATIENT_BODY_VOLUME_REFERENCE_ROLE = "patientBodyVolumeRef";
 
@@ -231,13 +232,13 @@ void vtkMRMLIhepStandGeometryNode::ResetModelsToInitialPositions()
 }
 
 //----------------------------------------------------------------------------
-vtkMRMLRTBeamNode* vtkMRMLIhepStandGeometryNode::GetBeamNode()
+vtkMRMLRTBeamNode* vtkMRMLIhepStandGeometryNode::GetPatientBeamNode()
 {
-  return vtkMRMLRTBeamNode::SafeDownCast( this->GetNodeReference(BEAM_REFERENCE_ROLE) );
+  return vtkMRMLRTBeamNode::SafeDownCast( this->GetNodeReference(PATIENT_BEAM_REFERENCE_ROLE) );
 }
 
 //----------------------------------------------------------------------------
-void vtkMRMLIhepStandGeometryNode::SetAndObserveBeamNode(vtkMRMLRTBeamNode* node)
+void vtkMRMLIhepStandGeometryNode::SetAndObservePatientBeamNode(vtkMRMLRTBeamNode* node)
 {
   if (node && this->Scene != node->GetScene())
   {
@@ -245,7 +246,7 @@ void vtkMRMLIhepStandGeometryNode::SetAndObserveBeamNode(vtkMRMLRTBeamNode* node
     return;
   }
 
-  this->SetNodeReferenceID(BEAM_REFERENCE_ROLE, (node ? node->GetID() : nullptr));
+  this->SetNodeReferenceID(PATIENT_BEAM_REFERENCE_ROLE, (node ? node->GetID() : nullptr));
 }
 
 //----------------------------------------------------------------------------
@@ -264,6 +265,24 @@ void vtkMRMLIhepStandGeometryNode::SetAndObserveFixedBeamNode(vtkMRMLRTBeamNode*
   }
 
   this->SetNodeReferenceID(FIXED_BEAM_REFERENCE_ROLE, (node ? node->GetID() : nullptr));
+}
+
+//----------------------------------------------------------------------------
+vtkMRMLRTBeamNode* vtkMRMLIhepStandGeometryNode::GetExternalXrayBeamNode()
+{
+  return vtkMRMLRTBeamNode::SafeDownCast( this->GetNodeReference(EXTERNAL_XRAY_BEAM_REFERENCE_ROLE) );
+}
+
+//----------------------------------------------------------------------------
+void vtkMRMLIhepStandGeometryNode::SetAndObserveExternalXrayBeamNode(vtkMRMLRTBeamNode* node)
+{
+  if (node && this->Scene != node->GetScene())
+  {
+    vtkErrorMacro("SetAndObserveFixedBeamNode: Cannot set reference, the referenced and referencing node are not in the same scene");
+    return;
+  }
+
+  this->SetNodeReferenceID(EXTERNAL_XRAY_BEAM_REFERENCE_ROLE, (node ? node->GetID() : nullptr));
 }
 
 //----------------------------------------------------------------------------

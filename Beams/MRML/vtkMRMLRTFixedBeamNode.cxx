@@ -36,7 +36,7 @@ vtkMRMLRTFixedBeamNode::vtkMRMLRTFixedBeamNode()
   :
   Superclass()
 {
-//  this->SetGantryAngle(90.);
+  this->SetGantryAngle(90.);
 }
 
 //----------------------------------------------------------------------------
@@ -58,8 +58,8 @@ void vtkMRMLRTFixedBeamNode::CreateDefaultDisplayNodes()
     return;
   }
 
-  displayNode->SetColor(0.8, 0.3, 1.0);
-  displayNode->SetOpacity(0.3);
+  displayNode->SetColor(1.0, 1.0, 0.0);
+  displayNode->SetOpacity(0.7);
   displayNode->SetBackfaceCulling(0); // Disable backface culling to make the back side of the contour visible as well
   displayNode->VisibilityOn();
   displayNode->Visibility2DOn();

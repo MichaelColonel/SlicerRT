@@ -106,6 +106,8 @@ public:
 
   /// Show markups
   void ShowMarkupsNodes(bool toggled = false);
+  /// Show models
+  void ShowModelsNodes(bool toggled = false);
 
   /// Load pre-defined components of the treatment machine into the scene
   /// \param parameterNode Parameter node contains the type of treatment machine
@@ -150,6 +152,9 @@ public:
 
   /// Create fixed reference beam and plan and add beam to the parameter node
   void CreateFixedBeamPlanAndNode(vtkMRMLIhepStandGeometryNode* parameterNode);
+
+  /// Create external xray beam and plan and add ext beam to the parameter node
+  void CreateExternalXrayPlanAndNode(vtkMRMLIhepStandGeometryNode* parameterNode);
 
   /// Calculate table top center to fixed beam isocenter translation
   /// @param parameterNode - A parameter set

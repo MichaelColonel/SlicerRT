@@ -61,14 +61,19 @@ public:
   void ResetModelsToInitialPositions();
 
   /// Get beam node
-  vtkMRMLRTBeamNode* GetBeamNode();
+  vtkMRMLRTBeamNode* GetPatientBeamNode();
   /// Set and observe beam node. This updates Normal and View-Up vectors.
-  void SetAndObserveBeamNode(vtkMRMLRTBeamNode* node);
+  void SetAndObservePatientBeamNode(vtkMRMLRTBeamNode* node);
 
   /// Get fixed reference beam node
   vtkMRMLRTBeamNode* GetFixedBeamNode();
   /// Set and observe fixed reference beam node.
   void SetAndObserveFixedBeamNode(vtkMRMLRTBeamNode* node);
+
+  /// Get external x-ray beam node
+  vtkMRMLRTBeamNode* GetExternalXrayBeamNode();
+  /// Set and observe external x-ray beam node.
+  void SetAndObserveExternalXrayBeamNode(vtkMRMLRTBeamNode* node);
 
   /// Get patient body segmentation node
   vtkMRMLSegmentationNode* GetPatientBodySegmentationNode();

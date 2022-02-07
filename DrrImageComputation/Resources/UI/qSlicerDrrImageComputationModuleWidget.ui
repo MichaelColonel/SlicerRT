@@ -292,6 +292,7 @@
             <string>vtkMRMLRTBeamNode</string>
             <string>vtkMRMLRTIonBeamNode</string>
             <string>vtkMRMLRTFixedIonBeamNode</string>
+            <string>vtkMRMLRTFixedBeamNode</string>
            </stringlist>
           </property>
           <property name="showChildNodeTypes">

@@ -199,7 +199,7 @@
            <bool>false</bool>
           </property>
           <property name="noneDisplay">
-           <string>Please select a node</string>
+           <string>Please select a patient volume node</string>
           </property>
          </widget>
         </item>
@@ -255,12 +255,30 @@
         <item row="3" column="0">
          <widget class="QLabel" name="label">
           <property name="text">
-           <string>Fixed DRR Beam:</string>
+           <string>Ext Xray Beam:</string>
           </property>
          </widget>
         </item>
         <item row="3" column="1">
-         <widget class="qMRMLNodeComboBox" name="MRMLNodeComboBox_FixedDrrBeam"/>
+         <widget class="qMRMLNodeComboBox" name="MRMLNodeComboBox_ExtXrayBeam">
+          <property name="nodeTypes">
+           <stringlist>
+            <string>vtkMRMLRTFixedBeamNode</string>
+           </stringlist>
+          </property>
+          <property name="noneEnabled">
+           <bool>true</bool>
+          </property>
+          <property name="addEnabled">
+           <bool>false</bool>
+          </property>
+          <property name="removeEnabled">
+           <bool>false</bool>
+          </property>
+          <property name="noneDisplay">
+           <string>Please select an external x-ray beam node</string>
+          </property>
+         </widget>
         </item>
        </layout>
       </item>
@@ -569,7 +587,11 @@
          <item row="0" column="0">
           <layout class="QGridLayout" name="gridLayout_2">
            <item row="0" column="1">
-            <widget class="ctkCheckBox" name="CheckBox_MarkupsVisibility"/>
+            <widget class="ctkCheckBox" name="CheckBox_MarkupsVisibility">
+             <property name="checked">
+              <bool>true</bool>
+             </property>
+            </widget>
            </item>
            <item row="1" column="0">
             <widget class="QLabel" name="label_8">
@@ -579,7 +601,11 @@
             </widget>
            </item>
            <item row="1" column="1">
-            <widget class="ctkCheckBox" name="CheckBox_ModelsVisibility"/>
+            <widget class="ctkCheckBox" name="CheckBox_ModelsVisibility">
+             <property name="checked">
+              <bool>true</bool>
+             </property>
+            </widget>
            </item>
            <item row="0" column="0">
             <widget class="QLabel" name="label_14">
@@ -773,7 +799,7 @@
   <connection>
    <sender>qSlicerIhepStandGeometryModuleWidget</sender>
    <signal>mrmlSceneChanged(vtkMRMLScene*)</signal>
-   <receiver>MRMLNodeComboBox_FixedDrrBeam</receiver>
+   <receiver>MRMLNodeComboBox_ExtXrayBeam</receiver>
    <slot>setMRMLScene(vtkMRMLScene*)</slot>
    <hints>
     <hint type="sourcelabel">

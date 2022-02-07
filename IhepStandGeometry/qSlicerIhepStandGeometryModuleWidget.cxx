@@ -32,7 +32,8 @@
 #include <vtkMRMLRTBeamNode.h>
 #include <vtkMRMLRTIonBeamNode.h>
 #include <vtkMRMLRTFixedIonBeamNode.h>
-#include "vtkMRMLRTPlanNode.h"
+#include <vtkMRMLRTFixedBeamNode.h>
+#include <vtkMRMLRTPlanNode.h>
 
 // Slicer includes
 #include <qSlicerApplication.h>
@@ -164,6 +165,8 @@ void qSlicerIhepStandGeometryModuleWidget::setup()
 
   connect( d->CheckBox_FixedReferenceCamera, SIGNAL(toggled(bool)), this, SLOT(updateFixedReferenceCamera(bool)));
   connect( d->CheckBox_RotatePatientHeadFeet, SIGNAL(toggled(bool)), this, SLOT(onRotatePatientHeadFeetToggled(bool)));
+  connect( d->CheckBox_MarkupsVisibility, SIGNAL(toggled(bool)), this, SLOT(onMarkupsVisibilityToggled(bool)));
+  connect( d->CheckBox_ModelsVisibility, SIGNAL(toggled(bool)), this, SLOT(onModelsVisibilityToggled(bool)));
 
   // Buttons
 //  connect( d->PushButton_LoadStandModels, SIGNAL(clicked()), this, SLOT(onLoadModelsButtonClicked()));
@@ -661,9 +664,9 @@ void qSlicerIhepStandGeometryModuleWidget::updateWidgetFromMRML()
     return;
   }
 
-  if (d->ParameterNode->GetBeamNode())
+  if (d->ParameterNode->GetPatientBeamNode())
   {
-    d->MRMLNodeComboBox_RtBeam->setCurrentNode(d->ParameterNode->GetBeamNode());
+    d->MRMLNodeComboBox_RtBeam->setCurrentNode(d->ParameterNode->GetPatientBeamNode());
   }
 
 //  vtkMRMLScalarVolumeNode* ctVolumeNode = vtkMRMLScalarVolumeNode::SafeDownCast(d->MRMLNodeComboBox_CtVolume->currentNode());
@@ -680,6 +683,11 @@ void qSlicerIhepStandGeometryModuleWidget::updateWidgetFromMRML()
   if (d->ParameterNode->GetFixedBeamNode())
   {
     d->MRMLNodeComboBox_FixedBeam->setCurrentNode(d->ParameterNode->GetFixedBeamNode());
+  }
+
+  if (d->ParameterNode->GetExternalXrayBeamNode())
+  {
+    d->MRMLNodeComboBox_ExtXrayBeam->setCurrentNode(d->ParameterNode->GetExternalXrayBeamNode());
   }
 
   if (d->ParameterNode->GetPatientBodySegmentationNode())
@@ -711,15 +719,38 @@ void qSlicerIhepStandGeometryModuleWidget::updateWidgetFromMRML()
   double translate[3] = {};
   vtkNew< vtkTransform > beamToFixedBeamTransform;
 
-  vtkMRMLRTBeamNode* beamNode = d->ParameterNode->GetBeamNode();
+  vtkMRMLRTBeamNode* beamNode = d->ParameterNode->GetPatientBeamNode();
   vtkMRMLRTBeamNode* fixedBeam = d->ParameterNode->GetFixedBeamNode();
+  vtkMRMLRTBeamNode* xrayBeam = d->ParameterNode->GetExternalXrayBeamNode();
+
+  if (fixedBeam && fixedBeam->GetParentPlanNode() 
+    && !fixedBeam->GetParentPlanNode()->GetReferenceVolumeNode())
+  {
+    fixedBeam->GetParentPlanNode()->SetAndObserveReferenceVolumeNode(d->ParameterNode->GetReferenceVolumeNode());
+  }
+  if (fixedBeam && fixedBeam->GetParentPlanNode() 
+    && !fixedBeam->GetParentPlanNode()->GetSegmentationNode())
+  {
+    fixedBeam->GetParentPlanNode()->SetAndObserveSegmentationNode(d->ParameterNode->GetPatientBodySegmentationNode());
+  }
+
+  if (xrayBeam && xrayBeam->GetParentPlanNode() 
+    && !xrayBeam->GetParentPlanNode()->GetReferenceVolumeNode())
+  {
+    xrayBeam->GetParentPlanNode()->SetAndObserveReferenceVolumeNode(d->ParameterNode->GetReferenceVolumeNode());
+  }
+  if (xrayBeam && xrayBeam->GetParentPlanNode() 
+    && !xrayBeam->GetParentPlanNode()->GetSegmentationNode())
+  {
+    xrayBeam->GetParentPlanNode()->SetAndObserveSegmentationNode(d->ParameterNode->GetPatientBodySegmentationNode());
+  }
+
   vtkMRMLRTFixedIonBeamNode* fixedBeamNode = vtkMRMLRTFixedIonBeamNode::SafeDownCast(fixedBeam);
 
   d->logic()->CalculateTableTopCenterToFixedIsocenterTranslation(d->ParameterNode, translate);
   d->logic()->GetPatientIsocenterToFixedIsocenterTranslate(d->ParameterNode, translate);
   d->logic()->GetTableTopToPatientBeamTransform( d->ParameterNode, beamNode, beamToFixedBeamTransform);
   d->logic()->GetPatientBeamToFixedBeamTransform( d->ParameterNode, beamNode, fixedBeamNode, beamToFixedBeamTransform);
-
 
   d->SlicerWidget_BeamToStandTransformation->setIsocenterTranslation(translate);
   d->SlicerWidget_BeamToStandTransformation->setTransformMatrix(beamToFixedBeamTransform);
@@ -750,11 +781,11 @@ void qSlicerIhepStandGeometryModuleWidget::setParameterNode(vtkMRMLNode* node)
   // (then in the meantime the comboboxes selected the first one from the scene and we have to set that)
   if (parameterNode)
   {
-    if (!parameterNode->GetBeamNode())
+    if (!parameterNode->GetPatientBeamNode())
     {
       vtkMRMLRTBeamNode* beamNode = vtkMRMLRTBeamNode::SafeDownCast(d->MRMLNodeComboBox_RtBeam->currentNode());
 //      qvtkConnect( beamNode, vtkMRMLRTBeamNode::BeamTransformModified, this, SLOT(updateNormalAndVupVectors()));
-      parameterNode->SetAndObserveBeamNode(beamNode);
+      parameterNode->SetAndObservePatientBeamNode(beamNode);
       parameterNode->Modified();
     }
   }
@@ -832,7 +863,7 @@ void qSlicerIhepStandGeometryModuleWidget::onRTBeamNodeChanged(vtkMRMLNode* node
   }
   
   d->ParameterNode->DisableModifiedEventOn();
-  d->ParameterNode->SetAndObserveBeamNode(beamNode);
+  d->ParameterNode->SetAndObservePatientBeamNode(beamNode);
   d->ParameterNode->DisableModifiedEventOff();
 
   d->ParameterNode->Modified();
@@ -1211,6 +1242,22 @@ void qSlicerIhepStandGeometryModuleWidget::onRotatePatientHeadFeetToggled(bool t
   }
 
   d->ParameterNode->SetPatientHeadFeetRotation(toggled);
+}
+
+//-----------------------------------------------------------------------------
+void qSlicerIhepStandGeometryModuleWidget::onModelsVisibilityToggled(bool toggled)
+{
+  Q_D(qSlicerIhepStandGeometryModuleWidget);
+
+  d->logic()->ShowModelsNodes(toggled);
+}
+
+//-----------------------------------------------------------------------------
+void qSlicerIhepStandGeometryModuleWidget::onMarkupsVisibilityToggled(bool toggled)
+{
+  Q_D(qSlicerIhepStandGeometryModuleWidget);
+
+  d->logic()->ShowMarkupsNodes(toggled);
 }
 
 //-----------------------------------------------------------------------------

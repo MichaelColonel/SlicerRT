@@ -654,7 +654,7 @@ void vtkSlicerDrrImageComputationLogic::ShowMarkupsNodes(bool toggled)
   vtkMRMLScene* scene = this->GetMRMLScene(); 
   if (!scene)
   {
-    vtkErrorMacro("UpdateMarkupsNodes: Invalid MRML scene");
+    vtkErrorMacro("ShowMarkupsNodes: Invalid MRML scene");
     return;
   }
 

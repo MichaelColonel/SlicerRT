@@ -39,6 +39,7 @@
 #include <vtkMRMLRTBeamNode.h>
 #include <vtkMRMLRTIonBeamNode.h>
 #include <vtkMRMLRTFixedIonBeamNode.h>
+#include <vtkMRMLRTFixedBeamNode.h>
 #include <vtkSlicerRtCommon.h>
 
 // MRML includes
@@ -1064,25 +1065,6 @@ void vtkSlicerIhepStandGeometryLogic::UpdateFixedReferenceLineNode(vtkMRMLIhepSt
   }
 }
 
-//----------------------------------------------------------------------------
-void vtkSlicerIhepStandGeometryLogic::ShowMarkupsNodes(bool toggled)
-{
-  vtkMRMLScene* scene = this->GetMRMLScene(); 
-  if (!scene)
-  {
-    vtkErrorMacro("ShowMarkupsNodes: Invalid MRML scene");
-    return;
-  }
-
-  // beamline markups line node
-  if (scene->GetFirstNodeByName(TABLE_ORIGIN_MARKUPS_FIDUCIAL_NODE_NAME))
-  {
-    vtkMRMLMarkupsFiducialNode* pointsMarkupsNode = vtkMRMLMarkupsFiducialNode::SafeDownCast(
-      scene->GetFirstNodeByName(TABLE_ORIGIN_MARKUPS_FIDUCIAL_NODE_NAME));
-    pointsMarkupsNode->SetDisplayVisibility(int(toggled));
-  }
-}
-
 //---------------------------------------------------------------------------
 void vtkSlicerIhepStandGeometryLogic::BuildIhepStangGeometryTransformHierarchy()
 {
@@ -1421,6 +1403,7 @@ void vtkSlicerIhepStandGeometryLogic::LoadTreatmentMachineModels(vtkMRMLIhepStan
   this->UpdateTableTopPlaneNode(parameterNode);
   this->UpdateFixedReferenceLineNode(parameterNode);
   this->CreateFixedBeamPlanAndNode(parameterNode);
+  this->CreateExternalXrayPlanAndNode(parameterNode);
 }
 
 //----------------------------------------------------------------------------
@@ -2804,7 +2787,7 @@ bool vtkSlicerIhepStandGeometryLogic::CalculateTableTopAnglesForTableTopPosition
     return false;
   }
 
-  vtkMRMLRTBeamNode* beamNode = parameterNode->GetBeamNode();
+  vtkMRMLRTBeamNode* beamNode = parameterNode->GetPatientBeamNode();
 
   if (!beamNode)
   {
@@ -2846,15 +2829,7 @@ void vtkSlicerIhepStandGeometryLogic::CreateFixedBeamPlanAndNode(vtkMRMLIhepStan
   vtkMRMLRTPlanNode* fixedPlanNode = vtkMRMLRTPlanNode::SafeDownCast(scene->AddNewNodeByClass( "vtkMRMLRTPlanNode", "FixedPlan"));
   fixedPlanNode->SetIonPlanFlag(true);
   // Create beam and add to scene
-  vtkSmartPointer<vtkMRMLRTBeamNode> beamNode;
-  if (fixedPlanNode->GetIonPlanFlag())
-  {
-    beamNode = vtkSmartPointer<vtkMRMLRTFixedIonBeamNode>::New();
-  }
-  else
-  {
-    beamNode = vtkSmartPointer<vtkMRMLRTBeamNode>::New();
-  }
+  vtkNew<vtkMRMLRTFixedIonBeamNode> beamNode;
 
   vtkMRMLMarkupsFiducialNode* fixedIsocenterNode = nullptr;
 
@@ -2905,8 +2880,85 @@ void vtkSlicerIhepStandGeometryLogic::CreateFixedBeamPlanAndNode(vtkMRMLIhepStan
     beamTranfsormNode->SetAndObserveTransformNodeID(rasToFixedReferenceTransformNode->GetID() );
   }
   parameterNode->SetAndObserveFixedBeamNode(beamNode);
-//  parameterNode->SetAndObserveReferenceVolumeNode(beamNode->GetParentPlanNode()->GetReferenceVolumeNode());
-//  parameterNode->SetAndObserveSegmentationNode(beamNode->GetParentPlanNode()->GetSegmentationNode());
+}
+
+//----------------------------------------------------------------------------
+void vtkSlicerIhepStandGeometryLogic::CreateExternalXrayPlanAndNode(vtkMRMLIhepStandGeometryNode* parameterNode)
+{
+  vtkMRMLScene* scene = this->GetMRMLScene();
+
+  if (!scene)
+  {
+    vtkErrorMacro("CreateExternalXrayPlanAndNode: Invalid scene");
+    return;
+  }
+
+  vtkMRMLSubjectHierarchyNode* shNode = vtkMRMLSubjectHierarchyNode::GetSubjectHierarchyNode(scene);
+  if (!shNode)
+  {
+    vtkErrorMacro("CreateExternalXrayPlanAndNode: Failed to access subject hierarchy node");
+    return;
+  }
+
+  if (!parameterNode)
+  {
+    vtkErrorMacro("CreateExternalXrayPlanAndNode: Invalid parameter node");
+    return;
+  }
+
+  vtkMRMLRTPlanNode* externalXrayPlanNode = vtkMRMLRTPlanNode::SafeDownCast(scene->AddNewNodeByClass( "vtkMRMLRTPlanNode", "ExternalXray"));
+  // Create beam and add to scene
+  vtkNew<vtkMRMLRTFixedBeamNode> externalXrayBeamNode;
+
+  vtkMRMLMarkupsFiducialNode* fixedIsocenterNode = nullptr;
+
+  // fixed isocenter fiducial markups node
+  if (scene->GetFirstNodeByName(FIXEDISOCENTER_MARKUPS_FIDUCIAL_NODE_NAME))
+  {
+    fixedIsocenterNode = vtkMRMLMarkupsFiducialNode::SafeDownCast(scene->GetFirstNodeByName(FIXEDISOCENTER_MARKUPS_FIDUCIAL_NODE_NAME));
+  }
+  std::string externalXrayBeamName = scene->GenerateUniqueName("ExternalXrayBeam");
+  externalXrayBeamNode->SetName(externalXrayBeamName.c_str());
+//  externalXrayBeamNode->SetName(externalXrayPlanNode->GenerateNewBeamName().c_str());
+  externalXrayPlanNode->GetScene()->AddNode(externalXrayBeamNode);
+  externalXrayPlanNode->AddBeam(externalXrayBeamNode);
+  if (fixedIsocenterNode)
+  {
+    // Get external x-ray plan and isocenter Subject Hierarchy ID
+    vtkIdType externalXrayIsocenterShId = vtkMRMLSubjectHierarchyNode::INVALID_ITEM_ID;
+    vtkIdType externalXrayPlanShId = vtkMRMLSubjectHierarchyNode::INVALID_ITEM_ID;
+    // set fixed plan ID as a parent of fixed isocenter
+    externalXrayPlanShId = shNode->GetItemByDataNode(externalXrayPlanNode);
+    externalXrayIsocenterShId = shNode->GetItemByDataNode(externalXrayBeamNode);
+    if (externalXrayPlanShId != vtkMRMLSubjectHierarchyNode::INVALID_ITEM_ID && 
+      externalXrayIsocenterShId != vtkMRMLSubjectHierarchyNode::INVALID_ITEM_ID)
+    {
+      shNode->SetItemParent( externalXrayIsocenterShId, externalXrayPlanShId);
+    }
+
+    vtkMRMLMarkupsFiducialNode* prevIsocenterNode = externalXrayPlanNode->GetPoisMarkupsFiducialNode();
+    externalXrayPlanNode->SetAndObservePoisMarkupsFiducialNode(fixedIsocenterNode);
+    if (prevIsocenterNode)
+    {
+      vtkErrorMacro("CreateExternalXrayPlanAndNode: Delete previous isocenter markups");
+      scene->RemoveNode(prevIsocenterNode);
+      prevIsocenterNode = nullptr;
+    }
+  }
+
+  vtkMRMLTransformNode* beamTranfsormNode =  externalXrayBeamNode->GetParentTransformNode();
+  // Find RasToFixedReferenceTransform or create it
+  vtkMRMLLinearTransformNode* rasToFixedReferenceTransformNode = nullptr;
+  if (scene->GetFirstNodeByName("RasToFixedReferenceTransform"))
+  {
+    rasToFixedReferenceTransformNode = vtkMRMLLinearTransformNode::SafeDownCast(
+      scene->GetFirstNodeByName("RasToFixedReferenceTransform"));
+  }
+  if (beamTranfsormNode && rasToFixedReferenceTransformNode)
+  {
+    beamTranfsormNode->SetAndObserveTransformNodeID(rasToFixedReferenceTransformNode->GetID() );
+  }
+  parameterNode->SetAndObserveExternalXrayBeamNode(externalXrayBeamNode);
 }
 
 //----------------------------------------------------------------------------
@@ -2925,7 +2977,7 @@ bool vtkSlicerIhepStandGeometryLogic::GetPatientIsocenterToFixedIsocenterTransla
     return false;
   }
 
-  vtkMRMLRTBeamNode* beamNode = parameterNode->GetBeamNode();
+  vtkMRMLRTBeamNode* beamNode = parameterNode->GetPatientBeamNode();
 
   if (!beamNode)
   {
@@ -3185,4 +3237,168 @@ bool vtkSlicerIhepStandGeometryLogic::GetTableTopAnglesFromPatientBeam(
 bool vtkSlicerIhepStandGeometryLogic::CalculateTableTopCenterToFixedIsocenterTranslation( vtkMRMLIhepStandGeometryNode* parameterNode, double translate[3])
 {
   return true;
+}
+
+//----------------------------------------------------------------------------
+void vtkSlicerIhepStandGeometryLogic::ShowMarkupsNodes(bool toggled)
+{
+  vtkMRMLScene* scene = this->GetMRMLScene(); 
+  if (!scene)
+  {
+    vtkErrorMacro("ShowMarkupsNodes: Invalid MRML scene");
+    return;
+  }
+
+  vtkMRMLMarkupsFiducialNode* originMarkupsNode = nullptr;
+  vtkMRMLMarkupsFiducialNode* middleMarkupsNode = nullptr;
+  vtkMRMLMarkupsFiducialNode* mirrorMarkupsNode = nullptr;
+  vtkMRMLMarkupsFiducialNode* fixedIsocenterMarkupsNode = nullptr;
+  vtkMRMLMarkupsPlaneNode* tableTopPlaneNode = nullptr;
+  vtkMRMLMarkupsLineNode* fixedReferenceLineNode = nullptr;
+
+  // origin fiducial markups node
+  if (scene->GetFirstNodeByName(TABLE_ORIGIN_MARKUPS_FIDUCIAL_NODE_NAME))
+  {
+    originMarkupsNode = vtkMRMLMarkupsFiducialNode::SafeDownCast(scene->GetFirstNodeByName(TABLE_ORIGIN_MARKUPS_FIDUCIAL_NODE_NAME));
+    if (originMarkupsNode)
+    {
+      originMarkupsNode->GetDisplayNode()->SetVisibility(toggled);
+    }
+  }
+  // middle fiducial markups node
+  if (scene->GetFirstNodeByName(TABLE_MIDDLE_MARKUPS_FIDUCIAL_NODE_NAME))
+  {
+    middleMarkupsNode = vtkMRMLMarkupsFiducialNode::SafeDownCast(scene->GetFirstNodeByName(TABLE_MIDDLE_MARKUPS_FIDUCIAL_NODE_NAME));
+    if (middleMarkupsNode)
+    {
+      middleMarkupsNode->GetDisplayNode()->SetVisibility(toggled);
+    }
+  }
+  // mirror fiducial markups node
+  if (scene->GetFirstNodeByName(TABLE_MIRROR_MARKUPS_FIDUCIAL_NODE_NAME))
+  {
+    mirrorMarkupsNode = vtkMRMLMarkupsFiducialNode::SafeDownCast(scene->GetFirstNodeByName(TABLE_MIRROR_MARKUPS_FIDUCIAL_NODE_NAME));
+    if (mirrorMarkupsNode)
+    {
+      mirrorMarkupsNode->GetDisplayNode()->SetVisibility(toggled);
+    }
+  }
+  // table top plane markups node
+  if (scene->GetFirstNodeByName(TABLETOP_MARKUPS_PLANE_NODE_NAME))
+  {
+    tableTopPlaneNode = vtkMRMLMarkupsPlaneNode::SafeDownCast(scene->GetFirstNodeByName(TABLETOP_MARKUPS_PLANE_NODE_NAME));
+    if (tableTopPlaneNode)
+    {
+      tableTopPlaneNode->GetDisplayNode()->SetVisibility(toggled);
+    }
+  }
+  // fixed reference line markups node
+  if (scene->GetFirstNodeByName(FIXEDREFERENCE_MARKUPS_LINE_NODE_NAME))
+  {
+    fixedReferenceLineNode = vtkMRMLMarkupsLineNode::SafeDownCast(scene->GetFirstNodeByName(FIXEDREFERENCE_MARKUPS_LINE_NODE_NAME));
+    if (fixedReferenceLineNode)
+    {
+      fixedReferenceLineNode->GetDisplayNode()->SetVisibility(toggled);
+    }
+  }
+  // fixed isocenter markups node
+  if (scene->GetFirstNodeByName(FIXEDISOCENTER_MARKUPS_FIDUCIAL_NODE_NAME))
+  {
+    fixedIsocenterMarkupsNode = vtkMRMLMarkupsFiducialNode::SafeDownCast(scene->GetFirstNodeByName(FIXEDISOCENTER_MARKUPS_FIDUCIAL_NODE_NAME));
+    if (fixedIsocenterMarkupsNode)
+    {
+      fixedIsocenterMarkupsNode->GetDisplayNode()->SetVisibility(toggled);
+    }
+  }
+}
+
+//----------------------------------------------------------------------------
+void vtkSlicerIhepStandGeometryLogic::ShowModelsNodes(bool toggled)
+{
+  vtkMRMLScene* scene = this->GetMRMLScene(); 
+  if (!scene)
+  {
+    vtkErrorMacro("ShowModelsNodes: Invalid MRML scene");
+    return;
+  }
+
+  // Table top - mandatory
+  vtkMRMLModelNode* tableTopModel = vtkMRMLModelNode::SafeDownCast(
+    this->GetMRMLScene()->GetFirstNodeByName(TABLETOP_MODEL_NAME) );
+  if (!tableTopModel)
+  {
+    vtkErrorMacro("ShowModelsNodes: Unable to access table top model");
+    return;
+  }
+  tableTopModel->GetDisplayNode()->SetVisibility(toggled);
+
+  // Table top origin - mandatory
+  vtkMRMLModelNode* tableTopOriginModel = vtkMRMLModelNode::SafeDownCast(
+    this->GetMRMLScene()->GetFirstNodeByName(TABLE_ORIGIN_MODEL_NAME) );
+  if (!tableTopOriginModel)
+  {
+    vtkErrorMacro("ShowModelsNodes: Unable to access table origin model");
+    return;
+  }
+  tableTopOriginModel->GetDisplayNode()->SetVisibility(toggled);
+
+  // Table mirror - mandatory
+  vtkMRMLModelNode* tableTopMirrorModel = vtkMRMLModelNode::SafeDownCast(
+    this->GetMRMLScene()->GetFirstNodeByName(TABLE_MIRROR_MODEL_NAME) );
+  if (!tableTopMirrorModel)
+  {
+    vtkErrorMacro("ShowModelsNodes: Unable to access table mirror model");
+    return;
+  }
+  tableTopMirrorModel->GetDisplayNode()->SetVisibility(toggled);
+
+  // Table top middle - mandatory
+  vtkMRMLModelNode* tableTopMiddleModel = vtkMRMLModelNode::SafeDownCast(
+    this->GetMRMLScene()->GetFirstNodeByName(TABLE_MIDDLE_MODEL_NAME) );
+  if (!tableTopMiddleModel)
+  {
+    vtkErrorMacro("ShowModelsNodes: Unable to access table middle model");
+    return;
+  }
+  tableTopMiddleModel->GetDisplayNode()->SetVisibility(toggled);
+
+  // Table top support movement model - mandatory
+  vtkMRMLModelNode* tableTopSupportModel = vtkMRMLModelNode::SafeDownCast(
+    scene->GetFirstNodeByName(TABLE_SUPPORT_MODEL_NAME) );
+  if (!tableTopSupportModel)
+  {
+    vtkErrorMacro("ShowModelsNodes: Unable to access table top support model");
+    return;
+  }
+  tableTopSupportModel->GetDisplayNode()->SetVisibility(toggled);
+
+  // Table platform model - mandatory
+  vtkMRMLModelNode* tablePlatformModel = vtkMRMLModelNode::SafeDownCast(
+    scene->GetFirstNodeByName(TABLE_PLATFORM_MODEL_NAME) );
+  if (!tablePlatformModel)
+  {
+    vtkErrorMacro("ShowModelsNodes: Unable to access table platform model");
+    return;
+  }
+  tablePlatformModel->GetDisplayNode()->SetVisibility(toggled);
+
+  // Patient support - mandatory
+  vtkMRMLModelNode* patientSupportModel = vtkMRMLModelNode::SafeDownCast(
+    scene->GetFirstNodeByName(PATIENTSUPPORT_MODEL_NAME) );
+  if (!patientSupportModel)
+  {
+    vtkErrorMacro("ShowModelsNodes: Unable to access patient support model");
+    return;
+  }
+  patientSupportModel->GetDisplayNode()->SetVisibility(toggled);
+
+  // Fixed Reference - mandatory
+  vtkMRMLModelNode* fixedReferenceModel = vtkMRMLModelNode::SafeDownCast(
+    this->GetMRMLScene()->GetFirstNodeByName(FIXEDREFERENCE_MODEL_NAME) );
+  if (!fixedReferenceModel)
+  {
+    vtkErrorMacro("ShowModelsNodes: Unable to access fixed reference model");
+    return;
+  }
+  fixedReferenceModel->GetDisplayNode()->SetVisibility(toggled);
 }
