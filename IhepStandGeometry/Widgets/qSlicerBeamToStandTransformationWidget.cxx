@@ -19,8 +19,21 @@
 ==============================================================================*/
 
 // VTK includes
+#include <vtkWeakPointer.h>
+
+// MRML includes
+#include <vtkMRMLScene.h>
+#include <vtkMRMLNode.h>
+
+// SlicerRT IhepStandGeometry MRML includes
+#include <vtkMRMLIhepStandGeometryNode.h>
+
+// VTK includes
 #include <vtkTransform.h>
 #include <vtkMatrix4x4.h>
+
+// Qt includes
+#include <QDebug>
 
 // FooBar Widgets includes
 #include "qSlicerBeamToStandTransformationWidget.h"
@@ -39,6 +52,11 @@ public:
   qSlicerBeamToStandTransformationWidgetPrivate(
     qSlicerBeamToStandTransformationWidget& object);
   virtual void setupUi(qSlicerBeamToStandTransformationWidget*);
+
+  void init();
+  
+  /// IhepStandGeometry MRML node containing shown parameters
+  vtkWeakPointer<vtkMRMLIhepStandGeometryNode> ParameterNode;
 };
 
 // --------------------------------------------------------------------------
@@ -52,6 +70,43 @@ qSlicerBeamToStandTransformationWidgetPrivate::qSlicerBeamToStandTransformationW
 void qSlicerBeamToStandTransformationWidgetPrivate::setupUi(qSlicerBeamToStandTransformationWidget* widget)
 {
   this->Ui_qSlicerBeamToStandTransformationWidget::setupUi(widget);
+}
+
+
+// --------------------------------------------------------------------------
+void qSlicerBeamToStandTransformationWidgetPrivate::init()
+{
+  Q_Q(qSlicerBeamToStandTransformationWidget);
+
+  // Buttons
+  QObject::connect( this->PushButton_Translate, SIGNAL(clicked()), 
+    q, SIGNAL(translatePatientToFixedIsocenter()));
+
+/*
+  // Range widgets
+  QObject::connect( this->RangeWidget_IntensityRange, SIGNAL(valuesChanged( double, double)), 
+    q, SLOT(onAutoscaleIntensityRangeChanged( double, double)));
+
+  // Slicer widgets
+  QObject::connect( this->SliderWidget_HounsfieldThreshold, SIGNAL(valueChanged(double)), 
+    q, SLOT(onHUThresholdChanged(double)));
+
+  // Buttons
+  QObject::connect( this->CheckBox_UseExponentialMapping, SIGNAL(toggled(bool)), 
+    q, SLOT(onUseExponentialMappingToggled(bool)));
+  QObject::connect( this->CheckBox_AutoscaleIntensity, SIGNAL(toggled(bool)), 
+    q, SLOT(onAutoscalePixelsRangeToggled(bool)));
+  QObject::connect( this->CheckBox_InvertIntensity, SIGNAL(toggled(bool)), 
+    q, SLOT(onInvertIntensityToggled(bool)));
+
+  // Combo Boxes
+  QObject::connect( this->ComboBox_ReconstructionAlgorithm, SIGNAL(currentIndexChanged(int)), 
+    q, SLOT(onReconstructionAlgorithmChanged(int)));
+  QObject::connect( this->ComboBox_Threading, SIGNAL(currentIndexChanged(int)), 
+    q, SLOT(onThreadingChanged(int)));
+  QObject::connect( this->ComboBox_HounsfieldConversion, SIGNAL(currentIndexChanged(int)), 
+    q, SLOT(onHUConversionChanged(int)));
+*/
 }
 
 //-----------------------------------------------------------------------------
@@ -70,6 +125,33 @@ qSlicerBeamToStandTransformationWidget
 //-----------------------------------------------------------------------------
 qSlicerBeamToStandTransformationWidget::~qSlicerBeamToStandTransformationWidget()
 {
+}
+
+//-----------------------------------------------------------------------------
+void qSlicerBeamToStandTransformationWidget::setParameterNode(vtkMRMLNode* node)
+{
+  Q_D(qSlicerBeamToStandTransformationWidget);
+
+  vtkMRMLIhepStandGeometryNode* parameterNode = vtkMRMLIhepStandGeometryNode::SafeDownCast(node);
+  // Each time the node is modified, the UI widgets are updated
+  qvtkReconnect( d->ParameterNode, parameterNode, vtkCommand::ModifiedEvent, 
+    this, SLOT( updateWidgetFromMRML() ) );
+
+  d->ParameterNode = parameterNode;
+  this->updateWidgetFromMRML();
+}
+
+//-----------------------------------------------------------------------------
+void qSlicerBeamToStandTransformationWidget::updateWidgetFromMRML()
+{
+  Q_D(qSlicerBeamToStandTransformationWidget);
+
+  if (!d->ParameterNode)
+  {
+    qCritical() << Q_FUNC_INFO << ": Invalid parameter node";
+    return;
+  }
+  qCritical() << Q_FUNC_INFO << ": NODE IS VALID";
 }
 
 //-----------------------------------------------------------------------------

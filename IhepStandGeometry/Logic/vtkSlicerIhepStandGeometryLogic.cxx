@@ -1816,8 +1816,7 @@ void vtkSlicerIhepStandGeometryLogic::SetupTreatmentMachineModels(vtkMRMLIhepSta
   this->UpdateFixedReferenceLineNode(parameterNode);
 
   // Calculate table top angles
-  this->CalculateTableTopAnglesForTableTopPositions(parameterNode);
-
+//  this->CalculateTableTopAnglesForTableTopPositions(parameterNode);
 }
 
 //----------------------------------------------------------------------------
@@ -2800,6 +2799,57 @@ bool vtkSlicerIhepStandGeometryLogic::CalculateTableTopAnglesForTableTopPosition
   double patientSupportAngle;
   this->GetTableTopAnglesFromPatientBeam( parameterNode, beamNode, longitudinalAngle, lateralAngle, patientSupportAngle);
 
+  parameterNode->DisableModifiedEventOn();
+  if (!parameterNode->GetPatientHeadFeetRotation() && beamNode->GetGantryAngle() <= 180. && beamNode->GetCouchAngle() <= 180.)
+  {
+    parameterNode->SetTableTopLateralAngle(lateralAngle);
+    parameterNode->SetTableTopLongitudinalAngle(longitudinalAngle);
+    parameterNode->SetPatientSupportRotationAngle(patientSupportAngle);
+  }
+  else if (parameterNode->GetPatientHeadFeetRotation() && beamNode->GetGantryAngle() <= 180. && beamNode->GetCouchAngle() <= 180.)
+  {
+    parameterNode->SetTableTopLateralAngle(lateralAngle);
+    parameterNode->SetTableTopLongitudinalAngle(longitudinalAngle);
+    parameterNode->SetPatientSupportRotationAngle(360. - patientSupportAngle);
+  }
+  else if (!parameterNode->GetPatientHeadFeetRotation() && beamNode->GetGantryAngle() > 180. && beamNode->GetCouchAngle() <= 180.)
+  {
+    parameterNode->SetTableTopLateralAngle(-1. * lateralAngle);
+    parameterNode->SetTableTopLongitudinalAngle(-1. * longitudinalAngle);
+    parameterNode->SetPatientSupportRotationAngle(180. + patientSupportAngle);
+  }
+  else if (parameterNode->GetPatientHeadFeetRotation() && beamNode->GetGantryAngle() > 180. && beamNode->GetCouchAngle() <= 180.)
+  {
+    parameterNode->SetTableTopLateralAngle(-1. * lateralAngle);
+    parameterNode->SetTableTopLongitudinalAngle(-1. * longitudinalAngle);
+    parameterNode->SetPatientSupportRotationAngle(180. - patientSupportAngle);
+  }
+  else if (!parameterNode->GetPatientHeadFeetRotation() && beamNode->GetGantryAngle() <= 180. && beamNode->GetCouchAngle() > 180.)
+  {
+    parameterNode->SetTableTopLateralAngle(lateralAngle);
+    parameterNode->SetTableTopLongitudinalAngle(longitudinalAngle);
+    parameterNode->SetPatientSupportRotationAngle(360. - patientSupportAngle);
+  }
+  else if (parameterNode->GetPatientHeadFeetRotation() && beamNode->GetGantryAngle() <= 180. && beamNode->GetCouchAngle() > 180.)
+  {
+    parameterNode->SetTableTopLateralAngle(lateralAngle);
+    parameterNode->SetTableTopLongitudinalAngle(longitudinalAngle);
+    parameterNode->SetPatientSupportRotationAngle(patientSupportAngle);
+  }
+  else if (!parameterNode->GetPatientHeadFeetRotation() && beamNode->GetGantryAngle() > 180. && beamNode->GetCouchAngle() > 180.)
+  {
+    parameterNode->SetTableTopLateralAngle(-1. * lateralAngle);
+    parameterNode->SetTableTopLongitudinalAngle(-1. * longitudinalAngle);
+    parameterNode->SetPatientSupportRotationAngle(180. - patientSupportAngle);
+  }
+  else if (parameterNode->GetPatientHeadFeetRotation() && beamNode->GetGantryAngle() > 180. && beamNode->GetCouchAngle() > 180.)
+  {
+    parameterNode->SetTableTopLateralAngle(-1. * lateralAngle);
+    parameterNode->SetTableTopLongitudinalAngle(-1. * longitudinalAngle);
+    parameterNode->SetPatientSupportRotationAngle(180. + patientSupportAngle);
+  }
+  parameterNode->DisableModifiedEventOff();
+
   return true;
 }
 
@@ -3014,11 +3064,10 @@ bool vtkSlicerIhepStandGeometryLogic::GetPatientIsocenterToFixedIsocenterTransla
   fixedIsocenterInPatientSupport[0] -= patientIsocenterInPatientSupport[0];
   fixedIsocenterInPatientSupport[1] -= patientIsocenterInPatientSupport[1];
   fixedIsocenterInPatientSupport[2] -= patientIsocenterInPatientSupport[2];
-//  vtkWarningMacro("GetPatientIsocenterToFixedIsocenterTranslate: Translate " << fixedIsocenterInPatientSupport[0] << " " << fixedIsocenterInPatientSupport[1] << " " << fixedIsocenterInPatientSupport[2]);
 
-  translatePatientFrame[0] = fixedIsocenterInPatientSupport[0]; // +X
-  translatePatientFrame[1] = fixedIsocenterInPatientSupport[1]; // -Z
-  translatePatientFrame[2] = fixedIsocenterInPatientSupport[2]; // -Y
+  translatePatientFrame[0] = -fixedIsocenterInPatientSupport[0]; // +X
+  translatePatientFrame[1] = -fixedIsocenterInPatientSupport[2]; // -Y
+  translatePatientFrame[2] = fixedIsocenterInPatientSupport[1]; // -Z
 
   return true;
 }
@@ -3162,80 +3211,8 @@ bool vtkSlicerIhepStandGeometryLogic::GetTableTopAnglesFromPatientBeam(
 
   lateralAngle = vtkMath::DegreesFromRadians(acos(tableTopUnityXInPatientBeam[0])) - 90.;
   longitudinalAngle = vtkMath::DegreesFromRadians(acos(tableTopUnityZInPatientBeam[0])) - 90.;
-  if (patientBeamNode->GetGantryAngle() > 180.)
-  {
-    patientSupportAngle = 360. - vtkMath::DegreesFromRadians(acos(tableTopUnityZInPatientBeam[1]));
-  }
-  else
-  {
-    patientSupportAngle = vtkMath::DegreesFromRadians(acos(tableTopUnityZInPatientBeam[1]));
-  }
-  vtkWarningMacro("GetTableTopAnglesFromPatientBeam: Lateral angle " << lateralAngle);
-  vtkWarningMacro("GetTableTopAnglesFromPatientBeam: Longitudinal angle " << longitudinalAngle);
-  vtkWarningMacro("GetTableTopAnglesFromPatientBeam: Patient support angle " << patientSupportAngle);
-  return true;
-//  vtkWarningMacro("CalculateTableTopAnglesForTableTopPositions: beam X-axis in fixed " << vtkMath::DegreesFromRadians(acos(posFixedBeamX[0])) << " " << vtkMath::DegreesFromRadians(acos(posFixedBeamX[1])) << " " << vtkMath::DegreesFromRadians(acos(posFixedBeamX[2])));
-//  vtkWarningMacro("CalculateTableTopAnglesForTableTopPositions: beam Y-axis in fixed " << vtkMath::DegreesFromRadians(acos(posFixedBeamY[0])) << " " << vtkMath::DegreesFromRadians(acos(posFixedBeamY[1])) << " " << vtkMath::DegreesFromRadians(acos(posFixedBeamY[2])));
-//  vtkWarningMacro("CalculateTableTopAnglesForTableTopPositions: beam Z-axis in fixed " << vtkMath::DegreesFromRadians(acos(posFixedBeamZ[0])) << " " << vtkMath::DegreesFromRadians(acos(posFixedBeamZ[1])) << " " << vtkMath::DegreesFromRadians(acos(posFixedBeamZ[2])));
+  patientSupportAngle = vtkMath::DegreesFromRadians(acos(tableTopUnityZInPatientBeam[1]));
 
-/*
-  // Get TableTop->RAS Transform
-  vtkMRMLLinearTransformNode* tableTopTransformNode = this->GetTableTopTransform();
-  // Get FixedReference->RAS Transform
-  vtkMRMLLinearTransformNode* fixedReferenceTransformNode = this->GetFixedReferenceTransform();
-
-  vtkNew< vtkMatrix4x4 > tableTopTransformMatrix;
-  vtkNew< vtkMatrix4x4 > fixedReferenceTransformMatrix;
-  tableTopTransformNode->GetMatrixTransformToWorld(tableTopTransformMatrix);
-  fixedReferenceTransformNode->GetMatrixTransformToWorld(fixedReferenceTransformMatrix);
-
-  fixedReferenceTransformMatrix->Invert(); // RAS->FixedReference
-
-  vtkMRMLRTBeamNode* beamNode = parameterNode->GetBeamNode();
-
-  if (!beamNode)
-  {
-    vtkErrorMacro("GetPatientIsocenterToFixedIsocenterTranslate: Invalid beam node");
-    return false;
-  }
-
-  vtkMRMLTransformNode* beamTransformNode = beamNode->GetParentTransformNode();
-  vtkNew< vtkMatrix4x4 > beamTransformMatrix; // RAS->PatientBeam
-  if (beamTransformNode)
-  {
-    beamTransformNode->GetMatrixTransformFromWorld(beamTransformMatrix);
-  }
-  else
-  {
-    return false;
-  }
-
-  double tableTopBasisX[4] = { 1., 0., 0., 0. };
-  double tableTopBasisXInRas[4] = {};
-  double tableTopBasisY[4] = { 0., 1., 0., 0. };
-  double tableTopBasisYInRas[4] = {};
-  double tableTopBasisZ[4] = { 0., 0., 1., 0. };
-  double tableTopBasisZInRas[4] = {};
-  beamTransformMatrix->MultiplyPoint(tableTopBasisX, tableTopBasisXInRas);
-  beamTransformMatrix->MultiplyPoint(tableTopBasisY, tableTopBasisYInRas);
-  beamTransformMatrix->MultiplyPoint(tableTopBasisZ, tableTopBasisZInRas);
-
-  double tableTopBasisXInBeam[4] = {};
-  double tableTopBasisYInBeam[4] = {};
-  double tableTopBasisZInBeam[4] = {};
-  fixedReferenceTransformMatrix->MultiplyPoint( tableTopBasisXInRas, tableTopBasisXInBeam);
-  fixedReferenceTransformMatrix->MultiplyPoint( tableTopBasisYInRas, tableTopBasisYInBeam);
-  fixedReferenceTransformMatrix->MultiplyPoint( tableTopBasisZInRas, tableTopBasisZInBeam);
-
-  vtkWarningMacro("CalculateTableTopAnglesForTableTopPositions: X in beam " << vtkMath::DegreesFromRadians(acos(tableTopBasisXInBeam[0])) << " " << vtkMath::DegreesFromRadians(acos(tableTopBasisXInBeam[1])) << " " << vtkMath::DegreesFromRadians(acos(tableTopBasisXInBeam[2])));
-  vtkWarningMacro("CalculateTableTopAnglesForTableTopPositions: Y in beam " << vtkMath::DegreesFromRadians(acos(tableTopBasisYInBeam[0])) << " " << vtkMath::DegreesFromRadians(acos(tableTopBasisYInBeam[1])) << " " << vtkMath::DegreesFromRadians(acos(tableTopBasisYInBeam[2])));
-  vtkWarningMacro("CalculateTableTopAnglesForTableTopPositions: Z in beam " << vtkMath::DegreesFromRadians(acos(tableTopBasisZInBeam[0])) << " " << vtkMath::DegreesFromRadians(acos(tableTopBasisZInBeam[1])) << " " << vtkMath::DegreesFromRadians(acos(tableTopBasisZInBeam[2])));
-*/
-}
-
-//----------------------------------------------------------------------------
-bool vtkSlicerIhepStandGeometryLogic::CalculateTableTopCenterToFixedIsocenterTranslation( vtkMRMLIhepStandGeometryNode* parameterNode, double translate[3])
-{
   return true;
 }
 

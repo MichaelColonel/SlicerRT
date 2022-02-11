@@ -7,13 +7,39 @@
     <x>0</x>
     <y>0</y>
     <width>300</width>
-    <height>227</height>
+    <height>259</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>Beam to stand geometry</string>
   </property>
   <layout class="QGridLayout" name="gridLayout_3">
+   <item row="0" column="0">
+    <widget class="ctkCollapsibleButton" name="CollapsibleButton_BeamToFixedIsocenterTranslate">
+     <property name="text">
+      <string>Beam to fixed isocenter translate (mm)</string>
+     </property>
+     <property name="collapsed">
+      <bool>false</bool>
+     </property>
+     <layout class="QGridLayout" name="gridLayout">
+      <item row="0" column="0">
+       <widget class="ctkCoordinatesWidget" name="CoordinatesWidget_BeamToFixedIsocenterTranslate">
+        <property name="readOnly">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="0">
+       <widget class="QPushButton" name="PushButton_Translate">
+        <property name="text">
+         <string>Translate</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
    <item row="2" column="0">
     <widget class="ctkCollapsibleButton" name="CollapsibleButton_BeamToFixedBeamTransform">
      <property name="toolTip">
@@ -39,25 +65,6 @@
         </property>
         <property name="decimals">
          <number>3</number>
-        </property>
-       </widget>
-      </item>
-     </layout>
-    </widget>
-   </item>
-   <item row="0" column="0">
-    <widget class="ctkCollapsibleButton" name="CollapsibleButton_BeamToFixedIsocenterTranslate">
-     <property name="text">
-      <string>Beam to fixed isocenter translate (mm)</string>
-     </property>
-     <property name="collapsed">
-      <bool>false</bool>
-     </property>
-     <layout class="QGridLayout" name="gridLayout">
-      <item row="0" column="0">
-       <widget class="ctkCoordinatesWidget" name="CoordinatesWidget_BeamToFixedIsocenterTranslate">
-        <property name="readOnly">
-         <bool>true</bool>
         </property>
        </widget>
       </item>

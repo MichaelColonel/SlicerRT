@@ -29,6 +29,7 @@
 class vtkMatrix4x4;
 class vtkTransform;
 
+class vtkMRMLNode;
 class qSlicerBeamToStandTransformationWidgetPrivate;
 
 /// \ingroup Slicer_QtModules_IhepStandGeometry
@@ -45,7 +46,14 @@ public:
   void setTransformMatrix(const vtkMatrix4x4* transformMatrix);
   void setTransformMatrix(vtkTransform* transformMatrix);
 
-protected slots:
+public slots:
+  /// Set IhepStandGeometry MRML node (Parameter node)
+  void setParameterNode(vtkMRMLNode* node);
+  /// Update widget GUI from RT Image parameters node
+  void updateWidgetFromMRML();
+
+signals:
+  void translatePatientToFixedIsocenter();
 
 protected:
   QScopedPointer<qSlicerBeamToStandTransformationWidgetPrivate> d_ptr;

@@ -127,6 +127,10 @@ void qSlicerIhepStandGeometryModuleWidget::setup()
   d->setupUi(this);
   this->Superclass::setup();
 
+  // Widgets
+  connect( d->SlicerWidget_BeamToStandTransformation, SIGNAL(translatePatientToFixedIsocenter()),
+    this, SLOT(onTranslatePatientToFixedIsocenterClicked()));
+
   // Nodes
   connect( d->MRMLNodeComboBox_RtBeam, SIGNAL(currentNodeChanged(vtkMRMLNode*)), 
     this, SLOT(onRTBeamNodeChanged(vtkMRMLNode*)));
@@ -170,6 +174,7 @@ void qSlicerIhepStandGeometryModuleWidget::setup()
 
   // Buttons
 //  connect( d->PushButton_LoadStandModels, SIGNAL(clicked()), this, SLOT(onLoadModelsButtonClicked()));
+  connect( d->PushButton_AlignBeams, SIGNAL(clicked()), this, SLOT(onAlignBeamsButtonClicked()));
   connect( d->PushButton_ResetModelsInitialPosition, SIGNAL(clicked()), this, SLOT(onResetToInitialPositionButtonClicked()));
   connect( d->PushButton_BevPlusX, SIGNAL(clicked()), this, SLOT(onBeamsEyeViewPlusXButtonClicked()));
   connect( d->PushButton_BevPlusY, SIGNAL(clicked()), this, SLOT(onBeamsEyeViewPlusYButtonClicked()));
@@ -178,7 +183,7 @@ void qSlicerIhepStandGeometryModuleWidget::setup()
   // Handle scene change event if occurs
   qvtkConnect( d->logic(), vtkCommand::ModifiedEvent, this, SLOT(onLogicModified()));
 }
-
+/*
 //-----------------------------------------------------------------------------
 void qSlicerIhepStandGeometryModuleWidget::onLoadModelsButtonClicked()
 {
@@ -204,7 +209,7 @@ void qSlicerIhepStandGeometryModuleWidget::onLoadModelsButtonClicked()
   d->ParameterNode->DisableModifiedEventOff();
   d->ParameterNode->Modified();
 }
-
+*/
 //-----------------------------------------------------------------------------
 void qSlicerIhepStandGeometryModuleWidget::onResetToInitialPositionButtonClicked()
 {
@@ -707,7 +712,10 @@ void qSlicerIhepStandGeometryModuleWidget::updateWidgetFromMRML()
   d->SliderWidget_TableTopStandLongitudinalPosition->setValue(d->ParameterNode->GetTableTopLongitudinalPosition());
   d->SliderWidget_TableTopStandLateralPosition->setValue(d->ParameterNode->GetTableTopLateralPosition());
   d->SliderWidget_PatientSupportRotationAngle->setValue(d->ParameterNode->GetPatientSupportRotationAngle());
-  
+
+  d->SliderWidget_TableTopLongitudinalAngle->setValue(d->ParameterNode->GetTableTopLongitudinalAngle());
+  d->SliderWidget_TableTopLateralAngle->setValue(d->ParameterNode->GetTableTopLateralAngle());
+
   double patientToTableTopTranslation[3] = {};
   d->ParameterNode->GetPatientToTableTopTranslation(patientToTableTopTranslation);
 
@@ -747,9 +755,7 @@ void qSlicerIhepStandGeometryModuleWidget::updateWidgetFromMRML()
 
   vtkMRMLRTFixedIonBeamNode* fixedBeamNode = vtkMRMLRTFixedIonBeamNode::SafeDownCast(fixedBeam);
 
-  d->logic()->CalculateTableTopCenterToFixedIsocenterTranslation(d->ParameterNode, translate);
   d->logic()->GetPatientIsocenterToFixedIsocenterTranslate(d->ParameterNode, translate);
-  d->logic()->GetTableTopToPatientBeamTransform( d->ParameterNode, beamNode, beamToFixedBeamTransform);
   d->logic()->GetPatientBeamToFixedBeamTransform( d->ParameterNode, beamNode, fixedBeamNode, beamToFixedBeamTransform);
 
   d->SlicerWidget_BeamToStandTransformation->setIsocenterTranslation(translate);
@@ -773,6 +779,9 @@ void qSlicerIhepStandGeometryModuleWidget::setParameterNode(vtkMRMLNode* node)
     qCritical() << Q_FUNC_INFO << ": Parameter node is invalid!";
     return;
   }
+
+  // Set parameter node to children widgets (BeamToStandTransformation)
+  d->SlicerWidget_BeamToStandTransformation->setParameterNode(node);
 
   // Each time the node is modified, the UI widgets are updated
   qvtkReconnect( parameterNode, vtkCommand::ModifiedEvent, this, SLOT(updateWidgetFromMRML()));
@@ -1097,37 +1106,16 @@ void qSlicerIhepStandGeometryModuleWidget::onBeamsEyeViewButtonClicked(const dou
       return;
     }
 
-//    double viewUpVector[4] = { -1., 0., 0., 0. }; // beam negative X-axis
     double vup[4];
-  
     if (beamTransform)
     {
       mat->MultiplyPoint( viewUpVector, vup);
-//      beamTransform->TransformPoint( viewUpVector, vup);
     }
     else
     {
       return;
     }
-    // Translation to origin for in-place rotation
 
-    qDebug() << Q_FUNC_INFO << "Beam view-up Vector " << viewUpVector[0] << " " \
-      << viewUpVector[1] << " " << viewUpVector[2]; 
-
-    qDebug() << "Beam view-up Vector in RAS " << vup[0] << " " << vup[1] << " " << vup[2]; 
-
-    //vtkMRMLModelNode* collimatorModel = vtkMRMLModelNode::SafeDownCast(this->mrmlScene()->GetFirstNodeByName("CollimatorModel"));
-    //vtkPolyData* collimatorModelPolyData = collimatorModel->GetPolyData();
-
-    //double collimatorCenterOfRotation[3] = {0.0, 0.0, 0.0};
-    //double collimatorModelBounds[6] = { 0, 0, 0, 0, 0, 0 };
-
-    //collimatorModelPolyData->GetBounds(collimatorModelBounds);
-    //collimatorCenterOfRotation[0] = (collimatorModelBounds[0] + collimatorModelBounds[1]) / 2;
-    //collimatorCenterOfRotation[1] = (collimatorModelBounds[2] + collimatorModelBounds[3]) / 2;
-    //collimatorCenterOfRotation[2] = collimatorModelBounds[4];
-
-    //cameraNode->GetCamera()->SetPosition(collimatorCenterOfRotation);
     cameraNode->GetCamera()->SetPosition(sourcePosition);
     if (beamNode->GetPlanIsocenterPositionWorld(isocenter))
     {
@@ -1291,4 +1279,43 @@ vtkMRMLCameraNode* qSlicerIhepStandGeometryModuleWidget::Get3DViewCameraNode()
   }
   cameras->Delete();
   return cameraNode;
+}
+
+//-----------------------------------------------------------------------------
+void qSlicerIhepStandGeometryModuleWidget::onAlignBeamsButtonClicked()
+{
+  Q_D(qSlicerIhepStandGeometryModuleWidget);
+
+  if (!d->ParameterNode)
+  {
+    return;
+  }
+  d->logic()->CalculateTableTopAnglesForTableTopPositions(d->ParameterNode);
+
+  d->ParameterNode->Modified();
+}
+
+//-----------------------------------------------------------------------------
+void qSlicerIhepStandGeometryModuleWidget::onTranslatePatientToFixedIsocenterClicked()
+{
+  Q_D(qSlicerIhepStandGeometryModuleWidget);
+
+  if (!d->ParameterNode)
+  {
+    return;
+  }
+
+  // Calculate translation
+  double translate[3] = {};
+  d->logic()->GetPatientIsocenterToFixedIsocenterTranslate( d->ParameterNode, translate);
+
+  qDebug() << Q_FUNC_INFO << ": Test translate " <<  translate[0] << " " << translate[1] << " " << translate[2];
+
+  double vertical = d->ParameterNode->GetTableTopVerticalPositionOrigin() + translate[0];
+  double longitudinal = d->ParameterNode->GetTableTopLongitudinalPosition() + translate[1];
+  double lateral = d->ParameterNode->GetTableTopLongitudinalPosition() + translate[2];
+  
+  this->onTableOriginVerticalPositionChanged(vertical);
+  this->onTableLongitudinalPositionChanged(longitudinal);
+  this->onTableLateralPositionChanged(lateral);
 }

@@ -156,12 +156,6 @@ public:
   /// Create external xray beam and plan and add ext beam to the parameter node
   void CreateExternalXrayPlanAndNode(vtkMRMLIhepStandGeometryNode* parameterNode);
 
-  /// Calculate table top center to fixed beam isocenter translation
-  /// @param parameterNode - A parameter set
-  /// @param translate - translation in PatientSupport frame
-  /// \return true if success, false otherwise
-  bool CalculateTableTopCenterToFixedIsocenterTranslation(vtkMRMLIhepStandGeometryNode* parameterNode, double translate[3]);
-
   /// Initial Translation for different transforms
   void InitialSetupTransformTranslations(vtkMRMLIhepStandGeometryNode* parameterNode);
 
