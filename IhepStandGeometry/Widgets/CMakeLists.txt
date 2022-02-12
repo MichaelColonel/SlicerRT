@@ -10,6 +10,8 @@ set(${KIT}_INCLUDE_DIRECTORIES
 set(${KIT}_SRCS
   qSlicerBeamToStandTransformationWidget.cxx
   qSlicerBeamToStandTransformationWidget.h
+  ${vtkSlicerIhepStandGeometryModuleLogic_INCLUDE_DIRS}
+  ${vtkSlicerBeamsModuleLogic_INCLUDE_DIRS}
   )
 
 set(${KIT}_MOC_SRCS

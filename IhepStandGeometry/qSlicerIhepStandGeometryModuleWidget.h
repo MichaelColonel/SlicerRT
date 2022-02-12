@@ -58,10 +58,8 @@ public slots:
   void onBeamsEyeViewPlusYButtonClicked();
   void onBeamsEyeViewMinusYButtonClicked();
 
-//  void onLoadModelsButtonClicked();
   void onResetToInitialPositionButtonClicked();
   void onAlignBeamsButtonClicked();
-  void onTranslatePatientToFixedIsocenterClicked();
   void onTableMirrorVerticalPositionChanged(double);
   void onTableOriginVerticalPositionChanged(double);
   void onTableMiddleVerticalPositionChanged(double);

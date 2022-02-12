@@ -52,8 +52,7 @@ public slots:
   /// Update widget GUI from RT Image parameters node
   void updateWidgetFromMRML();
 
-signals:
-  void translatePatientToFixedIsocenter();
+  void onTranslatePatientToFixedIsocenterClicked();
 
 protected:
   QScopedPointer<qSlicerBeamToStandTransformationWidgetPrivate> d_ptr;

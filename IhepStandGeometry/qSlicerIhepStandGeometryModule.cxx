@@ -112,7 +112,7 @@ void qSlicerIhepStandGeometryModule::setup()
   qSlicerAbstractCoreModule* beamsModule = qSlicerCoreApplication::application()->moduleManager()->module("Beams");
   if (beamsModule && standGeometryLogic)
   {
-    vtkSlicerBeamsModuleLogic* beamsLogic = vtkSlicerBeamsModuleLogic::SafeDownCast(beamsModule->logic());
+//    vtkSlicerBeamsModuleLogic* beamsLogic = vtkSlicerBeamsModuleLogic::SafeDownCast(beamsModule->logic());
 //    standGeometryLogic->SetBeamsLogic(beamsLogic);
   }
   else

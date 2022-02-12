@@ -21,12 +21,29 @@
 // VTK includes
 #include <vtkWeakPointer.h>
 
+// SlicerQt includes
+#include <qSlicerCoreApplication.h>
+#include <qSlicerAbstractCoreModule.h>
+#include <qSlicerModuleManager.h>
+
 // MRML includes
 #include <vtkMRMLScene.h>
 #include <vtkMRMLNode.h>
 
 // SlicerRT IhepStandGeometry MRML includes
 #include <vtkMRMLIhepStandGeometryNode.h>
+
+// SlicerRT MRML IEC and IhepStandGeometry includes
+#include <vtkSlicerIECTransformLogic.h>
+
+#include <vtkMRMLRTBeamNode.h>
+#include <vtkMRMLRTIonBeamNode.h>
+#include <vtkMRMLRTFixedIonBeamNode.h>
+#include <vtkMRMLRTFixedBeamNode.h>
+#include <vtkMRMLRTPlanNode.h>
+
+// Logic includes
+#include "vtkSlicerIhepStandGeometryLogic.h"
 
 // VTK includes
 #include <vtkTransform.h>
@@ -35,9 +52,11 @@
 // Qt includes
 #include <QDebug>
 
-// FooBar Widgets includes
+// Widgets includes
 #include "qSlicerBeamToStandTransformationWidget.h"
 #include "ui_qSlicerBeamToStandTransformationWidget.h"
+
+class vtkSlicerIhepStandGeometryLogic;
 
 //-----------------------------------------------------------------------------
 /// \ingroup Slicer_QtModules_IhepStandGeometry
@@ -53,6 +72,7 @@ public:
     qSlicerBeamToStandTransformationWidget& object);
   virtual void setupUi(qSlicerBeamToStandTransformationWidget*);
 
+  vtkSlicerIhepStandGeometryLogic* logic() const;
   void init();
   
   /// IhepStandGeometry MRML node containing shown parameters
@@ -72,6 +92,18 @@ void qSlicerBeamToStandTransformationWidgetPrivate::setupUi(qSlicerBeamToStandTr
   this->Ui_qSlicerBeamToStandTransformationWidget::setupUi(widget);
 }
 
+// --------------------------------------------------------------------------
+vtkSlicerIhepStandGeometryLogic* qSlicerBeamToStandTransformationWidgetPrivate::logic() const
+{
+  Q_Q(const qSlicerBeamToStandTransformationWidget);
+  qSlicerAbstractCoreModule* aModule = qSlicerCoreApplication::application()->moduleManager()->module("IhepStandGeometry");
+  if (aModule)
+  {
+    vtkSlicerIhepStandGeometryLogic* moduleLogic = vtkSlicerIhepStandGeometryLogic::SafeDownCast(aModule->logic());
+    return moduleLogic;
+  }
+  return nullptr;
+}
 
 // --------------------------------------------------------------------------
 void qSlicerBeamToStandTransformationWidgetPrivate::init()
@@ -80,33 +112,7 @@ void qSlicerBeamToStandTransformationWidgetPrivate::init()
 
   // Buttons
   QObject::connect( this->PushButton_Translate, SIGNAL(clicked()), 
-    q, SIGNAL(translatePatientToFixedIsocenter()));
-
-/*
-  // Range widgets
-  QObject::connect( this->RangeWidget_IntensityRange, SIGNAL(valuesChanged( double, double)), 
-    q, SLOT(onAutoscaleIntensityRangeChanged( double, double)));
-
-  // Slicer widgets
-  QObject::connect( this->SliderWidget_HounsfieldThreshold, SIGNAL(valueChanged(double)), 
-    q, SLOT(onHUThresholdChanged(double)));
-
-  // Buttons
-  QObject::connect( this->CheckBox_UseExponentialMapping, SIGNAL(toggled(bool)), 
-    q, SLOT(onUseExponentialMappingToggled(bool)));
-  QObject::connect( this->CheckBox_AutoscaleIntensity, SIGNAL(toggled(bool)), 
-    q, SLOT(onAutoscalePixelsRangeToggled(bool)));
-  QObject::connect( this->CheckBox_InvertIntensity, SIGNAL(toggled(bool)), 
-    q, SLOT(onInvertIntensityToggled(bool)));
-
-  // Combo Boxes
-  QObject::connect( this->ComboBox_ReconstructionAlgorithm, SIGNAL(currentIndexChanged(int)), 
-    q, SLOT(onReconstructionAlgorithmChanged(int)));
-  QObject::connect( this->ComboBox_Threading, SIGNAL(currentIndexChanged(int)), 
-    q, SLOT(onThreadingChanged(int)));
-  QObject::connect( this->ComboBox_HounsfieldConversion, SIGNAL(currentIndexChanged(int)), 
-    q, SLOT(onHUConversionChanged(int)));
-*/
+    q, SLOT(onTranslatePatientToFixedIsocenterClicked()));
 }
 
 //-----------------------------------------------------------------------------
@@ -120,6 +126,7 @@ qSlicerBeamToStandTransformationWidget
 {
   Q_D(qSlicerBeamToStandTransformationWidget);
   d->setupUi(this);
+  d->init();
 }
 
 //-----------------------------------------------------------------------------
@@ -151,7 +158,31 @@ void qSlicerBeamToStandTransformationWidget::updateWidgetFromMRML()
     qCritical() << Q_FUNC_INFO << ": Invalid parameter node";
     return;
   }
-  qCritical() << Q_FUNC_INFO << ": NODE IS VALID";
+
+  vtkSlicerIhepStandGeometryLogic* logic = d->logic();
+  if (!logic)
+  {
+    qCritical() << Q_FUNC_INFO << ": Invalid IhepStandGeometry logic";
+    return;
+  }
+
+  // Calculate transform and translation
+  double translate[3] = {};
+  vtkNew< vtkTransform > beamToFixedBeamTransform;
+
+  vtkMRMLRTBeamNode* beamNode = d->ParameterNode->GetPatientBeamNode();
+  vtkMRMLRTBeamNode* fixedBeam = d->ParameterNode->GetFixedBeamNode();
+//  vtkMRMLRTBeamNode* xrayBeam = d->ParameterNode->GetExternalXrayBeamNode();
+  if (beamNode && fixedBeam)
+  {
+    vtkMRMLRTFixedIonBeamNode* fixedBeamNode = vtkMRMLRTFixedIonBeamNode::SafeDownCast(fixedBeam);
+
+    logic->GetPatientIsocenterToFixedIsocenterTranslate(d->ParameterNode, translate);
+    logic->GetPatientBeamToFixedBeamTransform( d->ParameterNode, beamNode, fixedBeamNode, beamToFixedBeamTransform);
+
+    this->setIsocenterTranslation(translate);
+    this->setTransformMatrix(beamToFixedBeamTransform);
+  }
 }
 
 //-----------------------------------------------------------------------------
@@ -181,4 +212,37 @@ void qSlicerBeamToStandTransformationWidget::setTransformMatrix(vtkTransform* tr
   Q_D(qSlicerBeamToStandTransformationWidget);
   vtkMatrix4x4* matrix = transform->GetMatrix();
   this->setTransformMatrix(matrix);
+}
+
+//-----------------------------------------------------------------------------
+void qSlicerBeamToStandTransformationWidget::onTranslatePatientToFixedIsocenterClicked()
+{
+  Q_D(qSlicerBeamToStandTransformationWidget);
+
+  if (!d->ParameterNode)
+  {
+    return;
+  }
+
+  vtkSlicerIhepStandGeometryLogic* logic = d->logic();
+  if (!logic)
+  {
+    qCritical() << Q_FUNC_INFO << ": Invalid IhepStandGeometry logic";
+    return;
+  }
+
+  // Calculate translation
+  double translate[3] = {};
+  logic->GetPatientIsocenterToFixedIsocenterTranslate( d->ParameterNode, translate);
+
+  double vertical = d->ParameterNode->GetTableTopVerticalPositionOrigin() + translate[2]; // Z_t
+  double longitudinal = d->ParameterNode->GetTableTopLongitudinalPosition() + translate[1]; // Y_t
+  double lateral = d->ParameterNode->GetTableTopLateralPosition() + translate[0]; // X_t
+
+  d->ParameterNode->DisableModifiedEventOn();
+  d->ParameterNode->SetTableTopVerticalPositionOrigin(vertical);
+  d->ParameterNode->SetTableTopLongitudinalPosition(longitudinal);
+  d->ParameterNode->SetTableTopLateralPosition(lateral);
+  d->ParameterNode->DisableModifiedEventOff();
+  d->ParameterNode->Modified();
 }

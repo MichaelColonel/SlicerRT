@@ -127,10 +127,6 @@ void qSlicerIhepStandGeometryModuleWidget::setup()
   d->setupUi(this);
   this->Superclass::setup();
 
-  // Widgets
-  connect( d->SlicerWidget_BeamToStandTransformation, SIGNAL(translatePatientToFixedIsocenter()),
-    this, SLOT(onTranslatePatientToFixedIsocenterClicked()));
-
   // Nodes
   connect( d->MRMLNodeComboBox_RtBeam, SIGNAL(currentNodeChanged(vtkMRMLNode*)), 
     this, SLOT(onRTBeamNodeChanged(vtkMRMLNode*)));
@@ -173,7 +169,6 @@ void qSlicerIhepStandGeometryModuleWidget::setup()
   connect( d->CheckBox_ModelsVisibility, SIGNAL(toggled(bool)), this, SLOT(onModelsVisibilityToggled(bool)));
 
   // Buttons
-//  connect( d->PushButton_LoadStandModels, SIGNAL(clicked()), this, SLOT(onLoadModelsButtonClicked()));
   connect( d->PushButton_AlignBeams, SIGNAL(clicked()), this, SLOT(onAlignBeamsButtonClicked()));
   connect( d->PushButton_ResetModelsInitialPosition, SIGNAL(clicked()), this, SLOT(onResetToInitialPositionButtonClicked()));
   connect( d->PushButton_BevPlusX, SIGNAL(clicked()), this, SLOT(onBeamsEyeViewPlusXButtonClicked()));
@@ -183,33 +178,7 @@ void qSlicerIhepStandGeometryModuleWidget::setup()
   // Handle scene change event if occurs
   qvtkConnect( d->logic(), vtkCommand::ModifiedEvent, this, SLOT(onLogicModified()));
 }
-/*
-//-----------------------------------------------------------------------------
-void qSlicerIhepStandGeometryModuleWidget::onLoadModelsButtonClicked()
-{
-  Q_D(qSlicerIhepStandGeometryModuleWidget);
 
-  if (!this->mrmlScene())
-  {
-    qCritical() << Q_FUNC_INFO << ": Invalid scene";
-    return;
-  }
-
-  if (!d->ParameterNode)
-  {
-    return;
-  }
-
-  // Load and setup models
-  d->ParameterNode->DisableModifiedEventOn();
-  d->ParameterNode->SetTreatmentMachineType("IHEPStand");
-  d->logic()->LoadTreatmentMachineModels(d->ParameterNode);
-  d->logic()->ResetModelsToInitialPosition(d->ParameterNode);
-
-  d->ParameterNode->DisableModifiedEventOff();
-  d->ParameterNode->Modified();
-}
-*/
 //-----------------------------------------------------------------------------
 void qSlicerIhepStandGeometryModuleWidget::onResetToInitialPositionButtonClicked()
 {
@@ -362,8 +331,6 @@ void qSlicerIhepStandGeometryModuleWidget::onTableOriginVerticalPositionChanged(
   
   d->ParameterNode->SetTableTopVerticalPositionMirror(mirrorPos + d->ParameterNode->GetTableTopVerticalPositionOrigin());
   d->ParameterNode->SetTableTopVerticalPositionMiddle(middlePos + d->ParameterNode->GetTableTopVerticalPositionOrigin());
-  
-  d->ParameterNode->DisableModifiedEventOff();
 
   double originPos = d->SliderWidget_TableTopVerticalPositionOrigin->value();
   
@@ -723,10 +690,6 @@ void qSlicerIhepStandGeometryModuleWidget::updateWidgetFromMRML()
   d->CheckBox_RotatePatientHeadFeet->setChecked(d->ParameterNode->GetPatientHeadFeetRotation());
   d->CheckBox_FixedReferenceCamera->setChecked(d->ParameterNode->GetUseStandCoordinateSystem());
 
-  // Calculate transform and translation
-  double translate[3] = {};
-  vtkNew< vtkTransform > beamToFixedBeamTransform;
-
   vtkMRMLRTBeamNode* beamNode = d->ParameterNode->GetPatientBeamNode();
   vtkMRMLRTBeamNode* fixedBeam = d->ParameterNode->GetFixedBeamNode();
   vtkMRMLRTBeamNode* xrayBeam = d->ParameterNode->GetExternalXrayBeamNode();
@@ -752,14 +715,6 @@ void qSlicerIhepStandGeometryModuleWidget::updateWidgetFromMRML()
   {
     xrayBeam->GetParentPlanNode()->SetAndObserveSegmentationNode(d->ParameterNode->GetPatientBodySegmentationNode());
   }
-
-  vtkMRMLRTFixedIonBeamNode* fixedBeamNode = vtkMRMLRTFixedIonBeamNode::SafeDownCast(fixedBeam);
-
-  d->logic()->GetPatientIsocenterToFixedIsocenterTranslate(d->ParameterNode, translate);
-  d->logic()->GetPatientBeamToFixedBeamTransform( d->ParameterNode, beamNode, fixedBeamNode, beamToFixedBeamTransform);
-
-  d->SlicerWidget_BeamToStandTransformation->setIsocenterTranslation(translate);
-  d->SlicerWidget_BeamToStandTransformation->setTransformMatrix(beamToFixedBeamTransform);
 }
 
 //-----------------------------------------------------------------------------
@@ -793,7 +748,6 @@ void qSlicerIhepStandGeometryModuleWidget::setParameterNode(vtkMRMLNode* node)
     if (!parameterNode->GetPatientBeamNode())
     {
       vtkMRMLRTBeamNode* beamNode = vtkMRMLRTBeamNode::SafeDownCast(d->MRMLNodeComboBox_RtBeam->currentNode());
-//      qvtkConnect( beamNode, vtkMRMLRTBeamNode::BeamTransformModified, this, SLOT(updateNormalAndVupVectors()));
       parameterNode->SetAndObservePatientBeamNode(beamNode);
       parameterNode->Modified();
     }
@@ -840,28 +794,7 @@ void qSlicerIhepStandGeometryModuleWidget::onRTBeamNodeChanged(vtkMRMLNode* node
     qCritical() << Q_FUNC_INFO << "Beam transform node is invalid";
     return;
   }
-/*
-  double xP[4] = { 1., 0., 0., 0. }; // beam negative X-axis
-  double xM[4] = { -1., 0., 0., 0. }; // beam negative X-axis
-  double yP[4] = { 0., 1., 0., 0. }; // beam negative X-axis
-  double yM[4] = { 0., -1., 0., 0. }; // beam negative X-axis
-  double zP[4] = { 0., 0., 1., 0. }; // beam negative X-axis
-  double zM[4] = { 0., 0., -1., 0. }; // beam negative X-axis
-  
-  double vup[4];
-  mat->MultiplyPoint( xP, vup);
-  qDebug() << "xP " << vup[0] << " " << vup[1] << " " << vup[2];
-  mat->MultiplyPoint( xM, vup);
-  qDebug() << "xM " << vup[0] << " " << vup[1] << " " << vup[2]; 
-  mat->MultiplyPoint( yP, vup);
-  qDebug() << "yP " << vup[0] << " " << vup[1] << " " << vup[2]; 
-  mat->MultiplyPoint( yM, vup);
-  qDebug() << "yM " << vup[0] << " " << vup[1] << " " << vup[2]; 
-  mat->MultiplyPoint( zP, vup);
-  qDebug() << "zP " << vup[0] << " " << vup[1] << " " << vup[2]; 
-  mat->MultiplyPoint( zM, vup);
-  qDebug() << "zM " << vup[0] << " " << vup[1] << " " << vup[2];
-*/
+
   vtkMRMLRTIonBeamNode* ionBeamNode = vtkMRMLRTIonBeamNode::SafeDownCast(node);
   Q_UNUSED(ionBeamNode);
 
@@ -1293,29 +1226,4 @@ void qSlicerIhepStandGeometryModuleWidget::onAlignBeamsButtonClicked()
   d->logic()->CalculateTableTopAnglesForTableTopPositions(d->ParameterNode);
 
   d->ParameterNode->Modified();
-}
-
-//-----------------------------------------------------------------------------
-void qSlicerIhepStandGeometryModuleWidget::onTranslatePatientToFixedIsocenterClicked()
-{
-  Q_D(qSlicerIhepStandGeometryModuleWidget);
-
-  if (!d->ParameterNode)
-  {
-    return;
-  }
-
-  // Calculate translation
-  double translate[3] = {};
-  d->logic()->GetPatientIsocenterToFixedIsocenterTranslate( d->ParameterNode, translate);
-
-  qDebug() << Q_FUNC_INFO << ": Test translate " <<  translate[0] << " " << translate[1] << " " << translate[2];
-
-  double vertical = d->ParameterNode->GetTableTopVerticalPositionOrigin() + translate[0];
-  double longitudinal = d->ParameterNode->GetTableTopLongitudinalPosition() + translate[1];
-  double lateral = d->ParameterNode->GetTableTopLongitudinalPosition() + translate[2];
-  
-  this->onTableOriginVerticalPositionChanged(vertical);
-  this->onTableLongitudinalPositionChanged(longitudinal);
-  this->onTableLateralPositionChanged(lateral);
 }
