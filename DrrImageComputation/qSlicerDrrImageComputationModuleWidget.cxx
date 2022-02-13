@@ -303,16 +303,6 @@ void qSlicerDrrImageComputationModuleWidget::onRTBeamNodeChanged(vtkMRMLNode* no
 //    return;
 //  }
 
-  vtkMRMLRTBeamNode* beamNode = vtkMRMLRTBeamNode::SafeDownCast(node);
-  if (!beamNode)
-  {
-    qCritical() << Q_FUNC_INFO << ": Invalid beam node";
-    return;
-  }
-
-  vtkMRMLRTIonBeamNode* ionBeamNode = vtkMRMLRTIonBeamNode::SafeDownCast(node);
-  Q_UNUSED(ionBeamNode);
-
   vtkMRMLDrrImageComputationNode* parameterNode = vtkMRMLDrrImageComputationNode::SafeDownCast(d->MRMLNodeComboBox_ParameterSet->currentNode());
   if (!parameterNode)
   {
@@ -320,7 +310,19 @@ void qSlicerDrrImageComputationModuleWidget::onRTBeamNodeChanged(vtkMRMLNode* no
     return;
   }
 
+  vtkMRMLRTBeamNode* beamNode = vtkMRMLRTBeamNode::SafeDownCast(node);
+  if (!beamNode)
+  {
+    qCritical() << Q_FUNC_INFO << ": Invalid beam node";
+    parameterNode->SetAndObserveBeamNode(nullptr); // Disable imager and image markups update, VUP and normal vectors recalculation
+    return;
+  }
+
+  vtkMRMLRTIonBeamNode* ionBeamNode = vtkMRMLRTIonBeamNode::SafeDownCast(node);
+  Q_UNUSED(ionBeamNode);
+
   parameterNode->SetAndObserveBeamNode(beamNode); // Update imager and image markups, DRR arguments in logic
+  parameterNode->Modified();
 }
 
 //-----------------------------------------------------------------------------
