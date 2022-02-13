@@ -100,11 +100,15 @@ void qSlicerDrrImageComputationModuleWidget::setup()
   this->Superclass::setup();
 
   d->RadioButton_Plastimatch->setChecked(true);
-  d->PlastimatchParametersWidget->setEnabled(true);
-  d->PlastimatchParametersWidget->setCollapsed(false);
+  // Disable RTK params at start
+  QWidget* tabWidget = d->TabWidget_DrrParameters->widget(1);
+  tabWidget->setEnabled(false);
+  d->TabWidget_DrrParameters->setTabEnabled( 1, false);
+//  d->PlastimatchParametersWidget->setEnabled(true);
+//  d->PlastimatchParametersWidget->setCollapsed(false);
 
-  d->RtkParametersWidget->setEnabled(false);
-  d->RtkParametersWidget->setCollapsed(true);
+//  d->RtkParametersWidget->setEnabled(false);
+//  d->RtkParametersWidget->setCollapsed(true);
 
   // Nodes
   connect( d->MRMLNodeComboBox_RtBeam, SIGNAL(currentNodeChanged(vtkMRMLNode*)), 
@@ -313,22 +317,23 @@ void qSlicerDrrImageComputationModuleWidget::onRTBeamNodeChanged(vtkMRMLNode* no
 //    return;
 //  }
 
-  vtkMRMLRTBeamNode* beamNode = vtkMRMLRTBeamNode::SafeDownCast(node);
-  if (!beamNode)
-  {
-    qCritical() << Q_FUNC_INFO << ": Invalid beam node";
-    return;
-  }
-
-  vtkMRMLRTIonBeamNode* ionBeamNode = vtkMRMLRTIonBeamNode::SafeDownCast(node);
-  Q_UNUSED(ionBeamNode);
-
   vtkMRMLDrrImageComputationNode* parameterNode = vtkMRMLDrrImageComputationNode::SafeDownCast(d->MRMLNodeComboBox_ParameterSet->currentNode());
   if (!parameterNode)
   {
     qCritical() << Q_FUNC_INFO << ": Invalid parameter node";
     return;
   }
+
+  vtkMRMLRTBeamNode* beamNode = vtkMRMLRTBeamNode::SafeDownCast(node);
+  if (!beamNode)
+  {
+    qCritical() << Q_FUNC_INFO << ": Invalid beam node";
+    parameterNode->SetAndObserveBeamNode(nullptr); // Disable imager and image markups update, VUP and normal vectors recalculation
+    return;
+  }
+
+  vtkMRMLRTIonBeamNode* ionBeamNode = vtkMRMLRTIonBeamNode::SafeDownCast(node);
+  Q_UNUSED(ionBeamNode);
 
   parameterNode->SetAndObserveBeamNode(beamNode); // Update imager and image markups, DRR arguments in logic
   parameterNode->Modified();
@@ -469,11 +474,7 @@ void qSlicerDrrImageComputationModuleWidget::onComputationLibraryChanged(QAbstra
     tabWidget = d->TabWidget_DrrParameters->widget(1);
     tabWidget->setEnabled(false);
     d->TabWidget_DrrParameters->setTabEnabled( 1, false);
-//    d->PlastimatchParametersWidget->setEnabled(true);
-//    d->PlastimatchParametersWidget->setCollapsed(false);
-
-//    d->RtkParametersWidget->setEnabled(false);
-//    d->RtkParametersWidget->setCollapsed(true);
+    d->TabWidget_DrrParameters->setCurrentIndex(0);
   }
   else if (rButton == d->RadioButton_RTK)
   {
@@ -484,11 +485,7 @@ void qSlicerDrrImageComputationModuleWidget::onComputationLibraryChanged(QAbstra
     tabWidget = d->TabWidget_DrrParameters->widget(1);
     tabWidget->setEnabled(true);
     d->TabWidget_DrrParameters->setTabEnabled( 1, true);
-//    d->PlastimatchParametersWidget->setEnabled(false);
-//    d->PlastimatchParametersWidget->setCollapsed(true);
-
-//    d->RtkParametersWidget->setEnabled(true);
-//    d->RtkParametersWidget->setCollapsed(false);
+    d->TabWidget_DrrParameters->setCurrentIndex(1);
   }
 }
 

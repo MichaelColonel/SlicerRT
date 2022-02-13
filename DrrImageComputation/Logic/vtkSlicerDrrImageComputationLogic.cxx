@@ -1419,7 +1419,6 @@ void vtkSlicerDrrImageComputationLogic::UpdateNormalAndVupVectors(vtkMRMLDrrImag
 
   parameterNode->SetNormalVector(n);
   parameterNode->SetViewUpVector(vup);
-  parameterNode->Modified();
 }
 
 //------------------------------------------------------------------------------

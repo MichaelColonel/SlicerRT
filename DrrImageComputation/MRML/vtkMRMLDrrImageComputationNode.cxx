@@ -91,6 +91,13 @@ vtkMRMLDrrImageComputationNode::vtkMRMLDrrImageComputationNode()
   RtkImagerInPlaneAngle = 0.;
   RtkImagerOutOfPlaneAngle = 0.;
   RtkCylindricalDetectorRadius = 0.;
+
+  // Observe RTBeam node events (like change of transform or geometry)
+  vtkNew<vtkIntArray> nodeEvents;
+  nodeEvents->InsertNextValue(vtkCommand::ModifiedEvent);
+  nodeEvents->InsertNextValue(vtkMRMLRTBeamNode::BeamGeometryModified);
+  nodeEvents->InsertNextValue(vtkMRMLRTBeamNode::BeamTransformModified);
+  this->AddNodeReferenceRole(BEAM_REFERENCE_ROLE, nullptr, nodeEvents);
 }
 
 //----------------------------------------------------------------------------
@@ -282,6 +289,33 @@ void vtkMRMLDrrImageComputationNode::PrintSelf(ostream& os, vtkIndent indent)
 }
 
 //----------------------------------------------------------------------------
+void vtkMRMLDrrImageComputationNode::ProcessMRMLEvents(vtkObject *caller, unsigned long eventID, void *callData)
+{
+  Superclass::ProcessMRMLEvents(caller, eventID, callData);
+
+  if (!this->Scene)
+  {
+    vtkErrorMacro("ProcessMRMLEvents: Invalid MRML scene");
+    return;
+  }
+  if (this->Scene->IsBatchProcessing())
+  {
+    return;
+  }
+
+  if (caller->IsA("vtkMRMLRTBeamNode"))
+  {
+    vtkMRMLRTBeamNode* beamNode = this->GetBeamNode();
+    vtkMRMLRTBeamNode* modifiedNode = vtkMRMLRTBeamNode::SafeDownCast(caller);
+    if (modifiedNode && beamNode && (std::strcmp( modifiedNode->GetID(), beamNode->GetID()) == 0))
+    {
+      // Update the DRR parameters
+      this->Modified();
+    }
+  }
+}
+
+//----------------------------------------------------------------------------
 vtkMRMLRTBeamNode* vtkMRMLDrrImageComputationNode::GetBeamNode()
 {
   return vtkMRMLRTBeamNode::SafeDownCast( this->GetNodeReference(BEAM_REFERENCE_ROLE) );
@@ -296,7 +330,7 @@ void vtkMRMLDrrImageComputationNode::SetAndObserveBeamNode(vtkMRMLRTBeamNode* no
     return;
   }
 
-  this->SetNodeReferenceID(BEAM_REFERENCE_ROLE, (node ? node->GetID() : nullptr));
+  this->SetAndObserveNodeReferenceID(BEAM_REFERENCE_ROLE, (node ? node->GetID() : nullptr));
 }
 
 //----------------------------------------------------------------------------
@@ -314,7 +348,7 @@ void vtkMRMLDrrImageComputationNode::SetAndObserveCameraNode(vtkMRMLCameraNode* 
     return;
   }
 
-  this->SetNodeReferenceID(CAMERA_REFERENCE_ROLE, (node ? node->GetID() : nullptr));
+  this->SetAndObserveNodeReferenceID(CAMERA_REFERENCE_ROLE, (node ? node->GetID() : nullptr));
 }
 
 //----------------------------------------------------------------------------
