@@ -147,6 +147,15 @@ public:
   vtkGetVector4Macro(ImageWindow, int);
   vtkSetVector4Macro(ImageWindow, int);
 
+  vtkGetMacro(RtkImagerInPlaneAngle, double);
+  vtkSetMacro(RtkImagerInPlaneAngle, double);
+
+  vtkGetMacro(RtkImagerOutOfPlaneAngle, double);
+  vtkSetMacro(RtkImagerOutOfPlaneAngle, double);
+
+  vtkGetMacro(RtkCylindricalDetectorRadius, double);
+  vtkSetMacro(RtkCylindricalDetectorRadius, double);
+
 protected:
   vtkMRMLDrrImageComputationNode();
   ~vtkMRMLDrrImageComputationNode() override;

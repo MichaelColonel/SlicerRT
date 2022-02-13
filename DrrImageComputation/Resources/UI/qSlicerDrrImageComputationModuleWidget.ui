@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>458</width>
-    <height>631</height>
+    <height>869</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -16,141 +16,6 @@
   <layout class="QGridLayout" name="gridLayout_5">
    <item row="0" column="0">
     <layout class="QGridLayout" name="gridLayout">
-     <item row="0" column="0">
-      <widget class="QLabel" name="label_4">
-       <property name="text">
-        <string>Parameter set:</string>
-       </property>
-      </widget>
-     </item>
-     <item row="0" column="1" colspan="2">
-      <widget class="qMRMLNodeComboBox" name="MRMLNodeComboBox_ParameterSet">
-       <property name="nodeTypes">
-        <stringlist>
-         <string>vtkMRMLDrrImageComputationNode</string>
-        </stringlist>
-       </property>
-       <property name="noneDisplay">
-        <string>Please select a node</string>
-       </property>
-      </widget>
-     </item>
-     <item row="1" column="0" colspan="3">
-      <widget class="ctkCollapsibleButton" name="CollapsibleButton_ReferenceInput">
-       <property name="text">
-        <string>Reference input nodes</string>
-       </property>
-       <layout class="QGridLayout" name="gridLayout_4">
-        <item row="1" column="0">
-         <widget class="QLabel" name="label">
-          <property name="text">
-           <string>RT beam:</string>
-          </property>
-         </widget>
-        </item>
-        <item row="0" column="0">
-         <widget class="QLabel" name="label_2">
-          <property name="text">
-           <string>CT volume:</string>
-          </property>
-         </widget>
-        </item>
-        <item row="0" column="1">
-         <widget class="qMRMLNodeComboBox" name="MRMLNodeComboBox_CtVolume">
-          <property name="nodeTypes">
-           <stringlist>
-            <string>vtkMRMLScalarVolumeNode</string>
-           </stringlist>
-          </property>
-          <property name="showChildNodeTypes">
-           <bool>false</bool>
-          </property>
-          <property name="noneEnabled">
-           <bool>true</bool>
-          </property>
-          <property name="addEnabled">
-           <bool>false</bool>
-          </property>
-          <property name="removeEnabled">
-           <bool>false</bool>
-          </property>
-          <property name="noneDisplay">
-           <string>Please select a CT volume node</string>
-          </property>
-         </widget>
-        </item>
-        <item row="1" column="1">
-         <widget class="qMRMLNodeComboBox" name="MRMLNodeComboBox_RtBeam">
-          <property name="nodeTypes">
-           <stringlist>
-            <string>vtkMRMLRTBeamNode</string>
-           </stringlist>
-          </property>
-          <property name="showChildNodeTypes">
-           <bool>false</bool>
-          </property>
-          <property name="noneEnabled">
-           <bool>true</bool>
-          </property>
-          <property name="addEnabled">
-           <bool>false</bool>
-          </property>
-          <property name="removeEnabled">
-           <bool>false</bool>
-          </property>
-          <property name="noneDisplay">
-           <string>Please select a RTBeam node</string>
-          </property>
-         </widget>
-        </item>
-        <item row="2" column="0">
-         <widget class="QLabel" name="label_7">
-          <property name="text">
-           <string>Camera:</string>
-          </property>
-         </widget>
-        </item>
-        <item row="2" column="1">
-         <layout class="QHBoxLayout" name="horizontalLayout_3">
-          <item>
-           <widget class="qMRMLNodeComboBox" name="MRMLNodeComboBox_Camera">
-            <property name="nodeTypes">
-             <stringlist>
-              <string>vtkMRMLCameraNode</string>
-             </stringlist>
-            </property>
-            <property name="showChildNodeTypes">
-             <bool>false</bool>
-            </property>
-            <property name="noneEnabled">
-             <bool>true</bool>
-            </property>
-            <property name="addEnabled">
-             <bool>false</bool>
-            </property>
-            <property name="removeEnabled">
-             <bool>false</bool>
-            </property>
-            <property name="noneDisplay">
-             <string>Please select a 3D Camera node</string>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QPushButton" name="PushButton_UpdateBeamFromCamera">
-            <property name="enabled">
-             <bool>false</bool>
-            </property>
-            <property name="text">
-             <string>Update beam</string>
-            </property>
-           </widget>
-          </item>
-         </layout>
-        </item>
-       </layout>
-      </widget>
-     </item>
      <item row="2" column="1" colspan="2">
       <widget class="ctkCheckBox" name="CheckBox_ShowDrrMarkups">
        <property name="autoFillBackground">
@@ -185,6 +50,140 @@
          <height>21</height>
         </size>
        </property>
+      </widget>
+     </item>
+     <item row="0" column="0">
+      <widget class="QLabel" name="label_4">
+       <property name="text">
+        <string>Parameter set:</string>
+       </property>
+      </widget>
+     </item>
+     <item row="5" column="0" colspan="3">
+      <widget class="QTabWidget" name="TabWidget_DrrParameters">
+       <property name="enabled">
+        <bool>true</bool>
+       </property>
+       <property name="currentIndex">
+        <number>1</number>
+       </property>
+       <widget class="QWidget" name="PlastimatchTab">
+        <attribute name="title">
+         <string>Plastimatch</string>
+        </attribute>
+        <layout class="QGridLayout" name="gridLayout_8">
+         <item row="0" column="0">
+          <widget class="QScrollArea" name="scrollArea">
+           <property name="widgetResizable">
+            <bool>true</bool>
+           </property>
+           <widget class="QWidget" name="scrollAreaWidgetContents">
+            <property name="geometry">
+             <rect>
+              <x>0</x>
+              <y>0</y>
+              <width>414</width>
+              <height>260</height>
+             </rect>
+            </property>
+            <widget class="qSlicerDrrImageComputationPlastimatchParametersWidget" name="PlastimatchParametersWidget" native="true">
+             <property name="geometry">
+              <rect>
+               <x>10</x>
+               <y>0</y>
+               <width>141</width>
+               <height>121</height>
+              </rect>
+             </property>
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+            </widget>
+           </widget>
+          </widget>
+         </item>
+        </layout>
+       </widget>
+       <widget class="QWidget" name="RtkTab">
+        <attribute name="title">
+         <string>RTK</string>
+        </attribute>
+        <layout class="QGridLayout" name="gridLayout_9">
+         <item row="0" column="0">
+          <widget class="qSlicerDrrImageComputationRtkParametersWidget" name="RtkParametersWidget" native="true">
+           <property name="enabled">
+            <bool>false</bool>
+           </property>
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </widget>
+      </widget>
+     </item>
+     <item row="0" column="1" colspan="2">
+      <widget class="qMRMLNodeComboBox" name="MRMLNodeComboBox_ParameterSet">
+       <property name="nodeTypes">
+        <stringlist>
+         <string>vtkMRMLDrrImageComputationNode</string>
+        </stringlist>
+       </property>
+       <property name="noneDisplay">
+        <string>Please select a node</string>
+       </property>
+      </widget>
+     </item>
+     <item row="3" column="0" colspan="3">
+      <widget class="ctkCollapsibleButton" name="CollapsibleButton_DrrComputationLibrary">
+       <property name="enabled">
+        <bool>true</bool>
+       </property>
+       <property name="text">
+        <string>Computation library</string>
+       </property>
+       <property name="collapsed">
+        <bool>true</bool>
+       </property>
+       <layout class="QGridLayout" name="gridLayout_7">
+        <item row="0" column="0">
+         <layout class="QHBoxLayout" name="horizontalLayout_2">
+          <item>
+           <widget class="QRadioButton" name="RadioButton_Plastimatch">
+            <property name="text">
+             <string>Plastimatch</string>
+            </property>
+            <property name="checked">
+             <bool>true</bool>
+            </property>
+            <attribute name="buttonGroup">
+             <string notr="true">ButtonGroup_DrrComputationLibrary</string>
+            </attribute>
+           </widget>
+          </item>
+          <item>
+           <widget class="QRadioButton" name="RadioButton_RTK">
+            <property name="enabled">
+             <bool>true</bool>
+            </property>
+            <property name="text">
+             <string>RTK</string>
+            </property>
+            <attribute name="buttonGroup">
+             <string notr="true">ButtonGroup_DrrComputationLibrary</string>
+            </attribute>
+           </widget>
+          </item>
+         </layout>
+        </item>
+       </layout>
       </widget>
      </item>
      <item row="4" column="0" colspan="3">
@@ -369,75 +368,7 @@
        </layout>
       </widget>
      </item>
-     <item row="5" column="0" colspan="3">
-      <widget class="qSlicerDrrImageComputationPlastimatchParametersWidget" name="PlastimatchParametersWidget" native="true">
-       <property name="sizePolicy">
-        <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
-         <horstretch>0</horstretch>
-         <verstretch>0</verstretch>
-        </sizepolicy>
-       </property>
-      </widget>
-     </item>
-     <item row="6" column="0" colspan="3">
-      <widget class="qSlicerDrrImageComputationRtkParametersWidget" name="RtkParametersWidget" native="true">
-       <property name="enabled">
-        <bool>false</bool>
-       </property>
-       <property name="sizePolicy">
-        <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
-         <horstretch>0</horstretch>
-         <verstretch>0</verstretch>
-        </sizepolicy>
-       </property>
-      </widget>
-     </item>
-     <item row="3" column="0" colspan="3">
-      <widget class="ctkCollapsibleButton" name="CollapsibleButton_DrrComputationLibrary">
-       <property name="enabled">
-        <bool>true</bool>
-       </property>
-       <property name="text">
-        <string>Computation library</string>
-       </property>
-       <property name="collapsed">
-        <bool>true</bool>
-       </property>
-       <layout class="QGridLayout" name="gridLayout_7">
-        <item row="0" column="0">
-         <layout class="QHBoxLayout" name="horizontalLayout_2">
-          <item>
-           <widget class="QRadioButton" name="RadioButton_Plastimatch">
-            <property name="text">
-             <string>Plastimatch</string>
-            </property>
-            <property name="checked">
-             <bool>true</bool>
-            </property>
-            <attribute name="buttonGroup">
-             <string notr="true">ButtonGroup_DrrComputationLibrary</string>
-            </attribute>
-           </widget>
-          </item>
-          <item>
-           <widget class="QRadioButton" name="RadioButton_RTK">
-            <property name="enabled">
-             <bool>true</bool>
-            </property>
-            <property name="text">
-             <string>RTK</string>
-            </property>
-            <attribute name="buttonGroup">
-             <string notr="true">ButtonGroup_DrrComputationLibrary</string>
-            </attribute>
-           </widget>
-          </item>
-         </layout>
-        </item>
-       </layout>
-      </widget>
-     </item>
-     <item row="7" column="1">
+     <item row="6" column="1">
       <widget class="QPushButton" name="PushButton_ComputeDrr">
        <property name="enabled">
         <bool>false</bool>
@@ -447,7 +378,7 @@
        </property>
       </widget>
      </item>
-     <item row="8" column="1">
+     <item row="7" column="1">
       <spacer name="verticalSpacer">
        <property name="orientation">
         <enum>Qt::Vertical</enum>
@@ -462,6 +393,122 @@
         </size>
        </property>
       </spacer>
+     </item>
+     <item row="1" column="0" colspan="3">
+      <widget class="ctkCollapsibleButton" name="CollapsibleButton_ReferenceInput">
+       <property name="text">
+        <string>Reference input nodes</string>
+       </property>
+       <layout class="QGridLayout" name="gridLayout_4">
+        <item row="1" column="0">
+         <widget class="QLabel" name="label">
+          <property name="text">
+           <string>RT beam:</string>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="0">
+         <widget class="QLabel" name="label_2">
+          <property name="text">
+           <string>CT volume:</string>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="1">
+         <widget class="qMRMLNodeComboBox" name="MRMLNodeComboBox_CtVolume">
+          <property name="nodeTypes">
+           <stringlist>
+            <string>vtkMRMLScalarVolumeNode</string>
+           </stringlist>
+          </property>
+          <property name="showChildNodeTypes">
+           <bool>false</bool>
+          </property>
+          <property name="noneEnabled">
+           <bool>true</bool>
+          </property>
+          <property name="addEnabled">
+           <bool>false</bool>
+          </property>
+          <property name="removeEnabled">
+           <bool>false</bool>
+          </property>
+          <property name="noneDisplay">
+           <string>Please select a CT volume node</string>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="1">
+         <widget class="qMRMLNodeComboBox" name="MRMLNodeComboBox_RtBeam">
+          <property name="nodeTypes">
+           <stringlist>
+            <string>vtkMRMLRTBeamNode</string>
+           </stringlist>
+          </property>
+          <property name="showChildNodeTypes">
+           <bool>false</bool>
+          </property>
+          <property name="noneEnabled">
+           <bool>true</bool>
+          </property>
+          <property name="addEnabled">
+           <bool>false</bool>
+          </property>
+          <property name="removeEnabled">
+           <bool>false</bool>
+          </property>
+          <property name="noneDisplay">
+           <string>Please select a RTBeam node</string>
+          </property>
+         </widget>
+        </item>
+        <item row="2" column="0">
+         <widget class="QLabel" name="label_7">
+          <property name="text">
+           <string>Camera:</string>
+          </property>
+         </widget>
+        </item>
+        <item row="2" column="1">
+         <layout class="QHBoxLayout" name="horizontalLayout_3">
+          <item>
+           <widget class="qMRMLNodeComboBox" name="MRMLNodeComboBox_Camera">
+            <property name="nodeTypes">
+             <stringlist>
+              <string>vtkMRMLCameraNode</string>
+             </stringlist>
+            </property>
+            <property name="showChildNodeTypes">
+             <bool>false</bool>
+            </property>
+            <property name="noneEnabled">
+             <bool>true</bool>
+            </property>
+            <property name="addEnabled">
+             <bool>false</bool>
+            </property>
+            <property name="removeEnabled">
+             <bool>false</bool>
+            </property>
+            <property name="noneDisplay">
+             <string>Please select a 3D Camera node</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QPushButton" name="PushButton_UpdateBeamFromCamera">
+            <property name="enabled">
+             <bool>false</bool>
+            </property>
+            <property name="text">
+             <string>Update beam</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </item>
+       </layout>
+      </widget>
      </item>
     </layout>
    </item>

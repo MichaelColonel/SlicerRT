@@ -123,6 +123,9 @@ void vtkMRMLDrrImageComputationNode::WriteXML(ostream& of, int nIndent)
   vtkMRMLWriteXMLEnumMacro(PlastimatchHounsfieldUnitsConversion, PlastimatchHounsfieldUnitsConversion);
   vtkMRMLWriteXMLIntMacro(HounsfieldUnitsThresholdBelow, HounsfieldUnitsThresholdBelow);
   vtkMRMLWriteXMLEnumMacro(PlastimatchThreading, PlastimatchThreading);
+  vtkMRMLWriteXMLFloatMacro(RtkImagerInPlaneAngle, RtkImagerInPlaneAngle);
+  vtkMRMLWriteXMLFloatMacro(RtkImagerOutOfPlaneAngle, RtkImagerOutOfPlaneAngle);
+  vtkMRMLWriteXMLFloatMacro(RtkCylindricalDetectorRadius, RtkCylindricalDetectorRadius);
   // add new parameters here
   vtkMRMLWriteXMLEndMacro(); 
 }
@@ -152,6 +155,9 @@ void vtkMRMLDrrImageComputationNode::ReadXMLAttributes(const char** atts)
   vtkMRMLReadXMLEnumMacro(PlastimatchHounsfieldUnitsConversion, PlastimatchHounsfieldUnitsConversion);
   vtkMRMLReadXMLIntMacro(HounsfieldUnitsThresholdBelow, HounsfieldUnitsThresholdBelow);
   vtkMRMLReadXMLEnumMacro(PlastimatchThreading, PlastimatchThreading);
+  vtkMRMLReadXMLFloatMacro(RtkImagerInPlaneAngle, RtkImagerInPlaneAngle);
+  vtkMRMLReadXMLFloatMacro(RtkImagerOutOfPlaneAngle, RtkImagerOutOfPlaneAngle);
+  vtkMRMLReadXMLFloatMacro(RtkCylindricalDetectorRadius, RtkCylindricalDetectorRadius);
   // add new parameters here
   vtkMRMLReadXMLEndMacro();
 
@@ -195,6 +201,9 @@ void vtkMRMLDrrImageComputationNode::Copy(vtkMRMLNode *anode)
   vtkMRMLCopyEnumMacro(PlastimatchHounsfieldUnitsConversion);
   vtkMRMLCopyIntMacro(HounsfieldUnitsThresholdBelow);
   vtkMRMLCopyEnumMacro(PlastimatchThreading);
+  vtkMRMLCopyFloatMacro(RtkImagerInPlaneAngle);
+  vtkMRMLCopyFloatMacro(RtkImagerOutOfPlaneAngle);
+  vtkMRMLCopyFloatMacro(RtkCylindricalDetectorRadius);
   // add new parameters here
   vtkMRMLCopyEndMacro(); 
 
@@ -234,6 +243,9 @@ void vtkMRMLDrrImageComputationNode::CopyContent(vtkMRMLNode *anode, bool deepCo
   vtkMRMLCopyEnumMacro(PlastimatchHounsfieldUnitsConversion);
   vtkMRMLCopyIntMacro(HounsfieldUnitsThresholdBelow);
   vtkMRMLCopyEnumMacro(PlastimatchThreading);
+  vtkMRMLCopyFloatMacro(RtkImagerInPlaneAngle);
+  vtkMRMLCopyFloatMacro(RtkImagerOutOfPlaneAngle);
+  vtkMRMLCopyFloatMacro(RtkCylindricalDetectorRadius);
   // add new parameters here
   vtkMRMLCopyEndMacro();
 }
@@ -262,6 +274,9 @@ void vtkMRMLDrrImageComputationNode::PrintSelf(ostream& os, vtkIndent indent)
   vtkMRMLPrintEnumMacro(PlastimatchHounsfieldUnitsConversion);
   vtkMRMLPrintIntMacro(HounsfieldUnitsThresholdBelow);
   vtkMRMLPrintEnumMacro(PlastimatchThreading);
+  vtkMRMLPrintFloatMacro(RtkImagerInPlaneAngle);
+  vtkMRMLPrintFloatMacro(RtkImagerOutOfPlaneAngle);
+  vtkMRMLPrintFloatMacro(RtkCylindricalDetectorRadius);
   // add new parameters here
   vtkMRMLPrintEndMacro(); 
 }

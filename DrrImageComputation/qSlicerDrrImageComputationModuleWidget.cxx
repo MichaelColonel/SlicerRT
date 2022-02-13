@@ -463,20 +463,32 @@ void qSlicerDrrImageComputationModuleWidget::onComputationLibraryChanged(QAbstra
   if (rButton == d->RadioButton_Plastimatch)
   {
     qDebug() << Q_FUNC_INFO << ": Plastimatch";
-    d->PlastimatchParametersWidget->setEnabled(true);
-    d->PlastimatchParametersWidget->setCollapsed(false);
+    QWidget* tabWidget = d->TabWidget_DrrParameters->widget(0);
+    tabWidget->setEnabled(true);
+    d->TabWidget_DrrParameters->setTabEnabled( 0, true);
+    tabWidget = d->TabWidget_DrrParameters->widget(1);
+    tabWidget->setEnabled(false);
+    d->TabWidget_DrrParameters->setTabEnabled( 1, false);
+//    d->PlastimatchParametersWidget->setEnabled(true);
+//    d->PlastimatchParametersWidget->setCollapsed(false);
 
-    d->RtkParametersWidget->setEnabled(false);
-    d->RtkParametersWidget->setCollapsed(true);
+//    d->RtkParametersWidget->setEnabled(false);
+//    d->RtkParametersWidget->setCollapsed(true);
   }
   else if (rButton == d->RadioButton_RTK)
   {
     qDebug() << Q_FUNC_INFO << ": RTK";
-    d->PlastimatchParametersWidget->setEnabled(false);
-    d->PlastimatchParametersWidget->setCollapsed(true);
+    QWidget* tabWidget = d->TabWidget_DrrParameters->widget(0);
+    tabWidget->setEnabled(false);
+    d->TabWidget_DrrParameters->setTabEnabled( 0, false);
+    tabWidget = d->TabWidget_DrrParameters->widget(1);
+    tabWidget->setEnabled(true);
+    d->TabWidget_DrrParameters->setTabEnabled( 1, true);
+//    d->PlastimatchParametersWidget->setEnabled(false);
+//    d->PlastimatchParametersWidget->setCollapsed(true);
 
-    d->RtkParametersWidget->setEnabled(true);
-    d->RtkParametersWidget->setCollapsed(false);
+//    d->RtkParametersWidget->setEnabled(true);
+//    d->RtkParametersWidget->setCollapsed(false);
   }
 }
 
