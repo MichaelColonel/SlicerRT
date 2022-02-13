@@ -303,15 +303,15 @@ void vtkMRMLDrrImageComputationNode::ProcessMRMLEvents(vtkObject *caller, unsign
     return;
   }
 
-  if (caller->IsA("vtkMRMLRTBeamNode"))
+  // Update the DRR View-Up and normal vectors, if beam geometry or transform was changed
+  switch (eventID)
   {
-    vtkMRMLRTBeamNode* beamNode = this->GetBeamNode();
-    vtkMRMLRTBeamNode* modifiedNode = vtkMRMLRTBeamNode::SafeDownCast(caller);
-    if (modifiedNode && beamNode && (std::strcmp( modifiedNode->GetID(), beamNode->GetID()) == 0))
-    {
-      // Update the DRR parameters
-      this->Modified();
-    }
+  case vtkMRMLRTBeamNode::BeamGeometryModified:
+  case vtkMRMLRTBeamNode::BeamTransformModified:
+    this->Modified();
+    break;
+  default:
+    break;
   }
 }
 
@@ -330,7 +330,7 @@ void vtkMRMLDrrImageComputationNode::SetAndObserveBeamNode(vtkMRMLRTBeamNode* no
     return;
   }
 
-  this->SetAndObserveNodeReferenceID(BEAM_REFERENCE_ROLE, (node ? node->GetID() : nullptr));
+  this->SetNodeReferenceID(BEAM_REFERENCE_ROLE, (node ? node->GetID() : nullptr));
 }
 
 //----------------------------------------------------------------------------
