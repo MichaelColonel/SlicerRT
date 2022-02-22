@@ -61,6 +61,23 @@
 #include <vtkCamera.h>
 #include <vtkMath.h>
 
+// RTK includes
+#include <rtkFieldOfViewImageFilter.h>
+#include <rtkConstantImageSource.h>
+#include <rtkThreeDCircularProjectionGeometryXMLFile.h>
+#include <rtkThreeDCircularProjectionGeometry.h>
+#include <rtkJosephForwardProjectionImageFilter.h>
+#include <rtkJosephForwardAttenuatedProjectionImageFilter.h>
+#include <rtkZengForwardProjectionImageFilter.h>
+#ifdef RTK_USE_CUDA
+#  include <rtkCudaForwardProjectionImageFilter.h>
+#endif
+#include <rtkFieldOfViewImageFilter.h>
+
+// ITK includes
+#include <itkShiftScaleImageFilter.h>
+#include <itkCastImageFilter.h>
+
 // std includes
 #include <cmath>
 
@@ -1122,6 +1139,298 @@ bool vtkSlicerDrrImageComputationLogic::ComputePlastimatchDRR( vtkMRMLDrrImageCo
     res = this->SetupDisplayAndSubjectHierarchyNodes( parameterNode, drrVolumeNode);
   }
   return res;
+}
+
+//------------------------------------------------------------------------------
+bool vtkSlicerDrrImageComputationLogic::ComputeRtkDRR( vtkMRMLDrrImageComputationNode* parameterNode, 
+  vtkMRMLScalarVolumeNode* ctVolumeNode)
+{
+  vtkMRMLScene* scene = this->GetMRMLScene(); 
+  if (!scene)
+  {
+    vtkErrorMacro("ComputeRtkDRR: Invalid MRML scene");
+    return false;
+  }
+
+  if (!parameterNode)
+  {
+    vtkErrorMacro("ComputeRtkDRR: Invalid parameter node");
+    return false;
+  }
+
+  vtkMRMLRTBeamNode* beamNode = parameterNode->GetBeamNode();
+  if (!beamNode)
+  {
+    vtkErrorMacro("ComputeRtkDRR: Invalid RT Beam node");
+    return false;
+  }
+
+  if (!ctVolumeNode)
+  {
+    vtkErrorMacro("ComputeRtkDRR: Invalid input CT volume node");
+    return false;
+  }
+
+  using InputPixelType = short;
+  using OutputPixelType = float;
+  constexpr unsigned int Dimension = 3;
+
+  vtkImageData* ctData = ctVolumeNode->GetImageData();
+
+  using InputImageType = itk::Image<InputPixelType, Dimension>;
+  using OutputImageType = itk::Image<OutputPixelType, Dimension>;
+
+  // Geometry
+  double isocenter[3] = {};
+  parameterNode->GetIsocenterPositionLPS(isocenter);
+
+  double distance = parameterNode->GetIsocenterImagerDistance();
+     
+  double spacing[2] = {};
+  parameterNode->GetImagerSpacing(spacing);
+
+  int resolution[2] = {};
+  parameterNode->GetImagerResolution(resolution);
+
+  double offset[2] = {};
+  parameterNode->GetImagerCenterOffset(offset);
+
+  double imagerHalfWidth = spacing[0] * resolution[0] / 2.; // columns
+  double imagerHalfHeight = spacing[1] * resolution[1] / 2.; // rows
+
+  double sourceToIsocenterDistance = beamNode->GetSAD();
+  double sourceToDetectorDistance = parameterNode->GetIsocenterImagerDistance() + beamNode->GetSAD();
+  double gantryAngle = beamNode->GetGantryAngle();
+  double projOffsetX = isocenter[0] - imagerHalfWidth; // - spacingOutput[0] * sizeOutput[0] / 2.
+  double projOffsetY = isocenter[1] - imagerHalfHeight; // - spacingOutput[1] * sizeOutput[1] / 2.
+  double outOfPlaneAngle = 0.;
+  double inPlaneAngle = 0.;
+  double sourceOffsetX = isocenter[0];//20.767;
+  double sourceOffsetY = isocenter[1];//-1.435;
+/*
+  double projOffsetX = 20.767 - 512. / 2.; // - spacingOutput[0] * sizeOutput[0] / 2.
+  double projOffsetY = -1.435 - 512. / 2.; // - spacingOutput[1] * sizeOutput[1] / 2.
+  double outOfPlaneAngle = 0.;
+  double inPlaneAngle = 0.;
+  double sourceOffsetX = 20.767;//20.767;
+  double sourceOffsetY = -1.435;//-1.435;
+*/
+  const double collimationUInf = std::numeric_limits<double>::max();
+  const double collimationUSup = std::numeric_limits<double>::max();
+  const double collimationVInf = std::numeric_limits<double>::max();
+  const double collimationVSup = std::numeric_limits<double>::max();
+
+  rtk::ThreeDCircularProjectionGeometry::Pointer geometry;
+  geometry = rtk::ThreeDCircularProjectionGeometry::New();
+  geometry->AddProjection( sourceToIsocenterDistance,
+    sourceToDetectorDistance, gantryAngle, projOffsetX, projOffsetY,
+    outOfPlaneAngle, inPlaneAngle, sourceOffsetX, sourceOffsetY);
+
+  geometry->SetCollimationOfLastProjection( collimationUInf, collimationUSup, 
+    collimationVInf, collimationVSup);
+
+  geometry->Update();
+//  TRY_AND_EXIT_ON_ITK_EXCEPTION(geometry->GenerateOutputInformation())
+  TRY_AND_EXIT_ON_ITK_EXCEPTION(geometry->UpdateOutputInformation())
+
+  // Create a stack of empty projection images
+  using ConstantImageSourceType = rtk::ConstantImageSource<OutputImageType>;
+  ConstantImageSourceType::Pointer constantImageSource = ConstantImageSourceType::New();
+//  rtk::SetConstantImageSourceFromGgo<ConstantImageSourceType, args_info_rtkforwardprojections>(constantImageSource,
+//                                                                                               args_info);
+
+  // Adjust size according to geometry
+  ConstantImageSourceType::SizeType sizeOutput;
+  ConstantImageSourceType::PointType originOutput;
+  ConstantImageSourceType::SpacingType spacingOutput;
+
+  spacingOutput[0] = spacing[0];
+  spacingOutput[1] = spacing[1];
+  spacingOutput[2] = 1.;
+  originOutput[0] = 0;
+  originOutput[1] = 0;
+  originOutput[2] = 0;  
+  sizeOutput[0] = resolution[0];
+  sizeOutput[1] = resolution[0];
+//  sizeOutput[2] = geometryReader->GetOutputObject()->GetGantryAngles().size();
+  sizeOutput[2] = geometry->GetGantryAngles().size();
+  constantImageSource->SetSize(sizeOutput);
+  constantImageSource->SetOrigin(originOutput);
+  constantImageSource->SetSpacing(spacingOutput);
+//  constantImageSource->SetConstant(0.);
+//  constantImageSource->UpdateOutputInformation();
+
+  // Plastimatch DRR Pixel Type
+  InputImageType::Pointer inputCtVolume = InputImageType::New();
+
+  if (!vtkSlicerRtCommon::ConvertVolumeNodeToItkImage<short>( ctVolumeNode, inputCtVolume))
+  {
+    vtkWarningMacro("ComputeRtkDRR: Convert Error");
+  }
+  // Input reader
+//  using ReaderType = itk::ImageFileReader<InputImageType>;
+//  ReaderType::Pointer reader = ReaderType::New();
+//  reader->SetFileName("inputVolume.mha");
+//  TRY_AND_EXIT_ON_ITK_EXCEPTION(reader->Update())
+/*
+  // add air border to the volume for uniform background
+  using ConstantPadImageFilterType = itk::ConstantPadImageFilter< InputImageType, InputImageType >;
+  ConstantPadImageFilterType::Pointer padFilter = ConstantPadImageFilterType::New();
+  InputImageType::SizeType extendVolumeRegion;
+  extendVolumeRegion = reader->GetOutput()->GetLargestPossibleRegion().GetSize();
+  std::cout << "Volume Region = ";
+  std::cout <<  extendVolumeRegion[0] << ", " <<  extendVolumeRegion[1] << ", " <<  extendVolumeRegion[2] << std::endl;
+//  std::cout <<  extendVolumeRegion[3] << ", " <<  extendVolumeRegion[4] << ", " <<  extendVolumeRegion[5] << std::endl;
+
+//  extendVolumeRegion.Fill(10); // 300 pixels wide
+  extendVolumeRegion[0] = 0;
+  extendVolumeRegion[1] = 300;
+  extendVolumeRegion[2] = 300;
+  padFilter->SetInput(reader->GetOutput());
+  padFilter->SetPadLowerBound(extendVolumeRegion);
+  padFilter->SetPadUpperBound(extendVolumeRegion);
+  padFilter->SetConstant(-1000); // air HU value
+  TRY_AND_EXIT_ON_ITK_EXCEPTION(padFilter->Update())
+
+  extendVolumeRegion = padFilter->GetOutput()->GetLargestPossibleRegion().GetSize();
+  std::cout << "Extended region = ";
+  std::cout <<  extendVolumeRegion[0] << ", " <<  extendVolumeRegion[1] << ", " <<  extendVolumeRegion[2] << std::endl;
+*/
+
+
+  using ShiftScaleFilterType = itk::ShiftScaleImageFilter< InputImageType, InputImageType >;
+  ShiftScaleFilterType::Pointer ssFilter = ShiftScaleFilterType::New();
+  ssFilter->SetInput( 0, inputCtVolume);
+//  ssFilter->SetScale(1.);
+  ssFilter->SetShift(1024.);
+//  fovFilter->SetGeometry(geometry);
+  TRY_AND_EXIT_ON_ITK_EXCEPTION(ssFilter->Update());
+
+
+/*
+  using ThresholdFilterType = itk::ThresholdImageFilter<InputImageType>;
+  ThresholdFilterType::Pointer filter = ThresholdFilterType::New();
+  filter->SetInput(reader->GetOutput());
+  filter->ThresholdBelow(-800);
+  filter->SetOutsideValue(0);
+  TRY_AND_EXIT_ON_ITK_EXCEPTION(filter->Update())
+*/
+
+
+  using CastType = itk::CastImageFilter< InputImageType, OutputImageType>;
+  CastType::Pointer caster = CastType::New();
+//  caster->SetInput(padFilter->GetOutput());
+  caster->SetInput(ssFilter->GetOutput());
+  TRY_AND_EXIT_ON_ITK_EXCEPTION(caster->Update())
+
+/*
+  itk::ImageSource<OutputImageType>::Pointer attenuationFilter;
+  if (args_info.attenuationmap_given)
+  {
+    if (args_info.verbose_flag)
+      std::cout << "Reading attenuation map " << args_info.attenuationmap_arg << "..." << std::endl;
+    // Read an existing image to initialize the attenuation map
+    using AttenuationReaderType = itk::ImageFileReader<OutputImageType>;
+    AttenuationReaderType::Pointer attenuationReader = AttenuationReaderType::New();
+    attenuationReader->SetFileName(args_info.attenuationmap_arg);
+    attenuationFilter = attenuationReader;
+  }
+*/
+  // Create forward projection image filter
+
+  rtk::ForwardProjectionImageFilter<OutputImageType, OutputImageType>::Pointer forwardProjection;
+
+  using ForwardFilterType = vtkMRMLDrrImageComputationNode::RtkForwardProjectionFilterType;
+  ForwardFilterType projectionFilterType = ForwardFilterType::Joseph;
+  switch (projectionFilterType)
+  {
+    case (ForwardFilterType::Joseph):
+      forwardProjection = rtk::JosephForwardProjectionImageFilter<OutputImageType, OutputImageType>::New();
+      break;
+    case (ForwardFilterType::JosephAttenuated):
+      forwardProjection = rtk::JosephForwardAttenuatedProjectionImageFilter<OutputImageType, OutputImageType>::New();
+      break;
+    case (ForwardFilterType::Zeng):
+      forwardProjection = rtk::ZengForwardProjectionImageFilter<OutputImageType, OutputImageType>::New();
+      break;
+    case (ForwardFilterType::CudaRayCast):
+#ifdef RTK_USE_CUDA
+      forwardProjection = rtk::CudaForwardProjectionImageFilter<OutputImageType, OutputImageType>::New();
+      dynamic_cast<rtk::CudaForwardProjectionImageFilter<OutputImageType, OutputImageType> *>(
+        forwardProjection.GetPointer())->SetStepSize(1.0);
+#else
+      std::cerr << "The program has not been compiled with cuda option" << std::endl;
+      return EXIT_FAILURE;
+#endif
+      break;
+    default:
+      std::cerr << "Unhandled --method value." << std::endl;
+      return EXIT_FAILURE;
+  }
+  forwardProjection->SetInput(constantImageSource->GetOutput());
+//  forwardProjection->SetInput(1, reader->GetOutput());
+  forwardProjection->SetInput(1, caster->GetOutput());
+//  if (args_info.attenuationmap_given)
+//    forwardProjection->SetInput(2, attenuationFilter->GetOutput());
+//  if (args_info.sigmazero_given && args_info.fp_arg == fp_arg_Zeng)
+//    dynamic_cast<rtk::ZengForwardProjectionImageFilter<OutputImageType, OutputImageType> *>(
+//      forwardProjection.GetPointer())
+//      ->SetSigmaZero(1.0);
+//  if (args_info.alphapsf_given && args_info.fp_arg == fp_arg_Zeng)
+//    dynamic_cast<rtk::ZengForwardProjectionImageFilter<OutputImageType, OutputImageType> *>(
+//      forwardProjection.GetPointer())
+//      ->SetAlpha(0.1);
+  forwardProjection->SetGeometry(geometry);
+//  if (!args_info.lowmem_flag)
+//  {
+    TRY_AND_EXIT_ON_ITK_EXCEPTION(forwardProjection->Update())
+//  }
+
+/*
+  using ConstIteratorType = itk::ImageRegionConstIterator< OutputImageType >;
+  using IteratorType = itk::ImageRegionIterator< OutputImageType >;
+
+  OutputImageType::Pointer drrImage = forwardProjection->GetOutput();
+  ConstIteratorType in( drrImage, drrImage->GetRequestedRegion() );
+  IteratorType out( drrImage, drrImage->GetRequestedRegion() );
+  for ( in.GoToBegin(), out.GoToBegin(); !in.IsAtEnd(); ++in, ++out )
+  {
+    if (in.Get() > 0.)
+    {
+      out.Set(0.0);
+    }
+    else
+    {
+      out.Set(log10(-1. * in.Get()) );
+    }
+  }
+*/
+
+
+  // Write
+//  if (args_info.verbose_flag)
+//    std::cout << "Writing... " << std::endl;
+
+  // Create node for the DRR image volume
+  vtkNew<vtkMRMLScalarVolumeNode> drrVolumeNode;
+  scene->AddNode(drrVolumeNode);
+
+  if (!vtkSlicerRtCommon::ConvertItkImageToVolumeNode<float>( forwardProjection->GetOutput(), drrVolumeNode, VTK_FLOAT))
+  {
+    vtkWarningMacro("ComputeRtkDRR: DRR convert Error");
+  }
+/*
+  using WriterType = itk::ImageFileWriter<OutputImageType>;
+  WriterType::Pointer writer = WriterType::New();
+  writer->SetFileName("output.mha");
+  writer->SetInput(forwardProjection->GetOutput());
+//  if (args_info.lowmem_flag)
+//  {
+    writer->SetNumberOfStreamDivisions(sizeOutput[2]);
+//  }
+  TRY_AND_EXIT_ON_ITK_EXCEPTION(writer->Update())
+*/
+  return true;
 }
 
 //------------------------------------------------------------------------------

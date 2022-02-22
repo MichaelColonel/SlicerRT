@@ -51,6 +51,7 @@ public:
   enum PlastimatchReconstuctionAlgorithmType : int { Exact = 0, Uniform, PlastimatchReconstuctionAlgorithm_Last };
   enum PlastimatchHounsfieldUnitsConversionType : int { Preprocess = 0, Inline, None, PlastimatchHounsfieldUnitsConversion_Last };
   enum PlastimatchThreadingType : int { CPU = 0, CUDA, OpenCL, PlastimatchThreading_Last };
+  enum RtkForwardProjectionFilterType : int { Joseph, JosephAttenuated, Zeng, CudaRayCast, RtkForwardProjectionFilter_Last };
 
   static vtkMRMLDrrImageComputationNode *New();
   vtkTypeMacro(vtkMRMLDrrImageComputationNode,vtkMRMLPlanarImageNode);

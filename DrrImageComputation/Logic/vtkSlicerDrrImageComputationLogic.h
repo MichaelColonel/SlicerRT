@@ -87,6 +87,10 @@ public:
   /// @param ctInputVolume - CT volume
   bool ComputePlastimatchDRR( vtkMRMLDrrImageComputationNode* parameterNode, vtkMRMLScalarVolumeNode* ctInputVolume);
 
+  /// @param parameterNode - parameters of DRR image computation
+  /// @param ctInputVolume - CT volume
+  bool ComputeRtkDRR( vtkMRMLDrrImageComputationNode* parameterNode, vtkMRMLScalarVolumeNode* ctInputVolume);
+
   /// Update Beam node from 3D view camera position
   /// @param parameterNode - parameters of DRR image computation
   /// @return true if beam was updated, false otherwise
