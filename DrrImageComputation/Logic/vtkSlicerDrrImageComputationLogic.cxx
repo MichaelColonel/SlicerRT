@@ -1182,8 +1182,12 @@ bool vtkSlicerDrrImageComputationLogic::ComputeRtkDRR( vtkMRMLDrrImageComputatio
 
   // Geometry
   double isocenter[3] = {};
+  beamNode->GetPlanIsocenterPosition(isocenter);
+  vtkDebugMacro("ComputeRtkDRR: IsocenterRAS " << isocenter[0] << " " << isocenter[1] << " " << isocenter[2]);
+
   parameterNode->GetIsocenterPositionLPS(isocenter);
 
+  vtkDebugMacro("ComputeRtkDRR: IsocenterLPS " << isocenter[0] << " " << isocenter[1] << " " << isocenter[2]);
   double distance = parameterNode->GetIsocenterImagerDistance();
      
   double spacing[2] = {};
