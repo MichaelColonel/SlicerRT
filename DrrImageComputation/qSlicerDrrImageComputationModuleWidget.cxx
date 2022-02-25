@@ -469,6 +469,7 @@ void qSlicerDrrImageComputationModuleWidget::onComputationLibraryChanged(QAbstra
     tabWidget->setEnabled(false);
     d->TabWidget_DrrParameters->setTabEnabled( 1, false);
     d->TabWidget_DrrParameters->setCurrentIndex(0);
+    parameterNode->SetLibrary(vtkMRMLDrrImageComputationNode::Plastimatch);
   }
   else if (rButton == d->RadioButton_RTK)
   {
@@ -479,6 +480,7 @@ void qSlicerDrrImageComputationModuleWidget::onComputationLibraryChanged(QAbstra
     tabWidget->setEnabled(true);
     d->TabWidget_DrrParameters->setTabEnabled( 1, true);
     d->TabWidget_DrrParameters->setCurrentIndex(1);
+    parameterNode->SetLibrary(vtkMRMLDrrImageComputationNode::OpenRTK);
   }
 }
 
@@ -661,13 +663,33 @@ void qSlicerDrrImageComputationModuleWidget::onComputeDrrClicked()
     return;
   }
   
-  QApplication::setOverrideCursor(Qt::WaitCursor);
-
-  bool result = d->logic()->ComputePlastimatchDRR( parameterNode, ctVolumeNode);
-  if (result)
+  switch (parameterNode->GetLibrary())
   {
-    QApplication::restoreOverrideCursor();
-    return;
+  case vtkMRMLDrrImageComputationNode::Plastimatch:
+    {
+      QApplication::setOverrideCursor(Qt::WaitCursor);
+      bool result = d->logic()->ComputePlastimatchDRR( parameterNode, ctVolumeNode);
+      if (result)
+      {
+        QApplication::restoreOverrideCursor();
+        return;
+      }
+      QApplication::restoreOverrideCursor();
+    }
+    break;
+  case vtkMRMLDrrImageComputationNode::OpenRTK:
+    {
+      QApplication::setOverrideCursor(Qt::WaitCursor);
+      bool result = d->logic()->ComputeRtkDRR( parameterNode, ctVolumeNode);
+      if (result)
+      {
+        QApplication::restoreOverrideCursor();
+        return;
+      }
+      QApplication::restoreOverrideCursor();
+    }
+    break;
+  default:
+    break;
   }
-  QApplication::restoreOverrideCursor();
 }

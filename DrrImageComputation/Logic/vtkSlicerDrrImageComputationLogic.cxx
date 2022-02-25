@@ -1183,11 +1183,11 @@ bool vtkSlicerDrrImageComputationLogic::ComputeRtkDRR( vtkMRMLDrrImageComputatio
   // Geometry
   double isocenter[3] = {};
   beamNode->GetPlanIsocenterPosition(isocenter);
-  vtkDebugMacro("ComputeRtkDRR: IsocenterRAS " << isocenter[0] << " " << isocenter[1] << " " << isocenter[2]);
+  vtkWarningMacro("ComputeRtkDRR: IsocenterRAS " << isocenter[0] << " " << isocenter[1] << " " << isocenter[2]);
 
   parameterNode->GetIsocenterPositionLPS(isocenter);
 
-  vtkDebugMacro("ComputeRtkDRR: IsocenterLPS " << isocenter[0] << " " << isocenter[1] << " " << isocenter[2]);
+  vtkWarningMacro("ComputeRtkDRR: IsocenterLPS " << isocenter[0] << " " << isocenter[1] << " " << isocenter[2]);
   double distance = parameterNode->GetIsocenterImagerDistance();
      
   double spacing[2] = {};
@@ -1202,13 +1202,15 @@ bool vtkSlicerDrrImageComputationLogic::ComputeRtkDRR( vtkMRMLDrrImageComputatio
   double imagerHalfWidth = spacing[0] * resolution[0] / 2.; // columns
   double imagerHalfHeight = spacing[1] * resolution[1] / 2.; // rows
 
+  vtkWarningMacro("ComputeRtkDRR: 1");
+
   double sourceToIsocenterDistance = beamNode->GetSAD();
   double sourceToDetectorDistance = parameterNode->GetIsocenterImagerDistance() + beamNode->GetSAD();
   double gantryAngle = beamNode->GetGantryAngle();
   double projOffsetX = isocenter[0] - imagerHalfWidth; // - spacingOutput[0] * sizeOutput[0] / 2.
   double projOffsetY = isocenter[1] - imagerHalfHeight; // - spacingOutput[1] * sizeOutput[1] / 2.
-  double outOfPlaneAngle = 0.;
-  double inPlaneAngle = 0.;
+  double outOfPlaneAngle = 90.;
+  double inPlaneAngle = 90.;
   double sourceOffsetX = isocenter[0];//20.767;
   double sourceOffsetY = isocenter[1];//-1.435;
 /*
@@ -1224,6 +1226,7 @@ bool vtkSlicerDrrImageComputationLogic::ComputeRtkDRR( vtkMRMLDrrImageComputatio
   const double collimationVInf = std::numeric_limits<double>::max();
   const double collimationVSup = std::numeric_limits<double>::max();
 
+  vtkWarningMacro("ComputeRtkDRR: 2");
   rtk::ThreeDCircularProjectionGeometry::Pointer geometry;
   geometry = rtk::ThreeDCircularProjectionGeometry::New();
   geometry->AddProjection( sourceToIsocenterDistance,
@@ -1248,6 +1251,7 @@ bool vtkSlicerDrrImageComputationLogic::ComputeRtkDRR( vtkMRMLDrrImageComputatio
   ConstantImageSourceType::PointType originOutput;
   ConstantImageSourceType::SpacingType spacingOutput;
 
+  vtkWarningMacro("ComputeRtkDRR: 3");
   spacingOutput[0] = spacing[0];
   spacingOutput[1] = spacing[1];
   spacingOutput[2] = 1.;
@@ -1423,6 +1427,21 @@ bool vtkSlicerDrrImageComputationLogic::ComputeRtkDRR( vtkMRMLDrrImageComputatio
   {
     vtkWarningMacro("ComputeRtkDRR: DRR convert Error");
   }
+
+  if (drrVolumeNode->GetImageData() && drrVolumeNode->GetSpacing())
+  {
+    // Set more user friendly DRR image name
+    std::string drrName = scene->GenerateUniqueName(std::string("DRR : ") + std::string(beamNode->GetName()));
+    drrVolumeNode->SetName(drrName.c_str());
+
+    // Create parameter node name, and observe calculated drr volume
+    std::string parameterSetNodeName;
+    parameterSetNodeName = vtkMRMLPlanarImageNode::PLANARIMAGE_PARAMETER_SET_BASE_NAME_PREFIX + drrName;
+    parameterNode->SetName(parameterSetNodeName.c_str());
+    parameterNode->SetAndObserveRtImageVolumeNode(drrVolumeNode);
+
+    return this->SetupDisplayAndSubjectHierarchyNodes( parameterNode, drrVolumeNode);
+  }
 /*
   using WriterType = itk::ImageFileWriter<OutputImageType>;
   WriterType::Pointer writer = WriterType::New();
@@ -1434,7 +1453,7 @@ bool vtkSlicerDrrImageComputationLogic::ComputeRtkDRR( vtkMRMLDrrImageComputatio
 //  }
   TRY_AND_EXIT_ON_ITK_EXCEPTION(writer->Update())
 */
-  return true;
+  return false;
 }
 
 //------------------------------------------------------------------------------
