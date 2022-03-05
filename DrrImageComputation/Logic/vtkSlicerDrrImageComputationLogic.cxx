@@ -1200,7 +1200,7 @@ bool vtkSlicerDrrImageComputationLogic::ComputeRtkDRR( vtkMRMLDrrImageComputatio
 
   double sourceToIsocenterDistance = beamNode->GetSAD();
   double sourceToDetectorDistance = parameterNode->GetIsocenterImagerDistance() + beamNode->GetSAD();
-  double gantryAngle = 270.;
+  double gantryAngle = 270. - beamNode->GetCouchAngle();
   double projOffsetX = isocenterLPS[2] - imagerHalfWidth;
   double projOffsetY = isocenterLPS[0] - imagerHalfHeight;
   double outOfPlaneAngle = 90. - beamNode->GetGantryAngle();
