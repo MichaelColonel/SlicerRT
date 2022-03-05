@@ -18,8 +18,8 @@
 
 ==============================================================================*/
 
-#ifndef __qSlicerDrrImageComputationPlastimatchParametersWidget_h
-#define __qSlicerDrrImageComputationPlastimatchParametersWidget_h
+#ifndef __qSlicerDrrImageComputationRtkParametersWidget_h
+#define __qSlicerDrrImageComputationRtkParametersWidget_h
 
 // Qt includes
 #include <QWidget>
@@ -33,10 +33,10 @@
 
 class vtkMRMLNode;
 class vtkMRMLDrrImageComputationNode;
-class qSlicerDrrImageComputationPlastimatchParametersWidgetPrivate;
+class qSlicerDrrImageComputationRtkParametersWidgetPrivate;
 
 /// \ingroup Slicer_QtModules_DrrImageComputation
-class Q_SLICER_MODULE_DRRIMAGECOMPUTATION_WIDGETS_EXPORT qSlicerDrrImageComputationPlastimatchParametersWidget
+class Q_SLICER_MODULE_DRRIMAGECOMPUTATION_WIDGETS_EXPORT qSlicerDrrImageComputationRtkParametersWidget
   : public QWidget
 {
   Q_OBJECT
@@ -44,8 +44,8 @@ class Q_SLICER_MODULE_DRRIMAGECOMPUTATION_WIDGETS_EXPORT qSlicerDrrImageComputat
 
 public:
   typedef QWidget Superclass;
-  qSlicerDrrImageComputationPlastimatchParametersWidget(QWidget *parent=0);
-  ~qSlicerDrrImageComputationPlastimatchParametersWidget() override;
+  qSlicerDrrImageComputationRtkParametersWidget(QWidget *parent=0);
+  ~qSlicerDrrImageComputationRtkParametersWidget() override;
 
 public slots:
   /// Set DrrImageComputation MRML node (Parameter node)
@@ -56,30 +56,15 @@ public slots:
   void setCollapsed(bool collapsed);
 
 protected slots:
-  /// Exponential mapping flag
-  void onUseExponentialMappingToggled(bool);
-  /// Autoscale flag
-  void onAutoscalePixelsRangeToggled(bool);
-  /// Invert intensity flag
-  void onInvertIntensityToggled(bool);
-  /// Type of reconstruct algorithm
-  void onReconstructionAlgorithmChanged(int);
-  /// Type of computation threading
-  void onThreadingChanged(int);
-  /// Type Hounsfield Units conversion
-  void onHounsfieldUnitsConversionChanged(int);
-  void onAutoscaleIntensityRangeChanged(double, double);
-  /// Hounsfield Units threshold value for processing
-  /// @param thresholdBelow - Air HU value (-1000) below that threshold
-  void onHounsfieldUnitsThresholdChanged(double thresholdBelow);
+  void onInPlaneAngleChanged(double);
+  void onOutOfPlaneAngleChanged(double);
 
 protected:
-  QScopedPointer<qSlicerDrrImageComputationPlastimatchParametersWidgetPrivate> d_ptr;
-  void updatePlastimatchDrrArguments();
+  QScopedPointer<qSlicerDrrImageComputationRtkParametersWidgetPrivate> d_ptr;
 
 private:
-  Q_DECLARE_PRIVATE(qSlicerDrrImageComputationPlastimatchParametersWidget);
-  Q_DISABLE_COPY(qSlicerDrrImageComputationPlastimatchParametersWidget);
+  Q_DECLARE_PRIVATE(qSlicerDrrImageComputationRtkParametersWidget);
+  Q_DISABLE_COPY(qSlicerDrrImageComputationRtkParametersWidget);
 };
 
 #endif
