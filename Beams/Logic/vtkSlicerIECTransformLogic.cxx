@@ -448,7 +448,6 @@ bool vtkSlicerIECTransformLogic::GetTransformBetween(CoordinateSystemIdentifier 
       }
       else
       {
-        vtkErrorMacro("GetTransformBetween: Transform node \"" << fromTransform->GetName() << "\" is invalid");
         return false;
       }
     }
@@ -483,7 +482,6 @@ bool vtkSlicerIECTransformLogic::GetTransformBetween(CoordinateSystemIdentifier 
       }
       else
       {
-        vtkErrorMacro("GetTransformBetween: Transform node \"" << toTransform->GetName() << "\" is invalid");
         return false;
       }
     }

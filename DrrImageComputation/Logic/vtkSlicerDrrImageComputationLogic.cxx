@@ -227,9 +227,9 @@ void vtkSlicerDrrImageComputationLogic::ProcessMRMLNodesEvents(vtkObject* caller
 
     if (event == vtkCommand::ModifiedEvent)
     {
-      // Update parameters using beam node data and crate/update markups transform if they weren't created/updated
+      // Update parameters using beam node data and create/update markups transform if they weren't created/updated
       this->UpdateNormalAndVupVectors(parameterNode);
-      this->CreateMarkupsNodes(parameterNode); // crate markups or update markups transform
+      this->CreateMarkupsNodes(parameterNode); // create markups or update markups transform
       this->UpdateMarkupsNodes(parameterNode); // update markups geometry
     }
   }
@@ -411,6 +411,17 @@ void vtkSlicerDrrImageComputationLogic::UpdateMarkupsNodes(vtkMRMLDrrImageComput
       imagerMarkupsNode->SetAndObserveTransformNodeID(transformNode->GetID());
     }
   }
+  else
+  {
+    vtkMRMLMarkupsPlaneNode* imagerMarkupsNode = this->CreateImagerBoundary(parameterNode);
+    // Update imager boundary markups transform node if it's changed    
+    vtkMRMLTransformNode* markupsTransformNode = imagerMarkupsNode->GetParentTransformNode();
+
+    if (markupsTransformNode)
+    {
+      imagerMarkupsNode->SetAndObserveTransformNodeID(transformNode->GetID());
+    }
+  }
 
   // Image window markups node
   if (scene->GetFirstNodeByName(IMAGE_WINDOW_MARKUPS_NODE_NAME))
@@ -436,6 +447,17 @@ void vtkSlicerDrrImageComputationLogic::UpdateMarkupsNodes(vtkMRMLDrrImageComput
     imageWindowMarkupsNode->SetSize( r2 - r1, c2 - c1);
 
     // Update image window markups transform node if it's changed    
+    vtkMRMLTransformNode* markupsTransformNode = imageWindowMarkupsNode->GetParentTransformNode();
+
+    if (markupsTransformNode)
+    {
+      imageWindowMarkupsNode->SetAndObserveTransformNodeID(transformNode->GetID());
+    }
+  }
+  else
+  {
+    vtkMRMLMarkupsPlaneNode* imageWindowMarkupsNode = this->CreateImageWindow(parameterNode);
+    // Update image window boundary markups transform node if it's changed    
     vtkMRMLTransformNode* markupsTransformNode = imageWindowMarkupsNode->GetParentTransformNode();
 
     if (markupsTransformNode)
@@ -482,6 +504,17 @@ void vtkSlicerDrrImageComputationLogic::UpdateMarkupsNodes(vtkMRMLDrrImageComput
       vectorMarkupsNode->SetAndObserveTransformNodeID(transformNode->GetID());
     }
   }
+  else
+  {
+    vtkMRMLMarkupsLineNode* imagerNormalMarkupsNode = this->CreateImagerNormal(parameterNode);
+    // Update imager boundary markups transform node if it's changed    
+    vtkMRMLTransformNode* markupsTransformNode = imagerNormalMarkupsNode->GetParentTransformNode();
+
+    if (markupsTransformNode)
+    {
+      imagerNormalMarkupsNode->SetAndObserveTransformNodeID(transformNode->GetID());
+    }
+  }
 
   // vup vector markups line node
   if (scene->GetFirstNodeByName(VUP_VECTOR_MARKUPS_NODE_NAME))
@@ -519,6 +552,17 @@ void vtkSlicerDrrImageComputationLogic::UpdateMarkupsNodes(vtkMRMLDrrImageComput
     if (markupsTransformNode)
     {
       vectorMarkupsNode->SetAndObserveTransformNodeID(transformNode->GetID());
+    }
+  }
+  else
+  {
+    vtkMRMLMarkupsLineNode* imagerVupMarkupsNode = this->CreateImagerVUP(parameterNode);
+    // Update imager boundary markups transform node if it's changed    
+    vtkMRMLTransformNode* markupsTransformNode = imagerVupMarkupsNode->GetParentTransformNode();
+
+    if (markupsTransformNode)
+    {
+      imagerVupMarkupsNode->SetAndObserveTransformNodeID(transformNode->GetID());
     }
   }
 
@@ -580,6 +624,17 @@ void vtkSlicerDrrImageComputationLogic::UpdateMarkupsNodes(vtkMRMLDrrImageComput
     if (markupsTransformNode)
     {
       pointsMarkupsNode->SetAndObserveTransformNodeID(transformNode->GetID());
+    }
+  }
+  else
+  {
+    vtkMRMLMarkupsFiducialNode* fiducialsMarkupsNode = this->CreateFiducials(parameterNode);
+    // Update imager boundary markups transform node if it's changed    
+    vtkMRMLTransformNode* markupsTransformNode = fiducialsMarkupsNode->GetParentTransformNode();
+
+    if (markupsTransformNode)
+    {
+      fiducialsMarkupsNode->SetAndObserveTransformNodeID(transformNode->GetID());
     }
   }
 
@@ -645,7 +700,8 @@ vtkMRMLMarkupsPlaneNode* vtkSlicerDrrImageComputationLogic::CreateImagerBoundary
     vtkErrorMacro("CreateImagerBoundary: Invalid MRML scene");
     return nullptr;
   }
-  vtkMRMLNode* node = scene->AddNewNodeByClass( "vtkMRMLMarkupsPlaneNode", IMAGER_BOUNDARY_MARKUPS_NODE_NAME);
+  std::string uniqueName = scene->GenerateUniqueName(IMAGER_BOUNDARY_MARKUPS_NODE_NAME);
+  vtkMRMLNode* node = scene->AddNewNodeByClass( "vtkMRMLMarkupsPlaneNode", uniqueName.c_str());
 
   vtkMRMLMarkupsPlaneNode* imagerMarkupsNode = nullptr;
   if (node)
@@ -658,8 +714,8 @@ vtkMRMLMarkupsPlaneNode* vtkSlicerDrrImageComputationLogic::CreateImagerBoundary
     return nullptr;
   }
   imagerMarkupsNode->SetHideFromEditors(1);
-  std::string singletonTag = std::string("RTIMAGE_") + IMAGER_BOUNDARY_MARKUPS_NODE_NAME;
-  imagerMarkupsNode->SetSingletonTag(singletonTag.c_str());
+//  std::string singletonTag = std::string("RTIMAGE_") + IMAGER_BOUNDARY_MARKUPS_NODE_NAME;
+//  imagerMarkupsNode->SetSingletonTag(singletonTag.c_str());
   imagerMarkupsNode->LockedOn();
 
   if (parameterNode)
@@ -713,7 +769,8 @@ vtkMRMLMarkupsPlaneNode* vtkSlicerDrrImageComputationLogic::CreateImageWindow(vt
     vtkErrorMacro("CreateImageWindow: Invalid MRML scene");
     return nullptr;
   }
-  vtkMRMLNode* node = scene->AddNewNodeByClass( "vtkMRMLMarkupsPlaneNode", IMAGE_WINDOW_MARKUPS_NODE_NAME);
+  std::string uniqueName = scene->GenerateUniqueName(IMAGE_WINDOW_MARKUPS_NODE_NAME);
+  vtkMRMLNode* node = scene->AddNewNodeByClass( "vtkMRMLMarkupsPlaneNode", uniqueName.c_str());
 
   vtkMRMLMarkupsPlaneNode* imageWindowMarkupsNode = nullptr;
   if (node)
@@ -726,8 +783,8 @@ vtkMRMLMarkupsPlaneNode* vtkSlicerDrrImageComputationLogic::CreateImageWindow(vt
     return nullptr;
   }
   imageWindowMarkupsNode->SetHideFromEditors(1);
-  std::string singletonTag = std::string("RTIMAGE_") + IMAGE_WINDOW_MARKUPS_NODE_NAME;
-  imageWindowMarkupsNode->SetSingletonTag(singletonTag.c_str());
+//  std::string singletonTag = std::string("RTIMAGE_") + IMAGE_WINDOW_MARKUPS_NODE_NAME;
+//  imageWindowMarkupsNode->SetSingletonTag(singletonTag.c_str());
   imageWindowMarkupsNode->LockedOn();
 
   if (parameterNode)
@@ -792,7 +849,8 @@ vtkMRMLMarkupsLineNode* vtkSlicerDrrImageComputationLogic::CreateImagerNormal(vt
     vtkErrorMacro("CreateImagerNormal: Invalid MRML scene");
     return nullptr;
   }
-  vtkMRMLNode* node = scene->AddNewNodeByClass( "vtkMRMLMarkupsLineNode", NORMAL_VECTOR_MARKUPS_NODE_NAME);
+  std::string uniqueName = scene->GenerateUniqueName(NORMAL_VECTOR_MARKUPS_NODE_NAME);
+  vtkMRMLNode* node = scene->AddNewNodeByClass( "vtkMRMLMarkupsLineNode", uniqueName.c_str());
 
   vtkMRMLMarkupsLineNode* vectorMarkupsNode = nullptr;
   if (node)
@@ -805,8 +863,8 @@ vtkMRMLMarkupsLineNode* vtkSlicerDrrImageComputationLogic::CreateImagerNormal(vt
     return nullptr;
   }
   vectorMarkupsNode->SetHideFromEditors(1);
-  std::string singletonTag = std::string("RTIMAGE_") + NORMAL_VECTOR_MARKUPS_NODE_NAME;
-  vectorMarkupsNode->SetSingletonTag(singletonTag.c_str());
+//  std::string singletonTag = std::string("RTIMAGE_") + NORMAL_VECTOR_MARKUPS_NODE_NAME;
+//  vectorMarkupsNode->SetSingletonTag(singletonTag.c_str());
   vectorMarkupsNode->LockedOn();
 
   if (parameterNode)
@@ -842,7 +900,8 @@ vtkMRMLMarkupsLineNode* vtkSlicerDrrImageComputationLogic::CreateImagerVUP(vtkMR
     vtkErrorMacro("CreateImagerVUP: Invalid MRML scene");
     return nullptr;
   }
-  vtkMRMLNode* node = scene->AddNewNodeByClass( "vtkMRMLMarkupsLineNode", VUP_VECTOR_MARKUPS_NODE_NAME);
+  std::string uniqueName = scene->GenerateUniqueName(VUP_VECTOR_MARKUPS_NODE_NAME);
+  vtkMRMLNode* node = scene->AddNewNodeByClass( "vtkMRMLMarkupsLineNode", uniqueName.c_str());
 
   vtkMRMLMarkupsLineNode* vectorMarkupsNode = nullptr;
   if (node)
@@ -855,8 +914,8 @@ vtkMRMLMarkupsLineNode* vtkSlicerDrrImageComputationLogic::CreateImagerVUP(vtkMR
     return nullptr;
   }
   vectorMarkupsNode->SetHideFromEditors(1);
-  std::string singletonTag = std::string("RTIMAGE_") + VUP_VECTOR_MARKUPS_NODE_NAME;
-  vectorMarkupsNode->SetSingletonTag(singletonTag.c_str());
+//  std::string singletonTag = std::string("RTIMAGE_") + VUP_VECTOR_MARKUPS_NODE_NAME;
+//  vectorMarkupsNode->SetSingletonTag(singletonTag.c_str());
   vectorMarkupsNode->LockedOn();
 
   if (parameterNode)
@@ -904,7 +963,8 @@ vtkMRMLMarkupsFiducialNode* vtkSlicerDrrImageComputationLogic::CreateFiducials(v
     vtkErrorMacro("CreateFiducials: Invalid MRML scene");
     return nullptr;
   }
-  vtkMRMLNode* node = scene->AddNewNodeByClass( "vtkMRMLMarkupsFiducialNode", FIDUCIALS_MARKUPS_NODE_NAME);
+  std::string uniqueName = scene->GenerateUniqueName(FIDUCIALS_MARKUPS_NODE_NAME);
+  vtkMRMLNode* node = scene->AddNewNodeByClass( "vtkMRMLMarkupsFiducialNode", uniqueName.c_str());
 
   vtkMRMLMarkupsFiducialNode* pointsMarkupsNode = nullptr;
   if (node)
@@ -917,8 +977,8 @@ vtkMRMLMarkupsFiducialNode* vtkSlicerDrrImageComputationLogic::CreateFiducials(v
     return nullptr;
   }
   pointsMarkupsNode->SetHideFromEditors(1);
-  std::string singletonTag = std::string("RTIMAGE_") + FIDUCIALS_MARKUPS_NODE_NAME;
-  pointsMarkupsNode->SetSingletonTag(singletonTag.c_str());
+//  std::string singletonTag = std::string("RTIMAGE_") + FIDUCIALS_MARKUPS_NODE_NAME;
+//  pointsMarkupsNode->SetSingletonTag(singletonTag.c_str());
   pointsMarkupsNode->LockedOn();
 
   if (parameterNode)
@@ -1171,18 +1231,124 @@ bool vtkSlicerDrrImageComputationLogic::ComputeRtkDRR( vtkMRMLDrrImageComputatio
     return false;
   }
 
+  constexpr size_t Dimension = 3;
   using InputPixelType = short;
-  using OutputPixelType = float;
-  constexpr unsigned int Dimension = 3;
-
-  vtkImageData* ctData = ctVolumeNode->GetImageData();
-
   using InputImageType = itk::Image<InputPixelType, Dimension>;
+  InputImageType::Pointer inputCtVolume;
+
+  using OutputPixelType = float;
   using OutputImageType = itk::Image<OutputPixelType, Dimension>;
 
-  // Geometry
+  vtkImageData* ctData = ctVolumeNode->GetImageData();
+  int dataType = ctData->GetScalarType();
+
+  using IntFilterType = itk::CastImageFilter< itk::Image< int, Dimension> , InputImageType>;
+  IntFilterType::Pointer intFilter = IntFilterType::New();
+
+  using FloatFilterType = itk::CastImageFilter< itk::Image< float, Dimension> , InputImageType>;
+  FloatFilterType::Pointer floatFilter = FloatFilterType::New();
+
+  using DoubleFilterType = itk::CastImageFilter< itk::Image< double, Dimension> , InputImageType>;
+  DoubleFilterType::Pointer doubleFilter = DoubleFilterType::New();
+
+  switch (dataType)
+  {
+  case VTK_INT:
+    {
+      // RTK DRR Pixel Type
+      itk::Image< int, Dimension>::Pointer tmpCtVolume = itk::Image< int, Dimension>::New();
+
+      if (!vtkSlicerRtCommon::ConvertVolumeNodeToItkImage<int>( ctVolumeNode, tmpCtVolume))
+      {
+        vtkErrorMacro("ComputeRtkDRR: Unable to convert vtkMRMLScalarVolumeNode to itkImage");
+        return false;
+      }
+
+      intFilter->SetInput(tmpCtVolume);
+      try
+      {
+        intFilter->Update();
+        inputCtVolume = intFilter->GetOutput();
+      }
+      catch (itk::ExceptionObject& e)
+      {
+        vtkErrorMacro("ComputeRtkDRR: Unable to recast image from int to short");
+        return false;
+      }
+    }
+    break;
+  case VTK_SHORT:
+    {
+      // RTK DRR Pixel Type
+      inputCtVolume = itk::Image<InputPixelType, Dimension>::New();
+
+      if (!vtkSlicerRtCommon::ConvertVolumeNodeToItkImage<short>( ctVolumeNode, inputCtVolume))
+      {
+        vtkErrorMacro("ComputeRtkDRR: Unable to convert vtkMRMLScalarVolumeNode to itkImage");
+        return false;
+      }
+    }
+    break;
+  case VTK_FLOAT:
+    {
+      // RTK DRR Pixel Type
+      itk::Image< float, Dimension>::Pointer tmpCtVolume = itk::Image< float, Dimension>::New();
+
+      if (!vtkSlicerRtCommon::ConvertVolumeNodeToItkImage<float>( ctVolumeNode, tmpCtVolume))
+      {
+        vtkErrorMacro("ComputeRtkDRR: Unable to convert vtkMRMLScalarVolumeNode to itkImage");
+        return false;
+      }
+
+      floatFilter->SetInput(tmpCtVolume);
+      try
+      {
+        floatFilter->Update();
+        inputCtVolume = floatFilter->GetOutput();
+      }
+      catch (itk::ExceptionObject& e)
+      {
+        vtkErrorMacro("ComputeRtkDRR: Unable to recast image from float to short");
+        return false;
+      }
+    }
+    break;
+  case VTK_DOUBLE:
+    {
+      // RTK DRR Pixel Type
+      itk::Image< double, Dimension>::Pointer tmpCtVolume = itk::Image< double, Dimension>::New();
+
+      if (!vtkSlicerRtCommon::ConvertVolumeNodeToItkImage<double>( ctVolumeNode, tmpCtVolume))
+      {
+        vtkErrorMacro("ComputeRtkDRR: Unable to convert vtkMRMLScalarVolumeNode to itkImage");
+        return false;
+      }
+
+      doubleFilter->SetInput(tmpCtVolume);
+      try
+      {
+        doubleFilter->Update();
+        inputCtVolume = doubleFilter->GetOutput();
+      }
+      catch (itk::ExceptionObject& e)
+      {
+        vtkErrorMacro("ComputeRtkDRR: Unable to recast image from double to short");
+        return false;
+      }
+    }
+    break;
+  default:
+    break;
+  }
+
   double isocenterLPS[3] = {};
+  this->UpdateIsocenter(parameterNode, isocenterLPS);
+  vtkWarningMacro("ComputeRtkDRR: IsocenterLPS1 " << isocenterLPS[2] << " " << isocenterLPS[1] << " " << isocenterLPS[0]);
+
+  // Geometry
   parameterNode->GetIsocenterPositionLPS(isocenterLPS);
+
+  vtkWarningMacro("ComputeRtkDRR: IsocenterLPS2 " << isocenterLPS[2] << " " << isocenterLPS[1] << " " << isocenterLPS[0]);
 
   double distance = parameterNode->GetIsocenterImagerDistance();
      
@@ -1199,14 +1365,17 @@ bool vtkSlicerDrrImageComputationLogic::ComputeRtkDRR( vtkMRMLDrrImageComputatio
   double imagerHalfHeight = spacing[1] * resolution[1] / 2.; // rows
 
   double sourceToIsocenterDistance = beamNode->GetSAD();
-  double sourceToDetectorDistance = parameterNode->GetIsocenterImagerDistance() + beamNode->GetSAD();
+  double sourceToDetectorDistance = distance + beamNode->GetSAD();
   double gantryAngle = 270. - beamNode->GetCouchAngle();
-  double projOffsetX = isocenterLPS[2] - imagerHalfWidth;
-  double projOffsetY = isocenterLPS[0] - imagerHalfHeight;
+
+//  vtkErrorMacro("ComputeRtkDRR: " << std::cos(gantryAngle * M_PI / 180.));
+
+  double projOffsetX = isocenterLPS[2] - imagerHalfWidth;//-imagerHalfWidth;//isocenterLPS[2] - imagerHalfWidth;
+  double projOffsetY = isocenterLPS[0] - imagerHalfHeight;//-imagerHalfHeight;//isocenterLPS[0] - imagerHalfHeight;
   double outOfPlaneAngle = 90. - beamNode->GetGantryAngle();
   double inPlaneAngle = 0.;
-  double sourceOffsetX = isocenterLPS[2];
-  double sourceOffsetY = isocenterLPS[0];
+  double sourceOffsetX = isocenterLPS[2];//0.;//isocenterLPS[2];
+  double sourceOffsetY = isocenterLPS[0];//0.;//isocenterLPS[0];
 
   const double collimationUInf = std::numeric_limits<double>::max();
   const double collimationUSup = std::numeric_limits<double>::max();
@@ -1218,7 +1387,7 @@ bool vtkSlicerDrrImageComputationLogic::ComputeRtkDRR( vtkMRMLDrrImageComputatio
   geometry->AddProjection( sourceToIsocenterDistance,
     sourceToDetectorDistance, gantryAngle, projOffsetX, projOffsetY,
     outOfPlaneAngle, inPlaneAngle, sourceOffsetX, sourceOffsetY);
-
+  geometry->SetRadiusCylindricalDetector(0.); // Flat panel
   geometry->SetCollimationOfLastProjection( collimationUInf, collimationUSup, 
     collimationVInf, collimationVSup);
 
@@ -1254,15 +1423,6 @@ bool vtkSlicerDrrImageComputationLogic::ComputeRtkDRR( vtkMRMLDrrImageComputatio
   constantImageSource->SetSize(sizeOutput);
   constantImageSource->SetOrigin(originOutput);
   constantImageSource->SetSpacing(spacingOutput);
-
-  // Plastimatch DRR Pixel Type
-  InputImageType::Pointer inputCtVolume = InputImageType::New();
-
-  if (!vtkSlicerRtCommon::ConvertVolumeNodeToItkImage<short>( ctVolumeNode, inputCtVolume))
-  {
-    vtkErrorMacro("ComputeRtkDRR: Unable to convert vtkMRMLScalarVolumeNode to itkImage");
-    return false;
-  }
 
   using ShiftScaleFilterType = itk::ShiftScaleImageFilter< InputImageType, InputImageType >;
   ShiftScaleFilterType::Pointer ssFilter = ShiftScaleFilterType::New();
@@ -1658,6 +1818,73 @@ void vtkSlicerDrrImageComputationLogic::UpdateNormalAndVupVectors(vtkMRMLDrrImag
 
   parameterNode->SetNormalVector(n);
   parameterNode->SetViewUpVector(vup);
+}
+
+//------------------------------------------------------------------------------
+void vtkSlicerDrrImageComputationLogic::UpdateIsocenter(vtkMRMLDrrImageComputationNode* parameterNode, double isocenter[3])
+{
+  if (!parameterNode)
+  {
+    vtkErrorMacro("UpdateIsocenter: Parameter node is invalid");
+    return;
+  }
+
+  vtkMRMLRTBeamNode* beamNode = parameterNode->GetBeamNode();
+
+  if (!beamNode)
+  {
+    vtkErrorMacro("UpdateIsocenter: RT Beam node is invalid");
+    return;
+  }
+
+  vtkMRMLScene* scene = this->GetMRMLScene();
+  if (!scene)
+  {
+    vtkErrorMacro("UpdateIsocenter: Invalid MRML scene");
+    return;
+  }
+
+  vtkMRMLTransformNode* beamTransformNode = nullptr;
+  if (vtkMRMLNode* node = scene->GetFirstNodeByName(RTIMAGE_TRANSFORM_NODE_NAME))
+  {
+    beamTransformNode = vtkMRMLLinearTransformNode::SafeDownCast(node);
+  }
+
+  vtkTransform* beamTransform = nullptr;
+  vtkNew<vtkMatrix4x4> mat; // DICOM beam transform matrix
+  mat->Identity();
+
+  if (beamTransformNode)
+  {
+    beamTransform = vtkTransform::SafeDownCast(beamTransformNode->GetTransformToParent());
+
+    vtkNew<vtkTransform> rasToLpsTransform;
+    rasToLpsTransform->Identity();
+    rasToLpsTransform->RotateZ(180.0);
+    
+    vtkNew<vtkTransform> dicomBeamTransform;
+    dicomBeamTransform->Identity();
+    dicomBeamTransform->PreMultiply();
+    dicomBeamTransform->Concatenate(rasToLpsTransform);
+    dicomBeamTransform->Concatenate(beamTransform);
+
+    dicomBeamTransform->GetMatrix(mat);
+  }
+  else
+  {
+    vtkWarningMacro("UpdateIsocenter: Beam transform node is invalid, identity matrix will be used instead");
+  }
+
+  double isoNew[4] = {};
+  double isocenterRAS[4] = { 0., 0., 0., 1. };
+  parameterNode->GetIsocenterPositionRAS(isocenterRAS);
+
+  mat->MultiplyPoint( isocenterRAS, isoNew);
+
+  vtkWarningMacro("UpdateIsocenter: " << isoNew[0] << " " << isoNew[1] << " " << isoNew[2]);
+  isocenter[0] = isoNew[0];
+  isocenter[1] = isoNew[1];
+  isocenter[2] = isoNew[2];
 }
 
 //------------------------------------------------------------------------------

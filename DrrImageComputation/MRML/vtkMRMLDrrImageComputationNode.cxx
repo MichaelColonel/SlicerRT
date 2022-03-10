@@ -589,6 +589,20 @@ void vtkMRMLDrrImageComputationNode::GetIsocenterPositionLPS(double isocenterPos
 }
 
 //----------------------------------------------------------------------------
+void vtkMRMLDrrImageComputationNode::GetIsocenterPositionRAS(double isocenterPosition[3])
+{
+  vtkMRMLRTBeamNode* beamNode = this->GetBeamNode();
+  if (!beamNode)
+  {
+    vtkErrorMacro("GetIsocenterPositionLPS: RT Beam node is invalid");
+    return;
+  }
+
+  // Isocenter RAS position, for plastimatch isocenter MUST BE in LPS system
+  beamNode->GetPlanIsocenterPosition(isocenterPosition);
+}
+
+//----------------------------------------------------------------------------
 void vtkMRMLDrrImageComputationNode::GetImageCenter(double imageCenter[2])
 {
   int image_window[4] = {};

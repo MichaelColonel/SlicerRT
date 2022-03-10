@@ -67,6 +67,7 @@ public:
 
   /// Update normal and view up vectors of RT Image
   void UpdateNormalAndVupVectors(vtkMRMLDrrImageComputationNode* parameterNode);
+  void UpdateIsocenter(vtkMRMLDrrImageComputationNode* parameterNode, double isocenter[3]);
 
   /// Create markups nodes for visualization
   void CreateMarkupsNodes(vtkMRMLDrrImageComputationNode* parameterNode);
