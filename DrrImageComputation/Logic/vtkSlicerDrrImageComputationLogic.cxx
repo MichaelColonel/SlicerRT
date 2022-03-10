@@ -1201,6 +1201,24 @@ bool vtkSlicerDrrImageComputationLogic::ComputePlastimatchDRR( vtkMRMLDrrImageCo
   return res;
 }
 
+/*
+
+Hi,
+RTK forward projector only does the line integral of the volume. You should try to find what Plastimatch does exactly but I would try to add the following operations:
+- Make air at 0  (if HU, air is at -1000 so add 1000 to your input volume)
+- forward project
+- multiply by -1 and take the log
+All these operations can be pipelined with ITK filters except the forward projection.
+It sounds like a very nice project, thanks for doing it and please let us know how it goes.
+
+I would rather suggest another version of AddProjection which uses the source position, 
+detector origin position, u and v vectors. Be aware that FBP assumes that the rotation 
+is around y, I'm sure that it won't work for random geometries. If what is important is 
+to have a final volume in the correct orientation, you can always change its direction 
+and reset it to identity after reconstruction.
+I hope it helps,
+
+*/
 //------------------------------------------------------------------------------
 bool vtkSlicerDrrImageComputationLogic::ComputeRtkDRR( vtkMRMLDrrImageComputationNode* parameterNode, 
   vtkMRMLScalarVolumeNode* ctVolumeNode)
@@ -1372,8 +1390,19 @@ bool vtkSlicerDrrImageComputationLogic::ComputeRtkDRR( vtkMRMLDrrImageComputatio
 
   double projOffsetX = isocenterLPS[2] - imagerHalfWidth;//-imagerHalfWidth;//isocenterLPS[2] - imagerHalfWidth;
   double projOffsetY = isocenterLPS[0] - imagerHalfHeight;//-imagerHalfHeight;//isocenterLPS[0] - imagerHalfHeight;
-  double outOfPlaneAngle = 90. - beamNode->GetGantryAngle();
+//  double outOfPlaneAngle = 270. - beamNode->GetGantryAngle();
+  double outOfPlaneAngle = 270. - beamNode->GetGantryAngle();
   double inPlaneAngle = 0.;
+  if ((fabs(std::cos(gantryAngle * M_PI / 180.))) - 1. < DBL_EPSILON)
+  {
+    inPlaneAngle = 180.;
+  }
+  else
+  {
+    outOfPlaneAngle = 90. - beamNode->GetGantryAngle();
+  }
+//  double outOfPlaneAngle = 90. - beamNode->GetGantryAngle();
+//  double inPlaneAngle = 0.;
   double sourceOffsetX = isocenterLPS[2];//0.;//isocenterLPS[2];
   double sourceOffsetY = isocenterLPS[0];//0.;//isocenterLPS[0];
 
@@ -1961,6 +1990,83 @@ bool vtkSlicerDrrImageComputationLogic::UpdateBeamFromCamera(vtkMRMLDrrImageComp
     // vtkCamera is invalid
     return false;
   }
+}
+
+//------------------------------------------------------------------------------
+void vtkSlicerDrrImageComputationLogic::UpdateProjectionPointsVectors(vtkMRMLDrrImageComputationNode* parameterNode,
+  double isocenter[3], double detectorCenter[3], double rowVector[3], double columnVector[3])
+{
+  if (!parameterNode)
+  {
+    vtkErrorMacro("UpdateProjectionPointsVectors: Parameter node is invalid");
+    return;
+  }
+
+  vtkMRMLRTBeamNode* beamNode = parameterNode->GetBeamNode();
+
+  if (!beamNode)
+  {
+    vtkErrorMacro("UpdateProjectionPointsVectors: RT Beam node is invalid");
+    return;
+  }
+
+  vtkMRMLScene* scene = this->GetMRMLScene();
+  if (!scene)
+  {
+    vtkErrorMacro("UpdateProjectionPointsVectors: Invalid MRML scene");
+    return;
+  }
+
+  vtkMRMLTransformNode* beamTransformNode = nullptr;
+  if (vtkMRMLNode* node = scene->GetFirstNodeByName(RTIMAGE_TRANSFORM_NODE_NAME))
+  {
+    beamTransformNode = vtkMRMLLinearTransformNode::SafeDownCast(node);
+  }
+
+  vtkTransform* beamTransform = nullptr;
+  vtkNew<vtkMatrix4x4> mat; // DICOM beam transform matrix
+  mat->Identity();
+
+  if (beamTransformNode)
+  {
+    beamTransform = vtkTransform::SafeDownCast(beamTransformNode->GetTransformToParent());
+
+    vtkNew<vtkTransform> rasToLpsTransform;
+    rasToLpsTransform->Identity();
+    rasToLpsTransform->RotateZ(180.0);
+    
+    vtkNew<vtkTransform> dicomBeamTransform;
+    dicomBeamTransform->Identity();
+    dicomBeamTransform->PreMultiply();
+    dicomBeamTransform->Concatenate(rasToLpsTransform);
+    dicomBeamTransform->Concatenate(beamTransform);
+
+    dicomBeamTransform->GetMatrix(mat);
+  }
+  else
+  {
+    vtkWarningMacro("UpdateNormalAndVupVectors: Beam transform node is invalid, identity matrix will be used instead");
+  }
+
+  double detector = parameterNode->GetIsocenterImagerDistance();
+
+  double source = beamNode->GetSAD();
+
+  double n[4], vup[4], vleft[4], detectorPos[4], sourcePos[4];
+  const double normalVector[4] = { 0., 0., 1., 0. }; // beam positive Z-axis
+  const double viewUpVector[4] = { -1., 0., 0., 0. }; // beam negative X-axis
+  const double viewLeftVector[4] = { 0., -1., 0., 0. }; // beam negative Y-axis
+  const double sourcePosition[4] = { 0., 0., -source, 1. }; // beam negative Z-axis
+  const double detectorPosition[4] = { 0., 0., detector, 1. }; // beam positive Z-axis
+
+  mat->MultiplyPoint( normalVector, n);
+  mat->MultiplyPoint( viewUpVector, vup);
+  mat->MultiplyPoint( viewLeftVector, vleft);
+  mat->MultiplyPoint( sourcePosition, sourcePos);
+  mat->MultiplyPoint( detectorPosition, detectorPos);
+
+  parameterNode->SetNormalVector(n);
+  parameterNode->SetViewUpVector(vup);
 }
 
 //------------------------------------------------------------------------------
