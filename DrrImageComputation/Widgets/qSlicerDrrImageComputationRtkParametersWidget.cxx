@@ -73,6 +73,10 @@ void qSlicerDrrImageComputationRtkParametersWidgetPrivate::setupUi(qSlicerDrrIma
 void qSlicerDrrImageComputationRtkParametersWidgetPrivate::init()
 {
   Q_Q(qSlicerDrrImageComputationRtkParametersWidget);
+
+  // Check box
+  QObject::connect( this->CheckBox_UseBeamParameters, SIGNAL(toggled(bool)), 
+    q, SLOT(onUseBeamParametersToggled(bool)));
 /*
   // Range widgets
   QObject::connect( this->RangeWidget_IntensityRange, SIGNAL(valuesChanged( double, double)), 
@@ -144,6 +148,13 @@ void qSlicerDrrImageComputationRtkParametersWidget::updateWidgetFromMRML()
   }
 
   // Update widgets info from parameter node
+  bool useRtBeamFlag = d->ParameterNode->GetRtkUseRtBeamParametersFlag();
+
+  d->CheckBox_UseBeamParameters->setChecked(useRtBeamFlag);
+  d->GroupBox_DetectorOffset->setEnabled(!useRtBeamFlag);
+  d->GroupBox_SourceOffset->setEnabled(!useRtBeamFlag);
+  d->GroupBox_DetectorAngles->setEnabled(!useRtBeamFlag);
+  d->GroupBox_DetectorRadius->setEnabled(!useRtBeamFlag);
 }
 
 //-----------------------------------------------------------------------------
@@ -159,6 +170,25 @@ void qSlicerDrrImageComputationRtkParametersWidget::onInPlaneAngleChanged(double
 
   d->ParameterNode->DisableModifiedEventOn();
   d->ParameterNode->DisableModifiedEventOff();
+}
+
+//-----------------------------------------------------------------------------
+void qSlicerDrrImageComputationRtkParametersWidget::onUseBeamParametersToggled(bool toggled)
+{
+  Q_D(qSlicerDrrImageComputationRtkParametersWidget);
+
+  if (!d->ParameterNode)
+  {
+    qCritical() << Q_FUNC_INFO << ": Invalid parameter node";
+    return;
+  }
+  d->ParameterNode->DisableModifiedEventOn();
+  d->ParameterNode->SetRtkUseRtBeamParametersFlag(toggled);
+  d->ParameterNode->DisableModifiedEventOff();
+  d->GroupBox_DetectorOffset->setEnabled(!toggled);
+  d->GroupBox_SourceOffset->setEnabled(!toggled);
+  d->GroupBox_DetectorAngles->setEnabled(!toggled);
+  d->GroupBox_DetectorRadius->setEnabled(!toggled);
 }
 
 //-----------------------------------------------------------------------------

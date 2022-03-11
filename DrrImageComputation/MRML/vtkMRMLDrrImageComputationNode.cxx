@@ -91,6 +91,7 @@ vtkMRMLDrrImageComputationNode::vtkMRMLDrrImageComputationNode()
   RtkImagerInPlaneAngle = 0.;
   RtkImagerOutOfPlaneAngle = 0.;
   RtkCylindricalDetectorRadius = 0.;
+  RtkUseRtBeamParametersFlag = true;
 
   // Observe RTBeam node events (like change of transform or geometry)
   vtkNew<vtkIntArray> nodeEvents;
@@ -133,6 +134,7 @@ void vtkMRMLDrrImageComputationNode::WriteXML(ostream& of, int nIndent)
   vtkMRMLWriteXMLFloatMacro(RtkImagerInPlaneAngle, RtkImagerInPlaneAngle);
   vtkMRMLWriteXMLFloatMacro(RtkImagerOutOfPlaneAngle, RtkImagerOutOfPlaneAngle);
   vtkMRMLWriteXMLFloatMacro(RtkCylindricalDetectorRadius, RtkCylindricalDetectorRadius);
+  vtkMRMLWriteXMLBooleanMacro(RtkUseRtBeamParametersFlag, RtkUseRtBeamParametersFlag);
   // add new parameters here
   vtkMRMLWriteXMLEndMacro(); 
 }
@@ -165,6 +167,7 @@ void vtkMRMLDrrImageComputationNode::ReadXMLAttributes(const char** atts)
   vtkMRMLReadXMLFloatMacro(RtkImagerInPlaneAngle, RtkImagerInPlaneAngle);
   vtkMRMLReadXMLFloatMacro(RtkImagerOutOfPlaneAngle, RtkImagerOutOfPlaneAngle);
   vtkMRMLReadXMLFloatMacro(RtkCylindricalDetectorRadius, RtkCylindricalDetectorRadius);
+  vtkMRMLReadXMLBooleanMacro(RtkUseRtBeamParametersFlag, RtkUseRtBeamParametersFlag);
   // add new parameters here
   vtkMRMLReadXMLEndMacro();
 
@@ -211,6 +214,7 @@ void vtkMRMLDrrImageComputationNode::Copy(vtkMRMLNode *anode)
   vtkMRMLCopyFloatMacro(RtkImagerInPlaneAngle);
   vtkMRMLCopyFloatMacro(RtkImagerOutOfPlaneAngle);
   vtkMRMLCopyFloatMacro(RtkCylindricalDetectorRadius);
+  vtkMRMLCopyBooleanMacro(RtkUseRtBeamParametersFlag);
   // add new parameters here
   vtkMRMLCopyEndMacro(); 
 
@@ -253,6 +257,7 @@ void vtkMRMLDrrImageComputationNode::CopyContent(vtkMRMLNode *anode, bool deepCo
   vtkMRMLCopyFloatMacro(RtkImagerInPlaneAngle);
   vtkMRMLCopyFloatMacro(RtkImagerOutOfPlaneAngle);
   vtkMRMLCopyFloatMacro(RtkCylindricalDetectorRadius);
+  vtkMRMLCopyBooleanMacro(RtkUseRtBeamParametersFlag);
   // add new parameters here
   vtkMRMLCopyEndMacro();
 }
@@ -284,6 +289,7 @@ void vtkMRMLDrrImageComputationNode::PrintSelf(ostream& os, vtkIndent indent)
   vtkMRMLPrintFloatMacro(RtkImagerInPlaneAngle);
   vtkMRMLPrintFloatMacro(RtkImagerOutOfPlaneAngle);
   vtkMRMLPrintFloatMacro(RtkCylindricalDetectorRadius);
+  vtkMRMLPrintBooleanMacro(RtkUseRtBeamParametersFlag);
   // add new parameters here
   vtkMRMLPrintEndMacro(); 
 }

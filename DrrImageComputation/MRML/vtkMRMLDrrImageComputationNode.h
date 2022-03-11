@@ -161,6 +161,9 @@ public:
   vtkGetMacro(RtkCylindricalDetectorRadius, double);
   vtkSetMacro(RtkCylindricalDetectorRadius, double);
 
+  vtkGetMacro(RtkUseRtBeamParametersFlag, bool);
+  vtkSetMacro(RtkUseRtBeamParametersFlag, bool);
+
 protected:
   vtkMRMLDrrImageComputationNode();
   ~vtkMRMLDrrImageComputationNode() override;
@@ -205,6 +208,7 @@ protected:
   double RtkImagerInPlaneAngle;
   double RtkImagerOutOfPlaneAngle;
   double RtkCylindricalDetectorRadius;
+  bool RtkUseRtBeamParametersFlag;
 };
 
 #endif

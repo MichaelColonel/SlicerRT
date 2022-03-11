@@ -180,8 +180,9 @@ void qSlicerDrrImageComputationModuleWidget::setParameterNode(vtkMRMLNode *node)
   // Make sure the parameter set node is selected (in case the function was not called by the selector combobox signal)
   d->MRMLNodeComboBox_ParameterSet->setCurrentNode(node);
 
-  // Set parameter node to children widgets (PlastimatchParameters)
+  // Set parameter node to children widgets (PlastimatchParameters, RtkParameters)
   d->PlastimatchParametersWidget->setParameterNode(node);
+  d->RtkParametersWidget->setParameterNode(node);
  
   // Each time the node is modified, the UI widgets are updated
   qvtkReconnect( parameterNode, vtkCommand::ModifiedEvent, this, SLOT(updateWidgetFromMRML()));
@@ -190,6 +191,17 @@ void qSlicerDrrImageComputationModuleWidget::setParameterNode(vtkMRMLNode *node)
   // (then in the meantime the comboboxes selected the first one from the scene and we have to set that)
   if (parameterNode)
   {
+    QWidget* tabWidget = d->TabWidget_DrrParameters->widget(0);
+    tabWidget->setEnabled(true);
+    d->TabWidget_DrrParameters->setTabEnabled( 0, true);
+    tabWidget = d->TabWidget_DrrParameters->widget(1);
+    tabWidget->setEnabled(false);
+    d->TabWidget_DrrParameters->setTabEnabled( 1, false);
+    d->TabWidget_DrrParameters->setCurrentIndex(0);
+    parameterNode->SetLibrary(vtkMRMLDrrImageComputationNode::Plastimatch);
+    d->GroupBox_ImageWindowParameters->setEnabled(true);
+    d->RadioButton_Plastimatch->setChecked(true);
+
     if (!parameterNode->GetBeamNode())
     {
       vtkMRMLRTBeamNode* beamNode = vtkMRMLRTBeamNode::SafeDownCast(d->MRMLNodeComboBox_RtBeam->currentNode());
@@ -470,6 +482,7 @@ void qSlicerDrrImageComputationModuleWidget::onComputationLibraryChanged(QAbstra
     d->TabWidget_DrrParameters->setTabEnabled( 1, false);
     d->TabWidget_DrrParameters->setCurrentIndex(0);
     parameterNode->SetLibrary(vtkMRMLDrrImageComputationNode::Plastimatch);
+    d->GroupBox_ImageWindowParameters->setEnabled(true);
   }
   else if (rButton == d->RadioButton_RTK)
   {
@@ -481,6 +494,7 @@ void qSlicerDrrImageComputationModuleWidget::onComputationLibraryChanged(QAbstra
     d->TabWidget_DrrParameters->setTabEnabled( 1, true);
     d->TabWidget_DrrParameters->setCurrentIndex(1);
     parameterNode->SetLibrary(vtkMRMLDrrImageComputationNode::OpenRTK);
+    d->GroupBox_ImageWindowParameters->setEnabled(false);
   }
 }
 

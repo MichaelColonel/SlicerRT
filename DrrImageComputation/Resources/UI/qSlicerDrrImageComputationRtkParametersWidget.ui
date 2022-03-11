@@ -25,6 +25,9 @@
      <layout class="QGridLayout" name="gridLayout_5">
       <item row="2" column="0">
        <widget class="QGroupBox" name="GroupBox_SourceOffset">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
         <property name="title">
          <string>Source offset</string>
         </property>
@@ -78,6 +81,9 @@
       </item>
       <item row="4" column="0">
        <widget class="QGroupBox" name="GroupBox_DetectorRadius">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
         <property name="title">
          <string>Detector curvature</string>
         </property>
@@ -117,6 +123,9 @@
       </item>
       <item row="1" column="0">
        <widget class="QGroupBox" name="GroupBox_DetectorOffset">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
         <property name="title">
          <string>Projection (detector) offset</string>
         </property>
@@ -170,6 +179,9 @@
       </item>
       <item row="3" column="0">
        <widget class="QGroupBox" name="GroupBox_DetectorAngles">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
         <property name="title">
          <string>Additional detector angles</string>
         </property>
@@ -219,6 +231,9 @@
        <widget class="QCheckBox" name="CheckBox_UseBeamParameters">
         <property name="text">
          <string>Use Beam Parameters</string>
+        </property>
+        <property name="checked">
+         <bool>true</bool>
         </property>
        </widget>
       </item>
