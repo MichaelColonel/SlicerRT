@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>344</width>
-    <height>439</height>
+    <width>362</width>
+    <height>505</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -23,60 +23,7 @@
       <bool>false</bool>
      </property>
      <layout class="QGridLayout" name="gridLayout_5">
-      <item row="0" column="0">
-       <widget class="QGroupBox" name="GroupBox_DetectorOffset">
-        <property name="title">
-         <string>Projection (detector) offset</string>
-        </property>
-        <layout class="QGridLayout" name="gridLayout_6">
-         <item row="0" column="0">
-          <layout class="QGridLayout" name="gridLayout_3">
-           <item row="0" column="0">
-            <widget class="QLabel" name="Label_ProjectionOffsetX">
-             <property name="text">
-              <string>X:</string>
-             </property>
-            </widget>
-           </item>
-           <item row="1" column="0">
-            <widget class="QLabel" name="Label_ProjectionOffsetY">
-             <property name="text">
-              <string>Y:</string>
-             </property>
-            </widget>
-           </item>
-           <item row="0" column="1">
-            <widget class="ctkSliderWidget" name="SliderWidget_ProjectionOffsetX">
-             <property name="minimum">
-              <double>-10000.000000000000000</double>
-             </property>
-             <property name="maximum">
-              <double>10000.000000000000000</double>
-             </property>
-             <property name="suffix">
-              <string> mm</string>
-             </property>
-            </widget>
-           </item>
-           <item row="1" column="1">
-            <widget class="ctkSliderWidget" name="SliderWidget_ProjectionOffsetY">
-             <property name="minimum">
-              <double>-10000.000000000000000</double>
-             </property>
-             <property name="maximum">
-              <double>10000.000000000000000</double>
-             </property>
-             <property name="suffix">
-              <string> mm</string>
-             </property>
-            </widget>
-           </item>
-          </layout>
-         </item>
-        </layout>
-       </widget>
-      </item>
-      <item row="1" column="0">
+      <item row="2" column="0">
        <widget class="QGroupBox" name="GroupBox_SourceOffset">
         <property name="title">
          <string>Source offset</string>
@@ -129,7 +76,99 @@
         </layout>
        </widget>
       </item>
-      <item row="2" column="0">
+      <item row="4" column="0">
+       <widget class="QGroupBox" name="GroupBox_DetectorRadius">
+        <property name="title">
+         <string>Detector curvature</string>
+        </property>
+        <property name="checkable">
+         <bool>true</bool>
+        </property>
+        <property name="checked">
+         <bool>false</bool>
+        </property>
+        <layout class="QGridLayout" name="gridLayout_9">
+         <item row="0" column="0">
+          <layout class="QHBoxLayout" name="horizontalLayout">
+           <item>
+            <widget class="QLabel" name="Label_DetectorRadius">
+             <property name="text">
+              <string>Radius:</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="ctkSliderWidget" name="SliderWidget">
+             <property name="minimum">
+              <double>1.000000000000000</double>
+             </property>
+             <property name="maximum">
+              <double>10000.000000000000000</double>
+             </property>
+             <property name="suffix">
+              <string> mm</string>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </item>
+        </layout>
+       </widget>
+      </item>
+      <item row="1" column="0">
+       <widget class="QGroupBox" name="GroupBox_DetectorOffset">
+        <property name="title">
+         <string>Projection (detector) offset</string>
+        </property>
+        <layout class="QGridLayout" name="gridLayout_6">
+         <item row="0" column="0">
+          <layout class="QGridLayout" name="gridLayout_3">
+           <item row="0" column="0">
+            <widget class="QLabel" name="Label_ProjectionOffsetX">
+             <property name="text">
+              <string>X:</string>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="0">
+            <widget class="QLabel" name="Label_ProjectionOffsetY">
+             <property name="text">
+              <string>Y:</string>
+             </property>
+            </widget>
+           </item>
+           <item row="0" column="1">
+            <widget class="ctkSliderWidget" name="SliderWidget_ProjectionOffsetX">
+             <property name="minimum">
+              <double>-10000.000000000000000</double>
+             </property>
+             <property name="maximum">
+              <double>10000.000000000000000</double>
+             </property>
+             <property name="suffix">
+              <string> mm</string>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="1">
+            <widget class="ctkSliderWidget" name="SliderWidget_ProjectionOffsetY">
+             <property name="minimum">
+              <double>-10000.000000000000000</double>
+             </property>
+             <property name="maximum">
+              <double>10000.000000000000000</double>
+             </property>
+             <property name="suffix">
+              <string> mm</string>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </item>
+        </layout>
+       </widget>
+      </item>
+      <item row="3" column="0">
        <widget class="QGroupBox" name="GroupBox_DetectorAngles">
         <property name="title">
          <string>Additional detector angles</string>
@@ -176,43 +215,11 @@
         </layout>
        </widget>
       </item>
-      <item row="3" column="0">
-       <widget class="QGroupBox" name="GroupBox_DetectorRadius">
-        <property name="title">
-         <string>Detector curvature</string>
+      <item row="0" column="0">
+       <widget class="QCheckBox" name="CheckBox_UseBeamParameters">
+        <property name="text">
+         <string>Use Beam Parameters</string>
         </property>
-        <property name="checkable">
-         <bool>true</bool>
-        </property>
-        <property name="checked">
-         <bool>false</bool>
-        </property>
-        <layout class="QGridLayout" name="gridLayout_9">
-         <item row="0" column="0">
-          <layout class="QHBoxLayout" name="horizontalLayout">
-           <item>
-            <widget class="QLabel" name="Label_DetectorRadius">
-             <property name="text">
-              <string>Radius:</string>
-             </property>
-            </widget>
-           </item>
-           <item>
-            <widget class="ctkSliderWidget" name="SliderWidget">
-             <property name="minimum">
-              <double>1.000000000000000</double>
-             </property>
-             <property name="maximum">
-              <double>10000.000000000000000</double>
-             </property>
-             <property name="suffix">
-              <string> mm</string>
-             </property>
-            </widget>
-           </item>
-          </layout>
-         </item>
-        </layout>
        </widget>
       </item>
      </layout>

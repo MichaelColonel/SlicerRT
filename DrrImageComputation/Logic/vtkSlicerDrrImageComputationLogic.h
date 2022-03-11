@@ -67,9 +67,11 @@ public:
 
   /// Update normal and view up vectors of RT Image
   void UpdateNormalAndVupVectors(vtkMRMLDrrImageComputationNode* parameterNode);
-  void UpdateIsocenter(vtkMRMLDrrImageComputationNode* parameterNode, double isocenter[3]);
-  void UpdateProjectionPointsVectors(vtkMRMLDrrImageComputationNode* parameterNode,
-    double isocenter[3], double detectorCenter[3], double rowVector[3], double columnVector[3]);
+
+  /// Calculate Projection parameters in LPS for RTK forward projection calculation
+  void CalculateProjectionPointsVectors(vtkMRMLDrrImageComputationNode* parameterNode,
+    double sourcePointLPS[3], double detectorCenterLPS[3], 
+    double rowVectorLPS[3], double columnVectorLPS[3]);
 
   /// Create markups nodes for visualization
   void CreateMarkupsNodes(vtkMRMLDrrImageComputationNode* parameterNode);

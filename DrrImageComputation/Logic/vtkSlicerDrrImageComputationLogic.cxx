@@ -1251,11 +1251,11 @@ bool vtkSlicerDrrImageComputationLogic::ComputeRtkDRR( vtkMRMLDrrImageComputatio
 
   constexpr size_t Dimension = 3;
   using InputPixelType = short;
-  using InputImageType = itk::Image<InputPixelType, Dimension>;
+  using InputImageType = itk::Image< InputPixelType, Dimension>;
   InputImageType::Pointer inputCtVolume;
 
   using OutputPixelType = float;
-  using OutputImageType = itk::Image<OutputPixelType, Dimension>;
+  using OutputImageType = itk::Image< OutputPixelType, Dimension>;
 
   vtkImageData* ctData = ctVolumeNode->GetImageData();
   int dataType = ctData->GetScalarType();
@@ -1359,63 +1359,30 @@ bool vtkSlicerDrrImageComputationLogic::ComputeRtkDRR( vtkMRMLDrrImageComputatio
     break;
   }
 
-  double isocenterLPS[3] = {};
-  this->UpdateIsocenter(parameterNode, isocenterLPS);
-  vtkWarningMacro("ComputeRtkDRR: IsocenterLPS1 " << isocenterLPS[2] << " " << isocenterLPS[1] << " " << isocenterLPS[0]);
-
-  // Geometry
-  parameterNode->GetIsocenterPositionLPS(isocenterLPS);
-
-  vtkWarningMacro("ComputeRtkDRR: IsocenterLPS2 " << isocenterLPS[2] << " " << isocenterLPS[1] << " " << isocenterLPS[0]);
-
-  double distance = parameterNode->GetIsocenterImagerDistance();
-     
   double spacing[2] = {};
   parameterNode->GetImagerSpacing(spacing);
 
   int resolution[2] = {};
   parameterNode->GetImagerResolution(resolution);
 
-  double offset[2] = {};
-  parameterNode->GetImagerCenterOffset(offset);
-
-  double imagerHalfWidth = spacing[0] * resolution[0] / 2.; // columns
-  double imagerHalfHeight = spacing[1] * resolution[1] / 2.; // rows
-
-  double sourceToIsocenterDistance = beamNode->GetSAD();
-  double sourceToDetectorDistance = distance + beamNode->GetSAD();
-  double gantryAngle = 270. - beamNode->GetCouchAngle();
-
-//  vtkErrorMacro("ComputeRtkDRR: " << std::cos(gantryAngle * M_PI / 180.));
-
-  double projOffsetX = isocenterLPS[2] - imagerHalfWidth;//-imagerHalfWidth;//isocenterLPS[2] - imagerHalfWidth;
-  double projOffsetY = isocenterLPS[0] - imagerHalfHeight;//-imagerHalfHeight;//isocenterLPS[0] - imagerHalfHeight;
-//  double outOfPlaneAngle = 270. - beamNode->GetGantryAngle();
-  double outOfPlaneAngle = 270. - beamNode->GetGantryAngle();
-  double inPlaneAngle = 0.;
-  if ((fabs(std::cos(gantryAngle * M_PI / 180.))) - 1. < DBL_EPSILON)
-  {
-    inPlaneAngle = 180.;
-  }
-  else
-  {
-    outOfPlaneAngle = 90. - beamNode->GetGantryAngle();
-  }
-//  double outOfPlaneAngle = 90. - beamNode->GetGantryAngle();
-//  double inPlaneAngle = 0.;
-  double sourceOffsetX = isocenterLPS[2];//0.;//isocenterLPS[2];
-  double sourceOffsetY = isocenterLPS[0];//0.;//isocenterLPS[0];
-
   const double collimationUInf = std::numeric_limits<double>::max();
   const double collimationUSup = std::numeric_limits<double>::max();
   const double collimationVInf = std::numeric_limits<double>::max();
   const double collimationVSup = std::numeric_limits<double>::max();
 
+  rtk::ThreeDCircularProjectionGeometry::PointType sourceLPS;
+  rtk::ThreeDCircularProjectionGeometry::PointType detectorLPS;
+  rtk::ThreeDCircularProjectionGeometry::VectorType rowLPS;
+  rtk::ThreeDCircularProjectionGeometry::VectorType columnLPS;
+
+  this->CalculateProjectionPointsVectors( parameterNode, sourceLPS.data(), 
+    detectorLPS.data(), rowLPS.data(), columnLPS.data());
+
   rtk::ThreeDCircularProjectionGeometry::Pointer geometry;
   geometry = rtk::ThreeDCircularProjectionGeometry::New();
-  geometry->AddProjection( sourceToIsocenterDistance,
-    sourceToDetectorDistance, gantryAngle, projOffsetX, projOffsetY,
-    outOfPlaneAngle, inPlaneAngle, sourceOffsetX, sourceOffsetY);
+
+  geometry->AddProjection( sourceLPS, detectorLPS, rowLPS, columnLPS);
+
   geometry->SetRadiusCylindricalDetector(0.); // Flat panel
   geometry->SetCollimationOfLastProjection( collimationUInf, collimationUSup, 
     collimationVInf, collimationVSup);
@@ -1447,7 +1414,7 @@ bool vtkSlicerDrrImageComputationLogic::ComputeRtkDRR( vtkMRMLDrrImageComputatio
   originOutput[1] = 0;
   originOutput[2] = 0;  
   sizeOutput[0] = resolution[0];
-  sizeOutput[1] = resolution[0];
+  sizeOutput[1] = resolution[1];
   sizeOutput[2] = geometry->GetGantryAngles().size();
   constantImageSource->SetSize(sizeOutput);
   constantImageSource->SetOrigin(originOutput);
@@ -1850,73 +1817,6 @@ void vtkSlicerDrrImageComputationLogic::UpdateNormalAndVupVectors(vtkMRMLDrrImag
 }
 
 //------------------------------------------------------------------------------
-void vtkSlicerDrrImageComputationLogic::UpdateIsocenter(vtkMRMLDrrImageComputationNode* parameterNode, double isocenter[3])
-{
-  if (!parameterNode)
-  {
-    vtkErrorMacro("UpdateIsocenter: Parameter node is invalid");
-    return;
-  }
-
-  vtkMRMLRTBeamNode* beamNode = parameterNode->GetBeamNode();
-
-  if (!beamNode)
-  {
-    vtkErrorMacro("UpdateIsocenter: RT Beam node is invalid");
-    return;
-  }
-
-  vtkMRMLScene* scene = this->GetMRMLScene();
-  if (!scene)
-  {
-    vtkErrorMacro("UpdateIsocenter: Invalid MRML scene");
-    return;
-  }
-
-  vtkMRMLTransformNode* beamTransformNode = nullptr;
-  if (vtkMRMLNode* node = scene->GetFirstNodeByName(RTIMAGE_TRANSFORM_NODE_NAME))
-  {
-    beamTransformNode = vtkMRMLLinearTransformNode::SafeDownCast(node);
-  }
-
-  vtkTransform* beamTransform = nullptr;
-  vtkNew<vtkMatrix4x4> mat; // DICOM beam transform matrix
-  mat->Identity();
-
-  if (beamTransformNode)
-  {
-    beamTransform = vtkTransform::SafeDownCast(beamTransformNode->GetTransformToParent());
-
-    vtkNew<vtkTransform> rasToLpsTransform;
-    rasToLpsTransform->Identity();
-    rasToLpsTransform->RotateZ(180.0);
-    
-    vtkNew<vtkTransform> dicomBeamTransform;
-    dicomBeamTransform->Identity();
-    dicomBeamTransform->PreMultiply();
-    dicomBeamTransform->Concatenate(rasToLpsTransform);
-    dicomBeamTransform->Concatenate(beamTransform);
-
-    dicomBeamTransform->GetMatrix(mat);
-  }
-  else
-  {
-    vtkWarningMacro("UpdateIsocenter: Beam transform node is invalid, identity matrix will be used instead");
-  }
-
-  double isoNew[4] = {};
-  double isocenterRAS[4] = { 0., 0., 0., 1. };
-  parameterNode->GetIsocenterPositionRAS(isocenterRAS);
-
-  mat->MultiplyPoint( isocenterRAS, isoNew);
-
-  vtkWarningMacro("UpdateIsocenter: " << isoNew[0] << " " << isoNew[1] << " " << isoNew[2]);
-  isocenter[0] = isoNew[0];
-  isocenter[1] = isoNew[1];
-  isocenter[2] = isoNew[2];
-}
-
-//------------------------------------------------------------------------------
 bool vtkSlicerDrrImageComputationLogic::UpdateBeamFromCamera(vtkMRMLDrrImageComputationNode* parameterNode)
 {
   if (!parameterNode)
@@ -1993,8 +1893,10 @@ bool vtkSlicerDrrImageComputationLogic::UpdateBeamFromCamera(vtkMRMLDrrImageComp
 }
 
 //------------------------------------------------------------------------------
-void vtkSlicerDrrImageComputationLogic::UpdateProjectionPointsVectors(vtkMRMLDrrImageComputationNode* parameterNode,
-  double isocenter[3], double detectorCenter[3], double rowVector[3], double columnVector[3])
+void vtkSlicerDrrImageComputationLogic::CalculateProjectionPointsVectors(
+  vtkMRMLDrrImageComputationNode* parameterNode,
+  double sourceLPS[3], double detectorLPS[3],
+  double rowLPS[3], double columnLPS[3])
 {
   if (!parameterNode)
   {
@@ -2034,7 +1936,7 @@ void vtkSlicerDrrImageComputationLogic::UpdateProjectionPointsVectors(vtkMRMLDrr
     vtkNew<vtkTransform> rasToLpsTransform;
     rasToLpsTransform->Identity();
     rasToLpsTransform->RotateZ(180.0);
-    
+
     vtkNew<vtkTransform> dicomBeamTransform;
     dicomBeamTransform->Identity();
     dicomBeamTransform->PreMultiply();
@@ -2052,21 +1954,49 @@ void vtkSlicerDrrImageComputationLogic::UpdateProjectionPointsVectors(vtkMRMLDrr
 
   double source = beamNode->GetSAD();
 
-  double n[4], vup[4], vleft[4], detectorPos[4], sourcePos[4];
-  const double normalVector[4] = { 0., 0., 1., 0. }; // beam positive Z-axis
-  const double viewUpVector[4] = { -1., 0., 0., 0. }; // beam negative X-axis
-  const double viewLeftVector[4] = { 0., -1., 0., 0. }; // beam negative Y-axis
-  const double sourcePosition[4] = { 0., 0., -source, 1. }; // beam negative Z-axis
-  const double detectorPosition[4] = { 0., 0., detector, 1. }; // beam positive Z-axis
+  double spacing[2] = {};
+  parameterNode->GetImagerSpacing(spacing);
 
-  mat->MultiplyPoint( normalVector, n);
-  mat->MultiplyPoint( viewUpVector, vup);
+  int resolution[2] = {};
+  parameterNode->GetImagerResolution(resolution);
+
+  double imagerHalfWidth = spacing[0] * resolution[0] / 2.; // columns
+  double imagerHalfHeight = spacing[1] * resolution[1] / 2.; // rows
+
+  double vup[4], vleft[4], detectorPos[4], sourcePos[4];
+  // row vector in Beam coordinate system
+  const double viewUpVector[4] = { 0., 1., 0., 0. }; // beam positive Y-axis
+  // column vector in Beam coordinate system
+  const double viewLeftVector[4] = { 1., 0., 0., 0. }; // beam positive X-axis
+  // source position in Beam coordinate system
+  double sourcePosition[4] = { 0., 0., source, 1. }; // beam positive Z-axis
+  // detector center position in Beam coordinate system
+  double detectorPosition[4] = { -imagerHalfHeight, -imagerHalfWidth, -detector, 1. }; // beam negative Z-axis
+
+  // row vector in LPS coordinate system
+  mat->MultiplyPoint( viewUpVector, vup); 
+  // column vector in LPS coordinate system
   mat->MultiplyPoint( viewLeftVector, vleft);
+  // source position in LPS coordinate system
   mat->MultiplyPoint( sourcePosition, sourcePos);
+  // detector center position in LPS coordinate system
   mat->MultiplyPoint( detectorPosition, detectorPos);
-
-  parameterNode->SetNormalVector(n);
-  parameterNode->SetViewUpVector(vup);
+  // copy source position
+  sourceLPS[0] = sourcePos[0];
+  sourceLPS[1] = sourcePos[1];
+  sourceLPS[2] = sourcePos[2];
+  // copy detector center position
+  detectorLPS[0] = detectorPos[0];
+  detectorLPS[1] = detectorPos[1];
+  detectorLPS[2] = detectorPos[2];
+  // copy row vector
+  rowLPS[0] = vup[0];
+  rowLPS[1] = vup[1];
+  rowLPS[2] = vup[2];
+  // copy column vector
+  columnLPS[0] = vleft[0];
+  columnLPS[1] = vleft[1];
+  columnLPS[2] = vleft[2];
 }
 
 //------------------------------------------------------------------------------
