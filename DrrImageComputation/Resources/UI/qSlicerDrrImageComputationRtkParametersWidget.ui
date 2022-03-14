@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>362</width>
-    <height>505</height>
+    <width>390</width>
+    <height>520</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -15,71 +15,15 @@
   </property>
   <layout class="QGridLayout" name="gridLayout">
    <item row="0" column="0">
-    <widget class="ctkCollapsibleButton" name="CollapsibleButton_RtkDrrImageParameters">
-     <property name="text">
+    <widget class="ctkCollapsibleButton" name="CollapsibleButton_RtkDrrImageParameters" native="true">
+     <property name="text" stdset="0">
       <string>RTK DRR image parameters</string>
      </property>
-     <property name="collapsed">
+     <property name="collapsed" stdset="0">
       <bool>false</bool>
      </property>
      <layout class="QGridLayout" name="gridLayout_5">
-      <item row="2" column="0">
-       <widget class="QGroupBox" name="GroupBox_SourceOffset">
-        <property name="enabled">
-         <bool>false</bool>
-        </property>
-        <property name="title">
-         <string>Source offset</string>
-        </property>
-        <layout class="QGridLayout" name="gridLayout_7">
-         <item row="0" column="0">
-          <layout class="QGridLayout" name="gridLayout_2">
-           <item row="0" column="1">
-            <widget class="ctkSliderWidget" name="SliderWidget_SourceOffsetX">
-             <property name="minimum">
-              <double>-10000.000000000000000</double>
-             </property>
-             <property name="maximum">
-              <double>10000.000000000000000</double>
-             </property>
-             <property name="suffix">
-              <string> mm</string>
-             </property>
-            </widget>
-           </item>
-           <item row="0" column="0">
-            <widget class="QLabel" name="Label_SourceOffsetX">
-             <property name="text">
-              <string>X:</string>
-             </property>
-            </widget>
-           </item>
-           <item row="1" column="1">
-            <widget class="ctkSliderWidget" name="SliderWidget_SourceOffsetY">
-             <property name="minimum">
-              <double>-10000.000000000000000</double>
-             </property>
-             <property name="maximum">
-              <double>10000.000000000000000</double>
-             </property>
-             <property name="suffix">
-              <string> mm</string>
-             </property>
-            </widget>
-           </item>
-           <item row="1" column="0">
-            <widget class="QLabel" name="Label_SourceOffsetY">
-             <property name="text">
-              <string>Y:</string>
-             </property>
-            </widget>
-           </item>
-          </layout>
-         </item>
-        </layout>
-       </widget>
-      </item>
-      <item row="4" column="0">
+      <item row="5" column="0">
        <widget class="QGroupBox" name="GroupBox_DetectorRadius">
         <property name="enabled">
          <bool>false</bool>
@@ -104,14 +48,14 @@
             </widget>
            </item>
            <item>
-            <widget class="ctkSliderWidget" name="SliderWidget">
-             <property name="minimum">
+            <widget class="ctkSliderWidget" name="SliderWidget" native="true">
+             <property name="minimum" stdset="0">
               <double>1.000000000000000</double>
              </property>
-             <property name="maximum">
+             <property name="maximum" stdset="0">
               <double>10000.000000000000000</double>
              </property>
-             <property name="suffix">
+             <property name="suffix" stdset="0">
               <string> mm</string>
              </property>
             </widget>
@@ -121,63 +65,7 @@
         </layout>
        </widget>
       </item>
-      <item row="1" column="0">
-       <widget class="QGroupBox" name="GroupBox_DetectorOffset">
-        <property name="enabled">
-         <bool>false</bool>
-        </property>
-        <property name="title">
-         <string>Projection (detector) offset</string>
-        </property>
-        <layout class="QGridLayout" name="gridLayout_6">
-         <item row="0" column="0">
-          <layout class="QGridLayout" name="gridLayout_3">
-           <item row="0" column="0">
-            <widget class="QLabel" name="Label_ProjectionOffsetX">
-             <property name="text">
-              <string>X:</string>
-             </property>
-            </widget>
-           </item>
-           <item row="1" column="0">
-            <widget class="QLabel" name="Label_ProjectionOffsetY">
-             <property name="text">
-              <string>Y:</string>
-             </property>
-            </widget>
-           </item>
-           <item row="0" column="1">
-            <widget class="ctkSliderWidget" name="SliderWidget_ProjectionOffsetX">
-             <property name="minimum">
-              <double>-10000.000000000000000</double>
-             </property>
-             <property name="maximum">
-              <double>10000.000000000000000</double>
-             </property>
-             <property name="suffix">
-              <string> mm</string>
-             </property>
-            </widget>
-           </item>
-           <item row="1" column="1">
-            <widget class="ctkSliderWidget" name="SliderWidget_ProjectionOffsetY">
-             <property name="minimum">
-              <double>-10000.000000000000000</double>
-             </property>
-             <property name="maximum">
-              <double>10000.000000000000000</double>
-             </property>
-             <property name="suffix">
-              <string> mm</string>
-             </property>
-            </widget>
-           </item>
-          </layout>
-         </item>
-        </layout>
-       </widget>
-      </item>
-      <item row="3" column="0">
+      <item row="4" column="0">
        <widget class="QGroupBox" name="GroupBox_DetectorAngles">
         <property name="enabled">
          <bool>false</bool>
@@ -203,22 +91,134 @@
             </widget>
            </item>
            <item row="0" column="1">
-            <widget class="ctkSliderWidget" name="SliderWidget_DetectorInPlaneAngle">
-             <property name="maximum">
+            <widget class="ctkSliderWidget" name="SliderWidget_DetectorInPlaneAngle" native="true">
+             <property name="maximum" stdset="0">
               <double>359.990000000000009</double>
              </property>
-             <property name="suffix">
+             <property name="suffix" stdset="0">
               <string> °</string>
              </property>
             </widget>
            </item>
            <item row="1" column="1">
-            <widget class="ctkSliderWidget" name="SliderWidget_DetectorOutOfPlaneAngle">
-             <property name="maximum">
+            <widget class="ctkSliderWidget" name="SliderWidget_DetectorOutOfPlaneAngle" native="true">
+             <property name="maximum" stdset="0">
               <double>259.990000000000009</double>
              </property>
-             <property name="suffix">
+             <property name="suffix" stdset="0">
               <string> °</string>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </item>
+        </layout>
+       </widget>
+      </item>
+      <item row="2" column="0">
+       <widget class="QGroupBox" name="GroupBox_DetectorOffset">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
+        <property name="title">
+         <string>Projection (detector) offset</string>
+        </property>
+        <layout class="QGridLayout" name="gridLayout_6">
+         <item row="0" column="0">
+          <layout class="QGridLayout" name="gridLayout_3">
+           <item row="0" column="0">
+            <widget class="QLabel" name="Label_ProjectionOffsetX">
+             <property name="text">
+              <string>X:</string>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="0">
+            <widget class="QLabel" name="Label_ProjectionOffsetY">
+             <property name="text">
+              <string>Y:</string>
+             </property>
+            </widget>
+           </item>
+           <item row="0" column="1">
+            <widget class="ctkSliderWidget" name="SliderWidget_ProjectionOffsetX" native="true">
+             <property name="minimum" stdset="0">
+              <double>-10000.000000000000000</double>
+             </property>
+             <property name="maximum" stdset="0">
+              <double>10000.000000000000000</double>
+             </property>
+             <property name="suffix" stdset="0">
+              <string> mm</string>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="1">
+            <widget class="ctkSliderWidget" name="SliderWidget_ProjectionOffsetY" native="true">
+             <property name="minimum" stdset="0">
+              <double>-10000.000000000000000</double>
+             </property>
+             <property name="maximum" stdset="0">
+              <double>10000.000000000000000</double>
+             </property>
+             <property name="suffix" stdset="0">
+              <string> mm</string>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </item>
+        </layout>
+       </widget>
+      </item>
+      <item row="3" column="0">
+       <widget class="QGroupBox" name="GroupBox_SourceOffset">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
+        <property name="title">
+         <string>Source offset</string>
+        </property>
+        <layout class="QGridLayout" name="gridLayout_7">
+         <item row="0" column="0">
+          <layout class="QGridLayout" name="gridLayout_2">
+           <item row="0" column="1">
+            <widget class="ctkSliderWidget" name="SliderWidget_SourceOffsetX" native="true">
+             <property name="minimum" stdset="0">
+              <double>-10000.000000000000000</double>
+             </property>
+             <property name="maximum" stdset="0">
+              <double>10000.000000000000000</double>
+             </property>
+             <property name="suffix" stdset="0">
+              <string> mm</string>
+             </property>
+            </widget>
+           </item>
+           <item row="0" column="0">
+            <widget class="QLabel" name="Label_SourceOffsetX">
+             <property name="text">
+              <string>X:</string>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="1">
+            <widget class="ctkSliderWidget" name="SliderWidget_SourceOffsetY" native="true">
+             <property name="minimum" stdset="0">
+              <double>-10000.000000000000000</double>
+             </property>
+             <property name="maximum" stdset="0">
+              <double>10000.000000000000000</double>
+             </property>
+             <property name="suffix" stdset="0">
+              <string> mm</string>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="0">
+            <widget class="QLabel" name="Label_SourceOffsetY">
+             <property name="text">
+              <string>Y:</string>
              </property>
             </widget>
            </item>
@@ -234,6 +234,13 @@
         </property>
         <property name="checked">
          <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="0">
+       <widget class="QCheckBox" name="CheckBox_ParallelGeometry">
+        <property name="text">
+         <string>Parallel Geometry</string>
         </property>
        </widget>
       </item>

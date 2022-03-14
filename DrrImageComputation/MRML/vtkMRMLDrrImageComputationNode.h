@@ -164,6 +164,9 @@ public:
   vtkGetMacro(RtkUseRtBeamParametersFlag, bool);
   vtkSetMacro(RtkUseRtBeamParametersFlag, bool);
 
+  vtkGetMacro(RtkParallelGeometryFlag, bool);
+  vtkSetMacro(RtkParallelGeometryFlag, bool);
+
 protected:
   vtkMRMLDrrImageComputationNode();
   ~vtkMRMLDrrImageComputationNode() override;
@@ -209,6 +212,7 @@ protected:
   double RtkImagerOutOfPlaneAngle;
   double RtkCylindricalDetectorRadius;
   bool RtkUseRtBeamParametersFlag;
+  bool RtkParallelGeometryFlag;
 };
 
 #endif

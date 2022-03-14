@@ -1423,7 +1423,7 @@ bool vtkSlicerDrrImageComputationLogic::ComputeRtkDRR( vtkMRMLDrrImageComputatio
   using ShiftScaleFilterType = itk::ShiftScaleImageFilter< InputImageType, InputImageType >;
   ShiftScaleFilterType::Pointer ssFilter = ShiftScaleFilterType::New();
   ssFilter->SetInput( 0, inputCtVolume);
-  ssFilter->SetShift(1024.);
+  ssFilter->SetShift(1000.);
 
   try
   {
@@ -1973,6 +1973,11 @@ void vtkSlicerDrrImageComputationLogic::CalculateProjectionPointsVectors(
   // detector center position in Beam coordinate system
   double detectorPosition[4] = { -imagerHalfHeight, -imagerHalfWidth, -detector, 1. }; // beam negative Z-axis
 
+  if (parameterNode->GetRtkParallelGeometryFlag())
+  {
+    detectorPosition[2] = source;
+  }
+
   // row vector in LPS coordinate system
   mat->MultiplyPoint( viewUpVector, vup); 
   // column vector in LPS coordinate system
@@ -1981,6 +1986,16 @@ void vtkSlicerDrrImageComputationLogic::CalculateProjectionPointsVectors(
   mat->MultiplyPoint( sourcePosition, sourcePos);
   // detector center position in LPS coordinate system
   mat->MultiplyPoint( detectorPosition, detectorPos);
+
+//  vtkWarningMacro("UpdateNormalAndVupVectors: RowVector " << vup[0] << " " << vup[1] << " " << vup[2]);
+//  vtkWarningMacro("UpdateNormalAndVupVectors: ColumnVector " << vleft[0] << " " << vleft[1] << " " << vleft[2]);
+//  vtkWarningMacro("UpdateNormalAndVupVectors: SourcePosition " << sourcePos[0] << " " << sourcePos[1] << " " << sourcePos[2]);
+//  vtkWarningMacro("UpdateNormalAndVupVectors: DetectorPosition " << detectorPos[0] << " " << detectorPos[1] << " " << detectorPos[2]);
+
+//  double n[3] = {};
+//  vtkMath::Cross( vup, vleft, n);
+//  vtkWarningMacro("UpdateNormalAndVupVectors: N-cross " << n[0] << " " << n[1] << " " << n[2]);
+
   // copy source position
   sourceLPS[0] = sourcePos[0];
   sourceLPS[1] = sourcePos[1];

@@ -59,6 +59,7 @@ protected slots:
   void onInPlaneAngleChanged(double);
   void onOutOfPlaneAngleChanged(double);
   void onUseBeamParametersToggled(bool);
+  void onParallelGeometryToggled(bool);
 
 protected:
   QScopedPointer<qSlicerDrrImageComputationRtkParametersWidgetPrivate> d_ptr;

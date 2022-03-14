@@ -77,6 +77,8 @@ void qSlicerDrrImageComputationRtkParametersWidgetPrivate::init()
   // Check box
   QObject::connect( this->CheckBox_UseBeamParameters, SIGNAL(toggled(bool)), 
     q, SLOT(onUseBeamParametersToggled(bool)));
+  QObject::connect( this->CheckBox_ParallelGeometry, SIGNAL(toggled(bool)), 
+    q, SLOT(onParallelGeometryToggled(bool)));
 /*
   // Range widgets
   QObject::connect( this->RangeWidget_IntensityRange, SIGNAL(valuesChanged( double, double)), 
@@ -189,6 +191,21 @@ void qSlicerDrrImageComputationRtkParametersWidget::onUseBeamParametersToggled(b
   d->GroupBox_SourceOffset->setEnabled(!toggled);
   d->GroupBox_DetectorAngles->setEnabled(!toggled);
   d->GroupBox_DetectorRadius->setEnabled(!toggled);
+}
+
+//-----------------------------------------------------------------------------
+void qSlicerDrrImageComputationRtkParametersWidget::onParallelGeometryToggled(bool toggled)
+{
+  Q_D(qSlicerDrrImageComputationRtkParametersWidget);
+
+  if (!d->ParameterNode)
+  {
+    qCritical() << Q_FUNC_INFO << ": Invalid parameter node";
+    return;
+  }
+  d->ParameterNode->DisableModifiedEventOn();
+  d->ParameterNode->SetRtkParallelGeometryFlag(toggled);
+  d->ParameterNode->DisableModifiedEventOff();
 }
 
 //-----------------------------------------------------------------------------
