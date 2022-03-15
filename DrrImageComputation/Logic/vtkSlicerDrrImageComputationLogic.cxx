@@ -1987,14 +1987,14 @@ void vtkSlicerDrrImageComputationLogic::CalculateProjectionPointsVectors(
   // detector center position in LPS coordinate system
   mat->MultiplyPoint( detectorPosition, detectorPos);
 
-//  vtkWarningMacro("UpdateNormalAndVupVectors: RowVector " << vup[0] << " " << vup[1] << " " << vup[2]);
-//  vtkWarningMacro("UpdateNormalAndVupVectors: ColumnVector " << vleft[0] << " " << vleft[1] << " " << vleft[2]);
-//  vtkWarningMacro("UpdateNormalAndVupVectors: SourcePosition " << sourcePos[0] << " " << sourcePos[1] << " " << sourcePos[2]);
-//  vtkWarningMacro("UpdateNormalAndVupVectors: DetectorPosition " << detectorPos[0] << " " << detectorPos[1] << " " << detectorPos[2]);
+  vtkWarningMacro("UpdateNormalAndVupVectors: RowVector " << vup[0] << " " << vup[1] << " " << vup[2]);
+  vtkWarningMacro("UpdateNormalAndVupVectors: ColumnVector " << vleft[0] << " " << vleft[1] << " " << vleft[2]);
+  vtkWarningMacro("UpdateNormalAndVupVectors: SourcePosition " << sourcePos[0] << " " << sourcePos[1] << " " << sourcePos[2]);
+  vtkWarningMacro("UpdateNormalAndVupVectors: DetectorPosition " << detectorPos[0] << " " << detectorPos[1] << " " << detectorPos[2]);
 
-//  double n[3] = {};
-//  vtkMath::Cross( vup, vleft, n);
-//  vtkWarningMacro("UpdateNormalAndVupVectors: N-cross " << n[0] << " " << n[1] << " " << n[2]);
+  double n[3] = {};
+  vtkMath::Cross( vup, vleft, n);
+  vtkWarningMacro("UpdateNormalAndVupVectors: N-cross " << n[0] << " " << n[1] << " " << n[2]);
 
   // copy source position
   sourceLPS[0] = sourcePos[0];
