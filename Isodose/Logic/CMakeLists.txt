@@ -9,6 +9,7 @@ set(${KIT}_INCLUDE_DIRECTORIES
   ${vtkSlicerSubjectHierarchyModuleLogic_INCLUDE_DIRS}
   ${vtkSlicerColorsModuleLogic_INCLUDE_DIRS}
   ${vtkSlicerColorsModuleMRML_INCLUDE_DIRS}
+  ${vtkSlicerIsodoseModuleMRML_INCLUDE_DIRS}
   )
 
 set(${KIT}_SRCS
