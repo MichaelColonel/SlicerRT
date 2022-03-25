@@ -5,6 +5,7 @@ set(MODULE_TITLE "Isodose")
 string(TOUPPER ${MODULE_NAME} MODULE_NAME_UPPER)
 
 #-----------------------------------------------------------------------------
+add_subdirectory(MRML)
 add_subdirectory(Logic)
 add_subdirectory(Widgets)
 add_subdirectory(SubjectHierarchyPlugins)
@@ -14,6 +15,8 @@ set(MODULE_EXPORT_DIRECTIVE "Q_SLICER_QTMODULES_${MODULE_NAME_UPPER}_EXPORT")
 
 set(MODULE_INCLUDE_DIRECTORIES
   ${SlicerRtCommon_INCLUDE_DIRS}
+  ${CMAKE_CURRENT_SOURCE_DIR}/MRML
+  ${CMAKE_CURRENT_BINARY_DIR}/MRML
   ${CMAKE_CURRENT_SOURCE_DIR}/Logic
   ${CMAKE_CURRENT_BINARY_DIR}/Logic
   ${CMAKE_CURRENT_SOURCE_DIR}/Widgets
@@ -27,7 +30,6 @@ set(MODULE_INCLUDE_DIRECTORIES
 set(MODULE_SRCS
   qSlicer${MODULE_NAME}Module.cxx
   qSlicer${MODULE_NAME}Module.h
-
   qSlicer${MODULE_NAME}ModuleWidget.cxx
   qSlicer${MODULE_NAME}ModuleWidget.h
   )
@@ -42,6 +44,7 @@ set(MODULE_UI_SRCS
 )
 
 set(MODULE_TARGET_LIBRARIES
+  vtkSlicer${MODULE_NAME}ModuleMRML
   vtkSlicer${MODULE_NAME}ModuleLogic
   vtkSlicer${MODULE_NAME}ModuleWidgets
   qSlicer${MODULE_NAME}SubjectHierarchyPlugins
