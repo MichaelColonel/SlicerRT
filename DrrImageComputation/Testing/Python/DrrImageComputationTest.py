@@ -39,7 +39,7 @@ class DrrImageComputationTest(unittest.TestCase):
     self.assertIsNotNone( slicer.modules.plastimatch_slicer_drr )
     self.assertIsNotNone( slicer.modules.drrimagecomputation )
 
-    # Main setups, Load CT volume
+    # Load CT volume
     ctVolumeNode = self.TestSection_DownloadCtData()
     # Create dummy RTPlan and RTBeam
     rtImagePlan,rtImageBeam = self.TestSection_CreateDummyPlanAndBeam()
@@ -54,11 +54,18 @@ class DrrImageComputationTest(unittest.TestCase):
 
   #------------------------------------------------------------------------------
   def TestSection_DownloadCtData(self):
-    import SampleData
-    sampleDataLogic = SampleData.SampleDataLogic()
-    ctVolumeNode = sampleDataLogic.downloadCTChest()
-    self.assertIsNotNone( ctVolumeNode )
-    return ctVolumeNode
+    try:
+      import SampleData
+      sampleDataLogic = SampleData.SampleDataLogic()
+      ctVolumeNode = sampleDataLogic.downloadCTChest()
+      self.assertIsNotNone( ctVolumeNode )
+      return ctVolumeNode
+
+    except Exception as e:
+      import traceback
+      traceback.print_exc()
+      logging.info('Test caused exception!\n' + str(e))
+      raise Exception("Exception occurred, handled, thrown further to workflow level")
 
   #------------------------------------------------------------------------------
   def TestSection_CreateDummyPlanAndBeam(self):

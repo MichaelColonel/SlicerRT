@@ -32,6 +32,9 @@
 
 #include "vtkMRMLDrrImageComputationNode.h"
 
+// STD include
+#include <cstring>
+
 //------------------------------------------------------------------------------
 namespace
 {
