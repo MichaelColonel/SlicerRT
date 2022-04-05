@@ -32,7 +32,7 @@ include(${Slicer_USE_FILE})
 mark_as_superbuild(Slicer_DIR)
 
 #-----------------------------------------------------------------------------
-option(SLICERRT_ENABLE_EXPERIMENTAL_MODULES "Enable the building of work-in-progress, experimental modules." OFF)
+option(SLICERRT_ENABLE_EXPERIMENTAL_MODULES "Enable the building of work-in-progress, experimental modules." ON)
 mark_as_superbuild(SLICERRT_ENABLE_EXPERIMENTAL_MODULES)
 
 #-----------------------------------------------------------------------------
@@ -80,6 +80,10 @@ add_subdirectory(PlmDrr)
 add_subdirectory(PlmLandwarp)
 add_subdirectory(PlmRegister)
 
+# IHEP-RBS modules
+add_subdirectory(IhepStandGeometry)
+add_subdirectory(IhepRegistration)
+
 if (SLICERRT_ENABLE_EXPERIMENTAL_MODULES)
   # In development
   add_subdirectory(PlmThreshbox)
@@ -89,9 +93,6 @@ if (SLICERRT_ENABLE_EXPERIMENTAL_MODULES)
   add_subdirectory(PlmSynth)
   add_subdirectory(PlmVectorFieldAnalysis)
 
-  # IHEP-RBS modules
-  add_subdirectory(IhepStandGeometry)
-  add_subdirectory(IhepRegistration)
 endif()
 
 if(BUILD_TESTING)
