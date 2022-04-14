@@ -3040,6 +3040,18 @@ bool vtkSlicerIhepStandGeometryLogic::GetPatientBeamToFixedBeamTransform(
     vtkErrorMacro("GetPatientBeamToFixedBeamTransform: Unable calculate transform between patient beam node and fixed beam node");
     return false;
   }
+
+  vtkErrorMacro("GetPatientBeamToFixedBeamTransform: " << 
+    transformMatrix->GetElement( 0, 0) << " " <<
+    transformMatrix->GetElement( 0, 1) << " " <<
+    transformMatrix->GetElement( 0, 2) << "\n" <<
+    transformMatrix->GetElement( 1, 0) << " " <<
+    transformMatrix->GetElement( 1, 1) << " " <<
+    transformMatrix->GetElement( 1, 2) << "\n" <<
+    transformMatrix->GetElement( 2, 0) << " " <<
+    transformMatrix->GetElement( 2, 1) << " " <<
+    transformMatrix->GetElement( 2, 2));
+
   transform->SetMatrix(transformMatrix);
   return true;
 }
@@ -3088,6 +3100,7 @@ bool vtkSlicerIhepStandGeometryLogic::GetTableTopToPatientBeamTransform(
     vtkErrorMacro("GetTableTopToPatientBeamTransform: Unable calculate transform between TableTop and patient beam nodes");
     return false;
   }
+
   transform->SetMatrix(transformMatrix);
   return true;
 }
@@ -3136,7 +3149,18 @@ bool vtkSlicerIhepStandGeometryLogic::GetTableTopAnglesFromPatientBeam(
 
   lateralAngle = vtkMath::DegreesFromRadians(acos(tableTopUnityXInPatientBeam[0])) - 90.;
   longitudinalAngle = vtkMath::DegreesFromRadians(acos(tableTopUnityZInPatientBeam[0])) - 90.;
-  patientSupportAngle = vtkMath::DegreesFromRadians(acos(tableTopUnityZInPatientBeam[1]));
+  patientSupportAngle = vtkMath::DegreesFromRadians(acos(tableTopUnityZInPatientBeam[2])) - 90;
+
+  vtkErrorMacro("GetTableTopAnglesFromPatientBeam: " << 
+    vtkMath::DegreesFromRadians(acos(tableTopUnityXInPatientBeam[0])) << " " <<
+    vtkMath::DegreesFromRadians(acos(tableTopUnityXInPatientBeam[1])) << " " <<
+    vtkMath::DegreesFromRadians(acos(tableTopUnityXInPatientBeam[2])) << " " <<
+    vtkMath::DegreesFromRadians(acos(tableTopUnityYInPatientBeam[0])) << " " <<
+    vtkMath::DegreesFromRadians(acos(tableTopUnityYInPatientBeam[1])) << " " <<
+    vtkMath::DegreesFromRadians(acos(tableTopUnityYInPatientBeam[2])) << " " <<
+    vtkMath::DegreesFromRadians(acos(tableTopUnityZInPatientBeam[0])) << " " <<
+    vtkMath::DegreesFromRadians(acos(tableTopUnityZInPatientBeam[1])) << " " <<
+    vtkMath::DegreesFromRadians(acos(tableTopUnityZInPatientBeam[2])));
 
   return true;
 }
