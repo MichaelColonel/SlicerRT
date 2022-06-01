@@ -82,7 +82,7 @@ QIcon qSlicerDrrImageComparisonModule::icon() const
 //-----------------------------------------------------------------------------
 QStringList qSlicerDrrImageComparisonModule::categories() const
 {
-  return QStringList() << "Examples";
+  return QStringList() << "Radiotherapy";
 }
 
 //-----------------------------------------------------------------------------

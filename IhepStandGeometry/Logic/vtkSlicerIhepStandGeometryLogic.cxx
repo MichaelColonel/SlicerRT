@@ -91,8 +91,8 @@ const double TableTopMiddleFixedReference[3] = { 0.5, 1771.6, -352. }; // Middle
 
 const double TableTopUpLeftFixedReference[3] = { -264.5, 1821.6, -210. }; // table top point A, LPS coordinate system
 const double TableTopUpRightFixedReference[3] = { 265.5, 1821.6, -210. }; // table top point B, LPS coordinate system
-const double TableTopDownRightFixedReference[3] = { 265.5, -348.4, -210. }; // table top point C, LPS coordinate system
-const double TableTopDownLeftFixedReference[3] = { -264.5, -348.4, -210. }; // table top point D, LPS coordinate system
+const double TableTopDownRightFixedReference[3] = { 265.5, -178.4, -210. }; // table top point C, LPS coordinate system
+const double TableTopDownLeftFixedReference[3] = { -264.5, -178.4, -210. }; // table top point D, LPS coordinate system
 
 const double TableTopCenterFixedReference[3] = {
   TableTopUpLeftFixedReference[0] + (TableTopUpRightFixedReference[0] - TableTopUpLeftFixedReference[0]) / 2.,
@@ -522,8 +522,8 @@ vtkMRMLMarkupsPlaneNode* vtkSlicerIhepStandGeometryLogic::CreateTableTopPlaneNod
     patientToRasMatrix->MultiplyPoint( tableTopLeft, tableTopLeftRAS);
 
     tableTopPlaneNode->SetOrigin(tableTopCenterRAS);
-    tableTopPlaneNode->SetPlaneBounds( -264.5, 265.5, -1085., 1085.);
-    tableTopPlaneNode->SetSize( 530., 2170.);
+    tableTopPlaneNode->SetPlaneBounds( -264.5, 265.5, -1000., 1000.);
+    tableTopPlaneNode->SetSize( 530., 2000.);
     tableTopPlaneNode->SetNormal( 0., 1., 0.);
     tableTopPlaneNode->SetSizeMode(vtkMRMLMarkupsPlaneNode::SizeModeAuto);
     tableTopPlaneNode->SetPlaneType(vtkMRMLMarkupsPlaneNode::PlaneType3Points);
