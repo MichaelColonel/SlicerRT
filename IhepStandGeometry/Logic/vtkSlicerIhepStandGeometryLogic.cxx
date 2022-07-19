@@ -94,6 +94,12 @@ const double TableTopUpRightFixedReference[3] = { 265.5, 1821.6, -210. }; // tab
 const double TableTopDownRightFixedReference[3] = { 265.5, -178.4, -210. }; // table top point C, LPS coordinate system
 const double TableTopDownLeftFixedReference[3] = { -264.5, -178.4, -210. }; // table top point D, LPS coordinate system
 
+const double TableTopHole1FixedReference[3] = { -250., -133.4, -210. }; // table top hole "1", LPS coordinate system
+const double TableTopHoleAFixedReference[3] = { -250., -133.4+70, -210. }; // table top hole "A", LPS coordinate system
+const double TableTopHole1MirrorFixedReference[3] = { 250., -133.4, -210. }; // table top mirror hole "1", LPS coordinate system
+const double TableTopHoleAMirrorFixedReference[3] = { 250., -133.4+70, -210. }; // table top mirror hole "A", LPS coordinate system
+
+
 const double TableTopCenterFixedReference[3] = {
   TableTopUpLeftFixedReference[0] + (TableTopUpRightFixedReference[0] - TableTopUpLeftFixedReference[0]) / 2.,
   TableTopDownRightFixedReference[1] + (TableTopUpRightFixedReference[1] - TableTopDownRightFixedReference[1]) / 2., 
@@ -131,6 +137,7 @@ const char* vtkSlicerIhepStandGeometryLogic::TABLE_MIDDLE_MODEL_NAME = "TableTop
 const char* vtkSlicerIhepStandGeometryLogic::TABLETOP_MODEL_NAME = "TableTop";
 
 const char* vtkSlicerIhepStandGeometryLogic::TABLETOP_MARKUPS_PLANE_NODE_NAME = "TableTopMarkupsPlane";
+const char* vtkSlicerIhepStandGeometryLogic::TABLETOP_MARKUPS_FIDUCIAL_NODE_NAME = "TableTopMarkupsFiducial";
 const char* vtkSlicerIhepStandGeometryLogic::TABLE_ORIGIN_MARKUPS_FIDUCIAL_NODE_NAME = "TableOriginMarkupsFiducial";
 const char* vtkSlicerIhepStandGeometryLogic::TABLE_MIRROR_MARKUPS_FIDUCIAL_NODE_NAME = "TableMirrorMarkupsFiducial";
 const char* vtkSlicerIhepStandGeometryLogic::TABLE_MIDDLE_MARKUPS_FIDUCIAL_NODE_NAME = "TableMiddleMarkupsFiducial";
@@ -543,6 +550,61 @@ vtkMRMLMarkupsPlaneNode* vtkSlicerIhepStandGeometryLogic::CreateTableTopPlaneNod
 }
 
 //----------------------------------------------------------------------------
+vtkMRMLMarkupsFiducialNode* vtkSlicerIhepStandGeometryLogic::CreateTableTopFiducialNode(vtkMRMLIhepStandGeometryNode* parameterNode)
+{
+  vtkNew<vtkMRMLMarkupsFiducialNode> tableTopFiducialNode;
+  this->GetMRMLScene()->AddNode(tableTopFiducialNode);
+  tableTopFiducialNode->SetName(TABLETOP_MARKUPS_FIDUCIAL_NODE_NAME);
+//  tableTopFiducialNode->SetHideFromEditors(1);
+  std::string singletonTag = std::string("IHEP_") + TABLETOP_MARKUPS_FIDUCIAL_NODE_NAME;
+  tableTopFiducialNode->SetSingletonTag(singletonTag.c_str());
+  tableTopFiducialNode->LockedOn();
+
+  // Transform IHEP stand models (IEC Patient) to RAS
+  vtkNew<vtkMatrix4x4> patientToRasMatrix;
+  vtkNew<vtkTransform> patientToRasTransform;
+  patientToRasTransform->Identity();
+  patientToRasTransform->RotateX(-90.);
+  if (!parameterNode->GetPatientHeadFeetRotation())
+  {
+    patientToRasTransform->RotateZ(180.);
+  }
+  patientToRasTransform->GetMatrix(patientToRasMatrix);
+
+
+  vtkMRMLScene* scene = this->GetMRMLScene();
+  if (!scene)
+  {
+    vtkErrorMacro("CreateTableTopFiducialNode: Invalid MRML scene");
+    return nullptr;
+  }
+
+  if (parameterNode)
+  {
+    // add point to fiducial node (initial position)
+    vtkVector3d p0( -1. * TableTopHole1FixedReference[0], TableTopHole1FixedReference[2], TableTopHole1FixedReference[1]); // "1"
+    vtkVector3d p1( -1. * TableTopHoleAFixedReference[0], TableTopHoleAFixedReference[2], TableTopHoleAFixedReference[1]); // "A"
+    vtkVector3d p2( -1. * TableTopHole1MirrorFixedReference[0], TableTopHole1MirrorFixedReference[2], TableTopHole1MirrorFixedReference[1]); // Mirror "1"
+    vtkVector3d p3( -1. * TableTopHoleAMirrorFixedReference[0], TableTopHoleAMirrorFixedReference[2], TableTopHoleAMirrorFixedReference[1]); // Mirror "A"
+    
+    tableTopFiducialNode->AddControlPoint( p0, "1");
+    tableTopFiducialNode->AddControlPoint( p1, "A");
+    tableTopFiducialNode->AddControlPoint( p2, "1");
+    tableTopFiducialNode->AddControlPoint( p3, "A");
+
+    vtkMRMLTransformNode* transformNode = this->UpdateTableTopPlaneTransform(parameterNode);
+
+    // add transform to fiducial node
+    if (transformNode)
+    {
+      tableTopFiducialNode->SetAndObserveTransformNodeID(transformNode->GetID());
+    }
+  }
+
+  return tableTopFiducialNode;
+}
+
+//----------------------------------------------------------------------------
 void vtkSlicerIhepStandGeometryLogic::UpdateTableTopToTableTopSupportTransform( double posOrigin[3], 
   double posMirror[3], double posMiddle[3])
 {
@@ -925,6 +987,7 @@ void vtkSlicerIhepStandGeometryLogic::UpdateTableTopPlaneNode(vtkMRMLIhepStandGe
   else
   {
     this->CreateTableTopPlaneNode(parameterNode);
+    this->CreateTableTopFiducialNode(parameterNode);
   }
 }
 

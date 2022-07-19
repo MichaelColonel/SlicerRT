@@ -62,6 +62,7 @@ public:
   static const char* TABLE_MIDDLE_MODEL_NAME; // Table Middle Support
   static const char* TABLETOP_MODEL_NAME; // Table Top
 
+  static const char* TABLETOP_MARKUPS_FIDUCIAL_NODE_NAME; // TableTop fiducials positions
   static const char* TABLETOP_MARKUPS_PLANE_NODE_NAME; // TableTop plane position and orientation from three fiducials below
   static const char* TABLE_ORIGIN_MARKUPS_FIDUCIAL_NODE_NAME; // Fiducial shows TableTop position Z origin
   static const char* TABLE_MIRROR_MARKUPS_FIDUCIAL_NODE_NAME; // Fiducial shows TableTop position Z mirror
@@ -79,7 +80,9 @@ public:
   vtkMRMLMarkupsFiducialNode* CreateTableMirrorFiducialNode(vtkMRMLIhepStandGeometryNode* parameterNode);
   
   /// Create TableTop plane markups node for visualization
-  vtkMRMLMarkupsPlaneNode* CreateTableTopPlaneNode( vtkMRMLIhepStandGeometryNode* parameterNode);
+  vtkMRMLMarkupsPlaneNode* CreateTableTopPlaneNode(vtkMRMLIhepStandGeometryNode* parameterNode);
+  /// Create TableTop fiducial markups node for visualization of fix holes
+  vtkMRMLMarkupsFiducialNode* CreateTableTopFiducialNode(vtkMRMLIhepStandGeometryNode* parameterNode);
 
   /// Create FixedReference line markups node for visualization
   vtkMRMLMarkupsLineNode* CreateFixedReferenceLineNode(vtkMRMLIhepStandGeometryNode* parameterNode);
@@ -102,7 +105,7 @@ public:
   /// @param mirrorPosition - vertical difference between mirror support from origin support 
   /// @param middlePosition - vertical difference between middle support from origin support
   /// @return true if mirror and middle differences are calculated, false otherwise
-  bool CalculateTableTopPositionsFromPlaneNode( vtkMRMLIhepStandGeometryNode* parameterNode, double& mirrorPosition, double& middlePosition);
+  bool CalculateTableTopPositionsFromPlaneNode(vtkMRMLIhepStandGeometryNode* parameterNode, double& mirrorPosition, double& middlePosition);
 
   /// Show markups
   void ShowMarkupsNodes(bool toggled = false);
