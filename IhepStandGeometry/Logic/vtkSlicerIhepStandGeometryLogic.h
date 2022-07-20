@@ -94,6 +94,8 @@ public:
 
   /// Update TableTop markups plane node using parameter node data and geometry hierarchy
   void UpdateTableTopPlaneNode(vtkMRMLIhepStandGeometryNode* parameterNode);
+  /// Update TableTop markups fiducial node using parameter node data and geometry hierarchy
+  void UpdateTableTopFiducialNode(vtkMRMLIhepStandGeometryNode* parameterNode);
 
   /// Update FixedReference markups line node using parameter node data and geometry hierarchy
   void UpdateFixedReferenceLineNode(vtkMRMLIhepStandGeometryNode* parameterNode);

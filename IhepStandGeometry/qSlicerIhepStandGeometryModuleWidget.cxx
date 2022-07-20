@@ -690,7 +690,7 @@ void qSlicerIhepStandGeometryModuleWidget::updateWidgetFromMRML()
   d->CheckBox_RotatePatientHeadFeet->setChecked(d->ParameterNode->GetPatientHeadFeetRotation());
   d->CheckBox_FixedReferenceCamera->setChecked(d->ParameterNode->GetUseStandCoordinateSystem());
 
-  vtkMRMLRTBeamNode* beamNode = d->ParameterNode->GetPatientBeamNode();
+//  vtkMRMLRTBeamNode* beamNode = d->ParameterNode->GetPatientBeamNode();
   vtkMRMLRTBeamNode* fixedBeam = d->ParameterNode->GetFixedBeamNode();
   vtkMRMLRTBeamNode* xrayBeam = d->ParameterNode->GetExternalXrayBeamNode();
 

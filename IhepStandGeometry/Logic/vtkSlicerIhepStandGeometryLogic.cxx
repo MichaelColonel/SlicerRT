@@ -94,11 +94,8 @@ const double TableTopUpRightFixedReference[3] = { 265.5, 1821.6, -210. }; // tab
 const double TableTopDownRightFixedReference[3] = { 265.5, -178.4, -210. }; // table top point C, LPS coordinate system
 const double TableTopDownLeftFixedReference[3] = { -264.5, -178.4, -210. }; // table top point D, LPS coordinate system
 
-const double TableTopHole1FixedReference[3] = { -250., -133.4, -210. }; // table top hole "1", LPS coordinate system
-const double TableTopHoleAFixedReference[3] = { -250., -133.4+70, -210. }; // table top hole "A", LPS coordinate system
-const double TableTopHole1MirrorFixedReference[3] = { 250., -133.4, -210. }; // table top mirror hole "1", LPS coordinate system
-const double TableTopHoleAMirrorFixedReference[3] = { 250., -133.4+70, -210. }; // table top mirror hole "A", LPS coordinate system
-
+const double TableTopHole1FixedReference[3] = { -249.5, -133.4, -210. }; // table top hole "1", LPS coordinate system
+const double TableTopMirrorHole1FixedReference[3] = { 250.5, -133.4, -210. }; // table top mirror hole "1", LPS coordinate system
 
 const double TableTopCenterFixedReference[3] = {
   TableTopUpLeftFixedReference[0] + (TableTopUpRightFixedReference[0] - TableTopUpLeftFixedReference[0]) / 2.,
@@ -265,9 +262,8 @@ void vtkSlicerIhepStandGeometryLogic::OnMRMLSceneNodeRemoved(vtkMRMLNode* vtkNot
 }
 
 //---------------------------------------------------------------------------
-void vtkSlicerIhepStandGeometryLogic::InitialSetupTransformTranslations(vtkMRMLIhepStandGeometryNode* parameterNode)
+void vtkSlicerIhepStandGeometryLogic::InitialSetupTransformTranslations(vtkMRMLIhepStandGeometryNode*)
 {
-
   vtkNew<vtkTransform> rotateYTransform;
   rotateYTransform->Identity();
 //  rotateYTransform->RotateX(-90.);
@@ -581,16 +577,29 @@ vtkMRMLMarkupsFiducialNode* vtkSlicerIhepStandGeometryLogic::CreateTableTopFiduc
 
   if (parameterNode)
   {
-    // add point to fiducial node (initial position)
-    vtkVector3d p0( -1. * TableTopHole1FixedReference[0], TableTopHole1FixedReference[2], TableTopHole1FixedReference[1]); // "1"
-    vtkVector3d p1( -1. * TableTopHoleAFixedReference[0], TableTopHoleAFixedReference[2], TableTopHoleAFixedReference[1]); // "A"
-    vtkVector3d p2( -1. * TableTopHole1MirrorFixedReference[0], TableTopHole1MirrorFixedReference[2], TableTopHole1MirrorFixedReference[1]); // Mirror "1"
-    vtkVector3d p3( -1. * TableTopHoleAMirrorFixedReference[0], TableTopHoleAMirrorFixedReference[2], TableTopHoleAMirrorFixedReference[1]); // Mirror "A"
-    
-    tableTopFiducialNode->AddControlPoint( p0, "1");
-    tableTopFiducialNode->AddControlPoint( p1, "A");
-    tableTopFiducialNode->AddControlPoint( p2, "1");
-    tableTopFiducialNode->AddControlPoint( p3, "A");
+    for (int i = 0; i < 27; ++i)
+    {
+      // add point to fiducial node (initial position)
+      vtkVector3d p( -1. * TableTopHole1FixedReference[0],
+        TableTopHole1FixedReference[2],
+        TableTopHole1FixedReference[1] + i * 70.);
+      vtkVector3d pm( -1. * TableTopMirrorHole1FixedReference[0],
+        TableTopMirrorHole1FixedReference[2],
+        TableTopMirrorHole1FixedReference[1] + i * 70.);
+      std::string name;
+      if (!(i % 2))
+      {
+        name = std::to_string(i / 2 + 1);
+      }
+      else
+      {
+        name = std::string(1, 'A' + (i - 1) / 2);
+      }
+      
+
+      tableTopFiducialNode->AddControlPoint( p, name.c_str());
+      tableTopFiducialNode->AddControlPoint( pm, name.c_str());
+    }
 
     vtkMRMLTransformNode* transformNode = this->UpdateTableTopPlaneTransform(parameterNode);
 
@@ -928,13 +937,13 @@ void vtkSlicerIhepStandGeometryLogic::UpdateTableTopPlaneNode(vtkMRMLIhepStandGe
   vtkMRMLScene* scene = this->GetMRMLScene(); 
   if (!scene)
   {
-    vtkErrorMacro("UpdateTableTopMarkupsNodes: Invalid MRML scene");
+    vtkErrorMacro("UpdateTableTopPlaneNode: Invalid MRML scene");
     return;
   }
 
   if (!parameterNode)
   {
-    vtkErrorMacro("UpdateTableTopMarkupsNodes: Invalid parameter node");
+    vtkErrorMacro("UpdateTableTopPlaneNode: Invalid parameter node");
     return;
   }
 
@@ -987,6 +996,75 @@ void vtkSlicerIhepStandGeometryLogic::UpdateTableTopPlaneNode(vtkMRMLIhepStandGe
   else
   {
     this->CreateTableTopPlaneNode(parameterNode);
+  }
+}
+
+//----------------------------------------------------------------------------
+void vtkSlicerIhepStandGeometryLogic::UpdateTableTopFiducialNode(vtkMRMLIhepStandGeometryNode* parameterNode)
+{
+  vtkMRMLScene* scene = this->GetMRMLScene(); 
+  if (!scene)
+  {
+    vtkErrorMacro("UpdateTableTopFiducialNode: Invalid MRML scene");
+    return;
+  }
+
+  if (!parameterNode)
+  {
+    vtkErrorMacro("UpdateTableTopFiducialNode: Invalid parameter node");
+    return;
+  }
+
+  // Transform IHEP stand models (IEC Patient) to RAS
+  vtkNew<vtkMatrix4x4> patientToRasMatrix;
+  vtkNew<vtkTransform> patientToRasTransform;
+  patientToRasTransform->Identity();
+  patientToRasTransform->RotateX(-90.);
+  if (!parameterNode->GetPatientHeadFeetRotation())
+  {
+    patientToRasTransform->RotateZ(180.);
+  }
+  patientToRasTransform->GetMatrix(patientToRasMatrix);
+
+  if (scene->GetFirstNodeByName(TABLETOP_MARKUPS_FIDUCIAL_NODE_NAME))
+  {
+    vtkMRMLMarkupsFiducialNode* tableTopFiducialNode = vtkMRMLMarkupsFiducialNode::SafeDownCast(
+      scene->GetFirstNodeByName(TABLETOP_MARKUPS_FIDUCIAL_NODE_NAME));
+    if (tableTopFiducialNode && tableTopFiducialNode->GetNumberOfControlPoints() == 0)
+    {
+      for (int i = 0; i < 27; ++i)
+      {
+        // add point to fiducial node (initial position)
+        vtkVector3d p( -1. * TableTopHole1FixedReference[0],
+          TableTopHole1FixedReference[2],
+          TableTopHole1FixedReference[1] + i * 70.);
+        vtkVector3d pm( -1. * TableTopMirrorHole1FixedReference[0],
+          TableTopMirrorHole1FixedReference[2],
+          TableTopMirrorHole1FixedReference[1] + i * 70.);
+        std::string name;
+        if (!(i % 2))
+        {
+          name = std::to_string(i / 2 + 1);
+        }
+        else
+        {
+          name = std::string(1, 'A' + (i - 1) / 2);
+        }
+        tableTopFiducialNode->AddControlPoint( p, name.c_str());
+        tableTopFiducialNode->AddControlPoint( pm, name.c_str());
+      }
+
+      vtkMRMLTransformNode* transformNode = this->UpdateTableTopPlaneTransform(parameterNode);
+
+      // Update markups fiducial transform node if it's changed
+      if (transformNode)
+      {
+        tableTopFiducialNode->SetAndObserveTransformNodeID(transformNode->GetID());
+      }
+    }
+  }
+  else
+  {
     this->CreateTableTopFiducialNode(parameterNode);
   }
 }
@@ -1800,6 +1878,7 @@ void vtkSlicerIhepStandGeometryLogic::SetupTreatmentMachineModels(vtkMRMLIhepSta
   this->UpdateTableMirrorFiducialNode(parameterNode);
   this->UpdateTableMiddleFiducialNode(parameterNode);
   this->UpdateTableTopPlaneNode(parameterNode);
+  this->UpdateTableTopFiducialNode(parameterNode);
   this->UpdateFixedReferenceLineNode(parameterNode);
 }
 
@@ -2685,7 +2764,7 @@ vtkMRMLLinearTransformNode* vtkSlicerIhepStandGeometryLogic::GetPatientSupportTr
 }
 
 //------------------------------------------------------------------------------
-void vtkSlicerIhepStandGeometryLogic::UpdateFixedReferenceCamera(vtkMRMLIhepStandGeometryNode* parameterNode, 
+void vtkSlicerIhepStandGeometryLogic::UpdateFixedReferenceCamera(vtkMRMLIhepStandGeometryNode* vtkNotUsed(parameterNode), 
   vtkMRMLCameraNode* cameraNode /* = nullptr */)
 {
   if (!cameraNode && !this->Camera3DViewNode)
@@ -3193,7 +3272,7 @@ bool vtkSlicerIhepStandGeometryLogic::GetTableTopAnglesFromPatientBeam(
     return false;
   }
   // Patient beam node transform
-  vtkMRMLTransformNode* patientBeamTransformNode = patientBeamNode->GetParentTransformNode();
+//  vtkMRMLTransformNode* patientBeamTransformNode = patientBeamNode->GetParentTransformNode();
 
   vtkNew< vtkTransform > tableTopToBeamTransform;
 
