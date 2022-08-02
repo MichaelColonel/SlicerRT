@@ -83,6 +83,7 @@ add_subdirectory(PlmRegister)
 # IHEP-RBS modules
 add_subdirectory(IhepStandGeometry)
 add_subdirectory(IhepRegistration)
+add_subdirectory(MlcOpeningComputation)
 
 if (SLICERRT_ENABLE_EXPERIMENTAL_MODULES)
   # In development
