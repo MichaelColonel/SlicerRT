@@ -211,16 +211,10 @@ class MlcOpeningComputationWidget(ScriptedLoadableModuleWidget, VTKObservationMi
                 self._parameterNode.SetNodeReferenceID("Segmentation", segmentationNode.GetID())
 
         # Select ion beam node if nothing is selected yet to save a few clicks for the user
-        if not self._parameterNode.GetNodeReference("IonBeam"):
+        if not self._parameterNode.GetNodeReference("Beam"):
             ionBeamNode = slicer.mrmlScene.GetFirstNodeByClass("vtkMRMLRTIonBeamNode")
             if ionBeamNode:
-                self._parameterNode.SetNodeReferenceID("IonBeam", ionBeamNode.GetID())
-
-        # Select beam node if nothing is selected yet to save a few clicks for the user
-        if not self._parameterNode.GetNodeReference("Beam"):
-            beamNode = slicer.mrmlScene.GetFirstNodeByClass("vtkMRMLRTBeamNode")
-            if beamNode:
-                self._parameterNode.SetNodeReferenceID("Beam", beamNode.GetID())
+                self._parameterNode.SetNodeReferenceID("Beam", ionBeamNode.GetID())
 
     def setParameterNode(self, inputParameterNode):
         """
@@ -287,8 +281,9 @@ class MlcOpeningComputationWidget(ScriptedLoadableModuleWidget, VTKObservationMi
         wasModified = self._parameterNode.StartModify()  # Modify all properties in a single batch
 
         self._parameterNode.SetNodeReferenceID("Volume", self.ui.MRMLNodeComboBox_Volume.currentNodeID)
-        self._parameterNode.SetNodeReferenceID("Segmentation", self.ui.MRMLSegmentSelectorWidget.currentNodeID)
-        self._parameterNode.SetParameter("SegmentName", self.ui.MRMLSegmentSelectorWidget.currentSegmentID)
+        self._parameterNode.SetNodeReferenceID("Segmentation", self.ui.MRMLSegmentSelectorWidget.currentNodeID())
+        self._parameterNode.SetNodeReferenceID("Beam", self.ui.MRMLNodeComboBox_Beam.currentNodeID)
+        self._parameterNode.SetParameter("SegmentName", self.ui.MRMLSegmentSelectorWidget.currentSegmentID())
 
         self._parameterNode.EndModify(wasModified)
 
@@ -296,8 +291,31 @@ class MlcOpeningComputationWidget(ScriptedLoadableModuleWidget, VTKObservationMi
         self._parameterNode.SetParameter("SegmentName", segmentName)
 
     def onSetCamera(self, state):
-        pass
+        view = slicer.app.layoutManager().threeDWidget(0).threeDView()
+        viewNode = view.mrmlViewNode()
+        cameraNodes = slicer.mrmlScene.GetNodesByClass('vtkMRMLCameraNode')
+        cameraNode = None
+       
+        for camera in cameraNodes:
+            uniqueName = viewNode.GetNodeTagName() + camera.GetLayoutName()
+            if uniqueName == viewNode.GetName():
+                cameraNode = camera
+        cameraNodes.UnRegister(slicer.mrmlScene) # prevent memory leaks
+        
+        if cameraNode is None:
+            print("Camera is invalid")
+            return
 
+        beamNode = self._parameterNode.GetNodeReference("Beam")
+        sourcePosition = [ 0, 0, 0]
+        if beamNode is not None and beamNode.GetSourcePosition(sourcePosition):
+            beamTransformNode = beamNode.GetParentTransformNode()
+            mat = vtk.vtkMatrix4x4
+            transformNode = beamTransformNode.GetTransformToParent()
+            mat = transformNode.GetMatrix()
+            if mat is not None:
+                print("Matrix is OK")
+        
     def onSetBackgroundAndModelColors(self, state):
         pass
 
