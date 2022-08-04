@@ -212,9 +212,9 @@ class MlcOpeningComputationWidget(ScriptedLoadableModuleWidget, VTKObservationMi
 
         # Select ion beam node if nothing is selected yet to save a few clicks for the user
         if not self._parameterNode.GetNodeReference("Beam"):
-            ionBeamNode = slicer.mrmlScene.GetFirstNodeByClass("vtkMRMLRTIonBeamNode")
-            if ionBeamNode:
-                self._parameterNode.SetNodeReferenceID("Beam", ionBeamNode.GetID())
+            beamNode = slicer.mrmlScene.GetFirstNodeByClass("vtkMRMLRTBeamNode")
+            if beamNode:
+                self._parameterNode.SetNodeReferenceID("Beam", beamNode.GetID())
 
     def setParameterNode(self, inputParameterNode):
         """
@@ -257,7 +257,7 @@ class MlcOpeningComputationWidget(ScriptedLoadableModuleWidget, VTKObservationMi
             segmentID = self._parameterNode.GetParameter("SegmentName")
             self.ui.MRMLSegmentSelectorWidget.setCurrentSegmentID(segmentID)
         
-        self.ui.MRMLNodeComboBox_Beam.setCurrentNode(self._parameterNode.GetNodeReference("IonBeam"))
+        self.ui.MRMLNodeComboBox_Beam.setCurrentNode(self._parameterNode.GetNodeReference("Beam"))
 
         # Update buttons states and tooltips
         if self._parameterNode.GetNodeReference("Segmentation") and segmentID is not None and self._parameterNode.GetNodeReference("Beam"):
@@ -307,14 +307,23 @@ class MlcOpeningComputationWidget(ScriptedLoadableModuleWidget, VTKObservationMi
             return
 
         beamNode = self._parameterNode.GetNodeReference("Beam")
-        sourcePosition = [ 0, 0, 0]
+        sourcePosition = [0., 0., 0.]
+        vup = [0., 0., 0., 0.]
+        viewUpVector = [-1., 0., 0., 0.]
+
         if beamNode is not None and beamNode.GetSourcePosition(sourcePosition):
             beamTransformNode = beamNode.GetParentTransformNode()
-            mat = vtk.vtkMatrix4x4
             transformNode = beamTransformNode.GetTransformToParent()
             mat = transformNode.GetMatrix()
-            if mat is not None:
-                print("Matrix is OK")
+            mat.MultiplyPoint( viewUpVector, vup)
+
+        cameraNode.GetCamera().SetPosition(sourcePosition)
+
+        isocenter = [0., 0., 0.]
+        if beamNode.GetPlanIsocenterPositionWorld(isocenter):
+           cameraNode.GetCamera().SetFocalPoint(isocenter)
+           cameraNode.SetViewUp(vup[:3]);
+           cameraNode.GetCamera().Elevation(0.);
         
     def onSetBackgroundAndModelColors(self, state):
         pass
