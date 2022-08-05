@@ -4,6 +4,8 @@ set(MODULE_NAME MlcOpeningComputation)
 #-----------------------------------------------------------------------------
 set(MODULE_PYTHON_SCRIPTS
   ${MODULE_NAME}.py
+  ${MODULE_NAME}Logic1/__init__
+  ${MODULE_NAME}Logic1/${MODULE_NAME}Logic1
   )
 
 set(MODULE_PYTHON_RESOURCES

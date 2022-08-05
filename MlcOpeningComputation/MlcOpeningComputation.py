@@ -7,6 +7,7 @@ import slicer
 from slicer.ScriptedLoadableModule import *
 from slicer.util import VTKObservationMixin
 
+import MlcOpeningComputationLogic1
 
 #
 # MlcOpeningComputation
@@ -150,6 +151,7 @@ class MlcOpeningComputationWidget(ScriptedLoadableModuleWidget, VTKObservationMi
         # Buttons
         self.ui.PushButton_SetCamera.connect("clicked(bool)", self.onSetCamera)
         self.ui.PushButton_SetColors.connect("clicked(bool)", self.onSetBackgroundAndModelColors)
+        self.ui.PushButton_ExternalContour.connect("clicked(bool)", self.onCalculateExternalContour)
 
         # Make sure parameter node is initialized (needed for module reload)
         self.initializeParameterNode()
@@ -324,9 +326,95 @@ class MlcOpeningComputationWidget(ScriptedLoadableModuleWidget, VTKObservationMi
            cameraNode.GetCamera().SetFocalPoint(isocenter)
            cameraNode.SetViewUp(vup[:3]);
            cameraNode.GetCamera().Elevation(0.);
-        
+
+        self.ui.PushButton_SetColors.toolTip = "Set Colors to segment"
+        self.ui.PushButton_SetColors.enabled = True
+            
     def onSetBackgroundAndModelColors(self, state):
-        pass
+        viewNode = slicer.app.layoutManager().threeDWidget(0).mrmlViewNode()
+        viewNode.SetBackgroundColor(0,0,0)
+        viewNode.SetBackgroundColor2(0,0,0)
+        
+        beamNode = self._parameterNode.GetNodeReference("Beam")
+        beamNode.GetDisplayNode().SetVisibility(False)
+        
+        segmentationNode = self._parameterNode.GetNodeReference("Segmentation")
+        segmentName = self._parameterNode.GetParameter("SegmentName")
+        segmentIDs = segmentationNode.GetSegmentation().GetSegmentIDs()
+        display = segmentationNode.GetDisplayNode()
+        seg = segmentationNode.GetSegmentation()
+        segmentID = seg.GetSegmentIdBySegmentName(segmentName)
+        for segID in segmentIDs:
+            if segmentID != segID:
+                display.SetSegmentVisibility(segID, False)
+            else:
+                display.SetSegmentOverrideColor(segID, 1., 1., 1.)
+        self.ui.PushButton_ExternalContour.toolTip = "Calculate external segment"
+        self.ui.PushButton_ExternalContour.enabled = True
+
+    def onCalculateExternalContour(self, state):
+        view = slicer.app.layoutManager().threeDWidget(0).threeDView()
+        renderWindow = view.renderWindow()
+        renderers = renderWindow.GetRenderers()
+        renderer = renderers.GetItemAsObject(0)
+
+        winToImageFilter = vtk.vtkWindowToImageFilter()
+        winToImageFilter.SetInput(renderWindow)
+        winToImageFilter.SetScale(2) #image quality
+        winToImageFilter.Update()
+
+        contFilter = vtk.vtkContourFilter()
+        contFilter.SetInputConnection(winToImageFilter.GetOutputPort())
+        contFilter.SetValue(0, 255)
+        contFilter.Update()
+
+        # Make the contour coincide with the data.
+        contour = contFilter.GetOutput()
+
+        bounds_contour = [0., 0., 0., 0., 0., 0.]
+        center_contour = [0., 0., 0.]
+        contour.GetBounds(bounds_contour)
+        
+        segmentationNode = self._parameterNode.GetNodeReference("Segmentation")
+        segmentName = self._parameterNode.GetParameter("SegmentName")
+        
+        logic1 = MlcOpeningComputationLogic1() 
+        bounds_data, center_data = logic1.CalculateBoundCenterDataFromSegmentation(segmentationNode, segmentName)
+        ratio_x = float(bounds_data[1] - bounds_data[0]) / float(bounds_contour[1] - bounds_contour[0])
+        ratio_y = float(bounds_data[3] - bounds_data[2]) / float(bounds_contour[3] - bounds_contour[2])
+
+        # Rescale the contour so that it shares the same bounds as the input data
+        transform1 = vtk.vtkTransform()
+        transform1.Scale(ratio_x, ratio_y, 1.0)
+        tfilter1 = vtk.vtkTransformPolyDataFilter()
+        tfilter1.SetInputData(contour)
+        tfilter1.SetTransform(transform1)
+        tfilter1.Update()
+
+        contour = tfilter1.GetOutput()
+
+        # Translate the contour so that it shares the same center as the input data
+        contour.GetCenter(center_contour)
+        
+        trans_x = center_data[0] - center_contour[0]
+        trans_y = center_data[1] - center_contour[1]
+        trans_z = center_data[2] - center_contour[2]
+
+        transform2 = vtk.vtkTransform()
+        transform2.Translate(trans_x, trans_y, trans_z)
+
+        tfilter2 = vtk.vtkTransformPolyDataFilter()
+        tfilter2.SetInputData(contour)
+        tfilter2.SetTransform(transform2)
+        tfilter2.Update()
+
+        contour = tfilter2.GetOutput()
+        # Create a model node that displays output of the source
+        contourNode = slicer.modules.models.logic().AddModel(contour)
+
+        # Adjust display properties
+        contourNode.GetDisplayNode().SetColor(1,0,0)
+        contourNode.GetDisplayNode().SetOpacity(0.8)
 
     def onApplyButton(self):
         """
