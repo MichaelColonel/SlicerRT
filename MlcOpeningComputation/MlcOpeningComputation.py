@@ -7,7 +7,7 @@ import slicer
 from slicer.ScriptedLoadableModule import *
 from slicer.util import VTKObservationMixin
 
-import MlcOpeningComputationLogic1
+from MlcOpeningComputationLogic1 import MlcOpeningComputationLogic1
 
 #
 # MlcOpeningComputation
@@ -332,8 +332,8 @@ class MlcOpeningComputationWidget(ScriptedLoadableModuleWidget, VTKObservationMi
             
     def onSetBackgroundAndModelColors(self, state):
         viewNode = slicer.app.layoutManager().threeDWidget(0).mrmlViewNode()
-        viewNode.SetBackgroundColor(0,0,0)
-        viewNode.SetBackgroundColor2(0,0,0)
+        viewNode.SetBackgroundColor(1,1,1)
+        viewNode.SetBackgroundColor2(1,1,1)
         
         beamNode = self._parameterNode.GetNodeReference("Beam")
         beamNode.GetDisplayNode().SetVisibility(False)
@@ -348,11 +348,18 @@ class MlcOpeningComputationWidget(ScriptedLoadableModuleWidget, VTKObservationMi
             if segmentID != segID:
                 display.SetSegmentVisibility(segID, False)
             else:
-                display.SetSegmentOverrideColor(segID, 1., 1., 1.)
+                display.SetSegmentOverrideColor(segID, 0., 0., 0.)
         self.ui.PushButton_ExternalContour.toolTip = "Calculate external segment"
         self.ui.PushButton_ExternalContour.enabled = True
 
     def onCalculateExternalContour(self, state):
+
+        segmentationNode = self._parameterNode.GetNodeReference("Segmentation")
+        segmentName = self._parameterNode.GetParameter("SegmentName")
+        
+        logic1 = MlcOpeningComputationLogic1() 
+        modelPolyData = logic1.CreateSegmentModel(segmentationNode, segmentName)
+
         view = slicer.app.layoutManager().threeDWidget(0).threeDView()
         renderWindow = view.renderWindow()
         renderers = renderWindow.GetRenderers()
@@ -360,7 +367,7 @@ class MlcOpeningComputationWidget(ScriptedLoadableModuleWidget, VTKObservationMi
 
         winToImageFilter = vtk.vtkWindowToImageFilter()
         winToImageFilter.SetInput(renderWindow)
-        winToImageFilter.SetScale(2) #image quality
+#        winToImageFilter.SetScale(2) #image quality
         winToImageFilter.Update()
 
         contFilter = vtk.vtkContourFilter()
@@ -374,12 +381,8 @@ class MlcOpeningComputationWidget(ScriptedLoadableModuleWidget, VTKObservationMi
         bounds_contour = [0., 0., 0., 0., 0., 0.]
         center_contour = [0., 0., 0.]
         contour.GetBounds(bounds_contour)
-        
-        segmentationNode = self._parameterNode.GetNodeReference("Segmentation")
-        segmentName = self._parameterNode.GetParameter("SegmentName")
-        
-        logic1 = MlcOpeningComputationLogic1() 
-        bounds_data, center_data = logic1.CalculateBoundCenterDataFromSegmentation(segmentationNode, segmentName)
+
+        bounds_data, center_data = logic1.CalculateBoundCenterDataFromPolyData(modelPolyData)
         ratio_x = float(bounds_data[1] - bounds_data[0]) / float(bounds_contour[1] - bounds_contour[0])
         ratio_y = float(bounds_data[3] - bounds_data[2]) / float(bounds_contour[3] - bounds_contour[2])
 
@@ -394,21 +397,21 @@ class MlcOpeningComputationWidget(ScriptedLoadableModuleWidget, VTKObservationMi
         contour = tfilter1.GetOutput()
 
         # Translate the contour so that it shares the same center as the input data
-        contour.GetCenter(center_contour)
+#        contour.GetCenter(center_contour)
         
-        trans_x = center_data[0] - center_contour[0]
-        trans_y = center_data[1] - center_contour[1]
-        trans_z = center_data[2] - center_contour[2]
+#        trans_x = center_data[0] - center_contour[0]
+#        trans_y = center_data[1] - center_contour[1]
+#        trans_z = center_data[2] - center_contour[2]
 
-        transform2 = vtk.vtkTransform()
-        transform2.Translate(trans_x, trans_y, trans_z)
+#        transform2 = vtk.vtkTransform()
+#        transform2.Translate(trans_x, trans_y, trans_z)
 
-        tfilter2 = vtk.vtkTransformPolyDataFilter()
-        tfilter2.SetInputData(contour)
-        tfilter2.SetTransform(transform2)
-        tfilter2.Update()
+#        tfilter2 = vtk.vtkTransformPolyDataFilter()
+#        tfilter2.SetInputData(contour)
+#        tfilter2.SetTransform(transform2)
+#        tfilter2.Update()
 
-        contour = tfilter2.GetOutput()
+#        contour = tfilter2.GetOutput()
         # Create a model node that displays output of the source
         contourNode = slicer.modules.models.logic().AddModel(contour)
 
