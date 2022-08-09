@@ -362,6 +362,8 @@ class MlcOpeningComputationWidget(ScriptedLoadableModuleWidget, VTKObservationMi
 
         view = slicer.app.layoutManager().threeDWidget(0).threeDView()
         renderWindow = view.renderWindow()
+        renderWindow.SetOffScreenRendering(1)
+        renderWindow.Render()
         renderers = renderWindow.GetRenderers()
         renderer = renderers.GetItemAsObject(0)
 
@@ -381,20 +383,31 @@ class MlcOpeningComputationWidget(ScriptedLoadableModuleWidget, VTKObservationMi
         bounds_contour = [0., 0., 0., 0., 0., 0.]
         center_contour = [0., 0., 0.]
         contour.GetBounds(bounds_contour)
+        contour.GetCenter(center_contour)
+        
+        curve = slicer.mrmlScene.AddNewNodeByClass('vtkMRMLMarkupsClosedCurveNode')
+        curve.SetCurveTypeToLinear();
+        for i in range(contour.GetNumberOfPoints()):
+            point = [0, 0, 0]
+            contour.GetPoint(i, point)
+            curve.AddControlPoint(point)
 
-        bounds_data, center_data = logic1.CalculateBoundCenterDataFromPolyData(modelPolyData)
-        ratio_x = float(bounds_data[1] - bounds_data[0]) / float(bounds_contour[1] - bounds_contour[0])
-        ratio_y = float(bounds_data[3] - bounds_data[2]) / float(bounds_contour[3] - bounds_contour[2])
+        renderWindow.SetOffScreenRendering(0)
+        renderWindow.Render()
+
+#        bounds_data, center_data = logic1.CalculateBoundCenterDataFromPolyData(modelPolyData)
+#        ratio_x = float(bounds_data[1] - bounds_data[0]) / float(bounds_contour[1] - bounds_contour[0])
+#        ratio_y = float(bounds_data[3] - bounds_data[2]) / float(bounds_contour[3] - bounds_contour[2])
 
         # Rescale the contour so that it shares the same bounds as the input data
-        transform1 = vtk.vtkTransform()
-        transform1.Scale(ratio_x, ratio_y, 1.0)
-        tfilter1 = vtk.vtkTransformPolyDataFilter()
-        tfilter1.SetInputData(contour)
-        tfilter1.SetTransform(transform1)
-        tfilter1.Update()
+#        transform1 = vtk.vtkTransform()
+#        transform1.Scale(ratio_x, ratio_y, 1.0)
+#        tfilter1 = vtk.vtkTransformPolyDataFilter()
+#        tfilter1.SetInputData(contour)
+#        tfilter1.SetTransform(transform1)
+#        tfilter1.Update()
 
-        contour = tfilter1.GetOutput()
+#        contour = tfilter1.GetOutput()
 
         # Translate the contour so that it shares the same center as the input data
 #        contour.GetCenter(center_contour)
