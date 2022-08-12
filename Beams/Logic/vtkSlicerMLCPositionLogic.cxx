@@ -233,13 +233,13 @@ vtkMRMLMarkupsCurveNode* vtkSlicerMLCPositionLogic::CalculatePositionConvexHullC
   }
 
   // get x and y coordinates of convex hull on the isocenter IEC BEAM LIMITING DEVICE coordinate system plane
-  int zSize = points->GetSizeCCWHullZ(); // number of points
+  size_t zSize = static_cast<size_t>(points->GetSizeCCWHullZ()); // number of points
   if (zSize >= 3)
   {
     double* xyCoordinates = new double[zSize * 2]; // x and y coordinates buffer
     points->GetCCWHullZ( xyCoordinates, zSize); // get points of convex hull on the plane
 
-    for( int i = 0; i < zSize; i++)
+    for(size_t i = 0; i < zSize; i++)
     {
       double xval = xyCoordinates[2 * i]; // x coordinate
       double yval = xyCoordinates[2 * i + 1]; // y coordinate
@@ -268,7 +268,7 @@ vtkMRMLTableNode* vtkSlicerMLCPositionLogic::CreateMultiLeafCollimatorTableNodeB
   const char* name = mlcType ? MLCX_BOUNDARYANDPOSITION : MLCY_BOUNDARYANDPOSITION;
   tableNode->SetName(name);
 
-  std::vector<double> leafPairsBoundary(nofLeafPairs + 1);
+  std::vector<double> leafPairsBoundary(nofLeafPairs);
   double middle = leafPairSize * nofLeafPairs / 2.;
   for( auto iter = leafPairsBoundary.begin(); iter != leafPairsBoundary.end(); ++iter)
   {
@@ -378,10 +378,10 @@ bool vtkSlicerMLCPositionLogic::CalculateLeavesProjection( vtkMRMLRTBeamNode* be
 bool vtkSlicerMLCPositionLogic::UpdateMultiLeafCollimatorTableNodeBoundaryData( vtkMRMLTableNode* mlcTable, 
   bool mlcType, unsigned int nofLeafPairs, double leafPairSize, double isocenterOffset)
 {
-  if (!mlcTable)
-  {
-    return false;
-  }
+//  if (!mlcTable)
+//  {
+//    return false;
+//  }
   if (mlcTable->GetNumberOfColumns() != 3)
   {
     vtkErrorMacro("UpdateMultiLeafCollimatorTableNodeBoundaryData: Wrong number of table columns");
@@ -392,7 +392,7 @@ bool vtkSlicerMLCPositionLogic::UpdateMultiLeafCollimatorTableNodeBoundaryData( 
   mlcTable->SetName(name);
 
   // number of MLC boundary data = number of MLC leaf pairs + 1, see DICOM RT standard
-  std::vector<double> leafPairsBoundary(nofLeafPairs + 1);
+  std::vector<double> leafPairsBoundary(nofLeafPairs);
   double middle = leafPairSize * nofLeafPairs / 2.;
   for( auto iter = leafPairsBoundary.begin(); iter != leafPairsBoundary.end(); ++iter)
   {
@@ -422,7 +422,7 @@ bool vtkSlicerMLCPositionLogic::UpdateMultiLeafCollimatorTableNodeBoundaryData( 
   {
     table->SetValue( row, 0, leafPairsBoundary[row]);
   }
-  for ( unsigned int row = 0; row < nofLeafPairs; ++row)
+  for ( unsigned int row = 0; row < nofLeafPairs ; ++row)
   {
     table->SetValue( row, 1, -20.0); // default meaningful value for side "1"
     table->SetValue( row, 2, -20.0); // default meaningful value for side "2"
@@ -450,7 +450,7 @@ bool vtkSlicerMLCPositionLogic::CalculateMultiLeafCollimatorPosition( vtkMRMLTab
   size_t nofLeafPairs = 0;
   if (mlcTableNode)
   {
-    nofLeafPairs = mlcTableNode->GetNumberOfRows() - 1;
+    nofLeafPairs = mlcTableNode->GetNumberOfRows();
     if (nofLeafPairs <= 0)
     {
       nofLeafPairs = 0;
@@ -692,7 +692,7 @@ bool vtkSlicerMLCPositionLogic::FindLeafPairPositions(
       pEnd[1] = c;
     }
 
-    if (cellLocator->IntersectWithLine( pStart, pEnd, 0.0001, t, xyz, pcoords, subId))
+    if (cellLocator->IntersectWithLine( pStart, pEnd, 0.01, t, xyz, pcoords, subId))
     {
       side1Flag = true;
       // xyz values
@@ -723,7 +723,7 @@ bool vtkSlicerMLCPositionLogic::FindLeafPairPositions(
       pEnd[1] = c;
     }
 
-    if (cellLocator->IntersectWithLine( pStart, pEnd, 0.0001, t, xyz, pcoords, subId))
+    if (cellLocator->IntersectWithLine( pStart, pEnd, 0.01, t, xyz, pcoords, subId))
     {
       side2Flag = true;
       // xyz values
