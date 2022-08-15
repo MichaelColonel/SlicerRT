@@ -1795,14 +1795,14 @@ vtkMRMLTableNode* vtkSlicerDicomRtImportExportModuleLogic::vtkInternal::CreateMu
     table->AddColumn(pos2);
 
     vtkIdType size = mlcPosition.size() / 2;
-    table->SetNumberOfRows(size + 1);
+    table->SetNumberOfRows(size);
 
-    for ( vtkIdType row = 0; row < size + 1; ++row)
-    {
-      table->SetValue( row, 0, mlcBoundary[row]);
-    }
     for ( vtkIdType row = 0; row < size; ++row)
     {
+      table->SetValue( row, 0, mlcBoundary[row]);
+//    }
+//    for ( vtkIdType row = 0; row < size; ++row)
+//    {
       table->SetValue( row, 1, mlcPosition[row]);
       table->SetValue( row, 2, mlcPosition[row + size]);
     }

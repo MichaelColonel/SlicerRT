@@ -29,6 +29,12 @@
 // Slicer includes
 #include "vtkMRMLAbstractLogic.h"
 
+// VTK includes
+#include <vtkVector.h>
+
+// STD includes
+#include <vector>
+
 class vtkPolyData;
 class vtkMRMLMarkupsCurveNode;
 class vtkMRMLRTBeamNode;
@@ -113,6 +119,14 @@ public:
   /// Set convex hull closed curve node as a child of the beam node
   void SetParentForMultiLeafCollimatorCurve( vtkMRMLRTBeamNode* beamNode, 
     vtkMRMLMarkupsCurveNode* curveNode);
+  /// Oversample convex hull closed curve points
+  bool OversampleConvexHullCurve(const std::vector< vtkVector2d >& originalData,
+    std::vector< vtkVector2d >& oversampledData, double step);
+  /// Oversample linear between two points
+  void OversampleLinearBetweenPoints(const vtkVector2d& firstPoint,
+    const vtkVector2d& lastPoint,
+    std::vector< vtkVector2d >& oversampledData,
+    double step);
 
 protected:
   vtkSlicerMLCPositionLogic();
@@ -139,8 +153,9 @@ private:
 
   /// Find first and last MLC leaf pair index for position calculation
   /// @param curveBound (xmin, xmax, ymin, ymax)
+  /// @param mlcType true for MLCX, false for MLCY
   void FindLeafPairRangeIndexes( double curveBound[4], vtkTable* mlcTable, 
-    int& leafPairIndexFirst, int& leafPairIndexLast);
+    int& leafPairIndexFirst, int& leafPairIndexLast, bool mlcType);
 
   /// Find first and last leaf index for position calculation
   /// @param curveBound (xmin, xmax, ymin, ymax)
@@ -160,7 +175,7 @@ private:
   bool FindLeafPairPositions( vtkMRMLMarkupsCurveNode* convexHullCurveNode,
     vtkMRMLTableNode* mlcTableNode, size_t leafPairIndex, 
     double& side1, double& side2, int strategy = 1, 
-    double maxPositionDistance = 100., double positionStep = 0.01);
+    double maxPositionDistance = 200., double positionStep = 0.01);
 
   /// Find leaf pair position using collision filter between leaf 
   /// rectangle projection and target polydata (second pass, slow and more precise)
@@ -177,7 +192,7 @@ private:
   bool FindLeafAndTargetCollision( vtkMRMLRTBeamNode* beamNode, 
     vtkPolyData* leafPoly, vtkPolyData* targetPoly, double& sidePos, 
     double initialPosition, int sideType = 1, bool mlcType = true, 
-    double maxPositionDistance = 100., double positionStep = 0.01);
+    double maxPositionDistance = 200., double positionStep = 0.01);
 };
 
 #endif

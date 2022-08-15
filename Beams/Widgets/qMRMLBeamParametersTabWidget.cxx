@@ -186,7 +186,7 @@ void qMRMLBeamParametersTabWidget::updateWidgetFromMRML()
   {
     return;
   }
-
+//  qDebug() << Q_FUNC_INFO << ": Widget updated";
   // Update values into geometry tab
   d->doubleSpinBox_SAD->setValue(d->BeamNode->GetSAD());
   d->RangeWidget_XJawsPosition->setValues(d->BeamNode->GetX1Jaw(), d->BeamNode->GetX2Jaw());
@@ -197,7 +197,15 @@ void qMRMLBeamParametersTabWidget::updateWidgetFromMRML()
   d->SliderWidget_GantryAngle->blockSignals(false);
   d->SliderWidget_CouchAngle->setValue(d->BeamNode->GetCouchAngle());
 
+  d->MRMLNodeComboBox_MLCBoundaryAndPositionTable->blockSignals(true);
   d->MRMLNodeComboBox_MLCBoundaryAndPositionTable->setMRMLScene(d->BeamNode->GetScene());
+  d->MRMLNodeComboBox_MLCBoundaryAndPositionTable->blockSignals(false);
+
+  vtkMRMLRTPlanNode* planNode = d->BeamNode->GetParentPlanNode();
+  if (planNode)
+  {
+    d->MRMLNodeComboBox_MLCBoundaryAndPositionTable->setMRMLScene(planNode->GetScene());
+  }
 
   // Check for MLC table and enable combo box
   if (vtkMRMLTableNode* mlcTable = d->BeamNode->GetMultiLeafCollimatorTableNode())
@@ -208,7 +216,6 @@ void qMRMLBeamParametersTabWidget::updateWidgetFromMRML()
   else
   {
     d->MRMLNodeComboBox_MLCBoundaryAndPositionTable->setCurrentNode(nullptr);
-    d->MRMLNodeComboBox_MLCBoundaryAndPositionTable->setEnabled(false);
     d->pushButton_UpdateMLCBoundary->setEnabled(false);
   }
 
@@ -915,10 +922,10 @@ void qMRMLBeamParametersTabWidget::calculateMLCPositionClicked()
         d->MLCPositionLogic->SetParentForMultiLeafCollimatorTableNode(d->BeamNode);
 
         double area = d->MLCPositionLogic->CalculateMultiLeafCollimatorPositionArea(d->BeamNode);
-        qDebug() << Q_FUNC_INFO << ": MLC position area (mm^2) = " << area;
+//        qDebug() << Q_FUNC_INFO << ": MLC position area (mm^2) = " << area;
 
         area = d->MLCPositionLogic->CalculateCurvePolygonArea(convexHullCurve);
-        qDebug() << Q_FUNC_INFO << ": Convex hull closed curve area (mm^2) = " << area;
+//        qDebug() << Q_FUNC_INFO << ": Convex hull closed curve area (mm^2) = " << area;
 
         d->MLCPositionLogic->SetParentForMultiLeafCollimatorCurve( d->BeamNode, convexHullCurve);
 

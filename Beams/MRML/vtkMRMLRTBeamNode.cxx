@@ -533,7 +533,7 @@ void vtkMRMLRTBeamNode::CreateBeamPolyData(vtkPolyData* beamModelPolyData/*=null
   vtkIdType nofLeafPairs = 0;
   if (mlcTableNode)
   {
-    nofLeafPairs = mlcTableNode->GetNumberOfRows() - 1;
+    nofLeafPairs = mlcTableNode->GetNumberOfRows();
     if (nofLeafPairs <= 0)
     {
       vtkWarningMacro("CreateBeamPolyData: Wrong number of leaf pairs in the MLC table node, " \
