@@ -303,6 +303,19 @@
         </layout>
        </widget>
       </item>
+      <item>
+       <widget class="QPushButton" name="PushButton_SwitchLayout">
+        <property name="text">
+         <string>Switch layout</string>
+        </property>
+        <property name="checkable">
+         <bool>true</bool>
+        </property>
+        <property name="checked">
+         <bool>false</bool>
+        </property>
+       </widget>
+      </item>
      </layout>
     </widget>
    </item>

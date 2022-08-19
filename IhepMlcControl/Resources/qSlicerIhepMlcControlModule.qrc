@@ -1,5 +1,10 @@
-<!DOCTYPE RCC><RCC version="1.0">
+<RCC>
   <qresource>
     <file>Icons/IhepMlcControl.png</file>
+  </qresource>
+  <qresource prefix="indicators">
+    <file>Icons/gray.png</file>
+    <file>Icons/green.png</file>
+    <file>Icons/red.png</file>
   </qresource>
 </RCC>

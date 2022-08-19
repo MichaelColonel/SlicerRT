@@ -18,35 +18,49 @@
 
 ==============================================================================*/
 
-#ifndef __qSlicerIhepMlcControlFooBarWidget_h
-#define __qSlicerIhepMlcControlFooBarWidget_h
+#ifndef __qSlicerIhepMlcControlLayoutWidget_h
+#define __qSlicerIhepMlcControlLayoutWidget_h
 
 // Qt includes
 #include <QWidget>
 
-// FooBar Widgets includes
+// Layout Widget includes
 #include "qSlicerIhepMlcControlModuleWidgetsExport.h"
 
-class qSlicerIhepMlcControlFooBarWidgetPrivate;
+// CTK includes
+#include <ctkPimpl.h>
+#include <ctkVTKObject.h>
+
+class vtkMRMLNode;
+
+class qSlicerIhepMlcControlLayoutWidgetPrivate;
 
 /// \ingroup Slicer_QtModules_IhepMlcControl
-class Q_SLICER_MODULE_IHEPMLCCONTROL_WIDGETS_EXPORT qSlicerIhepMlcControlFooBarWidget
+class Q_SLICER_MODULE_IHEPMLCCONTROL_WIDGETS_EXPORT qSlicerIhepMlcControlLayoutWidget
   : public QWidget
 {
   Q_OBJECT
+  QVTK_OBJECT
 public:
   typedef QWidget Superclass;
-  qSlicerIhepMlcControlFooBarWidget(QWidget *parent=0);
-  ~qSlicerIhepMlcControlFooBarWidget() override;
+  qSlicerIhepMlcControlLayoutWidget(QWidget *parent=0);
+  ~qSlicerIhepMlcControlLayoutWidget() override;
+
+  void fillLeavesControlContainer(int pairOfLeavesIndex);
+
+  /// Set IhepMlcControl MRML node (Parameter node)
+  void setParameterNode(vtkMRMLNode* node);
+  /// Update widget GUI from IhepMlcControl node and observed RTBeam and Table nodes
+  void updateWidgetFromMRML();
 
 protected slots:
 
 protected:
-  QScopedPointer<qSlicerIhepMlcControlFooBarWidgetPrivate> d_ptr;
+  QScopedPointer<qSlicerIhepMlcControlLayoutWidgetPrivate> d_ptr;
 
 private:
-  Q_DECLARE_PRIVATE(qSlicerIhepMlcControlFooBarWidget);
-  Q_DISABLE_COPY(qSlicerIhepMlcControlFooBarWidget);
+  Q_DECLARE_PRIVATE(qSlicerIhepMlcControlLayoutWidget);
+  Q_DISABLE_COPY(qSlicerIhepMlcControlLayoutWidget);
 };
 
 #endif

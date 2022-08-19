@@ -37,9 +37,12 @@ public:
   typedef qSlicerAbstractModuleWidget Superclass;
   qSlicerIhepMlcControlModuleWidget(QWidget *parent=0);
   virtual ~qSlicerIhepMlcControlModuleWidget();
+  void enter() override;
+  void exit() override;
 
 public slots:
-
+  void onSwitchToMlcControlLayoutToggled(bool toggled = true);
+  void onSetMlcControlLayout();
 
 protected:
   QScopedPointer<qSlicerIhepMlcControlModuleWidgetPrivate> d_ptr;

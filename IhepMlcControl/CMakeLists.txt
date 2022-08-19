@@ -6,6 +6,7 @@ set(MODULE_TITLE "IHEP MLC Control")
 string(TOUPPER ${MODULE_NAME} MODULE_NAME_UPPER)
 
 #-----------------------------------------------------------------------------
+add_subdirectory(MRML)
 add_subdirectory(Logic)
 add_subdirectory(Widgets)
 
@@ -18,6 +19,7 @@ set(MODULE_INCLUDE_DIRECTORIES
   ${CMAKE_CURRENT_BINARY_DIR}/Logic
   ${CMAKE_CURRENT_SOURCE_DIR}/Widgets
   ${CMAKE_CURRENT_BINARY_DIR}/Widgets
+  ${vtkSlicer${MODULE_NAME}ModuleMRML_INCLUDE_DIRS}
   )
 
 set(MODULE_SRCS
