@@ -13,15 +13,19 @@ set(${KIT}_SRCS
   qSlicer${MODULE_NAME}LayoutWidget.h
   qSlicerPairOfLeavesWidget.cxx
   qSlicerPairOfLeavesWidget.h
+  qSlicerIhepPairOfLeavesControlDialog.cxx
+  qSlicerIhepPairOfLeavesControlDialog.h
   )
 
 set(${KIT}_MOC_SRCS
   qSlicer${MODULE_NAME}LayoutWidget.h
   qSlicerPairOfLeavesWidget.h
+  qSlicerIhepPairOfLeavesControlDialog.h
   )
 
 set(${KIT}_UI_SRCS
   ../Resources/UI/qSlicer${MODULE_NAME}LayoutWidget.ui
+  ../Resources/UI/qSlicerIhepPairOfLeavesControlDialog.ui
   )
 
 set(${KIT}_RESOURCES

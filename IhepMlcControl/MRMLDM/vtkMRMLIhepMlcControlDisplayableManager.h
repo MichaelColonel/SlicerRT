@@ -28,8 +28,7 @@ class vtkMRMLScene;
 /// \brief Displayable manager for MLC visualization
 ///
 /// This displayable manager implements MLC position and boundary in both 2D and 3D views.
-class VTK_SLICER_IHEPMLCCONTROL_MODULE_MRMLDISPLAYABLEMANAGER_EXPORT vtkMRMLIhepMlcControlDisplayableManager :
-  public vtkMRMLAbstractDisplayableManager
+class VTK_SLICER_IHEPMLCCONTROL_MODULE_MRMLDISPLAYABLEMANAGER_EXPORT vtkMRMLIhepMlcControlDisplayableManager : public vtkMRMLAbstractDisplayableManager
 {
 public:
   static vtkMRMLIhepMlcControlDisplayableManager* New();
