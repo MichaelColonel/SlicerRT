@@ -67,6 +67,7 @@ void vtkMRMLIhepMlcControlNode::WriteXML(ostream& of, int nIndent)
 
   // Write all MRML node attributes into output stream
   vtkMRMLWriteXMLBeginMacro(of);
+  vtkMRMLWriteXMLBooleanMacro(parallelBeam, ParallelBeam);
   // add new parameters here
   vtkMRMLWriteXMLEndMacro(); 
 }
@@ -78,6 +79,7 @@ void vtkMRMLIhepMlcControlNode::ReadXMLAttributes(const char** atts)
   vtkMRMLNode::ReadXMLAttributes(atts);
 
   vtkMRMLReadXMLBeginMacro(atts);
+  vtkMRMLReadXMLBooleanMacro(parallelBeam, ParallelBeam);
   // add new parameters here
   vtkMRMLReadXMLEndMacro();
 
@@ -104,6 +106,7 @@ void vtkMRMLIhepMlcControlNode::Copy(vtkMRMLNode *anode)
   this->DisableModifiedEventOn();
   vtkMRMLCopyBeginMacro(node);
   // add new parameters here
+  vtkMRMLCopyBooleanMacro(ParallelBeam);
   vtkMRMLCopyEndMacro(); 
 
   this->EndModify(disabledModify);
@@ -125,6 +128,7 @@ void vtkMRMLIhepMlcControlNode::CopyContent(vtkMRMLNode *anode, bool deepCopy/*=
 
   vtkMRMLCopyBeginMacro(node);
   // add new parameters here
+  vtkMRMLCopyBooleanMacro(ParallelBeam);
   vtkMRMLCopyEndMacro();
 }
 
@@ -135,6 +139,7 @@ void vtkMRMLIhepMlcControlNode::PrintSelf(ostream& os, vtkIndent indent)
 
   vtkMRMLPrintBeginMacro(os, indent);
   // add new parameters here
+  vtkMRMLPrintBooleanMacro(ParallelBeam);
   vtkMRMLPrintEndMacro(); 
 }
 
@@ -199,4 +204,44 @@ void vtkMRMLIhepMlcControlNode::SetAndObserveTableNode(vtkMRMLTableNode* node)
   }
 
   this->SetNodeReferenceID(TABLE_REFERENCE_ROLE, (node ? node->GetID() : nullptr));
+}
+
+//----------------------------------------------------------------------------
+bool vtkMRMLIhepMlcControlNode::GetPairOfLeavesData(vtkMRMLIhepMlcControlNode::PairOfLeavesData& pairOfLeaves,
+  int index, vtkMRMLIhepMlcControlNode::LayerType layer)
+{
+  int key = index + vtkMRMLIhepMlcControlNode::IHEP_LAYERS * static_cast<int>(layer);
+  auto it = this->LeavesDataMap.find(key);
+  if (it != this->LeavesDataMap.end())
+  {
+    pairOfLeaves = it->second;
+    return true;
+  }
+  return false;
+}
+
+//----------------------------------------------------------------------------
+bool vtkMRMLIhepMlcControlNode::GetLeafData(vtkMRMLIhepMlcControlNode::LeafData& leafData,
+  int index, vtkMRMLIhepMlcControlNode::SideType side, vtkMRMLIhepMlcControlNode::LayerType layer)
+{
+  int key = index + vtkMRMLIhepMlcControlNode::IHEP_LAYERS * static_cast<int>(layer);
+  auto it = this->LeavesDataMap.find(key);
+  if (it != this->LeavesDataMap.end())
+  {
+    bool res = true;
+    switch (side)
+    {
+    case vtkMRMLIhepMlcControlNode::Side1:
+      leafData = it->second.first;
+      break;
+    case vtkMRMLIhepMlcControlNode::Side2:
+      leafData = it->second.second;
+      break;
+    default:
+      res = false;
+      break;
+    }
+    return res;
+  }
+  return false;
 }

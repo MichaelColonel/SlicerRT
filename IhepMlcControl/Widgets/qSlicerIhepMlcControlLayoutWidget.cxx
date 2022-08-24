@@ -18,9 +18,29 @@
 
 ==============================================================================*/
 
-// FooBar Widgets includes
+#include <QDebug>
+#include <QRadioButton>
+
+// SlicerRT IhepMlcControl MRML includes
+#include <vtkMRMLIhepMlcControlNode.h>
+
+// IhepMlcControl Widgets includes
 #include "qSlicerIhepMlcControlLayoutWidget.h"
 #include "ui_qSlicerIhepMlcControlLayoutWidget.h"
+
+#include "qSlicerPairOfLeavesWidget.h"
+
+namespace {
+
+struct ContainerWidgets {
+  QLabel* Side1Address{ nullptr };
+  QLabel* Side1State{ nullptr };
+  qSlicerAbstractPairOfLeavesWidget* PairOfLeavesWidget{ nullptr };
+  QLabel* Side2Address{ nullptr };
+  QLabel* Side2State{ nullptr };
+};
+
+}
 
 //-----------------------------------------------------------------------------
 /// \ingroup Slicer_QtModules_IhepMlcControl
@@ -35,6 +55,14 @@ public:
   qSlicerIhepMlcControlLayoutWidgetPrivate(
     qSlicerIhepMlcControlLayoutWidget& object);
   virtual void setupUi(qSlicerIhepMlcControlLayoutWidget*);
+  void init();
+  void removeLeavesWidgetsFromLayout();
+  bool isNumberOfLeafPairsChanged() const;
+
+  /// IhepMlcControl MRML node containing shown parameters
+  vtkWeakPointer<vtkMRMLIhepMlcControlNode> ParameterNode;
+
+  std::vector< ContainerWidgets > ContainerWidgetsVector;
 };
 
 // --------------------------------------------------------------------------
@@ -50,6 +78,75 @@ void qSlicerIhepMlcControlLayoutWidgetPrivate::setupUi(qSlicerIhepMlcControlLayo
   this->Ui_qSlicerIhepMlcControlLayoutWidget::setupUi(widget);
 }
 
+// --------------------------------------------------------------------------
+void qSlicerIhepMlcControlLayoutWidgetPrivate::init()
+{
+  Q_Q(qSlicerIhepMlcControlLayoutWidget);
+
+  // MLC layer button group
+  QObject::connect( this->ButtonGroup_MlcLayout, SIGNAL(buttonClicked(QAbstractButton*)), 
+    q, SLOT(onMlcLayerChanged(QAbstractButton*)));
+
+}
+
+// --------------------------------------------------------------------------
+void qSlicerIhepMlcControlLayoutWidgetPrivate::removeLeavesWidgetsFromLayout()
+{
+  Q_Q(qSlicerIhepMlcControlLayoutWidget);
+  for(ContainerWidgets& widgets : this->ContainerWidgetsVector)
+  {
+    if (widgets.Side1Address)
+    {
+      this->GridLayout_Leaves->removeWidget(widgets.Side1Address);
+
+      delete widgets.Side1Address;
+      widgets.Side1Address = nullptr;
+    }
+    if (widgets.Side1State)
+    {
+      this->GridLayout_Leaves->removeWidget(widgets.Side1State);
+
+      delete widgets.Side1State;
+      widgets.Side1State = nullptr;
+    }
+    if (widgets.Side2Address)
+    {
+      this->GridLayout_Leaves->removeWidget(widgets.Side2Address);
+
+      delete widgets.Side2Address;
+      widgets.Side2Address = nullptr;
+    }
+    if (widgets.Side2State)
+    {
+      this->GridLayout_Leaves->removeWidget(widgets.Side2State);
+
+      delete widgets.Side2State;
+      widgets.Side2State = nullptr;
+    }
+    if (widgets.PairOfLeavesWidget)
+    {
+      QObject::disconnect( widgets.PairOfLeavesWidget, SIGNAL(pairOfLeavesDoubleClicked()),
+        q, SLOT(onPairOfLeavesDoubleClicked()));
+      QObject::disconnect( widgets.PairOfLeavesWidget, SIGNAL(maxPositionChanged(int)),
+        q, SLOT(onPairOfLeavesSize2ValueChanged(int)));
+      QObject::disconnect( widgets.PairOfLeavesWidget, SIGNAL(minPositionChanged(int)),
+        q, SLOT(onPairOfLeavesSize1ValueChanged(int)));
+
+      this->GridLayout_Leaves->removeWidget(widgets.PairOfLeavesWidget);
+
+      delete widgets.PairOfLeavesWidget;
+      widgets.PairOfLeavesWidget = nullptr;
+    }
+  }
+  this->ContainerWidgetsVector.clear();
+}
+
+// --------------------------------------------------------------------------
+bool qSlicerIhepMlcControlLayoutWidgetPrivate::isNumberOfLeafPairsChanged() const
+{
+  return (this->ParameterNode->GetNumberOfLeafPairs() != static_cast<int>(this->ContainerWidgetsVector.size()));
+}
+
 //-----------------------------------------------------------------------------
 // qSlicerIhepMlcControlLayoutWidget methods
 
@@ -60,6 +157,7 @@ qSlicerIhepMlcControlLayoutWidget::qSlicerIhepMlcControlLayoutWidget(QWidget* pa
 {
   Q_D(qSlicerIhepMlcControlLayoutWidget);
   d->setupUi(this);
+  d->init();
 }
 
 //-----------------------------------------------------------------------------
@@ -72,62 +170,152 @@ qSlicerIhepMlcControlLayoutWidget
 void qSlicerIhepMlcControlLayoutWidget::fillLeavesControlContainer(int pairOfLeavesIndex)
 {
   Q_D(qSlicerIhepMlcControlLayoutWidget);
-  Q_UNUSED(pairOfLeavesIndex);
-/*
-  int side1Address = this->m_CurrentPairOfLeavesLayerPositions[value].side1.leafParameters->address;
-  unsigned int* side1Range = this->m_CurrentPairOfLeavesLayerPositions[value].side1.leafParameters->range;
-  int side1Required = this->m_CurrentPairOfLeavesLayerPositions[value].side1.leafParameters->steps;
-  int side1Current = this->m_CurrentPairOfLeavesLayerPositions[value].side1.currentSteps;
+  if (!d->ParameterNode)
+  {
+    return;
+  }
 
-  int side2Address = this->m_CurrentPairOfLeavesLayerPositions[value].side2.leafParameters->address;
-  unsigned int* side2Range = this->m_CurrentPairOfLeavesLayerPositions[value].side2.leafParameters->range;
-  int side2Required = this->m_CurrentPairOfLeavesLayerPositions[value].side2.leafParameters->steps;
-  int side2Current = this->m_CurrentPairOfLeavesLayerPositions[value].side2.currentSteps;
+  vtkMRMLIhepMlcControlNode::PairOfLeavesData pairOfLeaves;
+  if (d->ParameterNode->GetPairOfLeavesData(pairOfLeaves, pairOfLeavesIndex))
+  {
+    const vtkMRMLIhepMlcControlNode::LeafData& side1 = pairOfLeaves.first;
+    const vtkMRMLIhepMlcControlNode::LeafData& side2 = pairOfLeaves.second;
 
-  QLabel* side1 = new QLabel(tr("%1").arg(side1Address));
-  side1->setAlignment(Qt::AlignHCenter);
-  side1->setMinimumSize(side1->sizeHint());
+    ContainerWidgets widgets;
 
-  QLabel* side1Label = new QLabel(this);
-  side1Label->setAlignment(Qt::AlignHCenter);
-  side1Label->setPixmap(QPixmap(":/indicators/Icons/gray.png"));
+    widgets.Side1Address = new QLabel(tr("%1").arg(side1.Address), this);
+    widgets.Side1Address->setAlignment(Qt::AlignHCenter);
+    widgets.Side1Address->setMinimumSize(widgets.Side1Address->sizeHint());
 
-  AbstractLeavesWidget* leavesPair = new VerticalLeavesWidget(side1Range[1] + side2Range[1], side1Required, side2Required, side1Current, side2Current, this);
-  leavesPair->setSizePolicy( QSizePolicy::Minimum, QSizePolicy::Expanding);
+    widgets.Side1State = new QLabel(this);
+    widgets.Side1State->setAlignment(Qt::AlignHCenter);
+    widgets.Side1State->setPixmap(QPixmap(":/indicators/Icons/gray.png"));
 
-  QLabel* side2Label = new QLabel(this);
-  side2Label->setAlignment(Qt::AlignHCenter);
-  side2Label->setPixmap(QPixmap(":/indicators/Icons/gray.png"));
+    widgets.PairOfLeavesWidget = new qSlicerVerticalPairOfLeavesWidget(
+      side1.Range + side2.Range, side1.Steps, side2.Steps,
+      side1.EncoderCounts, side2.EncoderCounts, this);
+    widgets.PairOfLeavesWidget->setSizePolicy( QSizePolicy::Minimum, QSizePolicy::Expanding);
 
-  QLabel* side2 = new QLabel(tr("%1").arg(side2Address));
-  side2->setAlignment(Qt::AlignHCenter);
-  side2->setMinimumSize(side2->sizeHint());
+    widgets.Side2State = new QLabel(this);
+    widgets.Side2State->setAlignment(Qt::AlignHCenter);
+    widgets.Side2State->setPixmap(QPixmap(":/indicators/Icons/gray.png"));
 
-  this->ui->leavesGridLayout->addWidget(side2, 0, value + 1);
-  this->ui->leavesGridLayout->addWidget(side2Label, 1, value + 1);
-  this->ui->leavesGridLayout->addWidget(leavesPair, 2, value + 1);
-  this->ui->leavesGridLayout->addWidget(side1Label, 3, value + 1);
-  this->ui->leavesGridLayout->addWidget(side1, 4, value + 1);
+    widgets.Side2Address = new QLabel(tr("%1").arg(side2.Address), this);
+    widgets.Side2Address->setAlignment(Qt::AlignHCenter);
+    widgets.Side2Address->setMinimumSize(widgets.Side2Address->sizeHint());
 
-  leavesPair->setLeavesNumbers(side1Address, side2Address);
-  leavesPair->setControlEnabled(false);
+    d->GridLayout_Leaves->addWidget(widgets.Side2Address, 0, pairOfLeavesIndex + 1);
+    d->GridLayout_Leaves->addWidget(widgets.Side2State, 1, pairOfLeavesIndex + 1);
+    d->GridLayout_Leaves->addWidget(widgets.PairOfLeavesWidget, 2, pairOfLeavesIndex + 1);
+    d->GridLayout_Leaves->addWidget(widgets.Side1State, 3, pairOfLeavesIndex + 1);
+    d->GridLayout_Leaves->addWidget(widgets.Side1Address, 4, pairOfLeavesIndex + 1);
 
-  leaverPairsWidgets[value].leavesPair = leavesPair;
-  connect( leavesPair, SIGNAL(pairOfLeavesDoubleClicked()), this, SLOT(onLeavesPairDoubleClicked()));
-  connect( leavesPair, SIGNAL(maxPositionChanged(int)), this, SLOT(onSize2ValueChanged(int)));
-  connect( leavesPair, SIGNAL(minPositionChanged(int)), this, SLOT(onSize1ValueChanged(int)));
-*/
+    widgets.PairOfLeavesWidget->setLeavesNumbers(side1.Address, side2.Address);
+    widgets.PairOfLeavesWidget->setControlEnabled(false);
+
+    connect( widgets.PairOfLeavesWidget, SIGNAL(pairOfLeavesDoubleClicked()), this, SLOT(onPairOfLeavesDoubleClicked()));
+    connect( widgets.PairOfLeavesWidget, SIGNAL(maxPositionChanged(int)), this, SLOT(onPairOfLeavesSize2ValueChanged(int)));
+    connect( widgets.PairOfLeavesWidget, SIGNAL(minPositionChanged(int)), this, SLOT(onPairOfLeavesSize1ValueChanged(int)));
+    
+    d->ContainerWidgetsVector.push_back(widgets);
+  }
 }
 
 //-----------------------------------------------------------------------------
 void qSlicerIhepMlcControlLayoutWidget::setParameterNode(vtkMRMLNode* node)
 {
   Q_D(qSlicerIhepMlcControlLayoutWidget);
-  Q_UNUSED(node);
+  vtkMRMLIhepMlcControlNode* parameterNode = vtkMRMLIhepMlcControlNode::SafeDownCast(node);
+  // Each time the node is modified, the UI widgets are updated
+  qvtkReconnect( d->ParameterNode, parameterNode, vtkCommand::ModifiedEvent, 
+    this, SLOT( updateWidgetFromMRML() ) );
+
+  d->ParameterNode = parameterNode;
+  this->updateWidgetFromMRML();
 }
 
 //-----------------------------------------------------------------------------
 void qSlicerIhepMlcControlLayoutWidget::updateWidgetFromMRML()
+{
+  Q_D(qSlicerIhepMlcControlLayoutWidget);
+  if (!d->ParameterNode)
+  {
+    return;
+  }
+
+  if (d->isNumberOfLeafPairsChanged())
+  {
+    // Clear leaves container
+    d->removeLeavesWidgetsFromLayout();
+
+    // Fill leaves container with a new number of leaf pairs
+    for (int i = 0; i < d->ParameterNode->GetNumberOfLeafPairs(); ++i)
+    {
+      this->fillLeavesControlContainer(i);
+    }
+  }
+  else
+  {
+    // Set new leaf parameters
+  }
+}
+
+//-----------------------------------------------------------------------------
+void qSlicerIhepMlcControlLayoutWidget::onMlcLayerChanged(QAbstractButton* button)
+{
+  Q_D(qSlicerIhepMlcControlLayoutWidget);
+  QRadioButton* radioButton = qobject_cast<QRadioButton*>(button);
+  if (radioButton == d->RadioButton_MlcLayer1)
+  {
+    ;
+  }
+  else if (radioButton == d->RadioButton_MlcLayer2)
+  {
+    ;
+  }
+  else
+  {
+  }
+}
+
+//-----------------------------------------------------------------------------
+void qSlicerIhepMlcControlLayoutWidget::onPairOfLeavesDoubleClicked()
+{
+  Q_D(qSlicerIhepMlcControlLayoutWidget);
+}
+
+//-----------------------------------------------------------------------------
+void qSlicerIhepMlcControlLayoutWidget::onPairOfLeavesSideValuesChanged(int,int)
+{
+  Q_D(qSlicerIhepMlcControlLayoutWidget);
+}
+
+//-----------------------------------------------------------------------------
+void qSlicerIhepMlcControlLayoutWidget::onPairOfLeavesSide1RangeChanged(int,int)
+{
+  Q_D(qSlicerIhepMlcControlLayoutWidget);
+}
+
+//-----------------------------------------------------------------------------
+void qSlicerIhepMlcControlLayoutWidget::onPairOfLeavesSide2RangeChanged(int,int)
+{
+  Q_D(qSlicerIhepMlcControlLayoutWidget);
+}
+
+//-----------------------------------------------------------------------------
+void qSlicerIhepMlcControlLayoutWidget::onPairOfLeavesAddressChanged(bool,bool)
+{
+  Q_D(qSlicerIhepMlcControlLayoutWidget);
+}
+
+//-----------------------------------------------------------------------------
+void qSlicerIhepMlcControlLayoutWidget::onPairOfLeavesSize2ValueChanged(int)
+{
+  Q_D(qSlicerIhepMlcControlLayoutWidget);
+}
+
+//-----------------------------------------------------------------------------
+void qSlicerIhepMlcControlLayoutWidget::onPairOfLeavesSize1ValueChanged(int)
 {
   Q_D(qSlicerIhepMlcControlLayoutWidget);
 }

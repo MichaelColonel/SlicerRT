@@ -41,13 +41,26 @@ public:
   void exit() override;
 
 public slots:
+  void setMRMLScene(vtkMRMLScene*) override;
+  void setParameterNode(vtkMRMLNode*);
+  void onSceneImportedEvent();
+  void onSceneClosedEvent();
+
+  void onParameterNodeChanged(vtkMRMLNode*);
+
+  void onParallelBeamToggled(bool toggled);
+
   void onSwitchToMlcControlLayoutToggled(bool toggled = true);
   void onSetMlcControlLayout();
+
+  /// Update widget GUI from RT Image parameters node
+  void updateWidgetFromMRML();
 
 protected:
   QScopedPointer<qSlicerIhepMlcControlModuleWidgetPrivate> d_ptr;
 
   void setup() override;
+  void onEnter();
 
 private:
   Q_DECLARE_PRIVATE(qSlicerIhepMlcControlModuleWidget);

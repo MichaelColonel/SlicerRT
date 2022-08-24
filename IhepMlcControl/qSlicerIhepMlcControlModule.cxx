@@ -22,6 +22,19 @@
 #include "qSlicerIhepMlcControlModule.h"
 #include "qSlicerIhepMlcControlModuleWidget.h"
 
+// MRML includes
+#include <vtkMRMLSliceViewDisplayableManagerFactory.h>
+#include <vtkMRMLThreeDViewDisplayableManagerFactory.h>
+
+// Slicer includes
+#include "qSlicerApplication.h"
+#include "qSlicerCoreIOManager.h"
+#include "qSlicerNodeWriter.h"
+
+// DisplayableManager initialization
+#include <vtkAutoInit.h>
+VTK_MODULE_INIT(vtkSlicerIhepMlcControlDisplayableManager)
+
 //-----------------------------------------------------------------------------
 /// \ingroup Slicer_QtModules_ExtensionTemplate
 class qSlicerIhepMlcControlModulePrivate
@@ -88,13 +101,22 @@ QStringList qSlicerIhepMlcControlModule::categories() const
 //-----------------------------------------------------------------------------
 QStringList qSlicerIhepMlcControlModule::dependencies() const
 {
-  return QStringList();
+  return QStringList() << "Beams";
 }
 
 //-----------------------------------------------------------------------------
 void qSlicerIhepMlcControlModule::setup()
 {
+  Q_D(qSlicerIhepMlcControlModule);
+
   this->Superclass::setup();
+
+  // DisplayableManager initialization
+  // Register color legend displayable manager for slice and 3D views
+  vtkMRMLThreeDViewDisplayableManagerFactory::GetInstance()->RegisterDisplayableManager(
+    "vtkMRMLIhepMlcControlDisplayableManager");
+  vtkMRMLSliceViewDisplayableManagerFactory::GetInstance()->RegisterDisplayableManager(
+    "vtkMRMLIhepMlcControlDisplayableManager");
 }
 
 //-----------------------------------------------------------------------------

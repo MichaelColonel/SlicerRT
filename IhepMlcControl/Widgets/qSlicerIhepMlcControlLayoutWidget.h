@@ -33,6 +33,7 @@
 
 class vtkMRMLNode;
 
+class QAbstractButton;
 class qSlicerIhepMlcControlLayoutWidgetPrivate;
 
 /// \ingroup Slicer_QtModules_IhepMlcControl
@@ -48,12 +49,22 @@ public:
 
   void fillLeavesControlContainer(int pairOfLeavesIndex);
 
+public slots:
   /// Set IhepMlcControl MRML node (Parameter node)
   void setParameterNode(vtkMRMLNode* node);
   /// Update widget GUI from IhepMlcControl node and observed RTBeam and Table nodes
   void updateWidgetFromMRML();
 
-protected slots:
+  void onMlcLayerChanged(QAbstractButton* radioButton);
+
+  // pair of leaves slots:
+  void onPairOfLeavesDoubleClicked();
+  void onPairOfLeavesSideValuesChanged(int,int);
+  void onPairOfLeavesSide1RangeChanged(int,int);
+  void onPairOfLeavesSide2RangeChanged(int,int);
+  void onPairOfLeavesAddressChanged(bool,bool);
+  void onPairOfLeavesSize2ValueChanged(int);
+  void onPairOfLeavesSize1ValueChanged(int);
 
 protected:
   QScopedPointer<qSlicerIhepMlcControlLayoutWidgetPrivate> d_ptr;
