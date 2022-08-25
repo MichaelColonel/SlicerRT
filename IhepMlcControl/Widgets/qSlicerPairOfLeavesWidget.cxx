@@ -85,16 +85,16 @@ qSlicerAbstractPairOfLeavesWidget::qSlicerAbstractPairOfLeavesWidget(Qt::Orienta
   d_ptr( new qSlicerAbstractPairOfLeavesWidgetPrivate(*this) )
 {
   Q_D(qSlicerAbstractPairOfLeavesWidget);
+  d->init();
 
-  this->Superclass::setOrientation(orientation);
-
+  this->setOrientation(orientation);
   switch (orientation)
   {
   case Qt::Horizontal:
-    this->Superclass::setMinimumHeight(20);
+    this->setMinimumHeight(20);
     break;
   case Qt::Vertical:
-    this->Superclass::setMinimumWidth(20);
+    this->setMinimumWidth(20);
     break;
   default:
     break;
@@ -109,16 +109,16 @@ qSlicerAbstractPairOfLeavesWidget::qSlicerAbstractPairOfLeavesWidget(Qt::Orienta
   d_ptr( new qSlicerAbstractPairOfLeavesWidgetPrivate(*this) )
 {
   Q_D(qSlicerAbstractPairOfLeavesWidget);
+  d->init();
 
-  this->Superclass::setOrientation(orientation);
-
+  this->setOrientation(orientation);
   switch (orientation)
   {
   case Qt::Horizontal:
-    this->Superclass::setMinimumHeight(20);
+    this->setMinimumHeight(20);
     break;
   case Qt::Vertical:
-    this->Superclass::setMinimumWidth(20);
+    this->setMinimumWidth(20);
     break;
   default:
     break;
@@ -126,13 +126,13 @@ qSlicerAbstractPairOfLeavesWidget::qSlicerAbstractPairOfLeavesWidget(Qt::Orienta
 
   if (range > 0)
   {
-    this->Superclass::setRange(0, range);
-    d->m_RequiredValues = std::make_pair( requiredMin, this->Superclass::maximum() - requiredMax);
-    d->m_CurrentValues = std::make_pair( currentMin, this->Superclass::maximum() - currentMax);
+    this->setRange(0, range);
+    d->m_RequiredValues = std::make_pair( requiredMin, this->maximum() - requiredMax);
+    d->m_CurrentValues = std::make_pair( currentMin, this->maximum() - currentMax);
   }
   else
   {
-    this->Superclass::setRange(0, 99);
+    this->setRange(0, 99);
     d->m_RequiredValues = std::make_pair<int, int>( 5, 70);
     d->m_CurrentValues = std::make_pair<int, int>( 0, 99);
   }
@@ -152,14 +152,14 @@ void qSlicerAbstractPairOfLeavesWidget::paintEvent(QPaintEvent *event)
   QPainter painter(this);
   painter.setPen(Qt::gray);
   
-  QSize widget_size = this->Superclass::size();
+  QSize widget_size = this->size();
   
   painter.setBrush(QBrush(Qt::white, Qt::SolidPattern));
   painter.drawRect(0, 0, widget_size.width(), widget_size.height());
   
   int x1top, x2top, y1top, y2top;
   int x1bottom, x2bottom, y1bottom, y2bottom;
-  int range = this->Superclass::maximum() - this->Superclass::minimum();
+  int range = this->maximum() - this->minimum();
   int xCurrTop, yCurrTop, xCurrBottom, yCurrBottom;
   
   painter.setBrush(QBrush(Qt::blue, Qt::SolidPattern));
@@ -169,15 +169,15 @@ void qSlicerAbstractPairOfLeavesWidget::paintEvent(QPaintEvent *event)
   case Qt::Vertical:
     x1bottom = 0;
     x2bottom = widget_size.width();
-    y1bottom = static_cast<int>(widget_size.height() * double(this->Superclass::maximum() - d->m_RequiredValues.first) / double(range));
+    y1bottom = static_cast<int>(widget_size.height() * double(this->maximum() - d->m_RequiredValues.first) / double(range));
     y2bottom = widget_size.height();
-    yCurrBottom = static_cast<int>(widget_size.height() * double(this->Superclass::maximum() - d->m_CurrentValues.first) / double(range));
+    yCurrBottom = static_cast<int>(widget_size.height() * double(this->maximum() - d->m_CurrentValues.first) / double(range));
   
     x1top = 0;
     x2top = widget_size.width();
     y1top = 0;
-    y2top = static_cast<int>(widget_size.height() * double(this->Superclass::maximum() - d->m_RequiredValues.second) / double(range));
-    yCurrTop = static_cast<int>(widget_size.height() * double(this->Superclass::maximum() - d->m_CurrentValues.second) / double(range));
+    y2top = static_cast<int>(widget_size.height() * double(this->maximum() - d->m_RequiredValues.second) / double(range));
+    yCurrTop = static_cast<int>(widget_size.height() * double(this->maximum() - d->m_CurrentValues.second) / double(range));
   
     painter.drawRect(x1bottom, y1bottom, x2bottom, y2bottom);
     painter.drawRect(x1top, y1top, x2top, y2top);
@@ -191,10 +191,10 @@ void qSlicerAbstractPairOfLeavesWidget::paintEvent(QPaintEvent *event)
     break;
   case Qt::Horizontal:
     x1bottom = 0;
-    x2bottom = static_cast<int>(widget_size.width() * (d->m_RequiredValues.first - this->Superclass::minimum()) / double(range));
+    x2bottom = static_cast<int>(widget_size.width() * (d->m_RequiredValues.first - this->minimum()) / double(range));
     y1bottom = 0;
     y2bottom = widget_size.height();
-    xCurrBottom = static_cast<int>(widget_size.width() * (d->m_CurrentValues.first - this->Superclass::minimum()) / double(range));
+    xCurrBottom = static_cast<int>(widget_size.width() * (d->m_CurrentValues.first - this->minimum()) / double(range));
   
     x1top = static_cast<int>(widget_size.width() * d->m_RequiredValues.second / double(range));
     x2top = widget_size.width();
@@ -225,17 +225,17 @@ void qSlicerAbstractPairOfLeavesWidget::mouseMoveEvent(QMouseEvent *event)
     return;
   }
 
-  QSize widget_size = this->Superclass::size();
+  QSize widget_size = this->size();
 
   int v = 0;
-  switch (this->Superclass::orientation())
+  switch (this->orientation())
   {
   case Qt::Horizontal:
-    v = static_cast<int>(this->Superclass::maximum() * double(event->x()) / double(widget_size.width()));
+    v = static_cast<int>(this->maximum() * double(event->x()) / double(widget_size.width()));
     break;
   case Qt::Vertical:
   default:
-    v = static_cast<int>(this->Superclass::maximum() * double(widget_size.height() - event->y()) / double(widget_size.height()));
+    v = static_cast<int>(this->maximum() * double(widget_size.height() - event->y()) / double(widget_size.height()));
     break;
   }
 
@@ -246,9 +246,9 @@ void qSlicerAbstractPairOfLeavesWidget::mouseMoveEvent(QMouseEvent *event)
     {
       v = d->m_RequiredValues.second;
     }
-    if (v <= this->Superclass::minimum())
+    if (v <= this->minimum())
     {
-      v = this->Superclass::minimum();
+      v = this->minimum();
     }
 
     d->m_RequiredValues.first = v;
@@ -259,9 +259,9 @@ void qSlicerAbstractPairOfLeavesWidget::mouseMoveEvent(QMouseEvent *event)
     {
       v = d->m_RequiredValues.first;
     }
-    if (v >= this->Superclass::maximum())
+    if (v >= this->maximum())
     {
-      v = this->Superclass::maximum();
+      v = this->maximum();
     }
 
     d->m_RequiredValues.second = v;
@@ -273,7 +273,7 @@ void qSlicerAbstractPairOfLeavesWidget::mouseMoveEvent(QMouseEvent *event)
 
   emit this->maxRangeChanged(this->getMaxRange());
   emit this->minRangeChanged(this->getMinRange());
-  emit this->positionsChanged(d->m_RequiredValues.first, this->Superclass::maximum() - d->m_RequiredValues.second);
+  emit this->positionsChanged(d->m_RequiredValues.first, this->maximum() - d->m_RequiredValues.second);
   emit this->openingChanged(this->getRequiredOpening(), this->getCurrentOpening());
 
   this->update();
@@ -290,7 +290,7 @@ void qSlicerAbstractPairOfLeavesWidget::mouseReleaseEvent(QMouseEvent *event)
 
   if (event->button() == Qt::LeftButton)
   {
-    this->Superclass::setCursor(Qt::ArrowCursor);
+    this->setCursor(Qt::ArrowCursor);
     d->m_ChangeType = NONE_CHANGED;
   }
 }
@@ -307,13 +307,13 @@ void qSlicerAbstractPairOfLeavesWidget::mousePressEvent(QMouseEvent *event)
   int bottom = 0, top = 0;
   int pos1 = 0, pos2 = 0;
   QSize widget_size = this->size();
-  int range = this->Superclass::maximum() - this->Superclass::minimum();
+  int range = this->maximum() - this->minimum();
 
-  switch (this->Superclass::orientation())
+  switch (this->orientation())
   {
   case Qt::Vertical:
-    bottom = static_cast<int>(widget_size.height() * double(this->Superclass::maximum() - d->m_RequiredValues.first) / double(range));
-    top = static_cast<int>(widget_size.height() * double(this->Superclass::maximum() - d->m_RequiredValues.second) / double(range));
+    bottom = static_cast<int>(widget_size.height() * double(this->maximum() - d->m_RequiredValues.first) / double(range));
+    top = static_cast<int>(widget_size.height() * double(this->maximum() - d->m_RequiredValues.second) / double(range));
     break;
   case Qt::Horizontal:
     bottom = static_cast<int>(widget_size.width() * d->m_RequiredValues.first / double(range));
@@ -345,13 +345,13 @@ void qSlicerAbstractPairOfLeavesWidget::mousePressEvent(QMouseEvent *event)
       {
         if (pos1 < d->m_MarginSize) // min
         {
-          this->Superclass::setCursor(Qt::SizeVerCursor);
+          this->setCursor(Qt::SizeVerCursor);
           d->m_ChangeType = MIN_CHANGED;
           emit this->valuesPositionChanged( true, false);
         }
         else if (pos2 < d->m_MarginSize) // max
         {
-          this->Superclass::setCursor(Qt::SizeVerCursor);
+          this->setCursor(Qt::SizeVerCursor);
           d->m_ChangeType = MAX_CHANGED;
           emit this->valuesPositionChanged( false, true);
         }
@@ -370,7 +370,7 @@ void qSlicerAbstractPairOfLeavesWidget::mousePressEvent(QMouseEvent *event)
         }
         else if (pos2 < d->m_MarginSize) // max
         {
-          this->Superclass::setCursor(Qt::SizeHorCursor);
+          this->setCursor(Qt::SizeHorCursor);
           d->m_ChangeType = MAX_CHANGED;
           emit this->valuesPositionChanged( false, true);
         }
@@ -418,7 +418,7 @@ void qSlicerAbstractPairOfLeavesWidget::setMinCurrentValue(int min)
 void qSlicerAbstractPairOfLeavesWidget::setMaxRequiredValue(int max)
 {
   Q_D(qSlicerAbstractPairOfLeavesWidget);
-  d->m_RequiredValues.second = this->Superclass::maximum() - max;
+  d->m_RequiredValues.second = this->maximum() - max;
   this->update();
   emit this->valuesPositionChanged( false, true);
   emit this->maxRequiredCurrentGapChanged(-1 * (d->m_RequiredValues.second - d->m_CurrentValues.second));
@@ -429,7 +429,7 @@ void qSlicerAbstractPairOfLeavesWidget::setMaxRequiredValue(int max)
 void qSlicerAbstractPairOfLeavesWidget::setMaxCurrentValue(int max)
 {
   Q_D(qSlicerAbstractPairOfLeavesWidget);
-  d->m_CurrentValues.second = this->Superclass::maximum() - max;
+  d->m_CurrentValues.second = this->maximum() - max;
   this->update();
   emit this->maxRequiredCurrentGapChanged(-1 * (d->m_RequiredValues.second - d->m_CurrentValues.second));
   emit this->openingChanged(this->getRequiredOpening(), this->getCurrentOpening());

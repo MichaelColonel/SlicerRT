@@ -221,6 +221,21 @@ bool vtkMRMLIhepMlcControlNode::GetPairOfLeavesData(vtkMRMLIhepMlcControlNode::P
 }
 
 //----------------------------------------------------------------------------
+bool vtkMRMLIhepMlcControlNode::SetPairOfLeavesData(const vtkMRMLIhepMlcControlNode::PairOfLeavesData& pairOfLeaves,
+  int index, vtkMRMLIhepMlcControlNode::LayerType layer)
+{
+  int key = index + vtkMRMLIhepMlcControlNode::IHEP_LAYERS * static_cast<int>(layer);
+  auto it = this->LeavesDataMap.find(key);
+  if (it != this->LeavesDataMap.end())
+  {
+    it->second = pairOfLeaves;
+    this->Modified();
+    return true;
+  }
+  return false;
+}
+
+//----------------------------------------------------------------------------
 bool vtkMRMLIhepMlcControlNode::GetLeafData(vtkMRMLIhepMlcControlNode::LeafData& leafData,
   int index, vtkMRMLIhepMlcControlNode::SideType side, vtkMRMLIhepMlcControlNode::LayerType layer)
 {

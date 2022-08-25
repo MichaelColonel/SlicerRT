@@ -101,7 +101,10 @@ public:
   vtkSetMacro(ParallelBeam, bool);
 
   bool GetLeafData(LeafData& leafData, int pos = 0, SideType side = Side1, LayerType layer = Layer1);
+
   bool GetPairOfLeavesData(PairOfLeavesData& pairOfLeaves, int pos = 0, LayerType layer = Layer1);
+  bool SetPairOfLeavesData(const PairOfLeavesData& pairOfLeaves, int pos = 0, LayerType layer = Layer1);
+
   PairOfLeavesMap& GetPairOfLeavesMap() { return this->LeavesDataMap; }
   const PairOfLeavesMap& GetPairOfLeavesMap() const { return this->LeavesDataMap; }
 

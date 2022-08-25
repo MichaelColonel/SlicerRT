@@ -28,6 +28,7 @@
 #include "qSlicerIhepMlcControlLayoutWidget.h"
 #include "ui_qSlicerIhepMlcControlLayoutWidget.h"
 
+#include "qSlicerIhepPairOfLeavesControlDialog.h"
 #include "qSlicerPairOfLeavesWidget.h"
 
 namespace {
@@ -282,6 +283,100 @@ void qSlicerIhepMlcControlLayoutWidget::onMlcLayerChanged(QAbstractButton* butto
 void qSlicerIhepMlcControlLayoutWidget::onPairOfLeavesDoubleClicked()
 {
   Q_D(qSlicerIhepMlcControlLayoutWidget);
+
+  if (!d->ParameterNode)
+  {
+    return;
+  }
+
+  qSlicerAbstractPairOfLeavesWidget* widget = qobject_cast<qSlicerAbstractPairOfLeavesWidget*>(this->sender());
+  if (widget && d->ContainerWidgetsVector.size())
+  {
+    int pairIndex = -1;
+
+    for (size_t i = 0; i < d->ContainerWidgetsVector.size(); ++i)
+    {
+      ContainerWidgets& pairOfLeavesWidgets = d->ContainerWidgetsVector[i];
+      if (pairOfLeavesWidgets.PairOfLeavesWidget == widget)
+      {
+        pairIndex = i;
+        break;
+      }
+    }
+
+    if (pairIndex == -1)
+    {
+      qWarning() << Q_FUNC_INFO << ": Invalid MLC widgets container index";
+      return;
+    }
+    vtkMRMLIhepMlcControlNode::LayerType selectedMlcLayer = vtkMRMLIhepMlcControlNode::Layer_Last;
+    if (d->RadioButton_MlcLayer1->isChecked())
+    {
+      selectedMlcLayer = vtkMRMLIhepMlcControlNode::Layer1;
+    }
+    else if (d->RadioButton_MlcLayer2->isChecked())
+    {
+      selectedMlcLayer = vtkMRMLIhepMlcControlNode::Layer2;
+    }
+    else
+    {
+      qWarning() << Q_FUNC_INFO << ": Invalid MLC layer value";
+      return;
+    }
+    vtkMRMLIhepMlcControlNode::PairOfLeavesData leavesData;
+    if (!d->ParameterNode->GetPairOfLeavesData( leavesData, pairIndex, selectedMlcLayer))
+    {
+      qWarning() << Q_FUNC_INFO << ": Unable to get pair of leaves data";
+      return;
+    }
+    vtkMRMLIhepMlcControlNode::LeafData& side1 = leavesData.first;
+    vtkMRMLIhepMlcControlNode::LeafData& side2 = leavesData.second;
+
+//    int side1Address = this->m_CurrentPairOfLeavesLayerPositions[pairIndex].side1.leafParameters->address;
+//    unsigned int* side1Range = this->m_CurrentPairOfLeavesLayerPositions[pairIndex].side1.leafParameters->range;
+//    int side1Required = this->m_CurrentPairOfLeavesLayerPositions[pairIndex].side1.leafParameters->steps;
+//    int side1Current = this->m_CurrentPairOfLeavesLayerPositions[pairIndex].side1.currentSteps;
+
+//    int side2Address = this->m_CurrentPairOfLeavesLayerPositions[pairIndex].side2.leafParameters->address;
+//    unsigned int* side2Range = this->m_CurrentPairOfLeavesLayerPositions[pairIndex].side2.leafParameters->range;
+//    int side2Required = this->m_CurrentPairOfLeavesLayerPositions[pairIndex].side2.leafParameters->steps;
+//    int side2Current = this->m_CurrentPairOfLeavesLayerPositions[pairIndex].side2.currentSteps;
+
+    qSlicerIhepPairOfLeavesControlDialog* controlDialog = new qSlicerIhepPairOfLeavesControlDialog(
+      side1.Address, side2.Address,
+      side1.Range, side1.EncoderCounts, side1.Steps,
+      side2.Range, side2.EncoderCounts, side2.Steps, this);
+    controlDialog->setWindowModality(Qt::WindowModal);
+    int res = controlDialog->exec();
+    if (res == QDialog::Accepted)
+    {
+      int side1Steps, side2Steps;
+      controlDialog->getSidePositions( side1Steps, side2Steps);
+      side1.Steps = side1Steps;
+      side2.Steps = side2Steps;
+
+      ContainerWidgets& pairOfLeavesWidgets = d->ContainerWidgetsVector[pairIndex];
+      
+//      int min, max;
+//      controlDialog->getSide1Range( min, max);
+//      qDebug() << Q_FUNC_INFO << "Side1 range: " << min << " " << max;
+//      leavesPairsPositions[pairIndex].side1.leafParameters->range[0] = min;
+//      leavesPairsPositions[pairIndex].side1.leafParameters->range[1] = max;
+
+//      controlDialog->getSide2Range( min, max);
+//      qDebug() << Q_FUNC_INFO << "Side2 range: " << min << " " << max;
+//      leavesPairsPositions[pairIndex].side2.leafParameters->range[0] = min;
+//      leavesPairsPositions[pairIndex].side2.leafParameters->range[1] = max;
+
+      pairOfLeavesWidgets.PairOfLeavesWidget->setMinRequiredValue(side1Steps);
+      pairOfLeavesWidgets.PairOfLeavesWidget->setMaxRequiredValue(side2Steps);
+    }
+    else if (res == QDialog::Rejected)
+    {
+
+    }
+    delete controlDialog;
+  }
 }
 
 //-----------------------------------------------------------------------------
