@@ -50,8 +50,8 @@ public:
 
   ~qSlicerIhepPairOfLeavesControlDialog() override;
   void getSidePositions(int& side1, int& side2);
-  void getSide1Range(int& min, int& max);
-  void getSide2Range(int& min, int& max);
+  int getSide1Range() const;
+  int getSide2Range() const;
 
 public slots:
   void onLeafPositionInPairChanged(bool, bool);
@@ -77,10 +77,6 @@ protected:
 private:
   Q_DECLARE_PRIVATE(qSlicerIhepPairOfLeavesControlDialog);
   Q_DISABLE_COPY(qSlicerIhepPairOfLeavesControlDialog);
-
-//  Ui::LeavesPairControl *ui;
-//  AbstractLeavesWidget* leavesPairWidget{ nullptr };
-//  std::pair<int, int> initialPosition;
 };
 
 #endif

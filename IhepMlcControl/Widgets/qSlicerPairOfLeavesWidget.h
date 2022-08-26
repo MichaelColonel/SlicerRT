@@ -58,22 +58,22 @@ public:
   explicit qSlicerAbstractPairOfLeavesWidget(Qt::Orientation orientation, int range, int requiredMin, int requiredMax, int currentMin, int currentMax, QWidget *parent = 0);
   ~qSlicerAbstractPairOfLeavesWidget() override;
 
-  size_t cursorMarginSize() const { return m_MarginSize; }
-  void setCursorMarginSize(size_t size) { m_MarginSize = size; }
+  size_t cursorMarginSize() const;
+  void setCursorMarginSize(size_t size);
 
-  bool controlEnabled() const { return m_LeavesControlEnabled; }
-  void setControlEnabled(bool enabled = true) { m_LeavesControlEnabled = enabled; }
+  bool controlEnabled() const;
+  void setControlEnabled(bool enabled = true);
 
-  void getMinMaxPositions(int& min, int& max) const { min = this->getMinPosition(); max = this->getMaxPosition(); }
-  int getMinPosition() const { return this->m_RequiredValues.first; }
-  int getMaxPosition() const { return (this->maximum() - this->m_RequiredValues.second); }
+  void getMinMaxPositions(int& min, int& max) const;
+  int getMinPosition() const;
+  int getMaxPosition() const;
 
-  int getMinRange() const { return this->m_RequiredValues.second; }
-  int getMaxRange() const { return (this->maximum() - this->m_RequiredValues.first); }
-  void setLeavesNumbers(int min, int max) { m_PairOfLeavesNumbers.first = min; m_PairOfLeavesNumbers.second = max; }
-  void getLeavesNumbers(int& min, int& max) const { min = m_PairOfLeavesNumbers.first; max = m_PairOfLeavesNumbers.second; }
-  int getRequiredOpening() const { return (this->m_RequiredValues.second - this->m_RequiredValues.first); }
-  int getCurrentOpening() const { return (this->m_CurrentValues.second - this->m_CurrentValues.first); }
+  int getMinRange() const;
+  int getMaxRange() const;
+  void setLeavesNumbers(int min, int max);
+  void getLeavesNumbers(int& min, int& max) const;
+  int getRequiredOpening() const;
+  int getCurrentOpening() const;
 
 public slots:
   void setMinRequiredValue(int min);
@@ -106,22 +106,6 @@ protected:
 private:
   Q_DECLARE_PRIVATE(qSlicerAbstractPairOfLeavesWidget);
   Q_DISABLE_COPY(qSlicerAbstractPairOfLeavesWidget);
-
-  /// Required position of a pair of leaves
-  /// min - bottom leaf
-  /// max - top leaf
-  std::pair<int, int> m_RequiredValues; // first = min, second = max
-  /// Current position (RED color line)
-  /// min - bottom leaf
-  /// max - top leaf
-  std::pair<int, int> m_CurrentValues; // first = min, second = max
-
-  /// margin between cursor position and leaf value
-  int m_MarginSize;
-  ValueChangeType m_ChangeType;
-
-  std::pair<int, int> m_PairOfLeavesNumbers; // first = bottom (min), second = top (max)
-  bool m_LeavesControlEnabled{ true }; // if leaves control is enabled
 };
 
 class Q_SLICER_MODULE_IHEPMLCCONTROL_WIDGETS_EXPORT qSlicerVerticalPairOfLeavesWidget

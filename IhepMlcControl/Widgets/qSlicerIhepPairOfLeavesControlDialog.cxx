@@ -104,8 +104,7 @@ qSlicerIhepPairOfLeavesControlDialog::qSlicerIhepPairOfLeavesControlDialog(int s
   d->setupUi(this);
   d->init();
 
-  d->LeavesInitialPosition.first = side1RequiredPosition;
-  d->LeavesInitialPosition.second = side2RequiredPosition;
+  d->LeavesInitialPosition = { side1RequiredPosition, side2RequiredPosition };
 
   this->fillLeavesControlWidgetContainer( side1Address, side2Address,
     side1Max, side1CurrentPosition, side1RequiredPosition,
@@ -134,7 +133,7 @@ void qSlicerIhepPairOfLeavesControlDialog::fillLeavesControlWidgetContainer(int 
 {
   Q_D(qSlicerIhepPairOfLeavesControlDialog);
 
-  qDebug() << Q_FUNC_INFO << side1Max << " " << side2Max << " " << side1RequiredPosition << " " << side2RequiredPosition;
+//  qDebug() << Q_FUNC_INFO << side1Max << " " << side2Max << " " << side1RequiredPosition << " " << side2RequiredPosition;
   d->Label_Side1LeafNumber->setText(QObject::tr("Leaf\n#%1").arg(side1Address));
   d->Label_Side2LeafNumber->setText(QObject::tr("Leaf\n#%1").arg(side2Address));
 
@@ -166,18 +165,16 @@ void qSlicerIhepPairOfLeavesControlDialog::getSidePositions(int& side1, int& sid
   d->PairOfLeavesWidget->getMinMaxPositions(side1, side2);
 }
 
-void qSlicerIhepPairOfLeavesControlDialog::getSide1Range(int& min, int& max)
+int qSlicerIhepPairOfLeavesControlDialog::getSide1Range() const
 {
-  Q_D(qSlicerIhepPairOfLeavesControlDialog);
-  min = 0;
-  max = d->PairOfLeavesWidget->getMinRange();
+  Q_D(const qSlicerIhepPairOfLeavesControlDialog);
+  return d->PairOfLeavesWidget->getMinRange();
 }
 
-void qSlicerIhepPairOfLeavesControlDialog::getSide2Range(int& min, int& max)
+int qSlicerIhepPairOfLeavesControlDialog::getSide2Range() const
 {
-  Q_D(qSlicerIhepPairOfLeavesControlDialog);
-  min = 0;
-  max = d->PairOfLeavesWidget->getMaxRange();
+  Q_D(const qSlicerIhepPairOfLeavesControlDialog);
+  return d->PairOfLeavesWidget->getMaxRange();
 }
 
 void qSlicerIhepPairOfLeavesControlDialog::onSide1LeafRangeChanged(int range)
@@ -197,7 +194,7 @@ void qSlicerIhepPairOfLeavesControlDialog::onSide2LeafRangeChanged(int range)
 void qSlicerIhepPairOfLeavesControlDialog::onLeafPairPositionChanged(int min, int max)
 {
   Q_D(qSlicerIhepPairOfLeavesControlDialog);
-  qDebug() << Q_FUNC_INFO << "Side1 value: " << min << " side2 value: " << max;
+//  qDebug() << Q_FUNC_INFO << "Side1 value: " << min << " side2 value: " << max;
   d->DoubleSpinBox_Side1Required->setValue(min * DISTANCE_PER_STEP);
   d->DoubleSpinBox_Side2Required->setValue(max * DISTANCE_PER_STEP);
 }
@@ -212,10 +209,12 @@ void qSlicerIhepPairOfLeavesControlDialog::onRequiredPositionChanged(QAbstractBu
   }
   if (rButton == d->RadioButton_Initial)
   {
-    d->PairOfLeavesWidget->setMinRequiredValue(d->LeavesInitialPosition.first);
-    d->PairOfLeavesWidget->setMaxRequiredValue(d->LeavesInitialPosition.second);
-    d->DoubleSpinBox_Side1Required->setValue(d->LeavesInitialPosition.first * DISTANCE_PER_STEP);
-    d->DoubleSpinBox_Side2Required->setValue(d->LeavesInitialPosition.second * DISTANCE_PER_STEP);
+    int& side1 = d->LeavesInitialPosition.first;
+    int& side2 = d->LeavesInitialPosition.second;
+    d->PairOfLeavesWidget->setMinRequiredValue(side1);
+    d->PairOfLeavesWidget->setMaxRequiredValue(side2);
+    d->DoubleSpinBox_Side1Required->setValue(side1 * DISTANCE_PER_STEP);
+    d->DoubleSpinBox_Side2Required->setValue(side2 * DISTANCE_PER_STEP);
   }
   else if (rButton == d->RadioButton_Open)
   {
@@ -292,13 +291,13 @@ void qSlicerIhepPairOfLeavesControlDialog::onLeafPositionInPairChanged(bool side
   {
     int maxRange = d->PairOfLeavesWidget->getMaxRange();
     d->DoubleSpinBox_Side1Required->setRange(0, maxRange * DISTANCE_PER_STEP);
-    qDebug() << Q_FUNC_INFO << "Max range: " << maxRange * DISTANCE_PER_STEP;
+//    qDebug() << Q_FUNC_INFO << "Max range: " << maxRange * DISTANCE_PER_STEP;
   }
   else if (!side1 && side2)
   {
     int minRange = d->PairOfLeavesWidget->getMinRange();
     d->DoubleSpinBox_Side2Required->setRange(0, minRange * DISTANCE_PER_STEP);
-    qDebug() << Q_FUNC_INFO << "Min range: " << minRange * DISTANCE_PER_STEP;
+//    qDebug() << Q_FUNC_INFO << "Min range: " << minRange * DISTANCE_PER_STEP;
   }
-  qDebug() << Q_FUNC_INFO << "Leaf in pair changed side1: " << side1 << ", side2: " << side2;
+//  qDebug() << Q_FUNC_INFO << "Leaf in pair changed side1: " << side1 << ", side2: " << side2;
 }

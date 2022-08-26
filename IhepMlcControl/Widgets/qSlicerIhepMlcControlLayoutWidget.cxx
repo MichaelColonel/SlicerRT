@@ -332,20 +332,10 @@ void qSlicerIhepMlcControlLayoutWidget::onPairOfLeavesDoubleClicked()
     vtkMRMLIhepMlcControlNode::LeafData& side1 = leavesData.first;
     vtkMRMLIhepMlcControlNode::LeafData& side2 = leavesData.second;
 
-//    int side1Address = this->m_CurrentPairOfLeavesLayerPositions[pairIndex].side1.leafParameters->address;
-//    unsigned int* side1Range = this->m_CurrentPairOfLeavesLayerPositions[pairIndex].side1.leafParameters->range;
-//    int side1Required = this->m_CurrentPairOfLeavesLayerPositions[pairIndex].side1.leafParameters->steps;
-//    int side1Current = this->m_CurrentPairOfLeavesLayerPositions[pairIndex].side1.currentSteps;
-
-//    int side2Address = this->m_CurrentPairOfLeavesLayerPositions[pairIndex].side2.leafParameters->address;
-//    unsigned int* side2Range = this->m_CurrentPairOfLeavesLayerPositions[pairIndex].side2.leafParameters->range;
-//    int side2Required = this->m_CurrentPairOfLeavesLayerPositions[pairIndex].side2.leafParameters->steps;
-//    int side2Current = this->m_CurrentPairOfLeavesLayerPositions[pairIndex].side2.currentSteps;
-
     qSlicerIhepPairOfLeavesControlDialog* controlDialog = new qSlicerIhepPairOfLeavesControlDialog(
       side1.Address, side2.Address,
       side1.Range, side1.EncoderCounts, side1.Steps,
-      side2.Range, side2.EncoderCounts, side2.Steps, this);
+      side2.Range, side2.EncoderCounts, side2.Steps);
     controlDialog->setWindowModality(Qt::WindowModal);
     int res = controlDialog->exec();
     if (res == QDialog::Accepted)

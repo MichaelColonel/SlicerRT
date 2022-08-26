@@ -398,10 +398,10 @@ void qSlicerAbstractPairOfLeavesWidget::setMinRequiredValue(int min)
 {
   Q_D(qSlicerAbstractPairOfLeavesWidget);
   d->m_RequiredValues.first = min;
-  this->update();
   emit this->valuesPositionChanged( true, false);
   emit this->minRequiredCurrentGapChanged(d->m_RequiredValues.first - d->m_CurrentValues.first);
   emit this->openingChanged(this->getRequiredOpening(), this->getCurrentOpening());
+  this->update();
 }
 
 //-----------------------------------------------------------------------------
@@ -409,9 +409,9 @@ void qSlicerAbstractPairOfLeavesWidget::setMinCurrentValue(int min)
 {
   Q_D(qSlicerAbstractPairOfLeavesWidget);
   d->m_CurrentValues.first = min;
-  this->update();
   emit this->minRequiredCurrentGapChanged(d->m_RequiredValues.first - min);
   emit this->openingChanged(this->getRequiredOpening(), this->getCurrentOpening());
+  this->update();
 }
 
 //-----------------------------------------------------------------------------
@@ -419,10 +419,10 @@ void qSlicerAbstractPairOfLeavesWidget::setMaxRequiredValue(int max)
 {
   Q_D(qSlicerAbstractPairOfLeavesWidget);
   d->m_RequiredValues.second = this->maximum() - max;
-  this->update();
   emit this->valuesPositionChanged( false, true);
   emit this->maxRequiredCurrentGapChanged(-1 * (d->m_RequiredValues.second - d->m_CurrentValues.second));
   emit this->openingChanged(this->getRequiredOpening(), this->getCurrentOpening());
+  this->update();
 }
 
 //-----------------------------------------------------------------------------
@@ -430,9 +430,103 @@ void qSlicerAbstractPairOfLeavesWidget::setMaxCurrentValue(int max)
 {
   Q_D(qSlicerAbstractPairOfLeavesWidget);
   d->m_CurrentValues.second = this->maximum() - max;
-  this->update();
   emit this->maxRequiredCurrentGapChanged(-1 * (d->m_RequiredValues.second - d->m_CurrentValues.second));
   emit this->openingChanged(this->getRequiredOpening(), this->getCurrentOpening());
+  this->update();
+}
+
+//-----------------------------------------------------------------------------
+size_t qSlicerAbstractPairOfLeavesWidget::cursorMarginSize() const
+{ 
+  Q_D(const qSlicerAbstractPairOfLeavesWidget);
+  return d->m_MarginSize;
+}
+
+//-----------------------------------------------------------------------------
+void qSlicerAbstractPairOfLeavesWidget::setCursorMarginSize(size_t size)
+{
+  Q_D(qSlicerAbstractPairOfLeavesWidget);
+  d->m_MarginSize = size;
+}
+
+
+//-----------------------------------------------------------------------------
+bool qSlicerAbstractPairOfLeavesWidget::controlEnabled() const
+{
+  Q_D(const qSlicerAbstractPairOfLeavesWidget);
+  return d->m_LeavesControlEnabled;
+}
+
+//-----------------------------------------------------------------------------
+void qSlicerAbstractPairOfLeavesWidget::setControlEnabled(bool enabled)
+{
+  Q_D(qSlicerAbstractPairOfLeavesWidget);
+  d->m_LeavesControlEnabled = enabled;
+}
+
+//-----------------------------------------------------------------------------
+void qSlicerAbstractPairOfLeavesWidget::getMinMaxPositions(int& min, int& max) const
+{
+  Q_D(const qSlicerAbstractPairOfLeavesWidget);
+  min = this->getMinPosition();
+  max = this->getMaxPosition();
+}
+
+//-----------------------------------------------------------------------------
+int qSlicerAbstractPairOfLeavesWidget::getMinPosition() const
+{
+  Q_D(const qSlicerAbstractPairOfLeavesWidget);
+  return d->m_RequiredValues.first;
+}
+
+//-----------------------------------------------------------------------------
+int qSlicerAbstractPairOfLeavesWidget::getMaxPosition() const
+{
+  Q_D(const qSlicerAbstractPairOfLeavesWidget);
+  return (this->maximum() - d->m_RequiredValues.second);
+}
+
+//-----------------------------------------------------------------------------
+int qSlicerAbstractPairOfLeavesWidget::getMinRange() const
+{
+  Q_D(const qSlicerAbstractPairOfLeavesWidget);
+  return d->m_RequiredValues.second;
+}
+
+//-----------------------------------------------------------------------------
+int qSlicerAbstractPairOfLeavesWidget::getMaxRange() const
+{
+  Q_D(const qSlicerAbstractPairOfLeavesWidget);
+  return (this->maximum() - d->m_RequiredValues.first);
+}
+
+//-----------------------------------------------------------------------------
+void qSlicerAbstractPairOfLeavesWidget::setLeavesNumbers(int min, int max)
+{
+  Q_D(qSlicerAbstractPairOfLeavesWidget);
+  d->m_PairOfLeavesNumbers.first = min;
+  d->m_PairOfLeavesNumbers.second = max;
+}
+//-----------------------------------------------------------------------------
+void qSlicerAbstractPairOfLeavesWidget::getLeavesNumbers(int& min, int& max) const
+{
+  Q_D(const qSlicerAbstractPairOfLeavesWidget);
+  min = d->m_PairOfLeavesNumbers.first;
+  max = d->m_PairOfLeavesNumbers.second;
+}
+
+//-----------------------------------------------------------------------------
+int qSlicerAbstractPairOfLeavesWidget::getRequiredOpening() const
+{
+  Q_D(const qSlicerAbstractPairOfLeavesWidget);
+  return (d->m_RequiredValues.second - d->m_RequiredValues.first);
+}
+
+//-----------------------------------------------------------------------------
+int qSlicerAbstractPairOfLeavesWidget::getCurrentOpening() const
+{
+  Q_D(const qSlicerAbstractPairOfLeavesWidget);
+  return (d->m_CurrentValues.second - d->m_CurrentValues.first);
 }
 
 //-----------------------------------------------------------------------------
