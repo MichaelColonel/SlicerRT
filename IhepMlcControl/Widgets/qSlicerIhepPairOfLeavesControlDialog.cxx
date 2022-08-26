@@ -21,6 +21,7 @@
 
 #include <QDebug>
 #include <QRadioButton>
+#include <QCloseEvent>
 
 // SlicerRT IhepMlcControl MRML includes
 #include <vtkMRMLIhepMlcControlNode.h>
@@ -94,8 +95,8 @@ qSlicerIhepPairOfLeavesControlDialog::qSlicerIhepPairOfLeavesControlDialog(QWidg
 }
 
 qSlicerIhepPairOfLeavesControlDialog::qSlicerIhepPairOfLeavesControlDialog(int side1Address, int side2Address,
-  int side1Max, int side1CurrentPosition, int side1RequiredPosition,
-  int side2Max, int side2CurrentPosition, int side2RequiredPosition,
+  int side1Range, int side1CurrentPosition, int side1RequiredPosition,
+  int side2Range, int side2CurrentPosition, int side2RequiredPosition,
   QWidget *parentWidget)
   : Superclass( parentWidget )
   , d_ptr( new qSlicerIhepPairOfLeavesControlDialogPrivate(*this) )
@@ -107,8 +108,8 @@ qSlicerIhepPairOfLeavesControlDialog::qSlicerIhepPairOfLeavesControlDialog(int s
   d->LeavesInitialPosition = { side1RequiredPosition, side2RequiredPosition };
 
   this->fillLeavesControlWidgetContainer( side1Address, side2Address,
-    side1Max, side1CurrentPosition, side1RequiredPosition,
-    side2Max, side2CurrentPosition, side2RequiredPosition);
+    side1Range, side1CurrentPosition, side1RequiredPosition,
+    side2Range, side2CurrentPosition, side2RequiredPosition);
 
   connect( d->PositionButtonGroup, SIGNAL(buttonClicked(QAbstractButton*)), this, SLOT(onRequiredPositionChanged(QAbstractButton*)));
   connect( d->DoubleSpinBox_Side1Required, SIGNAL(valueChanged(double)), this, SLOT(onSide1RequiredValueChanged(double)));
@@ -128,22 +129,20 @@ qSlicerIhepPairOfLeavesControlDialog::~qSlicerIhepPairOfLeavesControlDialog()
 }
 
 void qSlicerIhepPairOfLeavesControlDialog::fillLeavesControlWidgetContainer(int side1Address, int side2Address,
-  int side1Max, int side1CurrentPosition, int side1RequiredPosition,
-  int side2Max, int side2CurrentPosition, int side2RequiredPosition)
+  int side1Range, int side1CurrentPosition, int side1RequiredPosition,
+  int side2Range, int side2CurrentPosition, int side2RequiredPosition)
 {
   Q_D(qSlicerIhepPairOfLeavesControlDialog);
-
-//  qDebug() << Q_FUNC_INFO << side1Max << " " << side2Max << " " << side1RequiredPosition << " " << side2RequiredPosition;
   d->Label_Side1LeafNumber->setText(QObject::tr("Leaf\n#%1").arg(side1Address));
   d->Label_Side2LeafNumber->setText(QObject::tr("Leaf\n#%1").arg(side2Address));
 
-  d->DoubleSpinBox_Side1Required->setRange(0, side1Max * DISTANCE_PER_STEP);
-  d->DoubleSpinBox_Side2Required->setRange(0, side2Max * DISTANCE_PER_STEP);
+  d->DoubleSpinBox_Side1Required->setRange(0, (side1Range + side2Range) * DISTANCE_PER_STEP);
+  d->DoubleSpinBox_Side2Required->setRange(0, (side1Range + side2Range) * DISTANCE_PER_STEP);
 
   d->DoubleSpinBox_Side1Required->setValue(side1RequiredPosition * DISTANCE_PER_STEP);
   d->DoubleSpinBox_Side2Required->setValue(side2RequiredPosition * DISTANCE_PER_STEP);
 
-  d->PairOfLeavesWidget->setRange(0, side1Max + side2Max);
+  d->PairOfLeavesWidget->setRange(0, side1Range + side2Range);
   d->PairOfLeavesWidget->setLeavesNumbers(side1Address, side2Address);
   d->PairOfLeavesWidget->setMinRequiredValue(side1RequiredPosition);
   d->PairOfLeavesWidget->setMaxRequiredValue(side2RequiredPosition);
@@ -180,21 +179,18 @@ int qSlicerIhepPairOfLeavesControlDialog::getSide2Range() const
 void qSlicerIhepPairOfLeavesControlDialog::onSide1LeafRangeChanged(int range)
 {
   Q_D(qSlicerIhepPairOfLeavesControlDialog);
-  qDebug() << Q_FUNC_INFO << "Side1 range: " << range * DISTANCE_PER_STEP;
   d->DoubleSpinBox_Side1Required->setRange(0, range * DISTANCE_PER_STEP);
 }
 
 void qSlicerIhepPairOfLeavesControlDialog::onSide2LeafRangeChanged(int range)
 {
   Q_D(qSlicerIhepPairOfLeavesControlDialog);
-  qDebug() << Q_FUNC_INFO << "Side2 range: " << range * DISTANCE_PER_STEP;
   d->DoubleSpinBox_Side2Required->setRange(0, range * DISTANCE_PER_STEP);
 }
 
 void qSlicerIhepPairOfLeavesControlDialog::onLeafPairPositionChanged(int min, int max)
 {
   Q_D(qSlicerIhepPairOfLeavesControlDialog);
-//  qDebug() << Q_FUNC_INFO << "Side1 value: " << min << " side2 value: " << max;
   d->DoubleSpinBox_Side1Required->setValue(min * DISTANCE_PER_STEP);
   d->DoubleSpinBox_Side2Required->setValue(max * DISTANCE_PER_STEP);
 }
@@ -237,13 +233,15 @@ void qSlicerIhepPairOfLeavesControlDialog::onRequiredPositionChanged(QAbstractBu
 void qSlicerIhepPairOfLeavesControlDialog::onSide1RequiredValueChanged(double value)
 {
   Q_D(qSlicerIhepPairOfLeavesControlDialog);
-  d->PairOfLeavesWidget->setMinRequiredValue(value / DISTANCE_PER_STEP);
+  int side1Steps = value / DISTANCE_PER_STEP;
+  d->PairOfLeavesWidget->setMinRequiredValue(side1Steps);
 }
 
 void qSlicerIhepPairOfLeavesControlDialog::onSide2RequiredValueChanged(double value)
 {
   Q_D(qSlicerIhepPairOfLeavesControlDialog);
-  d->PairOfLeavesWidget->setMaxRequiredValue(value / DISTANCE_PER_STEP);
+  int side2Steps = value / DISTANCE_PER_STEP;
+  d->PairOfLeavesWidget->setMaxRequiredValue(side2Steps);
 }
 
 void qSlicerIhepPairOfLeavesControlDialog::onSide1CurrentValueChanged(int value)
@@ -290,14 +288,32 @@ void qSlicerIhepPairOfLeavesControlDialog::onLeafPositionInPairChanged(bool side
   if (side1 && !side2)
   {
     int maxRange = d->PairOfLeavesWidget->getMaxRange();
-    d->DoubleSpinBox_Side1Required->setRange(0, maxRange * DISTANCE_PER_STEP);
-//    qDebug() << Q_FUNC_INFO << "Max range: " << maxRange * DISTANCE_PER_STEP;
+    d->DoubleSpinBox_Side2Required->setRange(0, maxRange * DISTANCE_PER_STEP);
   }
   else if (!side1 && side2)
   {
     int minRange = d->PairOfLeavesWidget->getMinRange();
-    d->DoubleSpinBox_Side2Required->setRange(0, minRange * DISTANCE_PER_STEP);
-//    qDebug() << Q_FUNC_INFO << "Min range: " << minRange * DISTANCE_PER_STEP;
+    d->DoubleSpinBox_Side1Required->setRange(0, minRange * DISTANCE_PER_STEP);
   }
-//  qDebug() << Q_FUNC_INFO << "Leaf in pair changed side1: " << side1 << ", side2: " << side2;
+}
+
+// --------------------------------------------------------------------------
+void qSlicerIhepPairOfLeavesControlDialog::closeEvent(QCloseEvent* event)
+{
+  Q_D(qSlicerIhepPairOfLeavesControlDialog);
+  event->accept(); // close window
+}
+
+//-----------------------------------------------------------------------------
+void qSlicerIhepPairOfLeavesControlDialog::accept()
+{
+  Q_D(qSlicerIhepPairOfLeavesControlDialog);
+  this->Superclass::accept(); // close window
+}
+
+//-----------------------------------------------------------------------------
+void qSlicerIhepPairOfLeavesControlDialog::reject()
+{
+  Q_D(qSlicerIhepPairOfLeavesControlDialog);
+  this->Superclass::reject(); // close window
 }

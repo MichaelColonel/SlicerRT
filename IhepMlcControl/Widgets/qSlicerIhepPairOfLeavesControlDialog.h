@@ -53,6 +53,10 @@ public:
   int getSide1Range() const;
   int getSide2Range() const;
 
+  void closeEvent(QCloseEvent* event) override;
+  void accept() override;
+  void reject() override;
+
 public slots:
   void onLeafPositionInPairChanged(bool, bool);
   void onRequiredPositionChanged(QAbstractButton*);

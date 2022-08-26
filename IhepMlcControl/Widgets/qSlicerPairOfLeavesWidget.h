@@ -19,7 +19,6 @@
 #define __qSlicerPairOfLeavesWidget_h
 
 // Qt includes
-#include <QWidget>
 #include <QAbstractSlider>
 
 // STD includes

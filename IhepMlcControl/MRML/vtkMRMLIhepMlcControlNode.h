@@ -82,7 +82,7 @@ public:
     bool Reset{ false };
     bool Enabled{ true };
     // Current
-    int EncoderCounts{ 0 }; // external encoder counts
+    int EncoderCounts{ 100 }; // external encoder counts
     int StepsLeft{ 0 };
     int State{ 0 };
     bool EncoderDirection{ false }; // external encoder direction
@@ -101,7 +101,6 @@ public:
   vtkSetMacro(ParallelBeam, bool);
 
   bool GetLeafData(LeafData& leafData, int pos = 0, SideType side = Side1, LayerType layer = Layer1);
-
   bool GetPairOfLeavesData(PairOfLeavesData& pairOfLeaves, int pos = 0, LayerType layer = Layer1);
   bool SetPairOfLeavesData(const PairOfLeavesData& pairOfLeaves, int pos = 0, LayerType layer = Layer1);
 
