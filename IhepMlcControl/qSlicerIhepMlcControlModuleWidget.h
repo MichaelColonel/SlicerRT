@@ -26,6 +26,8 @@
 class qSlicerIhepMlcControlModuleWidgetPrivate;
 class vtkMRMLNode;
 
+class QAbstractButton;
+
 /// \ingroup Slicer_QtModules_ExtensionTemplate
 class Q_SLICER_QTMODULES_IHEPMLCCONTROL_EXPORT qSlicerIhepMlcControlModuleWidget :
   public qSlicerAbstractModuleWidget
@@ -52,7 +54,7 @@ public slots:
 
   void onSwitchToMlcControlLayoutToggled(bool toggled = true);
   void onSetMlcControlLayout();
-
+  void onMlcLeayersButtonClicked(QAbstractButton* button);
   /// Update widget GUI from RT Image parameters node
   void updateWidgetFromMRML();
 

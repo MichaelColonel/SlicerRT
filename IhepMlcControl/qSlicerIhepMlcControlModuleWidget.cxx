@@ -18,6 +18,7 @@
 // Qt includes
 #include <QDebug>
 #include <QTimer>
+#include <QRadioButton>
 
 // Slicer includes
 #include <qSlicerSingletonViewFactory.h>
@@ -137,6 +138,8 @@ void qSlicerIhepMlcControlModuleWidget::setup()
     this, SLOT(onSwitchToMlcControlLayoutToggled(bool)));
   QObject::connect( d->CheckBox_ParallelBeam, SIGNAL(toggled(bool)),
     this, SLOT(onParallelBeamToggled(bool)));
+  QObject::connect( d->ButtonGroup_MlcLayers, SIGNAL(buttonClicked(QAbstractButton*)),
+    this, SLOT(onMlcLeayersButtonClicked(QAbstractButton*)));
 }
 
 //-----------------------------------------------------------------------------
@@ -164,8 +167,8 @@ void qSlicerIhepMlcControlModuleWidget::enter()
   qSlicerApplication* slicerApplication = qSlicerApplication::application();
   qSlicerLayoutManager* layoutManager = slicerApplication->layoutManager();
   d->PreviousLayoutId = layoutManager->layout();
-  layoutManager->setLayout(d->MlcCustomLayoutId);
-  QTimer::singleShot(100, this, SLOT(onSetMlcControlLayout()));
+//  layoutManager->setLayout(d->MlcCustomLayoutId);
+//  QTimer::singleShot(100, this, SLOT(onSetMlcControlLayout()));
 }
 
 //-----------------------------------------------------------------------------
@@ -416,3 +419,28 @@ void qSlicerIhepMlcControlModuleWidget::onParallelBeamToggled(bool toggled)
   }
   d->ParameterNode->SetParallelBeam(toggled);
 }
+
+//-----------------------------------------------------------------------------
+void qSlicerIhepMlcControlModuleWidget::onMlcLeayersButtonClicked(QAbstractButton* button)
+{
+  Q_D(qSlicerIhepMlcControlModuleWidget);
+  
+  if (!d->ParameterNode)
+  {
+    qCritical() << Q_FUNC_INFO << ": Invalid parameter node";
+    return;
+  }
+  QRadioButton* rButton = qobject_cast<QRadioButton*>(button);
+  if (rButton && rButton == d->RadioButton_OneLayer)
+  {
+    d->ParameterNode->SetLayers(vtkMRMLIhepMlcControlNode::OneLayer);
+  }
+  else if (rButton && rButton == d->RadioButton_TwoLayers)
+  {
+    d->ParameterNode->SetLayers(vtkMRMLIhepMlcControlNode::TwoLayers);
+  }
+  else
+  {
+  }
+}
+

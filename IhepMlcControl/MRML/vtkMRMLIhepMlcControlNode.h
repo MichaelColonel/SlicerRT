@@ -97,6 +97,9 @@ public:
   vtkGetMacro(NumberOfLeafPairs, int);
   vtkSetMacro(NumberOfLeafPairs, int);
 
+  vtkGetMacro(Layers, LayersType);
+  vtkSetMacro(Layers, LayersType);
+
   vtkGetMacro(ParallelBeam, bool);
   vtkSetMacro(ParallelBeam, bool);
 
@@ -120,7 +123,7 @@ public:
 
 protected:
   vtkMRMLIhepMlcControlNode();
-  ~vtkMRMLIhepMlcControlNode();
+  ~vtkMRMLIhepMlcControlNode() override;
   vtkMRMLIhepMlcControlNode(const vtkMRMLIhepMlcControlNode&);
   void operator=(const vtkMRMLIhepMlcControlNode&);
 
