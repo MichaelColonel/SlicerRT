@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>444</width>
-    <height>822</height>
+    <width>433</width>
+    <height>866</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -50,7 +50,7 @@
              <item row="0" column="0">
               <layout class="QHBoxLayout" name="horizontalLayout">
                <item>
-                <widget class="qMRMLNodeComboBox" name="MRMLNodeComboBox_MlcLayerTable">
+                <widget class="qMRMLNodeComboBox" name="MRMLNodeComboBox_MlcTable">
                  <property name="nodeTypes">
                   <stringlist>
                    <string>vtkMRMLTableNode</string>
@@ -81,7 +81,7 @@
            <string>MLC parameters</string>
           </property>
           <property name="collapsed">
-           <bool>true</bool>
+           <bool>false</bool>
           </property>
           <layout class="QGridLayout" name="gridLayout_8">
            <item row="0" column="0">
@@ -155,7 +155,7 @@
                <item>
                 <widget class="QRadioButton" name="RadioButton_MLCX">
                  <property name="enabled">
-                  <bool>false</bool>
+                  <bool>true</bool>
                  </property>
                  <property name="text">
                   <string>MLCX</string>
@@ -226,10 +226,10 @@
                 <string>Dual layer MLC</string>
                </property>
                <property name="checked">
-                <bool>false</bool>
+                <bool>true</bool>
                </property>
                <property name="collapsed">
-                <bool>true</bool>
+                <bool>false</bool>
                </property>
                <layout class="QGridLayout" name="gridLayout_9">
                 <item row="0" column="0">
@@ -343,6 +343,9 @@
          <widget class="ctkCollapsibleButton" name="CollapsibleButton_Device">
           <property name="text">
            <string>Device</string>
+          </property>
+          <property name="collapsed">
+           <bool>true</bool>
           </property>
           <layout class="QGridLayout" name="gridLayout_6">
            <item row="0" column="0">
@@ -462,38 +465,6 @@
   <connection>
    <sender>qSlicerIhepMlcControlModuleWidget</sender>
    <signal>mrmlSceneChanged(vtkMRMLScene*)</signal>
-   <receiver>MRMLNodeComboBox_Beam</receiver>
-   <slot>setMRMLScene(vtkMRMLScene*)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>205</x>
-     <y>158</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>227</x>
-     <y>53</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>qSlicerIhepMlcControlModuleWidget</sender>
-   <signal>mrmlSceneChanged(vtkMRMLScene*)</signal>
-   <receiver>MRMLNodeComboBox_MlcLayerTable</receiver>
-   <slot>setMRMLScene(vtkMRMLScene*)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>205</x>
-     <y>158</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>162</x>
-     <y>142</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>qSlicerIhepMlcControlModuleWidget</sender>
-   <signal>mrmlSceneChanged(vtkMRMLScene*)</signal>
    <receiver>MRMLNodeComboBox_ParameterSet</receiver>
    <slot>setMRMLScene(vtkMRMLScene*)</slot>
    <hints>
@@ -507,9 +478,41 @@
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>qSlicerIhepMlcControlModuleWidget</sender>
+   <signal>mrmlSceneChanged(vtkMRMLScene*)</signal>
+   <receiver>MRMLNodeComboBox_Beam</receiver>
+   <slot>setMRMLScene(vtkMRMLScene*)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>216</x>
+     <y>432</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>238</x>
+     <y>85</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>qSlicerIhepMlcControlModuleWidget</sender>
+   <signal>mrmlSceneChanged(vtkMRMLScene*)</signal>
+   <receiver>MRMLNodeComboBox_MlcTable</receiver>
+   <slot>setMRMLScene(vtkMRMLScene*)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>216</x>
+     <y>432</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>173</x>
+     <y>145</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
  <buttongroups>
-  <buttongroup name="ButtonGroup_MlcLayers"/>
   <buttongroup name="ButtonGroup_MlcType"/>
+  <buttongroup name="ButtonGroup_MlcLayers"/>
  </buttongroups>
 </ui>

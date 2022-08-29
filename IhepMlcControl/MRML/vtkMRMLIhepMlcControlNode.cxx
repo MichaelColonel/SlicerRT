@@ -37,7 +37,7 @@ namespace
 {
 
 const char* BEAM_REFERENCE_ROLE = "beamRef";
-const char* TABLE_REFERENCE_ROLE = "tableRef";
+const char* MLC_TABLE_REFERENCE_ROLE = "mlcTableRef";
 
 } // namespace
 
@@ -189,21 +189,21 @@ void vtkMRMLIhepMlcControlNode::SetAndObserveBeamNode(vtkMRMLRTBeamNode* node)
 }
 
 //----------------------------------------------------------------------------
-vtkMRMLTableNode* vtkMRMLIhepMlcControlNode::GetTableNode()
+vtkMRMLTableNode* vtkMRMLIhepMlcControlNode::GetMlcTableNode()
 {
-  return vtkMRMLTableNode::SafeDownCast( this->GetNodeReference(TABLE_REFERENCE_ROLE) );
+  return vtkMRMLTableNode::SafeDownCast( this->GetNodeReference(MLC_TABLE_REFERENCE_ROLE) );
 }
 
 //----------------------------------------------------------------------------
-void vtkMRMLIhepMlcControlNode::SetAndObserveTableNode(vtkMRMLTableNode* node)
+void vtkMRMLIhepMlcControlNode::SetAndObserveMlcTableNode(vtkMRMLTableNode* node)
 {
   if (node && this->Scene != node->GetScene())
   {
-    vtkErrorMacro("SetAndObserveCameraNode: Cannot set reference, the referenced and referencing node are not in the same scene");
+    vtkErrorMacro("SetAndObserveMlcTableNode: Cannot set reference, the referenced and referencing node are not in the same scene");
     return;
   }
 
-  this->SetNodeReferenceID(TABLE_REFERENCE_ROLE, (node ? node->GetID() : nullptr));
+  this->SetNodeReferenceID(MLC_TABLE_REFERENCE_ROLE, (node ? node->GetID() : nullptr));
 }
 
 //----------------------------------------------------------------------------

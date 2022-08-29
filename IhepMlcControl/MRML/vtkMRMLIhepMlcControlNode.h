@@ -97,11 +97,26 @@ public:
   vtkGetMacro(NumberOfLeafPairs, int);
   vtkSetMacro(NumberOfLeafPairs, int);
 
+  vtkGetMacro(Orientation, OrientationType);
+  vtkSetMacro(Orientation, OrientationType);
+
   vtkGetMacro(Layers, LayersType);
   vtkSetMacro(Layers, LayersType);
 
   vtkGetMacro(ParallelBeam, bool);
   vtkSetMacro(ParallelBeam, bool);
+
+  vtkGetMacro(PairOfLeavesSize, double);
+  vtkSetMacro(PairOfLeavesSize, double);
+
+  vtkGetMacro(IsocenterOffset, double);
+  vtkSetMacro(IsocenterOffset, double);
+
+  vtkGetMacro(DistanceBetweenTwoLayers, double);
+  vtkSetMacro(DistanceBetweenTwoLayers, double);
+
+  vtkGetMacro(OffsetBetweenTwoLayers, double);
+  vtkSetMacro(OffsetBetweenTwoLayers, double);
 
   bool GetLeafData(LeafData& leafData, int pos = 0, SideType side = Side1, LayerType layer = Layer1);
   bool GetPairOfLeavesData(PairOfLeavesData& pairOfLeaves, int pos = 0, LayerType layer = Layer1);
@@ -117,9 +132,9 @@ public:
   void SetAndObserveBeamNode(vtkMRMLRTBeamNode* node);
 
   /// Get table node
-  vtkMRMLTableNode* GetTableNode();
+  vtkMRMLTableNode* GetMlcTableNode();
   /// Set and observe table node.   
-  void SetAndObserveTableNode(vtkMRMLTableNode* node);
+  void SetAndObserveMlcTableNode(vtkMRMLTableNode* node);
 
 protected:
   vtkMRMLIhepMlcControlNode();
@@ -132,7 +147,7 @@ private:
   OrientationType Orientation{ vtkMRMLIhepMlcControlNode::X }; // MLCX or MLCY
   LayersType Layers{ vtkMRMLIhepMlcControlNode::TwoLayers }; // One layer or two layers
   int NumberOfLeafPairs{ vtkMRMLIhepMlcControlNode::IHEP_PAIR_OF_LEAVES_PER_LAYER };
-  double SizeOfLeafPair{ 5. }; // mm
+  double PairOfLeavesSize{ 5. }; // mm
   double IsocenterOffset{ 0. }; // mm
   bool ParallelBeam{ true };
   double DistanceBetweenTwoLayers{ 0. }; // mm

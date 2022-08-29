@@ -49,12 +49,23 @@ public slots:
   void onSceneClosedEvent();
 
   void onParameterNodeChanged(vtkMRMLNode*);
+  void onBeamNodeChanged(vtkMRMLNode*);
+  void onMlcTableNodeChanged(vtkMRMLNode*);
 
   void onParallelBeamToggled(bool toggled);
+  void onNumberOfLeafPairsChanged(int);
+  void onPairOfLeavesSizeChanged(double);
+  void onIsocenterOffsetChanged(double);
+  void onDistanceBetweenTwoLayersChanged(double);
+  void onOffsetBetweenTwoLayersChanged(double);
 
+  void onMlcLayersButtonClicked(QAbstractButton* button);
+  void onMlcOrientationButtonClicked(QAbstractButton* button);
+
+  // Custom widget layout
   void onSwitchToMlcControlLayoutToggled(bool toggled = true);
   void onSetMlcControlLayout();
-  void onMlcLeayersButtonClicked(QAbstractButton* button);
+
   /// Update widget GUI from RT Image parameters node
   void updateWidgetFromMRML();
 

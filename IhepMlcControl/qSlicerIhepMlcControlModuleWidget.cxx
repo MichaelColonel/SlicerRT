@@ -34,6 +34,7 @@
 #include <vtkMRMLScene.h>
 #include <vtkMRMLLayoutNode.h>
 #include <vtkMRMLLayoutLogic.h>
+#include <vtkMRMLTableNode.h>
 
 // SlicerRT MRML Beams includes
 #include <vtkMRMLRTBeamNode.h>
@@ -133,13 +134,19 @@ void qSlicerIhepMlcControlModuleWidget::setup()
     layoutNode->AddLayoutDescription( d->MlcCustomLayoutId, layoutString);
   }
 
+  // MRMLNodeComboBoxes
+  QObject::connect( d->MRMLNodeComboBox_Beam, SIGNAL(currentNodeChanged(vtkMRMLNode*)),
+    this, SLOT(onBeamNodeChanged(vtkMRMLNode*)));
+  QObject::connect( d->MRMLNodeComboBox_MlcTable, SIGNAL(currentNodeChanged(vtkMRMLNode*)),
+    this, SLOT(onMlcTableNodeChanged(vtkMRMLNode*)));
+
   // Buttons
   QObject::connect( d->PushButton_SwitchLayout, SIGNAL(toggled(bool)),
     this, SLOT(onSwitchToMlcControlLayoutToggled(bool)));
   QObject::connect( d->CheckBox_ParallelBeam, SIGNAL(toggled(bool)),
     this, SLOT(onParallelBeamToggled(bool)));
   QObject::connect( d->ButtonGroup_MlcLayers, SIGNAL(buttonClicked(QAbstractButton*)),
-    this, SLOT(onMlcLeayersButtonClicked(QAbstractButton*)));
+    this, SLOT(onMlcLayersButtonClicked(QAbstractButton*)));
 }
 
 //-----------------------------------------------------------------------------
@@ -250,11 +257,47 @@ void qSlicerIhepMlcControlModuleWidget::setParameterNode(vtkMRMLNode *node)
     if (!parameterNode->GetBeamNode())
     {
       vtkMRMLRTBeamNode* beamNode = vtkMRMLRTBeamNode::SafeDownCast(d->MRMLNodeComboBox_Beam->currentNode());
-//      qvtkConnect( beamNode, vtkMRMLRTBeamNode::BeamTransformModified, this, SLOT(updateNormalAndVupVectors()));
+//      qvtkConnect( beamNode, vtkMRMLRTBeamNode::BeamTransformModified, this, SLOT(updateNormalAndVupVectors())); // update beam transform and geo
       parameterNode->SetAndObserveBeamNode(beamNode);
+    }
+    if (!parameterNode->GetMlcTableNode())
+    {
+      vtkMRMLTableNode* tableNode = vtkMRMLTableNode::SafeDownCast(d->MRMLNodeComboBox_MlcTable->currentNode());
+//      qvtkConnect( tableNode, vtkCommand::ModifiedEvent, this, SLOT(updateNormalAndVupVectors())); // update mlc shape form
+      parameterNode->SetAndObserveMlcTableNode(tableNode);
     }
   }
   this->updateWidgetFromMRML();
+}
+
+//-----------------------------------------------------------------------------
+void qSlicerIhepMlcControlModuleWidget::onBeamNodeChanged(vtkMRMLNode *node)
+{
+  Q_D(qSlicerIhepMlcControlModuleWidget);
+  if (!d->ParameterNode)
+  {
+    return;
+  }
+  vtkMRMLRTBeamNode* beamNode = vtkMRMLRTBeamNode::SafeDownCast(node);
+  if (beamNode)
+  {
+    d->ParameterNode->SetAndObserveBeamNode(beamNode);
+  }
+}
+
+//-----------------------------------------------------------------------------
+void qSlicerIhepMlcControlModuleWidget::onMlcTableNodeChanged(vtkMRMLNode *node)
+{
+  Q_D(qSlicerIhepMlcControlModuleWidget);
+  if (!d->ParameterNode)
+  {
+    return;
+  }
+  vtkMRMLTableNode* tableNode = vtkMRMLTableNode::SafeDownCast(node);
+  if (tableNode)
+  {
+    d->ParameterNode->SetAndObserveMlcTableNode(tableNode);
+  }
 }
 
 //-----------------------------------------------------------------------------
@@ -290,6 +333,9 @@ void qSlicerIhepMlcControlModuleWidget::updateWidgetFromMRML()
   }
   
   d->CheckBox_ParallelBeam->setChecked(parameterNode->GetParallelBeam());
+  d->MRMLNodeComboBox_Beam->setCurrentNode(d->ParameterNode->GetBeamNode());
+  d->MRMLNodeComboBox_MlcTable->setCurrentNode(d->ParameterNode->GetMlcTableNode());
+
 /*
   vtkMRMLScalarVolumeNode* ctVolumeNode = vtkMRMLScalarVolumeNode::SafeDownCast(d->MRMLNodeComboBox_CtVolume->currentNode());
   if (!ctVolumeNode)
@@ -421,7 +467,7 @@ void qSlicerIhepMlcControlModuleWidget::onParallelBeamToggled(bool toggled)
 }
 
 //-----------------------------------------------------------------------------
-void qSlicerIhepMlcControlModuleWidget::onMlcLeayersButtonClicked(QAbstractButton* button)
+void qSlicerIhepMlcControlModuleWidget::onMlcLayersButtonClicked(QAbstractButton* button)
 {
   Q_D(qSlicerIhepMlcControlModuleWidget);
   
@@ -444,3 +490,88 @@ void qSlicerIhepMlcControlModuleWidget::onMlcLeayersButtonClicked(QAbstractButto
   }
 }
 
+//-----------------------------------------------------------------------------
+void qSlicerIhepMlcControlModuleWidget::onMlcOrientationButtonClicked(QAbstractButton* button)
+{
+  Q_D(qSlicerIhepMlcControlModuleWidget);
+  
+  if (!d->ParameterNode)
+  {
+    qCritical() << Q_FUNC_INFO << ": Invalid parameter node";
+    return;
+  }
+  QRadioButton* rButton = qobject_cast<QRadioButton*>(button);
+  if (rButton && rButton == d->RadioButton_MLCX)
+  {
+    d->ParameterNode->SetOrientation(vtkMRMLIhepMlcControlNode::X);
+  }
+  else if (rButton && rButton == d->RadioButton_MLCY)
+  {
+    d->ParameterNode->SetOrientation(vtkMRMLIhepMlcControlNode::Y);
+  }
+  else
+  {
+  }
+}
+
+//-----------------------------------------------------------------------------
+void qSlicerIhepMlcControlModuleWidget::onNumberOfLeafPairsChanged(int)
+{
+  Q_D(qSlicerIhepMlcControlModuleWidget);
+  
+  if (!d->ParameterNode)
+  {
+    qCritical() << Q_FUNC_INFO << ": Invalid parameter node";
+    return;
+  }
+}
+
+//-----------------------------------------------------------------------------
+void qSlicerIhepMlcControlModuleWidget::onPairOfLeavesSizeChanged(double)
+{
+  Q_D(qSlicerIhepMlcControlModuleWidget);
+  
+  if (!d->ParameterNode)
+  {
+    qCritical() << Q_FUNC_INFO << ": Invalid parameter node";
+    return;
+  }
+}
+
+//-----------------------------------------------------------------------------
+void qSlicerIhepMlcControlModuleWidget::onIsocenterOffsetChanged(double)
+{
+  Q_D(qSlicerIhepMlcControlModuleWidget);
+  
+  if (!d->ParameterNode)
+  {
+    qCritical() << Q_FUNC_INFO << ": Invalid parameter node";
+    return;
+  }
+}
+
+//-----------------------------------------------------------------------------
+void qSlicerIhepMlcControlModuleWidget::onDistanceBetweenTwoLayersChanged(double)
+{
+  Q_D(qSlicerIhepMlcControlModuleWidget);
+  
+  if (!d->ParameterNode)
+  {
+    qCritical() << Q_FUNC_INFO << ": Invalid parameter node";
+    return;
+  }
+}
+
+//-----------------------------------------------------------------------------
+void qSlicerIhepMlcControlModuleWidget::onOffsetBetweenTwoLayersChanged(double)
+{
+  Q_D(qSlicerIhepMlcControlModuleWidget);
+  
+  if (!d->ParameterNode)
+  {
+    qCritical() << Q_FUNC_INFO << ": Invalid parameter node";
+    return;
+  }
+}
+
+  
