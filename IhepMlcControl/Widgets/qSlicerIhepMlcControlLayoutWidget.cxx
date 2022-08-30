@@ -88,6 +88,15 @@ void qSlicerIhepMlcControlLayoutWidgetPrivate::init()
   QObject::connect( this->ButtonGroup_MlcLayout, SIGNAL(buttonClicked(QAbstractButton*)), 
     q, SLOT(onMlcLayerChanged(QAbstractButton*)));
 
+  // Layout widgets (buttons, combo box)
+  QObject::connect( this->PushButton_SetPredefinedMlcPositions, SIGNAL(clicked()),
+    q, SLOT(onSetPredefinedMlcPositionsClicked()));
+  QObject::connect( this->PushButton_ApplyPredefinedMlcPositions, SIGNAL(clicked()),
+    q, SLOT(onApplyPredefinedMlcPositionsClicked()));
+  QObject::connect( this->PushButton_OpenMlc, SIGNAL(clicked()),
+    q, SLOT(onOpenMlcClicked()));
+  QObject::connect( this->PushButton_CloseMlc, SIGNAL(clicked()),
+    q, SLOT(onCloseMlcClicked()));
 }
 
 // --------------------------------------------------------------------------
@@ -291,6 +300,8 @@ void qSlicerIhepMlcControlLayoutWidget::onMlcLayerChanged(QAbstractButton* butto
 
       ContainerWidgets& pairOfLeavesWidgets = d->ContainerWidgetsVector[i];
 
+      pairOfLeavesWidgets.Side1Address->setText(tr("%1").arg(side1.Address));
+      pairOfLeavesWidgets.Side2Address->setText(tr("%1").arg(side2.Address));
       pairOfLeavesWidgets.PairOfLeavesWidget->setLeavesNumbers(side1.Address, side2.Address);
       pairOfLeavesWidgets.PairOfLeavesWidget->setMinCurrentValue(side1.EncoderCounts);
       pairOfLeavesWidgets.PairOfLeavesWidget->setMaxCurrentValue(side2.EncoderCounts);
@@ -413,4 +424,52 @@ void qSlicerIhepMlcControlLayoutWidget::onPairOfLeavesSize2ValueChanged(int)
 void qSlicerIhepMlcControlLayoutWidget::onPairOfLeavesSize1ValueChanged(int)
 {
   Q_D(qSlicerIhepMlcControlLayoutWidget);
+}
+
+//-----------------------------------------------------------------------------
+void qSlicerIhepMlcControlLayoutWidget::onSetPredefinedMlcPositionsClicked()
+{
+  Q_D(qSlicerIhepMlcControlLayoutWidget);
+  
+  if (!d->ParameterNode)
+  {
+    qCritical() << Q_FUNC_INFO << ": Invalid parameter node";
+    return;
+  }
+}
+
+//-----------------------------------------------------------------------------
+void qSlicerIhepMlcControlLayoutWidget::onApplyPredefinedMlcPositionsClicked()
+{
+  Q_D(qSlicerIhepMlcControlLayoutWidget);
+  
+  if (!d->ParameterNode)
+  {
+    qCritical() << Q_FUNC_INFO << ": Invalid parameter node";
+    return;
+  }
+}
+
+//-----------------------------------------------------------------------------
+void qSlicerIhepMlcControlLayoutWidget::onOpenMlcClicked()
+{
+  Q_D(qSlicerIhepMlcControlLayoutWidget);
+  
+  if (!d->ParameterNode)
+  {
+    qCritical() << Q_FUNC_INFO << ": Invalid parameter node";
+    return;
+  }
+}
+
+//-----------------------------------------------------------------------------
+void qSlicerIhepMlcControlLayoutWidget::onCloseMlcClicked()
+{
+  Q_D(qSlicerIhepMlcControlLayoutWidget);
+  
+  if (!d->ParameterNode)
+  {
+    qCritical() << Q_FUNC_INFO << ": Invalid parameter node";
+    return;
+  }
 }

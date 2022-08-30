@@ -55,6 +55,8 @@ protected:
   void UpdateFromMRMLScene() override;
   void OnMRMLSceneNodeAdded(vtkMRMLNode* node) override;
   void OnMRMLSceneNodeRemoved(vtkMRMLNode* node) override;
+  void ProcessMRMLNodesEvents(vtkObject* caller, unsigned long event, void* callData) override;
+
 private:
 
   vtkSlicerIhepMlcControlLogic(const vtkSlicerIhepMlcControlLogic&); // Not implemented

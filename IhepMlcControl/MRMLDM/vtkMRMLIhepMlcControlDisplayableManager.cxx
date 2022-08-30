@@ -360,9 +360,10 @@ void vtkMRMLIhepMlcControlDisplayableManager::ProcessMRMLNodesEvents(vtkObject *
   this->Superclass::ProcessMRMLNodesEvents(caller, event, callData);
 
   if (event != vtkCommand::ModifiedEvent)
-    {
+  {
     return;
-    }
+  }
+  vtkWarningMacro("ProcessMRMLNodesEvents: Process IhepMLC events in displayable manager");
 /*
   vtkMRMLColorLegendDisplayNode* dispNode = vtkMRMLColorLegendDisplayNode::SafeDownCast(caller);
   vtkMRMLSliceCompositeNode* sliceCompositeNode = vtkMRMLSliceCompositeNode::SafeDownCast(caller);

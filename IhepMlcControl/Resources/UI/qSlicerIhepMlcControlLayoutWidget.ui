@@ -135,12 +135,16 @@
            <widget class="QComboBox" name="ComboBox_MlcPositions"/>
           </item>
           <item row="0" column="1">
-           <widget class="QLineEdit" name="LineEdit_MlcDescription"/>
+           <widget class="QLineEdit" name="LineEdit_MlcDescription">
+            <property name="readOnly">
+             <bool>true</bool>
+            </property>
+           </widget>
           </item>
          </layout>
         </item>
         <item row="1" column="1">
-         <widget class="QPushButton" name="PushButton_ApplyMlcPositions">
+         <widget class="QPushButton" name="PushButton_ApplyPredefinedMlcPositions">
           <property name="text">
            <string>Apply</string>
           </property>
@@ -162,7 +166,7 @@
            </spacer>
           </item>
           <item>
-           <widget class="QPushButton" name="PushButton_SetMlcPositions">
+           <widget class="QPushButton" name="PushButton_SetPredefinedMlcPositions">
             <property name="text">
              <string>Set</string>
             </property>

@@ -125,6 +125,12 @@ public:
   PairOfLeavesMap& GetPairOfLeavesMap() { return this->LeavesDataMap; }
   const PairOfLeavesMap& GetPairOfLeavesMap() const { return this->LeavesDataMap; }
 
+  void SetMlcLeavesClosed();
+  void SetMlcLeavesOpened();
+
+  bool SetMlcLeavesClosed(LayerType layer);
+  bool SetMlcLeavesOpened(LayerType layer);
+
 public:
   /// Get beam node
   vtkMRMLRTBeamNode* GetBeamNode();
@@ -162,11 +168,11 @@ private:
       { { 30, true, false, 7, 10000, 19300, Side1, Layer1, false, true },
         { 31, true, false, 7, 10000, 19300, Side2, Layer1, false, true } } },
     { 0 + IHEP_LAYERS * Layer2,
-      { { 28, true, false, 7, 10000, 19300, Side1, Layer2, false, true },
-        { 29, true, false, 7, 10000, 19300, Side2, Layer2, false, true } } },
+      { { 2, true, false, 7, 10000, 19300, Side1, Layer2, false, true },
+        { 3, true, false, 7, 10000, 19300, Side2, Layer2, false, true } } },
     { 1 + IHEP_LAYERS * Layer2,
-      { { 30, true, false, 7, 10000, 19300, Side1, Layer2, false, true },
-        { 31, true, false, 7, 10000, 19300, Side2, Layer2, false, true } } }
+      { { 4, true, false, 7, 10000, 19300, Side1, Layer2, false, true },
+        { 5, true, false, 7, 10000, 19300, Side2, Layer2, false, true } } }
     };
 };
 

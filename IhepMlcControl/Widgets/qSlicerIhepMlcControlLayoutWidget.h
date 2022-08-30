@@ -57,7 +57,7 @@ public slots:
 
   void onMlcLayerChanged(QAbstractButton* radioButton);
 
-  // pair of leaves slots:
+  // Pair of leaves slots:
   void onPairOfLeavesDoubleClicked();
   void onPairOfLeavesSideValuesChanged(int,int);
   void onPairOfLeavesSide1RangeChanged(int,int);
@@ -65,6 +65,12 @@ public slots:
   void onPairOfLeavesAddressChanged(bool,bool);
   void onPairOfLeavesSize2ValueChanged(int);
   void onPairOfLeavesSize1ValueChanged(int);
+
+  // Buttons
+  void onSetPredefinedMlcPositionsClicked();
+  void onApplyPredefinedMlcPositionsClicked();
+  void onOpenMlcClicked();
+  void onCloseMlcClicked();
 
 protected:
   QScopedPointer<qSlicerIhepMlcControlLayoutWidgetPrivate> d_ptr;

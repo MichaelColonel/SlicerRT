@@ -260,3 +260,24 @@ bool vtkMRMLIhepMlcControlNode::GetLeafData(vtkMRMLIhepMlcControlNode::LeafData&
   }
   return false;
 }
+//----------------------------------------------------------------------------
+void vtkMRMLIhepMlcControlNode::SetMlcLeavesClosed()
+{
+}
+
+//----------------------------------------------------------------------------
+void vtkMRMLIhepMlcControlNode::SetMlcLeavesOpened()
+{
+}
+
+//----------------------------------------------------------------------------
+bool vtkMRMLIhepMlcControlNode::SetMlcLeavesClosed(vtkMRMLIhepMlcControlNode::LayerType)
+{
+  return true;
+}
+
+//----------------------------------------------------------------------------
+bool vtkMRMLIhepMlcControlNode::SetMlcLeavesOpened(vtkMRMLIhepMlcControlNode::LayerType)
+{
+  return true;
+}

@@ -145,8 +145,24 @@ void qSlicerIhepMlcControlModuleWidget::setup()
     this, SLOT(onSwitchToMlcControlLayoutToggled(bool)));
   QObject::connect( d->CheckBox_ParallelBeam, SIGNAL(toggled(bool)),
     this, SLOT(onParallelBeamToggled(bool)));
+
+  // Sliders
+  QObject::connect( d->SliderWidget_NumberOfLeavesPairs, SIGNAL(valueChanged(double)),
+    this, SLOT(onNumberOfLeafPairsChanged(int)));
+  QObject::connect( d->SliderWidget_PairOfLeavesBoundarySize, SIGNAL(valueChanged(double)),
+    this, SLOT(onPairOfLeavesSizeChanged(double)));
+  QObject::connect( d->SliderWidget_IsocenterOffset, SIGNAL(valueChanged(double)),
+    this, SLOT(onIsocenterOffsetChanged(double)));
+  QObject::connect( d->SliderWidget_DistanceBetweenLayers, SIGNAL(valueChanged(double)),
+    this, SLOT(onDistanceBetweenTwoLayersChanged(double)));
+  QObject::connect( d->SliderWidget_LayersOffset, SIGNAL(valueChanged(double)),
+    this, SLOT(onOffsetBetweenTwoLayersChanged(double)));
+
+  // GroupBox
   QObject::connect( d->ButtonGroup_MlcLayers, SIGNAL(buttonClicked(QAbstractButton*)),
     this, SLOT(onMlcLayersButtonClicked(QAbstractButton*)));
+  QObject::connect( d->ButtonGroup_MlcOrientation, SIGNAL(buttonClicked(QAbstractButton*)),
+    this, SLOT(onMlcOrientationButtonClicked(QAbstractButton*)));
 }
 
 //-----------------------------------------------------------------------------
@@ -515,7 +531,7 @@ void qSlicerIhepMlcControlModuleWidget::onMlcOrientationButtonClicked(QAbstractB
 }
 
 //-----------------------------------------------------------------------------
-void qSlicerIhepMlcControlModuleWidget::onNumberOfLeafPairsChanged(int)
+void qSlicerIhepMlcControlModuleWidget::onNumberOfLeafPairsChanged(int numberOfLeaves)
 {
   Q_D(qSlicerIhepMlcControlModuleWidget);
   
@@ -524,10 +540,11 @@ void qSlicerIhepMlcControlModuleWidget::onNumberOfLeafPairsChanged(int)
     qCritical() << Q_FUNC_INFO << ": Invalid parameter node";
     return;
   }
+  d->ParameterNode->SetNumberOfLeafPairs(numberOfLeaves);
 }
 
 //-----------------------------------------------------------------------------
-void qSlicerIhepMlcControlModuleWidget::onPairOfLeavesSizeChanged(double)
+void qSlicerIhepMlcControlModuleWidget::onPairOfLeavesSizeChanged(double size)
 {
   Q_D(qSlicerIhepMlcControlModuleWidget);
   
@@ -536,10 +553,11 @@ void qSlicerIhepMlcControlModuleWidget::onPairOfLeavesSizeChanged(double)
     qCritical() << Q_FUNC_INFO << ": Invalid parameter node";
     return;
   }
+  d->ParameterNode->SetPairOfLeavesSize(size);
 }
 
 //-----------------------------------------------------------------------------
-void qSlicerIhepMlcControlModuleWidget::onIsocenterOffsetChanged(double)
+void qSlicerIhepMlcControlModuleWidget::onIsocenterOffsetChanged(double offset)
 {
   Q_D(qSlicerIhepMlcControlModuleWidget);
   
@@ -548,10 +566,11 @@ void qSlicerIhepMlcControlModuleWidget::onIsocenterOffsetChanged(double)
     qCritical() << Q_FUNC_INFO << ": Invalid parameter node";
     return;
   }
+  d->ParameterNode->SetIsocenterOffset(offset);
 }
 
 //-----------------------------------------------------------------------------
-void qSlicerIhepMlcControlModuleWidget::onDistanceBetweenTwoLayersChanged(double)
+void qSlicerIhepMlcControlModuleWidget::onDistanceBetweenTwoLayersChanged(double distance)
 {
   Q_D(qSlicerIhepMlcControlModuleWidget);
   
@@ -560,10 +579,11 @@ void qSlicerIhepMlcControlModuleWidget::onDistanceBetweenTwoLayersChanged(double
     qCritical() << Q_FUNC_INFO << ": Invalid parameter node";
     return;
   }
+  d->ParameterNode->SetDistanceBetweenTwoLayers(distance);
 }
 
 //-----------------------------------------------------------------------------
-void qSlicerIhepMlcControlModuleWidget::onOffsetBetweenTwoLayersChanged(double)
+void qSlicerIhepMlcControlModuleWidget::onOffsetBetweenTwoLayersChanged(double distance)
 {
   Q_D(qSlicerIhepMlcControlModuleWidget);
   
@@ -572,6 +592,5 @@ void qSlicerIhepMlcControlModuleWidget::onOffsetBetweenTwoLayersChanged(double)
     qCritical() << Q_FUNC_INFO << ": Invalid parameter node";
     return;
   }
+  d->ParameterNode->SetOffsetBetweenTwoLayers(distance);
 }
-
-  
