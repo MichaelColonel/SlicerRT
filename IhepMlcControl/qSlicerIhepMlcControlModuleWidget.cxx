@@ -148,7 +148,7 @@ void qSlicerIhepMlcControlModuleWidget::setup()
 
   // Sliders
   QObject::connect( d->SliderWidget_NumberOfLeavesPairs, SIGNAL(valueChanged(double)),
-    this, SLOT(onNumberOfLeafPairsChanged(int)));
+    this, SLOT(onNumberOfLeafPairsChanged(double)));
   QObject::connect( d->SliderWidget_PairOfLeavesBoundarySize, SIGNAL(valueChanged(double)),
     this, SLOT(onPairOfLeavesSizeChanged(double)));
   QObject::connect( d->SliderWidget_IsocenterOffset, SIGNAL(valueChanged(double)),
@@ -480,6 +480,7 @@ void qSlicerIhepMlcControlModuleWidget::onParallelBeamToggled(bool toggled)
     return;
   }
   d->ParameterNode->SetParallelBeam(toggled);
+  qDebug() << Q_FUNC_INFO << ": MLC parallel beam " << toggled;
 }
 
 //-----------------------------------------------------------------------------
@@ -504,6 +505,7 @@ void qSlicerIhepMlcControlModuleWidget::onMlcLayersButtonClicked(QAbstractButton
   else
   {
   }
+  qDebug() << Q_FUNC_INFO << ": MLC layers " << d->ParameterNode->GetLayers();
 }
 
 //-----------------------------------------------------------------------------
@@ -528,10 +530,11 @@ void qSlicerIhepMlcControlModuleWidget::onMlcOrientationButtonClicked(QAbstractB
   else
   {
   }
+  qDebug() << Q_FUNC_INFO << ": MLC orientation " << d->ParameterNode->GetOrientation();
 }
 
 //-----------------------------------------------------------------------------
-void qSlicerIhepMlcControlModuleWidget::onNumberOfLeafPairsChanged(int numberOfLeaves)
+void qSlicerIhepMlcControlModuleWidget::onNumberOfLeafPairsChanged(double numberOfLeaves)
 {
   Q_D(qSlicerIhepMlcControlModuleWidget);
   
@@ -540,7 +543,8 @@ void qSlicerIhepMlcControlModuleWidget::onNumberOfLeafPairsChanged(int numberOfL
     qCritical() << Q_FUNC_INFO << ": Invalid parameter node";
     return;
   }
-  d->ParameterNode->SetNumberOfLeafPairs(numberOfLeaves);
+  d->ParameterNode->SetNumberOfLeafPairs(static_cast<int>(numberOfLeaves));
+  qDebug() << Q_FUNC_INFO << ": number of leaves " << numberOfLeaves;
 }
 
 //-----------------------------------------------------------------------------
@@ -554,6 +558,7 @@ void qSlicerIhepMlcControlModuleWidget::onPairOfLeavesSizeChanged(double size)
     return;
   }
   d->ParameterNode->SetPairOfLeavesSize(size);
+  qDebug() << Q_FUNC_INFO << ": pair of leaves size " << size;
 }
 
 //-----------------------------------------------------------------------------
@@ -567,6 +572,7 @@ void qSlicerIhepMlcControlModuleWidget::onIsocenterOffsetChanged(double offset)
     return;
   }
   d->ParameterNode->SetIsocenterOffset(offset);
+  qDebug() << Q_FUNC_INFO << ": isocenter offset distance " << offset;
 }
 
 //-----------------------------------------------------------------------------
@@ -580,6 +586,7 @@ void qSlicerIhepMlcControlModuleWidget::onDistanceBetweenTwoLayersChanged(double
     return;
   }
   d->ParameterNode->SetDistanceBetweenTwoLayers(distance);
+  qDebug() << Q_FUNC_INFO << ": distance between layers " << distance;
 }
 
 //-----------------------------------------------------------------------------
@@ -593,4 +600,5 @@ void qSlicerIhepMlcControlModuleWidget::onOffsetBetweenTwoLayersChanged(double d
     return;
   }
   d->ParameterNode->SetOffsetBetweenTwoLayers(distance);
+  qDebug() << Q_FUNC_INFO << ": layer offset distance " << distance;
 }

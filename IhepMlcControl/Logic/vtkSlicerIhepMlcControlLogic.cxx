@@ -21,11 +21,19 @@
 // SlicerRT Beams MRML includes
 #include <vtkMRMLRTBeamNode.h>
 
+// SlicerRT Beams Logic includes
+#include <vtkSlicerBeamsModuleLogic.h>
+#include <vtkSlicerMLCPositionLogic.h>
+
 // SlicerRT IhepMlcControl MRML includes
 #include <vtkMRMLIhepMlcControlNode.h>
 
+// VTK includes
+#include <vtkWeakPointer.h>
+
 // MRML includes
 #include <vtkMRMLScene.h>
+#include <vtkMRMLTableNode.h>
 
 // VTK includes
 #include <vtkIntArray.h>
@@ -34,12 +42,25 @@
 
 // STD includes
 
+namespace
+{
+
+const char* MLCX_BOUNDARYANDPOSITION = "MLCX_BoundaryAndPosition";
+const char* MLCY_BOUNDARYANDPOSITION = "MLCY_BoundaryAndPosition";
+
+} // namespace
+
 //----------------------------------------------------------------------------
 vtkStandardNewMacro(vtkSlicerIhepMlcControlLogic);
 
 //----------------------------------------------------------------------------
 vtkSlicerIhepMlcControlLogic::vtkSlicerIhepMlcControlLogic()
 {
+  vtkSlicerBeamsModuleLogic* beamsLogic = vtkSlicerBeamsModuleLogic::SafeDownCast(this->GetModuleLogic("Beams"));
+  if (beamsLogic)
+  {
+    this->MlcPositionLogic = beamsLogic->GetMLCPositionLogic();
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -168,4 +189,116 @@ void vtkSlicerIhepMlcControlLogic::ProcessMRMLNodesEvents(vtkObject* caller, uns
       vtkWarningMacro("ProcessMRMLNodesEvents: Process IhepMLC events in logic");
     }
   }
+}
+
+//---------------------------------------------------------------------------
+vtkMRMLTableNode* vtkSlicerIhepMlcControlLogic::CreateMlcTableNodeBoundaryData(vtkMRMLIhepMlcControlNode* parameterNode)
+{
+  vtkMRMLScene* scene = this->GetMRMLScene();
+  if (!scene)
+  {
+    vtkErrorMacro("CreateMlcTableNodeBoundaryData: Scene node is invalid");
+    return nullptr;
+  }
+  if (!parameterNode && !parameterNode->GetBeamNode())
+  {
+    vtkErrorMacro("CreateMlcTableNodeBoundaryData: Parameter or beam node (or both) are invalid");
+    return nullptr;
+  }
+  if (parameterNode->GetMlcTableNode())
+  {
+    vtkMRMLTableNode* tableNode = parameterNode->GetMlcTableNode();
+    // update
+    return tableNode;
+  }
+
+  vtkMRMLIhepMlcControlNode::OrientationType orientation = parameterNode->GetOrientation();
+  const char* name = nullptr;
+  switch (orientation)
+  {
+  case vtkMRMLIhepMlcControlNode::X:
+    name = MLCX_BOUNDARYANDPOSITION;
+    break;
+  case vtkMRMLIhepMlcControlNode::Y:
+    name = MLCY_BOUNDARYANDPOSITION;
+    break;
+  default:
+    break;
+  }
+  if (!name)
+  {
+    vtkErrorMacro("CreateMlcTableNodeBoundaryData: MLC orientation name is invalid");
+    return nullptr;
+  }
+
+  vtkMRMLTableNode* tableNode = vtkMRMLTableNode::SafeDownCast(scene->AddNewNodeByClass("vtkMRMLTableNode", name));
+
+  vtkMRMLIhepMlcControlNode::LayersType nofLayers = parameterNode->GetLayers();
+  
+  // Layer-1
+  std::vector<double> leafPairsBoundary1(parameterNode->GetNumberOfLeafPairs());
+  // Layer-2
+  std::vector<double> leafPairsBoundary2;
+  double middle = parameterNode->GetPairOfLeavesSize() * parameterNode->GetNumberOfLeafPairs() / 2.;
+  for(auto iter = leafPairsBoundary1.begin(); iter != leafPairsBoundary1.end(); ++iter)
+  {
+    size_t pos = iter - leafPairsBoundary1.begin();
+    *iter = -middle + parameterNode->GetIsocenterOffset() + pos * parameterNode->GetPairOfLeavesSize();
+  }
+  if (nofLayers == vtkMRMLIhepMlcControlNode::TwoLayers)
+  {
+    for(double pairOfLevesBoundary : leafPairsBoundary1)
+    {
+      leafPairsBoundary2.push_back(pairOfLevesBoundary + parameterNode->GetOffsetBetweenTwoLayers());
+    }
+  }
+/*
+  vtkTable* table = tableNode->GetTable();
+  if (!table)
+  {
+    vtkErrorMacro("CreateMultiLeafCollimatorTableNodeBoundaryData: Unable to create vtkTable to fill MLC data");
+    return nullptr;
+  }
+
+  // Column 0; Leaf pair boundary values
+  vtkNew<vtkDoubleArray> boundaryArray;
+  boundaryArray->SetName("Boundary");
+  table->AddColumn(boundaryArray);
+
+  // Column 1; Leaf positions on the side "1"
+  vtkNew<vtkDoubleArray> pos1Array;
+  pos1Array->SetName("1");
+  table->AddColumn(pos1Array);
+
+  // Column 2; Leaf positions on the side "2"
+  vtkNew<vtkDoubleArray> pos2Array;
+  pos2Array->SetName("2");
+  table->AddColumn(pos2Array);
+
+  table->SetNumberOfRows(leafPairsBoundary.size());
+  for ( size_t row = 0; row < leafPairsBoundary.size(); ++row)
+  {
+    table->SetValue( row, 0, leafPairsBoundary[row]);
+  }
+
+  for ( unsigned int row = 0; row < nofLeafPairs; ++row)
+  {
+    table->SetValue( row, 1, -100.0); // default meaningful value for side "1"
+    table->SetValue( row, 2, -100.0); // default meaningful value for side "2"
+  }
+//  table->SetValue( nofLeafPairs, 1, 0.); // side "1" set last unused value to zero
+//  table->SetValue( nofLeafPairs, 2, 0.); // side "2" set last unused value to zero
+
+  tableNode->SetUseColumnNameAsColumnHeader(true);
+  tableNode->SetColumnDescription( "Boundary", "Leaf pair boundary");
+  tableNode->SetColumnDescription( "1", "Leaf position on the side \"1\"");
+  tableNode->SetColumnDescription( "2", "Leaf position on the side \"2\"");
+*/
+  return tableNode;
+}
+
+//---------------------------------------------------------------------------
+bool vtkSlicerIhepMlcControlLogic::UpdateMlcTableNodeBoundaryData(vtkMRMLIhepMlcControlNode* parameterNode)
+{
+  return false;
 }

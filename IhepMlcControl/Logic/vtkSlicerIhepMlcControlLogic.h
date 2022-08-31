@@ -34,6 +34,10 @@
 
 #include "vtkSlicerIhepMlcControlModuleLogicExport.h"
 
+class vtkSlicerMLCPositionLogic;
+
+class vtkMRMLIhepMlcControlNode;
+class vtkMRMLTableNode;
 
 /// \ingroup Slicer_QtModules_ExtensionTemplate
 class VTK_SLICER_IHEPMLCCONTROL_MODULE_LOGIC_EXPORT vtkSlicerIhepMlcControlLogic :
@@ -44,6 +48,19 @@ public:
   static vtkSlicerIhepMlcControlLogic *New();
   vtkTypeMacro(vtkSlicerIhepMlcControlLogic, vtkSlicerModuleLogic);
   void PrintSelf(ostream& os, vtkIndent indent) override;
+
+  /// Create a table node with the Multi Leaf Collimator boundary data.
+  /// Based on DICOMRT BeamLimitingDeviceEntry description of MLC.
+  /// DICOM standard describes two kinds of multi-leaf collimators: 
+  /// "MLCX" - leaves moves along X-axis, "MCLY" - leaves moves along Y-axis.
+  /// X-axis and Y-axis are axises of IEC BEAM LIMITING DEVICE coordinate system.
+  /// \param parameterNode for MLC parameters
+  /// \return valid pointer if successfull, nullptr otherwise
+  vtkMRMLTableNode* CreateMlcTableNodeBoundaryData(vtkMRMLIhepMlcControlNode* parameterNode);
+  /// Update a already created table node with the Multi Leaf Collimator boundary data.
+  /// \param parameterNode for MLC parameters
+  /// \return true if success false otherwise
+  bool UpdateMlcTableNodeBoundaryData(vtkMRMLIhepMlcControlNode* parameterNode);
 
 protected:
   vtkSlicerIhepMlcControlLogic();
@@ -61,6 +78,8 @@ private:
 
   vtkSlicerIhepMlcControlLogic(const vtkSlicerIhepMlcControlLogic&); // Not implemented
   void operator=(const vtkSlicerIhepMlcControlLogic&); // Not implemented
+
+  vtkWeakPointer<vtkSlicerMLCPositionLogic> MlcPositionLogic;
 };
 
 #endif

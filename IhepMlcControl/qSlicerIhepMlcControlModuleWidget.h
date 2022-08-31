@@ -53,7 +53,7 @@ public slots:
   void onMlcTableNodeChanged(vtkMRMLNode*);
 
   void onParallelBeamToggled(bool toggled);
-  void onNumberOfLeafPairsChanged(int);
+  void onNumberOfLeafPairsChanged(double);
   void onPairOfLeavesSizeChanged(double);
   void onIsocenterOffsetChanged(double);
   void onDistanceBetweenTwoLayersChanged(double);
