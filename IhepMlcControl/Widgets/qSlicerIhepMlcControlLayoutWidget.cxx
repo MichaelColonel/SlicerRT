@@ -34,11 +34,11 @@
 namespace {
 
 struct ContainerWidgets {
-  QLabel* Side1Address{ nullptr };
-  QLabel* Side1State{ nullptr };
+  QLabel* Side1AddressLabel{ nullptr };
+  QLabel* Side1StateLabel{ nullptr };
   qSlicerAbstractPairOfLeavesWidget* PairOfLeavesWidget{ nullptr };
-  QLabel* Side2Address{ nullptr };
-  QLabel* Side2State{ nullptr };
+  QLabel* Side2AddressLabel{ nullptr };
+  QLabel* Side2StateLabel{ nullptr };
 };
 
 }
@@ -105,33 +105,33 @@ void qSlicerIhepMlcControlLayoutWidgetPrivate::removeLeavesWidgetsFromLayout()
   Q_Q(qSlicerIhepMlcControlLayoutWidget);
   for(ContainerWidgets& widgets : this->ContainerWidgetsVector)
   {
-    if (widgets.Side1Address)
+    if (widgets.Side1AddressLabel)
     {
-      this->GridLayout_Leaves->removeWidget(widgets.Side1Address);
+      this->GridLayout_Leaves->removeWidget(widgets.Side1AddressLabel);
 
-      delete widgets.Side1Address;
-      widgets.Side1Address = nullptr;
+      delete widgets.Side1AddressLabel;
+      widgets.Side1AddressLabel = nullptr;
     }
-    if (widgets.Side1State)
+    if (widgets.Side1StateLabel)
     {
-      this->GridLayout_Leaves->removeWidget(widgets.Side1State);
+      this->GridLayout_Leaves->removeWidget(widgets.Side1StateLabel);
 
-      delete widgets.Side1State;
-      widgets.Side1State = nullptr;
+      delete widgets.Side1StateLabel;
+      widgets.Side1StateLabel = nullptr;
     }
-    if (widgets.Side2Address)
+    if (widgets.Side2AddressLabel)
     {
-      this->GridLayout_Leaves->removeWidget(widgets.Side2Address);
+      this->GridLayout_Leaves->removeWidget(widgets.Side2AddressLabel);
 
-      delete widgets.Side2Address;
-      widgets.Side2Address = nullptr;
+      delete widgets.Side2AddressLabel;
+      widgets.Side2AddressLabel = nullptr;
     }
-    if (widgets.Side2State)
+    if (widgets.Side2StateLabel)
     {
-      this->GridLayout_Leaves->removeWidget(widgets.Side2State);
+      this->GridLayout_Leaves->removeWidget(widgets.Side2StateLabel);
 
-      delete widgets.Side2State;
-      widgets.Side2State = nullptr;
+      delete widgets.Side2StateLabel;
+      widgets.Side2StateLabel = nullptr;
     }
     if (widgets.PairOfLeavesWidget)
     {
@@ -193,39 +193,42 @@ void qSlicerIhepMlcControlLayoutWidget::fillLeavesControlContainer(int pairOfLea
 
     ContainerWidgets widgets;
 
-    widgets.Side1Address = new QLabel(tr("%1").arg(side1.Address), this);
-    widgets.Side1Address->setAlignment(Qt::AlignHCenter);
-    widgets.Side1Address->setMinimumSize(widgets.Side1Address->sizeHint());
+    widgets.Side1AddressLabel = new QLabel(tr("%1").arg(side1.Address), this);
+    widgets.Side1AddressLabel->setAlignment(Qt::AlignHCenter);
+    widgets.Side1AddressLabel->setMinimumSize(widgets.Side1AddressLabel->sizeHint());
 
-    widgets.Side1State = new QLabel(this);
-    widgets.Side1State->setAlignment(Qt::AlignHCenter);
-    widgets.Side1State->setPixmap(QPixmap(":/indicators/Icons/gray.png"));
+    widgets.Side1StateLabel = new QLabel(this);
+    widgets.Side1StateLabel->setAlignment(Qt::AlignHCenter);
+    widgets.Side1StateLabel->setPixmap(QPixmap(":/indicators/Icons/gray.png"));
 
     widgets.PairOfLeavesWidget = new qSlicerVerticalPairOfLeavesWidget(
       side1.Range + side2.Range, side1.Steps, side2.Steps,
       side1.EncoderCounts, side2.EncoderCounts, this);
     widgets.PairOfLeavesWidget->setSizePolicy( QSizePolicy::Minimum, QSizePolicy::Expanding);
 
-    widgets.Side2State = new QLabel(this);
-    widgets.Side2State->setAlignment(Qt::AlignHCenter);
-    widgets.Side2State->setPixmap(QPixmap(":/indicators/Icons/gray.png"));
+    widgets.Side2StateLabel = new QLabel(this);
+    widgets.Side2StateLabel->setAlignment(Qt::AlignHCenter);
+    widgets.Side2StateLabel->setPixmap(QPixmap(":/indicators/Icons/gray.png"));
 
-    widgets.Side2Address = new QLabel(tr("%1").arg(side2.Address), this);
-    widgets.Side2Address->setAlignment(Qt::AlignHCenter);
-    widgets.Side2Address->setMinimumSize(widgets.Side2Address->sizeHint());
+    widgets.Side2AddressLabel = new QLabel(tr("%1").arg(side2.Address), this);
+    widgets.Side2AddressLabel->setAlignment(Qt::AlignHCenter);
+    widgets.Side2AddressLabel->setMinimumSize(widgets.Side2AddressLabel->sizeHint());
 
-    d->GridLayout_Leaves->addWidget(widgets.Side2Address, 0, pairOfLeavesIndex + 1);
-    d->GridLayout_Leaves->addWidget(widgets.Side2State, 1, pairOfLeavesIndex + 1);
+    d->GridLayout_Leaves->addWidget(widgets.Side2AddressLabel, 0, pairOfLeavesIndex + 1);
+    d->GridLayout_Leaves->addWidget(widgets.Side2StateLabel, 1, pairOfLeavesIndex + 1);
     d->GridLayout_Leaves->addWidget(widgets.PairOfLeavesWidget, 2, pairOfLeavesIndex + 1);
-    d->GridLayout_Leaves->addWidget(widgets.Side1State, 3, pairOfLeavesIndex + 1);
-    d->GridLayout_Leaves->addWidget(widgets.Side1Address, 4, pairOfLeavesIndex + 1);
+    d->GridLayout_Leaves->addWidget(widgets.Side1StateLabel, 3, pairOfLeavesIndex + 1);
+    d->GridLayout_Leaves->addWidget(widgets.Side1AddressLabel, 4, pairOfLeavesIndex + 1);
 
     widgets.PairOfLeavesWidget->setLeavesNumbers(side1.Address, side2.Address);
     widgets.PairOfLeavesWidget->setControlEnabled(false);
 
-    connect( widgets.PairOfLeavesWidget, SIGNAL(pairOfLeavesDoubleClicked()), this, SLOT(onPairOfLeavesDoubleClicked()));
-    connect( widgets.PairOfLeavesWidget, SIGNAL(maxPositionChanged(int)), this, SLOT(onPairOfLeavesSize2ValueChanged(int)));
-    connect( widgets.PairOfLeavesWidget, SIGNAL(minPositionChanged(int)), this, SLOT(onPairOfLeavesSize1ValueChanged(int)));
+    connect( widgets.PairOfLeavesWidget, SIGNAL(pairOfLeavesDoubleClicked()),
+      this, SLOT(onPairOfLeavesDoubleClicked()));
+    connect( widgets.PairOfLeavesWidget, SIGNAL(maxPositionChanged(int)),
+      this, SLOT(onPairOfLeavesSize2ValueChanged(int)));
+    connect( widgets.PairOfLeavesWidget, SIGNAL(minPositionChanged(int)),
+      this, SLOT(onPairOfLeavesSize1ValueChanged(int)));
     
     d->ContainerWidgetsVector.push_back(widgets);
   }
@@ -300,8 +303,8 @@ void qSlicerIhepMlcControlLayoutWidget::onMlcLayerChanged(QAbstractButton* butto
 
       ContainerWidgets& pairOfLeavesWidgets = d->ContainerWidgetsVector[i];
 
-      pairOfLeavesWidgets.Side1Address->setText(tr("%1").arg(side1.Address));
-      pairOfLeavesWidgets.Side2Address->setText(tr("%1").arg(side2.Address));
+      pairOfLeavesWidgets.Side1AddressLabel->setText(tr("%1").arg(side1.Address));
+      pairOfLeavesWidgets.Side2AddressLabel->setText(tr("%1").arg(side2.Address));
       pairOfLeavesWidgets.PairOfLeavesWidget->setLeavesNumbers(side1.Address, side2.Address);
       pairOfLeavesWidgets.PairOfLeavesWidget->setMinCurrentValue(side1.EncoderCounts);
       pairOfLeavesWidgets.PairOfLeavesWidget->setMaxCurrentValue(side2.EncoderCounts);
