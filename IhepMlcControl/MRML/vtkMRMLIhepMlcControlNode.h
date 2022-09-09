@@ -26,9 +26,6 @@
 #include <vtkMRMLNode.h>
 #include <vtkMRMLModelNode.h>
 
-// STD includes
-#include <initializer_list>
-
 class vtkMRMLRTBeamNode;
 class vtkMRMLTableNode;
 

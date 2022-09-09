@@ -33,7 +33,7 @@
 
 // DisplayableManager initialization
 #include <vtkAutoInit.h>
-VTK_MODULE_INIT(vtkSlicerIhepMlcControlDisplayableManager)
+VTK_MODULE_INIT(vtkSlicerIhepMlcControlModuleMRMLDisplayableManager)
 
 //-----------------------------------------------------------------------------
 /// \ingroup Slicer_QtModules_ExtensionTemplate

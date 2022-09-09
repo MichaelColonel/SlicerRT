@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>322</width>
+    <width>433</width>
     <height>866</height>
    </rect>
   </property>
@@ -81,7 +81,7 @@
            <string>MLC parameters</string>
           </property>
           <property name="collapsed">
-           <bool>true</bool>
+           <bool>false</bool>
           </property>
           <layout class="QGridLayout" name="gridLayout_8">
            <item row="0" column="0">
@@ -226,10 +226,10 @@
                 <string>Dual layer MLC</string>
                </property>
                <property name="checked">
-                <bool>false</bool>
+                <bool>true</bool>
                </property>
                <property name="collapsed">
-                <bool>true</bool>
+                <bool>false</bool>
                </property>
                <layout class="QGridLayout" name="gridLayout_9">
                 <item row="0" column="0">

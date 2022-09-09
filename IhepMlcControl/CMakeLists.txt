@@ -22,6 +22,7 @@ set(MODULE_INCLUDE_DIRECTORIES
   ${CMAKE_CURRENT_BINARY_DIR}/Widgets
   ${SlicerRtCommon_INCLUDE_DIRS}
   ${vtkSlicer${MODULE_NAME}ModuleMRML_INCLUDE_DIRS}
+  ${vtkSlicer${MODULE_NAME}ModuleMRMLDisplayableManager_INCLUDE_DIRS}
   ${vtkSlicerBeamsModuleLogic_INCLUDE_DIRS}
   )
 
@@ -45,7 +46,7 @@ set(MODULE_TARGET_LIBRARIES
   vtkSlicer${MODULE_NAME}ModuleMRML
   vtkSlicer${MODULE_NAME}ModuleLogic
   qSlicer${MODULE_NAME}ModuleWidgets
-  vtkSlicer${MODULE_NAME}DisplayableManager
+  vtkSlicer${MODULE_NAME}ModuleMRMLDisplayableManager
   )
 
 set(MODULE_RESOURCES

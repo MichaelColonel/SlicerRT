@@ -1,4 +1,4 @@
-project(vtkSlicer${MODULE_NAME}DisplayableManager)
+project(vtkSlicer${MODULE_NAME}ModuleMRMLDisplayableManager)
 
 set(KIT ${PROJECT_NAME})
 

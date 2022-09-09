@@ -127,7 +127,11 @@
           </widget>
          </item>
          <item row="7" column="1">
-          <widget class="QDoubleSpinBox" name="DoubleSpinBox_Side1Required"/>
+          <widget class="QDoubleSpinBox" name="DoubleSpinBox_Side1Required">
+           <property name="suffix">
+            <string> mm</string>
+           </property>
+          </widget>
          </item>
          <item row="4" column="0">
           <widget class="QLabel" name="Label_Side1LeafNumber">
@@ -196,7 +200,11 @@
           </widget>
          </item>
          <item row="0" column="1">
-          <widget class="QDoubleSpinBox" name="DoubleSpinBox_Side2Required"/>
+          <widget class="QDoubleSpinBox" name="DoubleSpinBox_Side2Required">
+           <property name="suffix">
+            <string> mm</string>
+           </property>
+          </widget>
          </item>
          <item row="1" column="0">
           <widget class="QLabel" name="_Label_Side2Current">

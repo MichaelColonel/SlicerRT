@@ -335,7 +335,7 @@ void qSlicerIhepMlcControlModuleWidget::updateWidgetFromMRML()
 //  d->CollapsibleButton_GeometryBasicParameters->setEnabled(parameterNode);
 //  d->PlastimatchParametersWidget->setEnabled(parameterNode);
 //  d->PushButton_ComputeDrr->setEnabled(parameterNode);
-  
+
   if (!parameterNode)
   {
     qCritical() << Q_FUNC_INFO << ": Invalid parameter node";
@@ -345,62 +345,47 @@ void qSlicerIhepMlcControlModuleWidget::updateWidgetFromMRML()
   if (!parameterNode->GetBeamNode())
   {
     qCritical() << Q_FUNC_INFO << ": Invalid referenced parameter's beam node";
+    d->PushButton_GenerateMlcBoundary->setEnabled(false);
     return;
   }
-  
+
+  // Update widgets from parameter node
+  d->PushButton_GenerateMlcBoundary->setEnabled(true);
   d->CheckBox_ParallelBeam->setChecked(parameterNode->GetParallelBeam());
-  d->MRMLNodeComboBox_Beam->setCurrentNode(d->ParameterNode->GetBeamNode());
-  d->MRMLNodeComboBox_MlcTable->setCurrentNode(d->ParameterNode->GetMlcTableNode());
-
-/*
-  vtkMRMLScalarVolumeNode* ctVolumeNode = vtkMRMLScalarVolumeNode::SafeDownCast(d->MRMLNodeComboBox_CtVolume->currentNode());
-  if (!ctVolumeNode)
+  d->MRMLNodeComboBox_Beam->setCurrentNode(parameterNode->GetBeamNode());
+  d->MRMLNodeComboBox_MlcTable->setCurrentNode(parameterNode->GetMlcTableNode());
+  switch (parameterNode->GetOrientation())
   {
-    qCritical() << Q_FUNC_INFO << ": Invalid referenced volume node";
-    return;
+  case vtkMRMLIhepMlcControlNode::X:
+    d->RadioButton_MLCX->setChecked(true);
+    d->RadioButton_MLCY->setChecked(false);
+    break;
+  case vtkMRMLIhepMlcControlNode::Y:
+    d->RadioButton_MLCX->setChecked(false);
+    d->RadioButton_MLCY->setChecked(true);
+    break;
+  default:
+    break;
   }
-
-  // Update widgets info from parameter node
-  d->MRMLNodeComboBox_RtBeam->setCurrentNode(parameterNode->GetBeamNode());
-  d->SliderWidget_IsocenterImagerDistance->setValue(parameterNode->GetIsocenterImagerDistance());
-
-  int imagerResolution[2] = {};
-  double imagerRes[2] = {};
-  parameterNode->GetImagerResolution(imagerResolution);
-  imagerRes[0] = static_cast<double>(imagerResolution[0]);
-  imagerRes[1] = static_cast<double>(imagerResolution[1]);
-  d->CoordinatesWidget_ImagerResolution->setCoordinates(imagerRes);
-  d->CoordinatesWidget_ImagerSpacing->setCoordinates(parameterNode->GetImagerSpacing());
-
-  d->RangeWidget_ImageWindowColumns->setMinimum(0.);
-  d->RangeWidget_ImageWindowColumns->setMaximum(double(imagerResolution[0] - 1));
-  d->RangeWidget_ImageWindowRows->setMinimum(0.);
-  d->RangeWidget_ImageWindowRows->setMaximum(double(imagerResolution[1] - 1));
-
-  bool useImageWindow = parameterNode->GetImageWindowFlag();
-  int imageWindow[4] = {};
-  parameterNode->GetImageWindow(imageWindow);
-
-  d->GroupBox_ImageWindowParameters->setChecked(useImageWindow);
-  if (!useImageWindow)
+  switch (parameterNode->GetLayers())
   {
-    d->RangeWidget_ImageWindowColumns->setValues( 0., double(imagerResolution[0] - 1));
-    d->RangeWidget_ImageWindowRows->setValues( 0., double(imagerResolution[1] - 1));
+  case vtkMRMLIhepMlcControlNode::OneLayer:
+    d->RadioButton_OneLayer->setChecked(true);
+    d->RadioButton_TwoLayers->setChecked(false);
+    break;
+  case vtkMRMLIhepMlcControlNode::TwoLayers:
+    d->RadioButton_OneLayer->setChecked(false);
+    d->RadioButton_TwoLayers->setChecked(true);
+    break;
+  default:
+    break;
   }
-  else
-  {
-    d->RangeWidget_ImageWindowColumns->setValues( 
-      static_cast<double>(std::max<int>( 0, imageWindow[0])),
-      static_cast<double>(std::min<int>( imagerResolution[0] - 1, imageWindow[2])));
-    d->RangeWidget_ImageWindowRows->setValues( 
-      static_cast<double>(std::max<int>( 0, imageWindow[1])), 
-      static_cast<double>(std::min<int>( imagerResolution[1] - 1, imageWindow[3])));
-  }
-  
-  // update RT beam from camera button
-  vtkMRMLCameraNode* cameraNode = vtkMRMLCameraNode::SafeDownCast(d->MRMLNodeComboBox_Camera->currentNode());
-  d->PushButton_UpdateBeamFromCamera->setEnabled(cameraNode);
-*/
+  d->SliderWidget_NumberOfLeavesPairs->setValue(parameterNode->GetNumberOfLeafPairs());
+  d->SliderWidget_PairOfLeavesBoundarySize->setValue(parameterNode->GetPairOfLeavesSize());
+  d->SliderWidget_IsocenterOffset->setValue(parameterNode->GetIsocenterOffset());
+  d->SliderWidget_DistanceBetweenLayers->setValue(parameterNode->GetDistanceBetweenTwoLayers());
+  d->SliderWidget_DistanceBetweenLayers->setValue(parameterNode->GetDistanceBetweenTwoLayers());
+  d->SliderWidget_LayersOffset->setValue(parameterNode->GetOffsetBetweenTwoLayers());
 }
 
 //-----------------------------------------------------------------------------
@@ -441,12 +426,12 @@ void qSlicerIhepMlcControlModuleWidget::onEnter()
     parameterNode = vtkMRMLIhepMlcControlNode::SafeDownCast(node);
   }
 
-///  if (parameterNode && parameterNode->GetBeamNode())
-///  {
+  if (parameterNode && parameterNode->GetBeamNode())
+  {
     // First thing first: update normal and vup vectors for parameter node
     // in case observed beam node transformation has been modified
 ///    d->logic()->UpdateNormalAndVupVectors(parameterNode);
-///  }
+  }
 
   // Create DRR markups nodes
 ///  d->logic()->CreateMarkupsNodes(parameterNode);
