@@ -39,6 +39,8 @@
 #include <vtkIntArray.h>
 #include <vtkNew.h>
 #include <vtkObjectFactory.h>
+#include <vtkTable.h>
+#include <vtkDoubleArray.h>
 
 // STD includes
 
@@ -252,13 +254,79 @@ vtkMRMLTableNode* vtkSlicerIhepMlcControlLogic::CreateMlcTableNodeBoundaryData(v
       leafPairsBoundary2.push_back(pairOfLevesBoundary + parameterNode->GetOffsetBetweenTwoLayers());
     }
   }
-/*
+
   vtkTable* table = tableNode->GetTable();
   if (!table)
   {
     vtkErrorMacro("CreateMultiLeafCollimatorTableNodeBoundaryData: Unable to create vtkTable to fill MLC data");
     return nullptr;
   }
+
+  if (nofLayers == vtkMRMLIhepMlcControlNode::TwoLayers)
+  {
+    // Column 0; Leaf pair boundary values for layer-1
+    vtkNew<vtkDoubleArray> boundaryLayer1;
+    boundaryLayer1->SetName("Boundary-1");
+    table->AddColumn(boundaryLayer1);
+
+    // Column 1; Leaf positions on the side "1" for layer-1
+    vtkNew<vtkDoubleArray> pos1Layer1;
+    pos1Layer1->SetName("1-1");
+    table->AddColumn(pos1Layer1);
+
+    // Column 2; Leaf positions on the side "2" for layer-1
+    vtkNew<vtkDoubleArray> pos2Layer1;
+    pos2Layer1->SetName("1-2");
+    table->AddColumn(pos2Layer1);
+
+    table->SetNumberOfRows(leafPairsBoundary1.size());
+    for (size_t row = 0; row < leafPairsBoundary1.size(); ++row)
+    {
+      table->SetValue(row, 0, leafPairsBoundary1[row]);
+    }
+
+    for (unsigned int row = 0; row < parameterNode->GetNumberOfLeafPairs(); ++row)
+    {
+      table->SetValue(row, 1, -100.0); // default meaningful value for side "1" for layer-1
+      table->SetValue(row, 2, -100.0); // default meaningful value for side "2" for layer-1
+    }
+    tableNode->SetUseColumnNameAsColumnHeader(true);
+    tableNode->SetColumnDescription( "Boundary-1", "Pair of leaves boundary for the first layer");
+    tableNode->SetColumnDescription( "1-1", "Leaf position on the side \"1\" for the first layer");
+    tableNode->SetColumnDescription( "1-2", "Leaf position on the side \"2\" for the first layer");
+
+    // Column 3; Leaf pair boundary values for layer-2
+    vtkNew<vtkDoubleArray> boundaryLayer2;
+    boundaryLayer2->SetName("Boundary-2");
+    table->AddColumn(boundaryLayer2);
+
+    // Column 4; Leaf positions on the side "1" for layer-2
+    vtkNew<vtkDoubleArray> pos1Layer2;
+    pos1Layer2->SetName("1-1");
+    table->AddColumn(pos1Layer2);
+
+    // Column 5; Leaf positions on the side "2" for layer-2
+    vtkNew<vtkDoubleArray> pos2Layer2;
+    pos2Layer2->SetName("1-2");
+    table->AddColumn(pos2Layer2);
+
+    table->SetNumberOfRows(leafPairsBoundary2.size());
+    for (size_t row = 0; row < leafPairsBoundary2.size(); ++row)
+    {
+      table->SetValue(row, 0, leafPairsBoundary2[row]);
+    }
+
+    for (unsigned int row = 0; row < parameterNode->GetNumberOfLeafPairs(); ++row)
+    {
+      table->SetValue(row, 1, -100.0); // default meaningful value for side "1" for layer-2
+      table->SetValue(row, 2, -100.0); // default meaningful value for side "2" for layer-2
+    }
+    tableNode->SetColumnDescription( "Boundary-2", "Pair of leaves boundary for the second layer");
+    tableNode->SetColumnDescription( "2-1", "Leaf position on the side \"1\" for the second layer");
+    tableNode->SetColumnDescription( "2-2", "Leaf position on the side \"2\" for the second layer");
+    return tableNode;
+  }
+  // for the one layer MLC
 
   // Column 0; Leaf pair boundary values
   vtkNew<vtkDoubleArray> boundaryArray;
@@ -275,13 +343,13 @@ vtkMRMLTableNode* vtkSlicerIhepMlcControlLogic::CreateMlcTableNodeBoundaryData(v
   pos2Array->SetName("2");
   table->AddColumn(pos2Array);
 
-  table->SetNumberOfRows(leafPairsBoundary.size());
-  for ( size_t row = 0; row < leafPairsBoundary.size(); ++row)
+  table->SetNumberOfRows(leafPairsBoundary1.size());
+  for ( size_t row = 0; row < leafPairsBoundary1.size(); ++row)
   {
-    table->SetValue( row, 0, leafPairsBoundary[row]);
+    table->SetValue( row, 0, leafPairsBoundary1[row]);
   }
 
-  for ( unsigned int row = 0; row < nofLeafPairs; ++row)
+  for ( unsigned int row = 0; row < parameterNode->GetNumberOfLeafPairs(); ++row)
   {
     table->SetValue( row, 1, -100.0); // default meaningful value for side "1"
     table->SetValue( row, 2, -100.0); // default meaningful value for side "2"
@@ -293,7 +361,6 @@ vtkMRMLTableNode* vtkSlicerIhepMlcControlLogic::CreateMlcTableNodeBoundaryData(v
   tableNode->SetColumnDescription( "Boundary", "Leaf pair boundary");
   tableNode->SetColumnDescription( "1", "Leaf position on the side \"1\"");
   tableNode->SetColumnDescription( "2", "Leaf position on the side \"2\"");
-*/
   return tableNode;
 }
 

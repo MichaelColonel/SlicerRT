@@ -145,6 +145,8 @@ void qSlicerIhepMlcControlModuleWidget::setup()
     this, SLOT(onSwitchToMlcControlLayoutToggled(bool)));
   QObject::connect( d->CheckBox_ParallelBeam, SIGNAL(toggled(bool)),
     this, SLOT(onParallelBeamToggled(bool)));
+  QObject::connect( d->PushButton_GenerateMlcBoundary, SIGNAL(clicked()),
+    this, SLOT(onGenerateMlcBoundaryClicked()));
 
   // Sliders
   QObject::connect( d->SliderWidget_NumberOfLeavesPairs, SIGNAL(valueChanged(double)),
@@ -586,4 +588,20 @@ void qSlicerIhepMlcControlModuleWidget::onOffsetBetweenTwoLayersChanged(double d
   }
   d->ParameterNode->SetOffsetBetweenTwoLayers(distance);
   qDebug() << Q_FUNC_INFO << ": layer offset distance " << distance;
+}
+
+//-----------------------------------------------------------------------------
+void qSlicerIhepMlcControlModuleWidget::onGenerateMlcBoundaryClicked()
+{
+  Q_D(qSlicerIhepMlcControlModuleWidget);
+  
+  if (!d->ParameterNode)
+  {
+    qCritical() << Q_FUNC_INFO << ": Invalid parameter node";
+    return;
+  }
+  if (d->logic()->CreateMlcTableNodeBoundaryData(d->ParameterNode))
+  {
+    qDebug() << Q_FUNC_INFO << ": Table created";
+  }
 }
