@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>482</width>
-    <height>586</height>
+    <width>444</width>
+    <height>407</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -42,8 +42,8 @@
       </widget>
      </item>
      <item>
-      <widget class="qMRMLNodeComboBox" name="MRMLNodeComboBox_RtPlan">
-       <property name="nodeTypes">
+      <widget class="qMRMLNodeComboBox" name="MRMLNodeComboBox_RtPlan" native="true">
+       <property name="nodeTypes" stdset="0">
         <stringlist>
          <string>vtkMRMLRTPlanNode</string>
         </stringlist>
@@ -178,7 +178,7 @@
           <item>
            <layout class="QVBoxLayout" name="verticalLayout_5">
             <item>
-             <widget class="qMRMLSegmentSelectorWidget" name="MRMLSegmentSelectorWidget_TargetStructure">
+             <widget class="qMRMLSegmentSelectorWidget" name="MRMLSegmentSelectorWidget_TargetStructure" native="true">
               <property name="sizePolicy">
                <sizepolicy hsizetype="MinimumExpanding" vsizetype="Preferred">
                 <horstretch>0</horstretch>
@@ -210,31 +210,31 @@
        </layout>
       </item>
       <item row="2" column="1">
-       <widget class="qMRMLNodeComboBox" name="MRMLNodeComboBox_PlanSegmentation">
-        <property name="nodeTypes">
+       <widget class="qMRMLNodeComboBox" name="MRMLNodeComboBox_PlanSegmentation" native="true">
+        <property name="nodeTypes" stdset="0">
          <stringlist>
           <string>vtkMRMLSegmentationNode</string>
          </stringlist>
         </property>
-        <property name="noneEnabled">
+        <property name="noneEnabled" stdset="0">
          <bool>true</bool>
         </property>
-        <property name="noneDisplay">
+        <property name="noneDisplay" stdset="0">
          <string>Please select node</string>
         </property>
        </widget>
       </item>
       <item row="3" column="1">
-       <widget class="qMRMLNodeComboBox" name="MRMLNodeComboBox_PlanPOIs">
-        <property name="nodeTypes">
+       <widget class="qMRMLNodeComboBox" name="MRMLNodeComboBox_PlanPOIs" native="true">
+        <property name="nodeTypes" stdset="0">
          <stringlist>
           <string>vtkMRMLMarkupsFiducialNode</string>
          </stringlist>
         </property>
-        <property name="addEnabled">
+        <property name="addEnabled" stdset="0">
          <bool>false</bool>
         </property>
-        <property name="removeEnabled">
+        <property name="removeEnabled" stdset="0">
          <bool>false</bool>
         </property>
        </widget>
@@ -272,25 +272,25 @@
        </layout>
       </item>
       <item row="1" column="1">
-       <widget class="qMRMLNodeComboBox" name="MRMLNodeComboBox_ReferenceVolume">
-        <property name="nodeTypes">
+       <widget class="qMRMLNodeComboBox" name="MRMLNodeComboBox_ReferenceVolume" native="true">
+        <property name="nodeTypes" stdset="0">
          <stringlist>
           <string>vtkMRMLScalarVolumeNode</string>
          </stringlist>
         </property>
-        <property name="showChildNodeTypes">
+        <property name="showChildNodeTypes" stdset="0">
          <bool>false</bool>
         </property>
-        <property name="noneEnabled">
+        <property name="noneEnabled" stdset="0">
          <bool>true</bool>
         </property>
-        <property name="addEnabled">
+        <property name="addEnabled" stdset="0">
          <bool>false</bool>
         </property>
-        <property name="removeEnabled">
+        <property name="removeEnabled" stdset="0">
          <bool>false</bool>
         </property>
-        <property name="noneDisplay">
+        <property name="noneDisplay" stdset="0">
          <string>Please select node</string>
         </property>
        </widget>
@@ -347,22 +347,22 @@
        </widget>
       </item>
       <item row="0" column="1">
-       <widget class="qMRMLNodeComboBox" name="MRMLNodeComboBox_DoseVolume">
-        <property name="nodeTypes">
+       <widget class="qMRMLNodeComboBox" name="MRMLNodeComboBox_DoseVolume" native="true">
+        <property name="nodeTypes" stdset="0">
          <stringlist>
           <string>vtkMRMLScalarVolumeNode</string>
          </stringlist>
         </property>
-        <property name="showChildNodeTypes">
+        <property name="showChildNodeTypes" stdset="0">
          <bool>false</bool>
         </property>
-        <property name="baseName">
+        <property name="baseName" stdset="0">
          <string>TotalDose</string>
         </property>
-        <property name="noneEnabled">
+        <property name="noneEnabled" stdset="0">
          <bool>true</bool>
         </property>
-        <property name="noneDisplay">
+        <property name="noneDisplay" stdset="0">
          <string>Create new output dose volume</string>
         </property>
        </widget>
@@ -375,10 +375,10 @@
        </widget>
       </item>
       <item row="1" column="1">
-       <widget class="qMRMLNodeComboBox" name="MRMLNodeComboBox_DoseROI">
-        <property name="nodeTypes">
+       <widget class="qMRMLNodeComboBox" name="MRMLNodeComboBox_DoseROI" native="true">
+        <property name="nodeTypes" stdset="0">
          <stringlist>
-          <string>vtkMRMLAnnotationROINode</string>
+          <string>vtkMRMLMarkupsNode</string>
          </stringlist>
         </property>
        </widget>
@@ -490,7 +490,7 @@
        <number>4</number>
       </property>
       <item row="1" column="0">
-       <widget class="qMRMLBeamsTableView" name="BeamsTableView">
+       <widget class="qMRMLBeamsTableView" name="BeamsTableView" native="true">
         <property name="sizePolicy">
          <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
           <horstretch>0</horstretch>
