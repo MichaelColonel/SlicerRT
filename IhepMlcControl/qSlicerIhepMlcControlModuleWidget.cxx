@@ -278,12 +278,6 @@ void qSlicerIhepMlcControlModuleWidget::setParameterNode(vtkMRMLNode *node)
 //      qvtkConnect( beamNode, vtkMRMLRTBeamNode::BeamTransformModified, this, SLOT(updateNormalAndVupVectors())); // update beam transform and geo
       parameterNode->SetAndObserveBeamNode(beamNode);
     }
-    if (!parameterNode->GetMlcTableNode())
-    {
-      vtkMRMLTableNode* tableNode = vtkMRMLTableNode::SafeDownCast(d->MRMLNodeComboBox_MlcTable->currentNode());
-//      qvtkConnect( tableNode, vtkCommand::ModifiedEvent, this, SLOT(updateNormalAndVupVectors())); // update mlc shape form
-      parameterNode->SetAndObserveMlcTableNode(tableNode);
-    }
   }
   this->updateWidgetFromMRML();
 }
@@ -300,6 +294,7 @@ void qSlicerIhepMlcControlModuleWidget::onBeamNodeChanged(vtkMRMLNode *node)
   if (beamNode)
   {
     d->ParameterNode->SetAndObserveBeamNode(beamNode);
+    d->MRMLNodeComboBox_MlcTable->setMRMLScene(beamNode->GetScene());
   }
 }
 
@@ -314,7 +309,7 @@ void qSlicerIhepMlcControlModuleWidget::onMlcTableNodeChanged(vtkMRMLNode *node)
   vtkMRMLTableNode* tableNode = vtkMRMLTableNode::SafeDownCast(node);
   if (tableNode)
   {
-    d->ParameterNode->SetAndObserveMlcTableNode(tableNode);
+    d->ParameterNode->GetBeamNode()->SetAndObserveMultiLeafCollimatorTableNode(tableNode);
   }
 }
 
@@ -355,7 +350,7 @@ void qSlicerIhepMlcControlModuleWidget::updateWidgetFromMRML()
   d->PushButton_GenerateMlcBoundary->setEnabled(true);
   d->CheckBox_ParallelBeam->setChecked(parameterNode->GetParallelBeam());
   d->MRMLNodeComboBox_Beam->setCurrentNode(parameterNode->GetBeamNode());
-  d->MRMLNodeComboBox_MlcTable->setCurrentNode(parameterNode->GetMlcTableNode());
+//  d->MRMLNodeComboBox_MlcTable->setCurrentNode(parameterNode->GetMlcTableNode());
   switch (parameterNode->GetOrientation())
   {
   case vtkMRMLIhepMlcControlNode::X:
@@ -600,8 +595,12 @@ void qSlicerIhepMlcControlModuleWidget::onGenerateMlcBoundaryClicked()
     qCritical() << Q_FUNC_INFO << ": Invalid parameter node";
     return;
   }
-  if (d->logic()->CreateMlcTableNodeBoundaryData(d->ParameterNode))
+  if (vtkMRMLTableNode* tableNode = d->logic()->CreateMlcTableNodeBoundaryData(d->ParameterNode))
   {
-    qDebug() << Q_FUNC_INFO << ": Table created";
+    vtkMRMLRTBeamNode* beamNode = d->ParameterNode->GetBeamNode();
+    if (d->logic()->SetBeamParentForMlcTableNode(beamNode, tableNode))
+    {
+      qDebug() << Q_FUNC_INFO << ": Table created";
+    }
   }
 }

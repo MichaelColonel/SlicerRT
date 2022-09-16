@@ -134,11 +134,6 @@ public:
   /// Set and observe beam node. This updates Normal and View-Up vectors.
   void SetAndObserveBeamNode(vtkMRMLRTBeamNode* node);
 
-  /// Get table node
-  vtkMRMLTableNode* GetMlcTableNode();
-  /// Set and observe table node.   
-  void SetAndObserveMlcTableNode(vtkMRMLTableNode* node);
-
 protected:
   vtkMRMLIhepMlcControlNode();
   ~vtkMRMLIhepMlcControlNode() override;

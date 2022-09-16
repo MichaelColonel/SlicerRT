@@ -37,7 +37,6 @@ namespace
 {
 
 const char* BEAM_REFERENCE_ROLE = "beamRef";
-const char* MLC_TABLE_REFERENCE_ROLE = "mlcTableRef";
 
 } // namespace
 
@@ -186,24 +185,6 @@ void vtkMRMLIhepMlcControlNode::SetAndObserveBeamNode(vtkMRMLRTBeamNode* node)
   }
 
   this->SetNodeReferenceID(BEAM_REFERENCE_ROLE, (node ? node->GetID() : nullptr));
-}
-
-//----------------------------------------------------------------------------
-vtkMRMLTableNode* vtkMRMLIhepMlcControlNode::GetMlcTableNode()
-{
-  return vtkMRMLTableNode::SafeDownCast( this->GetNodeReference(MLC_TABLE_REFERENCE_ROLE) );
-}
-
-//----------------------------------------------------------------------------
-void vtkMRMLIhepMlcControlNode::SetAndObserveMlcTableNode(vtkMRMLTableNode* node)
-{
-  if (node && this->Scene != node->GetScene())
-  {
-    vtkErrorMacro("SetAndObserveMlcTableNode: Cannot set reference, the referenced and referencing node are not in the same scene");
-    return;
-  }
-
-  this->SetNodeReferenceID(MLC_TABLE_REFERENCE_ROLE, (node ? node->GetID() : nullptr));
 }
 
 //----------------------------------------------------------------------------

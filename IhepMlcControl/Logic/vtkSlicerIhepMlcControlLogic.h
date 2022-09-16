@@ -34,8 +34,7 @@
 
 #include "vtkSlicerIhepMlcControlModuleLogicExport.h"
 
-class vtkSlicerMLCPositionLogic;
-
+class vtkMRMLRTBeamNode;
 class vtkMRMLIhepMlcControlNode;
 class vtkMRMLTableNode;
 
@@ -61,6 +60,12 @@ public:
   /// \param parameterNode for MLC parameters
   /// \return true if success false otherwise
   bool UpdateMlcTableNodeBoundaryData(vtkMRMLIhepMlcControlNode* parameterNode);
+  /// Set MLC table node for parent beam
+  /// \return true if success false otherwise
+  bool SetBeamParentForMlcTableNode(vtkMRMLRTBeamNode* beamNode, vtkMRMLTableNode* tableNode);
+  /// Set MLC position in parameter node from MLC table node
+  /// \return true if success false otherwise
+  bool SetMlcPositionFromTableNode(vtkMRMLIhepMlcControlNode* parameterNode, vtkMRMLTableNode* tableNode);
 
 protected:
   vtkSlicerIhepMlcControlLogic();
@@ -78,8 +83,6 @@ private:
 
   vtkSlicerIhepMlcControlLogic(const vtkSlicerIhepMlcControlLogic&); // Not implemented
   void operator=(const vtkSlicerIhepMlcControlLogic&); // Not implemented
-
-  vtkWeakPointer<vtkSlicerMLCPositionLogic> MlcPositionLogic;
 };
 
 #endif
