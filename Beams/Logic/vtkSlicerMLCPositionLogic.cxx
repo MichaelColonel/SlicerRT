@@ -179,12 +179,11 @@ vtkMRMLMarkupsCurveNode* vtkSlicerMLCPositionLogic::CalculatePositionConvexHullC
   }
 
   // Create markups node (subject hierarchy node is created automatically)
-//  vtkNew<vtkMRMLMarkupsClosedCurveNode> curveNode;
-//  curveNode->SetCurveTypeToLinear();
-//  curveNode->SetName("MultiLeafCollimatorMinimumConvexHullCurve");
-//  this->GetMRMLScene()->AddNode(curveNode);
-  vtkMRMLMarkupsClosedCurveNode* curveNode = vtkMRMLMarkupsClosedCurveNode::SafeDownCast(
-    this->GetMRMLScene()->AddNewNodeByClass("vtkMRMLMarkupsClosedCurveNode", "MultiLeafCollimatorMinimumConvexHullCurve"));
+  vtkNew<vtkMRMLMarkupsClosedCurveNode> curveNode;
+  curveNode->SetCurveTypeToLinear();
+  curveNode->SetName("MultiLeafCollimatorMinimumConvexHullCurve");
+
+  this->GetMRMLScene()->AddNode(curveNode);
 
   // transform target poly data into beam frame
   vtkNew<vtkTransformPolyDataFilter> beamInverseTransformFilter;
@@ -250,7 +249,7 @@ vtkMRMLMarkupsCurveNode* vtkSlicerMLCPositionLogic::CalculatePositionConvexHullC
     }
 
     delete [] xyCoordinates;
-    return curveNode;
+    return curveNode.GetPointer();
   }
   else
   {

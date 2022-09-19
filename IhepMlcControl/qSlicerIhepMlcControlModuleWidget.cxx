@@ -294,7 +294,6 @@ void qSlicerIhepMlcControlModuleWidget::onBeamNodeChanged(vtkMRMLNode *node)
   if (beamNode)
   {
     d->ParameterNode->SetAndObserveBeamNode(beamNode);
-    d->MRMLNodeComboBox_MlcTable->setMRMLScene(beamNode->GetScene());
   }
 }
 

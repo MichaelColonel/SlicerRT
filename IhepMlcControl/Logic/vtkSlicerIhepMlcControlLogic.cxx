@@ -578,17 +578,38 @@ bool vtkSlicerIhepMlcControlLogic::SetBeamParentForMlcTableNode(vtkMRMLRTBeamNod
 }
 
 //---------------------------------------------------------------------------
-bool vtkSlicerIhepMlcControlLogic::SetMlcPositionFromTableNode(vtkMRMLIhepMlcControlNode* parameterNode, vtkMRMLTableNode* tableNode)
+bool vtkSlicerIhepMlcControlLogic::SetupPositionsFromMlcTableNode(vtkMRMLIhepMlcControlNode* parameterNode,
+  vtkMRMLTableNode* tableNode)
 {
-  if (!parameterNode)
+  if (!parameterNode || !tableNode)
   {
-    vtkErrorMacro("SetMlcPositionFromTableNode: Parameter node is invalid");
+    vtkErrorMacro("SetupPositionsFromMlcTableNode: Parameter or table nodes are invalid");
     return false;
   }
-  if (!tableNode)
+  vtkTable* table = tableNode->GetTable();
+  if (!table)
   {
-    vtkErrorMacro("SetMlcPositionFromTableNode: MLC table node is invalid");
+    vtkErrorMacro("SetupPositionsFromMlcTableNode: table is invalid");
     return false;
   }
+
+  if (table->GetNumberOfRows() != (parameterNode->GetNumberOfLeafPairs() + 1))
+  {
+    vtkErrorMacro("SetupPositionsFromMlcTableNode: Wrong number of leaf pairs in MLC table and parameter nodes");
+    return false;
+  }
+
+  if (table->GetNumberOfColumns() == 6 && parameterNode->GetLayers() == vtkMRMLIhepMlcControlNode::TwoLayers) // two layers
+  {
+  }
+  else if (table->GetNumberOfColumns() == 3 && parameterNode->GetLayers() == vtkMRMLIhepMlcControlNode::OneLayer) // one layer
+  {
+  }
+  else
+  {
+    vtkErrorMacro("SetupPositionsFromMlcTableNode: Wrong number of layers in MLC table and parameter nodes");
+    return false;
+  }
+
   return true;
 }

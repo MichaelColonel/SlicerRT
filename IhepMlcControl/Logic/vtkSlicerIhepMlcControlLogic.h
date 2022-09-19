@@ -60,12 +60,8 @@ public:
   /// \param parameterNode for MLC parameters
   /// \return true if success false otherwise
   bool UpdateMlcTableNodeBoundaryData(vtkMRMLIhepMlcControlNode* parameterNode);
-  /// Set MLC table node for parent beam
-  /// \return true if success false otherwise
   bool SetBeamParentForMlcTableNode(vtkMRMLRTBeamNode* beamNode, vtkMRMLTableNode* tableNode);
-  /// Set MLC position in parameter node from MLC table node
-  /// \return true if success false otherwise
-  bool SetMlcPositionFromTableNode(vtkMRMLIhepMlcControlNode* parameterNode, vtkMRMLTableNode* tableNode);
+  bool SetupPositionsFromMlcTableNode(vtkMRMLIhepMlcControlNode* parameterNode, vtkMRMLTableNode* tableNode);
 
 protected:
   vtkSlicerIhepMlcControlLogic();
