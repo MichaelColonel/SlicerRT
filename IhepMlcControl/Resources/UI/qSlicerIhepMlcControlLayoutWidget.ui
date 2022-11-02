@@ -33,7 +33,7 @@
        <widget class="QWidget" name="scrollAreaWidgetContents">
         <property name="geometry">
          <rect>
-          <x>391</x>
+          <x>366</x>
           <y>0</y>
           <width>28</width>
           <height>396</height>
@@ -113,7 +113,20 @@
      <item row="1" column="0">
       <layout class="QVBoxLayout" name="verticalLayout">
        <item>
-        <widget class="ctkDoubleSlider" name="DoubleSlider_Side1Adjustment">
+        <widget class="QDoubleSpinBox" name="DoubleSpinBox_Side2Adjustment">
+         <property name="minimum">
+          <double>-10.000000000000000</double>
+         </property>
+         <property name="maximum">
+          <double>10.000000000000000</double>
+         </property>
+         <property name="singleStep">
+          <double>0.100000000000000</double>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="ctkDoubleSlider" name="DoubleSlider_Side2Adjustment">
          <property name="singleStep">
           <double>0.100000000000000</double>
          </property>
@@ -139,7 +152,7 @@
         </widget>
        </item>
        <item>
-        <widget class="ctkDoubleSlider" name="DoubleSlider_Side2Adjustment">
+        <widget class="ctkDoubleSlider" name="DoubleSlider_Side1Adjustment">
          <property name="singleStep">
           <double>0.100000000000000</double>
          </property>
@@ -154,6 +167,19 @@
          </property>
          <property name="orientation">
           <enum>Qt::Vertical</enum>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QDoubleSpinBox" name="DoubleSpinBox_Side1Adjustment">
+         <property name="minimum">
+          <double>-10.000000000000000</double>
+         </property>
+         <property name="maximum">
+          <double>10.000000000000000</double>
+         </property>
+         <property name="singleStep">
+          <double>0.100000000000000</double>
          </property>
         </widget>
        </item>
@@ -313,7 +339,72 @@
  <resources>
   <include location="../qSlicerIhepMlcControlModule.qrc"/>
  </resources>
- <connections/>
+ <connections>
+  <connection>
+   <sender>DoubleSpinBox_Side2Adjustment</sender>
+   <signal>valueChanged(double)</signal>
+   <receiver>DoubleSlider_Side2Adjustment</receiver>
+   <slot>setValue(double)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>40</x>
+     <y>51</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>18</x>
+     <y>150</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>DoubleSlider_Side1Adjustment</sender>
+   <signal>valueChanged(double)</signal>
+   <receiver>DoubleSpinBox_Side1Adjustment</receiver>
+   <slot>setValue(double)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>18</x>
+     <y>325</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>42</x>
+     <y>423</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>DoubleSpinBox_Side1Adjustment</sender>
+   <signal>valueChanged(double)</signal>
+   <receiver>DoubleSlider_Side1Adjustment</receiver>
+   <slot>setValue(double)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>40</x>
+     <y>423</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>18</x>
+     <y>325</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>DoubleSlider_Side2Adjustment</sender>
+   <signal>valueChanged(double)</signal>
+   <receiver>DoubleSpinBox_Side2Adjustment</receiver>
+   <slot>setValue(double)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>18</x>
+     <y>150</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>42</x>
+     <y>51</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
  <buttongroups>
   <buttongroup name="ButtonGroup_MlcLayout"/>
  </buttongroups>
