@@ -65,6 +65,10 @@ public slots:
   void onPairOfLeavesAddressChanged(bool,bool);
   void onPairOfLeavesSize2ValueChanged(int);
   void onPairOfLeavesSize1ValueChanged(int);
+  void onSide1AdjustmentChanged(double);
+  void onSide2AdjustmentChanged(double);
+  void onSide1AdjustmentSliderReleased();
+  void onSide2AdjustmentSliderReleased();
 
   // Buttons
   void onSetPredefinedMlcPositionsClicked();

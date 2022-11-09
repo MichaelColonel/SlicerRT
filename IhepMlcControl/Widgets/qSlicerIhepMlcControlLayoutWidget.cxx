@@ -88,6 +88,16 @@ void qSlicerIhepMlcControlLayoutWidgetPrivate::init()
   QObject::connect( this->ButtonGroup_MlcLayout, SIGNAL(buttonClicked(QAbstractButton*)), 
     q, SLOT(onMlcLayerChanged(QAbstractButton*)));
 
+  // Side1 and Side2 adjustment sliders
+  QObject::connect( this->DoubleSlider_Side1Adjustment, SIGNAL(valueChanged(double)),
+    q, SLOT(onSide1AdjustmentChanged(double)));
+  QObject::connect( this->DoubleSlider_Side2Adjustment, SIGNAL(valueChanged(double)),
+    q, SLOT(onSide2AdjustmentChanged(double)));
+  QObject::connect( this->DoubleSlider_Side1Adjustment, SIGNAL(sliderReleased()),
+    q, SLOT(onSide1AdjustmentSliderReleased()));
+  QObject::connect( this->DoubleSlider_Side2Adjustment, SIGNAL(sliderReleased()),
+    q, SLOT(onSide2AdjustmentSliderReleased()));
+
   // Layout widgets (buttons, combo box)
   QObject::connect( this->PushButton_SetPredefinedMlcPositions, SIGNAL(clicked()),
     q, SLOT(onSetPredefinedMlcPositionsClicked()));
@@ -475,4 +485,62 @@ void qSlicerIhepMlcControlLayoutWidget::onCloseMlcClicked()
     qCritical() << Q_FUNC_INFO << ": Invalid parameter node";
     return;
   }
+}
+
+//-----------------------------------------------------------------------------
+void qSlicerIhepMlcControlLayoutWidget::onSide1AdjustmentChanged(double v)
+{
+  Q_D(qSlicerIhepMlcControlLayoutWidget);
+  
+  if (!d->ParameterNode)
+  {
+    qCritical() << Q_FUNC_INFO << ": Invalid parameter node";
+    return;
+  }
+  qDebug() << Q_FUNC_INFO << ": Side 1 adjustment " << v;
+}
+
+//-----------------------------------------------------------------------------
+void qSlicerIhepMlcControlLayoutWidget::onSide2AdjustmentChanged(double v)
+{
+  Q_D(qSlicerIhepMlcControlLayoutWidget);
+  
+  if (!d->ParameterNode)
+  {
+    qCritical() << Q_FUNC_INFO << ": Invalid parameter node";
+    return;
+  }
+  qDebug() << Q_FUNC_INFO << ": Side 2 adjustment " << v;
+}
+
+//-----------------------------------------------------------------------------
+void qSlicerIhepMlcControlLayoutWidget::onSide1AdjustmentSliderReleased()
+{
+  Q_D(qSlicerIhepMlcControlLayoutWidget);
+  
+  if (!d->ParameterNode)
+  {
+    qCritical() << Q_FUNC_INFO << ": Invalid parameter node";
+    return;
+  }
+  QSignalBlocker blocker1(d->DoubleSlider_Side1Adjustment);
+  QSignalBlocker blocker2(d->DoubleSpinBox_Side1Adjustment);
+  d->DoubleSlider_Side1Adjustment->setValue(0.);
+  d->DoubleSpinBox_Side1Adjustment->setValue(0.);
+}
+
+//-----------------------------------------------------------------------------
+void qSlicerIhepMlcControlLayoutWidget::onSide2AdjustmentSliderReleased()
+{
+  Q_D(qSlicerIhepMlcControlLayoutWidget);
+  
+  if (!d->ParameterNode)
+  {
+    qCritical() << Q_FUNC_INFO << ": Invalid parameter node";
+    return;
+  }
+  QSignalBlocker blocker1(d->DoubleSlider_Side2Adjustment);
+  QSignalBlocker blocker2(d->DoubleSpinBox_Side2Adjustment);
+  d->DoubleSlider_Side2Adjustment->setValue(0.);
+  d->DoubleSpinBox_Side2Adjustment->setValue(0.);
 }

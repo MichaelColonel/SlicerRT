@@ -114,6 +114,9 @@
       <layout class="QVBoxLayout" name="verticalLayout">
        <item>
         <widget class="QDoubleSpinBox" name="DoubleSpinBox_Side2Adjustment">
+         <property name="readOnly">
+          <bool>true</bool>
+         </property>
          <property name="minimum">
           <double>-10.000000000000000</double>
          </property>
@@ -172,6 +175,9 @@
        </item>
        <item>
         <widget class="QDoubleSpinBox" name="DoubleSpinBox_Side1Adjustment">
+         <property name="readOnly">
+          <bool>true</bool>
+         </property>
          <property name="minimum">
           <double>-10.000000000000000</double>
          </property>
