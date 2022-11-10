@@ -192,8 +192,8 @@ void qSlicerIhepMlcControlModuleWidget::enter()
   qSlicerApplication* slicerApplication = qSlicerApplication::application();
   qSlicerLayoutManager* layoutManager = slicerApplication->layoutManager();
   d->PreviousLayoutId = layoutManager->layout();
-//  layoutManager->setLayout(d->MlcCustomLayoutId);
-//  QTimer::singleShot(100, this, SLOT(onSetMlcControlLayout()));
+  layoutManager->setLayout(d->MlcCustomLayoutId);
+  QTimer::singleShot(100, this, SLOT(onSetMlcControlLayout()));
 }
 
 //-----------------------------------------------------------------------------
