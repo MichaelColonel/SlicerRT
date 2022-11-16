@@ -70,6 +70,9 @@ public slots:
   void onSide1AdjustmentSliderReleased();
   void onSide2AdjustmentSliderReleased();
 
+  // Combo box
+  void onMlcPredefinedIndexChanged(int);
+
   // Buttons
   void onSetPredefinedMlcPositionsClicked();
   void onApplyPredefinedMlcPositionsClicked();

@@ -41,6 +41,16 @@ struct ContainerWidgets {
   QLabel* Side2StateLabel{ nullptr };
 };
 
+const struct PredefinedPositionDescription {
+  vtkMRMLIhepMlcControlNode::PredefinedPositionType PredefinedPosition;
+  const char* ComboBoxText;
+  const char* DetailedDescriptionText;
+} predefinedPosition[3] = {
+  { vtkMRMLIhepMlcControlNode::Side1Edge, "Side-1 edge", "Edge or ramp on side-1" },
+  { vtkMRMLIhepMlcControlNode::Side2Edge, "Side-2 edge", "Edge or ramp on side-2" },
+  { vtkMRMLIhepMlcControlNode::PredefinedPosition_Last, nullptr, nullptr }
+};
+
 }
 
 //-----------------------------------------------------------------------------
@@ -84,6 +94,13 @@ void qSlicerIhepMlcControlLayoutWidgetPrivate::init()
 {
   Q_Q(qSlicerIhepMlcControlLayoutWidget);
 
+  int i = 0;
+  while (predefinedPosition[i].PredefinedPosition != vtkMRMLIhepMlcControlNode::PredefinedPosition_Last)
+  {
+    this->ComboBox_MlcPositions->addItem(predefinedPosition[i].ComboBoxText);
+    ++i;
+  }
+
   // MLC layer button group
   QObject::connect( this->ButtonGroup_MlcLayout, SIGNAL(buttonClicked(QAbstractButton*)), 
     q, SLOT(onMlcLayerChanged(QAbstractButton*)));
@@ -99,6 +116,9 @@ void qSlicerIhepMlcControlLayoutWidgetPrivate::init()
     q, SLOT(onSide2AdjustmentSliderReleased()));
 
   // Layout widgets (buttons, combo box)
+  QObject::connect( this->ComboBox_MlcPositions, SIGNAL(currentIndexChanged(int)),
+    q, SLOT(onMlcPredefinedIndexChanged(int)));
+
   QObject::connect( this->PushButton_SetPredefinedMlcPositions, SIGNAL(clicked()),
     q, SLOT(onSetPredefinedMlcPositionsClicked()));
   QObject::connect( this->PushButton_ApplyPredefinedMlcPositions, SIGNAL(clicked()),
@@ -442,13 +462,6 @@ void qSlicerIhepMlcControlLayoutWidget::onPairOfLeavesSize1ValueChanged(int)
 //-----------------------------------------------------------------------------
 void qSlicerIhepMlcControlLayoutWidget::onSetPredefinedMlcPositionsClicked()
 {
-  Q_D(qSlicerIhepMlcControlLayoutWidget);
-  
-  if (!d->ParameterNode)
-  {
-    qCritical() << Q_FUNC_INFO << ": Invalid parameter node";
-    return;
-  }
 }
 
 //-----------------------------------------------------------------------------
@@ -460,6 +473,42 @@ void qSlicerIhepMlcControlLayoutWidget::onApplyPredefinedMlcPositionsClicked()
   {
     qCritical() << Q_FUNC_INFO << ": Invalid parameter node";
     return;
+  }
+
+  vtkMRMLIhepMlcControlNode::LayerType selectedMlcLayer = vtkMRMLIhepMlcControlNode::Layer_Last;
+  if (d->RadioButton_MlcLayer1->isChecked())
+  {
+    selectedMlcLayer = vtkMRMLIhepMlcControlNode::Layer1;
+  }
+  else if (d->RadioButton_MlcLayer2->isChecked())
+  {
+    selectedMlcLayer = vtkMRMLIhepMlcControlNode::Layer2;
+  }
+
+  int index = d->ComboBox_MlcPositions->currentIndex();
+  vtkMRMLIhepMlcControlNode::PredefinedPositionType predefPosition = predefinedPosition[index].PredefinedPosition;
+  if (predefPosition != vtkMRMLIhepMlcControlNode::PredefinedPosition_Last
+    && selectedMlcLayer != vtkMRMLIhepMlcControlNode::Layer_Last)
+  {
+    d->ParameterNode->SetPredefinedPosition(selectedMlcLayer, predefPosition);
+
+    // Fill leaves container with a new number of leaf pairs
+    for (int i = 0; i < d->ParameterNode->GetNumberOfLeafPairs(); ++i)
+    {
+      vtkMRMLIhepMlcControlNode::PairOfLeavesData leavesData;
+      if (!d->ParameterNode->GetPairOfLeavesData( leavesData, i, selectedMlcLayer))
+      {
+        qWarning() << Q_FUNC_INFO << ": Unable to get pair of leaves data";
+        break;
+      }
+      ContainerWidgets& pairOfLeavesWidgets = d->ContainerWidgetsVector[i];
+
+      const vtkMRMLIhepMlcControlNode::LeafData& side1 = leavesData.first;
+      pairOfLeavesWidgets.PairOfLeavesWidget->setMinRequiredValue(side1.Steps);
+
+      const vtkMRMLIhepMlcControlNode::LeafData& side2 = leavesData.second;
+      pairOfLeavesWidgets.PairOfLeavesWidget->setMaxRequiredValue(side2.Steps);
+    }
   }
 }
 
@@ -485,6 +534,20 @@ void qSlicerIhepMlcControlLayoutWidget::onCloseMlcClicked()
     qCritical() << Q_FUNC_INFO << ": Invalid parameter node";
     return;
   }
+}
+
+//-----------------------------------------------------------------------------
+void qSlicerIhepMlcControlLayoutWidget::onMlcPredefinedIndexChanged(int index)
+{
+  Q_D(qSlicerIhepMlcControlLayoutWidget);
+  
+  if (!d->ParameterNode)
+  {
+    qCritical() << Q_FUNC_INFO << ": Invalid parameter node";
+    return;
+  }
+  qDebug() << Q_FUNC_INFO << ": Predefined MLC position index is changed";
+  d->LineEdit_MlcDescription->setText(predefinedPosition[index].DetailedDescriptionText);
 }
 
 //-----------------------------------------------------------------------------

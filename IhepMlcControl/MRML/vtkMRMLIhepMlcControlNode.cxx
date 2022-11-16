@@ -191,7 +191,7 @@ void vtkMRMLIhepMlcControlNode::SetAndObserveBeamNode(vtkMRMLRTBeamNode* node)
 bool vtkMRMLIhepMlcControlNode::GetPairOfLeavesData(vtkMRMLIhepMlcControlNode::PairOfLeavesData& pairOfLeaves,
   int index, vtkMRMLIhepMlcControlNode::LayerType layer)
 {
-  int key = index + vtkMRMLIhepMlcControlNode::IHEP_LAYERS * static_cast<int>(layer);
+  int key = index + this->NumberOfLeafPairs * static_cast<int>(layer);
   auto it = this->LeavesDataMap.find(key);
   if (it != this->LeavesDataMap.end())
   {
@@ -205,7 +205,7 @@ bool vtkMRMLIhepMlcControlNode::GetPairOfLeavesData(vtkMRMLIhepMlcControlNode::P
 bool vtkMRMLIhepMlcControlNode::SetPairOfLeavesData(const vtkMRMLIhepMlcControlNode::PairOfLeavesData& pairOfLeaves,
   int index, vtkMRMLIhepMlcControlNode::LayerType layer)
 {
-  int key = index + vtkMRMLIhepMlcControlNode::IHEP_LAYERS * static_cast<int>(layer);
+  int key = index + this->NumberOfLeafPairs * static_cast<int>(layer);
   auto it = this->LeavesDataMap.find(key);
   if (it != this->LeavesDataMap.end())
   {
@@ -220,7 +220,7 @@ bool vtkMRMLIhepMlcControlNode::SetPairOfLeavesData(const vtkMRMLIhepMlcControlN
 bool vtkMRMLIhepMlcControlNode::GetLeafData(vtkMRMLIhepMlcControlNode::LeafData& leafData,
   int index, vtkMRMLIhepMlcControlNode::SideType side, vtkMRMLIhepMlcControlNode::LayerType layer)
 {
-  int key = index + vtkMRMLIhepMlcControlNode::IHEP_LAYERS * static_cast<int>(layer);
+  int key = index + this->NumberOfLeafPairs * static_cast<int>(layer);
   auto it = this->LeavesDataMap.find(key);
   if (it != this->LeavesDataMap.end())
   {
@@ -241,6 +241,68 @@ bool vtkMRMLIhepMlcControlNode::GetLeafData(vtkMRMLIhepMlcControlNode::LeafData&
   }
   return false;
 }
+
+//----------------------------------------------------------------------------
+bool vtkMRMLIhepMlcControlNode::SetLeafData(const vtkMRMLIhepMlcControlNode::LeafData& leafData, int index,
+  vtkMRMLIhepMlcControlNode::SideType side, vtkMRMLIhepMlcControlNode::LayerType layer)
+{
+  int key = index + this->NumberOfLeafPairs * static_cast<int>(layer);
+  auto it = this->LeavesDataMap.find(key);
+  if (it != this->LeavesDataMap.end())
+  {
+    bool res = true;
+    switch (side)
+    {
+    case vtkMRMLIhepMlcControlNode::Side1:
+      it->second.first = leafData;
+      break;
+    case vtkMRMLIhepMlcControlNode::Side2:
+      it->second.second = leafData;
+      break;
+    default:
+      res = false;
+      break;
+    }
+    return res;
+  }
+  return false;
+}
+
+//----------------------------------------------------------------------------
+void vtkMRMLIhepMlcControlNode::SetPredefinedPosition(vtkMRMLIhepMlcControlNode::LayerType layer,
+  vtkMRMLIhepMlcControlNode::PredefinedPositionType predef)
+{
+  double axisWidth = this->PairOfLeavesSize * this->NumberOfLeafPairs;
+  double tanAngle = IHEP_SIDE_OPENING / axisWidth;
+
+  vtkMRMLIhepMlcControlNode::LeafData leafData;
+  switch (predef)
+  {
+  case Side1Edge:
+    {
+      for (int i = 0; i < this->NumberOfLeafPairs; ++i)
+      {
+        this->GetLeafData(leafData, i, vtkMRMLIhepMlcControlNode::Side1, layer);
+        leafData.Steps = IHEP_MOTOR_STEPS_PER_MM * (i * this->PairOfLeavesSize) * tanAngle + 400;
+        this->SetLeafData(leafData, i, vtkMRMLIhepMlcControlNode::Side1, layer);
+      }
+    }
+    break;
+  case Side2Edge:
+    {
+      for (int i = 0; i < this->NumberOfLeafPairs; ++i)
+      {
+        this->GetLeafData(leafData, i, vtkMRMLIhepMlcControlNode::Side2, layer);
+        leafData.Steps = IHEP_MOTOR_STEPS_PER_MM * (i * this->PairOfLeavesSize) * tanAngle + 400;
+        this->SetLeafData(leafData, i, vtkMRMLIhepMlcControlNode::Side2, layer);
+      }
+    }
+    break;
+  default:
+    break;
+  }
+}
+
 //----------------------------------------------------------------------------
 void vtkMRMLIhepMlcControlNode::SetMlcLeavesClosed()
 {
