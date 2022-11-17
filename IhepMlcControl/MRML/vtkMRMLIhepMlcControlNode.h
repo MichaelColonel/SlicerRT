@@ -38,6 +38,7 @@ public:
   static constexpr int IHEP_MOTOR_STEPS_PER_MM{ static_cast<int>(IHEP_MOTOR_STEPS_PER_TURN / IHEP_AXIS_DISTANCE_PER_TURN) };
   static constexpr int IHEP_EXTERNAL_COUNTS_PER_TURN{ 100 };
   static constexpr int IHEP_EXTERNAL_COUNTS_PER_MM{ static_cast<int>(IHEP_EXTERNAL_COUNTS_PER_TURN / IHEP_AXIS_DISTANCE_PER_TURN) };
+  static constexpr int IHEP_SIDE_OPENING_STEPS{ static_cast<int>(IHEP_MOTOR_STEPS_PER_TURN * IHEP_SIDE_OPENING / IHEP_AXIS_DISTANCE_PER_TURN) };
   static constexpr int IHEP_LAYERS{ 2 };
   static constexpr int IHEP_PAIR_OF_LEAVES_PER_LAYER{ 16 };
 
@@ -49,7 +50,7 @@ public:
   enum PredefinedPositionType : int {
     Side1Edge = 0,
     Side2Edge,
-    DoubleSideEdge,
+    DoubleSidedEdge,
     Circle,
     Square,
     PredefinedPosition_Last

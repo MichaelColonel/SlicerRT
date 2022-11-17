@@ -45,9 +45,12 @@ const struct PredefinedPositionDescription {
   vtkMRMLIhepMlcControlNode::PredefinedPositionType PredefinedPosition;
   const char* ComboBoxText;
   const char* DetailedDescriptionText;
-} predefinedPosition[3] = {
+} predefinedPosition[6] = {
   { vtkMRMLIhepMlcControlNode::Side1Edge, "Side-1 edge", "Edge or ramp on side-1" },
   { vtkMRMLIhepMlcControlNode::Side2Edge, "Side-2 edge", "Edge or ramp on side-2" },
+  { vtkMRMLIhepMlcControlNode::DoubleSidedEdge, "Double sided edge", "Edge or ramp from both sides" },
+  { vtkMRMLIhepMlcControlNode::Square, "Square", "Square shape" },
+  { vtkMRMLIhepMlcControlNode::Circle, "Circle", "Circle shape" },
   { vtkMRMLIhepMlcControlNode::PredefinedPosition_Last, nullptr, nullptr }
 };
 

@@ -298,6 +298,66 @@ void vtkMRMLIhepMlcControlNode::SetPredefinedPosition(vtkMRMLIhepMlcControlNode:
       }
     }
     break;
+  case DoubleSidedEdge:
+    {
+    {
+      for (int i = 0; i < this->NumberOfLeafPairs; ++i)
+      {
+        int pos = IHEP_MOTOR_STEPS_PER_MM * (i * this->PairOfLeavesSize) * tanAngle + 400;
+        this->GetLeafData(leafData, i, vtkMRMLIhepMlcControlNode::Side1, layer);
+        leafData.Steps = pos;
+        this->SetLeafData(leafData, i, vtkMRMLIhepMlcControlNode::Side1, layer);
+
+        this->GetLeafData(leafData, i, vtkMRMLIhepMlcControlNode::Side2, layer);
+        leafData.Steps = pos;
+        this->SetLeafData(leafData, i, vtkMRMLIhepMlcControlNode::Side2, layer);
+      }
+    }
+    }
+    break;
+  case Square:
+    {
+      for (int i = 0; i < this->NumberOfLeafPairs; ++i)
+      {
+        int pos = 19300;
+        if (i > 3 && i < 12)
+        {
+          pos = (vtkMRMLIhepMlcControlNode::IHEP_MOTOR_STEPS_PER_MM) * 12 * this->PairOfLeavesSize;
+        }
+
+        this->GetLeafData(leafData, i, vtkMRMLIhepMlcControlNode::Side1, layer);
+        leafData.Steps = pos;
+        this->SetLeafData(leafData, i, vtkMRMLIhepMlcControlNode::Side1, layer);
+
+        this->GetLeafData(leafData, i, vtkMRMLIhepMlcControlNode::Side2, layer);
+        leafData.Steps = pos;
+        this->SetLeafData(leafData, i, vtkMRMLIhepMlcControlNode::Side2, layer);
+      }
+    }
+    break;
+  case Circle:
+    {
+      constexpr double radius = 40.; // mm
+      double centerOffset = this->PairOfLeavesSize * this->NumberOfLeafPairs / 2.;
+      for (int i = 0; i < this->NumberOfLeafPairs; ++i)
+      {
+        double centerPos = this->PairOfLeavesSize * (i + 0.5) - centerOffset;
+        int pos = 19300;
+        if (std::fabs(centerPos) < radius)
+        {
+          pos = 19300 - static_cast<int>(sqrt(radius * radius - centerPos * centerPos) * vtkMRMLIhepMlcControlNode::IHEP_MOTOR_STEPS_PER_MM);
+        }
+        
+        this->GetLeafData(leafData, i, vtkMRMLIhepMlcControlNode::Side1, layer);
+        leafData.Steps = pos;
+        this->SetLeafData(leafData, i, vtkMRMLIhepMlcControlNode::Side1, layer);
+
+        this->GetLeafData(leafData, i, vtkMRMLIhepMlcControlNode::Side2, layer);
+        leafData.Steps = pos;
+        this->SetLeafData(leafData, i, vtkMRMLIhepMlcControlNode::Side2, layer);
+      }
+    }
+    break;
   default:
     break;
   }
