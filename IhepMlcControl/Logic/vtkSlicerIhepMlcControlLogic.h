@@ -58,8 +58,9 @@ public:
   vtkMRMLTableNode* CreateMlcTableNodeBoundaryData(vtkMRMLIhepMlcControlNode* parameterNode);
   /// Update a already created table node with the Multi Leaf Collimator boundary data.
   /// \param parameterNode for MLC parameters
+  /// \param mlcTableNode table where parameters should be updated
   /// \return true if success false otherwise
-  bool UpdateMlcTableNodeBoundaryData(vtkMRMLIhepMlcControlNode* parameterNode);
+  bool UpdateMlcTableNodeBoundaryData(vtkMRMLIhepMlcControlNode* parameterNode, vtkMRMLTableNode* mlcTableNode);
   bool SetBeamParentForMlcTableNode(vtkMRMLRTBeamNode* beamNode, vtkMRMLTableNode* tableNode);
   bool SetupPositionsFromMlcTableNode(vtkMRMLIhepMlcControlNode* parameterNode, vtkMRMLTableNode* tableNode);
 

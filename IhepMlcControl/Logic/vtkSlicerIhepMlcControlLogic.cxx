@@ -182,7 +182,7 @@ void vtkSlicerIhepMlcControlLogic::ProcessMRMLNodesEvents(vtkObject* caller, uns
 //  }
   if (caller->IsA("vtkMRMLIhepMlcControlNode"))
   {
-    vtkMRMLIhepMlcControlNode* parameterNode = vtkMRMLIhepMlcControlNode::SafeDownCast(caller);
+//    vtkMRMLIhepMlcControlNode* parameterNode = vtkMRMLIhepMlcControlNode::SafeDownCast(caller);
 
     if (event == vtkCommand::ModifiedEvent)
     {
@@ -210,7 +210,7 @@ vtkMRMLTableNode* vtkSlicerIhepMlcControlLogic::CreateMlcTableNodeBoundaryData(v
   if (vtkMRMLTableNode* tableNode = beamNode->GetMultiLeafCollimatorTableNode())
   {
     // update
-    if (this->UpdateMlcTableNodeBoundaryData(parameterNode))
+    if (this->UpdateMlcTableNodeBoundaryData(parameterNode, tableNode))
     {
       return tableNode;
     }
@@ -376,26 +376,27 @@ vtkMRMLTableNode* vtkSlicerIhepMlcControlLogic::CreateMlcTableNodeBoundaryData(v
 }
 
 //---------------------------------------------------------------------------
-bool vtkSlicerIhepMlcControlLogic::UpdateMlcTableNodeBoundaryData(vtkMRMLIhepMlcControlNode* parameterNode)
+bool vtkSlicerIhepMlcControlLogic::UpdateMlcTableNodeBoundaryData(vtkMRMLIhepMlcControlNode* parameterNode, vtkMRMLTableNode* mlcTableNode)
 {
-  vtkMRMLRTBeamNode* beamNode = parameterNode->GetBeamNode();
-
-  vtkTable* table = nullptr;
-  vtkMRMLTableNode* tableNode = beamNode->GetMultiLeafCollimatorTableNode();
-  if (tableNode)
+  if (!parameterNode || (parameterNode && !parameterNode->GetBeamNode()))
   {
-    table = tableNode->GetTable();
-  }
-
-  if (table)
-  {
-    table->RemoveAllRows();
-  }
-  else
-  {
-    vtkErrorMacro("UpdateMlcTableNodeBoundaryData: Unable to get MLC table");
+    vtkErrorMacro("UpdateMlcTableNodeBoundaryData: Parameter or beam node (or both) are invalid");
     return false;
   }
+
+  if (!mlcTableNode)
+  {
+    vtkErrorMacro("UpdateMlcTableNodeBoundaryData: Table node is invalid");
+    return false;
+  }
+
+  vtkTable* table = mlcTableNode->GetTable();
+  if (!table)
+  {
+    vtkErrorMacro("UpdateMlcTableNodeBoundaryData: Unable to get vtkTable to update MLC data");
+    return false;
+  }
+
   vtkMRMLIhepMlcControlNode::OrientationType orientation = parameterNode->GetOrientation();
   const char* name = nullptr;
   switch (orientation)
@@ -480,10 +481,10 @@ bool vtkSlicerIhepMlcControlLogic::UpdateMlcTableNodeBoundaryData(vtkMRMLIhepMlc
     }
     table->SetValue(parameterNode->GetNumberOfLeafPairs(), 1, 0.); // side "1" set last unused value to zero
     table->SetValue(parameterNode->GetNumberOfLeafPairs(), 2, 0.); // side "2" set last unused value to zero
-    tableNode->SetUseColumnNameAsColumnHeader(true);
-    tableNode->SetColumnDescription( "Boundary-1", "Pair of leaves boundary for the first layer");
-    tableNode->SetColumnDescription( "1-1", "Leaf position on the side \"1\" for the first layer");
-    tableNode->SetColumnDescription( "1-2", "Leaf position on the side \"2\" for the first layer");
+    mlcTableNode->SetUseColumnNameAsColumnHeader(true);
+    mlcTableNode->SetColumnDescription( "Boundary-1", "Pair of leaves boundary for the first layer");
+    mlcTableNode->SetColumnDescription( "1-1", "Leaf position on the side \"1\" for the first layer");
+    mlcTableNode->SetColumnDescription( "1-2", "Leaf position on the side \"2\" for the first layer");
 
     table->SetNumberOfRows(leafPairsBoundary2.size());
     for (size_t row = 0; row < leafPairsBoundary2.size(); ++row)
@@ -498,9 +499,9 @@ bool vtkSlicerIhepMlcControlLogic::UpdateMlcTableNodeBoundaryData(vtkMRMLIhepMlc
     }
     table->SetValue(parameterNode->GetNumberOfLeafPairs(), 4, 0.); // side "1" set last unused value to zero
     table->SetValue(parameterNode->GetNumberOfLeafPairs(), 5, 0.); // side "2" set last unused value to zero
-    tableNode->SetColumnDescription( "Boundary-2", "Pair of leaves boundary for the second layer");
-    tableNode->SetColumnDescription( "2-1", "Leaf position on the side \"1\" for the second layer");
-    tableNode->SetColumnDescription( "2-2", "Leaf position on the side \"2\" for the second layer");
+    mlcTableNode->SetColumnDescription( "Boundary-2", "Pair of leaves boundary for the second layer");
+    mlcTableNode->SetColumnDescription( "2-1", "Leaf position on the side \"1\" for the second layer");
+    mlcTableNode->SetColumnDescription( "2-2", "Leaf position on the side \"2\" for the second layer");
     return true;
   }
   // for the one layer MLC
@@ -534,10 +535,10 @@ bool vtkSlicerIhepMlcControlLogic::UpdateMlcTableNodeBoundaryData(vtkMRMLIhepMlc
   table->SetValue(parameterNode->GetNumberOfLeafPairs(), 1, 0.); // side "1" set last unused value to zero
   table->SetValue(parameterNode->GetNumberOfLeafPairs(), 2, 0.); // side "2" set last unused value to zero
 
-  tableNode->SetUseColumnNameAsColumnHeader(true);
-  tableNode->SetColumnDescription( "Boundary", "Leaf pair boundary");
-  tableNode->SetColumnDescription( "1", "Leaf position on the side \"1\"");
-  tableNode->SetColumnDescription( "2", "Leaf position on the side \"2\"");
+  mlcTableNode->SetUseColumnNameAsColumnHeader(true);
+  mlcTableNode->SetColumnDescription( "Boundary", "Leaf pair boundary");
+  mlcTableNode->SetColumnDescription( "1", "Leaf position on the side \"1\"");
+  mlcTableNode->SetColumnDescription( "2", "Leaf position on the side \"2\"");
   return true;
 }
 

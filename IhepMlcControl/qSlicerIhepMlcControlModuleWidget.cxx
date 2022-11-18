@@ -147,6 +147,8 @@ void qSlicerIhepMlcControlModuleWidget::setup()
     this, SLOT(onParallelBeamToggled(bool)));
   QObject::connect( d->PushButton_GenerateMlcBoundary, SIGNAL(clicked()),
     this, SLOT(onGenerateMlcBoundaryClicked()));
+  QObject::connect( d->PushButton_UpdateMlcBoundary, SIGNAL(clicked()),
+    this, SLOT(onUpdateMlcBoundaryClicked()));
 
   // Sliders
   QObject::connect( d->SliderWidget_NumberOfLeavesPairs, SIGNAL(valueChanged(double)),
@@ -309,6 +311,14 @@ void qSlicerIhepMlcControlModuleWidget::onMlcTableNodeChanged(vtkMRMLNode *node)
   if (tableNode)
   {
     d->ParameterNode->GetBeamNode()->SetAndObserveMultiLeafCollimatorTableNode(tableNode);
+    d->PushButton_GenerateMlcBoundary->setEnabled(false);
+    d->PushButton_UpdateMlcBoundary->setEnabled(true);
+  }
+  else
+  {
+    d->ParameterNode->GetBeamNode()->SetAndObserveMultiLeafCollimatorTableNode(nullptr);
+    d->PushButton_GenerateMlcBoundary->setEnabled(true);
+    d->PushButton_UpdateMlcBoundary->setEnabled(false);
   }
 }
 
@@ -346,10 +356,20 @@ void qSlicerIhepMlcControlModuleWidget::updateWidgetFromMRML()
   }
 
   // Update widgets from parameter node
-  d->PushButton_GenerateMlcBoundary->setEnabled(true);
   d->CheckBox_ParallelBeam->setChecked(parameterNode->GetParallelBeam());
   d->MRMLNodeComboBox_Beam->setCurrentNode(parameterNode->GetBeamNode());
-//  d->MRMLNodeComboBox_MlcTable->setCurrentNode(parameterNode->GetMlcTableNode());
+  if (vtkMRMLTableNode* mlcTable = parameterNode->GetBeamNode()->GetMultiLeafCollimatorTableNode())
+  {
+    d->MRMLNodeComboBox_MlcTable->setCurrentNode(parameterNode->GetBeamNode()->GetMultiLeafCollimatorTableNode());
+    d->PushButton_GenerateMlcBoundary->setEnabled(false);
+    d->PushButton_UpdateMlcBoundary->setEnabled(true);
+  }
+  else
+  {
+    d->PushButton_GenerateMlcBoundary->setEnabled(true);
+    d->PushButton_UpdateMlcBoundary->setEnabled(false);
+  }
+  
   switch (parameterNode->GetOrientation())
   {
   case vtkMRMLIhepMlcControlNode::X:
@@ -600,6 +620,33 @@ void qSlicerIhepMlcControlModuleWidget::onGenerateMlcBoundaryClicked()
     if (d->logic()->SetBeamParentForMlcTableNode(beamNode, tableNode))
     {
       qDebug() << Q_FUNC_INFO << ": Table created";
+    }
+  }
+}
+
+//-----------------------------------------------------------------------------
+void qSlicerIhepMlcControlModuleWidget::onUpdateMlcBoundaryClicked()
+{
+  Q_D(qSlicerIhepMlcControlModuleWidget);
+  
+  if (!d->ParameterNode)
+  {
+    qCritical() << Q_FUNC_INFO << ": Invalid parameter node";
+    return;
+  }
+
+  if (!d->ParameterNode->GetBeamNode())
+  {
+    qCritical() << Q_FUNC_INFO << ": Invalid RTBeam node";
+    return;
+  }
+
+  if (vtkMRMLTableNode* tableNode = d->ParameterNode->GetBeamNode()->GetMultiLeafCollimatorTableNode())
+  {
+    tableNode->RemoveAllColumns();
+    if (d->logic()->UpdateMlcTableNodeBoundaryData(d->ParameterNode, tableNode))
+    {
+      qDebug() << Q_FUNC_INFO << ": Table updated";
     }
   }
 }

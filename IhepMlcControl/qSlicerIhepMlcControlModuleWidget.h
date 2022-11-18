@@ -62,6 +62,7 @@ public slots:
   void onMlcLayersButtonClicked(QAbstractButton* button);
   void onMlcOrientationButtonClicked(QAbstractButton* button);
   void onGenerateMlcBoundaryClicked();
+  void onUpdateMlcBoundaryClicked();
 
   // Custom widget layout
   void onSwitchToMlcControlLayoutToggled(bool toggled = true);
