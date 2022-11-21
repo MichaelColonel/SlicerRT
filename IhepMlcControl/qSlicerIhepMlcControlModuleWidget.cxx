@@ -358,9 +358,9 @@ void qSlicerIhepMlcControlModuleWidget::updateWidgetFromMRML()
   // Update widgets from parameter node
   d->CheckBox_ParallelBeam->setChecked(parameterNode->GetParallelBeam());
   d->MRMLNodeComboBox_Beam->setCurrentNode(parameterNode->GetBeamNode());
-  if (vtkMRMLTableNode* mlcTable = parameterNode->GetBeamNode()->GetMultiLeafCollimatorTableNode())
+  if (vtkMRMLTableNode* mlcTableNode = parameterNode->GetBeamNode()->GetMultiLeafCollimatorTableNode())
   {
-    d->MRMLNodeComboBox_MlcTable->setCurrentNode(parameterNode->GetBeamNode()->GetMultiLeafCollimatorTableNode());
+    d->MRMLNodeComboBox_MlcTable->setCurrentNode(mlcTableNode);
     d->PushButton_GenerateMlcBoundary->setEnabled(false);
     d->PushButton_UpdateMlcBoundary->setEnabled(true);
   }

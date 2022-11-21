@@ -58,6 +58,8 @@ const char* MLCY_BOUNDARYANDPOSITION = "MLCY_BoundaryAndPosition";
 
 //----------------------------------------------------------------------------
 vtkStandardNewMacro(vtkSlicerIhepMlcControlLogic);
+//----------------------------------------------------------------------------
+vtkCxxSetObjectMacro(vtkSlicerIhepMlcControlLogic, BeamsLogic, vtkSlicerBeamsModuleLogic);
 
 //----------------------------------------------------------------------------
 vtkSlicerIhepMlcControlLogic::vtkSlicerIhepMlcControlLogic()
@@ -67,6 +69,7 @@ vtkSlicerIhepMlcControlLogic::vtkSlicerIhepMlcControlLogic()
 //----------------------------------------------------------------------------
 vtkSlicerIhepMlcControlLogic::~vtkSlicerIhepMlcControlLogic()
 {
+  this->SetBeamsLogic(nullptr);
 }
 
 //----------------------------------------------------------------------------
@@ -256,16 +259,35 @@ vtkMRMLTableNode* vtkSlicerIhepMlcControlLogic::CreateMlcTableNodeBoundaryData(v
   // Layer-2
   std::vector<double> leafPairsBoundary2;
   double middle = parameterNode->GetPairOfLeavesSize() * parameterNode->GetNumberOfLeafPairs() / 2.;
-  for(auto iter = leafPairsBoundary1.begin(); iter != leafPairsBoundary1.end(); ++iter)
+  for (auto iter = leafPairsBoundary1.begin(); iter != leafPairsBoundary1.end(); ++iter)
   {
     size_t pos = iter - leafPairsBoundary1.begin();
-    *iter = -middle + parameterNode->GetIsocenterOffset() + pos * parameterNode->GetPairOfLeavesSize();
+    double leafBoundary = -middle + parameterNode->GetIsocenterOffset() + pos * parameterNode->GetPairOfLeavesSize();
+    if (!parameterNode->GetParallelBeam()) // correction for non parallel beam
+    {
+      // put correction here
+    }
+    *iter = leafBoundary;
   }
   if (nofLayers == vtkMRMLIhepMlcControlNode::TwoLayers)
   {
-    for(double pairOfLevesBoundary : leafPairsBoundary1)
+    if (parameterNode->GetParallelBeam()) // parallel beam is simple
     {
-      leafPairsBoundary2.push_back(pairOfLevesBoundary + parameterNode->GetOffsetBetweenTwoLayers());
+      for(double pairOfLevesBoundary : leafPairsBoundary1)
+      {
+        leafPairsBoundary2.push_back(pairOfLevesBoundary + parameterNode->GetOffsetBetweenTwoLayers());
+      }
+    }
+    else // correction for non parallel beam for layer-2
+    {
+      for (auto iter = leafPairsBoundary1.begin(); iter != leafPairsBoundary1.end(); ++iter)
+      {
+        size_t pos = iter - leafPairsBoundary1.begin();
+        double leafBoundary = -middle + parameterNode->GetIsocenterOffset() + pos * parameterNode->GetPairOfLeavesSize();
+        leafBoundary += + parameterNode->GetOffsetBetweenTwoLayers();
+        // put correction here
+        *iter = leafBoundary;
+      }
     }
   }
 
@@ -423,16 +445,35 @@ bool vtkSlicerIhepMlcControlLogic::UpdateMlcTableNodeBoundaryData(vtkMRMLIhepMlc
   // Layer-2
   std::vector<double> leafPairsBoundary2;
   double middle = parameterNode->GetPairOfLeavesSize() * parameterNode->GetNumberOfLeafPairs() / 2.;
-  for(auto iter = leafPairsBoundary1.begin(); iter != leafPairsBoundary1.end(); ++iter)
+  for (auto iter = leafPairsBoundary1.begin(); iter != leafPairsBoundary1.end(); ++iter)
   {
     size_t pos = iter - leafPairsBoundary1.begin();
-    *iter = -middle + parameterNode->GetIsocenterOffset() + pos * parameterNode->GetPairOfLeavesSize();
+    double leafBoundary = -middle + parameterNode->GetIsocenterOffset() + pos * parameterNode->GetPairOfLeavesSize();
+    if (!parameterNode->GetParallelBeam()) // correction for non parallel beam
+    {
+      // put correction here
+    }
+    *iter = leafBoundary;
   }
   if (nofLayers == vtkMRMLIhepMlcControlNode::TwoLayers)
   {
-    for(double pairOfLevesBoundary : leafPairsBoundary1)
+    if (parameterNode->GetParallelBeam()) // parallel beam is simple
     {
-      leafPairsBoundary2.push_back(pairOfLevesBoundary + parameterNode->GetOffsetBetweenTwoLayers());
+      for(double pairOfLevesBoundary : leafPairsBoundary1)
+      {
+        leafPairsBoundary2.push_back(pairOfLevesBoundary + parameterNode->GetOffsetBetweenTwoLayers());
+      }
+    }
+    else // correction for non parallel beam for layer-2
+    {
+      for (auto iter = leafPairsBoundary1.begin(); iter != leafPairsBoundary1.end(); ++iter)
+      {
+        size_t pos = iter - leafPairsBoundary1.begin();
+        double leafBoundary = -middle + parameterNode->GetIsocenterOffset() + pos * parameterNode->GetPairOfLeavesSize();
+        leafBoundary += parameterNode->GetOffsetBetweenTwoLayers();
+        // put correction here
+        *iter = leafBoundary;
+      }
     }
   }
 

@@ -30,6 +30,7 @@
              <stringlist>
               <string>vtkMRMLRTBeamNode</string>
               <string>vtkMRMLRTIonBeamNode</string>
+              <string>vtkMRMLRTIhepIonBeamNode</string>
              </stringlist>
             </property>
            </widget>

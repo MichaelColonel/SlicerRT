@@ -178,7 +178,7 @@ bool vtkMRMLIhepMlcControlDisplayableManager::vtkInternal::IsVolumeVisibleInSlic
 }
 
 //---------------------------------------------------------------------------
-bool vtkMRMLIhepMlcControlDisplayableManager::vtkInternal::UpdateActor(vtkMRMLIhepMlcControlNode* ihepNode)
+bool vtkMRMLIhepMlcControlDisplayableManager::vtkInternal::UpdateActor(vtkMRMLIhepMlcControlNode* vtkNotUsed(ihepNode))
 {
   // modified
   return true;

@@ -161,7 +161,7 @@ protected:
 
 private:
   // General MLC data
-  OrientationType Orientation{ vtkMRMLIhepMlcControlNode::X }; // MLCX or MLCY
+  OrientationType Orientation{ vtkMRMLIhepMlcControlNode::Y }; // MLCX or MLCY
   LayersType Layers{ vtkMRMLIhepMlcControlNode::TwoLayers }; // One layer or two layers
   int NumberOfLeafPairs{ vtkMRMLIhepMlcControlNode::IHEP_PAIR_OF_LEAVES_PER_LAYER };
   double PairOfLeavesSize{ 5. }; // mm

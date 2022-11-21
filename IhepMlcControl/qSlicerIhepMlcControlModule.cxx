@@ -15,8 +15,18 @@
 
 ==============================================================================*/
 
+// Qt includes
+#include <QDebug>
+
+// Slicer includes
+#include <qSlicerCoreApplication.h>
+#include <qSlicerModuleManager.h>
+
 // IhepMlcControl Logic includes
 #include <vtkSlicerIhepMlcControlLogic.h>
+
+// Beams Logic includes
+#include <vtkSlicerBeamsModuleLogic.h>
 
 // IhepMlcControl includes
 #include "qSlicerIhepMlcControlModule.h"
@@ -117,6 +127,20 @@ void qSlicerIhepMlcControlModule::setup()
     "vtkMRMLIhepMlcControlDisplayableManager");
   vtkMRMLSliceViewDisplayableManagerFactory::GetInstance()->RegisterDisplayableManager(
     "vtkMRMLIhepMlcControlDisplayableManager");
+
+  vtkSlicerIhepMlcControlLogic* ihepMlcLogic = vtkSlicerIhepMlcControlLogic::SafeDownCast(this->logic());
+
+  // Set beams logic to the logic
+  qSlicerAbstractCoreModule* beamsModule = qSlicerCoreApplication::application()->moduleManager()->module("Beams");
+  if (beamsModule)
+  {
+    vtkSlicerBeamsModuleLogic* beamsLogic = vtkSlicerBeamsModuleLogic::SafeDownCast(beamsModule->logic());
+    ihepMlcLogic->SetBeamsLogic(beamsLogic);
+  }
+  else
+  {
+    qCritical() << Q_FUNC_INFO << ": Beams module is not found";
+  }
 }
 
 //-----------------------------------------------------------------------------

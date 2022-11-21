@@ -36,6 +36,7 @@
 
 class vtkMRMLRTBeamNode;
 class vtkMRMLIhepMlcControlNode;
+class vtkSlicerBeamsModuleLogic;
 class vtkMRMLTableNode;
 
 /// \ingroup Slicer_QtModules_ExtensionTemplate
@@ -47,6 +48,11 @@ public:
   static vtkSlicerIhepMlcControlLogic *New();
   vtkTypeMacro(vtkSlicerIhepMlcControlLogic, vtkSlicerModuleLogic);
   void PrintSelf(ostream& os, vtkIndent indent) override;
+
+  /// Set Beams module logic
+  void SetBeamsLogic(vtkSlicerBeamsModuleLogic* beamsLogic);
+  /// Get Beams module logic
+  vtkGetObjectMacro(BeamsLogic, vtkSlicerBeamsModuleLogic);
 
   /// Create a table node with the Multi Leaf Collimator boundary data.
   /// Based on DICOMRT BeamLimitingDeviceEntry description of MLC.
@@ -80,6 +86,9 @@ private:
 
   vtkSlicerIhepMlcControlLogic(const vtkSlicerIhepMlcControlLogic&); // Not implemented
   void operator=(const vtkSlicerIhepMlcControlLogic&); // Not implemented
+
+  /// Beams module logic instance
+  vtkSlicerBeamsModuleLogic* BeamsLogic{ nullptr };
 };
 
 #endif
