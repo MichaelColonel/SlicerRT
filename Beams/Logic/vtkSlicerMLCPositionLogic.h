@@ -132,6 +132,9 @@ private:
   vtkSlicerMLCPositionLogic(const vtkSlicerMLCPositionLogic&); // Not implemented
   void operator=(const vtkSlicerMLCPositionLogic&); // Not implemented
 
+  bool OversampleConvexHullCurve( vtkMRMLMarkupsCurveNode* curveNode,
+    vtkMRMLTableNode* mlcTableNode, int oversampleCoefficient = 3);
+
   /// Calculate closed convex hull curve boundary
   /// @param curveBound (xmin, xmax, ymin, ymax)
   /// @return true if successfull, false otherwise

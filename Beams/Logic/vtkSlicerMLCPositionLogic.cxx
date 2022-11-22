@@ -184,7 +184,8 @@ vtkMRMLMarkupsCurveNode* vtkSlicerMLCPositionLogic::CalculatePositionConvexHullC
 //  curveNode->SetName("MultiLeafCollimatorMinimumConvexHullCurve");
 
   vtkMRMLMarkupsClosedCurveNode* curveNode = vtkMRMLMarkupsClosedCurveNode::SafeDownCast(
-    this->GetMRMLScene()->AddNewNodeByClass("vtkMRMLMarkupsClosedCurveNode", "MultiLeafCollimatorMinimumConvexHullCurve"));
+    this->GetMRMLScene()->AddNewNodeByClass("vtkMRMLMarkupsClosedCurveNode",
+    "MultiLeafCollimatorMinimumConvexHullCurve"));
 
   // transform target poly data into beam frame
   vtkNew<vtkTransformPolyDataFilter> beamInverseTransformFilter;
@@ -234,6 +235,7 @@ vtkMRMLMarkupsCurveNode* vtkSlicerMLCPositionLogic::CalculatePositionConvexHullC
   }
 
   // get x and y coordinates of convex hull on the isocenter IEC BEAM LIMITING DEVICE coordinate system plane
+  // add oversampling here
   int zSize = points->GetSizeCCWHullZ(); // number of points
   if (zSize >= 3)
   {
@@ -465,6 +467,8 @@ bool vtkSlicerMLCPositionLogic::CalculateMultiLeafCollimatorPosition( vtkMRMLTab
     vtkErrorMacro("CalculateMultiLeafCollimatorPosition: Number of leaf pairs is zero or unable to calculate curve boundary");
     return false;
   }
+
+  this->OversampleConvexHullCurve(curveNode, mlcTableNode);
 
   vtkTable* mlcTable = mlcTableNode->GetTable();
 
@@ -1132,4 +1136,24 @@ bool vtkSlicerMLCPositionLogic::FindLeafAndTargetCollision( vtkMRMLRTBeamNode* v
   }
 
   return res;
+}
+
+//---------------------------------------------------------------------------
+bool vtkSlicerMLCPositionLogic::OversampleConvexHullCurve(vtkMRMLMarkupsCurveNode* curveNode,
+  vtkMRMLTableNode* mlcTableNode, int oversampleCoefficient)
+{
+  std::vector< std::pair< double, double > > originalData, oversampledData;
+  if (!curveNode)
+  {
+    return false;
+  }
+
+  const auto controlPoints = curveNode->GetControlPoints();
+  // Get points
+  for (auto iter = controlPoints->begin(); iter != controlPoints->end(); ++iter)
+  {
+    const vtkMRMLMarkupsNode::ControlPoint* point = *iter;
+    originalData.push_back(std::make_pair(point->Position[0], point->Position[1]));
+  }
+  return true;
 }
