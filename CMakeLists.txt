@@ -84,6 +84,7 @@ if (SLICERRT_ENABLE_EXPERIMENTAL_MODULES)
   add_subdirectory(PlmThreshbox)
   add_subdirectory(PinnacleDvfReader)
   add_subdirectory(IhepMlcControl)
+  add_subdirectory(IhepStandGeometry)
 
   # Registration validation routines
   add_subdirectory(PlmSynth)

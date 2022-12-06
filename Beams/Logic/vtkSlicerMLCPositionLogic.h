@@ -132,9 +132,6 @@ private:
   vtkSlicerMLCPositionLogic(const vtkSlicerMLCPositionLogic&); // Not implemented
   void operator=(const vtkSlicerMLCPositionLogic&); // Not implemented
 
-  bool OversampleConvexHullCurve( vtkMRMLMarkupsCurveNode* curveNode,
-    vtkMRMLTableNode* mlcTableNode, int oversampleCoefficient = 3);
-
   /// Calculate closed convex hull curve boundary
   /// @param curveBound (xmin, xmax, ymin, ymax)
   /// @return true if successfull, false otherwise
@@ -163,7 +160,7 @@ private:
   bool FindLeafPairPositions( vtkMRMLMarkupsCurveNode* convexHullCurveNode,
     vtkMRMLTableNode* mlcTableNode, size_t leafPairIndex, 
     double& side1, double& side2, int strategy = 1, 
-    double maxPositionDistance = 100., double positionStep = 0.01);
+    double maxPositionDistance = 100., double positionStep = 0.1);
 
   /// Find leaf pair position using collision filter between leaf 
   /// rectangle projection and target polydata (second pass, slow and more precise)
@@ -180,7 +177,7 @@ private:
   bool FindLeafAndTargetCollision( vtkMRMLRTBeamNode* beamNode, 
     vtkPolyData* leafPoly, vtkPolyData* targetPoly, double& sidePos, 
     double initialPosition, int sideType = 1, bool mlcType = true, 
-    double maxPositionDistance = 100., double positionStep = 0.01);
+    double maxPositionDistance = 100., double positionStep = 0.1);
 };
 
 #endif
