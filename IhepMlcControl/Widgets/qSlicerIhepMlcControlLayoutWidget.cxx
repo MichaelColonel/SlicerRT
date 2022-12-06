@@ -45,12 +45,14 @@ const struct PredefinedPositionDescription {
   vtkMRMLIhepMlcControlNode::PredefinedPositionType PredefinedPosition;
   const char* ComboBoxText;
   const char* DetailedDescriptionText;
-} predefinedPosition[6] = {
+} predefinedPosition[8] = {
   { vtkMRMLIhepMlcControlNode::Side1Edge, "Side-1 edge", "Edge or ramp on side-1" },
   { vtkMRMLIhepMlcControlNode::Side2Edge, "Side-2 edge", "Edge or ramp on side-2" },
   { vtkMRMLIhepMlcControlNode::DoubleSidedEdge, "Double sided edge", "Edge or ramp from both sides" },
   { vtkMRMLIhepMlcControlNode::Square, "Square", "Square shape" },
   { vtkMRMLIhepMlcControlNode::Circle, "Circle", "Circle shape" },
+  { vtkMRMLIhepMlcControlNode::Open, "Open", "Open both sides" },
+  { vtkMRMLIhepMlcControlNode::Close, "Close", "Close both sides" },
   { vtkMRMLIhepMlcControlNode::PredefinedPosition_Last, nullptr, nullptr }
 };
 
@@ -130,6 +132,9 @@ void qSlicerIhepMlcControlLayoutWidgetPrivate::init()
     q, SLOT(onOpenMlcClicked()));
   QObject::connect( this->PushButton_CloseMlc, SIGNAL(clicked()),
     q, SLOT(onCloseMlcClicked()));
+
+  // Select predefined shape as square
+  this->ComboBox_MlcPositions->setCurrentIndex(3);
 }
 
 // --------------------------------------------------------------------------

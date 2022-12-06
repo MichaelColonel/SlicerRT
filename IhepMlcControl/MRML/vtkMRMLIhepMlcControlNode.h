@@ -51,8 +51,10 @@ public:
     Side1Edge = 0,
     Side2Edge,
     DoubleSidedEdge,
-    Circle,
     Square,
+    Circle,
+    Open,
+    Close,
     PredefinedPosition_Last
   };
 

@@ -167,6 +167,9 @@ void qSlicerIhepMlcControlModuleWidget::setup()
     this, SLOT(onMlcLayersButtonClicked(QAbstractButton*)));
   QObject::connect( d->ButtonGroup_MlcOrientation, SIGNAL(buttonClicked(QAbstractButton*)),
     this, SLOT(onMlcOrientationButtonClicked(QAbstractButton*)));
+
+  // Select predefined shape as square
+  QTimer::singleShot(0, d->MlcControlWidget, [=](){ d->MlcControlWidget->onMlcPredefinedIndexChanged(3); } );
 }
 
 //-----------------------------------------------------------------------------

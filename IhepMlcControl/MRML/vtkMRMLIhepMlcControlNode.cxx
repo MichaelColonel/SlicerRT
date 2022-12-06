@@ -300,7 +300,6 @@ void vtkMRMLIhepMlcControlNode::SetPredefinedPosition(vtkMRMLIhepMlcControlNode:
     break;
   case DoubleSidedEdge:
     {
-    {
       for (int i = 0; i < this->NumberOfLeafPairs; ++i)
       {
         int pos = IHEP_MOTOR_STEPS_PER_MM * (i * this->PairOfLeavesSize) * tanAngle + 400;
@@ -312,7 +311,6 @@ void vtkMRMLIhepMlcControlNode::SetPredefinedPosition(vtkMRMLIhepMlcControlNode:
         leafData.Steps = pos;
         this->SetLeafData(leafData, i, vtkMRMLIhepMlcControlNode::Side2, layer);
       }
-    }
     }
     break;
   case Square:
@@ -354,6 +352,34 @@ void vtkMRMLIhepMlcControlNode::SetPredefinedPosition(vtkMRMLIhepMlcControlNode:
 
         this->GetLeafData(leafData, i, vtkMRMLIhepMlcControlNode::Side2, layer);
         leafData.Steps = pos;
+        this->SetLeafData(leafData, i, vtkMRMLIhepMlcControlNode::Side2, layer);
+      }
+    }
+    break;
+  case Open:
+    {
+      for (int i = 0; i < this->NumberOfLeafPairs; ++i)
+      {
+        this->GetLeafData(leafData, i, vtkMRMLIhepMlcControlNode::Side1, layer);
+        leafData.Steps = 100;
+        this->SetLeafData(leafData, i, vtkMRMLIhepMlcControlNode::Side1, layer);
+
+        this->GetLeafData(leafData, i, vtkMRMLIhepMlcControlNode::Side2, layer);
+        leafData.Steps = 100;
+        this->SetLeafData(leafData, i, vtkMRMLIhepMlcControlNode::Side2, layer);
+      }
+    }
+    break;
+  case Close:
+    {
+      for (int i = 0; i < this->NumberOfLeafPairs; ++i)
+      {
+        this->GetLeafData(leafData, i, vtkMRMLIhepMlcControlNode::Side1, layer);
+        leafData.Steps = 19300;
+        this->SetLeafData(leafData, i, vtkMRMLIhepMlcControlNode::Side1, layer);
+
+        this->GetLeafData(leafData, i, vtkMRMLIhepMlcControlNode::Side2, layer);
+        leafData.Steps = 19300;
         this->SetLeafData(leafData, i, vtkMRMLIhepMlcControlNode::Side2, layer);
       }
     }
