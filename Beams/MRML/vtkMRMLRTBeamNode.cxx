@@ -409,6 +409,26 @@ bool vtkMRMLRTBeamNode::GetPlanIsocenterPosition(double isocenter[3])
 }
 
 //----------------------------------------------------------------------------
+bool vtkMRMLRTBeamNode::GetPlanIsocenterPositionWorld(double isocenter[3])
+{
+  vtkMRMLRTPlanNode* parentPlanNode = this->GetParentPlanNode();
+  if (!parentPlanNode)
+  {
+    vtkErrorMacro("GetPlanIsocenterPositionWorld: Failed to access parent plan node");
+    return false;
+  }
+  vtkMRMLMarkupsFiducialNode* poisMarkupsNode = parentPlanNode->CreatePoisMarkupsFiducialNode();
+  if (!poisMarkupsNode)
+  {
+    vtkErrorMacro("GetPlanIsocenterPositionWorld: Failed to access POIs markups node");
+    return false;
+  }
+
+  poisMarkupsNode->GetNthControlPointPositionWorld(vtkMRMLRTPlanNode::ISOCENTER_FIDUCIAL_INDEX, isocenter);
+  return true;
+}
+
+//----------------------------------------------------------------------------
 bool vtkMRMLRTBeamNode::GetSourcePosition(double source[3])
 {
   double sourcePosition_Beam[3] = {0.0, 0.0, this->SAD};
@@ -891,8 +911,8 @@ void vtkMRMLRTBeamNode::CreateMLCPointsFromSectionBorder( double jawBegin,
   {
     double& pxNext = side1[i + 1].first; // x coordinate of next point
     double& pyNext = side1[i + 1].second; // y coordinate of next point
-    if (!vtkSlicerRtCommon::AreEqualWithTolerance( px, pxNext) && 
-      !vtkSlicerRtCommon::AreEqualWithTolerance( py, pyNext))
+    if (!vtkSlicerRtCommon::AreEqualWithTolerance( px, pxNext) 
+      && !vtkSlicerRtCommon::AreEqualWithTolerance( py, pyNext))
     {
       p = side1[i];
       side12.push_back(p);
@@ -907,18 +927,12 @@ void vtkMRMLRTBeamNode::CreateMLCPointsFromSectionBorder( double jawBegin,
   {
     double& pxNext = side2[i + 1].first;
     double& pyNext = side2[i + 1].second;
-    if (!vtkSlicerRtCommon::AreEqualWithTolerance( px, pxNext) && 
-      !vtkSlicerRtCommon::AreEqualWithTolerance( py, pyNext))
+    if (!vtkSlicerRtCommon::AreEqualWithTolerance( px, pxNext) 
+      && !vtkSlicerRtCommon::AreEqualWithTolerance( py, pyNext))
     {
       p = side2[i];
       side12.push_back(p);
     }
   }
   side12.push_back(side2.back());
-}
-
-//----------------------------------------------------------------------------
-bool vtkMRMLRTBeamNode::AreEqual( double v1, double v2)
-{
-  return vtkSlicerRtCommon::AreEqualWithTolerance( v1, v2);
 }

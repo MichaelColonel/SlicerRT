@@ -127,6 +127,10 @@ public:
   /// \return Success flag
   bool GetPlanIsocenterPosition(double isocenter[3]);
 
+  /// Get isocenter position from parent plan in World (RAS) ccordinates
+  /// \return Success flag
+  bool GetPlanIsocenterPositionWorld(double source[3]);
+
   /// Calculate source position using gantry angle, SAD, and isocenter
   /// \return Success flag
   bool GetSourcePosition(double source[3]);
@@ -210,7 +214,7 @@ protected:
 
 protected:
   vtkMRMLRTBeamNode();
-  ~vtkMRMLRTBeamNode();
+  ~vtkMRMLRTBeamNode() override;
   vtkMRMLRTBeamNode(const vtkMRMLRTBeamNode&);
   void operator=(const vtkMRMLRTBeamNode&);
 
@@ -261,8 +265,6 @@ protected:
   void CreateMLCPointsFromSectionBorder( double jawBegin, double jawEnd, 
     bool mlcType, const MLCSectionVector::value_type& sectionBorder, 
     MLCVisiblePointVector& side12);
-
-  static bool AreEqual( double v1, double v2);
 };
 
 #endif // __vtkMRMLRTBeamNode_h
