@@ -91,6 +91,7 @@
          <widget class="qMRMLNodeComboBox" name="MRMLNodeComboBox_FixedBeam">
           <property name="nodeTypes">
            <stringlist>
+            <string>vtkMRMLRTIhepIonBeamNode</string>
             <string>vtkMRMLRTFixedIonBeamNode</string>
             <string>vtkMRMLRTIonBeamNode</string>
            </stringlist>

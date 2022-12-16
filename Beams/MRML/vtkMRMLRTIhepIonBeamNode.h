@@ -26,15 +26,15 @@
 #include "vtkSlicerBeamsModuleMRMLExport.h"
 
 // MRML includes
-#include "vtkMRMLRTIonBeamNode.h"
+#include "vtkMRMLRTFixedIonBeamNode.h"
 
 /// \ingroup SlicerRt_QtModules_Beams
-class VTK_SLICER_BEAMS_MODULE_MRML_EXPORT vtkMRMLRTIhepIonBeamNode : public vtkMRMLRTIonBeamNode
+class VTK_SLICER_BEAMS_MODULE_MRML_EXPORT vtkMRMLRTIhepIonBeamNode : public vtkMRMLRTFixedIonBeamNode
 {
 
 public:
   static vtkMRMLRTIhepIonBeamNode *New();
-  vtkTypeMacro(vtkMRMLRTIhepIonBeamNode,vtkMRMLRTIonBeamNode);
+  vtkTypeMacro(vtkMRMLRTIhepIonBeamNode,vtkMRMLRTFixedIonBeamNode);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /// Create instance of a GAD node. 
