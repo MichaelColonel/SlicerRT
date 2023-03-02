@@ -623,3 +623,28 @@ bool vtkMRMLIhepMlcControlNode::SetMlcLeavesOpened(vtkMRMLIhepMlcControlNode::La
 {
   return true;
 }
+
+//----------------------------------------------------------------------------
+double vtkMRMLIhepMlcControlNode::ExternalCounterValueToDistance(int extCounterValue)
+{
+  return (extCounterValue / vtkMRMLIhepMlcControlNode::IHEP_EXTERNAL_COUNTS_PER_MM);
+}
+
+//----------------------------------------------------------------------------
+double vtkMRMLIhepMlcControlNode::InternalCounterValueToDistance(int intCounterValue)
+{
+  return (intCounterValue / vtkMRMLIhepMlcControlNode::IHEP_MOTOR_STEPS_PER_MM);
+}
+
+//----------------------------------------------------------------------------
+int vtkMRMLIhepMlcControlNode::DistanceToExternalCounterValue(double distance)
+{
+  return (distance * vtkMRMLIhepMlcControlNode::IHEP_EXTERNAL_COUNTS_PER_MM);
+}
+
+//----------------------------------------------------------------------------
+int vtkMRMLIhepMlcControlNode::DistanceToInternalCounterValue(double distance)
+{
+  return (distance * vtkMRMLIhepMlcControlNode::IHEP_MOTOR_STEPS_PER_MM);
+}
+

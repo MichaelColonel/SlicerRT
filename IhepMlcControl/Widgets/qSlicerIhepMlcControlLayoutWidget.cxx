@@ -74,6 +74,8 @@ public:
   void init();
   void removeLeavesWidgetsFromLayout();
   bool isNumberOfLeafPairsChanged() const;
+  ContainerWidgets* getPaifOfLeavesContainerFromLeafAddress(int address, int& side);
+  ContainerWidgets* getPaifOfLeavesContainerFromIndex(int index);
 
   /// IhepMlcControl MRML node containing shown parameters
   vtkWeakPointer<vtkMRMLIhepMlcControlNode> ParameterNode;
@@ -193,6 +195,41 @@ void qSlicerIhepMlcControlLayoutWidgetPrivate::removeLeavesWidgetsFromLayout()
 bool qSlicerIhepMlcControlLayoutWidgetPrivate::isNumberOfLeafPairsChanged() const
 {
   return (this->ParameterNode->GetNumberOfLeafPairs() != static_cast<int>(this->ContainerWidgetsVector.size()));
+}
+
+// --------------------------------------------------------------------------
+ContainerWidgets* qSlicerIhepMlcControlLayoutWidgetPrivate::getPaifOfLeavesContainerFromIndex(int index)
+{
+  Q_Q(qSlicerIhepMlcControlLayoutWidget);
+  if (index >= this->ContainerWidgetsVector.size())
+  {
+    return nullptr;
+  }
+  return &this->ContainerWidgetsVector.at(index);
+}
+
+// --------------------------------------------------------------------------
+ContainerWidgets* qSlicerIhepMlcControlLayoutWidgetPrivate::getPaifOfLeavesContainerFromLeafAddress(int address, int& side)
+{
+  Q_Q(qSlicerIhepMlcControlLayoutWidget);
+  for(ContainerWidgets& widgets : this->ContainerWidgetsVector)
+  {
+    QString leafSide1AddressStr = widgets.Side1AddressLabel->text();
+    QString leafSide2AddressStr = widgets.Side2AddressLabel->text();
+    QString addressStr = QString::number(address);
+    if (addressStr == leafSide1AddressStr)
+    {
+      side = 1;
+      return &widgets;
+    }
+    if (addressStr == leafSide2AddressStr)
+    {
+      side = 2;
+      return &widgets;
+    }
+  }
+  side = -1;
+  return nullptr;
 }
 
 //-----------------------------------------------------------------------------
@@ -427,6 +464,8 @@ void qSlicerIhepMlcControlLayoutWidget::onPairOfLeavesDoubleClicked()
       pairOfLeavesWidgets.PairOfLeavesWidget->setMinRequiredValue(side1Steps);
       pairOfLeavesWidgets.PairOfLeavesWidget->setMaxRequiredValue(side2Steps);
       d->ParameterNode->SetPairOfLeavesData( leavesData, pairIndex, selectedMlcLayer);
+      qDebug() << Q_FUNC_INFO << ": Side 1 steps " << side1Steps << " distance " << d->ParameterNode->InternalCounterValueToDistance(side1Steps);
+      qDebug() << Q_FUNC_INFO << ": Side 2 steps " << side2Steps << " distance " << d->ParameterNode->InternalCounterValueToDistance(side2Steps);
     }
   }
 }
@@ -568,7 +607,7 @@ void qSlicerIhepMlcControlLayoutWidget::onSide1AdjustmentChanged(double v)
     qCritical() << Q_FUNC_INFO << ": Invalid parameter node";
     return;
   }
-  qDebug() << Q_FUNC_INFO << ": Side 1 adjustment " << v;
+  qDebug() << Q_FUNC_INFO << ": Side 1 adjustment " << v << " steps " << d->ParameterNode->DistanceToInternalCounterValue(v);
 }
 
 //-----------------------------------------------------------------------------
@@ -581,7 +620,7 @@ void qSlicerIhepMlcControlLayoutWidget::onSide2AdjustmentChanged(double v)
     qCritical() << Q_FUNC_INFO << ": Invalid parameter node";
     return;
   }
-  qDebug() << Q_FUNC_INFO << ": Side 2 adjustment " << v;
+  qDebug() << Q_FUNC_INFO << ": Side 2 adjustment " << v << " steps " << d->ParameterNode->DistanceToInternalCounterValue(v);
 }
 
 //-----------------------------------------------------------------------------
@@ -614,4 +653,32 @@ void qSlicerIhepMlcControlLayoutWidget::onSide2AdjustmentSliderReleased()
   QSignalBlocker blocker2(d->DoubleSpinBox_Side2Adjustment);
   d->DoubleSlider_Side2Adjustment->setValue(0.);
   d->DoubleSpinBox_Side2Adjustment->setValue(0.);
+}
+
+//-----------------------------------------------------------------------------
+void qSlicerIhepMlcControlLayoutWidget::onLeafAddressPositionChanged(int address, double requiredPosition, double currentPosition)
+{
+  Q_D(qSlicerIhepMlcControlLayoutWidget);
+  
+  if (!d->ParameterNode)
+  {
+    qCritical() << Q_FUNC_INFO << ": Invalid parameter node";
+    return;
+  }
+  int side = -1;
+  ContainerWidgets* widgets = d->getPaifOfLeavesContainerFromLeafAddress(address, side);
+  if (widgets && side == 1)
+  {
+    int minCurrentValue = d->ParameterNode->DistanceToInternalCounterValue(currentPosition);
+    int minRequiredValue = d->ParameterNode->DistanceToInternalCounterValue(requiredPosition);
+    widgets->PairOfLeavesWidget->setMinCurrentValue(minCurrentValue);
+    widgets->PairOfLeavesWidget->setMinRequiredValue(minCurrentValue);
+  }
+  else if (widgets && side == 2)
+  {
+    int maxCurrentValue = d->ParameterNode->DistanceToInternalCounterValue(currentPosition);
+    int maxRequiredValue = d->ParameterNode->DistanceToInternalCounterValue(requiredPosition);
+    widgets->PairOfLeavesWidget->setMaxCurrentValue(maxCurrentValue);
+    widgets->PairOfLeavesWidget->setMaxRequiredValue(maxCurrentValue);
+  }
 }

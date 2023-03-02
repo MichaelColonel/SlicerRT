@@ -68,6 +68,8 @@ public slots:
   void onSide2AdjustmentChanged(double);
   void onSide1AdjustmentSliderReleased();
   void onSide2AdjustmentSliderReleased();
+  /// Values are changed because of MLC motion
+  void onLeafAddressPositionChanged(int address, double requiredPosition, double currentPosition);
 
   // Combo box
   void onMlcPredefinedIndexChanged(int);

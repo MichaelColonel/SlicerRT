@@ -149,6 +149,10 @@ public:
   bool SetMlcLeavesOpened(LayerType layer);
 
   void SetPredefinedPosition(LayerType layer, PredefinedPositionType predef);
+  static double ExternalCounterValueToDistance(int extCounterValue);
+  static double InternalCounterValueToDistance(int intCounterValue);
+  static int DistanceToExternalCounterValue(double distance);
+  static int DistanceToInternalCounterValue(double distance);
 
 public:
   /// Get beam node

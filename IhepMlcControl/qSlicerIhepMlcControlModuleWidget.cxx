@@ -29,7 +29,7 @@
 #include "ui_qSlicerIhepMlcControlModuleWidget.h"
 
 #include "qSlicerIhepMlcControlLayoutWidget.h"
-#include "qSlicerMlcDeviceLogic.h"
+//#include "qSlicerMlcDeviceLogic.h"
 
 // MRML includes
 #include <vtkMRMLScene.h>
@@ -47,9 +47,12 @@
 // Logic includes
 #include "vtkSlicerIhepMlcControlLogic.h"
 
-#define BUFFER 11
+// STD includes
+#include <queue>
 
 namespace {
+
+constexpr int BUFFER = 11;
 
 unsigned short crc16_update(unsigned short crc, unsigned char a)
 {
@@ -105,7 +108,7 @@ public:
   int PreviousLayoutId{ 0 };
   int MlcCustomLayoutId{ 507 };
   vtkWeakPointer<vtkMRMLIhepMlcControlNode> ParameterNode;
-  qSlicerIhepMlcDeviceLogic* MlcDeviceLogic{ nullptr };
+//  qSlicerIhepMlcDeviceLogic* MlcDeviceLogic{ nullptr };
 
   QByteArray ResponseBuffer;
   QByteArray InputBuffer;
@@ -126,18 +129,20 @@ qSlicerIhepMlcControlModuleWidgetPrivate::qSlicerIhepMlcControlModuleWidgetPriva
   :
   q_ptr(&object)
 {
-  this->MlcDeviceLogic = new qSlicerIhepMlcDeviceLogic(&object);
+//  this->MlcDeviceLogic = new qSlicerIhepMlcDeviceLogic(&object);
 }
 
 //-----------------------------------------------------------------------------
 qSlicerIhepMlcControlModuleWidgetPrivate::~qSlicerIhepMlcControlModuleWidgetPrivate()
 {
   //TODO: Leak?
+/*
   if (this->MlcDeviceLogic)
   {
     delete this->MlcDeviceLogic;
     this->MlcDeviceLogic = nullptr;
   }
+*/
 }
 
 //-----------------------------------------------------------------------------
@@ -295,7 +300,7 @@ void qSlicerIhepMlcControlModuleWidget::setMRMLScene(vtkMRMLScene* scene)
   qvtkReconnect( d->logic(), scene, vtkMRMLScene::EndCloseEvent, this, SLOT(onSceneClosedEvent()));
 
   // Set scene to dose engine logic
-  d->MlcDeviceLogic->setMRMLScene(scene);
+//  d->MlcDeviceLogic->setMRMLScene(scene);
 
   // Find parameters node or create it if there is none in the scene
   if (scene)
