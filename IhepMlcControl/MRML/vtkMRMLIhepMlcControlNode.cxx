@@ -26,6 +26,7 @@
 // VTK includes
 #include <vtkObjectFactory.h>
 #include <vtkSmartPointer.h>
+#include <vtkTable.h>
 
 #include "vtkMRMLIhepMlcControlNode.h"
 
@@ -205,12 +206,47 @@ bool vtkMRMLIhepMlcControlNode::GetPairOfLeavesData(vtkMRMLIhepMlcControlNode::P
 bool vtkMRMLIhepMlcControlNode::SetPairOfLeavesData(const vtkMRMLIhepMlcControlNode::PairOfLeavesData& pairOfLeaves,
   int index, vtkMRMLIhepMlcControlNode::LayerType layer)
 {
+  vtkMRMLTableNode* mlcTableNode = nullptr;
+  if (this->GetBeamNode())
+  {
+    mlcTableNode = this->GetBeamNode()->GetMultiLeafCollimatorTableNode();
+  }
+
+  vtkTable* table = nullptr;
+  if (mlcTableNode && mlcTableNode->GetTable())
+  {
+    table = mlcTableNode->GetTable();
+  }
+
+  if (table)
+  {
+    vtkWarningMacro("SetPairOfLeavesData: table is valid, layer number: " << layer << ", index " << index);
+  }
+
   int key = index + this->NumberOfLeafPairs * static_cast<int>(layer);
   auto it = this->LeavesDataMap.find(key);
   if (it != this->LeavesDataMap.end())
   {
     it->second = pairOfLeaves;
     this->Modified();
+    if (table)
+    {
+      switch (layer)
+      {
+      case vtkMRMLIhepMlcControlNode::Layer1:
+        table->SetValue(index, 1, -IHEP_TOTAL_DISTANCE + pairOfLeaves.first.Steps / IHEP_MOTOR_STEPS_PER_MM); // default meaningful value for side "1" for layer-1
+        table->SetValue(index, 2, IHEP_TOTAL_DISTANCE - pairOfLeaves.second.Steps / IHEP_MOTOR_STEPS_PER_MM); // default meaningful value for side "2" for layer-1
+        table->Modified();
+        break;
+      case vtkMRMLIhepMlcControlNode::Layer2:
+        table->SetValue(index, 4, -IHEP_TOTAL_DISTANCE + pairOfLeaves.first.Steps / IHEP_MOTOR_STEPS_PER_MM); // default meaningful value for side "1" for layer-2
+        table->SetValue(index, 5, IHEP_TOTAL_DISTANCE - pairOfLeaves.second.Steps / IHEP_MOTOR_STEPS_PER_MM); // default meaningful value for side "2" for layer-2
+        table->Modified();
+        break;
+      default:
+        break;
+      }
+    }
     return true;
   }
   return false;
@@ -272,33 +308,73 @@ bool vtkMRMLIhepMlcControlNode::SetLeafData(const vtkMRMLIhepMlcControlNode::Lea
 void vtkMRMLIhepMlcControlNode::SetPredefinedPosition(vtkMRMLIhepMlcControlNode::LayerType layer,
   vtkMRMLIhepMlcControlNode::PredefinedPositionType predef)
 {
+  vtkMRMLTableNode* mlcTableNode = nullptr;
+  if (this->GetBeamNode())
+  {
+    mlcTableNode = this->GetBeamNode()->GetMultiLeafCollimatorTableNode();
+  }
+
+  vtkTable* table = nullptr;
+  if (mlcTableNode && mlcTableNode->GetTable())
+  {
+    table = mlcTableNode->GetTable();
+  }
+
   double axisWidth = this->PairOfLeavesSize * this->NumberOfLeafPairs;
   double tanAngle = IHEP_SIDE_OPENING / axisWidth;
-
+  double totalDistange = IHEP_SIDE_OPENING_STEPS / IHEP_MOTOR_STEPS_PER_MM;
   vtkMRMLIhepMlcControlNode::LeafData leafData;
   switch (predef)
   {
-  case Side1Edge:
+  case vtkMRMLIhepMlcControlNode::Side1Edge:
     {
       for (int i = 0; i < this->NumberOfLeafPairs; ++i)
       {
         this->GetLeafData(leafData, i, vtkMRMLIhepMlcControlNode::Side1, layer);
         leafData.Steps = IHEP_MOTOR_STEPS_PER_MM * (i * this->PairOfLeavesSize) * tanAngle + 400;
         this->SetLeafData(leafData, i, vtkMRMLIhepMlcControlNode::Side1, layer);
+        if (table)
+        {
+          switch (layer)
+          {
+          case vtkMRMLIhepMlcControlNode::Layer1:
+            table->SetValue(i, 1, -IHEP_TOTAL_DISTANCE + leafData.Steps / IHEP_MOTOR_STEPS_PER_MM); // default meaningful value for side "1" for layer-1
+            break;
+          case vtkMRMLIhepMlcControlNode::Layer2:
+            table->SetValue(i, 4, -IHEP_TOTAL_DISTANCE + leafData.Steps / IHEP_MOTOR_STEPS_PER_MM); // default meaningful value for side "1" for layer-2
+            break;
+          default:
+            break;
+          }
+        }
       }
     }
     break;
-  case Side2Edge:
+  case vtkMRMLIhepMlcControlNode::Side2Edge:
     {
       for (int i = 0; i < this->NumberOfLeafPairs; ++i)
       {
         this->GetLeafData(leafData, i, vtkMRMLIhepMlcControlNode::Side2, layer);
         leafData.Steps = IHEP_MOTOR_STEPS_PER_MM * (i * this->PairOfLeavesSize) * tanAngle + 400;
         this->SetLeafData(leafData, i, vtkMRMLIhepMlcControlNode::Side2, layer);
+        if (table)
+        {
+          switch (layer)
+          {
+          case vtkMRMLIhepMlcControlNode::Layer1:
+            table->SetValue(i, 2, IHEP_TOTAL_DISTANCE - leafData.Steps / IHEP_MOTOR_STEPS_PER_MM); // default meaningful value for side "2" for layer-1
+            break;
+          case vtkMRMLIhepMlcControlNode::Layer2:
+            table->SetValue(i, 5, IHEP_TOTAL_DISTANCE - leafData.Steps / IHEP_MOTOR_STEPS_PER_MM); // default meaningful value for side "2" for layer-2
+            break;
+          default:
+            break;
+          }
+        }
       }
     }
     break;
-  case DoubleSidedEdge:
+  case vtkMRMLIhepMlcControlNode::DoubleSidedEdge:
     {
       for (int i = 0; i < this->NumberOfLeafPairs; ++i)
       {
@@ -306,14 +382,41 @@ void vtkMRMLIhepMlcControlNode::SetPredefinedPosition(vtkMRMLIhepMlcControlNode:
         this->GetLeafData(leafData, i, vtkMRMLIhepMlcControlNode::Side1, layer);
         leafData.Steps = pos;
         this->SetLeafData(leafData, i, vtkMRMLIhepMlcControlNode::Side1, layer);
-
+        if (table)
+        {
+          switch (layer)
+          {
+          case vtkMRMLIhepMlcControlNode::Layer1:
+            table->SetValue(i, 1, -IHEP_TOTAL_DISTANCE + leafData.Steps / IHEP_MOTOR_STEPS_PER_MM); // default meaningful value for side "1" for layer-1
+            break;
+          case vtkMRMLIhepMlcControlNode::Layer2:
+            table->SetValue(i, 4, -IHEP_TOTAL_DISTANCE + leafData.Steps / IHEP_MOTOR_STEPS_PER_MM); // default meaningful value for side "1" for layer-2
+            break;
+          default:
+            break;
+          }
+        }
         this->GetLeafData(leafData, i, vtkMRMLIhepMlcControlNode::Side2, layer);
         leafData.Steps = pos;
         this->SetLeafData(leafData, i, vtkMRMLIhepMlcControlNode::Side2, layer);
+        if (table)
+        {
+          switch (layer)
+          {
+          case vtkMRMLIhepMlcControlNode::Layer1:
+            table->SetValue(i, 2, IHEP_TOTAL_DISTANCE - leafData.Steps / IHEP_MOTOR_STEPS_PER_MM); // default meaningful value for side "2" for layer-1
+            break;
+          case vtkMRMLIhepMlcControlNode::Layer2:
+            table->SetValue(i, 5, IHEP_TOTAL_DISTANCE - leafData.Steps / IHEP_MOTOR_STEPS_PER_MM); // default meaningful value for side "2" for layer-2
+            break;
+          default:
+            break;
+          }
+        }
       }
     }
     break;
-  case Square:
+  case vtkMRMLIhepMlcControlNode::Square:
     {
       for (int i = 0; i < this->NumberOfLeafPairs; ++i)
       {
@@ -326,14 +429,41 @@ void vtkMRMLIhepMlcControlNode::SetPredefinedPosition(vtkMRMLIhepMlcControlNode:
         this->GetLeafData(leafData, i, vtkMRMLIhepMlcControlNode::Side1, layer);
         leafData.Steps = pos;
         this->SetLeafData(leafData, i, vtkMRMLIhepMlcControlNode::Side1, layer);
-
+        if (table)
+        {
+          switch (layer)
+          {
+          case vtkMRMLIhepMlcControlNode::Layer1:
+            table->SetValue(i, 1, -IHEP_TOTAL_DISTANCE + leafData.Steps / IHEP_MOTOR_STEPS_PER_MM); // default meaningful value for side "1" for layer-1
+            break;
+          case vtkMRMLIhepMlcControlNode::Layer2:
+            table->SetValue(i, 4, -IHEP_TOTAL_DISTANCE + leafData.Steps / IHEP_MOTOR_STEPS_PER_MM); // default meaningful value for side "1" for layer-2
+            break;
+          default:
+            break;
+          }
+        }
         this->GetLeafData(leafData, i, vtkMRMLIhepMlcControlNode::Side2, layer);
         leafData.Steps = pos;
         this->SetLeafData(leafData, i, vtkMRMLIhepMlcControlNode::Side2, layer);
+        if (table)
+        {
+          switch (layer)
+          {
+          case vtkMRMLIhepMlcControlNode::Layer1:
+            table->SetValue(i, 2, IHEP_TOTAL_DISTANCE - leafData.Steps / IHEP_MOTOR_STEPS_PER_MM); // default meaningful value for side "2" for layer-1
+            break;
+          case vtkMRMLIhepMlcControlNode::Layer2:
+            table->SetValue(i, 5, IHEP_TOTAL_DISTANCE - leafData.Steps / IHEP_MOTOR_STEPS_PER_MM); // default meaningful value for side "2" for layer-2
+            break;
+          default:
+            break;
+          }
+        }
       }
     }
     break;
-  case Circle:
+  case vtkMRMLIhepMlcControlNode::Circle:
     {
       constexpr double radius = 40.; // mm
       double centerOffset = this->PairOfLeavesSize * this->NumberOfLeafPairs / 2.;
@@ -349,44 +479,127 @@ void vtkMRMLIhepMlcControlNode::SetPredefinedPosition(vtkMRMLIhepMlcControlNode:
         this->GetLeafData(leafData, i, vtkMRMLIhepMlcControlNode::Side1, layer);
         leafData.Steps = pos;
         this->SetLeafData(leafData, i, vtkMRMLIhepMlcControlNode::Side1, layer);
+        if (table)
+        {
+          switch (layer)
+          {
+          case vtkMRMLIhepMlcControlNode::Layer1:
+            table->SetValue(i, 1, -IHEP_TOTAL_DISTANCE + leafData.Steps / IHEP_MOTOR_STEPS_PER_MM); // default meaningful value for side "1" for layer-1
+            break;
+          case vtkMRMLIhepMlcControlNode::Layer2:
+            table->SetValue(i, 4, -IHEP_TOTAL_DISTANCE + leafData.Steps / IHEP_MOTOR_STEPS_PER_MM); // default meaningful value for side "1" for layer-2
+            break;
+          default:
+            break;
+          }
+        }
 
         this->GetLeafData(leafData, i, vtkMRMLIhepMlcControlNode::Side2, layer);
         leafData.Steps = pos;
         this->SetLeafData(leafData, i, vtkMRMLIhepMlcControlNode::Side2, layer);
+        if (table)
+        {
+          switch (layer)
+          {
+          case vtkMRMLIhepMlcControlNode::Layer1:
+            table->SetValue(i, 2, IHEP_TOTAL_DISTANCE - leafData.Steps / IHEP_MOTOR_STEPS_PER_MM); // default meaningful value for side "2" for layer-1
+            break;
+          case vtkMRMLIhepMlcControlNode::Layer2:
+            table->SetValue(i, 5, IHEP_TOTAL_DISTANCE - leafData.Steps / IHEP_MOTOR_STEPS_PER_MM); // default meaningful value for side "2" for layer-2
+            break;
+          default:
+            break;
+          }
+        }
       }
     }
     break;
-  case Open:
+  case vtkMRMLIhepMlcControlNode::Open:
     {
       for (int i = 0; i < this->NumberOfLeafPairs; ++i)
       {
         this->GetLeafData(leafData, i, vtkMRMLIhepMlcControlNode::Side1, layer);
         leafData.Steps = 100;
         this->SetLeafData(leafData, i, vtkMRMLIhepMlcControlNode::Side1, layer);
-
+        if (table)
+        {
+          switch (layer)
+          {
+          case vtkMRMLIhepMlcControlNode::Layer1:
+            table->SetValue(i, 1, -IHEP_TOTAL_DISTANCE + leafData.Steps / IHEP_MOTOR_STEPS_PER_MM); // default meaningful value for side "1" for layer-1
+            break;
+          case vtkMRMLIhepMlcControlNode::Layer2:
+            table->SetValue(i, 4, -IHEP_TOTAL_DISTANCE + leafData.Steps / IHEP_MOTOR_STEPS_PER_MM); // default meaningful value for side "1" for layer-2
+            break;
+          default:
+            break;
+          }
+        }
         this->GetLeafData(leafData, i, vtkMRMLIhepMlcControlNode::Side2, layer);
         leafData.Steps = 100;
         this->SetLeafData(leafData, i, vtkMRMLIhepMlcControlNode::Side2, layer);
+        if (table)
+        {
+          switch (layer)
+          {
+          case vtkMRMLIhepMlcControlNode::Layer1:
+            table->SetValue(i, 2, IHEP_TOTAL_DISTANCE - leafData.Steps / IHEP_MOTOR_STEPS_PER_MM); // default meaningful value for side "2" for layer-1
+            break;
+          case vtkMRMLIhepMlcControlNode::Layer2:
+            table->SetValue(i, 5, IHEP_TOTAL_DISTANCE - leafData.Steps / IHEP_MOTOR_STEPS_PER_MM); // default meaningful value for side "2" for layer-2
+            break;
+          default:
+            break;
+          }
+        }
       }
     }
     break;
-  case Close:
+  case vtkMRMLIhepMlcControlNode::Close:
     {
       for (int i = 0; i < this->NumberOfLeafPairs; ++i)
       {
         this->GetLeafData(leafData, i, vtkMRMLIhepMlcControlNode::Side1, layer);
         leafData.Steps = 19300;
         this->SetLeafData(leafData, i, vtkMRMLIhepMlcControlNode::Side1, layer);
-
+        if (table)
+        {
+          switch (layer)
+          {
+          case vtkMRMLIhepMlcControlNode::Layer1:
+            table->SetValue(i, 1, -IHEP_TOTAL_DISTANCE + leafData.Steps / IHEP_MOTOR_STEPS_PER_MM); // default meaningful value for side "1" for layer-1
+            break;
+          case vtkMRMLIhepMlcControlNode::Layer2:
+            table->SetValue(i, 4, -IHEP_TOTAL_DISTANCE + leafData.Steps / IHEP_MOTOR_STEPS_PER_MM); // default meaningful value for side "1" for layer-2
+            break;
+          default:
+            break;
+          }
+        }
         this->GetLeafData(leafData, i, vtkMRMLIhepMlcControlNode::Side2, layer);
         leafData.Steps = 19300;
         this->SetLeafData(leafData, i, vtkMRMLIhepMlcControlNode::Side2, layer);
+        if (table)
+        {
+          switch (layer)
+          {
+          case vtkMRMLIhepMlcControlNode::Layer1:
+            table->SetValue(i, 2, IHEP_TOTAL_DISTANCE - leafData.Steps / IHEP_MOTOR_STEPS_PER_MM); // default meaningful value for side "2" for layer-1
+            break;
+          case vtkMRMLIhepMlcControlNode::Layer2:
+            table->SetValue(i, 5, IHEP_TOTAL_DISTANCE - leafData.Steps / IHEP_MOTOR_STEPS_PER_MM); // default meaningful value for side "2" for layer-2
+            break;
+          default:
+            break;
+          }
+        }
       }
     }
     break;
   default:
     break;
   }
+  mlcTableNode->Modified();
 }
 
 //----------------------------------------------------------------------------

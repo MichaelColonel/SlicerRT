@@ -129,7 +129,7 @@ protected:
 
 protected:
   vtkMRMLRTIonBeamNode();
-  ~vtkMRMLRTIonBeamNode();
+  ~vtkMRMLRTIonBeamNode() override;
   vtkMRMLRTIonBeamNode(const vtkMRMLRTIonBeamNode&);
   void operator=(const vtkMRMLRTIonBeamNode&);
 

@@ -54,7 +54,6 @@ public slots:
   void setParameterNode(vtkMRMLNode* node);
   /// Update widget GUI from IhepMlcControl node and observed RTBeam and Table nodes
   void updateWidgetFromMRML();
-
   void onMlcLayerChanged(QAbstractButton* radioButton);
 
   // Pair of leaves slots:

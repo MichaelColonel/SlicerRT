@@ -255,8 +255,10 @@ protected:
 protected:
   /// Visible multi-leaf collimator points
   typedef std::vector< std::pair< double, double > > MLCVisiblePointVector;
-  /// Multi-leaf collimator boundary position parameters 
+  /// Multi-leaf collimator boundary position parameters  { boundaryBegin, boundaryEnd, posSide1, posSide2 }
   typedef std::vector< std::array< double, 4 > > MLCBoundaryPositionVector;
+  /// Multi-leaf collimator boundary parameters { boundaryBegin, boundaryEnd }
+  typedef std::vector< std::array< double, 2 > > MLCBoundaryVector;
   /// Start and stop border of multi-leaf collimator opened section
   typedef std::vector< std::pair< MLCBoundaryPositionVector::iterator, MLCBoundaryPositionVector::iterator > > MLCSectionVector;
 

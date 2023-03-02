@@ -27,6 +27,7 @@
 // Beams includes
 #include "vtkMRMLRTBeamNode.h"
 #include "vtkMRMLRTIonBeamNode.h"
+#include "vtkMRMLRTIhepIonBeamNode.h"
 #include "vtkMRMLRTPlanNode.h"
 
 // SlicerRT includes
@@ -457,7 +458,7 @@ vtkMRMLRTBeamNode* qSlicerDoseEngineLogic::createBeamInPlan(vtkMRMLRTPlanNode* p
   }
   else
   {
-    beamNode = vtkSmartPointer<vtkMRMLRTBeamNode>::New();
+    beamNode = vtkSmartPointer<vtkMRMLRTIhepIonBeamNode>::New();
   }
 
   beamNode->SetName(planNode->GenerateNewBeamName().c_str());

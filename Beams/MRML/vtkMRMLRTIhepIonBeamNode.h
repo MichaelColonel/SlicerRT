@@ -70,9 +70,18 @@ public:
 
 protected:
   vtkMRMLRTIhepIonBeamNode();
-  ~vtkMRMLRTIhepIonBeamNode();
+  ~vtkMRMLRTIhepIonBeamNode() override;
   vtkMRMLRTIhepIonBeamNode(const vtkMRMLRTIhepIonBeamNode&);
   void operator=(const vtkMRMLRTIhepIonBeamNode&);
+
+  /// Create beam model from beam parameters, supporting MLC leaves, jaws
+  /// and scan spot map for modulated scan mode
+  /// \param beamModelPolyData Output polydata. If none given then the beam node's own polydata is used
+  void CreateBeamPolyData(vtkPolyData* beamModelPolyData=nullptr) override;
+  bool CreateMlcBoundaryPositionVector(bool typeMLCX, double isocenterToMlcDistance,
+    MLCBoundaryPositionVector& boundaryPositionVector);
+  bool CreateMlcBoundaryVector(bool typeMLCX, double isocenterToMlcDistance,
+    MLCBoundaryVector& boundaryVector);
 
 // Beam properties
 protected:

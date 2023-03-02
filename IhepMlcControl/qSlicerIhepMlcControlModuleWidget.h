@@ -23,6 +23,9 @@
 
 #include "qSlicerIhepMlcControlModuleExport.h"
 
+// Qt includes
+#include <QtSerialPort/QSerialPort>
+
 class qSlicerIhepMlcControlModuleWidgetPrivate;
 class vtkMRMLNode;
 
@@ -70,6 +73,10 @@ public slots:
 
   /// Update widget GUI from RT Image parameters node
   void updateWidgetFromMRML();
+
+  void serialPortBytesWritten(qint64);
+  void serialPortDataReady();
+  void serialPortError(QSerialPort::SerialPortError);
 
 protected:
   QScopedPointer<qSlicerIhepMlcControlModuleWidgetPrivate> d_ptr;

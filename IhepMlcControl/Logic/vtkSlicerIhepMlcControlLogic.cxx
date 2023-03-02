@@ -641,8 +641,37 @@ bool vtkSlicerIhepMlcControlLogic::SetupPositionsFromMlcTableNode(vtkMRMLIhepMlc
     return false;
   }
 
+  vtkMRMLIhepMlcControlNode::LeafData leafData;
   if (table->GetNumberOfColumns() == 6 && parameterNode->GetLayers() == vtkMRMLIhepMlcControlNode::TwoLayers) // two layers
   {
+    for (int row = 0; row < parameterNode->GetNumberOfLeafPairs(); ++row)
+    {
+      double posLayer1Side1 = table->GetValue( row, 1).ToDouble();
+      double posLayer1Side2 = table->GetValue( row, 2).ToDouble();
+      double posLayer2Side1 = table->GetValue( row, 4).ToDouble();
+      double posLayer2Side2 = table->GetValue( row, 5).ToDouble();
+
+      int stepsLayer1Side1 = static_cast<int>((posLayer1Side1 + vtkMRMLIhepMlcControlNode::IHEP_TOTAL_DISTANCE) * vtkMRMLIhepMlcControlNode::IHEP_MOTOR_STEPS_PER_MM);
+      int stepsLayer2Side1 = static_cast<int>((posLayer2Side1 + vtkMRMLIhepMlcControlNode::IHEP_TOTAL_DISTANCE) * vtkMRMLIhepMlcControlNode::IHEP_MOTOR_STEPS_PER_MM);
+      int stepsLayer1Side2 = static_cast<int>((-posLayer1Side2 + vtkMRMLIhepMlcControlNode::IHEP_TOTAL_DISTANCE) * vtkMRMLIhepMlcControlNode::IHEP_MOTOR_STEPS_PER_MM);
+      int stepsLayer2Side2 = static_cast<int>((-posLayer2Side2 + vtkMRMLIhepMlcControlNode::IHEP_TOTAL_DISTANCE) * vtkMRMLIhepMlcControlNode::IHEP_MOTOR_STEPS_PER_MM);
+
+      parameterNode->GetLeafData(leafData, row, vtkMRMLIhepMlcControlNode::Side1, vtkMRMLIhepMlcControlNode::Layer1);
+      leafData.Steps = stepsLayer1Side1;
+      parameterNode->SetLeafData(leafData, row, vtkMRMLIhepMlcControlNode::Side1, vtkMRMLIhepMlcControlNode::Layer1);
+
+      parameterNode->GetLeafData(leafData, row, vtkMRMLIhepMlcControlNode::Side2, vtkMRMLIhepMlcControlNode::Layer1);
+      leafData.Steps = stepsLayer1Side2;
+      parameterNode->SetLeafData(leafData, row, vtkMRMLIhepMlcControlNode::Side2, vtkMRMLIhepMlcControlNode::Layer1);
+
+      parameterNode->GetLeafData(leafData, row, vtkMRMLIhepMlcControlNode::Side1, vtkMRMLIhepMlcControlNode::Layer2);
+      leafData.Steps = stepsLayer2Side1;
+      parameterNode->SetLeafData(leafData, row, vtkMRMLIhepMlcControlNode::Side1, vtkMRMLIhepMlcControlNode::Layer2);
+
+      parameterNode->GetLeafData(leafData, row, vtkMRMLIhepMlcControlNode::Side2, vtkMRMLIhepMlcControlNode::Layer2);
+      leafData.Steps = stepsLayer2Side2;
+      parameterNode->SetLeafData(leafData, row, vtkMRMLIhepMlcControlNode::Side2, vtkMRMLIhepMlcControlNode::Layer2);
+    }
   }
   else if (table->GetNumberOfColumns() == 3 && parameterNode->GetLayers() == vtkMRMLIhepMlcControlNode::OneLayer) // one layer
   {

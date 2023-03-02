@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>579</width>
-    <height>877</height>
+    <width>583</width>
+    <height>1196</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -349,61 +349,13 @@
            <bool>false</bool>
           </property>
           <layout class="QGridLayout" name="gridLayout_6">
-           <item row="0" column="0">
-            <layout class="QGridLayout" name="gridLayout_5">
-             <item row="1" column="0">
-              <widget class="QLabel" name="Label_Layer2">
-               <property name="text">
-                <string>Layer-2:</string>
-               </property>
-              </widget>
-             </item>
-             <item row="0" column="1">
-              <widget class="QLineEdit" name="LineEdit_DeviceLayer1">
-               <property name="inputMask">
-                <string/>
-               </property>
-               <property name="text">
-                <string>/dev/IhepMlcLayer1</string>
-               </property>
-              </widget>
-             </item>
-             <item row="1" column="1">
-              <widget class="QLineEdit" name="LineEdit_DeviceLayer2">
-               <property name="text">
-                <string>/dev/IhepMlcLayer2</string>
-               </property>
-              </widget>
-             </item>
-             <item row="0" column="0">
-              <widget class="QLabel" name="Label_Layer1">
-               <property name="text">
-                <string>Layer-1:</string>
-               </property>
-              </widget>
-             </item>
-             <item row="0" column="2" rowspan="2">
-              <widget class="QPushButton" name="pushButton">
-               <property name="sizePolicy">
-                <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
-                 <horstretch>0</horstretch>
-                 <verstretch>0</verstretch>
-                </sizepolicy>
-               </property>
-               <property name="text">
-                <string>Connect</string>
-               </property>
-              </widget>
-             </item>
-            </layout>
-           </item>
            <item row="1" column="0">
             <widget class="ctkCollapsibleButton" name="CollapsibleButton_LeafControl">
              <property name="text">
               <string>Leaf control</string>
              </property>
              <property name="collapsed">
-              <bool>true</bool>
+              <bool>false</bool>
              </property>
              <layout class="QGridLayout" name="gridLayout_12">
               <item row="0" column="0">
@@ -489,21 +441,21 @@
                 <item row="5" column="0">
                  <widget class="QLabel" name="label_17">
                   <property name="text">
-                   <string>Step mode</string>
+                   <string>Step mode:</string>
                   </property>
                  </widget>
                 </item>
                 <item row="0" column="0">
                  <widget class="QLabel" name="label_13">
                   <property name="text">
-                   <string>Device address</string>
+                   <string>Device address:</string>
                   </property>
                  </widget>
                 </item>
                 <item row="6" column="0">
                  <widget class="QLabel" name="label">
                   <property name="text">
-                   <string>Mode enable</string>
+                   <string>Mode enable:</string>
                   </property>
                  </widget>
                 </item>
@@ -537,21 +489,21 @@
                 <item row="1" column="0">
                  <widget class="QLabel" name="label_15">
                   <property name="text">
-                   <string>Steps</string>
+                   <string>Steps:</string>
                   </property>
                  </widget>
                 </item>
                 <item row="3" column="0">
                  <widget class="QLabel" name="label_14">
                   <property name="text">
-                   <string>Direction</string>
+                   <string>Direction:</string>
                   </property>
                  </widget>
                 </item>
                 <item row="2" column="0">
                  <widget class="QLabel" name="label_12">
                   <property name="text">
-                   <string>Distance</string>
+                   <string>Distance:</string>
                   </property>
                  </widget>
                 </item>
@@ -579,7 +531,7 @@
                 <item row="4" column="0">
                  <widget class="QLabel" name="label_16">
                   <property name="text">
-                   <string>Frequency (Hz)</string>
+                   <string>Frequency (Hz):</string>
                   </property>
                  </widget>
                 </item>
@@ -735,28 +687,120 @@
               <item row="1" column="0">
                <layout class="QHBoxLayout" name="horizontalLayout_12">
                 <item>
-                 <widget class="QPushButton" name="SetMotorParametersPushButton">
+                 <widget class="QPushButton" name="PushButton_SetLeafParameters">
                   <property name="text">
                    <string>Set parameters</string>
                   </property>
                  </widget>
                 </item>
                 <item>
-                 <widget class="QPushButton" name="GetMotorStatePushButton">
+                 <widget class="QPushButton" name="PushButton_GetLeafState">
                   <property name="text">
                    <string>Get state</string>
                   </property>
                  </widget>
                 </item>
                 <item>
-                 <widget class="QPushButton" name="StartMotorPushButton">
+                 <widget class="QPushButton" name="PushButton_StartLeaf">
                   <property name="text">
                    <string>Start</string>
                   </property>
                  </widget>
                 </item>
                 <item>
-                 <widget class="QPushButton" name="StopMotorPushButton">
+                 <widget class="QPushButton" name="PushButton_StopLeaf">
+                  <property name="text">
+                   <string>Stop</string>
+                  </property>
+                 </widget>
+                </item>
+               </layout>
+              </item>
+             </layout>
+            </widget>
+           </item>
+           <item row="0" column="0">
+            <layout class="QGridLayout" name="gridLayout_5">
+             <item row="1" column="0">
+              <widget class="QLabel" name="Label_Layer2">
+               <property name="text">
+                <string>Layer-2:</string>
+               </property>
+              </widget>
+             </item>
+             <item row="0" column="1">
+              <widget class="QLineEdit" name="LineEdit_DeviceLayer1">
+               <property name="inputMask">
+                <string/>
+               </property>
+               <property name="text">
+                <string>/dev/IhepMlcLayer1</string>
+               </property>
+              </widget>
+             </item>
+             <item row="1" column="1">
+              <widget class="QLineEdit" name="LineEdit_DeviceLayer2">
+               <property name="text">
+                <string>/dev/IhepMlcLayer2</string>
+               </property>
+              </widget>
+             </item>
+             <item row="0" column="0">
+              <widget class="QLabel" name="Label_Layer1">
+               <property name="text">
+                <string>Layer-1:</string>
+               </property>
+              </widget>
+             </item>
+             <item row="0" column="2" rowspan="2">
+              <widget class="QPushButton" name="PushButton_ConnectMlcDevice">
+               <property name="sizePolicy">
+                <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
+                 <horstretch>0</horstretch>
+                 <verstretch>0</verstretch>
+                </sizepolicy>
+               </property>
+               <property name="text">
+                <string>Connect</string>
+               </property>
+              </widget>
+             </item>
+            </layout>
+           </item>
+           <item row="2" column="0">
+            <widget class="ctkCollapsibleButton" name="CollapsibleButton_LeavesControl">
+             <property name="text">
+              <string>Leaves control</string>
+             </property>
+             <property name="collapsed">
+              <bool>false</bool>
+             </property>
+             <layout class="QGridLayout" name="gridLayout_13">
+              <item row="0" column="0">
+               <layout class="QHBoxLayout" name="horizontalLayout_11">
+                <item>
+                 <widget class="QPushButton" name="PushButton_SetLeavesParameters">
+                  <property name="text">
+                   <string>Set parameters queue</string>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <widget class="QPushButton" name="PushButton_GetLeavesState">
+                  <property name="text">
+                   <string>Get state queue</string>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <widget class="QPushButton" name="PushButton_StartLeaves">
+                  <property name="text">
+                   <string>Start</string>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <widget class="QPushButton" name="PushButton_StopLeaves">
                   <property name="text">
                    <string>Stop</string>
                   </property>

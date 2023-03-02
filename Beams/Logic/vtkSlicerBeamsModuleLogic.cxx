@@ -26,6 +26,10 @@
 // SlicerRT includes
 #include "vtkMRMLRTPlanNode.h"
 #include "vtkMRMLRTBeamNode.h"
+#include "vtkMRMLRTFixedBeamNode.h"
+#include "vtkMRMLRTIonBeamNode.h"
+#include "vtkMRMLRTFixedIonBeamNode.h"
+#include "vtkMRMLRTIhepIonBeamNode.h"
 
 // MRML includes
 #include <vtkMRMLScene.h>
@@ -83,6 +87,22 @@ void vtkSlicerBeamsModuleLogic::RegisterNodes()
   {
     scene->RegisterNodeClass(vtkSmartPointer<vtkMRMLRTBeamNode>::New());
   }
+  if (!scene->IsNodeClassRegistered("vtkMRMLRTFixedBeamNode"))
+  {
+    scene->RegisterNodeClass(vtkSmartPointer<vtkMRMLRTFixedBeamNode>::New());
+  }
+  if (!scene->IsNodeClassRegistered("vtkMRMLRTIonBeamNode"))
+  {
+    scene->RegisterNodeClass(vtkSmartPointer<vtkMRMLRTIonBeamNode>::New());
+  }
+  if (!scene->IsNodeClassRegistered("vtkMRMLRTFixedIonBeamNode"))
+  {
+    scene->RegisterNodeClass(vtkSmartPointer<vtkMRMLRTFixedIonBeamNode>::New());
+  }
+  if (!scene->IsNodeClassRegistered("vtkMRMLRTIhepIonBeamNode"))
+  {
+    scene->RegisterNodeClass(vtkSmartPointer<vtkMRMLRTIhepIonBeamNode>::New());
+  }
 }
 
 //---------------------------------------------------------------------------
@@ -109,7 +129,9 @@ void vtkSlicerBeamsModuleLogic::OnMRMLSceneNodeAdded(vtkMRMLNode* node)
     return;
   }
 
-  if (node->IsA("vtkMRMLRTBeamNode"))
+  if (node->IsA("vtkMRMLRTBeamNode") || node->IsA("vtkMRMLRTFixedBeamNode")
+    || node->IsA("vtkMRMLRTIonBeamNode") || node->IsA("vtkMRMLRTFixedIonBeamNode")
+    || node->IsA("vtkMRMLRTIhepIonBeamNode"))
   {
     // Observe beam events
     vtkSmartPointer<vtkIntArray> events = vtkSmartPointer<vtkIntArray>::New();

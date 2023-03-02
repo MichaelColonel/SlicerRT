@@ -197,7 +197,7 @@ vtkMRMLSliceCompositeNode* vtkMRMLIhepMlcControlDisplayableManager::vtkInternal:
   vtkMRMLApplicationLogic* mrmlAppLogic = this->External->GetMRMLApplicationLogic();
   if (!mrmlAppLogic)
     {
-    vtkGenericWarningMacro("vtkMRMLIhepMlcControlDisplayableManager::vtkInternal::FindSliceCompositeNode failed: invalid mrmlApplogic");
+///    vtkGenericWarningMacro("vtkMRMLIhepMlcControlDisplayableManager::vtkInternal::FindSliceCompositeNode failed: invalid mrmlApplogic");
     return nullptr;
     }
   vtkMRMLSliceLogic* sliceLogic = mrmlAppLogic->GetSliceLogic(sliceNode);
@@ -257,14 +257,14 @@ void vtkMRMLIhepMlcControlDisplayableManager::Create()
   vtkRenderer* renderer = this->GetRenderer();
   if (!renderer)
     {
-    vtkErrorMacro("vtkMRMLIhepMlcControlDisplayableManager::Create() failed: renderer is invalid");
+///   vtkErrorMacro("vtkMRMLIhepMlcControlDisplayableManager::Create() failed: renderer is invalid");
     return;
     }
   this->Internal->ColorLegendRenderer->InteractiveOff();
   vtkRenderWindow* renderWindow = renderer->GetRenderWindow();
   if (!renderer)
     {
-    vtkErrorMacro("vtkMRMLIhepMlcControlDisplayableManager::Create() failed: render window is invalid");
+///    vtkErrorMacro("vtkMRMLIhepMlcControlDisplayableManager::Create() failed: render window is invalid");
     return;
     }
   if (renderWindow->GetNumberOfLayers() < RENDERER_LAYER + 1)
@@ -313,7 +313,7 @@ void vtkMRMLIhepMlcControlDisplayableManager::OnMRMLSceneNodeAdded(vtkMRMLNode* 
 
   if (node->IsA("vtkMRMLIhepMlcControlNode"))
     {
-    vtkWarningMacro("OnMRMLSceneNodeAdded: MLC control node added for visualization");
+///    vtkWarningMacro("OnMRMLSceneNodeAdded: MLC control node added for visualization");
     vtkNew<vtkIntArray> events;
     events->InsertNextValue(vtkCommand::ModifiedEvent);
     vtkObserveMRMLNodeEventsMacro(node, events);
@@ -331,7 +331,7 @@ void vtkMRMLIhepMlcControlDisplayableManager::OnMRMLSceneNodeRemoved(vtkMRMLNode
 
   if (!node || !this->GetMRMLScene())
     {
-    vtkErrorMacro("OnMRMLSceneNodeRemoved: Invalid MRML scene or input node");
+///    vtkErrorMacro("OnMRMLSceneNodeRemoved: Invalid MRML scene or input node");
     return;
     }
 
@@ -363,7 +363,7 @@ void vtkMRMLIhepMlcControlDisplayableManager::ProcessMRMLNodesEvents(vtkObject *
   {
     return;
   }
-  vtkWarningMacro("ProcessMRMLNodesEvents: Process IhepMLC events in displayable manager");
+///  vtkWarningMacro("ProcessMRMLNodesEvents: Process IhepMLC events in displayable manager");
 /*
   vtkMRMLColorLegendDisplayNode* dispNode = vtkMRMLColorLegendDisplayNode::SafeDownCast(caller);
   vtkMRMLSliceCompositeNode* sliceCompositeNode = vtkMRMLSliceCompositeNode::SafeDownCast(caller);
