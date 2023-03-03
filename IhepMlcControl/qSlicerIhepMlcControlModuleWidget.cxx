@@ -29,7 +29,7 @@
 #include "ui_qSlicerIhepMlcControlModuleWidget.h"
 
 #include "qSlicerIhepMlcControlLayoutWidget.h"
-//#include "qSlicerMlcDeviceLogic.h"
+#include "qSlicerMlcDeviceLogic.h"
 
 // MRML includes
 #include <vtkMRMLScene.h>
@@ -108,7 +108,7 @@ public:
   int PreviousLayoutId{ 0 };
   int MlcCustomLayoutId{ 507 };
   vtkWeakPointer<vtkMRMLIhepMlcControlNode> ParameterNode;
-//  qSlicerIhepMlcDeviceLogic* MlcDeviceLogic{ nullptr };
+  qSlicerIhepMlcDeviceLogic* MlcDeviceLogic{ nullptr };
 
   QByteArray ResponseBuffer;
   QByteArray InputBuffer;
@@ -129,20 +129,20 @@ qSlicerIhepMlcControlModuleWidgetPrivate::qSlicerIhepMlcControlModuleWidgetPriva
   :
   q_ptr(&object)
 {
-//  this->MlcDeviceLogic = new qSlicerIhepMlcDeviceLogic(&object);
+  this->MlcDeviceLogic = new qSlicerIhepMlcDeviceLogic(&object);
 }
 
 //-----------------------------------------------------------------------------
 qSlicerIhepMlcControlModuleWidgetPrivate::~qSlicerIhepMlcControlModuleWidgetPrivate()
 {
   //TODO: Leak?
-/*
+
   if (this->MlcDeviceLogic)
   {
     delete this->MlcDeviceLogic;
     this->MlcDeviceLogic = nullptr;
   }
-*/
+
 }
 
 //-----------------------------------------------------------------------------
@@ -299,8 +299,8 @@ void qSlicerIhepMlcControlModuleWidget::setMRMLScene(vtkMRMLScene* scene)
   qvtkReconnect( d->logic(), scene, vtkMRMLScene::EndImportEvent, this, SLOT(onSceneImportedEvent()));
   qvtkReconnect( d->logic(), scene, vtkMRMLScene::EndCloseEvent, this, SLOT(onSceneClosedEvent()));
 
-  // Set scene to dose engine logic
-//  d->MlcDeviceLogic->setMRMLScene(scene);
+  // Set scene to MLC control logic
+  d->MlcDeviceLogic->setMRMLScene(scene);
 
   // Find parameters node or create it if there is none in the scene
   if (scene)
@@ -337,7 +337,7 @@ void qSlicerIhepMlcControlModuleWidget::setParameterNode(vtkMRMLNode *node)
 
   // Set parameter node to children widgets (MlcControlWidget)
   d->MlcControlWidget->setParameterNode(node);
- 
+
   // Each time the node is modified, the UI widgets are updated
   qvtkReconnect( parameterNode, vtkCommand::ModifiedEvent, this, SLOT(updateWidgetFromMRML()));
   d->ParameterNode = parameterNode;
