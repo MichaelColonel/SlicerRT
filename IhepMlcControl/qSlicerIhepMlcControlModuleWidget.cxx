@@ -47,51 +47,6 @@
 // Logic includes
 #include "vtkSlicerIhepMlcControlLogic.h"
 
-// STD includes
-#include <queue>
-
-namespace {
-
-constexpr int BUFFER = 11;
-
-unsigned short crc16_update(unsigned short crc, unsigned char a)
-{
-  crc ^= a;
-  for (int i = 0; i < CHAR_BIT; ++i)
-  {
-    if (crc & 1)
-    {
-      crc = (crc >> 1) ^ 0xA001;
-    }
-    else
-    {
-      crc = (crc >> 1);
-    }
-  }
-
-  return crc;
-}
-
-unsigned short crc16_calc(const unsigned char* buffer, size_t size)
-{
-  unsigned short crc = 0xFFFF;
-  for (size_t i = 0; i < size; ++i)
-  {
-    crc = crc16_update(crc, buffer[i]);
-  }
-
-  return crc;
-}
-
-bool check_crc16(unsigned char* buffer, size_t dataSize)
-{
-  unsigned short dataCRC16 = crc16_calc(buffer, dataSize); // calculated CRC16 check sum for buffer data
-  unsigned short comCRC16 = (buffer[10] << CHAR_BIT) | buffer[9]; // check sum from buffer
-  return (dataCRC16 == comCRC16);
-}
-
-}
-
 //-----------------------------------------------------------------------------
 /// \ingroup Slicer_QtModules_ExtensionTemplate
 class qSlicerIhepMlcControlModuleWidgetPrivate: public Ui_qSlicerIhepMlcControlModuleWidget
@@ -104,19 +59,19 @@ public:
   virtual ~qSlicerIhepMlcControlModuleWidgetPrivate();
   vtkSlicerIhepMlcControlLogic* logic() const;
 
+  bool connectDevice(const QString& deviceName);
+  bool disconnectDevice();
+
   qSlicerIhepMlcControlLayoutWidget* MlcControlWidget{ nullptr };
   int PreviousLayoutId{ 0 };
   int MlcCustomLayoutId{ 507 };
   vtkWeakPointer<vtkMRMLIhepMlcControlNode> ParameterNode;
-  qSlicerIhepMlcDeviceLogic* MlcDeviceLogic{ nullptr };
 
+  QSerialPort* MlcLayer1SerialPort{ nullptr };
   QByteArray ResponseBuffer;
   QByteArray InputBuffer;
   QByteArray LastCommand;
   std::queue< QByteArray > CommandQueue;
-
-  QSerialPort* SerialPortMlcLayer1{ nullptr };
-  QSerialPort* SerialPortMlcLayer2{ nullptr };
   QTimer* TimerGetState{ nullptr };
   QTimer* TimerWatchdog{ nullptr };
 };
@@ -129,7 +84,7 @@ qSlicerIhepMlcControlModuleWidgetPrivate::qSlicerIhepMlcControlModuleWidgetPriva
   :
   q_ptr(&object)
 {
-  this->MlcDeviceLogic = new qSlicerIhepMlcDeviceLogic(&object);
+//  this->MlcLayer1DeviceLogic = new qSlicerIhepMlcDeviceLogic(&object);
 }
 
 //-----------------------------------------------------------------------------
@@ -137,11 +92,12 @@ qSlicerIhepMlcControlModuleWidgetPrivate::~qSlicerIhepMlcControlModuleWidgetPriv
 {
   //TODO: Leak?
 
-  if (this->MlcDeviceLogic)
-  {
-    delete this->MlcDeviceLogic;
-    this->MlcDeviceLogic = nullptr;
-  }
+//  if (this->MlcLayer1DeviceLogic)
+//  {
+//    this->MlcLayer1DeviceLogic->disconnectDevice(this->MlcLayer1SerialPort);
+//    delete this->MlcLayer1DeviceLogic;
+//    this->MlcLayer1DeviceLogic = nullptr;
+//  }
 
 }
 
@@ -150,6 +106,76 @@ vtkSlicerIhepMlcControlLogic* qSlicerIhepMlcControlModuleWidgetPrivate::logic() 
 {
   Q_Q(const qSlicerIhepMlcControlModuleWidget);
   return vtkSlicerIhepMlcControlLogic::SafeDownCast(q->logic());
+}
+
+//-----------------------------------------------------------------------------
+bool qSlicerIhepMlcControlModuleWidgetPrivate::connectDevice(const QString& deviceName)
+{
+  Q_Q(qSlicerIhepMlcControlModuleWidget);
+
+  this->MlcLayer1SerialPort = new QSerialPort(deviceName, q);
+
+  if (this->MlcLayer1SerialPort && this->MlcLayer1SerialPort->open(QIODevice::ReadWrite))
+  {
+    this->MlcLayer1SerialPort->setBaudRate(QSerialPort::Baud38400);
+    this->MlcLayer1SerialPort->setDataBits(QSerialPort::Data8);
+    this->MlcLayer1SerialPort->setParity(QSerialPort::NoParity);
+    this->MlcLayer1SerialPort->setStopBits(QSerialPort::OneStop);
+    this->MlcLayer1SerialPort->setFlowControl(QSerialPort::NoFlowControl);
+
+    while (this->CommandQueue.size())
+    {
+      this->CommandQueue.pop();
+    }
+
+    this->ResponseBuffer.clear();
+    this->LastCommand.clear();
+    this->InputBuffer.clear();
+
+    QObject::connect(this->MlcLayer1SerialPort, SIGNAL(readyRead()), q, SLOT(serialPortDataReady()));
+    QObject::connect(this->MlcLayer1SerialPort, SIGNAL(bytesWritten(qint64)), q, SLOT(serialPortBytesWritten(qint64)));
+    QObject::connect(this->MlcLayer1SerialPort, SIGNAL(error(QSerialPort::SerialPortError)), q, SLOT(serialPortError(QSerialPort::SerialPortError)));
+    return true;
+  }
+  else if (this->MlcLayer1SerialPort && !this->MlcLayer1SerialPort->isOpen())
+  {
+    delete this->MlcLayer1SerialPort;
+    this->MlcLayer1SerialPort = nullptr;
+
+    this->ResponseBuffer.clear();
+    this->LastCommand.clear();
+    this->InputBuffer.clear();
+    return false;
+  }
+  return false;
+}
+
+//-----------------------------------------------------------------------------
+bool qSlicerIhepMlcControlModuleWidgetPrivate::disconnectDevice()
+{
+  Q_Q(qSlicerIhepMlcControlModuleWidget);
+  if (!this->MlcLayer1SerialPort)
+  {
+    return false;
+  }
+
+  if (this->MlcLayer1SerialPort && this->MlcLayer1SerialPort->isOpen())
+  {
+    this->MlcLayer1SerialPort->flush();
+    this->MlcLayer1SerialPort->close();
+    delete this->MlcLayer1SerialPort;
+    this->MlcLayer1SerialPort = nullptr;
+  }
+  else if (this->MlcLayer1SerialPort && !this->MlcLayer1SerialPort->isOpen())
+  {
+    delete this->MlcLayer1SerialPort;
+    this->MlcLayer1SerialPort = nullptr;
+  }
+
+  this->ResponseBuffer.clear();
+  this->LastCommand.clear();
+  this->InputBuffer.clear();
+  return true;
 }
 
 //-----------------------------------------------------------------------------
@@ -215,6 +241,8 @@ void qSlicerIhepMlcControlModuleWidget::setup()
     this, SLOT(onGenerateMlcBoundaryClicked()));
   QObject::connect( d->PushButton_UpdateMlcBoundary, SIGNAL(clicked()),
     this, SLOT(onUpdateMlcBoundaryClicked()));
+  QObject::connect( d->PushButton_ConnectMlcDevice, SIGNAL(clicked()),
+    this, SLOT(onConnectMlcLayersButtonClicked()));
 
   // Sliders
   QObject::connect( d->SliderWidget_NumberOfLeavesPairs, SIGNAL(valueChanged(double)),
@@ -298,9 +326,6 @@ void qSlicerIhepMlcControlModuleWidget::setMRMLScene(vtkMRMLScene* scene)
 
   qvtkReconnect( d->logic(), scene, vtkMRMLScene::EndImportEvent, this, SLOT(onSceneImportedEvent()));
   qvtkReconnect( d->logic(), scene, vtkMRMLScene::EndCloseEvent, this, SLOT(onSceneClosedEvent()));
-
-  // Set scene to MLC control logic
-  d->MlcDeviceLogic->setMRMLScene(scene);
 
   // Find parameters node or create it if there is none in the scene
   if (scene)
@@ -724,17 +749,55 @@ void qSlicerIhepMlcControlModuleWidget::onUpdateMlcBoundaryClicked()
 }
 
 //-----------------------------------------------------------------------------
+void qSlicerIhepMlcControlModuleWidget::onConnectMlcLayersButtonClicked()
+{
+  Q_D(qSlicerIhepMlcControlModuleWidget);
+  
+  if (!d->ParameterNode)
+  {
+    qCritical() << Q_FUNC_INFO << ": Invalid parameter node";
+    return;
+  }
+
+  // if devices are connected disconnect them
+  if (d->MlcLayer1SerialPort && d->PushButton_ConnectMlcDevice->text() == tr("Disconnect"))
+  {
+    d->disconnectDevice();
+    d->PushButton_ConnectMlcDevice->setText(tr("Connect"));
+    return;
+  }
+
+  // connect devices
+  if (d->ParameterNode->GetLayers() == vtkMRMLIhepMlcControlNode::OneLayer || d->ParameterNode->GetLayers() == vtkMRMLIhepMlcControlNode::TwoLayers)
+  {
+    QString portName = d->LineEdit_DeviceLayer1->text();
+    if (d->connectDevice(portName))
+    {
+      // connected
+      ;
+    }
+  }
+  if (d->ParameterNode->GetLayers() == vtkMRMLIhepMlcControlNode::TwoLayers)
+  {
+    ;
+  }
+  if (d->MlcLayer1SerialPort)
+  {
+    d->PushButton_ConnectMlcDevice->setText(tr("Disconnect"));
+  }
+}
+
+//-----------------------------------------------------------------------------
 void qSlicerIhepMlcControlModuleWidget::serialPortError(QSerialPort::SerialPortError error)
 {
-//  QTextStream output(stderr);
   Q_D(qSlicerIhepMlcControlModuleWidget);
 
   if (error == QSerialPort::ReadError)
   {
 #if (QT_VERSION >= QT_VERSION_CHECK( 5, 0, 0 ))
-//    output << QObject::tr("An I/O error occurred while reading the data from port %1, error: %2").arg(port->portName()).arg(port->errorString()) << Qt::endl;
+    qDebug() << QObject::tr("An I/O error occurred while reading the data from port %1, error: %2").arg(d->MlcLayer1SerialPort->portName()).arg(d->MlcLayer1SerialPort->errorString()) << Qt::endl;
 #elif (QT_VERSION > QT_VERSION_CHECK( 4, 0, 0 ) && QT_VERSION < QT_VERSION_CHECK( 5, 0, 0 ))
-//    output << QObject::tr("An I/O error occurred while reading the data from port %1, error: %2").arg(port->portName()).arg(port->errorString()) << endl;
+    qDebug() << QObject::tr("An I/O error occurred while reading the data from port %1, error: %2").arg(d->MlcLayer1SerialPort->portName()).arg(d->MlcLayer1SerialPort->errorString()) << endl;
 #endif
   }
 }
@@ -743,97 +806,10 @@ void qSlicerIhepMlcControlModuleWidget::serialPortError(QSerialPort::SerialPortE
 void qSlicerIhepMlcControlModuleWidget::serialPortDataReady()
 {
   Q_D(qSlicerIhepMlcControlModuleWidget);
-
-  // Stop watchdog timer because of responce
-  d->TimerWatchdog->stop();
-
-  QByteArray portData = d->SerialPortMlcLayer1->readAll();
-
-//  QString bufferSizeMsg = QObject::tr("Response buffer size: %1").arg(portData.size());
-//  this->log( "[Info] ", bufferSizeMsg, Qt::green);
-  d->ResponseBuffer.push_back(portData);
-
-  if (d->ResponseBuffer.size() >= BUFFER)
-  {
-    unsigned char* data = reinterpret_cast<unsigned char*>(d->ResponseBuffer.data());
-    if (check_crc16(data, BUFFER))
-    {
-//      this->log( "[Info] ", "CRC16 OK", Qt::green);
-//      this->parseResponceBuffer(data);
-      if (d->ResponseBuffer.size() > BUFFER)
-      {
-        d->ResponseBuffer.remove(0, BUFFER);
-      }
-      else if (d->ResponseBuffer.size() == BUFFER)
-      {
-        d->ResponseBuffer.clear();
-      }
-
-      d->LastCommand.clear(); // erase last command since it no longer needed
-      if (!d->CommandQueue.empty()) // write next command from queue
-      {
-//        QTimer::singleShot(10, this, SLOT(writeNextCommandFromQueue()));
-      }
-    }
-    else
-    {
-//      this->log( "[Critical] ", "CRC16 INVALID", Qt::red);
-
-      if (d->ResponseBuffer.size() > BUFFER)
-      {
-        d->ResponseBuffer.remove(0, BUFFER);
-      }
-      else if (d->ResponseBuffer.size() == BUFFER)
-      {
-        d->ResponseBuffer.clear();
-      }
-      // write last command once again, because CRC16 is invalid
-
-      unsigned char* dataLast = reinterpret_cast<unsigned char*>(d->LastCommand.data());
-      QString commandMsg = QObject::tr("Last command address: %1, command type: %2") \
-        .arg(dataLast ? dataLast[0] : 255) \
-        .arg(dataLast ? dataLast[1] : 255);
-//      this->log( "[Critical] ", commandMsg, Qt::red);
-//      QTimer::singleShot(1000, this, SLOT(writeLastCommandOnceAgain()));
-    }
-  }
-
-  // Start get state timer if command queue is empty
-  if (d->CommandQueue.empty() && d->LastCommand.isEmpty())
-  {
-    d->TimerGetState->start();
-  }
 }
 
 //-----------------------------------------------------------------------------
 void qSlicerIhepMlcControlModuleWidget::serialPortBytesWritten(qint64 written)
 {
   Q_D(qSlicerIhepMlcControlModuleWidget);
-
-  if (d->LastCommand.isEmpty()) // last command is empty, take next command
-  {
-    QByteArray command = d->CommandQueue.front();
-    d->LastCommand = command;
-    d->CommandQueue.pop();
-  }
-
-  bool noResponce = true;
-  if (d->LastCommand.size() > 0)
-  {
-    unsigned char* data = reinterpret_cast<unsigned char*>(d->LastCommand.data());
-    switch (data[0])
-    {
-    case 0: // broadcast mode, no responce, empty last command, write next command in the queue
-      d->LastCommand.clear();
-      if (!d->CommandQueue.empty())
-      {
-//        QTimer::singleShot(10, this, SLOT(writeNextCommandFromQueue()));
-      }
-      break;
-    default: // single mode, must be responce
-      noResponce = false;
-      break;
-    }
-  }
-
 }

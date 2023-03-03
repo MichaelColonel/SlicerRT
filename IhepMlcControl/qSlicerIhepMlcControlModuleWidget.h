@@ -71,7 +71,8 @@ public slots:
   void onSwitchToMlcControlLayoutToggled(bool toggled = true);
   void onSetMlcControlLayout();
 
-  /// Update widget GUI from RT Image parameters node
+  void onConnectMlcLayersButtonClicked();
+  /// Update widget GUI from MLC Control parameters node
   void updateWidgetFromMRML();
 
   void serialPortBytesWritten(qint64);
