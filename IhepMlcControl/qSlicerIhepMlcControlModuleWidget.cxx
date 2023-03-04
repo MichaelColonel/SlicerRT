@@ -29,7 +29,7 @@
 #include "ui_qSlicerIhepMlcControlModuleWidget.h"
 
 #include "qSlicerIhepMlcControlLayoutWidget.h"
-#include "qSlicerMlcDeviceLogic.h"
+#include "qSlicerIhepMlcDeviceLogic.h"
 
 // MRML includes
 #include <vtkMRMLScene.h>
@@ -46,6 +46,8 @@
 
 // Logic includes
 #include "vtkSlicerIhepMlcControlLogic.h"
+
+#include <queue>
 
 //-----------------------------------------------------------------------------
 /// \ingroup Slicer_QtModules_ExtensionTemplate
@@ -67,6 +69,7 @@ public:
   int MlcCustomLayoutId{ 507 };
   vtkWeakPointer<vtkMRMLIhepMlcControlNode> ParameterNode;
 
+  qSlicerIhepMlcDeviceLogic* MlcLayer1DeviceLogic{ nullptr };
   QSerialPort* MlcLayer1SerialPort{ nullptr };
   QByteArray ResponseBuffer;
   QByteArray InputBuffer;
@@ -84,7 +87,7 @@ qSlicerIhepMlcControlModuleWidgetPrivate::qSlicerIhepMlcControlModuleWidgetPriva
   :
   q_ptr(&object)
 {
-//  this->MlcLayer1DeviceLogic = new qSlicerIhepMlcDeviceLogic(&object);
+  this->MlcLayer1DeviceLogic = new qSlicerIhepMlcDeviceLogic(&object);
 }
 
 //-----------------------------------------------------------------------------
@@ -92,12 +95,12 @@ qSlicerIhepMlcControlModuleWidgetPrivate::~qSlicerIhepMlcControlModuleWidgetPriv
 {
   //TODO: Leak?
 
-//  if (this->MlcLayer1DeviceLogic)
-//  {
-//    this->MlcLayer1DeviceLogic->disconnectDevice(this->MlcLayer1SerialPort);
-//    delete this->MlcLayer1DeviceLogic;
-//    this->MlcLayer1DeviceLogic = nullptr;
-//  }
+  if (this->MlcLayer1DeviceLogic)
+  {
+    this->MlcLayer1DeviceLogic->disconnectDevice(this->MlcLayer1SerialPort);
+    delete this->MlcLayer1DeviceLogic;
+    this->MlcLayer1DeviceLogic = nullptr;
+  }
 
 }
 
@@ -326,6 +329,8 @@ void qSlicerIhepMlcControlModuleWidget::setMRMLScene(vtkMRMLScene* scene)
 
   qvtkReconnect( d->logic(), scene, vtkMRMLScene::EndImportEvent, this, SLOT(onSceneImportedEvent()));
   qvtkReconnect( d->logic(), scene, vtkMRMLScene::EndCloseEvent, this, SLOT(onSceneClosedEvent()));
+
+  d->MlcLayer1DeviceLogic->setMRMLScene(scene);
 
   // Find parameters node or create it if there is none in the scene
   if (scene)

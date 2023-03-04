@@ -86,10 +86,20 @@ public:
 qSlicerIhepMlcDeviceLogicPrivate::qSlicerIhepMlcDeviceLogicPrivate(qSlicerIhepMlcDeviceLogic& object)
   : q_ptr(&object)
 {
+  this->SerialPortMlcLayer = new QSerialPort(&object);
 }
 
 //-----------------------------------------------------------------------------
-qSlicerIhepMlcDeviceLogicPrivate::~qSlicerIhepMlcDeviceLogicPrivate() = default;
+qSlicerIhepMlcDeviceLogicPrivate::~qSlicerIhepMlcDeviceLogicPrivate()
+{
+  if (this->SerialPortMlcLayer->isOpen())
+  {
+    this->SerialPortMlcLayer->flush();
+    this->SerialPortMlcLayer->close();
+  }
+  delete this->SerialPortMlcLayer;
+  this->SerialPortMlcLayer = nullptr;
+}
 
 //-----------------------------------------------------------------------------
 void qSlicerIhepMlcDeviceLogicPrivate::loadApplicationSettings()
@@ -207,9 +217,9 @@ QSerialPort* qSlicerIhepMlcDeviceLogic::connectDevice(const QString& deviceName)
 {
   Q_D(qSlicerIhepMlcDeviceLogic);
 
-  d->SerialPortMlcLayer = new QSerialPort(deviceName, this);
+  d->SerialPortMlcLayer->setPortName(deviceName);
 
-  if (d->SerialPortMlcLayer && d->SerialPortMlcLayer->open(QIODevice::ReadWrite))
+  if (d->SerialPortMlcLayer->open(QIODevice::ReadWrite))
   {
     d->SerialPortMlcLayer->setBaudRate(QSerialPort::Baud38400);
     d->SerialPortMlcLayer->setDataBits(QSerialPort::Data8);
@@ -226,11 +236,8 @@ QSerialPort* qSlicerIhepMlcDeviceLogic::connectDevice(const QString& deviceName)
     d->LastCommand.clear();
     d->InputBuffer.clear();
   }
-  else if (d->SerialPortMlcLayer && !d->SerialPortMlcLayer->isOpen())
+  else if (!d->SerialPortMlcLayer->isOpen())
   {
-    delete d->SerialPortMlcLayer;
-    d->SerialPortMlcLayer = nullptr;
-
     d->ResponseBuffer.clear();
     d->LastCommand.clear();
     d->InputBuffer.clear();
@@ -242,22 +249,23 @@ QSerialPort* qSlicerIhepMlcDeviceLogic::connectDevice(const QString& deviceName)
 bool qSlicerIhepMlcDeviceLogic::disconnectDevice(QSerialPort* port)
 {
   Q_D(qSlicerIhepMlcDeviceLogic);
-  if (port != d->SerialPortMlcLayer)
+
+  if (!port)
   {
+    qWarning() << Q_FUNC_INFO << "Serial port is invalid";
     return false;
   }
 
-  if (d->SerialPortMlcLayer && d->SerialPortMlcLayer->isOpen())
+  if (port != d->SerialPortMlcLayer)
+  {
+    qWarning() << Q_FUNC_INFO << "Internal and external serial ports don't match";
+    return false;
+  }
+
+  if (d->SerialPortMlcLayer->isOpen())
   {
     d->SerialPortMlcLayer->flush();
     d->SerialPortMlcLayer->close();
-    delete d->SerialPortMlcLayer;
-    d->SerialPortMlcLayer = nullptr;
-  }
-  else if (d->SerialPortMlcLayer && !d->SerialPortMlcLayer->isOpen())
-  {
-    delete d->SerialPortMlcLayer;
-    d->SerialPortMlcLayer = nullptr;
   }
 
   d->ResponseBuffer.clear();
