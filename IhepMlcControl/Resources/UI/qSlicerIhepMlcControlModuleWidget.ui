@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>583</width>
-    <height>1196</height>
+    <width>604</width>
+    <height>1126</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -355,7 +355,7 @@
               <string>Leaf control</string>
              </property>
              <property name="collapsed">
-              <bool>true</bool>
+              <bool>false</bool>
              </property>
              <layout class="QGridLayout" name="gridLayout_12">
               <item row="0" column="0">
@@ -363,7 +363,7 @@
                 <item row="2" column="1">
                  <layout class="QHBoxLayout" name="horizontalLayout_5">
                   <item>
-                   <widget class="QSlider" name="HorizontalSliderDistance">
+                   <widget class="QSlider" name="HorizontalSlider_Distance">
                     <property name="minimum">
                      <number>0</number>
                     </property>
@@ -379,7 +379,7 @@
                    </widget>
                   </item>
                   <item>
-                   <widget class="QDoubleSpinBox" name="DoubleSpinBoxDistance">
+                   <widget class="QDoubleSpinBox" name="DoubleSpinBox_Distance">
                     <property name="suffix">
                      <string> mm</string>
                     </property>
@@ -402,7 +402,7 @@
                 <item row="1" column="1">
                  <layout class="QHBoxLayout" name="horizontalLayout_6">
                   <item>
-                   <widget class="QSlider" name="HorizontalSliderSteps">
+                   <widget class="QSlider" name="HorizontalSlider_LeafSteps">
                     <property name="enabled">
                      <bool>true</bool>
                     </property>
@@ -421,7 +421,7 @@
                    </widget>
                   </item>
                   <item>
-                   <widget class="QSpinBox" name="SpinBoxSteps">
+                   <widget class="QSpinBox" name="SpinBox_LeafSteps">
                     <property name="enabled">
                      <bool>true</bool>
                     </property>
@@ -455,14 +455,14 @@
                 <item row="6" column="0">
                  <widget class="QLabel" name="label">
                   <property name="text">
-                   <string>Mode enable:</string>
+                   <string>Enable mode:</string>
                   </property>
                  </widget>
                 </item>
                 <item row="5" column="1">
                  <layout class="QHBoxLayout" name="horizontalLayout_7">
                   <item>
-                   <widget class="QRadioButton" name="RadioButtonFullStep">
+                   <widget class="QRadioButton" name="RadioButton_FullStep">
                     <property name="enabled">
                      <bool>true</bool>
                     </property>
@@ -472,16 +472,22 @@
                     <property name="checked">
                      <bool>true</bool>
                     </property>
+                    <attribute name="buttonGroup">
+                     <string notr="true">ButtonGroup_LeafStepMode</string>
+                    </attribute>
                    </widget>
                   </item>
                   <item>
-                   <widget class="QRadioButton" name="RadioButtonHalfStep">
+                   <widget class="QRadioButton" name="RadioButton_HalfStep">
                     <property name="enabled">
                      <bool>false</bool>
                     </property>
                     <property name="text">
                      <string>Half</string>
                     </property>
+                    <attribute name="buttonGroup">
+                     <string notr="true">ButtonGroup_LeafStepMode</string>
+                    </attribute>
                    </widget>
                   </item>
                  </layout>
@@ -510,20 +516,26 @@
                 <item row="3" column="1">
                  <layout class="QHBoxLayout" name="horizontalLayout_8">
                   <item>
-                   <widget class="QRadioButton" name="RadioButtonClockwise">
+                   <widget class="QRadioButton" name="RadioButton_Clockwise">
                     <property name="text">
-                     <string>Clockwise (out of the beam)</string>
+                     <string>Clockwise (away from switch)</string>
                     </property>
                     <property name="checked">
                      <bool>true</bool>
                     </property>
+                    <attribute name="buttonGroup">
+                     <string notr="true">ButtonGroup_LeafDirection</string>
+                    </attribute>
                    </widget>
                   </item>
                   <item>
-                   <widget class="QRadioButton" name="RadioButtonCounterClockwise">
+                   <widget class="QRadioButton" name="RadioButton_CounterClockwise">
                     <property name="text">
-                     <string>Counter clockwise (to the beam)</string>
+                     <string>Counter clockwise (to switch)</string>
                     </property>
+                    <attribute name="buttonGroup">
+                     <string notr="true">ButtonGroup_LeafDirection</string>
+                    </attribute>
                    </widget>
                   </item>
                  </layout>
@@ -538,7 +550,7 @@
                 <item row="0" column="1">
                  <layout class="QHBoxLayout" name="horizontalLayout_9">
                   <item>
-                   <widget class="QSlider" name="HorizontalSliderAddress">
+                   <widget class="QSlider" name="HorizontalSlider_LeafAddress">
                     <property name="minimum">
                      <number>1</number>
                     </property>
@@ -554,7 +566,7 @@
                    </widget>
                   </item>
                   <item>
-                   <widget class="QSpinBox" name="SpinBoxAddress">
+                   <widget class="QSpinBox" name="SpinBox_LeafAddress">
                     <property name="minimum">
                      <number>1</number>
                     </property>
@@ -571,7 +583,7 @@
                 <item row="6" column="1">
                  <layout class="QHBoxLayout" name="horizontalLayout_10">
                   <item>
-                   <widget class="QCheckBox" name="CheckBoxReset">
+                   <widget class="QCheckBox" name="CheckBox_MotorReset">
                     <property name="enabled">
                      <bool>true</bool>
                     </property>
@@ -581,7 +593,7 @@
                    </widget>
                   </item>
                   <item>
-                   <widget class="QCheckBox" name="CheckBoxEnable">
+                   <widget class="QCheckBox" name="CheckBox_MotorEnable">
                     <property name="enabled">
                      <bool>true</bool>
                     </property>
@@ -596,7 +608,7 @@
                  </layout>
                 </item>
                 <item row="4" column="1">
-                 <widget class="QComboBox" name="ComboBoxFrequency">
+                 <widget class="QComboBox" name="ComboBox_MotorFrequency">
                   <property name="currentIndex">
                    <number>0</number>
                   </property>
@@ -773,7 +785,7 @@
               <string>Leaves control</string>
              </property>
              <property name="collapsed">
-              <bool>true</bool>
+              <bool>false</bool>
              </property>
              <layout class="QGridLayout" name="gridLayout_13">
               <item row="0" column="0">
@@ -789,6 +801,13 @@
                  <widget class="QPushButton" name="PushButton_GetLeavesState">
                   <property name="text">
                    <string>Get state queue</string>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <widget class="QPushButton" name="PushButton_OpenLeaves">
+                  <property name="text">
+                   <string>Open</string>
                   </property>
                  </widget>
                 </item>
@@ -949,9 +968,75 @@
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>HorizontalSlider_LeafAddress</sender>
+   <signal>valueChanged(int)</signal>
+   <receiver>SpinBox_LeafAddress</receiver>
+   <slot>setValue(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>317</x>
+     <y>785</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>522</x>
+     <y>785</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>SpinBox_LeafAddress</sender>
+   <signal>valueChanged(int)</signal>
+   <receiver>HorizontalSlider_LeafAddress</receiver>
+   <slot>setValue(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>522</x>
+     <y>785</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>317</x>
+     <y>785</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>SpinBox_LeafSteps</sender>
+   <signal>valueChanged(int)</signal>
+   <receiver>HorizontalSlider_LeafSteps</receiver>
+   <slot>setValue(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>533</x>
+     <y>817</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>317</x>
+     <y>817</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>HorizontalSlider_LeafSteps</sender>
+   <signal>valueChanged(int)</signal>
+   <receiver>SpinBox_LeafSteps</receiver>
+   <slot>setValue(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>317</x>
+     <y>817</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>533</x>
+     <y>817</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
  <buttongroups>
-  <buttongroup name="ButtonGroup_MlcOrientation"/>
   <buttongroup name="ButtonGroup_MlcLayers"/>
+  <buttongroup name="ButtonGroup_MlcOrientation"/>
+  <buttongroup name="ButtonGroup_LeafStepMode"/>
+  <buttongroup name="ButtonGroup_LeafDirection"/>
  </buttongroups>
 </ui>

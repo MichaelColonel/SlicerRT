@@ -49,7 +49,8 @@ public:
     QWidget *parent = nullptr);
 
   ~qSlicerIhepPairOfLeavesControlDialog() override;
-  void getSidePositions(int& side1, int& side2);
+  void getSideRequiredPositions(int& side1, int& side2);
+  void getSideCurrentPositions(int& side1, int& side2);
   int getSide1Range() const;
   int getSide2Range() const;
 

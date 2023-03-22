@@ -26,12 +26,22 @@
 #include <vtkMRMLNode.h>
 #include <vtkMRMLModelNode.h>
 
+// STD includes
+#include <array>
+
 class vtkMRMLRTBeamNode;
 class vtkMRMLTableNode;
 
 class VTK_SLICER_IHEPMLCCONTROL_MODULE_MRML_EXPORT vtkMRMLIhepMlcControlNode : public vtkMRMLNode
 {
 public:
+  static constexpr size_t BUFFER = 11;
+  static constexpr size_t COMMAND_DATA = (BUFFER - 2);
+  static constexpr size_t COMMAND_CRC16_LSB = (BUFFER - 2);
+  static constexpr size_t COMMAND_CRC16_MSB = (BUFFER - 1);
+
+  typedef std::array< unsigned char, BUFFER > CommandBufferType;
+
   static constexpr double IHEP_SIDE_OPENING{ 80. }; // in mm in one side
   static constexpr int IHEP_MOTOR_STEPS_PER_TURN{ 200 };
   static constexpr double IHEP_AXIS_DISTANCE_PER_TURN{ 0.8 };
@@ -58,7 +68,7 @@ public:
     Close,
     PredefinedPosition_Last
   };
-
+  enum PositionType : int { Unknown = -1, Opened, WasOpened, Position_Last };
   static vtkMRMLIhepMlcControlNode *New();
   vtkTypeMacro(vtkMRMLIhepMlcControlNode,vtkMRMLNode);
   void PrintSelf(ostream& os, vtkIndent indent) override;
@@ -97,7 +107,9 @@ public:
     bool Reset{ false };
     bool Enabled{ true };
     // Current
-    int EncoderCounts{ 100 }; // external encoder counts
+    int CurrentPosition{ 0 }; // current position of leaf in steps
+    int RequiredPosition{ 0 }; // required position of leaf in steps
+    int EncoderCounts{ 100 }; // external encoder counts while moving
     int StepsLeft{ 0 };
     int State{ 0 };
     bool EncoderDirection{ false }; // external encoder direction
@@ -111,6 +123,9 @@ public:
 
   vtkGetMacro(NumberOfLeafPairs, int);
   vtkSetMacro(NumberOfLeafPairs, int);
+
+  vtkGetMacro(Position, PositionType);
+  vtkSetMacro(Position, PositionType);
 
   vtkGetMacro(Orientation, OrientationType);
   vtkSetMacro(Orientation, OrientationType);
@@ -133,11 +148,27 @@ public:
   vtkGetMacro(OffsetBetweenTwoLayers, double);
   vtkSetMacro(OffsetBetweenTwoLayers, double);
 
+  void GetAddressesByLayerSide(std::vector<int>& addresses, SideType side = Side1, LayerType layer = Layer1);
+  void GetAddressesByLayer(std::vector<int>& addresses, LayerType layer = Layer1);
+  void GetAddresses(std::vector<int>& addresses);
+
+  /// @return position
+  /// get key, side, layer values
+  int GetLeafPositionLayerByAddress(int address, int& key, SideType& side, LayerType& layer);
+
   bool GetLeafData(LeafData& leafData, int pos = 0, SideType side = Side1, LayerType layer = Layer1);
   bool SetLeafData(const LeafData& leafData, int pos = 0, SideType side = Side1, LayerType layer = Layer1);
+  bool GetLeafDataByAddress(LeafData& leafData, int address);
+  bool SetLeafDataByAddress(const LeafData& leafData, int address);
 
   bool GetPairOfLeavesData(PairOfLeavesData& pairOfLeaves, int pos = 0, LayerType layer = Layer1);
   bool SetPairOfLeavesData(const PairOfLeavesData& pairOfLeaves, int pos = 0, LayerType layer = Layer1);
+  /// @brief Calculate movement in number of steps between Required and Current position of leaf data
+  /// positive value - movement away from the switch
+  /// negative value - movement to the switch
+  /// zero "0" - no movement
+  /// @return leafData.Required - leafData.Current
+  int GetRelativeMovementByAddress(int address);
 
   PairOfLeavesMap& GetPairOfLeavesMap() { return this->LeavesDataMap; }
   const PairOfLeavesMap& GetPairOfLeavesMap() const { return this->LeavesDataMap; }
@@ -149,10 +180,15 @@ public:
   bool SetMlcLeavesOpened(LayerType layer);
 
   void SetPredefinedPosition(LayerType layer, PredefinedPositionType predef);
+
   static double ExternalCounterValueToDistance(int extCounterValue);
   static double InternalCounterValueToDistance(int intCounterValue);
   static int DistanceToExternalCounterValue(double distance);
   static int DistanceToInternalCounterValue(double distance);
+
+  static unsigned short CommandCalculateCrc16(const CommandBufferType&);
+  static bool CommandCheckCrc16(const CommandBufferType&);
+  static void ProcessCommandBufferToLeafData(const CommandBufferType& buf, LeafData& leafdata);
 
 public:
   /// Get beam node
@@ -170,6 +206,7 @@ private:
   // General MLC data
   OrientationType Orientation{ vtkMRMLIhepMlcControlNode::Y }; // MLCX or MLCY
   LayersType Layers{ vtkMRMLIhepMlcControlNode::TwoLayers }; // One layer or two layers
+  PositionType Position{ vtkMRMLIhepMlcControlNode::Unknown };
   int NumberOfLeafPairs{ vtkMRMLIhepMlcControlNode::IHEP_PAIR_OF_LEAVES_PER_LAYER };
   double PairOfLeavesSize{ 5. }; // mm
   double IsocenterOffset{ 0. }; // mm

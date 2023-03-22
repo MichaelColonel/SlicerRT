@@ -57,7 +57,7 @@ public:
   /// Set the current MRML scene to the widget
   Q_INVOKABLE void setMRMLScene(vtkMRMLScene* scene) override;
 
-  QSerialPort* connectDevice(const QString& deviceName);
+  QSerialPort* connectDevice(QSerialPort* devicePort);
   bool disconnectDevice(QSerialPort* devicePort);
 
 protected slots:

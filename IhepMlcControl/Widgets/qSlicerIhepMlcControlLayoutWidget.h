@@ -31,6 +31,9 @@
 #include <ctkPimpl.h>
 #include <ctkVTKObject.h>
 
+// SlicerRT IhepMlcControl MRML includes
+#include <vtkMRMLIhepMlcControlNode.h>
+
 class vtkMRMLNode;
 
 class QAbstractButton;
@@ -48,6 +51,12 @@ public:
   ~qSlicerIhepMlcControlLayoutWidget() override;
 
   void fillLeavesControlContainer(int pairOfLeavesIndex);
+  bool getLeafDataByAddress(int address, int& range, int& position);
+  vtkMRMLIhepMlcControlNode::LayerType getSelectedMlcLayer() const;
+  void setLeafData(const vtkMRMLIhepMlcControlNode::LeafData& data);
+
+signals:
+  void leafAddressStepsMovementChanged(int, int);
 
 public slots:
   /// Set IhepMlcControl MRML node (Parameter node)
@@ -55,6 +64,10 @@ public slots:
   /// Update widget GUI from IhepMlcControl node and observed RTBeam and Table nodes
   void updateWidgetFromMRML();
   void onMlcLayerChanged(QAbstractButton* radioButton);
+  void onLeafDataChanged(const vtkMRMLIhepMlcControlNode::LeafData&);
+  void onSetCurrentLeafParametersClicked();
+  void onSetOpenLeafParametersClicked();
+  void onSetCloseLeafParametersClicked();
 
   // Pair of leaves slots:
   void onPairOfLeavesDoubleClicked();

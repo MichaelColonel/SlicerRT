@@ -247,21 +247,21 @@
            </spacer>
           </item>
           <item>
-           <widget class="QPushButton" name="PushButton_SetPredefinedMlcPositions">
+           <widget class="QPushButton" name="PushButton_SetCurrentMlc">
             <property name="text">
              <string>Set</string>
             </property>
            </widget>
           </item>
           <item>
-           <widget class="QPushButton" name="PushButton_OpenMlc">
+           <widget class="QPushButton" name="PushButton_OpenCurrentMlc">
             <property name="text">
              <string>Open</string>
             </property>
            </widget>
           </item>
           <item>
-           <widget class="QPushButton" name="PushButton_CloseMlc">
+           <widget class="QPushButton" name="PushButton_CloseCurrentMlc">
             <property name="text">
              <string>Close</string>
             </property>

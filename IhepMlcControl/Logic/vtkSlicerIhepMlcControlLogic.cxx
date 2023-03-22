@@ -190,7 +190,7 @@ void vtkSlicerIhepMlcControlLogic::ProcessMRMLNodesEvents(vtkObject* caller, uns
     if (event == vtkCommand::ModifiedEvent)
     {
       // Update parameters using beam node data and create/update markups transform if they weren't created/updated
-      vtkWarningMacro("ProcessMRMLNodesEvents: Process IhepMLC events in logic");
+//      vtkWarningMacro("ProcessMRMLNodesEvents: Process IhepMLC events in logic");
     }
   }
 }

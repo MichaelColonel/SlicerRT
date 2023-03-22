@@ -464,25 +464,47 @@ void qSlicerAbstractPairOfLeavesWidget::setControlEnabled(bool enabled)
 }
 
 //-----------------------------------------------------------------------------
-void qSlicerAbstractPairOfLeavesWidget::getMinMaxPositions(int& min, int& max) const
+void qSlicerAbstractPairOfLeavesWidget::getMinMaxRequiredPositions(int& min, int& max) const
 {
   Q_D(const qSlicerAbstractPairOfLeavesWidget);
-  min = this->getMinPosition();
-  max = this->getMaxPosition();
+  min = this->getMinRequiredPosition();
+  max = this->getMaxRequiredPosition();
 }
 
 //-----------------------------------------------------------------------------
-int qSlicerAbstractPairOfLeavesWidget::getMinPosition() const
+int qSlicerAbstractPairOfLeavesWidget::getMinRequiredPosition() const
 {
   Q_D(const qSlicerAbstractPairOfLeavesWidget);
   return d->m_RequiredValues.first;
 }
 
 //-----------------------------------------------------------------------------
-int qSlicerAbstractPairOfLeavesWidget::getMaxPosition() const
+int qSlicerAbstractPairOfLeavesWidget::getMaxRequiredPosition() const
 {
   Q_D(const qSlicerAbstractPairOfLeavesWidget);
   return (this->maximum() - d->m_RequiredValues.second);
+}
+
+//-----------------------------------------------------------------------------
+void qSlicerAbstractPairOfLeavesWidget::getMinMaxCurrentPositions(int& min, int& max) const
+{
+  Q_D(const qSlicerAbstractPairOfLeavesWidget);
+  min = this->getMinCurrentPosition();
+  max = this->getMaxCurrentPosition();
+}
+
+//-----------------------------------------------------------------------------
+int qSlicerAbstractPairOfLeavesWidget::getMinCurrentPosition() const
+{
+  Q_D(const qSlicerAbstractPairOfLeavesWidget);
+  return d->m_CurrentValues.first;
+}
+
+//-----------------------------------------------------------------------------
+int qSlicerAbstractPairOfLeavesWidget::getMaxCurrentPosition() const
+{
+  Q_D(const qSlicerAbstractPairOfLeavesWidget);
+  return (this->maximum() - d->m_CurrentValues.second);
 }
 
 //-----------------------------------------------------------------------------

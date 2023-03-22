@@ -29,7 +29,6 @@
 #include "ui_qSlicerIhepMlcControlModuleWidget.h"
 
 #include "qSlicerIhepMlcControlLayoutWidget.h"
-#include "qSlicerIhepMlcDeviceLogic.h"
 
 // MRML includes
 #include <vtkMRMLScene.h>
@@ -47,7 +46,10 @@
 // Logic includes
 #include "vtkSlicerIhepMlcControlLogic.h"
 
+// STD includes
+#include <cstring>
 #include <queue>
+#include <bitset>
 
 //-----------------------------------------------------------------------------
 /// \ingroup Slicer_QtModules_ExtensionTemplate
@@ -64,13 +66,33 @@ public:
   bool connectDevice(const QString& deviceName);
   bool disconnectDevice();
 
+  bool processResponseBufferToLeafData(vtkMRMLIhepMlcControlNode::LeafData& leafData);
+
+  void writeNextCommandFromQueue();
+  void writeLastCommandOnceAgain();
+  QByteArray getParametersCommandByAddress(int address);
+  QByteArray getStateCommandByAddress(int address);
+  QByteArray getStartCommandByAddress(int address);
+  QByteArray getStopCommandByAddress(int address);
+  QByteArray getParametersCommandFromLeafData(const vtkMRMLIhepMlcControlNode::LeafData& leafData);
+  QByteArray getStateCommandFromLeafData(const vtkMRMLIhepMlcControlNode::LeafData& leafData);
+  QByteArray getStartCommandFromLeafData(const vtkMRMLIhepMlcControlNode::LeafData& leafData);
+  QByteArray getStopCommandFromLeafData(const vtkMRMLIhepMlcControlNode::LeafData& leafData);
+  QList< QByteArray > getParametersCommandsByLayer(vtkMRMLIhepMlcControlNode::LayerType);
+  QList< QByteArray > getStateCommandsByLayer(vtkMRMLIhepMlcControlNode::LayerType);
+  QList< QByteArray > getParametersCommandsByLayerSide(vtkMRMLIhepMlcControlNode::LayerType,vtkMRMLIhepMlcControlNode::SideType);
+  QList< QByteArray > getStateCommandsByLayerSide(vtkMRMLIhepMlcControlNode::LayerType,vtkMRMLIhepMlcControlNode::SideType);
+  QList< QByteArray > getParametersCommands();
+  QList< QByteArray > getStateCommands();
+
   qSlicerIhepMlcControlLayoutWidget* MlcControlWidget{ nullptr };
   int PreviousLayoutId{ 0 };
   int MlcCustomLayoutId{ 507 };
   vtkWeakPointer<vtkMRMLIhepMlcControlNode> ParameterNode;
 
-  qSlicerIhepMlcDeviceLogic* MlcLayer1DeviceLogic{ nullptr };
   QSerialPort* MlcLayer1SerialPort{ nullptr };
+  QSerialPort* MlcLayer2SerialPort{ nullptr };
+
   QByteArray ResponseBuffer;
   QByteArray InputBuffer;
   QByteArray LastCommand;
@@ -87,21 +109,37 @@ qSlicerIhepMlcControlModuleWidgetPrivate::qSlicerIhepMlcControlModuleWidgetPriva
   :
   q_ptr(&object)
 {
-  this->MlcLayer1DeviceLogic = new qSlicerIhepMlcDeviceLogic(&object);
+  this->MlcLayer1SerialPort = new QSerialPort(&object);
+  this->MlcLayer2SerialPort = new QSerialPort(&object);
+  this->TimerGetState = new QTimer(&object);
+  this->TimerWatchdog = new QTimer(&object);
 }
 
 //-----------------------------------------------------------------------------
 qSlicerIhepMlcControlModuleWidgetPrivate::~qSlicerIhepMlcControlModuleWidgetPrivate()
 {
-  //TODO: Leak?
-
-  if (this->MlcLayer1DeviceLogic)
+  if (this->MlcLayer1SerialPort->isOpen())
   {
-    this->MlcLayer1DeviceLogic->disconnectDevice(this->MlcLayer1SerialPort);
-    delete this->MlcLayer1DeviceLogic;
-    this->MlcLayer1DeviceLogic = nullptr;
+    this->MlcLayer1SerialPort->flush();
+    this->MlcLayer1SerialPort->close();
   }
+  delete this->MlcLayer1SerialPort;
+  this->MlcLayer1SerialPort = nullptr;
 
+  if (this->MlcLayer2SerialPort->isOpen())
+  {
+    this->MlcLayer2SerialPort->flush();
+    this->MlcLayer2SerialPort->close();
+  }
+  delete this->MlcLayer2SerialPort;
+  this->MlcLayer2SerialPort = nullptr;
+
+  this->TimerGetState->stop();
+  delete this->TimerGetState;
+  this->TimerGetState = nullptr;
+  this->TimerWatchdog->stop();
+  delete this->TimerWatchdog;
+  this->TimerWatchdog = nullptr;
 }
 
 //-----------------------------------------------------------------------------
@@ -112,13 +150,316 @@ vtkSlicerIhepMlcControlLogic* qSlicerIhepMlcControlModuleWidgetPrivate::logic() 
 }
 
 //-----------------------------------------------------------------------------
+QByteArray qSlicerIhepMlcControlModuleWidgetPrivate::getParametersCommandByAddress(int address)
+{
+  Q_Q(const qSlicerIhepMlcControlModuleWidget);
+  if (!this->ParameterNode || address == 0)
+  {
+    return QByteArray();
+  }
+  if (this->ParameterNode->GetNumberOfLeafPairs() * 2 >= address)
+  {
+    return QByteArray();
+  }
+  vtkMRMLIhepMlcControlNode::LeafData leafData;
+  vtkMRMLIhepMlcControlNode::CommandBufferType buf;
+  if (this->ParameterNode->GetLeafDataByAddress(leafData, address))
+  {
+    buf[0] = static_cast<unsigned char>(address); // address
+    buf[1] = 0; // set leaf parameters
+    std::bitset< CHAR_BIT > v(leafData.Frequency); // frequency code
+    v.set(4, leafData.Mode); // step mode, halfStep == true, fullStep == false
+    v.set(5, leafData.Direction); // clockwise direction == true, counter clockwise == false
+    v.set(6, leafData.Reset); // reset state
+    v.set(7, leafData.Enabled); // enable state
+    buf[2] = static_cast<unsigned char>(v.to_ulong());
+    buf[3] = 0; // reserved
+    buf[5] = leafData.Steps >> CHAR_BIT;
+    buf[4] = leafData.Steps & 0xFF;
+    unsigned short chcksumm = vtkMRMLIhepMlcControlNode::CommandCalculateCrc16(buf);
+    buf[9] = chcksumm & 0xFF;
+    buf[10] = chcksumm >> CHAR_BIT;
+
+    return QByteArray(reinterpret_cast< char* >(buf.data()), buf.size());
+  }
+  return QByteArray();
+}
+
+//-----------------------------------------------------------------------------
+QByteArray qSlicerIhepMlcControlModuleWidgetPrivate::getStateCommandByAddress(int address)
+{
+  Q_Q(const qSlicerIhepMlcControlModuleWidget);
+  if (!this->ParameterNode || address == 0)
+  {
+    return QByteArray();
+  }
+  if (this->ParameterNode->GetNumberOfLeafPairs() * 2 >= address)
+  {
+    return QByteArray();
+  }
+  vtkMRMLIhepMlcControlNode::CommandBufferType buf;
+
+  buf[0] = static_cast<unsigned char>(address); // address
+  buf[1] = 1; // get leaf state
+  unsigned short chcksumm = vtkMRMLIhepMlcControlNode::CommandCalculateCrc16(buf);
+  buf[9] = chcksumm & 0xFF;
+  buf[10] = chcksumm >> CHAR_BIT;
+
+  return QByteArray(reinterpret_cast< char* >(buf.data()), buf.size());
+}
+
+//-----------------------------------------------------------------------------
+QByteArray qSlicerIhepMlcControlModuleWidgetPrivate::getStartCommandByAddress(int address)
+{
+  Q_Q(const qSlicerIhepMlcControlModuleWidget);
+  if (!this->ParameterNode || address == 0)
+  {
+    return QByteArray();
+  }
+  if (this->ParameterNode->GetNumberOfLeafPairs() * 2 >= address)
+  {
+    return QByteArray();
+  }
+  vtkMRMLIhepMlcControlNode::CommandBufferType buf;
+
+  buf[0] = static_cast<unsigned char>(address); // address
+  buf[1] = 2; // start leaf command
+  unsigned short chcksumm = vtkMRMLIhepMlcControlNode::CommandCalculateCrc16(buf);
+  buf[9] = chcksumm & 0xFF;
+  buf[10] = chcksumm >> CHAR_BIT;
+
+  return QByteArray(reinterpret_cast< char* >(buf.data()), buf.size());
+}
+
+//-----------------------------------------------------------------------------
+QByteArray qSlicerIhepMlcControlModuleWidgetPrivate::getStopCommandByAddress(int address)
+{
+  Q_Q(const qSlicerIhepMlcControlModuleWidget);
+  if (!this->ParameterNode || address == 0)
+  {
+    return QByteArray();
+  }
+  if (this->ParameterNode->GetNumberOfLeafPairs() * 2 >= address)
+  {
+    return QByteArray();
+  }
+
+  vtkMRMLIhepMlcControlNode::CommandBufferType buf;
+
+  buf[0] = static_cast<unsigned char>(address); // address
+  buf[1] = 3; // stop leaf command
+  unsigned short chcksumm = vtkMRMLIhepMlcControlNode::CommandCalculateCrc16(buf);
+  buf[9] = chcksumm & 0xFF;
+  buf[10] = chcksumm >> CHAR_BIT;
+
+  return QByteArray(reinterpret_cast< char* >(buf.data()), buf.size());
+}
+
+//-----------------------------------------------------------------------------
+QList< QByteArray > qSlicerIhepMlcControlModuleWidgetPrivate::getParametersCommandsByLayer(vtkMRMLIhepMlcControlNode::LayerType layer)
+{
+  Q_Q(const qSlicerIhepMlcControlModuleWidget);
+  QList< QByteArray > list;
+  if (!this->ParameterNode || layer == vtkMRMLIhepMlcControlNode::Layer_Last)
+  {
+    return list;
+  }
+  std::vector<int> addresses;
+  this->ParameterNode->GetAddressesByLayer(addresses, layer);
+
+  for (int address : addresses)
+  {
+    QByteArray command = this->getParametersCommandByAddress(address);
+    if (command.size())
+    {
+      list.push_back(command);
+    }
+  }
+  return list;
+}
+
+//-----------------------------------------------------------------------------
+QList< QByteArray > qSlicerIhepMlcControlModuleWidgetPrivate::getStateCommandsByLayer(vtkMRMLIhepMlcControlNode::LayerType layer)
+{
+  Q_Q(const qSlicerIhepMlcControlModuleWidget);
+  QList< QByteArray > list;
+  if (!this->ParameterNode || layer == vtkMRMLIhepMlcControlNode::Layer_Last)
+  {
+    return list;
+  }
+  std::vector<int> addresses;
+  this->ParameterNode->GetAddressesByLayer(addresses, layer);
+
+  for (int address : addresses)
+  {
+    QByteArray command = this->getStateCommandByAddress(address);
+    if (command.size())
+    {
+      list.push_back(command);
+    }
+  }
+  return list;
+}
+
+//-----------------------------------------------------------------------------
+QList< QByteArray > qSlicerIhepMlcControlModuleWidgetPrivate::getParametersCommands()
+{
+  Q_Q(const qSlicerIhepMlcControlModuleWidget);
+  QList< QByteArray > list;
+  if (!this->ParameterNode)
+  {
+    return list;
+  }
+
+  for (const auto& pairOfLeavesData : this->ParameterNode->GetPairOfLeavesMap())
+  {
+    const vtkMRMLIhepMlcControlNode::PairOfLeavesData& pairOfLeaves = pairOfLeavesData.second;
+    const vtkMRMLIhepMlcControlNode::LeafData& side1 = pairOfLeaves.first;
+    const vtkMRMLIhepMlcControlNode::LeafData& side2 = pairOfLeaves.second;
+    QByteArray arr1 = this->getParametersCommandFromLeafData(side1);
+    QByteArray arr2 = this->getParametersCommandFromLeafData(side2);
+    if (arr1.size() > 0)
+    {
+      list.push_back(arr1);
+    }
+    if (arr2.size() > 0)
+    {
+      list.push_back(arr2);
+    }
+  }
+  return list;
+}
+
+//-----------------------------------------------------------------------------
+QList< QByteArray > qSlicerIhepMlcControlModuleWidgetPrivate::getStateCommands()
+{
+  Q_Q(const qSlicerIhepMlcControlModuleWidget);
+  QList< QByteArray > list;
+  if (!this->ParameterNode)
+  {
+    return list;
+  }
+
+  for (const auto& pairOfLeavesData : this->ParameterNode->GetPairOfLeavesMap())
+  {
+    const vtkMRMLIhepMlcControlNode::PairOfLeavesData& pairOfLeaves = pairOfLeavesData.second;
+    const vtkMRMLIhepMlcControlNode::LeafData& side1 = pairOfLeaves.first;
+    const vtkMRMLIhepMlcControlNode::LeafData& side2 = pairOfLeaves.second;
+    QByteArray arr1 = this->getStateCommandFromLeafData(side1);
+    QByteArray arr2 = this->getStateCommandFromLeafData(side2);
+    if (arr1.size() > 0)
+    {
+      list.push_back(arr1);
+    }
+    if (arr2.size() > 0)
+    {
+      list.push_back(arr2);
+    }
+  }
+  return list;
+}
+
+//-----------------------------------------------------------------------------
+QByteArray qSlicerIhepMlcControlModuleWidgetPrivate::getParametersCommandFromLeafData(const vtkMRMLIhepMlcControlNode::LeafData& leafData)
+{
+  vtkMRMLIhepMlcControlNode::CommandBufferType buf;
+  buf[0] = static_cast<unsigned char>(leafData.Address); // address
+  buf[1] = 0; // set leaf parameters
+  std::bitset< CHAR_BIT > v(leafData.Frequency); // frequency code
+  v.set(4, leafData.Mode); // step mode, halfStep == true, fullStep == false
+  v.set(5, leafData.Direction); // clockwise direction == true, counter clockwise == false
+  v.set(6, leafData.Reset); // reset state
+  v.set(7, leafData.Enabled); // enable state
+  buf[2] = static_cast<unsigned char>(v.to_ulong());
+  buf[3] = 0; // reserved
+  buf[5] = leafData.Steps >> CHAR_BIT;
+  buf[4] = leafData.Steps & 0xFF;
+  unsigned short chcksumm = vtkMRMLIhepMlcControlNode::CommandCalculateCrc16(buf);
+  buf[9] = chcksumm & 0xFF;
+  buf[10] = chcksumm >> CHAR_BIT;
+  return QByteArray(reinterpret_cast< char* >(buf.data()), buf.size());
+}
+
+//-----------------------------------------------------------------------------
+QByteArray qSlicerIhepMlcControlModuleWidgetPrivate::getStateCommandFromLeafData(const vtkMRMLIhepMlcControlNode::LeafData& leafData)
+{
+  vtkMRMLIhepMlcControlNode::CommandBufferType buf;
+  buf[0] = static_cast<unsigned char>(leafData.Address); // address
+  buf[1] = 1; // get leaf state
+  unsigned short chcksumm = vtkMRMLIhepMlcControlNode::CommandCalculateCrc16(buf);
+  buf[9] = chcksumm & 0xFF;
+  buf[10] = chcksumm >> CHAR_BIT;
+  return QByteArray(reinterpret_cast< char* >(buf.data()), buf.size());
+}
+
+//-----------------------------------------------------------------------------
+QByteArray qSlicerIhepMlcControlModuleWidgetPrivate::getStartCommandFromLeafData(const vtkMRMLIhepMlcControlNode::LeafData& leafData)
+{
+  vtkMRMLIhepMlcControlNode::CommandBufferType buf;
+  buf[0] = static_cast<unsigned char>(leafData.Address); // address
+  buf[1] = 2; // start leaf
+  unsigned short chcksumm = vtkMRMLIhepMlcControlNode::CommandCalculateCrc16(buf);
+  buf[9] = chcksumm & 0xFF;
+  buf[10] = chcksumm >> CHAR_BIT;
+  return QByteArray(reinterpret_cast< char* >(buf.data()), buf.size());
+}
+
+//-----------------------------------------------------------------------------
+QByteArray qSlicerIhepMlcControlModuleWidgetPrivate::getStopCommandFromLeafData(const vtkMRMLIhepMlcControlNode::LeafData& leafData)
+{
+  vtkMRMLIhepMlcControlNode::CommandBufferType buf;
+  buf[0] = static_cast<unsigned char>(leafData.Address); // address
+  buf[1] = 3; // stop leaf
+  unsigned short chcksumm = vtkMRMLIhepMlcControlNode::CommandCalculateCrc16(buf);
+  buf[9] = chcksumm & 0xFF;
+  buf[10] = chcksumm >> CHAR_BIT;
+  return QByteArray(reinterpret_cast< char* >(buf.data()), buf.size());
+}
+
+//-----------------------------------------------------------------------------
+void qSlicerIhepMlcControlModuleWidgetPrivate::writeNextCommandFromQueue()
+{
+  if (!this->LastCommand.isEmpty() && this->CommandQueue.empty())
+  {
+    qWarning() << Q_FUNC_INFO << "Last command is not empty, command queue is empty: " << this->LastCommand.isEmpty() << ' ' << this->CommandQueue.empty();
+    return;
+  }
+
+  QByteArray command = this->CommandQueue.front();
+
+  if (this->MlcLayer1SerialPort && this->MlcLayer1SerialPort->isOpen())
+  {
+    qDebug() << Q_FUNC_INFO << "Write data";
+    this->MlcLayer1SerialPort->write(command);
+  }
+}
+
+//-----------------------------------------------------------------------------
+void qSlicerIhepMlcControlModuleWidgetPrivate::writeLastCommandOnceAgain()
+{
+  if (this->LastCommand.isEmpty())
+  {
+    qWarning() << Q_FUNC_INFO << "Last command is empty";
+    return;
+  }
+
+  if (this->MlcLayer1SerialPort && this->MlcLayer1SerialPort->isOpen())
+  {
+    this->MlcLayer1SerialPort->write(this->LastCommand);
+  }
+}
+
+//std::queue< QByteArray > getParametersCommandsForLayer(vtkMRMLIhepMlcControlNode::LayerType);
+//std::queue< QByteArray > getParametersCommands();
+
+//-----------------------------------------------------------------------------
 bool qSlicerIhepMlcControlModuleWidgetPrivate::connectDevice(const QString& deviceName)
 {
   Q_Q(qSlicerIhepMlcControlModuleWidget);
 
-  this->MlcLayer1SerialPort = new QSerialPort(deviceName, q);
+  this->MlcLayer1SerialPort->setPortName(deviceName);
 
-  if (this->MlcLayer1SerialPort && this->MlcLayer1SerialPort->open(QIODevice::ReadWrite))
+  if (this->MlcLayer1SerialPort->open(QIODevice::ReadWrite))
   {
     this->MlcLayer1SerialPort->setBaudRate(QSerialPort::Baud38400);
     this->MlcLayer1SerialPort->setDataBits(QSerialPort::Data8);
@@ -138,16 +479,19 @@ bool qSlicerIhepMlcControlModuleWidgetPrivate::connectDevice(const QString& devi
     QObject::connect(this->MlcLayer1SerialPort, SIGNAL(readyRead()), q, SLOT(serialPortDataReady()));
     QObject::connect(this->MlcLayer1SerialPort, SIGNAL(bytesWritten(qint64)), q, SLOT(serialPortBytesWritten(qint64)));
     QObject::connect(this->MlcLayer1SerialPort, SIGNAL(error(QSerialPort::SerialPortError)), q, SLOT(serialPortError(QSerialPort::SerialPortError)));
+    qDebug() << Q_FUNC_INFO << ": Device port has been opened for device name: " << deviceName;
     return true;
   }
-  else if (this->MlcLayer1SerialPort && !this->MlcLayer1SerialPort->isOpen())
+  else
   {
-    delete this->MlcLayer1SerialPort;
-    this->MlcLayer1SerialPort = nullptr;
-
+    while (this->CommandQueue.size())
+    {
+      this->CommandQueue.pop();
+    }
     this->ResponseBuffer.clear();
     this->LastCommand.clear();
     this->InputBuffer.clear();
+    qWarning() << Q_FUNC_INFO << ": Unable to open device port for device name: " << deviceName;
     return false;
   }
   return false;
@@ -157,24 +501,17 @@ bool qSlicerIhepMlcControlModuleWidgetPrivate::connectDevice(const QString& devi
 bool qSlicerIhepMlcControlModuleWidgetPrivate::disconnectDevice()
 {
   Q_Q(qSlicerIhepMlcControlModuleWidget);
-  if (!this->MlcLayer1SerialPort)
-  {
-    return false;
-  }
 
-  if (this->MlcLayer1SerialPort && this->MlcLayer1SerialPort->isOpen())
+  if (this->MlcLayer1SerialPort->isOpen())
   {
     this->MlcLayer1SerialPort->flush();
     this->MlcLayer1SerialPort->close();
-    delete this->MlcLayer1SerialPort;
-    this->MlcLayer1SerialPort = nullptr;
-  }
-  else if (this->MlcLayer1SerialPort && !this->MlcLayer1SerialPort->isOpen())
-  {
-    delete this->MlcLayer1SerialPort;
-    this->MlcLayer1SerialPort = nullptr;
   }
 
+  while (this->CommandQueue.size())
+  {
+    this->CommandQueue.pop();
+  }
   this->ResponseBuffer.clear();
   this->LastCommand.clear();
   this->InputBuffer.clear();
@@ -246,6 +583,14 @@ void qSlicerIhepMlcControlModuleWidget::setup()
     this, SLOT(onUpdateMlcBoundaryClicked()));
   QObject::connect( d->PushButton_ConnectMlcDevice, SIGNAL(clicked()),
     this, SLOT(onConnectMlcLayersButtonClicked()));
+  QObject::connect( d->PushButton_SetLeafParameters, SIGNAL(clicked()),
+    this, SLOT(onLeafSetParametersClicked()));
+  QObject::connect( d->PushButton_GetLeafState, SIGNAL(clicked()),
+    this, SLOT(onLeafGetStateClicked()));
+  QObject::connect( d->PushButton_StartLeaf, SIGNAL(clicked()),
+    this, SLOT(onLeafStartClicked()));
+  QObject::connect( d->PushButton_StopLeaf, SIGNAL(clicked()),
+    this, SLOT(onLeafStopClicked()));
 
   // Sliders
   QObject::connect( d->SliderWidget_NumberOfLeavesPairs, SIGNAL(valueChanged(double)),
@@ -259,11 +604,33 @@ void qSlicerIhepMlcControlModuleWidget::setup()
   QObject::connect( d->SliderWidget_LayersOffset, SIGNAL(valueChanged(double)),
     this, SLOT(onOffsetBetweenTwoLayersChanged(double)));
 
+  QObject::connect( d->HorizontalSlider_LeafAddress, SIGNAL(valueChanged(int)),
+    this, SLOT(onLeafAddressChanged(int)));
+  QObject::connect( d->HorizontalSlider_LeafSteps, SIGNAL(valueChanged(int)),
+    this, SLOT(onLeafStepsChanged(int)));
+
   // GroupBox
   QObject::connect( d->ButtonGroup_MlcLayers, SIGNAL(buttonClicked(QAbstractButton*)),
     this, SLOT(onMlcLayersButtonClicked(QAbstractButton*)));
   QObject::connect( d->ButtonGroup_MlcOrientation, SIGNAL(buttonClicked(QAbstractButton*)),
     this, SLOT(onMlcOrientationButtonClicked(QAbstractButton*)));
+  QObject::connect( d->ButtonGroup_LeafDirection, SIGNAL(buttonClicked(QAbstractButton*)),
+    this, SLOT(onLeafDirectionButtonClicked(QAbstractButton*)));
+  QObject::connect( d->ButtonGroup_LeafStepMode, SIGNAL(buttonClicked(QAbstractButton*)),
+    this, SLOT(onLeafStepModeButtonClicked(QAbstractButton*)));
+
+  // CheckBox
+  QObject::connect( d->CheckBox_MotorReset, SIGNAL(toggled(bool)),
+    this, SLOT(onLeafResetToggled(bool)));
+  QObject::connect( d->CheckBox_MotorEnable, SIGNAL(toggled(bool)),
+    this, SLOT(onLeafEnabledToggled(bool)));
+
+  // Leaf data signal
+  QObject::connect( this, SIGNAL(leafDataChanged(const vtkMRMLIhepMlcControlNode::LeafData&)),
+    d->MlcControlWidget, SLOT(onLeafDataChanged(const vtkMRMLIhepMlcControlNode::LeafData&)));
+
+  QObject::connect( d->MlcControlWidget, SIGNAL(leafAddressStepsMovementChanged(int, int)),
+    this, SLOT(onLeafAddressStepsMovementChanged(int,int)));
 
   // Select predefined shape as square
   QTimer::singleShot(0, d->MlcControlWidget, [=](){ d->MlcControlWidget->onMlcPredefinedIndexChanged(3); } );
@@ -329,8 +696,6 @@ void qSlicerIhepMlcControlModuleWidget::setMRMLScene(vtkMRMLScene* scene)
 
   qvtkReconnect( d->logic(), scene, vtkMRMLScene::EndImportEvent, this, SLOT(onSceneImportedEvent()));
   qvtkReconnect( d->logic(), scene, vtkMRMLScene::EndCloseEvent, this, SLOT(onSceneClosedEvent()));
-
-  d->MlcLayer1DeviceLogic->setMRMLScene(scene);
 
   // Find parameters node or create it if there is none in the scene
   if (scene)
@@ -767,7 +1132,6 @@ void qSlicerIhepMlcControlModuleWidget::onConnectMlcLayersButtonClicked()
   // if devices are connected disconnect them
   if (d->MlcLayer1SerialPort && d->PushButton_ConnectMlcDevice->text() == tr("Disconnect"))
   {
-    d->disconnectDevice();
     d->PushButton_ConnectMlcDevice->setText(tr("Connect"));
     return;
   }
@@ -786,7 +1150,7 @@ void qSlicerIhepMlcControlModuleWidget::onConnectMlcLayersButtonClicked()
   {
     ;
   }
-  if (d->MlcLayer1SerialPort)
+  if (d->MlcLayer1SerialPort->isOpen())
   {
     d->PushButton_ConnectMlcDevice->setText(tr("Disconnect"));
   }
@@ -811,10 +1175,353 @@ void qSlicerIhepMlcControlModuleWidget::serialPortError(QSerialPort::SerialPortE
 void qSlicerIhepMlcControlModuleWidget::serialPortDataReady()
 {
   Q_D(qSlicerIhepMlcControlModuleWidget);
+
+  // Stop watchdog timer because of responce
+  d->TimerWatchdog->stop();
+
+  QByteArray portData = d->MlcLayer1SerialPort->readAll();
+
+  qDebug() << Q_FUNC_INFO << "Serial port data read: " << portData.size() << " bytes";
+
+  d->ResponseBuffer.push_back(portData);
+
+  const int commandSize = vtkMRMLIhepMlcControlNode::BUFFER;
+  if (d->ResponseBuffer.size() >= commandSize)
+  {
+    vtkMRMLIhepMlcControlNode::CommandBufferType buf;
+    unsigned char* data = reinterpret_cast< unsigned char* >(d->ResponseBuffer.data());
+    std::copy(std::begin(buf), std::end(buf), data);
+
+    if (vtkMRMLIhepMlcControlNode::CommandCheckCrc16(buf))
+    {
+      vtkMRMLIhepMlcControlNode::LeafData leafData;
+      vtkMRMLIhepMlcControlNode::ProcessCommandBufferToLeafData(buf, leafData);
+      emit leafDataChanged(leafData);
+
+      if (d->ResponseBuffer.size() > commandSize)
+      {
+        d->ResponseBuffer.remove(0, commandSize);
+      }
+      else if (d->ResponseBuffer.size() == commandSize)
+      {
+        d->ResponseBuffer.clear();
+      }
+
+      d->LastCommand.clear(); // erase last command since it no longer needed
+      if (!d->CommandQueue.empty()) // write next command from queue
+      {
+        QTimer::singleShot(10, this, SLOT(writeNextCommandFromQueue()));
+      }
+    }
+    else
+    {
+      if (d->ResponseBuffer.size() > commandSize)
+      {
+        d->ResponseBuffer.remove(0, commandSize);
+      }
+      else if (d->ResponseBuffer.size() == commandSize)
+      {
+        d->ResponseBuffer.clear();
+      }
+      // write last command once again, because CRC16 is invalid
+      QTimer::singleShot(1000, this, SLOT(writeLastCommandOnceAgain()));
+    }
+  }
+
+  // Start get state timer if command queue is empty
+  if (d->CommandQueue.empty() && d->LastCommand.isEmpty())
+  {
+    d->TimerGetState->start();
+  }
 }
 
 //-----------------------------------------------------------------------------
 void qSlicerIhepMlcControlModuleWidget::serialPortBytesWritten(qint64 written)
+{
+  Q_D(qSlicerIhepMlcControlModuleWidget);
+  qDebug() << Q_FUNC_INFO << "Serial port data written: " << written << " bytes";
+}
+
+//-----------------------------------------------------------------------------
+void qSlicerIhepMlcControlModuleWidget::onLeafAddressChanged(int address)
+{
+  Q_D(qSlicerIhepMlcControlModuleWidget);
+  if (!d->ParameterNode)
+  {
+    return;
+  }
+  int pos, range;
+  if (d->MlcControlWidget && d->MlcControlWidget->getLeafDataByAddress(address, range, pos))
+  {
+    d->HorizontalSlider_LeafSteps->setRange(0, range);
+    d->HorizontalSlider_LeafSteps->setValue(pos);
+    d->SpinBox_LeafSteps->setRange(0, range);
+    d->SpinBox_LeafSteps->setValue(pos);
+  }
+  vtkMRMLIhepMlcControlNode::LeafData leafData;
+  if (d->ParameterNode->GetLeafDataByAddress(leafData, address))
+  {
+    (leafData.Direction) ? d->RadioButton_Clockwise->setChecked(true) : d->RadioButton_CounterClockwise->setChecked(true);
+    d->ComboBox_MotorFrequency->setCurrentIndex(leafData.Frequency);
+    (leafData.Mode) ? d->RadioButton_HalfStep->setChecked(true) : d->RadioButton_FullStep->setChecked(true);
+    d->CheckBox_MotorReset->setChecked(leafData.Reset);
+    d->CheckBox_MotorEnable->setChecked(leafData.Enabled);
+  }
+}
+
+//-----------------------------------------------------------------------------
+void qSlicerIhepMlcControlModuleWidget::onLeafStepModeButtonClicked(QAbstractButton* button)
+{
+  Q_D(qSlicerIhepMlcControlModuleWidget);
+  if (!d->ParameterNode)
+  {
+    return;
+  }
+  vtkMRMLIhepMlcControlNode::LeafData leafData;
+  int address = d->HorizontalSlider_LeafAddress->value();
+  if (d->ParameterNode->GetLeafDataByAddress(leafData, address))
+  {
+    QRadioButton* rButton = qobject_cast<QRadioButton*>(button);
+    if (rButton && rButton == d->RadioButton_FullStep)
+    {
+      leafData.Mode = false;
+    }
+    else if (rButton && rButton == d->RadioButton_HalfStep)
+    {
+      leafData.Mode = true;
+    }
+    else
+    {
+      return;
+    }
+    if (d->ParameterNode->SetLeafDataByAddress(leafData, address))
+    {
+      d->MlcControlWidget->setLeafData(leafData);
+    }
+  }
+}
+
+//-----------------------------------------------------------------------------
+void qSlicerIhepMlcControlModuleWidget::onLeafDirectionButtonClicked(QAbstractButton* button)
+{
+  Q_D(qSlicerIhepMlcControlModuleWidget);
+  if (!d->ParameterNode)
+  {
+    return;
+  }
+  vtkMRMLIhepMlcControlNode::LeafData leafData;
+  int address = d->HorizontalSlider_LeafAddress->value();
+  if (d->ParameterNode->GetLeafDataByAddress(leafData, address))
+  {
+    QRadioButton* rButton = qobject_cast<QRadioButton*>(button);
+    if (rButton && rButton == d->RadioButton_Clockwise)
+    {
+      leafData.Direction = false;
+    }
+    else if (rButton && rButton == d->RadioButton_CounterClockwise)
+    {
+      leafData.Direction = true;
+    }
+    else
+    {
+      return;
+    }
+    if (d->ParameterNode->SetLeafDataByAddress(leafData, address))
+    {
+      d->MlcControlWidget->setLeafData(leafData);
+    }
+  }
+}
+
+//-----------------------------------------------------------------------------
+void qSlicerIhepMlcControlModuleWidget::onLeafStepsChanged(int steps)
+{
+  Q_D(qSlicerIhepMlcControlModuleWidget);
+  if (!d->ParameterNode)
+  {
+    return;
+  }
+  vtkMRMLIhepMlcControlNode::LeafData leafData;
+  int address = d->HorizontalSlider_LeafAddress->value();
+  if (d->ParameterNode->GetLeafDataByAddress(leafData, address))
+  {
+    leafData.Steps = steps;
+    if (d->ParameterNode->SetLeafDataByAddress(leafData, address))
+    {
+      d->MlcControlWidget->setLeafData(leafData);
+    }
+  }
+}
+
+//-----------------------------------------------------------------------------
+void qSlicerIhepMlcControlModuleWidget::onLeafResetToggled(bool reset)
+{
+  Q_D(qSlicerIhepMlcControlModuleWidget);
+  if (!d->ParameterNode)
+  {
+    return;
+  }
+  vtkMRMLIhepMlcControlNode::LeafData leafData;
+  int address = d->HorizontalSlider_LeafAddress->value();
+  if (d->ParameterNode->GetLeafDataByAddress(leafData, address))
+  {
+    leafData.Reset = reset;
+    if (d->ParameterNode->SetLeafDataByAddress(leafData, address))
+    {
+      d->MlcControlWidget->setLeafData(leafData);
+    }
+  }
+}
+
+//-----------------------------------------------------------------------------
+void qSlicerIhepMlcControlModuleWidget::onLeafEnabledToggled(bool enabled)
+{
+  Q_D(qSlicerIhepMlcControlModuleWidget);
+  if (!d->ParameterNode)
+  {
+    return;
+  }
+  vtkMRMLIhepMlcControlNode::LeafData leafData;
+  int address = d->HorizontalSlider_LeafAddress->value();
+  if (d->ParameterNode->GetLeafDataByAddress(leafData, address))
+  {
+    leafData.Enabled = enabled;
+    if (d->ParameterNode->SetLeafDataByAddress(leafData, address))
+    {
+      d->MlcControlWidget->setLeafData(leafData);
+    }
+  }
+}
+
+//-----------------------------------------------------------------------------
+void qSlicerIhepMlcControlModuleWidget::onLeafSetParametersClicked()
+{
+  Q_D(qSlicerIhepMlcControlModuleWidget);
+  if (!d->ParameterNode)
+  {
+    return;
+  }
+  vtkMRMLIhepMlcControlNode::LeafData leafData;
+  int address = d->HorizontalSlider_LeafAddress->value();
+  QByteArray com;
+  if (d->ParameterNode->GetLeafDataByAddress(leafData, address))
+  {
+    com = d->getParametersCommandFromLeafData(leafData);
+  }
+  if (com.size())
+  {
+    d->CommandQueue.push(com);
+    d->writeNextCommandFromQueue();
+  }
+  qDebug() << Q_FUNC_INFO << "Leaf address: " << leafData.Address;
+  qDebug() << Q_FUNC_INFO << "Leaf steps: " << leafData.Steps;
+  qDebug() << Q_FUNC_INFO << "Leaf range: " << leafData.Range;
+  qDebug() << Q_FUNC_INFO << "Leaf side: " << leafData.Side;
+  qDebug() << Q_FUNC_INFO << "Leaf layer: " << leafData.Layer;
+}
+
+//-----------------------------------------------------------------------------
+void qSlicerIhepMlcControlModuleWidget::onLeafGetStateClicked()
+{
+  Q_D(qSlicerIhepMlcControlModuleWidget);
+  if (!d->ParameterNode)
+  {
+    return;
+  }
+
+  vtkMRMLIhepMlcControlNode::LeafData leafData;
+  int address = d->HorizontalSlider_LeafAddress->value();
+  QByteArray com;
+  if (d->ParameterNode->GetLeafDataByAddress(leafData, address))
+  {
+    com = d->getStateCommandFromLeafData(leafData);
+  }
+  if (com.size())
+  {
+    qDebug() << Q_FUNC_INFO << "Leaf get state";
+    d->CommandQueue.push(com);
+    d->writeNextCommandFromQueue();
+  }
+}
+
+//-----------------------------------------------------------------------------
+void qSlicerIhepMlcControlModuleWidget::onLeafStartClicked()
+{
+  Q_D(qSlicerIhepMlcControlModuleWidget);
+  if (!d->ParameterNode)
+  {
+    return;
+  }
+
+  vtkMRMLIhepMlcControlNode::LeafData leafData;
+  int address = d->HorizontalSlider_LeafAddress->value();
+  QByteArray com;
+  if (d->ParameterNode->GetLeafDataByAddress(leafData, address))
+  {
+    com = d->getStartCommandFromLeafData(leafData);
+  }
+  if (com.size())
+  {
+    d->CommandQueue.push(com);
+    d->writeNextCommandFromQueue();
+  }
+}
+
+//-----------------------------------------------------------------------------
+void qSlicerIhepMlcControlModuleWidget::onLeafStopClicked()
+{
+  Q_D(qSlicerIhepMlcControlModuleWidget);
+  if (!d->ParameterNode)
+  {
+    return;
+  }
+
+  vtkMRMLIhepMlcControlNode::LeafData leafData;
+  int address = d->HorizontalSlider_LeafAddress->value();
+  QByteArray com;
+  if (d->ParameterNode->GetLeafDataByAddress(leafData, address))
+  {
+    com = d->getStopCommandFromLeafData(leafData);
+  }
+  if (com.size())
+  {
+    d->CommandQueue.push(com);
+    d->writeNextCommandFromQueue();
+  }
+}
+
+//-----------------------------------------------------------------------------
+void qSlicerIhepMlcControlModuleWidget::onLeafAddressStepsMovementChanged(int address, int movementSteps)
+{
+  qDebug() << Q_FUNC_INFO << "Address: " << address << " movement steps: " << movementSteps;
+}
+
+//-----------------------------------------------------------------------------
+void qSlicerIhepMlcControlModuleWidget::onLeavesSetParametersClicked()
+{
+  Q_D(qSlicerIhepMlcControlModuleWidget);
+}
+
+//-----------------------------------------------------------------------------
+void qSlicerIhepMlcControlModuleWidget::onLeavesGetStateClicked()
+{
+  Q_D(qSlicerIhepMlcControlModuleWidget);
+}
+
+//-----------------------------------------------------------------------------
+void qSlicerIhepMlcControlModuleWidget::onLeavesStartBroadcastClicked()
+{
+  Q_D(qSlicerIhepMlcControlModuleWidget);
+}
+
+//-----------------------------------------------------------------------------
+void qSlicerIhepMlcControlModuleWidget::onLeavesStopBroadcastClicked()
+{
+  Q_D(qSlicerIhepMlcControlModuleWidget);
+}
+
+//-----------------------------------------------------------------------------
+void qSlicerIhepMlcControlModuleWidget::onLeavesOpenBroadcastClicked()
 {
   Q_D(qSlicerIhepMlcControlModuleWidget);
 }

@@ -86,19 +86,16 @@ public:
 qSlicerIhepMlcDeviceLogicPrivate::qSlicerIhepMlcDeviceLogicPrivate(qSlicerIhepMlcDeviceLogic& object)
   : q_ptr(&object)
 {
-  this->SerialPortMlcLayer = new QSerialPort(&object);
 }
 
 //-----------------------------------------------------------------------------
 qSlicerIhepMlcDeviceLogicPrivate::~qSlicerIhepMlcDeviceLogicPrivate()
 {
-  if (this->SerialPortMlcLayer->isOpen())
+  if (this->SerialPortMlcLayer && this->SerialPortMlcLayer->isOpen())
   {
     this->SerialPortMlcLayer->flush();
     this->SerialPortMlcLayer->close();
   }
-  delete this->SerialPortMlcLayer;
-  this->SerialPortMlcLayer = nullptr;
 }
 
 //-----------------------------------------------------------------------------
@@ -213,19 +210,29 @@ void qSlicerIhepMlcDeviceLogic::onSceneImportEnded(vtkObject* sceneObject)
 }
 
 //-----------------------------------------------------------------------------
-QSerialPort* qSlicerIhepMlcDeviceLogic::connectDevice(const QString& deviceName)
+QSerialPort* qSlicerIhepMlcDeviceLogic::connectDevice(QSerialPort* serialPort)
 {
   Q_D(qSlicerIhepMlcDeviceLogic);
 
-  d->SerialPortMlcLayer->setPortName(deviceName);
+//  qWarning() << Q_FUNC_INFO << "Port name: " << deviceName;
+//  if (!d->SerialPortMlcLayer)
+//  {
+//    qWarning() << Q_FUNC_INFO << "MLC port is invalid";
+//    return nullptr;
+//  }
+//  d->SerialPortMlcLayer->setPortName(deviceName);
 
-  if (d->SerialPortMlcLayer->open(QIODevice::ReadWrite))
+  qWarning() << Q_FUNC_INFO << "1";
+
+  if (serialPort->open(QIODevice::ReadWrite))
   {
-    d->SerialPortMlcLayer->setBaudRate(QSerialPort::Baud38400);
-    d->SerialPortMlcLayer->setDataBits(QSerialPort::Data8);
-    d->SerialPortMlcLayer->setParity(QSerialPort::NoParity);
-    d->SerialPortMlcLayer->setStopBits(QSerialPort::OneStop);
-    d->SerialPortMlcLayer->setFlowControl(QSerialPort::NoFlowControl);
+    qWarning() << Q_FUNC_INFO << "3";
+
+    serialPort->setBaudRate(QSerialPort::Baud38400);
+    serialPort->setDataBits(QSerialPort::Data8);
+    serialPort->setParity(QSerialPort::NoParity);
+    serialPort->setStopBits(QSerialPort::OneStop);
+    serialPort->setFlowControl(QSerialPort::NoFlowControl);
 
     while (d->CommandQueue.size())
     {
@@ -235,8 +242,9 @@ QSerialPort* qSlicerIhepMlcDeviceLogic::connectDevice(const QString& deviceName)
     d->ResponseBuffer.clear();
     d->LastCommand.clear();
     d->InputBuffer.clear();
+    d->SerialPortMlcLayer = serialPort;
   }
-  else if (!d->SerialPortMlcLayer->isOpen())
+  else
   {
     d->ResponseBuffer.clear();
     d->LastCommand.clear();
@@ -268,8 +276,14 @@ bool qSlicerIhepMlcDeviceLogic::disconnectDevice(QSerialPort* port)
     d->SerialPortMlcLayer->close();
   }
 
+  while (d->CommandQueue.size())
+  {
+    d->CommandQueue.pop();
+  }
+
   d->ResponseBuffer.clear();
   d->LastCommand.clear();
   d->InputBuffer.clear();
+
   return true;
 }

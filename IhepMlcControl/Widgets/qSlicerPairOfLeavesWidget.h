@@ -63,9 +63,13 @@ public:
   bool controlEnabled() const;
   void setControlEnabled(bool enabled = true);
 
-  void getMinMaxPositions(int& min, int& max) const;
-  int getMinPosition() const;
-  int getMaxPosition() const;
+  void getMinMaxRequiredPositions(int& min, int& max) const;
+  int getMinRequiredPosition() const;
+  int getMaxRequiredPosition() const;
+
+  void getMinMaxCurrentPositions(int& min, int& max) const;
+  int getMinCurrentPosition() const;
+  int getMaxCurrentPosition() const;
 
   int getMinRange() const;
   int getMaxRange() const;

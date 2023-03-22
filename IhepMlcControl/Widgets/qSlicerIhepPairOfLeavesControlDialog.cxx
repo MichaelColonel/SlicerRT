@@ -158,10 +158,16 @@ void qSlicerIhepPairOfLeavesControlDialog::fillLeavesControlWidgetContainer(int 
   this->onLeafPositionInPairChanged(false, true);
 }
 
-void qSlicerIhepPairOfLeavesControlDialog::getSidePositions(int& side1, int& side2)
+void qSlicerIhepPairOfLeavesControlDialog::getSideRequiredPositions(int& side1, int& side2)
 {
   Q_D(qSlicerIhepPairOfLeavesControlDialog);
-  d->PairOfLeavesWidget->getMinMaxPositions(side1, side2);
+  d->PairOfLeavesWidget->getMinMaxRequiredPositions(side1, side2);
+}
+
+void qSlicerIhepPairOfLeavesControlDialog::getSideCurrentPositions(int& side1, int& side2)
+{
+  Q_D(qSlicerIhepPairOfLeavesControlDialog);
+  d->PairOfLeavesWidget->getMinMaxCurrentPositions(side1, side2);
 }
 
 int qSlicerIhepPairOfLeavesControlDialog::getSide1Range() const
@@ -249,7 +255,7 @@ void qSlicerIhepPairOfLeavesControlDialog::onSide1CurrentValueChanged(int value)
   Q_D(qSlicerIhepPairOfLeavesControlDialog);
   d->PairOfLeavesWidget->setMinCurrentValue(value);
   d->Label_Side1Current->setText(tr("%1 mm").arg(value * DISTANCE_PER_STEP));
-  int gap = d->PairOfLeavesWidget->getMinPosition() - value;
+  int gap = d->PairOfLeavesWidget->getMinRequiredPosition() - value;
   this->onSide1GapChanged(gap);
 }
 
@@ -258,7 +264,7 @@ void qSlicerIhepPairOfLeavesControlDialog::onSide2CurrentValueChanged(int value)
   Q_D(qSlicerIhepPairOfLeavesControlDialog);
   d->PairOfLeavesWidget->setMaxCurrentValue(value);
   d->Label_Side2Current->setText(tr("%1 mm").arg(value * DISTANCE_PER_STEP));
-  int gap = d->PairOfLeavesWidget->getMaxPosition() - value;
+  int gap = d->PairOfLeavesWidget->getMaxRequiredPosition() - value;
   this->onSide2GapChanged(gap);
 }
 

@@ -15,15 +15,15 @@ set(${KIT}_SRCS
   qSlicerPairOfLeavesWidget.h
   qSlicerIhepPairOfLeavesControlDialog.cxx
   qSlicerIhepPairOfLeavesControlDialog.h
-  qSlicerIhepMlcDeviceLogic.cxx
-  qSlicerIhepMlcDeviceLogic.h
+#  qSlicerIhepMlcDeviceLogic.cxx
+#  qSlicerIhepMlcDeviceLogic.h
   )
 
 set(${KIT}_MOC_SRCS
   qSlicer${MODULE_NAME}LayoutWidget.h
   qSlicerPairOfLeavesWidget.h
   qSlicerIhepPairOfLeavesControlDialog.h
-  qSlicerIhepMlcDeviceLogic.h
+#  qSlicerIhepMlcDeviceLogic.h
   )
 
 set(${KIT}_UI_SRCS

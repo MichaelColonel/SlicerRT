@@ -26,6 +26,9 @@
 // Qt includes
 #include <QtSerialPort/QSerialPort>
 
+// SlicerRT IhepMlcControl MRML includes
+#include <vtkMRMLIhepMlcControlNode.h>
+
 class qSlicerIhepMlcControlModuleWidgetPrivate;
 class vtkMRMLNode;
 
@@ -67,17 +70,42 @@ public slots:
   void onGenerateMlcBoundaryClicked();
   void onUpdateMlcBoundaryClicked();
 
+  /// Single leaf parameters control
+  void onLeafSetParametersClicked();
+  void onLeafGetStateClicked();
+  void onLeafStartClicked();
+  void onLeafStopClicked();
+  void onLeafAddressChanged(int address);
+  void onLeafDirectionButtonClicked(QAbstractButton* button);
+  void onLeafStepModeButtonClicked(QAbstractButton* button);
+  void onLeafStepsChanged(int steps);
+  void onLeafResetToggled(bool reset);
+  void onLeafEnabledToggled(bool enabled);
+  void onLeafAddressStepsMovementChanged(int address, int movementSteps);
+
+  /// Leaves parameters control
+  void onLeavesSetParametersClicked();
+  void onLeavesGetStateClicked();
+  void onLeavesStartBroadcastClicked();
+  void onLeavesStopBroadcastClicked();
+  void onLeavesOpenBroadcastClicked();
+
   // Custom widget layout
   void onSwitchToMlcControlLayoutToggled(bool toggled = true);
   void onSetMlcControlLayout();
 
   void onConnectMlcLayersButtonClicked();
+
   /// Update widget GUI from MLC Control parameters node
   void updateWidgetFromMRML();
 
+  /// Serial port
   void serialPortBytesWritten(qint64);
   void serialPortDataReady();
   void serialPortError(QSerialPort::SerialPortError);
+
+signals:
+  void leafDataChanged(const vtkMRMLIhepMlcControlNode::LeafData&);
 
 protected:
   QScopedPointer<qSlicerIhepMlcControlModuleWidgetPrivate> d_ptr;
