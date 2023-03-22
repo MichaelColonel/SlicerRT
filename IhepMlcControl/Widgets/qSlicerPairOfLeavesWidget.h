@@ -24,7 +24,6 @@
 // STD includes
 #include <utility>
 
-
 // PairOfLeaves Widgets includes
 #include "qSlicerIhepMlcControlModuleWidgetsExport.h"
 
@@ -66,7 +65,6 @@ public:
   void getMinMaxRequiredPositions(int& min, int& max) const;
   int getMinRequiredPosition() const;
   int getMaxRequiredPosition() const;
-
   void getMinMaxCurrentPositions(int& min, int& max) const;
   int getMinCurrentPosition() const;
   int getMaxCurrentPosition() const;
@@ -83,6 +81,10 @@ public slots:
   void setMaxRequiredValue(int min);
   void setMinCurrentValue(int min);
   void setMaxCurrentValue(int max);
+  void setMinRequiredValueFromLeafData(int min);
+  void setMaxRequiredValueFromLeafData(int max);
+  void setMinCurrentValueFromLeafData(int min);
+  void setMaxCurrentValueFromLeafData(int max);
 
 protected:
   virtual void mouseDoubleClickEvent(QMouseEvent *); // change leaf pair settings

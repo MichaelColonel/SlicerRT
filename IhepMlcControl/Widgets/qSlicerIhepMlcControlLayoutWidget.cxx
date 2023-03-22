@@ -775,8 +775,8 @@ bool qSlicerIhepMlcControlLayoutWidget::getLeafDataByAddress(int address, int& r
       res = true;
       break;
     case vtkMRMLIhepMlcControlNode::Side2:
-      range = widgets->PairOfLeavesWidget->getMinRange();
-      position = widgets->PairOfLeavesWidget->getMinRequiredPosition();
+      range = widgets->PairOfLeavesWidget->getMaxRange();
+      position = widgets->PairOfLeavesWidget->getMaxRequiredPosition();
       res = true;
       break;
     default:

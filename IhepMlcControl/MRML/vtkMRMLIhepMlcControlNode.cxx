@@ -339,6 +339,11 @@ void vtkMRMLIhepMlcControlNode::SetPredefinedPosition(vtkMRMLIhepMlcControlNode:
   {
     table = mlcTableNode->GetTable();
   }
+  else
+  {
+    vtkWarningMacro("SetPredefinedPosition: MLC table is invalid");
+    return;
+  }
 
   double axisWidth = this->PairOfLeavesSize * this->NumberOfLeafPairs;
   double tanAngle = IHEP_SIDE_OPENING / axisWidth;
@@ -626,8 +631,6 @@ void vtkMRMLIhepMlcControlNode::SetPredefinedPosition(vtkMRMLIhepMlcControlNode:
 int vtkMRMLIhepMlcControlNode::GetLeafPositionLayerByAddress(int address, int& key,
   SideType& side, LayerType& layer)
 {
-//  vtkMRMLIhepMlcControlNode::SideType side_ = Side_Last;
-//  vtkMRMLIhepMlcControlNode::LayerType layer_ = Layer_Last;
   for (auto iter = LeavesDataMap.begin(); iter != LeavesDataMap.end(); ++iter)
   {
     int leavesPairKey = (*iter).first;
@@ -636,28 +639,21 @@ int vtkMRMLIhepMlcControlNode::GetLeafPositionLayerByAddress(int address, int& k
     const vtkMRMLIhepMlcControlNode::LeafData& leafSide2 = leavesPair.second;
     if (leafSide1.Address == address)
     {
-//      side_ = leafSide1.Side;
-      side = leafSide1.Side;
-//      layer_ = leafSide1.Layer;
+      side = vtkMRMLIhepMlcControlNode::Side1;//leafSide1.Side;
       layer = leafSide1.Layer;
-    }
-    else if (leafSide2.Address == address)
-    {
-//      side_ = leafSide2.Side;
-      side = leafSide2.Side;
-//      layer_ = leafSide2.Layer;
-      layer = leafSide2.Layer;
-    }
-//    if (layer_ != vtkMRMLIhepMlcControlNode::Layer_Last)
-    if (layer != vtkMRMLIhepMlcControlNode::Layer_Last)
-    {
       key = leavesPairKey;
-//      vtkWarningMacro("Address: " << address << " side: " << side_ << " layer: " << layer_);
-//      side = side_;
-//      layer = layer_;
-      return leavesPairKey - IHEP_PAIR_OF_LEAVES_PER_LAYER * static_cast<int>(layer);
+      return leavesPairKey - IHEP_PAIR_OF_LEAVES_PER_LAYER * static_cast<int>(leafSide1.Layer);
+    }
+    if (leafSide2.Address == address)
+    {
+      side = vtkMRMLIhepMlcControlNode::Side2;//leafSide2.Side;
+      layer = leafSide2.Layer;
+      key = leavesPairKey;
+      return leavesPairKey - IHEP_PAIR_OF_LEAVES_PER_LAYER * static_cast<int>(leafSide2.Layer);
     }
   }
+  layer = vtkMRMLIhepMlcControlNode::Layer_Last;
+  side = vtkMRMLIhepMlcControlNode::Side_Last;
   key = -1;
   return -1;
 }
