@@ -17,6 +17,8 @@ set(${KIT}_SRCS
   qSlicerIhepPairOfLeavesControlDialog.h
 #  qSlicerIhepMlcDeviceLogic.cxx
 #  qSlicerIhepMlcDeviceLogic.h
+#  qSlicerMlcDeviceLogic.cxx
+#  qSlicerMlcDeviceLogic.h
   )
 
 set(${KIT}_MOC_SRCS
@@ -24,6 +26,7 @@ set(${KIT}_MOC_SRCS
   qSlicerPairOfLeavesWidget.h
   qSlicerIhepPairOfLeavesControlDialog.h
 #  qSlicerIhepMlcDeviceLogic.h
+#  qSlicerMlcDeviceLogic.h
   )
 
 set(${KIT}_UI_SRCS

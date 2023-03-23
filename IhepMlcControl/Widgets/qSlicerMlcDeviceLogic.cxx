@@ -19,7 +19,7 @@
 ==============================================================================*/
 
 // MLC device includes
-#include "qSlicerIhepMlcDeviceLogic.h"
+#include "qSlicerMlcDeviceLogic.h"
 
 // Beams includes
 #include "vtkMRMLRTBeamNode.h"
