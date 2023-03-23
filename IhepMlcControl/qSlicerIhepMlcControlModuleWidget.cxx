@@ -778,7 +778,7 @@ void qSlicerIhepMlcControlModuleWidget::onMlcTableNodeChanged(vtkMRMLNode *node)
   if (tableNode)
   {
     d->ParameterNode->GetBeamNode()->SetAndObserveMultiLeafCollimatorTableNode(tableNode);
-    d->PushButton_GenerateMlcBoundary->setEnabled(false);
+    d->PushButton_GenerateMlcBoundary->setEnabled(true);
     d->PushButton_UpdateMlcBoundary->setEnabled(true);
   }
   else
@@ -828,7 +828,7 @@ void qSlicerIhepMlcControlModuleWidget::updateWidgetFromMRML()
   if (vtkMRMLTableNode* mlcTableNode = parameterNode->GetBeamNode()->GetMultiLeafCollimatorTableNode())
   {
     d->MRMLNodeComboBox_MlcTable->setCurrentNode(mlcTableNode);
-    d->PushButton_GenerateMlcBoundary->setEnabled(false);
+    d->PushButton_GenerateMlcBoundary->setEnabled(true);
     d->PushButton_UpdateMlcBoundary->setEnabled(true);
   }
   else

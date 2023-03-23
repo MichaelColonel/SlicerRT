@@ -65,7 +65,7 @@
                   <bool>false</bool>
                  </property>
                  <property name="text">
-                  <string>Edit...</string>
+                  <string>Set</string>
                  </property>
                 </widget>
                </item>
@@ -1035,8 +1035,8 @@
  </connections>
  <buttongroups>
   <buttongroup name="ButtonGroup_MlcLayers"/>
-  <buttongroup name="ButtonGroup_MlcOrientation"/>
   <buttongroup name="ButtonGroup_LeafStepMode"/>
+  <buttongroup name="ButtonGroup_MlcOrientation"/>
   <buttongroup name="ButtonGroup_LeafDirection"/>
  </buttongroups>
 </ui>

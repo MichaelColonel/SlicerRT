@@ -69,6 +69,7 @@ public:
   bool UpdateMlcTableNodeBoundaryData(vtkMRMLIhepMlcControlNode* parameterNode, vtkMRMLTableNode* mlcTableNode);
   bool SetBeamParentForMlcTableNode(vtkMRMLRTBeamNode* beamNode, vtkMRMLTableNode* tableNode);
   bool SetupPositionsFromMlcTableNode(vtkMRMLIhepMlcControlNode* parameterNode, vtkMRMLTableNode* tableNode);
+  bool UpdatePositionBetweenMlcTableNodes(vtkMRMLIhepMlcControlNode* parameterNode, vtkMRMLTableNode* prevTableNode, vtkMRMLTableNode* nextTableNode);
 
 protected:
   vtkSlicerIhepMlcControlLogic();
