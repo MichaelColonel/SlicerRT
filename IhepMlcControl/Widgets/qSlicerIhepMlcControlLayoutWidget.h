@@ -65,6 +65,9 @@ public slots:
   void updateWidgetFromMRML();
   void onMlcLayerChanged(QAbstractButton* radioButton);
   void onLeafDataChanged(const vtkMRMLIhepMlcControlNode::LeafData&);
+  /// Set Table MRML node (new required positions)
+  void setMlcTableNode(vtkMRMLTableNode* mlcTableNode);
+
   void onSetCurrentLeafParametersClicked();
   void onSetOpenLeafParametersClicked();
   void onSetCloseLeafParametersClicked();

@@ -69,6 +69,7 @@ public slots:
   void onMlcOrientationButtonClicked(QAbstractButton* button);
   void onGenerateMlcBoundaryClicked();
   void onUpdateMlcBoundaryClicked();
+  void onSetMlcTableClicked();
 
   /// Single leaf parameters control
   void onLeafSetParametersClicked();
@@ -103,6 +104,9 @@ public slots:
   void serialPortBytesWritten(qint64);
   void serialPortDataReady();
   void serialPortError(QSerialPort::SerialPortError);
+
+  /// MLC state timer
+  void onMlcStateTimeoutExpired();
 
 signals:
   void leafDataChanged(const vtkMRMLIhepMlcControlNode::LeafData&);

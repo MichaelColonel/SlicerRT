@@ -843,3 +843,60 @@ int vtkMRMLIhepMlcControlNode::GetRelativeMovementByAddress(int address)
   }
   return 0;
 }
+
+//-----------------------------------------------------------------------------
+int vtkMRMLIhepMlcControlNode::GetStepsFromMlcTableByAddress(int address)
+{
+  vtkMRMLTableNode* mlcTableNode = nullptr;
+  if (this->GetBeamNode())
+  {
+    mlcTableNode = this->GetBeamNode()->GetMultiLeafCollimatorTableNode();
+  }
+
+  return this->GetStepsFromMlcTableByAddress(mlcTableNode, address);
+}
+
+//-----------------------------------------------------------------------------
+int vtkMRMLIhepMlcControlNode::GetStepsFromMlcTableByAddress(vtkMRMLTableNode* mlcTableNode, int address)
+{
+  vtkTable* table = nullptr;
+  if (mlcTableNode && mlcTableNode->GetTable())
+  {
+    table = mlcTableNode->GetTable();
+  }
+  else
+  {
+    vtkWarningMacro("GetStepsFromMlcTableByAddress: MLC table is invalid");
+    return 0;
+  }
+
+  int key = -1;
+  SideType side = Side_Last;
+  LayerType layer = Layer_Last;
+  int offset = this->GetLeafPositionLayerByAddress( address, key, side, layer);
+  double movement = 0.;
+  if (offset != -1)
+  {
+    if (side == vtkMRMLIhepMlcControlNode::Side1 && layer == vtkMRMLIhepMlcControlNode::Layer1)
+    {
+      movement = IHEP_SIDE_OPENING + table->GetValue(offset, 1).ToDouble();
+    }
+    else if (side == vtkMRMLIhepMlcControlNode::Side2 && layer == vtkMRMLIhepMlcControlNode::Layer1)
+    {
+      movement = IHEP_SIDE_OPENING - table->GetValue(offset, 2).ToDouble();
+    }
+    else if (side == vtkMRMLIhepMlcControlNode::Side1 && layer == vtkMRMLIhepMlcControlNode::Layer2)
+    {
+      movement = IHEP_SIDE_OPENING + table->GetValue(offset, 4).ToDouble();
+    }
+    else if (side == vtkMRMLIhepMlcControlNode::Side2 && layer == vtkMRMLIhepMlcControlNode::Layer2)
+    {
+      movement = IHEP_SIDE_OPENING - table->GetValue(offset, 5).ToDouble();
+    }
+    else
+    {
+      movement = 0.;
+    }
+  }
+  return static_cast<int>(DistanceToInternalCounterValue(movement));
+}

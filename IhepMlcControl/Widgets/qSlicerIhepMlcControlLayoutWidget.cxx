@@ -516,9 +516,6 @@ void qSlicerIhepMlcControlLayoutWidget::onPairOfLeavesDoubleClicked()
       side2.Steps = side2Steps;
       side1.RequiredPosition = side1Steps;
       side2.RequiredPosition = side2Steps;
-      controlDialog.getSideCurrentPositions( side1Steps, side2Steps);
-      side1.CurrentPosition = side1Steps;
-      side2.CurrentPosition = side2Steps;
 
       ContainerWidgets& pairOfLeavesWidgets = d->ContainerWidgetsVector[pairIndex];
       int side1Range = controlDialog.getSide1Range();
@@ -526,7 +523,16 @@ void qSlicerIhepMlcControlLayoutWidget::onPairOfLeavesDoubleClicked()
 
       pairOfLeavesWidgets.PairOfLeavesWidget->setMinRequiredValue(side1Steps);
       pairOfLeavesWidgets.PairOfLeavesWidget->setMaxRequiredValue(side2Steps);
-      d->ParameterNode->SetPairOfLeavesData( leavesData, pairIndex, selectedMlcLayer);
+
+      int current1Steps, current2Steps;
+      controlDialog.getSideCurrentPositions( current1Steps, current2Steps);
+      side1.CurrentPosition = current1Steps;
+      side2.CurrentPosition = current2Steps;
+      d->ParameterNode->SetLeafDataByAddress( side1, side1.Address);
+      d->ParameterNode->SetLeafDataByAddress( side2, side2.Address);
+      emit leafAddressStepsMovementChanged(side1.Address, side1Steps);
+      emit leafAddressStepsMovementChanged(side2.Address, side2Steps);
+
       qDebug() << Q_FUNC_INFO << ": Side 1 steps " << side1Steps << " distance " << d->ParameterNode->InternalCounterValueToDistance(side1Steps);
       qDebug() << Q_FUNC_INFO << ": Side 2 steps " << side2Steps << " distance " << d->ParameterNode->InternalCounterValueToDistance(side2Steps);
       qDebug() << Q_FUNC_INFO << ": Side 1 range 0 ... " << side1Range;
@@ -867,4 +873,37 @@ void qSlicerIhepMlcControlLayoutWidget::onSetOpenLeafParametersClicked()
 //-----------------------------------------------------------------------------
 void qSlicerIhepMlcControlLayoutWidget::onSetCloseLeafParametersClicked()
 {
+}
+
+//-----------------------------------------------------------------------------
+void qSlicerIhepMlcControlLayoutWidget::setMlcTableNode(vtkMRMLTableNode* mlcTableNode)
+{
+  Q_D(qSlicerIhepMlcControlLayoutWidget);
+
+  if (!d->ParameterNode)
+  {
+    qCritical() << Q_FUNC_INFO << ": Invalid parameter node";
+    return;
+  }
+
+  vtkMRMLIhepMlcControlNode::PairOfLeavesData pairOfLeaves;
+  // Set leaves position from mlc table
+  for (int i = 0; i < d->ParameterNode->GetNumberOfLeafPairs(); ++i)
+  {
+    if (d->ParameterNode->GetPairOfLeavesData( pairOfLeaves, i, d->getSelectedMlcLayer()))
+    {
+      vtkMRMLIhepMlcControlNode::LeafData& side1 = pairOfLeaves.first;
+      vtkMRMLIhepMlcControlNode::LeafData& side2 = pairOfLeaves.second;
+      ContainerWidgets* widgets = d->getPairOfLeavesContainerByIndex(i);
+    
+      int side1Steps = d->ParameterNode->GetStepsFromMlcTableByAddress(mlcTableNode, side1.Address);
+      int side2Steps = d->ParameterNode->GetStepsFromMlcTableByAddress(mlcTableNode, side2.Address);
+      side1.Steps = side1Steps;
+      side2.Steps = side2Steps;
+      d->ParameterNode->SetLeafDataByAddress(side1, side1.Address);
+      d->ParameterNode->SetLeafDataByAddress(side2, side2.Address);
+      widgets->PairOfLeavesWidget->setMinRequiredValue(side1Steps);
+      widgets->PairOfLeavesWidget->setMaxRequiredValue(side1Steps);
+    }
+  }
 }

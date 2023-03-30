@@ -209,8 +209,9 @@ vtkMRMLTableNode* vtkSlicerIhepMlcControlLogic::CreateMlcTableNodeBoundaryData(v
     vtkErrorMacro("CreateMlcTableNodeBoundaryData: Parameter or beam node (or both) are invalid");
     return nullptr;
   }
-  vtkMRMLRTBeamNode* beamNode = parameterNode->GetBeamNode();
 /*
+  vtkMRMLRTBeamNode* beamNode = parameterNode->GetBeamNode();
+
   if (vtkMRMLTableNode* tableNode = beamNode->GetMultiLeafCollimatorTableNode())
   {
     // update
@@ -787,4 +788,135 @@ bool vtkSlicerIhepMlcControlLogic::UpdatePositionBetweenMlcTableNodes(vtkMRMLIhe
     vtkErrorMacro("SetupPositionsFromMlcTableNode: Wrong number of layers in MLC table and parameter nodes");
     return false;
   }
+  return true;
+}
+
+//---------------------------------------------------------------------------
+bool vtkSlicerIhepMlcControlLogic::UpdateMlcTableNodePositionData(vtkMRMLIhepMlcControlNode* parameterNode, int address, int movementSteps)
+{
+  if (!parameterNode)
+  {
+    vtkErrorMacro("UpdateMlcTableNodePositionData: Parameter or table nodes are invalid");
+    return false;
+  }
+
+  vtkMRMLRTBeamNode* beamNode = parameterNode->GetBeamNode();
+
+  if (!beamNode)
+  {
+    vtkErrorMacro("UpdateMlcTableNodePositionData: Beam node is invalid");
+    return false;
+  }
+
+  vtkMRMLTableNode* tableNode = beamNode->GetMultiLeafCollimatorTableNode();
+  if (!tableNode)
+  {
+    vtkErrorMacro("UpdateMlcTableNodePositionData: MLC positions table node is invalid");
+    return false;
+  }
+
+  vtkTable* table = tableNode->GetTable();
+  if (!table)
+  {
+    vtkErrorMacro("UpdateMlcTableNodePositionData: Table is invalid");
+    return false;
+  }
+
+  if (table->GetNumberOfColumns() == 6 && parameterNode->GetLayers() == vtkMRMLIhepMlcControlNode::TwoLayers &&
+    (table->GetNumberOfRows() - 1) == parameterNode->GetNumberOfLeafPairs()) // two layers
+  {
+    int key = -1;
+    vtkMRMLIhepMlcControlNode::SideType side = vtkMRMLIhepMlcControlNode::Side_Last;
+    vtkMRMLIhepMlcControlNode::LayerType layer = vtkMRMLIhepMlcControlNode::Layer_Last;
+    int pos = parameterNode->GetLeafPositionLayerByAddress( address, key, side, layer);
+
+    double distanceSide1 = (movementSteps / vtkMRMLIhepMlcControlNode::IHEP_MOTOR_STEPS_PER_MM) - vtkMRMLIhepMlcControlNode::IHEP_TOTAL_DISTANCE;
+    double distanceSide2 = vtkMRMLIhepMlcControlNode::IHEP_TOTAL_DISTANCE - (movementSteps / vtkMRMLIhepMlcControlNode::IHEP_MOTOR_STEPS_PER_MM);
+    if (pos != -1)
+    {
+      if (side == vtkMRMLIhepMlcControlNode::Side1 && layer == vtkMRMLIhepMlcControlNode::Layer1)
+      {
+        table->SetValue( pos, 1, distanceSide1);
+      }
+      else if (side == vtkMRMLIhepMlcControlNode::Side1 && layer == vtkMRMLIhepMlcControlNode::Layer2)
+      {
+        table->SetValue( pos, 4, distanceSide1);
+      }
+      else if (side == vtkMRMLIhepMlcControlNode::Side2 && layer == vtkMRMLIhepMlcControlNode::Layer1)
+      {
+        table->SetValue( pos, 2, distanceSide2);
+      }
+      else if (side == vtkMRMLIhepMlcControlNode::Side2 && layer == vtkMRMLIhepMlcControlNode::Layer2)
+      {
+        table->SetValue( pos, 5, distanceSide2);
+      }
+      tableNode->Modified();
+      return true;
+    }
+    return false;
+  }
+  else if (table->GetNumberOfColumns() == 3 && parameterNode->GetLayers() == vtkMRMLIhepMlcControlNode::OneLayer &&
+    (table->GetNumberOfRows() - 1) == parameterNode->GetNumberOfLeafPairs()) // one layer
+  {
+    int key = -1;
+    vtkMRMLIhepMlcControlNode::SideType side = vtkMRMLIhepMlcControlNode::Side_Last;
+    vtkMRMLIhepMlcControlNode::LayerType layer = vtkMRMLIhepMlcControlNode::Layer_Last;
+    int pos = parameterNode->GetLeafPositionLayerByAddress( address, key, side, layer);
+
+    double distanceSide1 = vtkMRMLIhepMlcControlNode::IHEP_MOTOR_STEPS_PER_MM * movementSteps - vtkMRMLIhepMlcControlNode::IHEP_TOTAL_DISTANCE;
+    double distanceSide2 = vtkMRMLIhepMlcControlNode::IHEP_TOTAL_DISTANCE - vtkMRMLIhepMlcControlNode::IHEP_MOTOR_STEPS_PER_MM * movementSteps;
+    if (pos != -1)
+    {
+      if (side == vtkMRMLIhepMlcControlNode::Side1 && layer == vtkMRMLIhepMlcControlNode::Layer1)
+      {
+        table->SetValue( pos, 1, distanceSide1);
+      }
+      else if (side == vtkMRMLIhepMlcControlNode::Side2 && layer == vtkMRMLIhepMlcControlNode::Layer1)
+      {
+        table->SetValue( pos, 2, distanceSide2);
+      }
+      tableNode->Modified();
+      return true;
+    }
+    return false;
+  }
+  return false;
+}
+
+//---------------------------------------------------------------------------
+bool vtkSlicerIhepMlcControlLogic::UpdateLeavesDataFromTableNode(vtkMRMLIhepMlcControlNode* parameterNode, vtkMRMLTableNode* mlcTableNode)
+{
+  if (!parameterNode)
+  {
+    vtkErrorMacro("UpdateLeavesDataFromTableNode: Parameter or table nodes are invalid");
+    return false;
+  }
+
+  vtkMRMLTableNode* tableNode = mlcTableNode;
+  vtkTable* table = nullptr;
+  if (!tableNode)
+  {
+    vtkMRMLRTBeamNode* beamNode = parameterNode->GetBeamNode();
+
+    if (!beamNode)
+    {
+      vtkErrorMacro("UpdateLeavesDataFromTableNode: Beam node is invalid");
+      return false;
+    }
+
+    tableNode = beamNode->GetMultiLeafCollimatorTableNode();
+    if (!tableNode)
+    {
+      vtkErrorMacro("UpdateLeavesDataFromTableNode: MLC positions table node is invalid");
+      return false;
+    }
+  }
+  table = tableNode->GetTable();
+  if (!table)
+  {
+    vtkErrorMacro("UpdateLeavesDataFromTableNode: Table is invalid");
+    return false;
+  }
+  
+  return false;
 }

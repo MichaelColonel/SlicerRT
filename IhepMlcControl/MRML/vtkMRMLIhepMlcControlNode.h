@@ -95,6 +95,8 @@ public:
   void ProcessMRMLEvents(vtkObject *caller, unsigned long eventID, void *callData) override;
 
   struct LeafData {
+    bool isMovingFromTheSwitch() const { return (Enabled && ExternalEnabled && !Reset && !ExternalReset && Direction); }
+    bool isMovingToTheSwitch() const { return (Enabled && ExternalEnabled && !Reset && !ExternalReset && !Direction); }
     // Requested and preset
     int Address{ 28 };
     bool Direction{ true };
@@ -155,20 +157,21 @@ public:
   /// @return position
   /// get key, side, layer values
   int GetLeafPositionLayerByAddress(int address, int& key, SideType& side, LayerType& layer);
-
-  bool GetLeafData(LeafData& leafData, int pos = 0, SideType side = Side1, LayerType layer = Layer1);
-  bool SetLeafData(const LeafData& leafData, int pos = 0, SideType side = Side1, LayerType layer = Layer1);
+  bool GetLeafData(LeafData& leafData, int offset = 0, SideType side = Side1, LayerType layer = Layer1);
+  bool SetLeafData(const LeafData& leafData, int offset = 0, SideType side = Side1, LayerType layer = Layer1);
   bool GetLeafDataByAddress(LeafData& leafData, int address);
   bool SetLeafDataByAddress(const LeafData& leafData, int address);
 
-  bool GetPairOfLeavesData(PairOfLeavesData& pairOfLeaves, int pos = 0, LayerType layer = Layer1);
-  bool SetPairOfLeavesData(const PairOfLeavesData& pairOfLeaves, int pos = 0, LayerType layer = Layer1);
+  bool GetPairOfLeavesData(PairOfLeavesData& pairOfLeaves, int offset = 0, LayerType layer = Layer1);
+  bool SetPairOfLeavesData(const PairOfLeavesData& pairOfLeaves, int offset = 0, LayerType layer = Layer1);
   /// @brief Calculate movement in number of steps between Required and Current position of leaf data
   /// positive value - movement away from the switch
   /// negative value - movement to the switch
   /// zero "0" - no movement
   /// @return leafData.Required - leafData.Current
   int GetRelativeMovementByAddress(int address);
+  int GetStepsFromMlcTableByAddress(int address);
+  int GetStepsFromMlcTableByAddress(vtkMRMLTableNode* mlcTableNode, int address);
 
   PairOfLeavesMap& GetPairOfLeavesMap() { return this->LeavesDataMap; }
   const PairOfLeavesMap& GetPairOfLeavesMap() const { return this->LeavesDataMap; }
@@ -218,50 +221,50 @@ private:
   // Key from 0-31 - Layer-1, 32-73 - Layer-2 
   PairOfLeavesMap LeavesDataMap = {
     { 0 + IHEP_PAIR_OF_LEAVES_PER_LAYER * Layer1,
-      { { 1, true, false, 7, 10000, 19300, Side1, Layer1, false, true },
-        { 17, true, false, 7, 10000, 19300, Side2, Layer1, false, true } } },
+      { { 17, true, false, 7, 10000, 19300, Side1, Layer1, false, true },
+        { 1, true, false, 7, 10000, 19300, Side2, Layer1, false, true } } },
     { 1 + IHEP_PAIR_OF_LEAVES_PER_LAYER * Layer1,
-      { { 2, true, false, 7, 10000, 19300, Side1, Layer1, false, true },
-        { 18, true, false, 7, 10000, 19300, Side2, Layer1, false, true } } },
+      { { 18, true, false, 7, 10000, 19300, Side1, Layer1, false, true },
+        { 2, true, false, 7, 10000, 19300, Side2, Layer1, false, true } } },
     { 2 + IHEP_PAIR_OF_LEAVES_PER_LAYER * Layer1,
-      { { 3, true, false, 7, 10000, 19300, Side1, Layer1, false, true },
-        { 19, true, false, 7, 10000, 19300, Side2, Layer1, false, true } } },
+      { { 19, true, false, 7, 10000, 19300, Side1, Layer1, false, true },
+        { 3, true, false, 7, 10000, 19300, Side2, Layer1, false, true } } },
     { 3 + IHEP_PAIR_OF_LEAVES_PER_LAYER * Layer1,
-      { { 4, true, false, 7, 10000, 19300, Side1, Layer1, false, true },
-        { 20, true, false, 7, 10000, 19300, Side2, Layer1, false, true } } },
+      { { 20, true, false, 7, 10000, 19300, Side1, Layer1, false, true },
+        { 4, true, false, 7, 10000, 19300, Side2, Layer1, false, true } } },
     { 4 + IHEP_PAIR_OF_LEAVES_PER_LAYER * Layer1,
-      { { 5, true, false, 7, 10000, 19300, Side1, Layer1, false, true },
-        { 21, true, false, 7, 10000, 19300, Side2, Layer1, false, true } } },
+      { { 21, true, false, 7, 10000, 19300, Side1, Layer1, false, true },
+        { 5, true, false, 7, 10000, 19300, Side2, Layer1, false, true } } },
     { 5 + IHEP_PAIR_OF_LEAVES_PER_LAYER * Layer1,
-      { { 6, true, false, 7, 10000, 19300, Side1, Layer1, false, true },
-        { 22, true, false, 7, 10000, 19300, Side2, Layer1, false, true } } },
+      { { 22, true, false, 7, 10000, 19300, Side1, Layer1, false, true },
+        { 6, true, false, 7, 10000, 19300, Side2, Layer1, false, true } } },
     { 6 + IHEP_PAIR_OF_LEAVES_PER_LAYER * Layer1,
-      { { 7, true, false, 7, 10000, 19300, Side1, Layer1, false, true },
-        { 23, true, false, 7, 10000, 19300, Side2, Layer1, false, true } } },
+      { { 23, true, false, 7, 10000, 19300, Side1, Layer1, false, true },
+        { 7, true, false, 7, 10000, 19300, Side2, Layer1, false, true } } },
     { 7 + IHEP_PAIR_OF_LEAVES_PER_LAYER * Layer1,
-      { { 8, true, false, 7, 10000, 19300, Side1, Layer1, false, true },
-        { 24, true, false, 7, 10000, 19300, Side2, Layer1, false, true } } },
+      { { 24, true, false, 7, 10000, 19300, Side1, Layer1, false, true },
+        { 8, true, false, 7, 10000, 19300, Side2, Layer1, false, true } } },
     { 8 + IHEP_PAIR_OF_LEAVES_PER_LAYER * Layer1,
-      { { 9, true, false, 7, 10000, 19300, Side1, Layer1, false, true },
-        { 25, true, false, 7, 10000, 19300, Side2, Layer1, false, true } } },
+      { { 25, true, false, 7, 10000, 19300, Side1, Layer1, false, true },
+        { 9, true, false, 7, 10000, 19300, Side2, Layer1, false, true } } },
     { 9 + IHEP_PAIR_OF_LEAVES_PER_LAYER * Layer1,
-      { { 10, true, false, 7, 10000, 19300, Side1, Layer1, false, true },
-        { 26, true, false, 7, 10000, 19300, Side2, Layer1, false, true } } },
+      { { 26, true, false, 7, 10000, 19300, Side1, Layer1, false, true },
+        { 10, true, false, 7, 10000, 19300, Side2, Layer1, false, true } } },
     { 10 + IHEP_PAIR_OF_LEAVES_PER_LAYER * Layer1,
-      { { 11, true, false, 7, 10000, 19300, Side1, Layer1, false, true },
-        { 27, true, false, 7, 10000, 19300, Side2, Layer1, false, true } } },
+      { { 27, true, false, 7, 10000, 19300, Side1, Layer1, false, true },
+        { 11, true, false, 7, 10000, 19300, Side2, Layer1, false, true } } },
     { 11 + IHEP_PAIR_OF_LEAVES_PER_LAYER * Layer1,
-      { { 12, true, false, 7, 10000, 19300, Side1, Layer1, false, true },
-        { 28, true, false, 7, 10000, 19300, Side2, Layer1, false, true } } },
+      { { 28, true, false, 7, 10000, 19300, Side1, Layer1, false, true },
+        { 12, true, false, 7, 10000, 19300, Side2, Layer1, false, true } } },
     { 12 + IHEP_PAIR_OF_LEAVES_PER_LAYER * Layer1,
-      { { 13, true, false, 7, 10000, 19300, Side1, Layer1, false, true },
-        { 29, true, false, 7, 10000, 19300, Side2, Layer1, false, true } } },
+      { { 29, true, false, 7, 10000, 19300, Side1, Layer1, false, true },
+        { 13, true, false, 7, 10000, 19300, Side2, Layer1, false, true } } },
     { 13 + IHEP_PAIR_OF_LEAVES_PER_LAYER * Layer1,
-      { { 14, true, false, 7, 10000, 19300, Side1, Layer1, false, true },
-        { 30, true, false, 7, 10000, 19300, Side2, Layer1, false, true } } },
+      { { 30, true, false, 7, 10000, 19300, Side1, Layer1, false, true },
+        { 14, true, false, 7, 10000, 19300, Side2, Layer1, false, true } } },
     { 14 + IHEP_PAIR_OF_LEAVES_PER_LAYER * Layer1,
-      { { 15, true, false, 7, 10000, 19300, Side1, Layer1, false, true },
-        { 31, true, false, 7, 10000, 19300, Side2, Layer1, false, true } } },
+      { { 31, true, false, 7, 10000, 19300, Side1, Layer1, false, true },
+        { 15, true, false, 7, 10000, 19300, Side2, Layer1, false, true } } },
     { 15 + IHEP_PAIR_OF_LEAVES_PER_LAYER * Layer1,
       { { 16, true, false, 7, 10000, 19300, Side1, Layer1, false, true },
         { 32, true, false, 7, 10000, 19300, Side2, Layer1, false, true } } },

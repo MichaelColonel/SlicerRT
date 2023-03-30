@@ -379,7 +379,7 @@ vtkMRMLMarkupsFiducialNode* vtkSlicerIhepStandGeometryLogic::CreateTableOriginFi
 {
   vtkMRMLMarkupsFiducialNode* pointMarkupsNode = vtkMRMLMarkupsFiducialNode::SafeDownCast(this->GetMRMLScene()->AddNewNodeByClass("vtkMRMLMarkupsFiducialNode"));
   pointMarkupsNode->SetName(TABLE_ORIGIN_MARKUPS_FIDUCIAL_NODE_NAME);
-//  pointsMarkupsNode->SetHideFromEditors(1);
+  pointMarkupsNode->SetHideFromEditors(1);
   std::string singletonTag = std::string("IHEP_") + TABLE_ORIGIN_MARKUPS_FIDUCIAL_NODE_NAME;
   pointMarkupsNode->SetSingletonTag(singletonTag.c_str());
   pointMarkupsNode->LockedOn();
@@ -414,7 +414,7 @@ vtkMRMLMarkupsFiducialNode* vtkSlicerIhepStandGeometryLogic::CreateTableMirrorFi
 {
   vtkMRMLMarkupsFiducialNode* pointMarkupsNode = vtkMRMLMarkupsFiducialNode::SafeDownCast(this->GetMRMLScene()->AddNewNodeByClass("vtkMRMLMarkupsFiducialNode"));
   pointMarkupsNode->SetName(TABLE_MIRROR_MARKUPS_FIDUCIAL_NODE_NAME);
-//  pointsMarkupsNode->SetHideFromEditors(1);
+  pointMarkupsNode->SetHideFromEditors(1);
   std::string singletonTag = std::string("IHEP_") + TABLE_MIRROR_MARKUPS_FIDUCIAL_NODE_NAME;
   pointMarkupsNode->SetSingletonTag(singletonTag.c_str());
   pointMarkupsNode->LockedOn();
@@ -451,7 +451,7 @@ vtkMRMLMarkupsFiducialNode* vtkSlicerIhepStandGeometryLogic::CreateTableMiddleFi
 {
   vtkMRMLMarkupsFiducialNode* pointMarkupsNode = vtkMRMLMarkupsFiducialNode::SafeDownCast(this->GetMRMLScene()->AddNewNodeByClass("vtkMRMLMarkupsFiducialNode"));
   pointMarkupsNode->SetName(TABLE_MIDDLE_MARKUPS_FIDUCIAL_NODE_NAME);
-//  pointsMarkupsNode->SetHideFromEditors(1);
+  pointMarkupsNode->SetHideFromEditors(1);
   std::string singletonTag = std::string("IHEP_") + TABLE_MIDDLE_MARKUPS_FIDUCIAL_NODE_NAME;
   pointMarkupsNode->SetSingletonTag(singletonTag.c_str());
   pointMarkupsNode->LockedOn();
@@ -488,7 +488,7 @@ vtkMRMLMarkupsPlaneNode* vtkSlicerIhepStandGeometryLogic::CreateTableTopPlaneNod
   vtkNew<vtkMRMLMarkupsPlaneNode> tableTopPlaneNode;
   this->GetMRMLScene()->AddNode(tableTopPlaneNode);
   tableTopPlaneNode->SetName(TABLETOP_MARKUPS_PLANE_NODE_NAME);
-//  tableTopPlaneNode->SetHideFromEditors(1);
+  tableTopPlaneNode->SetHideFromEditors(1);
   std::string singletonTag = std::string("IHEP_") + TABLETOP_MARKUPS_PLANE_NODE_NAME;
   tableTopPlaneNode->SetSingletonTag(singletonTag.c_str());
   tableTopPlaneNode->LockedOn();
@@ -551,7 +551,7 @@ vtkMRMLMarkupsFiducialNode* vtkSlicerIhepStandGeometryLogic::CreateTableTopFiduc
   vtkNew<vtkMRMLMarkupsFiducialNode> tableTopFiducialNode;
   this->GetMRMLScene()->AddNode(tableTopFiducialNode);
   tableTopFiducialNode->SetName(TABLETOP_MARKUPS_FIDUCIAL_NODE_NAME);
-//  tableTopFiducialNode->SetHideFromEditors(1);
+  tableTopFiducialNode->SetHideFromEditors(1);
   std::string singletonTag = std::string("IHEP_") + TABLETOP_MARKUPS_FIDUCIAL_NODE_NAME;
   tableTopFiducialNode->SetSingletonTag(singletonTag.c_str());
   tableTopFiducialNode->LockedOn();
@@ -622,7 +622,7 @@ void vtkSlicerIhepStandGeometryLogic::UpdateTableTopToTableTopSupportTransform( 
   planeSource->SetPoint1(posMiddle);
   planeSource->SetPoint2(posMirror);
   planeSource->Update();
-  double norm[3];
+  double norm[3] = {};
   planeSource->GetNormal(norm);
   vtkWarningMacro("UpdateTableTopToTableTopSupportTransform: Plane source normal " << norm[0] << " " << norm[1] << " " << norm[2]);
 }
@@ -752,7 +752,7 @@ vtkMRMLMarkupsLineNode* vtkSlicerIhepStandGeometryLogic::CreateFixedReferenceLin
 {
   vtkMRMLMarkupsFiducialNode* pointMarkupsNode = vtkMRMLMarkupsFiducialNode::SafeDownCast(this->GetMRMLScene()->AddNewNodeByClass("vtkMRMLMarkupsFiducialNode"));
   pointMarkupsNode->SetName(FIXEDISOCENTER_MARKUPS_FIDUCIAL_NODE_NAME);
-//  pointMarkupsNode->SetHideFromEditors(1);
+  pointMarkupsNode->SetHideFromEditors(1);
   std::string singletonTag = std::string("IHEP_") + FIXEDISOCENTER_MARKUPS_FIDUCIAL_NODE_NAME;
   pointMarkupsNode->SetSingletonTag(singletonTag.c_str());
   pointMarkupsNode->LockedOn();
@@ -760,7 +760,7 @@ vtkMRMLMarkupsLineNode* vtkSlicerIhepStandGeometryLogic::CreateFixedReferenceLin
   vtkNew<vtkMRMLMarkupsLineNode> lineMarkupsNode;
   this->GetMRMLScene()->AddNode(lineMarkupsNode);
   lineMarkupsNode->SetName(FIXEDREFERENCE_MARKUPS_LINE_NODE_NAME);
-//  pointsMarkupsNode->SetHideFromEditors(1);
+  lineMarkupsNode->SetHideFromEditors(1);
   singletonTag = std::string("IHEP_") + FIXEDREFERENCE_MARKUPS_LINE_NODE_NAME;
   lineMarkupsNode->SetSingletonTag(singletonTag.c_str());
   lineMarkupsNode->LockedOn();
@@ -2330,7 +2330,7 @@ vtkMRMLLinearTransformNode* vtkSlicerIhepStandGeometryLogic::UpdateTableOriginMa
 
       rasToTableTopOriginTransformNode = vtkSmartPointer<vtkMRMLLinearTransformNode>::New();
       rasToTableTopOriginTransformNode->SetName("RasToTableTopOriginTransform");
-//      rasToTableTopOriginTransformNode->SetHideFromEditors(1);
+      rasToTableTopOriginTransformNode->SetHideFromEditors(1);
       std::string singletonTag = std::string("IHEP_") + "RasToTableTopOriginTransform";
       rasToTableTopOriginTransformNode->SetSingletonTag(singletonTag.c_str());
 
@@ -2392,7 +2392,7 @@ vtkMRMLLinearTransformNode* vtkSlicerIhepStandGeometryLogic::UpdateTableMirrorMa
 
       rasToTableTopMirrorTransformNode = vtkSmartPointer<vtkMRMLLinearTransformNode>::New();
       rasToTableTopMirrorTransformNode->SetName("RasToTableTopMirrorTransform");
-//      rasToTableTopMirrorTransformNode->SetHideFromEditors(1);
+      rasToTableTopMirrorTransformNode->SetHideFromEditors(1);
       std::string singletonTag = std::string("IHEP_") + "RasToTableTopMirrorTransform";
       rasToTableTopMirrorTransformNode->SetSingletonTag(singletonTag.c_str());
 
@@ -2454,7 +2454,7 @@ vtkMRMLLinearTransformNode* vtkSlicerIhepStandGeometryLogic::UpdateTableMiddleMa
 
       rasToTableTopMiddleTransformNode = vtkSmartPointer<vtkMRMLLinearTransformNode>::New();
       rasToTableTopMiddleTransformNode->SetName("RasToTableTopMiddleTransform");
-//      rasToTableTopMiddleTransformNode->SetHideFromEditors(1);
+      rasToTableTopMiddleTransformNode->SetHideFromEditors(1);
       std::string singletonTag = std::string("IHEP_") + "RasToTableTopMiddleTransform";
       rasToTableTopMiddleTransformNode->SetSingletonTag(singletonTag.c_str());
 
@@ -2516,7 +2516,7 @@ vtkMRMLLinearTransformNode* vtkSlicerIhepStandGeometryLogic::UpdateTableTopPlane
 
       rasToTableTopTransformNode = vtkSmartPointer<vtkMRMLLinearTransformNode>::New();
       rasToTableTopTransformNode->SetName("RasToTableTopTransform");
-//      rasToTableTopMiddleTransformNode->SetHideFromEditors(1);
+      rasToTableTopTransformNode->SetHideFromEditors(1);
       std::string singletonTag = std::string("IHEP_") + "RasToTableTopTransform";
       rasToTableTopTransformNode->SetSingletonTag(singletonTag.c_str());
 
@@ -2578,7 +2578,7 @@ vtkMRMLLinearTransformNode* vtkSlicerIhepStandGeometryLogic::UpdateFixedReferenc
 
       rasToFixedReferenceTransformNode = vtkSmartPointer<vtkMRMLLinearTransformNode>::New();
       rasToFixedReferenceTransformNode->SetName("RasToFixedReferenceTransform");
-//      rasToFixedReferenceMiddleTransformNode->SetHideFromEditors(1);
+      rasToFixedReferenceTransformNode->SetHideFromEditors(1);
       std::string singletonTag = std::string("IHEP_") + "RasToFixedReferenceTransform";
       rasToFixedReferenceTransformNode->SetSingletonTag(singletonTag.c_str());
 
@@ -3322,6 +3322,7 @@ void vtkSlicerIhepStandGeometryLogic::ShowMarkupsNodes(bool toggled)
   vtkMRMLMarkupsFiducialNode* mirrorMarkupsNode = nullptr;
   vtkMRMLMarkupsFiducialNode* fixedIsocenterMarkupsNode = nullptr;
   vtkMRMLMarkupsPlaneNode* tableTopPlaneNode = nullptr;
+  vtkMRMLMarkupsPlaneNode* tableTopPlaneMarkupsNode = nullptr;
   vtkMRMLMarkupsLineNode* fixedReferenceLineNode = nullptr;
 
   // origin fiducial markups node
@@ -3358,6 +3359,16 @@ void vtkSlicerIhepStandGeometryLogic::ShowMarkupsNodes(bool toggled)
     if (tableTopPlaneNode)
     {
       tableTopPlaneNode->GetDisplayNode()->SetVisibility(toggled);
+    }
+  }
+
+  // table top plane fiducials markups node
+  if (scene->GetFirstNodeByName(TABLETOP_MARKUPS_FIDUCIAL_NODE_NAME))
+  {
+    tableTopPlaneMarkupsNode = vtkMRMLMarkupsPlaneNode::SafeDownCast(scene->GetFirstNodeByName(TABLETOP_MARKUPS_FIDUCIAL_NODE_NAME));
+    if (tableTopPlaneMarkupsNode)
+    {
+      tableTopPlaneMarkupsNode->GetDisplayNode()->SetVisibility(toggled);
     }
   }
   // fixed reference line markups node

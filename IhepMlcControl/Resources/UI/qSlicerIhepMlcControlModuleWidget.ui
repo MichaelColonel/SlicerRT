@@ -60,7 +60,7 @@
                 </widget>
                </item>
                <item>
-                <widget class="QPushButton" name="PushButton_EditMlcLayerTable">
+                <widget class="QPushButton" name="PushButton_SetMlcTable">
                  <property name="enabled">
                   <bool>false</bool>
                  </property>
@@ -346,7 +346,7 @@
            <string>Device</string>
           </property>
           <property name="collapsed">
-           <bool>false</bool>
+           <bool>true</bool>
           </property>
           <layout class="QGridLayout" name="gridLayout_6">
            <item row="1" column="0">
@@ -355,7 +355,7 @@
               <string>Leaf control</string>
              </property>
              <property name="collapsed">
-              <bool>false</bool>
+              <bool>true</bool>
              </property>
              <layout class="QGridLayout" name="gridLayout_12">
               <item row="0" column="0">
@@ -785,7 +785,7 @@
               <string>Leaves control</string>
              </property>
              <property name="collapsed">
-              <bool>false</bool>
+              <bool>true</bool>
              </property>
              <layout class="QGridLayout" name="gridLayout_13">
               <item row="0" column="0">
@@ -1034,9 +1034,9 @@
   </connection>
  </connections>
  <buttongroups>
+  <buttongroup name="ButtonGroup_LeafDirection"/>
+  <buttongroup name="ButtonGroup_MlcOrientation"/>
   <buttongroup name="ButtonGroup_MlcLayers"/>
   <buttongroup name="ButtonGroup_LeafStepMode"/>
-  <buttongroup name="ButtonGroup_MlcOrientation"/>
-  <buttongroup name="ButtonGroup_LeafDirection"/>
  </buttongroups>
 </ui>
