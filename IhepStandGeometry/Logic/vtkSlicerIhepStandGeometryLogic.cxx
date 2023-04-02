@@ -3365,11 +3365,9 @@ void vtkSlicerIhepStandGeometryLogic::ShowMarkupsNodes(bool toggled)
   // table top plane fiducials markups node
   if (scene->GetFirstNodeByName(TABLETOP_MARKUPS_FIDUCIAL_NODE_NAME))
   {
-    vtkWarningMacro("ShowMarkupsNodes: table top fiducials");
     tableTopPlaneMarkupsNode = vtkMRMLMarkupsFiducialNode::SafeDownCast(scene->GetFirstNodeByName(TABLETOP_MARKUPS_FIDUCIAL_NODE_NAME));
     if (tableTopPlaneMarkupsNode)
     {
-      vtkWarningMacro("ShowMarkupsNodes: table top fiducials set visibility " << toggled);
       tableTopPlaneMarkupsNode->GetDisplayNode()->SetVisibility(toggled);
     }
   }

@@ -789,7 +789,7 @@ void vtkMRMLIhepMlcControlNode::GetAddressesByLayerSide(std::vector<int>& addres
     {
       addresses.push_back(leafSide1.Address);
     }
-    else if (side == leafSide2.Side && layer == leafSide2.Layer)
+    if (side == leafSide2.Side && layer == leafSide2.Layer)
     {
       addresses.push_back(leafSide2.Address);
     }
@@ -811,7 +811,7 @@ void vtkMRMLIhepMlcControlNode::GetAddressesByLayer(std::vector<int>& addresses,
     {
       addresses.push_back(leafSide1.Address);
     }
-    else if (layer == leafSide2.Layer)
+    if (layer == leafSide2.Layer)
     {
       addresses.push_back(leafSide2.Address);
     }
@@ -899,4 +899,40 @@ int vtkMRMLIhepMlcControlNode::GetStepsFromMlcTableByAddress(vtkMRMLTableNode* m
     }
   }
   return static_cast<int>(DistanceToInternalCounterValue(movement));
+}
+
+//----------------------------------------------------------------------------
+double vtkMRMLIhepMlcControlNode::ExternalCounterValueToMlcPosition(int extCounterValue, vtkMRMLIhepMlcControlNode::SideType side)
+{
+  double res = 0.;
+  switch (side)
+  {
+  case vtkMRMLIhepMlcControlNode::Side1:
+    res = vtkMRMLIhepMlcControlNode::ExternalCounterValueToDistance(extCounterValue) - vtkMRMLIhepMlcControlNode::IHEP_TOTAL_DISTANCE;
+    break;
+  case vtkMRMLIhepMlcControlNode::Side2:
+    res = vtkMRMLIhepMlcControlNode::IHEP_TOTAL_DISTANCE - vtkMRMLIhepMlcControlNode::ExternalCounterValueToDistance(extCounterValue);
+    break;
+  default:
+    break;
+  }
+  return res;
+}
+
+//----------------------------------------------------------------------------
+double vtkMRMLIhepMlcControlNode::InternalCounterValueToMlcPosition(int intCounterValue, vtkMRMLIhepMlcControlNode::SideType side)
+{
+  double res = 0.;
+  switch (side)
+  {
+  case vtkMRMLIhepMlcControlNode::Side1:
+    res = vtkMRMLIhepMlcControlNode::InternalCounterValueToDistance(intCounterValue) - vtkMRMLIhepMlcControlNode::IHEP_TOTAL_DISTANCE;
+    break;
+  case vtkMRMLIhepMlcControlNode::Side2:
+    res = vtkMRMLIhepMlcControlNode::IHEP_TOTAL_DISTANCE - vtkMRMLIhepMlcControlNode::InternalCounterValueToDistance(intCounterValue);
+    break;
+  default:
+    break;
+  }
+  return res;
 }

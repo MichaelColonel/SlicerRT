@@ -122,7 +122,7 @@ qSlicerIhepMlcControlModuleWidgetPrivate::qSlicerIhepMlcControlModuleWidgetPriva
 //-----------------------------------------------------------------------------
 qSlicerIhepMlcControlModuleWidgetPrivate::~qSlicerIhepMlcControlModuleWidgetPrivate()
 {
-  if (this->MlcLayer1SerialPort->isOpen())
+  if (this->MlcLayer1SerialPort && this->MlcLayer1SerialPort->isOpen())
   {
     this->MlcLayer1SerialPort->flush();
     this->MlcLayer1SerialPort->close();
@@ -130,7 +130,7 @@ qSlicerIhepMlcControlModuleWidgetPrivate::~qSlicerIhepMlcControlModuleWidgetPriv
   delete this->MlcLayer1SerialPort;
   this->MlcLayer1SerialPort = nullptr;
 
-  if (this->MlcLayer2SerialPort->isOpen())
+  if (this->MlcLayer2SerialPort && this->MlcLayer2SerialPort->isOpen())
   {
     this->MlcLayer2SerialPort->flush();
     this->MlcLayer2SerialPort->close();
@@ -156,7 +156,6 @@ vtkSlicerIhepMlcControlLogic* qSlicerIhepMlcControlModuleWidgetPrivate::logic() 
 //-----------------------------------------------------------------------------
 QByteArray qSlicerIhepMlcControlModuleWidgetPrivate::getParametersCommandByAddress(int address)
 {
-  Q_Q(const qSlicerIhepMlcControlModuleWidget);
   if (!this->ParameterNode || address == 0)
   {
     return QByteArray();
@@ -192,12 +191,11 @@ QByteArray qSlicerIhepMlcControlModuleWidgetPrivate::getParametersCommandByAddre
 //-----------------------------------------------------------------------------
 QByteArray qSlicerIhepMlcControlModuleWidgetPrivate::getStateCommandByAddress(int address)
 {
-  Q_Q(const qSlicerIhepMlcControlModuleWidget);
   if (!this->ParameterNode || address == 0)
   {
     return QByteArray();
   }
-  if (this->ParameterNode->GetNumberOfLeafPairs() * 2 >= address)
+  if (address >= this->ParameterNode->GetNumberOfLeafPairs() * 2)
   {
     return QByteArray();
   }
@@ -215,7 +213,6 @@ QByteArray qSlicerIhepMlcControlModuleWidgetPrivate::getStateCommandByAddress(in
 //-----------------------------------------------------------------------------
 QByteArray qSlicerIhepMlcControlModuleWidgetPrivate::getStartCommandByAddress(int address)
 {
-  Q_Q(const qSlicerIhepMlcControlModuleWidget);
   if (!this->ParameterNode || address == 0)
   {
     return QByteArray();
@@ -238,7 +235,6 @@ QByteArray qSlicerIhepMlcControlModuleWidgetPrivate::getStartCommandByAddress(in
 //-----------------------------------------------------------------------------
 QByteArray qSlicerIhepMlcControlModuleWidgetPrivate::getStopCommandByAddress(int address)
 {
-  Q_Q(const qSlicerIhepMlcControlModuleWidget);
   if (!this->ParameterNode || address == 0)
   {
     return QByteArray();
@@ -335,9 +331,10 @@ QList< QByteArray > qSlicerIhepMlcControlModuleWidgetPrivate::getStateCommandsBy
   }
   std::vector<int> addresses;
   this->ParameterNode->GetAddressesByLayer(addresses, layer);
-
+  qDebug() << Q_FUNC_INFO << ": Size of list for state command for addresses: " << addresses.size();
   for (int address : addresses)
   {
+    qDebug() << Q_FUNC_INFO << ": State command for address: " << address;
     QByteArray command = this->getStateCommandByAddress(address);
     if (command.size())
     {
@@ -526,12 +523,18 @@ bool qSlicerIhepMlcControlModuleWidgetPrivate::connectDevice(const QString& devi
     QObject::connect(this->MlcLayer1SerialPort, SIGNAL(bytesWritten(qint64)), q, SLOT(serialPortBytesWritten(qint64)));
     QObject::connect(this->MlcLayer1SerialPort, SIGNAL(error(QSerialPort::SerialPortError)), q, SLOT(serialPortError(QSerialPort::SerialPortError)));
     QObject::connect(this->TimerGetState, SIGNAL(timeout()), q, SLOT(onMlcStateTimeoutExpired()));
-    this->TimerGetState->start();
+
+//    this->TimerGetState->start();
     qDebug() << Q_FUNC_INFO << ": Device port has been opened for device name: " << deviceName;
     return true;
   }
   else
   {
+    QObject::disconnect(this->MlcLayer1SerialPort, SIGNAL(readyRead()), q, SLOT(serialPortDataReady()));
+    QObject::disconnect(this->MlcLayer1SerialPort, SIGNAL(bytesWritten(qint64)), q, SLOT(serialPortBytesWritten(qint64)));
+    QObject::disconnect(this->MlcLayer1SerialPort, SIGNAL(error(QSerialPort::SerialPortError)), q, SLOT(serialPortError(QSerialPort::SerialPortError)));
+    QObject::disconnect(this->TimerGetState, SIGNAL(timeout()), q, SLOT(onMlcStateTimeoutExpired()));
+
     while (this->CommandQueue.size())
     {
       this->CommandQueue.pop();
@@ -552,12 +555,7 @@ bool qSlicerIhepMlcControlModuleWidgetPrivate::disconnectDevice()
 
   this->TimerGetState->stop();
 
-  QObject::disconnect(this->MlcLayer1SerialPort, SIGNAL(readyRead()), q, SLOT(serialPortDataReady()));
-  QObject::disconnect(this->MlcLayer1SerialPort, SIGNAL(bytesWritten(qint64)), q, SLOT(serialPortBytesWritten(qint64)));
-  QObject::disconnect(this->MlcLayer1SerialPort, SIGNAL(error(QSerialPort::SerialPortError)), q, SLOT(serialPortError(QSerialPort::SerialPortError)));
-  QObject::disconnect(this->TimerGetState, SIGNAL(timeout()), q, SLOT(onMlcStateTimeoutExpired()));
-
-  if (this->MlcLayer1SerialPort->isOpen())
+  if (this->MlcLayer1SerialPort && this->MlcLayer1SerialPort->isOpen())
   {
     this->MlcLayer1SerialPort->flush();
     this->MlcLayer1SerialPort->close();
@@ -1222,8 +1220,7 @@ void qSlicerIhepMlcControlModuleWidget::onConnectMlcLayersButtonClicked()
     QString portName = d->LineEdit_DeviceLayer1->text();
     if (d->connectDevice(portName))
     {
-      // connected
-      ;
+      ; // connected
     }
   }
   if (d->ParameterNode->GetLayers() == vtkMRMLIhepMlcControlNode::TwoLayers)
@@ -1261,19 +1258,22 @@ void qSlicerIhepMlcControlModuleWidget::serialPortDataReady()
 
   QByteArray portData = d->MlcLayer1SerialPort->readAll();
 
-  qDebug() << Q_FUNC_INFO << "Serial port data read: " << portData.size() << " bytes";
+  d->ResponseBuffer.append(portData);
 
-  d->ResponseBuffer.push_back(portData);
-
-  const int commandSize = vtkMRMLIhepMlcControlNode::BUFFER;
+  vtkMRMLIhepMlcControlNode::CommandBufferType buf;
+  const int commandSize = buf.size();
   if (d->ResponseBuffer.size() >= commandSize)
   {
-    vtkMRMLIhepMlcControlNode::CommandBufferType buf;
-    unsigned char* data = reinterpret_cast< unsigned char* >(d->ResponseBuffer.data());
-    std::copy(std::begin(buf), std::end(buf), data);
-
+//    unsigned char* data = reinterpret_cast< unsigned char* >(d->ResponseBuffer.data());
+    std::copy_n(d->ResponseBuffer.data(), commandSize, std::begin(buf));
+    qDebug() << Q_FUNC_INFO << ": Buffer: " << d->ResponseBuffer << ", data: " << int(buf[0])
+      << " " << int(buf[1]) << " " << int(buf[2]) << " " << int(buf[3])
+      << " " << int(buf[4]) << " " << int(buf[5]) << " " << int(buf[6])
+      << " " << int(buf[7]) << " " << int(buf[8]) << " " << int(buf[9])
+      << " " << int(buf[10]);
     if (vtkMRMLIhepMlcControlNode::CommandCheckCrc16(buf))
     {
+      qDebug() << Q_FUNC_INFO << "Command data is OK!";
       vtkMRMLIhepMlcControlNode::LeafData leafData;
       vtkMRMLIhepMlcControlNode::ProcessCommandBufferToLeafData(buf, leafData);
       emit leafDataChanged(leafData);
@@ -1296,6 +1296,7 @@ void qSlicerIhepMlcControlModuleWidget::serialPortDataReady()
     }
     else
     {
+      qWarning() << Q_FUNC_INFO << "Command data is INVALID!";
       if (d->ResponseBuffer.size() > commandSize)
       {
         d->ResponseBuffer.remove(0, commandSize);
@@ -1313,7 +1314,7 @@ void qSlicerIhepMlcControlModuleWidget::serialPortDataReady()
   // Start get state timer if command queue is empty
   if (d->CommandQueue.empty() && d->LastCommand.isEmpty())
   {
-    d->TimerGetState->start();
+//    d->TimerGetState->start();
   }
 }
 
@@ -1500,6 +1501,14 @@ void qSlicerIhepMlcControlModuleWidget::onLeafSetParametersClicked()
   }
   if (com.size())
   {
+    d->TimerGetState->stop();
+    unsigned char* buf = reinterpret_cast< unsigned char* >(com.data());
+    qDebug() << Q_FUNC_INFO << "Set parameters command data: " << int(buf[0]) << " "
+      << " " << int(buf[1]) << " " << " " << int(buf[2]) << " " << " " << int(buf[3]) << " "
+      << " " << int(buf[4]) << " " << " " << int(buf[5]) << " " << " " << int(buf[6]) << " "
+      << " " << int(buf[7]) << " " << " " << int(buf[8]) << " " << " " << int(buf[9]) << " "
+      << " " << int(buf[10]);
+
     d->CommandQueue.push(com);
     d->writeNextCommandFromQueue();
   }
@@ -1528,6 +1537,7 @@ void qSlicerIhepMlcControlModuleWidget::onLeafGetStateClicked()
   }
   if (com.size())
   {
+    d->TimerGetState->stop();
     d->CommandQueue.push(com);
     d->writeNextCommandFromQueue();
   }
@@ -1551,6 +1561,7 @@ void qSlicerIhepMlcControlModuleWidget::onLeafStartClicked()
   }
   if (com.size())
   {
+    d->TimerGetState->stop();
     d->CommandQueue.push(com);
     d->writeNextCommandFromQueue();
   }
@@ -1574,6 +1585,7 @@ void qSlicerIhepMlcControlModuleWidget::onLeafStopClicked()
   }
   if (com.size())
   {
+    d->TimerGetState->stop();
     d->CommandQueue.push(com);
     d->writeNextCommandFromQueue();
   }
@@ -1603,6 +1615,7 @@ void qSlicerIhepMlcControlModuleWidget::onLeavesSetParametersClicked()
   QList< QByteArray > mlcLayer1StateCommands = d->getParametersCommandsByLayer(vtkMRMLIhepMlcControlNode::Layer1);
   if (mlcLayer1StateCommands.size())
   {
+    d->TimerGetState->stop();
     for (const auto& leafStateCommand : mlcLayer1StateCommands)
     {
       d->CommandQueue.push(leafStateCommand);
@@ -1616,10 +1629,13 @@ void qSlicerIhepMlcControlModuleWidget::onLeavesGetStateClicked()
 {
   Q_D(qSlicerIhepMlcControlModuleWidget);
   QList< QByteArray > mlcLayer1StateCommands = d->getStateCommandsByLayer(vtkMRMLIhepMlcControlNode::Layer1);
+  qDebug() << Q_FUNC_INFO << ": Layer1 MLC state size: " << mlcLayer1StateCommands.size();
   if (mlcLayer1StateCommands.size())
   {
+    d->TimerGetState->stop();
     for (const auto& leafStateCommand : mlcLayer1StateCommands)
     {
+      qDebug() << Q_FUNC_INFO << "Leaf State command: " << leafStateCommand;
       d->CommandQueue.push(leafStateCommand);
     }
     d->writeNextCommandFromQueue();
@@ -1638,6 +1654,7 @@ void qSlicerIhepMlcControlModuleWidget::onLeavesStartBroadcastClicked()
   QByteArray com = d->getStartBroadcastCommand();
   if (com.size())
   {
+    d->TimerGetState->stop();
     d->CommandQueue.push(com);
     d->writeNextCommandFromQueue();
   }
@@ -1655,6 +1672,7 @@ void qSlicerIhepMlcControlModuleWidget::onLeavesStopBroadcastClicked()
   QByteArray com = d->getStopBroadcastCommand();
   if (com.size())
   {
+    d->TimerGetState->stop();
     d->CommandQueue.push(com);
     d->writeNextCommandFromQueue();
   }
@@ -1672,6 +1690,7 @@ void qSlicerIhepMlcControlModuleWidget::onLeavesOpenBroadcastClicked()
   QByteArray com = d->getOpenBroadcastCommand();
   if (com.size())
   {
+    d->TimerGetState->stop();
     d->CommandQueue.push(com);
     d->writeNextCommandFromQueue();
   }

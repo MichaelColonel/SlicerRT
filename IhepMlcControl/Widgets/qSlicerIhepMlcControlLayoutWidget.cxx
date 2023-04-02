@@ -813,6 +813,8 @@ void qSlicerIhepMlcControlLayoutWidget::setLeafData(const vtkMRMLIhepMlcControlN
     return;
   }
 
+  qDebug() << Q_FUNC_INFO << ": Leaf data must be updated, address: " << data.Address;
+
   if (widgets)
   {
     if (data.Side == vtkMRMLIhepMlcControlNode::Side1)

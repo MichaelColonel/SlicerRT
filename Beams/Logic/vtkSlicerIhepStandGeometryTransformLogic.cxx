@@ -50,17 +50,17 @@ vtkSlicerIhepStandGeometryTransformLogic::vtkSlicerIhepStandGeometryTransformLog
   using IHEP = CoordinateSystemIdentifier;
   // Setup coordinate system ID to name map
   this->CoordinateSystemsMap.clear();
-  this->CoordinateSystemsMap[IHEP::RAS] = "Ras1";
-  this->CoordinateSystemsMap[IHEP::FixedReference] = "FixedReference1";
-  this->CoordinateSystemsMap[IHEP::Collimator] = "Collimator1";
-  this->CoordinateSystemsMap[IHEP::PatientSupport] = "PatientSupport1";
-  this->CoordinateSystemsMap[IHEP::TableTopSupport] = "TableTopSupport1";
-  this->CoordinateSystemsMap[IHEP::TablePlatform] = "TablePlatform1";
-  this->CoordinateSystemsMap[IHEP::TableTopOrigin] = "TableTopOrigin1";
-  this->CoordinateSystemsMap[IHEP::TableTopMiddle] = "TableTopMiddle1";
-  this->CoordinateSystemsMap[IHEP::TableTopMirror] = "TableTopMirror1";
-  this->CoordinateSystemsMap[IHEP::TableTop] = "TableTop1";
-  this->CoordinateSystemsMap[IHEP::Patient] = "Patient1";
+  this->CoordinateSystemsMap[IHEP::RAS] = "IhepRas";
+  this->CoordinateSystemsMap[IHEP::FixedReference] = "IhepFixedReference";
+  this->CoordinateSystemsMap[IHEP::Collimator] = "IhepCollimator";
+  this->CoordinateSystemsMap[IHEP::PatientSupport] = "IhepPatientSupport";
+  this->CoordinateSystemsMap[IHEP::TableTopSupport] = "IhepTableTopSupport";
+  this->CoordinateSystemsMap[IHEP::TablePlatform] = "IhepTablePlatform";
+  this->CoordinateSystemsMap[IHEP::TableTopOrigin] = "IhepTableTopOrigin";
+  this->CoordinateSystemsMap[IHEP::TableTopMiddle] = "IhepTableTopMiddle";
+  this->CoordinateSystemsMap[IHEP::TableTopMirror] = "IhepTableTopMirror";
+  this->CoordinateSystemsMap[IHEP::TableTop] = "IhepTableTop";
+  this->CoordinateSystemsMap[IHEP::Patient] = "IhepPatient";
 
   this->IhepTransforms.clear();
   this->IhepTransforms.push_back(std::make_pair(IHEP::FixedReference, IHEP::RAS)); // Dummy

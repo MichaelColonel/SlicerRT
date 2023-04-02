@@ -57,6 +57,7 @@ public:
 
 signals:
   void leafAddressStepsMovementChanged(int, int);
+  void leafAddressPositionChanged(int, double);
 
 public slots:
   /// Set IhepMlcControl MRML node (Parameter node)

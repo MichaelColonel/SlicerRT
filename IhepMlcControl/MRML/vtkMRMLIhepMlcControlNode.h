@@ -186,6 +186,9 @@ public:
 
   static double ExternalCounterValueToDistance(int extCounterValue);
   static double InternalCounterValueToDistance(int intCounterValue);
+  static double ExternalCounterValueToMlcPosition(int extCounterValue, SideType side = Side1);
+  static double InternalCounterValueToMlcPosition(int intCounterValue, SideType side = Side1);
+
   static int DistanceToExternalCounterValue(double distance);
   static int DistanceToInternalCounterValue(double distance);
 
@@ -266,8 +269,8 @@ private:
       { { 31, true, false, 7, 10000, 19300, Side1, Layer1, false, true },
         { 15, true, false, 7, 10000, 19300, Side2, Layer1, false, true } } },
     { 15 + IHEP_PAIR_OF_LEAVES_PER_LAYER * Layer1,
-      { { 16, true, false, 7, 10000, 19300, Side1, Layer1, false, true },
-        { 32, true, false, 7, 10000, 19300, Side2, Layer1, false, true } } },
+      { { 32, true, false, 7, 10000, 19300, Side1, Layer1, false, true },
+        { 16, true, false, 7, 10000, 19300, Side2, Layer1, false, true } } },
     { 0 + IHEP_PAIR_OF_LEAVES_PER_LAYER * Layer2,
       { { 33, true, false, 7, 10000, 19300, Side1, Layer2, false, true },
         { 34, true, false, 7, 10000, 19300, Side2, Layer2, false, true } } },
