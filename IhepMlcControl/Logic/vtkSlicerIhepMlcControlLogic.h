@@ -27,7 +27,8 @@
 // Slicer includes
 #include "vtkSlicerModuleLogic.h"
 
-// MRML includes
+// SlicerRT IhepMlcControl MRML includes
+#include <vtkMRMLIhepMlcControlNode.h>
 
 // STD includes
 #include <cstdlib>
@@ -35,7 +36,6 @@
 #include "vtkSlicerIhepMlcControlModuleLogicExport.h"
 
 class vtkMRMLRTBeamNode;
-class vtkMRMLIhepMlcControlNode;
 class vtkSlicerBeamsModuleLogic;
 class vtkMRMLTableNode;
 
@@ -71,7 +71,9 @@ public:
   bool SetupPositionsFromMlcTableNode(vtkMRMLIhepMlcControlNode* parameterNode, vtkMRMLTableNode* tableNode);
   bool UpdatePositionBetweenMlcTableNodes(vtkMRMLIhepMlcControlNode* parameterNode, vtkMRMLTableNode* prevTableNode, vtkMRMLTableNode* nextTableNode);
   bool UpdateMlcTableNodePositionData(vtkMRMLIhepMlcControlNode* parameterNode, int address, int movementSteps);
-  bool UpdateLeavesDataFromTableNode(vtkMRMLIhepMlcControlNode* parameterNode, vtkMRMLTableNode* mlcTableNode = nullptr);
+  bool UpdateLeavesDataFromMlcPositionTableNode(vtkMRMLIhepMlcControlNode* parameterNode, vtkMRMLTableNode* mlcTableNode = nullptr);
+  bool UpdateMlcPositionTableFromLeafData(vtkMRMLIhepMlcControlNode* parameterNode, const vtkMRMLIhepMlcControlNode::LeafData& leafData,
+    vtkMRMLTableNode* mlcTableNode = nullptr);
 
 protected:
   vtkSlicerIhepMlcControlLogic();

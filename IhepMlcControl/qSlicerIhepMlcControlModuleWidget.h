@@ -39,6 +39,7 @@ class Q_SLICER_QTMODULES_IHEPMLCCONTROL_EXPORT qSlicerIhepMlcControlModuleWidget
   public qSlicerAbstractModuleWidget
 {
   Q_OBJECT
+  QVTK_OBJECT
 
 public:
 
@@ -82,7 +83,7 @@ public slots:
   void onLeafStepsChanged(int steps);
   void onLeafResetToggled(bool reset);
   void onLeafEnabledToggled(bool enabled);
-  void onLeafAddressStepsMovementChanged(int address, int movementSteps);
+//  void onLeafAddressStepsMovementChanged(int address, int movementSteps);
 
   /// Leaves parameters control
   void onLeavesSetParametersClicked();

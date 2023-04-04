@@ -628,7 +628,7 @@ void vtkMRMLIhepMlcControlNode::SetPredefinedPosition(vtkMRMLIhepMlcControlNode:
 }
 
 //----------------------------------------------------------------------------
-int vtkMRMLIhepMlcControlNode::GetLeafPositionLayerByAddress(int address, int& key,
+int vtkMRMLIhepMlcControlNode::GetLeafOffsetLayerByAddress(int address, int& key,
   SideType& side, LayerType& layer)
 {
   for (auto iter = LeavesDataMap.begin(); iter != LeavesDataMap.end(); ++iter)
@@ -662,12 +662,12 @@ int vtkMRMLIhepMlcControlNode::GetLeafPositionLayerByAddress(int address, int& k
 bool vtkMRMLIhepMlcControlNode::GetLeafDataByAddress(LeafData& leafData, int address)
 {
   int key;
-  int pos = -1;
+  int offset = -1;
   vtkMRMLIhepMlcControlNode::SideType side = Side_Last;
   vtkMRMLIhepMlcControlNode::LayerType layer = Layer_Last;
-  if ((pos = this->GetLeafPositionLayerByAddress(address, key, side, layer)) != -1)
+  if ((offset = this->GetLeafOffsetLayerByAddress(address, key, side, layer)) != -1)
   {
-    return this->GetLeafData(leafData, pos, side, layer);
+    return this->GetLeafData(leafData, offset, side, layer);
   }
   return false;
 }
@@ -676,12 +676,12 @@ bool vtkMRMLIhepMlcControlNode::GetLeafDataByAddress(LeafData& leafData, int add
 bool vtkMRMLIhepMlcControlNode::SetLeafDataByAddress(const LeafData& leafData, int address)
 {
   int key;
-  int pos = -1;
+  int offset = -1;
   vtkMRMLIhepMlcControlNode::SideType side = Side_Last;
   vtkMRMLIhepMlcControlNode::LayerType layer = Layer_Last;
-  if ((pos = this->GetLeafPositionLayerByAddress(address, key, side, layer)) != -1)
+  if ((offset = this->GetLeafOffsetLayerByAddress(address, key, side, layer)) != -1)
   {
-    return this->SetLeafData(leafData, pos, side, layer);
+    return this->SetLeafData(leafData, offset, side, layer);
   }
   return false;
 }
@@ -706,30 +706,6 @@ bool vtkMRMLIhepMlcControlNode::SetMlcLeavesClosed(vtkMRMLIhepMlcControlNode::La
 bool vtkMRMLIhepMlcControlNode::SetMlcLeavesOpened(vtkMRMLIhepMlcControlNode::LayerType)
 {
   return true;
-}
-
-//----------------------------------------------------------------------------
-double vtkMRMLIhepMlcControlNode::ExternalCounterValueToDistance(int extCounterValue)
-{
-  return (extCounterValue / vtkMRMLIhepMlcControlNode::IHEP_EXTERNAL_COUNTS_PER_MM);
-}
-
-//----------------------------------------------------------------------------
-double vtkMRMLIhepMlcControlNode::InternalCounterValueToDistance(int intCounterValue)
-{
-  return (intCounterValue / vtkMRMLIhepMlcControlNode::IHEP_MOTOR_STEPS_PER_MM);
-}
-
-//----------------------------------------------------------------------------
-int vtkMRMLIhepMlcControlNode::DistanceToExternalCounterValue(double distance)
-{
-  return (distance * vtkMRMLIhepMlcControlNode::IHEP_EXTERNAL_COUNTS_PER_MM);
-}
-
-//----------------------------------------------------------------------------
-int vtkMRMLIhepMlcControlNode::DistanceToInternalCounterValue(double distance)
-{
-  return (distance * vtkMRMLIhepMlcControlNode::IHEP_MOTOR_STEPS_PER_MM);
 }
 
 //-----------------------------------------------------------------------------
@@ -873,7 +849,7 @@ int vtkMRMLIhepMlcControlNode::GetStepsFromMlcTableByAddress(vtkMRMLTableNode* m
   int key = -1;
   SideType side = Side_Last;
   LayerType layer = Layer_Last;
-  int offset = this->GetLeafPositionLayerByAddress( address, key, side, layer);
+  int offset = this->GetLeafOffsetLayerByAddress( address, key, side, layer);
   double movement = 0.;
   if (offset != -1)
   {
@@ -899,6 +875,30 @@ int vtkMRMLIhepMlcControlNode::GetStepsFromMlcTableByAddress(vtkMRMLTableNode* m
     }
   }
   return static_cast<int>(DistanceToInternalCounterValue(movement));
+}
+
+//----------------------------------------------------------------------------
+double vtkMRMLIhepMlcControlNode::ExternalCounterValueToDistance(int extCounterValue)
+{
+  return (extCounterValue / vtkMRMLIhepMlcControlNode::IHEP_EXTERNAL_COUNTS_PER_MM);
+}
+
+//----------------------------------------------------------------------------
+double vtkMRMLIhepMlcControlNode::InternalCounterValueToDistance(int intCounterValue)
+{
+  return (intCounterValue / vtkMRMLIhepMlcControlNode::IHEP_MOTOR_STEPS_PER_MM);
+}
+
+//----------------------------------------------------------------------------
+int vtkMRMLIhepMlcControlNode::DistanceToExternalCounterValue(double distance)
+{
+  return (distance * vtkMRMLIhepMlcControlNode::IHEP_EXTERNAL_COUNTS_PER_MM);
+}
+
+//----------------------------------------------------------------------------
+int vtkMRMLIhepMlcControlNode::DistanceToInternalCounterValue(double distance)
+{
+  return (distance * vtkMRMLIhepMlcControlNode::IHEP_MOTOR_STEPS_PER_MM);
 }
 
 //----------------------------------------------------------------------------

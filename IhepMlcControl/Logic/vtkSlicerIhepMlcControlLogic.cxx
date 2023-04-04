@@ -29,9 +29,6 @@
 #include <vtkMRMLSubjectHierarchyConstants.h>
 #include <vtkMRMLSubjectHierarchyNode.h>
 
-// SlicerRT IhepMlcControl MRML includes
-#include <vtkMRMLIhepMlcControlNode.h>
-
 // VTK includes
 #include <vtkWeakPointer.h>
 
@@ -828,31 +825,31 @@ bool vtkSlicerIhepMlcControlLogic::UpdateMlcTableNodePositionData(vtkMRMLIhepMlc
     int key = -1;
     vtkMRMLIhepMlcControlNode::SideType side = vtkMRMLIhepMlcControlNode::Side_Last;
     vtkMRMLIhepMlcControlNode::LayerType layer = vtkMRMLIhepMlcControlNode::Layer_Last;
-    int pos = parameterNode->GetLeafPositionLayerByAddress( address, key, side, layer);
+    int offset = parameterNode->GetLeafOffsetLayerByAddress( address, key, side, layer);
 
     double distanceSide1 = vtkMRMLIhepMlcControlNode::ExternalCounterValueToDistance(movementSteps) - vtkMRMLIhepMlcControlNode::IHEP_TOTAL_DISTANCE;
     double distanceSide2 = vtkMRMLIhepMlcControlNode::IHEP_TOTAL_DISTANCE - vtkMRMLIhepMlcControlNode::ExternalCounterValueToDistance(movementSteps);
-    if (pos != -1)
+    if (offset != -1)
     {
       if (side == vtkMRMLIhepMlcControlNode::Side1 && layer == vtkMRMLIhepMlcControlNode::Layer1)
       {
-        vtkWarningMacro("UpdateMlcTableNodePositionData: S1L1, position, address, value: " << pos << " " << address << " " << distanceSide1);
-        table->SetValue( pos, 1, distanceSide1);
+        vtkWarningMacro("UpdateMlcTableNodePositionData: S1L1, offset, address, value: " << offset << " " << address << " " << distanceSide1);
+        table->SetValue( offset, 1, distanceSide1);
       }
       else if (side == vtkMRMLIhepMlcControlNode::Side1 && layer == vtkMRMLIhepMlcControlNode::Layer2)
       {
-        vtkWarningMacro("UpdateMlcTableNodePositionData: S1L2, position, address, value: " << pos << " " << address << " " << distanceSide1);
-        table->SetValue( pos, 4, distanceSide1);
+        vtkWarningMacro("UpdateMlcTableNodePositionData: S1L2, offset, address, value: " << offset << " " << address << " " << distanceSide1);
+        table->SetValue( offset, 4, distanceSide1);
       }
       else if (side == vtkMRMLIhepMlcControlNode::Side2 && layer == vtkMRMLIhepMlcControlNode::Layer1)
       {
-        vtkWarningMacro("UpdateMlcTableNodePositionData: S2L1, position, address, value: " << pos << " " << address << " " << distanceSide2);
-        table->SetValue( pos, 2, distanceSide2);
+        vtkWarningMacro("UpdateMlcTableNodePositionData: S2L1, offset, address, value: " << offset << " " << address << " " << distanceSide2);
+        table->SetValue( offset, 2, distanceSide2);
       }
       else if (side == vtkMRMLIhepMlcControlNode::Side2 && layer == vtkMRMLIhepMlcControlNode::Layer2)
       {
-        vtkWarningMacro("UpdateMlcTableNodePositionData: S1L1, position, address, value: " << pos << " " << address << " " << distanceSide2);
-        table->SetValue( pos, 5, distanceSide2);
+        vtkWarningMacro("UpdateMlcTableNodePositionData: S1L1, offset, address, value: " << offset << " " << address << " " << distanceSide2);
+        table->SetValue( offset, 5, distanceSide2);
       }
       tableNode->Modified();
       return true;
@@ -865,21 +862,21 @@ bool vtkSlicerIhepMlcControlLogic::UpdateMlcTableNodePositionData(vtkMRMLIhepMlc
     int key = -1;
     vtkMRMLIhepMlcControlNode::SideType side = vtkMRMLIhepMlcControlNode::Side_Last;
     vtkMRMLIhepMlcControlNode::LayerType layer = vtkMRMLIhepMlcControlNode::Layer_Last;
-    int pos = parameterNode->GetLeafPositionLayerByAddress( address, key, side, layer);
+    int offset = parameterNode->GetLeafOffsetLayerByAddress( address, key, side, layer);
 
     double distanceSide1 = vtkMRMLIhepMlcControlNode::ExternalCounterValueToDistance(movementSteps) - vtkMRMLIhepMlcControlNode::IHEP_TOTAL_DISTANCE;
     double distanceSide2 = vtkMRMLIhepMlcControlNode::IHEP_TOTAL_DISTANCE - vtkMRMLIhepMlcControlNode::ExternalCounterValueToDistance(movementSteps);
-    if (pos != -1)
+    if (offset != -1)
     {
       if (side == vtkMRMLIhepMlcControlNode::Side1 && layer == vtkMRMLIhepMlcControlNode::Layer1)
       {
-        vtkWarningMacro("UpdateMlcTableNodePositionData: S1, position, address, value: " << pos << " " << address << " " << distanceSide1);
-        table->SetValue( pos, 1, distanceSide1);
+        vtkWarningMacro("UpdateMlcTableNodePositionData: S1, offset, address, value: " << offset << " " << address << " " << distanceSide1);
+        table->SetValue( offset, 1, distanceSide1);
       }
       else if (side == vtkMRMLIhepMlcControlNode::Side2 && layer == vtkMRMLIhepMlcControlNode::Layer1)
       {
-        vtkWarningMacro("UpdateMlcTableNodePositionData: S2, position, address, value: " << pos << " " << address << " " << distanceSide2);
-        table->SetValue( pos, 2, distanceSide2);
+        vtkWarningMacro("UpdateMlcTableNodePositionData: S2, offset, address, value: " << offset << " " << address << " " << distanceSide2);
+        table->SetValue( offset, 2, distanceSide2);
       }
       tableNode->Modified();
       return true;
@@ -890,7 +887,7 @@ bool vtkSlicerIhepMlcControlLogic::UpdateMlcTableNodePositionData(vtkMRMLIhepMlc
 }
 
 //---------------------------------------------------------------------------
-bool vtkSlicerIhepMlcControlLogic::UpdateLeavesDataFromTableNode(vtkMRMLIhepMlcControlNode* parameterNode, vtkMRMLTableNode* mlcTableNode)
+bool vtkSlicerIhepMlcControlLogic::UpdateLeavesDataFromMlcPositionTableNode(vtkMRMLIhepMlcControlNode* parameterNode, vtkMRMLTableNode* mlcTableNode)
 {
   if (!parameterNode)
   {
@@ -923,6 +920,124 @@ bool vtkSlicerIhepMlcControlLogic::UpdateLeavesDataFromTableNode(vtkMRMLIhepMlcC
     vtkErrorMacro("UpdateLeavesDataFromTableNode: Table is invalid");
     return false;
   }
-  
+
+  if (table->GetNumberOfColumns() == 6 && parameterNode->GetLayers() == vtkMRMLIhepMlcControlNode::TwoLayers &&
+    (table->GetNumberOfRows() - 1) == parameterNode->GetNumberOfLeafPairs()) // two layers
+  {
+    for (int row = 0; row < table->GetNumberOfRows(); ++row)
+    {
+      vtkMRMLIhepMlcControlNode::PairOfLeavesData pairOfLeaves;
+      if (parameterNode->GetPairOfLeavesData( pairOfLeaves, row, vtkMRMLIhepMlcControlNode::Layer1))
+      {
+        vtkMRMLIhepMlcControlNode::LeafData& side1 = pairOfLeaves.first;
+        vtkMRMLIhepMlcControlNode::LeafData& side2 = pairOfLeaves.second;
+        
+        double posLayer1Side1 = table->GetValue( row, 1).ToDouble();
+        double posLayer1Side2 = table->GetValue( row, 2).ToDouble();
+
+        side1.Steps = static_cast<int>((posLayer1Side1 + vtkMRMLIhepMlcControlNode::IHEP_TOTAL_DISTANCE) * vtkMRMLIhepMlcControlNode::IHEP_MOTOR_STEPS_PER_MM);
+        side2.Steps = static_cast<int>((-posLayer1Side2 + vtkMRMLIhepMlcControlNode::IHEP_TOTAL_DISTANCE) * vtkMRMLIhepMlcControlNode::IHEP_MOTOR_STEPS_PER_MM);
+
+        parameterNode->SetPairOfLeavesData(pairOfLeaves, row, vtkMRMLIhepMlcControlNode::Layer1);
+      }
+      if (parameterNode->GetPairOfLeavesData( pairOfLeaves, row, vtkMRMLIhepMlcControlNode::Layer2))
+      {
+        vtkMRMLIhepMlcControlNode::LeafData& side1 = pairOfLeaves.first;
+        vtkMRMLIhepMlcControlNode::LeafData& side2 = pairOfLeaves.second;
+        
+        double posLayer1Side1 = table->GetValue( row, 4).ToDouble();
+        double posLayer1Side2 = table->GetValue( row, 5).ToDouble();
+
+        side1.Steps = static_cast<int>((posLayer1Side1 + vtkMRMLIhepMlcControlNode::IHEP_TOTAL_DISTANCE) * vtkMRMLIhepMlcControlNode::IHEP_MOTOR_STEPS_PER_MM);
+        side2.Steps = static_cast<int>((-posLayer1Side2 + vtkMRMLIhepMlcControlNode::IHEP_TOTAL_DISTANCE) * vtkMRMLIhepMlcControlNode::IHEP_MOTOR_STEPS_PER_MM);
+
+        parameterNode->SetPairOfLeavesData(pairOfLeaves, row, vtkMRMLIhepMlcControlNode::Layer2);
+      }
+    }
+    tableNode->Modified();
+    return true;
+  }
+  else if (table->GetNumberOfColumns() == 3 && parameterNode->GetLayers() == vtkMRMLIhepMlcControlNode::OneLayer &&
+    (table->GetNumberOfRows() - 1) == parameterNode->GetNumberOfLeafPairs()) // one layer
+  {
+    for (int row = 0; row < table->GetNumberOfRows(); ++row)
+    {
+      vtkMRMLIhepMlcControlNode::PairOfLeavesData pairOfLeaves;
+      if (parameterNode->GetPairOfLeavesData( pairOfLeaves, row, vtkMRMLIhepMlcControlNode::Layer1))
+      {
+        vtkMRMLIhepMlcControlNode::LeafData& side1 = pairOfLeaves.first;
+        vtkMRMLIhepMlcControlNode::LeafData& side2 = pairOfLeaves.second;
+        
+        double posLayer1Side1 = table->GetValue( row, 1).ToDouble();
+        double posLayer1Side2 = table->GetValue( row, 2).ToDouble();
+
+        side1.Steps = static_cast<int>((posLayer1Side1 + vtkMRMLIhepMlcControlNode::IHEP_TOTAL_DISTANCE) * vtkMRMLIhepMlcControlNode::IHEP_MOTOR_STEPS_PER_MM);
+        side2.Steps = static_cast<int>((-posLayer1Side2 + vtkMRMLIhepMlcControlNode::IHEP_TOTAL_DISTANCE) * vtkMRMLIhepMlcControlNode::IHEP_MOTOR_STEPS_PER_MM);
+
+        parameterNode->SetPairOfLeavesData(pairOfLeaves, row, vtkMRMLIhepMlcControlNode::Layer1);
+      }
+    }
+    tableNode->Modified();
+    return true;
+  }
+  return false;
+}
+
+//---------------------------------------------------------------------------
+bool vtkSlicerIhepMlcControlLogic::UpdateMlcPositionTableFromLeafData(vtkMRMLIhepMlcControlNode* parameterNode, const vtkMRMLIhepMlcControlNode::LeafData& leafData, vtkMRMLTableNode* mlcTableNode)
+{
+  vtkMRMLTableNode* tableNode = mlcTableNode;
+  vtkTable* table = nullptr;
+  if (!tableNode)
+  {
+    vtkMRMLRTBeamNode* beamNode = parameterNode->GetBeamNode();
+
+    if (!beamNode)
+    {
+      vtkErrorMacro("UpdateLeavesDataFromTableNode: Beam node is invalid");
+      return false;
+    }
+
+    tableNode = beamNode->GetMultiLeafCollimatorTableNode();
+    if (!tableNode)
+    {
+      vtkErrorMacro("UpdateLeavesDataFromTableNode: MLC positions table node is invalid");
+      return false;
+    }
+  }
+  table = tableNode->GetTable();
+  if (!table)
+  {
+    vtkErrorMacro("UpdateLeavesDataFromTableNode: Table is invalid");
+    return false;
+  }
+
+  double distanceSide1 = vtkMRMLIhepMlcControlNode::InternalCounterValueToDistance(leafData.Steps) - vtkMRMLIhepMlcControlNode::IHEP_TOTAL_DISTANCE;
+  double distanceSide2 = vtkMRMLIhepMlcControlNode::IHEP_TOTAL_DISTANCE - vtkMRMLIhepMlcControlNode::InternalCounterValueToDistance(leafData.Steps);
+
+  int key = -1;
+  vtkMRMLIhepMlcControlNode::SideType side = vtkMRMLIhepMlcControlNode::Side_Last;
+  vtkMRMLIhepMlcControlNode::LayerType layer = vtkMRMLIhepMlcControlNode::Layer_Last;
+  int offset = parameterNode->GetLeafOffsetLayerByAddress(leafData.Address, key, side, layer);
+  if (offset != -1)
+  {
+    if (side == vtkMRMLIhepMlcControlNode::Side1 && layer == vtkMRMLIhepMlcControlNode::Layer1)
+    {
+      table->SetValue( offset, 1, distanceSide1);
+    }
+    else if (side == vtkMRMLIhepMlcControlNode::Side1 && layer == vtkMRMLIhepMlcControlNode::Layer2)
+    {
+      table->SetValue( offset, 4, distanceSide1);
+    }
+    else if (side == vtkMRMLIhepMlcControlNode::Side2 && layer == vtkMRMLIhepMlcControlNode::Layer1)
+    {
+      table->SetValue( offset, 2, distanceSide2);
+    }
+    else if (side == vtkMRMLIhepMlcControlNode::Side2 && layer == vtkMRMLIhepMlcControlNode::Layer2)
+    {
+      table->SetValue( offset, 5, distanceSide2);
+    }
+    return true;
+  }
   return false;
 }

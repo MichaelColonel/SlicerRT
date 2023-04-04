@@ -160,7 +160,7 @@ QByteArray qSlicerIhepMlcControlModuleWidgetPrivate::getParametersCommandByAddre
   {
     return QByteArray();
   }
-  if (this->ParameterNode->GetNumberOfLeafPairs() * 2 >= address)
+  if (address > this->ParameterNode->GetNumberOfLeafPairs() * 2)
   {
     return QByteArray();
   }
@@ -182,6 +182,9 @@ QByteArray qSlicerIhepMlcControlModuleWidgetPrivate::getParametersCommandByAddre
     unsigned short chcksumm = vtkMRMLIhepMlcControlNode::CommandCalculateCrc16(buf);
     buf[9] = chcksumm & 0xFF;
     buf[10] = chcksumm >> CHAR_BIT;
+
+    qDebug() << Q_FUNC_INFO << ": Address: " << address << ", Leaf address: " << leafData.Address
+      << ", steps: " << leafData.Steps << ", direction: " << leafData.Direction;
 
     return QByteArray(reinterpret_cast< char* >(buf.data()), buf.size());
   }
@@ -308,12 +311,14 @@ QList< QByteArray > qSlicerIhepMlcControlModuleWidgetPrivate::getParametersComma
   }
   std::vector<int> addresses;
   this->ParameterNode->GetAddressesByLayer(addresses, layer);
-
+  qDebug() << Q_FUNC_INFO << ": Addresses vector size: " << addresses.size();
   for (int address : addresses)
   {
+    qDebug() << Q_FUNC_INFO << ": Parameters command for address: " << address;
     QByteArray command = this->getParametersCommandByAddress(address);
     if (command.size())
     {
+      qDebug() << Q_FUNC_INFO << ": Parameters command: " << command;
       list.push_back(command);
     }
   }
@@ -338,6 +343,7 @@ QList< QByteArray > qSlicerIhepMlcControlModuleWidgetPrivate::getStateCommandsBy
     QByteArray command = this->getStateCommandByAddress(address);
     if (command.size())
     {
+      qDebug() << Q_FUNC_INFO << ": State command: " << command;
       list.push_back(command);
     }
   }
@@ -841,9 +847,24 @@ void qSlicerIhepMlcControlModuleWidget::onMlcTableNodeChanged(vtkMRMLNode *node)
   }
   vtkMRMLTableNode* tableNode = vtkMRMLTableNode::SafeDownCast(node);
   d->ParameterNode->GetBeamNode()->SetAndObserveMultiLeafCollimatorTableNode(tableNode);
+  d->logic()->UpdateLeavesDataFromMlcPositionTableNode(d->ParameterNode);
   d->PushButton_GenerateMlcBoundary->setEnabled(true);
   d->PushButton_UpdateMlcBoundary->setEnabled(tableNode);
   d->PushButton_SetMlcTable->setEnabled(tableNode);
+
+  // Fill leaves container with a new number of leaf pairs
+  for (int i = 0; i < d->ParameterNode->GetNumberOfLeafPairs(); ++i)
+  {
+    vtkMRMLIhepMlcControlNode::PairOfLeavesData leavesData;
+    if (!d->ParameterNode->GetPairOfLeavesData( leavesData, i, vtkMRMLIhepMlcControlNode::Layer1))
+    {
+      qWarning() << Q_FUNC_INFO << ": Unable to get pair of leaves data";
+      break;
+    }
+    const vtkMRMLIhepMlcControlNode::LeafData& side1 = leavesData.first;
+    const vtkMRMLIhepMlcControlNode::LeafData& side2 = leavesData.second;
+    qDebug() << Q_FUNC_INFO << ": Leaves steps: Side1 - " << side1.Steps << ", Side2 - " << side2.Steps;
+  }
 }
 
 //-----------------------------------------------------------------------------
@@ -887,7 +908,7 @@ void qSlicerIhepMlcControlModuleWidget::updateWidgetFromMRML()
 
   vtkMRMLTableNode* mlcTableNode = parameterNode->GetBeamNode()->GetMultiLeafCollimatorTableNode();
   d->MRMLNodeComboBox_MlcTable->setCurrentNode(mlcTableNode);
-  d->MlcControlWidget->setMlcTableNode(mlcTableNode);
+//  d->MlcControlWidget->setMlcTableNode(mlcTableNode);
   d->PushButton_UpdateMlcBoundary->setEnabled(mlcTableNode);
   d->PushButton_SetMlcTable->setEnabled(mlcTableNode);
 
@@ -920,7 +941,6 @@ void qSlicerIhepMlcControlModuleWidget::updateWidgetFromMRML()
   d->SliderWidget_NumberOfLeavesPairs->setValue(parameterNode->GetNumberOfLeafPairs());
   d->SliderWidget_PairOfLeavesBoundarySize->setValue(parameterNode->GetPairOfLeavesSize());
   d->SliderWidget_IsocenterOffset->setValue(parameterNode->GetIsocenterOffset());
-  d->SliderWidget_DistanceBetweenLayers->setValue(parameterNode->GetDistanceBetweenTwoLayers());
   d->SliderWidget_DistanceBetweenLayers->setValue(parameterNode->GetDistanceBetweenTwoLayers());
   d->SliderWidget_LayersOffset->setValue(parameterNode->GetOffsetBetweenTwoLayers());
 }
@@ -1189,10 +1209,29 @@ void qSlicerIhepMlcControlModuleWidget::onSetMlcTableClicked()
     return;
   }
 
+//  if (d->logic()->UpdateLeavesDataFromMlcPositionTableNode(d->ParameterNode))
+//  {
+//    qDebug() << Q_FUNC_INFO << ":Leaves steps were updated";
+//  }
   if (vtkMRMLTableNode* tableNode = d->ParameterNode->GetBeamNode()->GetMultiLeafCollimatorTableNode())
   {
     d->MlcControlWidget->setMlcTableNode(tableNode);
   }
+/*
+  // Fill leaves container with a new number of leaf pairs
+  for (int i = 0; i < d->ParameterNode->GetNumberOfLeafPairs(); ++i)
+  {
+    vtkMRMLIhepMlcControlNode::PairOfLeavesData leavesData;
+    if (!d->ParameterNode->GetPairOfLeavesData( leavesData, i, vtkMRMLIhepMlcControlNode::Layer1))
+    {
+      qWarning() << Q_FUNC_INFO << ": Unable to get pair of leaves data";
+      break;
+    }
+    const vtkMRMLIhepMlcControlNode::LeafData& side1 = leavesData.first;
+    const vtkMRMLIhepMlcControlNode::LeafData& side2 = leavesData.second;
+    qDebug() << Q_FUNC_INFO << ": Leaves steps: Side1 - " << side1.Steps << ", Side2 - " << side2.Steps;
+  }
+*/
 }
 
 //-----------------------------------------------------------------------------
@@ -1273,6 +1312,7 @@ void qSlicerIhepMlcControlModuleWidget::serialPortDataReady()
       << " " << int(buf[10]);
     if (vtkMRMLIhepMlcControlNode::CommandCheckCrc16(buf))
     {
+      d->CommandQueue.pop();
       qDebug() << Q_FUNC_INFO << "Command data is OK!";
       vtkMRMLIhepMlcControlNode::LeafData leafData;
       vtkMRMLIhepMlcControlNode::ProcessCommandBufferToLeafData(buf, leafData);
@@ -1314,6 +1354,7 @@ void qSlicerIhepMlcControlModuleWidget::serialPortDataReady()
   // Start get state timer if command queue is empty
   if (d->CommandQueue.empty() && d->LastCommand.isEmpty())
   {
+//    QTimer::singleShot(10, this, SLOT(onLeavesGetStateClicked()));
 //    d->TimerGetState->start();
   }
 }
@@ -1439,7 +1480,11 @@ void qSlicerIhepMlcControlModuleWidget::onLeafStepsChanged(int steps)
     leafData.Steps = steps;
     if (d->ParameterNode->SetLeafDataByAddress(leafData, address))
     {
-      d->MlcControlWidget->setLeafData(leafData);
+//      d->MlcControlWidget->setLeafData(leafData);
+      if (d->logic()->UpdateMlcPositionTableFromLeafData(d->ParameterNode, leafData))
+      {
+        qDebug() << Q_FUNC_INFO << ": MLC leaf position is changed";
+      }
     }
   }
 }
@@ -1590,7 +1635,7 @@ void qSlicerIhepMlcControlModuleWidget::onLeafStopClicked()
     d->writeNextCommandFromQueue();
   }
 }
-
+/*
 //-----------------------------------------------------------------------------
 void qSlicerIhepMlcControlModuleWidget::onLeafAddressStepsMovementChanged(int address, int movementSteps)
 {
@@ -1607,17 +1652,20 @@ void qSlicerIhepMlcControlModuleWidget::onLeafAddressStepsMovementChanged(int ad
     qDebug() << Q_FUNC_INFO << "MLC table modified";
   }
 }
-
+*/
 //-----------------------------------------------------------------------------
 void qSlicerIhepMlcControlModuleWidget::onLeavesSetParametersClicked()
 {
   Q_D(qSlicerIhepMlcControlModuleWidget);
-  QList< QByteArray > mlcLayer1StateCommands = d->getParametersCommandsByLayer(vtkMRMLIhepMlcControlNode::Layer1);
-  if (mlcLayer1StateCommands.size())
+  QList< QByteArray > mlcLayer1ParametersCommands = d->getParametersCommandsByLayer(vtkMRMLIhepMlcControlNode::Layer1);
+  qDebug() << Q_FUNC_INFO << ": Layer1 MLC parameters size: " << mlcLayer1ParametersCommands.size();
+
+  if (mlcLayer1ParametersCommands.size())
   {
     d->TimerGetState->stop();
-    for (const auto& leafStateCommand : mlcLayer1StateCommands)
+    for (const auto& leafStateCommand : mlcLayer1ParametersCommands)
     {
+      qDebug() << Q_FUNC_INFO << "Leaf parameters command: " << leafStateCommand;
       d->CommandQueue.push(leafStateCommand);
     }
     d->writeNextCommandFromQueue();
@@ -1635,7 +1683,7 @@ void qSlicerIhepMlcControlModuleWidget::onLeavesGetStateClicked()
     d->TimerGetState->stop();
     for (const auto& leafStateCommand : mlcLayer1StateCommands)
     {
-      qDebug() << Q_FUNC_INFO << "Leaf State command: " << leafStateCommand;
+      qDebug() << Q_FUNC_INFO << "Leaf state command: " << leafStateCommand;
       d->CommandQueue.push(leafStateCommand);
     }
     d->writeNextCommandFromQueue();

@@ -58,6 +58,9 @@ public:
   void accept() override;
   void reject() override;
 
+signals:
+  void leafStepsChanged(int address, int steps, double position);
+
 public slots:
   void onLeafPositionInPairChanged(bool, bool);
   void onRequiredPositionChanged(QAbstractButton*);

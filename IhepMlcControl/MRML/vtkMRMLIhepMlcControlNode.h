@@ -154,9 +154,9 @@ public:
   void GetAddressesByLayer(std::vector<int>& addresses, LayerType layer = Layer1);
   void GetAddresses(std::vector<int>& addresses);
 
-  /// @return position
+  /// @return offset (begins with 0 pairOfLeaves offset position)
   /// get key, side, layer values
-  int GetLeafPositionLayerByAddress(int address, int& key, SideType& side, LayerType& layer);
+  int GetLeafOffsetLayerByAddress(int address, int& key, SideType& side, LayerType& layer);
   bool GetLeafData(LeafData& leafData, int offset = 0, SideType side = Side1, LayerType layer = Layer1);
   bool SetLeafData(const LeafData& leafData, int offset = 0, SideType side = Side1, LayerType layer = Layer1);
   bool GetLeafDataByAddress(LeafData& leafData, int address);
