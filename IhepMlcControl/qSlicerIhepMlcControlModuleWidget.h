@@ -50,27 +50,31 @@ public:
   void exit() override;
 
 public slots:
+  /// Scene control
   void setMRMLScene(vtkMRMLScene*) override;
   void setParameterNode(vtkMRMLNode*);
   void onSceneImportedEvent();
   void onSceneClosedEvent();
-
+  /// Parameter and nodes control
   void onParameterNodeChanged(vtkMRMLNode*);
   void onBeamNodeChanged(vtkMRMLNode*);
   void onMlcTableNodeChanged(vtkMRMLNode*);
-
+  /// MLC settings parameters control
   void onParallelBeamToggled(bool toggled);
   void onNumberOfLeafPairsChanged(double);
   void onPairOfLeavesSizeChanged(double);
   void onIsocenterOffsetChanged(double);
   void onDistanceBetweenTwoLayersChanged(double);
   void onOffsetBetweenTwoLayersChanged(double);
-
   void onMlcLayersButtonClicked(QAbstractButton* button);
   void onMlcOrientationButtonClicked(QAbstractButton* button);
+  /// MLC position table control
   void onGenerateMlcBoundaryClicked();
   void onUpdateMlcBoundaryClicked();
   void onSetMlcTableClicked();
+
+  /// Predefined MLC layer position control
+  void onMlcLayersPredefinedPositionChanged(vtkMRMLIhepMlcControlNode::PredefinedPositionType);
 
   /// Single leaf parameters control
   void onLeafSetParametersClicked();
@@ -83,7 +87,10 @@ public slots:
   void onLeafStepsChanged(int steps);
   void onLeafResetToggled(bool reset);
   void onLeafEnabledToggled(bool enabled);
-//  void onLeafAddressStepsMovementChanged(int address, int movementSteps);
+  void onLeafDataStepsChanged(int address, int leafDataSteps);
+
+  /// Leaves device control
+  void onConnectMlcLayerDevicesClicked();
 
   /// Leaves parameters control
   void onLeavesSetParametersClicked();
@@ -96,8 +103,6 @@ public slots:
   void onSwitchToMlcControlLayoutToggled(bool toggled = true);
   void onSetMlcControlLayout();
 
-  void onConnectMlcLayersButtonClicked();
-
   /// Update widget GUI from MLC Control parameters node
   void updateWidgetFromMRML();
 
@@ -109,8 +114,9 @@ public slots:
   /// MLC state timer
   void onMlcStateTimeoutExpired();
 
-signals:
-  void leafDataChanged(const vtkMRMLIhepMlcControlNode::LeafData&);
+private slots:
+  void writeNextCommandFromQueue();
+  void writeLastCommandOnceAgain();
 
 protected:
   QScopedPointer<qSlicerIhepMlcControlModuleWidgetPrivate> d_ptr;

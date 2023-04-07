@@ -88,6 +88,13 @@ void vtkMRMLIhepMlcControlNode::WriteXML(ostream& of, int nIndent)
   // Write all MRML node attributes into output stream
   vtkMRMLWriteXMLBeginMacro(of);
   vtkMRMLWriteXMLBooleanMacro(parallelBeam, ParallelBeam);
+  vtkMRMLWriteXMLEnumMacro(orientation, Orientation);
+  vtkMRMLWriteXMLEnumMacro(layers, Layers);
+  vtkMRMLWriteXMLIntMacro(numberOfLeafPairs, NumberOfLeafPairs);
+  vtkMRMLWriteXMLFloatMacro(pairOfLeavesSize, PairOfLeavesSize);
+  vtkMRMLWriteXMLFloatMacro(isocenterOffset, IsocenterOffset);
+  vtkMRMLWriteXMLFloatMacro(distanceBetweenTwoLayers, DistanceBetweenTwoLayers);
+  vtkMRMLWriteXMLFloatMacro(offsetBetweenTwoLayers, OffsetBetweenTwoLayers);
   // add new parameters here
   vtkMRMLWriteXMLEndMacro(); 
 }
@@ -100,6 +107,14 @@ void vtkMRMLIhepMlcControlNode::ReadXMLAttributes(const char** atts)
 
   vtkMRMLReadXMLBeginMacro(atts);
   vtkMRMLReadXMLBooleanMacro(parallelBeam, ParallelBeam);
+  vtkMRMLReadXMLEnumMacro(orientation, Orientation);
+  vtkMRMLReadXMLEnumMacro(layers, Layers);
+  vtkMRMLReadXMLIntMacro(numberOfLeafPairs, NumberOfLeafPairs);
+  vtkMRMLReadXMLFloatMacro(pairOfLeavesSize, PairOfLeavesSize);
+  vtkMRMLReadXMLFloatMacro(isocenterOffset, IsocenterOffset);
+  vtkMRMLReadXMLFloatMacro(distanceBetweenTwoLayers, DistanceBetweenTwoLayers);
+  vtkMRMLReadXMLFloatMacro(offsetBetweenTwoLayers, OffsetBetweenTwoLayers);
+
   // add new parameters here
   vtkMRMLReadXMLEndMacro();
 
@@ -127,6 +142,13 @@ void vtkMRMLIhepMlcControlNode::Copy(vtkMRMLNode *anode)
   vtkMRMLCopyBeginMacro(node);
   // add new parameters here
   vtkMRMLCopyBooleanMacro(ParallelBeam);
+  vtkMRMLCopyEnumMacro(Orientation);
+  vtkMRMLCopyEnumMacro(Layers);
+  vtkMRMLCopyIntMacro(NumberOfLeafPairs);
+  vtkMRMLCopyFloatMacro(PairOfLeavesSize);
+  vtkMRMLCopyFloatMacro(IsocenterOffset);
+  vtkMRMLCopyFloatMacro(DistanceBetweenTwoLayers);
+  vtkMRMLCopyFloatMacro(OffsetBetweenTwoLayers);
   vtkMRMLCopyEndMacro(); 
 
   this->EndModify(disabledModify);
@@ -149,6 +171,13 @@ void vtkMRMLIhepMlcControlNode::CopyContent(vtkMRMLNode *anode, bool deepCopy/*=
   vtkMRMLCopyBeginMacro(node);
   // add new parameters here
   vtkMRMLCopyBooleanMacro(ParallelBeam);
+  vtkMRMLCopyEnumMacro(Orientation);
+  vtkMRMLCopyEnumMacro(Layers);
+  vtkMRMLCopyIntMacro(NumberOfLeafPairs);
+  vtkMRMLCopyFloatMacro(PairOfLeavesSize);
+  vtkMRMLCopyFloatMacro(IsocenterOffset);
+  vtkMRMLCopyFloatMacro(DistanceBetweenTwoLayers);
+  vtkMRMLCopyFloatMacro(OffsetBetweenTwoLayers);
   vtkMRMLCopyEndMacro();
 }
 
@@ -347,7 +376,6 @@ void vtkMRMLIhepMlcControlNode::SetPredefinedPosition(vtkMRMLIhepMlcControlNode:
 
   double axisWidth = this->PairOfLeavesSize * this->NumberOfLeafPairs;
   double tanAngle = IHEP_SIDE_OPENING / axisWidth;
-  double totalDistange = IHEP_SIDE_OPENING_STEPS / IHEP_MOTOR_STEPS_PER_MM;
   vtkMRMLIhepMlcControlNode::LeafData leafData;
   switch (predef)
   {
@@ -363,10 +391,10 @@ void vtkMRMLIhepMlcControlNode::SetPredefinedPosition(vtkMRMLIhepMlcControlNode:
           switch (layer)
           {
           case vtkMRMLIhepMlcControlNode::Layer1:
-            table->SetValue(i, 1, -IHEP_TOTAL_DISTANCE + leafData.Steps / IHEP_MOTOR_STEPS_PER_MM); // default meaningful value for side "1" for layer-1
+            table->SetValue(i, 1, -1. * IHEP_TOTAL_DISTANCE + leafData.Steps / IHEP_MOTOR_STEPS_PER_MM); // default meaningful value for side "1" for layer-1
             break;
           case vtkMRMLIhepMlcControlNode::Layer2:
-            table->SetValue(i, 4, -IHEP_TOTAL_DISTANCE + leafData.Steps / IHEP_MOTOR_STEPS_PER_MM); // default meaningful value for side "1" for layer-2
+            table->SetValue(i, 4, -1. * IHEP_TOTAL_DISTANCE + leafData.Steps / IHEP_MOTOR_STEPS_PER_MM); // default meaningful value for side "1" for layer-2
             break;
           default:
             break;
@@ -757,7 +785,7 @@ void vtkMRMLIhepMlcControlNode::GetAddressesByLayerSide(std::vector<int>& addres
   addresses.clear();
   for (auto iter = LeavesDataMap.begin(); iter != LeavesDataMap.end(); ++iter)
   {
-    int leavesPairKey = (*iter).first;
+//    int leavesPairKey = (*iter).first;
     const PairOfLeavesData& leavesPair = (*iter).second;
     const vtkMRMLIhepMlcControlNode::LeafData& leafSide1 = leavesPair.first;
     const vtkMRMLIhepMlcControlNode::LeafData& leafSide2 = leavesPair.second;
@@ -779,7 +807,7 @@ void vtkMRMLIhepMlcControlNode::GetAddressesByLayer(std::vector<int>& addresses,
   addresses.clear();
   for (auto iter = LeavesDataMap.begin(); iter != LeavesDataMap.end(); ++iter)
   {
-    int leavesPairKey = (*iter).first;
+//    int leavesPairKey = (*iter).first;
     const PairOfLeavesData& leavesPair = (*iter).second;
     const vtkMRMLIhepMlcControlNode::LeafData& leafSide1 = leavesPair.first;
     const vtkMRMLIhepMlcControlNode::LeafData& leafSide2 = leavesPair.second;
@@ -800,7 +828,7 @@ void vtkMRMLIhepMlcControlNode::GetAddresses(std::vector<int>& addresses)
   addresses.clear();
   for (auto iter = LeavesDataMap.begin(); iter != LeavesDataMap.end(); ++iter)
   {
-    int leavesPairKey = (*iter).first;
+//    int leavesPairKey = (*iter).first;
     const PairOfLeavesData& leavesPair = (*iter).second;
     const vtkMRMLIhepMlcControlNode::LeafData& leafSide1 = leavesPair.first;
     const vtkMRMLIhepMlcControlNode::LeafData& leafSide2 = leavesPair.second;
@@ -935,4 +963,106 @@ double vtkMRMLIhepMlcControlNode::InternalCounterValueToMlcPosition(int intCount
     break;
   }
   return res;
+}
+
+//---------------------------------------------------------------------------
+void vtkMRMLIhepMlcControlNode::SetOrientation(int id)
+{
+  switch (id)
+  {
+  case 0:
+    this->SetOrientation(vtkMRMLIhepMlcControlNode::X);
+    break;
+  case 1:
+    this->SetOrientation(vtkMRMLIhepMlcControlNode::Y);
+    break;
+  default:
+    this->SetOrientation(vtkMRMLIhepMlcControlNode::Orientation_Last);
+    break;
+  }
+}
+
+//---------------------------------------------------------------------------
+const char* vtkMRMLIhepMlcControlNode::GetOrientationAsString(int id)
+{
+  switch (id)
+  {
+  case vtkMRMLIhepMlcControlNode::X:
+    return "X";
+  case vtkMRMLIhepMlcControlNode::Y:
+    return "Y";
+  default:
+    return "Orientation_Last";
+  }
+}
+
+//---------------------------------------------------------------------------
+int vtkMRMLIhepMlcControlNode::GetOrientationFromString(const char* name)
+{
+  if (name == nullptr)
+    {
+    // invalid name
+    return -1;
+    }
+  for (int i = 0; i < vtkMRMLIhepMlcControlNode::Orientation_Last; i++)
+    {
+    if (std::strcmp(name, vtkMRMLIhepMlcControlNode::GetOrientationAsString(i)) == 0)
+      {
+      // found a matching name
+      return i;
+      }
+    }
+  // unknown name
+  return -1;
+}
+
+//---------------------------------------------------------------------------
+void vtkMRMLIhepMlcControlNode::SetLayers(int id)
+{
+  switch (id)
+  {
+  case 0:
+    this->SetOrientation(vtkMRMLIhepMlcControlNode::OneLayer);
+    break;
+  case 1:
+    this->SetOrientation(vtkMRMLIhepMlcControlNode::TwoLayers);
+    break;
+  default:
+    this->SetOrientation(vtkMRMLIhepMlcControlNode::Layers_Last);
+    break;
+  }
+}
+
+//---------------------------------------------------------------------------
+const char* vtkMRMLIhepMlcControlNode::GetLayersAsString(int id)
+{
+  switch (id)
+  {
+  case vtkMRMLIhepMlcControlNode::OneLayer:
+    return "OneLayer";
+  case vtkMRMLIhepMlcControlNode::TwoLayers:
+    return "TwoLayers";
+  default:
+    return "Layers_Last";
+  }
+}
+
+//---------------------------------------------------------------------------
+int vtkMRMLIhepMlcControlNode::GetLayersFromString(const char* name)
+{
+  if (name == nullptr)
+    {
+    // invalid name
+    return -1;
+    }
+  for (int i = 0; i < vtkMRMLIhepMlcControlNode::Layers_Last; i++)
+    {
+    if (std::strcmp(name, vtkMRMLIhepMlcControlNode::GetLayersAsString(i)) == 0)
+      {
+      // found a matching name
+      return i;
+      }
+    }
+  // unknown name
+  return -1;
 }

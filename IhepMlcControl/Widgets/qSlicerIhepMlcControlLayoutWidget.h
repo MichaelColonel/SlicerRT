@@ -53,11 +53,12 @@ public:
   void fillLeavesControlContainer(int pairOfLeavesIndex);
   bool getLeafDataByAddress(int address, int& range, int& position);
   vtkMRMLIhepMlcControlNode::LayerType getSelectedMlcLayer() const;
-  void setLeafData(const vtkMRMLIhepMlcControlNode::LeafData& data);
+//  void setLeafData(const vtkMRMLIhepMlcControlNode::LeafData& data);
 
 signals:
-  void leafAddressStepsMovementChanged(int, int);
-  void leafAddressPositionChanged(int, double);
+  void predefinedMlcPositionChanged(vtkMRMLIhepMlcControlNode::PredefinedPositionType);
+  /// first parameter address, second parameter leafDataSteps
+  void leafDataStepsChanged(int address, int leafDataSteps);
 
 public slots:
   /// Set IhepMlcControl MRML node (Parameter node)
@@ -65,10 +66,6 @@ public slots:
   /// Update widget GUI from IhepMlcControl node and observed RTBeam and Table nodes
   void updateWidgetFromMRML();
   void onMlcLayerChanged(QAbstractButton* radioButton);
-  void onLeafDataChanged(const vtkMRMLIhepMlcControlNode::LeafData&);
-
-  /// Set Table MRML node (new required positions)
-  void setMlcTableNode(vtkMRMLTableNode* mlcTableNode);
 
   void onSetCurrentLeafParametersClicked();
   void onSetOpenLeafParametersClicked();

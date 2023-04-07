@@ -68,7 +68,6 @@ public:
     Close,
     PredefinedPosition_Last
   };
-  enum PositionType : int { Unknown = -1, Opened, WasOpened, Position_Last };
   static vtkMRMLIhepMlcControlNode *New();
   vtkTypeMacro(vtkMRMLIhepMlcControlNode,vtkMRMLNode);
   void PrintSelf(ostream& os, vtkIndent indent) override;
@@ -125,9 +124,6 @@ public:
 
   vtkGetMacro(NumberOfLeafPairs, int);
   vtkSetMacro(NumberOfLeafPairs, int);
-
-  vtkGetMacro(Position, PositionType);
-  vtkSetMacro(Position, PositionType);
 
   vtkGetMacro(Orientation, OrientationType);
   vtkSetMacro(Orientation, OrientationType);
@@ -208,11 +204,18 @@ protected:
   vtkMRMLIhepMlcControlNode(const vtkMRMLIhepMlcControlNode&);
   void operator=(const vtkMRMLIhepMlcControlNode&);
 
+  static const char* GetOrientationAsString(int id);
+  static int GetOrientationFromString(const char* name);
+  void SetOrientation(int id);
+
+  static const char* GetLayersAsString(int id);
+  static int GetLayersFromString(const char* name);
+  void SetLayers(int id);
+
 private:
   // General MLC data
   OrientationType Orientation{ vtkMRMLIhepMlcControlNode::Y }; // MLCX or MLCY
   LayersType Layers{ vtkMRMLIhepMlcControlNode::TwoLayers }; // One layer or two layers
-  PositionType Position{ vtkMRMLIhepMlcControlNode::Unknown };
   int NumberOfLeafPairs{ vtkMRMLIhepMlcControlNode::IHEP_PAIR_OF_LEAVES_PER_LAYER };
   double PairOfLeavesSize{ 5. }; // mm
   double IsocenterOffset{ 0. }; // mm

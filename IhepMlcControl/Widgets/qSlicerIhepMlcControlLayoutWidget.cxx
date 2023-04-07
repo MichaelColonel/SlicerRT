@@ -262,10 +262,12 @@ void qSlicerIhepMlcControlLayoutWidgetPrivate::updateMlcPositionsFromLeavesData(
     return;
   }
   vtkMRMLIhepMlcControlNode::LayerType layer = this->getSelectedMlcLayer();
-  qWarning() << Q_FUNC_INFO << ": MLC layer value " << layer;
-  // Fill leaves container with a new number of leaf pairs
+//  qWarning() << Q_FUNC_INFO << ": MLC layer value " << layer;
+
+  // Fill leaves container with a new number of leaf pairs 
   for (int i = 0; i < this->ParameterNode->GetNumberOfLeafPairs(); ++i)
   {
+    // Set new leaf parameters
     vtkMRMLIhepMlcControlNode::PairOfLeavesData leavesData;
     if (!this->ParameterNode->GetPairOfLeavesData( leavesData, i, layer))
     {
@@ -274,6 +276,11 @@ void qSlicerIhepMlcControlLayoutWidgetPrivate::updateMlcPositionsFromLeavesData(
     }
     const vtkMRMLIhepMlcControlNode::LeafData& side1 = leavesData.first;
     const vtkMRMLIhepMlcControlNode::LeafData& side2 = leavesData.second;
+    if (side1.Layer != layer || side2.Layer != layer)
+    {
+      continue;
+    }
+//    qWarning() << Q_FUNC_INFO << ": side1 steps " << side1.Steps << " side2 steps " << side2.Steps;
 
     ContainerWidgets& pairOfLeavesWidgets = this->ContainerWidgetsVector[i];
 
@@ -284,7 +291,6 @@ void qSlicerIhepMlcControlLayoutWidgetPrivate::updateMlcPositionsFromLeavesData(
     pairOfLeavesWidgets.PairOfLeavesWidget->setMaxCurrentValue(side2.EncoderCounts);
     pairOfLeavesWidgets.PairOfLeavesWidget->setMinRequiredValue(side1.Steps);
     pairOfLeavesWidgets.PairOfLeavesWidget->setMaxRequiredValue(side2.Steps);
-
     (side1.SwitchState) ?
       pairOfLeavesWidgets.Side1StateLabel->setPixmap(QPixmap(":/indicators/Icons/green.png")) :
       pairOfLeavesWidgets.Side1StateLabel->setPixmap(QPixmap(":/indicators/Icons/gray.png"));
@@ -388,10 +394,12 @@ void qSlicerIhepMlcControlLayoutWidget::setParameterNode(vtkMRMLNode* node)
 void qSlicerIhepMlcControlLayoutWidget::updateWidgetFromMRML()
 {
   Q_D(qSlicerIhepMlcControlLayoutWidget);
+  qDebug() << Q_FUNC_INFO << ": Parameter node is changed, update widget from MRML";
   if (!d->ParameterNode)
   {
     return;
   }
+  qDebug() << Q_FUNC_INFO << ": Parameter node is changed, node is valid";
 
   vtkMRMLIhepMlcControlNode::LayerType layer = d->getSelectedMlcLayer();
 
@@ -408,55 +416,7 @@ void qSlicerIhepMlcControlLayoutWidget::updateWidgetFromMRML()
   }
   else
   {
-/*
     d->updateMlcPositionsFromLeavesData();
-
-    // Fill leaves container with a new number of leaf pairs
-    for (int i = 0; i < d->ParameterNode->GetNumberOfLeafPairs(); ++i)
-    {
-      // Set new leaf parameters
-      vtkMRMLIhepMlcControlNode::PairOfLeavesData leavesData;
-      if (!d->ParameterNode->GetPairOfLeavesData( leavesData, i))
-      {
-        qWarning() << Q_FUNC_INFO << ": Unable to get pair of leaves data";
-        break;
-      }
-      const vtkMRMLIhepMlcControlNode::LeafData& side1 = leavesData.first;
-      const vtkMRMLIhepMlcControlNode::LeafData& side2 = leavesData.second;
-      if (side1.Layer != layer || side2.Layer != layer)
-      {
-        continue;
-      }
-      qWarning() << Q_FUNC_INFO << ": side1 steps " << side1.Steps << " side2 steps " << side2.Steps;
-
-      ContainerWidgets& pairOfLeavesWidgets = d->ContainerWidgetsVector[i];
-
-      pairOfLeavesWidgets.Side1AddressLabel->setText(tr("%1").arg(side1.Address));
-      pairOfLeavesWidgets.Side2AddressLabel->setText(tr("%1").arg(side2.Address));
-      pairOfLeavesWidgets.PairOfLeavesWidget->setLeavesNumbers(side1.Address, side2.Address);
-      pairOfLeavesWidgets.PairOfLeavesWidget->setMinCurrentValue(side1.EncoderCounts);
-      pairOfLeavesWidgets.PairOfLeavesWidget->setMaxCurrentValue(side2.EncoderCounts);
-      pairOfLeavesWidgets.PairOfLeavesWidget->setMinRequiredValue(side1.Steps);
-      pairOfLeavesWidgets.PairOfLeavesWidget->setMaxRequiredValue(side2.Steps);
-      (side1.SwitchState) ?
-        pairOfLeavesWidgets.Side1StateLabel->setPixmap(QPixmap(":/indicators/Icons/green.png")) :
-        pairOfLeavesWidgets.Side1StateLabel->setPixmap(QPixmap(":/indicators/Icons/gray.png"));
-      (side2.SwitchState) ?
-        pairOfLeavesWidgets.Side2StateLabel->setPixmap(QPixmap(":/indicators/Icons/green.png")) :
-        pairOfLeavesWidgets.Side2StateLabel->setPixmap(QPixmap(":/indicators/Icons/gray.png"));
-    }
-*/
-  }
-  switch (layer)
-  {
-  case vtkMRMLIhepMlcControlNode::Side1:
-    d->RadioButton_MlcLayer1->setChecked(true);
-    break;
-  case vtkMRMLIhepMlcControlNode::Side2:
-    d->RadioButton_MlcLayer2->setChecked(true);
-    break;
-  default:
-    break;
   }
 }
 
@@ -548,8 +508,8 @@ void qSlicerIhepMlcControlLayoutWidget::onPairOfLeavesDoubleClicked()
       side2.CurrentPosition = current2Steps;
       d->ParameterNode->SetLeafDataByAddress( side1, side1.Address);
       d->ParameterNode->SetLeafDataByAddress( side2, side2.Address);
-      emit leafAddressStepsMovementChanged(side1.Address, side1Steps);
-      emit leafAddressStepsMovementChanged(side2.Address, side2Steps);
+      emit leafDataStepsChanged(side1.Address, side1Steps);
+      emit leafDataStepsChanged(side2.Address, side2Steps);
 
       qDebug() << Q_FUNC_INFO << ": Side 1 steps " << side1Steps << " distance " << d->ParameterNode->InternalCounterValueToDistance(side1Steps);
       qDebug() << Q_FUNC_INFO << ": Side 2 steps " << side2Steps << " distance " << d->ParameterNode->InternalCounterValueToDistance(side2Steps);
@@ -765,18 +725,6 @@ void qSlicerIhepMlcControlLayoutWidget::onLeafAddressPositionChanged(int address
 }
 
 //-----------------------------------------------------------------------------
-void qSlicerIhepMlcControlLayoutWidget::onLeafDataChanged(const vtkMRMLIhepMlcControlNode::LeafData& leafData)
-{
-  Q_D(qSlicerIhepMlcControlLayoutWidget);
-  
-  if (!d->ParameterNode)
-  {
-    qCritical() << Q_FUNC_INFO << ": Invalid parameter node";
-    return;
-  }
-}
-
-//-----------------------------------------------------------------------------
 bool qSlicerIhepMlcControlLayoutWidget::getLeafDataByAddress(int address, int& range, int& position)
 {
   Q_D(qSlicerIhepMlcControlLayoutWidget);
@@ -820,6 +768,7 @@ vtkMRMLIhepMlcControlNode::LayerType qSlicerIhepMlcControlLayoutWidget::getSelec
 }
 
 //-----------------------------------------------------------------------------
+/*
 void qSlicerIhepMlcControlLayoutWidget::setLeafData(const vtkMRMLIhepMlcControlNode::LeafData& data)
 {
   Q_D(qSlicerIhepMlcControlLayoutWidget);
@@ -851,7 +800,7 @@ void qSlicerIhepMlcControlLayoutWidget::setLeafData(const vtkMRMLIhepMlcControlN
     }
   }
 }
-
+*/
 //-----------------------------------------------------------------------------
 void qSlicerIhepMlcControlLayoutWidget::onSetCurrentLeafParametersClicked()
 {
@@ -879,8 +828,8 @@ void qSlicerIhepMlcControlLayoutWidget::onSetCurrentLeafParametersClicked()
       const vtkMRMLIhepMlcControlNode::LeafData& side2 = leavesData.second;
       int side1Movement = d->ParameterNode->GetRelativeMovementByAddress(side1.Address);
       int side2Movement = d->ParameterNode->GetRelativeMovementByAddress(side2.Address);
-      emit leafAddressStepsMovementChanged(side1.Address, side1Movement);
-      emit leafAddressStepsMovementChanged(side2.Address, side2Movement);
+      emit leafDataStepsChanged(side1.Address, side1Movement);
+      emit leafDataStepsChanged(side2.Address, side2Movement);
     }
   }
 }
@@ -896,6 +845,7 @@ void qSlicerIhepMlcControlLayoutWidget::onSetCloseLeafParametersClicked()
 }
 
 //-----------------------------------------------------------------------------
+/*
 void qSlicerIhepMlcControlLayoutWidget::setMlcTableNode(vtkMRMLTableNode* mlcTableNode)
 {
   Q_D(qSlicerIhepMlcControlLayoutWidget);
@@ -927,3 +877,4 @@ void qSlicerIhepMlcControlLayoutWidget::setMlcTableNode(vtkMRMLTableNode* mlcTab
     }
   }
 }
+*/
