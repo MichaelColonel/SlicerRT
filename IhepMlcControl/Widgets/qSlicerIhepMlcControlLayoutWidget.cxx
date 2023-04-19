@@ -222,11 +222,13 @@ ContainerWidgets* qSlicerIhepMlcControlLayoutWidgetPrivate::getPairOfLeavesConta
     QString addressStr = QString::number(address);
     if (addressStr == leafSide1AddressStr)
     {
+      qDebug() << Q_FUNC_INFO << ": Leaf side1: " << leafSide1AddressStr;
       side = vtkMRMLIhepMlcControlNode::Side1;
       return &widgets;
     }
     if (addressStr == leafSide2AddressStr)
     {
+      qDebug() << Q_FUNC_INFO << ": Leaf side2: " << leafSide2AddressStr;
       side = vtkMRMLIhepMlcControlNode::Side2;
       return &widgets;
     }
@@ -336,7 +338,7 @@ void qSlicerIhepMlcControlLayoutWidget::fillLeavesControlContainer(int pairOfLea
 
     ContainerWidgets widgets;
 
-    widgets.Side1AddressLabel = new QLabel(tr("%1").arg(side1.Address), this);
+    widgets.Side1AddressLabel = new QLabel(QString::number(side1.Address), this);
     widgets.Side1AddressLabel->setAlignment(Qt::AlignHCenter);
     widgets.Side1AddressLabel->setMinimumSize(widgets.Side1AddressLabel->sizeHint());
 
@@ -353,7 +355,7 @@ void qSlicerIhepMlcControlLayoutWidget::fillLeavesControlContainer(int pairOfLea
     widgets.Side2StateLabel->setAlignment(Qt::AlignHCenter);
     widgets.Side2StateLabel->setPixmap(QPixmap(":/indicators/Icons/gray.png"));
 
-    widgets.Side2AddressLabel = new QLabel(tr("%1").arg(side2.Address), this);
+    widgets.Side2AddressLabel = new QLabel(QString::number(side2.Address), this);
     widgets.Side2AddressLabel->setAlignment(Qt::AlignHCenter);
     widgets.Side2AddressLabel->setMinimumSize(widgets.Side2AddressLabel->sizeHint());
 
@@ -768,7 +770,6 @@ vtkMRMLIhepMlcControlNode::LayerType qSlicerIhepMlcControlLayoutWidget::getSelec
 }
 
 //-----------------------------------------------------------------------------
-/*
 void qSlicerIhepMlcControlLayoutWidget::setLeafData(const vtkMRMLIhepMlcControlNode::LeafData& data)
 {
   Q_D(qSlicerIhepMlcControlLayoutWidget);
@@ -780,27 +781,22 @@ void qSlicerIhepMlcControlLayoutWidget::setLeafData(const vtkMRMLIhepMlcControlN
     return;
   }
 
-  qDebug() << Q_FUNC_INFO << ": Leaf data must be updated, address: " << data.Address;
+  qDebug() << Q_FUNC_INFO << ": Leaf data must be updated, data address: " << data.Address << ", data side: " << data.Side << ", side: " << side;
 
   if (widgets)
   {
-    if (data.Side == vtkMRMLIhepMlcControlNode::Side1)
+    QLabel* label = (side == vtkMRMLIhepMlcControlNode::Side1) ? widgets->Side1StateLabel : widgets->Side2StateLabel;
+    if (data.SwitchState)
     {
-      widgets->PairOfLeavesWidget->setMinRequiredValue(data.Steps);
-      (data.SwitchState) ?
-        widgets->Side1StateLabel->setPixmap(QPixmap(":/indicators/Icons/green.png")) :
-        widgets->Side1StateLabel->setPixmap(QPixmap(":/indicators/Icons/gray.png"));
+      label->setPixmap(QPixmap(":/indicators/Icons/green.png"));
     }
-    else if (data.Side == vtkMRMLIhepMlcControlNode::Side2)
+    else
     {
-      widgets->PairOfLeavesWidget->setMaxRequiredValue(data.Steps);
-      (data.SwitchState) ?
-        widgets->Side2StateLabel->setPixmap(QPixmap(":/indicators/Icons/green.png")) :
-        widgets->Side2StateLabel->setPixmap(QPixmap(":/indicators/Icons/gray.png"));
+      label->setPixmap(QPixmap(":/indicators/Icons/gray.png"));
     }
   }
 }
-*/
+
 //-----------------------------------------------------------------------------
 void qSlicerIhepMlcControlLayoutWidget::onSetCurrentLeafParametersClicked()
 {

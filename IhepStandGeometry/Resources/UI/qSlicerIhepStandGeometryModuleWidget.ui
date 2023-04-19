@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>353</width>
-    <height>1153</height>
+    <width>389</width>
+    <height>714</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -349,7 +349,7 @@
               <item row="0" column="0">
                <widget class="ctkSliderWidget" name="SliderWidget_PatientSupportRotationAngle">
                 <property name="decimals">
-                 <number>2</number>
+                 <number>6</number>
                 </property>
                 <property name="minimum">
                  <double>0.000000000000000</double>
@@ -382,6 +382,9 @@
                <layout class="QGridLayout" name="gridLayout_10">
                 <item row="0" column="1">
                  <widget class="ctkSliderWidget" name="SliderWidget_TableTopLongitudinalAngle">
+                  <property name="decimals">
+                   <number>6</number>
+                  </property>
                   <property name="minimum">
                    <double>-30.000000000000000</double>
                   </property>
@@ -392,6 +395,9 @@
                 </item>
                 <item row="1" column="1">
                  <widget class="ctkSliderWidget" name="SliderWidget_TableTopLateralAngle">
+                  <property name="decimals">
+                   <number>6</number>
+                  </property>
                   <property name="minimum">
                    <double>-30.000000000000000</double>
                   </property>

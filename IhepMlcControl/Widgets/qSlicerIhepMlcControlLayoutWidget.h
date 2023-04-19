@@ -53,7 +53,7 @@ public:
   void fillLeavesControlContainer(int pairOfLeavesIndex);
   bool getLeafDataByAddress(int address, int& range, int& position);
   vtkMRMLIhepMlcControlNode::LayerType getSelectedMlcLayer() const;
-//  void setLeafData(const vtkMRMLIhepMlcControlNode::LeafData& data);
+  void setLeafData(const vtkMRMLIhepMlcControlNode::LeafData& data);
 
 signals:
   void predefinedMlcPositionChanged(vtkMRMLIhepMlcControlNode::PredefinedPositionType);

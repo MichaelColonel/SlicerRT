@@ -196,7 +196,7 @@ QByteArray qSlicerIhepMlcControlModuleWidgetPrivate::getStateCommandByAddress(in
   {
     return QByteArray();
   }
-  if (address >= this->ParameterNode->GetNumberOfLeafPairs() * 2)
+  if (address > this->ParameterNode->GetNumberOfLeafPairs() * 2)
   {
     return QByteArray();
   }
@@ -218,7 +218,7 @@ QByteArray qSlicerIhepMlcControlModuleWidgetPrivate::getStartCommandByAddress(in
   {
     return QByteArray();
   }
-  if (this->ParameterNode->GetNumberOfLeafPairs() * 2 >= address)
+  if (address > this->ParameterNode->GetNumberOfLeafPairs() * 2)
   {
     return QByteArray();
   }
@@ -240,7 +240,7 @@ QByteArray qSlicerIhepMlcControlModuleWidgetPrivate::getStopCommandByAddress(int
   {
     return QByteArray();
   }
-  if (this->ParameterNode->GetNumberOfLeafPairs() * 2 >= address)
+  if (address > this->ParameterNode->GetNumberOfLeafPairs() * 2)
   {
     return QByteArray();
   }
@@ -495,7 +495,7 @@ bool qSlicerIhepMlcControlModuleWidgetPrivate::connectDevice(const QString& devi
     QObject::connect(this->MlcLayer1SerialPort, SIGNAL(error(QSerialPort::SerialPortError)), q, SLOT(serialPortError(QSerialPort::SerialPortError)));
     QObject::connect(this->TimerGetState, SIGNAL(timeout()), q, SLOT(onMlcStateTimeoutExpired()));
 
-//    this->TimerGetState->start();
+    this->TimerGetState->start();
     qDebug() << Q_FUNC_INFO << ": Device port has been opened for device name: " << deviceName;
     return true;
   }
@@ -1252,7 +1252,8 @@ void qSlicerIhepMlcControlModuleWidget::writeNextCommandFromQueue()
   if (d->CommandQueue.empty())
   {
 //    qWarning() << Q_FUNC_INFO << "Last command is not empty, command queue is empty: "
-    qWarning() << Q_FUNC_INFO << "Last command state: " << (d->LastCommand.isEmpty() ? "is empty" : "not empty");
+    qWarning() << Q_FUNC_INFO << "Command queue is empty. Last command state: " << (d->LastCommand.isEmpty() ? "is empty" : "not empty");
+    d->TimerGetState->start();
     return;
   }
 
@@ -1287,6 +1288,7 @@ void qSlicerIhepMlcControlModuleWidget::writeLastCommandOnceAgain()
 
   if (d->MlcLayer1SerialPort && d->MlcLayer1SerialPort->isOpen())
   {
+    qWarning() << Q_FUNC_INFO << "Write last command last again: " << d->LastCommand;
     d->MlcLayer1SerialPort->write(d->LastCommand);
   }
 }
@@ -1336,7 +1338,11 @@ void qSlicerIhepMlcControlModuleWidget::serialPortDataReady()
       qDebug() << Q_FUNC_INFO << "Command data is OK!";
       vtkMRMLIhepMlcControlNode::LeafData leafData;
       vtkMRMLIhepMlcControlNode::ProcessCommandBufferToLeafData(buf, leafData);
-      
+      if (buf[1] == 1)
+      {
+        d->MlcControlWidget->setLeafData(leafData);
+        qDebug() << Q_FUNC_INFO << "Leaf switch state: " << leafData.SwitchState;
+      }
 //      emit leafDataChanged(leafData);
 
       if (d->ResponseBuffer.size() > commandSize)
@@ -1349,7 +1355,7 @@ void qSlicerIhepMlcControlModuleWidget::serialPortDataReady()
       }
       if (!d->CommandQueue.empty()) // write next command from queue
       {
-        QTimer::singleShot(100, this, SLOT(writeNextCommandFromQueue()));
+        QTimer::singleShot(0, this, SLOT(writeNextCommandFromQueue()));
         return;
 //        d->writeNextCommandFromQueue();
       }
@@ -1366,7 +1372,7 @@ void qSlicerIhepMlcControlModuleWidget::serialPortDataReady()
         d->ResponseBuffer.clear();
       }
       // write last command once again, because CRC16 is invalid
-      QTimer::singleShot(1000, this, SLOT(writeLastCommandOnceAgain()));
+      QTimer::singleShot(0, this, SLOT(writeLastCommandOnceAgain()));
       return;
 //      d->writeLastCommandOnceAgain();
     }
@@ -1375,8 +1381,8 @@ void qSlicerIhepMlcControlModuleWidget::serialPortDataReady()
   // Start get state timer if command queue is empty
   if (d->CommandQueue.empty() && d->LastCommand.isEmpty())
   {
-    QTimer::singleShot(100, this, SLOT(onLeavesGetStateClicked()));
-//    d->TimerGetState->start();
+//    QTimer::singleShot(100, this, SLOT(onLeavesGetStateClicked()));
+    d->TimerGetState->start();
   }
 }
 
@@ -1427,6 +1433,7 @@ void qSlicerIhepMlcControlModuleWidget::onLeafAddressChanged(int address)
   {
     return;
   }
+
   int pos, range;
   if (d->MlcControlWidget && d->MlcControlWidget->getLeafDataByAddress(address, range, pos))
   {
