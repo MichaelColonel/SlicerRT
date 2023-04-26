@@ -191,6 +191,7 @@ public:
   static unsigned short CommandCalculateCrc16(const CommandBufferType&);
   static bool CommandCheckCrc16(const CommandBufferType&);
   static void ProcessCommandBufferToLeafData(const CommandBufferType& buf, LeafData& leafdata);
+  static bool CommandBufferIsStateCommand(const CommandBufferType& buf) { return (buf[1] == 1); };
 
 public:
   /// Get beam node

@@ -495,7 +495,7 @@ bool qSlicerIhepMlcControlModuleWidgetPrivate::connectDevice(const QString& devi
     QObject::connect(this->MlcLayer1SerialPort, SIGNAL(error(QSerialPort::SerialPortError)), q, SLOT(serialPortError(QSerialPort::SerialPortError)));
     QObject::connect(this->TimerGetState, SIGNAL(timeout()), q, SLOT(onMlcStateTimeoutExpired()));
 
-    this->TimerGetState->start();
+///    this->TimerGetState->start();
     qDebug() << Q_FUNC_INFO << ": Device port has been opened for device name: " << deviceName;
     return true;
   }
@@ -1253,7 +1253,7 @@ void qSlicerIhepMlcControlModuleWidget::writeNextCommandFromQueue()
   {
 //    qWarning() << Q_FUNC_INFO << "Last command is not empty, command queue is empty: "
     qWarning() << Q_FUNC_INFO << "Command queue is empty. Last command state: " << (d->LastCommand.isEmpty() ? "is empty" : "not empty");
-    d->TimerGetState->start();
+///    d->TimerGetState->start();
     return;
   }
 
@@ -1326,19 +1326,21 @@ void qSlicerIhepMlcControlModuleWidget::serialPortDataReady()
   {
 //    unsigned char* data = reinterpret_cast< unsigned char* >(d->ResponseBuffer.data());
     std::copy_n(d->ResponseBuffer.data(), commandSize, std::begin(buf));
+    unsigned char bb = static_cast< unsigned char >(d->LastCommand[0]);
+    unsigned char bbb = buf[0];
     qDebug() << Q_FUNC_INFO << ": Buffer: " << d->ResponseBuffer << ", data: " << int(buf[0])
       << " " << int(buf[1]) << " " << int(buf[2]) << " " << int(buf[3])
       << " " << int(buf[4]) << " " << int(buf[5]) << " " << int(buf[6])
       << " " << int(buf[7]) << " " << int(buf[8]) << " " << int(buf[9])
-      << " " << int(buf[10]);
-    if (vtkMRMLIhepMlcControlNode::CommandCheckCrc16(buf))
+      << " " << int(buf[10]) << " " << bb << " " << bbb;
+    if (vtkMRMLIhepMlcControlNode::CommandCheckCrc16(buf) && (bb == bbb))
     {
       d->CommandQueue.pop();
       d->LastCommand.clear(); // erase last command since it no longer needed
       qDebug() << Q_FUNC_INFO << "Command data is OK!";
       vtkMRMLIhepMlcControlNode::LeafData leafData;
       vtkMRMLIhepMlcControlNode::ProcessCommandBufferToLeafData(buf, leafData);
-      if (buf[1] == 1)
+      if (vtkMRMLIhepMlcControlNode::CommandBufferIsStateCommand(buf))
       {
         d->MlcControlWidget->setLeafData(leafData);
         qDebug() << Q_FUNC_INFO << "Leaf switch state: " << leafData.SwitchState;
@@ -1360,7 +1362,7 @@ void qSlicerIhepMlcControlModuleWidget::serialPortDataReady()
 //        d->writeNextCommandFromQueue();
       }
     }
-    else
+    else if (!vtkMRMLIhepMlcControlNode::CommandCheckCrc16(buf) && (bb == bbb))
     {
       qWarning() << Q_FUNC_INFO << "Command data is INVALID!";
       if (d->ResponseBuffer.size() > commandSize)
@@ -1376,13 +1378,17 @@ void qSlicerIhepMlcControlModuleWidget::serialPortDataReady()
       return;
 //      d->writeLastCommandOnceAgain();
     }
+    else
+    {
+      qCritical() << Q_FUNC_INFO << "Impossible state!";
+    }
   }
 
   // Start get state timer if command queue is empty
   if (d->CommandQueue.empty() && d->LastCommand.isEmpty())
   {
 //    QTimer::singleShot(100, this, SLOT(onLeavesGetStateClicked()));
-    d->TimerGetState->start();
+///    d->TimerGetState->start();
   }
 }
 
@@ -1393,25 +1399,28 @@ void qSlicerIhepMlcControlModuleWidget::serialPortBytesWritten(qint64 written)
   qDebug() << Q_FUNC_INFO << "Serial port data written: " << written << " bytes, command queue size: " << d->CommandQueue.size();
   if (d->CommandQueue.size())
   {
-    constexpr std::array< int, 16 > addresses = {1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,32};
+//    constexpr std::array< int, 16 > addresses = {1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16};
+//    constexpr std::array< int, 16 > addresses = {1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,32};
 //    QByteArray lastCommand = d->CommandQueue.front();
     int address = d->LastCommand[0];
-    auto addressResult = std::find(std::begin(addresses), std::end(addresses), address);
-    qDebug() << Q_FUNC_INFO << "Address: " << address << ", present: " << (addressResult != std::end(addresses));
+//    auto addressResult = std::find(std::begin(addresses), std::end(addresses), address);
+///   qDebug() << Q_FUNC_INFO << "Address: " << address << ", present: " << (addressResult != std::end(addresses));
+    qDebug() << Q_FUNC_INFO << "Address: " << address;
     if (!address)
     {
       qDebug() << Q_FUNC_INFO << "Pop last command from command queue because broadcast without answer.";
       d->CommandQueue.pop();
       d->LastCommand.clear();
-      QTimer::singleShot(100, this, SLOT(writeNextCommandFromQueue()));
+      QTimer::singleShot(1000, this, SLOT(writeNextCommandFromQueue()));
       return;
     }
-    if (address && (addressResult == std::end(addresses)))
+    else
+//    if (address && (addressResult == std::end(addresses)))
     {
-      qDebug() << Q_FUNC_INFO << "Pop last command from command queue because no response to address.";
-      d->CommandQueue.pop();
-      d->LastCommand.clear();
-      QTimer::singleShot(100, this, SLOT(writeNextCommandFromQueue()));
+//      qDebug() << Q_FUNC_INFO << "Pop last command from command queue because no response to address.";
+//      d->CommandQueue.pop();
+//      d->LastCommand.clear();
+//      QTimer::singleShot(1000, this, SLOT(writeNextCommandFromQueue()));
       return;
     }
   }
