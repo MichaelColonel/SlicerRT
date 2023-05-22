@@ -57,6 +57,7 @@ public:
 
 signals:
   void predefinedMlcPositionChanged(vtkMRMLIhepMlcControlNode::PredefinedPositionType);
+  void mlcLayerChanged(vtkMRMLIhepMlcControlNode::LayerType);
   /// first parameter address, second parameter leafDataSteps
   void leafDataStepsChanged(int address, int leafDataSteps);
 
@@ -66,6 +67,7 @@ public slots:
   /// Update widget GUI from IhepMlcControl node and observed RTBeam and Table nodes
   void updateWidgetFromMRML();
   void onMlcLayerChanged(QAbstractButton* radioButton);
+  void onMlcLayerChanged(vtkMRMLIhepMlcControlNode::LayerType);
 
   void onSetCurrentLeafParametersClicked();
   void onSetOpenLeafParametersClicked();

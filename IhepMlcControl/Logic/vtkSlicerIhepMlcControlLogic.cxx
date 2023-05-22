@@ -759,7 +759,8 @@ bool vtkSlicerIhepMlcControlLogic::UpdatePositionBetweenMlcTableNodes(vtkMRMLIhe
       int nextStepsLayer2Side1 = static_cast<int>((nextPosLayer2Side1 + vtkMRMLIhepMlcControlNode::IHEP_TOTAL_DISTANCE) * vtkMRMLIhepMlcControlNode::IHEP_MOTOR_STEPS_PER_MM);
       int nextStepsLayer1Side2 = static_cast<int>((-nextPosLayer1Side2 + vtkMRMLIhepMlcControlNode::IHEP_TOTAL_DISTANCE) * vtkMRMLIhepMlcControlNode::IHEP_MOTOR_STEPS_PER_MM);
       int nextStepsLayer2Side2 = static_cast<int>((-nextPosLayer2Side2 + vtkMRMLIhepMlcControlNode::IHEP_TOTAL_DISTANCE) * vtkMRMLIhepMlcControlNode::IHEP_MOTOR_STEPS_PER_MM);
-
+*/
+/*
       parameterNode->GetLeafData(leafData, row, vtkMRMLIhepMlcControlNode::Side1, vtkMRMLIhepMlcControlNode::Layer1);
       leafData.Steps = stepsLayer1Side1;
       parameterNode->SetLeafData(leafData, row, vtkMRMLIhepMlcControlNode::Side1, vtkMRMLIhepMlcControlNode::Layer1);

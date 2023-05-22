@@ -49,6 +49,9 @@ public:
   void enter() override;
   void exit() override;
 
+signals:
+  void mlcLayerChanged(vtkMRMLIhepMlcControlNode::LayerType);
+
 public slots:
   /// Scene control
   void setMRMLScene(vtkMRMLScene*) override;
@@ -75,6 +78,8 @@ public slots:
 
   /// Predefined MLC layer position control
   void onMlcLayersPredefinedPositionChanged(vtkMRMLIhepMlcControlNode::PredefinedPositionType);
+  void onMlcLayerChanged(vtkMRMLIhepMlcControlNode::LayerType);
+  void onMlcLayerChanged(QAbstractButton* button);
 
   /// Single leaf parameters control
   void onLeafSetParametersClicked();
@@ -84,6 +89,7 @@ public slots:
   void onLeafAddressChanged(int address);
   void onLeafDirectionButtonClicked(QAbstractButton* button);
   void onLeafStepModeButtonClicked(QAbstractButton* button);
+  void onLeafMotorFrequencyIndexChanged(int freq);
   void onLeafStepsChanged(int steps);
   void onLeafResetToggled(bool reset);
   void onLeafEnabledToggled(bool enabled);
@@ -107,12 +113,16 @@ public slots:
   void updateWidgetFromMRML();
 
   /// Serial port
-  void serialPortBytesWritten(qint64);
-  void serialPortDataReady();
-  void serialPortError(QSerialPort::SerialPortError);
+  void serialPortLayer1BytesWritten(qint64);
+  void serialPortLayer1DataReady();
+  void serialPortLayer1Error(QSerialPort::SerialPortError);
 
   /// MLC state timer
   void onMlcStateTimeoutExpired();
+
+signals:
+  void writeNextCommand();
+  void writeLastCommand();
 
 private slots:
   void writeNextCommandFromQueue();

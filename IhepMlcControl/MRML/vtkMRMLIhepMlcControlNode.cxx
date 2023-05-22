@@ -381,6 +381,8 @@ void vtkMRMLIhepMlcControlNode::SetPredefinedPosition(vtkMRMLIhepMlcControlNode:
   {
   case vtkMRMLIhepMlcControlNode::Side1Edge:
     {
+      axisWidth = this->PairOfLeavesSize * this->NumberOfLeafPairs * 0.8;
+      tanAngle = IHEP_SIDE_OPENING / axisWidth;
       for (int i = 0; i < this->NumberOfLeafPairs; ++i)
       {
         this->GetLeafData(leafData, i, vtkMRMLIhepMlcControlNode::Side1, layer);
@@ -405,6 +407,8 @@ void vtkMRMLIhepMlcControlNode::SetPredefinedPosition(vtkMRMLIhepMlcControlNode:
     break;
   case vtkMRMLIhepMlcControlNode::Side2Edge:
     {
+      axisWidth = this->PairOfLeavesSize * this->NumberOfLeafPairs * 0.8;
+      tanAngle = IHEP_SIDE_OPENING / axisWidth;
       for (int i = 0; i < this->NumberOfLeafPairs; ++i)
       {
         this->GetLeafData(leafData, i, vtkMRMLIhepMlcControlNode::Side2, layer);
@@ -768,6 +772,11 @@ void vtkMRMLIhepMlcControlNode::ProcessCommandBufferToLeafData(const vtkMRMLIhep
   std::bitset<CHAR_BIT> stateBits(buf[2]);
   leafData.EncoderDirection = !stateBits.test(0); // external encoder direction (to switch == true, from switch == false)
   leafData.SwitchState = !stateBits.test(1); // external switch state
+  if (leafData.SwitchState)
+  {
+    leafData.CurrentPosition = 0;
+  }
+
   leafData.Reset = !stateBits.test(2); // internal motor reset
   leafData.Mode = stateBits.test(3); // internal motor steps mode
   leafData.Direction = stateBits.test(4); // internal motor direction

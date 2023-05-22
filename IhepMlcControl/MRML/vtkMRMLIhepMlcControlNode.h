@@ -66,6 +66,8 @@ public:
     Circle,
     Open,
     Close,
+    Side1EdgeDebug,
+    Side2EdgeDebug,
     PredefinedPosition_Last
   };
   static vtkMRMLIhepMlcControlNode *New();
