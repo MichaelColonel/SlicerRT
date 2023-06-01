@@ -780,11 +780,11 @@ void vtkMRMLIhepMlcControlNode::ProcessCommandBufferToLeafData(const vtkMRMLIhep
   leafData.Reset = !stateBits.test(2); // internal motor reset
   leafData.Mode = stateBits.test(3); // internal motor steps mode
   leafData.Direction = stateBits.test(4); // internal motor direction
-  leafData.Enabled = !stateBits.test(5); // internal motor enabled
+  leafData.Enabled = stateBits.test(5); // internal motor enabled
   
   leafData.StepsLeft = (buf[3] << CHAR_BIT) | buf[4];
   leafData.EncoderCounts = ((buf[5] << CHAR_BIT) | buf[6]) + (USHRT_MAX + 1) * buf[7];
-  leafData.Frequency = buf[8];
+  leafData.Frequency = buf[8]; // do not use Frequency, the value is dummy
 }
 
 //-----------------------------------------------------------------------------

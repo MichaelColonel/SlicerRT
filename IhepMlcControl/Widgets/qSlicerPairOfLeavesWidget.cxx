@@ -159,7 +159,7 @@ void qSlicerAbstractPairOfLeavesWidget::paintEvent(QPaintEvent *event)
   
   painter.setBrush(QBrush(Qt::blue, Qt::SolidPattern));
   QPen redPen(Qt::red, 3, Qt::SolidLine);
-  qDebug() << Q_FUNC_INFO << "Current : Side1: " << d->m_CurrentValues.first << ", Side2: " << d->m_CurrentValues.second;
+///  qDebug() << Q_FUNC_INFO << "Current : Side1: " << d->m_CurrentValues.first << ", Side2: " << d->m_CurrentValues.second;
   switch (this->orientation())
   {
   case Qt::Vertical:
@@ -179,7 +179,7 @@ void qSlicerAbstractPairOfLeavesWidget::paintEvent(QPaintEvent *event)
     painter.drawRect(x1top, y1top, x2top, y2top);
   
     painter.drawLine(0, widget_size.height() / 2, widget_size.width(), widget_size.height() / 2);
-    qDebug() << Q_FUNC_INFO << ": yCurrTop: " << yCurrTop << ", yCurrBottom: " << yCurrBottom;
+///    qDebug() << Q_FUNC_INFO << ": yCurrTop: " << yCurrTop << ", yCurrBottom: " << yCurrBottom;
     painter.setPen(redPen);
     painter.drawLine(0, yCurrBottom, widget_size.width(), yCurrBottom);
     painter.drawLine(0, yCurrTop, widget_size.width(), yCurrTop);

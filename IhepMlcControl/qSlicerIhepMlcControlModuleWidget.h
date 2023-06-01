@@ -48,9 +48,12 @@ public:
   virtual ~qSlicerIhepMlcControlModuleWidget();
   void enter() override;
   void exit() override;
+  /// Display leaf data state in the table widget
+  void setLeafData(const vtkMRMLIhepMlcControlNode::LeafData& data);
 
 signals:
   void mlcLayerChanged(vtkMRMLIhepMlcControlNode::LayerType);
+  void mlcLayerDeviceDisconnected(vtkMRMLIhepMlcControlNode::LayerType);
 
 public slots:
   /// Scene control
@@ -105,7 +108,7 @@ public slots:
   void onLeavesStopBroadcastClicked();
   void onLeavesOpenBroadcastClicked();
 
-  // Custom widget layout
+  /// Custom widget layout
   void onSwitchToMlcControlLayoutToggled(bool toggled = true);
   void onSetMlcControlLayout();
 

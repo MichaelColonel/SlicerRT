@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>603</width>
+    <width>559</width>
     <height>1257</height>
    </rect>
   </property>
@@ -381,57 +381,6 @@
         <bool>false</bool>
        </property>
        <layout class="QGridLayout" name="gridLayout_6">
-        <item row="3" column="0">
-         <widget class="ctkCollapsibleButton" name="CollapsibleButton_LeavesControl">
-          <property name="text">
-           <string>Leaves control</string>
-          </property>
-          <property name="collapsed">
-           <bool>false</bool>
-          </property>
-          <layout class="QGridLayout" name="gridLayout_13">
-           <item row="0" column="0">
-            <layout class="QHBoxLayout" name="horizontalLayout_11">
-             <item>
-              <widget class="QPushButton" name="PushButton_SetLeavesParameters">
-               <property name="text">
-                <string>Set parameters queue</string>
-               </property>
-              </widget>
-             </item>
-             <item>
-              <widget class="QPushButton" name="PushButton_GetLeavesState">
-               <property name="text">
-                <string>Get state queue</string>
-               </property>
-              </widget>
-             </item>
-             <item>
-              <widget class="QPushButton" name="PushButton_OpenLeaves">
-               <property name="text">
-                <string>Open</string>
-               </property>
-              </widget>
-             </item>
-             <item>
-              <widget class="QPushButton" name="PushButton_StartLeaves">
-               <property name="text">
-                <string>Start</string>
-               </property>
-              </widget>
-             </item>
-             <item>
-              <widget class="QPushButton" name="PushButton_StopLeaves">
-               <property name="text">
-                <string>Stop</string>
-               </property>
-              </widget>
-             </item>
-            </layout>
-           </item>
-          </layout>
-         </widget>
-        </item>
         <item row="0" column="0">
          <layout class="QHBoxLayout" name="horizontalLayout_13">
           <item>
@@ -468,6 +417,38 @@
            <bool>false</bool>
           </property>
           <layout class="QGridLayout" name="gridLayout_12">
+           <item row="1" column="0">
+            <layout class="QHBoxLayout" name="horizontalLayout_12">
+             <item>
+              <widget class="QPushButton" name="PushButton_SetLeafParameters">
+               <property name="text">
+                <string>Set parameters</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QPushButton" name="PushButton_GetLeafState">
+               <property name="text">
+                <string>Get state</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QPushButton" name="PushButton_StartLeaf">
+               <property name="text">
+                <string>Start</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QPushButton" name="PushButton_StopLeaf">
+               <property name="text">
+                <string>Stop</string>
+               </property>
+              </widget>
+             </item>
+            </layout>
+           </item>
            <item row="0" column="0">
             <layout class="QGridLayout" name="gridLayout_11">
              <item row="2" column="1">
@@ -806,39 +787,101 @@
              </item>
             </layout>
            </item>
-           <item row="1" column="0">
-            <layout class="QHBoxLayout" name="horizontalLayout_12">
-             <item>
-              <widget class="QPushButton" name="PushButton_SetLeafParameters">
-               <property name="text">
-                <string>Set parameters</string>
-               </property>
-              </widget>
-             </item>
-             <item>
-              <widget class="QPushButton" name="PushButton_GetLeafState">
-               <property name="text">
-                <string>Get state</string>
-               </property>
-              </widget>
-             </item>
-             <item>
-              <widget class="QPushButton" name="PushButton_StartLeaf">
-               <property name="text">
-                <string>Start</string>
-               </property>
-              </widget>
-             </item>
-             <item>
-              <widget class="QPushButton" name="PushButton_StopLeaf">
-               <property name="text">
-                <string>Stop</string>
-               </property>
-              </widget>
-             </item>
-            </layout>
+           <item row="2" column="0">
+            <widget class="ctkCollapsibleButton" name="CollapsibleButton_LeafState">
+             <property name="text">
+              <string>Leaf state</string>
+             </property>
+             <property name="collapsed">
+              <bool>false</bool>
+             </property>
+             <layout class="QGridLayout" name="gridLayout_15">
+              <item row="0" column="0">
+               <widget class="QTableWidget" name="TableWidget_LeafState">
+                <property name="selectionMode">
+                 <enum>QAbstractItemView::NoSelection</enum>
+                </property>
+                <attribute name="horizontalHeaderVisible">
+                 <bool>false</bool>
+                </attribute>
+                <attribute name="horizontalHeaderCascadingSectionResizes">
+                 <bool>false</bool>
+                </attribute>
+                <attribute name="horizontalHeaderStretchLastSection">
+                 <bool>true</bool>
+                </attribute>
+                <attribute name="verticalHeaderStretchLastSection">
+                 <bool>false</bool>
+                </attribute>
+                <row>
+                 <property name="text">
+                  <string>Address</string>
+                 </property>
+                </row>
+                <row>
+                 <property name="text">
+                  <string>State</string>
+                 </property>
+                </row>
+                <row>
+                 <property name="text">
+                  <string>Mode</string>
+                 </property>
+                </row>
+                <row>
+                 <property name="text">
+                  <string>Reset</string>
+                 </property>
+                </row>
+                <row>
+                 <property name="text">
+                  <string>Direction</string>
+                 </property>
+                </row>
+                <row>
+                 <property name="text">
+                  <string>Enabled</string>
+                 </property>
+                </row>
+                <row>
+                 <property name="text">
+                  <string>Steps left</string>
+                 </property>
+                </row>
+                <row>
+                 <property name="text">
+                  <string>Encoder counts</string>
+                 </property>
+                </row>
+                <row>
+                 <property name="text">
+                  <string>Encoder direction</string>
+                 </property>
+                </row>
+                <row>
+                 <property name="text">
+                  <string>Switch state</string>
+                 </property>
+                </row>
+                <column>
+                 <property name="text">
+                  <string>State</string>
+                 </property>
+                </column>
+               </widget>
+              </item>
+             </layout>
+            </widget>
            </item>
           </layout>
+         </widget>
+        </item>
+        <item row="5" column="0">
+         <widget class="ctkCollapsibleButton" name="CollapsibleButton_Workflow">
+          <property name="text">
+           <string>Workflow</string>
+          </property>
+          <layout class="QGridLayout" name="gridLayout_14"/>
          </widget>
         </item>
         <item row="1" column="0">
@@ -890,11 +933,54 @@
          </layout>
         </item>
         <item row="4" column="0">
-         <widget class="ctkCollapsibleButton" name="CollapsibleButton_Workflow">
+         <widget class="ctkCollapsibleButton" name="CollapsibleButton_LeavesControl">
           <property name="text">
-           <string>Workflow</string>
+           <string>Leaves control</string>
           </property>
-          <layout class="QGridLayout" name="gridLayout_14"/>
+          <property name="collapsed">
+           <bool>true</bool>
+          </property>
+          <layout class="QGridLayout" name="gridLayout_13">
+           <item row="0" column="0">
+            <layout class="QHBoxLayout" name="horizontalLayout_11">
+             <item>
+              <widget class="QPushButton" name="PushButton_SetLeavesParameters">
+               <property name="text">
+                <string>Set parameters queue</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QPushButton" name="PushButton_GetLeavesState">
+               <property name="text">
+                <string>Get state queue</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QPushButton" name="PushButton_OpenLeaves">
+               <property name="text">
+                <string>Open</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QPushButton" name="PushButton_StartLeaves">
+               <property name="text">
+                <string>Start</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QPushButton" name="PushButton_StopLeaves">
+               <property name="text">
+                <string>Stop</string>
+               </property>
+              </widget>
+             </item>
+            </layout>
+           </item>
+          </layout>
          </widget>
         </item>
        </layout>
@@ -1069,10 +1155,10 @@
   </connection>
  </connections>
  <buttongroups>
+  <buttongroup name="ButtonGroup_LeafDirection"/>
   <buttongroup name="ButtonGroup_MlcOrientation"/>
   <buttongroup name="ButtonGroup_MlcLayers"/>
-  <buttongroup name="ButtonGroup_LeafDirection"/>
-  <buttongroup name="ButtonGroup_LeafStepMode"/>
   <buttongroup name="ButtonGroup_MlcDeviceLayer"/>
+  <buttongroup name="ButtonGroup_LeafStepMode"/>
  </buttongroups>
 </ui>

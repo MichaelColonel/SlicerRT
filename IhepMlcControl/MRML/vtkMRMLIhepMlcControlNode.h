@@ -96,8 +96,14 @@ public:
   void ProcessMRMLEvents(vtkObject *caller, unsigned long eventID, void *callData) override;
 
   struct LeafData {
-    bool isMovingFromTheSwitch() const { return (Enabled && ExternalEnabled && !Reset && !ExternalReset && Direction); }
-    bool isMovingToTheSwitch() const { return (Enabled && ExternalEnabled && !Reset && !ExternalReset && !Direction); }
+    bool isMovingFromTheSwitch() const { return (Enabled && !Reset && Direction); }
+///    bool isMovingFromTheSwitch() const { return (Enabled && ExternalEnabled && !Reset && !ExternalReset && Direction); }
+    bool isMovingToTheSwitch() const { return (Enabled && !Reset && !Direction); }
+///    bool isMovingToTheSwitch() const { return (Enabled && ExternalEnabled && !Reset && !ExternalReset && !Direction); }
+    bool isStopped() const { return !Enabled; }
+///    bool isStopped() const { return !(Enabled && ExternalEnabled); }
+    bool isSwitchPressed() const { return SwitchState; }
+    bool isSwitchReleased() const { return !SwitchState; }
     // Requested and preset
     int Address{ 28 };
     bool Direction{ true };

@@ -502,7 +502,7 @@ bool qSlicerIhepMlcControlModuleWidgetPrivate::connectDevice(const QString& devi
     QObject::connect(q, SIGNAL(writeLastCommand()), q, SLOT(writeLastCommandOnceAgain()));
     QObject::connect(q, SIGNAL(writeNextCommand()), q, SLOT(writeNextCommandFromQueue()));
 
-    this->TimerGetState->start();
+///    this->TimerGetState->start();
     qDebug() << Q_FUNC_INFO << ": Device port has been opened for device name: " << deviceName;
     return true;
   }
@@ -526,6 +526,7 @@ bool qSlicerIhepMlcControlModuleWidgetPrivate::connectDevice(const QString& devi
     this->LastCommand.clear();
     this->InputBuffer.clear();
     qWarning() << Q_FUNC_INFO << ": Unable to open device port for device name: " << deviceName;
+    emit q->mlcLayerDeviceDisconnected(vtkMRMLIhepMlcControlNode::Layer1);
     return false;
   }
   return false;
@@ -626,6 +627,13 @@ void qSlicerIhepMlcControlModuleWidget::setup()
   Q_D(qSlicerIhepMlcControlModuleWidget);
   d->setupUi(this);
   this->Superclass::setup();
+
+  for (int i = 0; i < d->TableWidget_LeafState->rowCount(); ++i)
+  {
+    QTableWidgetItem* item = new QTableWidgetItem();
+    item->setTextAlignment(Qt::AlignHCenter | Qt::AlignVCenter);
+    d->TableWidget_LeafState->setItem( i, 0, item);
+  }
 
   d->MlcControlWidget = new qSlicerIhepMlcControlLayoutWidget;
 
@@ -1322,7 +1330,7 @@ void qSlicerIhepMlcControlModuleWidget::writeNextCommandFromQueue()
     qWarning() << Q_FUNC_INFO << "Command queue is empty. Last command state: " << (d->LastCommand.isEmpty() ? "is empty" : "not empty");
     if (d->LastCommand.isEmpty())
     {
-      d->TimerGetState->start();
+///      d->TimerGetState->start();
     }
     return;
   }
@@ -1334,14 +1342,14 @@ void qSlicerIhepMlcControlModuleWidget::writeNextCommandFromQueue()
 
   if (d->MlcLayer1SerialPort && d->MlcLayer1SerialPort->isOpen())
   {
-    qDebug() << Q_FUNC_INFO << "Write data: " << d->LastCommand << ", size: " << d->LastCommand.size();
+///    qDebug() << Q_FUNC_INFO << "Write data: " << d->LastCommand << ", size: " << d->LastCommand.size();
 //    unsigned char* data = reinterpret_cast< unsigned char* >(d->ResponseBuffer.data());
     std::copy_n(d->LastCommand.data(), commandSize, std::begin(buf));
-    qDebug() << Q_FUNC_INFO << ": Buffer: " << d->LastCommand << ", data: " << int(buf[0])
-      << " " << int(buf[1]) << " " << int(buf[2]) << " " << int(buf[3])
-      << " " << int(buf[4]) << " " << int(buf[5]) << " " << int(buf[6])
-      << " " << int(buf[7]) << " " << int(buf[8]) << " " << int(buf[9])
-      << " " << int(buf[10]);
+///    qDebug() << Q_FUNC_INFO << ": Buffer: " << d->LastCommand << ", data: " << int(buf[0])
+///      << " " << int(buf[1]) << " " << int(buf[2]) << " " << int(buf[3])
+///      << " " << int(buf[4]) << " " << int(buf[5]) << " " << int(buf[6])
+///      << " " << int(buf[7]) << " " << int(buf[8]) << " " << int(buf[9])
+///      << " " << int(buf[10]);
     d->MlcLayer1SerialPort->write(d->LastCommand);
   }
 }
@@ -1396,16 +1404,16 @@ void qSlicerIhepMlcControlModuleWidget::serialPortLayer1DataReady()
   {
 //    unsigned char* data = reinterpret_cast< unsigned char* >(d->ResponseBuffer.data());
     std::copy_n(d->ResponseBuffer.data(), commandSize, std::begin(buf));
-    qDebug() << Q_FUNC_INFO << ": Buffer: " << d->ResponseBuffer << ", data: " << int(buf[0])
-      << " " << int(buf[1]) << " " << int(buf[2]) << " " << int(buf[3])
-      << " " << int(buf[4]) << " " << int(buf[5]) << " " << int(buf[6])
-      << " " << int(buf[7]) << " " << int(buf[8]) << " " << int(buf[9])
-      << " " << int(buf[10]);
+//    qDebug() << Q_FUNC_INFO << ": Buffer: " << d->ResponseBuffer << ", data: " << int(buf[0])
+//      << " " << int(buf[1]) << " " << int(buf[2]) << " " << int(buf[3])
+//      << " " << int(buf[4]) << " " << int(buf[5]) << " " << int(buf[6])
+//      << " " << int(buf[7]) << " " << int(buf[8]) << " " << int(buf[9])
+//      << " " << int(buf[10]);
     if (d->checkAddressCommandResponseOk(buf))
     {
       d->CommandQueue.pop();
       d->LastCommand.clear(); // erase last command since it no longer needed
-      qDebug() << Q_FUNC_INFO << "Command data is OK!";
+//      qDebug() << Q_FUNC_INFO << "Command data is OK!";
       vtkMRMLIhepMlcControlNode::LeafData leafData;
 
       vtkMRMLIhepMlcControlNode::ProcessCommandBufferToLeafData(buf, leafData);
@@ -1422,8 +1430,8 @@ void qSlicerIhepMlcControlModuleWidget::serialPortLayer1DataReady()
 
       if (vtkMRMLIhepMlcControlNode::CommandBufferIsStateCommand(buf))
       {
-        d->MlcControlWidget->setLeafData(leafData);
-        qDebug() << Q_FUNC_INFO << "Leaf switch state: " << leafData.SwitchState;
+        this->setLeafData(leafData);
+//       qDebug() << Q_FUNC_INFO << "Leaf switch state: " << leafData.SwitchState;
       }
 //      emit leafDataChanged(leafData);
 
@@ -1447,7 +1455,7 @@ void qSlicerIhepMlcControlModuleWidget::serialPortLayer1DataReady()
     {
       d->CommandQueue.pop();
 //      d->LastCommand.clear(); // erase last command since it no longer needed
-      qWarning() << Q_FUNC_INFO << "Command data is INVALID!";
+//      qWarning() << Q_FUNC_INFO << "Command data is INVALID!";
       if (d->ResponseBuffer.size() > commandSize)
       {
         d->ResponseBuffer.remove(0, commandSize);
@@ -1464,7 +1472,8 @@ void qSlicerIhepMlcControlModuleWidget::serialPortLayer1DataReady()
     }
     else
     {
-      qCritical() << Q_FUNC_INFO << "Impossible state! Emit last command once again";
+//      qCritical() << Q_FUNC_INFO << "Impossible state! Emit last command once again";
+/*
       d->CommandQueue.pop();
 
       if (d->ResponseBuffer.size() > commandSize)
@@ -1476,6 +1485,7 @@ void qSlicerIhepMlcControlModuleWidget::serialPortLayer1DataReady()
         d->ResponseBuffer.clear();
       }
       emit writeLastCommand();
+*/
     }
   }
 
@@ -1483,7 +1493,7 @@ void qSlicerIhepMlcControlModuleWidget::serialPortLayer1DataReady()
   if (d->CommandQueue.empty() && d->LastCommand.isEmpty())
   {
 //    QTimer::singleShot(100, this, SLOT(onLeavesGetStateClicked()));
-    d->TimerGetState->start();
+///    d->TimerGetState->start();
   }
 }
 
@@ -1989,4 +1999,81 @@ void qSlicerIhepMlcControlModuleWidget::onMlcLayerChanged(QAbstractButton* butto
     qDebug() << Q_FUNC_INFO << ": Layer number emitted: " << selectedMlcLayer;
     emit mlcLayerChanged(selectedMlcLayer);
   }
+}
+
+//-----------------------------------------------------------------------------
+void qSlicerIhepMlcControlModuleWidget::setLeafData(const vtkMRMLIhepMlcControlNode::LeafData& data)
+{
+  Q_D(qSlicerIhepMlcControlModuleWidget);
+
+  d->MlcControlWidget->setLeafData(data);
+
+  QTableWidgetItem* item = d->TableWidget_LeafState->item( 0, 0);
+  item->setText(QString::number(data.Address));
+
+  item = d->TableWidget_LeafState->item( 1, 0);
+  item->setText(QString::number(data.State));
+
+  item = d->TableWidget_LeafState->item( 2, 0);
+  if (data.Mode)
+  {
+    item->setText(tr("Half step"));
+  }
+  else
+  {
+    item->setText(tr("Full step"));
+  }
+
+  item = d->TableWidget_LeafState->item( 3, 0);
+  item->setText(QString::number(data.Reset));
+
+  item = d->TableWidget_LeafState->item( 4, 0);
+  item->setText(QString::number(data.Direction));
+
+  item = d->TableWidget_LeafState->item( 5, 0);
+  if (data.Enabled)
+  {
+    item->setText(tr("Enabled"));
+//    item->setIcon(QIcon(QPixmap(":/indicators/Icons/green.png")));
+  }
+  else
+  {
+    item->setText(tr("Disabled"));
+//    item->setIcon(QIcon(QPixmap(":/indicators/Icons/gray.png")));
+  }
+  item->setTextAlignment(Qt::AlignHCenter | Qt::AlignVCenter);
+
+  item = d->TableWidget_LeafState->item( 6, 0);
+  item->setText(QString::number(data.StepsLeft));
+
+  item = d->TableWidget_LeafState->item( 7, 0);
+  item->setText(QString::number(data.EncoderCounts));
+
+  item = d->TableWidget_LeafState->item( 8, 0);
+  item->setText(QString::number(data.EncoderDirection));
+
+  item = d->TableWidget_LeafState->item( 9, 0);
+  if (data.SwitchState)
+  {
+    item->setText(tr("Pressed"));
+//    item->setIcon(QIcon(QPixmap(":/indicators/Icons/green.png")));
+  }
+  else
+  {
+    item->setText(tr("Released"));
+//    item->setIcon(QIcon(QPixmap(":/indicators/Icons/gray.png")));
+  }
+//  item->setTextAlignment(Qt::AlignHCenter | Qt::AlignVCenter);
+
+//  d->TableWidget_LeafState->clear();
+/*
+  QTableWidgetItem* item = new QTableWidgetItem(QString::to_string(data.Address));
+  d->TableWidget_LeafState->setItem( 0, 0, item);
+  QTableWidgetItem* item1 = new QTableWidgetItem(QString::to_string(data.State));
+  d->TableWidget_LeafState->setItem( 1, 0, item1);
+  QTableWidgetItem* item2 = new QTableWidgetItem(QString::to_string(data.Mode));
+  d->TableWidget_LeafState->setItem( 2, 0, item2);
+  QTableWidgetItem* item3 = new QTableWidgetItem(QString::to_string(data.Reset));
+  d->TableWidget_LeafState->setItem( 2, 0, item3);
+*/
 }
