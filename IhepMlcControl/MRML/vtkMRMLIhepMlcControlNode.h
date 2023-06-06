@@ -100,7 +100,7 @@ public:
 ///    bool isMovingFromTheSwitch() const { return (Enabled && ExternalEnabled && !Reset && !ExternalReset && Direction); }
     bool isMovingToTheSwitch() const { return (Enabled && !Reset && !Direction); }
 ///    bool isMovingToTheSwitch() const { return (Enabled && ExternalEnabled && !Reset && !ExternalReset && !Direction); }
-    bool isStopped() const { return !Enabled; }
+    bool isStopped() const { return !Enabled || SwitchState; }
 ///    bool isStopped() const { return !(Enabled && ExternalEnabled); }
     bool isSwitchPressed() const { return SwitchState; }
     bool isSwitchReleased() const { return !SwitchState; }

@@ -813,8 +813,6 @@ void qSlicerIhepMlcControlLayoutWidget::setLeafData(const vtkMRMLIhepMlcControlN
     return;
   }
 
-///  qDebug() << Q_FUNC_INFO << ": Leaf data must be updated, data address: " << data.Address << ", data side: " << data.Side << ", widget side: " << side;
-
   if (widgets)
   {
     QLabel* label = (side == vtkMRMLIhepMlcControlNode::Side1) ? widgets->Side1StateLabel : widgets->Side2StateLabel;
@@ -824,11 +822,11 @@ void qSlicerIhepMlcControlLayoutWidget::setLeafData(const vtkMRMLIhepMlcControlN
       label->setPixmap(QPixmap(":/indicators/Icons/green.png"));
       if (side == vtkMRMLIhepMlcControlNode::Side1 && side == data.Side)
       {
-        leavesWidget->setMinCurrentValueFromLeafData(data.CurrentPosition);
+        leavesWidget->setMinCurrentValueFromLeafData(0);
       }
       else if (side == vtkMRMLIhepMlcControlNode::Side2 && side == data.Side)
       {
-        leavesWidget->setMaxCurrentValueFromLeafData(data.CurrentPosition);
+        leavesWidget->setMaxCurrentValueFromLeafData(0);
       }
     }
     else
@@ -836,6 +834,14 @@ void qSlicerIhepMlcControlLayoutWidget::setLeafData(const vtkMRMLIhepMlcControlN
       label->setPixmap(QPixmap(":/indicators/Icons/gray.png"));
       if (side == vtkMRMLIhepMlcControlNode::Side1 && side == data.Side)
       {
+        if (data.CurrentPosition > 0)
+        {
+          leavesWidget->setMinCurrentValueFromLeafData(data.CurrentPosition);
+        }
+        else
+        {
+          leavesWidget->setMinCurrentValueFromLeafData(0);
+        }
         if (data.isMovingToTheSwitch())
         {
           leavesWidget->setMinCurrentValueFromLeafData(data.CurrentPosition - 2 * data.EncoderCounts);
@@ -844,23 +850,22 @@ void qSlicerIhepMlcControlLayoutWidget::setLeafData(const vtkMRMLIhepMlcControlN
         {
           leavesWidget->setMinCurrentValueFromLeafData(data.CurrentPosition + 2 * data.EncoderCounts);
         }
-        else if (data.isStopped() && (data.CurrentPosition != leavesWidget->getMinCurrentPosition()))
+        else if (data.isStopped())
         {
-          vtkMRMLIhepMlcControlNode::LeafData ld = data;
-          if (data.isMovingToTheSwitch())
-          {
-            leavesWidget->setMinCurrentValueFromLeafData(data.CurrentPosition - 2 * data.EncoderCounts);
-          }
-          else if (data.isMovingFromTheSwitch())
-          {
-            leavesWidget->setMinCurrentValueFromLeafData(data.CurrentPosition + 2 * data.EncoderCounts);
-          }
-          ld.CurrentPosition = leavesWidget->getMinCurrentPosition();
-          d->ParameterNode->SetLeafDataByAddress(ld, ld.Address);
+          leavesWidget->setMinCurrentValueFromLeafData(data.CurrentPosition);
         }
       }
       else if (side == vtkMRMLIhepMlcControlNode::Side2 && side == data.Side)
       {
+        if (data.CurrentPosition > 0)
+        {
+          leavesWidget->setMaxCurrentValueFromLeafData(data.CurrentPosition);
+        }
+        else
+        {
+          leavesWidget->setMaxCurrentValueFromLeafData(0);
+        }
+        
         if (data.isMovingToTheSwitch())
         {
           leavesWidget->setMaxCurrentValueFromLeafData(data.CurrentPosition - 2 * data.EncoderCounts);
@@ -869,19 +874,9 @@ void qSlicerIhepMlcControlLayoutWidget::setLeafData(const vtkMRMLIhepMlcControlN
         {
           leavesWidget->setMaxCurrentValueFromLeafData(data.CurrentPosition + 2 * data.EncoderCounts);
         }
-        else if (data.isStopped() && (data.CurrentPosition != leavesWidget->getMaxCurrentPosition()))
+        else if (data.isStopped())
         {
-          vtkMRMLIhepMlcControlNode::LeafData ld = data;
-          if (data.isMovingToTheSwitch())
-          {
-            leavesWidget->setMaxCurrentValueFromLeafData(data.CurrentPosition - 2 * data.EncoderCounts);
-          }
-          else if (data.isMovingFromTheSwitch())
-          {
-            leavesWidget->setMaxCurrentValueFromLeafData(data.CurrentPosition + 2 * data.EncoderCounts);
-          }
-          ld.CurrentPosition = leavesWidget->getMaxCurrentPosition();
-          d->ParameterNode->SetLeafDataByAddress(ld, ld.Address);
+          leavesWidget->setMaxCurrentValueFromLeafData(data.CurrentPosition);
         }
       }
     }

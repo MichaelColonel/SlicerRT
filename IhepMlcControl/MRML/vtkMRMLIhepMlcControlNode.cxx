@@ -783,8 +783,10 @@ void vtkMRMLIhepMlcControlNode::ProcessCommandBufferToLeafData(const vtkMRMLIhep
   leafData.Enabled = stateBits.test(5); // internal motor enabled
   
   leafData.StepsLeft = (buf[3] << CHAR_BIT) | buf[4];
-  leafData.EncoderCounts = ((buf[5] << CHAR_BIT) | buf[6]) + (USHRT_MAX + 1) * buf[7];
-  leafData.Frequency = buf[8]; // do not use Frequency, the value is dummy
+  leafData.EncoderCounts = ((buf[5] << CHAR_BIT) | buf[6]);
+  leafData.CurrentPosition = ((buf[7] << CHAR_BIT) | buf[8]);
+//  leafData.EncoderCounts = static_cast<int32_t>((buf[5] << CHAR_BIT) | buf[6]);
+//  leafData.Frequency = buf[8]; // do not use Frequency, the value is dummy
 }
 
 //-----------------------------------------------------------------------------
@@ -849,10 +851,72 @@ void vtkMRMLIhepMlcControlNode::GetAddresses(std::vector<int>& addresses)
 //-----------------------------------------------------------------------------
 int vtkMRMLIhepMlcControlNode::GetRelativeMovementByAddress(int address)
 {
-  vtkMRMLIhepMlcControlNode::LeafData leafData;
-  if (this->GetLeafDataByAddress(leafData, address))
+  vtkMRMLIhepMlcControlNode::SideType side = vtkMRMLIhepMlcControlNode::Side_Last;
+  vtkMRMLIhepMlcControlNode::LayerType layer = vtkMRMLIhepMlcControlNode::Layer_Last;
+  int key = -1;
+  int res = this->GetLeafOffsetLayerByAddress(address, key, side, layer);
+
+  vtkMRMLIhepMlcControlNode::LeafData data;
+  if (this->GetLeafDataByAddress(data, address) && res != -1)
   {
-    return leafData.RequiredPosition - leafData.CurrentPosition;
+    int currentPosition = 0;
+
+    if (data.SwitchState)
+    {
+      currentPosition = 0;
+    }
+    else
+    {
+      if (side == vtkMRMLIhepMlcControlNode::Side1)
+      {
+        if (data.CurrentPosition > 0)
+        {
+          currentPosition = data.CurrentPosition;
+        }
+        else
+        {
+          currentPosition = 0;
+        }
+        if (data.isMovingToTheSwitch())
+        {
+          currentPosition = data.CurrentPosition - 2 * data.EncoderCounts;
+        }
+        else if (data.isMovingFromTheSwitch())
+        {
+          currentPosition = data.CurrentPosition + 2 * data.EncoderCounts;
+        }
+        else if (data.isStopped())
+        {
+          currentPosition = data.CurrentPosition;
+        }
+      }
+      else if (side == vtkMRMLIhepMlcControlNode::Side2 && side == data.Side)
+      {
+        if (data.CurrentPosition > 0)
+        {
+          currentPosition = data.CurrentPosition;
+        }
+        else
+        {
+          currentPosition = 0;
+        }
+        
+        if (data.isMovingToTheSwitch())
+        {
+          currentPosition = data.CurrentPosition - 2 * data.EncoderCounts;
+        }
+        else if (data.isMovingFromTheSwitch())
+        {
+          currentPosition = data.CurrentPosition + 2 * data.EncoderCounts;
+        }
+        else if (data.isStopped())
+        {
+          currentPosition = data.CurrentPosition;
+        }
+      }
+    }
+//    return leafData.RequiredPosition - leafData.CurrentPosition;
+    return data.RequiredPosition - currentPosition;
   }
   return 0;
 }

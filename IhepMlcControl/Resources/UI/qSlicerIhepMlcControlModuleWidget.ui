@@ -938,7 +938,7 @@
            <string>Leaves control</string>
           </property>
           <property name="collapsed">
-           <bool>true</bool>
+           <bool>false</bool>
           </property>
           <layout class="QGridLayout" name="gridLayout_13">
            <item row="0" column="0">
@@ -946,14 +946,14 @@
              <item>
               <widget class="QPushButton" name="PushButton_SetLeavesParameters">
                <property name="text">
-                <string>Set parameters queue</string>
+                <string>Set leaves</string>
                </property>
               </widget>
              </item>
              <item>
               <widget class="QPushButton" name="PushButton_GetLeavesState">
                <property name="text">
-                <string>Get state queue</string>
+                <string>Get state</string>
                </property>
               </widget>
              </item>
@@ -979,6 +979,13 @@
               </widget>
              </item>
             </layout>
+           </item>
+           <item row="1" column="0">
+            <widget class="QPushButton" name="PushButton_SetLeavesRelativeParameters">
+             <property name="text">
+              <string>Set leaves relative</string>
+             </property>
+            </widget>
            </item>
           </layout>
          </widget>
@@ -1156,9 +1163,9 @@
  </connections>
  <buttongroups>
   <buttongroup name="ButtonGroup_LeafDirection"/>
-  <buttongroup name="ButtonGroup_MlcOrientation"/>
+  <buttongroup name="ButtonGroup_LeafStepMode"/>
   <buttongroup name="ButtonGroup_MlcLayers"/>
   <buttongroup name="ButtonGroup_MlcDeviceLayer"/>
-  <buttongroup name="ButtonGroup_LeafStepMode"/>
+  <buttongroup name="ButtonGroup_MlcOrientation"/>
  </buttongroups>
 </ui>

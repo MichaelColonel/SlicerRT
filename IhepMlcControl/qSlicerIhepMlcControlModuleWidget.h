@@ -103,6 +103,7 @@ public slots:
 
   /// Leaves parameters control
   void onLeavesSetParametersClicked();
+  void onLeavesSetRelativeParametesClicked();
   void onLeavesGetStateClicked();
   void onLeavesStartBroadcastClicked();
   void onLeavesStopBroadcastClicked();
