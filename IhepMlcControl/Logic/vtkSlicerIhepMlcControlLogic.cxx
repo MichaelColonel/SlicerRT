@@ -939,7 +939,9 @@ bool vtkSlicerIhepMlcControlLogic::UpdateLeavesDataFromMlcPositionTableNode(vtkM
         vtkWarningMacro("UpdateLeavesDataFromMlcPositionTableNode: Positions1: " << posLayer1Side1 << " " << posLayer1Side2);
 
         side1.Steps = static_cast<int>((posLayer1Side1 + vtkMRMLIhepMlcControlNode::IHEP_TOTAL_DISTANCE) * vtkMRMLIhepMlcControlNode::IHEP_MOTOR_STEPS_PER_MM);
+        side1.RequiredPosition = side1.Steps;
         side2.Steps = static_cast<int>((-posLayer1Side2 + vtkMRMLIhepMlcControlNode::IHEP_TOTAL_DISTANCE) * vtkMRMLIhepMlcControlNode::IHEP_MOTOR_STEPS_PER_MM);
+        side2.RequiredPosition = side2.Steps;
         vtkWarningMacro("UpdateLeavesDataFromMlcPositionTableNode: Steps2: " << side1.Steps << " " << side2.Steps);
 
         parameterNode->SetPairOfLeavesData(pairOfLeaves, row, vtkMRMLIhepMlcControlNode::Layer1);
@@ -954,7 +956,9 @@ bool vtkSlicerIhepMlcControlLogic::UpdateLeavesDataFromMlcPositionTableNode(vtkM
         vtkWarningMacro("UpdateLeavesDataFromMlcPositionTableNode: Positions2: " << posLayer2Side1 << " " << posLayer2Side2);
 
         side1.Steps = static_cast<int>((posLayer2Side1 + vtkMRMLIhepMlcControlNode::IHEP_TOTAL_DISTANCE) * vtkMRMLIhepMlcControlNode::IHEP_MOTOR_STEPS_PER_MM);
+        side1.RequiredPosition = side1.Steps;
         side2.Steps = static_cast<int>((-posLayer2Side2 + vtkMRMLIhepMlcControlNode::IHEP_TOTAL_DISTANCE) * vtkMRMLIhepMlcControlNode::IHEP_MOTOR_STEPS_PER_MM);
+        side2.RequiredPosition = side2.Steps;
         vtkWarningMacro("UpdateLeavesDataFromMlcPositionTableNode: Steps2: " << side1.Steps << " " << side2.Steps);
 
         parameterNode->SetPairOfLeavesData(pairOfLeaves, row, vtkMRMLIhepMlcControlNode::Layer2);
@@ -979,7 +983,8 @@ bool vtkSlicerIhepMlcControlLogic::UpdateLeavesDataFromMlcPositionTableNode(vtkM
 
         side1.Steps = static_cast<int>((posLayer1Side1 + vtkMRMLIhepMlcControlNode::IHEP_TOTAL_DISTANCE) * vtkMRMLIhepMlcControlNode::IHEP_MOTOR_STEPS_PER_MM);
         side2.Steps = static_cast<int>((-posLayer1Side2 + vtkMRMLIhepMlcControlNode::IHEP_TOTAL_DISTANCE) * vtkMRMLIhepMlcControlNode::IHEP_MOTOR_STEPS_PER_MM);
-
+        side1.RequiredPosition = side1.Steps;
+        side2.RequiredPosition = side2.Steps;
         parameterNode->SetPairOfLeavesData(pairOfLeaves, row, vtkMRMLIhepMlcControlNode::Layer1);
       }
     }

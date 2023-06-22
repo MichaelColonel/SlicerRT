@@ -427,6 +427,13 @@
               </widget>
              </item>
              <item>
+              <widget class="QPushButton" name="PushButton_SetLeafRelative">
+               <property name="text">
+                <string>Set relative</string>
+               </property>
+              </widget>
+             </item>
+             <item>
               <widget class="QPushButton" name="PushButton_GetLeafState">
                <property name="text">
                 <string>Get state</string>
@@ -863,6 +870,11 @@
                   <string>Switch state</string>
                  </property>
                 </row>
+                <row>
+                 <property name="text">
+                  <string>Current position</string>
+                 </property>
+                </row>
                 <column>
                  <property name="text">
                   <string>State</string>
@@ -1162,10 +1174,10 @@
   </connection>
  </connections>
  <buttongroups>
-  <buttongroup name="ButtonGroup_LeafDirection"/>
   <buttongroup name="ButtonGroup_LeafStepMode"/>
+  <buttongroup name="ButtonGroup_MlcOrientation"/>
+  <buttongroup name="ButtonGroup_LeafDirection"/>
   <buttongroup name="ButtonGroup_MlcLayers"/>
   <buttongroup name="ButtonGroup_MlcDeviceLayer"/>
-  <buttongroup name="ButtonGroup_MlcOrientation"/>
  </buttongroups>
 </ui>

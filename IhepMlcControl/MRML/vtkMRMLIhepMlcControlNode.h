@@ -96,14 +96,18 @@ public:
   void ProcessMRMLEvents(vtkObject *caller, unsigned long eventID, void *callData) override;
 
   struct LeafData {
-    bool isMovingFromTheSwitch() const { return (Enabled && !Reset && Direction); }
+    bool isMovingFromTheSwitch() const { return (StateEnabled && StateDirection); }
+///    bool isMovingFromTheSwitch() const { return (StateEnabled && !StateReset && StateDirection); }
 ///    bool isMovingFromTheSwitch() const { return (Enabled && ExternalEnabled && !Reset && !ExternalReset && Direction); }
-    bool isMovingToTheSwitch() const { return (Enabled && !Reset && !Direction); }
+    bool isMovingToTheSwitch() const { return (StateEnabled && !StateDirection); }
+///    bool isMovingToTheSwitch() const { return (StateEnabled && !StateReset && !StateDirection); }
 ///    bool isMovingToTheSwitch() const { return (Enabled && ExternalEnabled && !Reset && !ExternalReset && !Direction); }
-    bool isStopped() const { return !Enabled || SwitchState; }
+    bool isStopped() const { return !StateEnabled; }// || SwitchState; }
 ///    bool isStopped() const { return !(Enabled && ExternalEnabled); }
     bool isSwitchPressed() const { return SwitchState; }
     bool isSwitchReleased() const { return !SwitchState; }
+    int GetActualCurrentPosition() const;
+    int GetRelativeMovement() const;
     // Requested and preset
     int Address{ 28 };
     bool Direction{ true };
@@ -111,20 +115,22 @@ public:
     int Frequency{ 7 };
     int Steps{ 10000 };
     int Range{ 19300 };
-    SideType Side{ Side1 };
-    LayerType Layer{ Layer1 };
+    SideType Side{ Side_Last };
+    LayerType Layer{ Layer_Last };
     bool Reset{ false };
     bool Enabled{ true };
-    // Current
-    int CurrentPosition{ 0 }; // current position of leaf in steps
     int RequiredPosition{ 0 }; // required position of leaf in steps
+    // Current leaf data state
+    int CurrentPosition{ 0 }; // current position of leaf in steps
     int EncoderCounts{ 100 }; // external encoder counts while moving
     int StepsLeft{ 0 };
     int State{ 0 };
     bool EncoderDirection{ false }; // external encoder direction
     bool SwitchState{ false };
-    bool ExternalEnabled{ true };
-    bool ExternalReset{ false };
+    bool StateEnabled{ true };
+    bool StateReset{ false };
+    bool StateDirection{ false };
+    bool StateStepMode{ false };
   };
   /// Single pair of leaves combined data,  first in pair = side1, second in pair = side2
   typedef std::pair< LeafData, LeafData > PairOfLeavesData;
@@ -165,6 +171,8 @@ public:
   bool SetLeafData(const LeafData& leafData, int offset = 0, SideType side = Side1, LayerType layer = Layer1);
   bool GetLeafDataByAddress(LeafData& leafData, int address);
   bool SetLeafDataByAddress(const LeafData& leafData, int address);
+  /// Update only parameters responsible for current position of the leaf
+  bool SetLeafDataState(const LeafData& leafData);
 
   bool GetPairOfLeavesData(PairOfLeavesData& pairOfLeaves, int offset = 0, LayerType layer = Layer1);
   bool SetPairOfLeavesData(const PairOfLeavesData& pairOfLeaves, int offset = 0, LayerType layer = Layer1);
@@ -174,6 +182,8 @@ public:
   /// zero "0" - no movement
   /// @return leafData.Required - leafData.Current
   int GetRelativeMovementByAddress(int address);
+  /// @brief Current position displayed on leaf position widget
+//  int GetCurrentPositionByAddress(int address);
   int GetStepsFromMlcTableByAddress(int address);
   int GetStepsFromMlcTableByAddress(vtkMRMLTableNode* mlcTableNode, int address);
 

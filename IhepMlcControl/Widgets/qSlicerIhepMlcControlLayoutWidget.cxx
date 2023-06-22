@@ -350,7 +350,7 @@ void qSlicerIhepMlcControlLayoutWidget::fillLeavesControlContainer(int pairOfLea
 
     widgets.PairOfLeavesWidget = new qSlicerVerticalPairOfLeavesWidget(
       side1.Range + side2.Range, side1.Steps, side2.Steps,
-      side1.EncoderCounts, side2.EncoderCounts, this);
+      side1.GetActualCurrentPosition(), side2.GetActualCurrentPosition(), this);
     widgets.PairOfLeavesWidget->setSizePolicy( QSizePolicy::Minimum, QSizePolicy::Expanding);
 
     widgets.Side2StateLabel = new QLabel(this);
@@ -508,10 +508,12 @@ void qSlicerIhepMlcControlLayoutWidget::onPairOfLeavesDoubleClicked()
     vtkMRMLIhepMlcControlNode::LeafData& side1 = leavesData.first;
     vtkMRMLIhepMlcControlNode::LeafData& side2 = leavesData.second;
 
+    int side1CurrentPosition = side1.GetActualCurrentPosition();//d->ParameterNode->GetCurrentPositionByAddress(side1.Address);
+    int side2CurrentPosition = side2.GetActualCurrentPosition();//d->ParameterNode->GetCurrentPositionByAddress(side2.Address);
     qSlicerIhepPairOfLeavesControlDialog controlDialog(
       side1.Address, side2.Address,
-      side1.Range, side1.EncoderCounts, side1.Steps,
-      side2.Range, side2.EncoderCounts, side2.Steps, this);
+      side1.Range, side1CurrentPosition, side1.Steps,
+      side2.Range, side2CurrentPosition, side2.Steps, this);
     int res = controlDialog.exec();
     if (res == QDialog::Accepted)
     {

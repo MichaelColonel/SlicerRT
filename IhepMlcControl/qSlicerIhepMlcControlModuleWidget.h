@@ -86,6 +86,7 @@ public slots:
 
   /// Single leaf parameters control
   void onLeafSetParametersClicked();
+  void onLeafSetRelativeClicked();
   void onLeafGetStateClicked();
   void onLeafStartClicked();
   void onLeafStopClicked();
@@ -120,6 +121,9 @@ public slots:
   void serialPortLayer1BytesWritten(qint64);
   void serialPortLayer1DataReady();
   void serialPortLayer1Error(QSerialPort::SerialPortError);
+//  void serialPortLayer2BytesWritten(qint64);
+//  void serialPortLayer2DataReady();
+//  void serialPortLayer2Error(QSerialPort::SerialPortError);
 
   /// MLC state timer
   void onMlcStateTimeoutExpired();

@@ -68,15 +68,16 @@ public:
   ~qSlicerIhepMlcDeviceLogicPrivate();
   void loadApplicationSettings();
 
-  unsigned short updateCrc16(unsigned short crc, unsigned char a);
-  unsigned short commandCalculateCrc16(const unsigned char* buffer, size_t size);
-  bool commandCheckCrc16(const unsigned char* buffer, size_t size);
+  vtkWeakPointer<vtkMRMLIhepMlcControlNode> ParameterNode;
 
   QByteArray ResponseBuffer;
   QByteArray InputBuffer;
   QByteArray LastCommand;
   std::queue< QByteArray > CommandQueue;
-  QSerialPort* SerialPortMlcLayer{ nullptr };
+  QSerialPort* MlcLayerSerialPort{ nullptr };
+  QTimer* TimerGetState{ nullptr };
+  QTimer* TimerWatchdog{ nullptr };
+  vtkMRMLIhepMlcControlNode::LayerType Layer{ vtkMRMLIhepMlcControlNode::Layer_Last };
 };
 
 //-----------------------------------------------------------------------------
@@ -86,16 +87,30 @@ public:
 qSlicerIhepMlcDeviceLogicPrivate::qSlicerIhepMlcDeviceLogicPrivate(qSlicerIhepMlcDeviceLogic& object)
   : q_ptr(&object)
 {
+  this->MlcLayerSerialPort = new QSerialPort(&object);
+  this->TimerGetState = new QTimer(&object);
+  this->TimerWatchdog = new QTimer(&object);
+  this->TimerGetState->setInterval(5000); // 5000 ms, 5 seconds
 }
 
 //-----------------------------------------------------------------------------
 qSlicerIhepMlcDeviceLogicPrivate::~qSlicerIhepMlcDeviceLogicPrivate()
 {
-  if (this->SerialPortMlcLayer && this->SerialPortMlcLayer->isOpen())
+  if (this->MlcLayerSerialPort && this->MlcLayerSerialPort->isOpen())
   {
-    this->SerialPortMlcLayer->flush();
-    this->SerialPortMlcLayer->close();
+    this->MlcLayerSerialPort->flush();
+    this->MlcLayerSerialPort->close();
   }
+  delete this->MlcLayerSerialPort;
+  this->MlcLayerSerialPort = nullptr;
+
+  this->TimerGetState->stop();
+  delete this->TimerGetState;
+  this->TimerGetState = nullptr;
+
+  this->TimerWatchdog->stop();
+  delete this->TimerWatchdog;
+  this->TimerWatchdog = nullptr;
 }
 
 //-----------------------------------------------------------------------------
@@ -103,49 +118,6 @@ void qSlicerIhepMlcDeviceLogicPrivate::loadApplicationSettings()
 {
   //TODO: Implement if there are application settings (such as default dose engine)
   //      See qSlicerSubjectHierarchyPluginLogicPrivate::loadApplicationSettings
-}
-
-//-----------------------------------------------------------------------------
-unsigned short qSlicerIhepMlcDeviceLogicPrivate::updateCrc16(unsigned short crc, unsigned char a)
-{
-  crc ^= a;
-  for (int i = 0; i < CHAR_BIT; ++i)
-  {
-    if (crc & 1)
-    {
-      crc = (crc >> 1) ^ 0xA001;
-    }
-    else
-    {
-      crc = (crc >> 1);
-    }
-  }
-
-  return crc;
-}
-
-//-----------------------------------------------------------------------------
-unsigned short qSlicerIhepMlcDeviceLogicPrivate::commandCalculateCrc16(const unsigned char* buffer, size_t size)
-{
-  unsigned short crc = 0xFFFF;
-  for (size_t i = 0; i < size; ++i)
-  {
-    crc = this->updateCrc16(crc, buffer[i]);
-  }
-
-  return crc;
-}
-
-//-----------------------------------------------------------------------------
-bool qSlicerIhepMlcDeviceLogicPrivate::commandCheckCrc16(const unsigned char* buffer, size_t size)
-{
-  if (size != BUFFER)
-  {
-    return false;
-  }
-  unsigned short dataCRC16 = this->commandCalculateCrc16(buffer, BUFFER - 2); // calculated CRC16 check sum for buffer data
-  unsigned short comCRC16 = (buffer[10] << CHAR_BIT) | buffer[9]; // check sum from buffer
-  return (dataCRC16 == comCRC16);
 }
 
 //-----------------------------------------------------------------------------
@@ -210,29 +182,36 @@ void qSlicerIhepMlcDeviceLogic::onSceneImportEnded(vtkObject* sceneObject)
 }
 
 //-----------------------------------------------------------------------------
-QSerialPort* qSlicerIhepMlcDeviceLogic::connectDevice(QSerialPort* serialPort)
+void qSlicerIhepMlcDeviceLogic::serialPortBytesWritten(qint64 written)
+{
+  qDebug() << Q_FUNC_INFO << "Serial port data written: " << written;
+}
+
+//-----------------------------------------------------------------------------
+void qSlicerIhepMlcDeviceLogic::serialPortDataReady()
+{
+}
+
+//-----------------------------------------------------------------------------
+void qSlicerIhepMlcDeviceLogic::serialPortError(QSerialPort::SerialPortError)
+{
+}
+
+//-----------------------------------------------------------------------------
+QSerialPort* qSlicerIhepMlcDeviceLogic::openDevice(const QString& deviceName, vtkMRMLIhepMlcControlNode::LayerType layer)
 {
   Q_D(qSlicerIhepMlcDeviceLogic);
 
-//  qWarning() << Q_FUNC_INFO << "Port name: " << deviceName;
-//  if (!d->SerialPortMlcLayer)
-//  {
-//    qWarning() << Q_FUNC_INFO << "MLC port is invalid";
-//    return nullptr;
-//  }
-//  d->SerialPortMlcLayer->setPortName(deviceName);
+  d->MlcLayerSerialPort->setPortName(deviceName);
 
-  qWarning() << Q_FUNC_INFO << "1";
-
-  if (serialPort->open(QIODevice::ReadWrite))
+  if (d->MlcLayerSerialPort->open(QIODevice::ReadWrite))
   {
-    qWarning() << Q_FUNC_INFO << "3";
-
-    serialPort->setBaudRate(QSerialPort::Baud38400);
-    serialPort->setDataBits(QSerialPort::Data8);
-    serialPort->setParity(QSerialPort::NoParity);
-    serialPort->setStopBits(QSerialPort::OneStop);
-    serialPort->setFlowControl(QSerialPort::NoFlowControl);
+    d->MlcLayerSerialPort->flush();
+    d->MlcLayerSerialPort->setBaudRate(QSerialPort::Baud38400);
+    d->MlcLayerSerialPort->setDataBits(QSerialPort::Data8);
+    d->MlcLayerSerialPort->setParity(QSerialPort::NoParity);
+    d->MlcLayerSerialPort->setStopBits(QSerialPort::OneStop);
+    d->MlcLayerSerialPort->setFlowControl(QSerialPort::NoFlowControl);
 
     while (d->CommandQueue.size())
     {
@@ -242,48 +221,88 @@ QSerialPort* qSlicerIhepMlcDeviceLogic::connectDevice(QSerialPort* serialPort)
     d->ResponseBuffer.clear();
     d->LastCommand.clear();
     d->InputBuffer.clear();
-    d->SerialPortMlcLayer = serialPort;
+
+    QObject::connect(d->MlcLayerSerialPort, SIGNAL(readyRead()), this, SLOT(serialPortDataReady()));
+    QObject::connect(d->MlcLayerSerialPort, SIGNAL(bytesWritten(qint64)), this, SLOT(serialPortBytesWritten(qint64)));
+    QObject::connect(d->MlcLayerSerialPort, SIGNAL(error(QSerialPort::SerialPortError)), this, SLOT(serialPortError(QSerialPort::SerialPortError)));
+
+    QObject::connect(this, SIGNAL(writeLastCommand()), this, SLOT(writeLastCommandOnceAgain()));
+    QObject::connect(this, SIGNAL(writeNextCommand()), this, SLOT(writeNextCommandFromQueue()));
+
+    qDebug() << Q_FUNC_INFO << ": Device port has been opened for device name: " << deviceName;
+    return d->MlcLayerSerialPort;
   }
   else
   {
+    d->MlcLayerSerialPort->flush();
+    QObject::disconnect(d->MlcLayerSerialPort, SIGNAL(readyRead()), this, SLOT(serialPortDataReady()));
+    QObject::disconnect(d->MlcLayerSerialPort, SIGNAL(bytesWritten(qint64)), this, SLOT(serialPortBytesWritten(qint64)));
+    QObject::disconnect(d->MlcLayerSerialPort, SIGNAL(error(QSerialPort::SerialPortError)), this, SLOT(serialPortError(QSerialPort::SerialPortError)));
+
+    QObject::disconnect(this, SIGNAL(writeLastCommand()), this, SLOT(writeLastCommandOnceAgain()));
+    QObject::disconnect(this, SIGNAL(writeNextCommand()), this, SLOT(writeNextCommandFromQueue()));
+
+    while (d->CommandQueue.size())
+    {
+      d->CommandQueue.pop();
+    }
     d->ResponseBuffer.clear();
     d->LastCommand.clear();
     d->InputBuffer.clear();
+    qWarning() << Q_FUNC_INFO << ": Unable to open device port for device name: " << deviceName;
+    return nullptr;
   }
-  return d->SerialPortMlcLayer;
+  return nullptr;
 }
 
 //-----------------------------------------------------------------------------
-bool qSlicerIhepMlcDeviceLogic::disconnectDevice(QSerialPort* port)
+void qSlicerIhepMlcDeviceLogic::writeNextCommandFromQueue()
 {
   Q_D(qSlicerIhepMlcDeviceLogic);
-
-  if (!port)
+//  if (!d->LastCommand.isEmpty() && d->CommandQueue.empty())
+  if (d->CommandQueue.empty())
   {
-    qWarning() << Q_FUNC_INFO << "Serial port is invalid";
-    return false;
+//    qWarning() << Q_FUNC_INFO << "Last command is not empty, command queue is empty: "
+    qWarning() << Q_FUNC_INFO << "Command queue is empty. Last command state: " << (d->LastCommand.isEmpty() ? "is empty" : "not empty");
+    if (d->LastCommand.isEmpty())
+    {
+///      d->TimerGetState->start();
+    }
+    return;
   }
 
-  if (port != d->SerialPortMlcLayer)
+  d->LastCommand = d->CommandQueue.front();
+
+  vtkMRMLIhepMlcControlNode::CommandBufferType buf;
+  constexpr int commandSize = buf.size();
+
+  if (d->MlcLayerSerialPort && d->MlcLayerSerialPort->isOpen())
   {
-    qWarning() << Q_FUNC_INFO << "Internal and external serial ports don't match";
-    return false;
+///    qDebug() << Q_FUNC_INFO << "Write data: " << d->LastCommand << ", size: " << d->LastCommand.size();
+//    unsigned char* data = reinterpret_cast< unsigned char* >(d->ResponseBuffer.data());
+    std::copy_n(d->LastCommand.data(), commandSize, std::begin(buf));
+///    qDebug() << Q_FUNC_INFO << ": Buffer: " << d->LastCommand << ", data: " << int(buf[0])
+///      << " " << int(buf[1]) << " " << int(buf[2]) << " " << int(buf[3])
+///      << " " << int(buf[4]) << " " << int(buf[5]) << " " << int(buf[6])
+///      << " " << int(buf[7]) << " " << int(buf[8]) << " " << int(buf[9])
+///      << " " << int(buf[10]);
+    d->MlcLayerSerialPort->write(d->LastCommand);
+  }
+}
+
+//-----------------------------------------------------------------------------
+void qSlicerIhepMlcDeviceLogic::writeLastCommandOnceAgain()
+{
+  Q_D(qSlicerIhepMlcDeviceLogic);
+  if (d->LastCommand.isEmpty())
+  {
+    qWarning() << Q_FUNC_INFO << "Last command is empty";
+    return;
   }
 
-  if (d->SerialPortMlcLayer->isOpen())
+  if (d->MlcLayerSerialPort && d->MlcLayerSerialPort->isOpen())
   {
-    d->SerialPortMlcLayer->flush();
-    d->SerialPortMlcLayer->close();
+    qWarning() << Q_FUNC_INFO << "Write last command last again: " << d->LastCommand;
+    d->MlcLayerSerialPort->write(d->LastCommand);
   }
-
-  while (d->CommandQueue.size())
-  {
-    d->CommandQueue.pop();
-  }
-
-  d->ResponseBuffer.clear();
-  d->LastCommand.clear();
-  d->InputBuffer.clear();
-
-  return true;
 }

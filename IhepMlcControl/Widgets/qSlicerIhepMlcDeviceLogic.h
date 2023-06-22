@@ -35,6 +35,9 @@
 #include <QByteArray>
 #include <QtSerialPort/QSerialPort>
 
+// SlicerRT IhepMlcControl MRML includes
+#include <vtkMRMLIhepMlcControlNode.h>
+
 class vtkMRMLScene;
 class vtkMRMLNode;
 class qSlicerIhepMlcDeviceLogicPrivate;
@@ -56,9 +59,13 @@ public:
 public:
   /// Set the current MRML scene to the widget
   Q_INVOKABLE void setMRMLScene(vtkMRMLScene* scene) override;
+  QSerialPort* openDevice(const QString& deviceName, vtkMRMLIhepMlcControlNode::LayerType layer);
 
-  QSerialPort* connectDevice(QSerialPort* devicePort);
-  bool disconnectDevice(QSerialPort* devicePort);
+public slots:
+  /// Serial port
+  void serialPortBytesWritten(qint64);
+  void serialPortDataReady();
+  void serialPortError(QSerialPort::SerialPortError);
 
 protected slots:
   /// Called when a node is added to the scene
@@ -66,6 +73,15 @@ protected slots:
 
   /// Called when scene import is finished
   void onSceneImportEnded(vtkObject* sceneObject);
+
+signals:
+  void writeNextCommand();
+  void writeLastCommand();
+
+private slots:
+  void writeNextCommandFromQueue();
+  void writeLastCommandOnceAgain();
+
 
 protected:
   QScopedPointer<qSlicerIhepMlcDeviceLogicPrivate> d_ptr;

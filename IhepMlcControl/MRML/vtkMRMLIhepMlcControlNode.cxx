@@ -719,6 +719,34 @@ bool vtkMRMLIhepMlcControlNode::SetLeafDataByAddress(const LeafData& leafData, i
 }
 
 //----------------------------------------------------------------------------
+bool vtkMRMLIhepMlcControlNode::SetLeafDataState(const LeafData& leafData)
+{
+  int key;
+  int offset = -1;
+  vtkMRMLIhepMlcControlNode::SideType side = Side_Last;
+  vtkMRMLIhepMlcControlNode::LayerType layer = Layer_Last;
+  vtkMRMLIhepMlcControlNode::LeafData currentLeafData;
+  if (!this->GetLeafDataByAddress(currentLeafData, leafData.Address))
+  {
+    return false;
+  }
+  currentLeafData.StateEnabled = leafData.StateEnabled;
+  currentLeafData.StateReset = leafData.StateReset;
+  currentLeafData.StateDirection = leafData.StateDirection;
+  currentLeafData.StateStepMode = leafData.StateStepMode;
+  currentLeafData.SwitchState = leafData.SwitchState;
+  currentLeafData.StepsLeft = leafData.StepsLeft;
+  currentLeafData.EncoderCounts = leafData.EncoderCounts;
+  currentLeafData.CurrentPosition = leafData.CurrentPosition;
+//  currentLeafData.RequiredPosition = currentLeafData.Steps;
+  if ((offset = this->GetLeafOffsetLayerByAddress(leafData.Address, key, side, layer)) != -1)
+  {
+    return this->SetLeafData(currentLeafData, offset, side, layer);
+  }
+  return false;
+}
+
+//----------------------------------------------------------------------------
 void vtkMRMLIhepMlcControlNode::SetMlcLeavesClosed()
 {
 }
@@ -772,19 +800,24 @@ void vtkMRMLIhepMlcControlNode::ProcessCommandBufferToLeafData(const vtkMRMLIhep
   std::bitset<CHAR_BIT> stateBits(buf[2]);
   leafData.EncoderDirection = !stateBits.test(0); // external encoder direction (to switch == true, from switch == false)
   leafData.SwitchState = !stateBits.test(1); // external switch state
-  if (leafData.SwitchState)
-  {
-    leafData.CurrentPosition = 0;
-  }
-
-  leafData.Reset = !stateBits.test(2); // internal motor reset
-  leafData.Mode = stateBits.test(3); // internal motor steps mode
-  leafData.Direction = stateBits.test(4); // internal motor direction
-  leafData.Enabled = stateBits.test(5); // internal motor enabled
+//  if (leafData.SwitchState)
+//  {
+//    leafData.CurrentPosition = 0;
+//  }
+  leafData.StateReset = !stateBits.test(2); // internal motor reset
+  leafData.StateStepMode = stateBits.test(3); // internal motor steps mode
+  leafData.StateDirection = stateBits.test(4); // internal motor direction
+  leafData.StateEnabled = stateBits.test(5); // internal motor enabled
   
   leafData.StepsLeft = (buf[3] << CHAR_BIT) | buf[4];
   leafData.EncoderCounts = ((buf[5] << CHAR_BIT) | buf[6]);
   leafData.CurrentPosition = ((buf[7] << CHAR_BIT) | buf[8]);
+
+  std::cout << "ProcessCommandBufferToLeafData: State Reset: " << leafData.StateReset
+   << ", StateStepMode: " << leafData.StateStepMode << ", StateDirection: " << leafData.StateDirection
+   << ", StateEnabled: " << leafData.StateEnabled << ", StepsLeft: " << leafData.StepsLeft
+   << ", EncoderCounts: " << leafData.EncoderCounts << ", current position: " << leafData.CurrentPosition << std::endl;
+
 //  leafData.EncoderCounts = static_cast<int32_t>((buf[5] << CHAR_BIT) | buf[6]);
 //  leafData.Frequency = buf[8]; // do not use Frequency, the value is dummy
 }
@@ -849,7 +882,8 @@ void vtkMRMLIhepMlcControlNode::GetAddresses(std::vector<int>& addresses)
 }
 
 //-----------------------------------------------------------------------------
-int vtkMRMLIhepMlcControlNode::GetRelativeMovementByAddress(int address)
+/*
+int vtkMRMLIhepMlcControlNode::GetCurrentPositionByAddress(int address)
 {
   vtkMRMLIhepMlcControlNode::SideType side = vtkMRMLIhepMlcControlNode::Side_Last;
   vtkMRMLIhepMlcControlNode::LayerType layer = vtkMRMLIhepMlcControlNode::Layer_Last;
@@ -859,7 +893,7 @@ int vtkMRMLIhepMlcControlNode::GetRelativeMovementByAddress(int address)
   vtkMRMLIhepMlcControlNode::LeafData data;
   if (this->GetLeafDataByAddress(data, address) && res != -1)
   {
-    int currentPosition = 0;
+    int currentPosition = -1;
 
     if (data.SwitchState)
     {
@@ -915,8 +949,84 @@ int vtkMRMLIhepMlcControlNode::GetRelativeMovementByAddress(int address)
         }
       }
     }
+    return currentPosition;
+  }
+  return -1;
+}
+*/
+
+//-----------------------------------------------------------------------------
+int vtkMRMLIhepMlcControlNode::GetRelativeMovementByAddress(int address)
+{
+  vtkMRMLIhepMlcControlNode::SideType side = vtkMRMLIhepMlcControlNode::Side_Last;
+  vtkMRMLIhepMlcControlNode::LayerType layer = vtkMRMLIhepMlcControlNode::Layer_Last;
+  int key = -1;
+  int res = this->GetLeafOffsetLayerByAddress(address, key, side, layer);
+
+  vtkMRMLIhepMlcControlNode::LeafData data;
+  if (this->GetLeafDataByAddress(data, address) && res != -1)
+  {
+    return data.GetRelativeMovement();
+/*
+    int currentPosition = 0;
+
+    if (data.SwitchState)
+    {
+      currentPosition = 0;
+    }
+    else
+    {
+      if (side == vtkMRMLIhepMlcControlNode::Side1 && side == data.Side)
+      {
+        if (data.CurrentPosition > 0)
+        {
+          currentPosition = data.CurrentPosition;
+        }
+        else
+        {
+          currentPosition = 0;
+        }
+        if (data.isMovingToTheSwitch())
+        {
+          currentPosition = data.CurrentPosition - 2 * data.EncoderCounts;
+        }
+        else if (data.isMovingFromTheSwitch())
+        {
+          currentPosition = data.CurrentPosition + 2 * data.EncoderCounts;
+        }
+        else if (data.isStopped())
+        {
+          currentPosition = data.CurrentPosition;
+        }
+      }
+      else if (side == vtkMRMLIhepMlcControlNode::Side2 && side == data.Side)
+      {
+        if (data.CurrentPosition > 0)
+        {
+          currentPosition = data.CurrentPosition;
+        }
+        else
+        {
+          currentPosition = 0;
+        }
+        
+        if (data.isMovingToTheSwitch())
+        {
+          currentPosition = data.CurrentPosition - 2 * data.EncoderCounts;
+        }
+        else if (data.isMovingFromTheSwitch())
+        {
+          currentPosition = data.CurrentPosition + 2 * data.EncoderCounts;
+        }
+        else if (data.isStopped())
+        {
+          currentPosition = data.CurrentPosition;
+        }
+      }
+    }
 //    return leafData.RequiredPosition - leafData.CurrentPosition;
     return data.RequiredPosition - currentPosition;
+*/
   }
   return 0;
 }
@@ -1138,4 +1248,102 @@ int vtkMRMLIhepMlcControlNode::GetLayersFromString(const char* name)
     }
   // unknown name
   return -1;
+}
+
+//-----------------------------------------------------------------------------
+int vtkMRMLIhepMlcControlNode::LeafData::GetActualCurrentPosition() const
+{
+  std::cout << "GetActualCurrentPosition: Current position: " << this->CurrentPosition
+    << ", Required position: " << this->RequiredPosition << ", EncoderCounts: " << this->EncoderCounts << " ";
+  if (this->Side != vtkMRMLIhepMlcControlNode::Side_Last && this->Layer != vtkMRMLIhepMlcControlNode::Layer_Last)
+  {
+    if (this->SwitchState)
+    {
+      std::cout << "GetActualCurrentPosition: Switch is pressed, ";
+      return 0;
+    }
+    else
+    {
+      int currentPosition = -1;
+      if (this->Side == vtkMRMLIhepMlcControlNode::Side1)
+      {
+        std::cout << "Side1, ";
+        if (this->CurrentPosition > 0)
+        {
+          currentPosition = this->CurrentPosition;
+        }
+        else
+        {
+          currentPosition = 0;
+        }
+
+        if (this->isStopped())
+        {
+          std::cout << "Stopped." << std::endl;
+          return (currentPosition);
+        }
+        else if (this->isMovingToTheSwitch())
+        {
+          std::cout << "Moving to switch." << std::endl;
+          return (currentPosition - 2 * this->EncoderCounts);
+        }
+        else if (this->isMovingFromTheSwitch())
+        {
+          std::cout << "Moving from switch." << std::endl;
+          return (currentPosition + 2 * this->EncoderCounts);
+        }
+        else
+        {
+          std::cout << "Impossible." << std::endl;
+          return -1;
+        }
+      }
+      else if (this->Side == vtkMRMLIhepMlcControlNode::Side2)
+      {
+        std::cout << "Side2, ";
+        if (this->CurrentPosition > 0)
+        {
+          currentPosition = this->CurrentPosition;
+        }
+        else
+        {
+          currentPosition = 0;
+        }
+        
+        if (this->isStopped())
+        {
+          std::cout << "Stopped." << std::endl;
+          return currentPosition;
+        }
+        else if (this->isMovingToTheSwitch())
+        {
+          std::cout << "Moving to switch." << std::endl;
+          return (currentPosition - 2 * this->EncoderCounts);
+        }
+        else if (this->isMovingFromTheSwitch())
+        {
+          std::cout << "Moving from switch." << std::endl;
+          return (currentPosition + 2 * this->EncoderCounts);
+        }
+        else
+        {
+          std::cout << "Impossible." << std::endl;
+          return -1;
+        }
+      }
+    }
+  }
+  return -1;
+}
+
+//-----------------------------------------------------------------------------
+int vtkMRMLIhepMlcControlNode::LeafData::GetRelativeMovement() const
+{
+  int pos = this->GetActualCurrentPosition();
+  std::cout << "GetActualCurrentPosition: Actual current position: " << pos << std::endl;
+  if (pos != -1)
+  {
+    return this->RequiredPosition - pos;
+  }
+  return 0;
 }
