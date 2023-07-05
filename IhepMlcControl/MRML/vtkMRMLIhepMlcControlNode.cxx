@@ -691,6 +691,34 @@ int vtkMRMLIhepMlcControlNode::GetLeafOffsetLayerByAddress(int address, int& key
 }
 
 //----------------------------------------------------------------------------
+int vtkMRMLIhepMlcControlNode::GetLeafOffsetByAddressInLayer(int address, int& key,
+  SideType& side, LayerType layer)
+{
+  for (auto iter = LeavesDataMap.begin(); iter != LeavesDataMap.end(); ++iter)
+  {
+    int leavesPairKey = (*iter).first;
+    const PairOfLeavesData& leavesPair = (*iter).second;
+    const vtkMRMLIhepMlcControlNode::LeafData& leafSide1 = leavesPair.first;
+    const vtkMRMLIhepMlcControlNode::LeafData& leafSide2 = leavesPair.second;
+    if (leafSide1.Address == address && leafSide1.Layer == layer)
+    {
+      side = vtkMRMLIhepMlcControlNode::Side1;
+      key = leavesPairKey;
+      return leavesPairKey - IHEP_PAIR_OF_LEAVES_PER_LAYER * static_cast<int>(leafSide1.Layer);
+    }
+    if (leafSide2.Address == address && leafSide2.Layer == layer)
+    {
+      side = vtkMRMLIhepMlcControlNode::Side2;
+      key = leavesPairKey;
+      return leavesPairKey - IHEP_PAIR_OF_LEAVES_PER_LAYER * static_cast<int>(leafSide2.Layer);
+    }
+  }
+  side = vtkMRMLIhepMlcControlNode::Side_Last;
+  key = -1;
+  return -1;
+}
+
+//----------------------------------------------------------------------------
 bool vtkMRMLIhepMlcControlNode::GetLeafDataByAddress(LeafData& leafData, int address)
 {
   int key;
@@ -698,6 +726,19 @@ bool vtkMRMLIhepMlcControlNode::GetLeafDataByAddress(LeafData& leafData, int add
   vtkMRMLIhepMlcControlNode::SideType side = Side_Last;
   vtkMRMLIhepMlcControlNode::LayerType layer = Layer_Last;
   if ((offset = this->GetLeafOffsetLayerByAddress(address, key, side, layer)) != -1)
+  {
+    return this->GetLeafData(leafData, offset, side, layer);
+  }
+  return false;
+}
+
+//----------------------------------------------------------------------------
+bool vtkMRMLIhepMlcControlNode::GetLeafDataByAddressInLayer(LeafData& leafData, int address, vtkMRMLIhepMlcControlNode::LayerType layer)
+{
+  int key;
+  int offset = -1;
+  vtkMRMLIhepMlcControlNode::SideType side = Side_Last;
+  if ((offset = this->GetLeafOffsetByAddressInLayer(address, key, side, layer)) != -1)
   {
     return this->GetLeafData(leafData, offset, side, layer);
   }

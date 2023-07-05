@@ -56,16 +56,37 @@ public:
   /// Destructor
   ~qSlicerIhepMlcDeviceLogic() override;
 
-public:
   /// Set the current MRML scene to the widget
-  Q_INVOKABLE void setMRMLScene(vtkMRMLScene* scene) override;
-  QSerialPort* openDevice(const QString& deviceName, vtkMRMLIhepMlcControlNode::LayerType layer);
+  void setMRMLScene(vtkMRMLScene* scene) override;
+  Q_INVOKABLE QSerialPort* openDevice(const QString& deviceName, vtkMRMLIhepMlcControlNode::LayerType layer);
+  Q_INVOKABLE bool closeDevice(const QSerialPort*);
+
+  QByteArray getParametersCommandByAddress(int address);
+  QByteArray getRelativeParametersCommandByAddress(int address);
+  QByteArray getStateCommandByAddress(int address);
+  QByteArray getStartCommandByAddress(int address);
+  QByteArray getStopCommandByAddress(int address);
+
+  QByteArray getStartBroadcastCommand();
+  QByteArray getStopBroadcastCommand();
+  QByteArray getOpenBroadcastCommand();
+
+  QList< QByteArray > getParametersCommands(const std::vector<int>& addresses);
+  QList< QByteArray > getRelativeParametersCommands(const std::vector<int>& addresses);
+  QList< QByteArray > getStateCommands(const std::vector<int>& addresses);
+  QList< QByteArray > getStopCommands(const std::vector<int>& addresses);
+  QList< QByteArray > getStartCommands(const std::vector<int>& addresses);
 
 public slots:
+  /// Set IhepMlcControl MRML node (Parameter node)
+  void setParameterNode(vtkMRMLNode* node);
   /// Serial port
   void serialPortBytesWritten(qint64);
   void serialPortDataReady();
   void serialPortError(QSerialPort::SerialPortError);
+
+  void addCommandToQueue(const QByteArray& com);
+  void addCommandsToQueue(const QList< QByteArray >& coms);
 
 protected slots:
   /// Called when a node is added to the scene
@@ -77,13 +98,21 @@ protected slots:
 signals:
   void writeNextCommand();
   void writeLastCommand();
+  void leafPositionChanged(int address,
+    vtkMRMLIhepMlcControlNode::LayerType layer,
+    vtkMRMLIhepMlcControlNode::SideType side,
+    int requiredPosition, int currentPosition);
+  void leafSwitchChanged(int address,
+    vtkMRMLIhepMlcControlNode::LayerType layer,
+    vtkMRMLIhepMlcControlNode::SideType side,
+    bool switchIsPressed);
 
 private slots:
   void writeNextCommandFromQueue();
   void writeLastCommandOnceAgain();
 
-
 protected:
+  virtual void updateLogicFromMRML();
   QScopedPointer<qSlicerIhepMlcDeviceLogicPrivate> d_ptr;
 
 private:

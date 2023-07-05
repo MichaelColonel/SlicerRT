@@ -167,9 +167,11 @@ public:
   /// @return offset (begins with 0 pairOfLeaves offset position)
   /// get key, side, layer values
   int GetLeafOffsetLayerByAddress(int address, int& key, SideType& side, LayerType& layer);
+  int GetLeafOffsetByAddressInLayer(int address, int& key, SideType& side, LayerType layer = Layer1);
   bool GetLeafData(LeafData& leafData, int offset = 0, SideType side = Side1, LayerType layer = Layer1);
   bool SetLeafData(const LeafData& leafData, int offset = 0, SideType side = Side1, LayerType layer = Layer1);
   bool GetLeafDataByAddress(LeafData& leafData, int address);
+  bool GetLeafDataByAddressInLayer(LeafData& leafData, int address, LayerType layer = Layer1);
   bool SetLeafDataByAddress(const LeafData& leafData, int address);
   /// Update only parameters responsible for current position of the leaf
   bool SetLeafDataState(const LeafData& leafData);

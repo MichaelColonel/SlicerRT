@@ -6,5 +6,9 @@
     <file>Icons/gray.png</file>
     <file>Icons/green.png</file>
     <file>Icons/red.png</file>
+    <file>Icons/side1-away-from-switch.png</file>
+    <file>Icons/side2-away-from-switch.png</file>
+    <file>Icons/side1-to-the-switch.png</file>
+    <file>Icons/side2-to-the-switch.png</file>
   </qresource>
 </RCC>

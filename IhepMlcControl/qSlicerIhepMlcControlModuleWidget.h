@@ -131,6 +131,8 @@ public slots:
 signals:
   void writeNextCommand();
   void writeLastCommand();
+  void writeCommand(const QByteArray& com, vtkMRMLIhepMlcControlNode::LayerType);
+  void writeCommands(const QList< QByteArray >& coms, vtkMRMLIhepMlcControlNode::LayerType);
 
 private slots:
   void writeNextCommandFromQueue();

@@ -291,10 +291,10 @@ void qSlicerIhepMlcControlLayoutWidgetPrivate::updateMlcPositionsFromLeavesData(
     pairOfLeavesWidgets.Side1AddressLabel->setText(QString::number(side1.Address));
     pairOfLeavesWidgets.Side2AddressLabel->setText(QString::number(side2.Address));
     pairOfLeavesWidgets.PairOfLeavesWidget->setLeavesNumbers(side1.Address, side2.Address);
-    pairOfLeavesWidgets.PairOfLeavesWidget->setMinCurrentValue(side1.EncoderCounts);
-    pairOfLeavesWidgets.PairOfLeavesWidget->setMaxCurrentValue(side2.EncoderCounts);
-    pairOfLeavesWidgets.PairOfLeavesWidget->setMinRequiredValue(side1.Steps);
-    pairOfLeavesWidgets.PairOfLeavesWidget->setMaxRequiredValue(side2.Steps);
+    pairOfLeavesWidgets.PairOfLeavesWidget->setMinCurrentValue(side1.GetActualCurrentPosition());
+    pairOfLeavesWidgets.PairOfLeavesWidget->setMaxCurrentValue(side2.GetActualCurrentPosition());
+    pairOfLeavesWidgets.PairOfLeavesWidget->setMinRequiredValue(side1.RequiredPosition);
+    pairOfLeavesWidgets.PairOfLeavesWidget->setMaxRequiredValue(side2.RequiredPosition);
     (side1.SwitchState) ?
       pairOfLeavesWidgets.Side1StateLabel->setPixmap(QPixmap(":/indicators/Icons/green.png")) :
       pairOfLeavesWidgets.Side1StateLabel->setPixmap(QPixmap(":/indicators/Icons/gray.png"));
@@ -821,7 +821,7 @@ void qSlicerIhepMlcControlLayoutWidget::setLeafData(const vtkMRMLIhepMlcControlN
     qSlicerAbstractPairOfLeavesWidget* leavesWidget = widgets->PairOfLeavesWidget;
     if (data.SwitchState)
     {
-      label->setPixmap(QPixmap(":/indicators/Icons/green.png"));
+      label->setPixmap(QPixmap(":/indicators/Icons/red.png"));
       if (side == vtkMRMLIhepMlcControlNode::Side1 && side == data.Side)
       {
         leavesWidget->setMinCurrentValueFromLeafData(0);
@@ -833,7 +833,6 @@ void qSlicerIhepMlcControlLayoutWidget::setLeafData(const vtkMRMLIhepMlcControlN
     }
     else
     {
-      label->setPixmap(QPixmap(":/indicators/Icons/gray.png"));
       if (side == vtkMRMLIhepMlcControlNode::Side1 && side == data.Side)
       {
         if (data.CurrentPosition > 0)
@@ -847,14 +846,17 @@ void qSlicerIhepMlcControlLayoutWidget::setLeafData(const vtkMRMLIhepMlcControlN
         if (data.isMovingToTheSwitch())
         {
           leavesWidget->setMinCurrentValueFromLeafData(data.CurrentPosition - 2 * data.EncoderCounts);
+          label->setPixmap(QPixmap(":/indicators/Icons/side1-to-the-switch.png"));
         }
         else if (data.isMovingFromTheSwitch())
         {
           leavesWidget->setMinCurrentValueFromLeafData(data.CurrentPosition + 2 * data.EncoderCounts);
+          label->setPixmap(QPixmap(":/indicators/Icons/side1-away-from-switch.png"));
         }
         else if (data.isStopped())
         {
           leavesWidget->setMinCurrentValueFromLeafData(data.CurrentPosition);
+          label->setPixmap(QPixmap(":/indicators/Icons/green.png"));
         }
       }
       else if (side == vtkMRMLIhepMlcControlNode::Side2 && side == data.Side)
@@ -871,14 +873,17 @@ void qSlicerIhepMlcControlLayoutWidget::setLeafData(const vtkMRMLIhepMlcControlN
         if (data.isMovingToTheSwitch())
         {
           leavesWidget->setMaxCurrentValueFromLeafData(data.CurrentPosition - 2 * data.EncoderCounts);
+          label->setPixmap(QPixmap(":/indicators/Icons/side2-to-the-switch.png"));
         }
         else if (data.isMovingFromTheSwitch())
         {
           leavesWidget->setMaxCurrentValueFromLeafData(data.CurrentPosition + 2 * data.EncoderCounts);
+          label->setPixmap(QPixmap(":/indicators/Icons/side2-away-from-switch.png"));
         }
         else if (data.isStopped())
         {
           leavesWidget->setMaxCurrentValueFromLeafData(data.CurrentPosition);
+          label->setPixmap(QPixmap(":/indicators/Icons/green.png"));
         }
       }
     }
