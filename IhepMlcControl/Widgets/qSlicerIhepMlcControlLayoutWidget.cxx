@@ -18,8 +18,11 @@
 
 ==============================================================================*/
 
+// Qt includes
 #include <QDebug>
 #include <QRadioButton>
+// CTK includes
+#include <ctkCheckBox.h>
 
 // IhepMlcControl Widgets includes
 #include "qSlicerIhepMlcControlLayoutWidget.h"
@@ -31,11 +34,13 @@
 namespace {
 
 struct ContainerWidgets {
+  ctkCheckBox* Side1EnabledCheckBox{ nullptr };
   QLabel* Side1AddressLabel{ nullptr };
   QLabel* Side1StateLabel{ nullptr };
   qSlicerAbstractPairOfLeavesWidget* PairOfLeavesWidget{ nullptr };
   QLabel* Side2AddressLabel{ nullptr };
   QLabel* Side2StateLabel{ nullptr };
+  ctkCheckBox* Side2EnabledCheckBox{ nullptr };
 };
 
 const struct PredefinedPositionDescription {
@@ -203,7 +208,8 @@ bool qSlicerIhepMlcControlLayoutWidgetPrivate::isNumberOfLeafPairsChanged() cons
 ContainerWidgets* qSlicerIhepMlcControlLayoutWidgetPrivate::getPairOfLeavesContainerByIndex(int index)
 {
   Q_Q(qSlicerIhepMlcControlLayoutWidget);
-  if (index >= this->ContainerWidgetsVector.size())
+  size_t ind = index;
+  if (ind >= this->ContainerWidgetsVector.size())
   {
     return nullptr;
   }
@@ -295,12 +301,16 @@ void qSlicerIhepMlcControlLayoutWidgetPrivate::updateMlcPositionsFromLeavesData(
     pairOfLeavesWidgets.PairOfLeavesWidget->setMaxCurrentValue(side2.GetActualCurrentPosition());
     pairOfLeavesWidgets.PairOfLeavesWidget->setMinRequiredValue(side1.RequiredPosition);
     pairOfLeavesWidgets.PairOfLeavesWidget->setMaxRequiredValue(side2.RequiredPosition);
+    q->setLeafData(side1);
+    q->setLeafData(side2);
+/*
     (side1.SwitchState) ?
       pairOfLeavesWidgets.Side1StateLabel->setPixmap(QPixmap(":/indicators/Icons/green.png")) :
       pairOfLeavesWidgets.Side1StateLabel->setPixmap(QPixmap(":/indicators/Icons/gray.png"));
     (side2.SwitchState) ?
       pairOfLeavesWidgets.Side2StateLabel->setPixmap(QPixmap(":/indicators/Icons/green.png")) :
       pairOfLeavesWidgets.Side2StateLabel->setPixmap(QPixmap(":/indicators/Icons/gray.png"));
+*/
   }
 }
 
@@ -340,6 +350,9 @@ void qSlicerIhepMlcControlLayoutWidget::fillLeavesControlContainer(int pairOfLea
 
     ContainerWidgets widgets;
 
+    widgets.Side1EnabledCheckBox = new ctkCheckBox(this);
+    widgets.Side1EnabledCheckBox->setChecked(true);
+
     widgets.Side1AddressLabel = new QLabel(QString::number(side1.Address), this);
     widgets.Side1AddressLabel->setAlignment(Qt::AlignHCenter);
     widgets.Side1AddressLabel->setMinimumSize(widgets.Side1AddressLabel->sizeHint());
@@ -361,11 +374,16 @@ void qSlicerIhepMlcControlLayoutWidget::fillLeavesControlContainer(int pairOfLea
     widgets.Side2AddressLabel->setAlignment(Qt::AlignHCenter);
     widgets.Side2AddressLabel->setMinimumSize(widgets.Side2AddressLabel->sizeHint());
 
-    d->GridLayout_Leaves->addWidget(widgets.Side2AddressLabel, 0, pairOfLeavesIndex + 1);
-    d->GridLayout_Leaves->addWidget(widgets.Side2StateLabel, 1, pairOfLeavesIndex + 1);
-    d->GridLayout_Leaves->addWidget(widgets.PairOfLeavesWidget, 2, pairOfLeavesIndex + 1);
-    d->GridLayout_Leaves->addWidget(widgets.Side1StateLabel, 3, pairOfLeavesIndex + 1);
-    d->GridLayout_Leaves->addWidget(widgets.Side1AddressLabel, 4, pairOfLeavesIndex + 1);
+    widgets.Side2EnabledCheckBox = new ctkCheckBox(this);
+    widgets.Side2EnabledCheckBox->setChecked(true);
+
+    d->GridLayout_Leaves->addWidget(widgets.Side2EnabledCheckBox, 0, pairOfLeavesIndex + 1);
+    d->GridLayout_Leaves->addWidget(widgets.Side2AddressLabel, 1, pairOfLeavesIndex + 1);
+    d->GridLayout_Leaves->addWidget(widgets.Side2StateLabel, 2, pairOfLeavesIndex + 1);
+    d->GridLayout_Leaves->addWidget(widgets.PairOfLeavesWidget, 3, pairOfLeavesIndex + 1);
+    d->GridLayout_Leaves->addWidget(widgets.Side1StateLabel, 4, pairOfLeavesIndex + 1);
+    d->GridLayout_Leaves->addWidget(widgets.Side1AddressLabel, 5, pairOfLeavesIndex + 1);
+    d->GridLayout_Leaves->addWidget(widgets.Side1EnabledCheckBox, 6, pairOfLeavesIndex + 1);
 
     widgets.PairOfLeavesWidget->setLeavesNumbers(side1.Address, side2.Address);
     widgets.PairOfLeavesWidget->setControlEnabled(false);
@@ -742,14 +760,14 @@ void qSlicerIhepMlcControlLayoutWidget::onLeafAddressPositionChanged(int address
     int minCurrentValue = d->ParameterNode->DistanceToInternalCounterValue(currentPosition);
     int minRequiredValue = d->ParameterNode->DistanceToInternalCounterValue(requiredPosition);
     widgets->PairOfLeavesWidget->setMinCurrentValue(minCurrentValue);
-    widgets->PairOfLeavesWidget->setMinRequiredValue(minCurrentValue);
+    widgets->PairOfLeavesWidget->setMinRequiredValue(minRequiredValue);
   }
   else if (widgets && side == vtkMRMLIhepMlcControlNode::Side2)
   {
     int maxCurrentValue = d->ParameterNode->DistanceToInternalCounterValue(currentPosition);
     int maxRequiredValue = d->ParameterNode->DistanceToInternalCounterValue(requiredPosition);
     widgets->PairOfLeavesWidget->setMaxCurrentValue(maxCurrentValue);
-    widgets->PairOfLeavesWidget->setMaxRequiredValue(maxCurrentValue);
+    widgets->PairOfLeavesWidget->setMaxRequiredValue(maxRequiredValue);
   }
 }
 
@@ -931,6 +949,85 @@ void qSlicerIhepMlcControlLayoutWidget::onSetOpenLeafParametersClicked()
 //-----------------------------------------------------------------------------
 void qSlicerIhepMlcControlLayoutWidget::onSetCloseLeafParametersClicked()
 {
+}
+
+//-----------------------------------------------------------------------------
+void qSlicerIhepMlcControlLayoutWidget::onLeafPositionChanged(int address,
+  vtkMRMLIhepMlcControlNode::LayerType layer,
+  vtkMRMLIhepMlcControlNode::SideType side,
+  int requiredPosition, int currentPosition)
+{
+  Q_D(qSlicerIhepMlcControlLayoutWidget);
+
+  if (!d->ParameterNode)
+  {
+    qCritical() << Q_FUNC_INFO << ": Invalid parameter node";
+    return;
+  }
+
+  vtkMRMLIhepMlcControlNode::SideType side_;
+  ContainerWidgets* widgets = d->getPairOfLeavesContainerByLeafAddress(address, side_);
+  if (layer != d->getSelectedMlcLayer())
+  {
+    qWarning() << Q_FUNC_INFO << ": Wrong MLC layer to display leaf data";
+    return;
+  }
+
+  if (widgets)
+  {
+    qSlicerAbstractPairOfLeavesWidget* leavesWidget = widgets->PairOfLeavesWidget;
+    if (side == vtkMRMLIhepMlcControlNode::Side1 && side == side_)
+    {
+      leavesWidget->setMinCurrentValueFromLeafData(currentPosition);
+      leavesWidget->setMinRequiredValueFromLeafData(requiredPosition);
+    }
+    else if (side == vtkMRMLIhepMlcControlNode::Side2 && side == side_)
+    {
+      leavesWidget->setMaxCurrentValueFromLeafData(currentPosition);
+      leavesWidget->setMaxRequiredValueFromLeafData(requiredPosition);
+    }
+  }
+}
+
+//-----------------------------------------------------------------------------
+void qSlicerIhepMlcControlLayoutWidget::onLeafSwitchChanged(int address,
+  vtkMRMLIhepMlcControlNode::LayerType layer,
+  vtkMRMLIhepMlcControlNode::SideType side,
+  bool switchIsPressed)
+{
+  Q_D(qSlicerIhepMlcControlLayoutWidget);
+
+  if (!d->ParameterNode)
+  {
+    qCritical() << Q_FUNC_INFO << ": Invalid parameter node";
+    return;
+  }
+
+  vtkMRMLIhepMlcControlNode::SideType side_;
+  ContainerWidgets* widgets = d->getPairOfLeavesContainerByLeafAddress(address, side_);
+  if (layer != d->getSelectedMlcLayer())
+  {
+    qWarning() << Q_FUNC_INFO << ": Wrong MLC layer to display leaf data";
+    return;
+  }
+
+  if (widgets)
+  {
+    QLabel* label = (side == vtkMRMLIhepMlcControlNode::Side1) ? widgets->Side1StateLabel : widgets->Side2StateLabel;
+    qSlicerAbstractPairOfLeavesWidget* leavesWidget = widgets->PairOfLeavesWidget;
+    if (switchIsPressed)
+    {
+      label->setPixmap(QPixmap(":/indicators/Icons/red.png"));
+      if (side == vtkMRMLIhepMlcControlNode::Side1 && side == side_)
+      {
+        leavesWidget->setMinCurrentValueFromLeafData(0);
+      }
+      else if (side == vtkMRMLIhepMlcControlNode::Side2 && side == side_)
+      {
+        leavesWidget->setMaxCurrentValueFromLeafData(0);
+      }
+    }
+  }
 }
 
 //-----------------------------------------------------------------------------

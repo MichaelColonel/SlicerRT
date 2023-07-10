@@ -68,6 +68,14 @@ public slots:
   void updateWidgetFromMRML();
   void onMlcLayerChanged(QAbstractButton* radioButton);
   void onMlcLayerChanged(vtkMRMLIhepMlcControlNode::LayerType);
+  void onLeafPositionChanged(int address,
+    vtkMRMLIhepMlcControlNode::LayerType layer,
+    vtkMRMLIhepMlcControlNode::SideType side,
+    int requiredPosition, int currentPosition);
+  void onLeafSwitchChanged(int address,
+    vtkMRMLIhepMlcControlNode::LayerType layer,
+    vtkMRMLIhepMlcControlNode::SideType side,
+    bool switchIsPressed);
 
   void onSetCurrentLeafParametersClicked();
   void onSetOpenLeafParametersClicked();

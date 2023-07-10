@@ -148,6 +148,9 @@ public:
   vtkGetMacro(ParallelBeam, bool);
   vtkSetMacro(ParallelBeam, bool);
 
+  vtkGetMacro(DebugMode, bool);
+  vtkSetMacro(DebugMode, bool);
+
   vtkGetMacro(PairOfLeavesSize, double);
   vtkSetMacro(PairOfLeavesSize, double);
 
@@ -344,6 +347,7 @@ private:
       { { 63, true, false, 7, 10000, 19300, Side1, Layer2, false, true },
         { 64, true, false, 7, 10000, 19300, Side2, Layer2, false, true } } }
     };
+  bool DebugMode{ false };
 };
 
 #endif

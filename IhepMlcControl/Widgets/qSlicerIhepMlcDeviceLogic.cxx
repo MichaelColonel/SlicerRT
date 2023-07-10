@@ -824,6 +824,7 @@ void qSlicerIhepMlcDeviceLogic::serialPortDataReady()
         {
           emit leafSwitchChanged(leafData.Address, leafData.Layer, leafData.Side, leafData.SwitchState);
         }
+        emit leafStateCommandBufferChanged(buf);
       }
 
       if (d->ResponseBuffer.size() > commandSize)

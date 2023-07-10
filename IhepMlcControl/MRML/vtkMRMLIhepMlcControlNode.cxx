@@ -88,6 +88,7 @@ void vtkMRMLIhepMlcControlNode::WriteXML(ostream& of, int nIndent)
   // Write all MRML node attributes into output stream
   vtkMRMLWriteXMLBeginMacro(of);
   vtkMRMLWriteXMLBooleanMacro(parallelBeam, ParallelBeam);
+  vtkMRMLWriteXMLBooleanMacro(debugMode, DebugMode);
   vtkMRMLWriteXMLEnumMacro(orientation, Orientation);
   vtkMRMLWriteXMLEnumMacro(layers, Layers);
   vtkMRMLWriteXMLIntMacro(numberOfLeafPairs, NumberOfLeafPairs);
@@ -107,6 +108,7 @@ void vtkMRMLIhepMlcControlNode::ReadXMLAttributes(const char** atts)
 
   vtkMRMLReadXMLBeginMacro(atts);
   vtkMRMLReadXMLBooleanMacro(parallelBeam, ParallelBeam);
+  vtkMRMLReadXMLBooleanMacro(debugMode, DebugMode);
   vtkMRMLReadXMLEnumMacro(orientation, Orientation);
   vtkMRMLReadXMLEnumMacro(layers, Layers);
   vtkMRMLReadXMLIntMacro(numberOfLeafPairs, NumberOfLeafPairs);
@@ -142,6 +144,7 @@ void vtkMRMLIhepMlcControlNode::Copy(vtkMRMLNode *anode)
   vtkMRMLCopyBeginMacro(node);
   // add new parameters here
   vtkMRMLCopyBooleanMacro(ParallelBeam);
+  vtkMRMLCopyBooleanMacro(DebugMode);
   vtkMRMLCopyEnumMacro(Orientation);
   vtkMRMLCopyEnumMacro(Layers);
   vtkMRMLCopyIntMacro(NumberOfLeafPairs);
@@ -170,6 +173,7 @@ void vtkMRMLIhepMlcControlNode::CopyContent(vtkMRMLNode *anode, bool deepCopy/*=
 
   vtkMRMLCopyBeginMacro(node);
   // add new parameters here
+  vtkMRMLCopyBooleanMacro(DebugMode);
   vtkMRMLCopyBooleanMacro(ParallelBeam);
   vtkMRMLCopyEnumMacro(Orientation);
   vtkMRMLCopyEnumMacro(Layers);
@@ -178,6 +182,8 @@ void vtkMRMLIhepMlcControlNode::CopyContent(vtkMRMLNode *anode, bool deepCopy/*=
   vtkMRMLCopyFloatMacro(IsocenterOffset);
   vtkMRMLCopyFloatMacro(DistanceBetweenTwoLayers);
   vtkMRMLCopyFloatMacro(OffsetBetweenTwoLayers);
+  this->LeavesDataMap = node->GetPairOfLeavesMap();
+
   vtkMRMLCopyEndMacro();
 }
 
@@ -189,6 +195,7 @@ void vtkMRMLIhepMlcControlNode::PrintSelf(ostream& os, vtkIndent indent)
   vtkMRMLPrintBeginMacro(os, indent);
   // add new parameters here
   vtkMRMLPrintBooleanMacro(ParallelBeam);
+  vtkMRMLPrintBooleanMacro(DebugMode);
   vtkMRMLPrintEndMacro(); 
 }
 

@@ -58,8 +58,8 @@ public:
 
   /// Set the current MRML scene to the widget
   void setMRMLScene(vtkMRMLScene* scene) override;
-  Q_INVOKABLE QSerialPort* openDevice(const QString& deviceName, vtkMRMLIhepMlcControlNode::LayerType layer);
-  Q_INVOKABLE bool closeDevice(const QSerialPort*);
+  QSerialPort* openDevice(const QString& deviceName, vtkMRMLIhepMlcControlNode::LayerType layer);
+  bool closeDevice(const QSerialPort*);
 
   QByteArray getParametersCommandByAddress(int address);
   QByteArray getRelativeParametersCommandByAddress(int address);
@@ -106,6 +106,7 @@ signals:
     vtkMRMLIhepMlcControlNode::LayerType layer,
     vtkMRMLIhepMlcControlNode::SideType side,
     bool switchIsPressed);
+  void leafStateCommandBufferChanged(const vtkMRMLIhepMlcControlNode::CommandBufferType& stateBuffer);
 
 private slots:
   void writeNextCommandFromQueue();

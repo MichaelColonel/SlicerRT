@@ -2101,6 +2101,8 @@ void qSlicerIhepMlcControlModuleWidget::onLeavesSetRelativeParametesClicked()
 ///      qDebug() << Q_FUNC_INFO << "Leaf parameters command: " << leafStateCommand;
       d->CommandQueue.push(leafStateCommand);
     }
+    QByteArray com = d->getStartBroadcastCommand();
+    d->CommandQueue.push(com);
     QTimer::singleShot(0, this, SLOT(writeNextCommandFromQueue()));
 ///    emit writeNextCommand();
   }

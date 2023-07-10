@@ -1,6 +1,12 @@
 <RCC>
   <qresource>
     <file>Icons/IhepMlcControl.png</file>
+    <file>Icons/stop.png</file>
+    <file>Icons/start.png</file>
+    <file>Icons/connect.png</file>
+    <file>Icons/disconnect.png</file>
+    <file>Icons/info.png</file>
+    <file>Icons/open.png</file>
   </qresource>
   <qresource prefix="indicators">
     <file>Icons/gray.png</file>
