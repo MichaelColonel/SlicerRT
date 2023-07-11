@@ -101,6 +101,7 @@ public slots:
 
   /// Leaves device control
   void onConnectMlcLayerDevicesClicked();
+  void onContinuousStateMonitoringToggled(bool toggled);
 
   /// Leaves parameters control
   void onLeavesSetParametersClicked();
@@ -117,26 +118,11 @@ public slots:
   /// Update widget GUI from MLC Control parameters node
   void updateWidgetFromMRML();
 
-  /// Serial port
-  void serialPortLayer1BytesWritten(qint64);
-  void serialPortLayer1DataReady();
-  void serialPortLayer1Error(QSerialPort::SerialPortError);
-//  void serialPortLayer2BytesWritten(qint64);
-//  void serialPortLayer2DataReady();
-//  void serialPortLayer2Error(QSerialPort::SerialPortError);
-
-  /// MLC state timer
-  void onMlcStateTimeoutExpired();
-
 signals:
   void writeNextCommand();
   void writeLastCommand();
   void writeCommand(const QByteArray& com, vtkMRMLIhepMlcControlNode::LayerType);
   void writeCommands(const QList< QByteArray >& coms, vtkMRMLIhepMlcControlNode::LayerType);
-
-private slots:
-  void writeNextCommandFromQueue();
-  void writeLastCommandOnceAgain();
 
 protected:
   QScopedPointer<qSlicerIhepMlcControlModuleWidgetPrivate> d_ptr;

@@ -923,7 +923,7 @@ QSerialPort* qSlicerIhepMlcDeviceLogic::openDevice(const QString& deviceName, vt
     QObject::connect(d->MlcLayerSerialPort, SIGNAL(bytesWritten(qint64)), this, SLOT(serialPortBytesWritten(qint64)));
     QObject::connect(d->MlcLayerSerialPort, SIGNAL(error(QSerialPort::SerialPortError)), this, SLOT(serialPortError(QSerialPort::SerialPortError)));
 
-    QObject::connect(d->TimerCommandQueue, SIGNAL(timeout()), this, SLOT(writeLastCommandOnceAgain()));
+    QObject::connect(d->TimerCommandQueue, SIGNAL(timeout()), this, SLOT(writeNextCommandFromQueue()));
     QObject::connect(this, SIGNAL(writeLastCommand()), this, SLOT(writeLastCommandOnceAgain()));
     QObject::connect(this, SIGNAL(writeNextCommand()), this, SLOT(writeNextCommandFromQueue()));
 
@@ -938,7 +938,7 @@ QSerialPort* qSlicerIhepMlcDeviceLogic::openDevice(const QString& deviceName, vt
     QObject::disconnect(d->MlcLayerSerialPort, SIGNAL(bytesWritten(qint64)), this, SLOT(serialPortBytesWritten(qint64)));
     QObject::disconnect(d->MlcLayerSerialPort, SIGNAL(error(QSerialPort::SerialPortError)), this, SLOT(serialPortError(QSerialPort::SerialPortError)));
 
-    QObject::disconnect(d->TimerCommandQueue, SIGNAL(timeout()), this, SLOT(writeLastCommandOnceAgain()));
+    QObject::disconnect(d->TimerCommandQueue, SIGNAL(timeout()), this, SLOT(writeNextCommandFromQueue()));
     QObject::disconnect(this, SIGNAL(writeLastCommand()), this, SLOT(writeLastCommandOnceAgain()));
     QObject::disconnect(this, SIGNAL(writeNextCommand()), this, SLOT(writeNextCommandFromQueue()));
 
@@ -973,7 +973,7 @@ bool qSlicerIhepMlcDeviceLogic::closeDevice(const QSerialPort* port)
     QObject::disconnect(d->MlcLayerSerialPort, SIGNAL(bytesWritten(qint64)), this, SLOT(serialPortBytesWritten(qint64)));
     QObject::disconnect(d->MlcLayerSerialPort, SIGNAL(error(QSerialPort::SerialPortError)), this, SLOT(serialPortError(QSerialPort::SerialPortError)));
 
-    QObject::disconnect(d->TimerCommandQueue, SIGNAL(timeout()), this, SLOT(writeLastCommandOnceAgain()));
+    QObject::disconnect(d->TimerCommandQueue, SIGNAL(timeout()), this, SLOT(writeNextCommandFromQueue()));
     QObject::disconnect(this, SIGNAL(writeLastCommand()), this, SLOT(writeLastCommandOnceAgain()));
     QObject::disconnect(this, SIGNAL(writeNextCommand()), this, SLOT(writeNextCommandFromQueue()));
 
@@ -1147,3 +1147,12 @@ void qSlicerIhepMlcDeviceLogic::updateLogicFromMRML()
   Q_D(qSlicerIhepMlcDeviceLogic);
   qDebug() << Q_FUNC_INFO << "Update logic from MRML";
 }
+
+//-----------------------------------------------------------------------------
+void qSlicerIhepMlcDeviceLogic::enableStateMonitoring(bool enableMonitoring)
+{
+  Q_D(qSlicerIhepMlcDeviceLogic);
+  qDebug() << Q_FUNC_INFO << ": state " << enableMonitoring;
+  d->TimerCommandQueue->start();
+}
+

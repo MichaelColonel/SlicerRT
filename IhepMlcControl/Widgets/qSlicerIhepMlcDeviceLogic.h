@@ -87,6 +87,7 @@ public slots:
 
   void addCommandToQueue(const QByteArray& com);
   void addCommandsToQueue(const QList< QByteArray >& coms);
+  void enableStateMonitoring(bool);
 
 protected slots:
   /// Called when a node is added to the scene

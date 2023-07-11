@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>559</width>
-    <height>1257</height>
+    <width>575</width>
+    <height>1150</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -508,6 +508,9 @@
                <property name="text">
                 <string>Continuous state monitoring</string>
                </property>
+               <property name="checked">
+                <bool>true</bool>
+               </property>
               </widget>
              </item>
             </layout>
@@ -586,7 +589,7 @@
        </property>
        <layout class="QGridLayout" name="gridLayout_14">
         <item row="0" column="0">
-         <layout class="QGridLayout" name="gridLayout_11">
+         <layout class="QGridLayout" name="GridLayout_LeafParameters">
           <item row="2" column="1">
            <layout class="QHBoxLayout" name="horizontalLayout_5">
             <item>
@@ -1222,12 +1225,140 @@
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>CheckBox_ContinuousStateMonitoring</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>PushButton_GetLeafState</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>279</x>
+     <y>446</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>279</x>
+     <y>1216</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>CheckBox_ContinuousStateMonitoring</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>PushButton_GetLeavesState</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>279</x>
+     <y>446</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>216</x>
+     <y>667</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>CollapsibleGroupBox_LeafControl</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>HorizontalSlider_LeafSteps</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>279</x>
+     <y>750</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>294</x>
+     <y>810</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>CollapsibleGroupBox_LeafControl</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>SpinBox_LeafSteps</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>279</x>
+     <y>987</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>503</x>
+     <y>810</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>CollapsibleGroupBox_LeafControl</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>RadioButton_FullStep</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>287</x>
+     <y>750</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>229</x>
+     <y>766</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>CollapsibleGroupBox_LeafControl</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>RadioButton_HalfStep</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>287</x>
+     <y>750</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>445</x>
+     <y>766</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>CollapsibleGroupBox_LeafControl</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>CheckBox_MotorEnable</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>287</x>
+     <y>750</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>445</x>
+     <y>767</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>CollapsibleGroupBox_LeafControl</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>CheckBox_MotorReset</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>287</x>
+     <y>750</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>229</x>
+     <y>767</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
  <buttongroups>
   <buttongroup name="ButtonGroup_LeafDirection"/>
+  <buttongroup name="ButtonGroup_MlcDeviceLayer"/>
+  <buttongroup name="ButtonGroup_MlcOrientation"/>
   <buttongroup name="ButtonGroup_MlcLayers"/>
   <buttongroup name="ButtonGroup_LeafStepMode"/>
-  <buttongroup name="ButtonGroup_MlcOrientation"/>
-  <buttongroup name="ButtonGroup_MlcDeviceLayer"/>
  </buttongroups>
 </ui>
