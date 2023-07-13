@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>575</width>
-    <height>1150</height>
+    <width>396</width>
+    <height>787</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -385,6 +385,9 @@
          <layout class="QHBoxLayout" name="horizontalLayout_13">
           <item>
            <widget class="QRadioButton" name="RadioButton_DeviceLayer1">
+            <property name="enabled">
+             <bool>false</bool>
+            </property>
             <property name="text">
              <string>Layer-1</string>
             </property>
@@ -398,12 +401,73 @@
           </item>
           <item>
            <widget class="QRadioButton" name="RadioButton_DeviceLayer2">
+            <property name="enabled">
+             <bool>false</bool>
+            </property>
             <property name="text">
              <string>Layer-2</string>
             </property>
             <attribute name="buttonGroup">
              <string notr="true">ButtonGroup_MlcDeviceLayer</string>
             </attribute>
+           </widget>
+          </item>
+         </layout>
+        </item>
+        <item row="1" column="0">
+         <layout class="QGridLayout" name="gridLayout_5">
+          <item row="0" column="1">
+           <widget class="QLineEdit" name="LineEdit_DeviceLayer1">
+            <property name="enabled">
+             <bool>false</bool>
+            </property>
+            <property name="inputMask">
+             <string/>
+            </property>
+            <property name="text">
+             <string>/dev/mlcLayer1</string>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="1">
+           <widget class="QLineEdit" name="LineEdit_DeviceLayer2">
+            <property name="enabled">
+             <bool>false</bool>
+            </property>
+            <property name="text">
+             <string>/dev/mlcLayer2</string>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="0">
+           <widget class="QLabel" name="Label_Layer1">
+            <property name="text">
+             <string>Layer-1:</string>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="0">
+           <widget class="QLabel" name="Label_Layer2">
+            <property name="text">
+             <string>Layer-2:</string>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="2" rowspan="2">
+           <widget class="QPushButton" name="PushButton_ConnectMlcDevice">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="text">
+             <string>Connect</string>
+            </property>
+            <property name="icon">
+             <iconset resource="../qSlicerIhepMlcControlModule.qrc">
+              <normaloff>:/Icons/connect.png</normaloff>:/Icons/connect.png</iconset>
+            </property>
            </widget>
           </item>
          </layout>
@@ -509,7 +573,7 @@
                 <string>Continuous state monitoring</string>
                </property>
                <property name="checked">
-                <bool>true</bool>
+                <bool>false</bool>
                </property>
               </widget>
              </item>
@@ -517,64 +581,6 @@
            </item>
           </layout>
          </widget>
-        </item>
-        <item row="1" column="0">
-         <layout class="QGridLayout" name="gridLayout_5">
-          <item row="0" column="1">
-           <widget class="QLineEdit" name="LineEdit_DeviceLayer1">
-            <property name="enabled">
-             <bool>false</bool>
-            </property>
-            <property name="inputMask">
-             <string/>
-            </property>
-            <property name="text">
-             <string>/dev/mlcLayer1</string>
-            </property>
-           </widget>
-          </item>
-          <item row="0" column="0">
-           <widget class="QLabel" name="Label_Layer1">
-            <property name="text">
-             <string>Layer-1:</string>
-            </property>
-           </widget>
-          </item>
-          <item row="1" column="1">
-           <widget class="QLineEdit" name="LineEdit_DeviceLayer2">
-            <property name="enabled">
-             <bool>false</bool>
-            </property>
-            <property name="text">
-             <string>/dev/mlcLayer2</string>
-            </property>
-           </widget>
-          </item>
-          <item row="1" column="0">
-           <widget class="QLabel" name="Label_Layer2">
-            <property name="text">
-             <string>Layer-2:</string>
-            </property>
-           </widget>
-          </item>
-          <item row="2" column="0" colspan="2">
-           <widget class="QPushButton" name="PushButton_ConnectMlcDevice">
-            <property name="sizePolicy">
-             <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
-              <horstretch>0</horstretch>
-              <verstretch>0</verstretch>
-             </sizepolicy>
-            </property>
-            <property name="text">
-             <string>Connect</string>
-            </property>
-            <property name="icon">
-             <iconset resource="../qSlicerIhepMlcControlModule.qrc">
-              <normaloff>:/Icons/connect.png</normaloff>:/Icons/connect.png</iconset>
-            </property>
-           </widget>
-          </item>
-         </layout>
         </item>
        </layout>
       </widget>
@@ -1229,7 +1235,7 @@
    <sender>CheckBox_ContinuousStateMonitoring</sender>
    <signal>toggled(bool)</signal>
    <receiver>PushButton_GetLeafState</receiver>
-   <slot>setEnabled(bool)</slot>
+   <slot>setDisabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
      <x>279</x>
@@ -1245,7 +1251,7 @@
    <sender>CheckBox_ContinuousStateMonitoring</sender>
    <signal>toggled(bool)</signal>
    <receiver>PushButton_GetLeavesState</receiver>
-   <slot>setEnabled(bool)</slot>
+   <slot>setDisabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
      <x>279</x>
@@ -1355,8 +1361,8 @@
   </connection>
  </connections>
  <buttongroups>
-  <buttongroup name="ButtonGroup_LeafDirection"/>
   <buttongroup name="ButtonGroup_MlcDeviceLayer"/>
+  <buttongroup name="ButtonGroup_LeafDirection"/>
   <buttongroup name="ButtonGroup_MlcOrientation"/>
   <buttongroup name="ButtonGroup_MlcLayers"/>
   <buttongroup name="ButtonGroup_LeafStepMode"/>

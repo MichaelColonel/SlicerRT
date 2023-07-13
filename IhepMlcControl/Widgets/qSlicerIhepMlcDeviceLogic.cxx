@@ -1033,6 +1033,41 @@ void qSlicerIhepMlcDeviceLogic::writeLastCommandOnceAgain()
 }
 
 //-----------------------------------------------------------------------------
+QByteArray qSlicerIhepMlcDeviceLogic::getParametersCommandByLeafData(const vtkMRMLIhepMlcControlNode::LeafData& data)
+{
+  Q_D(qSlicerIhepMlcDeviceLogic);
+  return d->getParametersCommandFromLeafData(data);
+}
+
+//-----------------------------------------------------------------------------
+QByteArray qSlicerIhepMlcDeviceLogic::getRelativeParametersCommandByLeafData(const vtkMRMLIhepMlcControlNode::LeafData& data)
+{
+  Q_D(qSlicerIhepMlcDeviceLogic);
+  return d->getRelativeParametersCommandFromLeafData(data);
+}
+
+//-----------------------------------------------------------------------------
+QByteArray qSlicerIhepMlcDeviceLogic::getStateCommandByLeafData(const vtkMRMLIhepMlcControlNode::LeafData& data)
+{
+  Q_D(qSlicerIhepMlcDeviceLogic);
+  return d->getStateCommandFromLeafData(data);
+}
+
+//-----------------------------------------------------------------------------
+QByteArray qSlicerIhepMlcDeviceLogic::getStartCommandByLeafData(const vtkMRMLIhepMlcControlNode::LeafData& data)
+{
+  Q_D(qSlicerIhepMlcDeviceLogic);
+  return d->getStartCommandFromLeafData(data);
+}
+
+//-----------------------------------------------------------------------------
+QByteArray qSlicerIhepMlcDeviceLogic::getStopCommandByLeafData(const vtkMRMLIhepMlcControlNode::LeafData& data)
+{
+  Q_D(qSlicerIhepMlcDeviceLogic);
+  return d->getStopCommandFromLeafData(data);
+}
+
+//-----------------------------------------------------------------------------
 void qSlicerIhepMlcDeviceLogic::addCommandToQueue(const QByteArray& com)
 {
   Q_D(qSlicerIhepMlcDeviceLogic);

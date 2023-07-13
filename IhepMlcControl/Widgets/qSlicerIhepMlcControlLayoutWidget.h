@@ -76,7 +76,9 @@ public slots:
     vtkMRMLIhepMlcControlNode::LayerType layer,
     vtkMRMLIhepMlcControlNode::SideType side,
     bool switchIsPressed);
-
+  void onDebugModeEnabled(bool);
+  void onSide1StateChanged(int);
+  void onSide2StateChanged(int);
   void onSetCurrentLeafParametersClicked();
   void onSetOpenLeafParametersClicked();
   void onSetCloseLeafParametersClicked();

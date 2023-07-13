@@ -230,8 +230,8 @@ void qSlicerIhepMlcControlModuleWidget::setup()
     this, SLOT(onLeavesSetRelativeParametesClicked()));
   QObject::connect( d->PushButton_GetLeavesState, SIGNAL(clicked()),
     this, SLOT(onLeavesGetStateClicked()));
-  QObject::connect( d->CheckBox_ContinuousStateMonitoring, SIGNAL(toggled(bool)),
-    this, SLOT(onContinuousStateMonitoringToggled(bool)));
+//  QObject::connect( d->CheckBox_ContinuousStateMonitoring, SIGNAL(toggled(bool)),
+//    this, SLOT(onContinuousStateMonitoringToggled(bool)));
 
   // Combo boxes
   QObject::connect( d->ComboBox_MotorFrequency, SIGNAL(currentIndexChanged(int)),
@@ -276,6 +276,7 @@ void qSlicerIhepMlcControlModuleWidget::setup()
   QObject::connect( d->MlcControlWidget, SIGNAL(mlcLayerChanged(vtkMRMLIhepMlcControlNode::LayerType)),
     this, SLOT(onMlcLayerChanged(vtkMRMLIhepMlcControlNode::LayerType)));
 
+  QObject::connect( d->CollapsibleGroupBox_LeafControl, SIGNAL(toggled(bool)), d->MlcControlWidget, SLOT(onDebugModeEnabled(bool)));
   QObject::connect( d->MlcControlWidget, SIGNAL(leafDataStepsChanged(int, int)), this, SLOT(onLeafDataStepsChanged(int,int)));
 
   // Select predefined shape as square
@@ -854,12 +855,14 @@ void qSlicerIhepMlcControlModuleWidget::onConnectMlcLayerDevicesClicked()
       qDebug() << Q_FUNC_INFO << ": Layer-2 Connected";
     }
 
-    if (d->MlcLayer1SerialPort && d->MlcLayer1SerialPort->isOpen() &&
-      d->MlcLayer2SerialPort && d->MlcLayer2SerialPort->isOpen())
+    if ((d->MlcLayer1SerialPort && d->MlcLayer1SerialPort->isOpen()) ||
+      (d->MlcLayer2SerialPort && d->MlcLayer2SerialPort->isOpen()))
     {
       d->PushButton_ConnectMlcDevice->setText(tr("Disconnect"));
     }
   }
+  d->RadioButton_DeviceLayer1->setEnabled(d->MlcLayer1SerialPort);
+  d->RadioButton_DeviceLayer2->setEnabled(d->MlcLayer2SerialPort);
 }
 
 //-----------------------------------------------------------------------------
@@ -1048,13 +1051,34 @@ void qSlicerIhepMlcControlModuleWidget::onLeafSetParametersClicked()
   vtkMRMLIhepMlcControlNode::LeafData leafData;
   int address = d->HorizontalSlider_LeafAddress->value();
   QByteArray com;
-  if (d->ParameterNode->GetLeafDataByAddress(leafData, address))
+  if (d->ParameterNode->GetLeafDataByAddressInLayer(leafData, address, layer))
   {
     leafData.Frequency = d->ComboBox_MotorFrequency->currentIndex();
-///    com = d->getParametersCommandFromLeafData(leafData);
+    switch (layer)
+    {
+    case vtkMRMLIhepMlcControlNode::Layer1:
+      com = d->MlcLayer1Logic->getParametersCommandByLeafData(leafData);
+      break;
+    case vtkMRMLIhepMlcControlNode::Layer2:
+      com = d->MlcLayer2Logic->getParametersCommandByLeafData(leafData);
+      break;
+    default:
+      break;
+    }
   }
   if (com.size())
   {
+    switch (layer)
+    {
+    case vtkMRMLIhepMlcControlNode::Layer1:
+      d->MlcLayer1Logic->addCommandToQueue(com);
+      break;
+    case vtkMRMLIhepMlcControlNode::Layer2:
+      d->MlcLayer2Logic->addCommandToQueue(com);
+      break;
+    default:
+      break;
+    }
   }
 }
 
@@ -1270,13 +1294,13 @@ void qSlicerIhepMlcControlModuleWidget::onMlcLayerChanged(QAbstractButton* butto
 }
 
 //-----------------------------------------------------------------------------
-void qSlicerIhepMlcControlModuleWidget::onContinuousStateMonitoringToggled(bool toggled)
-{
-  Q_D(qSlicerIhepMlcControlModuleWidget);
-  qDebug() << Q_FUNC_INFO << ": state " << toggled;
-  d->PushButton_GetLeavesState->setEnabled(toggled);
-  d->PushButton_GetLeafState->setEnabled(toggled);
-}
+//void qSlicerIhepMlcControlModuleWidget::onContinuousStateMonitoringToggled(bool toggled)
+//{
+//  Q_D(qSlicerIhepMlcControlModuleWidget);
+//  qDebug() << Q_FUNC_INFO << ": state " << toggled;
+//  d->PushButton_GetLeavesState->setDisabled(toggled);
+//  d->PushButton_GetLeafState->setDisabled(toggled);
+//}
 
 //-----------------------------------------------------------------------------
 void qSlicerIhepMlcControlModuleWidget::setLeafData(const vtkMRMLIhepMlcControlNode::LeafData& data)

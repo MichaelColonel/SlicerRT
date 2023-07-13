@@ -61,6 +61,12 @@ public:
   QSerialPort* openDevice(const QString& deviceName, vtkMRMLIhepMlcControlNode::LayerType layer);
   bool closeDevice(const QSerialPort*);
 
+  QByteArray getParametersCommandByLeafData(const vtkMRMLIhepMlcControlNode::LeafData& data);
+  QByteArray getRelativeParametersCommandByLeafData(const vtkMRMLIhepMlcControlNode::LeafData& data);
+  QByteArray getStateCommandByLeafData(const vtkMRMLIhepMlcControlNode::LeafData& data);
+  QByteArray getStartCommandByLeafData(const vtkMRMLIhepMlcControlNode::LeafData& data);
+  QByteArray getStopCommandByLeafData(const vtkMRMLIhepMlcControlNode::LeafData& data);
+
   QByteArray getParametersCommandByAddress(int address);
   QByteArray getRelativeParametersCommandByAddress(int address);
   QByteArray getStateCommandByAddress(int address);
@@ -108,6 +114,7 @@ signals:
     vtkMRMLIhepMlcControlNode::SideType side,
     bool switchIsPressed);
   void leafStateCommandBufferChanged(const vtkMRMLIhepMlcControlNode::CommandBufferType& stateBuffer);
+  void queueSizeChanged(int size);
 
 private slots:
   void writeNextCommandFromQueue();

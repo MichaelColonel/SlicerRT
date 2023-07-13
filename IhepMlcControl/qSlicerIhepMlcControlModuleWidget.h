@@ -101,7 +101,7 @@ public slots:
 
   /// Leaves device control
   void onConnectMlcLayerDevicesClicked();
-  void onContinuousStateMonitoringToggled(bool toggled);
+//  void onContinuousStateMonitoringToggled(bool toggled);
 
   /// Leaves parameters control
   void onLeavesSetParametersClicked();

@@ -130,8 +130,10 @@ void qSlicerIhepMlcControlLayoutWidgetPrivate::init()
   QObject::connect( this->ComboBox_MlcPositions, SIGNAL(currentIndexChanged(int)),
     q, SLOT(onMlcPredefinedIndexChanged(int)));
 
-//  QObject::connect( this->PushButton_SetPredefinedMlcPositions, SIGNAL(clicked()),
-//    q, SLOT(onSetPredefinedMlcPositionsClicked()));
+  QObject::connect( this->CheckBox_Side1Enabled, SIGNAL(stateChanged(int)),
+    q, SLOT(onSide1StateChanged(int)));
+  QObject::connect( this->CheckBox_Side2Enabled, SIGNAL(stateChanged(int)),
+    q, SLOT(onSide2StateChanged(int)));
   QObject::connect( this->PushButton_ApplyPredefinedMlcPositions, SIGNAL(clicked()),
     q, SLOT(onApplyPredefinedMlcPositionsClicked()));
   QObject::connect( this->PushButton_OpenCurrentMlc, SIGNAL(clicked()),
@@ -352,6 +354,7 @@ void qSlicerIhepMlcControlLayoutWidget::fillLeavesControlContainer(int pairOfLea
 
     widgets.Side1EnabledCheckBox = new ctkCheckBox(this);
     widgets.Side1EnabledCheckBox->setChecked(true);
+    widgets.Side1EnabledCheckBox->hide();
 
     widgets.Side1AddressLabel = new QLabel(QString::number(side1.Address), this);
     widgets.Side1AddressLabel->setAlignment(Qt::AlignHCenter);
@@ -376,6 +379,7 @@ void qSlicerIhepMlcControlLayoutWidget::fillLeavesControlContainer(int pairOfLea
 
     widgets.Side2EnabledCheckBox = new ctkCheckBox(this);
     widgets.Side2EnabledCheckBox->setChecked(true);
+    widgets.Side2EnabledCheckBox->hide();
 
     d->GridLayout_Leaves->addWidget(widgets.Side2EnabledCheckBox, 0, pairOfLeavesIndex + 1);
     d->GridLayout_Leaves->addWidget(widgets.Side2AddressLabel, 1, pairOfLeavesIndex + 1);
@@ -1026,6 +1030,96 @@ void qSlicerIhepMlcControlLayoutWidget::onLeafSwitchChanged(int address,
       {
         leavesWidget->setMaxCurrentValueFromLeafData(0);
       }
+    }
+  }
+}
+
+//-----------------------------------------------------------------------------
+void qSlicerIhepMlcControlLayoutWidget::onDebugModeEnabled(bool enabled)
+{
+  Q_D(qSlicerIhepMlcControlLayoutWidget);
+
+  if (!d->ParameterNode)
+  {
+    qCritical() << Q_FUNC_INFO << ": Invalid parameter node";
+    return;
+  }
+  d->CheckBox_Side1Enabled->setEnabled(enabled);
+  d->CheckBox_Side2Enabled->setEnabled(enabled);
+
+  for(ContainerWidgets& widgets : d->ContainerWidgetsVector)
+  {
+    if (enabled)
+    {
+      widgets.Side1EnabledCheckBox->show();
+      widgets.Side2EnabledCheckBox->show();
+    }
+    else
+    {
+      widgets.Side1EnabledCheckBox->hide();
+      widgets.Side2EnabledCheckBox->hide();
+    }
+  }
+}
+
+//-----------------------------------------------------------------------------
+void qSlicerIhepMlcControlLayoutWidget::onSide1StateChanged(int state)
+{
+  Q_D(qSlicerIhepMlcControlLayoutWidget);
+
+  if (!d->ParameterNode)
+  {
+    qCritical() << Q_FUNC_INFO << ": Invalid parameter node";
+    return;
+  }
+  for(ContainerWidgets& widgets : d->ContainerWidgetsVector)
+  {
+    switch (state)
+    {
+    case 0: // false
+      widgets.Side1EnabledCheckBox->setChecked(false);
+      widgets.Side1EnabledCheckBox->setEnabled(false);
+      break;
+    case 1: // tri-state
+      widgets.Side1EnabledCheckBox->setEnabled(true);
+      break;
+    case 2: // true
+      widgets.Side1EnabledCheckBox->setChecked(true);
+      widgets.Side1EnabledCheckBox->setEnabled(false);
+      break;
+    default:
+      break;
+    }
+  }
+}
+
+//-----------------------------------------------------------------------------
+void qSlicerIhepMlcControlLayoutWidget::onSide2StateChanged(int state)
+{
+  Q_D(qSlicerIhepMlcControlLayoutWidget);
+
+  if (!d->ParameterNode)
+  {
+    qCritical() << Q_FUNC_INFO << ": Invalid parameter node";
+    return;
+  }
+  for(ContainerWidgets& widgets : d->ContainerWidgetsVector)
+  {
+    switch (state)
+    {
+    case 0: // false
+      widgets.Side2EnabledCheckBox->setChecked(false);
+      widgets.Side2EnabledCheckBox->setEnabled(false);
+      break;
+    case 1: // tri-state
+      widgets.Side2EnabledCheckBox->setEnabled(true);
+      break;
+    case 2: // true
+      widgets.Side2EnabledCheckBox->setChecked(true);
+      widgets.Side2EnabledCheckBox->setEnabled(false);
+      break;
+    default:
+      break;
     }
   }
 }
