@@ -866,7 +866,7 @@ void qSlicerIhepMlcDeviceLogic::serialPortDataReady()
   if (d->CommandQueue.isEmpty() && d->LastCommand.isEmpty())
   {
 ///    d->TimerGetState->start();
-    d->TimerCommandQueue->start();
+    d->TimerCommandQueue->stop();
   }
 }
 

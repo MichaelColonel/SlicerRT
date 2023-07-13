@@ -270,14 +270,24 @@ void qSlicerIhepMlcControlModuleWidget::setup()
   QObject::connect( d->CheckBox_MotorEnable, SIGNAL(toggled(bool)),
     this, SLOT(onLeafEnabledToggled(bool)));
 
-  // MLC layer signal
+  // MLC Control widget signals: layer, position
   QObject::connect( this, SIGNAL(mlcLayerChanged(vtkMRMLIhepMlcControlNode::LayerType)),
     d->MlcControlWidget, SLOT(onMlcLayerChanged(vtkMRMLIhepMlcControlNode::LayerType)));
   QObject::connect( d->MlcControlWidget, SIGNAL(mlcLayerChanged(vtkMRMLIhepMlcControlNode::LayerType)),
     this, SLOT(onMlcLayerChanged(vtkMRMLIhepMlcControlNode::LayerType)));
+  QObject::connect( d->MlcControlWidget, SIGNAL(leafDataStepsChanged(int, int)), this,
+    SLOT(onLeafDataStepsChanged(int,int)));
+  // MLC Control widget and MLC device logic signals
+  QObject::connect( d->MlcLayer1Logic, SIGNAL(leafPositionChanged(int, vtkMRMLIhepMlcControlNode::LayerType, vtkMRMLIhepMlcControlNode::SideType,int, int)),
+    d->MlcControlWidget, SLOT(onLeafPositionChanged(int, vtkMRMLIhepMlcControlNode::LayerType, vtkMRMLIhepMlcControlNode::SideType,int, int)));
+  QObject::connect( d->MlcLayer1Logic, SIGNAL(leafSwitchChanged(int, vtkMRMLIhepMlcControlNode::LayerType, vtkMRMLIhepMlcControlNode::SideType,bool)),
+    d->MlcControlWidget, SLOT(onLeafSwitchChanged(int, vtkMRMLIhepMlcControlNode::LayerType, vtkMRMLIhepMlcControlNode::SideType,bool)));
+  QObject::connect( d->MlcLayer2Logic, SIGNAL(leafPositionChanged(int, vtkMRMLIhepMlcControlNode::LayerType, vtkMRMLIhepMlcControlNode::SideType,int, int)),
+    d->MlcControlWidget, SLOT(onLeafPositionChanged(int, vtkMRMLIhepMlcControlNode::LayerType, vtkMRMLIhepMlcControlNode::SideType,int, int)));
+  QObject::connect( d->MlcLayer2Logic, SIGNAL(leafSwitchChanged(int, vtkMRMLIhepMlcControlNode::LayerType, vtkMRMLIhepMlcControlNode::SideType,bool)),
+    d->MlcControlWidget, SLOT(onLeafSwitchChanged(int, vtkMRMLIhepMlcControlNode::LayerType, vtkMRMLIhepMlcControlNode::SideType,bool)));
 
   QObject::connect( d->CollapsibleGroupBox_LeafControl, SIGNAL(toggled(bool)), d->MlcControlWidget, SLOT(onDebugModeEnabled(bool)));
-  QObject::connect( d->MlcControlWidget, SIGNAL(leafDataStepsChanged(int, int)), this, SLOT(onLeafDataStepsChanged(int,int)));
 
   // Select predefined shape as square
   QTimer::singleShot(0, d->MlcControlWidget, [=](){ d->MlcControlWidget->onMlcPredefinedIndexChanged(3); } );
@@ -1094,13 +1104,34 @@ void qSlicerIhepMlcControlModuleWidget::onLeafSetRelativeClicked()
   vtkMRMLIhepMlcControlNode::LeafData leafData;
   int address = d->HorizontalSlider_LeafAddress->value();
   QByteArray com;
-  if (d->ParameterNode->GetLeafDataByAddress(leafData, address))
+  if (d->ParameterNode->GetLeafDataByAddressInLayer(leafData, address, layer))
   {
     leafData.Frequency = d->ComboBox_MotorFrequency->currentIndex();
-///    com = d->getRelativeParametersCommandFromLeafData(leafData);
+    switch (layer)
+    {
+    case vtkMRMLIhepMlcControlNode::Layer1:
+      com = d->MlcLayer1Logic->getRelativeParametersCommandByLeafData(leafData);
+      break;
+    case vtkMRMLIhepMlcControlNode::Layer2:
+      com = d->MlcLayer2Logic->getRelativeParametersCommandByLeafData(leafData);
+      break;
+    default:
+      break;
+    }
   }
   if (com.size())
   {
+    switch (layer)
+    {
+    case vtkMRMLIhepMlcControlNode::Layer1:
+      d->MlcLayer1Logic->addCommandToQueue(com);
+      break;
+    case vtkMRMLIhepMlcControlNode::Layer2:
+      d->MlcLayer2Logic->addCommandToQueue(com);
+      break;
+    default:
+      break;
+    }
   }
 }
 
@@ -1116,12 +1147,33 @@ void qSlicerIhepMlcControlModuleWidget::onLeafGetStateClicked()
   vtkMRMLIhepMlcControlNode::LeafData leafData;
   int address = d->HorizontalSlider_LeafAddress->value();
   QByteArray com;
-  if (d->ParameterNode->GetLeafDataByAddress(leafData, address))
+  if (d->ParameterNode->GetLeafDataByAddressInLayer(leafData, address, layer))
   {
-///    com = d->getStateCommandFromLeafData(leafData);
+    switch (layer)
+    {
+    case vtkMRMLIhepMlcControlNode::Layer1:
+      com = d->MlcLayer1Logic->getStateCommandByLeafData(leafData);
+      break;
+    case vtkMRMLIhepMlcControlNode::Layer2:
+      com = d->MlcLayer2Logic->getStateCommandByLeafData(leafData);
+      break;
+    default:
+      break;
+    }
   }
   if (com.size())
   {
+    switch (layer)
+    {
+    case vtkMRMLIhepMlcControlNode::Layer1:
+      d->MlcLayer1Logic->addCommandToQueue(com);
+      break;
+    case vtkMRMLIhepMlcControlNode::Layer2:
+      d->MlcLayer2Logic->addCommandToQueue(com);
+      break;
+    default:
+      break;
+    }
   }
 }
 
@@ -1137,12 +1189,33 @@ void qSlicerIhepMlcControlModuleWidget::onLeafStartClicked()
   vtkMRMLIhepMlcControlNode::LeafData leafData;
   int address = d->HorizontalSlider_LeafAddress->value();
   QByteArray com;
-  if (d->ParameterNode->GetLeafDataByAddress(leafData, address))
+  if (d->ParameterNode->GetLeafDataByAddressInLayer(leafData, address, layer))
   {
-///    com = d->getStartCommandFromLeafData(leafData);
+    switch (layer)
+    {
+    case vtkMRMLIhepMlcControlNode::Layer1:
+      com = d->MlcLayer1Logic->getStartCommandByLeafData(leafData);
+      break;
+    case vtkMRMLIhepMlcControlNode::Layer2:
+      com = d->MlcLayer2Logic->getStartCommandByLeafData(leafData);
+      break;
+    default:
+      break;
+    }
   }
   if (com.size())
   {
+    switch (layer)
+    {
+    case vtkMRMLIhepMlcControlNode::Layer1:
+      d->MlcLayer1Logic->addCommandToQueue(com);
+      break;
+    case vtkMRMLIhepMlcControlNode::Layer2:
+      d->MlcLayer2Logic->addCommandToQueue(com);
+      break;
+    default:
+      break;
+    }
   }
 }
 
@@ -1158,12 +1231,33 @@ void qSlicerIhepMlcControlModuleWidget::onLeafStopClicked()
   vtkMRMLIhepMlcControlNode::LeafData leafData;
   int address = d->HorizontalSlider_LeafAddress->value();
   QByteArray com;
-  if (d->ParameterNode->GetLeafDataByAddress(leafData, address))
+  if (d->ParameterNode->GetLeafDataByAddressInLayer(leafData, address, layer))
   {
-///    com = d->getStopCommandFromLeafData(leafData);
+    switch (layer)
+    {
+    case vtkMRMLIhepMlcControlNode::Layer1:
+      com = d->MlcLayer1Logic->getStopCommandByLeafData(leafData);
+      break;
+    case vtkMRMLIhepMlcControlNode::Layer2:
+      com = d->MlcLayer2Logic->getStopCommandByLeafData(leafData);
+      break;
+    default:
+      break;
+    }
   }
   if (com.size())
   {
+    switch (layer)
+    {
+    case vtkMRMLIhepMlcControlNode::Layer1:
+      d->MlcLayer1Logic->addCommandToQueue(com);
+      break;
+    case vtkMRMLIhepMlcControlNode::Layer2:
+      d->MlcLayer2Logic->addCommandToQueue(com);
+      break;
+    default:
+      break;
+    }
   }
 }
 
@@ -1186,7 +1280,7 @@ void qSlicerIhepMlcControlModuleWidget::onLeafDataStepsChanged(int address, int 
 void qSlicerIhepMlcControlModuleWidget::onLeavesSetParametersClicked()
 {
   Q_D(qSlicerIhepMlcControlModuleWidget);
-  vtkMRMLIhepMlcControlNode::LayerType selectedLayer = d->getSelectedMlcLayer();
+///  vtkMRMLIhepMlcControlNode::LayerType selectedLayer = d->getSelectedMlcLayer();
 ///  QList< QByteArray > mlcLayerParametersCommands = d->getParametersCommandsByLayer(selectedLayer);
 }
 
@@ -1194,7 +1288,7 @@ void qSlicerIhepMlcControlModuleWidget::onLeavesSetParametersClicked()
 void qSlicerIhepMlcControlModuleWidget::onLeavesSetRelativeParametesClicked()
 {
   Q_D(qSlicerIhepMlcControlModuleWidget);
-  vtkMRMLIhepMlcControlNode::LayerType selectedLayer = d->getSelectedMlcLayer();
+///  vtkMRMLIhepMlcControlNode::LayerType selectedLayer = d->getSelectedMlcLayer();
 ///  QList< QByteArray > mlcLayerParametersCommands = d->getRelativeParametersCommandsByLayer(selectedLayer);
 }
 
@@ -1203,7 +1297,34 @@ void qSlicerIhepMlcControlModuleWidget::onLeavesGetStateClicked()
 {
   Q_D(qSlicerIhepMlcControlModuleWidget);
   vtkMRMLIhepMlcControlNode::LayerType selectedLayer = d->getSelectedMlcLayer();
-///  QList< QByteArray > mlcLayerStateCommands = d->getStateCommandsByLayer(selectedLayer);
+  QList< QByteArray > mlcLayerStateCommands;
+
+  std::vector< int > addresses; // empty vector == all addresses
+  switch (selectedLayer)
+  {
+  case vtkMRMLIhepMlcControlNode::Layer1:
+    mlcLayerStateCommands = d->MlcLayer1Logic->getStateCommands(addresses);
+    break;
+  case vtkMRMLIhepMlcControlNode::Layer2:
+    mlcLayerStateCommands = d->MlcLayer2Logic->getStateCommands(addresses);
+    break;
+  default:
+    break;
+  }
+  if (mlcLayerStateCommands.size())
+  {
+    switch (selectedLayer)
+    {
+    case vtkMRMLIhepMlcControlNode::Layer1:
+      d->MlcLayer1Logic->addCommandsToQueue(mlcLayerStateCommands);
+      break;
+    case vtkMRMLIhepMlcControlNode::Layer2:
+      d->MlcLayer2Logic->addCommandsToQueue(mlcLayerStateCommands);
+      break;
+    default:
+      break;
+    }
+  }
 }
 
 //-----------------------------------------------------------------------------
@@ -1214,7 +1335,7 @@ void qSlicerIhepMlcControlModuleWidget::onLeavesStartBroadcastClicked()
   {
     return;
   }
-  vtkMRMLIhepMlcControlNode::LayerType selectedLayer = d->getSelectedMlcLayer();
+///  vtkMRMLIhepMlcControlNode::LayerType selectedLayer = d->getSelectedMlcLayer();
 ///  QByteArray com = d->getStartBroadcastCommand();
 ///  if (com.size())
 ///  {
@@ -1229,7 +1350,7 @@ void qSlicerIhepMlcControlModuleWidget::onLeavesStopBroadcastClicked()
   {
     return;
   }
-  vtkMRMLIhepMlcControlNode::LayerType selectedLayer = d->getSelectedMlcLayer();
+///  vtkMRMLIhepMlcControlNode::LayerType selectedLayer = d->getSelectedMlcLayer();
 ///  QByteArray com = d->getStopBroadcastCommand();
 ///  if (com.size())
 ///  {
@@ -1244,7 +1365,7 @@ void qSlicerIhepMlcControlModuleWidget::onLeavesOpenBroadcastClicked()
   {
     return;
   }
-  vtkMRMLIhepMlcControlNode::LayerType selectedLayer = d->getSelectedMlcLayer();
+///  vtkMRMLIhepMlcControlNode::LayerType selectedLayer = d->getSelectedMlcLayer();
 ///  QByteArray com = d->getOpenBroadcastCommand();
 ///  if (com.size())
 ///  {
