@@ -874,10 +874,10 @@ void vtkMRMLIhepMlcControlNode::ProcessCommandBufferToLeafData(const vtkMRMLIhep
   leafData.EncoderCounts = ((buf[5] << CHAR_BIT) | buf[6]);
   leafData.CurrentPosition = ((buf[7] << CHAR_BIT) | buf[8]);
 
-  std::cout << "ProcessCommandBufferToLeafData: State Reset: " << leafData.StateReset
-   << ", StateStepMode: " << leafData.StateStepMode << ", StateDirection: " << leafData.StateDirection
-   << ", StateEnabled: " << leafData.StateEnabled << ", StepsLeft: " << leafData.StepsLeft
-   << ", EncoderCounts: " << leafData.EncoderCounts << ", current position: " << leafData.CurrentPosition << std::endl;
+///  std::cout << "ProcessCommandBufferToLeafData: State Reset: " << leafData.StateReset
+///   << ", StateStepMode: " << leafData.StateStepMode << ", StateDirection: " << leafData.StateDirection
+///   << ", StateEnabled: " << leafData.StateEnabled << ", StepsLeft: " << leafData.StepsLeft
+///   << ", EncoderCounts: " << leafData.EncoderCounts << ", current position: " << leafData.CurrentPosition << std::endl;
 
 //  leafData.EncoderCounts = static_cast<int32_t>((buf[5] << CHAR_BIT) | buf[6]);
 //  leafData.Frequency = buf[8]; // do not use Frequency, the value is dummy
