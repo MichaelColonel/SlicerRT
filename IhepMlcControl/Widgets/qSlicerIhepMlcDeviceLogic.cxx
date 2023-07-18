@@ -805,12 +805,11 @@ void qSlicerIhepMlcDeviceLogic::serialPortDataReady()
 
       int key = -1;
       vtkMRMLIhepMlcControlNode::SideType side = vtkMRMLIhepMlcControlNode::Side_Last;
-      vtkMRMLIhepMlcControlNode::LayerType layer = vtkMRMLIhepMlcControlNode::Layer_Last;
-      int res = d->ParameterNode->GetLeafOffsetLayerByAddress(leafData.Address, key, side, layer);
+      int res = d->ParameterNode->GetLeafOffsetByAddressInLayer(leafData.Address, key, side, d->Layer);
       if (res != -1)
       {
         leafData.Side = side;
-        leafData.Layer = layer;
+        leafData.Layer = d->Layer;
       }
 
       if (vtkMRMLIhepMlcControlNode::CommandBufferIsStateCommand(buf))
@@ -818,13 +817,16 @@ void qSlicerIhepMlcDeviceLogic::serialPortDataReady()
         qDebug() << Q_FUNC_INFO << "State buffer OK, update leaf position!";
         if (!leafData.SwitchState)
         {
-          emit leafPositionChanged(leafData.Address, leafData.Layer, leafData.Side, leafData.RequiredPosition, leafData.GetActualCurrentPosition());
+          emit leafPositionChanged(leafData.Address, leafData.Layer, leafData.Side, leafData.GetActualCurrentPosition());
         }
         else
         {
           emit leafSwitchChanged(leafData.Address, leafData.Layer, leafData.Side, leafData.SwitchState);
         }
-        emit leafStateCommandBufferChanged(buf);
+        if (res != -1)
+        {
+          emit leafStateCommandBufferChanged(buf, d->Layer, side);
+        }
       }
 
       if (d->ResponseBuffer.size() > commandSize)
@@ -885,7 +887,7 @@ void qSlicerIhepMlcDeviceLogic::serialPortBytesWritten(qint64 written)
       d->CommandQueue.dequeue();
       d->LastCommand.clear();
 ///      emit writeNextCommand();
-      d->TimerCommandQueue->start();
+///      d->TimerCommandQueue->start();
     }
     else
     {
@@ -991,7 +993,8 @@ void qSlicerIhepMlcDeviceLogic::writeNextCommandFromQueue()
     qWarning() << Q_FUNC_INFO << "Command queue is empty. Last command state: " << (d->LastCommand.isEmpty() ? "is empty" : "not empty");
     if (d->LastCommand.isEmpty())
     {
-///      d->TimerGetState->start();
+///      d->TimerCommandQueue->stop();
+///      d->TimerCommandQueue->start();
     }
     return;
   }

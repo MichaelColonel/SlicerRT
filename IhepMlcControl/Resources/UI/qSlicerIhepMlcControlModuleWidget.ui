@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>396</width>
+    <width>482</width>
     <height>787</height>
    </rect>
   </property>
@@ -53,24 +53,6 @@
        <layout class="QVBoxLayout" name="verticalLayout_3">
         <item>
          <layout class="QGridLayout" name="gridLayout">
-          <item row="0" column="1">
-           <widget class="qMRMLNodeComboBox" name="MRMLNodeComboBox_Beam">
-            <property name="nodeTypes">
-             <stringlist>
-              <string>vtkMRMLRTBeamNode</string>
-              <string>vtkMRMLRTIonBeamNode</string>
-              <string>vtkMRMLRTIhepIonBeamNode</string>
-             </stringlist>
-            </property>
-           </widget>
-          </item>
-          <item row="0" column="0">
-           <widget class="QLabel" name="Label_Beam">
-            <property name="text">
-             <string>Beam:</string>
-            </property>
-           </widget>
-          </item>
           <item row="1" column="0" colspan="2">
            <widget class="QGroupBox" name="GroupBox_MLC">
             <property name="title">
@@ -101,6 +83,31 @@
               </layout>
              </item>
             </layout>
+           </widget>
+          </item>
+          <item row="0" column="0">
+           <widget class="QLabel" name="Label_Beam">
+            <property name="text">
+             <string>Beam:</string>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="1">
+           <widget class="qMRMLNodeComboBox" name="MRMLNodeComboBox_Beam">
+            <property name="nodeTypes">
+             <stringlist>
+              <string>vtkMRMLRTBeamNode</string>
+              <string>vtkMRMLRTIonBeamNode</string>
+              <string>vtkMRMLRTIhepIonBeamNode</string>
+             </stringlist>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="0" colspan="2">
+           <widget class="QPushButton" name="PushButton_LoadMlcPositionTables">
+            <property name="text">
+             <string>Load MLC position tables...</string>
+            </property>
            </widget>
           </item>
          </layout>
@@ -497,6 +504,10 @@
               <widget class="QPushButton" name="PushButton_GetLeavesState">
                <property name="text">
                 <string>Get state</string>
+               </property>
+               <property name="icon">
+                <iconset resource="../qSlicerIhepMlcControlModule.qrc">
+                 <normaloff>:/Icons/position-info.png</normaloff>:/Icons/position-info.png</iconset>
                </property>
               </widget>
              </item>
@@ -1361,10 +1372,10 @@
   </connection>
  </connections>
  <buttongroups>
+  <buttongroup name="ButtonGroup_LeafStepMode"/>
   <buttongroup name="ButtonGroup_MlcDeviceLayer"/>
+  <buttongroup name="ButtonGroup_MlcLayers"/>
   <buttongroup name="ButtonGroup_LeafDirection"/>
   <buttongroup name="ButtonGroup_MlcOrientation"/>
-  <buttongroup name="ButtonGroup_MlcLayers"/>
-  <buttongroup name="ButtonGroup_LeafStepMode"/>
  </buttongroups>
 </ui>

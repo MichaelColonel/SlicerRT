@@ -5,7 +5,7 @@
     <file>Icons/start.png</file>
     <file>Icons/connect.png</file>
     <file>Icons/disconnect.png</file>
-    <file>Icons/info.png</file>
+    <file>Icons/position-info.png</file>
     <file>Icons/open.png</file>
   </qresource>
   <qresource prefix="indicators">

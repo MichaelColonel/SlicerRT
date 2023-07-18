@@ -767,6 +767,19 @@ bool vtkMRMLIhepMlcControlNode::SetLeafDataByAddress(const LeafData& leafData, i
 }
 
 //----------------------------------------------------------------------------
+bool vtkMRMLIhepMlcControlNode::SetLeafDataByAddressInLayer(const LeafData& leafData, int address, vtkMRMLIhepMlcControlNode::LayerType layer)
+{
+  int key;
+  int offset = -1;
+  vtkMRMLIhepMlcControlNode::SideType side = Side_Last;
+  if ((offset = this->GetLeafOffsetByAddressInLayer(address, key, side, layer)) != -1)
+  {
+    return this->SetLeafData(leafData, offset, side, layer);
+  }
+  return false;
+}
+
+//----------------------------------------------------------------------------
 bool vtkMRMLIhepMlcControlNode::SetLeafDataState(const LeafData& leafData)
 {
   int key;

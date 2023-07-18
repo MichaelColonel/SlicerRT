@@ -305,14 +305,13 @@ void qSlicerIhepMlcControlLayoutWidgetPrivate::updateMlcPositionsFromLeavesData(
     pairOfLeavesWidgets.PairOfLeavesWidget->setMaxRequiredValue(side2.RequiredPosition);
     q->setLeafData(side1);
     q->setLeafData(side2);
-/*
-    (side1.SwitchState) ?
-      pairOfLeavesWidgets.Side1StateLabel->setPixmap(QPixmap(":/indicators/Icons/green.png")) :
-      pairOfLeavesWidgets.Side1StateLabel->setPixmap(QPixmap(":/indicators/Icons/gray.png"));
-    (side2.SwitchState) ?
-      pairOfLeavesWidgets.Side2StateLabel->setPixmap(QPixmap(":/indicators/Icons/green.png")) :
-      pairOfLeavesWidgets.Side2StateLabel->setPixmap(QPixmap(":/indicators/Icons/gray.png"));
-*/
+
+///    (side1.SwitchState) ?
+///      pairOfLeavesWidgets.Side1StateLabel->setPixmap(QPixmap(":/indicators/Icons/green.png")) :
+///      pairOfLeavesWidgets.Side1StateLabel->setPixmap(QPixmap(":/indicators/Icons/gray.png"));
+///    (side2.SwitchState) ?
+///      pairOfLeavesWidgets.Side2StateLabel->setPixmap(QPixmap(":/indicators/Icons/green.png")) :
+///      pairOfLeavesWidgets.Side2StateLabel->setPixmap(QPixmap(":/indicators/Icons/gray.png"));
   }
 }
 
@@ -958,8 +957,7 @@ void qSlicerIhepMlcControlLayoutWidget::onSetCloseLeafParametersClicked()
 //-----------------------------------------------------------------------------
 void qSlicerIhepMlcControlLayoutWidget::onLeafPositionChanged(int address,
   vtkMRMLIhepMlcControlNode::LayerType layer,
-  vtkMRMLIhepMlcControlNode::SideType side,
-  int requiredPosition, int currentPosition)
+  vtkMRMLIhepMlcControlNode::SideType side, int currentPosition)
 {
   Q_D(qSlicerIhepMlcControlLayoutWidget);
 
@@ -983,12 +981,10 @@ void qSlicerIhepMlcControlLayoutWidget::onLeafPositionChanged(int address,
     if (side == vtkMRMLIhepMlcControlNode::Side1 && side == side_)
     {
       leavesWidget->setMinCurrentValueFromLeafData(currentPosition);
-      leavesWidget->setMinRequiredValueFromLeafData(requiredPosition);
     }
     else if (side == vtkMRMLIhepMlcControlNode::Side2 && side == side_)
     {
       leavesWidget->setMaxCurrentValueFromLeafData(currentPosition);
-      leavesWidget->setMaxRequiredValueFromLeafData(requiredPosition);
     }
   }
 }
@@ -1121,6 +1117,24 @@ void qSlicerIhepMlcControlLayoutWidget::onSide2StateChanged(int state)
     default:
       break;
     }
+  }
+}
+
+//-----------------------------------------------------------------------------
+void qSlicerIhepMlcControlLayoutWidget::onLeafStateCommandBufferChanged(const vtkMRMLIhepMlcControlNode::CommandBufferType& stateBuffer,
+  vtkMRMLIhepMlcControlNode::LayerType layer,
+  vtkMRMLIhepMlcControlNode::SideType side)
+{
+  Q_D(qSlicerIhepMlcControlLayoutWidget);
+
+  vtkMRMLIhepMlcControlNode::LeafData leafData;
+  vtkMRMLIhepMlcControlNode::LayerType selectedLayer = d->getSelectedMlcLayer();
+  vtkMRMLIhepMlcControlNode::ProcessCommandBufferToLeafData(stateBuffer, leafData);
+  if (layer == selectedLayer)
+  {
+    leafData.Side = side;
+    leafData.Layer = layer;
+    this->setLeafData(leafData);
   }
 }
 

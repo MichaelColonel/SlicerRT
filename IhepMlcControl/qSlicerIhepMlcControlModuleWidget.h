@@ -98,10 +98,13 @@ public slots:
   void onLeafResetToggled(bool reset);
   void onLeafEnabledToggled(bool enabled);
   void onLeafDataStepsChanged(int address, int leafDataSteps);
+  void onLeafStateCommandBufferChanged(const vtkMRMLIhepMlcControlNode::CommandBufferType& stateBuffer,
+    vtkMRMLIhepMlcControlNode::LayerType layer,
+    vtkMRMLIhepMlcControlNode::SideType side);
 
   /// Leaves device control
   void onConnectMlcLayerDevicesClicked();
-//  void onContinuousStateMonitoringToggled(bool toggled);
+  void onContinuousStateMonitoringToggled(bool toggled);
 
   /// Leaves parameters control
   void onLeavesSetParametersClicked();

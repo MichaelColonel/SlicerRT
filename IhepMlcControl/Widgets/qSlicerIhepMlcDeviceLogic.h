@@ -108,12 +108,16 @@ signals:
   void leafPositionChanged(int address,
     vtkMRMLIhepMlcControlNode::LayerType layer,
     vtkMRMLIhepMlcControlNode::SideType side,
-    int requiredPosition, int currentPosition);
+    int currentPosition);
   void leafSwitchChanged(int address,
     vtkMRMLIhepMlcControlNode::LayerType layer,
     vtkMRMLIhepMlcControlNode::SideType side,
     bool switchIsPressed);
-  void leafStateCommandBufferChanged(const vtkMRMLIhepMlcControlNode::CommandBufferType& stateBuffer);
+  void leafStateCommandBufferChanged(
+    const vtkMRMLIhepMlcControlNode::CommandBufferType& stateBuffer,
+    vtkMRMLIhepMlcControlNode::LayerType layer,
+    vtkMRMLIhepMlcControlNode::SideType side);
+
   void queueSizeChanged(int size);
 
 private slots:

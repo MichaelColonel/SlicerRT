@@ -71,11 +71,15 @@ public slots:
   void onLeafPositionChanged(int address,
     vtkMRMLIhepMlcControlNode::LayerType layer,
     vtkMRMLIhepMlcControlNode::SideType side,
-    int requiredPosition, int currentPosition);
+    int currentPosition);
   void onLeafSwitchChanged(int address,
     vtkMRMLIhepMlcControlNode::LayerType layer,
     vtkMRMLIhepMlcControlNode::SideType side,
     bool switchIsPressed);
+  void onLeafStateCommandBufferChanged(const vtkMRMLIhepMlcControlNode::CommandBufferType& stateBuffer,
+    vtkMRMLIhepMlcControlNode::LayerType layer,
+    vtkMRMLIhepMlcControlNode::SideType side);
+
   void onDebugModeEnabled(bool);
   void onSide1StateChanged(int);
   void onSide2StateChanged(int);
