@@ -96,6 +96,7 @@ protected:
 signals:
   void pairOfLeavesDoubleClicked();
   void positionsChanged(int, int);
+  void positionsRangesChanged(int minValue, int minRange, int maxValue, int maxRange);
   void minRangeChanged(int);
   void maxRangeChanged(int);
   void minPositionChanged(int);

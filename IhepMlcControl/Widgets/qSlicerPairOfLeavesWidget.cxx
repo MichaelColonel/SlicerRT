@@ -183,6 +183,9 @@ void qSlicerAbstractPairOfLeavesWidget::paintEvent(QPaintEvent *event)
     painter.setPen(redPen);
     painter.drawLine(0, yCurrBottom, widget_size.width(), yCurrBottom);
     painter.drawLine(0, yCurrTop, widget_size.width(), yCurrTop);
+    painter.setBrush(QBrush(Qt::red, Qt::SolidPattern));
+    painter.drawRect(x1bottom + widget_size.width() / 2, yCurrBottom, x2bottom, y2bottom);
+    painter.drawRect(x1top + widget_size.width() / 2, y1top, x2top, yCurrTop);
     break;
   case Qt::Horizontal:
     x1bottom = 0;
@@ -205,6 +208,9 @@ void qSlicerAbstractPairOfLeavesWidget::paintEvent(QPaintEvent *event)
     painter.setPen(redPen);
     painter.drawLine(xCurrBottom, 0, xCurrBottom, widget_size.height());
     painter.drawLine(xCurrTop, 0, xCurrTop, widget_size.height());
+    painter.setBrush(QBrush(Qt::red, Qt::SolidPattern));
+    painter.drawRect(x1bottom, y1bottom, xCurrBottom + widget_size.height() / 2, y2bottom);
+    painter.drawRect(xCurrTop, y1top, x2top + widget_size.height() / 2, y2top);
     break;
   default:
     break;
@@ -266,10 +272,16 @@ void qSlicerAbstractPairOfLeavesWidget::mouseMoveEvent(QMouseEvent *event)
     break;
   }
 
-  emit this->maxRangeChanged(this->getMaxRange());
-  emit this->minRangeChanged(this->getMinRange());
-  emit this->positionsChanged(d->m_RequiredValues.first, this->Superclass::maximum() - d->m_RequiredValues.second);
+  int minValue = d->m_RequiredValues.first;
+  int minRange = this->getMinRange();
+  int maxValue = this->Superclass::maximum() - d->m_RequiredValues.second;
+  int maxRange = this->getMaxRange();
+
+  emit this->maxRangeChanged(maxRange);
+  emit this->minRangeChanged(minRange);
+  emit this->positionsChanged(minValue, maxValue);
   emit this->openingChanged(this->getRequiredOpening(), this->getCurrentOpening());
+  emit this->positionsRangesChanged(minValue, minRange, maxValue, maxRange);
 
   this->update();
 }

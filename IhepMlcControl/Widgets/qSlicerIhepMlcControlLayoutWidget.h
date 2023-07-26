@@ -59,7 +59,8 @@ signals:
   void predefinedMlcPositionChanged(vtkMRMLIhepMlcControlNode::PredefinedPositionType);
   void mlcLayerChanged(vtkMRMLIhepMlcControlNode::LayerType);
   /// first parameter address, second parameter leafDataSteps
-  void leafDataStepsChanged(int address, int leafDataSteps);
+  void leafDataStepsChanged(int address, int leafDataSteps,
+    vtkMRMLIhepMlcControlNode::SideType, vtkMRMLIhepMlcControlNode::LayerType);
 
 public slots:
   /// Set IhepMlcControl MRML node (Parameter node)
@@ -68,14 +69,6 @@ public slots:
   void updateWidgetFromMRML();
   void onMlcLayerChanged(QAbstractButton* radioButton);
   void onMlcLayerChanged(vtkMRMLIhepMlcControlNode::LayerType);
-  void onLeafPositionChanged(int address,
-    vtkMRMLIhepMlcControlNode::LayerType layer,
-    vtkMRMLIhepMlcControlNode::SideType side,
-    int currentPosition);
-  void onLeafSwitchChanged(int address,
-    vtkMRMLIhepMlcControlNode::LayerType layer,
-    vtkMRMLIhepMlcControlNode::SideType side,
-    bool switchIsPressed);
   void onLeafStateCommandBufferChanged(const vtkMRMLIhepMlcControlNode::CommandBufferType& stateBuffer,
     vtkMRMLIhepMlcControlNode::LayerType layer,
     vtkMRMLIhepMlcControlNode::SideType side);
@@ -89,18 +82,11 @@ public slots:
 
   // Pair of leaves slots:
   void onPairOfLeavesDoubleClicked();
-  void onPairOfLeavesSideValuesChanged(int,int);
-  void onPairOfLeavesSide1RangeChanged(int,int);
-  void onPairOfLeavesSide2RangeChanged(int,int);
-  void onPairOfLeavesAddressChanged(bool,bool);
-  void onPairOfLeavesSize2ValueChanged(int);
-  void onPairOfLeavesSize1ValueChanged(int);
+  void onPairOfLeavesPositionsRangesChanged(int, int, int, int);
   void onSide1AdjustmentChanged(double);
   void onSide2AdjustmentChanged(double);
   void onSide1AdjustmentSliderReleased();
   void onSide2AdjustmentSliderReleased();
-  /// Values are changed because of MLC motion
-  void onLeafAddressPositionChanged(int address, double requiredPosition, double currentPosition);
 
   // Combo box
   void onMlcPredefinedIndexChanged(int);

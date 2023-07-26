@@ -119,11 +119,11 @@ vtkSlicerIhepMlcControlLogic* qSlicerIhepMlcControlModuleWidgetPrivate::logic() 
 // --------------------------------------------------------------------------
 vtkMRMLIhepMlcControlNode::LayerType qSlicerIhepMlcControlModuleWidgetPrivate::getSelectedMlcLayer() const
 {
-  if (/* this->RadioButton_DeviceLayer1->isEnabled() && */this->RadioButton_DeviceLayer1->isChecked())
+  if (/*this->RadioButton_DeviceLayer1->isEnabled() && */this->RadioButton_DeviceLayer1->isChecked())
   {
     return vtkMRMLIhepMlcControlNode::Layer1;
   }
-  else if (/* this->RadioButton_DeviceLayer2->isEnabled() && */this->RadioButton_DeviceLayer2->isChecked())
+  else if (/*this->RadioButton_DeviceLayer2->isEnabled() && */this->RadioButton_DeviceLayer2->isChecked())
   {
     return vtkMRMLIhepMlcControlNode::Layer2;
   }
@@ -279,8 +279,8 @@ void qSlicerIhepMlcControlModuleWidget::setup()
     d->MlcControlWidget, SLOT(onMlcLayerChanged(vtkMRMLIhepMlcControlNode::LayerType)));
   QObject::connect( d->MlcControlWidget, SIGNAL(mlcLayerChanged(vtkMRMLIhepMlcControlNode::LayerType)),
     this, SLOT(onMlcLayerChanged(vtkMRMLIhepMlcControlNode::LayerType)));
-  QObject::connect( d->MlcControlWidget, SIGNAL(leafDataStepsChanged(int, int)), this,
-    SLOT(onLeafDataStepsChanged(int,int)));
+  QObject::connect( d->MlcControlWidget, SIGNAL(leafDataStepsChanged(int, int, vtkMRMLIhepMlcControlNode::SideType, vtkMRMLIhepMlcControlNode::LayerType)), this,
+    SLOT(onLeafDataStepsChanged(int,int,vtkMRMLIhepMlcControlNode::SideType, vtkMRMLIhepMlcControlNode::LayerType)));
 
   // MLC Control widget and MLC device logic signals
 /*
@@ -297,7 +297,8 @@ void qSlicerIhepMlcControlModuleWidget::setup()
     this, SLOT(onLeafStateCommandBufferChanged(const vtkMRMLIhepMlcControlNode::CommandBufferType&, vtkMRMLIhepMlcControlNode::LayerType, vtkMRMLIhepMlcControlNode::SideType)));
   QObject::connect( d->MlcLayer2Logic, SIGNAL(leafStateCommandBufferChanged(const vtkMRMLIhepMlcControlNode::CommandBufferType&, vtkMRMLIhepMlcControlNode::LayerType, vtkMRMLIhepMlcControlNode::SideType)),
     this, SLOT(onLeafStateCommandBufferChanged(const vtkMRMLIhepMlcControlNode::CommandBufferType&, vtkMRMLIhepMlcControlNode::LayerType, vtkMRMLIhepMlcControlNode::SideType)));
-
+  QObject::connect( d->MlcLayer1Logic, SIGNAL(queueSizeChanged(int)), d->ProgressBar_CommandQueueLayer1, SLOT(setValue(int)));
+  QObject::connect( d->MlcLayer2Logic, SIGNAL(queueSizeChanged(int)), d->ProgressBar_CommandQueueLayer2, SLOT(setValue(int)));
 //  QObject::connect( d->MlcLayer1Logic, SIGNAL(leafStateCommandBufferChanged(const vtkMRMLIhepMlcControlNode::CommandBufferType&, vtkMRMLIhepMlcControlNode::LayerType, vtkMRMLIhepMlcControlNode::SideType)),
 //    d->MlcControlWidget, SLOT(onLeafStateCommandBufferChanged(const vtkMRMLIhepMlcControlNode::CommandBufferType&, vtkMRMLIhepMlcControlNode::LayerType, vtkMRMLIhepMlcControlNode::SideType)));
 //  QObject::connect( d->MlcLayer2Logic, SIGNAL(leafStateCommandBufferChanged(const vtkMRMLIhepMlcControlNode::CommandBufferType&, vtkMRMLIhepMlcControlNode::LayerType, vtkMRMLIhepMlcControlNode::SideType)),
@@ -460,20 +461,7 @@ void qSlicerIhepMlcControlModuleWidget::onMlcTableNodeChanged(vtkMRMLNode *node)
   d->PushButton_UpdateMlcBoundary->setEnabled(tableNode);
   d->PushButton_SetMlcTable->setEnabled(tableNode);
 
-  // Fill leaves container with a new number of leaf pairs
-  vtkMRMLIhepMlcControlNode::LayerType layer = d->getSelectedMlcLayer();
-  for (int i = 0; i < d->ParameterNode->GetNumberOfLeafPairs(); ++i)
-  {
-    vtkMRMLIhepMlcControlNode::PairOfLeavesData leavesData;
-    if (!d->ParameterNode->GetPairOfLeavesData( leavesData, i, layer))
-    {
-      qWarning() << Q_FUNC_INFO << ": Unable to get pair of leaves data";
-      break;
-    }
-    const vtkMRMLIhepMlcControlNode::LeafData& side1 = leavesData.first;
-    const vtkMRMLIhepMlcControlNode::LeafData& side2 = leavesData.second;
-    qDebug() << Q_FUNC_INFO << ": Leaves steps: Side1 - " << side1.Steps << ", Side2 - " << side2.Steps;
-  }
+  d->ParameterNode->Modified();
 }
 
 //-----------------------------------------------------------------------------
@@ -558,10 +546,20 @@ void qSlicerIhepMlcControlModuleWidget::updateWidgetFromMRML()
   int address = d->HorizontalSlider_LeafAddress->value();
   if (d->ParameterNode->GetLeafDataByAddressInLayer(leafData, address, layer))
   {
-    qDebug() << "Leaf data update";
-    d->HorizontalSlider_LeafSteps->setRange(0, leafData.Range);
+    int range = d->ParameterNode->GetLeafRangeByAddressInLayer(address, layer);
+    qDebug() << Q_FUNC_INFO << "Address: " << address << ", Range : 0~" << range << ", Value: " << leafData.Steps;
+
+    if (range != -1)
+    {
+      d->HorizontalSlider_LeafSteps->setRange(0, range);
+      d->SpinBox_LeafSteps->setRange(0, range);
+    }
+    else
+    {
+      d->HorizontalSlider_LeafSteps->setRange(0, leafData.Range);
+      d->SpinBox_LeafSteps->setRange(0, leafData.Range);
+    }
     d->HorizontalSlider_LeafSteps->setValue(leafData.Steps);
-    d->SpinBox_LeafSteps->setRange(0, leafData.Range);
     d->SpinBox_LeafSteps->setValue(leafData.Steps);
 
     double distanceRange = vtkMRMLIhepMlcControlNode::InternalCounterValueToDistance(leafData.Range);
@@ -1044,6 +1042,7 @@ void qSlicerIhepMlcControlModuleWidget::onLeafStepsChanged(int steps)
       if (d->logic()->UpdateMlcPositionTableFromLeafData(d->ParameterNode, leafData))
       {
         qDebug() << Q_FUNC_INFO << ": MLC leaf position is changed";
+        d->ParameterNode->Modified();
       }
     }
   }
@@ -1218,9 +1217,11 @@ void qSlicerIhepMlcControlModuleWidget::onLeafGetStateClicked()
     switch (layer)
     {
     case vtkMRMLIhepMlcControlNode::Layer1:
+      qDebug() << "Layer-1";
       com = d->MlcLayer1Logic->getStateCommandByLeafData(leafData);
       break;
     case vtkMRMLIhepMlcControlNode::Layer2:
+      qDebug() << "Layer-2";
       com = d->MlcLayer2Logic->getStateCommandByLeafData(leafData);
       break;
     default:
@@ -1232,9 +1233,11 @@ void qSlicerIhepMlcControlModuleWidget::onLeafGetStateClicked()
     switch (layer)
     {
     case vtkMRMLIhepMlcControlNode::Layer1:
+      qDebug() << "Layer-1";
       d->MlcLayer1Logic->addCommandToQueue(com);
       break;
     case vtkMRMLIhepMlcControlNode::Layer2:
+      qDebug() << "Layer-2";
       d->MlcLayer2Logic->addCommandToQueue(com);
       break;
     default:
@@ -1328,17 +1331,17 @@ void qSlicerIhepMlcControlModuleWidget::onLeafStopClicked()
 }
 
 //-----------------------------------------------------------------------------
-void qSlicerIhepMlcControlModuleWidget::onLeafDataStepsChanged(int address, int leafDataSteps)
+void qSlicerIhepMlcControlModuleWidget::onLeafDataStepsChanged(int address, int leafDataSteps, vtkMRMLIhepMlcControlNode::SideType side, vtkMRMLIhepMlcControlNode::LayerType layer)
 {
   Q_D(qSlicerIhepMlcControlModuleWidget);
   if (!d->ParameterNode)
   {
     return;
   }
-  qDebug() << Q_FUNC_INFO << "Address: " << address << " movement steps: " << leafDataSteps;
-  if (d->logic()->UpdateMlcTableNodePositionData(d->ParameterNode, address, leafDataSteps))
+
+  if (d->logic()->UpdateMlcTableNodePositionData(d->ParameterNode, address, leafDataSteps, side, layer))
   {
-    qDebug() << Q_FUNC_INFO << "MLC table modified";
+    d->ParameterNode->Modified();
   }
 }
 
@@ -1438,9 +1441,11 @@ void qSlicerIhepMlcControlModuleWidget::onLeavesGetStateClicked()
   switch (selectedLayer)
   {
   case vtkMRMLIhepMlcControlNode::Layer1:
+    qDebug() << "Layer-1";
     mlcLayerStateCommands = d->MlcLayer1Logic->getStateCommands(addresses);
     break;
   case vtkMRMLIhepMlcControlNode::Layer2:
+    qDebug() << "Layer-2";
     mlcLayerStateCommands = d->MlcLayer2Logic->getStateCommands(addresses);
     break;
   default:
@@ -1451,9 +1456,11 @@ void qSlicerIhepMlcControlModuleWidget::onLeavesGetStateClicked()
     switch (selectedLayer)
     {
     case vtkMRMLIhepMlcControlNode::Layer1:
+      qDebug() << "Layer-1";
       d->MlcLayer1Logic->addCommandsToQueue(mlcLayerStateCommands);
       break;
     case vtkMRMLIhepMlcControlNode::Layer2:
+      qDebug() << "Layer-2";
       d->MlcLayer2Logic->addCommandsToQueue(mlcLayerStateCommands);
       break;
     default:
@@ -1627,6 +1634,8 @@ void qSlicerIhepMlcControlModuleWidget::onLeafStateCommandBufferChanged(const vt
   vtkMRMLIhepMlcControlNode::LeafData leafDataState, leafData;
   vtkMRMLIhepMlcControlNode::LayerType selectedLayer = d->getSelectedMlcLayer();
   vtkMRMLIhepMlcControlNode::ProcessCommandBufferToLeafData(stateBuffer, leafDataState);
+  leafDataState.Side = side;
+  leafDataState.Layer = layer;
   if (d->ParameterNode->SetLeafDataState(leafDataState))
   {
     qDebug() << Q_FUNC_INFO << ": Leaf data state is set.";
@@ -1637,7 +1646,7 @@ void qSlicerIhepMlcControlModuleWidget::onLeafStateCommandBufferChanged(const vt
 ///    leafData.Layer = layer;
     if (/* leafData.Address == d->HorizontalSlider_LeafAddress->value() && */ leafData.Side == side && leafData.Layer == selectedLayer)
     {
-      qDebug() << Q_FUNC_INFO << ": Leaf data and state to control widget, side and layer data are correct.";
+      qDebug() << Q_FUNC_INFO << ": Leaf data and state to control widget, side and layer data are correct. Layer: " << static_cast<int>(leafData.Layer) << ", side: " << (leafData.Side);
     }
     this->setLeafData(leafData);
   }

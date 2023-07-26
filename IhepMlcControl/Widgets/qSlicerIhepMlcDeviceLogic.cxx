@@ -797,6 +797,7 @@ void qSlicerIhepMlcDeviceLogic::serialPortDataReady()
     if (d->checkAddressCommandResponseOk(buf))
     {
       d->CommandQueue.dequeue();
+      emit queueSizeChanged(static_cast<int>(d->CommandQueue.size()));
       d->LastCommand.clear(); // erase last command since it no longer needed
       qDebug() << Q_FUNC_INFO << "Command data is OK!";
       vtkMRMLIhepMlcControlNode::LeafData leafData;
@@ -885,6 +886,7 @@ void qSlicerIhepMlcDeviceLogic::serialPortBytesWritten(qint64 written)
     {
       qDebug() << Q_FUNC_INFO << "Pop last command from command queue because broadcast without answer.";
       d->CommandQueue.dequeue();
+      emit queueSizeChanged(static_cast<int>(d->CommandQueue.size()));
       d->LastCommand.clear();
 ///      emit writeNextCommand();
 ///      d->TimerCommandQueue->start();

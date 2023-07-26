@@ -66,11 +66,12 @@ public:
   /// \param parameterNode for MLC parameters
   /// \param mlcTableNode table where parameters should be updated
   /// \return true if success false otherwise
+  int LoadMlcPositionTablesFromJSONFile(vtkMRMLIhepMlcControlNode* parameterNode, const std::string& jsonFileName);
   bool UpdateMlcTableNodeBoundaryData(vtkMRMLIhepMlcControlNode* parameterNode, vtkMRMLTableNode* mlcTableNode);
   bool SetBeamParentForMlcTableNode(vtkMRMLRTBeamNode* beamNode, vtkMRMLTableNode* tableNode);
 //  bool SetupPositionsFromMlcTableNode(vtkMRMLIhepMlcControlNode* parameterNode, vtkMRMLTableNode* tableNode);
   bool UpdatePositionBetweenMlcTableNodes(vtkMRMLIhepMlcControlNode* parameterNode, vtkMRMLTableNode* prevTableNode, vtkMRMLTableNode* nextTableNode);
-  bool UpdateMlcTableNodePositionData(vtkMRMLIhepMlcControlNode* parameterNode, int address, int leafDataSteps);
+  bool UpdateMlcTableNodePositionData(vtkMRMLIhepMlcControlNode* parameterNode, int address, int leafDataSteps, vtkMRMLIhepMlcControlNode::SideType side, vtkMRMLIhepMlcControlNode::LayerType layer);
   bool UpdateLeavesDataFromMlcPositionTableNode(vtkMRMLIhepMlcControlNode* parameterNode, vtkMRMLTableNode* mlcTableNode = nullptr);
   bool UpdateMlcPositionTableFromLeafData(vtkMRMLIhepMlcControlNode* parameterNode, const vtkMRMLIhepMlcControlNode::LeafData& leafData,
     vtkMRMLTableNode* mlcTableNode = nullptr);

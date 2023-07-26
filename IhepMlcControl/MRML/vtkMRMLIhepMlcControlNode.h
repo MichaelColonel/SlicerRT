@@ -119,6 +119,7 @@ public:
     LayerType Layer{ Layer_Last };
     bool Reset{ false };
     bool Enabled{ true };
+    int CalibrationSteps{ 20000 };
     int RequiredPosition{ 0 }; // required position of leaf in steps
     // Current leaf data state
     int CurrentPosition{ 0 }; // current position of leaf in steps
@@ -171,9 +172,11 @@ public:
   /// get key, side, layer values
   int GetLeafOffsetLayerByAddress(int address, int& key, SideType& side, LayerType& layer);
   int GetLeafOffsetByAddressInLayer(int address, int& key, SideType& side, LayerType layer = Layer1);
+  int GetOppositeSideAddressByAddressInLayer(int address, LayerType layer);
   bool GetLeafData(LeafData& leafData, int offset = 0, SideType side = Side1, LayerType layer = Layer1);
   bool SetLeafData(const LeafData& leafData, int offset = 0, SideType side = Side1, LayerType layer = Layer1);
   bool GetLeafDataByAddress(LeafData& leafData, int address);
+
   bool GetLeafDataByAddressInLayer(LeafData& leafData, int address, LayerType layer = Layer1);
   bool SetLeafDataByAddress(const LeafData& leafData, int address);
   bool SetLeafDataByAddressInLayer(const LeafData& leafData, int address, LayerType layer = Layer1);
@@ -192,6 +195,10 @@ public:
 //  int GetCurrentPositionByAddress(int address);
   int GetStepsFromMlcTableByAddress(int address);
   int GetStepsFromMlcTableByAddress(vtkMRMLTableNode* mlcTableNode, int address);
+  int GetPairOfLeavesCalibrationRangeByAddressInLayer(int address, LayerType layer = Layer1);
+  int GetLeafRangeByAddressInLayer(int address, LayerType layer = Layer1);
+  int GetMinCalibrationStepsBySideInLayer(SideType side = Side1, LayerType layer = Layer1);
+  int GetMaxCalibrationStepsBySideInLayer(SideType side = Side1, LayerType layer = Layer1);
 
   PairOfLeavesMap& GetPairOfLeavesMap() { return this->LeavesDataMap; }
   const PairOfLeavesMap& GetPairOfLeavesMap() const { return this->LeavesDataMap; }
@@ -252,101 +259,101 @@ private:
   // Key from 0-31 - Layer-1, 32-73 - Layer-2 
   PairOfLeavesMap LeavesDataMap = {
     { 0 + IHEP_PAIR_OF_LEAVES_PER_LAYER * Layer1,
-      { { 17, true, false, 7, 10000, 19300, Side1, Layer1, false, true },
-        { 1, true, false, 7, 10000, 19300, Side2, Layer1, false, true } } },
+      { { 17, true, false, 7, 10000, 19300, Side1, Layer1, false, true, 19850 },
+        { 1, true, false, 7, 10000, 19300, Side2, Layer1, false, true, 19550 } } },
     { 1 + IHEP_PAIR_OF_LEAVES_PER_LAYER * Layer1,
-      { { 18, true, false, 7, 10000, 19300, Side1, Layer1, false, true },
-        { 2, true, false, 7, 10000, 19300, Side2, Layer1, false, true } } },
+      { { 18, true, false, 7, 10000, 19300, Side1, Layer1, false, true, 19800 },
+        { 2, true, false, 7, 10000, 19300, Side2, Layer1, false, true, 19900 } } },
     { 2 + IHEP_PAIR_OF_LEAVES_PER_LAYER * Layer1,
-      { { 19, true, false, 7, 10000, 19300, Side1, Layer1, false, true },
-        { 3, true, false, 7, 10000, 19300, Side2, Layer1, false, true } } },
+      { { 19, true, false, 7, 10000, 19300, Side1, Layer1, false, true, 19675 },
+        { 3, true, false, 7, 10000, 19300, Side2, Layer1, false, true, 19900 } } },
     { 3 + IHEP_PAIR_OF_LEAVES_PER_LAYER * Layer1,
-      { { 20, true, false, 7, 10000, 19300, Side1, Layer1, false, true },
-        { 4, true, false, 7, 10000, 19300, Side2, Layer1, false, true } } },
+      { { 20, true, false, 7, 10000, 19300, Side1, Layer1, false, true, 20000 },
+        { 4, true, false, 7, 10000, 19300, Side2, Layer1, false, true, 20100 } } },
     { 4 + IHEP_PAIR_OF_LEAVES_PER_LAYER * Layer1,
-      { { 21, true, false, 7, 10000, 19300, Side1, Layer1, false, true },
-        { 5, true, false, 7, 10000, 19300, Side2, Layer1, false, true } } },
+      { { 21, true, false, 7, 10000, 19300, Side1, Layer1, false, true, 19525 },
+        { 5, true, false, 7, 10000, 19300, Side2, Layer1, false, true, 19550 } } },
     { 5 + IHEP_PAIR_OF_LEAVES_PER_LAYER * Layer1,
-      { { 22, true, false, 7, 10000, 19300, Side1, Layer1, false, true },
-        { 6, true, false, 7, 10000, 19300, Side2, Layer1, false, true } } },
+      { { 22, true, false, 7, 10000, 19300, Side1, Layer1, false, true, 19900 },
+        { 6, true, false, 7, 10000, 19300, Side2, Layer1, false, true, 19700 } } },
     { 6 + IHEP_PAIR_OF_LEAVES_PER_LAYER * Layer1,
-      { { 23, true, false, 7, 10000, 19300, Side1, Layer1, false, true },
-        { 7, true, false, 7, 10000, 19300, Side2, Layer1, false, true } } },
+      { { 23, true, false, 7, 10000, 19300, Side1, Layer1, false, true, 19950 },
+        { 7, true, false, 7, 10000, 19300, Side2, Layer1, false, true, 19800 } } },
     { 7 + IHEP_PAIR_OF_LEAVES_PER_LAYER * Layer1,
-      { { 24, true, false, 7, 10000, 19300, Side1, Layer1, false, true },
-        { 8, true, false, 7, 10000, 19300, Side2, Layer1, false, true } } },
+      { { 24, true, false, 7, 10000, 19300, Side1, Layer1, false, true, 19550 },
+        { 8, true, false, 7, 10000, 19300, Side2, Layer1, false, true, 20275 } } },
     { 8 + IHEP_PAIR_OF_LEAVES_PER_LAYER * Layer1,
-      { { 25, true, false, 7, 10000, 19300, Side1, Layer1, false, true },
-        { 9, true, false, 7, 10000, 19300, Side2, Layer1, false, true } } },
+      { { 25, true, false, 7, 10000, 19300, Side1, Layer1, false, true, 19750 },
+        { 9, true, false, 7, 10000, 19300, Side2, Layer1, false, true, 19600 } } },
     { 9 + IHEP_PAIR_OF_LEAVES_PER_LAYER * Layer1,
-      { { 26, true, false, 7, 10000, 19300, Side1, Layer1, false, true },
-        { 10, true, false, 7, 10000, 19300, Side2, Layer1, false, true } } },
+      { { 26, true, false, 7, 10000, 19300, Side1, Layer1, false, true, 19775 },
+        { 10, true, false, 7, 10000, 19300, Side2, Layer1, false, true, 20000 } } },
     { 10 + IHEP_PAIR_OF_LEAVES_PER_LAYER * Layer1,
-      { { 27, true, false, 7, 10000, 19300, Side1, Layer1, false, true },
-        { 11, true, false, 7, 10000, 19300, Side2, Layer1, false, true } } },
+      { { 27, true, false, 7, 10000, 19300, Side1, Layer1, false, true, 19925 },
+        { 11, true, false, 7, 10000, 19300, Side2, Layer1, false, true, 19750 } } },
     { 11 + IHEP_PAIR_OF_LEAVES_PER_LAYER * Layer1,
-      { { 28, true, false, 7, 10000, 19300, Side1, Layer1, false, true },
-        { 12, true, false, 7, 10000, 19300, Side2, Layer1, false, true } } },
+      { { 28, true, false, 7, 10000, 19300, Side1, Layer1, false, true, 19750 },
+        { 12, true, false, 7, 10000, 19300, Side2, Layer1, false, true, 20050 } } },
     { 12 + IHEP_PAIR_OF_LEAVES_PER_LAYER * Layer1,
-      { { 29, true, false, 7, 10000, 19300, Side1, Layer1, false, true },
-        { 13, true, false, 7, 10000, 19300, Side2, Layer1, false, true } } },
+      { { 29, true, false, 7, 10000, 19300, Side1, Layer1, false, true, 19750 },
+        { 13, true, false, 7, 10000, 19300, Side2, Layer1, false, true, 19750 } } },
     { 13 + IHEP_PAIR_OF_LEAVES_PER_LAYER * Layer1,
-      { { 30, true, false, 7, 10000, 19300, Side1, Layer1, false, true },
-        { 14, true, false, 7, 10000, 19300, Side2, Layer1, false, true } } },
+      { { 30, true, false, 7, 10000, 19300, Side1, Layer1, false, true, 19825 },
+        { 14, true, false, 7, 10000, 19300, Side2, Layer1, false, true, 19950 } } },
     { 14 + IHEP_PAIR_OF_LEAVES_PER_LAYER * Layer1,
-      { { 31, true, false, 7, 10000, 19300, Side1, Layer1, false, true },
-        { 15, true, false, 7, 10000, 19300, Side2, Layer1, false, true } } },
+      { { 31, true, false, 7, 10000, 19300, Side1, Layer1, false, true, 19850 },
+        { 15, true, false, 7, 10000, 19300, Side2, Layer1, false, true, 19725 } } },
     { 15 + IHEP_PAIR_OF_LEAVES_PER_LAYER * Layer1,
-      { { 32, true, false, 7, 10000, 19300, Side1, Layer1, false, true },
-        { 16, true, false, 7, 10000, 19300, Side2, Layer1, false, true } } },
+      { { 32, true, false, 7, 10000, 19300, Side1, Layer1, false, true, 19550 },
+        { 16, true, false, 7, 10000, 19300, Side2, Layer1, false, true, 20000 } } },
     { 0 + IHEP_PAIR_OF_LEAVES_PER_LAYER * Layer2,
-      { { 17, true, false, 7, 10000, 19300, Side1, Layer2, false, true },
-        { 1, true, false, 7, 10000, 19300, Side2, Layer2, false, true } } },
+      { { 17, true, false, 7, 10000, 19300, Side1, Layer2, false, true, 21400 },
+        { 1, true, false, 7, 10000, 19300, Side2, Layer2, false, true, 18950 } } },
     { 1 + IHEP_PAIR_OF_LEAVES_PER_LAYER * Layer2,
-      { { 18, true, false, 7, 10000, 19300, Side1, Layer2, false, true },
-        { 2, true, false, 7, 10000, 19300, Side2, Layer2, false, true } } },
+      { { 18, true, false, 7, 10000, 19300, Side1, Layer2, false, true, 20800 },
+        { 2, true, false, 7, 10000, 19300, Side2, Layer2, false, true, 18700 } } },
     { 2 + IHEP_PAIR_OF_LEAVES_PER_LAYER * Layer2,
-      { { 19, true, false, 7, 10000, 19300, Side1, Layer2, false, true },
-        { 3, true, false, 7, 10000, 19300, Side2, Layer2, false, true } } },
+      { { 19, true, false, 7, 10000, 19300, Side1, Layer2, false, true, 21450 },
+        { 3, true, false, 7, 10000, 19300, Side2, Layer2, false, true, 18450 } } },
     { 3 + IHEP_PAIR_OF_LEAVES_PER_LAYER * Layer2,
-      { { 20, true, false, 7, 10000, 19300, Side1, Layer2, false, true },
-        { 4, true, false, 7, 10000, 19300, Side2, Layer2, false, true } } },
+      { { 20, true, false, 7, 10000, 19300, Side1, Layer2, false, true, 20600 },
+        { 4, true, false, 7, 10000, 19300, Side2, Layer2, false, true, 18700 } } },
     { 4 + IHEP_PAIR_OF_LEAVES_PER_LAYER * Layer2,
-      { { 21, true, false, 7, 10000, 19300, Side1, Layer2, false, true },
-        { 5, true, false, 7, 10000, 19300, Side2, Layer2, false, true } } },
+      { { 21, true, false, 7, 10000, 19300, Side1, Layer2, false, true, 21200 },
+        { 5, true, false, 7, 10000, 19300, Side2, Layer2, false, true, 18700 } } },
     { 5 + IHEP_PAIR_OF_LEAVES_PER_LAYER * Layer2,
-      { { 22, true, false, 7, 10000, 19300, Side1, Layer2, false, true },
-        { 6, true, false, 7, 10000, 19300, Side2, Layer2, false, true } } },
+      { { 22, true, false, 7, 10000, 19300, Side1, Layer2, false, true, 20850 },
+        { 6, true, false, 7, 10000, 19300, Side2, Layer2, false, true, 18850 } } },
     { 6 + IHEP_PAIR_OF_LEAVES_PER_LAYER * Layer2,
-      { { 23, true, false, 7, 10000, 19300, Side1, Layer2, false, true },
-        { 7, true, false, 7, 10000, 19300, Side2, Layer2, false, true } } },
+      { { 23, true, false, 7, 10000, 19300, Side1, Layer2, false, true, 21050 },
+        { 7, true, false, 7, 10000, 19300, Side2, Layer2, false, true, 18650 } } },
     { 7 + IHEP_PAIR_OF_LEAVES_PER_LAYER * Layer2,
-      { { 24, true, false, 7, 10000, 19300, Side1, Layer2, false, true },
-        { 8, true, false, 7, 10000, 19300, Side2, Layer2, false, true } } },
+      { { 24, true, false, 7, 10000, 19300, Side1, Layer2, false, true, 20950 },
+        { 8, true, false, 7, 10000, 19300, Side2, Layer2, false, true, 18825 } } },
     { 8 + IHEP_PAIR_OF_LEAVES_PER_LAYER * Layer2,
-      { { 25, true, false, 7, 10000, 19300, Side1, Layer2, false, true },
-        { 9, true, false, 7, 10000, 19300, Side2, Layer2, false, true } } },
+      { { 25, true, false, 7, 10000, 19300, Side1, Layer2, false, true, 20850 },
+        { 9, true, false, 7, 10000, 19300, Side2, Layer2, false, true, 18825 } } },
     { 9 + IHEP_PAIR_OF_LEAVES_PER_LAYER * Layer2,
-      { { 26, true, false, 7, 10000, 19300, Side1, Layer2, false, true },
-        { 10, true, false, 7, 10000, 19300, Side2, Layer2, false, true } } },
+      { { 26, true, false, 7, 10000, 19300, Side1, Layer2, false, true, 20800 },
+        { 10, true, false, 7, 10000, 19300, Side2, Layer2, false, true, 19200 } } },
     { 10 + IHEP_PAIR_OF_LEAVES_PER_LAYER * Layer2,
-      { { 27, true, false, 7, 10000, 19300, Side1, Layer2, false, true },
-        { 11, true, false, 7, 10000, 19300, Side2, Layer2, false, true } } },
+      { { 27, true, false, 7, 10000, 19300, Side1, Layer2, false, true, 21125 },
+        { 11, true, false, 7, 10000, 19300, Side2, Layer2, false, true, 18350 } } },
     { 11 + IHEP_PAIR_OF_LEAVES_PER_LAYER * Layer2,
-      { { 28, true, false, 7, 10000, 19300, Side1, Layer2, false, true },
-        { 12, true, false, 7, 10000, 19300, Side2, Layer2, false, true } } },
+      { { 28, true, false, 7, 10000, 19300, Side1, Layer2, false, true, 20475 },
+        { 12, true, false, 7, 10000, 19300, Side2, Layer2, false, true, 18850 } } },
     { 12 + IHEP_PAIR_OF_LEAVES_PER_LAYER * Layer2,
-      { { 29, true, false, 7, 10000, 19300, Side1, Layer2, false, true },
-        { 13, true, false, 7, 10000, 19300, Side2, Layer2, false, true } } },
+      { { 29, true, false, 7, 10000, 19300, Side1, Layer2, false, true, 21000 },
+        { 13, true, false, 7, 10000, 19300, Side2, Layer2, false, true, 18500 } } },
     { 13 + IHEP_PAIR_OF_LEAVES_PER_LAYER * Layer2,
-      { { 30, true, false, 7, 10000, 19300, Side1, Layer2, false, true },
-        { 14, true, false, 7, 10000, 19300, Side2, Layer2, false, true } } },
+      { { 30, true, false, 7, 10000, 19300, Side1, Layer2, false, true, 20675 },
+        { 14, true, false, 7, 10000, 19300, Side2, Layer2, false, true, 18950 } } },
     { 14 + IHEP_PAIR_OF_LEAVES_PER_LAYER * Layer2,
-      { { 31, true, false, 7, 10000, 19300, Side1, Layer2, false, true },
-        { 15, true, false, 7, 10000, 19300, Side2, Layer2, false, true } } },
+      { { 31, true, false, 7, 10000, 19300, Side1, Layer2, false, true, 21100 },
+        { 15, true, false, 7, 10000, 19300, Side2, Layer2, false, true, 18975 } } },
     { 15 + IHEP_PAIR_OF_LEAVES_PER_LAYER * Layer2,
-      { { 32, true, false, 7, 10000, 19300, Side1, Layer2, false, true },
-        { 16, true, false, 7, 10000, 19300, Side2, Layer2, false, true } } }
+      { { 32, true, false, 7, 10000, 19300, Side1, Layer2, false, true, 20800 },
+        { 16, true, false, 7, 10000, 19300, Side2, Layer2, false, true, 19000 } } }
     };
   bool DebugMode{ false };
 };

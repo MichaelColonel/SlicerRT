@@ -43,7 +43,7 @@
 
 // DisplayableManager initialization
 #include <vtkAutoInit.h>
-VTK_MODULE_INIT(vtkSlicerIhepMlcControlModuleMRMLDisplayableManager)
+/// VTK_MODULE_INIT(vtkSlicerIhepMlcControlModuleMRMLDisplayableManager)
 
 //-----------------------------------------------------------------------------
 /// \ingroup Slicer_QtModules_ExtensionTemplate
@@ -123,10 +123,10 @@ void qSlicerIhepMlcControlModule::setup()
 
   // DisplayableManager initialization
   // Register color legend displayable manager for slice and 3D views
-  vtkMRMLThreeDViewDisplayableManagerFactory::GetInstance()->RegisterDisplayableManager(
-    "vtkMRMLIhepMlcControlDisplayableManager");
-  vtkMRMLSliceViewDisplayableManagerFactory::GetInstance()->RegisterDisplayableManager(
-    "vtkMRMLIhepMlcControlDisplayableManager");
+///  vtkMRMLThreeDViewDisplayableManagerFactory::GetInstance()->RegisterDisplayableManager(
+///    "vtkMRMLIhepMlcControlDisplayableManager");
+///  vtkMRMLSliceViewDisplayableManagerFactory::GetInstance()->RegisterDisplayableManager(
+///    "vtkMRMLIhepMlcControlDisplayableManager");
 
   vtkSlicerIhepMlcControlLogic* ihepMlcLogic = vtkSlicerIhepMlcControlLogic::SafeDownCast(this->logic());
 

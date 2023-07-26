@@ -274,10 +274,10 @@ bool vtkMRMLIhepMlcControlNode::SetPairOfLeavesData(const vtkMRMLIhepMlcControlN
     table = mlcTableNode->GetTable();
   }
 
-  if (table)
-  {
-    vtkWarningMacro("SetPairOfLeavesData: table is valid, layer number: " << layer << ", index " << index);
-  }
+//  if (table)
+//  {
+//    vtkWarningMacro("SetPairOfLeavesData: table is valid, layer number: " << layer << ", index " << index);
+//  }
 
   int key = index + this->NumberOfLeafPairs * static_cast<int>(layer);
   auto it = this->LeavesDataMap.find(key);
@@ -784,10 +784,9 @@ bool vtkMRMLIhepMlcControlNode::SetLeafDataState(const LeafData& leafData)
 {
   int key;
   int offset = -1;
-  vtkMRMLIhepMlcControlNode::SideType side = Side_Last;
-  vtkMRMLIhepMlcControlNode::LayerType layer = Layer_Last;
+  vtkMRMLIhepMlcControlNode::SideType side = vtkMRMLIhepMlcControlNode::Side_Last;
   vtkMRMLIhepMlcControlNode::LeafData currentLeafData;
-  if (!this->GetLeafDataByAddress(currentLeafData, leafData.Address))
+  if (!this->GetLeafDataByAddressInLayer(currentLeafData, leafData.Address, leafData.Layer))
   {
     return false;
   }
@@ -800,9 +799,9 @@ bool vtkMRMLIhepMlcControlNode::SetLeafDataState(const LeafData& leafData)
   currentLeafData.EncoderCounts = leafData.EncoderCounts;
   currentLeafData.CurrentPosition = leafData.CurrentPosition;
 //  currentLeafData.RequiredPosition = currentLeafData.Steps;
-  if ((offset = this->GetLeafOffsetLayerByAddress(leafData.Address, key, side, layer)) != -1)
+  if ((offset = this->GetLeafOffsetByAddressInLayer(leafData.Address, key, side, leafData.Layer)) != -1 && side == leafData.Side)
   {
-    return this->SetLeafData(currentLeafData, offset, side, layer);
+    return this->SetLeafData(currentLeafData, offset, side, leafData.Layer);
   }
   return false;
 }
@@ -1314,13 +1313,11 @@ int vtkMRMLIhepMlcControlNode::GetLayersFromString(const char* name)
 //-----------------------------------------------------------------------------
 int vtkMRMLIhepMlcControlNode::LeafData::GetActualCurrentPosition() const
 {
-  std::cout << "GetActualCurrentPosition: Current position: " << this->CurrentPosition
-    << ", Required position: " << this->RequiredPosition << ", EncoderCounts: " << this->EncoderCounts << " ";
   if (this->Side != vtkMRMLIhepMlcControlNode::Side_Last && this->Layer != vtkMRMLIhepMlcControlNode::Layer_Last)
   {
     if (this->SwitchState)
     {
-      std::cout << "GetActualCurrentPosition: Switch is pressed, ";
+      // Switch is pressed.
       return 0;
     }
     else
@@ -1328,7 +1325,6 @@ int vtkMRMLIhepMlcControlNode::LeafData::GetActualCurrentPosition() const
       int currentPosition = -1;
       if (this->Side == vtkMRMLIhepMlcControlNode::Side1)
       {
-        std::cout << "Side1, ";
         if (this->CurrentPosition > 0)
         {
           currentPosition = this->CurrentPosition;
@@ -1340,28 +1336,27 @@ int vtkMRMLIhepMlcControlNode::LeafData::GetActualCurrentPosition() const
 
         if (this->isStopped())
         {
-          std::cout << "Stopped." << std::endl;
+          // Stopped.
           return (currentPosition);
         }
         else if (this->isMovingToTheSwitch())
         {
-          std::cout << "Moving to switch." << std::endl;
+          // Moving to switch.
           return (currentPosition - 2 * this->EncoderCounts);
         }
         else if (this->isMovingFromTheSwitch())
         {
-          std::cout << "Moving from switch." << std::endl;
+          // Moving from switch.
           return (currentPosition + 2 * this->EncoderCounts);
         }
         else
         {
-          std::cout << "Impossible." << std::endl;
+          // Impossible.
           return -1;
         }
       }
       else if (this->Side == vtkMRMLIhepMlcControlNode::Side2)
       {
-        std::cout << "Side2, ";
         if (this->CurrentPosition > 0)
         {
           currentPosition = this->CurrentPosition;
@@ -1373,22 +1368,22 @@ int vtkMRMLIhepMlcControlNode::LeafData::GetActualCurrentPosition() const
         
         if (this->isStopped())
         {
-          std::cout << "Stopped." << std::endl;
+          // Stopped.
           return currentPosition;
         }
         else if (this->isMovingToTheSwitch())
         {
-          std::cout << "Moving to switch." << std::endl;
+          // Moving to switch.
           return (currentPosition - 2 * this->EncoderCounts);
         }
         else if (this->isMovingFromTheSwitch())
         {
-          std::cout << "Moving from switch." << std::endl;
+          // Moving from switch.
           return (currentPosition + 2 * this->EncoderCounts);
         }
         else
         {
-          std::cout << "Impossible." << std::endl;
+          // Impossible.
           return -1;
         }
       }
@@ -1401,10 +1396,122 @@ int vtkMRMLIhepMlcControlNode::LeafData::GetActualCurrentPosition() const
 int vtkMRMLIhepMlcControlNode::LeafData::GetRelativeMovement() const
 {
   int pos = this->GetActualCurrentPosition();
-  std::cout << "GetActualCurrentPosition: Actual current position: " << pos << std::endl;
   if (pos != -1)
   {
-    return this->RequiredPosition - pos;
+    int correction = 0;
+    return (!this->SwitchState) ? (this->RequiredPosition - pos) : this->RequiredPosition - correction;
   }
   return 0;
+}
+
+//-----------------------------------------------------------------------------
+int vtkMRMLIhepMlcControlNode::GetPairOfLeavesCalibrationRangeByAddressInLayer(int address, LayerType layer)
+{
+  int range = -1;
+  for (auto iter = LeavesDataMap.begin(); iter != LeavesDataMap.end(); ++iter)
+  {
+    const PairOfLeavesData& leavesPair = (*iter).second;
+    const vtkMRMLIhepMlcControlNode::LeafData& leafSide1 = leavesPair.first;
+    const vtkMRMLIhepMlcControlNode::LeafData& leafSide2 = leavesPair.second;
+    if ((layer == leafSide1.Layer && leafSide1.Address == address) || (layer == leafSide2.Layer && leafSide2.Address == address))
+    {
+      range = leafSide1.CalibrationSteps + leafSide2.CalibrationSteps;
+    }
+  }
+  return range;
+}
+
+//-----------------------------------------------------------------------------
+int vtkMRMLIhepMlcControlNode::GetMinCalibrationStepsBySideInLayer(SideType side, LayerType layer)
+{
+  std::vector<int> steps;
+  int pos = -1;
+  for (auto iter = LeavesDataMap.begin(); iter != LeavesDataMap.end(); ++iter)
+  {
+    const PairOfLeavesData& leavesPair = (*iter).second;
+    const vtkMRMLIhepMlcControlNode::LeafData& leafSide1 = leavesPair.first;
+    const vtkMRMLIhepMlcControlNode::LeafData& leafSide2 = leavesPair.second;
+    if (leafSide1.Layer == layer && leafSide1.Side == side)
+    {
+      steps.push_back(leafSide1.CalibrationSteps);
+    }
+    else if (leafSide2.Layer == layer && leafSide2.Side == side)
+    {
+      steps.push_back(leafSide2.CalibrationSteps);
+    }
+  }
+  if (steps.size() == static_cast< size_t >(this->NumberOfLeafPairs))
+  {
+    pos = *std::min_element(std::begin(steps), std::end(steps));
+  }
+  return pos;
+}
+
+//-----------------------------------------------------------------------------
+int vtkMRMLIhepMlcControlNode::GetMaxCalibrationStepsBySideInLayer(SideType side, LayerType layer)
+{
+  std::vector<int> steps;
+  int pos = -1;
+  for (auto iter = LeavesDataMap.begin(); iter != LeavesDataMap.end(); ++iter)
+  {
+    const PairOfLeavesData& leavesPair = (*iter).second;
+    const vtkMRMLIhepMlcControlNode::LeafData& leafSide1 = leavesPair.first;
+    const vtkMRMLIhepMlcControlNode::LeafData& leafSide2 = leavesPair.second;
+    if (leafSide1.Layer == layer && leafSide1.Side == side)
+    {
+      steps.push_back(leafSide1.CalibrationSteps);
+    }
+    else if (leafSide2.Layer == layer && leafSide2.Side == side)
+    {
+      steps.push_back(leafSide2.CalibrationSteps);
+    }
+  }
+  if (steps.size() == static_cast< size_t >(this->NumberOfLeafPairs))
+  {
+    pos = *std::max_element(std::begin(steps), std::end(steps));
+  }
+  return pos;
+}
+
+//-----------------------------------------------------------------------------
+int vtkMRMLIhepMlcControlNode::GetOppositeSideAddressByAddressInLayer(int address, LayerType layer)
+{
+  int key = -1;
+  SideType side = Side_Last;
+  int offset = this->GetLeafOffsetByAddressInLayer( address, key, side, layer);
+  if (offset != -1)
+  {
+    vtkMRMLIhepMlcControlNode::PairOfLeavesData pairOfLeaves;
+    if (this->GetPairOfLeavesData( pairOfLeaves, offset, layer))
+    {
+      vtkMRMLIhepMlcControlNode::LeafData& side1 = pairOfLeaves.first;
+      vtkMRMLIhepMlcControlNode::LeafData& side2 = pairOfLeaves.second;
+      if (side1.Address != address)
+      {
+        return side1.Address;
+      }
+      else if (side2.Address != address)
+      {
+        return side2.Address;
+      }
+    }
+  }
+  return -1;
+}
+
+//-----------------------------------------------------------------------------
+int vtkMRMLIhepMlcControlNode::GetLeafRangeByAddressInLayer(int address, LayerType layer)
+{
+  int minRangeSide1 = this->GetMinCalibrationStepsBySideInLayer(vtkMRMLIhepMlcControlNode::Side1, layer);
+  int minRangeSide2 = this->GetMinCalibrationStepsBySideInLayer(vtkMRMLIhepMlcControlNode::Side2, layer);
+  int oppositeAddress = this->GetOppositeSideAddressByAddressInLayer(address, layer);
+  if (oppositeAddress != -1)
+  {
+    vtkMRMLIhepMlcControlNode::LeafData leafData;
+    if (this->GetLeafDataByAddressInLayer(leafData, oppositeAddress, layer))
+    {
+      return (minRangeSide1 + minRangeSide2) - leafData.Steps;
+    }
+  }
+  return -1;
 }
