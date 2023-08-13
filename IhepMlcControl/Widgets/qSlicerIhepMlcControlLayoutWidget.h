@@ -73,6 +73,8 @@ public slots:
     vtkMRMLIhepMlcControlNode::LayerType layer,
     vtkMRMLIhepMlcControlNode::SideType side);
 
+  void onMlcLayerConnected(vtkMRMLIhepMlcControlNode::LayerType);
+  void onMlcLayerDisconnected(vtkMRMLIhepMlcControlNode::LayerType);
   void onDebugModeEnabled(bool);
   void onSide1StateChanged(int);
   void onSide2StateChanged(int);

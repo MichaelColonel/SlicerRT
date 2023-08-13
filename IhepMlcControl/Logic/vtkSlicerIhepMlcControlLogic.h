@@ -62,11 +62,14 @@ public:
   /// \param parameterNode for MLC parameters
   /// \return valid pointer if successfull, nullptr otherwise
   vtkMRMLTableNode* CreateMlcTableNodeBoundaryData(vtkMRMLIhepMlcControlNode* parameterNode);
+  vtkMRMLTableNode* CreateMlcTableNode(vtkMRMLIhepMlcControlNode* parameterNode,
+    const std::string& orientation, const std::string& name, int numberOfLayers, int numberOfPairLeaves);
   /// Update a already created table node with the Multi Leaf Collimator boundary data.
   /// \param parameterNode for MLC parameters
   /// \param mlcTableNode table where parameters should be updated
   /// \return true if success false otherwise
   int LoadMlcPositionTablesFromJSONFile(vtkMRMLIhepMlcControlNode* parameterNode, const std::string& jsonFileName);
+  int LoadMlcCalibrationDataFromJSONFile(vtkMRMLIhepMlcControlNode* parameterNode, const std::string& jsonFileName);
   bool UpdateMlcTableNodeBoundaryData(vtkMRMLIhepMlcControlNode* parameterNode, vtkMRMLTableNode* mlcTableNode);
   bool SetBeamParentForMlcTableNode(vtkMRMLRTBeamNode* beamNode, vtkMRMLTableNode* tableNode);
 //  bool SetupPositionsFromMlcTableNode(vtkMRMLIhepMlcControlNode* parameterNode, vtkMRMLTableNode* tableNode);

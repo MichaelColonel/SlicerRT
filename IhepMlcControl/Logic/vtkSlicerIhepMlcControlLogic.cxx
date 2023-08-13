@@ -43,7 +43,12 @@
 #include <vtkTable.h>
 #include <vtkDoubleArray.h>
 
+// RapidJSON includes
+#include <rapidjson/document.h>     // rapidjson's DOM-style API
+#include <rapidjson/filereadstream.h>
+
 // STD includes
+#include <memory>
 
 namespace
 {
@@ -516,8 +521,8 @@ bool vtkSlicerIhepMlcControlLogic::UpdateMlcTableNodeBoundaryData(vtkMRMLIhepMlc
 
     for (int row = 0; row < parameterNode->GetNumberOfLeafPairs(); ++row)
     {
-      table->SetValue(row, 1, -100.0); // default meaningful value for side "1" for layer-1
-      table->SetValue(row, 2, -100.0); // default meaningful value for side "2" for layer-1
+      table->SetValue(row, 1, 0.0); // default meaningful value for side "1" for layer-1
+      table->SetValue(row, 2, 0.0); // default meaningful value for side "2" for layer-1
     }
     table->SetValue(parameterNode->GetNumberOfLeafPairs(), 1, 0.); // side "1" set last unused value to zero
     table->SetValue(parameterNode->GetNumberOfLeafPairs(), 2, 0.); // side "2" set last unused value to zero
@@ -534,8 +539,8 @@ bool vtkSlicerIhepMlcControlLogic::UpdateMlcTableNodeBoundaryData(vtkMRMLIhepMlc
 
     for (int row = 0; row < parameterNode->GetNumberOfLeafPairs(); ++row)
     {
-      table->SetValue(row, 4, -100.0); // default meaningful value for side "1" for layer-2
-      table->SetValue(row, 5, -100.0); // default meaningful value for side "2" for layer-2
+      table->SetValue(row, 4, 0.0); // default meaningful value for side "1" for layer-2
+      table->SetValue(row, 5, 0.0); // default meaningful value for side "2" for layer-2
     }
     table->SetValue(parameterNode->GetNumberOfLeafPairs(), 4, 0.); // side "1" set last unused value to zero
     table->SetValue(parameterNode->GetNumberOfLeafPairs(), 5, 0.); // side "2" set last unused value to zero
@@ -569,8 +574,8 @@ bool vtkSlicerIhepMlcControlLogic::UpdateMlcTableNodeBoundaryData(vtkMRMLIhepMlc
 
   for (int row = 0; row < parameterNode->GetNumberOfLeafPairs(); ++row)
   {
-    table->SetValue(row, 1, -100.0); // default meaningful value for side "1"
-    table->SetValue(row, 2, -100.0); // default meaningful value for side "2"
+    table->SetValue(row, 1, 0.0); // default meaningful value for side "1"
+    table->SetValue(row, 2, 0.0); // default meaningful value for side "2"
   }
   table->SetValue(parameterNode->GetNumberOfLeafPairs(), 1, 0.); // side "1" set last unused value to zero
   table->SetValue(parameterNode->GetNumberOfLeafPairs(), 2, 0.); // side "2" set last unused value to zero
@@ -821,36 +826,33 @@ bool vtkSlicerIhepMlcControlLogic::UpdateMlcTableNodePositionData(vtkMRMLIhepMlc
     return false;
   }
 
+  int range = parameterNode->GetCalibrationRangeInLayer(layer);
+  double rangeHalfDistance = vtkMRMLIhepMlcControlNode::InternalCounterValueToDistance(range) / 2.;
+
   if (table->GetNumberOfColumns() == 6 && parameterNode->GetLayers() == vtkMRMLIhepMlcControlNode::TwoLayers &&
     (table->GetNumberOfRows() - 1) == parameterNode->GetNumberOfLeafPairs()) // two layers
   {
     int key = -1;
     vtkMRMLIhepMlcControlNode::SideType side_ = vtkMRMLIhepMlcControlNode::Side_Last;
-//    vtkMRMLIhepMlcControlNode::LayerType layer = vtkMRMLIhepMlcControlNode::Layer_Last;
     int offset = parameterNode->GetLeafOffsetByAddressInLayer( address, key, side_, layer);
-
-    double distanceSide1 = vtkMRMLIhepMlcControlNode::InternalCounterValueToDistance(leafDataSteps) - vtkMRMLIhepMlcControlNode::IHEP_TOTAL_DISTANCE;
-    double distanceSide2 = vtkMRMLIhepMlcControlNode::IHEP_TOTAL_DISTANCE - vtkMRMLIhepMlcControlNode::InternalCounterValueToDistance(leafDataSteps);
-    if (offset != -1)
+    double distanceSide1 = vtkMRMLIhepMlcControlNode::InternalCounterValueToDistance(leafDataSteps) - rangeHalfDistance;
+    double distanceSide2 = rangeHalfDistance - vtkMRMLIhepMlcControlNode::InternalCounterValueToDistance(leafDataSteps);
+    if (offset != -1 && side_ == side)
     {
       if (side_ == vtkMRMLIhepMlcControlNode::Side1 && layer == vtkMRMLIhepMlcControlNode::Layer1)
       {
-        vtkWarningMacro("UpdateMlcTableNodePositionData: L1S1, offset, address, value: " << offset << " " << address << " " << distanceSide1);
         table->SetValue( offset, 1, distanceSide1);
       }
       else if (side_ == vtkMRMLIhepMlcControlNode::Side1 && layer == vtkMRMLIhepMlcControlNode::Layer2)
       {
-        vtkWarningMacro("UpdateMlcTableNodePositionData: L2S1, offset, address, value: " << offset << " " << address << " " << distanceSide1);
         table->SetValue( offset, 4, distanceSide1);
       }
       else if (side_ == vtkMRMLIhepMlcControlNode::Side2 && layer == vtkMRMLIhepMlcControlNode::Layer1)
       {
-        vtkWarningMacro("UpdateMlcTableNodePositionData: L1S2, offset, address, value: " << offset << " " << address << " " << distanceSide2);
         table->SetValue( offset, 2, distanceSide2);
       }
       else if (side_ == vtkMRMLIhepMlcControlNode::Side2 && layer == vtkMRMLIhepMlcControlNode::Layer2)
       {
-        vtkWarningMacro("UpdateMlcTableNodePositionData: L1S1, offset, address, value: " << offset << " " << address << " " << distanceSide2);
         table->SetValue( offset, 5, distanceSide2);
       }
       tableNode->Modified();
@@ -863,21 +865,18 @@ bool vtkSlicerIhepMlcControlLogic::UpdateMlcTableNodePositionData(vtkMRMLIhepMlc
   {
     int key = -1;
     vtkMRMLIhepMlcControlNode::SideType side_ = vtkMRMLIhepMlcControlNode::Side_Last;
-//    vtkMRMLIhepMlcControlNode::LayerType layer = vtkMRMLIhepMlcControlNode::Layer_Last;
     int offset = parameterNode->GetLeafOffsetByAddressInLayer( address, key, side_, layer);
 
-    double distanceSide1 = vtkMRMLIhepMlcControlNode::InternalCounterValueToDistance(leafDataSteps) - vtkMRMLIhepMlcControlNode::IHEP_TOTAL_DISTANCE;
-    double distanceSide2 = vtkMRMLIhepMlcControlNode::IHEP_TOTAL_DISTANCE - vtkMRMLIhepMlcControlNode::InternalCounterValueToDistance(leafDataSteps);
-    if (offset != -1)
+    double distanceSide1 = vtkMRMLIhepMlcControlNode::InternalCounterValueToDistance(leafDataSteps) - rangeHalfDistance;
+    double distanceSide2 = rangeHalfDistance - vtkMRMLIhepMlcControlNode::InternalCounterValueToDistance(leafDataSteps);
+    if (offset != -1 && side_ == side)
     {
       if (side_ == vtkMRMLIhepMlcControlNode::Side1 && layer == vtkMRMLIhepMlcControlNode::Layer1)
       {
-        vtkWarningMacro("UpdateMlcTableNodePositionData: S1, offset, address, value: " << offset << " " << address << " " << distanceSide1);
         table->SetValue( offset, 1, distanceSide1);
       }
       else if (side_ == vtkMRMLIhepMlcControlNode::Side2 && layer == vtkMRMLIhepMlcControlNode::Layer1)
       {
-        vtkWarningMacro("UpdateMlcTableNodePositionData: S2, offset, address, value: " << offset << " " << address << " " << distanceSide2);
         table->SetValue( offset, 2, distanceSide2);
       }
       tableNode->Modified();
@@ -931,35 +930,35 @@ bool vtkSlicerIhepMlcControlLogic::UpdateLeavesDataFromMlcPositionTableNode(vtkM
       vtkMRMLIhepMlcControlNode::PairOfLeavesData pairOfLeaves;
       if (parameterNode->GetPairOfLeavesData( pairOfLeaves, row, vtkMRMLIhepMlcControlNode::Layer1))
       {
+        int range = parameterNode->GetCalibrationRangeInLayer(vtkMRMLIhepMlcControlNode::Layer1);
+        double rangeHalfDistance = vtkMRMLIhepMlcControlNode::InternalCounterValueToDistance(range) / 2.;
+
         vtkMRMLIhepMlcControlNode::LeafData& side1 = pairOfLeaves.first;
         vtkMRMLIhepMlcControlNode::LeafData& side2 = pairOfLeaves.second;
         
         double posLayer1Side1 = table->GetValue( row, 1).ToDouble();
         double posLayer1Side2 = table->GetValue( row, 2).ToDouble();
-//        vtkWarningMacro("UpdateLeavesDataFromMlcPositionTableNode: Positions1: " << posLayer1Side1 << " " << posLayer1Side2);
 
-        side1.Steps = static_cast<int>((posLayer1Side1 + vtkMRMLIhepMlcControlNode::IHEP_TOTAL_DISTANCE) * vtkMRMLIhepMlcControlNode::IHEP_MOTOR_STEPS_PER_MM);
+        side1.Steps = static_cast<int>((posLayer1Side1 + rangeHalfDistance) * vtkMRMLIhepMlcControlNode::IHEP_MOTOR_STEPS_PER_MM);
         side1.RequiredPosition = side1.Steps;
-        side2.Steps = static_cast<int>((-posLayer1Side2 + vtkMRMLIhepMlcControlNode::IHEP_TOTAL_DISTANCE) * vtkMRMLIhepMlcControlNode::IHEP_MOTOR_STEPS_PER_MM);
+        side2.Steps = static_cast<int>((-posLayer1Side2 + rangeHalfDistance) * vtkMRMLIhepMlcControlNode::IHEP_MOTOR_STEPS_PER_MM);
         side2.RequiredPosition = side2.Steps;
-//        vtkWarningMacro("UpdateLeavesDataFromMlcPositionTableNode: Steps2: " << side1.Steps << " " << side2.Steps);
-
         parameterNode->SetPairOfLeavesData(pairOfLeaves, row, vtkMRMLIhepMlcControlNode::Layer1);
       }
       if (parameterNode->GetPairOfLeavesData( pairOfLeaves, row, vtkMRMLIhepMlcControlNode::Layer2))
       {
+        int range = parameterNode->GetCalibrationRangeInLayer(vtkMRMLIhepMlcControlNode::Layer2);
+        double rangeHalfDistance = vtkMRMLIhepMlcControlNode::InternalCounterValueToDistance(range) / 2.;
+
         vtkMRMLIhepMlcControlNode::LeafData& side1 = pairOfLeaves.first;
         vtkMRMLIhepMlcControlNode::LeafData& side2 = pairOfLeaves.second;
         
         double posLayer2Side1 = table->GetValue( row, 4).ToDouble();
         double posLayer2Side2 = table->GetValue( row, 5).ToDouble();
-//        vtkWarningMacro("UpdateLeavesDataFromMlcPositionTableNode: Positions2: " << posLayer2Side1 << " " << posLayer2Side2);
-
-        side1.Steps = static_cast<int>((posLayer2Side1 + vtkMRMLIhepMlcControlNode::IHEP_TOTAL_DISTANCE) * vtkMRMLIhepMlcControlNode::IHEP_MOTOR_STEPS_PER_MM);
+        side1.Steps = static_cast<int>((posLayer2Side1 + rangeHalfDistance) * vtkMRMLIhepMlcControlNode::IHEP_MOTOR_STEPS_PER_MM);
         side1.RequiredPosition = side1.Steps;
-        side2.Steps = static_cast<int>((-posLayer2Side2 + vtkMRMLIhepMlcControlNode::IHEP_TOTAL_DISTANCE) * vtkMRMLIhepMlcControlNode::IHEP_MOTOR_STEPS_PER_MM);
+        side2.Steps = static_cast<int>((-posLayer2Side2 + rangeHalfDistance) * vtkMRMLIhepMlcControlNode::IHEP_MOTOR_STEPS_PER_MM);
         side2.RequiredPosition = side2.Steps;
-//        vtkWarningMacro("UpdateLeavesDataFromMlcPositionTableNode: Steps2: " << side1.Steps << " " << side2.Steps);
 
         parameterNode->SetPairOfLeavesData(pairOfLeaves, row, vtkMRMLIhepMlcControlNode::Layer2);
       }
@@ -975,14 +974,17 @@ bool vtkSlicerIhepMlcControlLogic::UpdateLeavesDataFromMlcPositionTableNode(vtkM
       vtkMRMLIhepMlcControlNode::PairOfLeavesData pairOfLeaves;
       if (parameterNode->GetPairOfLeavesData( pairOfLeaves, row, vtkMRMLIhepMlcControlNode::Layer1))
       {
+        int range = parameterNode->GetCalibrationRangeInLayer(vtkMRMLIhepMlcControlNode::Layer1);
+        double rangeHalfDistance = vtkMRMLIhepMlcControlNode::InternalCounterValueToDistance(range) / 2.;
+
         vtkMRMLIhepMlcControlNode::LeafData& side1 = pairOfLeaves.first;
         vtkMRMLIhepMlcControlNode::LeafData& side2 = pairOfLeaves.second;
         
         double posLayer1Side1 = table->GetValue( row, 1).ToDouble();
         double posLayer1Side2 = table->GetValue( row, 2).ToDouble();
 
-        side1.Steps = static_cast<int>((posLayer1Side1 + vtkMRMLIhepMlcControlNode::IHEP_TOTAL_DISTANCE) * vtkMRMLIhepMlcControlNode::IHEP_MOTOR_STEPS_PER_MM);
-        side2.Steps = static_cast<int>((-posLayer1Side2 + vtkMRMLIhepMlcControlNode::IHEP_TOTAL_DISTANCE) * vtkMRMLIhepMlcControlNode::IHEP_MOTOR_STEPS_PER_MM);
+        side1.Steps = static_cast<int>((posLayer1Side1 + rangeHalfDistance) * vtkMRMLIhepMlcControlNode::IHEP_MOTOR_STEPS_PER_MM);
+        side2.Steps = static_cast<int>((-posLayer1Side2 + rangeHalfDistance) * vtkMRMLIhepMlcControlNode::IHEP_MOTOR_STEPS_PER_MM);
         side1.RequiredPosition = side1.Steps;
         side2.RequiredPosition = side2.Steps;
         parameterNode->SetPairOfLeavesData(pairOfLeaves, row, vtkMRMLIhepMlcControlNode::Layer1);
@@ -1023,29 +1025,41 @@ bool vtkSlicerIhepMlcControlLogic::UpdateMlcPositionTableFromLeafData(vtkMRMLIhe
     return false;
   }
 
-  double distanceSide1 = vtkMRMLIhepMlcControlNode::InternalCounterValueToDistance(leafData.Steps) - vtkMRMLIhepMlcControlNode::IHEP_TOTAL_DISTANCE;
-  double distanceSide2 = vtkMRMLIhepMlcControlNode::IHEP_TOTAL_DISTANCE - vtkMRMLIhepMlcControlNode::InternalCounterValueToDistance(leafData.Steps);
-
   int key = -1;
   vtkMRMLIhepMlcControlNode::SideType side = vtkMRMLIhepMlcControlNode::Side_Last;
-  vtkMRMLIhepMlcControlNode::LayerType layer = vtkMRMLIhepMlcControlNode::Layer_Last;
-  int offset = parameterNode->GetLeafOffsetLayerByAddress(leafData.Address, key, side, layer);
+  int offset = parameterNode->GetLeafOffsetByAddressInLayer(leafData.Address, key, side, leafData.Layer);
   if (offset != -1)
   {
-    if (side == vtkMRMLIhepMlcControlNode::Side1 && layer == vtkMRMLIhepMlcControlNode::Layer1)
+    if (side == vtkMRMLIhepMlcControlNode::Side1 && leafData.Layer == vtkMRMLIhepMlcControlNode::Layer1)
     {
+      int range = parameterNode->GetCalibrationRangeInLayer(vtkMRMLIhepMlcControlNode::Layer1);
+      double rangeHalfDistance = vtkMRMLIhepMlcControlNode::InternalCounterValueToDistance(range) / 2.;
+      double distanceSide1 = vtkMRMLIhepMlcControlNode::InternalCounterValueToDistance(leafData.Steps) - rangeHalfDistance;
+
       table->SetValue( offset, 1, distanceSide1);
     }
-    else if (side == vtkMRMLIhepMlcControlNode::Side1 && layer == vtkMRMLIhepMlcControlNode::Layer2)
+    else if (side == vtkMRMLIhepMlcControlNode::Side1 && leafData.Layer == vtkMRMLIhepMlcControlNode::Layer2)
     {
+      int range = parameterNode->GetCalibrationRangeInLayer(vtkMRMLIhepMlcControlNode::Layer2);
+      double rangeHalfDistance = vtkMRMLIhepMlcControlNode::InternalCounterValueToDistance(range) / 2.;
+      double distanceSide1 = vtkMRMLIhepMlcControlNode::InternalCounterValueToDistance(leafData.Steps) - rangeHalfDistance;
+
       table->SetValue( offset, 4, distanceSide1);
     }
-    else if (side == vtkMRMLIhepMlcControlNode::Side2 && layer == vtkMRMLIhepMlcControlNode::Layer1)
+    else if (side == vtkMRMLIhepMlcControlNode::Side2 && leafData.Layer == vtkMRMLIhepMlcControlNode::Layer1)
     {
+      int range = parameterNode->GetCalibrationRangeInLayer(vtkMRMLIhepMlcControlNode::Layer1);
+      double rangeHalfDistance = vtkMRMLIhepMlcControlNode::InternalCounterValueToDistance(range) / 2.;
+      double distanceSide2 = rangeHalfDistance - vtkMRMLIhepMlcControlNode::InternalCounterValueToDistance(leafData.Steps);
+
       table->SetValue( offset, 2, distanceSide2);
     }
-    else if (side == vtkMRMLIhepMlcControlNode::Side2 && layer == vtkMRMLIhepMlcControlNode::Layer2)
+    else if (side == vtkMRMLIhepMlcControlNode::Side2 && leafData.Layer == vtkMRMLIhepMlcControlNode::Layer2)
     {
+      int range = parameterNode->GetCalibrationRangeInLayer(vtkMRMLIhepMlcControlNode::Layer2);
+      double rangeHalfDistance = vtkMRMLIhepMlcControlNode::InternalCounterValueToDistance(range) / 2.;
+      double distanceSide2 = rangeHalfDistance - vtkMRMLIhepMlcControlNode::InternalCounterValueToDistance(leafData.Steps);
+
       table->SetValue( offset, 5, distanceSide2);
     }
     return true;
@@ -1056,5 +1070,534 @@ bool vtkSlicerIhepMlcControlLogic::UpdateMlcPositionTableFromLeafData(vtkMRMLIhe
 //---------------------------------------------------------------------------
 int vtkSlicerIhepMlcControlLogic::LoadMlcPositionTablesFromJSONFile(vtkMRMLIhepMlcControlNode* parameterNode, const std::string& jsonFileName)
 {
+  if (!parameterNode)
+  {
+    vtkErrorMacro("LoadMlcPositionTablesFromJSONFile: Parameter node is invalid");
+    return -1;
+  }
+  // Load JSON descriptor file
+  FILE *fp = fopen(jsonFileName.c_str(), "r");
+  if (!fp)
+  {
+    vtkErrorMacro("LoadMlcPositionTablesFromJSONFile: Can't open JSON file");
+    return -1;
+  }
+  const size_t size = 10000000;
+  std::unique_ptr<char[]> buffer(new char[size]);
+  rapidjson::FileReadStream fs(fp, buffer.get(), size);
+
+  rapidjson::Document d;
+  if (d.ParseStream(fs).HasParseError())
+  {
+    vtkErrorMacro("LoadMlcPositionTablesFromJSONFile: Can't parse JSON file");
+    fclose(fp);
+    return -1;
+  }
+  fclose(fp);
+
+  const rapidjson::Value& orientationValue = d["Orientation"];
+  const rapidjson::Value& numberOfLayersValue = d["NumberOfLayers"];
+  const rapidjson::Value& numberOfLeafPairsPerLayerValue = d["NumberOfLeavesPerLayer"];
+  int numberOfLayers = numberOfLayersValue.GetInt();
+  int numberOfLeafPairsPerLayer = numberOfLeafPairsPerLayerValue.GetInt();
+  
+  const rapidjson::Value& leafPositionBoundariesValues = d["LeafPositionBoundaries"];
+
+  std::vector< double > leafPositionBoundariesLayer1;
+  std::vector< double > leafPositionBoundariesLayer2;
+  if (leafPositionBoundariesValues.IsArray() && leafPositionBoundariesValues.Capacity() == 2)
+  {
+    const rapidjson::Value& layer1 = leafPositionBoundariesValues[0];
+    if (!layer1.IsArray())
+    {
+      vtkErrorMacro("LoadMlcPositionTablesFromJSONFile: Invalid leaf position boundaries values for layer-1");
+      return -1;
+    }
+    const rapidjson::Value& layer2 = leafPositionBoundariesValues[1];
+    if (!layer2.IsArray())
+    {
+      vtkErrorMacro("LoadMlcPositionTablesFromJSONFile: Invalid leaf position boundaries values for layer-2");
+      return -1;
+    }
+    // Layer-1
+    for (rapidjson::SizeType pos = 0; pos < layer1.Size(); pos++) // Uses SizeType instead of size_t
+    {
+      leafPositionBoundariesLayer1.push_back(layer1[pos].GetDouble());
+    }
+    // Layer-2
+    for (rapidjson::SizeType pos = 0; pos < layer2.Size(); pos++) // Uses SizeType instead of size_t
+    {
+      leafPositionBoundariesLayer2.push_back(layer2[pos].GetDouble());
+    }
+    if (leafPositionBoundariesLayer1.size() != size_t(numberOfLeafPairsPerLayer + 1) || leafPositionBoundariesLayer2.size() != size_t(numberOfLeafPairsPerLayer + 1))
+    {
+      vtkErrorMacro("LoadMlcPositionTablesFromJSONFile: Wrong number of leaf pairs and leaf pair boundaries values");
+      return -1;
+    }
+  }
+
+  if (leafPositionBoundariesValues.IsArray() && leafPositionBoundariesValues.Capacity() == 1)
+  {
+    const rapidjson::Value& layer1 = leafPositionBoundariesValues[0];
+    if (!layer1.IsArray())
+    {
+      vtkErrorMacro("LoadMlcPositionTablesFromJSONFile: Invalid leaf position boundaries values for layer-1");
+      return -1;
+    }
+    // Layer-1
+    for (rapidjson::SizeType pos = 0; pos < layer1.Size(); pos++) // Uses SizeType instead of size_t
+    {
+      leafPositionBoundariesLayer1.push_back(layer1[pos].GetDouble());
+    }
+    if (leafPositionBoundariesLayer1.size() != size_t(numberOfLeafPairsPerLayer + 1))
+    {
+      vtkErrorMacro("LoadMlcPositionTablesFromJSONFile: Wrong number of leaf pairs and leaf pair boundaries values");
+      return -1;
+    }
+  }
+
+  const rapidjson::Value& a = d["ControlPoint"];
+  if (a.IsArray())
+  {
+    for (rapidjson::SizeType i = 0; i < a.Size(); i++) // Uses SizeType instead of size_t
+    {
+      vtkMRMLTableNode* mlcTableNode = nullptr;
+      if (a[i].HasMember("LeafPositions"))
+      {
+        const rapidjson::Value& controlPoint = a[i];
+        int index = -1;
+        vtkMRMLIhepMlcControlNode::LayerType layerType = vtkMRMLIhepMlcControlNode::Layer_Last;
+        std::string name;
+        std::vector< double > layer1Side1Positions;
+        std::vector< double > layer1Side2Positions;
+        std::vector< double > layer2Side1Positions;
+        std::vector< double > layer2Side2Positions;
+        if (!controlPoint.IsObject())
+        {
+          vtkErrorMacro("LoadMlcPositionTablesFromJSONFile: Invalid control point object");
+          continue;
+        }
+        for (rapidjson::Value::ConstMemberIterator controlPointIter = controlPoint.MemberBegin(); controlPointIter != controlPoint.MemberEnd(); ++controlPointIter)
+        {
+          if (controlPointIter->name.GetString() == std::string("Index"))
+          {
+            const rapidjson::Value& indexValue = controlPointIter->value;
+            index = indexValue.GetInt();
+          }
+          if (controlPointIter->name.GetString() == std::string("Name"))
+          {
+            const rapidjson::Value& nameValue = controlPointIter->value;
+            name = nameValue.GetString();
+          }
+          if (controlPointIter->name.GetString() == std::string("LeafPositions"))
+          {
+            const rapidjson::Value& leafPosition = controlPointIter->value;
+            if (!leafPosition.IsObject())
+            {
+              vtkErrorMacro("LoadMlcPositionTablesFromJSONFile: invalid leaf positions object");
+              continue;
+            }
+
+            for (rapidjson::Value::ConstMemberIterator leafPositionsIter = leafPosition.MemberBegin(); leafPositionsIter != leafPosition.MemberEnd(); ++leafPositionsIter)
+            {
+              const rapidjson::Value& layer = leafPositionsIter->value;
+              if (leafPositionsIter->name.GetString() == std::string("Layer") && layer.IsArray() && (layer.Capacity() == 2))
+              {
+                for (rapidjson::SizeType layerIndex = 0; layerIndex < layer.Size(); layerIndex++) // Uses SizeType instead of size_t
+                {
+                  if (layer[layerIndex].HasMember("Positions"))
+                  {
+                    const rapidjson::Value& layerValue = layer[layerIndex];
+                    for (rapidjson::Value::ConstMemberIterator layerIter = layerValue.MemberBegin(); layerIter != layerValue.MemberEnd(); ++layerIter)
+                    {
+                      if (layerIter->name.GetString() == std::string("Number"))
+                      {
+                        const rapidjson::Value& numberValue = layerIter->value;
+                        int number = numberValue.GetInt();
+                        switch (number)
+                        {
+                        case 1:
+                          layerType = vtkMRMLIhepMlcControlNode::Layer1;
+                          break;
+                        case 2:
+                          layerType = vtkMRMLIhepMlcControlNode::Layer2;
+                          break;
+                        default:
+                          layerType = vtkMRMLIhepMlcControlNode::Layer_Last;
+                          break;
+                        }
+                      }
+                      if (layerIter->name.GetString() == std::string("Positions") && numberOfLayers == 2)
+                      {
+                        vtkWarningMacro("LoadMlcPositionTablesFromJSONFile: layer type " << static_cast<int>(layerType) << ' ' << name);
+                        const rapidjson::Value& positions = layerIter->value;
+                        if (positions.IsArray() && positions.Capacity() == 2)
+                        {
+                          const rapidjson::Value& side1 = positions[0];
+                          if (!side1.IsArray())
+                          {
+                            vtkErrorMacro("LoadMlcPositionTablesFromJSONFile: not an array");
+                            continue;
+                          }
+                          const rapidjson::Value& side2 = positions[1];
+                          if (!side2.IsArray())
+                          {
+                            vtkErrorMacro("LoadMlcPositionTablesFromJSONFile: not an array");
+                            continue;
+                          }
+                          // Side-1
+                          for (rapidjson::SizeType pos = 0; pos < side1.Size(); pos++) // Uses SizeType instead of size_t
+                          {
+                            switch (layerType)
+                            {
+                             case vtkMRMLIhepMlcControlNode::Layer1:
+                               layer1Side1Positions.push_back(side1[pos].GetDouble());
+                               break;
+                             case vtkMRMLIhepMlcControlNode::Layer2:
+                               layer2Side1Positions.push_back(side1[pos].GetDouble());
+                               break;
+                             default:
+                               break;
+                            }
+                          }
+                          // Side-2
+                          for (rapidjson::SizeType pos = 0; pos < side2.Size(); pos++) // Uses SizeType instead of size_t
+                          {
+                            switch (layerType)
+                            {
+                             case vtkMRMLIhepMlcControlNode::Layer1:
+                               layer1Side2Positions.push_back(side2[pos].GetDouble());
+                               break;
+                             case vtkMRMLIhepMlcControlNode::Layer2:
+                               layer2Side2Positions.push_back(side2[pos].GetDouble());
+                               break;
+                             default:
+                               break;
+                            }
+                          }
+                        }
+                      }
+                      else if (layerIter->name.GetString() == std::string("Positions") && numberOfLayers == 1)
+                      {
+                        const rapidjson::Value& positions = layerIter->value;
+                        if (positions.IsArray() && positions.Capacity() == 1)
+                        {
+                          const rapidjson::Value& side1 = positions[0];
+                          if (!side1.IsArray())
+                          {
+                            vtkErrorMacro("LoadMlcPositionTablesFromJSONFile: not an array");
+                            continue;
+                          }
+                          // Side-1
+                          for (rapidjson::SizeType pos = 0; pos < side1.Size(); pos++) // Uses SizeType instead of size_t
+                          {
+                            switch (layerType)
+                            {
+                             case vtkMRMLIhepMlcControlNode::Layer1:
+                               layer1Side1Positions.push_back(side1[pos].GetDouble());
+                               break;
+                             case vtkMRMLIhepMlcControlNode::Layer2:
+                               layer2Side1Positions.push_back(side1[pos].GetDouble());
+                               break;
+                             default:
+                               break;
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+        vtkWarningMacro("LoadMlcPositionTablesFromJSONFile: JSON data " << orientationValue.GetString() << ' ' << index << ' ' << layer1Side2Positions.size() << ' ' << layer1Side1Positions.size() \
+         << ' ' << layer2Side2Positions.size() << ' ' <<  layer2Side1Positions.size() << ' ' << name << ' ' << numberOfLayers << ' ' << numberOfLeafPairsPerLayer);
+        if (index >= 0 && layer1Side2Positions.size() == layer1Side1Positions.size() && layer2Side2Positions.size() == layer2Side1Positions.size() && !name.empty())
+        {
+          mlcTableNode = this->CreateMlcTableNode(parameterNode, orientationValue.GetString(), name, numberOfLayers, numberOfLeafPairsPerLayer);
+        }
+        if (!mlcTableNode)
+        {
+          vtkErrorMacro("LoadMlcPositionTablesFromJSONFile: Unable to create MLC table node");
+          return -1;
+        }
+        if (numberOfLayers == 1)
+        {
+          vtkTable* table = mlcTableNode->GetTable();
+          for (int row = 0; row < numberOfLeafPairsPerLayer + 1; row++)
+          {
+            table->SetValue( row, 0, leafPositionBoundariesLayer1[row]);
+          }
+          for (int row = 0; row < numberOfLeafPairsPerLayer; row++)
+          {
+            table->SetValue( row, 1, layer1Side1Positions[row]);
+          }
+          table->SetValue( numberOfLeafPairsPerLayer, 1, 0.);
+          for (int row = 0; row < numberOfLeafPairsPerLayer; row++)
+          {
+            table->SetValue( row, 2, layer1Side2Positions[row]);
+          }
+          table->SetValue( numberOfLeafPairsPerLayer, 2, 0.);
+        }
+        else if (numberOfLayers == 2)
+        {
+          vtkTable* table = mlcTableNode->GetTable();
+          for (int row = 0; row < numberOfLeafPairsPerLayer + 1; row++)
+          {
+            table->SetValue( row, 0, leafPositionBoundariesLayer1[row]);
+          }
+          for (int row = 0; row < numberOfLeafPairsPerLayer; row++)
+          {
+            table->SetValue( row, 1, layer1Side1Positions[row]);
+          }
+          table->SetValue( numberOfLeafPairsPerLayer, 1, 0.);
+          for (int row = 0; row < numberOfLeafPairsPerLayer; row++)
+          {
+            table->SetValue( row, 2, layer1Side2Positions[row]);
+          }
+          table->SetValue( numberOfLeafPairsPerLayer, 2, 0.);
+
+          for (int row = 0; row < numberOfLeafPairsPerLayer + 1; row++)
+          {
+            table->SetValue( row, 3, leafPositionBoundariesLayer2[row]);
+          }
+          for (int row = 0; row < numberOfLeafPairsPerLayer; row++)
+          {
+            table->SetValue( row, 4, layer2Side1Positions[row]);
+          }
+          table->SetValue( numberOfLeafPairsPerLayer, 4, 0.);
+          for (int row = 0; row < numberOfLeafPairsPerLayer; row++)
+          {
+            table->SetValue( row, 5, layer2Side2Positions[row]);
+          }
+          table->SetValue( numberOfLeafPairsPerLayer, 5, 0.);
+        }
+        else
+        {
+          vtkWarningMacro("LoadMlcPositionTablesFromJSONFile: Unsupported number of layers");
+          return -1;
+        }
+        if (this->SetBeamParentForMlcTableNode(parameterNode->GetBeamNode(), mlcTableNode))
+        {
+          index = -1;
+          name.clear();
+          layerType = vtkMRMLIhepMlcControlNode::Layer_Last;
+          layer1Side1Positions.clear();
+          layer1Side2Positions.clear();
+          layer2Side1Positions.clear();
+          layer2Side2Positions.clear();
+        }
+      }
+    }
+  }
   return -1;
+}
+
+//---------------------------------------------------------------------------
+int vtkSlicerIhepMlcControlLogic::LoadMlcCalibrationDataFromJSONFile(vtkMRMLIhepMlcControlNode* parameterNode, const std::string& jsonFileName)
+{
+  if (!parameterNode)
+  {
+    vtkErrorMacro("LoadMlcCalibrationDataFromJSONFile: Parameter node is invalid");
+    return -1;
+  }
+  // Load JSON descriptor file
+  FILE *fp = fopen(jsonFileName.c_str(), "r");
+  if (!fp)
+  {
+    vtkErrorMacro("LoadMlcCalibrationDataFromJSONFile: Can't open JSON file");
+    return -1;
+  }
+  const size_t size = 10000000;
+  std::unique_ptr<char[]> buffer(new char[size]);
+  rapidjson::FileReadStream fs(fp, buffer.get(), size);
+
+  rapidjson::Document d;
+  if (d.ParseStream(fs).HasParseError())
+  {
+    vtkErrorMacro("LoadMlcCalibrationDataFromJSONFile: Can't parse JSON file");
+    fclose(fp);
+    return -1;
+  }
+  fclose(fp);
+  
+  const rapidjson::Value& nofLayer = d["NumberOfLayers"];
+  const rapidjson::Value& nofLeafPairs = d["NumberOfLeavesPerLayer"];
+  const rapidjson::Value& calibValues = d["LeavesCalibrationNumbers"];
+  size_t nofLeavesInLayers = nofLayer.GetInt() * nofLeafPairs.GetInt() * 2; 
+  if (calibValues.IsArray() && (calibValues.Size() == nofLeavesInLayers))
+  {
+    for (rapidjson::SizeType i = 0; i < calibValues.Size(); i++) // Uses SizeType instead of size_t
+    {
+      vtkMRMLIhepMlcControlNode::LayerType layer = vtkMRMLIhepMlcControlNode::Layer_Last;
+      vtkMRMLIhepMlcControlNode::SideType side = vtkMRMLIhepMlcControlNode::Side_Last;
+      int value = -1;
+      int address = -1;
+      const rapidjson::Value& calibValue = calibValues[i];
+      if (!calibValue.IsObject())
+      {
+        vtkErrorMacro("LoadMlcCalibrationDataFromJSONFile: Wrong format of calibration data");
+        return -1;
+      }
+      for (rapidjson::Value::ConstMemberIterator itr2 = calibValue.MemberBegin(); itr2 != calibValue.MemberEnd(); ++itr2)
+      {
+        if (itr2->name.GetString() == std::string("Address"))
+        {
+          const auto& addressValue = itr2->value;
+          address = addressValue.GetInt();
+        }
+        else if (itr2->name.GetString() == std::string("Layer"))
+        {
+          const auto& layerValue = itr2->value;
+          switch (layerValue.GetInt())
+          {
+          case 1:
+            layer = vtkMRMLIhepMlcControlNode::Layer1;
+            break;
+          case 2:
+            layer = vtkMRMLIhepMlcControlNode::Layer2;
+            break;
+          default:
+            break;
+          }
+        }
+        else if (itr2->name.GetString() == std::string("Side"))
+        {
+          const auto& sideValue = itr2->value;
+          switch (sideValue.GetInt())
+          {
+          case 1:
+            side = vtkMRMLIhepMlcControlNode::Side1;
+            break;
+          case 2:
+            side = vtkMRMLIhepMlcControlNode::Side2;
+            break;
+          default:
+            break;
+          }
+        }
+        else if (itr2->name.GetString() == std::string("Value"))
+        {
+          const auto& valueValue = itr2->value;
+          value = valueValue.GetInt();
+        }
+      }
+      if (layer != vtkMRMLIhepMlcControlNode::Layer_Last && side != vtkMRMLIhepMlcControlNode::Side_Last && address != -1 && value != -1)
+      {
+        vtkMRMLIhepMlcControlNode::LeafData leafData;
+        if (parameterNode->GetLeafDataByAddressInLayer(leafData, address, layer))
+        {
+          if (leafData.Side == side && leafData.Layer == layer && leafData.Address == address)
+          {
+            leafData.CalibrationSteps = value;
+            return parameterNode->SetLeafDataByAddressInLayer(leafData, address, layer);
+          }
+        }
+      }
+    }
+  }
+  return -1;
+}
+
+//---------------------------------------------------------------------------
+vtkMRMLTableNode* vtkSlicerIhepMlcControlLogic::CreateMlcTableNode(vtkMRMLIhepMlcControlNode* parameterNode,
+  const std::string& orientation, const std::string& name, int numberOfLayers, int numberOfPairLeaves)
+{
+  vtkMRMLScene* scene = this->GetMRMLScene();
+  if (!scene)
+  {
+    vtkErrorMacro("CreateMlcTableNode: Scene node is invalid");
+    return nullptr;
+  }
+  if (!parameterNode || (parameterNode && !parameterNode->GetBeamNode()))
+  {
+    vtkErrorMacro("CreateMlcTableNode: Parameter or beam node (or both) are invalid");
+    return nullptr;
+  }
+
+  std::string tableName;
+  if (orientation == std::string("MLCX"))
+  {
+    tableName = std::string(MLCX_BOUNDARYANDPOSITION) + '_' + name;
+  }
+  else if (orientation == std::string("MLCY"))
+  {
+    tableName = std::string(MLCY_BOUNDARYANDPOSITION) + '_' + name;
+  }
+  if (tableName.empty())
+  {
+    vtkErrorMacro("CreateMlcTableNode: MLC orientation name is invalid");
+    return nullptr;
+  }
+
+  vtkMRMLTableNode* tableNode = vtkMRMLTableNode::SafeDownCast(scene->AddNewNodeByClass("vtkMRMLTableNode", tableName));
+  vtkTable* table = tableNode->GetTable();
+  if (!table)
+  {
+    vtkErrorMacro("CreateMlcTableNode: Unable to create vtkTable to fill MLC data");
+    return nullptr;
+  }
+
+  for (int i = 0; i < numberOfLayers; ++i)
+  {
+    // Column 0; Leaf pair boundary values for layer
+    vtkNew<vtkDoubleArray> boundaryLayer;
+    std::stringstream strbuf;
+    strbuf << std::string("Boundary-") << i + 1;
+    std::string boundaryName = strbuf.str();
+    boundaryLayer->SetName(boundaryName.c_str());
+    table->AddColumn(boundaryLayer);
+
+    // Column 1; Leaf positions on the side "1" for layer
+    vtkNew<vtkDoubleArray> pos1Layer;
+    std::stringstream strbuf2;
+    strbuf2 << i + 1 << std::string("-1");
+    std::string side1Name = strbuf2.str();
+    pos1Layer->SetName(side1Name.c_str());
+    table->AddColumn(pos1Layer);
+
+    // Column 2; Leaf positions on the side "2" for layer
+    vtkNew<vtkDoubleArray> pos2Layer;
+    std::stringstream strbuf3;
+    strbuf3 << i + 1 << std::string("-2");
+    std::string side2Name = strbuf3.str();
+    pos1Layer->SetName(side2Name.c_str());
+    table->AddColumn(pos2Layer);
+  }
+  table->SetNumberOfRows(numberOfPairLeaves + 1);
+
+  for (int i = 0; i < numberOfLayers; ++i)
+  {
+    std::stringstream strbuf;
+    strbuf << std::string("Boundary-") << i + 1;
+    std::string boundaryName = strbuf.str();
+
+    std::stringstream strbuf2;
+    strbuf2 << i + 1 << std::string("-1");
+    std::string side1Name = strbuf2.str();
+
+    std::stringstream strbuf3;
+    strbuf3 << i + 1 << std::string("-2");
+    std::string side2Name = strbuf3.str();
+
+    for (int row = 0; row < numberOfPairLeaves; ++row)
+    {
+      table->SetValue(row, 3 * i + 0, 0.0);
+    }
+
+    for (int row = 0; row < numberOfPairLeaves; ++row)
+    {
+      table->SetValue(row, 3 * i + 1, 0.0); // default meaningful value for side "1" for layer
+      table->SetValue(row, 3 * i + 2, 0.0); // default meaningful value for side "2" for layer
+    }
+    table->SetValue(numberOfPairLeaves, 3 * i + 1, 0.); // side "1" set last unused value to zero
+    table->SetValue(numberOfPairLeaves, 3 * i + 1, 0.); // side "2" set last unused value to zero
+    tableNode->SetColumnDescription( boundaryName.c_str(), "Pair of leaves boundary for the layer");
+    tableNode->SetColumnDescription( side1Name.c_str(), "Leaf position on the side \"1\" for the layer");
+    tableNode->SetColumnDescription( side2Name.c_str(), "Leaf position on the side \"2\" for the layer");
+  }
+  tableNode->SetUseColumnNameAsColumnHeader(true);
+  return tableNode;
 }

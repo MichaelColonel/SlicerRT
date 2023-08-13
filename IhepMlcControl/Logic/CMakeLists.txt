@@ -8,6 +8,7 @@ set(${KIT}_INCLUDE_DIRECTORIES
   ${SlicerRtCommon_INCLUDE_DIRS}
   ${vtkSlicer${MODULE_NAME}ModuleMRML_INCLUDE_DIRS}
   ${vtkSlicerSubjectHierarchyModuleLogic_INCLUDE_DIRS}
+  ${RapidJSON_INCLUDE_DIR}
   )
 
 set(${KIT}_SRCS

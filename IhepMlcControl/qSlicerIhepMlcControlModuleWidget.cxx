@@ -17,6 +17,7 @@
 
 // Qt includes
 #include <QDebug>
+#include <QFileDialog>
 #include <QTimer>
 #include <QRadioButton>
 
@@ -202,6 +203,8 @@ void qSlicerIhepMlcControlModuleWidget::setup()
   // Buttons
   QObject::connect( d->PushButton_SetMlcTable, SIGNAL(clicked()),
     this, SLOT(onSetMlcTableClicked()));
+  QObject::connect( d->PushButton_LoadMlcPositionTables, SIGNAL(clicked()),
+    this, SLOT(onLoadMlcTablesClicked()));
   QObject::connect( d->PushButton_SwitchLayout, SIGNAL(toggled(bool)),
     this, SLOT(onSwitchToMlcControlLayoutToggled(bool)));
   QObject::connect( d->CheckBox_ParallelBeam, SIGNAL(toggled(bool)),
@@ -283,20 +286,22 @@ void qSlicerIhepMlcControlModuleWidget::setup()
     SLOT(onLeafDataStepsChanged(int,int,vtkMRMLIhepMlcControlNode::SideType, vtkMRMLIhepMlcControlNode::LayerType)));
 
   // MLC Control widget and MLC device logic signals
-/*
-  QObject::connect( d->MlcLayer1Logic, SIGNAL(leafPositionChanged(int, cn::LayerType, cn::SideType,int, int)),
-    d->MlcControlWidget, SLOT(onLeafPositionChanged(int, cn::LayerType, cn::SideType,int, int)));
-  QObject::connect( d->MlcLayer1Logic, SIGNAL(leafSwitchChanged(int, cn::LayerType, cn::SideType,bool)),
-    d->MlcControlWidget, SLOT(onLeafSwitchChanged(int, cn::LayerType, cn::SideType,bool)));
-  QObject::connect( d->MlcLayer2Logic, SIGNAL(leafPositionChanged(int, cn::LayerType, cn::SideType,int, int)),
-    d->MlcControlWidget, SLOT(onLeafPositionChanged(int, cn::LayerType, cn::SideType,int, int)));
-  QObject::connect( d->MlcLayer2Logic, SIGNAL(leafSwitchChanged(int, cn::LayerType, cn::SideType,bool)),
-    d->MlcControlWidget, SLOT(onLeafSwitchChanged(int, cn::LayerType, cn::SideType,bool)));
-*/
+
+  QObject::connect( d->MlcLayer1Logic, SIGNAL(layerDisconnected(vtkMRMLIhepMlcControlNode::LayerType)),
+    d->MlcControlWidget, SLOT(onMlcLayerDisconnected(vtkMRMLIhepMlcControlNode::LayerType)));
+  QObject::connect( d->MlcLayer2Logic, SIGNAL(layerDisconnected(vtkMRMLIhepMlcControlNode::LayerType)),
+    d->MlcControlWidget, SLOT(onMlcLayerDisconnected(vtkMRMLIhepMlcControlNode::LayerType)));
+  QObject::connect( d->MlcLayer1Logic, SIGNAL(layerConnected(vtkMRMLIhepMlcControlNode::LayerType)),
+    d->MlcControlWidget, SLOT(onMlcLayerConnected(vtkMRMLIhepMlcControlNode::LayerType)));
+  QObject::connect( d->MlcLayer1Logic, SIGNAL(layerConnected(vtkMRMLIhepMlcControlNode::LayerType)),
+    d->MlcControlWidget, SLOT(onMlcLayerConnected(vtkMRMLIhepMlcControlNode::LayerType)));
+
   QObject::connect( d->MlcLayer1Logic, SIGNAL(leafStateCommandBufferChanged(const vtkMRMLIhepMlcControlNode::CommandBufferType&, vtkMRMLIhepMlcControlNode::LayerType, vtkMRMLIhepMlcControlNode::SideType)),
     this, SLOT(onLeafStateCommandBufferChanged(const vtkMRMLIhepMlcControlNode::CommandBufferType&, vtkMRMLIhepMlcControlNode::LayerType, vtkMRMLIhepMlcControlNode::SideType)));
   QObject::connect( d->MlcLayer2Logic, SIGNAL(leafStateCommandBufferChanged(const vtkMRMLIhepMlcControlNode::CommandBufferType&, vtkMRMLIhepMlcControlNode::LayerType, vtkMRMLIhepMlcControlNode::SideType)),
     this, SLOT(onLeafStateCommandBufferChanged(const vtkMRMLIhepMlcControlNode::CommandBufferType&, vtkMRMLIhepMlcControlNode::LayerType, vtkMRMLIhepMlcControlNode::SideType)));
+  QObject::connect( d->MlcLayer1Logic, SIGNAL(queueSizeChanged(int)), d->ProgressBar_CommandQueueLayer1, SLOT(setValue(int)));
+  QObject::connect( d->MlcLayer2Logic, SIGNAL(queueSizeChanged(int)), d->ProgressBar_CommandQueueLayer2, SLOT(setValue(int)));
   QObject::connect( d->MlcLayer1Logic, SIGNAL(queueSizeChanged(int)), d->ProgressBar_CommandQueueLayer1, SLOT(setValue(int)));
   QObject::connect( d->MlcLayer2Logic, SIGNAL(queueSizeChanged(int)), d->ProgressBar_CommandQueueLayer2, SLOT(setValue(int)));
 //  QObject::connect( d->MlcLayer1Logic, SIGNAL(leafStateCommandBufferChanged(const vtkMRMLIhepMlcControlNode::CommandBufferType&, vtkMRMLIhepMlcControlNode::LayerType, vtkMRMLIhepMlcControlNode::SideType)),
@@ -308,6 +313,8 @@ void qSlicerIhepMlcControlModuleWidget::setup()
 
   // Select predefined shape as square
   QTimer::singleShot(0, d->MlcControlWidget, [=](){ d->MlcControlWidget->onMlcPredefinedIndexChanged(3); } );
+  d->PushButton_StartLeaves->hide();
+  d->PushButton_SetLeavesParameters->hide();
 }
 
 //-----------------------------------------------------------------------------
@@ -454,6 +461,7 @@ void qSlicerIhepMlcControlModuleWidget::onMlcTableNodeChanged(vtkMRMLNode *node)
   {
     return;
   }
+
   vtkMRMLTableNode* tableNode = vtkMRMLTableNode::SafeDownCast(node);
   d->ParameterNode->GetBeamNode()->SetAndObserveMultiLeafCollimatorTableNode(tableNode);
   d->logic()->UpdateLeavesDataFromMlcPositionTableNode(d->ParameterNode);
@@ -527,10 +535,28 @@ void qSlicerIhepMlcControlModuleWidget::updateWidgetFromMRML()
   case vtkMRMLIhepMlcControlNode::OneLayer:
     d->RadioButton_OneLayer->setChecked(true);
     d->RadioButton_TwoLayers->setChecked(false);
+    {
+      if (!(d->MlcLayer1SerialPort && d->MlcLayer1SerialPort->isOpen()))
+      {
+        d->MlcControlWidget->onMlcLayerDisconnected(vtkMRMLIhepMlcControlNode::Layer1);
+      }
+    }
     break;
   case vtkMRMLIhepMlcControlNode::TwoLayers:
     d->RadioButton_OneLayer->setChecked(false);
     d->RadioButton_TwoLayers->setChecked(true);
+    {
+      if (!(d->MlcLayer1SerialPort && d->MlcLayer1SerialPort->isOpen()))
+      {
+        d->MlcControlWidget->onMlcLayerDisconnected(vtkMRMLIhepMlcControlNode::Layer1);
+      }
+    }
+    {
+      if (!(d->MlcLayer2SerialPort && d->MlcLayer2SerialPort->isOpen()))
+      {
+        d->MlcControlWidget->onMlcLayerDisconnected(vtkMRMLIhepMlcControlNode::Layer2);
+      }
+    }
     break;
   default:
     break;
@@ -541,32 +567,41 @@ void qSlicerIhepMlcControlModuleWidget::updateWidgetFromMRML()
   d->SliderWidget_DistanceBetweenLayers->setValue(parameterNode->GetDistanceBetweenTwoLayers());
   d->SliderWidget_LayersOffset->setValue(parameterNode->GetOffsetBetweenTwoLayers());
 
+  if (d->CollapsibleGroupBox_LeafControl->collapsed())
+  {
+    return;
+  }
   vtkMRMLIhepMlcControlNode::LayerType layer = d->getSelectedMlcLayer();
   vtkMRMLIhepMlcControlNode::LeafData leafData;
   int address = d->HorizontalSlider_LeafAddress->value();
   if (d->ParameterNode->GetLeafDataByAddressInLayer(leafData, address, layer))
   {
     int range = d->ParameterNode->GetLeafRangeByAddressInLayer(address, layer);
-    qDebug() << Q_FUNC_INFO << "Address: " << address << ", Range : 0~" << range << ", Value: " << leafData.Steps;
 
     if (range != -1)
     {
       d->HorizontalSlider_LeafSteps->setRange(0, range);
       d->SpinBox_LeafSteps->setRange(0, range);
+      double distanceRange = vtkMRMLIhepMlcControlNode::InternalCounterValueToDistance(range);
+      d->HorizontalSlider_Distance->setRange(0., distanceRange);
+      d->DoubleSpinBox_Distance->setRange(0., distanceRange);
     }
     else
     {
       d->HorizontalSlider_LeafSteps->setRange(0, leafData.Range);
       d->SpinBox_LeafSteps->setRange(0, leafData.Range);
+      double distanceRange = vtkMRMLIhepMlcControlNode::InternalCounterValueToDistance(leafData.Range);
+      d->HorizontalSlider_Distance->setRange(0., distanceRange);
+      d->DoubleSpinBox_Distance->setRange(0., distanceRange);
     }
+    QSignalBlocker blocker1(d->HorizontalSlider_LeafSteps);
     d->HorizontalSlider_LeafSteps->setValue(leafData.Steps);
+    QSignalBlocker blocker2(d->SpinBox_LeafSteps);
     d->SpinBox_LeafSteps->setValue(leafData.Steps);
-
-    double distanceRange = vtkMRMLIhepMlcControlNode::InternalCounterValueToDistance(leafData.Range);
     double distanceSteps = vtkMRMLIhepMlcControlNode::InternalCounterValueToDistance(leafData.Steps);
-    d->HorizontalSlider_Distance->setRange(0., distanceRange);
+    QSignalBlocker blocker3(d->HorizontalSlider_Distance);
     d->HorizontalSlider_Distance->setValue(distanceSteps);
-    d->DoubleSpinBox_Distance->setRange(0., distanceRange);
+    QSignalBlocker blocker4(d->DoubleSpinBox_Distance);
     d->DoubleSpinBox_Distance->setValue(distanceSteps);
 
     leafData.Direction ? d->RadioButton_Clockwise->setChecked(true) : d->RadioButton_CounterClockwise->setChecked(true);
@@ -617,11 +652,17 @@ void qSlicerIhepMlcControlModuleWidget::onEnter()
 
   if (parameterNode && parameterNode->GetBeamNode())
   {
+    vtkMRMLRTBeamNode* node = parameterNode->GetBeamNode();
+    if (vtkMRMLNode* mlcTableNode = node->GetMultiLeafCollimatorTableNode())
+    {
+      // Update MLC table
+///      this->onMlcTableNodeChanged(mlcTableNode);
+    }
     // First thing first: update normal and vup vectors for parameter node
     // in case observed beam node transformation has been modified
 ///    d->logic()->UpdateNormalAndVupVectors(parameterNode);
   }
-
+  
   // Create DRR markups nodes
 ///  d->logic()->CreateMarkupsNodes(parameterNode);
 
@@ -849,6 +890,66 @@ void qSlicerIhepMlcControlModuleWidget::onSetMlcTableClicked()
 }
 
 //-----------------------------------------------------------------------------
+void qSlicerIhepMlcControlModuleWidget::onLoadMlcTablesClicked()
+{
+  Q_D(qSlicerIhepMlcControlModuleWidget);
+  
+  if (!d->ParameterNode)
+  {
+    qCritical() << Q_FUNC_INFO << ": Invalid parameter node";
+    return;
+  }
+
+  if (!d->ParameterNode->GetBeamNode())
+  {
+    qCritical() << Q_FUNC_INFO << ": Invalid RTBeam node";
+    return;
+  }
+
+  QFileDialog* dialog = new QFileDialog( this, tr("Open MLC tables JSON file"));
+  QStringList fileNames;
+  QString fileName;
+  QString filter;
+
+  dialog->setAcceptMode(QFileDialog::AcceptOpen);
+  dialog->setFileMode(QFileDialog::ExistingFile);
+
+  QStringList filters;
+  filters << tr("JSON Files *.json (*.json)");
+
+  dialog->setNameFilters(filters);
+
+//  dialog->setDirectory(rundir);
+
+  if (dialog->exec())
+  {
+    fileNames = dialog->selectedFiles();
+
+    if(!fileNames.isEmpty())
+    {
+      fileName = fileNames[0];
+      filter = dialog->selectedNameFilter();
+    }
+  }
+  delete dialog;
+
+  if (fileName.isEmpty())
+  {
+    qDebug() << Q_FUNC_INFO << "MLC tables JSON file name is empty";
+    return;
+  }
+
+  if (filter == tr("JSON Files *.json (*.json)"))
+  {
+    if (d->logic()->LoadMlcPositionTablesFromJSONFile(d->ParameterNode, fileName.toStdString()) != -1)
+    {
+      qDebug() << Q_FUNC_INFO << ": MLC tables have been loaded";
+    }
+    d->ParameterNode->Modified();
+  }
+}
+
+//-----------------------------------------------------------------------------
 void qSlicerIhepMlcControlModuleWidget::onConnectMlcLayerDevicesClicked()
 {
   Q_D(qSlicerIhepMlcControlModuleWidget);
@@ -1011,7 +1112,7 @@ void qSlicerIhepMlcControlModuleWidget::onLeafDirectionButtonClicked(QAbstractBu
     }
     if (d->ParameterNode->SetLeafDataByAddressInLayer(leafData, address, layer))
     {
-      qDebug() << Q_FUNC_INFO << ": Leaf direction is set";
+///      qDebug() << Q_FUNC_INFO << ": Leaf direction is set";
     }
   }
 }
@@ -1038,10 +1139,8 @@ void qSlicerIhepMlcControlModuleWidget::onLeafStepsChanged(int steps)
 
     if (d->ParameterNode->SetLeafDataByAddressInLayer(leafData, address, layer))
     {
-      qDebug() << Q_FUNC_INFO << ": Leaf steps is set";
       if (d->logic()->UpdateMlcPositionTableFromLeafData(d->ParameterNode, leafData))
       {
-        qDebug() << Q_FUNC_INFO << ": MLC leaf position is changed";
         d->ParameterNode->Modified();
       }
     }
@@ -1441,11 +1540,9 @@ void qSlicerIhepMlcControlModuleWidget::onLeavesGetStateClicked()
   switch (selectedLayer)
   {
   case vtkMRMLIhepMlcControlNode::Layer1:
-    qDebug() << "Layer-1";
     mlcLayerStateCommands = d->MlcLayer1Logic->getStateCommands(addresses);
     break;
   case vtkMRMLIhepMlcControlNode::Layer2:
-    qDebug() << "Layer-2";
     mlcLayerStateCommands = d->MlcLayer2Logic->getStateCommands(addresses);
     break;
   default:
@@ -1456,11 +1553,9 @@ void qSlicerIhepMlcControlModuleWidget::onLeavesGetStateClicked()
     switch (selectedLayer)
     {
     case vtkMRMLIhepMlcControlNode::Layer1:
-      qDebug() << "Layer-1";
       d->MlcLayer1Logic->addCommandsToQueue(mlcLayerStateCommands);
       break;
     case vtkMRMLIhepMlcControlNode::Layer2:
-      qDebug() << "Layer-2";
       d->MlcLayer2Logic->addCommandsToQueue(mlcLayerStateCommands);
       break;
     default:
@@ -1580,16 +1675,69 @@ void qSlicerIhepMlcControlModuleWidget::onMlcLayersPredefinedPositionChanged(vtk
 void qSlicerIhepMlcControlModuleWidget::onMlcLayerChanged(vtkMRMLIhepMlcControlNode::LayerType selectedLayer)
 {
   Q_D(qSlicerIhepMlcControlModuleWidget);
+  vtkMRMLIhepMlcControlNode::LayerType selectedMlcLayer = vtkMRMLIhepMlcControlNode::Layer_Last;
   switch (selectedLayer)
   {
   case vtkMRMLIhepMlcControlNode::Layer1:
     d->RadioButton_DeviceLayer1->setChecked(true);
+    selectedMlcLayer = vtkMRMLIhepMlcControlNode::Layer1;
     break;
   case vtkMRMLIhepMlcControlNode::Layer2:
     d->RadioButton_DeviceLayer2->setChecked(true);
+    selectedMlcLayer = vtkMRMLIhepMlcControlNode::Layer2;
     break;
   default:
     break;
+  }
+
+  if (selectedMlcLayer != vtkMRMLIhepMlcControlNode::Layer_Last)
+  {
+    vtkMRMLIhepMlcControlNode::LeafData leafData;
+    int address = d->HorizontalSlider_LeafAddress->value();
+    if (d->ParameterNode->GetLeafDataByAddressInLayer(leafData, address, selectedMlcLayer))
+    {
+      int range = d->ParameterNode->GetLeafRangeByAddressInLayer(address, selectedMlcLayer);
+
+      if (range != -1)
+      {
+        QSignalBlocker blocker1(d->HorizontalSlider_LeafSteps);
+        d->HorizontalSlider_LeafSteps->setRange(0, range);
+        QSignalBlocker blocker2(d->SpinBox_LeafSteps);
+        d->SpinBox_LeafSteps->setRange(0, range);
+        double distanceRange = vtkMRMLIhepMlcControlNode::InternalCounterValueToDistance(range);
+        QSignalBlocker blocker3(d->HorizontalSlider_Distance);
+        d->HorizontalSlider_Distance->setRange(0., distanceRange);
+        QSignalBlocker blocker4(d->DoubleSpinBox_Distance);
+        d->DoubleSpinBox_Distance->setRange(0., distanceRange);
+      }
+      else
+      {
+        QSignalBlocker blocker1(d->HorizontalSlider_LeafSteps);
+        d->HorizontalSlider_LeafSteps->setRange(0, leafData.Range);
+        QSignalBlocker blocker2(d->SpinBox_LeafSteps);
+        d->SpinBox_LeafSteps->setRange(0, leafData.Range);
+        double distanceRange = vtkMRMLIhepMlcControlNode::InternalCounterValueToDistance(leafData.Range);
+        QSignalBlocker blocker3(d->HorizontalSlider_Distance);
+        d->HorizontalSlider_Distance->setRange(0., distanceRange);
+        QSignalBlocker blocker4(d->DoubleSpinBox_Distance);
+        d->DoubleSpinBox_Distance->setRange(0., distanceRange);
+      }
+      QSignalBlocker blocker1(d->HorizontalSlider_LeafSteps);
+      d->HorizontalSlider_LeafSteps->setValue(leafData.Steps);
+      QSignalBlocker blocker2(d->SpinBox_LeafSteps);
+      d->SpinBox_LeafSteps->setValue(leafData.Steps);
+      double distanceSteps = vtkMRMLIhepMlcControlNode::InternalCounterValueToDistance(leafData.Steps);
+      QSignalBlocker blocker3(d->HorizontalSlider_Distance);
+      d->HorizontalSlider_Distance->setValue(distanceSteps);
+      QSignalBlocker blocker4(d->DoubleSpinBox_Distance);
+      d->DoubleSpinBox_Distance->setValue(distanceSteps);
+
+      leafData.Direction ? d->RadioButton_Clockwise->setChecked(true) : d->RadioButton_CounterClockwise->setChecked(true);
+      d->ComboBox_MotorFrequency->setCurrentIndex(leafData.Frequency);
+      leafData.Mode ? d->RadioButton_HalfStep->setChecked(true) : d->RadioButton_FullStep->setChecked(true);
+      d->CheckBox_MotorReset->setChecked(leafData.Reset);
+      d->CheckBox_MotorEnable->setChecked(leafData.Enabled);
+    }
   }
 }
 
@@ -1609,6 +1757,53 @@ void qSlicerIhepMlcControlModuleWidget::onMlcLayerChanged(QAbstractButton* butto
   }
   if (selectedMlcLayer != vtkMRMLIhepMlcControlNode::Layer_Last)
   {
+    vtkMRMLIhepMlcControlNode::LeafData leafData;
+    int address = d->HorizontalSlider_LeafAddress->value();
+    if (d->ParameterNode->GetLeafDataByAddressInLayer(leafData, address, selectedMlcLayer))
+    {
+      int range = d->ParameterNode->GetLeafRangeByAddressInLayer(address, selectedMlcLayer);
+
+      if (range != -1)
+      {
+        QSignalBlocker blocker1(d->HorizontalSlider_LeafSteps);
+        d->HorizontalSlider_LeafSteps->setRange(0, range);
+        QSignalBlocker blocker2(d->SpinBox_LeafSteps);
+        d->SpinBox_LeafSteps->setRange(0, range);
+        double distanceRange = vtkMRMLIhepMlcControlNode::InternalCounterValueToDistance(range);
+        QSignalBlocker blocker3(d->HorizontalSlider_Distance);
+        d->HorizontalSlider_Distance->setRange(0., distanceRange);
+        QSignalBlocker blocker4(d->DoubleSpinBox_Distance);
+        d->DoubleSpinBox_Distance->setRange(0., distanceRange);
+      }
+      else
+      {
+        QSignalBlocker blocker1(d->HorizontalSlider_LeafSteps);
+        d->HorizontalSlider_LeafSteps->setRange(0, leafData.Range);
+        QSignalBlocker blocker2(d->SpinBox_LeafSteps);
+        d->SpinBox_LeafSteps->setRange(0, leafData.Range);
+        double distanceRange = vtkMRMLIhepMlcControlNode::InternalCounterValueToDistance(leafData.Range);
+        QSignalBlocker blocker3(d->HorizontalSlider_Distance);
+        d->HorizontalSlider_Distance->setRange(0., distanceRange);
+        QSignalBlocker blocker4(d->DoubleSpinBox_Distance);
+        d->DoubleSpinBox_Distance->setRange(0., distanceRange);
+      }
+      QSignalBlocker blocker1(d->HorizontalSlider_LeafSteps);
+      d->HorizontalSlider_LeafSteps->setValue(leafData.Steps);
+      QSignalBlocker blocker2(d->SpinBox_LeafSteps);
+      d->SpinBox_LeafSteps->setValue(leafData.Steps);
+      double distanceSteps = vtkMRMLIhepMlcControlNode::InternalCounterValueToDistance(leafData.Steps);
+      QSignalBlocker blocker3(d->HorizontalSlider_Distance);
+      d->HorizontalSlider_Distance->setValue(distanceSteps);
+      QSignalBlocker blocker4(d->DoubleSpinBox_Distance);
+      d->DoubleSpinBox_Distance->setValue(distanceSteps);
+
+      leafData.Direction ? d->RadioButton_Clockwise->setChecked(true) : d->RadioButton_CounterClockwise->setChecked(true);
+      d->ComboBox_MotorFrequency->setCurrentIndex(leafData.Frequency);
+      leafData.Mode ? d->RadioButton_HalfStep->setChecked(true) : d->RadioButton_FullStep->setChecked(true);
+      d->CheckBox_MotorReset->setChecked(leafData.Reset);
+      d->CheckBox_MotorEnable->setChecked(leafData.Enabled);
+    }
+  
     emit mlcLayerChanged(selectedMlcLayer);
   }
 }

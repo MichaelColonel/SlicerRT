@@ -51,7 +51,7 @@ public:
   static constexpr int IHEP_SIDE_OPENING_STEPS{ static_cast<int>(IHEP_MOTOR_STEPS_PER_TURN * IHEP_SIDE_OPENING / IHEP_AXIS_DISTANCE_PER_TURN) };
   static constexpr int IHEP_LAYERS{ 2 };
   static constexpr int IHEP_PAIR_OF_LEAVES_PER_LAYER{ 16 };
-  static constexpr double IHEP_TOTAL_DISTANCE{ IHEP_SIDE_OPENING_STEPS / IHEP_MOTOR_STEPS_PER_MM };
+  static constexpr double IHEP_TOTAL_DISTANCE{ static_cast<double>(IHEP_SIDE_OPENING_STEPS) / static_cast<double>(IHEP_MOTOR_STEPS_PER_MM) };
 
   /// MLC number of layers and orientation preset
   enum OrientationType : int { X = 0, Y, Orientation_Last };
@@ -119,11 +119,11 @@ public:
     LayerType Layer{ Layer_Last };
     bool Reset{ false };
     bool Enabled{ true };
-    int CalibrationSteps{ 20000 };
+    int CalibrationSteps{ 19300 };
     int RequiredPosition{ 0 }; // required position of leaf in steps
     // Current leaf data state
-    int CurrentPosition{ 0 }; // current position of leaf in steps
-    int EncoderCounts{ 100 }; // external encoder counts while moving
+    int CurrentPosition{ USHRT_MAX }; // current position of leaf in steps
+    int EncoderCounts{ 0 }; // external encoder counts while moving
     int StepsLeft{ 0 };
     int State{ 0 };
     bool EncoderDirection{ false }; // external encoder direction
@@ -186,17 +186,15 @@ public:
   bool GetPairOfLeavesData(PairOfLeavesData& pairOfLeaves, int offset = 0, LayerType layer = Layer1);
   bool SetPairOfLeavesData(const PairOfLeavesData& pairOfLeaves, int offset = 0, LayerType layer = Layer1);
   /// @brief Calculate movement in number of steps between Required and Current position of leaf data
+  /// The resulted movement incudes calibration steps
   /// positive value - movement away from the switch
   /// negative value - movement to the switch
   /// zero "0" - no movement
-  /// @return leafData.Required - leafData.Current
-  int GetRelativeMovementByAddress(int address);
-  /// @brief Current position displayed on leaf position widget
-//  int GetCurrentPositionByAddress(int address);
-  int GetStepsFromMlcTableByAddress(int address);
-  int GetStepsFromMlcTableByAddress(vtkMRMLTableNode* mlcTableNode, int address);
+  /// @return leafData.Required - leafData.Current + calibration
+  int GetRelativeMovementByAddressInLayer(int address, LayerType layer = Layer1);
   int GetPairOfLeavesCalibrationRangeByAddressInLayer(int address, LayerType layer = Layer1);
   int GetLeafRangeByAddressInLayer(int address, LayerType layer = Layer1);
+  int GetCalibrationRangeInLayer(LayerType layer = Layer1);
   int GetMinCalibrationStepsBySideInLayer(SideType side = Side1, LayerType layer = Layer1);
   int GetMaxCalibrationStepsBySideInLayer(SideType side = Side1, LayerType layer = Layer1);
 
@@ -213,8 +211,6 @@ public:
 
   static double ExternalCounterValueToDistance(int extCounterValue);
   static double InternalCounterValueToDistance(int intCounterValue);
-  static double ExternalCounterValueToMlcPosition(int extCounterValue, SideType side = Side1);
-  static double InternalCounterValueToMlcPosition(int intCounterValue, SideType side = Side1);
 
   static int DistanceToExternalCounterValue(double distance);
   static int DistanceToInternalCounterValue(double distance);

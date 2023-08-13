@@ -82,6 +82,7 @@ public:
   QList< QByteArray > getStateCommands(const std::vector<int>& addresses);
   QList< QByteArray > getStopCommands(const std::vector<int>& addresses);
   QList< QByteArray > getStartCommands(const std::vector<int>& addresses);
+  int getCommandQueueSize() const;
 
 public slots:
   /// Set IhepMlcControl MRML node (Parameter node)
@@ -103,16 +104,9 @@ protected slots:
   void onSceneImportEnded(vtkObject* sceneObject);
 
 signals:
-  void writeNextCommand();
+  void layerConnected(vtkMRMLIhepMlcControlNode::LayerType);
+  void layerDisconnected(vtkMRMLIhepMlcControlNode::LayerType);
   void writeLastCommand();
-  void leafPositionChanged(int address,
-    vtkMRMLIhepMlcControlNode::LayerType layer,
-    vtkMRMLIhepMlcControlNode::SideType side,
-    int currentPosition);
-  void leafSwitchChanged(int address,
-    vtkMRMLIhepMlcControlNode::LayerType layer,
-    vtkMRMLIhepMlcControlNode::SideType side,
-    bool switchIsPressed);
   void leafStateCommandBufferChanged(
     const vtkMRMLIhepMlcControlNode::CommandBufferType& stateBuffer,
     vtkMRMLIhepMlcControlNode::LayerType layer,
@@ -123,6 +117,7 @@ signals:
 private slots:
   void writeNextCommandFromQueue();
   void writeLastCommandOnceAgain();
+  void serialPortIsAboutToClose();
 
 protected:
   virtual void updateLogicFromMRML();

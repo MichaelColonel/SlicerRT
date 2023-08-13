@@ -117,7 +117,7 @@ qSlicerIhepMlcDeviceLogicPrivate::qSlicerIhepMlcDeviceLogicPrivate(qSlicerIhepMl
   this->MlcLayerSerialPort = new QSerialPort(&object);
   this->TimerCommandQueue = new QTimer(&object);
   this->TimerWatchdog = new QTimer(&object);
-  this->TimerCommandQueue->setInterval(50); // 50 ms
+  this->TimerCommandQueue->setInterval(5); // 5 ms
   this->TimerWatchdog->setInterval(10000); // 10000 ms, 10 seconds
 }
 
@@ -203,6 +203,10 @@ QByteArray qSlicerIhepMlcDeviceLogicPrivate::getParametersCommandByAddress(int a
     buf[9] = chcksumm & 0xFF;
     buf[10] = chcksumm >> CHAR_BIT;
 
+//    qDebug() << Q_FUNC_INFO << ": Movement in Layer-" << static_cast<int>(this->Layer) << ", Address: " << address << " (" << leafData.Address << ") " \
+//      << ", Freq: " << leafData.Frequency << ", Step mode: " << ((leafData.Mode) ? "Half-step" : "Full-step") << ", Steps: " << leafData.Steps << ", Reset: " << leafData.Reset \
+//      << ", Enabled: " << leafData.Enabled;
+
     return QByteArray(reinterpret_cast< char* >(buf.data()), buf.size());
   }
   return QByteArray();
@@ -222,12 +226,12 @@ QByteArray qSlicerIhepMlcDeviceLogicPrivate::getRelativeParametersCommandByAddre
   vtkMRMLIhepMlcControlNode::LeafData leafData;
   vtkMRMLIhepMlcControlNode::CommandBufferType buf;
   if (this->ParameterNode->GetLeafDataByAddressInLayer(leafData, address, this->Layer))
-  {
+  {    
     buf[0] = static_cast<unsigned char>(address); // address
     buf[1] = 0; // set leaf parameters
     std::bitset< CHAR_BIT > v(leafData.Frequency); // frequency code
     v.set(4, leafData.Mode); // step mode, halfStep == true, fullStep == false
-    int movement = leafData.GetRelativeMovement();
+    int movement = this->ParameterNode->GetRelativeMovementByAddressInLayer(address, this->Layer); //leafData.GetRelativeMovement();
     if (movement > 0)
     {
       v.set(5, true); // clockwise (from the switch)
@@ -245,6 +249,10 @@ QByteArray qSlicerIhepMlcDeviceLogicPrivate::getRelativeParametersCommandByAddre
     unsigned short chcksumm = vtkMRMLIhepMlcControlNode::CommandCalculateCrc16(buf);
     buf[9] = chcksumm & 0xFF;
     buf[10] = chcksumm >> CHAR_BIT;
+
+//    qDebug() << Q_FUNC_INFO << ": Relative movement in Layer-" << static_cast<int>(this->Layer) << ", Address: " << address << " (" << leafData.Address << ") " \
+//      << ", Freq: " << leafData.Frequency << ", Step mode: " << ((leafData.Mode) ? "Half-step" : "Full-step") << ", Steps: " << movement << ", Reset: " << leafData.Reset \
+//      << ", Enabled: " << leafData.Enabled;
 
     return QByteArray(reinterpret_cast< char* >(buf.data()), buf.size());
   }
@@ -757,7 +765,7 @@ void qSlicerIhepMlcDeviceLogic::serialPortDataReady()
 {
   Q_D(qSlicerIhepMlcDeviceLogic);
 
-  qDebug() << Q_FUNC_INFO << "Data is ready to read, bytes available: " << d->MlcLayerSerialPort->bytesAvailable();
+///  qDebug() << Q_FUNC_INFO << "Data is ready to read, bytes available: " << d->MlcLayerSerialPort->bytesAvailable();
   // Stop timers because of responce
   d->TimerCommandQueue->stop();
   d->TimerWatchdog->stop();
@@ -769,7 +777,7 @@ void qSlicerIhepMlcDeviceLogic::serialPortDataReady()
     qint64 res = d->MlcLayerSerialPort->read(newData, d->MlcLayerSerialPort->bytesAvailable());
     if (res > 0)
     {
-      qDebug() << Q_FUNC_INFO << "Bytes have been read: " << res;
+///      qDebug() << Q_FUNC_INFO << "Bytes have been read: " << res;
       d->ResponseBuffer.append(QByteArray(newData, res));
     }
     delete [] newData;
@@ -789,17 +797,17 @@ void qSlicerIhepMlcDeviceLogic::serialPortDataReady()
   if (d->ResponseBuffer.size() >= commandSize)
   {
     std::copy_n(d->ResponseBuffer.data(), commandSize, std::begin(buf));
-    qDebug() << Q_FUNC_INFO << ": Buffer: " << d->ResponseBuffer << ", data: " << int(buf[0])
-      << " " << int(buf[1]) << " " << int(buf[2]) << " " << int(buf[3])
-      << " " << int(buf[4]) << " " << int(buf[5]) << " " << int(buf[6])
-      << " " << int(buf[7]) << " " << int(buf[8]) << " " << int(buf[9])
-      << " " << int(buf[10]);
+//    qDebug() << Q_FUNC_INFO << ": Buffer: " << d->ResponseBuffer << ", data: " << int(buf[0])
+//      << " " << int(buf[1]) << " " << int(buf[2]) << " " << int(buf[3])
+//      << " " << int(buf[4]) << " " << int(buf[5]) << " " << int(buf[6])
+//      << " " << int(buf[7]) << " " << int(buf[8]) << " " << int(buf[9])
+//      << " " << int(buf[10]);
     if (d->checkAddressCommandResponseOk(buf))
     {
       d->CommandQueue.dequeue();
       emit queueSizeChanged(static_cast<int>(d->CommandQueue.size()));
       d->LastCommand.clear(); // erase last command since it no longer needed
-      qDebug() << Q_FUNC_INFO << "Command data is OK!";
+//      qDebug() << Q_FUNC_INFO << "Command data is OK!";
       vtkMRMLIhepMlcControlNode::LeafData leafData;
 
       vtkMRMLIhepMlcControlNode::ProcessCommandBufferToLeafData(buf, leafData);
@@ -815,15 +823,7 @@ void qSlicerIhepMlcDeviceLogic::serialPortDataReady()
 
       if (vtkMRMLIhepMlcControlNode::CommandBufferIsStateCommand(buf))
       {
-        qDebug() << Q_FUNC_INFO << "State buffer OK, update leaf position!";
-        if (!leafData.SwitchState)
-        {
-          emit leafPositionChanged(leafData.Address, leafData.Layer, leafData.Side, leafData.GetActualCurrentPosition());
-        }
-        else
-        {
-          emit leafSwitchChanged(leafData.Address, leafData.Layer, leafData.Side, leafData.SwitchState);
-        }
+//        qDebug() << Q_FUNC_INFO << "State buffer OK, update leaf position!";
         if (res != -1)
         {
           emit leafStateCommandBufferChanged(buf, d->Layer, side);
@@ -878,7 +878,7 @@ void qSlicerIhepMlcDeviceLogic::serialPortBytesWritten(qint64 written)
 {
   Q_D(qSlicerIhepMlcDeviceLogic);
   d->TimerCommandQueue->stop();
-  qDebug() << Q_FUNC_INFO << "Serial port data written: " << written << " bytes, command queue size: " << d->CommandQueue.size();
+///  qDebug() << Q_FUNC_INFO << "Serial port data written: " << written << " bytes, command queue size: " << d->CommandQueue.size();
   if (d->CommandQueue.size() && d->LastCommand.size())
   {
     int address = d->LastCommand[0];
@@ -893,7 +893,7 @@ void qSlicerIhepMlcDeviceLogic::serialPortBytesWritten(qint64 written)
     }
     else
     {
-      qDebug() << Q_FUNC_INFO << "Address: " << address;
+///      qDebug() << Q_FUNC_INFO << "Address: " << address;
     }
   }
 }
@@ -926,13 +926,15 @@ QSerialPort* qSlicerIhepMlcDeviceLogic::openDevice(const QString& deviceName, vt
     QObject::connect(d->MlcLayerSerialPort, SIGNAL(readyRead()), this, SLOT(serialPortDataReady()));
     QObject::connect(d->MlcLayerSerialPort, SIGNAL(bytesWritten(qint64)), this, SLOT(serialPortBytesWritten(qint64)));
     QObject::connect(d->MlcLayerSerialPort, SIGNAL(error(QSerialPort::SerialPortError)), this, SLOT(serialPortError(QSerialPort::SerialPortError)));
+    QObject::connect(d->MlcLayerSerialPort, SIGNAL(aboutToClose()), this, SLOT(serialPortIsAboutToClose()));
 
     QObject::connect(d->TimerCommandQueue, SIGNAL(timeout()), this, SLOT(writeNextCommandFromQueue()));
     QObject::connect(this, SIGNAL(writeLastCommand()), this, SLOT(writeLastCommandOnceAgain()));
-    QObject::connect(this, SIGNAL(writeNextCommand()), this, SLOT(writeNextCommandFromQueue()));
+//    QObject::connect(this, SIGNAL(writeNextCommand()), this, SLOT(writeNextCommandFromQueue()));
 
     qDebug() << Q_FUNC_INFO << ": Device port has been opened for device name: " << deviceName;
     d->Layer = layer;
+    emit layerConnected(d->Layer);
     return d->MlcLayerSerialPort;
   }
   else
@@ -941,10 +943,11 @@ QSerialPort* qSlicerIhepMlcDeviceLogic::openDevice(const QString& deviceName, vt
     QObject::disconnect(d->MlcLayerSerialPort, SIGNAL(readyRead()), this, SLOT(serialPortDataReady()));
     QObject::disconnect(d->MlcLayerSerialPort, SIGNAL(bytesWritten(qint64)), this, SLOT(serialPortBytesWritten(qint64)));
     QObject::disconnect(d->MlcLayerSerialPort, SIGNAL(error(QSerialPort::SerialPortError)), this, SLOT(serialPortError(QSerialPort::SerialPortError)));
+    QObject::disconnect(d->MlcLayerSerialPort, SIGNAL(aboutToClose()), this, SLOT(serialPortIsAboutToClose()));
 
     QObject::disconnect(d->TimerCommandQueue, SIGNAL(timeout()), this, SLOT(writeNextCommandFromQueue()));
     QObject::disconnect(this, SIGNAL(writeLastCommand()), this, SLOT(writeLastCommandOnceAgain()));
-    QObject::disconnect(this, SIGNAL(writeNextCommand()), this, SLOT(writeNextCommandFromQueue()));
+//    QObject::disconnect(this, SIGNAL(writeNextCommand()), this, SLOT(writeNextCommandFromQueue()));
 
     while (!d->CommandQueue.isEmpty())
     {
@@ -953,6 +956,7 @@ QSerialPort* qSlicerIhepMlcDeviceLogic::openDevice(const QString& deviceName, vt
     d->ResponseBuffer.clear();
     d->LastCommand.clear();
     d->InputBuffer.clear();
+//    emit layerDisconnected(d->Layer);
     qWarning() << Q_FUNC_INFO << ": Unable to open device port for device name: " << deviceName;
     d->Layer = vtkMRMLIhepMlcControlNode::Layer_Last;
     return nullptr;
@@ -976,11 +980,13 @@ bool qSlicerIhepMlcDeviceLogic::closeDevice(const QSerialPort* port)
     QObject::disconnect(d->MlcLayerSerialPort, SIGNAL(readyRead()), this, SLOT(serialPortDataReady()));
     QObject::disconnect(d->MlcLayerSerialPort, SIGNAL(bytesWritten(qint64)), this, SLOT(serialPortBytesWritten(qint64)));
     QObject::disconnect(d->MlcLayerSerialPort, SIGNAL(error(QSerialPort::SerialPortError)), this, SLOT(serialPortError(QSerialPort::SerialPortError)));
+    QObject::disconnect(d->MlcLayerSerialPort, SIGNAL(aboutToClose()), this, SLOT(serialPortIsAboutToClose()));
 
     QObject::disconnect(d->TimerCommandQueue, SIGNAL(timeout()), this, SLOT(writeNextCommandFromQueue()));
     QObject::disconnect(this, SIGNAL(writeLastCommand()), this, SLOT(writeLastCommandOnceAgain()));
-    QObject::disconnect(this, SIGNAL(writeNextCommand()), this, SLOT(writeNextCommandFromQueue()));
-
+//    QObject::disconnect(this, SIGNAL(writeNextCommand()), this, SLOT(writeNextCommandFromQueue()));
+//    emit layerDisconnected(d->Layer);
+    d->Layer = vtkMRMLIhepMlcControlNode::Layer_Last;
     return true;
   }
   return false;
@@ -992,7 +998,7 @@ void qSlicerIhepMlcDeviceLogic::writeNextCommandFromQueue()
   Q_D(qSlicerIhepMlcDeviceLogic);
   if (d->CommandQueue.isEmpty())
   {
-    qWarning() << Q_FUNC_INFO << "Command queue is empty. Last command state: " << (d->LastCommand.isEmpty() ? "is empty" : "not empty");
+///    qWarning() << Q_FUNC_INFO << "Command queue is empty. Last command state: " << (d->LastCommand.isEmpty() ? "is empty" : "not empty");
     if (d->LastCommand.isEmpty())
     {
 ///      d->TimerCommandQueue->stop();
@@ -1008,7 +1014,7 @@ void qSlicerIhepMlcDeviceLogic::writeNextCommandFromQueue()
 
   if (d->MlcLayerSerialPort && d->MlcLayerSerialPort->isOpen())
   {
-    qDebug() << Q_FUNC_INFO << "Write data: " << d->LastCommand << ", size: " << d->LastCommand.size();
+///    qDebug() << Q_FUNC_INFO << "Write data: " << d->LastCommand << ", size: " << d->LastCommand.size();
     std::copy_n(d->LastCommand.data(), commandSize, std::begin(buf));
     if (d->MlcLayerSerialPort->write(d->LastCommand) == d->LastCommand.size())
     {
@@ -1196,3 +1202,17 @@ void qSlicerIhepMlcDeviceLogic::enableStateMonitoring(bool enableMonitoring)
   d->TimerCommandQueue->start();
 }
 
+//-----------------------------------------------------------------------------
+void qSlicerIhepMlcDeviceLogic::serialPortIsAboutToClose()
+{
+  Q_D(qSlicerIhepMlcDeviceLogic);
+  qDebug() << Q_FUNC_INFO << ": Serial port \"" << d->MlcLayerSerialPort->portName() << "\" is about to close.";
+  emit layerDisconnected(d->Layer);
+}
+
+//-----------------------------------------------------------------------------
+int qSlicerIhepMlcDeviceLogic::getCommandQueueSize() const
+{
+  Q_D(const qSlicerIhepMlcDeviceLogic);
+  return d->CommandQueue.size();
+}

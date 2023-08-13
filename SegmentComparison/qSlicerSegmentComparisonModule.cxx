@@ -18,6 +18,10 @@
 
 ==============================================================================*/
 
+// Slicer includes
+#include <qSlicerCoreApplication.h>
+#include <qSlicerModuleManager.h>
+
 // SegmentComparison Logic includes
 #include <vtkSlicerSegmentComparisonModuleLogic.h>
 
@@ -59,16 +63,15 @@ qSlicerSegmentComparisonModule::qSlicerSegmentComparisonModule(QObject* _parent)
 qSlicerSegmentComparisonModule::~qSlicerSegmentComparisonModule() = default;
 
 //-----------------------------------------------------------------------------
-QString qSlicerSegmentComparisonModule::helpText()const
+QString qSlicerSegmentComparisonModule::helpText() const
 {
-  QString help = 
-    "This module computes segment similarity metrics. "
-    "For more information see <a href=\"%1/Documentation/%2.%3/Modules/SegmentComparison\">%1/Documentation/%2.%3/Modules/SegmentComparison</a><br>";
-  return help.arg(this->slicerWikiUrl()).arg(Slicer_VERSION_MAJOR).arg(Slicer_VERSION_MINOR);
+  return QString("This module computes segment similarity metrics. "
+    "For more information see <a href=\"%1/Documentation/%2.%3/Modules/SegmentComparison\">%1/Documentation/%2.%3/Modules/SegmentComparison</a><br>").arg(
+    this->slicerWikiUrl()).arg(qSlicerCoreApplication::application()->majorVersion()).arg(qSlicerCoreApplication::application()->minorVersion());
 }
 
 //-----------------------------------------------------------------------------
-QString qSlicerSegmentComparisonModule::acknowledgementText()const
+QString qSlicerSegmentComparisonModule::acknowledgementText() const
 {
   return "This work is part of SparKit project, funded by Cancer Care Ontario (CCO)'s ACRU program and Ontario Consortium for Adaptive Interventions in Radiation Oncology (OCAIRO).";
 }

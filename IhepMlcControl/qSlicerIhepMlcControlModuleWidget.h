@@ -78,6 +78,7 @@ public slots:
   void onGenerateMlcBoundaryClicked();
   void onUpdateMlcBoundaryClicked();
   void onSetMlcTableClicked();
+  void onLoadMlcTablesClicked();
 
   /// Predefined MLC layer position control
   void onMlcLayersPredefinedPositionChanged(vtkMRMLIhepMlcControlNode::PredefinedPositionType);
@@ -97,7 +98,9 @@ public slots:
   void onLeafStepsChanged(int steps);
   void onLeafResetToggled(bool reset);
   void onLeafEnabledToggled(bool enabled);
-  void onLeafDataStepsChanged(int address, int leafDataSteps, vtkMRMLIhepMlcControlNode::SideType side, vtkMRMLIhepMlcControlNode::LayerType layer);
+  void onLeafDataStepsChanged(int address, int leafDataSteps,
+    vtkMRMLIhepMlcControlNode::SideType side,
+    vtkMRMLIhepMlcControlNode::LayerType layer);
   void onLeafStateCommandBufferChanged(const vtkMRMLIhepMlcControlNode::CommandBufferType& stateBuffer,
     vtkMRMLIhepMlcControlNode::LayerType layer,
     vtkMRMLIhepMlcControlNode::SideType side);
