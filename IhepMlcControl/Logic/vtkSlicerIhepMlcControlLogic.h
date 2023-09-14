@@ -72,12 +72,12 @@ public:
   int LoadMlcCalibrationDataFromJSONFile(vtkMRMLIhepMlcControlNode* parameterNode, const std::string& jsonFileName);
   bool UpdateMlcTableNodeBoundaryData(vtkMRMLIhepMlcControlNode* parameterNode, vtkMRMLTableNode* mlcTableNode);
   bool SetBeamParentForMlcTableNode(vtkMRMLRTBeamNode* beamNode, vtkMRMLTableNode* tableNode);
-//  bool SetupPositionsFromMlcTableNode(vtkMRMLIhepMlcControlNode* parameterNode, vtkMRMLTableNode* tableNode);
-  bool UpdatePositionBetweenMlcTableNodes(vtkMRMLIhepMlcControlNode* parameterNode, vtkMRMLTableNode* prevTableNode, vtkMRMLTableNode* nextTableNode);
   bool UpdateMlcTableNodePositionData(vtkMRMLIhepMlcControlNode* parameterNode, int address, int leafDataSteps, vtkMRMLIhepMlcControlNode::SideType side, vtkMRMLIhepMlcControlNode::LayerType layer);
   bool UpdateLeavesDataFromMlcPositionTableNode(vtkMRMLIhepMlcControlNode* parameterNode, vtkMRMLTableNode* mlcTableNode = nullptr);
   bool UpdateMlcPositionTableFromLeafData(vtkMRMLIhepMlcControlNode* parameterNode, const vtkMRMLIhepMlcControlNode::LeafData& leafData,
     vtkMRMLTableNode* mlcTableNode = nullptr);
+  bool LeafStepsDistanceToMlcPosition(vtkMRMLIhepMlcControlNode* parameterNode, double leafStepsDistance, vtkMRMLIhepMlcControlNode::SideType side, vtkMRMLIhepMlcControlNode::LayerType layer, double& mlcPosition);
+  bool LeafStepsToMlcPosition(vtkMRMLIhepMlcControlNode* parameterNode, int leafSteps, vtkMRMLIhepMlcControlNode::SideType side, vtkMRMLIhepMlcControlNode::LayerType layer, double& mlcPosition);
 
 protected:
   vtkSlicerIhepMlcControlLogic();

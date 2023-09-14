@@ -48,10 +48,13 @@ public:
   static constexpr int IHEP_MOTOR_STEPS_PER_MM{ static_cast<int>(IHEP_MOTOR_STEPS_PER_TURN / IHEP_AXIS_DISTANCE_PER_TURN) };
   static constexpr int IHEP_EXTERNAL_COUNTS_PER_TURN{ 100 };
   static constexpr int IHEP_EXTERNAL_COUNTS_PER_MM{ static_cast<int>(IHEP_EXTERNAL_COUNTS_PER_TURN / IHEP_AXIS_DISTANCE_PER_TURN) };
-  static constexpr int IHEP_SIDE_OPENING_STEPS{ static_cast<int>(IHEP_MOTOR_STEPS_PER_TURN * IHEP_SIDE_OPENING / IHEP_AXIS_DISTANCE_PER_TURN) };
+//  static constexpr int IHEP_SIDE_OPENING_STEPS{ static_cast<int>(IHEP_MOTOR_STEPS_PER_TURN * IHEP_SIDE_OPENING / IHEP_AXIS_DISTANCE_PER_TURN) };
+  static constexpr int IHEP_SIDE_OPENING_STEPS{ static_cast<int>(IHEP_MOTOR_STEPS_PER_MM * IHEP_SIDE_OPENING) };
   static constexpr int IHEP_LAYERS{ 2 };
   static constexpr int IHEP_PAIR_OF_LEAVES_PER_LAYER{ 16 };
   static constexpr double IHEP_TOTAL_DISTANCE{ static_cast<double>(IHEP_SIDE_OPENING_STEPS) / static_cast<double>(IHEP_MOTOR_STEPS_PER_MM) };
+  static constexpr double IHEP_PAIR_OF_LEAVES_OVERLAP_DISTANCE{ 5. }; // in mm per side
+  static constexpr int IHEP_PAIR_OF_LEAVES_OVERLAP_STEPS{ static_cast<int>(IHEP_MOTOR_STEPS_PER_MM * IHEP_PAIR_OF_LEAVES_OVERLAP_DISTANCE) }; // in steps per side
 
   /// MLC number of layers and orientation preset
   enum OrientationType : int { X = 0, Y, Orientation_Last };
@@ -104,6 +107,7 @@ public:
 ///    bool isMovingToTheSwitch() const { return (Enabled && ExternalEnabled && !Reset && !ExternalReset && !Direction); }
     bool isStopped() const { return !StateEnabled; }// || SwitchState; }
 ///    bool isStopped() const { return !(Enabled && ExternalEnabled); }
+    bool isPositionUnknown() const { return (CurrentPosition == USHRT_MAX); }
     bool isSwitchPressed() const { return SwitchState; }
     bool isSwitchReleased() const { return !SwitchState; }
     int GetActualCurrentPosition() const;
@@ -197,6 +201,8 @@ public:
   int GetCalibrationRangeInLayer(LayerType layer = Layer1);
   int GetMinCalibrationStepsBySideInLayer(SideType side = Side1, LayerType layer = Layer1);
   int GetMaxCalibrationStepsBySideInLayer(SideType side = Side1, LayerType layer = Layer1);
+  double GetPositionGapByAddressInLayer(int, LayerType);
+  double GetTotalGapInLayer(LayerType, std::vector<int>& errorAddresses);
 
   PairOfLeavesMap& GetPairOfLeavesMap() { return this->LeavesDataMap; }
   const PairOfLeavesMap& GetPairOfLeavesMap() const { return this->LeavesDataMap; }

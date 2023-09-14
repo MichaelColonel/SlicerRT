@@ -624,178 +624,6 @@ bool vtkSlicerIhepMlcControlLogic::SetBeamParentForMlcTableNode(vtkMRMLRTBeamNod
 }
 
 //---------------------------------------------------------------------------
-/*
-bool vtkSlicerIhepMlcControlLogic::SetupPositionsFromMlcTableNode(vtkMRMLIhepMlcControlNode* parameterNode,
-  vtkMRMLTableNode* tableNode)
-{
-  if (!parameterNode || !tableNode)
-  {
-    vtkErrorMacro("SetupPositionsFromMlcTableNode: Parameter or table nodes are invalid");
-    return false;
-  }
-  vtkTable* table = tableNode->GetTable();
-  if (!table)
-  {
-    vtkErrorMacro("SetupPositionsFromMlcTableNode: table is invalid");
-    return false;
-  }
-
-  if (table->GetNumberOfRows() != (parameterNode->GetNumberOfLeafPairs() + 1))
-  {
-    vtkErrorMacro("SetupPositionsFromMlcTableNode: Wrong number of leaf pairs in MLC table and parameter nodes");
-    return false;
-  }
-
-  vtkMRMLIhepMlcControlNode::LeafData leafData;
-  if (table->GetNumberOfColumns() == 6 && parameterNode->GetLayers() == vtkMRMLIhepMlcControlNode::TwoLayers) // two layers
-  {
-    for (int row = 0; row < parameterNode->GetNumberOfLeafPairs(); ++row)
-    {
-      double posLayer1Side1 = table->GetValue( row, 1).ToDouble();
-      double posLayer1Side2 = table->GetValue( row, 2).ToDouble();
-      double posLayer2Side1 = table->GetValue( row, 4).ToDouble();
-      double posLayer2Side2 = table->GetValue( row, 5).ToDouble();
-
-      int stepsLayer1Side1 = static_cast<int>((posLayer1Side1 + vtkMRMLIhepMlcControlNode::IHEP_TOTAL_DISTANCE) * vtkMRMLIhepMlcControlNode::IHEP_MOTOR_STEPS_PER_MM);
-      int stepsLayer2Side1 = static_cast<int>((posLayer2Side1 + vtkMRMLIhepMlcControlNode::IHEP_TOTAL_DISTANCE) * vtkMRMLIhepMlcControlNode::IHEP_MOTOR_STEPS_PER_MM);
-      int stepsLayer1Side2 = static_cast<int>((-posLayer1Side2 + vtkMRMLIhepMlcControlNode::IHEP_TOTAL_DISTANCE) * vtkMRMLIhepMlcControlNode::IHEP_MOTOR_STEPS_PER_MM);
-      int stepsLayer2Side2 = static_cast<int>((-posLayer2Side2 + vtkMRMLIhepMlcControlNode::IHEP_TOTAL_DISTANCE) * vtkMRMLIhepMlcControlNode::IHEP_MOTOR_STEPS_PER_MM);
-
-      parameterNode->GetLeafData(leafData, row, vtkMRMLIhepMlcControlNode::Side1, vtkMRMLIhepMlcControlNode::Layer1);
-      leafData.Steps = stepsLayer1Side1;
-      leafData.RequiredPosition = stepsLayer1Side1;
-      parameterNode->SetLeafData(leafData, row, vtkMRMLIhepMlcControlNode::Side1, vtkMRMLIhepMlcControlNode::Layer1);
-
-      parameterNode->GetLeafData(leafData, row, vtkMRMLIhepMlcControlNode::Side2, vtkMRMLIhepMlcControlNode::Layer1);
-      leafData.Steps = stepsLayer1Side2;
-      leafData.RequiredPosition = stepsLayer1Side2;
-      parameterNode->SetLeafData(leafData, row, vtkMRMLIhepMlcControlNode::Side2, vtkMRMLIhepMlcControlNode::Layer1);
-
-      parameterNode->GetLeafData(leafData, row, vtkMRMLIhepMlcControlNode::Side1, vtkMRMLIhepMlcControlNode::Layer2);
-      leafData.Steps = stepsLayer2Side1;
-      leafData.RequiredPosition = stepsLayer2Side1;
-      parameterNode->SetLeafData(leafData, row, vtkMRMLIhepMlcControlNode::Side1, vtkMRMLIhepMlcControlNode::Layer2);
-
-      parameterNode->GetLeafData(leafData, row, vtkMRMLIhepMlcControlNode::Side2, vtkMRMLIhepMlcControlNode::Layer2);
-      leafData.Steps = stepsLayer2Side2;
-      leafData.RequiredPosition = stepsLayer2Side2;
-      parameterNode->SetLeafData(leafData, row, vtkMRMLIhepMlcControlNode::Side2, vtkMRMLIhepMlcControlNode::Layer2);
-    }
-  }
-  else if (table->GetNumberOfColumns() == 3 && parameterNode->GetLayers() == vtkMRMLIhepMlcControlNode::OneLayer) // one layer
-  {
-    for (int row = 0; row < parameterNode->GetNumberOfLeafPairs(); ++row)
-    {
-      double posLayer1Side1 = table->GetValue( row, 1).ToDouble();
-      double posLayer1Side2 = table->GetValue( row, 2).ToDouble();
-
-      int stepsLayer1Side1 = static_cast<int>((posLayer1Side1 + vtkMRMLIhepMlcControlNode::IHEP_TOTAL_DISTANCE) * vtkMRMLIhepMlcControlNode::IHEP_MOTOR_STEPS_PER_MM);
-      int stepsLayer1Side2 = static_cast<int>((-posLayer1Side2 + vtkMRMLIhepMlcControlNode::IHEP_TOTAL_DISTANCE) * vtkMRMLIhepMlcControlNode::IHEP_MOTOR_STEPS_PER_MM);
-
-      parameterNode->GetLeafData(leafData, row, vtkMRMLIhepMlcControlNode::Side1, vtkMRMLIhepMlcControlNode::Layer1);
-      leafData.Steps = stepsLayer1Side1;
-      leafData.RequiredPosition = stepsLayer1Side1;
-      parameterNode->SetLeafData(leafData, row, vtkMRMLIhepMlcControlNode::Side1, vtkMRMLIhepMlcControlNode::Layer1);
-
-      parameterNode->GetLeafData(leafData, row, vtkMRMLIhepMlcControlNode::Side2, vtkMRMLIhepMlcControlNode::Layer1);
-      leafData.Steps = stepsLayer1Side2;
-      leafData.RequiredPosition = stepsLayer1Side2;
-      parameterNode->SetLeafData(leafData, row, vtkMRMLIhepMlcControlNode::Side2, vtkMRMLIhepMlcControlNode::Layer1);
-    }
-  }
-  else
-  {
-    vtkErrorMacro("SetupPositionsFromMlcTableNode: Wrong number of layers in MLC table and parameter nodes");
-    return false;
-  }
-
-  return true;
-}
-*/
-//---------------------------------------------------------------------------
-bool vtkSlicerIhepMlcControlLogic::UpdatePositionBetweenMlcTableNodes(vtkMRMLIhepMlcControlNode* parameterNode,
-  vtkMRMLTableNode* prevTableNode, vtkMRMLTableNode* nextTableNode)
-{
-  if (!parameterNode || !prevTableNode || !nextTableNode)
-  {
-    vtkErrorMacro("UpdatePositionBetweenMlcTableNodes: Parameter or table nodes are invalid");
-    return false;
-  }
-  vtkTable* prevTable = prevTableNode->GetTable();
-  if (!prevTable)
-  {
-    vtkErrorMacro("UpdatePositionBetweenMlcTableNodes: previous table is invalid");
-    return false;
-  }
-  vtkTable* nextTable = nextTableNode->GetTable();
-  if (!nextTable)
-  {
-    vtkErrorMacro("UpdatePositionBetweenMlcTableNodes: next table is invalid");
-    return false;
-  }
-
-  if (nextTable->GetNumberOfRows() != (parameterNode->GetNumberOfLeafPairs() + 1) || prevTable->GetNumberOfRows() != (parameterNode->GetNumberOfLeafPairs() + 1))
-  {
-    vtkErrorMacro("UpdatePositionBetweenMlcTableNodes: Wrong number of leaf pairs in MLC tables and parameter nodes");
-    return false;
-  }
-  vtkMRMLIhepMlcControlNode::LeafData leafData;
-  if (nextTable->GetNumberOfColumns() == 6 && prevTable->GetNumberOfColumns() == 6 && parameterNode->GetLayers() == vtkMRMLIhepMlcControlNode::TwoLayers) // two layers
-  {
-    for (int row = 0; row < parameterNode->GetNumberOfLeafPairs(); ++row)
-    {
-/*
-      double prevPosLayer1Side1 = prevTable->GetValue( row, 1).ToDouble();
-      double prevPosLayer1Side2 = prevTable->GetValue( row, 2).ToDouble();
-      double prevPosLayer2Side1 = prevTable->GetValue( row, 4).ToDouble();
-      double prevPosLayer2Side2 = prevTable->GetValue( row, 5).ToDouble();
-
-      double nextPosLayer1Side1 = nextTable->GetValue( row, 1).ToDouble();
-      double nextPosLayer1Side2 = nextTable->GetValue( row, 2).ToDouble();
-      double nextPosLayer2Side1 = nextTable->GetValue( row, 4).ToDouble();
-      double nextPosLayer2Side2 = nextTable->GetValue( row, 5).ToDouble();
-
-      int prevStepsLayer1Side1 = static_cast<int>((prevPosLayer1Side1 + vtkMRMLIhepMlcControlNode::IHEP_TOTAL_DISTANCE) * vtkMRMLIhepMlcControlNode::IHEP_MOTOR_STEPS_PER_MM);
-      int prevStepsLayer2Side1 = static_cast<int>((prevPosLayer2Side1 + vtkMRMLIhepMlcControlNode::IHEP_TOTAL_DISTANCE) * vtkMRMLIhepMlcControlNode::IHEP_MOTOR_STEPS_PER_MM);
-      int prevStepsLayer1Side2 = static_cast<int>((-prevPosLayer1Side2 + vtkMRMLIhepMlcControlNode::IHEP_TOTAL_DISTANCE) * vtkMRMLIhepMlcControlNode::IHEP_MOTOR_STEPS_PER_MM);
-      int prevStepsLayer2Side2 = static_cast<int>((-prevPosLayer2Side2 + vtkMRMLIhepMlcControlNode::IHEP_TOTAL_DISTANCE) * vtkMRMLIhepMlcControlNode::IHEP_MOTOR_STEPS_PER_MM);
-
-      int nextStepsLayer1Side1 = static_cast<int>((nextPosLayer1Side1 + vtkMRMLIhepMlcControlNode::IHEP_TOTAL_DISTANCE) * vtkMRMLIhepMlcControlNode::IHEP_MOTOR_STEPS_PER_MM);
-      int nextStepsLayer2Side1 = static_cast<int>((nextPosLayer2Side1 + vtkMRMLIhepMlcControlNode::IHEP_TOTAL_DISTANCE) * vtkMRMLIhepMlcControlNode::IHEP_MOTOR_STEPS_PER_MM);
-      int nextStepsLayer1Side2 = static_cast<int>((-nextPosLayer1Side2 + vtkMRMLIhepMlcControlNode::IHEP_TOTAL_DISTANCE) * vtkMRMLIhepMlcControlNode::IHEP_MOTOR_STEPS_PER_MM);
-      int nextStepsLayer2Side2 = static_cast<int>((-nextPosLayer2Side2 + vtkMRMLIhepMlcControlNode::IHEP_TOTAL_DISTANCE) * vtkMRMLIhepMlcControlNode::IHEP_MOTOR_STEPS_PER_MM);
-*/
-/*
-      parameterNode->GetLeafData(leafData, row, vtkMRMLIhepMlcControlNode::Side1, vtkMRMLIhepMlcControlNode::Layer1);
-      leafData.Steps = stepsLayer1Side1;
-      parameterNode->SetLeafData(leafData, row, vtkMRMLIhepMlcControlNode::Side1, vtkMRMLIhepMlcControlNode::Layer1);
-
-      parameterNode->GetLeafData(leafData, row, vtkMRMLIhepMlcControlNode::Side2, vtkMRMLIhepMlcControlNode::Layer1);
-      leafData.Steps = stepsLayer1Side2;
-      parameterNode->SetLeafData(leafData, row, vtkMRMLIhepMlcControlNode::Side2, vtkMRMLIhepMlcControlNode::Layer1);
-
-      parameterNode->GetLeafData(leafData, row, vtkMRMLIhepMlcControlNode::Side1, vtkMRMLIhepMlcControlNode::Layer2);
-      leafData.Steps = stepsLayer2Side1;
-      parameterNode->SetLeafData(leafData, row, vtkMRMLIhepMlcControlNode::Side1, vtkMRMLIhepMlcControlNode::Layer2);
-
-      parameterNode->GetLeafData(leafData, row, vtkMRMLIhepMlcControlNode::Side2, vtkMRMLIhepMlcControlNode::Layer2);
-      leafData.Steps = stepsLayer2Side2;
-      parameterNode->SetLeafData(leafData, row, vtkMRMLIhepMlcControlNode::Side2, vtkMRMLIhepMlcControlNode::Layer2);
-*/
-    }
-  }
-  else if (nextTable->GetNumberOfColumns() == 3 && prevTable->GetNumberOfColumns() == 3 && parameterNode->GetLayers() == vtkMRMLIhepMlcControlNode::OneLayer) // one layer
-  {
-  }
-  else
-  {
-    vtkErrorMacro("SetupPositionsFromMlcTableNode: Wrong number of layers in MLC table and parameter nodes");
-    return false;
-  }
-  return true;
-}
-
-//---------------------------------------------------------------------------
 bool vtkSlicerIhepMlcControlLogic::UpdateMlcTableNodePositionData(vtkMRMLIhepMlcControlNode* parameterNode, int address, int leafDataSteps, vtkMRMLIhepMlcControlNode::SideType side, vtkMRMLIhepMlcControlNode::LayerType layer)
 {
   if (!parameterNode)
@@ -1083,7 +911,7 @@ int vtkSlicerIhepMlcControlLogic::LoadMlcPositionTablesFromJSONFile(vtkMRMLIhepM
     return -1;
   }
   const size_t size = 10000000;
-  std::unique_ptr<char[]> buffer(new char[size]);
+  std::unique_ptr< char[] > buffer(new char[size]);
   rapidjson::FileReadStream fs(fp, buffer.get(), size);
 
   rapidjson::Document d;
@@ -1229,7 +1057,6 @@ int vtkSlicerIhepMlcControlLogic::LoadMlcPositionTablesFromJSONFile(vtkMRMLIhepM
                       }
                       if (layerIter->name.GetString() == std::string("Positions") && numberOfLayers == 2)
                       {
-                        vtkWarningMacro("LoadMlcPositionTablesFromJSONFile: layer type " << static_cast<int>(layerType) << ' ' << name);
                         const rapidjson::Value& positions = layerIter->value;
                         if (positions.IsArray() && positions.Capacity() == 2)
                         {
@@ -1312,8 +1139,7 @@ int vtkSlicerIhepMlcControlLogic::LoadMlcPositionTablesFromJSONFile(vtkMRMLIhepM
             }
           }
         }
-        vtkWarningMacro("LoadMlcPositionTablesFromJSONFile: JSON data " << orientationValue.GetString() << ' ' << index << ' ' << layer1Side2Positions.size() << ' ' << layer1Side1Positions.size() \
-         << ' ' << layer2Side2Positions.size() << ' ' <<  layer2Side1Positions.size() << ' ' << name << ' ' << numberOfLayers << ' ' << numberOfLeafPairsPerLayer);
+
         if (index >= 0 && layer1Side2Positions.size() == layer1Side1Positions.size() && layer2Side2Positions.size() == layer2Side1Positions.size() && !name.empty())
         {
           mlcTableNode = this->CreateMlcTableNode(parameterNode, orientationValue.GetString(), name, numberOfLayers, numberOfLeafPairsPerLayer);
@@ -1411,7 +1237,7 @@ int vtkSlicerIhepMlcControlLogic::LoadMlcCalibrationDataFromJSONFile(vtkMRMLIhep
     return -1;
   }
   const size_t size = 10000000;
-  std::unique_ptr<char[]> buffer(new char[size]);
+  std::unique_ptr< char[] > buffer(new char[size]);
   rapidjson::FileReadStream fs(fp, buffer.get(), size);
 
   rapidjson::Document d;
@@ -1429,6 +1255,7 @@ int vtkSlicerIhepMlcControlLogic::LoadMlcCalibrationDataFromJSONFile(vtkMRMLIhep
   size_t nofLeavesInLayers = nofLayer.GetInt() * nofLeafPairs.GetInt() * 2; 
   if (calibValues.IsArray() && (calibValues.Size() == nofLeavesInLayers))
   {
+    int resultsLoaded = 0;
     for (rapidjson::SizeType i = 0; i < calibValues.Size(); i++) // Uses SizeType instead of size_t
     {
       vtkMRMLIhepMlcControlNode::LayerType layer = vtkMRMLIhepMlcControlNode::Layer_Last;
@@ -1492,11 +1319,15 @@ int vtkSlicerIhepMlcControlLogic::LoadMlcCalibrationDataFromJSONFile(vtkMRMLIhep
           if (leafData.Side == side && leafData.Layer == layer && leafData.Address == address)
           {
             leafData.CalibrationSteps = value;
-            return parameterNode->SetLeafDataByAddressInLayer(leafData, address, layer);
+            if (parameterNode->SetLeafDataByAddressInLayer(leafData, address, layer))
+            {
+              resultsLoaded++;
+            }
           }
         }
       }
     }
+    return resultsLoaded;
   }
   return -1;
 }
@@ -1533,6 +1364,11 @@ vtkMRMLTableNode* vtkSlicerIhepMlcControlLogic::CreateMlcTableNode(vtkMRMLIhepMl
   }
 
   vtkMRMLTableNode* tableNode = vtkMRMLTableNode::SafeDownCast(scene->AddNewNodeByClass("vtkMRMLTableNode", tableName));
+  if (!tableNode)
+  {
+    vtkErrorMacro("CreateMlcTableNode: Unable to create vtkMRMLTableNode for MLC position data");
+    return nullptr;
+  }
   vtkTable* table = tableNode->GetTable();
   if (!table)
   {
@@ -1600,4 +1436,71 @@ vtkMRMLTableNode* vtkSlicerIhepMlcControlLogic::CreateMlcTableNode(vtkMRMLIhepMl
   }
   tableNode->SetUseColumnNameAsColumnHeader(true);
   return tableNode;
+}
+
+//---------------------------------------------------------------------------
+bool vtkSlicerIhepMlcControlLogic::LeafStepsDistanceToMlcPosition(vtkMRMLIhepMlcControlNode* parameterNode, double leafStepsDistance, vtkMRMLIhepMlcControlNode::SideType side, vtkMRMLIhepMlcControlNode::LayerType layer, double& mlcPosition)
+{
+  vtkMRMLScene* scene = this->GetMRMLScene();
+  if (!scene)
+  {
+    vtkErrorMacro("LeafStepsDistanceToMlcPosition: Scene node is invalid");
+    return false;
+  }
+  if (!parameterNode)
+  {
+    vtkErrorMacro("LeafStepsDistanceToMlcPosition: Parameter node is invalid");
+    return false;
+  }
+
+  int range = parameterNode->GetCalibrationRangeInLayer(layer);
+  double rangeHalfDistance = vtkMRMLIhepMlcControlNode::InternalCounterValueToDistance(range) / 2.;
+  bool valid = true;
+  switch (side)
+  {
+  case vtkMRMLIhepMlcControlNode::Side1:
+    mlcPosition = leafStepsDistance - rangeHalfDistance;
+    break;
+  case vtkMRMLIhepMlcControlNode::Side2:
+    mlcPosition = rangeHalfDistance - leafStepsDistance;
+    break;
+  default:
+    valid = false;
+    break;
+  }
+  return valid;
+}
+
+//---------------------------------------------------------------------------
+bool vtkSlicerIhepMlcControlLogic::LeafStepsToMlcPosition(vtkMRMLIhepMlcControlNode* parameterNode, int leafSteps, vtkMRMLIhepMlcControlNode::SideType side, vtkMRMLIhepMlcControlNode::LayerType layer, double& mlcPosition)
+{
+  vtkMRMLScene* scene = this->GetMRMLScene();
+  if (!scene)
+  {
+    vtkErrorMacro("LeafStepsDistanceToMlcPosition: Scene node is invalid");
+    return false;
+  }
+  if (!parameterNode)
+  {
+    vtkErrorMacro("LeafStepsDistanceToMlcPosition: Parameter node is invalid");
+    return false;
+  }
+
+  int range = parameterNode->GetCalibrationRangeInLayer(layer);
+  double rangeHalfDistance = vtkMRMLIhepMlcControlNode::InternalCounterValueToDistance(range) / 2.;
+
+  bool valid = true;
+  switch (side)
+  {
+  case vtkMRMLIhepMlcControlNode::Side1:
+    mlcPosition = vtkMRMLIhepMlcControlNode::InternalCounterValueToDistance(leafSteps) - rangeHalfDistance;
+    break;
+  case vtkMRMLIhepMlcControlNode::Side2:
+    mlcPosition = rangeHalfDistance - vtkMRMLIhepMlcControlNode::InternalCounterValueToDistance(leafSteps);
+    break;
+  default:
+    valid = false;
+    break;
+  }
+  return valid;
 }

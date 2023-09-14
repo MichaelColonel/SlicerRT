@@ -78,9 +78,6 @@ public slots:
   void onDebugModeEnabled(bool);
   void onSide1StateChanged(int);
   void onSide2StateChanged(int);
-  void onSetCurrentLeafParametersClicked();
-  void onSetOpenLeafParametersClicked();
-  void onSetCloseLeafParametersClicked();
 
   // Pair of leaves slots:
   void onPairOfLeavesDoubleClicked();
@@ -94,10 +91,7 @@ public slots:
   void onMlcPredefinedIndexChanged(int);
 
   // Buttons
-  void onSetPredefinedMlcPositionsClicked();
   void onApplyPredefinedMlcPositionsClicked();
-  void onOpenMlcClicked();
-  void onCloseMlcClicked();
 
 protected:
   QScopedPointer<qSlicerIhepMlcControlLayoutWidgetPrivate> d_ptr;

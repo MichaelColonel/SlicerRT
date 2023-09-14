@@ -203,10 +203,6 @@ QByteArray qSlicerIhepMlcDeviceLogicPrivate::getParametersCommandByAddress(int a
     buf[9] = chcksumm & 0xFF;
     buf[10] = chcksumm >> CHAR_BIT;
 
-//    qDebug() << Q_FUNC_INFO << ": Movement in Layer-" << static_cast<int>(this->Layer) << ", Address: " << address << " (" << leafData.Address << ") " \
-//      << ", Freq: " << leafData.Frequency << ", Step mode: " << ((leafData.Mode) ? "Half-step" : "Full-step") << ", Steps: " << leafData.Steps << ", Reset: " << leafData.Reset \
-//      << ", Enabled: " << leafData.Enabled;
-
     return QByteArray(reinterpret_cast< char* >(buf.data()), buf.size());
   }
   return QByteArray();
@@ -249,10 +245,6 @@ QByteArray qSlicerIhepMlcDeviceLogicPrivate::getRelativeParametersCommandByAddre
     unsigned short chcksumm = vtkMRMLIhepMlcControlNode::CommandCalculateCrc16(buf);
     buf[9] = chcksumm & 0xFF;
     buf[10] = chcksumm >> CHAR_BIT;
-
-//    qDebug() << Q_FUNC_INFO << ": Relative movement in Layer-" << static_cast<int>(this->Layer) << ", Address: " << address << " (" << leafData.Address << ") " \
-//      << ", Freq: " << leafData.Frequency << ", Step mode: " << ((leafData.Mode) ? "Half-step" : "Full-step") << ", Steps: " << movement << ", Reset: " << leafData.Reset \
-//      << ", Enabled: " << leafData.Enabled;
 
     return QByteArray(reinterpret_cast< char* >(buf.data()), buf.size());
   }
@@ -773,14 +765,14 @@ void qSlicerIhepMlcDeviceLogic::serialPortDataReady()
 //  QByteArray portData = d->MlcLayerSerialPort->readAll();
   if (d->MlcLayerSerialPort->bytesAvailable() > 0)
   {
-    char* newData = new char[d->MlcLayerSerialPort->bytesAvailable() + 1];
-    qint64 res = d->MlcLayerSerialPort->read(newData, d->MlcLayerSerialPort->bytesAvailable());
+    std::unique_ptr< char[] > newData(new char[d->MlcLayerSerialPort->bytesAvailable() + 1]);
+    qint64 res = d->MlcLayerSerialPort->read(newData.get(), d->MlcLayerSerialPort->bytesAvailable());
     if (res > 0)
     {
 ///      qDebug() << Q_FUNC_INFO << "Bytes have been read: " << res;
-      d->ResponseBuffer.append(QByteArray(newData, res));
+      d->ResponseBuffer.append(QByteArray(newData.get(), res));
     }
-    delete [] newData;
+//    delete [] newData;
   }
   else
   {
@@ -846,7 +838,7 @@ void qSlicerIhepMlcDeviceLogic::serialPortDataReady()
     }
     else if (d->checkAddressCommandResponseInvalid(buf))
     {
-      d->CommandQueue.dequeue();
+//      d->CommandQueue.dequeue();
       qWarning() << Q_FUNC_INFO << "Command data is INVALID!";
       if (d->ResponseBuffer.size() > commandSize)
       {
@@ -878,6 +870,7 @@ void qSlicerIhepMlcDeviceLogic::serialPortBytesWritten(qint64 written)
 {
   Q_D(qSlicerIhepMlcDeviceLogic);
   d->TimerCommandQueue->stop();
+  Q_UNUSED(written);
 ///  qDebug() << Q_FUNC_INFO << "Serial port data written: " << written << " bytes, command queue size: " << d->CommandQueue.size();
   if (d->CommandQueue.size() && d->LastCommand.size())
   {

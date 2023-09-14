@@ -79,6 +79,7 @@ public slots:
   void onUpdateMlcBoundaryClicked();
   void onSetMlcTableClicked();
   void onLoadMlcTablesClicked();
+  void onLoadMlcLeavesCalibrationClicked();
 
   /// Predefined MLC layer position control
   void onMlcLayersPredefinedPositionChanged(vtkMRMLIhepMlcControlNode::PredefinedPositionType);
@@ -108,6 +109,7 @@ public slots:
   /// Leaves device control
   void onConnectMlcLayerDevicesClicked();
   void onContinuousStateMonitoringToggled(bool toggled);
+  void onCommandQueueSizeChanged(int size);
 
   /// Leaves parameters control
   void onLeavesSetParametersClicked();
