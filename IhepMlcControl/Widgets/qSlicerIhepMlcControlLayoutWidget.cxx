@@ -902,7 +902,6 @@ void qSlicerIhepMlcControlLayoutWidget::setLeafData(const vtkMRMLIhepMlcControlN
 
     if (data.isPositionUnknown())
     {
-      qDebug() << Q_FUNC_INFO << ": Position unknown";
       widgets->Side1Current->setSpecialValueText(tr("Unknown"));
       widgets->Side2Current->setSpecialValueText(tr("Unknown"));
       widgets->Side1Gap->setSpecialValueText(tr("Unknown"));
@@ -919,10 +918,30 @@ void qSlicerIhepMlcControlLayoutWidget::setLeafData(const vtkMRMLIhepMlcControlN
       if (side == vtkMRMLIhepMlcControlNode::Side1 && side == data.Side)
       {
         leavesWidget->setMinCurrentValueFromLeafData(0);
+        if (data.PositionIsWithinTolerance(widgets->Side1Required->value(), widgets->Side1Current->value()))
+        {
+          widgets->Side1Current->setStyleSheet("background-color: green");
+          widgets->Side1Gap->setStyleSheet("background-color: green");
+        }
+        else
+        {
+          widgets->Side1Current->setStyleSheet("background-color: red");
+          widgets->Side1Gap->setStyleSheet("background-color: red");
+        }
       }
       else if (side == vtkMRMLIhepMlcControlNode::Side2 && side == data.Side)
       {
         leavesWidget->setMaxCurrentValueFromLeafData(0);
+        if (data.PositionIsWithinTolerance(widgets->Side2Required->value(), widgets->Side2Current->value()))
+        {
+          widgets->Side2Current->setStyleSheet("background-color: green");
+          widgets->Side2Gap->setStyleSheet("background-color: green");
+        }
+        else
+        {
+          widgets->Side2Current->setStyleSheet("background-color: red");
+          widgets->Side2Gap->setStyleSheet("background-color: red");
+        }
       }
     }
     else
@@ -954,6 +973,16 @@ void qSlicerIhepMlcControlLayoutWidget::setLeafData(const vtkMRMLIhepMlcControlN
         {
           ;
         }
+        if (data.PositionIsWithinTolerance(widgets->Side1Required->value(), widgets->Side1Current->value()))
+        {
+          widgets->Side1Current->setStyleSheet("background-color: green");
+          widgets->Side1Gap->setStyleSheet("background-color: green");
+        }
+        else
+        {
+          widgets->Side1Current->setStyleSheet("background-color: red");
+          widgets->Side1Gap->setStyleSheet("background-color: red");
+        }
       }
       else if (side == vtkMRMLIhepMlcControlNode::Side2 && side == data.Side)
       {
@@ -964,7 +993,6 @@ void qSlicerIhepMlcControlLayoutWidget::setLeafData(const vtkMRMLIhepMlcControlN
           widgets->Side2Current->setValue(side2CurPosition);
           widgets->Side2Gap->setValue(widgets->Side2Required->value() - widgets->Side2Current->value());
         }
-
         leavesWidget->setMaxCurrentValueFromLeafData(data.CurrentPosition);        
         if (data.isMovingToTheSwitch())
         {
@@ -981,6 +1009,16 @@ void qSlicerIhepMlcControlLayoutWidget::setLeafData(const vtkMRMLIhepMlcControlN
         else
         {
           ;
+        }
+        if (data.PositionIsWithinTolerance(widgets->Side2Required->value(), widgets->Side2Current->value()))
+        {
+          widgets->Side2Current->setStyleSheet("background-color: green");
+          widgets->Side2Gap->setStyleSheet("background-color: green");
+        }
+        else
+        {
+          widgets->Side2Current->setStyleSheet("background-color: red");
+          widgets->Side2Gap->setStyleSheet("background-color: red");
         }
       }
     }

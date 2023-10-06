@@ -99,6 +99,11 @@ public:
   void ProcessMRMLEvents(vtkObject *caller, unsigned long eventID, void *callData) override;
 
   struct LeafData {
+    static constexpr double LEAF_MOVEMENT_TOLERANCE_MM{ 0.1 };
+    static bool PositionIsWithinTolerance(double current, double required)
+    {
+      return (std::abs(current - required) < LEAF_MOVEMENT_TOLERANCE_MM);
+    }
     bool isMovingFromTheSwitch() const { return (StateEnabled && StateDirection); }
 ///    bool isMovingFromTheSwitch() const { return (StateEnabled && !StateReset && StateDirection); }
 ///    bool isMovingFromTheSwitch() const { return (Enabled && ExternalEnabled && !Reset && !ExternalReset && Direction); }
