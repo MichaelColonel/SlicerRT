@@ -345,17 +345,30 @@
          </widget>
         </item>
         <item>
-         <widget class="QPushButton" name="PushButton_SwitchLayout">
-          <property name="text">
-           <string>Switch layout</string>
-          </property>
-          <property name="checkable">
-           <bool>true</bool>
-          </property>
-          <property name="checked">
-           <bool>false</bool>
-          </property>
-         </widget>
+         <layout class="QHBoxLayout" name="horizontalLayout_15">
+          <item>
+           <widget class="QLabel" name="Label_ShowIhepMlcControlLayout">
+            <property name="text">
+             <string>Show layout:</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="ctkCheckBox" name="CheckBox_ShowIhepMlcControlLayout">
+            <property name="indicatorIcon">
+             <iconset resource="../../../../Slicer/Libs/MRML/Widgets/Resources/qMRMLWidgets.qrc">
+              <normaloff>:/Icons/VisibleOn.png</normaloff>
+              <normalon>:/Icons/VisibleOff.png</normalon>:/Icons/VisibleOn.png</iconset>
+            </property>
+            <property name="indicatorIconSize">
+             <size>
+              <width>32</width>
+              <height>32</height>
+             </size>
+            </property>
+           </widget>
+          </item>
+         </layout>
         </item>
        </layout>
       </widget>
@@ -1304,6 +1317,8 @@
  </customwidgets>
  <resources>
   <include location="../qSlicerIhepMlcControlModule.qrc"/>
+  <include location="../../../../Slicer/Resources/qSlicer.qrc"/>
+  <include location="../../../../Slicer/Libs/MRML/Widgets/Resources/qMRMLWidgets.qrc"/>
  </resources>
  <connections>
   <connection>
@@ -1548,9 +1563,9 @@
   </connection>
  </connections>
  <buttongroups>
+  <buttongroup name="ButtonGroup_MlcDeviceLayer"/>
   <buttongroup name="ButtonGroup_LeafStepMode"/>
   <buttongroup name="ButtonGroup_MlcOrientation"/>
-  <buttongroup name="ButtonGroup_MlcDeviceLayer"/>
   <buttongroup name="ButtonGroup_MlcLayers"/>
   <buttongroup name="ButtonGroup_LeafDirection"/>
  </buttongroups>

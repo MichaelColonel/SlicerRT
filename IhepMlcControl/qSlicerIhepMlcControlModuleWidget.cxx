@@ -216,8 +216,8 @@ void qSlicerIhepMlcControlModuleWidget::setup()
     this, SLOT(onLoadMlcTablesClicked()));
   QObject::connect( d->PushButton_LoadMlcCalibrationValues, SIGNAL(clicked()),
     this, SLOT(onLoadMlcLeavesCalibrationClicked()));
-  QObject::connect( d->PushButton_SwitchLayout, SIGNAL(toggled(bool)),
-    this, SLOT(onSwitchToMlcControlLayoutToggled(bool)));
+  QObject::connect( d->CheckBox_ShowIhepMlcControlLayout, SIGNAL(toggled(bool)),
+    this, SLOT(onShowMlcControlLayoutToggled(bool)));
   QObject::connect( d->CheckBox_ParallelBeam, SIGNAL(toggled(bool)),
     this, SLOT(onParallelBeamToggled(bool)));
   QObject::connect( d->PushButton_GenerateMlcBoundary, SIGNAL(clicked()),
@@ -359,11 +359,13 @@ void qSlicerIhepMlcControlModuleWidget::enter()
   qSlicerLayoutManager* layoutManager = slicerApplication->layoutManager();
   d->PreviousLayoutId = layoutManager->layout();
   layoutManager->setLayout(d->MlcCustomLayoutId);
-  QTimer::singleShot(100, this, SLOT(onSetMlcControlLayout()));
+//  QSignalBlocker blocker1(d->CheckBox_ShowIhepMlcControlLayout);
+  d->CheckBox_ShowIhepMlcControlLayout->setChecked(true);
+//  QTimer::singleShot(100, this, SLOT(onSetMlcControlLayout()));
 }
 
 //-----------------------------------------------------------------------------
-void qSlicerIhepMlcControlModuleWidget::onSwitchToMlcControlLayoutToggled(bool toggled)
+void qSlicerIhepMlcControlModuleWidget::onShowMlcControlLayoutToggled(bool toggled)
 {
   Q_D(qSlicerIhepMlcControlModuleWidget);
   // Get layout manager
@@ -373,6 +375,7 @@ void qSlicerIhepMlcControlModuleWidget::onSwitchToMlcControlLayoutToggled(bool t
 }
 
 //-----------------------------------------------------------------------------
+/*
 void qSlicerIhepMlcControlModuleWidget::onSetMlcControlLayout()
 {
   Q_D(qSlicerIhepMlcControlModuleWidget);
@@ -380,11 +383,10 @@ void qSlicerIhepMlcControlModuleWidget::onSetMlcControlLayout()
   qSlicerApplication* slicerApplication = qSlicerApplication::application();
   qSlicerLayoutManager* layoutManager = slicerApplication->layoutManager();
   layoutManager->setLayout(d->MlcCustomLayoutId);
-  QSignalBlocker blocker1(d->PushButton_SwitchLayout);
-  d->PushButton_SwitchLayout->setChecked(true);
+  QSignalBlocker blocker1(d->CheckBox_ShowMlcControlLayout);
+  d->CheckBox_ShowMlcControlLayout->toggled(true);
 }
-
-
+*/
 //-----------------------------------------------------------------------------
 void qSlicerIhepMlcControlModuleWidget::setMRMLScene(vtkMRMLScene* scene)
 {

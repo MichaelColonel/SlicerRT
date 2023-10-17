@@ -120,8 +120,8 @@ public slots:
   void onLeavesOpenBroadcastClicked();
 
   /// Custom widget layout
-  void onSwitchToMlcControlLayoutToggled(bool toggled = true);
-  void onSetMlcControlLayout();
+  void onShowMlcControlLayoutToggled(bool toggled = true);
+//  void onSetMlcControlLayout();
 
   /// Update widget GUI from MLC Control parameters node
   void updateWidgetFromMRML();
