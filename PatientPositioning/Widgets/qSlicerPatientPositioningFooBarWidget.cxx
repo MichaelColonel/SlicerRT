@@ -18,6 +18,9 @@
 
 ==============================================================================*/
 
+// Qt includes
+#include <QDebug>
+
 // FooBar Widgets includes
 #include "qSlicerPatientPositioningFooBarWidget.h"
 #include "ui_qSlicerPatientPositioningFooBarWidget.h"
@@ -62,10 +65,62 @@ qSlicerPatientPositioningFooBarWidget
 {
   Q_D(qSlicerPatientPositioningFooBarWidget);
   d->setupUi(this);
+
+  // Buttons
+  connect( d->PushButton_Up, SIGNAL(clicked()), this, SLOT(onButtonUpClicked()));
+  connect( d->PushButton_Down, SIGNAL(clicked()), this, SLOT(onButtonDownClicked()));
+  connect( d->PushButton_Left, SIGNAL(clicked()), this, SLOT(onButtonLeftClicked()));
+  connect( d->PushButton_Right, SIGNAL(clicked()), this, SLOT(onButtonRightClicked()));
+  connect( d->AxesWidget, SIGNAL(currentAxisChanged(ctkAxesWidget::Axis)), this, SLOT(onCurrentAxisChanged(ctkAxesWidget::Axis)));
 }
 
 //-----------------------------------------------------------------------------
 qSlicerPatientPositioningFooBarWidget
 ::~qSlicerPatientPositioningFooBarWidget()
 {
+}
+
+//-----------------------------------------------------------------------------
+void qSlicerPatientPositioningFooBarWidget::onCurrentAxisChanged(ctkAxesWidget::Axis axis)
+{
+  switch (axis)
+  {
+  case ctkAxesWidget::Left:
+    this->onButtonLeftClicked();
+    break;
+  case ctkAxesWidget::Right:
+    this->onButtonRightClicked();
+    break;
+  case ctkAxesWidget::Superior:
+    this->onButtonUpClicked();
+    break;
+  case ctkAxesWidget::Inferior:
+    this->onButtonDownClicked();
+    break;
+  default:
+    break;
+  }  
+}
+
+//-----------------------------------------------------------------------------
+void qSlicerPatientPositioningFooBarWidget::onButtonUpClicked()
+{
+  qDebug() << Q_FUNC_INFO << "Up";
+}
+//-----------------------------------------------------------------------------
+void qSlicerPatientPositioningFooBarWidget::onButtonDownClicked()
+{
+  qDebug() << Q_FUNC_INFO << "Down";
+}
+
+//-----------------------------------------------------------------------------
+void qSlicerPatientPositioningFooBarWidget::onButtonLeftClicked()
+{
+  qDebug() << Q_FUNC_INFO << "Left";
+}
+
+//-----------------------------------------------------------------------------
+void qSlicerPatientPositioningFooBarWidget::onButtonRightClicked()
+{
+  qDebug() << Q_FUNC_INFO << "Right";
 }

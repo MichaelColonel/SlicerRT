@@ -1,5 +1,9 @@
 <!DOCTYPE RCC><RCC version="1.0">
   <qresource>
     <file>Icons/PatientPositioning.png</file>
+    <file>Icons/go-up.png</file>
+    <file>Icons/go-down.png</file>
+    <file>Icons/go-next.png</file>
+    <file>Icons/go-previous.png</file>
   </qresource>
 </RCC>

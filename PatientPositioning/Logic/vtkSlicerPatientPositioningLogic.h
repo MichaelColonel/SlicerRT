@@ -28,12 +28,14 @@
 #include "vtkSlicerModuleLogic.h"
 
 // MRML includes
+#include <vtkMRMLPatientPositioningNode.h>
 
 // STD includes
 #include <cstdlib>
 
 #include "vtkSlicerPatientPositioningModuleLogicExport.h"
 
+class vtkMRMLPatientPositioningNode;
 
 class VTK_SLICER_PATIENTPOSITIONING_MODULE_LOGIC_EXPORT vtkSlicerPatientPositioningLogic :
   public vtkSlicerModuleLogic
@@ -43,6 +45,8 @@ public:
   static vtkSlicerPatientPositioningLogic *New();
   vtkTypeMacro(vtkSlicerPatientPositioningLogic, vtkSlicerModuleLogic);
   void PrintSelf(ostream& os, vtkIndent indent) override;
+
+  void SetXrayImagesProjection(vtkMRMLPatientPositioningNode* parameterNode, vtkMRMLPatientPositioningNode::XrayProjectionType projection);
 
 protected:
   vtkSlicerPatientPositioningLogic();

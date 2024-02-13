@@ -26,9 +26,6 @@
 #include <vtkNew.h>
 #include <vtkObjectFactory.h>
 
-// STD includes
-#include <cassert>
-
 //----------------------------------------------------------------------------
 vtkStandardNewMacro(vtkSlicerPatientPositioningLogic);
 
@@ -61,13 +58,19 @@ void vtkSlicerPatientPositioningLogic::SetMRMLSceneInternal(vtkMRMLScene * newSc
 //-----------------------------------------------------------------------------
 void vtkSlicerPatientPositioningLogic::RegisterNodes()
 {
-  assert(this->GetMRMLScene() != 0);
+  if (this->GetMRMLScene() == nullptr)
+  {
+    return;
+  }
 }
 
 //---------------------------------------------------------------------------
 void vtkSlicerPatientPositioningLogic::UpdateFromMRMLScene()
 {
-  assert(this->GetMRMLScene() != 0);
+  if (this->GetMRMLScene() == nullptr)
+  {
+    return;
+  }
 }
 
 //---------------------------------------------------------------------------
@@ -80,4 +83,14 @@ void vtkSlicerPatientPositioningLogic
 void vtkSlicerPatientPositioningLogic
 ::OnMRMLSceneNodeRemoved(vtkMRMLNode* vtkNotUsed(node))
 {
+}
+
+//---------------------------------------------------------------------------
+void vtkSlicerPatientPositioningLogic
+::SetXrayImagesProjection(vtkMRMLPatientPositioningNode* parameterNode, vtkMRMLPatientPositioningNode::XrayProjectionType projection)
+{
+  if (!parameterNode && projection == vtkMRMLPatientPositioningNode::XrayProjectionType_Last)
+  {
+    return;
+  }
 }

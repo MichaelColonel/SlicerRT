@@ -24,6 +24,9 @@
 // Qt includes
 #include <QWidget>
 
+// CTK includes
+#include <ctkAxesWidget.h>
+
 // FooBar Widgets includes
 #include "qSlicerPatientPositioningModuleWidgetsExport.h"
 
@@ -37,6 +40,13 @@ public:
   typedef QWidget Superclass;
   qSlicerPatientPositioningFooBarWidget(QWidget *parent=0);
   ~qSlicerPatientPositioningFooBarWidget() override;
+
+public slots:
+  void onCurrentAxisChanged(ctkAxesWidget::Axis);
+  void onButtonUpClicked();
+  void onButtonDownClicked();
+  void onButtonLeftClicked();
+  void onButtonRightClicked();
 
 protected slots:
 

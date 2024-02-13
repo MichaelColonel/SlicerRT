@@ -23,8 +23,12 @@
 
 #include "qSlicerPatientPositioningModuleExport.h"
 
+#include <vtkMRMLPatientPositioningNode.h>
+
 class qSlicerPatientPositioningModuleWidgetPrivate;
 class vtkMRMLNode;
+
+class QAbstractButton;
 
 class Q_SLICER_QTMODULES_PATIENTPOSITIONING_EXPORT qSlicerPatientPositioningModuleWidget :
   public qSlicerAbstractModuleWidget
@@ -38,7 +42,10 @@ public:
   virtual ~qSlicerPatientPositioningModuleWidget();
 
 public slots:
-
+  void onXrayProjectionButtonGroupChanged(QAbstractButton* but);
+  void onSetImagesToSliceViewClicked();
+  void onXrayImageNodeChanged(vtkMRMLNode* xrayImageNode);
+  void onDrrNodeChanged(vtkMRMLNode* xrayImageNode);
 
 protected:
   QScopedPointer<qSlicerPatientPositioningModuleWidgetPrivate> d_ptr;

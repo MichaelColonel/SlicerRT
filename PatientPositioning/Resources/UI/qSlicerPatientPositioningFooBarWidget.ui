@@ -6,26 +6,92 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>103</width>
-    <height>27</height>
+    <width>100</width>
+    <height>192</height>
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Foo bar</string>
+   <string>Control</string>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
-   <property name="margin">
+   <property name="leftMargin">
+    <number>0</number>
+   </property>
+   <property name="topMargin">
+    <number>0</number>
+   </property>
+   <property name="rightMargin">
+    <number>0</number>
+   </property>
+   <property name="bottomMargin">
     <number>0</number>
    </property>
    <item>
-    <widget class="QPushButton" name="FooBarButton">
-     <property name="text">
-      <string>Foo Bar</string>
+    <widget class="ctkAxesWidget" name="AxesWidget">
+     <property name="autoReset">
+      <bool>true</bool>
      </property>
     </widget>
    </item>
+   <item>
+    <layout class="QGridLayout" name="gridLayout">
+     <item row="0" column="1">
+      <widget class="QPushButton" name="PushButton_Up">
+       <property name="text">
+        <string/>
+       </property>
+       <property name="icon">
+        <iconset resource="../qSlicerPatientPositioningModule.qrc">
+         <normaloff>:/Icons/go-up.png</normaloff>:/Icons/go-up.png</iconset>
+       </property>
+      </widget>
+     </item>
+     <item row="2" column="0">
+      <widget class="QPushButton" name="PushButton_Left">
+       <property name="text">
+        <string/>
+       </property>
+       <property name="icon">
+        <iconset resource="../qSlicerPatientPositioningModule.qrc">
+         <normaloff>:/Icons/go-previous.png</normaloff>:/Icons/go-previous.png</iconset>
+       </property>
+      </widget>
+     </item>
+     <item row="3" column="1">
+      <widget class="QPushButton" name="PushButton_Down">
+       <property name="text">
+        <string/>
+       </property>
+       <property name="icon">
+        <iconset resource="../qSlicerPatientPositioningModule.qrc">
+         <normaloff>:/Icons/go-down.png</normaloff>:/Icons/go-down.png</iconset>
+       </property>
+      </widget>
+     </item>
+     <item row="2" column="2">
+      <widget class="QPushButton" name="PushButton_Right">
+       <property name="text">
+        <string/>
+       </property>
+       <property name="icon">
+        <iconset resource="../qSlicerPatientPositioningModule.qrc">
+         <normaloff>:/Icons/go-next.png</normaloff>:/Icons/go-next.png</iconset>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
   </layout>
  </widget>
- <resources/>
+ <customwidgets>
+  <customwidget>
+   <class>ctkAxesWidget</class>
+   <extends>QWidget</extends>
+   <header>ctkAxesWidget.h</header>
+  </customwidget>
+ </customwidgets>
+ <resources>
+  <include location="../qSlicerPatientPositioningModule.qrc"/>
+ </resources>
  <connections/>
 </ui>
