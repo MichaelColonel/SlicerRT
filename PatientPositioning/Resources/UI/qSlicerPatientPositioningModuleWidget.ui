@@ -25,22 +25,22 @@
         <item>
          <widget class="QLabel" name="label_3">
           <property name="text">
-           <string>Parameter node:</string>
+           <string>Parameter set:</string>
           </property>
          </widget>
         </item>
         <item>
-         <widget class="qMRMLNodeComboBox" name="MRMLNodeComboBox_Parameter">
+         <widget class="qMRMLNodeComboBox" name="MRMLNodeComboBox_ParameterSet">
+          <property name="enabled">
+           <bool>false</bool>
+          </property>
           <property name="nodeTypes">
-           <stringlist notr="true">
+           <stringlist>
             <string>vtkMRMLPatientPositioningNode</string>
            </stringlist>
           </property>
-          <property name="hideChildNodeTypes">
-           <stringlist notr="true"/>
-          </property>
-          <property name="interactionNodeSingletonTag">
-           <string notr="true"/>
+          <property name="noneDisplay">
+           <string>Please select a node</string>
           </property>
          </widget>
         </item>
@@ -220,6 +220,7 @@
    <class>qMRMLNodeComboBox</class>
    <extends>QWidget</extends>
    <header>qMRMLNodeComboBox.h</header>
+   <container>1</container>
   </customwidget>
   <customwidget>
    <class>qSlicerWidget</class>
@@ -235,7 +236,56 @@
   </customwidget>
  </customwidgets>
  <resources/>
- <connections/>
+ <connections>
+  <connection>
+   <sender>qSlicerPatientPositioningModuleWidget</sender>
+   <signal>mrmlSceneChanged(vtkMRMLScene*)</signal>
+   <receiver>MRMLNodeComboBox_ParameterSet</receiver>
+   <slot>setMRMLScene(vtkMRMLScene*)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>176</x>
+     <y>417</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>227</x>
+     <y>53</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>qSlicerPatientPositioningModuleWidget</sender>
+   <signal>mrmlSceneChanged(vtkMRMLScene*)</signal>
+   <receiver>MRMLNodeComboBox_DRR</receiver>
+   <slot>setMRMLScene(vtkMRMLScene*)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>176</x>
+     <y>417</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>196</x>
+     <y>239</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>qSlicerPatientPositioningModuleWidget</sender>
+   <signal>mrmlSceneChanged(vtkMRMLScene*)</signal>
+   <receiver>MRMLNodeComboBox_Xray</receiver>
+   <slot>setMRMLScene(vtkMRMLScene*)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>176</x>
+     <y>417</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>196</x>
+     <y>268</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
  <buttongroups>
   <buttongroup name="ButtonGroup_XrayProjection"/>
  </buttongroups>

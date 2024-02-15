@@ -25,10 +25,14 @@
 #include <QWidget>
 
 // CTK includes
+#include <ctkPimpl.h>
+#include <ctkVTKObject.h>
 #include <ctkAxesWidget.h>
 
 // FooBar Widgets includes
 #include "qSlicerPatientPositioningModuleWidgetsExport.h"
+
+class vtkMRMLNode;
 
 class qSlicerPatientPositioningFooBarWidgetPrivate;
 
@@ -36,12 +40,19 @@ class Q_SLICER_MODULE_PATIENTPOSITIONING_WIDGETS_EXPORT qSlicerPatientPositionin
   : public QWidget
 {
   Q_OBJECT
+  QVTK_OBJECT
+
 public:
   typedef QWidget Superclass;
   qSlicerPatientPositioningFooBarWidget(QWidget *parent=0);
   ~qSlicerPatientPositioningFooBarWidget() override;
 
 public slots:
+  /// Set DrrImageComputation MRML node (Parameter node)
+  void setParameterNode(vtkMRMLNode* node);
+  /// Update widget GUI from RT Image parameters node
+  void updateWidgetFromMRML();
+
   void onCurrentAxisChanged(ctkAxesWidget::Axis);
   void onButtonUpClicked();
   void onButtonDownClicked();

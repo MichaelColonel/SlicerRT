@@ -97,6 +97,8 @@ add_subdirectory(DicomSroImportExport)
 add_subdirectory(BatchProcessing)
 add_subdirectory(RoomsEyeView)
 add_subdirectory(DrrImageComputation)
+add_subdirectory(PatientPositioning)
+
 
 add_subdirectory(PlastimatchPy)
 add_subdirectory(PlmBspline)
@@ -116,7 +118,7 @@ endif()
 
 if(BUILD_TESTING)
   add_subdirectory(Testing)
-  add_subdirectory(PatientPositioning)
+#  add_subdirectory(PatientPositioning)
 endif()
 
 #-----------------------------------------------------------------------------

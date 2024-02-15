@@ -58,9 +58,15 @@ void vtkSlicerPatientPositioningLogic::SetMRMLSceneInternal(vtkMRMLScene * newSc
 //-----------------------------------------------------------------------------
 void vtkSlicerPatientPositioningLogic::RegisterNodes()
 {
-  if (this->GetMRMLScene() == nullptr)
+  vtkMRMLScene* scene = this->GetMRMLScene();
+  if (!scene)
   {
     return;
+  }
+
+  if (!scene->IsNodeClassRegistered("vtkMRMLPatientPositioningNode"))
+  {
+    scene->RegisterNodeClass(vtkSmartPointer<vtkMRMLPatientPositioningNode>::New());
   }
 }
 

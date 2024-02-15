@@ -27,14 +27,6 @@
 
 class vtkMRMLScalarVolumeNode;
 
-/// \ingroup SlicerRt_QtModules_DrrImageComputation
-/// 
-/// Parameter set node for DRR image (RTImage) computation. 
-/// \warning Currently supports only plastimatch reconstruct library.
-/// Node references:
-///   Parameter -> RT beam (BEAM_REFERENCE_ROLE)
-///
-
 class VTK_SLICER_PATIENTPOSITIONING_MODULE_MRML_EXPORT vtkMRMLPatientPositioningNode : public vtkMRMLNode
 {
 public:

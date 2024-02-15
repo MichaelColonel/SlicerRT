@@ -41,12 +41,12 @@ vtkMRMLNodeNewMacro(vtkMRMLPatientPositioningNode);
 vtkMRMLPatientPositioningNode::vtkMRMLPatientPositioningNode()
 {
   // Observe RTBeam node events (like change of transform or geometry)
-  vtkNew<vtkIntArray> nodeEvents;
-  nodeEvents->InsertNextValue(vtkCommand::ModifiedEvent);
+///  vtkNew<vtkIntArray> nodeEvents;
+///  nodeEvents->InsertNextValue(vtkCommand::ModifiedEvent);
 //  nodeEvents->InsertNextValue(vtkMRMLRTBeamNode::BeamGeometryModified);
 //  nodeEvents->InsertNextValue(vtkMRMLRTBeamNode::BeamTransformModified);
-  this->AddNodeReferenceRole(DRR_REFERENCE_ROLE, nullptr, nodeEvents);
-  this->AddNodeReferenceRole(XRAY_IMAGE_REFERENCE_ROLE, nullptr, nodeEvents);
+///  this->AddNodeReferenceRole(DRR_REFERENCE_ROLE, nullptr, nodeEvents);
+///  this->AddNodeReferenceRole(XRAY_IMAGE_REFERENCE_ROLE, nullptr, nodeEvents);
 }
 
 //----------------------------------------------------------------------------

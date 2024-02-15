@@ -41,16 +41,29 @@ public:
   qSlicerPatientPositioningModuleWidget(QWidget *parent=0);
   virtual ~qSlicerPatientPositioningModuleWidget();
 
+  void exit() override;
+  void enter() override;
+
 public slots:
+  void setMRMLScene(vtkMRMLScene*) override;
+  void setParameterNode(vtkMRMLNode*);
+  void onSceneImportedEvent();
+  void onSceneClosedEvent();
+
+  void onParameterNodeChanged(vtkMRMLNode* parameterNode);
   void onXrayProjectionButtonGroupChanged(QAbstractButton* but);
   void onSetImagesToSliceViewClicked();
   void onXrayImageNodeChanged(vtkMRMLNode* xrayImageNode);
   void onDrrNodeChanged(vtkMRMLNode* xrayImageNode);
 
+  /// Update widget GUI from PatientPositioning parameters node
+  void updateWidgetFromMRML();
+
 protected:
   QScopedPointer<qSlicerPatientPositioningModuleWidgetPrivate> d_ptr;
 
   void setup() override;
+  void onEnter();
 
 private:
   Q_DECLARE_PRIVATE(qSlicerPatientPositioningModuleWidget);

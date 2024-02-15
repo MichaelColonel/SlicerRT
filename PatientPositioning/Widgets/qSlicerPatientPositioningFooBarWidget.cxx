@@ -25,6 +25,9 @@
 #include "qSlicerPatientPositioningFooBarWidget.h"
 #include "ui_qSlicerPatientPositioningFooBarWidget.h"
 
+// MRML includes
+#include <vtkMRMLPatientPositioningNode.h>
+
 //-----------------------------------------------------------------------------
 class qSlicerPatientPositioningFooBarWidgetPrivate
   : public Ui_qSlicerPatientPositioningFooBarWidget
@@ -37,6 +40,9 @@ public:
   qSlicerPatientPositioningFooBarWidgetPrivate(
     qSlicerPatientPositioningFooBarWidget& object);
   virtual void setupUi(qSlicerPatientPositioningFooBarWidget*);
+  void init();
+
+  vtkWeakPointer< vtkMRMLPatientPositioningNode > ParameterNode;
 };
 
 // --------------------------------------------------------------------------
@@ -54,6 +60,19 @@ void qSlicerPatientPositioningFooBarWidgetPrivate
   this->Ui_qSlicerPatientPositioningFooBarWidget::setupUi(widget);
 }
 
+// --------------------------------------------------------------------------
+void qSlicerPatientPositioningFooBarWidgetPrivate::init()
+{
+  Q_Q(qSlicerPatientPositioningFooBarWidget);
+
+  // Buttons
+  QObject::connect( this->PushButton_Up, SIGNAL(clicked()), q, SLOT(onButtonUpClicked()));
+  QObject::connect( this->PushButton_Down, SIGNAL(clicked()), q, SLOT(onButtonDownClicked()));
+  QObject::connect( this->PushButton_Left, SIGNAL(clicked()), q, SLOT(onButtonLeftClicked()));
+  QObject::connect( this->PushButton_Right, SIGNAL(clicked()), q, SLOT(onButtonRightClicked()));
+  QObject::connect( this->AxesWidget, SIGNAL(currentAxisChanged(ctkAxesWidget::Axis)), q, SLOT(onCurrentAxisChanged(ctkAxesWidget::Axis)));
+}
+
 //-----------------------------------------------------------------------------
 // qSlicerPatientPositioningFooBarWidget methods
 
@@ -65,19 +84,27 @@ qSlicerPatientPositioningFooBarWidget
 {
   Q_D(qSlicerPatientPositioningFooBarWidget);
   d->setupUi(this);
-
-  // Buttons
-  connect( d->PushButton_Up, SIGNAL(clicked()), this, SLOT(onButtonUpClicked()));
-  connect( d->PushButton_Down, SIGNAL(clicked()), this, SLOT(onButtonDownClicked()));
-  connect( d->PushButton_Left, SIGNAL(clicked()), this, SLOT(onButtonLeftClicked()));
-  connect( d->PushButton_Right, SIGNAL(clicked()), this, SLOT(onButtonRightClicked()));
-  connect( d->AxesWidget, SIGNAL(currentAxisChanged(ctkAxesWidget::Axis)), this, SLOT(onCurrentAxisChanged(ctkAxesWidget::Axis)));
+  d->init();
 }
 
 //-----------------------------------------------------------------------------
 qSlicerPatientPositioningFooBarWidget
 ::~qSlicerPatientPositioningFooBarWidget()
 {
+}
+
+//-----------------------------------------------------------------------------
+void qSlicerPatientPositioningFooBarWidget::setParameterNode(vtkMRMLNode* node)
+{
+  Q_D(qSlicerPatientPositioningFooBarWidget);
+
+  vtkMRMLPatientPositioningNode* parameterNode = vtkMRMLPatientPositioningNode::SafeDownCast(node);
+  // Each time the node is modified, the UI widgets are updated
+  qvtkReconnect( d->ParameterNode, parameterNode, vtkCommand::ModifiedEvent, 
+    this, SLOT( updateWidgetFromMRML() ) );
+
+  d->ParameterNode = parameterNode;
+  this->updateWidgetFromMRML();
 }
 
 //-----------------------------------------------------------------------------
@@ -123,4 +150,16 @@ void qSlicerPatientPositioningFooBarWidget::onButtonLeftClicked()
 void qSlicerPatientPositioningFooBarWidget::onButtonRightClicked()
 {
   qDebug() << Q_FUNC_INFO << "Right";
+}
+
+//-----------------------------------------------------------------------------
+void qSlicerPatientPositioningFooBarWidget::updateWidgetFromMRML()
+{
+  Q_D(qSlicerPatientPositioningFooBarWidget);
+
+  if (!d->ParameterNode)
+  {
+    qCritical() << Q_FUNC_INFO << ": Invalid parameter node";
+    return;
+  }
 }

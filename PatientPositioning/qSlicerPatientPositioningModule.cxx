@@ -81,7 +81,7 @@ QIcon qSlicerPatientPositioningModule::icon() const
 //-----------------------------------------------------------------------------
 QStringList qSlicerPatientPositioningModule::categories() const
 {
-  return QStringList() << "Channel-25 RBS";
+  return QStringList() << "Radiotherapy";
 }
 
 //-----------------------------------------------------------------------------
