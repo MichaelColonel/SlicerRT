@@ -24,11 +24,13 @@
 
 #include <qSlicerLayoutManager.h>
 #include <qSlicerApplication.h>
+#include <qMRMLSliceWidget.h>
 
 // MRML includes
 #include <vtkMRMLScene.h>
 #include <vtkMRMLPatientPositioningNode.h>
 #include <vtkMRMLLayoutNode.h>
+#include <vtkMRMLScalarVolumeNode.h>
 
 // Logic includes
 #include <vtkSlicerPatientPositioningLogic.h>
@@ -157,16 +159,111 @@ void qSlicerPatientPositioningModuleWidget::setParameterNode(vtkMRMLNode *node)
 //-----------------------------------------------------------------------------
 void qSlicerPatientPositioningModuleWidget::onSetImagesToSliceViewClicked()
 {
+  Q_D(qSlicerPatientPositioningModuleWidget);
+
+  vtkMRMLPatientPositioningNode* parameterNode = vtkMRMLPatientPositioningNode::SafeDownCast(d->MRMLNodeComboBox_ParameterSet->currentNode());
+
+  if (!parameterNode)
+  {
+    qCritical() << Q_FUNC_INFO << ": Invalid parameter node";
+    return;
+  }
+  // Get layout manager
+  qSlicerApplication* slicerApplication = qSlicerApplication::application();
+  qSlicerLayoutManager* layoutManager = slicerApplication->layoutManager();
+
+  qMRMLSliceWidget* sliceWidget = nullptr;
+  vtkMRMLPatientPositioningNode::XrayProjectionType projType = vtkMRMLPatientPositioningNode::XrayProjectionType_Last;
+
+  if (d->RadioButton_Vertical->isChecked())
+  {
+    qDebug() << Q_FUNC_INFO << ": Vertical";
+//    layoutManager->setLayout(vtkMRMLLayoutNode::SlicerLayoutOneUpRedSliceView);
+    sliceWidget = layoutManager->sliceWidget("Red");
+    projType = vtkMRMLPatientPositioningNode::Vertical;
+  }
+  else if (d->RadioButton_Horizontal->isChecked())
+  {
+    qDebug() << Q_FUNC_INFO << ": Horizontal";
+//    layoutManager->setLayout(vtkMRMLLayoutNode::SlicerLayoutOneUpYellowSliceView);
+    sliceWidget = layoutManager->sliceWidget("Yellow");
+    projType = vtkMRMLPatientPositioningNode::Horizontal;
+  }
+  else if (d->RadioButton_Angle->isChecked())
+  {
+    qDebug() << Q_FUNC_INFO << ": Angle";
+//    layoutManager->setLayout(vtkMRMLLayoutNode::SlicerLayoutOneUpGreenSliceView);
+    sliceWidget = layoutManager->sliceWidget("Green");
+    projType = vtkMRMLPatientPositioningNode::Angle;
+  }
+  if (sliceWidget)
+  {
+    vtkMRMLSliceNode* sliceNode = sliceWidget->mrmlSliceNode();
+    vtkMRMLSliceCompositeNode* sliceCompositeNode = sliceWidget->mrmlSliceCompositeNode();
+    d->logic()->SetXrayImagesProjection( parameterNode, projType, sliceCompositeNode);
+    layoutManager->ResetSliceViews();
+    sliceNode->RotateToVolumePlane(parameterNode->GetXrayImageNode(projType));
+  }
 }
 
 //-----------------------------------------------------------------------------
-void qSlicerPatientPositioningModuleWidget::onDrrNodeChanged(vtkMRMLNode*)
+void qSlicerPatientPositioningModuleWidget::onDrrNodeChanged(vtkMRMLNode* drrNode)
 {
+  Q_D(qSlicerPatientPositioningModuleWidget);
+
+  vtkMRMLPatientPositioningNode* parameterNode = vtkMRMLPatientPositioningNode::SafeDownCast(d->MRMLNodeComboBox_ParameterSet->currentNode());
+
+  if (!parameterNode)
+  {
+    qCritical() << Q_FUNC_INFO << ": Invalid parameter node";
+    return;
+  }
+  vtkMRMLPatientPositioningNode::XrayProjectionType projType = vtkMRMLPatientPositioningNode::XrayProjectionType_Last;
+
+  if (d->RadioButton_Vertical->isChecked())
+  {
+    projType = vtkMRMLPatientPositioningNode::Vertical;
+  }
+  else if (d->RadioButton_Horizontal->isChecked())
+  {
+    projType = vtkMRMLPatientPositioningNode::Horizontal;
+  }
+  else if (d->RadioButton_Angle->isChecked())
+  {
+    projType = vtkMRMLPatientPositioningNode::Angle;
+  }
+  parameterNode->SetDrrNode(vtkMRMLScalarVolumeNode::SafeDownCast(drrNode), projType);
+  parameterNode->Modified();
 }
 
 //-----------------------------------------------------------------------------
-void qSlicerPatientPositioningModuleWidget::onXrayImageNodeChanged(vtkMRMLNode*)
+void qSlicerPatientPositioningModuleWidget::onXrayImageNodeChanged(vtkMRMLNode* xrayImageNode)
 {
+  Q_D(qSlicerPatientPositioningModuleWidget);
+
+  vtkMRMLPatientPositioningNode* parameterNode = vtkMRMLPatientPositioningNode::SafeDownCast(d->MRMLNodeComboBox_ParameterSet->currentNode());
+
+  if (!parameterNode)
+  {
+    qCritical() << Q_FUNC_INFO << ": Invalid parameter node";
+    return;
+  }
+  vtkMRMLPatientPositioningNode::XrayProjectionType projType = vtkMRMLPatientPositioningNode::XrayProjectionType_Last;
+
+  if (d->RadioButton_Vertical->isChecked())
+  {
+    projType = vtkMRMLPatientPositioningNode::Vertical;
+  }
+  else if (d->RadioButton_Horizontal->isChecked())
+  {
+    projType = vtkMRMLPatientPositioningNode::Horizontal;
+  }
+  else if (d->RadioButton_Angle->isChecked())
+  {
+    projType = vtkMRMLPatientPositioningNode::Angle;
+  }
+  parameterNode->SetXrayImageNode(vtkMRMLScalarVolumeNode::SafeDownCast(xrayImageNode), projType);
+  parameterNode->Modified();
 }
 
 //-----------------------------------------------------------------------------
@@ -277,24 +374,47 @@ void qSlicerPatientPositioningModuleWidget::onXrayProjectionButtonGroupChanged(Q
 {
   Q_D(qSlicerPatientPositioningModuleWidget);
 
+  vtkMRMLPatientPositioningNode* parameterNode = vtkMRMLPatientPositioningNode::SafeDownCast(d->MRMLNodeComboBox_ParameterSet->currentNode());
+
+  if (!parameterNode)
+  {
+    qCritical() << Q_FUNC_INFO << ": Invalid parameter node";
+    return;
+  }
+
   // Get layout manager
   qSlicerApplication* slicerApplication = qSlicerApplication::application();
   qSlicerLayoutManager* layoutManager = slicerApplication->layoutManager();
 
   QRadioButton* rButton = qobject_cast<QRadioButton*>(but);
+  qMRMLSliceWidget* sliceWidget = nullptr;
+  vtkMRMLPatientPositioningNode::XrayProjectionType projType = vtkMRMLPatientPositioningNode::XrayProjectionType_Last;
+
   if (rButton == d->RadioButton_Vertical)
   {
     qDebug() << Q_FUNC_INFO << ": Vertical";
     layoutManager->setLayout(vtkMRMLLayoutNode::SlicerLayoutOneUpRedSliceView);
+    sliceWidget = layoutManager->sliceWidget("Red");
+    projType = vtkMRMLPatientPositioningNode::Vertical;
   }
   else if (rButton == d->RadioButton_Horizontal)
   {
     qDebug() << Q_FUNC_INFO << ": Horizontal";
     layoutManager->setLayout(vtkMRMLLayoutNode::SlicerLayoutOneUpYellowSliceView);
+    sliceWidget = layoutManager->sliceWidget("Yellow");
+    projType = vtkMRMLPatientPositioningNode::Horizontal;
   }
   else if (rButton == d->RadioButton_Angle)
   {
     qDebug() << Q_FUNC_INFO << ": Angle";
     layoutManager->setLayout(vtkMRMLLayoutNode::SlicerLayoutOneUpGreenSliceView);
+    sliceWidget = layoutManager->sliceWidget("Green");
+    projType = vtkMRMLPatientPositioningNode::Angle;
+  }
+  if (sliceWidget)
+  {
+    vtkMRMLSliceNode* sliceNode = sliceWidget->mrmlSliceNode();
+    vtkMRMLSliceCompositeNode* sliceCompositeNode = sliceWidget->mrmlSliceCompositeNode();
+    d->logic()->SetXrayImagesProjection( parameterNode, projType, sliceCompositeNode);
   }
 }

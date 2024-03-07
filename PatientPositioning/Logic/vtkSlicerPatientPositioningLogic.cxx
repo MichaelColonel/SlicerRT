@@ -20,11 +20,16 @@
 
 // MRML includes
 #include <vtkMRMLScene.h>
+#include <vtkMRMLScalarVolumeNode.h>
+#include <vtkMRMLLinearTransformNode.h>
 
 // VTK includes
 #include <vtkIntArray.h>
 #include <vtkNew.h>
 #include <vtkObjectFactory.h>
+
+const char* vtkSlicerPatientPositioningLogic::DRR_TRANSFORM_NODE_NAME = "DrrPatientPositioningTransform";
+const char* vtkSlicerPatientPositioningLogic::DRR_TRANSLATE_NODE_NAME = "DrrPatientPositioningTranslate";
 
 //----------------------------------------------------------------------------
 vtkStandardNewMacro(vtkSlicerPatientPositioningLogic);
@@ -93,10 +98,120 @@ void vtkSlicerPatientPositioningLogic
 
 //---------------------------------------------------------------------------
 void vtkSlicerPatientPositioningLogic
-::SetXrayImagesProjection(vtkMRMLPatientPositioningNode* parameterNode, vtkMRMLPatientPositioningNode::XrayProjectionType projection)
+::SetXrayImagesProjection(vtkMRMLPatientPositioningNode* parameterNode, vtkMRMLPatientPositioningNode::XrayProjectionType projection,
+  vtkMRMLSliceCompositeNode* sliceCompNode)
 {
-  if (!parameterNode && projection == vtkMRMLPatientPositioningNode::XrayProjectionType_Last)
+  if (!parameterNode || !sliceCompNode || projection == vtkMRMLPatientPositioningNode::XrayProjectionType_Last)
   {
     return;
   }
+  vtkMRMLScalarVolumeNode* drrNode = parameterNode->GetDrrNode(projection);
+  vtkMRMLScalarVolumeNode* xrayImageNode = parameterNode->GetXrayImageNode(projection);
+  if (drrNode && xrayImageNode)
+  {
+    sliceCompNode->SetForegroundVolumeID(drrNode->GetID());
+    sliceCompNode->SetBackgroundVolumeID(xrayImageNode->GetID());
+    sliceCompNode->SetForegroundOpacity(0.5);
+  }
+
+  vtkMRMLApplicationLogic* mrmlAppLogic = this->GetMRMLApplicationLogic();
+  if (!mrmlAppLogic)
+    {
+    vtkGenericWarningMacro("vtkSlicerPatientPositioningLogic::SetXrayImagesProjection failed: invalid mrmlApplogic");
+    return;
+    }
+  vtkMRMLSliceLogic* sliceLogic = mrmlAppLogic->GetSliceLogic(sliceNode);
+  if (!sliceLogic)
+    {
+    return;
+    }
+
+/*
+  vtkMRMLNode* viewNode = nullptr;
+  switch (projection)
+  {
+  case vtkMRMLPatientPositioningNode::Horizontal:
+    
+    break;
+  case vtkMRMLPatientPositioningNode::Vertical:
+    break;
+  case vtkMRMLPatientPositioningNode::Angle:
+    break;
+  default:
+    break;
+  }
+
+  vtkMRMLNode* viewNode = this->External->GetMRMLDisplayableNode();
+  vtkMRMLSliceNode* sliceNode = vtkMRMLSliceNode::SafeDownCast(viewNode);
+  if (!sliceNode)
+    {
+    // this displayable manager is not of a slice node
+    return nullptr;
+    }
+  vtkMRMLApplicationLogic* mrmlAppLogic = this->External->GetMRMLApplicationLogic();
+  if (!mrmlAppLogic)
+    {
+    vtkGenericWarningMacro("vtkMRMLColorLegendDisplayableManager::vtkInternal::FindSliceCompositeNode failed: invalid mrmlApplogic");
+    return nullptr;
+    }
+  vtkMRMLSliceLogic* sliceLogic = mrmlAppLogic->GetSliceLogic(sliceNode);
+  if (!sliceLogic)
+    {
+    return nullptr;
+    }
+  vtkMRMLSliceCompositeNode* sliceCompositeNode = sliceLogic->GetSliceCompositeNode();
+  return sliceCompositeNode;
+*/
+}
+
+//---------------------------------------------------------------------------
+vtkMRMLLinearTransformNode* vtkSlicerPatientPositioningLogic
+::GetXrayImageRasToIjkMatrixTransformNode(vtkMRMLScalarVolumeNode* xrayImageNode, vtkMRMLRTBeamNode* xrayBeamNode)
+{
+  if (!xrayBeamNode)
+  {
+    vtkErrorMacro("GetXrayImageRasToIjkMatrixTransformNode: Invalid beam node");
+    return nullptr;
+  }
+  vtkMRMLScene* scene = this->GetMRMLScene();
+  if (!scene)
+  {
+    vtkErrorMacro("GetXrayImageRasToIjkMatrixTransformNode: Invalid MRML scene");
+    return nullptr;
+  }
+
+  vtkSmartPointer<vtkMRMLLinearTransformNode> transformNode;
+  if (!scene->GetFirstNodeByName(DRR_TRANSFORM_NODE_NAME))
+  {
+    transformNode = vtkSmartPointer<vtkMRMLLinearTransformNode>::New();
+    transformNode->SetName(DRR_TRANSFORM_NODE_NAME);
+    transformNode->SetHideFromEditors(1);
+    transformNode->SetSingletonTag("DRR_Transform");
+    scene->AddNode(transformNode);
+  }
+  else
+  {
+    transformNode = vtkMRMLLinearTransformNode::SafeDownCast(
+      scene->GetFirstNodeByName(DRR_TRANSFORM_NODE_NAME));
+  }
+
+  vtkSmartPointer<vtkMRMLLinearTransformNode> translateNode;
+  if (!scene->GetFirstNodeByName(DRR_TRANSLATE_NODE_NAME))
+  {
+    translateNode = vtkSmartPointer<vtkMRMLLinearTransformNode>::New();
+    translateNode->SetName(DRR_TRANSLATE_NODE_NAME);
+    translateNode->SetHideFromEditors(1);
+    translateNode->SetSingletonTag("DRR_Translate");
+    scene->AddNode(translateNode);
+  }
+  else
+  {
+    translateNode = vtkMRMLLinearTransformNode::SafeDownCast(
+      scene->GetFirstNodeByName(DRR_TRANSLATE_NODE_NAME));
+  }
+
+  translateNode->SetAndObserveTransformNodeID(transformNode->GetID());
+  xrayImageNode->SetAndObserveTransformNodeID(translateNode->GetID());
+
+  return translateNode;
 }

@@ -68,13 +68,18 @@ public:
 public:
   void SetXrayImageNode(vtkMRMLScalarVolumeNode* node, XrayProjectionType projectionType = XrayProjectionType::Vertical);
   void SetDrrNode(vtkMRMLScalarVolumeNode* node, XrayProjectionType projectionType = XrayProjectionType::Vertical);
-
   /// Get DRR node
-  vtkMRMLScalarVolumeNode* GetDrrNode();
+  vtkMRMLScalarVolumeNode* GetDrrNode(XrayProjectionType projectionType = XrayProjectionType::Vertical);
+  /// Get X-ray image node
+  vtkMRMLScalarVolumeNode* GetXrayImageNode(XrayProjectionType projectionType = XrayProjectionType::Vertical);
+  void TranslateXrayImage(XrayProjectionType projectionType = XrayProjectionType::Vertical, double x = 0., double y = 0., double z = 0.);
+
+  /// Get observed DRR node
+  vtkMRMLScalarVolumeNode* GetObservedDrrNode();
   /// Set and observe DRR node.
   void SetAndObserveDrrNode(vtkMRMLScalarVolumeNode* node);
-  /// Get X-ray image node
-  vtkMRMLScalarVolumeNode* GetXrayImageNode();
+  /// Get observed x-ray image node
+  vtkMRMLScalarVolumeNode* GetObservedXrayImageNode();
   /// Set and observe X-ray image node.
   void SetAndObserveXrayImageNode(vtkMRMLScalarVolumeNode* node);
 

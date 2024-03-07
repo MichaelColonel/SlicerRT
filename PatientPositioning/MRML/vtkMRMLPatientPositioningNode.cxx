@@ -256,7 +256,7 @@ void vtkMRMLPatientPositioningNode::ProcessMRMLEvents(vtkObject *caller, unsigne
 }
 
 //----------------------------------------------------------------------------
-vtkMRMLScalarVolumeNode* vtkMRMLPatientPositioningNode::GetDrrNode()
+vtkMRMLScalarVolumeNode* vtkMRMLPatientPositioningNode::GetObservedDrrNode()
 {
   return vtkMRMLScalarVolumeNode::SafeDownCast( this->GetNodeReference(DRR_REFERENCE_ROLE) );
 }
@@ -274,7 +274,7 @@ void vtkMRMLPatientPositioningNode::SetAndObserveDrrNode(vtkMRMLScalarVolumeNode
 }
 
 //----------------------------------------------------------------------------
-vtkMRMLScalarVolumeNode* vtkMRMLPatientPositioningNode::GetXrayImageNode()
+vtkMRMLScalarVolumeNode* vtkMRMLPatientPositioningNode::GetObservedXrayImageNode()
 {
   return vtkMRMLScalarVolumeNode::SafeDownCast( this->GetNodeReference(XRAY_IMAGE_REFERENCE_ROLE) );
 }
@@ -299,7 +299,7 @@ void vtkMRMLPatientPositioningNode::SetXrayImageNode(vtkMRMLScalarVolumeNode* no
     return;
   }
 
-  DrrXrayImagePair& imagesPair = ImagesMap[projectionType];
+  DrrXrayImagePair& imagesPair = this->ImagesMap[projectionType];
   imagesPair.second = node;
 }
 
@@ -311,7 +311,24 @@ void vtkMRMLPatientPositioningNode::SetDrrNode(vtkMRMLScalarVolumeNode* node, Xr
     return;
   }
 
-  DrrXrayImagePair& imagesPair = ImagesMap[projectionType];
+  DrrXrayImagePair& imagesPair = this->ImagesMap[projectionType];
   imagesPair.first = node;
 }
 
+//----------------------------------------------------------------------------
+vtkMRMLScalarVolumeNode* vtkMRMLPatientPositioningNode::GetDrrNode(XrayProjectionType projectionType)
+{
+  return this->ImagesMap[projectionType].first;
+}
+
+//----------------------------------------------------------------------------
+vtkMRMLScalarVolumeNode* vtkMRMLPatientPositioningNode::GetXrayImageNode(XrayProjectionType projectionType)
+{
+  return this->ImagesMap[projectionType].second;
+}
+
+//----------------------------------------------------------------------------
+void vtkMRMLPatientPositioningNode::TranslateXrayImage(XrayProjectionType projectionType, double x, double y, double z)
+{
+  this->Modified();
+}
