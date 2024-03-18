@@ -334,7 +334,7 @@
              <double>128.000000000000000</double>
             </property>
             <property name="maximum">
-             <double>2000.000000000000000</double>
+             <double>10000.000000000000000</double>
             </property>
             <property name="coordinates" stdset="0">
              <string>2000,2000</string>
@@ -366,7 +366,7 @@
              <number>2</number>
             </property>
             <property name="minimum">
-             <double>0.100000000000000</double>
+             <double>0.050000000000000</double>
             </property>
             <property name="maximum">
              <double>10.000000000000000</double>

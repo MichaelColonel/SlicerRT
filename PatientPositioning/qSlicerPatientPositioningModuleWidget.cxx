@@ -31,6 +31,7 @@
 #include <vtkMRMLPatientPositioningNode.h>
 #include <vtkMRMLLayoutNode.h>
 #include <vtkMRMLScalarVolumeNode.h>
+#include <vtkMRMLSliceNode.h>
 
 // Logic includes
 #include <vtkSlicerPatientPositioningLogic.h>
@@ -200,8 +201,8 @@ void qSlicerPatientPositioningModuleWidget::onSetImagesToSliceViewClicked()
   {
     vtkMRMLSliceNode* sliceNode = sliceWidget->mrmlSliceNode();
     vtkMRMLSliceCompositeNode* sliceCompositeNode = sliceWidget->mrmlSliceCompositeNode();
-    d->logic()->SetXrayImagesProjection( parameterNode, projType, sliceCompositeNode);
-    layoutManager->ResetSliceViews();
+    d->logic()->SetXrayImagesProjection( parameterNode, projType, sliceCompositeNode, sliceNode);
+    layoutManager->resetSliceViews();
     sliceNode->RotateToVolumePlane(parameterNode->GetXrayImageNode(projType));
   }
 }
@@ -415,6 +416,6 @@ void qSlicerPatientPositioningModuleWidget::onXrayProjectionButtonGroupChanged(Q
   {
     vtkMRMLSliceNode* sliceNode = sliceWidget->mrmlSliceNode();
     vtkMRMLSliceCompositeNode* sliceCompositeNode = sliceWidget->mrmlSliceCompositeNode();
-    d->logic()->SetXrayImagesProjection( parameterNode, projType, sliceCompositeNode);
+    d->logic()->SetXrayImagesProjection( parameterNode, projType, sliceCompositeNode, sliceNode);
   }
 }

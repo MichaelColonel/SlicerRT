@@ -36,10 +36,12 @@
 #include "vtkSlicerPatientPositioningModuleLogicExport.h"
 
 class vtkMRMLLinearTransformNode;
-
+class vtkMRMLSliceCompositeNode;
+class vtkMRMLSliceNode;
 class vtkMRMLPatientPositioningNode;
 class vtkMRMLRTBeamNode;
 class vtkMatrix4x4;
+
 
 class VTK_SLICER_PATIENTPOSITIONING_MODULE_LOGIC_EXPORT vtkSlicerPatientPositioningLogic :
   public vtkSlicerModuleLogic
@@ -53,7 +55,7 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   void SetXrayImagesProjection(vtkMRMLPatientPositioningNode* parameterNode, vtkMRMLPatientPositioningNode::XrayProjectionType projection,
-    vtkMRMLSliceCompositeNode* sliceCompNode);
+    vtkMRMLSliceCompositeNode* sliceCompNode, vtkMRMLSliceNode* sliceNode);
   vtkMRMLLinearTransformNode* GetXrayImageRasToIjkMatrixTransformNode(vtkMRMLScalarVolumeNode* xrayImageNode, vtkMRMLRTBeamNode* xrayBeamNode);
 
 protected:

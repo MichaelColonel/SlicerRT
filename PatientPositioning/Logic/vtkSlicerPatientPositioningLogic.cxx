@@ -99,9 +99,9 @@ void vtkSlicerPatientPositioningLogic
 //---------------------------------------------------------------------------
 void vtkSlicerPatientPositioningLogic
 ::SetXrayImagesProjection(vtkMRMLPatientPositioningNode* parameterNode, vtkMRMLPatientPositioningNode::XrayProjectionType projection,
-  vtkMRMLSliceCompositeNode* sliceCompNode)
+  vtkMRMLSliceCompositeNode* sliceCompNode, vtkMRMLSliceNode* sliceNode)
 {
-  if (!parameterNode || !sliceCompNode || projection == vtkMRMLPatientPositioningNode::XrayProjectionType_Last)
+  if (!parameterNode || !sliceCompNode || !sliceNode || projection == vtkMRMLPatientPositioningNode::XrayProjectionType_Last)
   {
     return;
   }
@@ -125,7 +125,6 @@ void vtkSlicerPatientPositioningLogic
     {
     return;
     }
-
 /*
   vtkMRMLNode* viewNode = nullptr;
   switch (projection)
