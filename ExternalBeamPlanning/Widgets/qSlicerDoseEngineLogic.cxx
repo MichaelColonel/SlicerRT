@@ -462,7 +462,7 @@ vtkMRMLRTBeamNode* qSlicerDoseEngineLogic::createBeamInPlan(vtkMRMLRTPlanNode* p
 
   beamNode->SetName(planNode->GenerateNewBeamName().c_str());
   planNode->GetScene()->AddNode(beamNode);
-
+/*
   // Add beam parameters specific to the current engine selected for plan
   qSlicerAbstractDoseEngine* selectedEngine =
     qSlicerDoseEnginePluginHandler::instance()->doseEngineByName(planNode->GetDoseEngineName());
@@ -473,7 +473,7 @@ vtkMRMLRTBeamNode* qSlicerDoseEngineLogic::createBeamInPlan(vtkMRMLRTPlanNode* p
     return nullptr;
   }
   selectedEngine->addBeamParameterAttributesToBeamNode(beamNode);
-
+*/
   // Add beam to plan
   planNode->AddBeam(beamNode);
 

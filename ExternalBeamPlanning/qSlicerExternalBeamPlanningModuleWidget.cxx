@@ -224,6 +224,7 @@ void qSlicerExternalBeamPlanningModuleWidget::setup()
   //}
   
   // Make connections
+  connect( d->MRMLNodeComboBox_RtPlan, SIGNAL(nodeAdded(vtkMRMLNode*)), this, SLOT(onPlanNodeAdded(vtkMRMLNode*)) );
   connect( d->MRMLNodeComboBox_RtPlan, SIGNAL(currentNodeChanged(vtkMRMLNode*)), this, SLOT(setPlanNode(vtkMRMLNode*)) );
 
   // Plan parameters section
@@ -237,35 +238,18 @@ void qSlicerExternalBeamPlanningModuleWidget::setup()
   connect( d->MRMLSegmentSelectorWidget_TargetStructure, SIGNAL(currentSegmentChanged(QString)), this, SLOT(targetSegmentChanged(const QString&)) );
   connect( d->checkBox_IsocenterAtTargetCenter, SIGNAL(stateChanged(int)), this, SLOT(isocenterAtTargetCenterCheckboxStateChanged(int)));
 
-  connect( d->comboBox_DoseEngine, SIGNAL(currentIndexChanged(const QString&)), this, SLOT(doseEngineChanged(const QString&)) );
-  connect( d->doubleSpinBox_RxDose, SIGNAL(valueChanged(double)), this, SLOT(rxDoseChanged(double)) );
-
-  // Output section
-  connect( d->MRMLNodeComboBox_DoseVolume, SIGNAL(currentNodeChanged(vtkMRMLNode*)), this, SLOT(doseVolumeNodeChanged(vtkMRMLNode*)) );
-  connect( d->MRMLNodeComboBox_DoseROI, SIGNAL(currentNodeChanged(vtkMRMLNode*)), this, SLOT(doseROINodeChanged(vtkMRMLNode*)) );
-  connect( d->lineEdit_DoseGridSpacing, SIGNAL(textChanged(const QString&)), this, SLOT(doseGridSpacingChanged(const QString&)) );
+  connect( d->ButtonGroup_RtPlanType, SIGNAL(buttonClicked(QAbstractButton*)), this, SLOT(planTypeChanged(QAbstractButton*)));
 
   // Beams section
   //connect( d->BeamsTableView, SIGNAL(selectionChanged(QItemSelection,QItemSelection)), this, SLOT(beamSelectionChanged(QItemSelection,QItemSelection) ) );
   connect( d->pushButton_AddBeam, SIGNAL(clicked()), this, SLOT(addBeamClicked()) );
   connect( d->pushButton_RemoveBeam, SIGNAL(clicked()), this, SLOT(removeBeamClicked()) );
 
-  // Calculation buttons
-  connect( d->pushButton_CalculateDose, SIGNAL(clicked()), this, SLOT(calculateDoseClicked()) );
-  connect( d->pushButton_CalculateWED, SIGNAL(clicked()), this, SLOT(calculateWEDClicked()) );
-  connect( d->pushButton_ClearDose, SIGNAL(clicked()), this, SLOT(clearDoseClicked()) );
-
   // Connect to progress event
   connect( d->DoseEngineLogic, SIGNAL(progressUpdated(double)), this, SLOT(onProgressUpdated(double)) );
 
-  // Hide non-functional items //TODO:
-  d->label_DoseROI->setVisible(false);
-  d->MRMLNodeComboBox_DoseROI->setVisible(false);
-  d->label_DoseGridSpacing->setVisible(false);
-  d->lineEdit_DoseGridSpacing->setVisible(false);
-
   // Set status text to initial instruction
-  d->label_CalculateDoseStatus->setText("Add plan and beam to start planning");
+//  d->label_CalculateDoseStatus->setText("Add plan and beam to start planning");
 
   // Handle scene change event if occurs
   qvtkConnect( d->logic(), vtkCommand::ModifiedEvent, this, SLOT( onLogicModified() ) );
@@ -291,7 +275,14 @@ void qSlicerExternalBeamPlanningModuleWidget::updateWidgetFromMRML()
   {
     return;
   }
-
+  if (planNode->GetIonPlanFlag())
+  {
+    d->RadioButton_RtIonPlan->setChecked(true);
+  }
+  else
+  {
+    d->RadioButton_RtPlan->setChecked(true);
+  }
   // Plan parameters section
 
   // None is enabled for the reference volume and segmentation comboboxes, and invalid selection
@@ -302,10 +293,6 @@ void qSlicerExternalBeamPlanningModuleWidget::updateWidgetFromMRML()
   if (planNode->GetPoisMarkupsFiducialNode() && d->MRMLNodeComboBox_PlanPOIs->currentNode())
   {
     d->MRMLNodeComboBox_PlanPOIs->setCurrentNode(planNode->GetPoisMarkupsFiducialNode());
-  }
-  if (planNode->GetOutputTotalDoseVolumeNode() && d->MRMLNodeComboBox_DoseVolume->currentNode())
-  {
-    d->MRMLNodeComboBox_DoseVolume->setCurrentNode(planNode->GetOutputTotalDoseVolumeNode());
   }
 
   // Set target segment
@@ -320,10 +307,26 @@ void qSlicerExternalBeamPlanningModuleWidget::updateWidgetFromMRML()
   // Populate dose engines combobox and make selection
   this->updateDoseEngines();
 
-  // Set prescription
-  d->doubleSpinBox_RxDose->setValue(planNode->GetRxDose());
-
   return;
+}
+
+//-----------------------------------------------------------------------------
+void qSlicerExternalBeamPlanningModuleWidget::onPlanNodeAdded(vtkMRMLNode* node)
+{
+  Q_D(qSlicerExternalBeamPlanningModuleWidget);
+
+  if (!this->mrmlScene())
+  {
+    qCritical() << Q_FUNC_INFO << ": Invalid scene";
+    return;
+  }
+  vtkMRMLRTPlanNode* planNode = vtkMRMLRTPlanNode::SafeDownCast(node);
+  qDebug() << Q_FUNC_INFO << ": Added plan node " << planNode->GetName();
+
+  if (d->RadioButton_RtIonPlan->isChecked())
+  {
+    planNode->SetIonPlanFlag(true);
+  }
 }
 
 //-----------------------------------------------------------------------------
@@ -357,8 +360,6 @@ void qSlicerExternalBeamPlanningModuleWidget::setPlanNode(vtkMRMLNode* node)
 
   if (planNode)
   {
-    planNode->SetIonPlanFlag(d->checkBox_IonPlanFlag->isChecked());
-
     // Set input segmentation and reference volume if specified by DICOM
     vtkIdType planShItemID = shNode->GetItemByDataNode(planNode);
     if (!planShItemID)
@@ -403,7 +404,7 @@ void qSlicerExternalBeamPlanningModuleWidget::setPlanNode(vtkMRMLNode* node)
     // Set dose engine from UI if not specified in plan
     if (!planNode->GetDoseEngineName())
     {
-      planNode->SetDoseEngineName(d->comboBox_DoseEngine->currentText().toUtf8().constData());
+//      planNode->SetDoseEngineName(d->comboBox_DoseEngine->currentText().toUtf8().constData());
     }
 
     // Trigger update of IEC logic based on the first beam
@@ -417,7 +418,7 @@ void qSlicerExternalBeamPlanningModuleWidget::setPlanNode(vtkMRMLNode* node)
     }
 
     // Clear instructions text
-    d->label_CalculateDoseStatus->setText("");
+//    d->label_CalculateDoseStatus->setText("");
   }
 
   this->updateWidgetFromMRML();
@@ -793,40 +794,40 @@ void qSlicerExternalBeamPlanningModuleWidget::updateDoseEngines()
 
   qSlicerDoseEnginePluginHandler::DoseEngineListType engines =
     qSlicerDoseEnginePluginHandler::instance()->registeredDoseEngines();
-  if (engines.size() == d->comboBox_DoseEngine->count())
-  {
-    return;
-  }
+//  if (engines.size() == d->comboBox_DoseEngine->count())
+//  {
+//    return;
+//  }
 
-  d->comboBox_DoseEngine->blockSignals(true);
-  d->comboBox_DoseEngine->clear();
+//  d->comboBox_DoseEngine->blockSignals(true);
+//  d->comboBox_DoseEngine->clear();
 
-  for (qSlicerDoseEnginePluginHandler::DoseEngineListType::iterator engineIt = engines.begin();
-    engineIt != engines.end(); ++engineIt)
-  {
-    d->comboBox_DoseEngine->addItem((*engineIt)->name());
-  }
+//  for (qSlicerDoseEnginePluginHandler::DoseEngineListType::iterator engineIt = engines.begin();
+//    engineIt != engines.end(); ++engineIt)
+//  {
+//    d->comboBox_DoseEngine->addItem((*engineIt)->name());
+//  }
 
   // Select previously selected engine
-  QString selectedEngineName(planNode->GetDoseEngineName() ? planNode->GetDoseEngineName() : "");
-  int index = d->comboBox_DoseEngine->findText(selectedEngineName);
-  if (index != -1)
-  {
-    d->comboBox_DoseEngine->setCurrentIndex(index);
-  }
+//  QString selectedEngineName(planNode->GetDoseEngineName() ? planNode->GetDoseEngineName() : "");
+//  int index = d->comboBox_DoseEngine->findText(selectedEngineName);
+//  if (index != -1)
+//  {
+//    d->comboBox_DoseEngine->setCurrentIndex(index);
+//  }
   // If previous selection not found (e.g. no selection has been made yet), then select first engine
-  else
-  {
-    d->comboBox_DoseEngine->setCurrentIndex(0);
-  }
+//  else
+//  {
+//    d->comboBox_DoseEngine->setCurrentIndex(0);
+//  }
   // Apply engine selection (signals are blocked, plus if first index has been selected and it has
   // not been applied, then it needs to be done now)
-  this->doseEngineChanged(d->comboBox_DoseEngine->currentText());
+//  this->doseEngineChanged(d->comboBox_DoseEngine->currentText());
 
   // Update beam parameter tab visibility
   d->DoseEngineLogic->applyDoseEngineInPlan(planNode);
 
-  d->comboBox_DoseEngine->blockSignals(false);
+//  d->comboBox_DoseEngine->blockSignals(false);
 }
 
 //-----------------------------------------------------------------------------
@@ -929,7 +930,7 @@ void qSlicerExternalBeamPlanningModuleWidget::addBeamClicked()
   selectedEngine->addBeamParameterAttributesToBeamNode(beamNode);
 
   // Clear instruction text
-  d->label_CalculateDoseStatus->setText("");
+//  d->label_CalculateDoseStatus->setText("");
 }
 
 //-----------------------------------------------------------------------------
@@ -964,7 +965,7 @@ void qSlicerExternalBeamPlanningModuleWidget::removeBeamClicked()
 void qSlicerExternalBeamPlanningModuleWidget::calculateDoseClicked()
 {
   Q_D(qSlicerExternalBeamPlanningModuleWidget);
-
+/*
   d->label_CalculateDoseStatus->setText("Starting dose calculation...");
 
   if (!this->mrmlScene())
@@ -1047,6 +1048,7 @@ void qSlicerExternalBeamPlanningModuleWidget::calculateDoseClicked()
   }
 
   QApplication::restoreOverrideCursor();
+*/
 }
 
 //-----------------------------------------------------------------------------
@@ -1055,8 +1057,8 @@ void qSlicerExternalBeamPlanningModuleWidget::onProgressUpdated(double progress)
   Q_D(qSlicerExternalBeamPlanningModuleWidget);
 
   int progressPercent = (int)(progress * 100.0);
-  QString progressMessage = QString("Dose calculation in progress: %1 %").arg(progressPercent);
-  d->label_CalculateDoseStatus->setText(progressMessage);
+//  QString progressMessage = QString("Dose calculation in progress: %1 %").arg(progressPercent);
+//  d->label_CalculateDoseStatus->setText(progressMessage);
   QApplication::processEvents();
 }
 
@@ -1074,7 +1076,7 @@ void qSlicerExternalBeamPlanningModuleWidget::calculateWEDClicked()
 {
   Q_D(qSlicerExternalBeamPlanningModuleWidget);
 
-  d->label_CalculateDoseStatus->setText("Starting WED calculation...");
+//  d->label_CalculateDoseStatus->setText("Starting WED calculation...");
 
   if (!this->mrmlScene())
   {
@@ -1126,4 +1128,23 @@ bool qSlicerExternalBeamPlanningModuleWidget::setEditedNode(vtkMRMLNode* node, Q
     return true;
   }
   return false;
+}
+
+//-----------------------------------------------------------------------------
+void qSlicerExternalBeamPlanningModuleWidget::planTypeChanged(QAbstractButton* button)
+{
+  Q_D(qSlicerExternalBeamPlanningModuleWidget);
+  QRadioButton* rButton = qobject_cast< QRadioButton* >(button);
+  if (!rButton)
+  {
+    return;
+  }
+  if (rButton == d->RadioButton_RtPlan)
+  {
+    qDebug() << Q_FUNC_INFO << ": RTPlan";
+  }
+  else if (rButton == d->RadioButton_RtIonPlan)
+  {
+    qDebug() << Q_FUNC_INFO << ": RTIonPlan";
+  }
 }

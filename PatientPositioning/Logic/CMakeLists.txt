@@ -12,6 +12,8 @@ set(${KIT}_INCLUDE_DIRECTORIES
 set(${KIT}_SRCS
   vtkSlicer${MODULE_NAME}Logic.cxx
   vtkSlicer${MODULE_NAME}Logic.h
+  vtkSlicerIhepTableRobotTransformLogic.cxx
+  vtkSlicerIhepTableRobotTransformLogic.h
   )
 
 set(${KIT}_TARGET_LIBRARIES
