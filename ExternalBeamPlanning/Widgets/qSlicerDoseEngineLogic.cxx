@@ -27,7 +27,6 @@
 // Beams includes
 #include "vtkMRMLRTBeamNode.h"
 #include "vtkMRMLRTIonBeamNode.h"
-#include "vtkMRMLRTIhepIonBeamNode.h"
 #include "vtkMRMLRTPlanNode.h"
 
 // SlicerRT includes
@@ -458,12 +457,12 @@ vtkMRMLRTBeamNode* qSlicerDoseEngineLogic::createBeamInPlan(vtkMRMLRTPlanNode* p
   }
   else
   {
-    beamNode = vtkSmartPointer<vtkMRMLRTIhepIonBeamNode>::New();
+    beamNode = vtkSmartPointer<vtkMRMLRTBeamNode>::New();
   }
 
   beamNode->SetName(planNode->GenerateNewBeamName().c_str());
   planNode->GetScene()->AddNode(beamNode);
-
+/*
   // Add beam parameters specific to the current engine selected for plan
   qSlicerAbstractDoseEngine* selectedEngine =
     qSlicerDoseEnginePluginHandler::instance()->doseEngineByName(planNode->GetDoseEngineName());
@@ -474,7 +473,7 @@ vtkMRMLRTBeamNode* qSlicerDoseEngineLogic::createBeamInPlan(vtkMRMLRTPlanNode* p
     return nullptr;
   }
   selectedEngine->addBeamParameterAttributesToBeamNode(beamNode);
-
+*/
   // Add beam to plan
   planNode->AddBeam(beamNode);
 

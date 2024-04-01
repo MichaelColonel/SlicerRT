@@ -33,6 +33,7 @@ class vtkMRMLRTBeamNode;
 class vtkMRMLRTPlanNode;
 class QString;
 class QItemSelection;
+class QAbstractButton;
 
 /// \ingroup SlicerRt_QtModules_ExternalBeamPlanning
 class Q_SLICER_QTMODULES_EXTERNALBEAMPLANNING_EXPORT qSlicerExternalBeamPlanningModuleWidget :
@@ -64,6 +65,7 @@ public:
 
 protected slots:
   /// Plan node serves as parameter set node for this module
+  void onPlanNodeAdded(vtkMRMLNode*);
   void setPlanNode(vtkMRMLNode*);
 
   // Plan parameters section
@@ -71,6 +73,7 @@ protected slots:
   void segmentationNodeChanged(vtkMRMLNode*);
   void poisMarkupsNodeChanged(vtkMRMLNode*);
 
+  void planTypeChanged(QAbstractButton* button);
   void targetSegmentChanged(const QString& segment);
   void isocenterAtTargetCenterCheckboxStateChanged(int state);
   void isocenterCoordinatesChanged(double* isocenterCoordinates);

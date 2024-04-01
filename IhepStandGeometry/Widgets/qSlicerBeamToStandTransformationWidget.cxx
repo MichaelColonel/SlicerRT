@@ -180,6 +180,13 @@ void qSlicerBeamToStandTransformationWidget::updateWidgetFromMRML()
     logic->GetPatientIsocenterToFixedIsocenterTranslate(d->ParameterNode, translate);
     logic->GetPatientBeamToFixedBeamTransform( d->ParameterNode, beamNode, fixedBeamNode, beamToFixedBeamTransform);
 
+    double xyz[3] = {};
+    double wxyz[4] = {};
+    beamToFixedBeamTransform->GetOrientation(xyz);
+    beamToFixedBeamTransform->GetOrientationWXYZ(wxyz);
+    qDebug() << Q_FUNC_INFO << "XYZ: " << xyz[0] << " " << xyz[1] << " " << xyz[2];
+    qDebug() << Q_FUNC_INFO << "WXYZ: " << wxyz[1] << " " << wxyz[2] << " " << wxyz[3];
+
     this->setIsocenterTranslation(translate);
     this->setTransformMatrix(beamToFixedBeamTransform);
   }
