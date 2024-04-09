@@ -83,6 +83,11 @@ public:
   /// Set and observe X-ray image node.
   void SetAndObserveXrayImageNode(vtkMRMLScalarVolumeNode* node);
 
+  /// Get path to the treatment machine descriptor JSON file
+  vtkGetStringMacro(TreatmentMachineDescriptorFilePath);
+  /// Set path to the treatment machine descriptor JSON file
+  vtkSetStringMacro(TreatmentMachineDescriptorFilePath);
+
 protected:
   vtkMRMLPatientPositioningNode();
   ~vtkMRMLPatientPositioningNode();
@@ -90,6 +95,9 @@ protected:
   void operator=(const vtkMRMLPatientPositioningNode&);
 
   XrayProjectionImagesMap ImagesMap;
+
+  /// Path to the treatment machine descriptor JSON file
+  char* TreatmentMachineDescriptorFilePath;
 };
 
 #endif

@@ -36,11 +36,8 @@ class vtkGeneralTransform;
 class vtkTransform;
 class vtkMRMLRTBeamNode;
 class vtkMRMLLinearTransformNode;
-//class vtkMRMLIhepStandGeometryNode;
 
-// FixedReference -> Base -> BaseRotation -> Shoulder -> Elbow -> Wrist -> Capper
-// поворот (X), нижнее плечо (Y), верхнее плечо (Z), поворот кисти (U), разворот кисти (V) и вращение кисти (W)
-// Base -> LowerShoulder -> UpperShoulder ->
+// FixedReference -> BaseFixed -> BaseRotation -> Shoulder -> Elbow -> Wrist -> TableTop
 class VTK_SLICER_PATIENTPOSITIONING_MODULE_LOGIC_EXPORT vtkSlicerIhepTableRobotTransformLogic : public vtkMRMLAbstractLogic
 {
 public:
@@ -96,6 +93,9 @@ public:
   void ResetRasToPatientIsocenterTranslate();
   /// Restore RAS to Patient isocenter translate
   void RestoreRasToPatientIsocenterTranslate(double isocenter[3]);
+
+  /// Get part type as string
+  const char* GetTreatmentMachinePartTypeAsString(CoordinateSystemIdentifier type);
 
 protected:
   vtkSlicerIhepTableRobotTransformLogic();

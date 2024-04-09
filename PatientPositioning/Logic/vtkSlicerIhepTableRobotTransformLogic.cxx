@@ -41,6 +41,16 @@
 // STD includes
 #include <array>
 
+namespace {
+
+const std::array< double, 3 > A{ 0., 0., 163. };
+const std::array< double, 3 > B{ 0., 330., 645. };
+const std::array< double, 3 > C{ 0., 330., 645. + 1150. };
+const std::array< double, 3 > D{ 0., 330. + 1220, 645. + 1150. + 115. };
+const std::array< double, 3 > E{ 0., 330. + 1220 + 240, 645. + 1150. + 115. };
+
+}
+
 //----------------------------------------------------------------------------
 vtkStandardNewMacro(vtkSlicerIhepTableRobotTransformLogic);
 
@@ -52,12 +62,12 @@ vtkSlicerIhepTableRobotTransformLogic::vtkSlicerIhepTableRobotTransformLogic()
   this->CoordinateSystemsMap.clear();
   this->CoordinateSystemsMap[CoordSys::RAS] = "Ras";
   this->CoordinateSystemsMap[CoordSys::FixedReference] = "FixedReference";
-  this->CoordinateSystemsMap[CoordSys::BaseFixed] = "TableRobotBaseFixed";
-  this->CoordinateSystemsMap[CoordSys::BaseRotation] = "TableRobotBaseRotation";
-  this->CoordinateSystemsMap[CoordSys::Shoulder] = "TableRobotShoulder";
-  this->CoordinateSystemsMap[CoordSys::Elbow] = "TableRobotElbow";
-  this->CoordinateSystemsMap[CoordSys::Wrist] = "TableRobotWrist";
-  this->CoordinateSystemsMap[CoordSys::TableTop] = "TableRobotTableTop";
+  this->CoordinateSystemsMap[CoordSys::BaseFixed] = "RobotBaseFixed";
+  this->CoordinateSystemsMap[CoordSys::BaseRotation] = "RobotBaseRotation";
+  this->CoordinateSystemsMap[CoordSys::Shoulder] = "RobotShoulder";
+  this->CoordinateSystemsMap[CoordSys::Elbow] = "RobotElbow";
+  this->CoordinateSystemsMap[CoordSys::Wrist] = "RobotWrist";
+  this->CoordinateSystemsMap[CoordSys::TableTop] = "TableTop";
   this->CoordinateSystemsMap[CoordSys::Patient] = "Patient";
 
   this->IhepTransforms.clear();
@@ -115,6 +125,24 @@ void vtkSlicerIhepTableRobotTransformLogic::PrintSelf(ostream& os, vtkIndent ind
       }
       os << std::endl;
     }
+  }
+}
+
+//---------------------------------------------------------------------------
+const char* vtkSlicerIhepTableRobotTransformLogic::GetTreatmentMachinePartTypeAsString(CoordinateSystemIdentifier type)
+{
+  switch (type)
+  {
+    case FixedReference: return "FixedReference";
+    case BaseFixed: return "RobotBaseFixed";
+    case TableTop: return "TableTop";
+    case BaseRotation: return "RobotBaseRotation";
+    case Shoulder: return "RobotShoulder";
+    case Elbow: return "RobotElbow";
+    case Wrist: return "RobotWrist";
+    default:
+      // invalid type
+      return "";
   }
 }
 

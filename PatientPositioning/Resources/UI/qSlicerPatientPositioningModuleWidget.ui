@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>353</width>
+    <width>283</width>
     <height>836</height>
    </rect>
   </property>
@@ -19,17 +19,10 @@
      <property name="text">
       <string>Parameter</string>
      </property>
-     <layout class="QGridLayout" name="gridLayout_3">
-      <item row="0" column="0">
-       <layout class="QHBoxLayout" name="horizontalLayout">
-        <item>
-         <widget class="QLabel" name="label_3">
-          <property name="text">
-           <string>Parameter set:</string>
-          </property>
-         </widget>
-        </item>
-        <item>
+     <layout class="QGridLayout" name="gridLayout_8">
+      <item row="0" column="0" colspan="5">
+       <layout class="QGridLayout" name="gridLayout_3">
+        <item row="0" column="1">
          <widget class="qMRMLNodeComboBox" name="MRMLNodeComboBox_ParameterSet">
           <property name="enabled">
            <bool>false</bool>
@@ -41,6 +34,56 @@
           </property>
           <property name="noneDisplay">
            <string>Please select a node</string>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="0">
+         <widget class="QLabel" name="label_4">
+          <property name="text">
+           <string>Beam:</string>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="0">
+         <widget class="QLabel" name="label_3">
+          <property name="text">
+           <string>Parameter set:</string>
+          </property>
+         </widget>
+        </item>
+        <item row="2" column="1">
+         <widget class="qMRMLSegmentSelectorWidget" name="SegmentSelectorWidget_PatientBody">
+          <property name="noneEnabled">
+           <bool>true</bool>
+          </property>
+         </widget>
+        </item>
+        <item row="2" column="0">
+         <widget class="QLabel" name="label_7">
+          <property name="text">
+           <string>Patient body:</string>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="1">
+         <widget class="qMRMLNodeComboBox" name="MRMLNodeComboBox_Beam">
+          <property name="nodeTypes">
+           <stringlist>
+            <string>vtkMRMLRTBeamNode</string>
+           </stringlist>
+          </property>
+          <property name="noneEnabled">
+           <bool>true</bool>
+          </property>
+         </widget>
+        </item>
+        <item row="3" column="0">
+         <widget class="QComboBox" name="ComboBox_TreatmentMachine"/>
+        </item>
+        <item row="3" column="1">
+         <widget class="QPushButton" name="PushButton_LoadTreatmentMachine">
+          <property name="text">
+           <string>Load treatment machine</string>
           </property>
          </widget>
         </item>
@@ -68,6 +111,9 @@
     <widget class="ctkCollapsibleButton" name="InputXrayVolumesCollapsibleButton">
      <property name="text">
       <string>Input x-ray volumes</string>
+     </property>
+     <property name="collapsed">
+      <bool>true</bool>
      </property>
      <layout class="QGridLayout" name="gridLayout_2">
       <item row="1" column="0">
@@ -190,6 +236,65 @@
     </widget>
    </item>
    <item>
+    <widget class="ctkCollapsibleButton" name="CollapsibleButton_PatientTableTopControl">
+     <property name="text">
+      <string>Patient on TableTop Control</string>
+     </property>
+     <layout class="QGridLayout" name="gridLayout_7">
+      <item row="0" column="0">
+       <layout class="QGridLayout" name="gridLayout_6">
+        <item row="1" column="0">
+         <widget class="ctkCollapsibleGroupBox" name="CollapsibleGroupBox_PatientTableTopTranslation">
+          <property name="title">
+           <string>Patient to Table Top Translation (mm)</string>
+          </property>
+          <property name="collapsed">
+           <bool>true</bool>
+          </property>
+          <layout class="QGridLayout" name="gridLayout_13">
+           <item row="0" column="0">
+            <widget class="ctkCoordinatesWidget" name="CoordinatesWidget_PatientTableTopTranslation">
+             <property name="minimum">
+              <double>-5000.000000000000000</double>
+             </property>
+             <property name="maximum">
+              <double>5000.000000000000000</double>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </widget>
+        </item>
+        <item row="0" column="0">
+         <widget class="QCheckBox" name="CheckBox_RotatePatientHeadFeet">
+          <property name="text">
+           <string>Rotate Patient Head-Feet</string>
+          </property>
+         </widget>
+        </item>
+        <item row="2" column="0">
+         <widget class="ctkCollapsibleGroupBox" name="CollapsibleGroupBox_PatientTableTopMarkups">
+          <property name="title">
+           <string>Patient and Table Top markups</string>
+          </property>
+          <property name="collapsed">
+           <bool>true</bool>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item>
+    <widget class="ctkCollapsibleButton" name="CollapsibleButton_TableTopRobotControl">
+     <property name="text">
+      <string>Table Top Robot Control</string>
+     </property>
+    </widget>
+   </item>
+   <item>
     <spacer name="verticalSpacer">
      <property name="orientation">
       <enum>Qt::Vertical</enum>
@@ -217,15 +322,38 @@
    <container>1</container>
   </customwidget>
   <customwidget>
+   <class>ctkCollapsibleGroupBox</class>
+   <extends>QGroupBox</extends>
+   <header>ctkCollapsibleGroupBox.h</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>ctkCoordinatesWidget</class>
+   <extends>QWidget</extends>
+   <header>ctkCoordinatesWidget.h</header>
+  </customwidget>
+  <customwidget>
    <class>qMRMLNodeComboBox</class>
    <extends>QWidget</extends>
    <header>qMRMLNodeComboBox.h</header>
    <container>1</container>
   </customwidget>
   <customwidget>
+   <class>qMRMLWidget</class>
+   <extends>QWidget</extends>
+   <header>qMRMLWidget.h</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
    <class>qSlicerWidget</class>
    <extends>QWidget</extends>
    <header>qSlicerWidget.h</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>qMRMLSegmentSelectorWidget</class>
+   <extends>qMRMLWidget</extends>
+   <header>qMRMLSegmentSelectorWidget.h</header>
    <container>1</container>
   </customwidget>
   <customwidget>
