@@ -3371,13 +3371,14 @@ void vtkSlicerIhepStandGeometryLogic::ShowMarkupsNodes(bool toggled)
       tableTopPlaneMarkupsNode->GetDisplayNode()->SetVisibility(toggled);
     }
   }
+
   // fixed reference line markups node
   if (scene->GetFirstNodeByName(FIXEDREFERENCE_MARKUPS_LINE_NODE_NAME))
   {
     fixedReferenceLineNode = vtkMRMLMarkupsLineNode::SafeDownCast(scene->GetFirstNodeByName(FIXEDREFERENCE_MARKUPS_LINE_NODE_NAME));
     if (fixedReferenceLineNode)
     {
-      fixedReferenceLineNode->GetDisplayNode()->SetVisibility(toggled);
+      fixedReferenceLineNode->GetDisplayNode()->SetVisibility(true/* toggled */);
     }
   }
   // fixed isocenter markups node
@@ -3386,7 +3387,7 @@ void vtkSlicerIhepStandGeometryLogic::ShowMarkupsNodes(bool toggled)
     fixedIsocenterMarkupsNode = vtkMRMLMarkupsFiducialNode::SafeDownCast(scene->GetFirstNodeByName(FIXEDISOCENTER_MARKUPS_FIDUCIAL_NODE_NAME));
     if (fixedIsocenterMarkupsNode)
     {
-      fixedIsocenterMarkupsNode->GetDisplayNode()->SetVisibility(toggled);
+      fixedIsocenterMarkupsNode->GetDisplayNode()->SetVisibility(true/*toggled */);
     }
   }
 }
@@ -3409,7 +3410,7 @@ void vtkSlicerIhepStandGeometryLogic::ShowModelsNodes(bool toggled)
     vtkErrorMacro("ShowModelsNodes: Unable to access table top model");
     return;
   }
-  tableTopModel->GetDisplayNode()->SetVisibility(toggled);
+  tableTopModel->GetDisplayNode()->SetVisibility(true /* toggled */);
 
   // Table top origin - mandatory
   vtkMRMLModelNode* tableTopOriginModel = vtkMRMLModelNode::SafeDownCast(
@@ -3479,5 +3480,5 @@ void vtkSlicerIhepStandGeometryLogic::ShowModelsNodes(bool toggled)
     vtkErrorMacro("ShowModelsNodes: Unable to access fixed reference model");
     return;
   }
-  fixedReferenceModel->GetDisplayNode()->SetVisibility(toggled);
+  fixedReferenceModel->GetDisplayNode()->SetVisibility(true /* toggled */);
 }

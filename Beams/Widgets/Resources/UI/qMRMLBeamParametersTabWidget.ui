@@ -140,7 +140,7 @@
     <item row="11" column="1">
      <widget class="ctkSliderWidget" name="SliderWidget_GantryAngle">
       <property name="decimals">
-       <number>0</number>
+       <number>5</number>
       </property>
       <property name="maximum">
        <double>359.000000000000000</double>
@@ -157,7 +157,7 @@
     <item row="12" column="1">
      <widget class="ctkSliderWidget" name="SliderWidget_CollimatorAngle">
       <property name="decimals">
-       <number>0</number>
+       <number>5</number>
       </property>
       <property name="maximum">
        <double>359.000000000000000</double>
@@ -174,7 +174,7 @@
     <item row="13" column="1">
      <widget class="ctkSliderWidget" name="SliderWidget_CouchAngle">
       <property name="decimals">
-       <number>0</number>
+       <number>5</number>
       </property>
       <property name="maximum">
        <double>359.000000000000000</double>
