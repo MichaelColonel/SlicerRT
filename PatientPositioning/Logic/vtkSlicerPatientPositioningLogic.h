@@ -29,12 +29,13 @@
 
 // MRML includes
 #include <vtkMRMLPatientPositioningNode.h>
+#include <vtkMRMLChannel25GeometryNode.h>
 
 // STD includes
 #include <cstdlib>
 
 #include "vtkSlicerPatientPositioningModuleLogicExport.h"
-#include "vtkSlicerIhepTableRobotTransformLogic.h"
+#include "vtkSlicerTableTopRobotTransformLogic.h"
 
 class vtkMRMLLinearTransformNode;
 class vtkMRMLSliceCompositeNode;
@@ -50,6 +51,8 @@ class VTK_SLICER_PATIENTPOSITIONING_MODULE_LOGIC_EXPORT vtkSlicerPatientPosition
   public vtkSlicerModuleLogic
 {
 public:
+  static const char* TREATMENT_MACHINE_DESCRIPTOR_FILE_PATH_ATTRIBUTE_NAME;
+  static unsigned long MAX_TRIANGLE_NUMBER_PRODUCT_FOR_COLLISIONS;
 //  static const char* FIXEDREFERENCE_MODEL_NAME; // Fixed Reference
 //  static const char* ROBOT_BASE_FIXED_MODEL_NAME; // Fixed robot model
 //  static const char* ROBOT_BASE_ROTATION_MODEL_NAME; // Rotated robot model
@@ -73,10 +76,21 @@ public:
   vtkTypeMacro(vtkSlicerPatientPositioningLogic, vtkSlicerModuleLogic);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  void LoadTreatmentMachineModels(vtkMRMLPatientPositioningNode* parameterNode);
+  /// Load and setup components of the treatment machine into the scene based on its description.
+  /// \param parameterNode Parameter node contains the treatment machine descriptor file path.
+  /// \return List of parts that were successfully set up.
+  std::vector<vtkSlicerTableTopRobotTransformLogic::CoordinateSystemIdentifier> LoadTreatmentMachine(vtkMRMLChannel25GeometryNode* parameterNode);
+  /// Set up the IEC transforms and model properties on the treatment machine models.
+  /// \param forceEnableCollisionDetection Enable collision detection between parts even if calculation is potentially
+  ///        lengthy absed on the number of triangles of the parts.
+  /// \return List of parts that were successfully set up.
+  std::vector<vtkSlicerTableTopRobotTransformLogic::CoordinateSystemIdentifier> SetupTreatmentMachineModels(
+    vtkMRMLChannel25GeometryNode* parameterNode, bool forceEnableCollisionDetection=false);
+
+  void LoadTreatmentMachine(vtkMRMLPatientPositioningNode* parameterNode);
   void BuildRobotTableGeometryTransformHierarchy();
   void ResetModelsToInitialPosition(vtkMRMLPatientPositioningNode* parameterNode);
-  void SetupTreatmentMachineModels(vtkMRMLPatientPositioningNode* parameterNode);
+  void SetupTreatmentMachine(vtkMRMLPatientPositioningNode* parameterNode);
 
   void SetXrayImagesProjection(vtkMRMLPatientPositioningNode* parameterNode, vtkMRMLPatientPositioningNode::XrayProjectionType projection,
     vtkMRMLSliceCompositeNode* sliceCompNode, vtkMRMLSliceNode* sliceNode);
@@ -85,9 +99,9 @@ public:
 // Get treatment machine properties from descriptor file
 public:
   /// Get part type as string
-  const char* GetTreatmentMachinePartTypeAsString(vtkSlicerIhepTableRobotTransformLogic::CoordinateSystemIdentifier type);
+  const char* GetTreatmentMachinePartTypeAsString(vtkSlicerTableTopRobotTransformLogic::CoordinateSystemIdentifier type);
 
-  vtkGetObjectMacro(IhepTableRobotLogic, vtkSlicerIhepTableRobotTransformLogic);
+  vtkGetObjectMacro(TableTopRobotLogic, vtkSlicerTableTopRobotTransformLogic);
 
   /// Get part name for part type in the currently loaded treatment machine description
   std::string GetNameForPartType(std::string partType);
@@ -102,6 +116,8 @@ public:
   /// Get state for part type in the currently loaded treatment machine description.
   /// Valid states are "Disabled" (not loaded), "Active" (loaded and collisions computed), "Passive" (loaded but no collisions).
   std::string GetStateForPartType(std::string partType);
+  /// Get TableTopRobotTransformLogic
+  vtkSlicerTableTopRobotTransformLogic* GetTableTopRobotTransformLogic() const;
 
 protected:
   vtkSlicerPatientPositioningLogic();
@@ -118,7 +134,7 @@ private:
   vtkSlicerPatientPositioningLogic(const vtkSlicerPatientPositioningLogic&); // Not implemented
   void operator=(const vtkSlicerPatientPositioningLogic&); // Not implemented
 
-  vtkSlicerIhepTableRobotTransformLogic* IhepTableRobotLogic{ nullptr };
+  vtkSlicerTableTopRobotTransformLogic* TableTopRobotLogic{ nullptr };
 
   class vtkInternal;
   vtkInternal* Internal;

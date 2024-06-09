@@ -434,7 +434,7 @@ void vtkSlicerRoomsEyeViewModuleLogic::BuildRoomsEyeViewTransformHierarchy()
   {
     additionalCollimatorDevicesToCollimatorTransformNode = vtkSmartPointer<vtkMRMLLinearTransformNode>::New();
     additionalCollimatorDevicesToCollimatorTransformNode->SetName(ADDITIONALCOLLIMATORMOUNTEDDEVICES_TO_COLLIMATOR_TRANSFORM_NODE_NAME);
-    additionalCollimatorDevicesToCollimatorTransformNode->SetHideFromEditors(1);
+//    additionalCollimatorDevicesToCollimatorTransformNode->SetHideFromEditors(1);
     std::string singletonTag = std::string("IEC_") + ADDITIONALCOLLIMATORMOUNTEDDEVICES_TO_COLLIMATOR_TRANSFORM_NODE_NAME;
     additionalCollimatorDevicesToCollimatorTransformNode->SetSingletonTag(singletonTag.c_str());
     scene->AddNode(additionalCollimatorDevicesToCollimatorTransformNode);

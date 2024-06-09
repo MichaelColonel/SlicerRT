@@ -20,7 +20,7 @@
 ==============================================================================*/
 
 // Beams includes
-#include "vtkSlicerIhepTableRobotTransformLogic.h"
+#include "vtkSlicerTableTopRobotTransformLogic.h"
 
 #include "vtkMRMLRTBeamNode.h"
 #include "vtkMRMLRTPlanNode.h"
@@ -29,8 +29,8 @@
 #include <vtkMRMLScene.h>
 #include <vtkMRMLLinearTransformNode.h>
 
-// IHEP stand geometry MRML node
-//#include <vtkMRMLIhepStandGeometryNode.h>
+// Channel-25 geometry MRML node
+#include <vtkMRMLChannel25GeometryNode.h>
 
 // VTK includes
 #include <vtkNew.h>
@@ -52,10 +52,10 @@ const std::array< double, 3 > E{ 0., 330. + 1220 + 240, 645. + 1150. + 115. };
 }
 
 //----------------------------------------------------------------------------
-vtkStandardNewMacro(vtkSlicerIhepTableRobotTransformLogic);
+vtkStandardNewMacro(vtkSlicerTableTopRobotTransformLogic);
 
 //-----------------------------------------------------------------------------
-vtkSlicerIhepTableRobotTransformLogic::vtkSlicerIhepTableRobotTransformLogic()
+vtkSlicerTableTopRobotTransformLogic::vtkSlicerTableTopRobotTransformLogic()
 {
   using CoordSys = CoordinateSystemIdentifier;
   // Setup coordinate system ID to name map
@@ -70,16 +70,16 @@ vtkSlicerIhepTableRobotTransformLogic::vtkSlicerIhepTableRobotTransformLogic()
   this->CoordinateSystemsMap[CoordSys::TableTop] = "TableTop";
   this->CoordinateSystemsMap[CoordSys::Patient] = "Patient";
 
-  this->IhepTransforms.clear();
-  this->IhepTransforms.push_back(std::make_pair(CoordSys::FixedReference, CoordSys::RAS)); // Dummy
-  this->IhepTransforms.push_back(std::make_pair(CoordSys::BaseFixed, CoordSys::FixedReference)); // Collimator in canyon system
-  this->IhepTransforms.push_back(std::make_pair(CoordSys::BaseRotation, CoordSys::BaseFixed)); // Rotation of patient support platform
-  this->IhepTransforms.push_back(std::make_pair(CoordSys::Shoulder, CoordSys::BaseRotation)); // Lateral movement along Y-axis in RAS of the table top
-  this->IhepTransforms.push_back(std::make_pair(CoordSys::Elbow, CoordSys::Shoulder)); // Longitudinal movement along X-axis in RAS of the table top
-  this->IhepTransforms.push_back(std::make_pair(CoordSys::Wrist, CoordSys::Elbow)); // Vertical movement of table top origin
-  this->IhepTransforms.push_back(std::make_pair(CoordSys::TableTop, CoordSys::Wrist)); // Movement and rotation of table top on origin point
-  this->IhepTransforms.push_back(std::make_pair(CoordSys::Patient, CoordSys::TableTop));
-  this->IhepTransforms.push_back(std::make_pair(CoordSys::RAS, CoordSys::Patient));
+  this->TableTopRobotTransforms.clear();
+  this->TableTopRobotTransforms.push_back(std::make_pair(CoordSys::FixedReference, CoordSys::RAS)); // Dummy
+  this->TableTopRobotTransforms.push_back(std::make_pair(CoordSys::BaseFixed, CoordSys::FixedReference)); // Collimator in canyon system
+  this->TableTopRobotTransforms.push_back(std::make_pair(CoordSys::BaseRotation, CoordSys::BaseFixed)); // Rotation of patient support platform
+  this->TableTopRobotTransforms.push_back(std::make_pair(CoordSys::Shoulder, CoordSys::BaseRotation)); // Lateral movement along Y-axis in RAS of the table top
+  this->TableTopRobotTransforms.push_back(std::make_pair(CoordSys::Elbow, CoordSys::Shoulder)); // Longitudinal movement along X-axis in RAS of the table top
+  this->TableTopRobotTransforms.push_back(std::make_pair(CoordSys::Wrist, CoordSys::Elbow)); // Vertical movement of table top origin
+  this->TableTopRobotTransforms.push_back(std::make_pair(CoordSys::TableTop, CoordSys::Wrist)); // Movement and rotation of table top on origin point
+  this->TableTopRobotTransforms.push_back(std::make_pair(CoordSys::Patient, CoordSys::TableTop));
+  this->TableTopRobotTransforms.push_back(std::make_pair(CoordSys::RAS, CoordSys::Patient));
 
   this->CoordinateSystemsHierarchy.clear();
   // key - parent, value - children
@@ -94,21 +94,21 @@ vtkSlicerIhepTableRobotTransformLogic::vtkSlicerIhepTableRobotTransformLogic()
 }
 
 //-----------------------------------------------------------------------------
-vtkSlicerIhepTableRobotTransformLogic::~vtkSlicerIhepTableRobotTransformLogic()
+vtkSlicerTableTopRobotTransformLogic::~vtkSlicerTableTopRobotTransformLogic()
 {
   this->CoordinateSystemsMap.clear();
-  this->IhepTransforms.clear();
+  this->TableTopRobotTransforms.clear();
 }
 
 //----------------------------------------------------------------------------
-void vtkSlicerIhepTableRobotTransformLogic::PrintSelf(ostream& os, vtkIndent indent)
+void vtkSlicerTableTopRobotTransformLogic::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 
   // Transforms
   os << indent << "Transforms:" << std::endl;
   vtkSmartPointer<vtkMatrix4x4> matrix = vtkSmartPointer<vtkMatrix4x4>::New();
-  for ( auto& transformPair : this->IhepTransforms)
+  for ( auto& transformPair : this->TableTopRobotTransforms)
   {
     std::string transformNodeName = this->GetTransformNodeNameBetween( transformPair.first, transformPair.second);
     vtkMRMLLinearTransformNode* transformNode = vtkMRMLLinearTransformNode::SafeDownCast(
@@ -129,7 +129,7 @@ void vtkSlicerIhepTableRobotTransformLogic::PrintSelf(ostream& os, vtkIndent ind
 }
 
 //---------------------------------------------------------------------------
-const char* vtkSlicerIhepTableRobotTransformLogic::GetTreatmentMachinePartTypeAsString(CoordinateSystemIdentifier type)
+const char* vtkSlicerTableTopRobotTransformLogic::GetTreatmentMachinePartTypeAsString(CoordinateSystemIdentifier type)
 {
   switch (type)
   {
@@ -142,30 +142,29 @@ const char* vtkSlicerIhepTableRobotTransformLogic::GetTreatmentMachinePartTypeAs
     case Wrist: return "RobotWrist";
     default:
       // invalid type
-      return "";
+      return nullptr;
   }
 }
 
 //---------------------------------------------------------------------------
-void vtkSlicerIhepTableRobotTransformLogic::BuildTableRobotTransformHierarchy()
+void vtkSlicerTableTopRobotTransformLogic::BuildTableRobotTransformHierarchy()
 {
   if (!this->GetMRMLScene())
   {
-    vtkErrorMacro("BuildIHEPTransformHierarchy: Invalid MRML scene");
+    vtkErrorMacro("BuildTableRobotTransformHierarchy: Invalid MRML scene");
     return;
   }
 
   // Create transform nodes if they do not exist
-  for (auto& transformPair : this->IhepTransforms)
+  for (auto& transformPair : this->TableTopRobotTransforms)
   {
     std::string transformNodeName = this->GetTransformNodeNameBetween( transformPair.first, transformPair.second);
-    
     if (!this->GetMRMLScene()->GetFirstNodeByName(transformNodeName.c_str()))
     {
       vtkSmartPointer<vtkMRMLLinearTransformNode> transformNode = vtkSmartPointer<vtkMRMLLinearTransformNode>::New();
       transformNode->SetName(transformNodeName.c_str());
-      transformNode->SetHideFromEditors(1);
-      std::string singletonTag = std::string("IHEP_") + transformNodeName;
+//      transformNode->SetHideFromEditors(1);
+      std::string singletonTag = std::string("TTR_") + transformNodeName;
       transformNode->SetSingletonTag(singletonTag.c_str());
       this->GetMRMLScene()->AddNode(transformNode);
     }
@@ -208,7 +207,7 @@ void vtkSlicerIhepTableRobotTransformLogic::BuildTableRobotTransformHierarchy()
 }
 
 //-----------------------------------------------------------------------------
-void vtkSlicerIhepTableRobotTransformLogic::ResetRasToPatientIsocenterTranslate()
+void vtkSlicerTableTopRobotTransformLogic::ResetRasToPatientIsocenterTranslate()
 {
   using CoordSys = CoordinateSystemIdentifier;
   // Update IEC Patient to RAS transform based on the isocenter defined in the beam's parent plan
@@ -222,7 +221,7 @@ void vtkSlicerIhepTableRobotTransformLogic::ResetRasToPatientIsocenterTranslate(
 }
 
 //-----------------------------------------------------------------------------
-void vtkSlicerIhepTableRobotTransformLogic::RestoreRasToPatientIsocenterTranslate(double isocenter[3])
+void vtkSlicerTableTopRobotTransformLogic::RestoreRasToPatientIsocenterTranslate(double isocenter[3])
 {
   using CoordSys = CoordinateSystemIdentifier;
   // Update IEC Patient to RAS transform based on the isocenter defined in the beam's parent plan
@@ -237,14 +236,14 @@ void vtkSlicerIhepTableRobotTransformLogic::RestoreRasToPatientIsocenterTranslat
 }
 
 //-----------------------------------------------------------------------------
-std::string vtkSlicerIhepTableRobotTransformLogic::GetTransformNodeNameBetween(
+std::string vtkSlicerTableTopRobotTransformLogic::GetTransformNodeNameBetween(
   CoordinateSystemIdentifier fromFrame, CoordinateSystemIdentifier toFrame)
 {
   return this->CoordinateSystemsMap[fromFrame] + "To" + this->CoordinateSystemsMap[toFrame] + "Transform";
 }
 
 //-----------------------------------------------------------------------------
-vtkMRMLLinearTransformNode* vtkSlicerIhepTableRobotTransformLogic::GetTransformNodeBetween(
+vtkMRMLLinearTransformNode* vtkSlicerTableTopRobotTransformLogic::GetTransformNodeBetween(
   CoordinateSystemIdentifier fromFrame, CoordinateSystemIdentifier toFrame )
 {
   if (!this->GetMRMLScene())
@@ -258,7 +257,7 @@ vtkMRMLLinearTransformNode* vtkSlicerIhepTableRobotTransformLogic::GetTransformN
 }
 
 //-----------------------------------------------------------------------------
-bool vtkSlicerIhepTableRobotTransformLogic::GetTransformForPointBetweenFrames( 
+bool vtkSlicerTableTopRobotTransformLogic::GetTransformForPointBetweenFrames( 
   CoordinateSystemIdentifier fromFrame, CoordinateSystemIdentifier toFrame,
   const double fromFramePoint[3], double toFramePoint[3], bool transformForBeam)
 {
@@ -331,7 +330,83 @@ bool vtkSlicerIhepTableRobotTransformLogic::GetTransformForPointBetweenFrames(
 }
 
 //-----------------------------------------------------------------------------
-bool vtkSlicerIhepTableRobotTransformLogic::GetTransformBetween(
+void vtkSlicerTableTopRobotTransformLogic::UpdateFixedReferenceToRASTransform(vtkMRMLChannel25GeometryNode* channelNode, double* isocenter)
+{
+  if (!this->GetMRMLScene())
+  {
+    vtkErrorMacro("UpdateFixedReferenceToRasTransform: Invalid MRML scene");
+    return;
+  }
+
+  using CoordSys = CoordinateSystemIdentifier;
+
+  // Update IEC FixedReference to RAS transform based on the isocenter defined in the beam's parent plan
+  vtkMRMLLinearTransformNode* fixedReferenceToRasTransformNode = this->GetTransformNodeBetween(CoordSys::FixedReference, CoordSys::RAS);
+
+  // Apply isocenter translation
+  vtkNew<vtkTransform> fixedReferenceToRASTransformBeamComponent;
+  if (channelNode)
+  {
+    std::array<double, 3> isocenterPosition = {0.0, 0.0, 0.0};
+    if (isocenter)
+    {
+      // Once again the dirty hack for dynamic beams, the actual translation 
+      // will be in vtkSlicerDicomRtImportExportModuleLogic::vtkInternal::LoadDynamicBeamSequence method  
+      fixedReferenceToRASTransformBeamComponent->Translate(isocenterPosition[0], isocenterPosition[1], isocenterPosition[2]);
+    }
+    else
+    {
+      // translation for a static beam
+//      if (planNode->GetIsocenterPosition(isocenterPosition.data()))
+//      {
+//        fixedReferenceToRASTransformBeamComponent->Translate(isocenterPosition[0], isocenterPosition[1], isocenterPosition[2]);
+//      }
+//      else
+//      {
+//        vtkErrorMacro("UpdateFixedReferenceToRasTransform: Failed to get isocenter position for plan " << planNode->GetName());
+//      }
+    }
+  }
+
+  // The "S" direction in RAS is the "A" direction in FixedReference
+  fixedReferenceToRASTransformBeamComponent->RotateX(-90.0);
+  // The "S" direction to be toward the gantry (head first position) by default
+  fixedReferenceToRASTransformBeamComponent->RotateZ(180.0);
+  fixedReferenceToRASTransformBeamComponent->Modified();
+
+  vtkMRMLLinearTransformNode* baseFixedToFixedReferenceTransformNode =
+    this->GetTransformNodeBetween(CoordSys::BaseFixed, CoordSys::FixedReference);
+//  vtkMRMLLinearTransformNode* tableTopToTableTopEccentricRotationTransformNode =
+//    this->GetTransformNodeBetween(TableTop, TableTopEccentricRotation);
+
+  vtkNew<vtkTransform> fixedReferenceToRASTransform;
+  fixedReferenceToRASTransform->Concatenate(fixedReferenceToRASTransformBeamComponent);
+//  fixedReferenceToRASTransform->Concatenate(vtkTransform::SafeDownCast(tableTopToTableTopEccentricRotationTransformNode->GetTransformFromParent()));
+  fixedReferenceToRASTransform->Concatenate(vtkTransform::SafeDownCast(baseFixedToFixedReferenceTransformNode->GetTransformFromParent()));
+
+  fixedReferenceToRasTransformNode->SetAndObserveTransformToParent(fixedReferenceToRASTransform);
+}
+
+//-----------------------------------------------------------------------------
+void vtkSlicerTableTopRobotTransformLogic::UpdateBaseFixedToFixedReferenceTransform(vtkMRMLChannel25GeometryNode* channelNode)
+{
+  if (!channelNode)
+  {
+    vtkErrorMacro("UpdateBaseFixedToFixedReferenceTransform: Invalid parameter set node");
+    return;
+  }
+  using CoordSys = CoordinateSystemIdentifier;
+
+  vtkMRMLLinearTransformNode* baseFixedToFixedReferenceTransformNode =
+    this->GetTransformNodeBetween(CoordSys::BaseFixed, CoordSys::FixedReference);
+
+  vtkNew<vtkTransform> baseFixedToFixedReferenceTransform;
+  baseFixedToFixedReferenceTransform->RotateZ(channelNode->GetPatientSupportRotationAngle());
+  baseFixedToFixedReferenceTransformNode->SetAndObserveTransformToParent(baseFixedToFixedReferenceTransform);
+}
+
+//-----------------------------------------------------------------------------
+bool vtkSlicerTableTopRobotTransformLogic::GetTransformBetween(
   CoordinateSystemIdentifier fromFrame, CoordinateSystemIdentifier toFrame, 
   vtkGeneralTransform* outputTransform, bool transformForBeam)
 {
@@ -428,7 +503,7 @@ bool vtkSlicerIhepTableRobotTransformLogic::GetTransformBetween(
 }
 
 //-----------------------------------------------------------------------------
-bool vtkSlicerIhepTableRobotTransformLogic::GetTransformBetween(
+bool vtkSlicerTableTopRobotTransformLogic::GetTransformBetween(
   CoordinateSystemIdentifier fromFrame, CoordinateSystemIdentifier toFrame, 
   vtkTransform* outputLinearTransform, bool transformForBeam)
 {
@@ -449,7 +524,7 @@ bool vtkSlicerIhepTableRobotTransformLogic::GetTransformBetween(
 }
 
 //-----------------------------------------------------------------------------
-bool vtkSlicerIhepTableRobotTransformLogic::GetPathToRoot( CoordinateSystemIdentifier frame, 
+bool vtkSlicerTableTopRobotTransformLogic::GetPathToRoot( CoordinateSystemIdentifier frame, 
   CoordinateSystemsList& path)
 {
   using CoordSys = CoordinateSystemIdentifier;
@@ -500,7 +575,7 @@ bool vtkSlicerIhepTableRobotTransformLogic::GetPathToRoot( CoordinateSystemIdent
 }
 
 //-----------------------------------------------------------------------------
-bool vtkSlicerIhepTableRobotTransformLogic::GetPathFromRoot( CoordinateSystemIdentifier frame, 
+bool vtkSlicerTableTopRobotTransformLogic::GetPathFromRoot( CoordinateSystemIdentifier frame, 
   CoordinateSystemsList& path)
 {
   if (this->GetPathToRoot( frame, path))

@@ -19,8 +19,8 @@
 
 ==============================================================================*/
 
-#ifndef __vtkSlicerIhepTableRobotTransformLogic_h
-#define __vtkSlicerIhepTableRobotTransformLogic_h
+#ifndef __vtkSlicerTableTopRobotTransformLogic_h
+#define __vtkSlicerTableTopRobotTransformLogic_h
 
 #include "vtkSlicerPatientPositioningModuleLogicExport.h"
 
@@ -36,12 +36,14 @@ class vtkGeneralTransform;
 class vtkTransform;
 class vtkMRMLRTBeamNode;
 class vtkMRMLLinearTransformNode;
+class vtkMRMLChannel25GeometryNode;
 
 // FixedReference -> BaseFixed -> BaseRotation -> Shoulder -> Elbow -> Wrist -> TableTop
-class VTK_SLICER_PATIENTPOSITIONING_MODULE_LOGIC_EXPORT vtkSlicerIhepTableRobotTransformLogic : public vtkMRMLAbstractLogic
+class VTK_SLICER_PATIENTPOSITIONING_MODULE_LOGIC_EXPORT vtkSlicerTableTopRobotTransformLogic : public vtkMRMLAbstractLogic
 {
 public:
-  enum CoordinateSystemIdentifier
+
+  enum CoordinateSystemIdentifier : int
   {
     RAS = 0,
     FixedReference,
@@ -52,12 +54,12 @@ public:
     Wrist, // Rotation along Y-axis of Elbow
     TableTop, // Translate from Wrist flange center to Table Top center
     Patient, // Translate from Table Top center to Patient center
-    LastIhepTableBobotCoordinateFrame // Last index used for adding more coordinate systems externally
+    CoordinateSystemIdentifier_Last // Last index used for adding more coordinate systems externally
   };
   typedef std::list< CoordinateSystemIdentifier > CoordinateSystemsList;
 
-  static vtkSlicerIhepTableRobotTransformLogic *New();
-  vtkTypeMacro(vtkSlicerIhepTableRobotTransformLogic, vtkMRMLAbstractLogic);
+  static vtkSlicerTableTopRobotTransformLogic *New();
+  vtkTypeMacro(vtkSlicerTableTopRobotTransformLogic, vtkMRMLAbstractLogic);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /// Create or get transforms taking part in the IEC logic, and build the transform hierarchy
@@ -94,12 +96,17 @@ public:
   /// Restore RAS to Patient isocenter translate
   void RestoreRasToPatientIsocenterTranslate(double isocenter[3]);
 
+  /// Update fixed reference to RAS transform based on isocenter and patient support transforms
+  void UpdateFixedReferenceToRASTransform(vtkMRMLChannel25GeometryNode* channelNode, double* isocenter = nullptr);
+  /// Update BaseFixedToFixedReference transform based on A1 robot angle parameter
+  void UpdateBaseFixedToFixedReferenceTransform(vtkMRMLChannel25GeometryNode* channelNode);
+
   /// Get part type as string
   const char* GetTreatmentMachinePartTypeAsString(CoordinateSystemIdentifier type);
 
 protected:
-  vtkSlicerIhepTableRobotTransformLogic();
-  ~vtkSlicerIhepTableRobotTransformLogic() override;
+  vtkSlicerTableTopRobotTransformLogic();
+  ~vtkSlicerTableTopRobotTransformLogic() override;
 
   /// Get name of transform node between two coordinate systems
   /// \return Transform node name between the specified coordinate frames.
@@ -117,16 +124,16 @@ protected:
   /// Map from \sa CoordinateSystemIdentifier to coordinate system name. Used for getting transforms
   std::map<CoordinateSystemIdentifier, std::string> CoordinateSystemsMap;
 
-  /// List of IHEP transforms
-  std::vector< std::pair<CoordinateSystemIdentifier, CoordinateSystemIdentifier> > IhepTransforms;
+  /// List of table top coordinate system transforms
+  std::vector< std::pair<CoordinateSystemIdentifier, CoordinateSystemIdentifier> > TableTopRobotTransforms;
 
   // TODO: for hierarchy use tree with nodes, something like graph
   /// Map of IHEP coordinate systems hierarchy
   std::map< CoordinateSystemIdentifier, CoordinateSystemsList > CoordinateSystemsHierarchy;
 
 private:
-  vtkSlicerIhepTableRobotTransformLogic(const vtkSlicerIhepTableRobotTransformLogic&) = delete;
-  void operator=(const vtkSlicerIhepTableRobotTransformLogic&) = delete;
+  vtkSlicerTableTopRobotTransformLogic(const vtkSlicerTableTopRobotTransformLogic&) = delete;
+  void operator=(const vtkSlicerTableTopRobotTransformLogic&) = delete;
 };
 
 #endif

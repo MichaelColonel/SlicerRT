@@ -24,12 +24,17 @@
 #include <vtkMRMLLinearTransformNode.h>
 #include <vtkMRMLSubjectHierarchyNode.h>
 #include <vtkMRMLModelNode.h>
+#include <vtkMRMLModelDisplayNode.h>
 
 // VTK includes
 #include <vtkIntArray.h>
 #include <vtkNew.h>
 #include <vtkObjectFactory.h>
 #include <vtkMatrix4x4.h>
+#include <vtkPolyData.h>
+#include <vtkTransform.h>
+#include <vtkTransformFilter.h>
+#include <vtkTransformPolyDataFilter.h>
 
 // VTKSYS includes
 #include <vtksys/SystemTools.hxx>
@@ -41,8 +46,6 @@
 // Slicer includes
 #include <vtkSlicerModuleLogic.h>
 #include <vtkSlicerModelsLogic.h>
-
-#include <vtkSlicerIhepTableRobotTransformLogic.h>
 
 //const char* vtkSlicerPatientPositioningLogic::FIXEDREFERENCE_MODEL_NAME = "FixedReference";
 //const char* vtkSlicerPatientPositioningLogic::ROBOT_BASE_FIXED_MODEL_NAME = "RobotBaseFixed";
@@ -62,6 +65,9 @@ const char* vtkSlicerPatientPositioningLogic::FIXEDREFERENCE_MARKUPS_LINE_NODE_N
 const char* vtkSlicerPatientPositioningLogic::DRR_TRANSFORM_NODE_NAME = "DrrPatientPositioningTransform";
 const char* vtkSlicerPatientPositioningLogic::DRR_TRANSLATE_NODE_NAME = "DrrPatientPositioningTranslate";
 
+const char* vtkSlicerPatientPositioningLogic::TREATMENT_MACHINE_DESCRIPTOR_FILE_PATH_ATTRIBUTE_NAME = "TreatmentMachineDescriptorFilePath";
+unsigned long vtkSlicerPatientPositioningLogic::MAX_TRIANGLE_NUMBER_PRODUCT_FOR_COLLISIONS = 10E+10;
+
 namespace
 {
 rapidjson::Value JSON_EMPTY_VALUE;
@@ -77,7 +83,7 @@ public:
   vtkInternal(vtkSlicerPatientPositioningLogic* external);
   ~vtkInternal();
 
-  using CoordSys = vtkSlicerIhepTableRobotTransformLogic::CoordinateSystemIdentifier;
+  using CoordSys = vtkSlicerTableTopRobotTransformLogic::CoordinateSystemIdentifier;
   vtkSlicerPatientPositioningLogic* External; 
   rapidjson::Document* CurrentTreatmentMachineDescription{nullptr};
 
@@ -86,11 +92,12 @@ public:
   rapidjson::Value& GetTreatmentMachinePart(CoordSys partType);
   rapidjson::Value& GetTreatmentMachinePart(std::string partTypeStr);
 
-  std::string GetTreatmentMachinePartFullFilePath(vtkMRMLPatientPositioningNode* parameterNode, std::string partPath);
-  std::string GetTreatmentMachineFileNameWithoutExtension(vtkMRMLPatientPositioningNode* parameterNode);
-  std::string GetTreatmentMachinePartModelName(vtkMRMLPatientPositioningNode* parameterNode, CoordSys partType);
-  vtkMRMLModelNode* GetTreatmentMachinePartModelNode(vtkMRMLPatientPositioningNode* parameterNode, CoordSys partType);
-  vtkMRMLModelNode* EnsureTreatmentMachinePartModelNode(vtkMRMLPatientPositioningNode* parameterNode, CoordSys partType, bool optional=false);
+  std::string GetTreatmentMachinePartFullFilePath(vtkMRMLChannel25GeometryNode* parameterNode, std::string partPath);
+  std::string GetTreatmentMachineFileNameWithoutExtension(vtkMRMLChannel25GeometryNode* parameterNode);
+  std::string GetTreatmentMachinePartModelName(vtkMRMLChannel25GeometryNode* parameterNode, CoordSys partType);
+  std::vector< CoordSys > GetTreatmentMachineParts();
+  vtkMRMLModelNode* GetTreatmentMachinePartModelNode(vtkMRMLChannel25GeometryNode* parameterNode, CoordSys partType);
+  vtkMRMLModelNode* EnsureTreatmentMachinePartModelNode(vtkMRMLChannel25GeometryNode* parameterNode, CoordSys partType, bool optional=false);
 };
 
 //---------------------------------------------------------------------------
@@ -110,7 +117,7 @@ vtkSlicerPatientPositioningLogic::vtkInternal::~vtkInternal()
 //---------------------------------------------------------------------------
 rapidjson::Value& vtkSlicerPatientPositioningLogic::vtkInternal::GetTreatmentMachinePart(CoordSys type)
 {
-  if (type >= CoordSys::LastIhepTableBobotCoordinateFrame)
+  if (type >= CoordSys::CoordinateSystemIdentifier_Last)
   {
     vtkErrorWithObjectMacro(this->External, "GetTreatmentMachinePart: Invalid part type given " << type);
     return JSON_EMPTY_VALUE;
@@ -154,8 +161,41 @@ rapidjson::Value& vtkSlicerPatientPositioningLogic::vtkInternal::GetTreatmentMac
 }
 
 //---------------------------------------------------------------------------
+std::vector< vtkSlicerTableTopRobotTransformLogic::CoordinateSystemIdentifier > vtkSlicerPatientPositioningLogic::vtkInternal::GetTreatmentMachineParts()
+{
+  std::vector< CoordSys > parts;
+  if (this->CurrentTreatmentMachineDescription->IsNull())
+  {
+    vtkErrorWithObjectMacro(this->External, "GetTreatmentMachinePart: No treatment machine descriptor file loaded");
+    return parts;
+  }
+  rapidjson::Value::MemberIterator partsIt = this->CurrentTreatmentMachineDescription->FindMember("Part");
+  if (partsIt == this->CurrentTreatmentMachineDescription->MemberEnd() || !partsIt->value.IsArray())
+  {
+    vtkErrorWithObjectMacro(this->External, "GetTreatmentMachinePart: Failed to find parts array in treatment machine description");
+    return parts;
+  }
+  rapidjson::Value& partsArray = partsIt->value;
+
+  // Traverse parts and try to find the element with the given part type
+  for (rapidjson::SizeType index=0; index < partsArray.Size(); ++index)
+  {
+    rapidjson::Value& currentObject = partsArray[index];
+    if (currentObject.IsObject())
+    {
+      rapidjson::Value& currentType = currentObject["Number"];
+      if (currentType.IsInt() && (currentType.GetInt() < CoordSys::CoordinateSystemIdentifier_Last))
+      {
+        parts.push_back(static_cast<CoordSys>(currentType.GetInt()));
+      }
+    }
+  }
+  return parts;
+}
+
+//---------------------------------------------------------------------------
 std::string vtkSlicerPatientPositioningLogic::vtkInternal::GetTreatmentMachinePartFullFilePath(
-  vtkMRMLPatientPositioningNode* parameterNode, std::string partPath)
+  vtkMRMLChannel25GeometryNode* parameterNode, std::string partPath)
 {
   if (!parameterNode)
   {
@@ -174,7 +214,7 @@ std::string vtkSlicerPatientPositioningLogic::vtkInternal::GetTreatmentMachinePa
 }
 
 //---------------------------------------------------------------------------
-std::string vtkSlicerPatientPositioningLogic::vtkInternal::GetTreatmentMachineFileNameWithoutExtension(vtkMRMLPatientPositioningNode* parameterNode)
+std::string vtkSlicerPatientPositioningLogic::vtkInternal::GetTreatmentMachineFileNameWithoutExtension(vtkMRMLChannel25GeometryNode* parameterNode)
 {
   if (!parameterNode)
   {
@@ -194,7 +234,7 @@ std::string vtkSlicerPatientPositioningLogic::vtkInternal::GetTreatmentMachineFi
 
 //---------------------------------------------------------------------------
 std::string vtkSlicerPatientPositioningLogic::vtkInternal::GetTreatmentMachinePartModelName(
-  vtkMRMLPatientPositioningNode* parameterNode, CoordSys partType)
+  vtkMRMLChannel25GeometryNode* parameterNode, CoordSys partType)
 {
   if (!parameterNode)
   {
@@ -207,7 +247,7 @@ std::string vtkSlicerPatientPositioningLogic::vtkInternal::GetTreatmentMachinePa
 
 //---------------------------------------------------------------------------
 vtkMRMLModelNode* vtkSlicerPatientPositioningLogic::vtkInternal::GetTreatmentMachinePartModelNode(
-  vtkMRMLPatientPositioningNode* parameterNode, CoordSys partType)
+  vtkMRMLChannel25GeometryNode* parameterNode, CoordSys partType)
 {
   if (!parameterNode)
   {
@@ -220,7 +260,7 @@ vtkMRMLModelNode* vtkSlicerPatientPositioningLogic::vtkInternal::GetTreatmentMac
 
 //---------------------------------------------------------------------------
 vtkMRMLModelNode* vtkSlicerPatientPositioningLogic::vtkInternal::EnsureTreatmentMachinePartModelNode(
-  vtkMRMLPatientPositioningNode* parameterNode, CoordSys partType, bool optional/*=false*/)
+  vtkMRMLChannel25GeometryNode* parameterNode, CoordSys partType, bool optional/*=false*/)
 {
   vtkMRMLScene* scene = this->External->GetMRMLScene();
   if (!scene || !parameterNode)
@@ -301,16 +341,16 @@ vtkSlicerPatientPositioningLogic::vtkSlicerPatientPositioningLogic()
 {
   this->Internal = new vtkInternal(this); 
 
-  this->IhepTableRobotLogic = vtkSlicerIhepTableRobotTransformLogic::New();
+  this->TableTopRobotLogic = vtkSlicerTableTopRobotTransformLogic::New();
 }
 
 //----------------------------------------------------------------------------
 vtkSlicerPatientPositioningLogic::~vtkSlicerPatientPositioningLogic()
 {
-  if (this->IhepTableRobotLogic)
+  if (this->TableTopRobotLogic)
   {
-    this->IhepTableRobotLogic->Delete();
-    this->IhepTableRobotLogic = nullptr;
+    this->TableTopRobotLogic->Delete();
+    this->TableTopRobotLogic = nullptr;
   }
   if (this->Internal)
   {
@@ -328,11 +368,15 @@ void vtkSlicerPatientPositioningLogic::PrintSelf(ostream& os, vtkIndent indent)
 //---------------------------------------------------------------------------
 void vtkSlicerPatientPositioningLogic::SetMRMLSceneInternal(vtkMRMLScene * newScene)
 {
+  this->Superclass::SetMRMLSceneInternal(newScene);
+
   vtkNew<vtkIntArray> events;
   events->InsertNextValue(vtkMRMLScene::NodeAddedEvent);
   events->InsertNextValue(vtkMRMLScene::NodeRemovedEvent);
   events->InsertNextValue(vtkMRMLScene::EndBatchProcessEvent);
   this->SetAndObserveMRMLSceneEventsInternal(newScene, events.GetPointer());
+
+  this->TableTopRobotLogic->SetMRMLScene(newScene);
 }
 
 //-----------------------------------------------------------------------------
@@ -502,11 +546,440 @@ void vtkSlicerPatientPositioningLogic::BuildRobotTableGeometryTransformHierarchy
   }
 
   // Build IHEP hierarchy
-  this->IhepTableRobotLogic->BuildTableRobotTransformHierarchy();
+  this->TableTopRobotLogic->BuildTableRobotTransformHierarchy();
 }
 
 //----------------------------------------------------------------------------
-void vtkSlicerPatientPositioningLogic::LoadTreatmentMachineModels(vtkMRMLPatientPositioningNode* parameterNode)
+std::vector<vtkSlicerTableTopRobotTransformLogic::CoordinateSystemIdentifier>
+vtkSlicerPatientPositioningLogic::LoadTreatmentMachine(vtkMRMLChannel25GeometryNode* parameterNode)
+{
+  using CoordSys = vtkSlicerTableTopRobotTransformLogic::CoordinateSystemIdentifier;
+  vtkMRMLScene* scene = this->GetMRMLScene();
+  if (!scene)
+  {
+    vtkErrorMacro("LoadTreatmentMachine: Invalid scene");
+    return std::vector<CoordSys>();
+  }
+  vtkWarningMacro("LoadTreatmentMachine: 1");
+  vtkMRMLSubjectHierarchyNode* shNode = scene->GetSubjectHierarchyNode();
+  if (!shNode)
+  {
+    vtkErrorMacro("LoadTreatmentMachine: Failed to access subject hierarchy node");
+    return std::vector<CoordSys>();
+  }
+  if (!parameterNode || !parameterNode->GetTreatmentMachineDescriptorFilePath())
+  {
+    vtkErrorMacro("LoadTreatmentMachine: Invalid parameter node");
+    return std::vector<CoordSys>();
+  }
+  vtkWarningMacro("LoadTreatmentMachine: 2");
+
+  // Make sure the transform hierarchy is in place
+  this->BuildRobotTableGeometryTransformHierarchy();
+
+  std::string moduleShareDirectory = this->GetModuleShareDirectory();
+  vtkWarningMacro("LoadTreatmentMachine: 1 " << parameterNode->GetTreatmentMachineDescriptorFilePath());
+  std::string descriptorFilePath(parameterNode->GetTreatmentMachineDescriptorFilePath());
+  std::string machineType = this->Internal->GetTreatmentMachineFileNameWithoutExtension(parameterNode);
+
+  // Load treatment machine JSON descriptor file
+  FILE *fp = fopen(descriptorFilePath.c_str(), "r");
+  if (!fp)
+  {
+    vtkErrorMacro("LoadTreatmentMachine: Failed to load treatment machine descriptor file '" << descriptorFilePath << "'");
+    return std::vector<CoordSys>();
+  }
+  constexpr size_t size = 1000000;
+  std::unique_ptr< char[] > buffer(new char[size]);
+  rapidjson::FileReadStream fs(fp, buffer.get(), sizeof(buffer));
+  if (this->Internal->CurrentTreatmentMachineDescription->ParseStream(fs).HasParseError())
+  {
+    vtkErrorMacro("LoadTreatmentMachine: Failed to load treatment machine descriptor file '" << descriptorFilePath << "'");
+    fclose(fp);
+    return std::vector<CoordSys>();
+  }
+  fclose(fp);
+  vtkWarningMacro("LoadTreatmentMachine: 3");
+
+  // Create subject hierarchy folder so that the treatment machine can be shown/hidden easily
+  std::string subjectHierarchyFolderName = machineType + std::string("_Components");
+  vtkIdType rootFolderItem = shNode->CreateFolderItem(shNode->GetSceneItemID(), subjectHierarchyFolderName);
+  shNode->SetItemAttribute(rootFolderItem, TREATMENT_MACHINE_DESCRIPTOR_FILE_PATH_ATTRIBUTE_NAME, descriptorFilePath);
+
+  std::vector<CoordSys> parts = this->Internal->GetTreatmentMachineParts();
+  for (CoordSys part : parts)
+  {
+    // Load treatment machine models
+    // Fixed reference - mandatory
+    // Table top - mandatory
+    this->Internal->EnsureTreatmentMachinePartModelNode(parameterNode, part);
+  }
+  vtkWarningMacro("LoadTreatmentMachine: 5");
+
+  // Setup treatment machine model display and transforms
+  return this->SetupTreatmentMachineModels(parameterNode);
+}
+
+//----------------------------------------------------------------------------
+std::vector<vtkSlicerTableTopRobotTransformLogic::CoordinateSystemIdentifier>
+vtkSlicerPatientPositioningLogic::SetupTreatmentMachineModels(vtkMRMLChannel25GeometryNode* parameterNode, bool forceEnableCollisionDetection/*=false*/)
+{
+  using CoordSys = vtkSlicerTableTopRobotTransformLogic::CoordinateSystemIdentifier;
+  vtkMRMLScene* scene = this->GetMRMLScene();
+  if (!scene)
+  {
+    return std::vector<CoordSys>();
+  }
+  std::vector<CoordSys> loadedParts;
+  std::map<CoordSys, unsigned int> loadedPartsNumTriangles;
+  std::vector<CoordSys> parts = this->Internal->GetTreatmentMachineParts();
+  for (CoordSys partIdx : parts)
+  {
+    std::string partType = this->GetTreatmentMachinePartTypeAsString(partIdx);
+    vtkMRMLModelNode* partModel = this->Internal->GetTreatmentMachinePartModelNode(parameterNode, partIdx);
+    vtkErrorMacro("SetupTreatmentMachineModels: 8 " << partIdx << " " << partType);
+    if (!partModel || !partModel->GetPolyData())
+    {
+      switch (partIdx)
+      {
+        case CoordSys::FixedReference:
+        case CoordSys::TableTop:
+        case CoordSys::BaseFixed:
+        case CoordSys::BaseRotation:
+        case CoordSys::Shoulder:
+        case CoordSys::Elbow:
+        case CoordSys::Wrist:
+          vtkErrorMacro("SetupTreatmentMachineModels: Unable to access " << partType << " model " << partIdx);
+          break;
+        default:
+          break;
+      }
+      continue;
+    }
+    else
+    {
+      loadedParts.push_back(partIdx);
+      loadedPartsNumTriangles[partIdx] = partModel->GetPolyData()->GetNumberOfCells();
+
+      // Set color
+      vtkVector3d partColor(this->GetColorForPartType(partType));
+      partModel->CreateDefaultDisplayNodes();
+      vtkErrorMacro("SetupTreatmentMachineModels: Color: " << partColor[0] << " " << partColor[1] << " " << partColor[2]);
+      partModel->GetDisplayNode()->SetColor((double)partColor[0] / 255.0, (double)partColor[1] / 255.0, (double)partColor[2] / 255.0);
+
+      // Apply file to RAS transform matrix
+      vtkNew<vtkMatrix4x4> fileToRASTransformMatrix;
+      if (this->GetFileToRASTransformMatrixForPartType(partType, fileToRASTransformMatrix))
+      {
+        vtkNew<vtkTransform> fileToRASTransform;
+        fileToRASTransform->SetMatrix(fileToRASTransformMatrix);
+        vtkNew<vtkTransformPolyDataFilter> transformPolyDataFilter;
+        transformPolyDataFilter->SetInputConnection(partModel->GetPolyDataConnection());
+        transformPolyDataFilter->SetTransform(fileToRASTransform);
+        transformPolyDataFilter->Update();
+        vtkNew<vtkPolyData> partPolyDataRAS;
+        partPolyDataRAS->DeepCopy(transformPolyDataFilter->GetOutput());
+        partModel->SetAndObservePolyData(partPolyDataRAS);
+      }
+      else
+      {
+        vtkErrorMacro("SetupTreatmentMachineModels: Failed to set file to RAS matrix for treatment machine part " << partType);
+      }
+    }
+
+    if (partIdx == CoordSys::TableTop)
+    {
+      vtkErrorMacro("SetupTreatmentMachineModels: P1");
+      vtkMRMLLinearTransformNode* tableTopToElbowTransformNode =
+        this->TableTopRobotLogic->GetTransformNodeBetween(CoordSys::TableTop, CoordSys::Wrist);
+      vtkErrorMacro("SetupTreatmentMachineModels: P2");
+      if (tableTopToElbowTransformNode)
+      {
+        vtkErrorMacro("SetupTreatmentMachineModels: P2.5");
+        partModel->SetAndObserveTransformNodeID(tableTopToElbowTransformNode->GetID());
+      }
+      vtkErrorMacro("SetupTreatmentMachineModels: P3");
+//      this->GantryTableTopCollisionDetection->SetInputData(1, partModel->GetPolyData());
+//      this->CollimatorTableTopCollisionDetection->SetInputData(1, partModel->GetPolyData());
+    }
+    else if (partIdx == CoordSys::FixedReference)
+    {
+      vtkErrorMacro("SetupTreatmentMachineModels: P4");
+      vtkMRMLLinearTransformNode* fixedReferenceToRasTransformNode =
+        this->TableTopRobotLogic->GetTransformNodeBetween(CoordSys::FixedReference, CoordSys::RAS);
+      vtkErrorMacro("SetupTreatmentMachineModels: P5");
+      if (fixedReferenceToRasTransformNode)
+      {
+        vtkErrorMacro("SetupTreatmentMachineModels: P5.5");
+        partModel->SetAndObserveTransformNodeID(fixedReferenceToRasTransformNode->GetID());
+      }
+      vtkErrorMacro("SetupTreatmentMachineModels: P6");
+    }
+    else if (partIdx == CoordSys::BaseFixed)
+    {
+      vtkErrorMacro("SetupTreatmentMachineModels: P4");
+      vtkMRMLLinearTransformNode* baseFixedToFixedReferenceTransformNode =
+        this->TableTopRobotLogic->GetTransformNodeBetween(CoordSys::BaseFixed, CoordSys::FixedReference);
+      vtkErrorMacro("SetupTreatmentMachineModels: P5");
+      if (baseFixedToFixedReferenceTransformNode)
+      {
+        vtkErrorMacro("SetupTreatmentMachineModels: P5.5");
+        partModel->SetAndObserveTransformNodeID(baseFixedToFixedReferenceTransformNode->GetID());
+      }
+      vtkErrorMacro("SetupTreatmentMachineModels: P6");
+    }
+    else if (partIdx == CoordSys::BaseRotation)
+    {
+      vtkErrorMacro("SetupTreatmentMachineModels: P4");
+      vtkMRMLLinearTransformNode* baseRotationToBaseFixedTransformNode =
+        this->TableTopRobotLogic->GetTransformNodeBetween(CoordSys::BaseRotation, CoordSys::BaseFixed);
+      vtkErrorMacro("SetupTreatmentMachineModels: P5");
+      if (baseRotationToBaseFixedTransformNode)
+      {
+        vtkErrorMacro("SetupTreatmentMachineModels: P5.5");
+        partModel->SetAndObserveTransformNodeID(baseRotationToBaseFixedTransformNode->GetID());
+      }
+      vtkErrorMacro("SetupTreatmentMachineModels: P6");
+    }
+    else if (partIdx == CoordSys::Shoulder)
+    {
+      vtkErrorMacro("SetupTreatmentMachineModels: P4");
+      vtkMRMLLinearTransformNode* shoulderToBaseRotationTransformNode =
+        this->TableTopRobotLogic->GetTransformNodeBetween(CoordSys::Shoulder, CoordSys::BaseRotation);
+      vtkErrorMacro("SetupTreatmentMachineModels: P5");
+      if (shoulderToBaseRotationTransformNode)
+      {
+        vtkErrorMacro("SetupTreatmentMachineModels: P5.5");
+        partModel->SetAndObserveTransformNodeID(shoulderToBaseRotationTransformNode->GetID());
+      }
+      vtkErrorMacro("SetupTreatmentMachineModels: P6");
+    }
+    else if (partIdx == CoordSys::Shoulder)
+    {
+      vtkErrorMacro("SetupTreatmentMachineModels: P4");
+      vtkMRMLLinearTransformNode* shoulderToBaseRotationTransformNode =
+        this->TableTopRobotLogic->GetTransformNodeBetween(CoordSys::Shoulder, CoordSys::BaseRotation);
+      vtkErrorMacro("SetupTreatmentMachineModels: P5");
+      if (shoulderToBaseRotationTransformNode)
+      {
+        vtkErrorMacro("SetupTreatmentMachineModels: P5.5");
+        partModel->SetAndObserveTransformNodeID(shoulderToBaseRotationTransformNode->GetID());
+      }
+      vtkErrorMacro("SetupTreatmentMachineModels: P6");
+    }
+    else if (partIdx == CoordSys::Elbow)
+    {
+      vtkErrorMacro("SetupTreatmentMachineModels: P4");
+      vtkMRMLLinearTransformNode* elbowToShoulderTransformNode =
+        this->TableTopRobotLogic->GetTransformNodeBetween(CoordSys::Elbow, CoordSys::Shoulder);
+      vtkErrorMacro("SetupTreatmentMachineModels: P5");
+      if (elbowToShoulderTransformNode)
+      {
+        vtkErrorMacro("SetupTreatmentMachineModels: P5.5");
+        partModel->SetAndObserveTransformNodeID(elbowToShoulderTransformNode->GetID());
+      }
+      vtkErrorMacro("SetupTreatmentMachineModels: P6");
+    }
+    else if (partIdx == CoordSys::Wrist)
+    {
+      vtkErrorMacro("SetupTreatmentMachineModels: P4");
+      vtkMRMLLinearTransformNode* wristToElbowTransformNode =
+        this->TableTopRobotLogic->GetTransformNodeBetween(CoordSys::Wrist, CoordSys::Elbow);
+      vtkErrorMacro("SetupTreatmentMachineModels: P5");
+      if (wristToElbowTransformNode)
+      {
+        vtkErrorMacro("SetupTreatmentMachineModels: P5.5");
+        partModel->SetAndObserveTransformNodeID(wristToElbowTransformNode->GetID());
+      }
+      vtkErrorMacro("SetupTreatmentMachineModels: P6");
+    }
+  }
+/*
+  using CoordSys = vtkSlicerTableTopRobotTransformLogic::CoordinateSystemIdentifier;
+  vtkErrorMacro("SetupTreatmentMachineModels: 6");
+  vtkMRMLScene* scene = this->GetMRMLScene();
+  if (!scene)
+  {
+    vtkErrorMacro("SetupTreatmentMachineModels: Invalid scene");
+    return std::vector<CoordSys>();
+  }
+  vtkErrorMacro("SetupTreatmentMachineModels: 7");
+  std::vector<CoordSys> loadedParts;
+  std::map<CoordSys, unsigned int> loadedPartsNumTriangles;
+
+  std::string partType1 = this->GetTreatmentMachinePartTypeAsString(CoordSys::FixedReference);
+  vtkMRMLModelNode* partModel1 = this->Internal->GetTreatmentMachinePartModelNode(parameterNode, CoordSys::FixedReference);
+  
+  loadedParts.push_back(CoordSys::FixedReference);
+  loadedPartsNumTriangles[CoordSys::FixedReference] = partModel1->GetPolyData()->GetNumberOfCells();
+
+  // Set color
+  vtkVector3d partColor1(this->GetColorForPartType(partType1));
+  partModel1->CreateDefaultDisplayNodes();
+  vtkErrorMacro("SetupTreatmentMachineModels: Color: " << partColor1[0] << " " << partColor1[1] << " " << partColor1[2]);
+  partModel1->GetDisplayNode()->SetColor((double)partColor1[0] / 255.0, (double)partColor1[1] / 255.0, (double)partColor1[2] / 255.0);
+
+  std::string partType2 = this->GetTreatmentMachinePartTypeAsString(CoordSys::TableTop);
+  vtkMRMLModelNode* partModel2 = this->Internal->GetTreatmentMachinePartModelNode(parameterNode, CoordSys::TableTop);
+  
+  loadedParts.push_back(CoordSys::TableTop);
+  loadedPartsNumTriangles[CoordSys::TableTop] = partModel2->GetPolyData()->GetNumberOfCells();
+
+  // Set color
+  vtkVector3d partColor2(this->GetColorForPartType(partType2));
+  partModel2->CreateDefaultDisplayNodes();
+  vtkErrorMacro("SetupTreatmentMachineModels: Color: " << partColor2[0] << " " << partColor2[1] << " " << partColor2[2]);
+  partModel2->GetDisplayNode()->SetColor((double)partColor2[0] / 255.0, (double)partColor2[1] / 255.0, (double)partColor2[2] / 255.0);
+*/
+/*
+  for (int partIdx = CoordSys::FixedReference; partIdx < CoordSys::CoordinateSystemIdentifier_Last; ++partIdx)
+  {
+    std::string partType = this->GetTreatmentMachinePartTypeAsString(static_cast<CoordSys>(partIdx));
+    vtkMRMLModelNode* partModel = this->Internal->GetTreatmentMachinePartModelNode(parameterNode, static_cast<CoordSys>(partIdx));
+    vtkErrorMacro("SetupTreatmentMachineModels: 8 " << partIdx << " " << partType);
+    if (!partModel || !partModel->GetPolyData())
+    {
+      switch (partIdx)
+      {
+        case CoordSys::FixedReference:
+        case CoordSys::TableTop:
+          vtkErrorMacro("SetupTreatmentMachineModels: Unable to access " << partType << " model " << partIdx);
+          break;
+        default:
+          break;
+      }
+      continue;
+    }
+    else
+    {
+      loadedParts.push_back(static_cast<CoordSys>(partIdx));
+      loadedPartsNumTriangles[static_cast<CoordSys>(partIdx)] = partModel->GetPolyData()->GetNumberOfCells();
+
+      // Set color
+      vtkVector3d partColor(this->GetColorForPartType(partType));
+      partModel->CreateDefaultDisplayNodes();
+      vtkErrorMacro("SetupTreatmentMachineModels: Color: " << partColor[0] << " " << partColor[1] << " " << partColor[2]);
+      partModel->GetDisplayNode()->SetColor((double)partColor[0] / 255.0, (double)partColor[1] / 255.0, (double)partColor[2] / 255.0);
+
+      // Apply file to RAS transform matrix
+      vtkNew<vtkMatrix4x4> fileToRASTransformMatrix;
+      if (this->GetFileToRASTransformMatrixForPartType(partType, fileToRASTransformMatrix))
+      {
+        vtkNew<vtkTransform> fileToRASTransform;
+        fileToRASTransform->SetMatrix(fileToRASTransformMatrix);
+        vtkNew<vtkTransformPolyDataFilter> transformPolyDataFilter;
+        transformPolyDataFilter->SetInputConnection(partModel->GetPolyDataConnection());
+        transformPolyDataFilter->SetTransform(fileToRASTransform);
+        transformPolyDataFilter->Update();
+        vtkNew<vtkPolyData> partPolyDataRAS;
+        partPolyDataRAS->DeepCopy(transformPolyDataFilter->GetOutput());
+        partModel->SetAndObservePolyData(partPolyDataRAS);
+      }
+      else
+      {
+        vtkErrorMacro("SetupTreatmentMachineModels: Failed to set file to RAS matrix for treatment machine part " << partType);
+      }
+
+    }
+*/
+/*
+    // Setup transforms and collision detection
+    if (partIdx == Collimator)
+    {
+      vtkMRMLLinearTransformNode* collimatorToGantryTransformNode =
+        this->IECLogic->GetTransformNodeBetween(vtkSlicerIECTransformLogic::Collimator, vtkSlicerIECTransformLogic::Gantry);
+      partModel->SetAndObserveTransformNodeID(collimatorToGantryTransformNode->GetID());
+      this->CollimatorTableTopCollisionDetection->SetInputData(0, partModel->GetPolyData());
+      // Patient model is set when calculating collisions, as it can be changed dynamically
+      this->CollimatorPatientCollisionDetection->SetInputData(0, partModel->GetPolyData());
+    }
+    else if (partIdx == Gantry)
+    {
+      vtkMRMLLinearTransformNode* gantryToFixedReferenceTransformNode =
+        this->IECLogic->GetTransformNodeBetween(vtkSlicerIECTransformLogic::Gantry, vtkSlicerIECTransformLogic::FixedReference);
+      partModel->SetAndObserveTransformNodeID(gantryToFixedReferenceTransformNode->GetID());
+      this->GantryTableTopCollisionDetection->SetInputData(0, partModel->GetPolyData());
+      this->GantryPatientSupportCollisionDetection->SetInputData(0, partModel->GetPolyData());
+      // Patient model is set when calculating collisions, as it can be changed dynamically
+      this->GantryPatientCollisionDetection->SetInputData(0, partModel->GetPolyData());
+    }
+    else if (partIdx == PatientSupport)
+    {
+      vtkMRMLLinearTransformNode* patientSupportToPatientSupportRotationTransformNode =
+        this->IECLogic->GetTransformNodeBetween(vtkSlicerIECTransformLogic::PatientSupport, vtkSlicerIECTransformLogic::PatientSupportRotation);
+      partModel->SetAndObserveTransformNodeID(patientSupportToPatientSupportRotationTransformNode->GetID());
+      this->GantryPatientSupportCollisionDetection->SetInputData(1, partModel->GetPolyData());
+    }
+    else if (partIdx == TableTop)
+    {
+      vtkMRMLLinearTransformNode* tableTopToTableTopEccentricRotationTransformNode =
+        this->IECLogic->GetTransformNodeBetween(vtkSlicerIECTransformLogic::TableTop, vtkSlicerIECTransformLogic::TableTopEccentricRotation);
+      partModel->SetAndObserveTransformNodeID(tableTopToTableTopEccentricRotationTransformNode->GetID());
+      this->GantryTableTopCollisionDetection->SetInputData(1, partModel->GetPolyData());
+      this->CollimatorTableTopCollisionDetection->SetInputData(1, partModel->GetPolyData());
+    }
+    else if (partIdx == Body)
+    {
+      vtkMRMLLinearTransformNode* fixedReferenceToRasTransformNode =
+        this->IECLogic->GetTransformNodeBetween(vtkSlicerIECTransformLogic::FixedReference, vtkSlicerIECTransformLogic::RAS);
+      partModel->SetAndObserveTransformNodeID(fixedReferenceToRasTransformNode->GetID());
+    }
+    else if (partIdx == ImagingPanelLeft)
+    {
+      vtkMRMLLinearTransformNode* leftImagingPanelToGantryTransformNode =
+        this->IECLogic->GetTransformNodeBetween(vtkSlicerIECTransformLogic::LeftImagingPanel, vtkSlicerIECTransformLogic::Gantry);
+      partModel->SetAndObserveTransformNodeID(leftImagingPanelToGantryTransformNode->GetID());
+    }
+    else if (partIdx == ImagingPanelRight)
+    {
+      vtkMRMLLinearTransformNode* rightImagingPanelToGantryTransformNode =
+        this->IECLogic->GetTransformNodeBetween(vtkSlicerIECTransformLogic::RightImagingPanel, vtkSlicerIECTransformLogic::Gantry);
+      partModel->SetAndObserveTransformNodeID(rightImagingPanelToGantryTransformNode->GetID());
+    }
+    else if (partIdx == FlatPanel)
+    {
+      vtkMRMLLinearTransformNode* flatPanelToGantryTransformNode =
+        this->IECLogic->GetTransformNodeBetween(vtkSlicerIECTransformLogic::FlatPanel, vtkSlicerIECTransformLogic::Gantry);
+      partModel->SetAndObserveTransformNodeID(flatPanelToGantryTransformNode->GetID());
+    }
+    //TODO: ApplicatorHolder, ElectronApplicator?
+*/
+//  }
+/*
+  // Disable collision detection if product of number of triangles of the two models is above threshold
+  if (loadedPartsNumTriangles[Gantry] * loadedPartsNumTriangles[TableTop] > MAX_TRIANGLE_NUMBER_PRODUCT_FOR_COLLISIONS && !forceEnableCollisionDetection)
+  {
+    vtkWarningMacro("Too many combined triangles (product = " << loadedPartsNumTriangles[Gantry] * loadedPartsNumTriangles[TableTop]
+      << ") detected between gantry and table top. Collision detection may take a very long time.");
+    this->GantryTableTopCollisionDetection->SetInputData(0, nullptr);
+    this->GantryTableTopCollisionDetection->SetInputData(1, nullptr);
+  }
+  if (loadedPartsNumTriangles[Gantry] * loadedPartsNumTriangles[PatientSupport] > MAX_TRIANGLE_NUMBER_PRODUCT_FOR_COLLISIONS && !forceEnableCollisionDetection)
+  {
+    vtkWarningMacro("Too many combined triangles (product = " << loadedPartsNumTriangles[Gantry] * loadedPartsNumTriangles[PatientSupport]
+      << ") detected between gantry and patient support. Collision detection may take a very long time.");
+    this->GantryPatientSupportCollisionDetection->SetInputData(0, nullptr);
+    this->GantryPatientSupportCollisionDetection->SetInputData(1, nullptr);
+  }
+  if (loadedPartsNumTriangles[Collimator] * loadedPartsNumTriangles[TableTop] > MAX_TRIANGLE_NUMBER_PRODUCT_FOR_COLLISIONS && !forceEnableCollisionDetection)
+  {
+    vtkWarningMacro("Too many combined triangles (product = " << loadedPartsNumTriangles[Collimator] * loadedPartsNumTriangles[TableTop]
+      << ") detected between collimator and table top. Collision detection may take a very long time.");
+    this->CollimatorTableTopCollisionDetection->SetInputData(0, nullptr);
+    this->CollimatorTableTopCollisionDetection->SetInputData(1, nullptr);
+  }
+
+  // Set identity transform for patient (parent transform is taken into account when getting poly data from segmentation)
+  vtkNew<vtkTransform> identityTransform;
+  identityTransform->Identity();
+  this->GantryPatientCollisionDetection->SetTransform(1, vtkLinearTransform::SafeDownCast(identityTransform));
+  this->CollimatorPatientCollisionDetection->SetTransform(1, vtkLinearTransform::SafeDownCast(identityTransform));
+*/
+  return loadedParts;
+}
+
+//----------------------------------------------------------------------------
+void vtkSlicerPatientPositioningLogic::LoadTreatmentMachine(vtkMRMLPatientPositioningNode* parameterNode)
 {
   vtkMRMLScene* scene = this->GetMRMLScene();
   if (!scene)
@@ -855,7 +1328,7 @@ void vtkSlicerPatientPositioningLogic::ResetModelsToInitialPosition(vtkMRMLPatie
 }
 
 //----------------------------------------------------------------------------
-void vtkSlicerPatientPositioningLogic::SetupTreatmentMachineModels(vtkMRMLPatientPositioningNode* parameterNode)
+void vtkSlicerPatientPositioningLogic::SetupTreatmentMachine(vtkMRMLPatientPositioningNode* parameterNode)
 {
   vtkMRMLScene* scene = this->GetMRMLScene();
 
@@ -1238,9 +1711,9 @@ void vtkSlicerPatientPositioningLogic::SetupTreatmentMachineModels(vtkMRMLPatien
 }
 
 //---------------------------------------------------------------------------
-const char* vtkSlicerPatientPositioningLogic::GetTreatmentMachinePartTypeAsString(vtkSlicerIhepTableRobotTransformLogic::CoordinateSystemIdentifier type)
+const char* vtkSlicerPatientPositioningLogic::GetTreatmentMachinePartTypeAsString(vtkSlicerTableTopRobotTransformLogic::CoordinateSystemIdentifier type)
 {
-  return this->IhepTableRobotLogic->GetTreatmentMachinePartTypeAsString(type);
+  return this->TableTopRobotLogic->GetTreatmentMachinePartTypeAsString(type);
 }
 
 //---------------------------------------------------------------------------
@@ -1308,7 +1781,7 @@ bool vtkSlicerPatientPositioningLogic::GetFileToRASTransformMatrixForPartType(st
     return false;
   }
 
-  for (int i=0; i<columnsArray.Size(); ++i)
+  for (rapidjson::SizeType i=0; i<columnsArray.Size(); ++i)
   {
     if (!columnsArray[i].IsArray() || columnsArray[i].Size() != 4)
     {
@@ -1373,4 +1846,9 @@ std::string vtkSlicerPatientPositioningLogic::GetStateForPartType(std::string pa
   }
 
   return stateStr;
+}
+
+vtkSlicerTableTopRobotTransformLogic* vtkSlicerPatientPositioningLogic::GetTableTopRobotTransformLogic() const
+{
+  return TableTopRobotLogic;
 }

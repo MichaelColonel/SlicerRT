@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>283</width>
+    <width>387</width>
     <height>836</height>
    </rect>
   </property>
@@ -78,7 +78,28 @@
          </widget>
         </item>
         <item row="3" column="0">
-         <widget class="QComboBox" name="ComboBox_TreatmentMachine"/>
+         <widget class="QComboBox" name="ComboBox_TreatmentMachine">
+          <item>
+           <property name="text">
+            <string>Channel25Geometry</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>Channel26Geometry_Cabin1</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>Channel26Geometry_Cabin2</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>Channel26Geometry_Cabin3</string>
+           </property>
+          </item>
+         </widget>
         </item>
         <item row="3" column="1">
          <widget class="QPushButton" name="PushButton_LoadTreatmentMachine">
@@ -88,149 +109,6 @@
          </widget>
         </item>
        </layout>
-      </item>
-     </layout>
-    </widget>
-   </item>
-   <item>
-    <widget class="ctkCollapsibleButton" name="CollapsibleButton_DicomXrayImageQuery">
-     <property name="text">
-      <string>X-ray image query</string>
-     </property>
-     <property name="collapsed">
-      <bool>true</bool>
-     </property>
-     <layout class="QGridLayout" name="gridLayout_4">
-      <item row="1" column="0">
-       <widget class="ctkDICOMQueryRetrieveWidget" name="QueryRetrieve_XrayImage"/>
-      </item>
-     </layout>
-    </widget>
-   </item>
-   <item>
-    <widget class="ctkCollapsibleButton" name="InputXrayVolumesCollapsibleButton">
-     <property name="text">
-      <string>Input x-ray volumes</string>
-     </property>
-     <property name="collapsed">
-      <bool>true</bool>
-     </property>
-     <layout class="QGridLayout" name="gridLayout_2">
-      <item row="1" column="0">
-       <layout class="QGridLayout" name="gridLayout">
-        <item row="0" column="0">
-         <widget class="QLabel" name="label_2">
-          <property name="text">
-           <string>DRR:</string>
-          </property>
-         </widget>
-        </item>
-        <item row="1" column="0">
-         <widget class="QLabel" name="label">
-          <property name="text">
-           <string>X-ray:</string>
-          </property>
-         </widget>
-        </item>
-        <item row="0" column="1">
-         <widget class="qMRMLNodeComboBox" name="MRMLNodeComboBox_DRR">
-          <property name="nodeTypes">
-           <stringlist notr="true">
-            <string>vtkMRMLScalarVolumeNode</string>
-           </stringlist>
-          </property>
-          <property name="hideChildNodeTypes">
-           <stringlist notr="true"/>
-          </property>
-          <property name="interactionNodeSingletonTag">
-           <string notr="true"/>
-          </property>
-         </widget>
-        </item>
-        <item row="1" column="1">
-         <widget class="qMRMLNodeComboBox" name="MRMLNodeComboBox_Xray">
-          <property name="nodeTypes">
-           <stringlist notr="true">
-            <string>vtkMRMLScalarVolumeNode</string>
-           </stringlist>
-          </property>
-          <property name="hideChildNodeTypes">
-           <stringlist notr="true"/>
-          </property>
-          <property name="interactionNodeSingletonTag">
-           <string notr="true"/>
-          </property>
-         </widget>
-        </item>
-       </layout>
-      </item>
-      <item row="0" column="0">
-       <widget class="QGroupBox" name="groupBox">
-        <property name="title">
-         <string>X-ray projection</string>
-        </property>
-        <layout class="QGridLayout" name="gridLayout_5">
-         <item row="0" column="0">
-          <layout class="QHBoxLayout" name="horizontalLayout_2">
-           <item>
-            <widget class="QRadioButton" name="RadioButton_Vertical">
-             <property name="text">
-              <string>Vertical</string>
-             </property>
-             <property name="checked">
-              <bool>true</bool>
-             </property>
-             <attribute name="buttonGroup">
-              <string notr="true">ButtonGroup_XrayProjection</string>
-             </attribute>
-            </widget>
-           </item>
-           <item>
-            <widget class="QRadioButton" name="RadioButton_Horizontal">
-             <property name="text">
-              <string>Horizontal</string>
-             </property>
-             <attribute name="buttonGroup">
-              <string notr="true">ButtonGroup_XrayProjection</string>
-             </attribute>
-            </widget>
-           </item>
-           <item>
-            <widget class="QRadioButton" name="RadioButton_Angle">
-             <property name="text">
-              <string>Angle</string>
-             </property>
-             <attribute name="buttonGroup">
-              <string notr="true">ButtonGroup_XrayProjection</string>
-             </attribute>
-            </widget>
-           </item>
-          </layout>
-         </item>
-        </layout>
-       </widget>
-      </item>
-      <item row="2" column="0">
-       <widget class="QPushButton" name="PushButton_SetImagesToSliceView">
-        <property name="text">
-         <string>Set</string>
-        </property>
-       </widget>
-      </item>
-     </layout>
-    </widget>
-   </item>
-   <item>
-    <widget class="ctkCollapsibleButton" name="CTKCollapsibleButton_PositionControl">
-     <property name="enabled">
-      <bool>false</bool>
-     </property>
-     <property name="text">
-      <string>Position control</string>
-     </property>
-     <layout class="QVBoxLayout" name="verticalLayout_3">
-      <item>
-       <widget class="qSlicerPatientPositioningFooBarWidget" name="FooBar" native="true"/>
       </item>
      </layout>
     </widget>
@@ -249,7 +127,7 @@
            <string>Patient to Table Top Translation (mm)</string>
           </property>
           <property name="collapsed">
-           <bool>true</bool>
+           <bool>false</bool>
           </property>
           <layout class="QGridLayout" name="gridLayout_13">
            <item row="0" column="0">
@@ -288,10 +166,257 @@
     </widget>
    </item>
    <item>
+    <widget class="ctkCollapsibleButton" name="CollapsibleButton_TableTopControl">
+     <property name="text">
+      <string>Table Top Control</string>
+     </property>
+     <layout class="QGridLayout" name="gridLayout_5">
+      <item row="0" column="0">
+       <layout class="QGridLayout" name="gridLayout_4">
+        <item row="0" column="0">
+         <widget class="QLabel" name="label_11">
+          <property name="text">
+           <string>Xt offset</string>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="1">
+         <widget class="ctkSliderWidget" name="SliderWidget">
+          <property name="minimum">
+           <double>-5000.000000000000000</double>
+          </property>
+          <property name="maximum">
+           <double>5000.000000000000000</double>
+          </property>
+          <property name="suffix">
+           <string> mm</string>
+          </property>
+         </widget>
+        </item>
+        <item row="3" column="1">
+         <widget class="ctkSliderWidget" name="SliderWidget_4">
+          <property name="minimum">
+           <double>-5.000000000000000</double>
+          </property>
+          <property name="maximum">
+           <double>5.000000000000000</double>
+          </property>
+          <property name="suffix">
+           <string> deg</string>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="1">
+         <widget class="ctkSliderWidget" name="SliderWidget_2">
+          <property name="minimum">
+           <double>-5000.000000000000000</double>
+          </property>
+          <property name="maximum">
+           <double>5000.000000000000000</double>
+          </property>
+          <property name="suffix">
+           <string> mm</string>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="0">
+         <widget class="QLabel" name="label_10">
+          <property name="text">
+           <string>Yt offset</string>
+          </property>
+         </widget>
+        </item>
+        <item row="2" column="1">
+         <widget class="ctkSliderWidget" name="SliderWidget_3">
+          <property name="minimum">
+           <double>-5000.000000000000000</double>
+          </property>
+          <property name="maximum">
+           <double>5000.000000000000000</double>
+          </property>
+          <property name="suffix">
+           <string> mm</string>
+          </property>
+         </widget>
+        </item>
+        <item row="4" column="1">
+         <widget class="ctkSliderWidget" name="SliderWidget_5">
+          <property name="minimum">
+           <double>-5.000000000000000</double>
+          </property>
+          <property name="maximum">
+           <double>5.000000000000000</double>
+          </property>
+          <property name="suffix">
+           <string> deg</string>
+          </property>
+         </widget>
+        </item>
+        <item row="5" column="1">
+         <widget class="ctkSliderWidget" name="SliderWidget_6">
+          <property name="minimum">
+           <double>-360.000000000000000</double>
+          </property>
+          <property name="maximum">
+           <double>360.000000000000000</double>
+          </property>
+          <property name="suffix">
+           <string> deg</string>
+          </property>
+         </widget>
+        </item>
+        <item row="2" column="0">
+         <widget class="QLabel" name="label_12">
+          <property name="text">
+           <string>Zt offset</string>
+          </property>
+         </widget>
+        </item>
+        <item row="3" column="0">
+         <widget class="QLabel" name="label_13">
+          <property name="text">
+           <string>Xt angle</string>
+          </property>
+         </widget>
+        </item>
+        <item row="4" column="0">
+         <widget class="QLabel" name="label_14">
+          <property name="text">
+           <string>Yt angle</string>
+          </property>
+         </widget>
+        </item>
+        <item row="5" column="0">
+         <widget class="QLabel" name="label_15">
+          <property name="text">
+           <string>Zt angle</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item>
     <widget class="ctkCollapsibleButton" name="CollapsibleButton_TableTopRobotControl">
      <property name="text">
       <string>Table Top Robot Control</string>
      </property>
+     <layout class="QGridLayout" name="gridLayout_2">
+      <item row="0" column="0">
+       <layout class="QGridLayout" name="gridLayout">
+        <item row="0" column="0">
+         <widget class="QLabel" name="label_5">
+          <property name="text">
+           <string>A1</string>
+          </property>
+         </widget>
+        </item>
+        <item row="5" column="0">
+         <widget class="QLabel" name="label_6">
+          <property name="text">
+           <string>A6</string>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="1">
+         <widget class="ctkSliderWidget" name="SliderWidget_TableRobotA1">
+          <property name="minimum">
+           <double>-185.000000000000000</double>
+          </property>
+          <property name="maximum">
+           <double>185.000000000000000</double>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="1">
+         <widget class="ctkSliderWidget" name="SliderWidget_TableRobotA2">
+          <property name="minimum">
+           <double>-140.000000000000000</double>
+          </property>
+          <property name="maximum">
+           <double>5.000000000000000</double>
+          </property>
+          <property name="value">
+           <double>-90.000000000000000</double>
+          </property>
+         </widget>
+        </item>
+        <item row="2" column="0">
+         <widget class="QLabel" name="label">
+          <property name="text">
+           <string>A3</string>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="0">
+         <widget class="QLabel" name="label_2">
+          <property name="text">
+           <string>A2</string>
+          </property>
+         </widget>
+        </item>
+        <item row="4" column="0">
+         <widget class="QLabel" name="label_8">
+          <property name="text">
+           <string>A5</string>
+          </property>
+         </widget>
+        </item>
+        <item row="2" column="1">
+         <widget class="ctkSliderWidget" name="SliderWidget_TableRobotA3">
+          <property name="minimum">
+           <double>-120.000000000000000</double>
+          </property>
+          <property name="maximum">
+           <double>155.000000000000000</double>
+          </property>
+          <property name="value">
+           <double>90.000000000000000</double>
+          </property>
+         </widget>
+        </item>
+        <item row="3" column="0">
+         <widget class="QLabel" name="label_9">
+          <property name="text">
+           <string>A4</string>
+          </property>
+         </widget>
+        </item>
+        <item row="3" column="1">
+         <widget class="ctkSliderWidget" name="SliderWidget_TableRobotA4">
+          <property name="minimum">
+           <double>-350.000000000000000</double>
+          </property>
+          <property name="maximum">
+           <double>350.000000000000000</double>
+          </property>
+         </widget>
+        </item>
+        <item row="4" column="1">
+         <widget class="ctkSliderWidget" name="SliderWidget_TableRobotA5">
+          <property name="minimum">
+           <double>-125.000000000000000</double>
+          </property>
+          <property name="maximum">
+           <double>125.000000000000000</double>
+          </property>
+         </widget>
+        </item>
+        <item row="5" column="1">
+         <widget class="ctkSliderWidget" name="SliderWidget_TableRobotA6">
+          <property name="minimum">
+           <double>-350.000000000000000</double>
+          </property>
+          <property name="maximum">
+           <double>350.000000000000000</double>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </item>
+     </layout>
     </widget>
    </item>
    <item>
@@ -311,11 +436,6 @@
  </widget>
  <customwidgets>
   <customwidget>
-   <class>ctkDICOMQueryRetrieveWidget</class>
-   <extends>QWidget</extends>
-   <header>ctkDICOMQueryRetrieveWidget.h</header>
-  </customwidget>
-  <customwidget>
    <class>ctkCollapsibleButton</class>
    <extends>QWidget</extends>
    <header>ctkCollapsibleButton.h</header>
@@ -331,6 +451,11 @@
    <class>ctkCoordinatesWidget</class>
    <extends>QWidget</extends>
    <header>ctkCoordinatesWidget.h</header>
+  </customwidget>
+  <customwidget>
+   <class>ctkSliderWidget</class>
+   <extends>QWidget</extends>
+   <header>ctkSliderWidget.h</header>
   </customwidget>
   <customwidget>
    <class>qMRMLNodeComboBox</class>
@@ -356,12 +481,6 @@
    <header>qMRMLSegmentSelectorWidget.h</header>
    <container>1</container>
   </customwidget>
-  <customwidget>
-   <class>qSlicerPatientPositioningFooBarWidget</class>
-   <extends>QWidget</extends>
-   <header>qSlicerPatientPositioningFooBarWidget.h</header>
-   <container>1</container>
-  </customwidget>
  </customwidgets>
  <resources/>
  <connections>
@@ -381,40 +500,5 @@
     </hint>
    </hints>
   </connection>
-  <connection>
-   <sender>qSlicerPatientPositioningModuleWidget</sender>
-   <signal>mrmlSceneChanged(vtkMRMLScene*)</signal>
-   <receiver>MRMLNodeComboBox_DRR</receiver>
-   <slot>setMRMLScene(vtkMRMLScene*)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>176</x>
-     <y>417</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>196</x>
-     <y>239</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>qSlicerPatientPositioningModuleWidget</sender>
-   <signal>mrmlSceneChanged(vtkMRMLScene*)</signal>
-   <receiver>MRMLNodeComboBox_Xray</receiver>
-   <slot>setMRMLScene(vtkMRMLScene*)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>176</x>
-     <y>417</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>196</x>
-     <y>268</y>
-    </hint>
-   </hints>
-  </connection>
  </connections>
- <buttongroups>
-  <buttongroup name="ButtonGroup_XrayProjection"/>
- </buttongroups>
 </ui>
