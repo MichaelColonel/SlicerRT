@@ -379,7 +379,7 @@ vtkMRMLMarkupsFiducialNode* vtkSlicerIhepStandGeometryLogic::CreateTableOriginFi
 {
   vtkMRMLMarkupsFiducialNode* pointMarkupsNode = vtkMRMLMarkupsFiducialNode::SafeDownCast(this->GetMRMLScene()->AddNewNodeByClass("vtkMRMLMarkupsFiducialNode"));
   pointMarkupsNode->SetName(TABLE_ORIGIN_MARKUPS_FIDUCIAL_NODE_NAME);
-  pointMarkupsNode->SetHideFromEditors(1);
+//  pointMarkupsNode->SetHideFromEditors(1);
   std::string singletonTag = std::string("IHEP_") + TABLE_ORIGIN_MARKUPS_FIDUCIAL_NODE_NAME;
   pointMarkupsNode->SetSingletonTag(singletonTag.c_str());
   pointMarkupsNode->LockedOn();
@@ -414,7 +414,7 @@ vtkMRMLMarkupsFiducialNode* vtkSlicerIhepStandGeometryLogic::CreateTableMirrorFi
 {
   vtkMRMLMarkupsFiducialNode* pointMarkupsNode = vtkMRMLMarkupsFiducialNode::SafeDownCast(this->GetMRMLScene()->AddNewNodeByClass("vtkMRMLMarkupsFiducialNode"));
   pointMarkupsNode->SetName(TABLE_MIRROR_MARKUPS_FIDUCIAL_NODE_NAME);
-  pointMarkupsNode->SetHideFromEditors(1);
+//  pointMarkupsNode->SetHideFromEditors(1);
   std::string singletonTag = std::string("IHEP_") + TABLE_MIRROR_MARKUPS_FIDUCIAL_NODE_NAME;
   pointMarkupsNode->SetSingletonTag(singletonTag.c_str());
   pointMarkupsNode->LockedOn();
@@ -451,7 +451,7 @@ vtkMRMLMarkupsFiducialNode* vtkSlicerIhepStandGeometryLogic::CreateTableMiddleFi
 {
   vtkMRMLMarkupsFiducialNode* pointMarkupsNode = vtkMRMLMarkupsFiducialNode::SafeDownCast(this->GetMRMLScene()->AddNewNodeByClass("vtkMRMLMarkupsFiducialNode"));
   pointMarkupsNode->SetName(TABLE_MIDDLE_MARKUPS_FIDUCIAL_NODE_NAME);
-  pointMarkupsNode->SetHideFromEditors(1);
+//  pointMarkupsNode->SetHideFromEditors(1);
   std::string singletonTag = std::string("IHEP_") + TABLE_MIDDLE_MARKUPS_FIDUCIAL_NODE_NAME;
   pointMarkupsNode->SetSingletonTag(singletonTag.c_str());
   pointMarkupsNode->LockedOn();
@@ -488,7 +488,7 @@ vtkMRMLMarkupsPlaneNode* vtkSlicerIhepStandGeometryLogic::CreateTableTopPlaneNod
   vtkNew<vtkMRMLMarkupsPlaneNode> tableTopPlaneNode;
   this->GetMRMLScene()->AddNode(tableTopPlaneNode);
   tableTopPlaneNode->SetName(TABLETOP_MARKUPS_PLANE_NODE_NAME);
-  tableTopPlaneNode->SetHideFromEditors(1);
+//  tableTopPlaneNode->SetHideFromEditors(1);
   std::string singletonTag = std::string("IHEP_") + TABLETOP_MARKUPS_PLANE_NODE_NAME;
   tableTopPlaneNode->SetSingletonTag(singletonTag.c_str());
   tableTopPlaneNode->LockedOn();
@@ -551,7 +551,7 @@ vtkMRMLMarkupsFiducialNode* vtkSlicerIhepStandGeometryLogic::CreateTableTopFiduc
   vtkNew<vtkMRMLMarkupsFiducialNode> tableTopFiducialNode;
   this->GetMRMLScene()->AddNode(tableTopFiducialNode);
   tableTopFiducialNode->SetName(TABLETOP_MARKUPS_FIDUCIAL_NODE_NAME);
-  tableTopFiducialNode->SetHideFromEditors(1);
+//  tableTopFiducialNode->SetHideFromEditors(1);
   std::string singletonTag = std::string("IHEP_") + TABLETOP_MARKUPS_FIDUCIAL_NODE_NAME;
   tableTopFiducialNode->SetSingletonTag(singletonTag.c_str());
   tableTopFiducialNode->LockedOn();
@@ -752,7 +752,7 @@ vtkMRMLMarkupsLineNode* vtkSlicerIhepStandGeometryLogic::CreateFixedReferenceLin
 {
   vtkMRMLMarkupsFiducialNode* pointMarkupsNode = vtkMRMLMarkupsFiducialNode::SafeDownCast(this->GetMRMLScene()->AddNewNodeByClass("vtkMRMLMarkupsFiducialNode"));
   pointMarkupsNode->SetName(FIXEDISOCENTER_MARKUPS_FIDUCIAL_NODE_NAME);
-  pointMarkupsNode->SetHideFromEditors(1);
+//  pointMarkupsNode->SetHideFromEditors(1);
   std::string singletonTag = std::string("IHEP_") + FIXEDISOCENTER_MARKUPS_FIDUCIAL_NODE_NAME;
   pointMarkupsNode->SetSingletonTag(singletonTag.c_str());
   pointMarkupsNode->LockedOn();
@@ -760,7 +760,7 @@ vtkMRMLMarkupsLineNode* vtkSlicerIhepStandGeometryLogic::CreateFixedReferenceLin
   vtkNew<vtkMRMLMarkupsLineNode> lineMarkupsNode;
   this->GetMRMLScene()->AddNode(lineMarkupsNode);
   lineMarkupsNode->SetName(FIXEDREFERENCE_MARKUPS_LINE_NODE_NAME);
-  lineMarkupsNode->SetHideFromEditors(1);
+//  lineMarkupsNode->SetHideFromEditors(1);
   singletonTag = std::string("IHEP_") + FIXEDREFERENCE_MARKUPS_LINE_NODE_NAME;
   lineMarkupsNode->SetSingletonTag(singletonTag.c_str());
   lineMarkupsNode->LockedOn();
@@ -1215,7 +1215,7 @@ void vtkSlicerIhepStandGeometryLogic::LoadTreatmentMachineModels(vtkMRMLIhepStan
       scene->AddNode(fixedReferenceModelHierarchyNode);
       fixedReferenceModelHierarchyNode->SetModelNodeID(fixedReferenceModelNode->GetID());
       fixedReferenceModelHierarchyNode->SetParentNodeID(rootModelHierarchyNode->GetID());
-      fixedReferenceModelHierarchyNode->HideFromEditorsOn();
+//      fixedReferenceModelHierarchyNode->HideFromEditorsOn();
     }
     else
     {
@@ -1247,7 +1247,7 @@ void vtkSlicerIhepStandGeometryLogic::LoadTreatmentMachineModels(vtkMRMLIhepStan
       scene->AddNode(patientSupportModelHierarchyNode);
       patientSupportModelHierarchyNode->SetModelNodeID(patientSupportModelNode->GetID());
       patientSupportModelHierarchyNode->SetParentNodeID(rootModelHierarchyNode->GetID());
-      patientSupportModelHierarchyNode->HideFromEditorsOn();
+//      patientSupportModelHierarchyNode->HideFromEditorsOn();
     }
     else
     {
@@ -1279,7 +1279,7 @@ void vtkSlicerIhepStandGeometryLogic::LoadTreatmentMachineModels(vtkMRMLIhepStan
       scene->AddNode(tablePlatformModelHierarchyNode);
       tablePlatformModelHierarchyNode->SetModelNodeID(tablePlatformModelNode->GetID());
       tablePlatformModelHierarchyNode->SetParentNodeID(rootModelHierarchyNode->GetID());
-      tablePlatformModelHierarchyNode->HideFromEditorsOn();
+//      tablePlatformModelHierarchyNode->HideFromEditorsOn();
     }
     else
     {
@@ -1311,7 +1311,7 @@ void vtkSlicerIhepStandGeometryLogic::LoadTreatmentMachineModels(vtkMRMLIhepStan
       scene->AddNode(tableSupportModelHierarchyNode);
       tableSupportModelHierarchyNode->SetModelNodeID(tableSupportModelNode->GetID());
       tableSupportModelHierarchyNode->SetParentNodeID(rootModelHierarchyNode->GetID());
-      tableSupportModelHierarchyNode->HideFromEditorsOn();
+//      tableSupportModelHierarchyNode->HideFromEditorsOn();
     }
     else
     {
@@ -1343,7 +1343,7 @@ void vtkSlicerIhepStandGeometryLogic::LoadTreatmentMachineModels(vtkMRMLIhepStan
       scene->AddNode(tableOriginModelHierarchyNode);
       tableOriginModelHierarchyNode->SetModelNodeID(tableOriginModelNode->GetID());
       tableOriginModelHierarchyNode->SetParentNodeID(rootModelHierarchyNode->GetID());
-      tableOriginModelHierarchyNode->HideFromEditorsOn();
+//      tableOriginModelHierarchyNode->HideFromEditorsOn();
     }
     else
     {
@@ -1375,7 +1375,7 @@ void vtkSlicerIhepStandGeometryLogic::LoadTreatmentMachineModels(vtkMRMLIhepStan
       scene->AddNode(tableMirrorModelHierarchyNode);
       tableMirrorModelHierarchyNode->SetModelNodeID(tableMirrorModelNode->GetID());
       tableMirrorModelHierarchyNode->SetParentNodeID(rootModelHierarchyNode->GetID());
-      tableMirrorModelHierarchyNode->HideFromEditorsOn();
+//      tableMirrorModelHierarchyNode->HideFromEditorsOn();
     }
     else
     {
@@ -1407,7 +1407,7 @@ void vtkSlicerIhepStandGeometryLogic::LoadTreatmentMachineModels(vtkMRMLIhepStan
       scene->AddNode(tableMiddleModelHierarchyNode);
       tableMiddleModelHierarchyNode->SetModelNodeID(tableMiddleModelNode->GetID());
       tableMiddleModelHierarchyNode->SetParentNodeID(rootModelHierarchyNode->GetID());
-      tableMiddleModelHierarchyNode->HideFromEditorsOn();
+//      tableMiddleModelHierarchyNode->HideFromEditorsOn();
     }
     else
     {
@@ -1439,7 +1439,7 @@ void vtkSlicerIhepStandGeometryLogic::LoadTreatmentMachineModels(vtkMRMLIhepStan
       scene->AddNode(tableTopModelHierarchyNode);
       tableTopModelHierarchyNode->SetModelNodeID(tableTopModelNode->GetID());
       tableTopModelHierarchyNode->SetParentNodeID(rootModelHierarchyNode->GetID());
-      tableTopModelHierarchyNode->HideFromEditorsOn();
+//      tableTopModelHierarchyNode->HideFromEditorsOn();
     }
     else
     {
@@ -1537,7 +1537,7 @@ void vtkSlicerIhepStandGeometryLogic::SetupTreatmentMachineModels(vtkMRMLIhepSta
     {
       rasToTableTopTransformNode = vtkSmartPointer<vtkMRMLLinearTransformNode>::New();
       rasToTableTopTransformNode->SetName("RasToTableTopTransform");
-      rasToTableTopTransformNode->SetHideFromEditors(1);
+//      rasToTableTopTransformNode->SetHideFromEditors(1);
       std::string singletonTag = std::string("IHEP_") + "RasToTableTopTransform";
       rasToTableTopTransformNode->SetSingletonTag(singletonTag.c_str());
 
@@ -1583,7 +1583,7 @@ void vtkSlicerIhepStandGeometryLogic::SetupTreatmentMachineModels(vtkMRMLIhepSta
     {
       rasToTableTopOriginTransformNode = vtkSmartPointer<vtkMRMLLinearTransformNode>::New();
       rasToTableTopOriginTransformNode->SetName("RasToTableTopOriginTransform");
-      rasToTableTopOriginTransformNode->SetHideFromEditors(1);
+//      rasToTableTopOriginTransformNode->SetHideFromEditors(1);
       std::string singletonTag = std::string("IHEP_") + "RasToTableTopOriginTransform";
       rasToTableTopOriginTransformNode->SetSingletonTag(singletonTag.c_str());
       scene->AddNode(rasToTableTopOriginTransformNode);
@@ -1628,7 +1628,7 @@ void vtkSlicerIhepStandGeometryLogic::SetupTreatmentMachineModels(vtkMRMLIhepSta
     {
       rasToTableTopMirrorTransformNode = vtkSmartPointer<vtkMRMLLinearTransformNode>::New();
       rasToTableTopMirrorTransformNode->SetName("RasToTableTopMirrorTransform");
-      rasToTableTopMirrorTransformNode->SetHideFromEditors(1);
+//      rasToTableTopMirrorTransformNode->SetHideFromEditors(1);
       std::string singletonTag = std::string("IHEP_") + "RasToTableTopMirrorTransform";
       rasToTableTopMirrorTransformNode->SetSingletonTag(singletonTag.c_str());
       scene->AddNode(rasToTableTopMirrorTransformNode);
@@ -1673,7 +1673,7 @@ void vtkSlicerIhepStandGeometryLogic::SetupTreatmentMachineModels(vtkMRMLIhepSta
     {
       rasToTableTopMiddleTransformNode = vtkSmartPointer<vtkMRMLLinearTransformNode>::New();
       rasToTableTopMiddleTransformNode->SetName("RasToTableTopMiddleTransform");
-      rasToTableTopMiddleTransformNode->SetHideFromEditors(1);
+//      rasToTableTopMiddleTransformNode->SetHideFromEditors(1);
       std::string singletonTag = std::string("IHEP_") + "RasToTableTopMiddleTransform";
       rasToTableTopMiddleTransformNode->SetSingletonTag(singletonTag.c_str());
       scene->AddNode(rasToTableTopMiddleTransformNode);
@@ -1718,7 +1718,7 @@ void vtkSlicerIhepStandGeometryLogic::SetupTreatmentMachineModels(vtkMRMLIhepSta
     {
       rasToTableTopSupportTransformNode = vtkSmartPointer<vtkMRMLLinearTransformNode>::New();
       rasToTableTopSupportTransformNode->SetName("RasToTableTopSupportTransform");
-      rasToTableTopSupportTransformNode->SetHideFromEditors(1);
+//      rasToTableTopSupportTransformNode->SetHideFromEditors(1);
       std::string singletonTag = std::string("IHEP_") + "RasToTableTopSupportTransform";
       rasToTableTopSupportTransformNode->SetSingletonTag(singletonTag.c_str());
       scene->AddNode(rasToTableTopSupportTransformNode);
@@ -1760,7 +1760,7 @@ void vtkSlicerIhepStandGeometryLogic::SetupTreatmentMachineModels(vtkMRMLIhepSta
     {
       rasToTablePlatformTransformNode = vtkSmartPointer<vtkMRMLLinearTransformNode>::New();
       rasToTablePlatformTransformNode->SetName("RasToTablePlatformTransform");
-      rasToTablePlatformTransformNode->SetHideFromEditors(1);
+//      rasToTablePlatformTransformNode->SetHideFromEditors(1);
       std::string singletonTag = std::string("IHEP_") + "RasToTablePlatformTransform";
       rasToTablePlatformTransformNode->SetSingletonTag(singletonTag.c_str());
       scene->AddNode(rasToTablePlatformTransformNode);
@@ -1802,7 +1802,7 @@ void vtkSlicerIhepStandGeometryLogic::SetupTreatmentMachineModels(vtkMRMLIhepSta
     {
       rasToPatientSupportTransformNode = vtkSmartPointer<vtkMRMLLinearTransformNode>::New();
       rasToPatientSupportTransformNode->SetName("RasToPatientSupportTransform");
-      rasToPatientSupportTransformNode->SetHideFromEditors(1);
+//      rasToPatientSupportTransformNode->SetHideFromEditors(1);
       std::string singletonTag = std::string("IHEP_") + "RasToPatientSupportTransform";
       rasToPatientSupportTransformNode->SetSingletonTag(singletonTag.c_str());
       scene->AddNode(rasToPatientSupportTransformNode);
@@ -1848,7 +1848,7 @@ void vtkSlicerIhepStandGeometryLogic::SetupTreatmentMachineModels(vtkMRMLIhepSta
     {
       rasToFixedReferenceTransformNode = vtkSmartPointer<vtkMRMLLinearTransformNode>::New();
       rasToFixedReferenceTransformNode->SetName("RasToFixedReferenceTransform");
-      rasToFixedReferenceTransformNode->SetHideFromEditors(1);
+//      rasToFixedReferenceTransformNode->SetHideFromEditors(1);
       std::string singletonTag = std::string("IHEP_") + "RasToFixedReferenceTransform";
       rasToFixedReferenceTransformNode->SetSingletonTag(singletonTag.c_str());
       scene->AddNode(rasToFixedReferenceTransformNode);
@@ -2330,7 +2330,7 @@ vtkMRMLLinearTransformNode* vtkSlicerIhepStandGeometryLogic::UpdateTableOriginMa
 
       rasToTableTopOriginTransformNode = vtkSmartPointer<vtkMRMLLinearTransformNode>::New();
       rasToTableTopOriginTransformNode->SetName("RasToTableTopOriginTransform");
-      rasToTableTopOriginTransformNode->SetHideFromEditors(1);
+//      rasToTableTopOriginTransformNode->SetHideFromEditors(1);
       std::string singletonTag = std::string("IHEP_") + "RasToTableTopOriginTransform";
       rasToTableTopOriginTransformNode->SetSingletonTag(singletonTag.c_str());
 
@@ -2392,7 +2392,7 @@ vtkMRMLLinearTransformNode* vtkSlicerIhepStandGeometryLogic::UpdateTableMirrorMa
 
       rasToTableTopMirrorTransformNode = vtkSmartPointer<vtkMRMLLinearTransformNode>::New();
       rasToTableTopMirrorTransformNode->SetName("RasToTableTopMirrorTransform");
-      rasToTableTopMirrorTransformNode->SetHideFromEditors(1);
+//      rasToTableTopMirrorTransformNode->SetHideFromEditors(1);
       std::string singletonTag = std::string("IHEP_") + "RasToTableTopMirrorTransform";
       rasToTableTopMirrorTransformNode->SetSingletonTag(singletonTag.c_str());
 
@@ -2454,7 +2454,7 @@ vtkMRMLLinearTransformNode* vtkSlicerIhepStandGeometryLogic::UpdateTableMiddleMa
 
       rasToTableTopMiddleTransformNode = vtkSmartPointer<vtkMRMLLinearTransformNode>::New();
       rasToTableTopMiddleTransformNode->SetName("RasToTableTopMiddleTransform");
-      rasToTableTopMiddleTransformNode->SetHideFromEditors(1);
+//      rasToTableTopMiddleTransformNode->SetHideFromEditors(1);
       std::string singletonTag = std::string("IHEP_") + "RasToTableTopMiddleTransform";
       rasToTableTopMiddleTransformNode->SetSingletonTag(singletonTag.c_str());
 
@@ -2516,7 +2516,7 @@ vtkMRMLLinearTransformNode* vtkSlicerIhepStandGeometryLogic::UpdateTableTopPlane
 
       rasToTableTopTransformNode = vtkSmartPointer<vtkMRMLLinearTransformNode>::New();
       rasToTableTopTransformNode->SetName("RasToTableTopTransform");
-      rasToTableTopTransformNode->SetHideFromEditors(1);
+//      rasToTableTopTransformNode->SetHideFromEditors(1);
       std::string singletonTag = std::string("IHEP_") + "RasToTableTopTransform";
       rasToTableTopTransformNode->SetSingletonTag(singletonTag.c_str());
 
@@ -2578,7 +2578,7 @@ vtkMRMLLinearTransformNode* vtkSlicerIhepStandGeometryLogic::UpdateFixedReferenc
 
       rasToFixedReferenceTransformNode = vtkSmartPointer<vtkMRMLLinearTransformNode>::New();
       rasToFixedReferenceTransformNode->SetName("RasToFixedReferenceTransform");
-      rasToFixedReferenceTransformNode->SetHideFromEditors(1);
+//      rasToFixedReferenceTransformNode->SetHideFromEditors(1);
       std::string singletonTag = std::string("IHEP_") + "RasToFixedReferenceTransform";
       rasToFixedReferenceTransformNode->SetSingletonTag(singletonTag.c_str());
 
