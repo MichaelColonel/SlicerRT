@@ -502,6 +502,394 @@ bool vtkSlicerTableTopRobotTransformLogic::GetTransformBetween(
   return false;
 }
 
+//------------------------------------------------------------------------------
+vtkMRMLLinearTransformNode* vtkSlicerTableTopRobotTransformLogic::GetElbowTransform()
+{
+  vtkMRMLScene* scene = this->GetMRMLScene();
+  if (!scene)
+  {
+    vtkErrorMacro("GetElbowTransform: Invalid MRML scene");
+    return nullptr;
+  }
+
+  vtkSmartPointer<vtkMRMLLinearTransformNode> transformNode;
+  if (vtkMRMLNode* node = scene->GetFirstNodeByName("RasToElbowTransform"))
+  {
+    transformNode = vtkMRMLLinearTransformNode::SafeDownCast(node);
+  }
+
+  return transformNode;
+}
+
+//------------------------------------------------------------------------------
+vtkMRMLLinearTransformNode* vtkSlicerTableTopRobotTransformLogic::GetFixedReferenceTransform()
+{
+  vtkMRMLScene* scene = this->GetMRMLScene();
+  if (!scene)
+  {
+    vtkErrorMacro("GetFixedReferenceTransform: Invalid MRML scene");
+    return nullptr;
+  }
+
+  vtkSmartPointer<vtkMRMLLinearTransformNode> transformNode;
+  if (vtkMRMLNode* node = scene->GetFirstNodeByName("RasToFixedReferenceTransform"))
+  {
+    transformNode = vtkMRMLLinearTransformNode::SafeDownCast(node);
+  }
+
+  return transformNode;
+}
+
+//------------------------------------------------------------------------------
+vtkMRMLLinearTransformNode* vtkSlicerTableTopRobotTransformLogic::GetPatientTransform()
+{
+  vtkMRMLScene* scene = this->GetMRMLScene();
+  if (!scene)
+  {
+    vtkErrorMacro("GetPatientTransform: Invalid MRML scene");
+    return nullptr;
+  }
+
+  vtkSmartPointer<vtkMRMLLinearTransformNode> transformNode;
+  if (vtkMRMLNode* node = scene->GetFirstNodeByName("RasToPatientTransform"))
+  {
+    transformNode = vtkMRMLLinearTransformNode::SafeDownCast(node);
+  }
+
+  return transformNode;
+}
+
+//------------------------------------------------------------------------------
+vtkMRMLLinearTransformNode* vtkSlicerTableTopRobotTransformLogic::GetTableTopTransform()
+{
+  vtkMRMLScene* scene = this->GetMRMLScene();
+  if (!scene)
+  {
+    vtkErrorMacro("GetTableTopTransform: Invalid MRML scene");
+    return nullptr;
+  }
+
+  vtkSmartPointer<vtkMRMLLinearTransformNode> transformNode;
+  if (vtkMRMLNode* node = scene->GetFirstNodeByName("RasToTableTopTransform"))
+  {
+    transformNode = vtkMRMLLinearTransformNode::SafeDownCast(node);
+  }
+
+  return transformNode;
+}
+
+//------------------------------------------------------------------------------
+vtkMRMLLinearTransformNode* vtkSlicerTableTopRobotTransformLogic::GetWristTransform()
+{
+  vtkMRMLScene* scene = this->GetMRMLScene();
+  if (!scene)
+  {
+    vtkErrorMacro("GetWristTransform: Invalid MRML scene");
+    return nullptr;
+  }
+
+  vtkSmartPointer<vtkMRMLLinearTransformNode> transformNode;
+  if (vtkMRMLNode* node = scene->GetFirstNodeByName("RasToWristTransform"))
+  {
+    transformNode = vtkMRMLLinearTransformNode::SafeDownCast(node);
+  }
+
+  return transformNode;
+}
+
+//------------------------------------------------------------------------------
+vtkMRMLLinearTransformNode* vtkSlicerTableTopRobotTransformLogic::GetShoulderTransform()
+{
+  vtkMRMLScene* scene = this->GetMRMLScene();
+  if (!scene)
+  {
+    vtkErrorMacro("GetShoulderTransform: Invalid MRML scene");
+    return nullptr;
+  }
+
+  vtkSmartPointer<vtkMRMLLinearTransformNode> transformNode;
+  if (vtkMRMLNode* node = scene->GetFirstNodeByName("RasToShoulderTransform"))
+  {
+    transformNode = vtkMRMLLinearTransformNode::SafeDownCast(node);
+  }
+
+  return transformNode;
+}
+
+//------------------------------------------------------------------------------
+vtkMRMLLinearTransformNode* vtkSlicerTableTopRobotTransformLogic::GetBaseRotationTransform()
+{
+  vtkMRMLScene* scene = this->GetMRMLScene();
+  if (!scene)
+  {
+    vtkErrorMacro("GetBaseRotationTransform: Invalid MRML scene");
+    return nullptr;
+  }
+
+  vtkSmartPointer<vtkMRMLLinearTransformNode> transformNode;
+  if (vtkMRMLNode* node = scene->GetFirstNodeByName("RasToBaseRotationTransform"))
+  {
+    transformNode = vtkMRMLLinearTransformNode::SafeDownCast(node);
+  }
+
+  return transformNode;
+}
+
+//------------------------------------------------------------------------------
+vtkMRMLLinearTransformNode* vtkSlicerTableTopRobotTransformLogic::GetBaseFixedTransform()
+{
+  vtkMRMLScene* scene = this->GetMRMLScene();
+  if (!scene)
+  {
+    vtkErrorMacro("GetBaseFixedTransform: Invalid MRML scene");
+    return nullptr;
+  }
+
+  vtkSmartPointer<vtkMRMLLinearTransformNode> transformNode;
+  if (vtkMRMLNode* node = scene->GetFirstNodeByName("RasToBaseFixedTransform"))
+  {
+    transformNode = vtkMRMLLinearTransformNode::SafeDownCast(node);
+  }
+
+  return transformNode;
+}
+
+//------------------------------------------------------------------------------
+vtkMRMLLinearTransformNode* vtkSlicerTableTopRobotTransformLogic::UpdateRasToTableTopTransform(vtkMRMLChannel25GeometryNode* parameterNode)
+{
+  if (!parameterNode)
+  {
+    vtkErrorMacro("UpdateRasToTableTopTransform: Invalid parameter node");
+    return nullptr;
+  }
+  vtkMRMLScene* scene = this->GetMRMLScene();
+  if (!scene)
+  {
+    vtkErrorMacro("UpdateRasToTableTopTransform: Invalid MRML scene");
+    return nullptr;
+  }
+
+  // Display all pieces of the treatment room and sets each piece a color to provide realistic representation
+  using CoordSys = CoordinateSystemIdentifier;
+
+  // Transform IHEP stand models (IEC Patient) to RAS
+  vtkNew<vtkTransform> patientToRasTransform;
+  patientToRasTransform->Identity();
+  patientToRasTransform->RotateX(-90.);
+  if (!parameterNode->GetPatientHeadFeetRotation())
+  {
+    patientToRasTransform->RotateZ(180.);
+  }
+
+  // TableTop -> RAS
+  // Inverse transform path: RAS -> Patient -> TableTop
+  // Find RasToTableTopMiddleTransform or create it
+  vtkSmartPointer<vtkMRMLLinearTransformNode> rasToTableTopTransformNode;
+  if (scene->GetFirstNodeByName("RasToTableTopTransform"))
+  {
+    rasToTableTopTransformNode = vtkMRMLLinearTransformNode::SafeDownCast(
+      scene->GetFirstNodeByName("RasToTableTopTransform"));
+  }
+  else
+  {
+    vtkNew<vtkTransform> rasToTableTopTransform;
+    if (this->GetTransformBetween( CoordSys::RAS, CoordSys::TableTop, 
+      rasToTableTopTransform, false))
+    {
+      // Transform to RAS, set transform to node, transform the model
+      rasToTableTopTransform->Concatenate(patientToRasTransform);
+
+      rasToTableTopTransformNode = vtkSmartPointer<vtkMRMLLinearTransformNode>::New();
+      rasToTableTopTransformNode->SetName("RasToTableTopTransform");
+      rasToTableTopTransformNode->SetHideFromEditors(1);
+      std::string singletonTag = std::string("TTR_") + "RasToTableTopTransform";
+      rasToTableTopTransformNode->SetSingletonTag(singletonTag.c_str());
+
+      scene->AddNode(rasToTableTopTransformNode);
+    }
+    if (rasToTableTopTransformNode)
+    {
+      rasToTableTopTransformNode->SetAndObserveTransformToParent(rasToTableTopTransform);
+    }
+  }
+  return rasToTableTopTransformNode;
+}
+
+//----------------------------------------------------------------------------
+void vtkSlicerTableTopRobotTransformLogic::UpdatePatientToTableTopTransform(vtkMRMLChannel25GeometryNode* parameterNode)
+{
+  vtkMRMLScene* scene = this->GetMRMLScene();
+  if (!scene)
+  {
+    vtkErrorMacro("UpdatePatientToTableTopTransform: Invalid scene");
+    return;
+  }
+  if (!parameterNode || !parameterNode->GetTreatmentMachineType())
+  {
+    vtkErrorMacro("UpdatePatientToTableTopTransform: Invalid parameter node");
+    return;
+  }
+
+  using CoordSys = CoordinateSystemIdentifier;
+  vtkMRMLLinearTransformNode* patientToTableTopTransformNode =
+    this->GetTransformNodeBetween(CoordSys::Patient, CoordSys::TableTop);
+
+  if (patientToTableTopTransformNode)
+  {
+    double patientToTableTopTranslation[3] = {};
+    parameterNode->GetPatientToTableTopTranslation(patientToTableTopTranslation);
+    patientToTableTopTranslation[0] *= -1;
+    patientToTableTopTranslation[1] *= -1;
+    patientToTableTopTranslation[2] *= -1;
+    vtkNew<vtkTransform> patientToTableTopTransform;
+    patientToTableTopTransform->Translate(patientToTableTopTranslation);
+    patientToTableTopTransformNode->SetAndObserveTransformToParent(patientToTableTopTransform);
+  }
+}
+
+//----------------------------------------------------------------------------
+void vtkSlicerTableTopRobotTransformLogic::UpdateBaseRotationToBaseFixedTransform(vtkMRMLChannel25GeometryNode* parameterNode)
+{
+  vtkMRMLScene* scene = this->GetMRMLScene();
+  if (!scene)
+  {
+    vtkErrorMacro("UpdateBaseRotationToBaseFixedTransform: Invalid scene");
+    return;
+  }
+  if (!parameterNode || !parameterNode->GetTreatmentMachineType())
+  {
+    vtkErrorMacro("UpdateBaseRotationToBaseFixedTransform: Invalid parameter node");
+    return;
+  }
+
+  using CoordSys = CoordinateSystemIdentifier;
+  vtkMRMLLinearTransformNode* baseRotationToBaseFixedTransformNode =
+    this->GetTransformNodeBetween(CoordSys::BaseRotation, CoordSys::BaseFixed);
+
+  if (baseRotationToBaseFixedTransformNode)
+  {
+    vtkNew<vtkTransform> baseRotationToBaseFixedTransform;
+    baseRotationToBaseFixedTransform->RotateZ(-parameterNode->GetPatientSupportRotationAngle());
+    // apply transform
+    baseRotationToBaseFixedTransformNode->SetAndObserveTransformToParent(baseRotationToBaseFixedTransform);
+  }
+}
+
+//----------------------------------------------------------------------------
+void vtkSlicerTableTopRobotTransformLogic::UpdateTableTopToWristTransform(vtkMRMLChannel25GeometryNode* parameterNode)
+{
+  vtkMRMLScene* scene = this->GetMRMLScene();
+  if (!scene)
+  {
+    vtkErrorMacro("UpdateTableTopToWristTransform: Invalid scene");
+    return;
+  }
+  if (!parameterNode || !parameterNode->GetTreatmentMachineType())
+  {
+    vtkErrorMacro("UpdateTableTopToWristTransform: Invalid parameter node");
+    return;
+  }
+
+  using CoordSys = CoordinateSystemIdentifier;
+  vtkMRMLLinearTransformNode* tableTopToWristTransformNode =
+    this->GetTransformNodeBetween(CoordSys::TableTop, CoordSys::Wrist);
+
+  if (tableTopToWristTransformNode)
+  {
+    double tableTopToWristTranslation[3] = { 0., 0., 30. };
+    vtkNew<vtkTransform> tableTopToWristTransform;
+    tableTopToWristTransform->Translate(tableTopToWristTranslation);
+    tableTopToWristTransformNode->SetAndObserveTransformToParent(tableTopToWristTransform);
+  }
+}
+
+//----------------------------------------------------------------------------
+void vtkSlicerTableTopRobotTransformLogic::UpdateWristToElbowTransform(vtkMRMLChannel25GeometryNode* parameterNode)
+{
+  vtkMRMLScene* scene = this->GetMRMLScene();
+  if (!scene)
+  {
+    vtkErrorMacro("UpdateWristToElbowTransform: Invalid scene");
+    return;
+  }
+  if (!parameterNode || !parameterNode->GetTreatmentMachineType())
+  {
+    vtkErrorMacro("UpdateWristToElbowTransform: Invalid parameter node");
+    return;
+  }
+
+  using CoordSys = CoordinateSystemIdentifier;
+  vtkMRMLLinearTransformNode* wristToElbowTransformNode =
+    this->GetTransformNodeBetween(CoordSys::Wrist, CoordSys::Elbow);
+
+  if (wristToElbowTransformNode)
+  {
+    double a[6] = {};
+    parameterNode->GetTableTopRobotAngles(a);
+    vtkNew<vtkTransform> wristToElbowTransform;
+    wristToElbowTransform->RotateY(a[5]);
+    wristToElbowTransformNode->SetAndObserveTransformToParent(wristToElbowTransform);
+  }
+}
+
+//----------------------------------------------------------------------------
+void vtkSlicerTableTopRobotTransformLogic::UpdateElbowToShoulderTransform(vtkMRMLChannel25GeometryNode* parameterNode)
+{
+  vtkMRMLScene* scene = this->GetMRMLScene();
+  if (!scene)
+  {
+    vtkErrorMacro("UpdateElbowToShoulderTransform: Invalid scene");
+    return;
+  }
+  if (!parameterNode || !parameterNode->GetTreatmentMachineType())
+  {
+    vtkErrorMacro("UpdateElbowToShoulderTransform: Invalid parameter node");
+    return;
+  }
+
+  using CoordSys = CoordinateSystemIdentifier;
+  vtkMRMLLinearTransformNode* elbowToShoulderTransformNode =
+    this->GetTransformNodeBetween(CoordSys::Elbow, CoordSys::Shoulder);
+
+  if (elbowToShoulderTransformNode)
+  {
+    double a[6] = {};
+    parameterNode->GetTableTopRobotAngles(a);
+    vtkNew<vtkTransform> elbowToShoulderTransform;
+    elbowToShoulderTransform->RotateY(a[4]);
+    elbowToShoulderTransformNode->SetAndObserveTransformToParent(elbowToShoulderTransform);
+  }
+}
+
+//----------------------------------------------------------------------------
+void vtkSlicerTableTopRobotTransformLogic::UpdateShoulderToBaseRotationTransform(vtkMRMLChannel25GeometryNode* parameterNode)
+{
+  vtkMRMLScene* scene = this->GetMRMLScene();
+  if (!scene)
+  {
+    vtkErrorMacro("UpdateShoulderToBaseRotationTransform: Invalid scene");
+    return;
+  }
+  if (!parameterNode || !parameterNode->GetTreatmentMachineType())
+  {
+    vtkErrorMacro("UpdateShoulderToBaseRotationTransform: Invalid parameter node");
+    return;
+  }
+
+  using CoordSys = CoordinateSystemIdentifier;
+  vtkMRMLLinearTransformNode* shoulderToBaseRotationTransformNode =
+    this->GetTransformNodeBetween(CoordSys::Shoulder, CoordSys::BaseRotation);
+
+  if (shoulderToBaseRotationTransformNode)
+  {
+    double a[6] = {};
+    parameterNode->GetTableTopRobotAngles(a);
+    vtkNew<vtkTransform> shoulderToBaseRotationTransform;
+    shoulderToBaseRotationTransform->RotateY(a[3]);
+    shoulderToBaseRotationTransformNode->SetAndObserveTransformToParent(shoulderToBaseRotationTransform);
+  }
+}
+
 //-----------------------------------------------------------------------------
 bool vtkSlicerTableTopRobotTransformLogic::GetTransformBetween(
   CoordinateSystemIdentifier fromFrame, CoordinateSystemIdentifier toFrame, 

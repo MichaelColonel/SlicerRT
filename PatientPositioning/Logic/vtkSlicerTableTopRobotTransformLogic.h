@@ -98,8 +98,42 @@ public:
 
   /// Update fixed reference to RAS transform based on isocenter and patient support transforms
   void UpdateFixedReferenceToRASTransform(vtkMRMLChannel25GeometryNode* channelNode, double* isocenter = nullptr);
-  /// Update BaseFixedToFixedReference transform based on A1 robot angle parameter
+
+  /// Update BaseFixedToFixedReference transform based on translation
+  /// Apply new BaseFixed to FixedReference translate (BaseFixed->FixedReference)
   void UpdateBaseFixedToFixedReferenceTransform(vtkMRMLChannel25GeometryNode* channelNode);
+  /// Apply new TableTop to Wrist transform (TableTop->Wrist)
+  void UpdateTableTopToWristTransform(vtkMRMLChannel25GeometryNode* parameterNode);
+  /// Apply new Wrist to Elbow transform (Wrist->Elbow)
+  void UpdateWristToElbowTransform(vtkMRMLChannel25GeometryNode* parameterNode);
+  /// Apply new Elbow to Shoulder transform (Elbow->Shoulder)
+  void UpdateElbowToShoulderTransform(vtkMRMLChannel25GeometryNode* parameterNode);
+  /// Apply new Shoulder to BaseRotation transform (Shoulder->BaseRotation)
+  void UpdateShoulderToBaseRotationTransform(vtkMRMLChannel25GeometryNode* parameterNode);
+  /// Apply new BaseRotation to BaseFixed translate (BaseRotation->BaseFixed)
+  void UpdateBaseRotationToBaseFixedTransform(vtkMRMLChannel25GeometryNode* parameterNode);
+  /// Apply new Patient to TableTop translate (Patient->TableTop)
+  void UpdatePatientToTableTopTransform(vtkMRMLChannel25GeometryNode* parameterNode);
+
+  /// Get RAS to FixedReference transform
+  vtkMRMLLinearTransformNode* GetFixedReferenceTransform();
+  /// Get RAS to Patient transform
+  vtkMRMLLinearTransformNode* GetPatientTransform();
+  /// Get RAS to TableTop transform
+  vtkMRMLLinearTransformNode* GetTableTopTransform();
+  /// Update (or create if absent) RAS to TableTop transform
+  vtkMRMLLinearTransformNode* UpdateRasToTableTopTransform(vtkMRMLChannel25GeometryNode* parameterNode);
+
+  /// Get RAS to Elbow transform
+  vtkMRMLLinearTransformNode* GetElbowTransform();
+  /// Get RAS to Wrist transform
+  vtkMRMLLinearTransformNode* GetWristTransform();
+  /// Get RAS to Shoulder transform
+  vtkMRMLLinearTransformNode* GetShoulderTransform();
+  /// Get RAS to BaseRotation
+  vtkMRMLLinearTransformNode* GetBaseRotationTransform();
+  /// Get RAS to BaseFixed
+  vtkMRMLLinearTransformNode* GetBaseFixedTransform();
 
   /// Get part type as string
   const char* GetTreatmentMachinePartTypeAsString(CoordinateSystemIdentifier type);
