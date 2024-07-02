@@ -674,7 +674,6 @@ vtkMRMLLinearTransformNode* vtkSlicerTableTopRobotTransformLogic::UpdateRasToTab
 
   // Transform IHEP stand models (IEC Patient) to RAS
   vtkNew<vtkTransform> patientToRasTransform;
-  patientToRasTransform->Identity();
   patientToRasTransform->RotateX(-90.);
   if (!parameterNode->GetPatientHeadFeetRotation())
   {
@@ -685,34 +684,93 @@ vtkMRMLLinearTransformNode* vtkSlicerTableTopRobotTransformLogic::UpdateRasToTab
   // Inverse transform path: RAS -> Patient -> TableTop
   // Find RasToTableTopMiddleTransform or create it
   vtkSmartPointer<vtkMRMLLinearTransformNode> rasToTableTopTransformNode;
-  if (scene->GetFirstNodeByName("RasToTableTopTransform"))
+  if (vtkMRMLNode* node = scene->GetFirstNodeByName("RasToTableTopTransform"))
   {
-    rasToTableTopTransformNode = vtkMRMLLinearTransformNode::SafeDownCast(
-      scene->GetFirstNodeByName("RasToTableTopTransform"));
+    rasToTableTopTransformNode = vtkMRMLLinearTransformNode::SafeDownCast(node);
   }
   else
   {
-    vtkNew<vtkTransform> rasToTableTopTransform;
-    if (this->GetTransformBetween( CoordSys::RAS, CoordSys::TableTop, 
-      rasToTableTopTransform, false))
-    {
-      // Transform to RAS, set transform to node, transform the model
-      rasToTableTopTransform->Concatenate(patientToRasTransform);
+    rasToTableTopTransformNode = vtkSmartPointer<vtkMRMLLinearTransformNode>::New();
+    rasToTableTopTransformNode->SetName("RasToTableTopTransform");
+//    rasToTableTopTransformNode->SetHideFromEditors(1);
+    std::string singletonTag = std::string("TTR_") + "RasToTableTopTransform";
+    rasToTableTopTransformNode->SetSingletonTag(singletonTag.c_str());
+    scene->AddNode(rasToTableTopTransformNode);
+  }
 
-      rasToTableTopTransformNode = vtkSmartPointer<vtkMRMLLinearTransformNode>::New();
-      rasToTableTopTransformNode->SetName("RasToTableTopTransform");
-      rasToTableTopTransformNode->SetHideFromEditors(1);
-      std::string singletonTag = std::string("TTR_") + "RasToTableTopTransform";
-      rasToTableTopTransformNode->SetSingletonTag(singletonTag.c_str());
-
-      scene->AddNode(rasToTableTopTransformNode);
-    }
-    if (rasToTableTopTransformNode)
-    {
-      rasToTableTopTransformNode->SetAndObserveTransformToParent(rasToTableTopTransform);
-    }
+  vtkNew<vtkTransform> rasToTableTopTransform;
+  if (this->GetTransformBetween( CoordSys::RAS, CoordSys::TableTop, 
+    rasToTableTopTransform, false))
+  {
+    vtkWarningMacro("UpdateRasToTableTopTransform: RAS->TableTop transform updated");
+    // Transform to RAS, set transform to node, transform the model
+    rasToTableTopTransform->Concatenate(patientToRasTransform);
+  }
+  if (rasToTableTopTransformNode)
+  {
+    rasToTableTopTransformNode->SetAndObserveTransformToParent(rasToTableTopTransform);
   }
   return rasToTableTopTransformNode;
+}
+
+//------------------------------------------------------------------------------
+vtkMRMLLinearTransformNode* vtkSlicerTableTopRobotTransformLogic::UpdateRasToFixedReferenceTransform(vtkMRMLChannel25GeometryNode* parameterNode)
+{
+  if (!parameterNode)
+  {
+    vtkErrorMacro("UpdateRasToTableTopTransform: Invalid parameter node");
+    return nullptr;
+  }
+  vtkMRMLScene* scene = this->GetMRMLScene();
+  if (!scene)
+  {
+    vtkErrorMacro("UpdateRasToTableTopTransform: Invalid MRML scene");
+    return nullptr;
+  }
+
+  // Display all pieces of the treatment room and sets each piece a color to provide realistic representation
+  using CoordSys = CoordinateSystemIdentifier;
+
+  // Transform IHEP stand models (IEC Patient) to RAS
+  vtkNew<vtkTransform> patientToRasTransform;
+  patientToRasTransform->RotateX(-90.);
+  if (!parameterNode->GetPatientHeadFeetRotation())
+  {
+    patientToRasTransform->RotateZ(180.);
+  }
+
+  // Fixed Reference -> RAS
+  // Fixed Reference - mandatory
+  // Transform path: RAS -> Patient -> TableTop -> Wrist -> Elbow -> Shoulder -> BaseRotation -> BaseFixed -> FixedReference
+  // Find RasToFixedReferenceTransform or create it
+  vtkSmartPointer<vtkMRMLLinearTransformNode> rasToFixedReferenceTransformNode;
+  if (vtkMRMLNode* node = scene->GetFirstNodeByName("RasToFixedReferenceTransform"))
+  {
+    rasToFixedReferenceTransformNode = vtkMRMLLinearTransformNode::SafeDownCast(node);
+  }
+  else
+  {
+    rasToFixedReferenceTransformNode = vtkSmartPointer<vtkMRMLLinearTransformNode>::New();
+    rasToFixedReferenceTransformNode->SetName("RasToFixedReferenceTransform");
+    rasToFixedReferenceTransformNode->SetHideFromEditors(1);
+    std::string singletonTag = std::string("TTR_") + "RasToFixedReferenceTransform";
+    rasToFixedReferenceTransformNode->SetSingletonTag(singletonTag.c_str());
+    scene->AddNode(rasToFixedReferenceTransformNode);
+  }
+
+  vtkNew<vtkTransform> rasToFixedReferenceTransform;
+  if (this->GetTransformBetween( CoordSys::RAS, CoordSys::FixedReference, 
+    rasToFixedReferenceTransform, false))
+  {
+    vtkWarningMacro("UpdateRasToFixedReferenceTransform: RAS->FixedReference transform updated");
+    // Transform to RAS, set transform to node, transform the model
+    rasToFixedReferenceTransform->Concatenate(patientToRasTransform);
+  }
+  if (rasToFixedReferenceTransformNode)
+  {
+    rasToFixedReferenceTransformNode->SetAndObserveTransformToParent(rasToFixedReferenceTransform);
+  }
+  return rasToFixedReferenceTransformNode;
 }
 
 //----------------------------------------------------------------------------
@@ -724,7 +782,7 @@ void vtkSlicerTableTopRobotTransformLogic::UpdatePatientToTableTopTransform(vtkM
     vtkErrorMacro("UpdatePatientToTableTopTransform: Invalid scene");
     return;
   }
-  if (!parameterNode || !parameterNode->GetTreatmentMachineType())
+  if (!parameterNode)
   {
     vtkErrorMacro("UpdatePatientToTableTopTransform: Invalid parameter node");
     return;
@@ -742,6 +800,7 @@ void vtkSlicerTableTopRobotTransformLogic::UpdatePatientToTableTopTransform(vtkM
     patientToTableTopTranslation[1] *= -1;
     patientToTableTopTranslation[2] *= -1;
     vtkNew<vtkTransform> patientToTableTopTransform;
+    patientToTableTopTransform->RotateY(180);
     patientToTableTopTransform->Translate(patientToTableTopTranslation);
     patientToTableTopTransformNode->SetAndObserveTransformToParent(patientToTableTopTransform);
   }
@@ -769,7 +828,7 @@ void vtkSlicerTableTopRobotTransformLogic::UpdateBaseRotationToBaseFixedTransfor
   if (baseRotationToBaseFixedTransformNode)
   {
     vtkNew<vtkTransform> baseRotationToBaseFixedTransform;
-    baseRotationToBaseFixedTransform->RotateZ(-parameterNode->GetPatientSupportRotationAngle());
+    baseRotationToBaseFixedTransform->RotateZ(-1. * parameterNode->GetPatientSupportRotationAngle());
     // apply transform
     baseRotationToBaseFixedTransformNode->SetAndObserveTransformToParent(baseRotationToBaseFixedTransform);
   }

@@ -30,8 +30,6 @@
 
 // MRML includes
 #include <vtkMRMLScene.h>
-#include <vtkMRMLPatientPositioningNode.h>
-#include <vtkMRMLChannel25GeometryNode.h>
 #include <vtkMRMLLayoutNode.h>
 #include <vtkMRMLScalarVolumeNode.h>
 #include <vtkMRMLSliceNode.h>
@@ -44,6 +42,9 @@
 #include <vtkMRMLSliceNode.h>
 #include <vtkMRMLTransformNode.h>
 #include <vtkMRMLSubjectHierarchyNode.h>
+
+#include <vtkMRMLPatientPositioningNode.h>
+#include <vtkMRMLChannel25GeometryNode.h>
 
 // Qt includes
 #include <QDebug>
@@ -63,6 +64,7 @@
 
 // Logic includes
 #include <vtkSlicerPatientPositioningLogic.h>
+#include <vtkSlicerTableTopRobotTransformLogic.h>
 
 //-----------------------------------------------------------------------------
 /// \ingroup Slicer_QtModules_PatientPositioning
@@ -75,6 +77,11 @@ public:
   qSlicerPatientPositioningModuleWidgetPrivate(qSlicerPatientPositioningModuleWidget &object);
   virtual ~qSlicerPatientPositioningModuleWidgetPrivate();
   vtkSlicerPatientPositioningLogic* logic() const;
+  vtkSlicerTableTopRobotTransformLogic* tableTopRobotLogic() const;
+
+  /// IhepStandGeometry MRML node containing shown parameters
+  vtkSmartPointer<vtkMRMLChannel25GeometryNode> Channel25GeometryNode;
+  vtkSmartPointer<vtkMRMLPatientPositioningNode> ParameterNode;
 };
 
 //-----------------------------------------------------------------------------
@@ -96,6 +103,14 @@ vtkSlicerPatientPositioningLogic* qSlicerPatientPositioningModuleWidgetPrivate::
 {
   Q_Q(const qSlicerPatientPositioningModuleWidget);
   return vtkSlicerPatientPositioningLogic::SafeDownCast(q->logic());
+}
+
+//-----------------------------------------------------------------------------
+vtkSlicerTableTopRobotTransformLogic* qSlicerPatientPositioningModuleWidgetPrivate::tableTopRobotLogic() const
+{
+  Q_Q(const qSlicerPatientPositioningModuleWidget);
+  vtkSlicerPatientPositioningLogic* logic = vtkSlicerPatientPositioningLogic::SafeDownCast(q->logic());
+  return (logic) ? logic->GetTableTopRobotTransformLogic() : nullptr;
 }
 
 //-----------------------------------------------------------------------------
@@ -123,9 +138,6 @@ void qSlicerPatientPositioningModuleWidget::setup()
   // Add treatment machine options
   d->ComboBox_TreatmentMachine->clear();
   d->ComboBox_TreatmentMachine->addItem("Channel25Geometry", "Channel25Geometry");
-  d->ComboBox_TreatmentMachine->addItem("Channel26Geometry_Calib1", "Channel26Geometry_Calib1");
-  d->ComboBox_TreatmentMachine->addItem("Channel26Geometry_Calib2", "Channel26Geometry_Calib2");
-  d->ComboBox_TreatmentMachine->addItem("Channel26Geometry_Calib3", "Channel26Geometry_Calib3");
   d->ComboBox_TreatmentMachine->addItem("From file...", "FromFile");
 
   // Nodes
@@ -134,8 +146,14 @@ void qSlicerPatientPositioningModuleWidget::setup()
   // Buttons
   connect( d->PushButton_LoadTreatmentMachine, SIGNAL(clicked()), 
     this, SLOT(onLoadTreatmentMachineButtonClicked()));
+  connect( d->CheckBox_RotatePatientHeadFeet, SIGNAL(toggled(bool)), 
+    this, SLOT(onRotatePatientHeadFeetToggled(bool)));
+
+  // Widgets
   connect( d->SliderWidget_TableRobotA1, SIGNAL(valueChanged(double)), 
     this, SLOT(onTableTopRobotA1Changed(double)));
+  connect( d->CoordinatesWidget_PatientTableTopTranslation, SIGNAL(coordinatesChanged(double*)),
+    this, SLOT(onPatientTableTopTranslationChanged(double*)));
 }
 
 //-----------------------------------------------------------------------------
@@ -180,11 +198,14 @@ void qSlicerPatientPositioningModuleWidget::setParameterNode(vtkMRMLNode *node)
 //  d->FooBar->setParameterNode(node);
  
   // Each time the node is modified, the UI widgets are updated
-  qvtkReconnect( parameterNode, vtkCommand::ModifiedEvent, this, SLOT(updateWidgetFromMRML()));
+  qvtkReconnect( d->ParameterNode, parameterNode, vtkCommand::ModifiedEvent, 
+    this, SLOT( updateWidgetFromMRML() ) );
+
+  d->ParameterNode = parameterNode;
 
   // Set selected MRML nodes in comboboxes in the parameter set if it was nullptr there
   // (then in the meantime the comboboxes selected the first one from the scene and we have to set that)
-  if (parameterNode)
+  if (d->ParameterNode)
   {
   }
   this->updateWidgetFromMRML();
@@ -422,7 +443,6 @@ void qSlicerPatientPositioningModuleWidget::onLoadTreatmentMachineButtonClicked(
   {
     return;
   }
-  qDebug() << Q_FUNC_INFO << ": 1";
 
   // Get treatment machine descriptor file path
   QString treatmentMachineType(d->ComboBox_TreatmentMachine->currentData().toString());
@@ -437,9 +457,7 @@ void qSlicerPatientPositioningModuleWidget::onLoadTreatmentMachineButtonClicked(
   {
     QString relativeFilePath = QString("%1/%2.json").arg(treatmentMachineType).arg(treatmentMachineType);
     descriptorFilePath = QDir(d->logic()->GetModuleShareDirectory().c_str()).filePath(relativeFilePath);
-    qDebug() << Q_FUNC_INFO << ": 3 " << relativeFilePath << " " << d->logic()->GetModuleShareDirectory().c_str() << " " << descriptorFilePath;
   }
-  qDebug() << Q_FUNC_INFO << ": 2";
   // Check if there is a machine already loaded and ask user what to do if so
   vtkMRMLSubjectHierarchyNode* shNode = this->mrmlScene()->GetSubjectHierarchyNode();
   std::vector<vtkIdType> allItemIDs;
@@ -459,24 +477,19 @@ void qSlicerPatientPositioningModuleWidget::onLoadTreatmentMachineButtonClicked(
       machineFolderItemIDs.push_back(*itemIt);
     }
   }
-  qDebug() << Q_FUNC_INFO << ": 3";
-  vtkSmartPointer<vtkMRMLChannel25GeometryNode> channelNode;
   if (!scene->GetFirstNodeByClass("vtkMRMLChannel25GeometryNode"))
   {
-    qDebug() << Q_FUNC_INFO << ": 3.5";
-    channelNode = vtkSmartPointer<vtkMRMLChannel25GeometryNode>::New();
-    channelNode->SetName("Channel25Geometry");
-    channelNode->SetHideFromEditors(0);
-    channelNode->SetSingletonTag("ChannelGeo");
-    scene->AddNode(channelNode);
+    d->Channel25GeometryNode = vtkSmartPointer<vtkMRMLChannel25GeometryNode>::New();
+    d->Channel25GeometryNode->SetName("Channel25Geometry");
+    d->Channel25GeometryNode->SetHideFromEditors(0);
+    d->Channel25GeometryNode->SetSingletonTag("ChannelGeo");
+    scene->AddNode(d->Channel25GeometryNode);
   }
   else
   {
-    qDebug() << Q_FUNC_INFO << ": 3.6";
-    channelNode = vtkMRMLChannel25GeometryNode::SafeDownCast(
-      scene->GetFirstNodeByName("Channel25Geometry"));
+    d->Channel25GeometryNode = vtkMRMLChannel25GeometryNode::SafeDownCast(
+      scene->GetFirstNodeByClass("vtkMRMLChannel25GeometryNode"));
   }
-  qDebug() << Q_FUNC_INFO << ": 4";
   if (machineFolderItemIDs.size() > 0)
   {
     ctkMessageBox* existingMachineMsgBox = new ctkMessageBox(this);
@@ -509,23 +522,14 @@ void qSlicerPatientPositioningModuleWidget::onLoadTreatmentMachineButtonClicked(
       }
     }
   }
-  qDebug() << Q_FUNC_INFO << ": 5";
   // Load and setup models
-  if (channelNode)
+  if (d->Channel25GeometryNode)
   {
-    channelNode->SetTableTopVerticalPosition(0.0);
-    qDebug() << Q_FUNC_INFO << ": 5.4 " << descriptorFilePath;
-    channelNode->SetTreatmentMachineDescriptorFilePath(descriptorFilePath.toUtf8().constData());
-    qDebug() << Q_FUNC_INFO << ": 5.5";
+    d->Channel25GeometryNode->SetTableTopVerticalPosition(0.0);
+    d->Channel25GeometryNode->SetTreatmentMachineDescriptorFilePath(descriptorFilePath.toUtf8().constData());
     std::vector<vtkSlicerTableTopRobotTransformLogic::CoordinateSystemIdentifier> loadedParts =
-      d->logic()->LoadTreatmentMachine(channelNode);
-    qDebug() << Q_FUNC_INFO << ": 5.6";
-    for (vtkSlicerTableTopRobotTransformLogic::CoordinateSystemIdentifier comp : loadedParts)
-    {
-      qDebug() << Q_FUNC_INFO << ": TreatmentMachinePart: " << comp;
-    }
-    qDebug() << Q_FUNC_INFO << ": 6";
-    d->logic()->GetTableTopRobotTransformLogic()->ResetRasToPatientIsocenterTranslate();
+      d->logic()->LoadTreatmentMachine(d->Channel25GeometryNode);
+    d->tableTopRobotLogic()->ResetRasToPatientIsocenterTranslate();
   }
 /*
   // Warn the user if collision detection is disabled for certain part pairs
@@ -618,77 +622,124 @@ void qSlicerPatientPositioningModuleWidget::onTableTopRobotA1Changed(double a1)
     return;
   }
 
-  vtkMRMLPatientPositioningNode* paramNode = vtkMRMLPatientPositioningNode::SafeDownCast(d->MRMLNodeComboBox_ParameterSet->currentNode());
-  if (!paramNode)
-  {
-    return;
-  }
-  vtkMRMLChannel25GeometryNode* channelNode = vtkMRMLChannel25GeometryNode::SafeDownCast(
-    scene->GetFirstNodeByName("Channel25Geometry"));
-
-  if (channelNode)
-  {
-    channelNode->DisableModifiedEventOn();
-    channelNode->SetPatientSupportRotationAngle(a1);
-    channelNode->DisableModifiedEventOff();
-  }
-
-  // Update IEC transform
-  vtkSlicerTableTopRobotTransformLogic* tableTopRobotLogic = d->logic()->GetTableTopRobotTransformLogic();
-//  tableTopRobotLogic->UpdateFixedReferenceToRASTransform(channelNode);
-//  tableTopRobotLogic->ResetRasToPatientIsocenterTranslate();
-  tableTopRobotLogic->UpdateBaseFixedToFixedReferenceTransform(channelNode);
-//  d->logic()->GetIECLogic()->UpdateFixedReferenceToRASTransform(d->currentPlanNode(paramNode));
-}
-
-/*
-//-----------------------------------------------------------------------------
-void qSlicerPatientPositioningModuleWidget::onXrayProjectionButtonGroupChanged(QAbstractButton* but)
-{
-  Q_D(qSlicerPatientPositioningModuleWidget);
-
-  vtkMRMLPatientPositioningNode* parameterNode = vtkMRMLPatientPositioningNode::SafeDownCast(d->MRMLNodeComboBox_ParameterSet->currentNode());
-
-  if (!parameterNode)
+  if (!d->ParameterNode)
   {
     qCritical() << Q_FUNC_INFO << ": Invalid parameter node";
     return;
   }
 
-  // Get layout manager
-  qSlicerApplication* slicerApplication = qSlicerApplication::application();
-  qSlicerLayoutManager* layoutManager = slicerApplication->layoutManager();
+  if (d->Channel25GeometryNode)
+  {
+    d->Channel25GeometryNode->DisableModifiedEventOn();
+    d->Channel25GeometryNode->SetPatientSupportRotationAngle(a1);
+    d->Channel25GeometryNode->DisableModifiedEventOff();
+  }
 
-  QRadioButton* rButton = qobject_cast<QRadioButton*>(but);
-  qMRMLSliceWidget* sliceWidget = nullptr;
-  vtkMRMLPatientPositioningNode::XrayProjectionType projType = vtkMRMLPatientPositioningNode::XrayProjectionType_Last;
-
-  if (rButton == d->RadioButton_Vertical)
-  {
-    qDebug() << Q_FUNC_INFO << ": Vertical";
-    layoutManager->setLayout(vtkMRMLLayoutNode::SlicerLayoutOneUpRedSliceView);
-    sliceWidget = layoutManager->sliceWidget("Red");
-    projType = vtkMRMLPatientPositioningNode::Vertical;
-  }
-  else if (rButton == d->RadioButton_Horizontal)
-  {
-    qDebug() << Q_FUNC_INFO << ": Horizontal";
-    layoutManager->setLayout(vtkMRMLLayoutNode::SlicerLayoutOneUpYellowSliceView);
-    sliceWidget = layoutManager->sliceWidget("Yellow");
-    projType = vtkMRMLPatientPositioningNode::Horizontal;
-  }
-  else if (rButton == d->RadioButton_Angle)
-  {
-    qDebug() << Q_FUNC_INFO << ": Angle";
-    layoutManager->setLayout(vtkMRMLLayoutNode::SlicerLayoutOneUpGreenSliceView);
-    sliceWidget = layoutManager->sliceWidget("Green");
-    projType = vtkMRMLPatientPositioningNode::Angle;
-  }
-  if (sliceWidget)
-  {
-    vtkMRMLSliceNode* sliceNode = sliceWidget->mrmlSliceNode();
-    vtkMRMLSliceCompositeNode* sliceCompositeNode = sliceWidget->mrmlSliceCompositeNode();
-    d->logic()->SetXrayImagesProjection( parameterNode, projType, sliceCompositeNode, sliceNode);
-  }
+  // Update IEC transform
+  vtkSlicerTableTopRobotTransformLogic* tableTopRobotLogic = d->tableTopRobotLogic();
+//  tableTopRobotLogic->UpdateFixedReferenceToRASTransform(channelNode);
+//  tableTopRobotLogic->ResetRasToPatientIsocenterTranslate();
+  tableTopRobotLogic->UpdateBaseRotationToBaseFixedTransform(d->Channel25GeometryNode);
+//  d->logic()->GetIECLogic()->UpdateFixedReferenceToRASTransform(d->currentPlanNode(paramNode));
+  d->Channel25GeometryNode->Modified();
 }
+
+//-----------------------------------------------------------------------------
+void qSlicerPatientPositioningModuleWidget::onTableTopRobotA2Changed(double a2)
+{
+}
+
+//-----------------------------------------------------------------------------
+void qSlicerPatientPositioningModuleWidget::onTableTopRobotA3Changed(double a3)
+{
+}
+
+//-----------------------------------------------------------------------------
+void qSlicerPatientPositioningModuleWidget::onTableTopRobotA4Changed(double a4)
+{
+}
+
+//-----------------------------------------------------------------------------
+void qSlicerPatientPositioningModuleWidget::onTableTopRobotA5Changed(double a5)
+{
+}
+
+//-----------------------------------------------------------------------------
+void qSlicerPatientPositioningModuleWidget::onTableTopRobotA6Changed(double a6)
+{
+}
+
+//-----------------------------------------------------------------------------
+void qSlicerPatientPositioningModuleWidget::onTableTopRobotAnglesChanged(double* a)
+{
+}
+
+//-----------------------------------------------------------------------------
+void qSlicerPatientPositioningModuleWidget::onPatientSupportRotationAngleChanged(double angle)
+{
+  Q_D(qSlicerPatientPositioningModuleWidget);
+/*
+  if (!this->mrmlScene())
+  {
+    qCritical() << Q_FUNC_INFO << ": Invalid scene";
+    return;
+  }
+
+  if (!d->ParameterNode || !d->ModuleWindowInitialized)
+  {
+    return;
+  }
+
+  d->ParameterNode->DisableModifiedEventOn();
+  d->ParameterNode->SetPatientSupportRotationAngle(angle);
+  d->ParameterNode->DisableModifiedEventOff();
+
+  // update table top stand to patient support rotation transform
+  d->logic()->UpdatePatientSupportToFixedReferenceTransform(d->ParameterNode);
+
+  d->ParameterNode->Modified();
 */
+}
+
+
+//-----------------------------------------------------------------------------
+void qSlicerPatientPositioningModuleWidget::onPatientTableTopTranslationChanged(double* position)
+{
+  Q_D(qSlicerPatientPositioningModuleWidget);
+
+  if (!this->mrmlScene())
+  {
+    qCritical() << Q_FUNC_INFO << ": Invalid scene";
+    return;
+  }
+
+  if (!d->Channel25GeometryNode)
+  {
+    qCritical() << Q_FUNC_INFO << ": Parameter node is invalid!";
+    return;
+  }
+  d->Channel25GeometryNode->DisableModifiedEventOn();
+  d->Channel25GeometryNode->SetPatientToTableTopTranslation(position);
+  d->Channel25GeometryNode->DisableModifiedEventOff();
+  d->tableTopRobotLogic()->UpdatePatientToTableTopTransform(d->Channel25GeometryNode);
+  d->Channel25GeometryNode->Modified();
+}
+
+//-----------------------------------------------------------------------------
+void qSlicerPatientPositioningModuleWidget::onRotatePatientHeadFeetToggled(bool toggled)
+{
+  Q_D(qSlicerPatientPositioningModuleWidget);
+
+  if (!d->Channel25GeometryNode)
+  {
+    qCritical() << Q_FUNC_INFO << ": Parameter node is invalid!";
+    return;
+  }
+
+  if (!d->Channel25GeometryNode)
+  {
+    qCritical() << Q_FUNC_INFO << ": Parameter node is invalid!";
+    return;
+  }
+  d->Channel25GeometryNode->SetPatientHeadFeetRotation(toggled);
+}

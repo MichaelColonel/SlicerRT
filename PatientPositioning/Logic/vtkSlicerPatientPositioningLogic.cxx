@@ -392,6 +392,43 @@ void vtkSlicerPatientPositioningLogic::RegisterNodes()
   {
     scene->RegisterNodeClass(vtkSmartPointer<vtkMRMLPatientPositioningNode>::New());
   }
+  if (!scene->IsNodeClassRegistered("vtkMRMLChannel25GeometryNode"))
+  {
+    scene->RegisterNodeClass(vtkSmartPointer<vtkMRMLChannel25GeometryNode>::New());
+  }
+}
+
+//----------------------------------------------------------------------------
+void vtkSlicerPatientPositioningLogic::ProcessMRMLNodesEvents(vtkObject* caller, unsigned long event, void* callData)
+{
+  Superclass::ProcessMRMLNodesEvents(caller, event, callData);
+  vtkMRMLScene* mrmlScene = this->GetMRMLScene();
+  if (!mrmlScene)
+  {
+    vtkErrorMacro("ProcessMRMLNodesEvents: Invalid MRML scene");
+    return;
+  }
+  if (mrmlScene->IsBatchProcessing())
+  {
+    return;
+  }
+
+  if (caller->IsA("vtkMRMLPatientPositioningNode"))
+  {
+    vtkMRMLPatientPositioningNode* parameterNode = vtkMRMLPatientPositioningNode::SafeDownCast(caller);
+
+    if (event == vtkCommand::ModifiedEvent)
+    {
+    }
+  }
+  if (caller->IsA("vtkMRMLChannel25GeometryNode"))
+  {
+    vtkMRMLChannel25GeometryNode* channel25Geometry = vtkMRMLChannel25GeometryNode::SafeDownCast(caller);
+    if (event == vtkCommand::ModifiedEvent)
+    {
+      this->TableTopRobotLogic->UpdateRasToTableTopTransform(channel25Geometry);
+    }
+  }
 }
 
 //---------------------------------------------------------------------------
@@ -404,9 +441,26 @@ void vtkSlicerPatientPositioningLogic::UpdateFromMRMLScene()
 }
 
 //---------------------------------------------------------------------------
-void vtkSlicerPatientPositioningLogic
-::OnMRMLSceneNodeAdded(vtkMRMLNode* vtkNotUsed(node))
+void vtkSlicerPatientPositioningLogic::OnMRMLSceneNodeAdded(vtkMRMLNode* node)
 {
+  if (!node || !this->GetMRMLScene())
+  {
+    vtkErrorMacro("OnMRMLSceneNodeAdded: Invalid MRML scene or input node");
+    return;
+  }
+
+  if (node->IsA("vtkMRMLPatientPositioningNode"))
+  {
+    vtkNew<vtkIntArray> events;
+    events->InsertNextValue(vtkCommand::ModifiedEvent);
+    vtkObserveMRMLNodeEventsMacro(node, events);
+  }
+  if (node->IsA("vtkMRMLChannel25GeometryNode"))
+  {
+    vtkNew<vtkIntArray> events;
+    events->InsertNextValue(vtkCommand::ModifiedEvent);
+    vtkObserveMRMLNodeEventsMacro(node, events);
+  }
 }
 
 //---------------------------------------------------------------------------
@@ -560,7 +614,6 @@ vtkSlicerPatientPositioningLogic::LoadTreatmentMachine(vtkMRMLChannel25GeometryN
     vtkErrorMacro("LoadTreatmentMachine: Invalid scene");
     return std::vector<CoordSys>();
   }
-  vtkWarningMacro("LoadTreatmentMachine: 1");
   vtkMRMLSubjectHierarchyNode* shNode = scene->GetSubjectHierarchyNode();
   if (!shNode)
   {
@@ -572,13 +625,11 @@ vtkSlicerPatientPositioningLogic::LoadTreatmentMachine(vtkMRMLChannel25GeometryN
     vtkErrorMacro("LoadTreatmentMachine: Invalid parameter node");
     return std::vector<CoordSys>();
   }
-  vtkWarningMacro("LoadTreatmentMachine: 2");
 
   // Make sure the transform hierarchy is in place
   this->BuildRobotTableGeometryTransformHierarchy();
 
   std::string moduleShareDirectory = this->GetModuleShareDirectory();
-  vtkWarningMacro("LoadTreatmentMachine: 1 " << parameterNode->GetTreatmentMachineDescriptorFilePath());
   std::string descriptorFilePath(parameterNode->GetTreatmentMachineDescriptorFilePath());
   std::string machineType = this->Internal->GetTreatmentMachineFileNameWithoutExtension(parameterNode);
 
@@ -599,7 +650,6 @@ vtkSlicerPatientPositioningLogic::LoadTreatmentMachine(vtkMRMLChannel25GeometryN
     return std::vector<CoordSys>();
   }
   fclose(fp);
-  vtkWarningMacro("LoadTreatmentMachine: 3");
 
   // Create subject hierarchy folder so that the treatment machine can be shown/hidden easily
   std::string subjectHierarchyFolderName = machineType + std::string("_Components");
@@ -614,8 +664,6 @@ vtkSlicerPatientPositioningLogic::LoadTreatmentMachine(vtkMRMLChannel25GeometryN
     // Table top - mandatory
     this->Internal->EnsureTreatmentMachinePartModelNode(parameterNode, part);
   }
-  vtkWarningMacro("LoadTreatmentMachine: 5");
-
   // Setup treatment machine model display and transforms
   return this->SetupTreatmentMachineModels(parameterNode);
 }
@@ -637,7 +685,6 @@ vtkSlicerPatientPositioningLogic::SetupTreatmentMachineModels(vtkMRMLChannel25Ge
   {
     std::string partType = this->GetTreatmentMachinePartTypeAsString(partIdx);
     vtkMRMLModelNode* partModel = this->Internal->GetTreatmentMachinePartModelNode(parameterNode, partIdx);
-    vtkErrorMacro("SetupTreatmentMachineModels: 8 " << partIdx << " " << partType);
     if (!partModel || !partModel->GetPolyData())
     {
       switch (partIdx)
@@ -664,7 +711,6 @@ vtkSlicerPatientPositioningLogic::SetupTreatmentMachineModels(vtkMRMLChannel25Ge
       // Set color
       vtkVector3d partColor(this->GetColorForPartType(partType));
       partModel->CreateDefaultDisplayNodes();
-      vtkErrorMacro("SetupTreatmentMachineModels: Color: " << partColor[0] << " " << partColor[1] << " " << partColor[2]);
       partModel->GetDisplayNode()->SetColor((double)partColor[0] / 255.0, (double)partColor[1] / 255.0, (double)partColor[2] / 255.0);
 
       // Apply file to RAS transform matrix
@@ -689,109 +735,70 @@ vtkSlicerPatientPositioningLogic::SetupTreatmentMachineModels(vtkMRMLChannel25Ge
 
     if (partIdx == CoordSys::TableTop)
     {
-      vtkErrorMacro("SetupTreatmentMachineModels: P1");
-      vtkMRMLLinearTransformNode* tableTopToElbowTransformNode =
-        this->TableTopRobotLogic->GetTransformNodeBetween(CoordSys::TableTop, CoordSys::Wrist);
-      vtkErrorMacro("SetupTreatmentMachineModels: P2");
-      if (tableTopToElbowTransformNode)
+      this->TableTopRobotLogic->UpdatePatientToTableTopTransform(parameterNode);
+      vtkMRMLLinearTransformNode* rasToTableTopTransformNode = this->TableTopRobotLogic->UpdateRasToTableTopTransform(parameterNode);
+//        this->TableTopRobotLogic->GetTransformNodeBetween(CoordSys::TableTop, CoordSys::Wrist);
+      if (rasToTableTopTransformNode)
       {
-        vtkErrorMacro("SetupTreatmentMachineModels: P2.5");
-        partModel->SetAndObserveTransformNodeID(tableTopToElbowTransformNode->GetID());
+        partModel->SetAndObserveTransformNodeID(rasToTableTopTransformNode->GetID());
       }
-      vtkErrorMacro("SetupTreatmentMachineModels: P3");
 //      this->GantryTableTopCollisionDetection->SetInputData(1, partModel->GetPolyData());
 //      this->CollimatorTableTopCollisionDetection->SetInputData(1, partModel->GetPolyData());
     }
     else if (partIdx == CoordSys::FixedReference)
     {
-      vtkErrorMacro("SetupTreatmentMachineModels: P4");
-      vtkMRMLLinearTransformNode* fixedReferenceToRasTransformNode =
-        this->TableTopRobotLogic->GetTransformNodeBetween(CoordSys::FixedReference, CoordSys::RAS);
-      vtkErrorMacro("SetupTreatmentMachineModels: P5");
-      if (fixedReferenceToRasTransformNode)
+      this->TableTopRobotLogic->UpdatePatientToTableTopTransform(parameterNode);
+      vtkMRMLLinearTransformNode* rasToFixedReferenceTransformNode = this->TableTopRobotLogic->UpdateRasToFixedReferenceTransform(parameterNode);
+  //      this->TableTopRobotLogic->GetTransformNodeBetween(CoordSys::FixedReference, CoordSys::RAS);
+      if (rasToFixedReferenceTransformNode)
       {
-        vtkErrorMacro("SetupTreatmentMachineModels: P5.5");
-        partModel->SetAndObserveTransformNodeID(fixedReferenceToRasTransformNode->GetID());
+        partModel->SetAndObserveTransformNodeID(rasToFixedReferenceTransformNode->GetID());
       }
-      vtkErrorMacro("SetupTreatmentMachineModels: P6");
     }
     else if (partIdx == CoordSys::BaseFixed)
     {
-      vtkErrorMacro("SetupTreatmentMachineModels: P4");
-      vtkMRMLLinearTransformNode* baseFixedToFixedReferenceTransformNode =
-        this->TableTopRobotLogic->GetTransformNodeBetween(CoordSys::BaseFixed, CoordSys::FixedReference);
-      vtkErrorMacro("SetupTreatmentMachineModels: P5");
+      vtkMRMLLinearTransformNode* baseFixedToFixedReferenceTransformNode = this->TableTopRobotLogic->GetBaseFixedTransform();
+ //       this->TableTopRobotLogic->GetTransformNodeBetween(CoordSys::BaseFixed, CoordSys::FixedReference);
       if (baseFixedToFixedReferenceTransformNode)
       {
-        vtkErrorMacro("SetupTreatmentMachineModels: P5.5");
         partModel->SetAndObserveTransformNodeID(baseFixedToFixedReferenceTransformNode->GetID());
       }
-      vtkErrorMacro("SetupTreatmentMachineModels: P6");
     }
     else if (partIdx == CoordSys::BaseRotation)
     {
-      vtkErrorMacro("SetupTreatmentMachineModels: P4");
-      vtkMRMLLinearTransformNode* baseRotationToBaseFixedTransformNode =
-        this->TableTopRobotLogic->GetTransformNodeBetween(CoordSys::BaseRotation, CoordSys::BaseFixed);
-      vtkErrorMacro("SetupTreatmentMachineModels: P5");
+      vtkMRMLLinearTransformNode* baseRotationToBaseFixedTransformNode = this->TableTopRobotLogic->GetBaseRotationTransform();
+//        this->TableTopRobotLogic->GetTransformNodeBetween(CoordSys::BaseRotation, CoordSys::BaseFixed);
       if (baseRotationToBaseFixedTransformNode)
       {
-        vtkErrorMacro("SetupTreatmentMachineModels: P5.5");
         partModel->SetAndObserveTransformNodeID(baseRotationToBaseFixedTransformNode->GetID());
       }
-      vtkErrorMacro("SetupTreatmentMachineModels: P6");
     }
     else if (partIdx == CoordSys::Shoulder)
     {
-      vtkErrorMacro("SetupTreatmentMachineModels: P4");
-      vtkMRMLLinearTransformNode* shoulderToBaseRotationTransformNode =
-        this->TableTopRobotLogic->GetTransformNodeBetween(CoordSys::Shoulder, CoordSys::BaseRotation);
-      vtkErrorMacro("SetupTreatmentMachineModels: P5");
+      vtkMRMLLinearTransformNode* shoulderToBaseRotationTransformNode = this->TableTopRobotLogic->GetShoulderTransform();
+//        this->TableTopRobotLogic->GetTransformNodeBetween(CoordSys::Shoulder, CoordSys::BaseRotation);
       if (shoulderToBaseRotationTransformNode)
       {
-        vtkErrorMacro("SetupTreatmentMachineModels: P5.5");
         partModel->SetAndObserveTransformNodeID(shoulderToBaseRotationTransformNode->GetID());
       }
-      vtkErrorMacro("SetupTreatmentMachineModels: P6");
-    }
-    else if (partIdx == CoordSys::Shoulder)
-    {
-      vtkErrorMacro("SetupTreatmentMachineModels: P4");
-      vtkMRMLLinearTransformNode* shoulderToBaseRotationTransformNode =
-        this->TableTopRobotLogic->GetTransformNodeBetween(CoordSys::Shoulder, CoordSys::BaseRotation);
-      vtkErrorMacro("SetupTreatmentMachineModels: P5");
-      if (shoulderToBaseRotationTransformNode)
-      {
-        vtkErrorMacro("SetupTreatmentMachineModels: P5.5");
-        partModel->SetAndObserveTransformNodeID(shoulderToBaseRotationTransformNode->GetID());
-      }
-      vtkErrorMacro("SetupTreatmentMachineModels: P6");
     }
     else if (partIdx == CoordSys::Elbow)
     {
-      vtkErrorMacro("SetupTreatmentMachineModels: P4");
-      vtkMRMLLinearTransformNode* elbowToShoulderTransformNode =
-        this->TableTopRobotLogic->GetTransformNodeBetween(CoordSys::Elbow, CoordSys::Shoulder);
-      vtkErrorMacro("SetupTreatmentMachineModels: P5");
+      vtkMRMLLinearTransformNode* elbowToShoulderTransformNode = this->TableTopRobotLogic->GetElbowTransform();
+//        this->TableTopRobotLogic->GetTransformNodeBetween(CoordSys::Elbow, CoordSys::Shoulder);
       if (elbowToShoulderTransformNode)
       {
-        vtkErrorMacro("SetupTreatmentMachineModels: P5.5");
         partModel->SetAndObserveTransformNodeID(elbowToShoulderTransformNode->GetID());
       }
-      vtkErrorMacro("SetupTreatmentMachineModels: P6");
     }
     else if (partIdx == CoordSys::Wrist)
     {
-      vtkErrorMacro("SetupTreatmentMachineModels: P4");
-      vtkMRMLLinearTransformNode* wristToElbowTransformNode =
-        this->TableTopRobotLogic->GetTransformNodeBetween(CoordSys::Wrist, CoordSys::Elbow);
-      vtkErrorMacro("SetupTreatmentMachineModels: P5");
+      vtkMRMLLinearTransformNode* wristToElbowTransformNode = this->TableTopRobotLogic->GetWristTransform();
+//        this->TableTopRobotLogic->GetTransformNodeBetween(CoordSys::Wrist, CoordSys::Elbow);
       if (wristToElbowTransformNode)
       {
-        vtkErrorMacro("SetupTreatmentMachineModels: P5.5");
         partModel->SetAndObserveTransformNodeID(wristToElbowTransformNode->GetID());
       }
-      vtkErrorMacro("SetupTreatmentMachineModels: P6");
     }
   }
 /*

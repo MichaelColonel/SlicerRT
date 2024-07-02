@@ -52,11 +52,16 @@ public slots:
 
   void onParameterNodeChanged(vtkMRMLNode* parameterNode);
   void onLoadTreatmentMachineButtonClicked();
+  void onPatientSupportRotationAngleChanged(double angle);
+  void onPatientTableTopTranslationChanged(double* position);
+  void onTableTopRobotAnglesChanged(double* a);
   void onTableTopRobotA1Changed(double a1);
-//  void onXrayProjectionButtonGroupChanged(QAbstractButton* but);
-//  void onSetImagesToSliceViewClicked();
-//  void onXrayImageNodeChanged(vtkMRMLNode* xrayImageNode);
-//  void onDrrNodeChanged(vtkMRMLNode* xrayImageNode);
+  void onTableTopRobotA2Changed(double a2);
+  void onTableTopRobotA3Changed(double a3);
+  void onTableTopRobotA4Changed(double a4);
+  void onTableTopRobotA5Changed(double a5);
+  void onTableTopRobotA6Changed(double a6);
+  void onRotatePatientHeadFeetToggled(bool toggled);
 
   /// Update widget GUI from PatientPositioning parameters node
   void updateWidgetFromMRML();
