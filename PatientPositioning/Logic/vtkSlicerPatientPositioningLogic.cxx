@@ -426,6 +426,11 @@ void vtkSlicerPatientPositioningLogic::ProcessMRMLNodesEvents(vtkObject* caller,
     vtkMRMLChannel25GeometryNode* channel25Geometry = vtkMRMLChannel25GeometryNode::SafeDownCast(caller);
     if (event == vtkCommand::ModifiedEvent)
     {
+      double a[6] = {};
+      channel25Geometry->GetTableTopRobotAngles(a);
+      vtkErrorMacro("ProcessMRMLNodesEvents: A6 " << a[5]);
+      this->TableTopRobotLogic->UpdateRasToElbowTransform(channel25Geometry);
+      this->TableTopRobotLogic->UpdateRasToWristTransform(channel25Geometry);
       this->TableTopRobotLogic->UpdateRasToTableTopTransform(channel25Geometry);
     }
   }
@@ -784,20 +789,22 @@ vtkSlicerPatientPositioningLogic::SetupTreatmentMachineModels(vtkMRMLChannel25Ge
     }
     else if (partIdx == CoordSys::Elbow)
     {
-      vtkMRMLLinearTransformNode* elbowToShoulderTransformNode = this->TableTopRobotLogic->GetElbowTransform();
+      this->TableTopRobotLogic->UpdateWristToElbowTransform(parameterNode);
+      vtkMRMLLinearTransformNode* rasToElbowTransformNode = this->TableTopRobotLogic->GetElbowTransform();
 //        this->TableTopRobotLogic->GetTransformNodeBetween(CoordSys::Elbow, CoordSys::Shoulder);
-      if (elbowToShoulderTransformNode)
+      if (rasToElbowTransformNode)
       {
-        partModel->SetAndObserveTransformNodeID(elbowToShoulderTransformNode->GetID());
+        partModel->SetAndObserveTransformNodeID(rasToElbowTransformNode->GetID());
       }
     }
     else if (partIdx == CoordSys::Wrist)
     {
-      vtkMRMLLinearTransformNode* wristToElbowTransformNode = this->TableTopRobotLogic->GetWristTransform();
+      this->TableTopRobotLogic->UpdateTableTopToWristTransform(parameterNode);
+      vtkMRMLLinearTransformNode* rasToWristTransformNode = this->TableTopRobotLogic->GetWristTransform();
 //        this->TableTopRobotLogic->GetTransformNodeBetween(CoordSys::Wrist, CoordSys::Elbow);
-      if (wristToElbowTransformNode)
+      if (rasToWristTransformNode)
       {
-        partModel->SetAndObserveTransformNodeID(wristToElbowTransformNode->GetID());
+        partModel->SetAndObserveTransformNodeID(rasToWristTransformNode->GetID());
       }
     }
   }

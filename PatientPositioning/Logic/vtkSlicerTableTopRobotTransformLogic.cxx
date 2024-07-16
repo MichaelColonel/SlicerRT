@@ -718,13 +718,13 @@ vtkMRMLLinearTransformNode* vtkSlicerTableTopRobotTransformLogic::UpdateRasToFix
 {
   if (!parameterNode)
   {
-    vtkErrorMacro("UpdateRasToTableTopTransform: Invalid parameter node");
+    vtkErrorMacro("UpdateRasToFixedReferenceTransform: Invalid parameter node");
     return nullptr;
   }
   vtkMRMLScene* scene = this->GetMRMLScene();
   if (!scene)
   {
-    vtkErrorMacro("UpdateRasToTableTopTransform: Invalid MRML scene");
+    vtkErrorMacro("UpdateRasToFixedReferenceTransform: Invalid MRML scene");
     return nullptr;
   }
 
@@ -752,7 +752,7 @@ vtkMRMLLinearTransformNode* vtkSlicerTableTopRobotTransformLogic::UpdateRasToFix
   {
     rasToFixedReferenceTransformNode = vtkSmartPointer<vtkMRMLLinearTransformNode>::New();
     rasToFixedReferenceTransformNode->SetName("RasToFixedReferenceTransform");
-    rasToFixedReferenceTransformNode->SetHideFromEditors(1);
+//    rasToFixedReferenceTransformNode->SetHideFromEditors(1);
     std::string singletonTag = std::string("TTR_") + "RasToFixedReferenceTransform";
     rasToFixedReferenceTransformNode->SetSingletonTag(singletonTag.c_str());
     scene->AddNode(rasToFixedReferenceTransformNode);
@@ -771,6 +771,126 @@ vtkMRMLLinearTransformNode* vtkSlicerTableTopRobotTransformLogic::UpdateRasToFix
     rasToFixedReferenceTransformNode->SetAndObserveTransformToParent(rasToFixedReferenceTransform);
   }
   return rasToFixedReferenceTransformNode;
+}
+
+//------------------------------------------------------------------------------
+vtkMRMLLinearTransformNode* vtkSlicerTableTopRobotTransformLogic::UpdateRasToWristTransform(vtkMRMLChannel25GeometryNode* parameterNode)
+{
+  if (!parameterNode)
+  {
+    vtkErrorMacro("UpdateRasToWristTransform: Invalid parameter node");
+    return nullptr;
+  }
+  vtkMRMLScene* scene = this->GetMRMLScene();
+  if (!scene)
+  {
+    vtkErrorMacro("UpdateRasToWristTransform: Invalid MRML scene");
+    return nullptr;
+  }
+
+  // Display all pieces of the treatment room and sets each piece a color to provide realistic representation
+  using CoordSys = CoordinateSystemIdentifier;
+
+  // Transform IHEP stand models (IEC Patient) to RAS
+  vtkNew<vtkTransform> patientToRasTransform;
+  patientToRasTransform->RotateX(-90.);
+  if (!parameterNode->GetPatientHeadFeetRotation())
+  {
+    patientToRasTransform->RotateZ(180.);
+  }
+
+  // Wrist -> RAS
+  // Wrist - mandatory
+  // Transform path: RAS -> Patient -> TableTop -> Wrist
+  // Find RasToWristTransform or create it
+  vtkSmartPointer<vtkMRMLLinearTransformNode> rasToWristTransformNode;
+  if (vtkMRMLNode* node = scene->GetFirstNodeByName("RasToWristTransform"))
+  {
+    rasToWristTransformNode = vtkMRMLLinearTransformNode::SafeDownCast(node);
+  }
+  else
+  {
+    rasToWristTransformNode = vtkSmartPointer<vtkMRMLLinearTransformNode>::New();
+    rasToWristTransformNode->SetName("RasToWristTransform");
+//    rasToWristTransformNode->SetHideFromEditors(1);
+    std::string singletonTag = std::string("TTR_") + "RasToWristTransform";
+    rasToWristTransformNode->SetSingletonTag(singletonTag.c_str());
+    scene->AddNode(rasToWristTransformNode);
+  }
+
+  vtkNew<vtkTransform> rasToWristTransform;
+  if (this->GetTransformBetween( CoordSys::RAS, CoordSys::Wrist, 
+    rasToWristTransform, false))
+  {
+    vtkWarningMacro("UpdateRasToWristTransform: RAS->Wrist transform updated");
+    // Transform to RAS, set transform to node, transform the model
+    rasToWristTransform->Concatenate(patientToRasTransform);
+  }
+  if (rasToWristTransformNode)
+  {
+    rasToWristTransformNode->SetAndObserveTransformToParent(rasToWristTransform);
+  }
+  return rasToWristTransformNode;
+}
+
+//------------------------------------------------------------------------------
+vtkMRMLLinearTransformNode* vtkSlicerTableTopRobotTransformLogic::UpdateRasToElbowTransform(vtkMRMLChannel25GeometryNode* parameterNode)
+{
+  if (!parameterNode)
+  {
+    vtkErrorMacro("UpdateRasToElbowTransform: Invalid parameter node");
+    return nullptr;
+  }
+  vtkMRMLScene* scene = this->GetMRMLScene();
+  if (!scene)
+  {
+    vtkErrorMacro("UpdateRasToElbowTransform: Invalid MRML scene");
+    return nullptr;
+  }
+
+  // Display all pieces of the treatment room and sets each piece a color to provide realistic representation
+  using CoordSys = CoordinateSystemIdentifier;
+
+  // Transform IHEP stand models (IEC Patient) to RAS
+  vtkNew<vtkTransform> patientToRasTransform;
+  patientToRasTransform->RotateX(-90.);
+  if (!parameterNode->GetPatientHeadFeetRotation())
+  {
+    patientToRasTransform->RotateZ(180.);
+  }
+
+  // Wrist -> RAS
+  // Wrist - mandatory
+  // Transform path: RAS -> Patient -> TableTop -> Wrist -> Elbow
+  // Find RasToWristTransform or create it
+  vtkSmartPointer<vtkMRMLLinearTransformNode> rasToElbowTransformNode;
+  if (vtkMRMLNode* node = scene->GetFirstNodeByName("RasToElbowTransform"))
+  {
+    rasToElbowTransformNode = vtkMRMLLinearTransformNode::SafeDownCast(node);
+  }
+  else
+  {
+    rasToElbowTransformNode = vtkSmartPointer<vtkMRMLLinearTransformNode>::New();
+    rasToElbowTransformNode->SetName("RasToElbowTransform");
+//    rasToWristTransformNode->SetHideFromEditors(1);
+    std::string singletonTag = std::string("TTR_") + "RasToElbowTransform";
+    rasToElbowTransformNode->SetSingletonTag(singletonTag.c_str());
+    scene->AddNode(rasToElbowTransformNode);
+  }
+
+  vtkNew<vtkTransform> rasToElbowTransform;
+  if (this->GetTransformBetween( CoordSys::RAS, CoordSys::Elbow, 
+    rasToElbowTransform, false))
+  {
+    vtkWarningMacro("UpdateRasToWristTransform: RAS->Wrist transform updated");
+    // Transform to RAS, set transform to node, transform the model
+    rasToElbowTransform->Concatenate(patientToRasTransform);
+  }
+  if (rasToElbowTransformNode)
+  {
+    rasToElbowTransformNode->SetAndObserveTransformToParent(rasToElbowTransform);
+  }
+  return rasToElbowTransformNode;
 }
 
 //----------------------------------------------------------------------------
@@ -855,9 +975,14 @@ void vtkSlicerTableTopRobotTransformLogic::UpdateTableTopToWristTransform(vtkMRM
 
   if (tableTopToWristTransformNode)
   {
-    double tableTopToWristTranslation[3] = { 0., 0., 30. };
+    vtkErrorMacro("UpdateTableTopToWristTransform: 1");
     vtkNew<vtkTransform> tableTopToWristTransform;
-    tableTopToWristTransform->Translate(tableTopToWristTranslation);
+    double a[6] = {};
+    parameterNode->GetTableTopRobotAngles(a);
+    double ttw[3] = {};
+    parameterNode->GetTableTopToWristTranslation(ttw);
+//    tableTopToWristTransform->RotateZ(a[5]);
+    tableTopToWristTransform->Translate(ttw);
     tableTopToWristTransformNode->SetAndObserveTransformToParent(tableTopToWristTransform);
   }
 }
@@ -887,6 +1012,7 @@ void vtkSlicerTableTopRobotTransformLogic::UpdateWristToElbowTransform(vtkMRMLCh
     parameterNode->GetTableTopRobotAngles(a);
     vtkNew<vtkTransform> wristToElbowTransform;
     wristToElbowTransform->RotateY(a[5]);
+    wristToElbowTransform->RotateZ(a[4]);
     wristToElbowTransformNode->SetAndObserveTransformToParent(wristToElbowTransform);
   }
 }
@@ -915,7 +1041,7 @@ void vtkSlicerTableTopRobotTransformLogic::UpdateElbowToShoulderTransform(vtkMRM
     double a[6] = {};
     parameterNode->GetTableTopRobotAngles(a);
     vtkNew<vtkTransform> elbowToShoulderTransform;
-    elbowToShoulderTransform->RotateY(a[4]);
+    elbowToShoulderTransform->RotateY(a[3]);
     elbowToShoulderTransformNode->SetAndObserveTransformToParent(elbowToShoulderTransform);
   }
 }

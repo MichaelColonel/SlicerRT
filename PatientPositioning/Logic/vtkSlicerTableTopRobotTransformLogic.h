@@ -123,6 +123,10 @@ public:
   vtkMRMLLinearTransformNode* GetTableTopTransform();
   /// Update (or create if absent) RAS to TableTop transform
   vtkMRMLLinearTransformNode* UpdateRasToTableTopTransform(vtkMRMLChannel25GeometryNode* parameterNode);
+  /// Update (or create if absent) RAS to Wrist transform
+  vtkMRMLLinearTransformNode* UpdateRasToWristTransform(vtkMRMLChannel25GeometryNode* parameterNode);
+  /// Update (or create if absent) RAS to Elbow transform
+  vtkMRMLLinearTransformNode* UpdateRasToElbowTransform(vtkMRMLChannel25GeometryNode* parameterNode);
   /// Update (or create if absent) RAS to FixedReference transform
   vtkMRMLLinearTransformNode* UpdateRasToFixedReferenceTransform(vtkMRMLChannel25GeometryNode* parameterNode);
 

@@ -152,6 +152,8 @@ void qSlicerPatientPositioningModuleWidget::setup()
   // Widgets
   connect( d->SliderWidget_TableRobotA1, SIGNAL(valueChanged(double)), 
     this, SLOT(onTableTopRobotA1Changed(double)));
+  connect( d->SliderWidget_TableRobotA6, SIGNAL(valueChanged(double)), 
+    this, SLOT(onTableTopRobotA6Changed(double)));
   connect( d->CoordinatesWidget_PatientTableTopTranslation, SIGNAL(coordinatesChanged(double*)),
     this, SLOT(onPatientTableTopTranslationChanged(double*)));
 }
@@ -667,6 +669,35 @@ void qSlicerPatientPositioningModuleWidget::onTableTopRobotA5Changed(double a5)
 //-----------------------------------------------------------------------------
 void qSlicerPatientPositioningModuleWidget::onTableTopRobotA6Changed(double a6)
 {
+  Q_D(qSlicerPatientPositioningModuleWidget);
+  if (!this->mrmlScene())
+  {
+    qCritical() << Q_FUNC_INFO << ": Invalid scene";
+    return;
+  }
+
+  if (!d->Channel25GeometryNode)
+  {
+    qCritical() << Q_FUNC_INFO << ": Parameter node is invalid!";
+    return;
+  }
+  qCritical() << Q_FUNC_INFO << ": Angle " << a6;
+  double a[6] = {};
+  d->Channel25GeometryNode->GetTableTopRobotAngles(a);
+  d->Channel25GeometryNode->DisableModifiedEventOn();
+  a[5] = a6;
+  d->Channel25GeometryNode->SetTableTopRobotAngles(a);
+  d->Channel25GeometryNode->DisableModifiedEventOff();
+//  d->tableTopRobotLogic()->UpdateTableTopToWristTransform(d->Channel25GeometryNode);
+//  d->Channel25GeometryNode->Modified();
+
+  // Update IEC transform
+  vtkSlicerTableTopRobotTransformLogic* tableTopRobotLogic = d->tableTopRobotLogic();
+//  tableTopRobotLogic->UpdateFixedReferenceToRASTransform(channelNode);
+//  tableTopRobotLogic->ResetRasToPatientIsocenterTranslate();
+  tableTopRobotLogic->UpdateTableTopToWristTransform(d->Channel25GeometryNode);
+//  d->logic()->GetIECLogic()->UpdateFixedReferenceToRASTransform(d->currentPlanNode(paramNode));
+  d->Channel25GeometryNode->Modified();
 }
 
 //-----------------------------------------------------------------------------
@@ -677,8 +708,9 @@ void qSlicerPatientPositioningModuleWidget::onTableTopRobotAnglesChanged(double*
 //-----------------------------------------------------------------------------
 void qSlicerPatientPositioningModuleWidget::onPatientSupportRotationAngleChanged(double angle)
 {
-  Q_D(qSlicerPatientPositioningModuleWidget);
 /*
+  Q_D(qSlicerPatientPositioningModuleWidget);
+
   if (!this->mrmlScene())
   {
     qCritical() << Q_FUNC_INFO << ": Invalid scene";
