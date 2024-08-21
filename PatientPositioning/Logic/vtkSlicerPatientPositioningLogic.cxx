@@ -426,12 +426,13 @@ void vtkSlicerPatientPositioningLogic::ProcessMRMLNodesEvents(vtkObject* caller,
     vtkMRMLChannel25GeometryNode* channel25Geometry = vtkMRMLChannel25GeometryNode::SafeDownCast(caller);
     if (event == vtkCommand::ModifiedEvent)
     {
-      double a[6] = {};
-      channel25Geometry->GetTableTopRobotAngles(a);
-      vtkErrorMacro("ProcessMRMLNodesEvents: A6 " << a[5]);
-      this->TableTopRobotLogic->UpdateRasToElbowTransform(channel25Geometry);
-      this->TableTopRobotLogic->UpdateRasToWristTransform(channel25Geometry);
       this->TableTopRobotLogic->UpdateRasToTableTopTransform(channel25Geometry);
+      this->TableTopRobotLogic->UpdateRasToWristTransform(channel25Geometry);
+      this->TableTopRobotLogic->UpdateRasToElbowTransform(channel25Geometry);
+      this->TableTopRobotLogic->UpdateRasToShoulderTransform(channel25Geometry);
+      this->TableTopRobotLogic->UpdateRasToBaseRotationTransform(channel25Geometry);
+      this->TableTopRobotLogic->UpdateRasToBaseFixedTransform(channel25Geometry);
+      this->TableTopRobotLogic->UpdateRasToFixedReferenceTransform(channel25Geometry);
     }
   }
 }
@@ -606,6 +607,7 @@ void vtkSlicerPatientPositioningLogic::BuildRobotTableGeometryTransformHierarchy
 
   // Build IHEP hierarchy
   this->TableTopRobotLogic->BuildTableRobotTransformHierarchy();
+  this->TableTopRobotLogic->ResetToInitialPositions();
 }
 
 //----------------------------------------------------------------------------
@@ -738,23 +740,10 @@ vtkSlicerPatientPositioningLogic::SetupTreatmentMachineModels(vtkMRMLChannel25Ge
       }
     }
 
-    if (partIdx == CoordSys::TableTop)
+    if (partIdx == CoordSys::FixedReference)
     {
-      this->TableTopRobotLogic->UpdatePatientToTableTopTransform(parameterNode);
-      vtkMRMLLinearTransformNode* rasToTableTopTransformNode = this->TableTopRobotLogic->UpdateRasToTableTopTransform(parameterNode);
-//        this->TableTopRobotLogic->GetTransformNodeBetween(CoordSys::TableTop, CoordSys::Wrist);
-      if (rasToTableTopTransformNode)
-      {
-        partModel->SetAndObserveTransformNodeID(rasToTableTopTransformNode->GetID());
-      }
-//      this->GantryTableTopCollisionDetection->SetInputData(1, partModel->GetPolyData());
-//      this->CollimatorTableTopCollisionDetection->SetInputData(1, partModel->GetPolyData());
-    }
-    else if (partIdx == CoordSys::FixedReference)
-    {
-      this->TableTopRobotLogic->UpdatePatientToTableTopTransform(parameterNode);
+      this->TableTopRobotLogic->UpdateBaseFixedToFixedReferenceTransform(parameterNode);
       vtkMRMLLinearTransformNode* rasToFixedReferenceTransformNode = this->TableTopRobotLogic->UpdateRasToFixedReferenceTransform(parameterNode);
-  //      this->TableTopRobotLogic->GetTransformNodeBetween(CoordSys::FixedReference, CoordSys::RAS);
       if (rasToFixedReferenceTransformNode)
       {
         partModel->SetAndObserveTransformNodeID(rasToFixedReferenceTransformNode->GetID());
@@ -762,36 +751,35 @@ vtkSlicerPatientPositioningLogic::SetupTreatmentMachineModels(vtkMRMLChannel25Ge
     }
     else if (partIdx == CoordSys::BaseFixed)
     {
-      vtkMRMLLinearTransformNode* baseFixedToFixedReferenceTransformNode = this->TableTopRobotLogic->GetBaseFixedTransform();
- //       this->TableTopRobotLogic->GetTransformNodeBetween(CoordSys::BaseFixed, CoordSys::FixedReference);
-      if (baseFixedToFixedReferenceTransformNode)
+      this->TableTopRobotLogic->UpdateBaseRotationToBaseFixedTransform(parameterNode);
+      vtkMRMLLinearTransformNode* rasToBaseFixedTransformNode = this->TableTopRobotLogic->UpdateRasToBaseFixedTransform(parameterNode);
+      if (rasToBaseFixedTransformNode)
       {
-        partModel->SetAndObserveTransformNodeID(baseFixedToFixedReferenceTransformNode->GetID());
+        partModel->SetAndObserveTransformNodeID(rasToBaseFixedTransformNode->GetID());
       }
     }
     else if (partIdx == CoordSys::BaseRotation)
     {
-      vtkMRMLLinearTransformNode* baseRotationToBaseFixedTransformNode = this->TableTopRobotLogic->GetBaseRotationTransform();
-//        this->TableTopRobotLogic->GetTransformNodeBetween(CoordSys::BaseRotation, CoordSys::BaseFixed);
-      if (baseRotationToBaseFixedTransformNode)
+      this->TableTopRobotLogic->UpdateShoulderToBaseRotationTransform(parameterNode);
+      vtkMRMLLinearTransformNode* rasToBaseRotationTransformNode = this->TableTopRobotLogic->UpdateRasToBaseRotationTransform(parameterNode);
+      if (rasToBaseRotationTransformNode)
       {
-        partModel->SetAndObserveTransformNodeID(baseRotationToBaseFixedTransformNode->GetID());
+        partModel->SetAndObserveTransformNodeID(rasToBaseRotationTransformNode->GetID());
       }
     }
     else if (partIdx == CoordSys::Shoulder)
     {
-      vtkMRMLLinearTransformNode* shoulderToBaseRotationTransformNode = this->TableTopRobotLogic->GetShoulderTransform();
-//        this->TableTopRobotLogic->GetTransformNodeBetween(CoordSys::Shoulder, CoordSys::BaseRotation);
-      if (shoulderToBaseRotationTransformNode)
+      this->TableTopRobotLogic->UpdateElbowToShoulderTransform(parameterNode);
+      vtkMRMLLinearTransformNode* rasToShoulderTransformNode = this->TableTopRobotLogic->UpdateRasToShoulderTransform(parameterNode);
+      if (rasToShoulderTransformNode)
       {
-        partModel->SetAndObserveTransformNodeID(shoulderToBaseRotationTransformNode->GetID());
+        partModel->SetAndObserveTransformNodeID(rasToShoulderTransformNode->GetID());
       }
     }
     else if (partIdx == CoordSys::Elbow)
     {
       this->TableTopRobotLogic->UpdateWristToElbowTransform(parameterNode);
-      vtkMRMLLinearTransformNode* rasToElbowTransformNode = this->TableTopRobotLogic->GetElbowTransform();
-//        this->TableTopRobotLogic->GetTransformNodeBetween(CoordSys::Elbow, CoordSys::Shoulder);
+      vtkMRMLLinearTransformNode* rasToElbowTransformNode = this->TableTopRobotLogic->UpdateRasToElbowTransform(parameterNode);
       if (rasToElbowTransformNode)
       {
         partModel->SetAndObserveTransformNodeID(rasToElbowTransformNode->GetID());
@@ -800,11 +788,19 @@ vtkSlicerPatientPositioningLogic::SetupTreatmentMachineModels(vtkMRMLChannel25Ge
     else if (partIdx == CoordSys::Wrist)
     {
       this->TableTopRobotLogic->UpdateTableTopToWristTransform(parameterNode);
-      vtkMRMLLinearTransformNode* rasToWristTransformNode = this->TableTopRobotLogic->GetWristTransform();
-//        this->TableTopRobotLogic->GetTransformNodeBetween(CoordSys::Wrist, CoordSys::Elbow);
+      vtkMRMLLinearTransformNode* rasToWristTransformNode = this->TableTopRobotLogic->UpdateRasToWristTransform(parameterNode);
       if (rasToWristTransformNode)
       {
         partModel->SetAndObserveTransformNodeID(rasToWristTransformNode->GetID());
+      }
+    }
+    else if (partIdx == CoordSys::TableTop)
+    {
+      this->TableTopRobotLogic->UpdatePatientToTableTopTransform(parameterNode);
+      vtkMRMLLinearTransformNode* rasToTableTopTransformNode = this->TableTopRobotLogic->UpdateRasToTableTopTransform(parameterNode);
+      if (rasToTableTopTransformNode)
+      {
+        partModel->SetAndObserveTransformNodeID(rasToTableTopTransformNode->GetID());
       }
     }
   }

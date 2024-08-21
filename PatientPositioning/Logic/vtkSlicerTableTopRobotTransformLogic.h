@@ -42,7 +42,6 @@ class vtkMRMLChannel25GeometryNode;
 class VTK_SLICER_PATIENTPOSITIONING_MODULE_LOGIC_EXPORT vtkSlicerTableTopRobotTransformLogic : public vtkMRMLAbstractLogic
 {
 public:
-
   enum CoordinateSystemIdentifier : int
   {
     RAS = 0,
@@ -91,6 +90,7 @@ public:
     const double fromFramePoint[3], double toFramePoint[3], bool transformForBeam = true);
 
   /// Reset RAS to Patient isocenter translate, required for correct
+  void ResetToInitialPositions();
   /// IHEP stand models transforms 
   void ResetRasToPatientIsocenterTranslate();
   /// Restore RAS to Patient isocenter translate
@@ -123,10 +123,16 @@ public:
   vtkMRMLLinearTransformNode* GetTableTopTransform();
   /// Update (or create if absent) RAS to TableTop transform
   vtkMRMLLinearTransformNode* UpdateRasToTableTopTransform(vtkMRMLChannel25GeometryNode* parameterNode);
-  /// Update (or create if absent) RAS to Wrist transform
-  vtkMRMLLinearTransformNode* UpdateRasToWristTransform(vtkMRMLChannel25GeometryNode* parameterNode);
+  /// Update (or create if absent) RAS to BaseFixed transform
+  vtkMRMLLinearTransformNode* UpdateRasToBaseFixedTransform(vtkMRMLChannel25GeometryNode* parameterNode);
+  /// Update (or create if absent) RAS to BaseRotation transform
+  vtkMRMLLinearTransformNode* UpdateRasToBaseRotationTransform(vtkMRMLChannel25GeometryNode* parameterNode);
+  /// Update (or create if absent) RAS to Shoulder transform
+  vtkMRMLLinearTransformNode* UpdateRasToShoulderTransform(vtkMRMLChannel25GeometryNode* parameterNode);
   /// Update (or create if absent) RAS to Elbow transform
   vtkMRMLLinearTransformNode* UpdateRasToElbowTransform(vtkMRMLChannel25GeometryNode* parameterNode);
+  /// Update (or create if absent) RAS to Wrist transform
+  vtkMRMLLinearTransformNode* UpdateRasToWristTransform(vtkMRMLChannel25GeometryNode* parameterNode);
   /// Update (or create if absent) RAS to FixedReference transform
   vtkMRMLLinearTransformNode* UpdateRasToFixedReferenceTransform(vtkMRMLChannel25GeometryNode* parameterNode);
 
