@@ -713,7 +713,7 @@ void qSlicerPatientPositioningModuleWidget::onTableTopRobotA4Changed(double a4)
   // Update IEC transform
   vtkSlicerTableTopRobotTransformLogic* tableTopRobotLogic = d->tableTopRobotLogic();
   tableTopRobotLogic->UpdateWristToElbowTransform(d->Channel25GeometryNode);
-  tableTopRobotLogic->UpdateElbowToShoulderTransform(d->Channel25GeometryNode);
+//  tableTopRobotLogic->UpdateElbowToShoulderTransform(d->Channel25GeometryNode);
   d->Channel25GeometryNode->Modified();
 }
 
@@ -743,7 +743,7 @@ void qSlicerPatientPositioningModuleWidget::onTableTopRobotA5Changed(double a5)
   // Update IEC transform
   vtkSlicerTableTopRobotTransformLogic* tableTopRobotLogic = d->tableTopRobotLogic();
   tableTopRobotLogic->UpdateWristToElbowTransform(d->Channel25GeometryNode);
-  tableTopRobotLogic->UpdateElbowToShoulderTransform(d->Channel25GeometryNode);
+//  tableTopRobotLogic->UpdateElbowToShoulderTransform(d->Channel25GeometryNode);
   d->Channel25GeometryNode->Modified();
 }
 
@@ -776,8 +776,9 @@ void qSlicerPatientPositioningModuleWidget::onTableTopRobotA6Changed(double a6)
   vtkSlicerTableTopRobotTransformLogic* tableTopRobotLogic = d->tableTopRobotLogic();
 //  tableTopRobotLogic->UpdateFixedReferenceToRASTransform(channelNode);
 //  tableTopRobotLogic->ResetRasToPatientIsocenterTranslate();
-  tableTopRobotLogic->UpdateTableTopToWristTransform(d->Channel25GeometryNode);
-  tableTopRobotLogic->UpdateElbowToShoulderTransform(d->Channel25GeometryNode);
+  tableTopRobotLogic->UpdateTableTopToFlangeTransform(d->Channel25GeometryNode);
+  tableTopRobotLogic->UpdateFlangeToWristTransform(d->Channel25GeometryNode);
+//  tableTopRobotLogic->UpdateElbowToShoulderTransform(d->Channel25GeometryNode);
 //  d->logic()->GetIECLogic()->UpdateFixedReferenceToRASTransform(d->currentPlanNode(paramNode));
   d->Channel25GeometryNode->Modified();
 }
@@ -836,7 +837,7 @@ void qSlicerPatientPositioningModuleWidget::onPatientTableTopTranslationChanged(
   d->Channel25GeometryNode->SetPatientToTableTopTranslation(position);
   d->Channel25GeometryNode->DisableModifiedEventOff();
   d->tableTopRobotLogic()->UpdatePatientToTableTopTransform(d->Channel25GeometryNode);
-  d->tableTopRobotLogic()->UpdateElbowToShoulderTransform(d->Channel25GeometryNode);
+  d->tableTopRobotLogic()->UpdateTableTopToFlangeTransform(d->Channel25GeometryNode);
   d->Channel25GeometryNode->Modified();
 }
 

@@ -51,6 +51,7 @@ public:
     Shoulder, // Rotation along Y-axis of BaseRotation
     Elbow, // Rotation along Y-axis of Shoulder
     Wrist, // Rotation along Y-axis of Elbow
+    Flange, // Mounted under the Table Top center
     TableTop, // Translate from Wrist flange center to Table Top center
     Patient, // Translate from Table Top center to Patient center
     CoordinateSystemIdentifier_Last // Last index used for adding more coordinate systems externally
@@ -102,8 +103,10 @@ public:
   /// Update BaseFixedToFixedReference transform based on translation
   /// Apply new BaseFixed to FixedReference translate (BaseFixed->FixedReference)
   void UpdateBaseFixedToFixedReferenceTransform(vtkMRMLChannel25GeometryNode* channelNode);
-  /// Apply new TableTop to Wrist transform (TableTop->Wrist)
-  void UpdateTableTopToWristTransform(vtkMRMLChannel25GeometryNode* parameterNode);
+  /// Apply new TableTop to Flange transform (TableTop->Flange)
+  void UpdateTableTopToFlangeTransform(vtkMRMLChannel25GeometryNode* parameterNode);
+  /// Apply new TableTop to Flange transform (Flange->Wrist)
+  void UpdateFlangeToWristTransform(vtkMRMLChannel25GeometryNode* parameterNode);
   /// Apply new Wrist to Elbow transform (Wrist->Elbow)
   void UpdateWristToElbowTransform(vtkMRMLChannel25GeometryNode* parameterNode);
   /// Apply new Elbow to Shoulder transform (Elbow->Shoulder)
@@ -123,6 +126,8 @@ public:
   vtkMRMLLinearTransformNode* GetTableTopTransform();
   /// Update (or create if absent) RAS to TableTop transform
   vtkMRMLLinearTransformNode* UpdateRasToTableTopTransform(vtkMRMLChannel25GeometryNode* parameterNode);
+  /// Update (or create if absent) RAS to Flange transform
+  vtkMRMLLinearTransformNode* UpdateRasToFlangeTransform(vtkMRMLChannel25GeometryNode* parameterNode);
   /// Update (or create if absent) RAS to BaseFixed transform
   vtkMRMLLinearTransformNode* UpdateRasToBaseFixedTransform(vtkMRMLChannel25GeometryNode* parameterNode);
   /// Update (or create if absent) RAS to BaseRotation transform
@@ -138,6 +143,8 @@ public:
 
   /// Get RAS to Elbow transform
   vtkMRMLLinearTransformNode* GetElbowTransform();
+  /// Get RAS to Flange transform
+  vtkMRMLLinearTransformNode* GetFlangeTransform();
   /// Get RAS to Wrist transform
   vtkMRMLLinearTransformNode* GetWristTransform();
   /// Get RAS to Shoulder transform

@@ -427,6 +427,7 @@ void vtkSlicerPatientPositioningLogic::ProcessMRMLNodesEvents(vtkObject* caller,
     if (event == vtkCommand::ModifiedEvent)
     {
       this->TableTopRobotLogic->UpdateRasToTableTopTransform(channel25Geometry);
+      this->TableTopRobotLogic->UpdateRasToFlangeTransform(channel25Geometry);
       this->TableTopRobotLogic->UpdateRasToWristTransform(channel25Geometry);
       this->TableTopRobotLogic->UpdateRasToElbowTransform(channel25Geometry);
       this->TableTopRobotLogic->UpdateRasToShoulderTransform(channel25Geometry);
@@ -698,6 +699,7 @@ vtkSlicerPatientPositioningLogic::SetupTreatmentMachineModels(vtkMRMLChannel25Ge
       {
         case CoordSys::FixedReference:
         case CoordSys::TableTop:
+        case CoordSys::Flange:
         case CoordSys::BaseFixed:
         case CoordSys::BaseRotation:
         case CoordSys::Shoulder:
@@ -787,11 +789,20 @@ vtkSlicerPatientPositioningLogic::SetupTreatmentMachineModels(vtkMRMLChannel25Ge
     }
     else if (partIdx == CoordSys::Wrist)
     {
-      this->TableTopRobotLogic->UpdateTableTopToWristTransform(parameterNode);
+      this->TableTopRobotLogic->UpdateFlangeToWristTransform(parameterNode);
       vtkMRMLLinearTransformNode* rasToWristTransformNode = this->TableTopRobotLogic->UpdateRasToWristTransform(parameterNode);
       if (rasToWristTransformNode)
       {
         partModel->SetAndObserveTransformNodeID(rasToWristTransformNode->GetID());
+      }
+    }
+    else if (partIdx == CoordSys::Flange)
+    {
+      this->TableTopRobotLogic->UpdateTableTopToFlangeTransform(parameterNode);
+      vtkMRMLLinearTransformNode* rasToFlangeTransformNode = this->TableTopRobotLogic->UpdateRasToFlangeTransform(parameterNode);
+      if (rasToFlangeTransformNode)
+      {
+        partModel->SetAndObserveTransformNodeID(rasToFlangeTransformNode->GetID());
       }
     }
     else if (partIdx == CoordSys::TableTop)
