@@ -1154,7 +1154,7 @@ vtkMRMLLinearTransformNode* vtkSlicerTableTopRobotTransformLogic::UpdateRasToWri
 
   // Wrist -> RAS
   // Wrist - mandatory
-  // Transform path: RAS -> Patient -> TableTop -> Wrist
+  // Transform path: RAS -> Patient -> TableTop -> Flange -> Wrist
   // Find RasToWristTransform or create it
   vtkSmartPointer<vtkMRMLLinearTransformNode> rasToWristTransformNode;
   if (vtkMRMLNode* node = scene->GetFirstNodeByName("RasToWristTransform"))
@@ -1214,7 +1214,7 @@ vtkMRMLLinearTransformNode* vtkSlicerTableTopRobotTransformLogic::UpdateRasToElb
 
   // Elbow -> RAS
   // Elbow - mandatory
-  // Transform path: RAS -> Patient -> TableTop -> Wrist -> Elbow
+  // Transform path: RAS -> Patient -> TableTop -> Flange -> Wrist -> Elbow
   // Find RasToElbowTransform or create it
   vtkSmartPointer<vtkMRMLLinearTransformNode> rasToElbowTransformNode;
   if (vtkMRMLNode* node = scene->GetFirstNodeByName("RasToElbowTransform"))
@@ -1369,44 +1369,40 @@ void vtkSlicerTableTopRobotTransformLogic::UpdateFlangeToWristTransform(vtkMRMLC
   }
 
   using CoordSys = CoordinateSystemIdentifier;
-  vtkMRMLLinearTransformNode* flangeToWristTransformNode =
-    this->GetTransformNodeBetween(CoordSys::Flange, CoordSys::Wrist);
-
-  vtkNew<vtkTransform> flangeToTableTopTransform;
-  if (this->GetTransformBetween( CoordSys::Flange, CoordSys::Patient, 
-    flangeToTableTopTransform, false))
+  vtkNew<vtkTransform> flangeToPatientTransform;
+  if (!this->GetTransformBetween( CoordSys::Flange, CoordSys::Patient, 
+    flangeToPatientTransform, false))
   {
-    double pos[3];
-    flangeToTableTopTransform->GetPosition(pos);
-    vtkWarningMacro("UpdateFlangeToWristTransform: Flange->TableTop position " << pos[0] << ' ' << pos[1] << ' ' << pos[2]);
+    vtkWarningMacro("UpdateFlangeToWristTransform: Can't get Flange->Patient transform");
+    return;
   }
 
   vtkNew<vtkTransform> ReverseWristVerticalOrientationTransform; // vertical orientation
   ReverseWristVerticalOrientationTransform->Identity();
   ReverseWristVerticalOrientationTransform->RotateY(90.);
 
+  vtkMRMLLinearTransformNode* flangeToWristTransformNode =
+    this->GetTransformNodeBetween(CoordSys::Flange, CoordSys::Wrist);
   if (flangeToWristTransformNode)
   {
     vtkNew<vtkTransform> FlangeToWristTransform;
     double a[6] = {};
     parameterNode->GetTableTopRobotAngles(a);
-
-    vtkNew<vtkTransform> tableTopToWristTransform;
     double patientToTableTopTranslation[3] = {};
     parameterNode->GetPatientToTableTopTranslation(patientToTableTopTranslation);
 
     // Apply transform (rotation around Z axis on A6 angle in RAS origin)
     FlangeToWristTransform->RotateZ(a[5]);
     FlangeToWristTransform->Concatenate(ReverseWristVerticalOrientationTransform);
-    FlangeToWristTransform->Concatenate(flangeToTableTopTransform);
+    FlangeToWristTransform->Concatenate(flangeToPatientTransform);
 
-    vtkNew<vtkTransform> TableTopToFlangeTranslateTransform;
+    vtkNew<vtkTransform> PatientToFlangeTranslateTransform;
     // Reverse compensate Patient->TableTop translation
-    TableTopToFlangeTranslateTransform->Translate(-1. * patientToTableTopTranslation[0], -1. * patientToTableTopTranslation[1], -1. * patientToTableTopTranslation[2]);
+    PatientToFlangeTranslateTransform->Translate(-1. * patientToTableTopTranslation[0], -1. * patientToTableTopTranslation[1], -1. * patientToTableTopTranslation[2]);
     // Translate to Elbow position under Flange position
-    TableTopToFlangeTranslateTransform->Translate(-1. * InitialElbowWristJointOffsetRAS[0], -1. * InitialElbowWristJointOffsetRAS[1], InitialElbowWristJointOffsetRAS[2]);
-    TableTopToFlangeTranslateTransform->Concatenate(FlangeToWristTransform);
-    flangeToWristTransformNode->SetAndObserveTransformToParent(TableTopToFlangeTranslateTransform);
+    PatientToFlangeTranslateTransform->Translate(-1. * InitialElbowWristJointOffsetRAS[0], -1. * InitialElbowWristJointOffsetRAS[1], InitialElbowWristJointOffsetRAS[2]);
+    PatientToFlangeTranslateTransform->Concatenate(FlangeToWristTransform);
+    flangeToWristTransformNode->SetAndObserveTransformToParent(PatientToFlangeTranslateTransform);
   }
 }
 
@@ -1425,6 +1421,52 @@ void vtkSlicerTableTopRobotTransformLogic::UpdateWristToElbowTransform(vtkMRMLCh
     return;
   }
 
+  using CoordSys = CoordinateSystemIdentifier;
+  vtkNew<vtkTransform> wristToPatientTransform;
+  if (!this->GetTransformBetween( CoordSys::Wrist, CoordSys::Patient, 
+    wristToPatientTransform, false))
+  {
+    vtkWarningMacro("UpdateWristToElbowTransform: Can't get Wrist->Patient transform");
+  }
+
+  vtkMRMLLinearTransformNode* wristToElbowTransformNode =
+    this->GetTransformNodeBetween(CoordSys::Wrist, CoordSys::Elbow);
+  if (wristToElbowTransformNode)
+  {
+    double a[6] = {};
+    parameterNode->GetTableTopRobotAngles(a);
+    double patientToTableTopTranslation[3] = {};
+    parameterNode->GetPatientToTableTopTranslation(patientToTableTopTranslation);
+
+    // Translate the Elbow so it's end in RAS origin
+    vtkNew<vtkTransform> ElbowTranslateTransform;
+    ElbowTranslateTransform->Translate(ElbowLength, 0, 0);
+
+    // Wrist->Flange (TableTop) rotation
+    vtkNew<vtkTransform> WristToFlangeTransform;
+    WristToFlangeTransform->RotateZ(a[5]);
+
+    // Apply transform (rotation around Y axis on A5 angle, and around X axis on A4 angle in RAS origin)
+    vtkNew<vtkTransform> WristToElbowTransform;
+    WristToElbowTransform->RotateY(a[4]);
+    WristToElbowTransform->RotateX(a[3]);
+    // Transform elbow in RAS (Patient) origin so, it's begin in RAS origin
+    ElbowTranslateTransform->Concatenate(wristToPatientTransform);
+    // Translate elbow in RAS (Patient) origin, so it's end in RAS origin
+    WristToElbowTransform->Concatenate(ElbowTranslateTransform);
+    // Apply Wrist->Flange (TableTop) rotation transform
+    WristToFlangeTransform->Concatenate(WristToElbowTransform);
+
+
+    vtkNew<vtkTransform> PatientToFlangeTranslateTransform;
+    // Reverse compensate Patient->TableTop translation
+    PatientToFlangeTranslateTransform->Translate(-1. * patientToTableTopTranslation[0], -1. * patientToTableTopTranslation[1], -1. * patientToTableTopTranslation[2]);
+    // Translate to Elbow position under Flange position
+    PatientToFlangeTranslateTransform->Translate(-1. * InitialElbowWristJointOffsetRAS[0], -1. * InitialElbowWristJointOffsetRAS[1], InitialElbowWristJointOffsetRAS[2]);
+    PatientToFlangeTranslateTransform->Concatenate(WristToFlangeTransform);
+    wristToElbowTransformNode->SetAndObserveTransformToParent(PatientToFlangeTranslateTransform);
+  }
+/*
   using CoordSys = CoordinateSystemIdentifier;
   vtkMRMLLinearTransformNode* wristToElbowTransformNode =
     this->GetTransformNodeBetween(CoordSys::Wrist, CoordSys::Elbow);
@@ -1488,6 +1530,7 @@ void vtkSlicerTableTopRobotTransformLogic::UpdateWristToElbowTransform(vtkMRMLCh
     wristToElbowTransformNode->SetAndObserveTransformToParent(ElbowTranslateTransform);
   }
 //  this->UpdateElbowToShoulderTransform(parameterNode);
+*/
 }
 
 //----------------------------------------------------------------------------
