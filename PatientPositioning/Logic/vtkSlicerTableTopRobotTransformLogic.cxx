@@ -51,6 +51,10 @@ constexpr std::array< double, 3 > FixedBasedToWristOffset{ 350. + 1200., 675. + 
 constexpr std::array< double, 3 > FixedBasedToFlangeOffset{ 350. + 1200., 675. + 1150. - 41. + 215., 0. }; // A6 { 1550., 1999., 0. }
 // constexpr std::array< double, 3 > FixedReferenceToFlangeOffsetRAS{ 1550., -821.6, -2604.};
 
+constexpr double BaseFixedHeight = 240.; // mm
+constexpr double BaseRotationHeight = 675. - BaseFixedHeight; // mm
+constexpr double BaseRotationShoulderDiskCenterOffsetX = 350; // mm
+constexpr double BaseRotationShoulderDiskCenterOffsetY = BaseRotationHeight; // mm
 constexpr double TableThickness = 90.; // mm
 constexpr double FlangeLength = 300.; // mm
 constexpr double WristLength = 215.; // mm
@@ -1580,7 +1584,7 @@ void vtkSlicerTableTopRobotTransformLogic::UpdateShoulderToBaseRotationTransform
 
   // Translate the BaseRotation so it's empty disk centre in RAS origin
   vtkNew<vtkTransform> BaseRotationTranslateTransform;
-  BaseRotationTranslateTransform->Translate(350., 0., -435.);
+  BaseRotationTranslateTransform->Translate(BaseRotationShoulderDiskCenterOffsetX, 0., -1. * BaseRotationShoulderDiskCenterOffsetY);
 
   // Transform model to vertical position
   vtkNew<vtkTransform> BaseRotationVerticalOrientationTransform; // vertical orientation
