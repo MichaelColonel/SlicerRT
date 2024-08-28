@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>387</width>
-    <height>836</height>
+    <height>834</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -23,16 +23,16 @@
       <item row="0" column="0" colspan="5">
        <layout class="QGridLayout" name="gridLayout_3">
         <item row="0" column="1">
-         <widget class="qMRMLNodeComboBox" name="MRMLNodeComboBox_ParameterSet">
+         <widget class="qMRMLNodeComboBox" name="MRMLNodeComboBox_ParameterSet" native="true">
           <property name="enabled">
            <bool>false</bool>
           </property>
-          <property name="nodeTypes">
+          <property name="nodeTypes" stdset="0">
            <stringlist>
             <string>vtkMRMLPatientPositioningNode</string>
            </stringlist>
           </property>
-          <property name="noneDisplay">
+          <property name="noneDisplay" stdset="0">
            <string>Please select a node</string>
           </property>
          </widget>
@@ -52,8 +52,8 @@
          </widget>
         </item>
         <item row="2" column="1">
-         <widget class="qMRMLSegmentSelectorWidget" name="SegmentSelectorWidget_PatientBody">
-          <property name="noneEnabled">
+         <widget class="qMRMLSegmentSelectorWidget" name="SegmentSelectorWidget_PatientBody" native="true">
+          <property name="noneEnabled" stdset="0">
            <bool>true</bool>
           </property>
          </widget>
@@ -66,13 +66,13 @@
          </widget>
         </item>
         <item row="1" column="1">
-         <widget class="qMRMLNodeComboBox" name="MRMLNodeComboBox_Beam">
-          <property name="nodeTypes">
+         <widget class="qMRMLNodeComboBox" name="MRMLNodeComboBox_Beam" native="true">
+          <property name="nodeTypes" stdset="0">
            <stringlist>
             <string>vtkMRMLRTBeamNode</string>
            </stringlist>
           </property>
-          <property name="noneEnabled">
+          <property name="noneEnabled" stdset="0">
            <bool>true</bool>
           </property>
          </widget>
@@ -124,7 +124,7 @@
         <item row="1" column="0">
          <widget class="ctkCollapsibleGroupBox" name="CollapsibleGroupBox_PatientTableTopTranslation">
           <property name="title">
-           <string>Patient to Table Top Translation (mm)</string>
+           <string>Patient to TableTop Center Translation (mm)</string>
           </property>
           <property name="collapsed">
            <bool>false</bool>
@@ -153,7 +153,7 @@
         <item row="2" column="0">
          <widget class="ctkCollapsibleGroupBox" name="CollapsibleGroupBox_PatientTableTopMarkups">
           <property name="title">
-           <string>Patient and Table Top markups</string>
+           <string>Patient and TableTop markups</string>
           </property>
           <property name="collapsed">
            <bool>true</bool>
@@ -166,9 +166,42 @@
     </widget>
    </item>
    <item>
+    <widget class="ctkCollapsibleButton" name="CollapsibleButton">
+     <property name="text">
+      <string>BaseFixed Control</string>
+     </property>
+     <layout class="QGridLayout" name="gridLayout_9">
+      <item row="0" column="0">
+       <layout class="QHBoxLayout" name="horizontalLayout">
+        <item>
+         <widget class="QLabel" name="label_16">
+          <property name="text">
+           <string>RAS Offset (mm):</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="ctkCoordinatesWidget" name="CoordinatesWidget_BaseFixedTranslation">
+          <property name="decimals">
+           <number>1</number>
+          </property>
+          <property name="coordinates" stdset="0">
+           <string>-1500,-1600,1400</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item>
     <widget class="ctkCollapsibleButton" name="CollapsibleButton_TableTopControl">
      <property name="text">
-      <string>Table Top Control</string>
+      <string>TableTop Control</string>
+     </property>
+     <property name="collapsed">
+      <bool>true</bool>
      </property>
      <layout class="QGridLayout" name="gridLayout_5">
       <item row="0" column="0">
@@ -301,7 +334,7 @@
    <item>
     <widget class="ctkCollapsibleButton" name="CollapsibleButton_TableTopRobotControl">
      <property name="text">
-      <string>Table Top Robot Control</string>
+      <string>TableTop Robot Control</string>
      </property>
      <layout class="QGridLayout" name="gridLayout_2">
       <item row="0" column="0">
@@ -373,7 +406,7 @@
            <double>155.000000000000000</double>
           </property>
           <property name="value">
-           <double>0.000000000000000</double>
+           <double>90.000000000000000</double>
           </property>
          </widget>
         </item>
@@ -401,6 +434,9 @@
           </property>
           <property name="maximum">
            <double>125.000000000000000</double>
+          </property>
+          <property name="value">
+           <double>90.000000000000000</double>
           </property>
          </widget>
         </item>

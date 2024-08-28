@@ -164,6 +164,8 @@ void qSlicerPatientPositioningModuleWidget::setup()
     this, SLOT(onTableTopRobotA6Changed(double)));
   connect( d->CoordinatesWidget_PatientTableTopTranslation, SIGNAL(coordinatesChanged(double*)),
     this, SLOT(onPatientTableTopTranslationChanged(double*)));
+  connect( d->CoordinatesWidget_BaseFixedTranslation, SIGNAL(coordinatesChanged(double*)),
+    this, SLOT(onBaseFixedToFixedReferenceTranslationChanged(double*)));
 }
 
 //-----------------------------------------------------------------------------
@@ -439,7 +441,7 @@ void qSlicerPatientPositioningModuleWidget::onSceneClosedEvent()
 void qSlicerPatientPositioningModuleWidget::onLoadTreatmentMachineButtonClicked()
 {
   Q_D(qSlicerPatientPositioningModuleWidget);
-  int currentMachineIndex = d->ComboBox_TreatmentMachine->currentIndex();
+//  int currentMachineIndex = d->ComboBox_TreatmentMachine->currentIndex();
 
   vtkMRMLScene* scene = this->mrmlScene();
   if (!scene)
@@ -624,7 +626,7 @@ void qSlicerPatientPositioningModuleWidget::onLoadTreatmentMachineButtonClicked(
 void qSlicerPatientPositioningModuleWidget::onTableTopRobotA1Changed(double a1)
 {
   Q_D(qSlicerPatientPositioningModuleWidget);
-  int currentMachineIndex = d->ComboBox_TreatmentMachine->currentIndex();
+//  int currentMachineIndex = d->ComboBox_TreatmentMachine->currentIndex();
 
   vtkMRMLScene* scene = this->mrmlScene();
   if (!scene)
@@ -657,6 +659,7 @@ void qSlicerPatientPositioningModuleWidget::onTableTopRobotA1Changed(double a1)
   if (tableTopRobotLogic)
   {
     tableTopRobotLogic->UpdateBaseRotationToBaseFixedTransform(d->Channel25GeometryNode);
+    tableTopRobotLogic->UpdateBaseFixedToFixedReferenceTransform(d->Channel25GeometryNode);
   }
   d->Channel25GeometryNode->Modified();
 }
@@ -680,7 +683,7 @@ void qSlicerPatientPositioningModuleWidget::onTableTopRobotA2Changed(double a2)
   double a[6] = {};
   d->Channel25GeometryNode->GetTableTopRobotAngles(a);
   d->Channel25GeometryNode->DisableModifiedEventOn();
-  a[1] = a2;
+  a[1] = 90. + a2;
   d->Channel25GeometryNode->SetTableTopRobotAngles(a);
   d->Channel25GeometryNode->DisableModifiedEventOff();
 
@@ -690,6 +693,7 @@ void qSlicerPatientPositioningModuleWidget::onTableTopRobotA2Changed(double a2)
   {
     tableTopRobotLogic->UpdateShoulderToBaseRotationTransform(d->Channel25GeometryNode);
     tableTopRobotLogic->UpdateBaseRotationToBaseFixedTransform(d->Channel25GeometryNode);
+    tableTopRobotLogic->UpdateBaseFixedToFixedReferenceTransform(d->Channel25GeometryNode);
   }
   d->Channel25GeometryNode->Modified();
 }
@@ -713,7 +717,7 @@ void qSlicerPatientPositioningModuleWidget::onTableTopRobotA3Changed(double a3)
   double a[6] = {};
   d->Channel25GeometryNode->GetTableTopRobotAngles(a);
   d->Channel25GeometryNode->DisableModifiedEventOn();
-  a[2] = a3;
+  a[2] = 90. - a3;
   d->Channel25GeometryNode->SetTableTopRobotAngles(a);
   d->Channel25GeometryNode->DisableModifiedEventOff();
 
@@ -724,6 +728,7 @@ void qSlicerPatientPositioningModuleWidget::onTableTopRobotA3Changed(double a3)
     tableTopRobotLogic->UpdateElbowToShoulderTransform(d->Channel25GeometryNode);
     tableTopRobotLogic->UpdateShoulderToBaseRotationTransform(d->Channel25GeometryNode);
     tableTopRobotLogic->UpdateBaseRotationToBaseFixedTransform(d->Channel25GeometryNode);
+    tableTopRobotLogic->UpdateBaseFixedToFixedReferenceTransform(d->Channel25GeometryNode);
   }
   d->Channel25GeometryNode->Modified();
 }
@@ -759,6 +764,7 @@ void qSlicerPatientPositioningModuleWidget::onTableTopRobotA4Changed(double a4)
     tableTopRobotLogic->UpdateElbowToShoulderTransform(d->Channel25GeometryNode);
     tableTopRobotLogic->UpdateShoulderToBaseRotationTransform(d->Channel25GeometryNode);
     tableTopRobotLogic->UpdateBaseRotationToBaseFixedTransform(d->Channel25GeometryNode);
+    tableTopRobotLogic->UpdateBaseFixedToFixedReferenceTransform(d->Channel25GeometryNode);
   }
   d->Channel25GeometryNode->Modified();
 }
@@ -782,7 +788,7 @@ void qSlicerPatientPositioningModuleWidget::onTableTopRobotA5Changed(double a5)
   double a[6] = {};
   d->Channel25GeometryNode->GetTableTopRobotAngles(a);
   d->Channel25GeometryNode->DisableModifiedEventOn();
-  a[4] = a5;
+  a[4] = 90. - a5;
   d->Channel25GeometryNode->SetTableTopRobotAngles(a);
   d->Channel25GeometryNode->DisableModifiedEventOff();
 
@@ -794,6 +800,7 @@ void qSlicerPatientPositioningModuleWidget::onTableTopRobotA5Changed(double a5)
     tableTopRobotLogic->UpdateElbowToShoulderTransform(d->Channel25GeometryNode);
     tableTopRobotLogic->UpdateShoulderToBaseRotationTransform(d->Channel25GeometryNode);
     tableTopRobotLogic->UpdateBaseRotationToBaseFixedTransform(d->Channel25GeometryNode);
+    tableTopRobotLogic->UpdateBaseFixedToFixedReferenceTransform(d->Channel25GeometryNode);
   }
   d->Channel25GeometryNode->Modified();
 }
@@ -830,6 +837,7 @@ void qSlicerPatientPositioningModuleWidget::onTableTopRobotA6Changed(double a6)
     tableTopRobotLogic->UpdateElbowToShoulderTransform(d->Channel25GeometryNode);
     tableTopRobotLogic->UpdateShoulderToBaseRotationTransform(d->Channel25GeometryNode);
     tableTopRobotLogic->UpdateBaseRotationToBaseFixedTransform(d->Channel25GeometryNode);
+    tableTopRobotLogic->UpdateBaseFixedToFixedReferenceTransform(d->Channel25GeometryNode);
   }
   d->Channel25GeometryNode->Modified();
 }
@@ -837,11 +845,13 @@ void qSlicerPatientPositioningModuleWidget::onTableTopRobotA6Changed(double a6)
 //-----------------------------------------------------------------------------
 void qSlicerPatientPositioningModuleWidget::onTableTopRobotAnglesChanged(double* a)
 {
+  Q_UNUSED(a);
 }
 
 //-----------------------------------------------------------------------------
 void qSlicerPatientPositioningModuleWidget::onPatientSupportRotationAngleChanged(double angle)
 {
+  Q_UNUSED(angle);
 /*
   Q_D(qSlicerPatientPositioningModuleWidget);
 
@@ -897,6 +907,34 @@ void qSlicerPatientPositioningModuleWidget::onPatientTableTopTranslationChanged(
     tableTopRobotLogic->UpdateElbowToShoulderTransform(d->Channel25GeometryNode);
     tableTopRobotLogic->UpdateShoulderToBaseRotationTransform(d->Channel25GeometryNode);
     tableTopRobotLogic->UpdateBaseRotationToBaseFixedTransform(d->Channel25GeometryNode);
+    tableTopRobotLogic->UpdateBaseFixedToFixedReferenceTransform(d->Channel25GeometryNode);
+  }
+  d->Channel25GeometryNode->Modified();
+}
+
+//-----------------------------------------------------------------------------
+void qSlicerPatientPositioningModuleWidget::onBaseFixedToFixedReferenceTranslationChanged(double* position)
+{
+  Q_D(qSlicerPatientPositioningModuleWidget);
+
+  if (!this->mrmlScene())
+  {
+    qCritical() << Q_FUNC_INFO << ": Invalid scene";
+    return;
+  }
+
+  if (!d->Channel25GeometryNode)
+  {
+    qCritical() << Q_FUNC_INFO << ": Parameter node is invalid!";
+    return;
+  }
+  d->Channel25GeometryNode->DisableModifiedEventOn();
+  d->Channel25GeometryNode->SetBaseFixedToFixedReferenceTranslation(position);
+  d->Channel25GeometryNode->DisableModifiedEventOff();
+  vtkSlicerTableTopRobotTransformLogic* tableTopRobotLogic = d->tableTopRobotLogic();
+  if (tableTopRobotLogic)
+  {
+    tableTopRobotLogic->UpdateBaseFixedToFixedReferenceTransform(d->Channel25GeometryNode);
   }
   d->Channel25GeometryNode->Modified();
 }

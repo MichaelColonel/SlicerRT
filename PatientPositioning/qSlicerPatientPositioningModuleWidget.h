@@ -54,6 +54,7 @@ public slots:
   void onLoadTreatmentMachineButtonClicked();
   void onPatientSupportRotationAngleChanged(double angle);
   void onPatientTableTopTranslationChanged(double* position);
+  void onBaseFixedToFixedReferenceTranslationChanged(double* position);
   void onTableTopRobotAnglesChanged(double* a);
   void onTableTopRobotA1Changed(double a1);
   void onTableTopRobotA2Changed(double a2);

@@ -43,13 +43,7 @@
 
 namespace {
 
-std::array< double, 3 > FixedReferenceToFixedBasedOffset;
-constexpr std::array< double, 3 > FixedBasedToFixedRotationOffset{ 0., 240., 0. }; // A1
-constexpr std::array< double, 3 > FixedBasedToShoulderOffset{ 350., 675., 0. }; // A2
-constexpr std::array< double, 3 > FixedBasedToElbowOffset{ 350., 675. + 1150. - 41., 0. }; // A3 { 350., 1784., 0. }
-constexpr std::array< double, 3 > FixedBasedToWristOffset{ 350. + 1200., 675. + 1150. - 41., 0. }; // A4, A5 {  1550., 1784., 0. }
-constexpr std::array< double, 3 > FixedBasedToFlangeOffset{ 350. + 1200., 675. + 1150. - 41. + 215., 0. }; // A6 { 1550., 1999., 0. }
-// constexpr std::array< double, 3 > FixedReferenceToFlangeOffsetRAS{ 1550., -821.6, -2604.};
+constexpr std::array< double, 3 > FixedReferenceToFixedBasedOffset{ -1600., -1500., 1400. };
 
 constexpr double BaseFixedHeight = 240.; // mm
 constexpr double BaseRotationHeight = 675. - BaseFixedHeight; // mm
@@ -61,7 +55,6 @@ constexpr double WristLength = 215.; // mm
 constexpr double ElbowLength = 1200.; // mm
 constexpr double ShoulderLength = 1150. - 41.; // mm
 
-//constexpr std::array< double, 3 > FixedReferenceToFlangeOffsetRAS{ 0., 0., 0.};
 constexpr std::array< double, 3 > InitialTableTopCenterOffsetRAS{ 0.5, 821.6, -210.};
 constexpr std::array< double, 3 > InitialFlangeOriginOffsetRAS{
   InitialTableTopCenterOffsetRAS[0],
@@ -263,8 +256,6 @@ void vtkSlicerTableTopRobotTransformLogic::ResetToInitialPositions()
     this->GetTransformNodeBetween(CoordSys::TableTop, CoordSys::Flange);
   vtkTransform* tableTopToFlangeTransform = vtkTransform::SafeDownCast(tableTopToFlangeTransformNode->GetTransformToParent());
   tableTopToFlangeTransform->Identity();
-//  tableTopToWristTransform->RotateY(90.);
-//  tableTopToWristTransform->Translate(FixedReferenceToFlangeOffsetRAS.data());
   tableTopToFlangeTransform->Modified();
 
   vtkMRMLLinearTransformNode* flangeToWristTransformNode =
@@ -486,21 +477,98 @@ void vtkSlicerTableTopRobotTransformLogic::UpdateFixedReferenceToRASTransform(vt
 }
 
 //-----------------------------------------------------------------------------
-void vtkSlicerTableTopRobotTransformLogic::UpdateBaseFixedToFixedReferenceTransform(vtkMRMLChannel25GeometryNode* channelNode)
+void vtkSlicerTableTopRobotTransformLogic::UpdateBaseFixedToFixedReferenceTransform(vtkMRMLChannel25GeometryNode* parameterNode)
 {
-  if (!channelNode)
+  vtkMRMLScene* scene = this->GetMRMLScene();
+  if (!scene)
   {
-    vtkErrorMacro("UpdateBaseFixedToFixedReferenceTransform: Invalid parameter set node");
+    vtkErrorMacro("UpdateBaseRotationToBaseFixedTransform: Invalid scene");
     return;
   }
+  if (!parameterNode/* || !parameterNode->GetTreatmentMachineType() */)
+  {
+    vtkErrorMacro("UpdateBaseRotationToBaseFixedTransform: Invalid parameter node");
+    return;
+  }
+
+  // Translate the BaseRotation so it's empty disk centre in RAS origin
+  vtkNew<vtkTransform> BaseFixedTranslateTransform;
+  BaseFixedTranslateTransform->Translate(0., 0., -1. * BaseFixedHeight);
+  double BaseFixedToFixedReferenceTranslate[3] = {};
+  parameterNode->GetBaseFixedToFixedReferenceTranslation(BaseFixedToFixedReferenceTranslate);
+  // Default: FixedReferenceToFixedBasedOffset.data()
+  BaseFixedTranslateTransform->Translate(BaseFixedToFixedReferenceTranslate);
+
+  // Transform model to vertical position
+  vtkNew<vtkTransform> FixedReferenceVerticalOrientationTransform; // vertical orientation
+  FixedReferenceVerticalOrientationTransform->Identity();
+//  FixedReferenceVerticalOrientationTransform->RotateX(-90.);
+
   using CoordSys = CoordinateSystemIdentifier;
+  vtkNew<vtkTransform> baseFixedToPatientTransform;
+  if (!this->GetTransformBetween( CoordSys::BaseFixed, CoordSys::Patient, 
+    baseFixedToPatientTransform, false))
+  {
+    vtkWarningMacro("UpdateShoulderToBaseRotationTransform: Can't get BaseFixed->Patient transform");
+  }
+
+  double PatientToBaseFixedTranslate[3] = {};
+  vtkNew<vtkTransform> patientToBaseFixedTransform;
+  if (this->GetTransformBetween( CoordSys::Patient, CoordSys::BaseFixed, 
+    patientToBaseFixedTransform, false))
+  {
+    patientToBaseFixedTransform->GetPosition(PatientToBaseFixedTranslate);
+  }
 
   vtkMRMLLinearTransformNode* baseFixedToFixedReferenceTransformNode =
     this->GetTransformNodeBetween(CoordSys::BaseFixed, CoordSys::FixedReference);
+  if (baseFixedToFixedReferenceTransformNode)
+  {
+    double a[6] = {};
+    parameterNode->GetTableTopRobotAngles(a);
+    double patientToTableTopTranslation[3] = {};
+    parameterNode->GetPatientToTableTopTranslation(patientToTableTopTranslation);
 
-  vtkNew<vtkTransform> baseFixedToFixedReferenceTransform;
-//  baseFixedToFixedReferenceTransform->RotateZ(channelNode->GetPatientSupportRotationAngle());
-  baseFixedToFixedReferenceTransformNode->SetAndObserveTransformToParent(baseFixedToFixedReferenceTransform);
+    // BaseRotation->BaseFixed rotation around Z (A1 angle)
+    vtkNew<vtkTransform> baseRotationToBaseFixedTransform;
+    baseRotationToBaseFixedTransform->RotateZ(a[0]);
+
+    // Shoulder->BaseRotation rotation around Y (A2 angle)
+    vtkNew<vtkTransform> shoulderToBaseRotationTransform;
+    shoulderToBaseRotationTransform->RotateY(a[1]);
+  
+    // Elbow->Shoulder rotation around Y (A3 angle)
+    vtkNew<vtkTransform> ElbowToShoulderRotationTransform;
+    ElbowToShoulderRotationTransform->RotateY(a[2]);
+
+    // Apply transform (rotation around Y axis on A5 angle, around X axis on A4 angle and around Z axis on A6 angle in RAS origin)
+    vtkNew<vtkTransform> A6A5A4RotationTransform;
+    A6A5A4RotationTransform->RotateZ(a[5]);
+    A6A5A4RotationTransform->RotateY(a[4]);
+    A6A5A4RotationTransform->RotateX(a[3]);
+
+    // Transform shoulder in RAS (Patient) origin so, it's begin in RAS origin
+    // Transform to RAS origin and model vertical orientation
+    FixedReferenceVerticalOrientationTransform->Concatenate(baseFixedToPatientTransform);
+    // Translate BaseFixed disk end (top) to RAS (Patient) origin so, it's end (top) in RAS origin
+    BaseFixedTranslateTransform->Concatenate(FixedReferenceVerticalOrientationTransform);
+    // Apply A1 angle transform
+    baseRotationToBaseFixedTransform->Concatenate(BaseFixedTranslateTransform);
+    // Apply A2 angle transform
+    shoulderToBaseRotationTransform->Concatenate(baseRotationToBaseFixedTransform);
+    // Apply A3 angle transform
+    ElbowToShoulderRotationTransform->Concatenate(shoulderToBaseRotationTransform);
+    // Apply A6, A5, A4 angles transform
+    A6A5A4RotationTransform->Concatenate(ElbowToShoulderRotationTransform);
+
+    // Translate FixedReference model to the begin (bottom) of BaseFixed model (Patient->BaseFixed translation)
+    vtkNew<vtkTransform> PatientToFixedReferenceTranslateTransform;
+    PatientToFixedReferenceTranslateTransform->Translate(PatientToBaseFixedTranslate);
+    // Apply angles transform
+    PatientToFixedReferenceTranslateTransform->Concatenate(A6A5A4RotationTransform);
+
+    baseFixedToFixedReferenceTransformNode->SetAndObserveTransformToParent(PatientToFixedReferenceTranslateTransform);
+  }
 }
 
 //-----------------------------------------------------------------------------
@@ -1298,16 +1366,79 @@ void vtkSlicerTableTopRobotTransformLogic::UpdateBaseRotationToBaseFixedTransfor
     return;
   }
 
+  // Translate the BaseRotation so it's empty disk centre in RAS origin
+  vtkNew<vtkTransform> BaseFixedTranslateTransform;
+  BaseFixedTranslateTransform->Translate(0., 0., -1. * BaseFixedHeight);
+
+  // Transform model to vertical position
+  vtkNew<vtkTransform> BaseFixedVerticalOrientationTransform; // vertical orientation
+  BaseFixedVerticalOrientationTransform->Identity();
+  BaseFixedVerticalOrientationTransform->RotateX(-90.);
+
   using CoordSys = CoordinateSystemIdentifier;
+  vtkNew<vtkTransform> baseRotationToPatientTransform;
+  if (!this->GetTransformBetween( CoordSys::BaseRotation, CoordSys::Patient, 
+    baseRotationToPatientTransform, false))
+  {
+    vtkWarningMacro("UpdateShoulderToBaseRotationTransform: Can't get BaseRotation->Patient transform");
+  }
+
+  double PatientToBaseRotationTranslate[3] = {};
+  vtkNew<vtkTransform> patientToBaseRotationTransform;
+  if (this->GetTransformBetween( CoordSys::Patient, CoordSys::BaseRotation, 
+    patientToBaseRotationTransform, false))
+  {
+    patientToBaseRotationTransform->GetPosition(PatientToBaseRotationTranslate);
+  }
+
   vtkMRMLLinearTransformNode* baseRotationToBaseFixedTransformNode =
     this->GetTransformNodeBetween(CoordSys::BaseRotation, CoordSys::BaseFixed);
-
   if (baseRotationToBaseFixedTransformNode)
   {
+    double a[6] = {};
+    parameterNode->GetTableTopRobotAngles(a);
+    double patientToTableTopTranslation[3] = {};
+    parameterNode->GetPatientToTableTopTranslation(patientToTableTopTranslation);
+
+    // BaseRotation->BaseFixed rotation around Z (A1 angle)
     vtkNew<vtkTransform> baseRotationToBaseFixedTransform;
-//    baseRotationToBaseFixedTransform->RotateZ(-1. * parameterNode->GetPatientSupportRotationAngle());
-    // apply transform
-    baseRotationToBaseFixedTransformNode->SetAndObserveTransformToParent(baseRotationToBaseFixedTransform);
+    baseRotationToBaseFixedTransform->RotateZ(a[0]);
+
+    // Shoulder->BaseRotation rotation around Y (A2 angle)
+    vtkNew<vtkTransform> shoulderToBaseRotationTransform;
+    shoulderToBaseRotationTransform->RotateY(a[1]);
+  
+    // Elbow->Shoulder rotation around Y (A3 angle)
+    vtkNew<vtkTransform> ElbowToShoulderRotationTransform;
+    ElbowToShoulderRotationTransform->RotateY(a[2]);
+
+    // Apply transform (rotation around Y axis on A5 angle, around X axis on A4 angle and around Z axis on A6 angle in RAS origin)
+    vtkNew<vtkTransform> A6A5A4RotationTransform;
+    A6A5A4RotationTransform->RotateZ(a[5]);
+    A6A5A4RotationTransform->RotateY(a[4]);
+    A6A5A4RotationTransform->RotateX(a[3]);
+
+    // Transform shoulder in RAS (Patient) origin so, it's begin in RAS origin
+    // Transform to RAS origin and model vertical orientation
+    BaseFixedVerticalOrientationTransform->Concatenate(baseRotationToPatientTransform);
+    // Translate BaseFixed disk end (top) to RAS (Patient) origin so, it's end (top) in RAS origin
+    BaseFixedTranslateTransform->Concatenate(BaseFixedVerticalOrientationTransform);
+    // Apply A1 angle transform
+    baseRotationToBaseFixedTransform->Concatenate(BaseFixedTranslateTransform);
+    // Apply A2 angle transform
+    shoulderToBaseRotationTransform->Concatenate(baseRotationToBaseFixedTransform);
+    // Apply A3 angle transform
+    ElbowToShoulderRotationTransform->Concatenate(shoulderToBaseRotationTransform);
+    // Apply A6, A5, A4 angles transform
+    A6A5A4RotationTransform->Concatenate(ElbowToShoulderRotationTransform);
+
+    // Translate BaseFixed model to the begin (bottom) of BaseRotation model (Patient->BaseRotation translation)
+    vtkNew<vtkTransform> PatientToBaseFixedTranslateTransform;
+    PatientToBaseFixedTranslateTransform->Translate(PatientToBaseRotationTranslate);
+    // Apply angles transform
+    PatientToBaseFixedTranslateTransform->Concatenate(A6A5A4RotationTransform);
+
+    baseRotationToBaseFixedTransformNode->SetAndObserveTransformToParent(PatientToBaseFixedTranslateTransform);
   }
 }
 
@@ -1599,6 +1730,14 @@ void vtkSlicerTableTopRobotTransformLogic::UpdateShoulderToBaseRotationTransform
     vtkWarningMacro("UpdateShoulderToBaseRotationTransform: Can't get Shoulder->Patient transform");
   }
 
+  double PatientToBaseRotationTranslate[3] = {};
+  vtkNew<vtkTransform> patientToShoulderTransform;
+  if (this->GetTransformBetween( CoordSys::Patient, CoordSys::Shoulder, 
+    patientToShoulderTransform, false))
+  {
+    patientToShoulderTransform->GetPosition(PatientToBaseRotationTranslate);
+  }
+
   vtkMRMLLinearTransformNode* shoulderToBaseRotationTransformNode =
     this->GetTransformNodeBetween(CoordSys::Shoulder, CoordSys::BaseRotation);
   if (shoulderToBaseRotationTransformNode)
@@ -1608,8 +1747,19 @@ void vtkSlicerTableTopRobotTransformLogic::UpdateShoulderToBaseRotationTransform
     double patientToTableTopTranslation[3] = {};
     parameterNode->GetPatientToTableTopTranslation(patientToTableTopTranslation);
 
+    // Shoulder->BaseRotation rotation around Y (A2 angle)
     vtkNew<vtkTransform> shoulderToBaseRotationTransform;
     shoulderToBaseRotationTransform->RotateY(a[1]);
+
+    // Elbow->Shoulder rotation around Y (A3 angle)
+    vtkNew<vtkTransform> ElbowToShoulderRotationTransform;
+    ElbowToShoulderRotationTransform->RotateY(a[2]);
+
+    // Apply transform (rotation around Y axis on A5 angle, around X axis on A4 angle and around Z axis on A6 angle in RAS origin)
+    vtkNew<vtkTransform> A6A5A4RotationTransform;
+    A6A5A4RotationTransform->RotateZ(a[5]);
+    A6A5A4RotationTransform->RotateY(a[4]);
+    A6A5A4RotationTransform->RotateX(a[3]);
 
     // Transform shoulder in RAS (Patient) origin so, it's begin in RAS origin
     // Transform to RAS origin and model vertical orientation
@@ -1617,8 +1767,17 @@ void vtkSlicerTableTopRobotTransformLogic::UpdateShoulderToBaseRotationTransform
     BaseRotationTranslateTransform->Concatenate(BaseRotationVerticalOrientationTransform);
     // Translate  BaseRotation empty disk center to RAS (Patient) origin so, it's begin in RAS origin
     shoulderToBaseRotationTransform->Concatenate(BaseRotationTranslateTransform);
+    // Translate  Shoulder end to RAS (Patient) origin so, it's begin in RAS origin
+    ElbowToShoulderRotationTransform->Concatenate(shoulderToBaseRotationTransform);
+    // Apply transform of the Elbow (A6, A5, A4 angles) to Shoulder model in RAS origin
+    A6A5A4RotationTransform->Concatenate(ElbowToShoulderRotationTransform);
 
-    shoulderToBaseRotationTransformNode->SetAndObserveTransformToParent(shoulderToBaseRotationTransform);
+    // Translate BaseRotation model to the center of Shoulder disk (Patient->BaseRotation translation)
+    vtkNew<vtkTransform> PatientToBaseRotationTranslateTransform;
+    PatientToBaseRotationTranslateTransform->Translate(PatientToBaseRotationTranslate);
+    PatientToBaseRotationTranslateTransform->Concatenate(A6A5A4RotationTransform);
+
+    shoulderToBaseRotationTransformNode->SetAndObserveTransformToParent(PatientToBaseRotationTranslateTransform);
   }
 }
 
