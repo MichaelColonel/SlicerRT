@@ -63,9 +63,13 @@ public slots:
   void onTableTopRobotA5Changed(double a5);
   void onTableTopRobotA6Changed(double a6);
   void onRotatePatientHeadFeetToggled(bool toggled);
+  void onCollisionDetectionToggled(bool toggled);
+  void onFixedReferenceCameraToggled(bool toggled);
+  void onTestClicked();
 
   /// Update widget GUI from PatientPositioning parameters node
   void updateWidgetFromMRML();
+  void checkForCollisions();
 
 protected:
   QScopedPointer<qSlicerPatientPositioningModuleWidgetPrivate> d_ptr;

@@ -27,6 +27,8 @@
 #include <qMRMLSliceWidget.h>
 #include <qSlicerSubjectHierarchyFolderPlugin.h>
 #include <qSlicerSubjectHierarchyPluginHandler.h>
+#include <qMRMLThreeDWidget.h>
+#include <qMRMLThreeDView.h>
 
 // MRML includes
 #include <vtkMRMLScene.h>
@@ -78,6 +80,7 @@ public:
   virtual ~qSlicerPatientPositioningModuleWidgetPrivate();
   vtkSlicerPatientPositioningLogic* logic() const;
   vtkSlicerTableTopRobotTransformLogic* tableTopRobotLogic() const;
+  vtkMRMLCameraNode* get3DViewCameraNode();
 
   /// IhepStandGeometry MRML node containing shown parameters
   vtkSmartPointer<vtkMRMLChannel25GeometryNode> Channel25GeometryNode;
@@ -114,6 +117,39 @@ vtkSlicerTableTopRobotTransformLogic* qSlicerPatientPositioningModuleWidgetPriva
 }
 
 //-----------------------------------------------------------------------------
+vtkMRMLCameraNode* qSlicerPatientPositioningModuleWidgetPrivate::get3DViewCameraNode()
+{
+  Q_Q(const qSlicerPatientPositioningModuleWidget);
+
+  // Get 3D view node
+  qSlicerApplication* slicerApplication = qSlicerApplication::application();
+  qSlicerLayoutManager* layoutManager = slicerApplication->layoutManager();
+  qMRMLThreeDView* threeDView = layoutManager->threeDWidget(0)->threeDView();
+  vtkMRMLViewNode* viewNode = threeDView->mrmlViewNode();
+
+  // Get camera node for view
+  vtkCollection* cameras = q->mrmlScene()->GetNodesByClass("vtkMRMLCameraNode");
+  vtkMRMLCameraNode* cameraNode = nullptr;
+  for (int i = 0; i < cameras->GetNumberOfItems(); i++)
+  {
+    cameraNode = vtkMRMLCameraNode::SafeDownCast(cameras->GetItemAsObject(i));
+    std::string viewUniqueName = std::string(viewNode->GetNodeTagName()) + cameraNode->GetLayoutName();
+    if (viewUniqueName == viewNode->GetID())
+    {
+      break;
+    }
+  }
+  if (!cameraNode)
+  {
+    qCritical() << Q_FUNC_INFO << "Failed to find camera for view " << (viewNode ? viewNode->GetID() : "(null)");
+    cameras->Delete();
+    return nullptr;
+  }
+  cameras->Delete();
+  return cameraNode;
+}
+
+//-----------------------------------------------------------------------------
 // qSlicerPatientPositioningModuleWidget methods
 
 //-----------------------------------------------------------------------------
@@ -146,8 +182,14 @@ void qSlicerPatientPositioningModuleWidget::setup()
   // Buttons
   connect( d->PushButton_LoadTreatmentMachine, SIGNAL(clicked()), 
     this, SLOT(onLoadTreatmentMachineButtonClicked()));
+  connect( d->PushButton_Test, SIGNAL(clicked()), 
+    this, SLOT(onTestClicked()));
   connect( d->CheckBox_RotatePatientHeadFeet, SIGNAL(toggled(bool)), 
     this, SLOT(onRotatePatientHeadFeetToggled(bool)));
+  connect( d->CheckBox_ForceCollisionDetectionUpdate, SIGNAL(toggled(bool)), 
+    this, SLOT(onCollisionDetectionToggled(bool)));
+  connect( d->CheckBox_FixedReferenceCamera, SIGNAL(toggled(bool)), 
+    this, SLOT(onFixedReferenceCameraToggled(bool)));
 
   // Widgets
   connect( d->SliderWidget_TableRobotA1, SIGNAL(valueChanged(double)), 
@@ -541,27 +583,36 @@ void qSlicerPatientPositioningModuleWidget::onLoadTreatmentMachineButtonClicked(
     d->Channel25GeometryNode->SetTreatmentMachineDescriptorFilePath(descriptorFilePath.toUtf8().constData());
     std::vector<vtkSlicerTableTopRobotTransformLogic::CoordinateSystemIdentifier> loadedParts =
       d->logic()->LoadTreatmentMachine(d->Channel25GeometryNode);
-///    d->tableTopRobotLogic()->ResetToInitialPositions();
-///    d->Channel25GeometryNode->Modified();
+    d->Channel25GeometryNode->Modified();
   }
-/*
+
   // Warn the user if collision detection is disabled for certain part pairs
   QString disabledCollisionDetectionMessage(
     tr("Collision detection for the following part pairs may take very long due to high triangle numbers:\n\n"));
   bool collisionDetectionDisabled = false;
-  if (d->logic()->GetGantryTableTopCollisionDetection()->GetInputData(0) == nullptr)
+  if (d->logic()->GetTableTopFixedReferenceCollisionDetection()->GetInputData(0) == nullptr)
   {
-    disabledCollisionDetectionMessage.append("Gantry-TableTop\n");
+    disabledCollisionDetectionMessage.append("TableTop-FixedReference\n");
     collisionDetectionDisabled = true;
   }
-  if (d->logic()->GetGantryPatientSupportCollisionDetection()->GetInputData(0) == nullptr)
+  if (d->logic()->GetTableTopElbowCollisionDetection()->GetInputData(0) == nullptr)
   {
-    disabledCollisionDetectionMessage.append("Gantry-PatientSupport\n");
+    disabledCollisionDetectionMessage.append("TableTop-Elbow\n");
     collisionDetectionDisabled = true;
   }
-  if (d->logic()->GetCollimatorTableTopCollisionDetection()->GetInputData(0) == nullptr)
+  if (d->logic()->GetTableTopShoulderCollisionDetection()->GetInputData(0) == nullptr)
   {
-    disabledCollisionDetectionMessage.append("Collimator-TableTop\n");
+    disabledCollisionDetectionMessage.append("TableTop-Shoulder\n");
+    collisionDetectionDisabled = true;
+  }
+  if (d->logic()->GetTableTopBaseRotationCollisionDetection()->GetInputData(0) == nullptr)
+  {
+    disabledCollisionDetectionMessage.append("TableTop-BaseRotation\n");
+    collisionDetectionDisabled = true;
+  }
+  if (d->logic()->GetTableTopBaseFixedCollisionDetection()->GetInputData(0) == nullptr)
+  {
+    disabledCollisionDetectionMessage.append("TableTop-BaseFixed\n");
     collisionDetectionDisabled = true;
   }
   disabledCollisionDetectionMessage.append(tr("\nWhat would you like to do?"));
@@ -578,10 +629,10 @@ void qSlicerPatientPositioningModuleWidget::onLoadTreatmentMachineButtonClicked(
     if (resultCode == QMessageBox::RejectRole)
     {
       // Set up treatment machine models again but make sure collision detection is not disabled between any parts
-      d->logic()->SetupTreatmentMachineModels(paramNode, true);
+      d->logic()->SetupTreatmentMachineModels(d->Channel25GeometryNode, true);
     }
   }
-
+/*
   // Set treatment machine dependent properties  //TODO: Use degrees of freedom from JSON
   if (!treatmentMachineType.compare("VarianTrueBeamSTx"))
   {
@@ -662,6 +713,7 @@ void qSlicerPatientPositioningModuleWidget::onTableTopRobotA1Changed(double a1)
     tableTopRobotLogic->UpdateBaseFixedToFixedReferenceTransform(d->Channel25GeometryNode);
   }
   d->Channel25GeometryNode->Modified();
+  this->checkForCollisions();
 }
 
 //-----------------------------------------------------------------------------
@@ -696,6 +748,7 @@ void qSlicerPatientPositioningModuleWidget::onTableTopRobotA2Changed(double a2)
     tableTopRobotLogic->UpdateBaseFixedToFixedReferenceTransform(d->Channel25GeometryNode);
   }
   d->Channel25GeometryNode->Modified();
+  this->checkForCollisions();
 }
 
 //-----------------------------------------------------------------------------
@@ -731,6 +784,7 @@ void qSlicerPatientPositioningModuleWidget::onTableTopRobotA3Changed(double a3)
     tableTopRobotLogic->UpdateBaseFixedToFixedReferenceTransform(d->Channel25GeometryNode);
   }
   d->Channel25GeometryNode->Modified();
+  this->checkForCollisions();
 }
 
 //-----------------------------------------------------------------------------
@@ -767,6 +821,7 @@ void qSlicerPatientPositioningModuleWidget::onTableTopRobotA4Changed(double a4)
     tableTopRobotLogic->UpdateBaseFixedToFixedReferenceTransform(d->Channel25GeometryNode);
   }
   d->Channel25GeometryNode->Modified();
+  this->checkForCollisions();
 }
 
 //-----------------------------------------------------------------------------
@@ -803,6 +858,7 @@ void qSlicerPatientPositioningModuleWidget::onTableTopRobotA5Changed(double a5)
     tableTopRobotLogic->UpdateBaseFixedToFixedReferenceTransform(d->Channel25GeometryNode);
   }
   d->Channel25GeometryNode->Modified();
+  this->checkForCollisions();
 }
 
 //-----------------------------------------------------------------------------
@@ -840,6 +896,7 @@ void qSlicerPatientPositioningModuleWidget::onTableTopRobotA6Changed(double a6)
     tableTopRobotLogic->UpdateBaseFixedToFixedReferenceTransform(d->Channel25GeometryNode);
   }
   d->Channel25GeometryNode->Modified();
+  this->checkForCollisions();
 }
 
 //-----------------------------------------------------------------------------
@@ -852,29 +909,6 @@ void qSlicerPatientPositioningModuleWidget::onTableTopRobotAnglesChanged(double*
 void qSlicerPatientPositioningModuleWidget::onPatientSupportRotationAngleChanged(double angle)
 {
   Q_UNUSED(angle);
-/*
-  Q_D(qSlicerPatientPositioningModuleWidget);
-
-  if (!this->mrmlScene())
-  {
-    qCritical() << Q_FUNC_INFO << ": Invalid scene";
-    return;
-  }
-
-  if (!d->ParameterNode || !d->ModuleWindowInitialized)
-  {
-    return;
-  }
-
-  d->ParameterNode->DisableModifiedEventOn();
-  d->ParameterNode->SetPatientSupportRotationAngle(angle);
-  d->ParameterNode->DisableModifiedEventOff();
-
-  // update table top stand to patient support rotation transform
-  d->logic()->UpdatePatientSupportToFixedReferenceTransform(d->ParameterNode);
-
-  d->ParameterNode->Modified();
-*/
 }
 
 
@@ -910,6 +944,7 @@ void qSlicerPatientPositioningModuleWidget::onPatientTableTopTranslationChanged(
     tableTopRobotLogic->UpdateBaseFixedToFixedReferenceTransform(d->Channel25GeometryNode);
   }
   d->Channel25GeometryNode->Modified();
+  this->checkForCollisions();
 }
 
 //-----------------------------------------------------------------------------
@@ -937,6 +972,7 @@ void qSlicerPatientPositioningModuleWidget::onBaseFixedToFixedReferenceTranslati
     tableTopRobotLogic->UpdateBaseFixedToFixedReferenceTransform(d->Channel25GeometryNode);
   }
   d->Channel25GeometryNode->Modified();
+  this->checkForCollisions();
 }
 
 //-----------------------------------------------------------------------------
@@ -950,10 +986,93 @@ void qSlicerPatientPositioningModuleWidget::onRotatePatientHeadFeetToggled(bool 
     return;
   }
 
+  d->Channel25GeometryNode->SetPatientHeadFeetRotation(toggled);
+}
+
+//-----------------------------------------------------------------------------
+void qSlicerPatientPositioningModuleWidget::onFixedReferenceCameraToggled(bool toggled)
+{
+  Q_D(qSlicerPatientPositioningModuleWidget);
+  vtkMRMLCameraNode* threeDViewCameraNode = d->get3DViewCameraNode();
+  if (toggled)
+  {
+    d->logic()->SetFixedReferenceCamera(threeDViewCameraNode);
+  }
+  else
+  {
+    d->logic()->SetFixedReferenceCamera(nullptr);
+  }
+  d->Channel25GeometryNode->Modified();
+}
+
+//-----------------------------------------------------------------------------
+void qSlicerPatientPositioningModuleWidget::onTestClicked()
+{
+  Q_D(qSlicerPatientPositioningModuleWidget);
+}
+
+//-----------------------------------------------------------------------------
+void qSlicerPatientPositioningModuleWidget::onCollisionDetectionToggled(bool toggled)
+{
+  Q_D(qSlicerPatientPositioningModuleWidget);
+  Q_UNUSED(toggled);
+
   if (!d->Channel25GeometryNode)
   {
     qCritical() << Q_FUNC_INFO << ": Parameter node is invalid!";
     return;
   }
-  d->Channel25GeometryNode->SetPatientHeadFeetRotation(toggled);
+
+  this->checkForCollisions();
+}
+
+//-----------------------------------------------------------------------------
+void qSlicerPatientPositioningModuleWidget::checkForCollisions()
+{
+  Q_D(qSlicerPatientPositioningModuleWidget);
+
+  if (!d->CheckBox_ForceCollisionDetectionUpdate->isChecked())
+  {
+    d->CollisionDetectionStatusLabel->setText(tr("Collision detection is disabled"));
+    d->CollisionDetectionStatusLabel->setStyleSheet("color: gray");
+    return;
+  }
+
+  vtkMRMLPatientPositioningNode* paramNode = vtkMRMLPatientPositioningNode::SafeDownCast(d->MRMLNodeComboBox_ParameterSet->currentNode());
+  if (!paramNode)
+  {
+    return;
+  }
+
+  if (!paramNode || !d->Channel25GeometryNode)
+  {
+    qCritical() << Q_FUNC_INFO << ": Parameter nodes are invalid!";
+    return;
+  }
+
+  d->CollisionDetectionStatusLabel->setText(QString::fromStdString("Calculating collisions..."));
+  d->CollisionDetectionStatusLabel->setStyleSheet("color: black");
+  QApplication::processEvents();
+
+  std::string collisionString = d->logic()->CheckForCollisions(paramNode, d->Channel25GeometryNode->GetCollisionDetectionEnabled());
+
+  if (collisionString.length() > 0)
+  {
+    d->CollisionDetectionStatusLabel->setText(QString::fromStdString(collisionString));
+    d->CollisionDetectionStatusLabel->setStyleSheet("color: red");
+  }
+  else
+  {
+    QString noCollisionsMessage(tr("No collisions detected"));
+    if (d->logic()->GetTableTopElbowCollisionDetection()->GetInputData(0) == nullptr
+     || d->logic()->GetTableTopShoulderCollisionDetection()->GetInputData(0) == nullptr
+     || d->logic()->GetTableTopBaseRotationCollisionDetection()->GetInputData(0) == nullptr
+     || d->logic()->GetTableTopBaseFixedCollisionDetection()->GetInputData(0) == nullptr
+     || d->logic()->GetTableTopFixedReferenceCollisionDetection()->GetInputData(0) == nullptr)
+    {
+      noCollisionsMessage.append(tr(" (excluding certain parts)"));
+    }
+    d->CollisionDetectionStatusLabel->setText(noCollisionsMessage);
+    d->CollisionDetectionStatusLabel->setStyleSheet("color: green");
+  }
 }

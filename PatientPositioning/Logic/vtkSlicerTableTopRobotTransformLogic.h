@@ -38,7 +38,7 @@ class vtkMRMLRTBeamNode;
 class vtkMRMLLinearTransformNode;
 class vtkMRMLChannel25GeometryNode;
 
-// FixedReference -> BaseFixed -> BaseRotation -> Shoulder -> Elbow -> Wrist -> TableTop
+// FixedReference -> BaseFixed -> BaseRotation -> Shoulder -> Elbow -> Wrist -> Flange -> TableTop
 class VTK_SLICER_PATIENTPOSITIONING_MODULE_LOGIC_EXPORT vtkSlicerTableTopRobotTransformLogic : public vtkMRMLAbstractLogic
 {
 public:
@@ -62,12 +62,12 @@ public:
   vtkTypeMacro(vtkSlicerTableTopRobotTransformLogic, vtkMRMLAbstractLogic);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  /// Create or get transforms taking part in the IEC logic, and build the transform hierarchy
+  /// Create or get transforms taking part in the TableTopRobot logic, and build the transform hierarchy
   void BuildTableRobotTransformHierarchy();
 
   /// Get transform node between two coordinate systems is exists
   /// \return Transform node if there is a direct transform between the specified coordinate frames, nullptr otherwise
-  ///   Note: If IHEP does not specify a transform between the given coordinate frames, then there will be no node with the returned name.
+  ///   Note: If it does not specify a transform between the given coordinate frames, then there will be no node with the returned name.
   vtkMRMLLinearTransformNode* GetTransformNodeBetween(
     CoordinateSystemIdentifier fromFrame, CoordinateSystemIdentifier toFrame );
 
@@ -90,15 +90,8 @@ public:
   bool GetTransformForPointBetweenFrames( CoordinateSystemIdentifier fromFrame, CoordinateSystemIdentifier toFrame,
     const double fromFramePoint[3], double toFramePoint[3], bool transformForBeam = true);
 
-  /// Reset RAS to Patient isocenter translate, required for correct
+  /// Reset models position to initial ones
   void ResetToInitialPositions();
-  /// IHEP stand models transforms 
-  void ResetRasToPatientIsocenterTranslate();
-  /// Restore RAS to Patient isocenter translate
-  void RestoreRasToPatientIsocenterTranslate(double isocenter[3]);
-
-  /// Update fixed reference to RAS transform based on isocenter and patient support transforms
-  void UpdateFixedReferenceToRASTransform(vtkMRMLChannel25GeometryNode* channelNode, double* isocenter = nullptr);
 
   /// Update BaseFixedToFixedReference transform based on translation
   /// Apply new BaseFixed to FixedReference translate (BaseFixed->FixedReference)

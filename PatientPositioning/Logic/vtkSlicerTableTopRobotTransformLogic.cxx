@@ -296,35 +296,6 @@ void vtkSlicerTableTopRobotTransformLogic::ResetToInitialPositions()
 }
 
 //-----------------------------------------------------------------------------
-void vtkSlicerTableTopRobotTransformLogic::ResetRasToPatientIsocenterTranslate()
-{
-  using CoordSys = CoordinateSystemIdentifier;
-  // Update IEC Patient to RAS transform based on the isocenter defined in the beam's parent plan
-  vtkMRMLLinearTransformNode* rasToPatientReferenceTransformNode =
-    this->GetTransformNodeBetween( CoordSys::RAS, CoordSys::Patient);
-  vtkTransform* rasToPatientReferenceTransform = vtkTransform::SafeDownCast(rasToPatientReferenceTransformNode->GetTransformToParent());
-  rasToPatientReferenceTransform->Identity();
-  rasToPatientReferenceTransform->RotateX(-90.);
-  rasToPatientReferenceTransform->RotateY(180.);
-  rasToPatientReferenceTransform->Modified();
-}
-
-//-----------------------------------------------------------------------------
-void vtkSlicerTableTopRobotTransformLogic::RestoreRasToPatientIsocenterTranslate(double isocenter[3])
-{
-  using CoordSys = CoordinateSystemIdentifier;
-  // Update IEC Patient to RAS transform based on the isocenter defined in the beam's parent plan
-  vtkMRMLLinearTransformNode* rasToPatientReferenceTransformNode =
-    this->GetTransformNodeBetween( CoordSys::RAS, CoordSys::Patient);
-  vtkTransform* rasToPatientReferenceTransform = vtkTransform::SafeDownCast(rasToPatientReferenceTransformNode->GetTransformToParent());
-  rasToPatientReferenceTransform->Identity();
-  rasToPatientReferenceTransform->Translate(isocenter[0], isocenter[1], isocenter[2]);
-  rasToPatientReferenceTransform->RotateX(-90.);
-  rasToPatientReferenceTransform->RotateY(180.);
-  rasToPatientReferenceTransform->Modified();
-}
-
-//-----------------------------------------------------------------------------
 std::string vtkSlicerTableTopRobotTransformLogic::GetTransformNodeNameBetween(
   CoordinateSystemIdentifier fromFrame, CoordinateSystemIdentifier toFrame)
 {
@@ -419,64 +390,6 @@ bool vtkSlicerTableTopRobotTransformLogic::GetTransformForPointBetweenFrames(
 }
 
 //-----------------------------------------------------------------------------
-void vtkSlicerTableTopRobotTransformLogic::UpdateFixedReferenceToRASTransform(vtkMRMLChannel25GeometryNode* channelNode, double* isocenter)
-{
-  if (!this->GetMRMLScene())
-  {
-    vtkErrorMacro("UpdateFixedReferenceToRasTransform: Invalid MRML scene");
-    return;
-  }
-
-  using CoordSys = CoordinateSystemIdentifier;
-
-  // Update IEC FixedReference to RAS transform based on the isocenter defined in the beam's parent plan
-  vtkMRMLLinearTransformNode* fixedReferenceToRasTransformNode = this->GetTransformNodeBetween(CoordSys::FixedReference, CoordSys::RAS);
-
-  // Apply isocenter translation
-  vtkNew<vtkTransform> fixedReferenceToRASTransformBeamComponent;
-  if (channelNode)
-  {
-    std::array<double, 3> isocenterPosition = {0.0, 0.0, 0.0};
-    if (isocenter)
-    {
-      // Once again the dirty hack for dynamic beams, the actual translation 
-      // will be in vtkSlicerDicomRtImportExportModuleLogic::vtkInternal::LoadDynamicBeamSequence method  
-      fixedReferenceToRASTransformBeamComponent->Translate(isocenterPosition[0], isocenterPosition[1], isocenterPosition[2]);
-    }
-    else
-    {
-      // translation for a static beam
-//      if (planNode->GetIsocenterPosition(isocenterPosition.data()))
-//      {
-//        fixedReferenceToRASTransformBeamComponent->Translate(isocenterPosition[0], isocenterPosition[1], isocenterPosition[2]);
-//      }
-//      else
-//      {
-//        vtkErrorMacro("UpdateFixedReferenceToRasTransform: Failed to get isocenter position for plan " << planNode->GetName());
-//      }
-    }
-  }
-
-  // The "S" direction in RAS is the "A" direction in FixedReference
-///  fixedReferenceToRASTransformBeamComponent->RotateX(-90.0);
-  // The "S" direction to be toward the gantry (head first position) by default
-///  fixedReferenceToRASTransformBeamComponent->RotateZ(180.0);
-  fixedReferenceToRASTransformBeamComponent->Modified();
-
-  vtkMRMLLinearTransformNode* baseFixedToFixedReferenceTransformNode =
-    this->GetTransformNodeBetween(CoordSys::BaseFixed, CoordSys::FixedReference);
-//  vtkMRMLLinearTransformNode* tableTopToTableTopEccentricRotationTransformNode =
-//    this->GetTransformNodeBetween(TableTop, TableTopEccentricRotation);
-
-  vtkNew<vtkTransform> fixedReferenceToRASTransform;
-  fixedReferenceToRASTransform->Concatenate(fixedReferenceToRASTransformBeamComponent);
-//  fixedReferenceToRASTransform->Concatenate(vtkTransform::SafeDownCast(tableTopToTableTopEccentricRotationTransformNode->GetTransformFromParent()));
-  fixedReferenceToRASTransform->Concatenate(vtkTransform::SafeDownCast(baseFixedToFixedReferenceTransformNode->GetTransformFromParent()));
-
-  fixedReferenceToRasTransformNode->SetAndObserveTransformToParent(fixedReferenceToRASTransform);
-}
-
-//-----------------------------------------------------------------------------
 void vtkSlicerTableTopRobotTransformLogic::UpdateBaseFixedToFixedReferenceTransform(vtkMRMLChannel25GeometryNode* parameterNode)
 {
   vtkMRMLScene* scene = this->GetMRMLScene();
@@ -498,11 +411,6 @@ void vtkSlicerTableTopRobotTransformLogic::UpdateBaseFixedToFixedReferenceTransf
   parameterNode->GetBaseFixedToFixedReferenceTranslation(BaseFixedToFixedReferenceTranslate);
   // Default: FixedReferenceToFixedBasedOffset.data()
   BaseFixedTranslateTransform->Translate(BaseFixedToFixedReferenceTranslate);
-
-  // Transform model to vertical position
-  vtkNew<vtkTransform> FixedReferenceVerticalOrientationTransform; // vertical orientation
-  FixedReferenceVerticalOrientationTransform->Identity();
-//  FixedReferenceVerticalOrientationTransform->RotateX(-90.);
 
   using CoordSys = CoordinateSystemIdentifier;
   vtkNew<vtkTransform> baseFixedToPatientTransform;
@@ -547,11 +455,8 @@ void vtkSlicerTableTopRobotTransformLogic::UpdateBaseFixedToFixedReferenceTransf
     A6A5A4RotationTransform->RotateY(a[4]);
     A6A5A4RotationTransform->RotateX(a[3]);
 
-    // Transform shoulder in RAS (Patient) origin so, it's begin in RAS origin
-    // Transform to RAS origin and model vertical orientation
-    FixedReferenceVerticalOrientationTransform->Concatenate(baseFixedToPatientTransform);
     // Translate BaseFixed disk end (top) to RAS (Patient) origin so, it's end (top) in RAS origin
-    BaseFixedTranslateTransform->Concatenate(FixedReferenceVerticalOrientationTransform);
+    BaseFixedTranslateTransform->Concatenate(baseFixedToPatientTransform);
     // Apply A1 angle transform
     baseRotationToBaseFixedTransform->Concatenate(BaseFixedTranslateTransform);
     // Apply A2 angle transform
@@ -857,7 +762,7 @@ vtkMRMLLinearTransformNode* vtkSlicerTableTopRobotTransformLogic::UpdateRasToTab
   // Display all pieces of the treatment room and sets each piece a color to provide realistic representation
   using CoordSys = CoordinateSystemIdentifier;
 
-  // Transform robot models (IEC,Patient) to RAS
+  // Transform robot models to RAS
   vtkNew<vtkTransform> patientToRasTransform;
   patientToRasTransform->RotateX(-90.);
   if (parameterNode->GetPatientHeadFeetRotation())
@@ -917,7 +822,7 @@ vtkMRMLLinearTransformNode* vtkSlicerTableTopRobotTransformLogic::UpdateRasToFix
   // Display all pieces of the treatment room and sets each piece a color to provide realistic representation
   using CoordSys = CoordinateSystemIdentifier;
 
-  // Transform IHEP stand models (IEC Patient) to RAS
+  // Transform robot models to RAS
   vtkNew<vtkTransform> patientToRasTransform;
   patientToRasTransform->RotateX(-90.);
   if (parameterNode->GetPatientHeadFeetRotation())
@@ -927,7 +832,7 @@ vtkMRMLLinearTransformNode* vtkSlicerTableTopRobotTransformLogic::UpdateRasToFix
 
   // Fixed Reference -> RAS
   // Fixed Reference - mandatory
-  // Transform path: RAS -> Patient -> TableTop -> Wrist -> Elbow -> Shoulder -> BaseRotation -> BaseFixed -> FixedReference
+  // Transform path: RAS -> Patient -> TableTop -> Flange -> Wrist -> Elbow -> Shoulder -> BaseRotation -> BaseFixed -> FixedReference
   // Find RasToFixedReferenceTransform or create it
   vtkSmartPointer<vtkMRMLLinearTransformNode> rasToFixedReferenceTransformNode;
   if (vtkMRMLNode* node = scene->GetFirstNodeByName("RasToFixedReferenceTransform"))
@@ -977,7 +882,7 @@ vtkMRMLLinearTransformNode* vtkSlicerTableTopRobotTransformLogic::UpdateRasToBas
   // Display all pieces of the treatment room and sets each piece a color to provide realistic representation
   using CoordSys = CoordinateSystemIdentifier;
 
-  // Transform IHEP stand models (IEC Patient) to RAS
+  // Transform robot models to RAS
   vtkNew<vtkTransform> patientToRasTransform;
   patientToRasTransform->RotateX(-90.);
   if (parameterNode->GetPatientHeadFeetRotation())
@@ -987,7 +892,7 @@ vtkMRMLLinearTransformNode* vtkSlicerTableTopRobotTransformLogic::UpdateRasToBas
 
   // BaseFixed -> RAS
   // BaseFixed - mandatory
-  // Transform path: RAS -> Patient -> TableTop -> Wrist -> Elbow -> Shoulder -> BaseRotation -> BaseFixed
+  // Transform path: RAS -> Patient -> TableTop -> Flange -> Wrist -> Elbow -> Shoulder -> BaseRotation -> BaseFixed
   // Find RasToBaseFixedTransform or create it
   vtkSmartPointer<vtkMRMLLinearTransformNode> rasToBaseFixedTransformNode;
   if (vtkMRMLNode* node = scene->GetFirstNodeByName("RasToBaseFixedTransform"))
@@ -1037,7 +942,7 @@ vtkMRMLLinearTransformNode* vtkSlicerTableTopRobotTransformLogic::UpdateRasToFla
   // Display all pieces of the treatment room and sets each piece a color to provide realistic representation
   using CoordSys = CoordinateSystemIdentifier;
 
-  // Transform IHEP stand models (IEC Patient) to RAS
+  // Transform robot models to RAS
   vtkNew<vtkTransform> patientToRasTransform;
   patientToRasTransform->RotateX(-90.);
   if (parameterNode->GetPatientHeadFeetRotation())
@@ -1097,7 +1002,7 @@ vtkMRMLLinearTransformNode* vtkSlicerTableTopRobotTransformLogic::UpdateRasToBas
   // Display all pieces of the treatment room and sets each piece a color to provide realistic representation
   using CoordSys = CoordinateSystemIdentifier;
 
-  // Transform IHEP stand models (IEC Patient) to RAS
+  // Transform robot models to RAS
   vtkNew<vtkTransform> patientToRasTransform;
   patientToRasTransform->RotateX(-90.);
   if (parameterNode->GetPatientHeadFeetRotation())
@@ -1107,7 +1012,7 @@ vtkMRMLLinearTransformNode* vtkSlicerTableTopRobotTransformLogic::UpdateRasToBas
 
   // BaseRotation -> RAS
   // BaseRotation - mandatory
-  // Transform path: RAS -> Patient -> TableTop -> Wrist -> Elbow -> Shoulder -> BaseRotation
+  // Transform path: RAS -> Patient -> TableTop -> Flange -> Wrist -> Elbow -> Shoulder -> BaseRotation
   // Find RasToBaseRotationTransform or create it
   vtkSmartPointer<vtkMRMLLinearTransformNode> rasToBaseRotationTransformNode;
   if (vtkMRMLNode* node = scene->GetFirstNodeByName("RasToBaseRotationTransform"))
@@ -1157,7 +1062,7 @@ vtkMRMLLinearTransformNode* vtkSlicerTableTopRobotTransformLogic::UpdateRasToSho
   // Display all pieces of the treatment room and sets each piece a color to provide realistic representation
   using CoordSys = CoordinateSystemIdentifier;
 
-  // Transform IHEP stand models (IEC Patient) to RAS
+  // Transform robot models to RAS
   vtkNew<vtkTransform> patientToRasTransform;
   patientToRasTransform->RotateX(-90.);
   if (parameterNode->GetPatientHeadFeetRotation())
@@ -1167,7 +1072,7 @@ vtkMRMLLinearTransformNode* vtkSlicerTableTopRobotTransformLogic::UpdateRasToSho
 
   // Shoulder -> RAS
   // Shoulder - mandatory
-  // Transform path: RAS -> Patient -> TableTop -> Wrist -> Elbow -> Shoulder
+  // Transform path: RAS -> Patient -> TableTop -> Flange -> Wrist -> Elbow -> Shoulder
   // Find RasToShoulderTransform or create it
   vtkSmartPointer<vtkMRMLLinearTransformNode> rasToShoulderTransformNode;
   if (vtkMRMLNode* node = scene->GetFirstNodeByName("RasToShoulderTransform"))
@@ -1217,7 +1122,7 @@ vtkMRMLLinearTransformNode* vtkSlicerTableTopRobotTransformLogic::UpdateRasToWri
   // Display all pieces of the treatment room and sets each piece a color to provide realistic representation
   using CoordSys = CoordinateSystemIdentifier;
 
-  // Transform IHEP stand models (IEC Patient) to RAS
+  // Transform robot models to RAS
   vtkNew<vtkTransform> patientToRasTransform;
   patientToRasTransform->RotateX(-90.);
   if (parameterNode->GetPatientHeadFeetRotation())
@@ -1277,7 +1182,7 @@ vtkMRMLLinearTransformNode* vtkSlicerTableTopRobotTransformLogic::UpdateRasToElb
   // Display all pieces of the treatment room and sets each piece a color to provide realistic representation
   using CoordSys = CoordinateSystemIdentifier;
 
-  // Transform IHEP stand models (IEC Patient) to RAS
+  // Transform robot models to RAS
   vtkNew<vtkTransform> patientToRasTransform;
   patientToRasTransform->RotateX(-90.);
   if (parameterNode->GetPatientHeadFeetRotation())

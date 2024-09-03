@@ -46,6 +46,8 @@ class vtkMRMLRTBeamNode;
 class vtkMatrix4x4;
 class vtkPolyData;
 class vtkVector3d;
+class vtkCollisionDetectionFilter;
+class vtkMRMLCameraNode;
 
 class VTK_SLICER_PATIENTPOSITIONING_MODULE_LOGIC_EXPORT vtkSlicerPatientPositioningLogic :
   public vtkSlicerModuleLogic
@@ -53,20 +55,7 @@ class VTK_SLICER_PATIENTPOSITIONING_MODULE_LOGIC_EXPORT vtkSlicerPatientPosition
 public:
   static const char* TREATMENT_MACHINE_DESCRIPTOR_FILE_PATH_ATTRIBUTE_NAME;
   static unsigned long MAX_TRIANGLE_NUMBER_PRODUCT_FOR_COLLISIONS;
-//  static const char* FIXEDREFERENCE_MODEL_NAME; // Fixed Reference
-//  static const char* ROBOT_BASE_FIXED_MODEL_NAME; // Fixed robot model
-//  static const char* ROBOT_BASE_ROTATION_MODEL_NAME; // Rotated robot model
-//  static const char* ROBOT_SHOULDER_MODEL_NAME; // Table Support Left-Right Movement (Longitudinal)
-//  static const char* ROBOT_ELBOW_MODEL_NAME; // Table Origin Support
-//  static const char* ROBOT_WRIST_MODEL_NAME; // Table Mirror Support
-//  static const char* TABLETOP_MODEL_NAME; // Table Top
 
-  
-  static const char* ROBOT_BASE_ORIGIN_MARKUPS_FIDUCIAL_NODE_NAME; // Fiducial shows Base origin position
-  static const char* ROBOT_SHOULDER_ORIGIN_MARKUPS_FIDUCIAL_NODE_NAME; // Fiducial shows Shoulder origin position
-  static const char* ROBOT_ELBOW_ORIGIN_MARKUPS_FIDUCIAL_NODE_NAME; // Fiducial shows Elbow origin position
-  static const char* ROBOT_WRIST_ORIGIN_MARKUPS_FIDUCIAL_NODE_NAME; // Fiducial shows Wrist origin position
-  static const char* ROBOT_TABLETOP_MARKUPS_FIDUCIAL_NODE_NAME; // Fiducial shows TableTop center position
   static const char* FIXEDREFERENCE_MARKUPS_LINE_NODE_NAME; //  Beam axis line in fixed reference frame
 
   static const char* DRR_TRANSFORM_NODE_NAME;
@@ -89,8 +78,7 @@ public:
 
   void LoadTreatmentMachine(vtkMRMLPatientPositioningNode* parameterNode);
   void BuildRobotTableGeometryTransformHierarchy();
-  void ResetModelsToInitialPosition(vtkMRMLPatientPositioningNode* parameterNode);
-  void SetupTreatmentMachine(vtkMRMLPatientPositioningNode* parameterNode);
+  std::string CheckForCollisions(vtkMRMLPatientPositioningNode* parameterNode, bool collisionDetectionEnabled = true);
 
   void SetXrayImagesProjection(vtkMRMLPatientPositioningNode* parameterNode, vtkMRMLPatientPositioningNode::XrayProjectionType projection,
     vtkMRMLSliceCompositeNode* sliceCompNode, vtkMRMLSliceNode* sliceNode);
@@ -118,6 +106,18 @@ public:
   std::string GetStateForPartType(std::string partType);
   /// Get TableTopRobotTransformLogic
   vtkSlicerTableTopRobotTransformLogic* GetTableTopRobotTransformLogic() const;
+  void SetFixedReferenceCamera(vtkMRMLCameraNode* cameraNode);
+
+  // Set/get methods for collision filters
+  vtkGetObjectMacro(TableTopElbowCollisionDetection, vtkCollisionDetectionFilter);
+  vtkGetObjectMacro(TableTopShoulderCollisionDetection, vtkCollisionDetectionFilter);
+  vtkGetObjectMacro(TableTopBaseRotationCollisionDetection, vtkCollisionDetectionFilter);
+  vtkGetObjectMacro(TableTopBaseFixedCollisionDetection, vtkCollisionDetectionFilter);
+  vtkGetObjectMacro(TableTopFixedReferenceCollisionDetection, vtkCollisionDetectionFilter);
+  vtkGetObjectMacro(CollimatorPatientCollisionDetection, vtkCollisionDetectionFilter);
+  vtkGetObjectMacro(CollimatorTableTopCollisionDetection, vtkCollisionDetectionFilter);
+  vtkGetObjectMacro(AdditionalModelsTableTopCollisionDetection, vtkCollisionDetectionFilter);
+  vtkGetObjectMacro(AdditionalModelsPatientSupportCollisionDetection, vtkCollisionDetectionFilter);
 
 protected:
   vtkSlicerPatientPositioningLogic();
@@ -132,12 +132,26 @@ protected:
   /// Handles events registered in the observer manager
   void ProcessMRMLNodesEvents(vtkObject* caller, unsigned long event, void* callData) override;
 
-private:
-
-  vtkSlicerPatientPositioningLogic(const vtkSlicerPatientPositioningLogic&); // Not implemented
-  void operator=(const vtkSlicerPatientPositioningLogic&); // Not implemented
+  /// Get patient body closed surface poly data from segmentation node and segment selection in the parameter node
+//  bool GetPatientBodyPolyData(vtkMRMLPatientPositioningNode* parameterNode, vtkPolyData* patientBodyPolyData);
 
   vtkSlicerTableTopRobotTransformLogic* TableTopRobotLogic{ nullptr };
+
+  vtkCollisionDetectionFilter* TableTopElbowCollisionDetection{ nullptr };
+  vtkCollisionDetectionFilter* TableTopShoulderCollisionDetection{ nullptr };
+  vtkCollisionDetectionFilter* TableTopBaseRotationCollisionDetection{ nullptr };
+  vtkCollisionDetectionFilter* TableTopBaseFixedCollisionDetection{ nullptr };
+  vtkCollisionDetectionFilter* TableTopFixedReferenceCollisionDetection{ nullptr };
+
+  vtkCollisionDetectionFilter* CollimatorPatientCollisionDetection{ nullptr };
+  vtkCollisionDetectionFilter* CollimatorTableTopCollisionDetection{ nullptr };
+
+  vtkCollisionDetectionFilter* AdditionalModelsTableTopCollisionDetection{ nullptr };
+  vtkCollisionDetectionFilter* AdditionalModelsPatientSupportCollisionDetection{ nullptr };
+
+private:
+  vtkSlicerPatientPositioningLogic(const vtkSlicerPatientPositioningLogic&); // Not implemented
+  void operator=(const vtkSlicerPatientPositioningLogic&); // Not implemented
 
   class vtkInternal;
   vtkInternal* Internal;
