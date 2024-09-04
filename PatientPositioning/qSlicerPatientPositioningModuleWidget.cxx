@@ -994,6 +994,15 @@ void qSlicerPatientPositioningModuleWidget::onFixedReferenceCameraToggled(bool t
 {
   Q_D(qSlicerPatientPositioningModuleWidget);
   vtkMRMLCameraNode* threeDViewCameraNode = d->get3DViewCameraNode();
+
+  vtkMRMLLinearTransformNode* node = d->logic()->GetTableTopRobotTransformLogic()->GetFixedReferenceTransform();
+  if (toggled)
+  {
+    threeDViewCameraNode->SetAndObserveTransformNodeID(node ? node->GetID() : nullptr);
+    return;
+  }
+  threeDViewCameraNode->SetAndObserveTransformNodeID(nullptr);
+/*
   if (toggled)
   {
     d->logic()->SetFixedReferenceCamera(threeDViewCameraNode);
@@ -1003,6 +1012,7 @@ void qSlicerPatientPositioningModuleWidget::onFixedReferenceCameraToggled(bool t
     d->logic()->SetFixedReferenceCamera(nullptr);
   }
   d->Channel25GeometryNode->Modified();
+*/
 }
 
 //-----------------------------------------------------------------------------

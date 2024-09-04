@@ -340,9 +340,12 @@ void vtkSlicerPatientPositioningLogic::vtkInternal::UpdateFixedReferenceCamera(v
     vtkWarningWithObjectMacro( this->External, "UpdateFixedReferenceCamera: Camera node is invalid");
     return;
   }
-  vtkCamera* camera = this->Camera3DViewNode->GetCamera();
+  this->Camera3DViewNode->SetAndObserveTransformNodeID(node->GetID());
+//  vtkCamera* camera = this->Camera3DViewNode->GetCamera();
   if (node)
   {
+/*
+    vtkLinearTransform* transform = vtkLinearTransform::SafeDownCast(node->GetTransformToParent());
     vtkLinearTransform* transform = vtkLinearTransform::SafeDownCast(node->GetTransformToParent());
     vtkNew<vtkMatrix4x4> matrix;
     transform->GetMatrix(matrix);
@@ -360,6 +363,8 @@ void vtkSlicerPatientPositioningLogic::vtkInternal::UpdateFixedReferenceCamera(v
     camera->SetFocalPoint(focalPointRas);
     camera->SetPosition(posPointRas);
     camera->SetDistance(this->CameraDistance);
+    this->Camera3DViewNode->Modified();
+*/
   }
 }
 
@@ -526,8 +531,9 @@ void vtkSlicerPatientPositioningLogic::ProcessMRMLNodesEvents(vtkObject* caller,
       this->TableTopRobotLogic->UpdateRasToShoulderTransform(channel25Geometry);
       this->TableTopRobotLogic->UpdateRasToBaseRotationTransform(channel25Geometry);
       this->TableTopRobotLogic->UpdateRasToBaseFixedTransform(channel25Geometry);
-      vtkMRMLLinearTransformNode* node = this->TableTopRobotLogic->UpdateRasToFixedReferenceTransform(channel25Geometry);
-      this->Internal->UpdateFixedReferenceCamera(node);
+      this->TableTopRobotLogic->UpdateRasToFixedReferenceTransform(channel25Geometry);
+//      vtkMRMLLinearTransformNode* node = this->TableTopRobotLogic->UpdateRasToFixedReferenceTransform(channel25Geometry);
+//      this->Internal->UpdateFixedReferenceCamera(node);
     }
   }
 }
