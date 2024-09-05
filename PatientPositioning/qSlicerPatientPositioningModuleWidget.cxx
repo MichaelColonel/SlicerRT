@@ -80,7 +80,8 @@ public:
   virtual ~qSlicerPatientPositioningModuleWidgetPrivate();
   vtkSlicerPatientPositioningLogic* logic() const;
   vtkSlicerTableTopRobotTransformLogic* tableTopRobotLogic() const;
-  vtkMRMLCameraNode* get3DViewCameraNode();
+  vtkMRMLCameraNode* get3DViewCameraNode() const;
+  qMRMLLayoutManager* getLayoutManager() const;
 
   /// IhepStandGeometry MRML node containing shown parameters
   vtkSmartPointer<vtkMRMLChannel25GeometryNode> Channel25GeometryNode;
@@ -117,7 +118,7 @@ vtkSlicerTableTopRobotTransformLogic* qSlicerPatientPositioningModuleWidgetPriva
 }
 
 //-----------------------------------------------------------------------------
-vtkMRMLCameraNode* qSlicerPatientPositioningModuleWidgetPrivate::get3DViewCameraNode()
+vtkMRMLCameraNode* qSlicerPatientPositioningModuleWidgetPrivate::get3DViewCameraNode() const
 {
   Q_Q(const qSlicerPatientPositioningModuleWidget);
 
@@ -142,11 +143,19 @@ vtkMRMLCameraNode* qSlicerPatientPositioningModuleWidgetPrivate::get3DViewCamera
   if (!cameraNode)
   {
     qCritical() << Q_FUNC_INFO << "Failed to find camera for view " << (viewNode ? viewNode->GetID() : "(null)");
-    cameras->Delete();
-    return nullptr;
   }
   cameras->Delete();
   return cameraNode;
+}
+
+//-----------------------------------------------------------------------------
+qMRMLLayoutManager* qSlicerPatientPositioningModuleWidgetPrivate::getLayoutManager() const
+{
+  Q_Q(const qSlicerPatientPositioningModuleWidget);
+
+  // Get 3D view node
+  qSlicerApplication* slicerApplication = qSlicerApplication::application();
+  return slicerApplication->layoutManager();
 }
 
 //-----------------------------------------------------------------------------
@@ -182,8 +191,6 @@ void qSlicerPatientPositioningModuleWidget::setup()
   // Buttons
   connect( d->PushButton_LoadTreatmentMachine, SIGNAL(clicked()), 
     this, SLOT(onLoadTreatmentMachineButtonClicked()));
-  connect( d->PushButton_Test, SIGNAL(clicked()), 
-    this, SLOT(onTestClicked()));
   connect( d->CheckBox_RotatePatientHeadFeet, SIGNAL(toggled(bool)), 
     this, SLOT(onRotatePatientHeadFeetToggled(bool)));
   connect( d->CheckBox_ForceCollisionDetectionUpdate, SIGNAL(toggled(bool)), 
@@ -697,6 +704,7 @@ void qSlicerPatientPositioningModuleWidget::onTableTopRobotA1Changed(double a1)
     qCritical() << Q_FUNC_INFO << ": Parameter node is invalid!";
     return;
   }
+  d->getLayoutManager()->pauseRender();
   qCritical() << Q_FUNC_INFO << ": Angle A1 " << a1;
   double a[6] = {};
   d->Channel25GeometryNode->GetTableTopRobotAngles(a);
@@ -714,6 +722,7 @@ void qSlicerPatientPositioningModuleWidget::onTableTopRobotA1Changed(double a1)
   }
   d->Channel25GeometryNode->Modified();
   this->checkForCollisions();
+  d->getLayoutManager()->resumeRender();
 }
 
 //-----------------------------------------------------------------------------
@@ -731,6 +740,7 @@ void qSlicerPatientPositioningModuleWidget::onTableTopRobotA2Changed(double a2)
     qCritical() << Q_FUNC_INFO << ": Parameter node is invalid!";
     return;
   }
+  d->getLayoutManager()->pauseRender();
   qCritical() << Q_FUNC_INFO << ": Angle A2 " << a2;
   double a[6] = {};
   d->Channel25GeometryNode->GetTableTopRobotAngles(a);
@@ -749,6 +759,7 @@ void qSlicerPatientPositioningModuleWidget::onTableTopRobotA2Changed(double a2)
   }
   d->Channel25GeometryNode->Modified();
   this->checkForCollisions();
+  d->getLayoutManager()->resumeRender();
 }
 
 //-----------------------------------------------------------------------------
@@ -766,6 +777,7 @@ void qSlicerPatientPositioningModuleWidget::onTableTopRobotA3Changed(double a3)
     qCritical() << Q_FUNC_INFO << ": Parameter node is invalid!";
     return;
   }
+  d->getLayoutManager()->pauseRender();
   qCritical() << Q_FUNC_INFO << ": Angle A3 " << a3;
   double a[6] = {};
   d->Channel25GeometryNode->GetTableTopRobotAngles(a);
@@ -785,6 +797,7 @@ void qSlicerPatientPositioningModuleWidget::onTableTopRobotA3Changed(double a3)
   }
   d->Channel25GeometryNode->Modified();
   this->checkForCollisions();
+  d->getLayoutManager()->resumeRender();
 }
 
 //-----------------------------------------------------------------------------
@@ -802,6 +815,7 @@ void qSlicerPatientPositioningModuleWidget::onTableTopRobotA4Changed(double a4)
     qCritical() << Q_FUNC_INFO << ": Parameter node is invalid!";
     return;
   }
+  d->getLayoutManager()->pauseRender();
   qCritical() << Q_FUNC_INFO << ": Angle A4 " << a4;
   double a[6] = {};
   d->Channel25GeometryNode->GetTableTopRobotAngles(a);
@@ -822,6 +836,7 @@ void qSlicerPatientPositioningModuleWidget::onTableTopRobotA4Changed(double a4)
   }
   d->Channel25GeometryNode->Modified();
   this->checkForCollisions();
+  d->getLayoutManager()->resumeRender();
 }
 
 //-----------------------------------------------------------------------------
@@ -839,6 +854,7 @@ void qSlicerPatientPositioningModuleWidget::onTableTopRobotA5Changed(double a5)
     qCritical() << Q_FUNC_INFO << ": Parameter node is invalid!";
     return;
   }
+  d->getLayoutManager()->pauseRender();
   qCritical() << Q_FUNC_INFO << ": Angle A5 " << a5;
   double a[6] = {};
   d->Channel25GeometryNode->GetTableTopRobotAngles(a);
@@ -859,6 +875,7 @@ void qSlicerPatientPositioningModuleWidget::onTableTopRobotA5Changed(double a5)
   }
   d->Channel25GeometryNode->Modified();
   this->checkForCollisions();
+  d->getLayoutManager()->resumeRender();
 }
 
 //-----------------------------------------------------------------------------
@@ -876,6 +893,7 @@ void qSlicerPatientPositioningModuleWidget::onTableTopRobotA6Changed(double a6)
     qCritical() << Q_FUNC_INFO << ": Parameter node is invalid!";
     return;
   }
+  d->getLayoutManager()->pauseRender();
   qCritical() << Q_FUNC_INFO << ": Angle A6 " << a6;
   double a[6] = {};
   d->Channel25GeometryNode->GetTableTopRobotAngles(a);
@@ -897,6 +915,7 @@ void qSlicerPatientPositioningModuleWidget::onTableTopRobotA6Changed(double a6)
   }
   d->Channel25GeometryNode->Modified();
   this->checkForCollisions();
+  d->getLayoutManager()->resumeRender();
 }
 
 //-----------------------------------------------------------------------------
@@ -928,6 +947,7 @@ void qSlicerPatientPositioningModuleWidget::onPatientTableTopTranslationChanged(
     qCritical() << Q_FUNC_INFO << ": Parameter node is invalid!";
     return;
   }
+  d->getLayoutManager()->pauseRender();
   d->Channel25GeometryNode->DisableModifiedEventOn();
   d->Channel25GeometryNode->SetPatientToTableTopTranslation(position);
   d->Channel25GeometryNode->DisableModifiedEventOff();
@@ -945,6 +965,7 @@ void qSlicerPatientPositioningModuleWidget::onPatientTableTopTranslationChanged(
   }
   d->Channel25GeometryNode->Modified();
   this->checkForCollisions();
+  d->getLayoutManager()->resumeRender();
 }
 
 //-----------------------------------------------------------------------------
@@ -963,6 +984,7 @@ void qSlicerPatientPositioningModuleWidget::onBaseFixedToFixedReferenceTranslati
     qCritical() << Q_FUNC_INFO << ": Parameter node is invalid!";
     return;
   }
+  d->getLayoutManager()->pauseRender();
   d->Channel25GeometryNode->DisableModifiedEventOn();
   d->Channel25GeometryNode->SetBaseFixedToFixedReferenceTranslation(position);
   d->Channel25GeometryNode->DisableModifiedEventOff();
@@ -973,6 +995,7 @@ void qSlicerPatientPositioningModuleWidget::onBaseFixedToFixedReferenceTranslati
   }
   d->Channel25GeometryNode->Modified();
   this->checkForCollisions();
+  d->getLayoutManager()->resumeRender();
 }
 
 //-----------------------------------------------------------------------------
@@ -985,23 +1008,51 @@ void qSlicerPatientPositioningModuleWidget::onRotatePatientHeadFeetToggled(bool 
     qCritical() << Q_FUNC_INFO << ": Parameter node is invalid!";
     return;
   }
-
+  d->getLayoutManager()->pauseRender();
   d->Channel25GeometryNode->SetPatientHeadFeetRotation(toggled);
+  d->getLayoutManager()->resumeRender();
 }
 
 //-----------------------------------------------------------------------------
 void qSlicerPatientPositioningModuleWidget::onFixedReferenceCameraToggled(bool toggled)
 {
   Q_D(qSlicerPatientPositioningModuleWidget);
-  vtkMRMLCameraNode* threeDViewCameraNode = d->get3DViewCameraNode();
+
+  // Get 3D view node
+  qSlicerApplication* slicerApplication = qSlicerApplication::application();
+  qSlicerLayoutManager* layoutManager = slicerApplication->layoutManager();
+  qMRMLThreeDView* threeDView = layoutManager->threeDWidget(0)->threeDView();
+  vtkMRMLViewNode* viewNode = threeDView->mrmlViewNode();
+
+  // Get camera node for view
+  vtkCollection* cameras = this->mrmlScene()->GetNodesByClass("vtkMRMLCameraNode");
+  vtkMRMLCameraNode* cameraNode = nullptr;
+  for (int i = 0; i < cameras->GetNumberOfItems(); i++)
+  {
+    cameraNode = vtkMRMLCameraNode::SafeDownCast(cameras->GetItemAsObject(i));
+    std::string viewUniqueName = std::string(viewNode->GetNodeTagName()) + cameraNode->GetLayoutName();
+    if (viewUniqueName == viewNode->GetID())
+    {
+      break;
+    }
+  }
+  if (!cameraNode)
+  {
+    qCritical() << Q_FUNC_INFO << "Failed to find camera for view " << (viewNode ? viewNode->GetID() : "(null)");
+  }
+  cameras->Delete();
 
   vtkMRMLLinearTransformNode* node = d->logic()->GetTableTopRobotTransformLogic()->GetFixedReferenceTransform();
   if (toggled)
   {
-    threeDViewCameraNode->SetAndObserveTransformNodeID(node ? node->GetID() : nullptr);
+    cameraNode->SetAndObserveTransformNodeID(node ? node->GetID() : nullptr);
+    d->Channel25GeometryNode->Modified();
+    viewNode->Modified();
     return;
   }
-  threeDViewCameraNode->SetAndObserveTransformNodeID(nullptr);
+  cameraNode->SetAndObserveTransformNodeID(nullptr);
+  d->Channel25GeometryNode->Modified();
+  viewNode->Modified();
 /*
   if (toggled)
   {
@@ -1013,12 +1064,6 @@ void qSlicerPatientPositioningModuleWidget::onFixedReferenceCameraToggled(bool t
   }
   d->Channel25GeometryNode->Modified();
 */
-}
-
-//-----------------------------------------------------------------------------
-void qSlicerPatientPositioningModuleWidget::onTestClicked()
-{
-  Q_D(qSlicerPatientPositioningModuleWidget);
 }
 
 //-----------------------------------------------------------------------------

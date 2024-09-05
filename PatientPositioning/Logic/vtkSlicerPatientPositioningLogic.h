@@ -106,7 +106,7 @@ public:
   std::string GetStateForPartType(std::string partType);
   /// Get TableTopRobotTransformLogic
   vtkSlicerTableTopRobotTransformLogic* GetTableTopRobotTransformLogic() const;
-  void SetFixedReferenceCamera(vtkMRMLCameraNode* cameraNode);
+//  void SetFixedReferenceCamera(vtkMRMLCameraNode* cameraNode);
 
   // Set/get methods for collision filters
   vtkGetObjectMacro(TableTopElbowCollisionDetection, vtkCollisionDetectionFilter);

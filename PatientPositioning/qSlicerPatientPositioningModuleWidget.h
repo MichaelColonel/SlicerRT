@@ -65,7 +65,7 @@ public slots:
   void onRotatePatientHeadFeetToggled(bool toggled);
   void onCollisionDetectionToggled(bool toggled);
   void onFixedReferenceCameraToggled(bool toggled);
-  void onTestClicked();
+//  void onTestClicked();
 
   /// Update widget GUI from PatientPositioning parameters node
   void updateWidgetFromMRML();
