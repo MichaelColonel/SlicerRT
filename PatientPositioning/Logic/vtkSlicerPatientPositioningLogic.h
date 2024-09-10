@@ -84,8 +84,11 @@ public:
     vtkMRMLSliceCompositeNode* sliceCompNode, vtkMRMLSliceNode* sliceNode);
   vtkMRMLLinearTransformNode* GetXrayImageRasToIjkMatrixTransformNode(vtkMRMLScalarVolumeNode* xrayImageNode, vtkMRMLRTBeamNode* xrayBeamNode);
 
-// Get treatment machine properties from descriptor file
+  /// Get TableTopRobotTransformLogic
+  vtkSlicerTableTopRobotTransformLogic* GetTableTopRobotTransformLogic() const;
+
 public:
+  // Get treatment machine properties from descriptor file
   /// Get part type as string
   const char* GetTreatmentMachinePartTypeAsString(vtkSlicerTableTopRobotTransformLogic::CoordinateSystemIdentifier type);
 
@@ -104,9 +107,6 @@ public:
   /// Get state for part type in the currently loaded treatment machine description.
   /// Valid states are "Disabled" (not loaded), "Active" (loaded and collisions computed), "Passive" (loaded but no collisions).
   std::string GetStateForPartType(std::string partType);
-  /// Get TableTopRobotTransformLogic
-  vtkSlicerTableTopRobotTransformLogic* GetTableTopRobotTransformLogic() const;
-//  void SetFixedReferenceCamera(vtkMRMLCameraNode* cameraNode);
 
   // Set/get methods for collision filters
   vtkGetObjectMacro(TableTopElbowCollisionDetection, vtkCollisionDetectionFilter);

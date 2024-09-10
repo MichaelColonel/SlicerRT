@@ -72,16 +72,10 @@ class vtkSlicerPatientPositioningLogic::vtkInternal
 public:
   vtkInternal(vtkSlicerPatientPositioningLogic* external);
   ~vtkInternal();
-//  void UpdateFixedReferenceCamera(vtkMRMLLinearTransformNode* rasToFixedReferenceTransformNode);
 
   using CoordSys = vtkSlicerTableTopRobotTransformLogic::CoordinateSystemIdentifier;
   vtkSlicerPatientPositioningLogic* External;
   rapidjson::Document* CurrentTreatmentMachineDescription{ nullptr };
-//  vtkMRMLCameraNode* Camera3DViewNode{ nullptr };
-//  double CameraPosition[3]{}; // in FixedRereference frame
-//  double CameraFocalPoint[3]{}; // in FixedRereference frame
-//  double CameraViewUpVector[3]{}; // in FixedRereference frame
-//  double CameraDistance{ 0. }; // in FixedRereference frame
 
   /// Utility function to get element for treatment machine part
   /// \return Json object if found, otherwise null Json object
@@ -332,44 +326,6 @@ vtkMRMLModelNode* vtkSlicerPatientPositioningLogic::vtkInternal::EnsureTreatment
   return partModelNode;
 }
 
-//------------------------------------------------------------------------------
-/*
-void vtkSlicerPatientPositioningLogic::vtkInternal::UpdateFixedReferenceCamera(vtkMRMLLinearTransformNode* node)
-{
-  if (!this->Camera3DViewNode)
-  {
-    vtkWarningWithObjectMacro( this->External, "UpdateFixedReferenceCamera: Camera node is invalid");
-    return;
-  }
-//  this->Camera3DViewNode->SetAndObserveTransformNodeID(node->GetID());
-  vtkCamera* camera = this->Camera3DViewNode->GetCamera();
-  if (node)
-  {
-    vtkNew<vtkMatrix4x4> matrix;
-    node->GetMatrixTransformToWorld(matrix.GetPointer());
-    this->Camera3DViewNode->SetAppliedTransform(matrix);
-//    this->Camera3DViewNode->Modified();
-    vtkLinearTransform* transform = vtkLinearTransform::SafeDownCast(node->GetTransformToParent());
-//    vtkNew<vtkMatrix4x4> matrix;
-    transform->GetMatrix(matrix);
-    matrix->Invert();
-    double focalPointFixedReference[4] = { this->CameraFocalPoint[0], this->CameraFocalPoint[1], this->CameraFocalPoint[2], 1. };
-    double focalPointRas[4] = {};
-    double posPointFixedReference[4] = { this->CameraPosition[0], this->CameraPosition[1], this->CameraPosition[2], 1. };
-    double posPointRas[4] = {};
-    double viewUpVectorFixedReference[4] = { this->CameraViewUpVector[0], this->CameraViewUpVector[1], this->CameraViewUpVector[2], 0. };
-    double viewUpVectorRas[4] = {};
-    matrix->MultiplyPoint(focalPointFixedReference, focalPointRas);
-    matrix->MultiplyPoint(posPointFixedReference, posPointRas);
-    matrix->MultiplyPoint(viewUpVectorFixedReference, viewUpVectorRas);
-    camera->SetViewUp(viewUpVectorRas);
-    camera->SetFocalPoint(focalPointRas);
-    camera->SetPosition(posPointRas);
-    camera->SetDistance(this->CameraDistance);
-
-  }
-}
-*/
 //----------------------------------------------------------------------------
 vtkSlicerPatientPositioningLogic::vtkSlicerPatientPositioningLogic()
 {
@@ -534,8 +490,6 @@ void vtkSlicerPatientPositioningLogic::ProcessMRMLNodesEvents(vtkObject* caller,
       this->TableTopRobotLogic->UpdateRasToBaseRotationTransform(channel25Geometry);
       this->TableTopRobotLogic->UpdateRasToBaseFixedTransform(channel25Geometry);
       this->TableTopRobotLogic->UpdateRasToFixedReferenceTransform(channel25Geometry);
-//      vtkMRMLLinearTransformNode* node = this->TableTopRobotLogic->UpdateRasToFixedReferenceTransform(channel25Geometry);
-//      this->Internal->UpdateFixedReferenceCamera(node);
     }
   }
 }
@@ -713,82 +667,6 @@ void vtkSlicerPatientPositioningLogic::BuildRobotTableGeometryTransformHierarchy
   this->TableTopRobotLogic->ResetToInitialPositions();
 }
 
-//------------------------------------------------------------------------------
-/*
-void vtkSlicerPatientPositioningLogic::SetFixedReferenceCamera(vtkMRMLCameraNode* cameraNode)
-{
-  if (!cameraNode && !this->Internal->Camera3DViewNode)
-  {
-    vtkErrorMacro("SetFixedReferenceCamera: Both argument pointer and member pointer to camera node are invalid");
-    return;
-  }
-  if (cameraNode)
-  {
-    vtkCamera* camera = cameraNode->GetCamera();
-    double viewUpVector[3];
-    double focalPoint[3];
-    double positionPoint[3];
-    camera->GetViewUp(viewUpVector);
-    camera->GetFocalPoint(focalPoint);
-    camera->GetPosition(positionPoint);
-    vtkMRMLLinearTransformNode* transformNode = this->GetTableTopRobotLogic()->GetFixedReferenceTransform();
-    if (transformNode)
-    {
-      vtkNew<vtkMatrix4x4> matrix;
-//      vtkLinearTransform* transform = vtkLinearTransform::SafeDownCast(transformNode->GetTransformToParent());
-      // Get matrix from RAS to FixedReference frame
-//      transform->GetMatrix(matrix);
-      
-      matrix->Identity();
-      transformNode->GetMatrixTransformToWorld(matrix.GetPointer());
-
-      double focalPointFixedRerefence[4] = {};
-      double focalPointRas[4] = { focalPoint[0], focalPoint[1], focalPoint[2], 1. };
-      double posPointFixedRerefence[4] = {};
-      double posPointRas[4] = { positionPoint[0], positionPoint[1], positionPoint[2], 1. };
-      double viewUpVectorFixedRerefence[4] = {};
-      double viewUpVectorRas[4] = { viewUpVector[0], viewUpVector[1], viewUpVector[2], 0. };
-      // Get points and ViewUp vector in FixedReference frame
-      vtkWarningMacro("SetFixedReferenceCamera, Focal Point within RAS: " << focalPoint[0] << ' ' << focalPoint[1] << ' ' << focalPoint[2]);
-      vtkWarningMacro("SetFixedReferenceCamera, Position within RAS: " << positionPoint[0] << ' ' << positionPoint[1] << ' ' << positionPoint[2]);
-      vtkWarningMacro("SetFixedReferenceCamera, VUP vector within RAS: " << viewUpVector[0] << ' ' << viewUpVector[1] << ' ' << viewUpVector[2]);
-      matrix->MultiplyPoint(focalPointRas, focalPointFixedRerefence);
-      matrix->MultiplyPoint(posPointRas, posPointFixedRerefence);
-      matrix->MultiplyPoint(viewUpVectorRas, viewUpVectorFixedRerefence);
-      vtkWarningMacro("SetFixedReferenceCamera, Focal Point within FixedReference frame: " << focalPointFixedRerefence[0] << ' ' << focalPointFixedRerefence[1] << ' ' << focalPointFixedRerefence[2]);
-      vtkWarningMacro("SetFixedReferenceCamera, Position within FixedReference frame: " << posPointFixedRerefence[0] << ' ' << posPointFixedRerefence[1] << ' ' << posPointFixedRerefence[2]);
-      vtkWarningMacro("SetFixedReferenceCamera, VUP vector within FixedReference frame: " << viewUpVectorFixedRerefence[0] << ' ' << viewUpVectorFixedRerefence[1] << ' ' << viewUpVectorFixedRerefence[2]);
-      // save parameters
-      this->Internal->CameraDistance = camera->GetDistance();
-      this->Internal->CameraPosition[0] = posPointFixedRerefence[0];
-      this->Internal->CameraPosition[1] = posPointFixedRerefence[1];
-      this->Internal->CameraPosition[2] = posPointFixedRerefence[2];
-      this->Internal->CameraFocalPoint[0] = focalPointFixedRerefence[0];
-      this->Internal->CameraFocalPoint[1] = focalPointFixedRerefence[1];
-      this->Internal->CameraFocalPoint[2] = focalPointFixedRerefence[2];
-      this->Internal->CameraViewUpVector[0] = viewUpVectorFixedRerefence[0];
-      this->Internal->CameraViewUpVector[1] = viewUpVectorFixedRerefence[1];
-      this->Internal->CameraViewUpVector[2] = viewUpVectorFixedRerefence[2];
-      this->Internal->Camera3DViewNode = cameraNode;
-      this->Internal->Camera3DViewNode->SetAppliedTransform(matrix);
-    }
-  }
-  else
-  {
-    this->Internal->CameraDistance = 0.0;
-    this->Internal->CameraPosition[0] = 0.0;
-    this->Internal->CameraPosition[1] = 0.0;
-    this->Internal->CameraPosition[2] = 0.0;
-    this->Internal->CameraFocalPoint[0] = 0.0;
-    this->Internal->CameraFocalPoint[1] = 0.0;
-    this->Internal->CameraFocalPoint[2] = 0.0;
-    this->Internal->CameraViewUpVector[0] = 0.0;
-    this->Internal->CameraViewUpVector[1] = 0.0;
-    this->Internal->CameraViewUpVector[2] = 0.0;
-    this->Internal->Camera3DViewNode = nullptr;
-  }
-}
-*/
 //----------------------------------------------------------------------------
 std::vector<vtkSlicerTableTopRobotTransformLogic::CoordinateSystemIdentifier>
 vtkSlicerPatientPositioningLogic::LoadTreatmentMachine(vtkMRMLChannel25GeometryNode* parameterNode)
