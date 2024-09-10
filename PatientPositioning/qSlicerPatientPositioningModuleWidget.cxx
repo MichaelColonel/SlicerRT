@@ -782,7 +782,7 @@ void qSlicerPatientPositioningModuleWidget::onTableTopRobotA3Changed(double a3)
   double a[6] = {};
   d->Channel25GeometryNode->GetTableTopRobotAngles(a);
   d->Channel25GeometryNode->DisableModifiedEventOn();
-  a[2] = 90. - a3;
+  a[2] = a3 - 90.;
   d->Channel25GeometryNode->SetTableTopRobotAngles(a);
   d->Channel25GeometryNode->DisableModifiedEventOff();
 
@@ -1018,52 +1018,18 @@ void qSlicerPatientPositioningModuleWidget::onFixedReferenceCameraToggled(bool t
 {
   Q_D(qSlicerPatientPositioningModuleWidget);
 
-  // Get 3D view node
-  qSlicerApplication* slicerApplication = qSlicerApplication::application();
-  qSlicerLayoutManager* layoutManager = slicerApplication->layoutManager();
-  qMRMLThreeDView* threeDView = layoutManager->threeDWidget(0)->threeDView();
-  vtkMRMLViewNode* viewNode = threeDView->mrmlViewNode();
-
-  // Get camera node for view
-  vtkCollection* cameras = this->mrmlScene()->GetNodesByClass("vtkMRMLCameraNode");
-  vtkMRMLCameraNode* cameraNode = nullptr;
-  for (int i = 0; i < cameras->GetNumberOfItems(); i++)
-  {
-    cameraNode = vtkMRMLCameraNode::SafeDownCast(cameras->GetItemAsObject(i));
-    std::string viewUniqueName = std::string(viewNode->GetNodeTagName()) + cameraNode->GetLayoutName();
-    if (viewUniqueName == viewNode->GetID())
-    {
-      break;
-    }
-  }
-  if (!cameraNode)
-  {
-    qCritical() << Q_FUNC_INFO << "Failed to find camera for view " << (viewNode ? viewNode->GetID() : "(null)");
-  }
-  cameras->Delete();
+  vtkMRMLCameraNode* cameraNode = d->get3DViewCameraNode();
 
   vtkMRMLLinearTransformNode* node = d->logic()->GetTableTopRobotTransformLogic()->GetFixedReferenceTransform();
   if (toggled)
   {
+    vtkNew<vtkMatrix4x4> matrix;
+    node->GetMatrixTransformToParent(matrix);
+    cameraNode->SetAppliedTransform(matrix);
     cameraNode->SetAndObserveTransformNodeID(node ? node->GetID() : nullptr);
-    d->Channel25GeometryNode->Modified();
-    viewNode->Modified();
     return;
   }
   cameraNode->SetAndObserveTransformNodeID(nullptr);
-  d->Channel25GeometryNode->Modified();
-  viewNode->Modified();
-/*
-  if (toggled)
-  {
-    d->logic()->SetFixedReferenceCamera(threeDViewCameraNode);
-  }
-  else
-  {
-    d->logic()->SetFixedReferenceCamera(nullptr);
-  }
-  d->Channel25GeometryNode->Modified();
-*/
 }
 
 //-----------------------------------------------------------------------------
