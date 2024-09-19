@@ -26,20 +26,12 @@
 #include <vtkSmartPointer.h>
 
 class vtkMRMLScalarVolumeNode;
+class vtkMRMLChannel25GeometryNode;
+class vtkMRMLMarkupsLineNode;
 
 class VTK_SLICER_PATIENTPOSITIONING_MODULE_MRML_EXPORT vtkMRMLPatientPositioningNode : public vtkMRMLNode
 {
 public:
-  /// First DRR image, second X-ray system image
-  typedef std::pair< vtkWeakPointer<vtkMRMLScalarVolumeNode>, vtkWeakPointer<vtkMRMLScalarVolumeNode> > DrrXrayImagePair;
-  enum XrayProjectionType : int {
-    Horizontal = 0,
-    Vertical = 1,
-    Angle = 2,
-    XrayProjectionType_Last
-  };
-  typedef std::map< XrayProjectionType, DrrXrayImagePair > XrayProjectionImagesMap;
-
   static vtkMRMLPatientPositioningNode *New();
   vtkTypeMacro(vtkMRMLPatientPositioningNode,vtkMRMLNode);
   void PrintSelf(ostream& os, vtkIndent indent) override;
@@ -66,38 +58,36 @@ public:
   void ProcessMRMLEvents(vtkObject *caller, unsigned long eventID, void *callData) override;
 
 public:
-  void SetXrayImageNode(vtkMRMLScalarVolumeNode* node, XrayProjectionType projectionType = XrayProjectionType::Vertical);
-  void SetDrrNode(vtkMRMLScalarVolumeNode* node, XrayProjectionType projectionType = XrayProjectionType::Vertical);
-  /// Get DRR node
-  vtkMRMLScalarVolumeNode* GetDrrNode(XrayProjectionType projectionType = XrayProjectionType::Vertical);
-  /// Get X-ray image node
-  vtkMRMLScalarVolumeNode* GetXrayImageNode(XrayProjectionType projectionType = XrayProjectionType::Vertical);
-  void TranslateXrayImage(XrayProjectionType projectionType = XrayProjectionType::Vertical, double x = 0., double y = 0., double z = 0.);
+  /// Get observed Channel-25 geometry node
+  vtkMRMLChannel25GeometryNode* GetChannel25GeometryNode();
+  /// Set and observe Channel-25 geometry node
+  void SetAndObserveChannel25GeometryNode(vtkMRMLChannel25GeometryNode* node);
 
-  /// Get observed DRR node
-  vtkMRMLScalarVolumeNode* GetObservedDrrNode();
-  /// Set and observe DRR node.
-  void SetAndObserveDrrNode(vtkMRMLScalarVolumeNode* node);
-  /// Get observed x-ray image node
-  vtkMRMLScalarVolumeNode* GetObservedXrayImageNode();
-  /// Set and observe X-ray image node.
-  void SetAndObserveXrayImageNode(vtkMRMLScalarVolumeNode* node);
+  /// Get observed Channel-25 geometry node
+  vtkMRMLMarkupsLineNode* GetFixedBeamAxis();
+  /// Set and observe Channel-25 geometry node
+  void SetAndObserveFixedBeamAxis(vtkMRMLMarkupsLineNode* node);
 
   /// Get path to the treatment machine descriptor JSON file
   vtkGetStringMacro(TreatmentMachineDescriptorFilePath);
   /// Set path to the treatment machine descriptor JSON file
   vtkSetStringMacro(TreatmentMachineDescriptorFilePath);
 
+  /// Get treatment machine name
+  vtkGetStringMacro(TreatmentMachineType);
+  /// Set treatment machine name
+  vtkSetStringMacro(TreatmentMachineType);
+
 protected:
   vtkMRMLPatientPositioningNode();
-  ~vtkMRMLPatientPositioningNode();
+  virtual ~vtkMRMLPatientPositioningNode();
   vtkMRMLPatientPositioningNode(const vtkMRMLPatientPositioningNode&);
   void operator=(const vtkMRMLPatientPositioningNode&);
 
-  XrayProjectionImagesMap ImagesMap;
-
   /// Path to the treatment machine descriptor JSON file
   char* TreatmentMachineDescriptorFilePath;
+  /// Name of treatment machine used (must match folder name where the models can be found)
+  char* TreatmentMachineType;
 };
 
 #endif

@@ -481,12 +481,6 @@ void qSlicerRoomsEyeViewModuleWidget::onPatientBodySegmentChanged(QString segmen
 {
   Q_D(qSlicerRoomsEyeViewModuleWidget);
 
-  if (!this->mrmlScene())
-  {
-    qCritical() << Q_FUNC_INFO << ": Invalid scene";
-    return;
-  }
-
   vtkMRMLRoomsEyeViewNode* paramNode = vtkMRMLRoomsEyeViewNode::SafeDownCast(d->MRMLNodeComboBox_ParameterSet->currentNode());
   if (!paramNode || segmentID.isEmpty() || !d->ModuleWindowInitialized)
   {

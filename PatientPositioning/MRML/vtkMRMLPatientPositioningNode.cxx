@@ -24,6 +24,7 @@
 #include <vtkSmartPointer.h>
 
 #include "vtkMRMLPatientPositioningNode.h"
+#include "vtkMRMLChannel25GeometryNode.h"
 
 //------------------------------------------------------------------------------
 namespace
@@ -31,6 +32,7 @@ namespace
 
 const char* DRR_REFERENCE_ROLE = "drrRef";
 const char* XRAY_IMAGE_REFERENCE_ROLE = "xrayImageRef";
+const char* CHANNEL25_GEOMETRY_REFERENCE_ROLE = "channel25GeometryRef";
 
 } // namespace
 
@@ -39,6 +41,9 @@ vtkMRMLNodeNewMacro(vtkMRMLPatientPositioningNode);
 
 //----------------------------------------------------------------------------
 vtkMRMLPatientPositioningNode::vtkMRMLPatientPositioningNode()
+  :
+  TreatmentMachineDescriptorFilePath(nullptr)
+  , TreatmentMachineType(nullptr)
 {
   // Observe RTBeam node events (like change of transform or geometry)
 ///  vtkNew<vtkIntArray> nodeEvents;
@@ -52,6 +57,8 @@ vtkMRMLPatientPositioningNode::vtkMRMLPatientPositioningNode()
 //----------------------------------------------------------------------------
 vtkMRMLPatientPositioningNode::~vtkMRMLPatientPositioningNode()
 {
+  this->SetTreatmentMachineDescriptorFilePath(nullptr);
+  this->SetTreatmentMachineType(nullptr);
 }
 
 //----------------------------------------------------------------------------
@@ -256,79 +263,19 @@ void vtkMRMLPatientPositioningNode::ProcessMRMLEvents(vtkObject *caller, unsigne
 }
 
 //----------------------------------------------------------------------------
-vtkMRMLScalarVolumeNode* vtkMRMLPatientPositioningNode::GetObservedDrrNode()
+vtkMRMLChannel25GeometryNode* vtkMRMLPatientPositioningNode::GetChannel25GeometryNode()
 {
-  return vtkMRMLScalarVolumeNode::SafeDownCast( this->GetNodeReference(DRR_REFERENCE_ROLE) );
+  return vtkMRMLChannel25GeometryNode::SafeDownCast( this->GetNodeReference(CHANNEL25_GEOMETRY_REFERENCE_ROLE) );
 }
 
 //----------------------------------------------------------------------------
-void vtkMRMLPatientPositioningNode::SetAndObserveDrrNode(vtkMRMLScalarVolumeNode* node)
+void vtkMRMLPatientPositioningNode::SetAndObserveChannel25GeometryNode(vtkMRMLChannel25GeometryNode* node)
 {
   if (node && this->Scene != node->GetScene())
   {
-    vtkErrorMacro("SetAndObserveDrrNode: Cannot set reference, the referenced and referencing node are not in the same scene");
+    vtkErrorMacro("SetAndObserveChannel25GeometryNode: Cannot set reference, the referenced and referencing node are not in the same scene");
     return;
   }
 
-  this->SetNodeReferenceID(DRR_REFERENCE_ROLE, (node ? node->GetID() : nullptr));
-}
-
-//----------------------------------------------------------------------------
-vtkMRMLScalarVolumeNode* vtkMRMLPatientPositioningNode::GetObservedXrayImageNode()
-{
-  return vtkMRMLScalarVolumeNode::SafeDownCast( this->GetNodeReference(XRAY_IMAGE_REFERENCE_ROLE) );
-}
-
-//----------------------------------------------------------------------------
-void vtkMRMLPatientPositioningNode::SetAndObserveXrayImageNode(vtkMRMLScalarVolumeNode* node)
-{
-  if (node && this->Scene != node->GetScene())
-  {
-    vtkErrorMacro("SetAndObserveXrayImageNode: Cannot set reference, the referenced and referencing node are not in the same scene");
-    return;
-  }
-
-  this->SetNodeReferenceID(XRAY_IMAGE_REFERENCE_ROLE, (node ? node->GetID() : nullptr));
-}
-
-//----------------------------------------------------------------------------
-void vtkMRMLPatientPositioningNode::SetXrayImageNode(vtkMRMLScalarVolumeNode* node, XrayProjectionType projectionType)
-{
-  if (!node || projectionType == vtkMRMLPatientPositioningNode::XrayProjectionType_Last)
-  {
-    return;
-  }
-
-  DrrXrayImagePair& imagesPair = this->ImagesMap[projectionType];
-  imagesPair.second = node;
-}
-
-//----------------------------------------------------------------------------
-void vtkMRMLPatientPositioningNode::SetDrrNode(vtkMRMLScalarVolumeNode* node, XrayProjectionType projectionType)
-{
-  if (!node || projectionType == vtkMRMLPatientPositioningNode::XrayProjectionType_Last)
-  {
-    return;
-  }
-
-  DrrXrayImagePair& imagesPair = this->ImagesMap[projectionType];
-  imagesPair.first = node;
-}
-
-//----------------------------------------------------------------------------
-vtkMRMLScalarVolumeNode* vtkMRMLPatientPositioningNode::GetDrrNode(XrayProjectionType projectionType)
-{
-  return this->ImagesMap[projectionType].first;
-}
-
-//----------------------------------------------------------------------------
-vtkMRMLScalarVolumeNode* vtkMRMLPatientPositioningNode::GetXrayImageNode(XrayProjectionType projectionType)
-{
-  return this->ImagesMap[projectionType].second;
-}
-
-//----------------------------------------------------------------------------
-void vtkMRMLPatientPositioningNode::TranslateXrayImage(XrayProjectionType projectionType, double x, double y, double z)
-{
-  this->Modified();
+  this->SetNodeReferenceID(CHANNEL25_GEOMETRY_REFERENCE_ROLE, (node ? node->GetID() : nullptr));
 }

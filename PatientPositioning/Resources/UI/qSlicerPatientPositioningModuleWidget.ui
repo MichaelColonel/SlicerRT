@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>387</width>
-    <height>834</height>
+    <height>837</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -22,55 +22,7 @@
      <layout class="QGridLayout" name="gridLayout_8">
       <item row="1" column="0">
        <layout class="QGridLayout" name="gridLayout_3">
-        <item row="2" column="0">
-         <widget class="QLabel" name="label_7">
-          <property name="text">
-           <string>Patient body:</string>
-          </property>
-         </widget>
-        </item>
-        <item row="2" column="1">
-         <widget class="qMRMLSegmentSelectorWidget" name="SegmentSelectorWidget_PatientBody" native="true">
-          <property name="noneEnabled" stdset="0">
-           <bool>true</bool>
-          </property>
-         </widget>
-        </item>
-        <item row="1" column="1">
-         <widget class="qMRMLNodeComboBox" name="MRMLNodeComboBox_Beam" native="true">
-          <property name="nodeTypes" stdset="0">
-           <stringlist>
-            <string>vtkMRMLRTBeamNode</string>
-           </stringlist>
-          </property>
-          <property name="noneEnabled" stdset="0">
-           <bool>true</bool>
-          </property>
-         </widget>
-        </item>
-        <item row="0" column="1">
-         <widget class="qMRMLNodeComboBox" name="MRMLNodeComboBox_ParameterSet" native="true">
-          <property name="enabled">
-           <bool>false</bool>
-          </property>
-          <property name="nodeTypes" stdset="0">
-           <stringlist>
-            <string>vtkMRMLPatientPositioningNode</string>
-           </stringlist>
-          </property>
-          <property name="noneDisplay" stdset="0">
-           <string>Please select a node</string>
-          </property>
-         </widget>
-        </item>
-        <item row="0" column="0">
-         <widget class="QLabel" name="label_3">
-          <property name="text">
-           <string>Parameter set:</string>
-          </property>
-         </widget>
-        </item>
-        <item row="3" column="0">
+        <item row="4" column="0">
          <widget class="QComboBox" name="ComboBox_TreatmentMachine">
           <item>
            <property name="text">
@@ -94,24 +46,91 @@
           </item>
          </widget>
         </item>
-        <item row="4" column="0" colspan="2">
-         <widget class="QCheckBox" name="CheckBox_FixedReferenceCamera">
-          <property name="text">
-           <string>Fix a 3D camera within the FixedReference frame</string>
+        <item row="2" column="1">
+         <widget class="qMRMLNodeComboBox" name="MRMLNodeComboBox_Beam">
+          <property name="nodeTypes">
+           <stringlist>
+            <string>vtkMRMLRTBeamNode</string>
+           </stringlist>
+          </property>
+          <property name="noneEnabled">
+           <bool>true</bool>
           </property>
          </widget>
         </item>
         <item row="3" column="1">
+         <widget class="qMRMLSegmentSelectorWidget" name="SegmentSelectorWidget_PatientBody">
+          <property name="noneEnabled">
+           <bool>true</bool>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="0">
+         <widget class="QLabel" name="label_3">
+          <property name="text">
+           <string>Parameter set:</string>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="1">
+         <widget class="qMRMLNodeComboBox" name="MRMLNodeComboBox_ParameterSet">
+          <property name="enabled">
+           <bool>false</bool>
+          </property>
+          <property name="nodeTypes">
+           <stringlist>
+            <string>vtkMRMLPatientPositioningNode</string>
+           </stringlist>
+          </property>
+          <property name="noneDisplay">
+           <string>Please select a node</string>
+          </property>
+         </widget>
+        </item>
+        <item row="4" column="1">
          <widget class="QPushButton" name="PushButton_LoadTreatmentMachine">
           <property name="text">
            <string>Load treatment machine</string>
           </property>
          </widget>
         </item>
-        <item row="1" column="0">
+        <item row="5" column="0" colspan="2">
+         <widget class="QCheckBox" name="CheckBox_FixedReferenceCamera">
+          <property name="text">
+           <string>Fix a 3D camera within the FixedReference frame</string>
+          </property>
+         </widget>
+        </item>
+        <item row="2" column="0">
          <widget class="QLabel" name="label_4">
           <property name="text">
            <string>Beam:</string>
+          </property>
+         </widget>
+        </item>
+        <item row="3" column="0">
+         <widget class="QLabel" name="label_7">
+          <property name="text">
+           <string>Patient body:</string>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="0">
+         <widget class="QLabel" name="label_17">
+          <property name="text">
+           <string>Plan:</string>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="1">
+         <widget class="qMRMLNodeComboBox" name="MRMLNodeComboBox_Plan">
+          <property name="nodeTypes">
+           <stringlist>
+            <string>vtkMRMLRTPlanNode</string>
+           </stringlist>
+          </property>
+          <property name="noneEnabled">
+           <bool>true</bool>
           </property>
          </widget>
         </item>
@@ -124,6 +143,9 @@
     <widget class="ctkCollapsibleButton" name="CollisionDetectionCollapsibleButton">
      <property name="text">
       <string>Collision detection</string>
+     </property>
+     <property name="collapsed">
+      <bool>true</bool>
      </property>
      <layout class="QGridLayout" name="gridLayout_10">
       <property name="leftMargin">
@@ -162,6 +184,9 @@
     <widget class="ctkCollapsibleButton" name="CollapsibleButton_PatientTableTopControl">
      <property name="text">
       <string>Patient on TableTop Control</string>
+     </property>
+     <property name="collapsed">
+      <bool>true</bool>
      </property>
      <layout class="QGridLayout" name="gridLayout_7">
       <item row="0" column="0">
@@ -214,6 +239,9 @@
     <widget class="ctkCollapsibleButton" name="CollapsibleButton">
      <property name="text">
       <string>BaseFixed Control</string>
+     </property>
+     <property name="collapsed">
+      <bool>true</bool>
      </property>
      <layout class="QGridLayout" name="gridLayout_9">
       <item row="0" column="0">
@@ -381,6 +409,9 @@
      <property name="text">
       <string>TableTop Robot Control</string>
      </property>
+     <property name="collapsed">
+      <bool>true</bool>
+     </property>
      <layout class="QGridLayout" name="gridLayout_2">
       <item row="0" column="0">
        <layout class="QGridLayout" name="gridLayout">
@@ -501,6 +532,9 @@
     </widget>
    </item>
    <item>
+    <widget class="qSlicerPatientPositioningFixedBeamAxisWidget" name="FixedBeamAxisWidget" native="true"/>
+   </item>
+   <item>
     <spacer name="verticalSpacer">
      <property name="orientation">
       <enum>Qt::Vertical</enum>
@@ -560,6 +594,12 @@
    <class>qMRMLSegmentSelectorWidget</class>
    <extends>qMRMLWidget</extends>
    <header>qMRMLSegmentSelectorWidget.h</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>qSlicerPatientPositioningFixedBeamAxisWidget</class>
+   <extends>QWidget</extends>
+   <header>qSlicerPatientPositioningFixedBeamAxisWidget.h</header>
    <container>1</container>
   </customwidget>
  </customwidgets>

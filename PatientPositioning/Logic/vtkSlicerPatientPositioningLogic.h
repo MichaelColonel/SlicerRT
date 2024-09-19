@@ -68,24 +68,21 @@ public:
   /// Load and setup components of the treatment machine into the scene based on its description.
   /// \param parameterNode Parameter node contains the treatment machine descriptor file path.
   /// \return List of parts that were successfully set up.
-  std::vector<vtkSlicerTableTopRobotTransformLogic::CoordinateSystemIdentifier> LoadTreatmentMachine(vtkMRMLChannel25GeometryNode* parameterNode);
+  std::vector<vtkSlicerTableTopRobotTransformLogic::CoordinateSystemIdentifier> LoadTreatmentMachineComponents(vtkMRMLPatientPositioningNode* parameterNode);
   /// Set up the IEC transforms and model properties on the treatment machine models.
   /// \param forceEnableCollisionDetection Enable collision detection between parts even if calculation is potentially
   ///        lengthy absed on the number of triangles of the parts.
   /// \return List of parts that were successfully set up.
   std::vector<vtkSlicerTableTopRobotTransformLogic::CoordinateSystemIdentifier> SetupTreatmentMachineModels(
-    vtkMRMLChannel25GeometryNode* parameterNode, bool forceEnableCollisionDetection=false);
+    vtkMRMLPatientPositioningNode* parameterNode, bool forceEnableCollisionDetection=false);
 
   void LoadTreatmentMachine(vtkMRMLPatientPositioningNode* parameterNode);
   void BuildRobotTableGeometryTransformHierarchy();
   std::string CheckForCollisions(vtkMRMLPatientPositioningNode* parameterNode, bool collisionDetectionEnabled = true);
 
-  void SetXrayImagesProjection(vtkMRMLPatientPositioningNode* parameterNode, vtkMRMLPatientPositioningNode::XrayProjectionType projection,
-    vtkMRMLSliceCompositeNode* sliceCompNode, vtkMRMLSliceNode* sliceNode);
-  vtkMRMLLinearTransformNode* GetXrayImageRasToIjkMatrixTransformNode(vtkMRMLScalarVolumeNode* xrayImageNode, vtkMRMLRTBeamNode* xrayBeamNode);
-
   /// Get TableTopRobotTransformLogic
   vtkSlicerTableTopRobotTransformLogic* GetTableTopRobotTransformLogic() const;
+  vtkVector3d GetFixedBeamAxisTranslation(vtkSlicerTableTopRobotTransformLogic::CoordinateSystemIdentifier fromFrame);
 
 public:
   // Get treatment machine properties from descriptor file

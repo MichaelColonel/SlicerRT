@@ -21,9 +21,9 @@
 // Qt includes
 #include <QDebug>
 
-// FooBar Widgets includes
-#include "qSlicerPatientPositioningFooBarWidget.h"
-#include "ui_qSlicerPatientPositioningFooBarWidget.h"
+// FixedBeamAxis Widgets includes
+#include "qSlicerPatientPositioningFixedBeamAxisWidget.h"
+#include "ui_qSlicerPatientPositioningFixedBeamAxisWidget.h"
 
 // MRML includes
 #include <vtkMRMLPatientPositioningNode.h>
@@ -33,17 +33,17 @@
 #include <vtkSlicerPatientPositioningLogic.h>
 
 //-----------------------------------------------------------------------------
-class qSlicerPatientPositioningFooBarWidgetPrivate
-  : public Ui_qSlicerPatientPositioningFooBarWidget
+class qSlicerPatientPositioningFixedBeamAxisWidgetPrivate
+  : public Ui_qSlicerPatientPositioningFixedBeamAxisWidget
 {
-  Q_DECLARE_PUBLIC(qSlicerPatientPositioningFooBarWidget);
+  Q_DECLARE_PUBLIC(qSlicerPatientPositioningFixedBeamAxisWidget);
 protected:
-  qSlicerPatientPositioningFooBarWidget* const q_ptr;
+  qSlicerPatientPositioningFixedBeamAxisWidget* const q_ptr;
 
 public:
-  qSlicerPatientPositioningFooBarWidgetPrivate(
-    qSlicerPatientPositioningFooBarWidget& object);
-  virtual void setupUi(qSlicerPatientPositioningFooBarWidget*);
+  qSlicerPatientPositioningFixedBeamAxisWidgetPrivate(
+    qSlicerPatientPositioningFixedBeamAxisWidget& object);
+  virtual void setupUi(qSlicerPatientPositioningFixedBeamAxisWidget*);
   void init();
 
   vtkWeakPointer< vtkMRMLPatientPositioningNode > ParameterNode;
@@ -52,24 +52,24 @@ public:
 };
 
 // --------------------------------------------------------------------------
-qSlicerPatientPositioningFooBarWidgetPrivate
-::qSlicerPatientPositioningFooBarWidgetPrivate(
-  qSlicerPatientPositioningFooBarWidget& object)
+qSlicerPatientPositioningFixedBeamAxisWidgetPrivate
+::qSlicerPatientPositioningFixedBeamAxisWidgetPrivate(
+  qSlicerPatientPositioningFixedBeamAxisWidget& object)
   : q_ptr(&object)
 {
 }
 
 // --------------------------------------------------------------------------
-void qSlicerPatientPositioningFooBarWidgetPrivate
-::setupUi(qSlicerPatientPositioningFooBarWidget* widget)
+void qSlicerPatientPositioningFixedBeamAxisWidgetPrivate
+::setupUi(qSlicerPatientPositioningFixedBeamAxisWidget* widget)
 {
-  this->Ui_qSlicerPatientPositioningFooBarWidget::setupUi(widget);
+  this->Ui_qSlicerPatientPositioningFixedBeamAxisWidget::setupUi(widget);
 }
 
 // --------------------------------------------------------------------------
-void qSlicerPatientPositioningFooBarWidgetPrivate::init()
+void qSlicerPatientPositioningFixedBeamAxisWidgetPrivate::init()
 {
-  Q_Q(qSlicerPatientPositioningFooBarWidget);
+  Q_Q(qSlicerPatientPositioningFixedBeamAxisWidget);
 
   // Buttons
   QObject::connect( this->PushButton_Up, SIGNAL(clicked()), q, SLOT(onButtonUpClicked()));
@@ -79,29 +79,29 @@ void qSlicerPatientPositioningFooBarWidgetPrivate::init()
 }
 
 //-----------------------------------------------------------------------------
-// qSlicerPatientPositioningFooBarWidget methods
+// qSlicerPatientPositioningFixedBeamAxisWidget methods
 
 //-----------------------------------------------------------------------------
-qSlicerPatientPositioningFooBarWidget
-::qSlicerPatientPositioningFooBarWidget(QWidget* parentWidget)
+qSlicerPatientPositioningFixedBeamAxisWidget
+::qSlicerPatientPositioningFixedBeamAxisWidget(QWidget* parentWidget)
   : Superclass( parentWidget )
-  , d_ptr( new qSlicerPatientPositioningFooBarWidgetPrivate(*this) )
+  , d_ptr( new qSlicerPatientPositioningFixedBeamAxisWidgetPrivate(*this) )
 {
-  Q_D(qSlicerPatientPositioningFooBarWidget);
+  Q_D(qSlicerPatientPositioningFixedBeamAxisWidget);
   d->setupUi(this);
   d->init();
 }
 
 //-----------------------------------------------------------------------------
-qSlicerPatientPositioningFooBarWidget
-::~qSlicerPatientPositioningFooBarWidget()
+qSlicerPatientPositioningFixedBeamAxisWidget
+::~qSlicerPatientPositioningFixedBeamAxisWidget()
 {
 }
 
 //-----------------------------------------------------------------------------
-void qSlicerPatientPositioningFooBarWidget::setParameterNode(vtkMRMLNode* node)
+void qSlicerPatientPositioningFixedBeamAxisWidget::setParameterNode(vtkMRMLNode* node)
 {
-  Q_D(qSlicerPatientPositioningFooBarWidget);
+  Q_D(qSlicerPatientPositioningFixedBeamAxisWidget);
 
   vtkMRMLPatientPositioningNode* parameterNode = vtkMRMLPatientPositioningNode::SafeDownCast(node);
   // Each time the node is modified, the UI widgets are updated
@@ -113,32 +113,38 @@ void qSlicerPatientPositioningFooBarWidget::setParameterNode(vtkMRMLNode* node)
 }
 
 //-----------------------------------------------------------------------------
-void qSlicerPatientPositioningFooBarWidget::onButtonUpClicked()
+void qSlicerPatientPositioningFixedBeamAxisWidget::setPatientPositioningLogic(vtkSlicerPatientPositioningLogic* logic)
+{
+}
+  
+//-----------------------------------------------------------------------------
+void qSlicerPatientPositioningFixedBeamAxisWidget::onButtonUpClicked()
 {
   qDebug() << Q_FUNC_INFO << "Up";
 }
+
 //-----------------------------------------------------------------------------
-void qSlicerPatientPositioningFooBarWidget::onButtonDownClicked()
+void qSlicerPatientPositioningFixedBeamAxisWidget::onButtonDownClicked()
 {
   qDebug() << Q_FUNC_INFO << "Down";
 }
 
 //-----------------------------------------------------------------------------
-void qSlicerPatientPositioningFooBarWidget::onButtonLeftClicked()
+void qSlicerPatientPositioningFixedBeamAxisWidget::onButtonLeftClicked()
 {
   qDebug() << Q_FUNC_INFO << "Left";
 }
 
 //-----------------------------------------------------------------------------
-void qSlicerPatientPositioningFooBarWidget::onButtonRightClicked()
+void qSlicerPatientPositioningFixedBeamAxisWidget::onButtonRightClicked()
 {
   qDebug() << Q_FUNC_INFO << "Right";
 }
 
 //-----------------------------------------------------------------------------
-void qSlicerPatientPositioningFooBarWidget::updateWidgetFromMRML()
+void qSlicerPatientPositioningFixedBeamAxisWidget::updateWidgetFromMRML()
 {
-  Q_D(qSlicerPatientPositioningFooBarWidget);
+  Q_D(qSlicerPatientPositioningFixedBeamAxisWidget);
 
   if (!d->ParameterNode)
   {

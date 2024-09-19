@@ -28,11 +28,12 @@
 #include <ctkPimpl.h>
 #include <ctkVTKObject.h>
 
-// FooBar Widgets includes
+// FixedBeamAxis Widgets includes
 #include "qSlicerPatientPositioningModuleWidgetsExport.h"
 
 class vtkMRMLNode;
-class vtkSlicerPatientPositioningLogic
+class vtkSlicerPatientPositioningLogic;
+
 class qSlicerPatientPositioningFixedBeamAxisWidgetPrivate;
 
 class Q_SLICER_MODULE_PATIENTPOSITIONING_WIDGETS_EXPORT qSlicerPatientPositioningFixedBeamAxisWidget
@@ -49,8 +50,6 @@ public:
 public slots:
   /// Set PatientPositioning MRML node (Parameter node)
   void setParameterNode(vtkMRMLNode* node);
-  /// Set Channel-25 geometry node
-  void setChannel25GeometryNode(vtkMRMLNode* node);
   /// Set PatientPositioning logic
   void setPatientPositioningLogic(vtkSlicerPatientPositioningLogic* logic);
 
