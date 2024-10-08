@@ -111,12 +111,6 @@ public:
   /// Apply new Patient to TableTop translate (Patient->TableTop)
   void UpdatePatientToTableTopTransform(vtkMRMLChannel25GeometryNode* parameterNode);
 
-  /// Get RAS to FixedReference transform
-  vtkMRMLLinearTransformNode* GetFixedReferenceTransform();
-  /// Get RAS to Patient transform
-  vtkMRMLLinearTransformNode* GetPatientTransform();
-  /// Get RAS to TableTop transform
-  vtkMRMLLinearTransformNode* GetTableTopTransform();
   /// Update (or create if absent) RAS to TableTop transform
   vtkMRMLLinearTransformNode* UpdateRasToTableTopTransform(vtkMRMLChannel25GeometryNode* parameterNode);
   /// Update (or create if absent) RAS to Flange transform
@@ -134,6 +128,12 @@ public:
   /// Update (or create if absent) RAS to FixedReference transform
   vtkMRMLLinearTransformNode* UpdateRasToFixedReferenceTransform(vtkMRMLChannel25GeometryNode* parameterNode);
 
+  /// Get RAS to FixedReference transform
+  vtkMRMLLinearTransformNode* GetFixedReferenceTransform();
+  /// Get RAS to Patient transform
+  vtkMRMLLinearTransformNode* GetPatientTransform();
+  /// Get RAS to TableTop transform
+  vtkMRMLLinearTransformNode* GetTableTopTransform();
   /// Get RAS to Elbow transform
   vtkMRMLLinearTransformNode* GetElbowTransform();
   /// Get RAS to Flange transform

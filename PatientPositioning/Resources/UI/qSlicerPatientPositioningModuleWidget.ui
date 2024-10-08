@@ -621,5 +621,53 @@
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>qSlicerPatientPositioningModuleWidget</sender>
+   <signal>mrmlSceneChanged(vtkMRMLScene*)</signal>
+   <receiver>MRMLNodeComboBox_Beam</receiver>
+   <slot>setMRMLScene(vtkMRMLScene*)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>193</x>
+     <y>418</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>293</x>
+     <y>111</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>qSlicerPatientPositioningModuleWidget</sender>
+   <signal>mrmlSceneChanged(vtkMRMLScene*)</signal>
+   <receiver>MRMLNodeComboBox_Plan</receiver>
+   <slot>setMRMLScene(vtkMRMLScene*)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>193</x>
+     <y>418</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>293</x>
+     <y>82</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>qSlicerPatientPositioningModuleWidget</sender>
+   <signal>mrmlSceneChanged(vtkMRMLScene*)</signal>
+   <receiver>SegmentSelectorWidget_PatientBody</receiver>
+   <slot>setMRMLScene(vtkMRMLScene*)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>193</x>
+     <y>418</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>293</x>
+     <y>148</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
 </ui>

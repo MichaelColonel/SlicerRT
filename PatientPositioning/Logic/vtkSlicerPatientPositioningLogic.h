@@ -42,12 +42,13 @@ class vtkMRMLSliceCompositeNode;
 class vtkMRMLSliceNode;
 class vtkMRMLPatientPositioningNode;
 class vtkMRMLRTBeamNode;
+class vtkMRMLMarkupsLineNode;
+class vtkMRMLMarkupsFiducialNode;
 
 class vtkMatrix4x4;
 class vtkPolyData;
 class vtkVector3d;
 class vtkCollisionDetectionFilter;
-class vtkMRMLCameraNode;
 
 class VTK_SLICER_PATIENTPOSITIONING_MODULE_LOGIC_EXPORT vtkSlicerPatientPositioningLogic :
   public vtkSlicerModuleLogic
@@ -56,7 +57,8 @@ public:
   static const char* TREATMENT_MACHINE_DESCRIPTOR_FILE_PATH_ATTRIBUTE_NAME;
   static unsigned long MAX_TRIANGLE_NUMBER_PRODUCT_FOR_COLLISIONS;
 
-  static const char* FIXEDREFERENCE_MARKUPS_LINE_NODE_NAME; //  Beam axis line in fixed reference frame
+  static const char* FIXEDBEAMAXIS_MARKUPS_LINE_NODE_NAME; //  Beam axis line in fixed reference frame
+  static const char* FIXEDISOCENTER_MARKUPS_FIDUCIAL_NODE_NAME; //  isocenter point in fixed reference frame
 
   static const char* DRR_TRANSFORM_NODE_NAME;
   static const char* DRR_TRANSLATE_NODE_NAME;
@@ -68,7 +70,8 @@ public:
   /// Load and setup components of the treatment machine into the scene based on its description.
   /// \param parameterNode Parameter node contains the treatment machine descriptor file path.
   /// \return List of parts that were successfully set up.
-  std::vector<vtkSlicerTableTopRobotTransformLogic::CoordinateSystemIdentifier> LoadTreatmentMachineComponents(vtkMRMLPatientPositioningNode* parameterNode);
+  std::vector<vtkSlicerTableTopRobotTransformLogic::CoordinateSystemIdentifier> LoadTreatmentMachineComponents(
+    vtkMRMLPatientPositioningNode* parameterNode);
   /// Set up the IEC transforms and model properties on the treatment machine models.
   /// \param forceEnableCollisionDetection Enable collision detection between parts even if calculation is potentially
   ///        lengthy absed on the number of triangles of the parts.
@@ -82,7 +85,20 @@ public:
 
   /// Get TableTopRobotTransformLogic
   vtkSlicerTableTopRobotTransformLogic* GetTableTopRobotTransformLogic() const;
-  vtkVector3d GetFixedBeamAxisTranslation(vtkSlicerTableTopRobotTransformLogic::CoordinateSystemIdentifier fromFrame);
+  /// Get translation vector from Patient isocenter to fixed beam axis (axis in FixedReference frame)
+  vtkVector3d GetIsocenterToFixedBeamAxisTranslation(vtkMRMLPatientPositioningNode* parameterNode,
+    vtkSlicerTableTopRobotTransformLogic::CoordinateSystemIdentifier fromFrame);
+  /// Creates a fixed beam axis line node (axis in FixedReference frame)
+  /// \return a valid markups line node pointer or nullptr otherwise
+  vtkMRMLMarkupsLineNode* CreateFixedBeamAxisLineNode(vtkMRMLPatientPositioningNode* parameterNode);
+  /// Creates a fixed isocenter fiducial node (point in FixedReference frame)
+  /// \return a valid markups fiducial node pointer or nullptr otherwise
+  vtkMRMLMarkupsFiducialNode* CreateFixedIsocenterFiducialNode(vtkMRMLPatientPositioningNode* parameterNode);
+
+  /// Create fixed reference beam and plan and add beam to the parameter node
+  void CreateFixedBeamPlanAndNode(vtkMRMLPatientPositioningNode* parameterNode);
+  /// Create external xray beam and plan and add ext beam to the parameter node
+  void CreateExternalXrayPlanAndNode(vtkMRMLPatientPositioningNode* parameterNode);
 
 public:
   // Get treatment machine properties from descriptor file

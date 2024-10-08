@@ -26,8 +26,12 @@
 #include <vtkSmartPointer.h>
 
 class vtkMRMLScalarVolumeNode;
-class vtkMRMLChannel25GeometryNode;
 class vtkMRMLMarkupsLineNode;
+class vtkMRMLMarkupsFiducialNode;
+class vtkMRMLSegmentationNode;
+
+class vtkMRMLRTBeamNode;
+class vtkMRMLChannel25GeometryNode;
 
 class VTK_SLICER_PATIENTPOSITIONING_MODULE_MRML_EXPORT vtkMRMLPatientPositioningNode : public vtkMRMLNode
 {
@@ -58,15 +62,35 @@ public:
   void ProcessMRMLEvents(vtkObject *caller, unsigned long eventID, void *callData) override;
 
 public:
+  /// Get beam node
+  vtkMRMLRTBeamNode* GetBeamNode();
+  /// Set and observe beam node
+  void SetAndObserveBeamNode(vtkMRMLRTBeamNode* node);
+
+  /// Get patient body segmentation node
+  vtkMRMLSegmentationNode* GetPatientBodySegmentationNode();
+  /// Set and observe patient body segmentation node
+  void SetAndObservePatientBodySegmentationNode(vtkMRMLSegmentationNode* node);
+
+  /// Get patient body segment ID
+  vtkGetStringMacro(PatientBodySegmentID);
+  /// Set patient body segment ID
+  vtkSetStringMacro(PatientBodySegmentID);
+
   /// Get observed Channel-25 geometry node
   vtkMRMLChannel25GeometryNode* GetChannel25GeometryNode();
   /// Set and observe Channel-25 geometry node
   void SetAndObserveChannel25GeometryNode(vtkMRMLChannel25GeometryNode* node);
 
-  /// Get observed Channel-25 geometry node
-  vtkMRMLMarkupsLineNode* GetFixedBeamAxis();
-  /// Set and observe Channel-25 geometry node
-  void SetAndObserveFixedBeamAxis(vtkMRMLMarkupsLineNode* node);
+  /// Get observed fixed beam axis (line node)
+  vtkMRMLMarkupsLineNode* GetFixedBeamAxisLineNode();
+  /// Set and observe fixed beam axis (line node)
+  void SetAndObserveFixedBeamAxisLineNode(vtkMRMLMarkupsLineNode* node);
+
+  /// Get observed fixed isocenter point (fiducial node)
+  vtkMRMLMarkupsFiducialNode* GetFixedIsocenterFiducialNode();
+  /// Set and observe fixed isocenter point (fiducial node)
+  void SetAndObserveFixedIsocenterFiducialNode(vtkMRMLMarkupsFiducialNode* node);
 
   /// Get path to the treatment machine descriptor JSON file
   vtkGetStringMacro(TreatmentMachineDescriptorFilePath);
@@ -83,6 +107,9 @@ protected:
   virtual ~vtkMRMLPatientPositioningNode();
   vtkMRMLPatientPositioningNode(const vtkMRMLPatientPositioningNode&);
   void operator=(const vtkMRMLPatientPositioningNode&);
+
+  /// Patient body segment ID in selected segmentation node
+  char* PatientBodySegmentID;
 
   /// Path to the treatment machine descriptor JSON file
   char* TreatmentMachineDescriptorFilePath;

@@ -20,6 +20,12 @@ set(${KIT}_SRCS
   vtkMRML${MODULE_NAME}Node.h
   vtkMRMLChannel25GeometryNode.cxx
   vtkMRMLChannel25GeometryNode.h
+  vtkMRMLRTFixedBeamNode.h
+  vtkMRMLRTFixedBeamNode.cxx
+  vtkMRMLRTFixedIonBeamNode.h
+  vtkMRMLRTFixedIonBeamNode.cxx
+  vtkMRMLRTChannel25IonBeamNode.h
+  vtkMRMLRTChannel25IonBeamNode.cxx
   )
 
 SET (${KIT}_INCLUDE_DIRS

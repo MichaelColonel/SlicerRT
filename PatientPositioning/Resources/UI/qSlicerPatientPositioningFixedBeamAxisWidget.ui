@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>246</width>
-    <height>383</height>
+    <height>299</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -31,31 +31,22 @@
      <property name="text">
       <string>Translation to fixed beam axis</string>
      </property>
+     <property name="collapsed">
+      <bool>false</bool>
+     </property>
      <layout class="QGridLayout" name="gridLayout_3">
       <item row="1" column="0">
-       <widget class="ctkCollapsibleGroupBox" name="CollapsibleGroupBox_FromTableTopCenter">
-        <property name="title">
-         <string>From table top center</string>
-        </property>
-        <layout class="QGridLayout" name="gridLayout_5">
-         <item row="0" column="0">
-          <widget class="ctkCoordinatesWidget" name="CoordinatesWidget_FromTableTopCenterTranslation">
-           <property name="enabled">
-            <bool>true</bool>
-           </property>
-          </widget>
-         </item>
-        </layout>
-       </widget>
-      </item>
-      <item row="2" column="0">
        <widget class="ctkCollapsibleGroupBox" name="CollapsibleGroupBox_2">
         <property name="title">
          <string>From isocenter</string>
         </property>
         <layout class="QGridLayout" name="gridLayout_6">
          <item row="0" column="0">
-          <widget class="ctkCoordinatesWidget" name="CoordinatesWidget_FromIsocenterTranslation"/>
+          <widget class="ctkCoordinatesWidget" name="CoordinatesWidget_FromIsocenterTranslation">
+           <property name="enabled">
+            <bool>false</bool>
+           </property>
+          </widget>
          </item>
         </layout>
        </widget>
@@ -99,10 +90,26 @@
      </layout>
     </widget>
    </item>
+   <item row="2" column="0">
+    <spacer name="verticalSpacer">
+     <property name="orientation">
+      <enum>Qt::Vertical</enum>
+     </property>
+     <property name="sizeHint" stdset="0">
+      <size>
+       <width>20</width>
+       <height>40</height>
+      </size>
+     </property>
+    </spacer>
+   </item>
    <item row="1" column="0">
-    <widget class="ctkCollapsibleButton" name="CollapsibleButton_2">
+    <widget class="ctkCollapsibleButton" name="CollapsibleButton_FixedBeamCameraOrientation">
      <property name="text">
       <string>Fixed beam camera orientation</string>
+     </property>
+     <property name="collapsed">
+      <bool>true</bool>
      </property>
      <layout class="QGridLayout" name="gridLayout_2">
       <item row="0" column="0">

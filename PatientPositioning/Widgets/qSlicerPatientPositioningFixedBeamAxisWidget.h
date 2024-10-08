@@ -36,6 +36,8 @@ class vtkSlicerPatientPositioningLogic;
 
 class qSlicerPatientPositioningFixedBeamAxisWidgetPrivate;
 
+class QAbstractButton;
+
 class Q_SLICER_MODULE_PATIENTPOSITIONING_WIDGETS_EXPORT qSlicerPatientPositioningFixedBeamAxisWidget
   : public QWidget
 {
@@ -60,6 +62,7 @@ public slots:
   void onButtonDownClicked();
   void onButtonLeftClicked();
   void onButtonRightClicked();
+  void onFrameBasisTranslationRadioButtonClicked(QAbstractButton* button);
 
 protected slots:
 

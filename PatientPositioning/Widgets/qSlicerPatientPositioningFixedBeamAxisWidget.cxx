@@ -32,6 +32,9 @@
 // Logic includes
 #include <vtkSlicerPatientPositioningLogic.h>
 
+// VTK includes
+#include <vtkVector.h>
+
 //-----------------------------------------------------------------------------
 class qSlicerPatientPositioningFixedBeamAxisWidgetPrivate
   : public Ui_qSlicerPatientPositioningFixedBeamAxisWidget
@@ -76,6 +79,10 @@ void qSlicerPatientPositioningFixedBeamAxisWidgetPrivate::init()
   QObject::connect( this->PushButton_Down, SIGNAL(clicked()), q, SLOT(onButtonDownClicked()));
   QObject::connect( this->PushButton_Left, SIGNAL(clicked()), q, SLOT(onButtonLeftClicked()));
   QObject::connect( this->PushButton_Right, SIGNAL(clicked()), q, SLOT(onButtonRightClicked()));
+
+  // ButtonGroup
+  QObject::connect( this->ButtonGroup_FrameBasisTranslation, SIGNAL(buttonClicked(QAbstractButton*)),
+    q, SLOT(onFrameBasisTranslationRadioButtonClicked(QAbstractButton*)));
 }
 
 //-----------------------------------------------------------------------------
@@ -107,16 +114,25 @@ void qSlicerPatientPositioningFixedBeamAxisWidget::setParameterNode(vtkMRMLNode*
   // Each time the node is modified, the UI widgets are updated
   qvtkReconnect( d->ParameterNode, parameterNode, vtkCommand::ModifiedEvent, 
     this, SLOT( updateWidgetFromMRML() ) );
+  qvtkReconnect( d->Channel25Node, parameterNode->GetChannel25GeometryNode(), vtkCommand::ModifiedEvent, 
+    this, SLOT( updateWidgetFromMRML() ) );
 
   d->ParameterNode = parameterNode;
+  if (parameterNode)
+  {
+    d->Channel25Node = parameterNode->GetChannel25GeometryNode();
+  }
+
   this->updateWidgetFromMRML();
 }
 
 //-----------------------------------------------------------------------------
 void qSlicerPatientPositioningFixedBeamAxisWidget::setPatientPositioningLogic(vtkSlicerPatientPositioningLogic* logic)
 {
+  Q_D(qSlicerPatientPositioningFixedBeamAxisWidget);
+  d->PatientPositioningLogic = logic;
 }
-  
+
 //-----------------------------------------------------------------------------
 void qSlicerPatientPositioningFixedBeamAxisWidget::onButtonUpClicked()
 {
@@ -142,6 +158,28 @@ void qSlicerPatientPositioningFixedBeamAxisWidget::onButtonRightClicked()
 }
 
 //-----------------------------------------------------------------------------
+void qSlicerPatientPositioningFixedBeamAxisWidget::onFrameBasisTranslationRadioButtonClicked(QAbstractButton* button)
+{
+  Q_D(qSlicerPatientPositioningFixedBeamAxisWidget);
+
+  QRadioButton* rbutton = qobject_cast< QRadioButton* >(button);
+  if (rbutton == d->RadioButton_FixedReference)
+  {
+    vtkVector3d translationInFixedReference = d->PatientPositioningLogic->GetIsocenterToFixedBeamAxisTranslation(
+      d->ParameterNode,
+      vtkSlicerTableTopRobotTransformLogic::FixedReference);
+    d->CoordinatesWidget_FromIsocenterTranslation->setCoordinates(translationInFixedReference.GetData());
+  }
+  else if (rbutton == d->RadioButton_TableTop)
+  {
+    vtkVector3d translationInTableTop = d->PatientPositioningLogic->GetIsocenterToFixedBeamAxisTranslation(
+      d->ParameterNode,
+      vtkSlicerTableTopRobotTransformLogic::TableTop);
+    d->CoordinatesWidget_FromIsocenterTranslation->setCoordinates(translationInTableTop.GetData());
+  }
+}
+
+//-----------------------------------------------------------------------------
 void qSlicerPatientPositioningFixedBeamAxisWidget::updateWidgetFromMRML()
 {
   Q_D(qSlicerPatientPositioningFixedBeamAxisWidget);
@@ -151,4 +189,22 @@ void qSlicerPatientPositioningFixedBeamAxisWidget::updateWidgetFromMRML()
     qCritical() << Q_FUNC_INFO << ": Invalid parameter node";
     return;
   }
+  if (d->PatientPositioningLogic)
+  {
+    if (d->RadioButton_FixedReference->isChecked())
+    {
+      vtkVector3d translationInFixedReference = d->PatientPositioningLogic->GetIsocenterToFixedBeamAxisTranslation(
+        d->ParameterNode,
+        vtkSlicerTableTopRobotTransformLogic::FixedReference);
+      d->CoordinatesWidget_FromIsocenterTranslation->setCoordinates(translationInFixedReference.GetData());
+    }
+    else if (d->RadioButton_TableTop->isChecked())
+    {
+      vtkVector3d translationInTableTop = d->PatientPositioningLogic->GetIsocenterToFixedBeamAxisTranslation(
+        d->ParameterNode,
+        vtkSlicerTableTopRobotTransformLogic::TableTop);
+      d->CoordinatesWidget_FromIsocenterTranslation->setCoordinates(translationInTableTop.GetData());
+    }
+  }
 }
+

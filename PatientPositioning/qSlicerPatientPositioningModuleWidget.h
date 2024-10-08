@@ -51,6 +51,11 @@ public slots:
   void onSceneClosedEvent();
 
   void onParameterNodeChanged(vtkMRMLNode* parameterNode);
+  void onPlanNodeChanged(vtkMRMLNode* planNode);
+  void onBeamNodeChanged(vtkMRMLNode* beamNode);
+  void onPatientBodySegmentationNodeChanged(vtkMRMLNode* segmentationNode);
+  void onPatientBodySegmentChanged(QString bodySegmentName);
+
   void onLoadTreatmentMachineButtonClicked();
   void onPatientSupportRotationAngleChanged(double angle);
   void onPatientTableTopTranslationChanged(double* position);

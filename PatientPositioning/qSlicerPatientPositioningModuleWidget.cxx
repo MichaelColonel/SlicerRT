@@ -45,6 +45,8 @@
 #include <vtkMRMLTransformNode.h>
 #include <vtkMRMLSubjectHierarchyNode.h>
 
+#include <vtkMRMLRTPlanNode.h>
+#include <vtkMRMLRTBeamNode.h>
 #include <vtkMRMLPatientPositioningNode.h>
 #include <vtkMRMLChannel25GeometryNode.h>
 
@@ -188,6 +190,15 @@ void qSlicerPatientPositioningModuleWidget::setup()
   // Nodes
   connect( d->MRMLNodeComboBox_ParameterSet, SIGNAL(currentNodeChanged(vtkMRMLNode*)), 
     this, SLOT(onParameterNodeChanged(vtkMRMLNode*)));
+  connect( d->MRMLNodeComboBox_Plan, SIGNAL(currentNodeChanged(vtkMRMLNode*)), 
+    this, SLOT(onPlanNodeChanged(vtkMRMLNode*)));
+  connect( d->MRMLNodeComboBox_Beam, SIGNAL(currentNodeChanged(vtkMRMLNode*)), 
+    this, SLOT(onBeamNodeChanged(vtkMRMLNode*)));
+  connect( d->SegmentSelectorWidget_PatientBody, SIGNAL(currentNodeChanged(vtkMRMLNode*)), 
+    this, SLOT(onPatientBodySegmentationNodeChanged(vtkMRMLNode*)));
+  connect( d->SegmentSelectorWidget_PatientBody, SIGNAL(currentSegmentChanged(QString)), 
+    this, SLOT(onPatientBodySegmentChanged(QString)));
+
   // Buttons
   connect( d->PushButton_LoadTreatmentMachine, SIGNAL(clicked()), 
     this, SLOT(onLoadTreatmentMachineButtonClicked()));
@@ -255,9 +266,6 @@ void qSlicerPatientPositioningModuleWidget::setParameterNode(vtkMRMLNode *node)
   // Make sure the parameter set node is selected (in case the function was not called by the selector combobox signal)
   d->MRMLNodeComboBox_ParameterSet->setCurrentNode(node);
 
-  // Set parameter node to children widgets
-  d->FixedBeamAxisWidget->setParameterNode(node);
- 
   // Each time the node is modified, the UI widgets are updated
   qvtkReconnect( d->ParameterNode, parameterNode, vtkCommand::ModifiedEvent, 
     this, SLOT( updateWidgetFromMRML() ) );
@@ -268,6 +276,10 @@ void qSlicerPatientPositioningModuleWidget::setParameterNode(vtkMRMLNode *node)
   // (then in the meantime the comboboxes selected the first one from the scene and we have to set that)
   if (d->ParameterNode)
   {
+    vtkMRMLRTBeamNode* beamNode = vtkMRMLRTBeamNode::SafeDownCast(d->MRMLNodeComboBox_Beam->currentNode());
+    d->ParameterNode->SetAndObserveBeamNode(beamNode);
+    vtkMRMLRTBeamNode* planNode = vtkMRMLRTBeamNode::SafeDownCast(d->MRMLNodeComboBox_Plan->currentNode());
+    Q_UNUSED(planNode);
   }
   this->updateWidgetFromMRML();
 }
@@ -415,6 +427,64 @@ void qSlicerPatientPositioningModuleWidget::onParameterNodeChanged(vtkMRMLNode* 
 }
 
 //-----------------------------------------------------------------------------
+void qSlicerPatientPositioningModuleWidget::onPlanNodeChanged(vtkMRMLNode* node)
+{
+  Q_D(qSlicerPatientPositioningModuleWidget);
+  vtkMRMLRTPlanNode* planNode = vtkMRMLRTPlanNode::SafeDownCast(node);
+
+  if (!d->ParameterNode || !d->ModuleWindowInitialized)
+  {
+    qCritical() << Q_FUNC_INFO << ": Invalid parameter node";
+    return;
+  }
+  Q_UNUSED(planNode);
+}
+
+//-----------------------------------------------------------------------------
+void qSlicerPatientPositioningModuleWidget::onBeamNodeChanged(vtkMRMLNode* node)
+{
+  Q_D(qSlicerPatientPositioningModuleWidget);
+  vtkMRMLRTBeamNode* beamNode = vtkMRMLRTBeamNode::SafeDownCast(node);
+
+  if (!d->ParameterNode || !d->ModuleWindowInitialized)
+  {
+    qCritical() << Q_FUNC_INFO << ": Invalid parameter node";
+    return;
+  }
+  d->ParameterNode->SetAndObserveBeamNode(beamNode);
+}
+
+//-----------------------------------------------------------------------------
+void qSlicerPatientPositioningModuleWidget::onPatientBodySegmentationNodeChanged(vtkMRMLNode* node)
+{
+  Q_D(qSlicerPatientPositioningModuleWidget);
+  vtkMRMLSegmentationNode* segmentationNode = vtkMRMLSegmentationNode::SafeDownCast(node);
+
+  if (!d->ParameterNode || !d->ModuleWindowInitialized)
+  {
+    qCritical() << Q_FUNC_INFO << ": Invalid parameter node";
+    return;
+  }
+  d->ParameterNode->SetAndObservePatientBodySegmentationNode(segmentationNode);
+}
+
+//-----------------------------------------------------------------------------
+void qSlicerPatientPositioningModuleWidget::onPatientBodySegmentChanged(QString segmentID)
+{
+  Q_D(qSlicerPatientPositioningModuleWidget);
+
+  if (!d->ParameterNode || segmentID.isEmpty() || !d->ModuleWindowInitialized)
+  {
+    qCritical() << Q_FUNC_INFO << ": Invalid parameter node";
+    return;
+  }
+
+  d->ParameterNode->DisableModifiedEventOn();
+  d->ParameterNode->SetPatientBodySegmentID(segmentID.toUtf8().constData());
+  d->ParameterNode->DisableModifiedEventOff();
+}
+
+//-----------------------------------------------------------------------------
 void qSlicerPatientPositioningModuleWidget::onEnter()
 {
   Q_D(qSlicerPatientPositioningModuleWidget);
@@ -448,9 +518,11 @@ void qSlicerPatientPositioningModuleWidget::onEnter()
 
   // Create DRR markups nodes
 //  d->logic()->CreateMarkupsNodes(parameterNode);
+  d->FixedBeamAxisWidget->setPatientPositioningLogic(d->logic());
 
   // All required data for GUI is initiated
   this->updateWidgetFromMRML();
+  
 
   d->ModuleWindowInitialized = true;
 }
@@ -474,6 +546,7 @@ void qSlicerPatientPositioningModuleWidget::updateWidgetFromMRML()
     qCritical() << Q_FUNC_INFO << ": Invalid parameter node";
     return;
   }
+  qDebug() << Q_FUNC_INFO << "Update";
 }
 
 //-----------------------------------------------------------------------------
@@ -598,11 +671,22 @@ void qSlicerPatientPositioningModuleWidget::onLoadTreatmentMachineButtonClicked(
     }
   }
   // Load and setup models
+  std::vector< SysCoord > loadedParts;
   vtkMRMLChannel25GeometryNode* channel25GeometryNode = d->ParameterNode->GetChannel25GeometryNode();
-  channel25GeometryNode->SetTableTopVerticalPosition(0.0);
-  std::vector< SysCoord > loadedParts = d->logic()->LoadTreatmentMachineComponents(d->ParameterNode);
-  channel25GeometryNode->Modified();
+  if (channel25GeometryNode)
+  {
+    channel25GeometryNode->SetTableTopVerticalPosition(0.0);
+    loadedParts = d->logic()->LoadTreatmentMachineComponents(d->ParameterNode);
+    channel25GeometryNode->Modified();
 
+    // Set parameter node to FixedBeamAxis widgets
+    d->FixedBeamAxisWidget->setParameterNode(d->ParameterNode);
+
+    // Fixed and external beam
+    d->logic()->CreateExternalXrayPlanAndNode(d->ParameterNode);
+    d->logic()->CreateFixedBeamPlanAndNode(d->ParameterNode);
+  }
+ 
   // Warn the user if collision detection is disabled for certain part pairs
   QString disabledCollisionDetectionMessage(
     tr("Collision detection for the following part pairs may take very long due to high triangle numbers:\n\n"));
@@ -998,12 +1082,16 @@ void qSlicerPatientPositioningModuleWidget::onFixedReferenceCameraToggled(bool t
 
   vtkMRMLCameraNode* cameraNode = d->get3DViewCameraNode();
 
+  // Get RAS -> FixedReference transform node
   vtkMRMLLinearTransformNode* node = d->logic()->GetTableTopRobotTransformLogic()->GetFixedReferenceTransform();
   if (toggled)
   {
-    vtkNew<vtkMatrix4x4> matrix;
-    node->GetMatrixTransformToParent(matrix);
-    cameraNode->SetAppliedTransform(matrix);
+    vtkNew<vtkMatrix4x4> rasToFixedReferenceToRasTransform;
+    if (node)
+    {
+      node->GetMatrixTransformToParent(rasToFixedReferenceToRasTransform);
+    }
+    cameraNode->SetAppliedTransform(rasToFixedReferenceToRasTransform);
     cameraNode->SetAndObserveTransformNodeID(node ? node->GetID() : nullptr);
     return;
   }

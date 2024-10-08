@@ -18,6 +18,13 @@
 // MRML includes
 #include <vtkMRMLScene.h>
 #include <vtkMRMLScalarVolumeNode.h>
+#include <vtkMRMLMarkupsLineNode.h>
+#include <vtkMRMLMarkupsFiducialNode.h>
+#include <vtkMRMLLinearTransformNode.h>
+#include <vtkMRMLSegmentationNode.h>
+
+// Beams includes
+#include <vtkMRMLRTBeamNode.h>
 
 // VTK includes
 #include <vtkObjectFactory.h>
@@ -32,7 +39,11 @@ namespace
 
 const char* DRR_REFERENCE_ROLE = "drrRef";
 const char* XRAY_IMAGE_REFERENCE_ROLE = "xrayImageRef";
+const char* FIXED_BEAM_AXIS_REFERENCE_ROLE = "fixedBeamAxisRef";
+const char* FIXED_ISOCENTER_REFERENCE_ROLE = "fixedIsocenterRef";
 const char* CHANNEL25_GEOMETRY_REFERENCE_ROLE = "channel25GeometryRef";
+const char* BEAM_REFERENCE_ROLE = "beamRef";
+const char* PATIENT_BODY_SEGMENTATION_REFERENCE_ROLE = "patientBodySegmentationRef";
 
 } // namespace
 
@@ -278,4 +289,77 @@ void vtkMRMLPatientPositioningNode::SetAndObserveChannel25GeometryNode(vtkMRMLCh
   }
 
   this->SetNodeReferenceID(CHANNEL25_GEOMETRY_REFERENCE_ROLE, (node ? node->GetID() : nullptr));
+}
+
+//----------------------------------------------------------------------------
+vtkMRMLMarkupsLineNode* vtkMRMLPatientPositioningNode::GetFixedBeamAxisLineNode()
+{
+  return vtkMRMLMarkupsLineNode::SafeDownCast( this->GetNodeReference(FIXED_BEAM_AXIS_REFERENCE_ROLE) );
+}
+
+//----------------------------------------------------------------------------
+void vtkMRMLPatientPositioningNode::SetAndObserveFixedBeamAxisLineNode(vtkMRMLMarkupsLineNode* node)
+{
+  if (node && this->Scene != node->GetScene())
+  {
+    vtkErrorMacro("SetAndObserveFixedBeamAxisLineNode: Cannot set reference, the referenced and referencing node are not in the same scene");
+    return;
+  }
+
+  this->SetNodeReferenceID(FIXED_BEAM_AXIS_REFERENCE_ROLE, (node ? node->GetID() : nullptr));
+}
+
+//----------------------------------------------------------------------------
+vtkMRMLMarkupsFiducialNode* vtkMRMLPatientPositioningNode::GetFixedIsocenterFiducialNode()
+{
+  return vtkMRMLMarkupsFiducialNode::SafeDownCast( this->GetNodeReference(FIXED_ISOCENTER_REFERENCE_ROLE) );
+}
+
+//----------------------------------------------------------------------------
+void vtkMRMLPatientPositioningNode::SetAndObserveFixedIsocenterFiducialNode(vtkMRMLMarkupsFiducialNode* node)
+{
+  if (node && this->Scene != node->GetScene())
+  {
+    vtkErrorMacro("SetAndObserveFixedBeamAxisLineNode: Cannot set reference, the referenced and referencing node are not in the same scene");
+    return;
+  }
+
+  this->SetNodeReferenceID(FIXED_ISOCENTER_REFERENCE_ROLE, (node ? node->GetID() : nullptr));
+}
+
+
+//----------------------------------------------------------------------------
+vtkMRMLSegmentationNode* vtkMRMLPatientPositioningNode::GetPatientBodySegmentationNode()
+{
+  return vtkMRMLSegmentationNode::SafeDownCast( this->GetNodeReference(PATIENT_BODY_SEGMENTATION_REFERENCE_ROLE) );
+}
+
+//----------------------------------------------------------------------------
+void vtkMRMLPatientPositioningNode::SetAndObservePatientBodySegmentationNode(vtkMRMLSegmentationNode* node)
+{
+  if (node && this->Scene != node->GetScene())
+    {
+    vtkErrorMacro("Cannot set reference: the referenced and referencing node are not in the same scene");
+    return;
+    }
+
+  this->SetNodeReferenceID(PATIENT_BODY_SEGMENTATION_REFERENCE_ROLE, (node ? node->GetID() : nullptr));
+}
+
+//----------------------------------------------------------------------------
+vtkMRMLRTBeamNode* vtkMRMLPatientPositioningNode::GetBeamNode()
+{
+  return vtkMRMLRTBeamNode::SafeDownCast( this->GetNodeReference(BEAM_REFERENCE_ROLE) );
+}
+
+//----------------------------------------------------------------------------
+void vtkMRMLPatientPositioningNode::SetAndObserveBeamNode(vtkMRMLRTBeamNode* node)
+{
+  if (node && this->Scene != node->GetScene())
+    {
+    vtkErrorMacro("Cannot set reference: the referenced and referencing node are not in the same scene");
+    return;
+    }
+
+  this->SetNodeReferenceID(BEAM_REFERENCE_ROLE, (node ? node->GetID() : nullptr));
 }
