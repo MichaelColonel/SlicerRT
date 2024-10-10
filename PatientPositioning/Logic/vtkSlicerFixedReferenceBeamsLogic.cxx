@@ -19,13 +19,15 @@
 ==============================================================================*/
 
 // Beams includes
-#include "vtkSlicerBeamsModuleLogic.h"
+#include "vtkSlicerFixedReferenceBeamsLogic.h"
 #include "vtkSlicerIECTransformLogic.h"
-#include "vtkSlicerMLCPositionLogic.h"
 
 // SlicerRT includes
 #include "vtkMRMLRTPlanNode.h"
 #include "vtkMRMLRTBeamNode.h"
+#include "vtkMRMLRTFixedBeamNode.h"
+#include "vtkMRMLRTFixedIonBeamNode.h"
+#include "vtkMRMLRTChannel25IonBeamNode.h"
 
 // MRML includes
 #include <vtkMRMLScene.h>
@@ -41,33 +43,26 @@
 #include <vtkGeneralTransform.h>
 
 //----------------------------------------------------------------------------
-vtkStandardNewMacro(vtkSlicerBeamsModuleLogic);
+vtkStandardNewMacro(vtkSlicerFixedReferenceBeamsLogic);
 
 //----------------------------------------------------------------------------
-vtkSlicerBeamsModuleLogic::vtkSlicerBeamsModuleLogic()
- :
- MLCPositionLogic(vtkSlicerMLCPositionLogic::New())
+vtkSlicerFixedReferenceBeamsLogic::vtkSlicerFixedReferenceBeamsLogic()
 {
 }
 
 //----------------------------------------------------------------------------
-vtkSlicerBeamsModuleLogic::~vtkSlicerBeamsModuleLogic()
+vtkSlicerFixedReferenceBeamsLogic::~vtkSlicerFixedReferenceBeamsLogic()
 {
-  if (this->MLCPositionLogic)
-  {
-    this->MLCPositionLogic->Delete();
-    this->MLCPositionLogic = nullptr;
-  }
 }
 
 //----------------------------------------------------------------------------
-void vtkSlicerBeamsModuleLogic::PrintSelf(ostream& os, vtkIndent indent)
+void vtkSlicerFixedReferenceBeamsLogic::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
 
 //-----------------------------------------------------------------------------
-void vtkSlicerBeamsModuleLogic::RegisterNodes()
+void vtkSlicerFixedReferenceBeamsLogic::RegisterNodes()
 {
   vtkMRMLScene* scene = this->GetMRMLScene(); 
   if (!scene)
@@ -75,33 +70,36 @@ void vtkSlicerBeamsModuleLogic::RegisterNodes()
     vtkErrorMacro("RegisterNodes: Invalid MRML scene");
     return;
   }
-  if (!scene->IsNodeClassRegistered("vtkMRMLRTPlanNode"))
+  if (!scene->IsNodeClassRegistered("vtkMRMLRTFixedBeamNode"))
   {
-    scene->RegisterNodeClass(vtkSmartPointer<vtkMRMLRTPlanNode>::New());
+    scene->RegisterNodeClass(vtkSmartPointer<vtkMRMLRTFixedBeamNode>::New());
   }
-  if (!scene->IsNodeClassRegistered("vtkMRMLRTBeamNode"))
+  if (!scene->IsNodeClassRegistered("vtkMRMLRTIonBeamNode"))
   {
-    scene->RegisterNodeClass(vtkSmartPointer<vtkMRMLRTBeamNode>::New());
+    scene->RegisterNodeClass(vtkSmartPointer<vtkMRMLRTIonBeamNode>::New());
+  }
+  if (!scene->IsNodeClassRegistered("vtkMRMLRTFixedIonBeamNode"))
+  {
+    scene->RegisterNodeClass(vtkSmartPointer<vtkMRMLRTFixedIonBeamNode>::New());
+  }
+  if (!scene->IsNodeClassRegistered("vtkMRMLRTChannel25IonBeamNode"))
+  {
+    scene->RegisterNodeClass(vtkSmartPointer<vtkMRMLRTChannel25IonBeamNode>::New());
   }
 }
 
 //---------------------------------------------------------------------------
-void vtkSlicerBeamsModuleLogic::SetMRMLSceneInternal(vtkMRMLScene * newScene)
+void vtkSlicerFixedReferenceBeamsLogic::SetMRMLSceneInternal(vtkMRMLScene * newScene)
 {
   vtkNew<vtkIntArray> events;
   events->InsertNextValue(vtkMRMLScene::NodeAddedEvent);
   events->InsertNextValue(vtkMRMLScene::NodeRemovedEvent);
   events->InsertNextValue(vtkMRMLScene::EndImportEvent);
   this->SetAndObserveMRMLSceneEventsInternal(newScene, events.GetPointer());
-
-  if (this->MLCPositionLogic)
-  {
-    this->MLCPositionLogic->SetMRMLScene(newScene);
-  }
 }
 
 //---------------------------------------------------------------------------
-void vtkSlicerBeamsModuleLogic::OnMRMLSceneNodeAdded(vtkMRMLNode* node)
+void vtkSlicerFixedReferenceBeamsLogic::OnMRMLSceneNodeAdded(vtkMRMLNode* node)
 {
   if (!node || !this->GetMRMLScene())
   {
@@ -109,31 +107,19 @@ void vtkSlicerBeamsModuleLogic::OnMRMLSceneNodeAdded(vtkMRMLNode* node)
     return;
   }
 
-  if (node->IsA("vtkMRMLRTBeamNode"))
+  if (node->IsA("vtkMRMLRTFixedBeamNode") || node->IsA("vtkMRMLRTFixedIonBeamNode")
+    || node->IsA("vtkMRMLRTChannel25IonBeamNode"))
   {
-    // Observe beam events
+    // Observe beams events
     vtkSmartPointer<vtkIntArray> events = vtkSmartPointer<vtkIntArray>::New();
     events->InsertNextValue(vtkMRMLRTBeamNode::BeamGeometryModified);
     events->InsertNextValue(vtkMRMLRTBeamNode::BeamTransformModified);
     vtkObserveMRMLNodeEventsMacro(node, events);
   }
-
-  else if (node->IsA("vtkMRMLRTPlanNode"))
-  {
-    vtkSmartPointer<vtkIntArray> events = vtkSmartPointer<vtkIntArray>::New();
-    events->InsertNextValue(vtkMRMLRTPlanNode::BeamAdded);
-    vtkObserveMRMLNodeEventsMacro(node, events);
-  }
-  else if (node->IsA("vtkMRMLTableNode"))
-  {
-    vtkSmartPointer<vtkIntArray> events = vtkSmartPointer<vtkIntArray>::New();
-    events->InsertNextValue(vtkCommand::ModifiedEvent);
-    vtkObserveMRMLNodeEventsMacro(node, events);
-  }
 }
 
 //---------------------------------------------------------------------------
-void vtkSlicerBeamsModuleLogic::OnMRMLSceneEndImport()
+void vtkSlicerFixedReferenceBeamsLogic::OnMRMLSceneEndImport()
 {
   vtkMRMLScene* scene = this->GetMRMLScene();
   if (!scene)
@@ -168,7 +154,7 @@ void vtkSlicerBeamsModuleLogic::OnMRMLSceneEndImport()
 }
 
 //---------------------------------------------------------------------------
-void vtkSlicerBeamsModuleLogic::UpdateTransformForBeam(vtkMRMLRTBeamNode* beamNode)
+void vtkSlicerFixedReferenceBeamsLogic::UpdateTransformForBeam(vtkMRMLRTBeamNode* beamNode)
 {
   if (!beamNode)
   {
@@ -189,7 +175,7 @@ void vtkSlicerBeamsModuleLogic::UpdateTransformForBeam(vtkMRMLRTBeamNode* beamNo
 }
 
 //---------------------------------------------------------------------------
-void vtkSlicerBeamsModuleLogic::UpdateTransformForBeam(vtkMRMLScene* beamSequenceScene, 
+void vtkSlicerFixedReferenceBeamsLogic::UpdateTransformForBeam(vtkMRMLScene* beamSequenceScene, 
   vtkMRMLRTBeamNode* beamNode, vtkMRMLLinearTransformNode* beamTransformNode, double* isocenter)
 {
   if (!beamNode)
@@ -216,7 +202,7 @@ void vtkSlicerBeamsModuleLogic::UpdateTransformForBeam(vtkMRMLScene* beamSequenc
 }
 
 //----------------------------------------------------------------------------
-void vtkSlicerBeamsModuleLogic::ProcessMRMLNodesEvents(vtkObject* caller, unsigned long event, void* callData)
+void vtkSlicerFixedReferenceBeamsLogic::ProcessMRMLNodesEvents(vtkObject* caller, unsigned long event, void* callData)
 {
   Superclass::ProcessMRMLNodesEvents(caller, event, callData);
 

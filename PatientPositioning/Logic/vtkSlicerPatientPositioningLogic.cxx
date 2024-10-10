@@ -340,6 +340,8 @@ vtkSlicerPatientPositioningLogic::vtkSlicerPatientPositioningLogic()
   this->Internal = new vtkInternal(this); 
 
   this->TableTopRobotLogic = vtkSlicerTableTopRobotTransformLogic::New();
+  this->FixedReferenceBeamsLogic = vtkSlicerFixedReferenceBeamsLogic::New();
+
   this->TableTopElbowCollisionDetection = vtkCollisionDetectionFilter::New();
   this->TableTopElbowCollisionDetection->SetCollisionModeToFirstContact();
   this->TableTopShoulderCollisionDetection = vtkCollisionDetectionFilter::New();
@@ -370,6 +372,11 @@ vtkSlicerPatientPositioningLogic::~vtkSlicerPatientPositioningLogic()
   {
     this->TableTopRobotLogic->Delete();
     this->TableTopRobotLogic = nullptr;
+  }
+  if (this->FixedReferenceBeamsLogic)
+  {
+    this->FixedReferenceBeamsLogic->Delete();
+    this->FixedReferenceBeamsLogic = nullptr;
   }
   if (this->Internal)
   {
@@ -441,6 +448,7 @@ void vtkSlicerPatientPositioningLogic::SetMRMLSceneInternal(vtkMRMLScene * newSc
   this->SetAndObserveMRMLSceneEventsInternal(newScene, events.GetPointer());
 
   this->TableTopRobotLogic->SetMRMLScene(newScene);
+  this->FixedReferenceBeamsLogic->SetMRMLScene(newScene);
 }
 
 //-----------------------------------------------------------------------------
@@ -656,7 +664,7 @@ vtkMRMLMarkupsLineNode* vtkSlicerPatientPositioningLogic::CreateFixedBeamAxisLin
     
   vtkMRMLMarkupsLineNode* lineMarkupsNode = vtkMRMLMarkupsLineNode::SafeDownCast(scene->AddNewNodeByClass("vtkMRMLMarkupsLineNode"));
   lineMarkupsNode->SetName(FIXEDBEAMAXIS_MARKUPS_LINE_NODE_NAME);
-  lineMarkupsNode->SetHideFromEditors(1);
+//  lineMarkupsNode->SetHideFromEditors(1);
   std::string singletonTag = std::string("TTR_") + FIXEDBEAMAXIS_MARKUPS_LINE_NODE_NAME;
   lineMarkupsNode->SetSingletonTag(singletonTag.c_str());
   lineMarkupsNode->LockedOn();
@@ -701,7 +709,7 @@ vtkMRMLMarkupsFiducialNode* vtkSlicerPatientPositioningLogic::CreateFixedIsocent
 
   vtkMRMLMarkupsFiducialNode* pointMarkupsNode = vtkMRMLMarkupsFiducialNode::SafeDownCast(scene->AddNewNodeByClass("vtkMRMLMarkupsFiducialNode"));
   pointMarkupsNode->SetName(FIXEDISOCENTER_MARKUPS_FIDUCIAL_NODE_NAME);
-  pointMarkupsNode->SetHideFromEditors(1);
+//  pointMarkupsNode->SetHideFromEditors(1);
   std::string singletonTag = std::string("TTR_") + FIXEDISOCENTER_MARKUPS_FIDUCIAL_NODE_NAME;
   pointMarkupsNode->SetSingletonTag(singletonTag.c_str());
   pointMarkupsNode->LockedOn();
@@ -749,17 +757,25 @@ void vtkSlicerPatientPositioningLogic::CreateFixedBeamPlanAndNode(vtkMRMLPatient
   }
   vtkMRMLRTPlanNode* fixedPlanNode = vtkMRMLRTPlanNode::SafeDownCast(scene->AddNewNodeByClass( "vtkMRMLRTPlanNode", "FixedPlan"));
   fixedPlanNode->SetIonPlanFlag(true);
-/*
-  // Create beam and add to scene
-  vtkNew<vtkMRMLRTChannel25IonBeamNode> beamNode;
+  fixedPlanNode->SetIsocenterSpecification(vtkMRMLRTPlanNode::ArbitraryPoint);
 
   vtkMRMLMarkupsFiducialNode* fixedIsocenterNode = nullptr;
-
   // fixed isocenter fiducial markups node
   if (scene->GetFirstNodeByName(FIXEDISOCENTER_MARKUPS_FIDUCIAL_NODE_NAME))
   {
     fixedIsocenterNode = vtkMRMLMarkupsFiducialNode::SafeDownCast(scene->GetFirstNodeByName(FIXEDISOCENTER_MARKUPS_FIDUCIAL_NODE_NAME));
   }
+  double fixedIsocenter[3] = {};
+  if (fixedIsocenterNode)
+  {
+    fixedIsocenterNode->SetNthControlPointPosition( 0, fixedIsocenter);
+    vtkWarningMacro("CreateFixedBeamPlanAndNode: Fixed isocenter " << fixedIsocenter[0] << ' ' << fixedIsocenter[1] << ' ' << fixedIsocenter[2]);
+    fixedPlanNode->SetIsocenterPosition(fixedIsocenter);
+  }
+/*
+  // Create beam and add to scene
+  vtkNew<vtkMRMLRTChannel25IonBeamNode> beamNode;
+
   std::string fixedIonBeamName = scene->GenerateUniqueName("FixedIonBeam");
   beamNode->SetName(fixedIonBeamName.c_str());
 //  beamNode->SetName(fixedPlanNode->GenerateNewBeamName().c_str());
@@ -794,7 +810,7 @@ void vtkSlicerPatientPositioningLogic::CreateFixedBeamPlanAndNode(vtkMRMLPatient
   vtkMRMLLinearTransformNode* rasToFixedReferenceTransformNode = this->TableTopRobotLogic->GetFixedReferenceTransform();
   if (beamTranfsormNode && rasToFixedReferenceTransformNode)
   {
-    beamTranfsormNode->SetAndObserveTransformNodeID(rasToFixedReferenceTransformNode->GetID() );
+///    beamTranfsormNode->SetAndObserveTransformNodeID(rasToFixedReferenceTransformNode->GetID() );
   }
 //  parameterNode->SetAndObserveFixedBeamNode(beamNode);
 */
@@ -870,7 +886,7 @@ void vtkSlicerPatientPositioningLogic::CreateExternalXrayPlanAndNode(vtkMRMLPati
   vtkMRMLLinearTransformNode* rasToFixedReferenceTransformNode = this->TableTopRobotLogic->GetFixedReferenceTransform();
   if (beamTranfsormNode && rasToFixedReferenceTransformNode)
   {
-    beamTranfsormNode->SetAndObserveTransformNodeID(rasToFixedReferenceTransformNode->GetID() );
+///    beamTranfsormNode->SetAndObserveTransformNodeID(rasToFixedReferenceTransformNode->GetID() );
   }
 //  parameterNode->SetAndObserveExternalXrayBeamNode(externalXrayBeamNode);
 */
