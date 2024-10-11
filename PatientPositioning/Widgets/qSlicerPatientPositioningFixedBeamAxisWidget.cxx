@@ -189,6 +189,8 @@ void qSlicerPatientPositioningFixedBeamAxisWidget::updateWidgetFromMRML()
     qCritical() << Q_FUNC_INFO << ": Invalid parameter node";
     return;
   }
+  qDebug() << Q_FUNC_INFO << ": Calculate new Isocenter translations!";
+
   if (d->PatientPositioningLogic)
   {
     if (d->RadioButton_FixedReference->isChecked())

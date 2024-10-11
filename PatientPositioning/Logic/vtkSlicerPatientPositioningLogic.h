@@ -36,7 +36,7 @@
 
 #include "vtkSlicerPatientPositioningModuleLogicExport.h"
 #include "vtkSlicerTableTopRobotTransformLogic.h"
-#include "vtkSlicerFixedReferenceBeamsLogic.h"
+//#include "vtkSlicerFixedReferenceBeamsLogic.h"
 
 class vtkMRMLLinearTransformNode;
 class vtkMRMLSliceCompositeNode;
@@ -107,7 +107,7 @@ public:
   const char* GetTreatmentMachinePartTypeAsString(vtkSlicerTableTopRobotTransformLogic::CoordinateSystemIdentifier type);
 
   vtkGetObjectMacro(TableTopRobotLogic, vtkSlicerTableTopRobotTransformLogic);
-  vtkGetObjectMacro(FixedReferenceBeamsLogic, vtkSlicerFixedReferenceBeamsLogic);
+//  vtkGetObjectMacro(FixedReferenceBeamsLogic, vtkSlicerFixedReferenceBeamsLogic);
 
   /// Get part name for part type in the currently loaded treatment machine description
   std::string GetNameForPartType(std::string partType);
@@ -151,7 +151,7 @@ protected:
 //  bool GetPatientBodyPolyData(vtkMRMLPatientPositioningNode* parameterNode, vtkPolyData* patientBodyPolyData);
 
   vtkSlicerTableTopRobotTransformLogic* TableTopRobotLogic{ nullptr };
-  vtkSlicerFixedReferenceBeamsLogic* FixedReferenceBeamsLogic{ nullptr };
+//  vtkSlicerFixedReferenceBeamsLogic* FixedReferenceBeamsLogic{ nullptr };
 
   vtkCollisionDetectionFilter* TableTopElbowCollisionDetection{ nullptr };
   vtkCollisionDetectionFilter* TableTopShoulderCollisionDetection{ nullptr };

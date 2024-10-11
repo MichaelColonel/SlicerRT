@@ -36,7 +36,8 @@ vtkMRMLRTFixedIonBeamNode::vtkMRMLRTFixedIonBeamNode()
   :
   Superclass()
 {
-  this->SetGantryAngle(90.);
+  this->SetGantryAngle(270.);
+  this->SetCollimatorAngle(90.);
 }
 
 //----------------------------------------------------------------------------

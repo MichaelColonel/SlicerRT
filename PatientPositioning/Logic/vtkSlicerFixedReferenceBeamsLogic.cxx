@@ -140,7 +140,7 @@ void vtkSlicerFixedReferenceBeamsLogic::OnMRMLSceneEndImport()
     //   reason for this is possibly that the pipeline is set up with the file reader and on any modified
     //   event that pipeline is used instead of simply using the changed contents of the beam polydata.
     beamNode->SetAndObserveMesh(beamNode->GetMesh());
-    
+
     // Observe beam events
     vtkSmartPointer<vtkIntArray> events = vtkSmartPointer<vtkIntArray>::New();
     events->InsertNextValue(vtkMRMLRTBeamNode::BeamGeometryModified);

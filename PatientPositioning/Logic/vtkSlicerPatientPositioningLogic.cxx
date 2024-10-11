@@ -340,7 +340,7 @@ vtkSlicerPatientPositioningLogic::vtkSlicerPatientPositioningLogic()
   this->Internal = new vtkInternal(this); 
 
   this->TableTopRobotLogic = vtkSlicerTableTopRobotTransformLogic::New();
-  this->FixedReferenceBeamsLogic = vtkSlicerFixedReferenceBeamsLogic::New();
+//  this->FixedReferenceBeamsLogic = vtkSlicerFixedReferenceBeamsLogic::New();
 
   this->TableTopElbowCollisionDetection = vtkCollisionDetectionFilter::New();
   this->TableTopElbowCollisionDetection->SetCollisionModeToFirstContact();
@@ -373,11 +373,11 @@ vtkSlicerPatientPositioningLogic::~vtkSlicerPatientPositioningLogic()
     this->TableTopRobotLogic->Delete();
     this->TableTopRobotLogic = nullptr;
   }
-  if (this->FixedReferenceBeamsLogic)
-  {
-    this->FixedReferenceBeamsLogic->Delete();
-    this->FixedReferenceBeamsLogic = nullptr;
-  }
+//  if (this->FixedReferenceBeamsLogic)
+//  {
+//    this->FixedReferenceBeamsLogic->Delete();
+//    this->FixedReferenceBeamsLogic = nullptr;
+//  }
   if (this->Internal)
   {
     delete this->Internal;
@@ -448,7 +448,7 @@ void vtkSlicerPatientPositioningLogic::SetMRMLSceneInternal(vtkMRMLScene * newSc
   this->SetAndObserveMRMLSceneEventsInternal(newScene, events.GetPointer());
 
   this->TableTopRobotLogic->SetMRMLScene(newScene);
-  this->FixedReferenceBeamsLogic->SetMRMLScene(newScene);
+//  this->FixedReferenceBeamsLogic->SetMRMLScene(newScene);
 }
 
 //-----------------------------------------------------------------------------
@@ -627,6 +627,11 @@ vtkVector3d vtkSlicerPatientPositioningLogic
       // fixed isocenter in TableTop
       double fixedIsoTT[4] = { };
       rasToTableTopTransform->MultiplyPoint( fixedIsoRAS, fixedIsoTT);
+      vtkWarningMacro("GetIsocenterToFixedBeamAxisTranslation: Fixed isocenter RAS " << fixedIsoRAS[0] << ' ' << fixedIsoRAS[1] << ' ' << fixedIsoRAS[2]);
+      vtkWarningMacro("GetIsocenterToFixedBeamAxisTranslation: Fixed isocenter TableTop " << fixedIsoTT[0] << ' ' << fixedIsoTT[1] << ' ' << fixedIsoTT[2]);
+      vtkWarningMacro("GetIsocenterToFixedBeamAxisTranslation: Patient isocenter RAS " << patIsoRAS[0] << ' ' << patIsoRAS[1] << ' ' << patIsoRAS[2]);
+      vtkWarningMacro("GetIsocenterToFixedBeamAxisTranslation: Patient isocenter TableTop " << patIsoTT[0] << ' ' << patIsoTT[1] << ' ' << patIsoTT[2]);
+
       return vtkVector3d( fixedIsoTT[0] - patIsoTT[0], fixedIsoTT[1] - patIsoTT[1], fixedIsoTT[2] - patIsoTT[2]);
     }
     break;
@@ -637,6 +642,11 @@ vtkVector3d vtkSlicerPatientPositioningLogic
       // patient isocenter in FixedReference
       double patIsoFR[4] = { };
       rasToFixedReferenceToRasTransform->MultiplyPoint( patIsoRAS, patIsoFR);
+      vtkWarningMacro("GetIsocenterToFixedBeamAxisTranslation: Fixed isocenter RAS " << fixedReferenceIsocenterRAS[0] << ' ' << fixedReferenceIsocenterRAS[1] << ' ' << fixedReferenceIsocenterRAS[2]);
+      vtkWarningMacro("GetIsocenterToFixedBeamAxisTranslation: Fixed isocenter FixedReference " << fixedReferenceIsocenter[0] << ' ' << fixedReferenceIsocenter[1] << ' ' << fixedReferenceIsocenter[2]);
+      vtkWarningMacro("GetIsocenterToFixedBeamAxisTranslation: Patient isocenter RAS " << patIsoRAS[0] << ' ' << patIsoRAS[1] << ' ' << patIsoRAS[2]);
+      vtkWarningMacro("GetIsocenterToFixedBeamAxisTranslation: Patient isocenter FixedReference " << patIsoFR[0] << ' ' << patIsoFR[1] << ' ' << patIsoFR[2]);
+
       return vtkVector3d( fixedReferenceIsocenter[0] - patIsoFR[0], fixedReferenceIsocenter[1] - patIsoFR[1], fixedReferenceIsocenter[2] - patIsoFR[2]);
     }
     break;
@@ -765,14 +775,7 @@ void vtkSlicerPatientPositioningLogic::CreateFixedBeamPlanAndNode(vtkMRMLPatient
   {
     fixedIsocenterNode = vtkMRMLMarkupsFiducialNode::SafeDownCast(scene->GetFirstNodeByName(FIXEDISOCENTER_MARKUPS_FIDUCIAL_NODE_NAME));
   }
-  double fixedIsocenter[3] = {};
-  if (fixedIsocenterNode)
-  {
-    fixedIsocenterNode->SetNthControlPointPosition( 0, fixedIsocenter);
-    vtkWarningMacro("CreateFixedBeamPlanAndNode: Fixed isocenter " << fixedIsocenter[0] << ' ' << fixedIsocenter[1] << ' ' << fixedIsocenter[2]);
-    fixedPlanNode->SetIsocenterPosition(fixedIsocenter);
-  }
-/*
+
   // Create beam and add to scene
   vtkNew<vtkMRMLRTChannel25IonBeamNode> beamNode;
 
@@ -810,10 +813,10 @@ void vtkSlicerPatientPositioningLogic::CreateFixedBeamPlanAndNode(vtkMRMLPatient
   vtkMRMLLinearTransformNode* rasToFixedReferenceTransformNode = this->TableTopRobotLogic->GetFixedReferenceTransform();
   if (beamTranfsormNode && rasToFixedReferenceTransformNode)
   {
-///    beamTranfsormNode->SetAndObserveTransformNodeID(rasToFixedReferenceTransformNode->GetID() );
+    beamTranfsormNode->SetAndObserveTransformNodeID(rasToFixedReferenceTransformNode->GetID() );
   }
 //  parameterNode->SetAndObserveFixedBeamNode(beamNode);
-*/
+
 }
 
 //----------------------------------------------------------------------------
@@ -841,7 +844,7 @@ void vtkSlicerPatientPositioningLogic::CreateExternalXrayPlanAndNode(vtkMRMLPati
   }
 
   vtkMRMLRTPlanNode* externalXrayPlanNode = vtkMRMLRTPlanNode::SafeDownCast(scene->AddNewNodeByClass( "vtkMRMLRTPlanNode", "ExternalXray"));
-/*
+
   // Create beam and add to scene
   vtkNew<vtkMRMLRTFixedBeamNode> externalXrayBeamNode;
 
@@ -886,10 +889,10 @@ void vtkSlicerPatientPositioningLogic::CreateExternalXrayPlanAndNode(vtkMRMLPati
   vtkMRMLLinearTransformNode* rasToFixedReferenceTransformNode = this->TableTopRobotLogic->GetFixedReferenceTransform();
   if (beamTranfsormNode && rasToFixedReferenceTransformNode)
   {
-///    beamTranfsormNode->SetAndObserveTransformNodeID(rasToFixedReferenceTransformNode->GetID() );
+    beamTranfsormNode->SetAndObserveTransformNodeID(rasToFixedReferenceTransformNode->GetID() );
   }
 //  parameterNode->SetAndObserveExternalXrayBeamNode(externalXrayBeamNode);
-*/
+
 }
 
 //---------------------------------------------------------------------------

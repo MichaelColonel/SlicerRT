@@ -80,16 +80,16 @@ vtkSlicerTableTopRobotTransformLogic::vtkSlicerTableTopRobotTransformLogic()
   using CoordSys = CoordinateSystemIdentifier;
   // Setup coordinate system ID to name map
   this->CoordinateSystemsMap.clear();
-  this->CoordinateSystemsMap[CoordSys::RAS] = "Ras";
-  this->CoordinateSystemsMap[CoordSys::FixedReference] = "FixedReference";
-  this->CoordinateSystemsMap[CoordSys::BaseFixed] = "RobotBaseFixed";
-  this->CoordinateSystemsMap[CoordSys::BaseRotation] = "RobotBaseRotation";
-  this->CoordinateSystemsMap[CoordSys::Shoulder] = "RobotShoulder";
-  this->CoordinateSystemsMap[CoordSys::Elbow] = "RobotElbow";
-  this->CoordinateSystemsMap[CoordSys::Wrist] = "RobotWrist";
-  this->CoordinateSystemsMap[CoordSys::Flange] = "Flange";
-  this->CoordinateSystemsMap[CoordSys::TableTop] = "TableTop";
-  this->CoordinateSystemsMap[CoordSys::Patient] = "Patient";
+  this->CoordinateSystemsMap[CoordSys::RAS] = "TTRRAS";
+  this->CoordinateSystemsMap[CoordSys::FixedReference] = "TTRFixedReference";
+  this->CoordinateSystemsMap[CoordSys::BaseFixed] = "TTRBaseFixed";
+  this->CoordinateSystemsMap[CoordSys::BaseRotation] = "TTRBaseRotation";
+  this->CoordinateSystemsMap[CoordSys::Shoulder] = "TTRShoulder";
+  this->CoordinateSystemsMap[CoordSys::Elbow] = "TTRElbow";
+  this->CoordinateSystemsMap[CoordSys::Wrist] = "TTRWrist";
+  this->CoordinateSystemsMap[CoordSys::Flange] = "TTRFlange";
+  this->CoordinateSystemsMap[CoordSys::TableTop] = "TTRTableTop";
+  this->CoordinateSystemsMap[CoordSys::Patient] = "TTRPatient";
 
   this->TableTopRobotTransforms.clear();
   this->TableTopRobotTransforms.push_back(std::make_pair(CoordSys::FixedReference, CoordSys::RAS)); // Dummy
