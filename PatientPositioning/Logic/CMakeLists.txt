@@ -17,8 +17,6 @@ set(${KIT}_SRCS
   vtkSlicer${MODULE_NAME}Logic.h
   vtkSlicerTableTopRobotTransformLogic.cxx
   vtkSlicerTableTopRobotTransformLogic.h
-#  vtkSlicerFixedReferenceBeamsLogic.cxx
-#  vtkSlicerFixedReferenceBeamsLogic.h
   )
 
 set(${KIT}_TARGET_LIBRARIES

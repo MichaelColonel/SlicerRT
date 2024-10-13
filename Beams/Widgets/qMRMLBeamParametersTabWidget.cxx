@@ -182,7 +182,7 @@ void qMRMLBeamParametersTabWidget::updateWidgetFromMRML()
 {
   Q_D(qMRMLBeamParametersTabWidget);
 
-  if (!d->BeamNode)
+  if (d->BeamNode == nullptr)
   {
     return;
   }
@@ -659,8 +659,7 @@ bool qMRMLBeamParametersTabWidget::setBeamParameterVisible(QString parameterName
     for (int currentRow=0; currentRow<currentLayout->rowCount(); ++currentRow)
     {
       QWidget* currentParameterFieldWidget = currentLayout->itemAt(currentRow, QFormLayout::FieldRole)->widget();
-      if ( parameterName ==
-        currentParameterFieldWidget->property(BEAM_PARAMETER_NODE_ATTRIBUTE_PROPERTY).toString() )
+      if ( parameterName == currentParameterFieldWidget->property(BEAM_PARAMETER_NODE_ATTRIBUTE_PROPERTY).toString() )
       {
         // Widget for parameter found. Set visibility for that and the label
         currentParameterFieldWidget->setVisible(visible);
@@ -753,7 +752,7 @@ void qMRMLBeamParametersTabWidget::mlcBoundaryAndPositionTableNodeChanged(vtkMRM
   else
   {
     d->BeamNode->SetAndObserveMultiLeafCollimatorTableNode(nullptr);
-    qCritical() << Q_FUNC_INFO << ": MLC boundary and position table node is invalid, set nullptr value by default!";
+    qWarning() << Q_FUNC_INFO << ": MLC boundary and position table node is invalid, set nullptr value by default!";
   }
   d->BeamNode->UpdateGeometry();
 
