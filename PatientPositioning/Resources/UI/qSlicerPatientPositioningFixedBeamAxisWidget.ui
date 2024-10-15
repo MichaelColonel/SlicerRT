@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>246</width>
-    <height>299</height>
+    <height>317</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -109,7 +109,7 @@
       <string>Fixed beam camera orientation</string>
      </property>
      <property name="collapsed">
-      <bool>true</bool>
+      <bool>false</bool>
      </property>
      <layout class="QGridLayout" name="gridLayout_2">
       <item row="0" column="0">
@@ -128,9 +128,9 @@
          </spacer>
         </item>
         <item row="2" column="1">
-         <widget class="QPushButton" name="PushButton_Left">
+         <widget class="QPushButton" name="PushButton_BevXMinus">
           <property name="text">
-           <string/>
+           <string>X-</string>
           </property>
           <property name="icon">
            <iconset resource="../qSlicerPatientPositioningModule.qrc">
@@ -139,9 +139,9 @@
          </widget>
         </item>
         <item row="2" column="3">
-         <widget class="QPushButton" name="PushButton_Right">
+         <widget class="QPushButton" name="PushButton_BevXPlus">
           <property name="text">
-           <string/>
+           <string>X+</string>
           </property>
           <property name="icon">
            <iconset resource="../qSlicerPatientPositioningModule.qrc">
@@ -150,9 +150,9 @@
          </widget>
         </item>
         <item row="0" column="2">
-         <widget class="QPushButton" name="PushButton_Up">
+         <widget class="QPushButton" name="PushButton_BevYPlus">
           <property name="text">
-           <string/>
+           <string>Y+</string>
           </property>
           <property name="icon">
            <iconset resource="../qSlicerPatientPositioningModule.qrc">
@@ -161,9 +161,9 @@
          </widget>
         </item>
         <item row="3" column="2">
-         <widget class="QPushButton" name="PushButton_Down">
+         <widget class="QPushButton" name="PushButton_BevYMinus">
           <property name="text">
-           <string/>
+           <string>Y-</string>
           </property>
           <property name="icon">
            <iconset resource="../qSlicerPatientPositioningModule.qrc">
@@ -183,6 +183,13 @@
            </size>
           </property>
          </spacer>
+        </item>
+        <item row="2" column="2">
+         <widget class="QLabel" name="Label_BevOrientation">
+          <property name="text">
+           <string/>
+          </property>
+         </widget>
         </item>
        </layout>
       </item>

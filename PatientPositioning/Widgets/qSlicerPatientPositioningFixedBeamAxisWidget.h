@@ -58,11 +58,14 @@ public slots:
   /// Update widget GUI from RT Image parameters node
   void updateWidgetFromMRML();
 
-  void onButtonUpClicked();
-  void onButtonDownClicked();
-  void onButtonLeftClicked();
-  void onButtonRightClicked();
+  void onBeamsEyeViewPlusXButtonClicked();
+  void onBeamsEyeViewMinusXButtonClicked();
+  void onBeamsEyeViewPlusYButtonClicked();
+  void onBeamsEyeViewMinusYButtonClicked();
   void onFrameBasisTranslationRadioButtonClicked(QAbstractButton* button);
+
+signals:
+  void bevOrientationChanged(const std::array< double, 3 >& vup);
 
 protected slots:
 

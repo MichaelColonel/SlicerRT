@@ -30,6 +30,8 @@ class vtkMRMLMarkupsLineNode;
 class vtkMRMLMarkupsFiducialNode;
 class vtkMRMLSegmentationNode;
 
+class vtkMRMLRTFixedBeamNode;
+class vtkMRMLRTChannel25IonBeamNode;
 class vtkMRMLRTBeamNode;
 class vtkMRMLChannel25GeometryNode;
 
@@ -66,6 +68,16 @@ public:
   vtkMRMLRTBeamNode* GetBeamNode();
   /// Set and observe beam node
   void SetAndObserveBeamNode(vtkMRMLRTBeamNode* node);
+
+  /// Get fixed reference ion beam node
+  vtkMRMLRTChannel25IonBeamNode* GetFixedReferenceBeamNode();
+  /// Set and observe fixed reference ion beam node
+  void SetAndObserveFixedReferenceBeamNode(vtkMRMLRTChannel25IonBeamNode* node);
+
+  /// Get external xray beam node
+  vtkMRMLRTFixedBeamNode* GetExternalXrayBeamNode();
+  /// Set and observe external xray beam node
+  void SetAndObserveExternalXrayBeamNode(vtkMRMLRTFixedBeamNode* node);
 
   /// Get patient body segmentation node
   vtkMRMLSegmentationNode* GetPatientBodySegmentationNode();

@@ -815,8 +815,7 @@ void vtkSlicerPatientPositioningLogic::CreateFixedBeamPlanAndNode(vtkMRMLPatient
   {
     beamTranfsormNode->SetAndObserveTransformNodeID(rasToFixedReferenceTransformNode->GetID() );
   }
-//  parameterNode->SetAndObserveFixedBeamNode(beamNode);
-
+  parameterNode->SetAndObserveFixedReferenceBeamNode(beamNode);
 }
 
 //----------------------------------------------------------------------------
@@ -891,8 +890,7 @@ void vtkSlicerPatientPositioningLogic::CreateExternalXrayPlanAndNode(vtkMRMLPati
   {
     beamTranfsormNode->SetAndObserveTransformNodeID(rasToFixedReferenceTransformNode->GetID() );
   }
-//  parameterNode->SetAndObserveExternalXrayBeamNode(externalXrayBeamNode);
-
+  parameterNode->SetAndObserveExternalXrayBeamNode(externalXrayBeamNode);
 }
 
 //---------------------------------------------------------------------------

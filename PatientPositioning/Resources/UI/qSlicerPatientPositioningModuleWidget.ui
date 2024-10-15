@@ -22,7 +22,151 @@
      <layout class="QGridLayout" name="gridLayout_8">
       <item row="1" column="0">
        <layout class="QGridLayout" name="gridLayout_3">
-        <item row="4" column="0">
+        <item row="6" column="0">
+         <widget class="QLabel" name="label_19">
+          <property name="text">
+           <string>External x-ray beam:</string>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="1">
+         <widget class="qMRMLNodeComboBox" name="MRMLNodeComboBox_Plan">
+          <property name="nodeTypes">
+           <stringlist>
+            <string>vtkMRMLRTPlanNode</string>
+           </stringlist>
+          </property>
+          <property name="noneEnabled">
+           <bool>true</bool>
+          </property>
+         </widget>
+        </item>
+        <item row="3" column="1">
+         <widget class="qMRMLSegmentSelectorWidget" name="SegmentSelectorWidget_PatientBody">
+          <property name="noneEnabled">
+           <bool>true</bool>
+          </property>
+         </widget>
+        </item>
+        <item row="3" column="0">
+         <widget class="QLabel" name="label_7">
+          <property name="text">
+           <string>Patient body:</string>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="0">
+         <widget class="QLabel" name="label_3">
+          <property name="text">
+           <string>Parameter set:</string>
+          </property>
+         </widget>
+        </item>
+        <item row="8" column="1">
+         <widget class="QPushButton" name="PushButton_LoadTreatmentMachine">
+          <property name="text">
+           <string>Load treatment machine</string>
+          </property>
+         </widget>
+        </item>
+        <item row="5" column="1">
+         <widget class="qMRMLNodeComboBox" name="MRMLNodeComboBox_FixedReferenceBeam">
+          <property name="nodeTypes">
+           <stringlist>
+            <string>vtkMRMLRTIonBeamNode</string>
+            <string>vtkMRMLRTFixedIonBeamNode</string>
+            <string>vtkMRMLRTChannel25IonBeamNode</string>
+           </stringlist>
+          </property>
+          <property name="showChildNodeTypes">
+           <bool>false</bool>
+          </property>
+          <property name="noneEnabled">
+           <bool>true</bool>
+          </property>
+          <property name="addEnabled">
+           <bool>false</bool>
+          </property>
+          <property name="removeEnabled">
+           <bool>false</bool>
+          </property>
+          <property name="noneDisplay">
+           <string>Please select a fixed beam node</string>
+          </property>
+         </widget>
+        </item>
+        <item row="4" column="0" colspan="2">
+         <widget class="Line" name="line">
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="0">
+         <widget class="QLabel" name="label_17">
+          <property name="text">
+           <string>Plan:</string>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="1">
+         <widget class="qMRMLNodeComboBox" name="MRMLNodeComboBox_ParameterSet">
+          <property name="enabled">
+           <bool>false</bool>
+          </property>
+          <property name="nodeTypes">
+           <stringlist>
+            <string>vtkMRMLPatientPositioningNode</string>
+           </stringlist>
+          </property>
+          <property name="noneDisplay">
+           <string>Please select a node</string>
+          </property>
+         </widget>
+        </item>
+        <item row="2" column="0">
+         <widget class="QLabel" name="label_4">
+          <property name="text">
+           <string>Beam:</string>
+          </property>
+         </widget>
+        </item>
+        <item row="5" column="0">
+         <widget class="QLabel" name="label_18">
+          <property name="text">
+           <string>Fixed reference beam:</string>
+          </property>
+         </widget>
+        </item>
+        <item row="9" column="0" colspan="2">
+         <widget class="QCheckBox" name="CheckBox_FixedReferenceCamera">
+          <property name="text">
+           <string>Fix a 3D camera within the FixedReference frame</string>
+          </property>
+         </widget>
+        </item>
+        <item row="6" column="1">
+         <widget class="qMRMLNodeComboBox" name="MRMLNodeComboBox_ExternalXrayBeam">
+          <property name="nodeTypes">
+           <stringlist>
+            <string>vtkMRMLRTFixedBeamNode</string>
+           </stringlist>
+          </property>
+          <property name="noneEnabled">
+           <bool>true</bool>
+          </property>
+          <property name="addEnabled">
+           <bool>false</bool>
+          </property>
+          <property name="removeEnabled">
+           <bool>false</bool>
+          </property>
+          <property name="noneDisplay">
+           <string>Please select an external x-ray beam node</string>
+          </property>
+         </widget>
+        </item>
+        <item row="8" column="0">
          <widget class="QComboBox" name="ComboBox_TreatmentMachine">
           <item>
            <property name="text">
@@ -58,79 +202,10 @@
           </property>
          </widget>
         </item>
-        <item row="3" column="1">
-         <widget class="qMRMLSegmentSelectorWidget" name="SegmentSelectorWidget_PatientBody">
-          <property name="noneEnabled">
-           <bool>true</bool>
-          </property>
-         </widget>
-        </item>
-        <item row="0" column="0">
-         <widget class="QLabel" name="label_3">
-          <property name="text">
-           <string>Parameter set:</string>
-          </property>
-         </widget>
-        </item>
-        <item row="0" column="1">
-         <widget class="qMRMLNodeComboBox" name="MRMLNodeComboBox_ParameterSet">
-          <property name="enabled">
-           <bool>false</bool>
-          </property>
-          <property name="nodeTypes">
-           <stringlist>
-            <string>vtkMRMLPatientPositioningNode</string>
-           </stringlist>
-          </property>
-          <property name="noneDisplay">
-           <string>Please select a node</string>
-          </property>
-         </widget>
-        </item>
-        <item row="4" column="1">
-         <widget class="QPushButton" name="PushButton_LoadTreatmentMachine">
-          <property name="text">
-           <string>Load treatment machine</string>
-          </property>
-         </widget>
-        </item>
-        <item row="5" column="0" colspan="2">
-         <widget class="QCheckBox" name="CheckBox_FixedReferenceCamera">
-          <property name="text">
-           <string>Fix a 3D camera within the FixedReference frame</string>
-          </property>
-         </widget>
-        </item>
-        <item row="2" column="0">
-         <widget class="QLabel" name="label_4">
-          <property name="text">
-           <string>Beam:</string>
-          </property>
-         </widget>
-        </item>
-        <item row="3" column="0">
-         <widget class="QLabel" name="label_7">
-          <property name="text">
-           <string>Patient body:</string>
-          </property>
-         </widget>
-        </item>
-        <item row="1" column="0">
-         <widget class="QLabel" name="label_17">
-          <property name="text">
-           <string>Plan:</string>
-          </property>
-         </widget>
-        </item>
-        <item row="1" column="1">
-         <widget class="qMRMLNodeComboBox" name="MRMLNodeComboBox_Plan">
-          <property name="nodeTypes">
-           <stringlist>
-            <string>vtkMRMLRTPlanNode</string>
-           </stringlist>
-          </property>
-          <property name="noneEnabled">
-           <bool>true</bool>
+        <item row="7" column="0" colspan="2">
+         <widget class="Line" name="line_2">
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
           </property>
          </widget>
         </item>
@@ -666,6 +741,38 @@
     <hint type="destinationlabel">
      <x>293</x>
      <y>148</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>qSlicerPatientPositioningModuleWidget</sender>
+   <signal>mrmlSceneChanged(vtkMRMLScene*)</signal>
+   <receiver>MRMLNodeComboBox_ExternalXrayBeam</receiver>
+   <slot>setMRMLScene(vtkMRMLScene*)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>193</x>
+     <y>418</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>293</x>
+     <y>224</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>qSlicerPatientPositioningModuleWidget</sender>
+   <signal>mrmlSceneChanged(vtkMRMLScene*)</signal>
+   <receiver>MRMLNodeComboBox_FixedReferenceBeam</receiver>
+   <slot>setMRMLScene(vtkMRMLScene*)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>193</x>
+     <y>418</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>293</x>
+     <y>195</y>
     </hint>
    </hints>
   </connection>

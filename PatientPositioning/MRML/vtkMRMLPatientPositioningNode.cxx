@@ -32,6 +32,8 @@
 
 #include "vtkMRMLPatientPositioningNode.h"
 #include "vtkMRMLChannel25GeometryNode.h"
+#include "vtkMRMLRTFixedBeamNode.h"
+#include "vtkMRMLRTChannel25IonBeamNode.h"
 
 //------------------------------------------------------------------------------
 namespace
@@ -42,6 +44,8 @@ const char* XRAY_IMAGE_REFERENCE_ROLE = "xrayImageRef";
 const char* FIXED_BEAM_AXIS_REFERENCE_ROLE = "fixedBeamAxisRef";
 const char* FIXED_ISOCENTER_REFERENCE_ROLE = "fixedIsocenterRef";
 const char* CHANNEL25_GEOMETRY_REFERENCE_ROLE = "channel25GeometryRef";
+const char* FIXED_ION_BEAM_REFERENCE_ROLE = "fixedIonBeamRef";
+const char* EXTERNAL_XRAY_BEAM_REFERENCE_ROLE = "externalXrayBeamRef";
 const char* BEAM_REFERENCE_ROLE = "beamRef";
 const char* PATIENT_BODY_SEGMENTATION_REFERENCE_ROLE = "patientBodySegmentationRef";
 
@@ -362,4 +366,40 @@ void vtkMRMLPatientPositioningNode::SetAndObserveBeamNode(vtkMRMLRTBeamNode* nod
     }
 
   this->SetNodeReferenceID(BEAM_REFERENCE_ROLE, (node ? node->GetID() : nullptr));
+}
+
+//----------------------------------------------------------------------------
+vtkMRMLRTChannel25IonBeamNode* vtkMRMLPatientPositioningNode::GetFixedReferenceBeamNode()
+{
+  return vtkMRMLRTChannel25IonBeamNode::SafeDownCast( this->GetNodeReference(FIXED_ION_BEAM_REFERENCE_ROLE) );
+}
+
+//----------------------------------------------------------------------------
+void vtkMRMLPatientPositioningNode::SetAndObserveFixedReferenceBeamNode(vtkMRMLRTChannel25IonBeamNode* node)
+{
+  if (node && this->Scene != node->GetScene())
+    {
+    vtkErrorMacro("Cannot set reference: the referenced and referencing node are not in the same scene");
+    return;
+    }
+
+  this->SetNodeReferenceID(FIXED_ION_BEAM_REFERENCE_ROLE, (node ? node->GetID() : nullptr));
+}
+
+//----------------------------------------------------------------------------
+vtkMRMLRTFixedBeamNode* vtkMRMLPatientPositioningNode::GetExternalXrayBeamNode()
+{
+  return vtkMRMLRTFixedBeamNode::SafeDownCast( this->GetNodeReference(EXTERNAL_XRAY_BEAM_REFERENCE_ROLE) );
+}
+
+//----------------------------------------------------------------------------
+void vtkMRMLPatientPositioningNode::SetAndObserveExternalXrayBeamNode(vtkMRMLRTFixedBeamNode* node)
+{
+  if (node && this->Scene != node->GetScene())
+    {
+    vtkErrorMacro("Cannot set reference: the referenced and referencing node are not in the same scene");
+    return;
+    }
+
+  this->SetNodeReferenceID(EXTERNAL_XRAY_BEAM_REFERENCE_ROLE, (node ? node->GetID() : nullptr));
 }

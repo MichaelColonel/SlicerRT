@@ -42,6 +42,8 @@ public:
   /// Create and observe default display node
   void CreateDefaultDisplayNodes() override;
 
+  bool GetPlanIsocenterPositionWorld(double isocenter[3]);
+
 protected:
   vtkMRMLRTFixedBeamNode();
   ~vtkMRMLRTFixedBeamNode() override;

@@ -75,10 +75,10 @@ void qSlicerPatientPositioningFixedBeamAxisWidgetPrivate::init()
   Q_Q(qSlicerPatientPositioningFixedBeamAxisWidget);
 
   // Buttons
-  QObject::connect( this->PushButton_Up, SIGNAL(clicked()), q, SLOT(onButtonUpClicked()));
-  QObject::connect( this->PushButton_Down, SIGNAL(clicked()), q, SLOT(onButtonDownClicked()));
-  QObject::connect( this->PushButton_Left, SIGNAL(clicked()), q, SLOT(onButtonLeftClicked()));
-  QObject::connect( this->PushButton_Right, SIGNAL(clicked()), q, SLOT(onButtonRightClicked()));
+  QObject::connect( this->PushButton_BevXPlus, SIGNAL(clicked()), q, SLOT(onBeamsEyeViewPlusXButtonClicked()));
+  QObject::connect( this->PushButton_BevXMinus, SIGNAL(clicked()), q, SLOT(onBeamsEyeViewMinusXButtonClicked()));
+  QObject::connect( this->PushButton_BevYMinus, SIGNAL(clicked()), q, SLOT(onBeamsEyeViewMinusYButtonClicked()));
+  QObject::connect( this->PushButton_BevYPlus, SIGNAL(clicked()), q, SLOT(onBeamsEyeViewPlusYButtonClicked()));
 
   // ButtonGroup
   QObject::connect( this->ButtonGroup_FrameBasisTranslation, SIGNAL(buttonClicked(QAbstractButton*)),
@@ -134,27 +134,43 @@ void qSlicerPatientPositioningFixedBeamAxisWidget::setPatientPositioningLogic(vt
 }
 
 //-----------------------------------------------------------------------------
-void qSlicerPatientPositioningFixedBeamAxisWidget::onButtonUpClicked()
+void qSlicerPatientPositioningFixedBeamAxisWidget::onBeamsEyeViewPlusXButtonClicked()
 {
-  qDebug() << Q_FUNC_INFO << "Up";
+  Q_D(qSlicerPatientPositioningFixedBeamAxisWidget);
+//  double viewUpVector[4] = { 1., 0., 0., 0. };
+//  this->onBeamsEyeViewButtonClicked(viewUpVector);
+  d->Label_BevOrientation->setText(tr("+X"));
+  emit bevOrientationChanged(std::array< double, 3 >{ 1., 0., 0.});
 }
 
 //-----------------------------------------------------------------------------
-void qSlicerPatientPositioningFixedBeamAxisWidget::onButtonDownClicked()
+void qSlicerPatientPositioningFixedBeamAxisWidget::onBeamsEyeViewMinusXButtonClicked()
 {
-  qDebug() << Q_FUNC_INFO << "Down";
+  Q_D(qSlicerPatientPositioningFixedBeamAxisWidget);
+//  double viewUpVector[4] = { -1., 0., 0., 0. };
+//  this->onBeamsEyeViewButtonClicked(viewUpVector);
+  d->Label_BevOrientation->setText(tr("-X"));
+  emit bevOrientationChanged(std::array< double, 3 >{ -1., 0., 0.});
 }
 
 //-----------------------------------------------------------------------------
-void qSlicerPatientPositioningFixedBeamAxisWidget::onButtonLeftClicked()
+void qSlicerPatientPositioningFixedBeamAxisWidget::onBeamsEyeViewPlusYButtonClicked()
 {
-  qDebug() << Q_FUNC_INFO << "Left";
+  Q_D(qSlicerPatientPositioningFixedBeamAxisWidget);
+//  double viewUpVector[4] = { 0., 1., 0., 0. };
+//  this->onBeamsEyeViewButtonClicked(viewUpVector);
+  d->Label_BevOrientation->setText(tr("+Y"));
+  emit bevOrientationChanged(std::array< double, 3 >{ 0., 1., 0.});
 }
 
 //-----------------------------------------------------------------------------
-void qSlicerPatientPositioningFixedBeamAxisWidget::onButtonRightClicked()
+void qSlicerPatientPositioningFixedBeamAxisWidget::onBeamsEyeViewMinusYButtonClicked()
 {
-  qDebug() << Q_FUNC_INFO << "Right";
+  Q_D(qSlicerPatientPositioningFixedBeamAxisWidget);
+//  double viewUpVector[4] = { 0., -1., 0., 0. };
+//  this->onBeamsEyeViewButtonClicked(viewUpVector);
+  d->Label_BevOrientation->setText(tr("-Y"));
+  emit bevOrientationChanged(std::array< double, 3 >{ 0., -1., 0.});
 }
 
 //-----------------------------------------------------------------------------

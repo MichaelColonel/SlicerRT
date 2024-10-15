@@ -21,12 +21,14 @@
 
 // Beams includes
 #include "vtkMRMLRTFixedIonBeamNode.h"
+#include "vtkMRMLRTPlanNode.h"
 
 // SlicerRT includes
 #include "vtkSlicerRtCommon.h"
 
 // MRML includes
 #include <vtkMRMLModelDisplayNode.h>
+#include <vtkMRMLMarkupsFiducialNode.h>
 
 //------------------------------------------------------------------------------
 vtkMRMLNodeNewMacro(vtkMRMLRTFixedIonBeamNode);
@@ -64,4 +66,24 @@ void vtkMRMLRTFixedIonBeamNode::CreateDefaultDisplayNodes()
   displayNode->SetBackfaceCulling(0); // Disable backface culling to make the back side of the contour visible as well
   displayNode->VisibilityOn();
   displayNode->Visibility2DOn();
+}
+
+//----------------------------------------------------------------------------
+bool vtkMRMLRTFixedIonBeamNode::GetPlanIsocenterPositionWorld(double isocenter[3])
+{
+  vtkMRMLRTPlanNode* parentPlanNode = this->GetParentPlanNode();
+  if (!parentPlanNode)
+  {
+    vtkErrorMacro("GetPlanIsocenterPositionWorld: Failed to access parent plan node");
+    return false;
+  }
+  vtkMRMLMarkupsFiducialNode* poisMarkupsNode = parentPlanNode->CreatePoisMarkupsFiducialNode();
+  if (!poisMarkupsNode)
+  {
+    vtkErrorMacro("GetPlanIsocenterPositionWorld: Failed to access POIs markups node");
+    return false;
+  }
+
+  poisMarkupsNode->GetNthControlPointPositionWorld(vtkMRMLRTPlanNode::ISOCENTER_FIDUCIAL_INDEX, isocenter);
+  return true;
 }

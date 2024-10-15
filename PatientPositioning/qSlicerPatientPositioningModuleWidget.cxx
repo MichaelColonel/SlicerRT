@@ -47,6 +47,10 @@
 
 #include <vtkMRMLRTPlanNode.h>
 #include <vtkMRMLRTBeamNode.h>
+
+// PatientPositioning MRML includes
+#include <vtkMRMLRTChannel25IonBeamNode.h>
+#include <vtkMRMLRTFixedBeamNode.h>
 #include <vtkMRMLPatientPositioningNode.h>
 #include <vtkMRMLChannel25GeometryNode.h>
 
@@ -226,6 +230,9 @@ void qSlicerPatientPositioningModuleWidget::setup()
     this, SLOT(onPatientTableTopTranslationChanged(double*)));
   connect( d->CoordinatesWidget_BaseFixedTranslation, SIGNAL(coordinatesChanged(double*)),
     this, SLOT(onBaseFixedToFixedReferenceTranslationChanged(double*)));
+  // Children widgets
+  connect( d->FixedBeamAxisWidget, SIGNAL(bevOrientationChanged(const std::array< double, 3 >&)),
+    this, SLOT(onBeamsEyeViewOrientationChanged(const std::array< double, 3 >&)));
 }
 
 //-----------------------------------------------------------------------------
@@ -452,6 +459,34 @@ void qSlicerPatientPositioningModuleWidget::onBeamNodeChanged(vtkMRMLNode* node)
     return;
   }
   d->ParameterNode->SetAndObserveBeamNode(beamNode);
+}
+
+//-----------------------------------------------------------------------------
+void qSlicerPatientPositioningModuleWidget::onFixedReferenceBeamNodeChanged(vtkMRMLNode* node)
+{
+  Q_D(qSlicerPatientPositioningModuleWidget);
+  vtkMRMLRTChannel25IonBeamNode* beamNode = vtkMRMLRTChannel25IonBeamNode::SafeDownCast(node);
+
+  if (!d->ParameterNode || !d->ModuleWindowInitialized)
+  {
+    qCritical() << Q_FUNC_INFO << ": Invalid parameter node";
+    return;
+  }
+  d->ParameterNode->SetAndObserveFixedReferenceBeamNode(beamNode);
+}
+
+//-----------------------------------------------------------------------------
+void qSlicerPatientPositioningModuleWidget::onExternalXrayBeamNodeChanged(vtkMRMLNode* node)
+{
+  Q_D(qSlicerPatientPositioningModuleWidget);
+  vtkMRMLRTFixedBeamNode* beamNode = vtkMRMLRTFixedBeamNode::SafeDownCast(node);
+
+  if (!d->ParameterNode || !d->ModuleWindowInitialized)
+  {
+    qCritical() << Q_FUNC_INFO << ": Invalid parameter node";
+    return;
+  }
+  d->ParameterNode->SetAndObserveExternalXrayBeamNode(beamNode);
 }
 
 //-----------------------------------------------------------------------------
@@ -1157,4 +1192,59 @@ void qSlicerPatientPositioningModuleWidget::checkForCollisions()
     d->CollisionDetectionStatusLabel->setText(noCollisionsMessage);
     d->CollisionDetectionStatusLabel->setStyleSheet("color: green");
   }
+}
+
+//-----------------------------------------------------------------------------
+void qSlicerPatientPositioningModuleWidget::onBeamsEyeViewOrientationChanged(const std::array< double, 3 >& viewUpVector)
+{
+  Q_D(qSlicerPatientPositioningModuleWidget);
+
+  vtkMRMLCameraNode* cameraNode = d->get3DViewCameraNode();
+  if (!cameraNode)
+  {
+    return;
+  }
+
+  vtkMRMLRTChannel25IonBeamNode* beamNode = vtkMRMLRTChannel25IonBeamNode::SafeDownCast(d->MRMLNodeComboBox_FixedReferenceBeam->currentNode());
+  double sourcePosition[3] = {};
+  double isocenter[3] = {};
+  qDebug() << Q_FUNC_INFO << viewUpVector[0] << ' ' << viewUpVector[1] << ' ' << viewUpVector[2];
+
+  if (beamNode && beamNode->GetSourcePosition(sourcePosition))
+  {
+    vtkMRMLTransformNode* beamTransformNode = beamNode->GetParentTransformNode();
+    vtkTransform* beamTransform = nullptr;
+    vtkNew<vtkMatrix4x4> mat;
+    mat->Identity();
+
+    if (beamTransformNode)
+    {
+      beamTransform = vtkTransform::SafeDownCast(beamTransformNode->GetTransformToParent());
+      beamTransform->GetMatrix(mat);
+    }
+    else
+    {
+      qCritical() << Q_FUNC_INFO << "Beam transform node is invalid";
+      return;
+    }
+
+    double vupOrig[4] = { viewUpVector[0], viewUpVector[1], viewUpVector[2], 0. };
+    double vup[4];
+    if (beamTransform)
+    {
+      mat->MultiplyPoint( vupOrig, vup);
+    }
+    else
+    {
+      return;
+    }
+
+    cameraNode->GetCamera()->SetPosition(sourcePosition);
+    if (beamNode->GetPlanIsocenterPositionWorld(isocenter))
+    {
+      cameraNode->GetCamera()->SetFocalPoint(isocenter);
+    }
+    cameraNode->SetViewUp(vup);
+  }
+  cameraNode->GetCamera()->Elevation(0.);
 }
