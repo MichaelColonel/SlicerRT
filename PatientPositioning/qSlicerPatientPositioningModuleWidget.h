@@ -73,6 +73,7 @@ public slots:
   void onCollisionDetectionToggled(bool toggled);
   void onFixedReferenceCameraToggled(bool toggled);
   void onBeamsEyeViewOrientationChanged(const std::array< double, 3 >& viewUpVector);
+  void onTestAlignmentClicked();
 
   /// Update widget GUI from PatientPositioning parameters node
   void updateWidgetFromMRML();

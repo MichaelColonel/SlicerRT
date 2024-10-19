@@ -198,6 +198,10 @@ void qSlicerPatientPositioningModuleWidget::setup()
     this, SLOT(onPlanNodeChanged(vtkMRMLNode*)));
   connect( d->MRMLNodeComboBox_Beam, SIGNAL(currentNodeChanged(vtkMRMLNode*)), 
     this, SLOT(onBeamNodeChanged(vtkMRMLNode*)));
+  connect( d->MRMLNodeComboBox_FixedReferenceBeam, SIGNAL(currentNodeChanged(vtkMRMLNode*)), 
+    this, SLOT(onFixedReferenceBeamNodeChanged(vtkMRMLNode*)));
+  connect( d->MRMLNodeComboBox_ExternalXrayBeam, SIGNAL(currentNodeChanged(vtkMRMLNode*)), 
+    this, SLOT(onExternalXrayBeamNodeChanged(vtkMRMLNode*)));
   connect( d->SegmentSelectorWidget_PatientBody, SIGNAL(currentNodeChanged(vtkMRMLNode*)), 
     this, SLOT(onPatientBodySegmentationNodeChanged(vtkMRMLNode*)));
   connect( d->SegmentSelectorWidget_PatientBody, SIGNAL(currentSegmentChanged(QString)), 
@@ -212,6 +216,8 @@ void qSlicerPatientPositioningModuleWidget::setup()
     this, SLOT(onCollisionDetectionToggled(bool)));
   connect( d->CheckBox_FixedReferenceCamera, SIGNAL(toggled(bool)), 
     this, SLOT(onFixedReferenceCameraToggled(bool)));
+  connect( d->PushButton_TestAlignment, SIGNAL(clicked()), 
+    this, SLOT(onTestAlignmentClicked()));
 
   // Widgets
   connect( d->SliderWidget_TableRobotA1, SIGNAL(valueChanged(double)), 
@@ -517,6 +523,120 @@ void qSlicerPatientPositioningModuleWidget::onPatientBodySegmentChanged(QString 
   d->ParameterNode->DisableModifiedEventOn();
   d->ParameterNode->SetPatientBodySegmentID(segmentID.toUtf8().constData());
   d->ParameterNode->DisableModifiedEventOff();
+}
+
+//-----------------------------------------------------------------------------
+void qSlicerPatientPositioningModuleWidget::onTestAlignmentClicked()
+{
+  Q_D(qSlicerPatientPositioningModuleWidget);
+
+  vtkMRMLScene* scene = this->mrmlScene();
+  if (!scene)
+  {
+    qCritical() << Q_FUNC_INFO << ": Invalid scene";
+    return;
+  }
+  vtkMRMLPatientPositioningNode* parameterNode = vtkMRMLPatientPositioningNode::SafeDownCast(d->MRMLNodeComboBox_ParameterSet->currentNode());
+  if (!parameterNode)
+  {
+    qCritical() << Q_FUNC_INFO << ": Invalid parameter node";
+    return;
+  }
+
+  vtkMRMLRTBeamNode* patientBeamNode = vtkMRMLRTBeamNode::SafeDownCast(d->MRMLNodeComboBox_Beam->currentNode());
+  if (!patientBeamNode)
+  {
+    qCritical() << Q_FUNC_INFO << ": Invalid patient node";
+    return;
+  }
+
+  vtkMRMLRTChannel25IonBeamNode* fixedReferenceNode = vtkMRMLRTChannel25IonBeamNode::SafeDownCast(d->MRMLNodeComboBox_FixedReferenceBeam->currentNode());
+  if (!fixedReferenceNode)
+  {
+    qCritical() << Q_FUNC_INFO << ": Invalid fixed reference node";
+    return;
+  }
+/*
+  // Get RAS->FixedReference Transform
+  vtkMRMLLinearTransformNode* rasToFixedReferenceTransformNode = d->tableTopRobotLogic()->GetFixedReferenceTransform();
+
+  if (!rasToFixedReferenceTransformNode)
+  {
+    vtkErrorMacro("GetTableTopToPatientBeamTransform: Invalid TableTop->RAS transform node");
+    return false;
+  }
+
+  // Patient beam node transform
+  vtkMRMLTransformNode* patientBeamTransformNode = patientBeamNode->GetParentTransformNode();
+
+  vtkNew< vtkMatrix4x4 > transformMatrix;
+  // tableTopTransformNode - Source
+  // patientBeamTransformNode - Target
+  // Source -> Target transform
+  if (!vtkMRMLTransformNode::GetMatrixTransformBetweenNodes( tableTopTransformNode, patientBeamTransformNode, transformMatrix))
+  {
+    vtkErrorMacro("GetTableTopToPatientBeamTransform: Unable calculate transform between TableTop and patient beam nodes");
+    return false;
+  }
+
+  transform->SetMatrix(transformMatrix);
+
+  double longitudinalAngle;
+  double lateralAngle;
+  double patientSupportAngle;
+  this->GetTableTopAnglesFromPatientBeam( parameterNode, beamNode, longitudinalAngle, lateralAngle, patientSupportAngle);
+
+  parameterNode->DisableModifiedEventOn();
+  if (!parameterNode->GetPatientHeadFeetRotation() && beamNode->GetGantryAngle() <= 180. && beamNode->GetCouchAngle() <= 180.)
+  {
+    parameterNode->SetTableTopLateralAngle(lateralAngle);
+    parameterNode->SetTableTopLongitudinalAngle(longitudinalAngle);
+    parameterNode->SetPatientSupportRotationAngle(patientSupportAngle);
+  }
+  else if (parameterNode->GetPatientHeadFeetRotation() && beamNode->GetGantryAngle() <= 180. && beamNode->GetCouchAngle() <= 180.)
+  {
+    parameterNode->SetTableTopLateralAngle(lateralAngle);
+    parameterNode->SetTableTopLongitudinalAngle(longitudinalAngle);
+    parameterNode->SetPatientSupportRotationAngle(360. - patientSupportAngle);
+  }
+  else if (!parameterNode->GetPatientHeadFeetRotation() && beamNode->GetGantryAngle() > 180. && beamNode->GetCouchAngle() <= 180.)
+  {
+    parameterNode->SetTableTopLateralAngle(-1. * lateralAngle);
+    parameterNode->SetTableTopLongitudinalAngle(-1. * longitudinalAngle);
+    parameterNode->SetPatientSupportRotationAngle(180. + patientSupportAngle);
+  }
+  else if (parameterNode->GetPatientHeadFeetRotation() && beamNode->GetGantryAngle() > 180. && beamNode->GetCouchAngle() <= 180.)
+  {
+    parameterNode->SetTableTopLateralAngle(-1. * lateralAngle);
+    parameterNode->SetTableTopLongitudinalAngle(-1. * longitudinalAngle);
+    parameterNode->SetPatientSupportRotationAngle(180. - patientSupportAngle);
+  }
+  else if (!parameterNode->GetPatientHeadFeetRotation() && beamNode->GetGantryAngle() <= 180. && beamNode->GetCouchAngle() > 180.)
+  {
+    parameterNode->SetTableTopLateralAngle(lateralAngle);
+    parameterNode->SetTableTopLongitudinalAngle(longitudinalAngle);
+    parameterNode->SetPatientSupportRotationAngle(360. - patientSupportAngle);
+  }
+  else if (parameterNode->GetPatientHeadFeetRotation() && beamNode->GetGantryAngle() <= 180. && beamNode->GetCouchAngle() > 180.)
+  {
+    parameterNode->SetTableTopLateralAngle(lateralAngle);
+    parameterNode->SetTableTopLongitudinalAngle(longitudinalAngle);
+    parameterNode->SetPatientSupportRotationAngle(patientSupportAngle);
+  }
+  else if (!parameterNode->GetPatientHeadFeetRotation() && beamNode->GetGantryAngle() > 180. && beamNode->GetCouchAngle() > 180.)
+  {
+    parameterNode->SetTableTopLateralAngle(-1. * lateralAngle);
+    parameterNode->SetTableTopLongitudinalAngle(-1. * longitudinalAngle);
+    parameterNode->SetPatientSupportRotationAngle(180. - patientSupportAngle);
+  }
+  else if (parameterNode->GetPatientHeadFeetRotation() && beamNode->GetGantryAngle() > 180. && beamNode->GetCouchAngle() > 180.)
+  {
+    parameterNode->SetTableTopLateralAngle(-1. * lateralAngle);
+    parameterNode->SetTableTopLongitudinalAngle(-1. * longitudinalAngle);
+    parameterNode->SetPatientSupportRotationAngle(180. + patientSupportAngle);
+  }
+  parameterNode->DisableModifiedEventOff();
+*/
 }
 
 //-----------------------------------------------------------------------------

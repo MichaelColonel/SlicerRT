@@ -610,6 +610,13 @@
     <widget class="qSlicerPatientPositioningFixedBeamAxisWidget" name="FixedBeamAxisWidget" native="true"/>
    </item>
    <item>
+    <widget class="QPushButton" name="PushButton_TestAlignment">
+     <property name="text">
+      <string>Test alignment</string>
+     </property>
+    </widget>
+   </item>
+   <item>
     <spacer name="verticalSpacer">
      <property name="orientation">
       <enum>Qt::Vertical</enum>
