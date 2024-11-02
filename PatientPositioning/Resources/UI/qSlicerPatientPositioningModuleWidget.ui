@@ -215,7 +215,10 @@
     </widget>
    </item>
    <item>
-    <widget class="ctkCollapsibleButton" name="CollisionDetectionCollapsibleButton">
+    <widget class="ctkCollapsibleButton" name="CollapsibleButton_CollisionDetection">
+     <property name="enabled">
+      <bool>false</bool>
+     </property>
      <property name="text">
       <string>Collision detection</string>
      </property>
@@ -257,6 +260,9 @@
    </item>
    <item>
     <widget class="ctkCollapsibleButton" name="CollapsibleButton_PatientTableTopControl">
+     <property name="enabled">
+      <bool>false</bool>
+     </property>
      <property name="text">
       <string>Patient on TableTop Control</string>
      </property>
@@ -311,7 +317,10 @@
     </widget>
    </item>
    <item>
-    <widget class="ctkCollapsibleButton" name="CollapsibleButton">
+    <widget class="ctkCollapsibleButton" name="CollapsibleButton_BaseFixedControl">
+     <property name="enabled">
+      <bool>false</bool>
+     </property>
      <property name="text">
       <string>BaseFixed Control</string>
      </property>
@@ -345,6 +354,9 @@
    </item>
    <item>
     <widget class="ctkCollapsibleButton" name="CollapsibleButton_TableTopControl">
+     <property name="enabled">
+      <bool>false</bool>
+     </property>
      <property name="text">
       <string>TableTop Control</string>
      </property>
@@ -481,6 +493,9 @@
    </item>
    <item>
     <widget class="ctkCollapsibleButton" name="CollapsibleButton_TableTopRobotControl">
+     <property name="enabled">
+      <bool>false</bool>
+     </property>
      <property name="text">
       <string>TableTop Robot Control</string>
      </property>
@@ -506,6 +521,9 @@
         </item>
         <item row="0" column="1">
          <widget class="ctkSliderWidget" name="SliderWidget_TableRobotA1">
+          <property name="decimals">
+           <number>6</number>
+          </property>
           <property name="minimum">
            <double>-185.000000000000000</double>
           </property>
@@ -516,6 +534,9 @@
         </item>
         <item row="1" column="1">
          <widget class="ctkSliderWidget" name="SliderWidget_TableRobotA2">
+          <property name="decimals">
+           <number>6</number>
+          </property>
           <property name="minimum">
            <double>-140.000000000000000</double>
           </property>
@@ -550,6 +571,9 @@
         </item>
         <item row="2" column="1">
          <widget class="ctkSliderWidget" name="SliderWidget_TableRobotA3">
+          <property name="decimals">
+           <number>6</number>
+          </property>
           <property name="minimum">
            <double>-120.000000000000000</double>
           </property>
@@ -570,6 +594,9 @@
         </item>
         <item row="3" column="1">
          <widget class="ctkSliderWidget" name="SliderWidget_TableRobotA4">
+          <property name="decimals">
+           <number>6</number>
+          </property>
           <property name="minimum">
            <double>-350.000000000000000</double>
           </property>
@@ -580,6 +607,9 @@
         </item>
         <item row="4" column="1">
          <widget class="ctkSliderWidget" name="SliderWidget_TableRobotA5">
+          <property name="decimals">
+           <number>6</number>
+          </property>
           <property name="minimum">
            <double>-125.000000000000000</double>
           </property>
@@ -593,6 +623,9 @@
         </item>
         <item row="5" column="1">
          <widget class="ctkSliderWidget" name="SliderWidget_TableRobotA6">
+          <property name="decimals">
+           <number>6</number>
+          </property>
           <property name="minimum">
            <double>-350.000000000000000</double>
           </property>
@@ -607,10 +640,17 @@
     </widget>
    </item>
    <item>
-    <widget class="qSlicerPatientPositioningFixedBeamAxisWidget" name="FixedBeamAxisWidget" native="true"/>
+    <widget class="qSlicerPatientPositioningFixedBeamAxisWidget" name="FixedBeamAxisWidget" native="true">
+     <property name="enabled">
+      <bool>false</bool>
+     </property>
+    </widget>
    </item>
    <item>
     <widget class="QPushButton" name="PushButton_TestAlignment">
+     <property name="enabled">
+      <bool>false</bool>
+     </property>
      <property name="text">
       <string>Test alignment</string>
      </property>

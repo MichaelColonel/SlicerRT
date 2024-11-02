@@ -627,10 +627,10 @@ vtkVector3d vtkSlicerPatientPositioningLogic
       // fixed isocenter in TableTop
       double fixedIsoTT[4] = { };
       rasToTableTopTransform->MultiplyPoint( fixedIsoRAS, fixedIsoTT);
-      vtkWarningMacro("GetIsocenterToFixedBeamAxisTranslation: Fixed isocenter RAS " << fixedIsoRAS[0] << ' ' << fixedIsoRAS[1] << ' ' << fixedIsoRAS[2]);
-      vtkWarningMacro("GetIsocenterToFixedBeamAxisTranslation: Fixed isocenter TableTop " << fixedIsoTT[0] << ' ' << fixedIsoTT[1] << ' ' << fixedIsoTT[2]);
-      vtkWarningMacro("GetIsocenterToFixedBeamAxisTranslation: Patient isocenter RAS " << patIsoRAS[0] << ' ' << patIsoRAS[1] << ' ' << patIsoRAS[2]);
-      vtkWarningMacro("GetIsocenterToFixedBeamAxisTranslation: Patient isocenter TableTop " << patIsoTT[0] << ' ' << patIsoTT[1] << ' ' << patIsoTT[2]);
+//      vtkWarningMacro("GetIsocenterToFixedBeamAxisTranslation: Fixed isocenter RAS " << fixedIsoRAS[0] << ' ' << fixedIsoRAS[1] << ' ' << fixedIsoRAS[2]);
+//      vtkWarningMacro("GetIsocenterToFixedBeamAxisTranslation: Fixed isocenter TableTop " << fixedIsoTT[0] << ' ' << fixedIsoTT[1] << ' ' << fixedIsoTT[2]);
+//      vtkWarningMacro("GetIsocenterToFixedBeamAxisTranslation: Patient isocenter RAS " << patIsoRAS[0] << ' ' << patIsoRAS[1] << ' ' << patIsoRAS[2]);
+//      vtkWarningMacro("GetIsocenterToFixedBeamAxisTranslation: Patient isocenter TableTop " << patIsoTT[0] << ' ' << patIsoTT[1] << ' ' << patIsoTT[2]);
 
       return vtkVector3d( fixedIsoTT[0] - patIsoTT[0], fixedIsoTT[1] - patIsoTT[1], fixedIsoTT[2] - patIsoTT[2]);
     }
@@ -642,10 +642,10 @@ vtkVector3d vtkSlicerPatientPositioningLogic
       // patient isocenter in FixedReference
       double patIsoFR[4] = { };
       rasToFixedReferenceToRasTransform->MultiplyPoint( patIsoRAS, patIsoFR);
-      vtkWarningMacro("GetIsocenterToFixedBeamAxisTranslation: Fixed isocenter RAS " << fixedReferenceIsocenterRAS[0] << ' ' << fixedReferenceIsocenterRAS[1] << ' ' << fixedReferenceIsocenterRAS[2]);
-      vtkWarningMacro("GetIsocenterToFixedBeamAxisTranslation: Fixed isocenter FixedReference " << fixedReferenceIsocenter[0] << ' ' << fixedReferenceIsocenter[1] << ' ' << fixedReferenceIsocenter[2]);
-      vtkWarningMacro("GetIsocenterToFixedBeamAxisTranslation: Patient isocenter RAS " << patIsoRAS[0] << ' ' << patIsoRAS[1] << ' ' << patIsoRAS[2]);
-      vtkWarningMacro("GetIsocenterToFixedBeamAxisTranslation: Patient isocenter FixedReference " << patIsoFR[0] << ' ' << patIsoFR[1] << ' ' << patIsoFR[2]);
+//      vtkWarningMacro("GetIsocenterToFixedBeamAxisTranslation: Fixed isocenter RAS " << fixedReferenceIsocenterRAS[0] << ' ' << fixedReferenceIsocenterRAS[1] << ' ' << fixedReferenceIsocenterRAS[2]);
+//      vtkWarningMacro("GetIsocenterToFixedBeamAxisTranslation: Fixed isocenter FixedReference " << fixedReferenceIsocenter[0] << ' ' << fixedReferenceIsocenter[1] << ' ' << fixedReferenceIsocenter[2]);
+//      vtkWarningMacro("GetIsocenterToFixedBeamAxisTranslation: Patient isocenter RAS " << patIsoRAS[0] << ' ' << patIsoRAS[1] << ' ' << patIsoRAS[2]);
+//      vtkWarningMacro("GetIsocenterToFixedBeamAxisTranslation: Patient isocenter FixedReference " << patIsoFR[0] << ' ' << patIsoFR[1] << ' ' << patIsoFR[2]);
 
       return vtkVector3d( fixedReferenceIsocenter[0] - patIsoFR[0], fixedReferenceIsocenter[1] - patIsoFR[1], fixedReferenceIsocenter[2] - patIsoFR[2]);
     }

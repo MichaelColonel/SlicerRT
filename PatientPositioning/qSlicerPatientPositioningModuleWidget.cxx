@@ -556,6 +556,52 @@ void qSlicerPatientPositioningModuleWidget::onTestAlignmentClicked()
     qCritical() << Q_FUNC_INFO << ": Invalid fixed reference node";
     return;
   }
+  // Get RAS->FixedReference Transform
+  vtkMRMLLinearTransformNode* rasToFixedReferenceTransformNode = d->tableTopRobotLogic()->GetFixedReferenceTransform();
+
+  if (!rasToFixedReferenceTransformNode)
+  {
+    qDebug() << Q_FUNC_INFO << "GetTableTopToPatientBeamTransform: Invalid TableTop->RAS transform node";
+    return;
+  }
+  // Patient beam->RAS node transform
+  vtkMRMLTransformNode* patientBeamTransformNode = patientBeamNode->GetParentTransformNode();
+
+  vtkNew< vtkMatrix4x4 > transformMatrix;
+  // From RAS->FixedReference to PatientBeam->RAS transform
+  // rasToFixedReferenceTransformNode - Source
+  // patientBeamTransformNode - Target
+  // Source -> Target transform
+  if (!vtkMRMLTransformNode::GetMatrixTransformBetweenNodes( rasToFixedReferenceTransformNode, patientBeamTransformNode, transformMatrix))
+  {
+    qDebug() << Q_FUNC_INFO << "Unable calculate transform between patient beam and fixed reference nodes";
+    return;
+  }
+  double xyz[3] = {};
+  vtkNew< vtkTransform > transform;
+  transform->SetMatrix(transformMatrix);
+  transform->GetOrientation(xyz);
+
+//  qDebug() << Q_FUNC_INFO << "X: " << xyz[0]  << ", Y: " << xyz[1]  << ", Z: " << xyz[2];
+
+  // TableTop -> PatientBeam
+  double tableTopUnityX[4] = { 1., 0., 0., 0. };
+  double tableTopUnityY[4] = { 0., 1., 0., 0. };
+  double tableTopUnityZ[4] = { 0., 0., 1., 0. };
+  double tableTopUnityXInPatientBeam[4] = {};
+  double tableTopUnityYInPatientBeam[4] = {};
+  double tableTopUnityZInPatientBeam[4] = {};
+  transformMatrix->MultiplyPoint( tableTopUnityX, tableTopUnityXInPatientBeam);
+  transformMatrix->MultiplyPoint( tableTopUnityY, tableTopUnityYInPatientBeam);
+  transformMatrix->MultiplyPoint( tableTopUnityZ, tableTopUnityZInPatientBeam);
+
+  double longitudinalAngle = vtkMath::DegreesFromRadians(acos(tableTopUnityXInPatientBeam[0])) - 90.;
+  double lateralAngle = vtkMath::DegreesFromRadians(acos(tableTopUnityZInPatientBeam[0])) - 90.;
+  double verticalAngle = vtkMath::DegreesFromRadians(acos(tableTopUnityZInPatientBeam[2])) - 90;
+
+//  qDebug() << Q_FUNC_INFO << "Lateral: " << lateralAngle  << ", Longitudinal: " << longitudinalAngle << ", Patient support: " << verticalAngle;
+
+  d->FixedBeamAxisWidget->setTableTopAngles(lateralAngle, longitudinalAngle, verticalAngle);
 /*
   // Get RAS->FixedReference Transform
   vtkMRMLLinearTransformNode* rasToFixedReferenceTransformNode = d->tableTopRobotLogic()->GetFixedReferenceTransform();
@@ -678,7 +724,6 @@ void qSlicerPatientPositioningModuleWidget::onEnter()
   // All required data for GUI is initiated
   this->updateWidgetFromMRML();
   
-
   d->ModuleWindowInitialized = true;
 }
 
@@ -828,11 +873,11 @@ void qSlicerPatientPositioningModuleWidget::onLoadTreatmentMachineButtonClicked(
   // Load and setup models
   std::vector< SysCoord > loadedParts;
   vtkMRMLChannel25GeometryNode* channel25GeometryNode = d->ParameterNode->GetChannel25GeometryNode();
+  channel25GeometryNode->DisableModifiedEventOn();
   if (channel25GeometryNode)
   {
-    channel25GeometryNode->SetTableTopVerticalPosition(0.0);
+    d->getLayoutManager()->pauseRender();
     loadedParts = d->logic()->LoadTreatmentMachineComponents(d->ParameterNode);
-    channel25GeometryNode->Modified();
 
     // Set parameter node to FixedBeamAxis widgets
     d->FixedBeamAxisWidget->setParameterNode(d->ParameterNode);
@@ -840,8 +885,13 @@ void qSlicerPatientPositioningModuleWidget::onLoadTreatmentMachineButtonClicked(
     // Fixed and external beam
     d->logic()->CreateExternalXrayPlanAndNode(d->ParameterNode);
     d->logic()->CreateFixedBeamPlanAndNode(d->ParameterNode);
+    d->getLayoutManager()->resumeRender();
+//    channel25GeometryNode->SetPatientHeadFeetRotation(true);
   }
- 
+  channel25GeometryNode->DisableModifiedEventOff();
+  // DUMMY change to trigger geometry update
+//  channel25GeometryNode->Modified();
+
   // Warn the user if collision detection is disabled for certain part pairs
   QString disabledCollisionDetectionMessage(
     tr("Collision detection for the following part pairs may take very long due to high triangle numbers:\n\n"));
@@ -888,34 +938,44 @@ void qSlicerPatientPositioningModuleWidget::onLoadTreatmentMachineButtonClicked(
       d->logic()->SetupTreatmentMachineModels(d->ParameterNode, true);
     }
   }
-/*
-  // Set treatment machine dependent properties  //TODO: Use degrees of freedom from JSON
-  if (!treatmentMachineType.compare("VarianTrueBeamSTx"))
-  {
-    d->LateralTableTopDisplacementSlider->setMinimum(-230.0);
-    d->LateralTableTopDisplacementSlider->setMaximum(230.0);
-  }
-  else if (!treatmentMachineType.compare("SiemensArtiste"))
-  {
-    d->LateralTableTopDisplacementSlider->setMinimum(-250.0);
-    d->LateralTableTopDisplacementSlider->setMaximum(250.0);
-  }
 
+  // Set treatment machine dependent properties  //TODO: Use degrees of freedom from JSON
+  if (!treatmentMachineType.compare("Channel25Geometry"))
+  {
+    qDebug() << Q_FUNC_INFO << "Channel-25";
+    d->ParameterNode->SetTreatmentMachineType("Channel25Geometry");
+  }
+  else if (!treatmentMachineType.compare("Channel26Geometry_Cabin1"))
+  {
+    qDebug() << Q_FUNC_INFO << "Channel-26 cabin-1";
+    d->ParameterNode->SetTreatmentMachineType("Channel26Geometry_Cabin1");
+  }
+  else if (!treatmentMachineType.compare("Channel26Geometry_Cabin2"))
+  {
+    qDebug() << Q_FUNC_INFO << "Channel-26 cabin-2";
+    d->ParameterNode->SetTreatmentMachineType("Channel26Geometry_Cabin2");
+  }
+  else if (!treatmentMachineType.compare("Channel26Geometry_Cabin3"))
+  {
+    qDebug() << Q_FUNC_INFO << "Channel-26 cabin-3";
+    d->ParameterNode->SetTreatmentMachineType("Channel26Geometry_Cabin3");
+  }
+  // Enable treatment machine geometry controls
+  d->CollapsibleButton_CollisionDetection->setEnabled(true);
+  d->CollapsibleButton_PatientTableTopControl->setEnabled(true);
+  d->CollapsibleButton_BaseFixedControl->setEnabled(true);
+  d->CollapsibleButton_TableTopControl->setEnabled(true);
+  d->CollapsibleButton_TableTopRobotControl->setEnabled(true);
+  d->FixedBeamAxisWidget->setEnabled(true);
+  d->PushButton_TestAlignment->setEnabled(true);
+/*
   // Reset camera
   qSlicerApplication* slicerApplication = qSlicerApplication::application();
   qSlicerLayoutManager* layoutManager = slicerApplication->layoutManager();
   qMRMLThreeDView* threeDView = layoutManager->threeDWidget(0)->threeDView();
   threeDView->resetCamera();
-
-  // Enable treatment machine geometry controls
-  d->GantryRotationSlider->setEnabled(true);
-  d->CollimatorRotationSlider->setEnabled(true);
-  d->PatientSupportRotationSlider->setEnabled(true);
-  d->VerticalTableTopDisplacementSlider->setEnabled(true);
-  d->LongitudinalTableTopDisplacementSlider->setEnabled(true);
-  d->LateralTableTopDisplacementSlider->setEnabled(true);
-  d->ImagingPanelMovementSlider->setEnabled(true);
-
+*/
+/*
   // Hide controls that do not have corresponding parts loaded
   bool imagingPanelsLoaded = (std::find(loadedParts.begin(), loadedParts.end(), vtkSlicerRoomsEyeViewModuleLogic::ImagingPanelLeft) != loadedParts.end() ||
       std::find(loadedParts.begin(), loadedParts.end(), vtkSlicerRoomsEyeViewModuleLogic::ImagingPanelRight) != loadedParts.end());

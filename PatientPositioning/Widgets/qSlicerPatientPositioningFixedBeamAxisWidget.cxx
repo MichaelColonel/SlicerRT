@@ -226,3 +226,17 @@ void qSlicerPatientPositioningFixedBeamAxisWidget::updateWidgetFromMRML()
   }
 }
 
+//-----------------------------------------------------------------------------
+void qSlicerPatientPositioningFixedBeamAxisWidget::setTableTopAngles(double lateral, double longitudinal, double vertical)
+{
+  Q_D(qSlicerPatientPositioningFixedBeamAxisWidget);
+
+  if (!d->ParameterNode)
+  {
+    qCritical() << Q_FUNC_INFO << ": Invalid parameter node";
+    return;
+  }
+  d->Label_LateralAngle->setText(tr("%1").arg(lateral));
+  d->Label_LongitudinalAngle->setText(tr("%1").arg(longitudinal));
+  d->Label_VerticalAngle->setText(tr("%1").arg(vertical));
+}

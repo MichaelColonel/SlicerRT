@@ -54,9 +54,10 @@ public slots:
   void setParameterNode(vtkMRMLNode* node);
   /// Set PatientPositioning logic
   void setPatientPositioningLogic(vtkSlicerPatientPositioningLogic* logic);
-
   /// Update widget GUI from RT Image parameters node
   void updateWidgetFromMRML();
+  /// Display table top angles
+  void setTableTopAngles(double lateral, double longitudinal, double vertical);
 
   void onBeamsEyeViewPlusXButtonClicked();
   void onBeamsEyeViewMinusXButtonClicked();

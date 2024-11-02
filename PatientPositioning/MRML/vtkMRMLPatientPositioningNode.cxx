@@ -83,25 +83,11 @@ void vtkMRMLPatientPositioningNode::WriteXML(ostream& of, int nIndent)
 
   // Write all MRML node attributes into output stream
   vtkMRMLWriteXMLBeginMacro(of);
-/*
-  vtkMRMLWriteXMLVectorMacro(NormalVector, NormalVector, double, 3);
-  vtkMRMLWriteXMLVectorMacro(ViewUpVector, ViewUpVector, double, 3);
-  vtkMRMLWriteXMLFloatMacro(IsocenterImagerDistance, IsocenterImagerDistance);
-  vtkMRMLWriteXMLVectorMacro(ImagerCenterOffset, ImagerCenterOffset, double, 2);
-  vtkMRMLWriteXMLVectorMacro(ImagerResolution, ImagerResolution, int, 2);
-  vtkMRMLWriteXMLVectorMacro(ImagerSpacing, ImagerSpacing, double, 2);
-  vtkMRMLWriteXMLVectorMacro(ImageCenter, ImageCenter, int, 2);
-  vtkMRMLWriteXMLBooleanMacro(ImageWindowFlag, ImageWindowFlag);
-  vtkMRMLWriteXMLVectorMacro(ImageWindow, ImageWindow, int, 4);
-  vtkMRMLWriteXMLBooleanMacro(ExponentialMappingFlag, ExponentialMappingFlag);
-  vtkMRMLWriteXMLBooleanMacro(AutoscaleFlag, AutoscaleFlag);
-  vtkMRMLWriteXMLBooleanMacro(InvertIntensityFlag, InvertIntensityFlag);
-  vtkMRMLWriteXMLVectorMacro(AutoscaleRange, AutoscaleRange, float, 2); 
-  vtkMRMLWriteXMLIntMacro(AlgorithmReconstuction, AlgorithmReconstuction);
-  vtkMRMLWriteXMLIntMacro(HUConversion, HUConversion);
-  vtkMRMLWriteXMLIntMacro(HUThresholdBelow, HUThresholdBelow);
-  vtkMRMLWriteXMLIntMacro(Threading, Threading);
-*/
+
+  vtkMRMLWriteXMLStringMacro(treatmentMachineType, TreatmentMachineType);
+  vtkMRMLWriteXMLStringMacro(treatmentMachineDescriptorFilePath, TreatmentMachineDescriptorFilePath);
+  vtkMRMLWriteXMLStringMacro(patientBodySegmentID, PatientBodySegmentID);
+
   // add new parameters here
   vtkMRMLWriteXMLEndMacro(); 
 }
@@ -113,25 +99,11 @@ void vtkMRMLPatientPositioningNode::ReadXMLAttributes(const char** atts)
   vtkMRMLNode::ReadXMLAttributes(atts);
 
   vtkMRMLReadXMLBeginMacro(atts);
-/*
-  vtkMRMLReadXMLVectorMacro(NormalVector, NormalVector, double, 3);
-  vtkMRMLReadXMLVectorMacro(ViewUpVector, ViewUpVector, double, 3);
-  vtkMRMLReadXMLFloatMacro(IsocenterImagerDistance, IsocenterImagerDistance);
-  vtkMRMLReadXMLVectorMacro(ImagerCenterOffset, ImagerCenterOffset, double, 2);
-  vtkMRMLReadXMLVectorMacro(ImagerResolution, ImagerResolution, int, 2);
-  vtkMRMLReadXMLVectorMacro(ImagerSpacing, ImagerSpacing, double, 2);
-  vtkMRMLReadXMLVectorMacro(ImageCenter, ImageCenter, int, 2);
-  vtkMRMLReadXMLBooleanMacro(ImageWindowFlag, ImageWindowFlag);
-  vtkMRMLReadXMLVectorMacro(ImageWindow, ImageWindow, int, 4);
-  vtkMRMLReadXMLBooleanMacro(ExponentialMappingFlag, ExponentialMappingFlag);
-  vtkMRMLReadXMLBooleanMacro(AutoscaleFlag, AutoscaleFlag);
-  vtkMRMLReadXMLBooleanMacro(InvertIntensityFlag, InvertIntensityFlag);
-  vtkMRMLReadXMLVectorMacro(AutoscaleRange, AutoscaleRange, float, 2);
-  vtkMRMLReadXMLIntMacro(AlgorithmReconstuction, AlgorithmReconstuction);
-  vtkMRMLReadXMLIntMacro(HUConversion, HUConversion);
-  vtkMRMLReadXMLIntMacro(HUThresholdBelow, HUThresholdBelow);
-  vtkMRMLReadXMLIntMacro(Threading, Threading);
-*/
+
+  vtkMRMLReadXMLStringMacro(treatmentMachineType, TreatmentMachineType);
+  vtkMRMLReadXMLStringMacro(treatmentMachineDescriptorFilePath, TreatmentMachineDescriptorFilePath);
+  vtkMRMLReadXMLStringMacro(patientBodySegmentID, PatientBodySegmentID);
+
   // add new parameters here
   vtkMRMLReadXMLEndMacro();
 
@@ -158,25 +130,9 @@ void vtkMRMLPatientPositioningNode::Copy(vtkMRMLNode *anode)
   this->DisableModifiedEventOn();
 
   vtkMRMLCopyBeginMacro(node);
-/*
-  vtkMRMLCopyVectorMacro(NormalVector, double, 3);
-  vtkMRMLCopyVectorMacro(ViewUpVector, double, 3);
-  vtkMRMLCopyFloatMacro(IsocenterImagerDistance);
-  vtkMRMLCopyVectorMacro(ImagerCenterOffset, double, 2);
-  vtkMRMLCopyVectorMacro(ImagerResolution, int, 2);
-  vtkMRMLCopyVectorMacro(ImagerSpacing, double, 2);
-  vtkMRMLCopyVectorMacro(ImageCenter, int, 2);
-  vtkMRMLCopyBooleanMacro(ImageWindowFlag);
-  vtkMRMLCopyVectorMacro(ImageWindow, int, 4);
-  vtkMRMLCopyBooleanMacro(ExponentialMappingFlag);
-  vtkMRMLCopyBooleanMacro(AutoscaleFlag);
-  vtkMRMLCopyBooleanMacro(InvertIntensityFlag);
-  vtkMRMLCopyVectorMacro(AutoscaleRange, float, 2);
-  vtkMRMLCopyIntMacro(AlgorithmReconstuction);
-  vtkMRMLCopyIntMacro(HUConversion);
-  vtkMRMLCopyIntMacro(HUThresholdBelow);
-  vtkMRMLCopyIntMacro(Threading);
-*/
+  vtkMRMLCopyStringMacro(TreatmentMachineType);
+  vtkMRMLCopyStringMacro(TreatmentMachineDescriptorFilePath);
+  vtkMRMLCopyStringMacro(PatientBodySegmentID);
   // add new parameters here
   vtkMRMLCopyEndMacro(); 
 
@@ -198,25 +154,11 @@ void vtkMRMLPatientPositioningNode::CopyContent(vtkMRMLNode *anode, bool deepCop
   }
 
   vtkMRMLCopyBeginMacro(node);
-/*
-  vtkMRMLCopyVectorMacro(NormalVector, double, 3);
-  vtkMRMLCopyVectorMacro(ViewUpVector, double, 3);
-  vtkMRMLCopyFloatMacro(IsocenterImagerDistance);
-  vtkMRMLCopyVectorMacro(ImagerCenterOffset, double, 2);
-  vtkMRMLCopyVectorMacro(ImagerResolution, int, 2);
-  vtkMRMLCopyVectorMacro(ImagerSpacing, double, 2);
-  vtkMRMLCopyVectorMacro(ImageCenter, int, 2);
-  vtkMRMLCopyBooleanMacro(ImageWindowFlag);
-  vtkMRMLCopyVectorMacro(ImageWindow, int, 4);
-  vtkMRMLCopyBooleanMacro(ExponentialMappingFlag);
-  vtkMRMLCopyBooleanMacro(AutoscaleFlag);
-  vtkMRMLCopyBooleanMacro(InvertIntensityFlag);
-  vtkMRMLCopyVectorMacro(AutoscaleRange, float, 2);
-  vtkMRMLCopyIntMacro(AlgorithmReconstuction);
-  vtkMRMLCopyIntMacro(HUConversion);
-  vtkMRMLCopyIntMacro(HUThresholdBelow);
-  vtkMRMLCopyIntMacro(Threading);
-*/
+
+  vtkMRMLCopyStringMacro(TreatmentMachineType);
+  vtkMRMLCopyStringMacro(TreatmentMachineDescriptorFilePath);
+  vtkMRMLCopyStringMacro(PatientBodySegmentID);
+
   // add new parameters here
   vtkMRMLCopyEndMacro();
 }
@@ -227,25 +169,11 @@ void vtkMRMLPatientPositioningNode::PrintSelf(ostream& os, vtkIndent indent)
   Superclass::PrintSelf(os,indent);
 
   vtkMRMLPrintBeginMacro(os, indent);
-/*
-  vtkMRMLPrintVectorMacro(NormalVector, double, 3);
-  vtkMRMLPrintVectorMacro(ViewUpVector, double, 3);
-  vtkMRMLPrintFloatMacro(IsocenterImagerDistance);
-  vtkMRMLPrintVectorMacro(ImagerCenterOffset, double, 2);
-  vtkMRMLPrintVectorMacro(ImagerResolution, int, 2);
-  vtkMRMLPrintVectorMacro(ImagerSpacing, double, 2);
-  vtkMRMLPrintVectorMacro(ImageCenter, int, 2);
-  vtkMRMLPrintBooleanMacro(ImageWindowFlag);
-  vtkMRMLPrintVectorMacro(ImageWindow, int, 4);
-  vtkMRMLPrintBooleanMacro(ExponentialMappingFlag);
-  vtkMRMLPrintBooleanMacro(AutoscaleFlag);
-  vtkMRMLPrintBooleanMacro(InvertIntensityFlag);
-  vtkMRMLPrintVectorMacro(AutoscaleRange, float, 2);
-  vtkMRMLPrintIntMacro(AlgorithmReconstuction);
-  vtkMRMLPrintIntMacro(HUConversion);
-  vtkMRMLPrintIntMacro(HUThresholdBelow);
-  vtkMRMLPrintIntMacro(Threading);
-*/
+
+  vtkMRMLPrintStringMacro(TreatmentMachineType);
+  vtkMRMLPrintStringMacro(TreatmentMachineDescriptorFilePath);
+  vtkMRMLPrintStringMacro(PatientBodySegmentID);
+
   // add new parameters here
   vtkMRMLPrintEndMacro(); 
 }
