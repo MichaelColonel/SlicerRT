@@ -41,6 +41,9 @@
    </item>
    <item row="0" column="0">
     <widget class="ctkCollapsibleButton" name="CollapsibleButton_TranslationToFixedBeamAxis">
+     <property name="enabled">
+      <bool>true</bool>
+     </property>
      <property name="text">
       <string>Translation to fixed beam axis</string>
      </property>
@@ -57,7 +60,10 @@
          <item row="0" column="0">
           <widget class="ctkCoordinatesWidget" name="CoordinatesWidget_FromIsocenterTranslation">
            <property name="enabled">
-            <bool>false</bool>
+            <bool>true</bool>
+           </property>
+           <property name="readOnly">
+            <bool>true</bool>
            </property>
           </widget>
          </item>

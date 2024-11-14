@@ -39,7 +39,8 @@ public:
   explicit qSlicerPatientPositioningModule(QObject *parent=nullptr);
   ~qSlicerPatientPositioningModule() override;
 
-  qSlicerGetTitleMacro(tr("Patient Positioning"));
+//  qSlicerGetTitleMacro(tr("Patient positioning"));
+  qSlicerGetTitleMacro(QTMODULE_TITLE);
 
   QString helpText()const override;
   QString acknowledgementText()const override;

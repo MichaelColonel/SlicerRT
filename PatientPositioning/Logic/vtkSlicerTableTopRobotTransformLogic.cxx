@@ -29,8 +29,8 @@
 #include <vtkMRMLScene.h>
 #include <vtkMRMLLinearTransformNode.h>
 
-// Channel-25 geometry MRML node
-#include <vtkMRMLChannel25GeometryNode.h>
+// Cabin26A geometry MRML node
+#include <vtkMRMLCabin26AGeometryNode.h>
 
 // VTK includes
 #include <vtkNew.h>
@@ -390,7 +390,7 @@ bool vtkSlicerTableTopRobotTransformLogic::GetTransformForPointBetweenFrames(
 }
 
 //-----------------------------------------------------------------------------
-void vtkSlicerTableTopRobotTransformLogic::UpdateBaseFixedToFixedReferenceTransform(vtkMRMLChannel25GeometryNode* parameterNode)
+void vtkSlicerTableTopRobotTransformLogic::UpdateBaseFixedToFixedReferenceTransform(vtkMRMLCabin26AGeometryNode* parameterNode)
 {
   vtkMRMLScene* scene = this->GetMRMLScene();
   if (!scene)
@@ -745,7 +745,7 @@ vtkMRMLLinearTransformNode* vtkSlicerTableTopRobotTransformLogic::GetBaseFixedTr
 }
 
 //------------------------------------------------------------------------------
-vtkMRMLLinearTransformNode* vtkSlicerTableTopRobotTransformLogic::UpdateRasToTableTopTransform(vtkMRMLChannel25GeometryNode* parameterNode)
+vtkMRMLLinearTransformNode* vtkSlicerTableTopRobotTransformLogic::UpdateRasToTableTopTransform(vtkMRMLCabin26AGeometryNode* parameterNode)
 {
   if (!parameterNode)
   {
@@ -805,7 +805,7 @@ vtkMRMLLinearTransformNode* vtkSlicerTableTopRobotTransformLogic::UpdateRasToTab
 }
 
 //------------------------------------------------------------------------------
-vtkMRMLLinearTransformNode* vtkSlicerTableTopRobotTransformLogic::UpdateRasToFixedReferenceTransform(vtkMRMLChannel25GeometryNode* parameterNode)
+vtkMRMLLinearTransformNode* vtkSlicerTableTopRobotTransformLogic::UpdateRasToFixedReferenceTransform(vtkMRMLCabin26AGeometryNode* parameterNode)
 {
   if (!parameterNode)
   {
@@ -865,7 +865,7 @@ vtkMRMLLinearTransformNode* vtkSlicerTableTopRobotTransformLogic::UpdateRasToFix
 }
 
 //------------------------------------------------------------------------------
-vtkMRMLLinearTransformNode* vtkSlicerTableTopRobotTransformLogic::UpdateRasToBaseFixedTransform(vtkMRMLChannel25GeometryNode* parameterNode)
+vtkMRMLLinearTransformNode* vtkSlicerTableTopRobotTransformLogic::UpdateRasToBaseFixedTransform(vtkMRMLCabin26AGeometryNode* parameterNode)
 {
   if (!parameterNode)
   {
@@ -925,7 +925,7 @@ vtkMRMLLinearTransformNode* vtkSlicerTableTopRobotTransformLogic::UpdateRasToBas
 }
 
 //------------------------------------------------------------------------------
-vtkMRMLLinearTransformNode* vtkSlicerTableTopRobotTransformLogic::UpdateRasToFlangeTransform(vtkMRMLChannel25GeometryNode* parameterNode)
+vtkMRMLLinearTransformNode* vtkSlicerTableTopRobotTransformLogic::UpdateRasToFlangeTransform(vtkMRMLCabin26AGeometryNode* parameterNode)
 {
   if (!parameterNode)
   {
@@ -985,7 +985,7 @@ vtkMRMLLinearTransformNode* vtkSlicerTableTopRobotTransformLogic::UpdateRasToFla
 }
 
 //------------------------------------------------------------------------------
-vtkMRMLLinearTransformNode* vtkSlicerTableTopRobotTransformLogic::UpdateRasToBaseRotationTransform(vtkMRMLChannel25GeometryNode* parameterNode)
+vtkMRMLLinearTransformNode* vtkSlicerTableTopRobotTransformLogic::UpdateRasToBaseRotationTransform(vtkMRMLCabin26AGeometryNode* parameterNode)
 {
   if (!parameterNode)
   {
@@ -1045,7 +1045,7 @@ vtkMRMLLinearTransformNode* vtkSlicerTableTopRobotTransformLogic::UpdateRasToBas
 }
 
 //------------------------------------------------------------------------------
-vtkMRMLLinearTransformNode* vtkSlicerTableTopRobotTransformLogic::UpdateRasToShoulderTransform(vtkMRMLChannel25GeometryNode* parameterNode)
+vtkMRMLLinearTransformNode* vtkSlicerTableTopRobotTransformLogic::UpdateRasToShoulderTransform(vtkMRMLCabin26AGeometryNode* parameterNode)
 {
   if (!parameterNode)
   {
@@ -1105,7 +1105,7 @@ vtkMRMLLinearTransformNode* vtkSlicerTableTopRobotTransformLogic::UpdateRasToSho
 }
 
 //------------------------------------------------------------------------------
-vtkMRMLLinearTransformNode* vtkSlicerTableTopRobotTransformLogic::UpdateRasToWristTransform(vtkMRMLChannel25GeometryNode* parameterNode)
+vtkMRMLLinearTransformNode* vtkSlicerTableTopRobotTransformLogic::UpdateRasToWristTransform(vtkMRMLCabin26AGeometryNode* parameterNode)
 {
   if (!parameterNode)
   {
@@ -1165,7 +1165,7 @@ vtkMRMLLinearTransformNode* vtkSlicerTableTopRobotTransformLogic::UpdateRasToWri
 }
 
 //------------------------------------------------------------------------------
-vtkMRMLLinearTransformNode* vtkSlicerTableTopRobotTransformLogic::UpdateRasToElbowTransform(vtkMRMLChannel25GeometryNode* parameterNode)
+vtkMRMLLinearTransformNode* vtkSlicerTableTopRobotTransformLogic::UpdateRasToElbowTransform(vtkMRMLCabin26AGeometryNode* parameterNode)
 {
   if (!parameterNode)
   {
@@ -1225,7 +1225,7 @@ vtkMRMLLinearTransformNode* vtkSlicerTableTopRobotTransformLogic::UpdateRasToElb
 }
 
 //----------------------------------------------------------------------------
-void vtkSlicerTableTopRobotTransformLogic::UpdatePatientToTableTopTransform(vtkMRMLChannel25GeometryNode* parameterNode)
+void vtkSlicerTableTopRobotTransformLogic::UpdatePatientToTableTopTransform(vtkMRMLCabin26AGeometryNode* parameterNode)
 {
   vtkMRMLScene* scene = this->GetMRMLScene();
   if (!scene)
@@ -1257,7 +1257,7 @@ void vtkSlicerTableTopRobotTransformLogic::UpdatePatientToTableTopTransform(vtkM
 }
 
 //----------------------------------------------------------------------------
-void vtkSlicerTableTopRobotTransformLogic::UpdateBaseRotationToBaseFixedTransform(vtkMRMLChannel25GeometryNode* parameterNode)
+void vtkSlicerTableTopRobotTransformLogic::UpdateBaseRotationToBaseFixedTransform(vtkMRMLCabin26AGeometryNode* parameterNode)
 {
   vtkMRMLScene* scene = this->GetMRMLScene();
   if (!scene)
@@ -1348,7 +1348,7 @@ void vtkSlicerTableTopRobotTransformLogic::UpdateBaseRotationToBaseFixedTransfor
 }
 
 //----------------------------------------------------------------------------
-void vtkSlicerTableTopRobotTransformLogic::UpdateTableTopToFlangeTransform(vtkMRMLChannel25GeometryNode* parameterNode)
+void vtkSlicerTableTopRobotTransformLogic::UpdateTableTopToFlangeTransform(vtkMRMLCabin26AGeometryNode* parameterNode)
 {
   vtkMRMLScene* scene = this->GetMRMLScene();
   if (!scene)
@@ -1395,7 +1395,7 @@ void vtkSlicerTableTopRobotTransformLogic::UpdateTableTopToFlangeTransform(vtkMR
 }
 
 //----------------------------------------------------------------------------
-void vtkSlicerTableTopRobotTransformLogic::UpdateFlangeToWristTransform(vtkMRMLChannel25GeometryNode* parameterNode)
+void vtkSlicerTableTopRobotTransformLogic::UpdateFlangeToWristTransform(vtkMRMLCabin26AGeometryNode* parameterNode)
 {
   vtkMRMLScene* scene = this->GetMRMLScene();
   if (!scene)
@@ -1448,7 +1448,7 @@ void vtkSlicerTableTopRobotTransformLogic::UpdateFlangeToWristTransform(vtkMRMLC
 }
 
 //----------------------------------------------------------------------------
-void vtkSlicerTableTopRobotTransformLogic::UpdateWristToElbowTransform(vtkMRMLChannel25GeometryNode* parameterNode)
+void vtkSlicerTableTopRobotTransformLogic::UpdateWristToElbowTransform(vtkMRMLCabin26AGeometryNode* parameterNode)
 {
   vtkMRMLScene* scene = this->GetMRMLScene();
   if (!scene)
@@ -1510,7 +1510,7 @@ void vtkSlicerTableTopRobotTransformLogic::UpdateWristToElbowTransform(vtkMRMLCh
 }
 
 //----------------------------------------------------------------------------
-void vtkSlicerTableTopRobotTransformLogic::UpdateElbowToShoulderTransform(vtkMRMLChannel25GeometryNode* parameterNode)
+void vtkSlicerTableTopRobotTransformLogic::UpdateElbowToShoulderTransform(vtkMRMLCabin26AGeometryNode* parameterNode)
 {
   vtkMRMLScene* scene = this->GetMRMLScene();
   if (!scene)
@@ -1604,7 +1604,7 @@ void vtkSlicerTableTopRobotTransformLogic::UpdateElbowToShoulderTransform(vtkMRM
 }
 
 //----------------------------------------------------------------------------
-void vtkSlicerTableTopRobotTransformLogic::UpdateShoulderToBaseRotationTransform(vtkMRMLChannel25GeometryNode* parameterNode)
+void vtkSlicerTableTopRobotTransformLogic::UpdateShoulderToBaseRotationTransform(vtkMRMLCabin26AGeometryNode* parameterNode)
 {
   vtkMRMLScene* scene = this->GetMRMLScene();
   if (!scene)

@@ -31,7 +31,7 @@
 #include <vtkMRMLRTPlanNode.h>
 #include <vtkMRMLRTBeamNode.h>
 #include <vtkMRMLRTFixedBeamNode.h>
-#include <vtkMRMLRTChannel25IonBeamNode.h>
+#include <vtkMRMLRTCabin26AIonBeamNode.h>
 
 // VTK includes
 #include <vtkIntArray.h>
@@ -464,9 +464,9 @@ void vtkSlicerPatientPositioningLogic::RegisterNodes()
   {
     scene->RegisterNodeClass(vtkSmartPointer<vtkMRMLPatientPositioningNode>::New());
   }
-  if (!scene->IsNodeClassRegistered("vtkMRMLChannel25GeometryNode"))
+  if (!scene->IsNodeClassRegistered("vtkMRMLCabin26AGeometryNode"))
   {
-    scene->RegisterNodeClass(vtkSmartPointer<vtkMRMLChannel25GeometryNode>::New());
+    scene->RegisterNodeClass(vtkSmartPointer<vtkMRMLCabin26AGeometryNode>::New());
   }
 }
 
@@ -493,19 +493,19 @@ void vtkSlicerPatientPositioningLogic::ProcessMRMLNodesEvents(vtkObject* caller,
     {
     }
   }
-  if (caller->IsA("vtkMRMLChannel25GeometryNode"))
+  if (caller->IsA("vtkMRMLCabin26AGeometryNode"))
   {
-    vtkMRMLChannel25GeometryNode* channel25Geometry = vtkMRMLChannel25GeometryNode::SafeDownCast(caller);
+    vtkMRMLCabin26AGeometryNode* cabin26AGeometry = vtkMRMLCabin26AGeometryNode::SafeDownCast(caller);
     if (event == vtkCommand::ModifiedEvent)
     {
-      this->TableTopRobotLogic->UpdateRasToTableTopTransform(channel25Geometry);
-      this->TableTopRobotLogic->UpdateRasToFlangeTransform(channel25Geometry);
-      this->TableTopRobotLogic->UpdateRasToWristTransform(channel25Geometry);
-      this->TableTopRobotLogic->UpdateRasToElbowTransform(channel25Geometry);
-      this->TableTopRobotLogic->UpdateRasToShoulderTransform(channel25Geometry);
-      this->TableTopRobotLogic->UpdateRasToBaseRotationTransform(channel25Geometry);
-      this->TableTopRobotLogic->UpdateRasToBaseFixedTransform(channel25Geometry);
-      this->TableTopRobotLogic->UpdateRasToFixedReferenceTransform(channel25Geometry);
+      this->TableTopRobotLogic->UpdateRasToTableTopTransform(cabin26AGeometry);
+      this->TableTopRobotLogic->UpdateRasToFlangeTransform(cabin26AGeometry);
+      this->TableTopRobotLogic->UpdateRasToWristTransform(cabin26AGeometry);
+      this->TableTopRobotLogic->UpdateRasToElbowTransform(cabin26AGeometry);
+      this->TableTopRobotLogic->UpdateRasToShoulderTransform(cabin26AGeometry);
+      this->TableTopRobotLogic->UpdateRasToBaseRotationTransform(cabin26AGeometry);
+      this->TableTopRobotLogic->UpdateRasToBaseFixedTransform(cabin26AGeometry);
+      this->TableTopRobotLogic->UpdateRasToFixedReferenceTransform(cabin26AGeometry);
     }
   }
 }
@@ -534,7 +534,7 @@ void vtkSlicerPatientPositioningLogic::OnMRMLSceneNodeAdded(vtkMRMLNode* node)
     events->InsertNextValue(vtkCommand::ModifiedEvent);
     vtkObserveMRMLNodeEventsMacro(node, events);
   }
-  if (node->IsA("vtkMRMLChannel25GeometryNode"))
+  if (node->IsA("vtkMRMLCabin26AGeometryNode"))
   {
     vtkNew<vtkIntArray> events;
     events->InsertNextValue(vtkCommand::ModifiedEvent);
@@ -593,7 +593,7 @@ vtkVector3d vtkSlicerPatientPositioningLogic
   {
     rasToFixedReferenceTransformNode->GetMatrixTransformToParent(rasToFixedReferenceToRasTransform);
     // Get FixedReference -> RAS transform
-    rasToFixedReferenceToRasTransform->Invert();
+//    rasToFixedReferenceToRasTransform->Invert();
     double orig[4] = { fixedReferenceIsocenter[0], fixedReferenceIsocenter[1], fixedReferenceIsocenter[2], 1 };
     double result[4] = { };
     // Get fixed isocenter in RAS frame
@@ -627,10 +627,12 @@ vtkVector3d vtkSlicerPatientPositioningLogic
       // fixed isocenter in TableTop
       double fixedIsoTT[4] = { };
       rasToTableTopTransform->MultiplyPoint( fixedIsoRAS, fixedIsoTT);
-//      vtkWarningMacro("GetIsocenterToFixedBeamAxisTranslation: Fixed isocenter RAS " << fixedIsoRAS[0] << ' ' << fixedIsoRAS[1] << ' ' << fixedIsoRAS[2]);
-//      vtkWarningMacro("GetIsocenterToFixedBeamAxisTranslation: Fixed isocenter TableTop " << fixedIsoTT[0] << ' ' << fixedIsoTT[1] << ' ' << fixedIsoTT[2]);
-//      vtkWarningMacro("GetIsocenterToFixedBeamAxisTranslation: Patient isocenter RAS " << patIsoRAS[0] << ' ' << patIsoRAS[1] << ' ' << patIsoRAS[2]);
-//      vtkWarningMacro("GetIsocenterToFixedBeamAxisTranslation: Patient isocenter TableTop " << patIsoTT[0] << ' ' << patIsoTT[1] << ' ' << patIsoTT[2]);
+      vtkWarningMacro("----------------------------------------------");
+      vtkWarningMacro("GetIsocenterToFixedBeamAxisTranslation: Fixed isocenter RAS " << fixedIsoRAS[0] << ' ' << fixedIsoRAS[1] << ' ' << fixedIsoRAS[2]);
+      vtkWarningMacro("GetIsocenterToFixedBeamAxisTranslation: Fixed isocenter TableTop " << fixedIsoTT[0] << ' ' << fixedIsoTT[1] << ' ' << fixedIsoTT[2]);
+      vtkWarningMacro("GetIsocenterToFixedBeamAxisTranslation: Patient isocenter RAS " << patIsoRAS[0] << ' ' << patIsoRAS[1] << ' ' << patIsoRAS[2]);
+      vtkWarningMacro("GetIsocenterToFixedBeamAxisTranslation: Patient isocenter TableTop " << patIsoTT[0] << ' ' << patIsoTT[1] << ' ' << patIsoTT[2]);
+      vtkWarningMacro("----------------------------------------------");
 
       return vtkVector3d( fixedIsoTT[0] - patIsoTT[0], fixedIsoTT[1] - patIsoTT[1], fixedIsoTT[2] - patIsoTT[2]);
     }
@@ -642,10 +644,12 @@ vtkVector3d vtkSlicerPatientPositioningLogic
       // patient isocenter in FixedReference
       double patIsoFR[4] = { };
       rasToFixedReferenceToRasTransform->MultiplyPoint( patIsoRAS, patIsoFR);
-//      vtkWarningMacro("GetIsocenterToFixedBeamAxisTranslation: Fixed isocenter RAS " << fixedReferenceIsocenterRAS[0] << ' ' << fixedReferenceIsocenterRAS[1] << ' ' << fixedReferenceIsocenterRAS[2]);
-//      vtkWarningMacro("GetIsocenterToFixedBeamAxisTranslation: Fixed isocenter FixedReference " << fixedReferenceIsocenter[0] << ' ' << fixedReferenceIsocenter[1] << ' ' << fixedReferenceIsocenter[2]);
-//      vtkWarningMacro("GetIsocenterToFixedBeamAxisTranslation: Patient isocenter RAS " << patIsoRAS[0] << ' ' << patIsoRAS[1] << ' ' << patIsoRAS[2]);
-//      vtkWarningMacro("GetIsocenterToFixedBeamAxisTranslation: Patient isocenter FixedReference " << patIsoFR[0] << ' ' << patIsoFR[1] << ' ' << patIsoFR[2]);
+      vtkWarningMacro("==============================================");
+      vtkWarningMacro("GetIsocenterToFixedBeamAxisTranslation: Fixed isocenter RAS " << fixedReferenceIsocenterRAS[0] << ' ' << fixedReferenceIsocenterRAS[1] << ' ' << fixedReferenceIsocenterRAS[2]);
+      vtkWarningMacro("GetIsocenterToFixedBeamAxisTranslation: Fixed isocenter FixedReference " << fixedReferenceIsocenter[0] << ' ' << fixedReferenceIsocenter[1] << ' ' << fixedReferenceIsocenter[2]);
+      vtkWarningMacro("GetIsocenterToFixedBeamAxisTranslation: Patient isocenter RAS " << patIsoRAS[0] << ' ' << patIsoRAS[1] << ' ' << patIsoRAS[2]);
+      vtkWarningMacro("GetIsocenterToFixedBeamAxisTranslation: Patient isocenter FixedReference " << patIsoFR[0] << ' ' << patIsoFR[1] << ' ' << patIsoFR[2]);
+      vtkWarningMacro("==============================================");
 
       return vtkVector3d( fixedReferenceIsocenter[0] - patIsoFR[0], fixedReferenceIsocenter[1] - patIsoFR[1], fixedReferenceIsocenter[2] - patIsoFR[2]);
     }
@@ -743,27 +747,27 @@ vtkMRMLMarkupsFiducialNode* vtkSlicerPatientPositioningLogic::CreateFixedIsocent
 }
 
 //----------------------------------------------------------------------------
-void vtkSlicerPatientPositioningLogic::CreateFixedBeamPlanAndNode(vtkMRMLPatientPositioningNode* parameterNode)
+vtkMRMLRTCabin26AIonBeamNode* vtkSlicerPatientPositioningLogic::CreateFixedBeamPlanAndNode(vtkMRMLPatientPositioningNode* parameterNode)
 {
   vtkMRMLScene* scene = this->GetMRMLScene();
 
   if (!scene)
   {
     vtkErrorMacro("CreateFixedBeamPlanAndNode: Invalid scene");
-    return;
+    return nullptr;
   }
 
   vtkMRMLSubjectHierarchyNode* shNode = vtkMRMLSubjectHierarchyNode::GetSubjectHierarchyNode(scene);
   if (!shNode)
   {
     vtkErrorMacro("CreateFixedBeamPlanAndNode: Failed to access subject hierarchy node");
-    return;
+    return nullptr;
   }
 
   if (!parameterNode)
   {
     vtkErrorMacro("CreateFixedBeamPlanAndNode: Invalid parameter node");
-    return;
+    return nullptr;
   }
   vtkMRMLRTPlanNode* fixedPlanNode = vtkMRMLRTPlanNode::SafeDownCast(scene->AddNewNodeByClass( "vtkMRMLRTPlanNode", "FixedPlan"));
   fixedPlanNode->SetIonPlanFlag(true);
@@ -777,7 +781,7 @@ void vtkSlicerPatientPositioningLogic::CreateFixedBeamPlanAndNode(vtkMRMLPatient
   }
 
   // Create beam and add to scene
-  vtkNew<vtkMRMLRTChannel25IonBeamNode> beamNode;
+  vtkNew<vtkMRMLRTCabin26AIonBeamNode> beamNode;
 
   std::string fixedIonBeamName = scene->GenerateUniqueName("FixedIonBeam");
   beamNode->SetName(fixedIonBeamName.c_str());
@@ -816,30 +820,31 @@ void vtkSlicerPatientPositioningLogic::CreateFixedBeamPlanAndNode(vtkMRMLPatient
     beamTranfsormNode->SetAndObserveTransformNodeID(rasToFixedReferenceTransformNode->GetID() );
   }
   parameterNode->SetAndObserveFixedReferenceBeamNode(beamNode);
+  return beamNode.GetPointer();
 }
 
 //----------------------------------------------------------------------------
-void vtkSlicerPatientPositioningLogic::CreateExternalXrayPlanAndNode(vtkMRMLPatientPositioningNode* parameterNode)
+vtkMRMLRTFixedBeamNode* vtkSlicerPatientPositioningLogic::CreateExternalXrayPlanAndNode(vtkMRMLPatientPositioningNode* parameterNode)
 {
   vtkMRMLScene* scene = this->GetMRMLScene();
 
   if (!scene)
   {
     vtkErrorMacro("CreateExternalXrayPlanAndNode: Invalid scene");
-    return;
+    return nullptr;
   }
 
   vtkMRMLSubjectHierarchyNode* shNode = vtkMRMLSubjectHierarchyNode::GetSubjectHierarchyNode(scene);
   if (!shNode)
   {
     vtkErrorMacro("CreateExternalXrayPlanAndNode: Failed to access subject hierarchy node");
-    return;
+    return nullptr;
   }
 
   if (!parameterNode)
   {
     vtkErrorMacro("CreateExternalXrayPlanAndNode: Invalid parameter node");
-    return;
+    return nullptr;
   }
 
   vtkMRMLRTPlanNode* externalXrayPlanNode = vtkMRMLRTPlanNode::SafeDownCast(scene->AddNewNodeByClass( "vtkMRMLRTPlanNode", "ExternalXray"));
@@ -891,6 +896,7 @@ void vtkSlicerPatientPositioningLogic::CreateExternalXrayPlanAndNode(vtkMRMLPati
     beamTranfsormNode->SetAndObserveTransformNodeID(rasToFixedReferenceTransformNode->GetID() );
   }
   parameterNode->SetAndObserveExternalXrayBeamNode(externalXrayBeamNode);
+  return externalXrayBeamNode.GetPointer();
 }
 
 //---------------------------------------------------------------------------
@@ -905,7 +911,7 @@ void vtkSlicerPatientPositioningLogic::BuildRobotTableGeometryTransformHierarchy
 
   // Build TableTop robot hierarchy
   this->TableTopRobotLogic->BuildTableRobotTransformHierarchy();
-  this->TableTopRobotLogic->ResetToInitialPositions();
+//  this->TableTopRobotLogic->ResetToInitialPositions();
 }
 
 //----------------------------------------------------------------------------
@@ -985,8 +991,8 @@ vtkSlicerPatientPositioningLogic::SetupTreatmentMachineModels(vtkMRMLPatientPosi
   {
     return std::vector<CoordSys>();
   }
-  vtkMRMLChannel25GeometryNode* channel25GeoNode = parameterNode->GetChannel25GeometryNode();
-  if (!channel25GeoNode)
+  vtkMRMLCabin26AGeometryNode* cabin26AGeoNode = parameterNode->GetCabin26AGeometryNode();
+  if (!cabin26AGeoNode)
   {
     return std::vector<CoordSys>();
   }
@@ -1049,8 +1055,8 @@ vtkSlicerPatientPositioningLogic::SetupTreatmentMachineModels(vtkMRMLPatientPosi
 
     if (partIdx == CoordSys::FixedReference)
     {
-      this->TableTopRobotLogic->UpdateBaseFixedToFixedReferenceTransform(channel25GeoNode);
-      vtkMRMLLinearTransformNode* rasToFixedReferenceTransformNode = this->TableTopRobotLogic->UpdateRasToFixedReferenceTransform(channel25GeoNode);
+      this->TableTopRobotLogic->UpdateBaseFixedToFixedReferenceTransform(cabin26AGeoNode);
+      vtkMRMLLinearTransformNode* rasToFixedReferenceTransformNode = this->TableTopRobotLogic->UpdateRasToFixedReferenceTransform(cabin26AGeoNode);
       if (rasToFixedReferenceTransformNode)
       {
         this->TableTopFixedReferenceCollisionDetection->SetInputData(1, partModel->GetPolyData());
@@ -1059,8 +1065,8 @@ vtkSlicerPatientPositioningLogic::SetupTreatmentMachineModels(vtkMRMLPatientPosi
     }
     else if (partIdx == CoordSys::BaseFixed)
     {
-      this->TableTopRobotLogic->UpdateBaseRotationToBaseFixedTransform(channel25GeoNode);
-      vtkMRMLLinearTransformNode* rasToBaseFixedTransformNode = this->TableTopRobotLogic->UpdateRasToBaseFixedTransform(channel25GeoNode);
+      this->TableTopRobotLogic->UpdateBaseRotationToBaseFixedTransform(cabin26AGeoNode);
+      vtkMRMLLinearTransformNode* rasToBaseFixedTransformNode = this->TableTopRobotLogic->UpdateRasToBaseFixedTransform(cabin26AGeoNode);
       if (rasToBaseFixedTransformNode)
       {
         this->TableTopBaseFixedCollisionDetection->SetInputData(1, partModel->GetPolyData());
@@ -1069,8 +1075,8 @@ vtkSlicerPatientPositioningLogic::SetupTreatmentMachineModels(vtkMRMLPatientPosi
     }
     else if (partIdx == CoordSys::BaseRotation)
     {
-      this->TableTopRobotLogic->UpdateShoulderToBaseRotationTransform(channel25GeoNode);
-      vtkMRMLLinearTransformNode* rasToBaseRotationTransformNode = this->TableTopRobotLogic->UpdateRasToBaseRotationTransform(channel25GeoNode);
+      this->TableTopRobotLogic->UpdateShoulderToBaseRotationTransform(cabin26AGeoNode);
+      vtkMRMLLinearTransformNode* rasToBaseRotationTransformNode = this->TableTopRobotLogic->UpdateRasToBaseRotationTransform(cabin26AGeoNode);
       if (rasToBaseRotationTransformNode)
       {
         this->TableTopBaseRotationCollisionDetection->SetInputData(1, partModel->GetPolyData());
@@ -1079,8 +1085,8 @@ vtkSlicerPatientPositioningLogic::SetupTreatmentMachineModels(vtkMRMLPatientPosi
     }
     else if (partIdx == CoordSys::Shoulder)
     {
-      this->TableTopRobotLogic->UpdateElbowToShoulderTransform(channel25GeoNode);
-      vtkMRMLLinearTransformNode* rasToShoulderTransformNode = this->TableTopRobotLogic->UpdateRasToShoulderTransform(channel25GeoNode);
+      this->TableTopRobotLogic->UpdateElbowToShoulderTransform(cabin26AGeoNode);
+      vtkMRMLLinearTransformNode* rasToShoulderTransformNode = this->TableTopRobotLogic->UpdateRasToShoulderTransform(cabin26AGeoNode);
       if (rasToShoulderTransformNode)
       {
         this->TableTopShoulderCollisionDetection->SetInputData(1, partModel->GetPolyData());
@@ -1089,8 +1095,8 @@ vtkSlicerPatientPositioningLogic::SetupTreatmentMachineModels(vtkMRMLPatientPosi
     }
     else if (partIdx == CoordSys::Elbow)
     {
-      this->TableTopRobotLogic->UpdateWristToElbowTransform(channel25GeoNode);
-      vtkMRMLLinearTransformNode* rasToElbowTransformNode = this->TableTopRobotLogic->UpdateRasToElbowTransform(channel25GeoNode);
+      this->TableTopRobotLogic->UpdateWristToElbowTransform(cabin26AGeoNode);
+      vtkMRMLLinearTransformNode* rasToElbowTransformNode = this->TableTopRobotLogic->UpdateRasToElbowTransform(cabin26AGeoNode);
       if (rasToElbowTransformNode)
       {
         this->TableTopElbowCollisionDetection->SetInputData(1, partModel->GetPolyData());
@@ -1099,8 +1105,8 @@ vtkSlicerPatientPositioningLogic::SetupTreatmentMachineModels(vtkMRMLPatientPosi
     }
     else if (partIdx == CoordSys::Wrist)
     {
-      this->TableTopRobotLogic->UpdateFlangeToWristTransform(channel25GeoNode);
-      vtkMRMLLinearTransformNode* rasToWristTransformNode = this->TableTopRobotLogic->UpdateRasToWristTransform(channel25GeoNode);
+      this->TableTopRobotLogic->UpdateFlangeToWristTransform(cabin26AGeoNode);
+      vtkMRMLLinearTransformNode* rasToWristTransformNode = this->TableTopRobotLogic->UpdateRasToWristTransform(cabin26AGeoNode);
       if (rasToWristTransformNode)
       {
         partModel->SetAndObserveTransformNodeID(rasToWristTransformNode->GetID());
@@ -1108,8 +1114,8 @@ vtkSlicerPatientPositioningLogic::SetupTreatmentMachineModels(vtkMRMLPatientPosi
     }
     else if (partIdx == CoordSys::Flange)
     {
-      this->TableTopRobotLogic->UpdateTableTopToFlangeTransform(channel25GeoNode);
-      vtkMRMLLinearTransformNode* rasToFlangeTransformNode = this->TableTopRobotLogic->UpdateRasToFlangeTransform(channel25GeoNode);
+      this->TableTopRobotLogic->UpdateTableTopToFlangeTransform(cabin26AGeoNode);
+      vtkMRMLLinearTransformNode* rasToFlangeTransformNode = this->TableTopRobotLogic->UpdateRasToFlangeTransform(cabin26AGeoNode);
       if (rasToFlangeTransformNode)
       {
         partModel->SetAndObserveTransformNodeID(rasToFlangeTransformNode->GetID());
@@ -1117,8 +1123,8 @@ vtkSlicerPatientPositioningLogic::SetupTreatmentMachineModels(vtkMRMLPatientPosi
     }
     else if (partIdx == CoordSys::TableTop)
     {
-      this->TableTopRobotLogic->UpdatePatientToTableTopTransform(channel25GeoNode);
-      vtkMRMLLinearTransformNode* rasToTableTopTransformNode = this->TableTopRobotLogic->UpdateRasToTableTopTransform(channel25GeoNode);
+      this->TableTopRobotLogic->UpdatePatientToTableTopTransform(cabin26AGeoNode);
+      vtkMRMLLinearTransformNode* rasToTableTopTransformNode = this->TableTopRobotLogic->UpdateRasToTableTopTransform(cabin26AGeoNode);
       if (rasToTableTopTransformNode)
       {
         this->TableTopFixedReferenceCollisionDetection->SetInputData(0, partModel->GetPolyData());
@@ -1131,15 +1137,6 @@ vtkSlicerPatientPositioningLogic::SetupTreatmentMachineModels(vtkMRMLPatientPosi
       }
     }
   }
-  this->TableTopRobotLogic->UpdatePatientToTableTopTransform(channel25GeoNode);
-  this->TableTopRobotLogic->UpdateTableTopToFlangeTransform(channel25GeoNode);
-  this->TableTopRobotLogic->UpdateFlangeToWristTransform(channel25GeoNode);
-  this->TableTopRobotLogic->UpdateWristToElbowTransform(channel25GeoNode);
-  this->TableTopRobotLogic->UpdateElbowToShoulderTransform(channel25GeoNode);
-  this->TableTopRobotLogic->UpdateShoulderToBaseRotationTransform(channel25GeoNode);
-  this->TableTopRobotLogic->UpdateBaseRotationToBaseFixedTransform(channel25GeoNode);
-  this->TableTopRobotLogic->UpdateBaseFixedToFixedReferenceTransform(channel25GeoNode);
-
   // Disable collision detection if product of number of triangles of the two models is above threshold
   if (loadedPartsNumTriangles[CoordSys::FixedReference] * loadedPartsNumTriangles[CoordSys::TableTop] > MAX_TRIANGLE_NUMBER_PRODUCT_FOR_COLLISIONS && !forceEnableCollisionDetection)
   {
@@ -1178,10 +1175,8 @@ vtkSlicerPatientPositioningLogic::SetupTreatmentMachineModels(vtkMRMLPatientPosi
   }
 
   /// Setup Markups fixed beam axis and fixed isocenter
-  vtkMRMLMarkupsLineNode* beamAxisLineNode = this->CreateFixedBeamAxisLineNode(parameterNode);
-  vtkMRMLMarkupsFiducialNode* fixedIsocenterNode = this->CreateFixedIsocenterFiducialNode(parameterNode);
-  vtkNotUsed(beamAxisLineNode);
-  vtkNotUsed(fixedIsocenterNode);
+  /* vtkMRMLMarkupsLineNode* beamAxisLineNode = */ this->CreateFixedBeamAxisLineNode(parameterNode);
+  /* vtkMRMLMarkupsFiducialNode* fixedIsocenterNode = */ this->CreateFixedIsocenterFiducialNode(parameterNode);
 /*
   // Set identity transform for patient (parent transform is taken into account when getting poly data from segmentation)
   vtkNew<vtkTransform> identityTransform;
@@ -1189,6 +1184,7 @@ vtkSlicerPatientPositioningLogic::SetupTreatmentMachineModels(vtkMRMLPatientPosi
   this->GantryPatientCollisionDetection->SetTransform(1, vtkLinearTransform::SafeDownCast(identityTransform));
   this->CollimatorPatientCollisionDetection->SetTransform(1, vtkLinearTransform::SafeDownCast(identityTransform));
 */
+  this->TableTopRobotLogic->ResetToInitialPositions();
   return loadedParts;
 }
 
@@ -1309,25 +1305,6 @@ std::string vtkSlicerPatientPositioningLogic::CheckForCollisions(vtkMRMLPatientP
   }
 
   return statusString;
-}
-
-//----------------------------------------------------------------------------
-void vtkSlicerPatientPositioningLogic::LoadTreatmentMachine(vtkMRMLPatientPositioningNode* parameterNode)
-{
-  vtkMRMLScene* scene = this->GetMRMLScene();
-  if (!scene)
-  {
-    vtkErrorMacro("LoadTreatmentMachine: Invalid scene");
-    return;
-  }
-  if (!parameterNode/* || !parameterNode->GetTreatmentMachineType() */)
-  {
-    vtkErrorMacro("LoadTreatmentMachine: Invalid parameter node");
-    return;
-  }
-
-  // Make sure the transform hierarchy is in place
-  this->BuildRobotTableGeometryTransformHierarchy();
 }
 
 //---------------------------------------------------------------------------

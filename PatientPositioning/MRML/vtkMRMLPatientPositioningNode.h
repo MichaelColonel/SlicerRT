@@ -31,9 +31,9 @@ class vtkMRMLMarkupsFiducialNode;
 class vtkMRMLSegmentationNode;
 
 class vtkMRMLRTFixedBeamNode;
-class vtkMRMLRTChannel25IonBeamNode;
+class vtkMRMLRTCabin26AIonBeamNode;
 class vtkMRMLRTBeamNode;
-class vtkMRMLChannel25GeometryNode;
+class vtkMRMLCabin26AGeometryNode;
 
 class VTK_SLICER_PATIENTPOSITIONING_MODULE_MRML_EXPORT vtkMRMLPatientPositioningNode : public vtkMRMLNode
 {
@@ -70,9 +70,9 @@ public:
   void SetAndObserveBeamNode(vtkMRMLRTBeamNode* node);
 
   /// Get fixed reference ion beam node
-  vtkMRMLRTChannel25IonBeamNode* GetFixedReferenceBeamNode();
+  vtkMRMLRTCabin26AIonBeamNode* GetFixedReferenceBeamNode();
   /// Set and observe fixed reference ion beam node
-  void SetAndObserveFixedReferenceBeamNode(vtkMRMLRTChannel25IonBeamNode* node);
+  void SetAndObserveFixedReferenceBeamNode(vtkMRMLRTCabin26AIonBeamNode* node);
 
   /// Get external xray beam node
   vtkMRMLRTFixedBeamNode* GetExternalXrayBeamNode();
@@ -90,9 +90,9 @@ public:
   vtkSetStringMacro(PatientBodySegmentID);
 
   /// Get observed Channel-25 geometry node
-  vtkMRMLChannel25GeometryNode* GetChannel25GeometryNode();
+  vtkMRMLCabin26AGeometryNode* GetCabin26AGeometryNode();
   /// Set and observe Channel-25 geometry node
-  void SetAndObserveChannel25GeometryNode(vtkMRMLChannel25GeometryNode* node);
+  void SetAndObserveCabin26AGeometryNode(vtkMRMLCabin26AGeometryNode* node);
 
   /// Get observed fixed beam axis (line node)
   vtkMRMLMarkupsLineNode* GetFixedBeamAxisLineNode();

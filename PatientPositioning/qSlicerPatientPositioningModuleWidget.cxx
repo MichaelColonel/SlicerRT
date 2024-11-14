@@ -17,6 +17,7 @@
 
 // Qt includes
 #include <QDebug>
+#include <QTimer>
 
 // Slicer includes
 #include "qSlicerPatientPositioningModuleWidget.h"
@@ -49,10 +50,10 @@
 #include <vtkMRMLRTBeamNode.h>
 
 // PatientPositioning MRML includes
-#include <vtkMRMLRTChannel25IonBeamNode.h>
+#include <vtkMRMLRTCabin26AIonBeamNode.h>
 #include <vtkMRMLRTFixedBeamNode.h>
 #include <vtkMRMLPatientPositioningNode.h>
-#include <vtkMRMLChannel25GeometryNode.h>
+#include <vtkMRMLCabin26AGeometryNode.h>
 
 // Qt includes
 #include <QDebug>
@@ -188,7 +189,10 @@ void qSlicerPatientPositioningModuleWidget::setup()
 
   // Add treatment machine options
   d->ComboBox_TreatmentMachine->clear();
-  d->ComboBox_TreatmentMachine->addItem("Channel25Geometry", "Channel25Geometry");
+  d->ComboBox_TreatmentMachine->addItem("26A", "Cabin26AGeometry");
+  d->ComboBox_TreatmentMachine->addItem("27A", "Cabin27AGeometry");
+  d->ComboBox_TreatmentMachine->addItem("27B", "Cabin27BGeometry");
+  d->ComboBox_TreatmentMachine->addItem("27C", "Cabin27CGeometry");
   d->ComboBox_TreatmentMachine->addItem("From file...", "FromFile");
 
   // Nodes
@@ -216,8 +220,8 @@ void qSlicerPatientPositioningModuleWidget::setup()
     this, SLOT(onCollisionDetectionToggled(bool)));
   connect( d->CheckBox_FixedReferenceCamera, SIGNAL(toggled(bool)), 
     this, SLOT(onFixedReferenceCameraToggled(bool)));
-  connect( d->PushButton_TestAlignment, SIGNAL(clicked()), 
-    this, SLOT(onTestAlignmentClicked()));
+  connect( d->PushButton_AlignBeams, SIGNAL(clicked()), 
+    this, SLOT(onAlignBeamsButtonClicked()));
 
   // Widgets
   connect( d->SliderWidget_TableRobotA1, SIGNAL(valueChanged(double)), 
@@ -471,7 +475,7 @@ void qSlicerPatientPositioningModuleWidget::onBeamNodeChanged(vtkMRMLNode* node)
 void qSlicerPatientPositioningModuleWidget::onFixedReferenceBeamNodeChanged(vtkMRMLNode* node)
 {
   Q_D(qSlicerPatientPositioningModuleWidget);
-  vtkMRMLRTChannel25IonBeamNode* beamNode = vtkMRMLRTChannel25IonBeamNode::SafeDownCast(node);
+  vtkMRMLRTCabin26AIonBeamNode* beamNode = vtkMRMLRTCabin26AIonBeamNode::SafeDownCast(node);
 
   if (!d->ParameterNode || !d->ModuleWindowInitialized)
   {
@@ -526,7 +530,7 @@ void qSlicerPatientPositioningModuleWidget::onPatientBodySegmentChanged(QString 
 }
 
 //-----------------------------------------------------------------------------
-void qSlicerPatientPositioningModuleWidget::onTestAlignmentClicked()
+void qSlicerPatientPositioningModuleWidget::onAlignBeamsButtonClicked()
 {
   Q_D(qSlicerPatientPositioningModuleWidget);
 
@@ -550,7 +554,7 @@ void qSlicerPatientPositioningModuleWidget::onTestAlignmentClicked()
     return;
   }
 
-  vtkMRMLRTChannel25IonBeamNode* fixedReferenceNode = vtkMRMLRTChannel25IonBeamNode::SafeDownCast(d->MRMLNodeComboBox_FixedReferenceBeam->currentNode());
+  vtkMRMLRTCabin26AIonBeamNode* fixedReferenceNode = vtkMRMLRTCabin26AIonBeamNode::SafeDownCast(d->MRMLNodeComboBox_FixedReferenceBeam->currentNode());
   if (!fixedReferenceNode)
   {
     qCritical() << Q_FUNC_INFO << ": Invalid fixed reference node";
@@ -577,12 +581,6 @@ void qSlicerPatientPositioningModuleWidget::onTestAlignmentClicked()
     qDebug() << Q_FUNC_INFO << "Unable calculate transform between patient beam and fixed reference nodes";
     return;
   }
-  double xyz[3] = {};
-  vtkNew< vtkTransform > transform;
-  transform->SetMatrix(transformMatrix);
-  transform->GetOrientation(xyz);
-
-//  qDebug() << Q_FUNC_INFO << "X: " << xyz[0]  << ", Y: " << xyz[1]  << ", Z: " << xyz[2];
 
   // TableTop -> PatientBeam
   double tableTopUnityX[4] = { 1., 0., 0., 0. };
@@ -599,90 +597,133 @@ void qSlicerPatientPositioningModuleWidget::onTestAlignmentClicked()
   double lateralAngle = vtkMath::DegreesFromRadians(acos(tableTopUnityZInPatientBeam[0])) - 90.;
   double verticalAngle = vtkMath::DegreesFromRadians(acos(tableTopUnityZInPatientBeam[2])) - 90;
 
-//  qDebug() << Q_FUNC_INFO << "Lateral: " << lateralAngle  << ", Longitudinal: " << longitudinalAngle << ", Patient support: " << verticalAngle;
+  qDebug() << Q_FUNC_INFO << "Lateral: " << lateralAngle  << ", Longitudinal: " << longitudinalAngle << ", Vertical: " << verticalAngle;
 
   d->FixedBeamAxisWidget->setTableTopAngles(lateralAngle, longitudinalAngle, verticalAngle);
-/*
-  // Get RAS->FixedReference Transform
-  vtkMRMLLinearTransformNode* rasToFixedReferenceTransformNode = d->tableTopRobotLogic()->GetFixedReferenceTransform();
+  double a[6] = {};
+  parameterNode->GetCabin26AGeometryNode()->GetTableTopRobotAngles(a);
 
-  if (!rasToFixedReferenceTransformNode)
+  parameterNode->GetCabin26AGeometryNode()->DisableModifiedEventOn();
+  if (!parameterNode->GetCabin26AGeometryNode()->GetPatientHeadFeetRotation() && patientBeamNode->GetGantryAngle() <= 180. && patientBeamNode->GetCouchAngle() <= 180.)
   {
-    vtkErrorMacro("GetTableTopToPatientBeamTransform: Invalid TableTop->RAS transform node");
-    return false;
-  }
+    double v = d->SliderWidget_TableRobotA1->value();
+    v -= std::abs(verticalAngle);
+    d->SliderWidget_TableRobotA1->setValue(v);
 
-  // Patient beam node transform
-  vtkMRMLTransformNode* patientBeamTransformNode = patientBeamNode->GetParentTransformNode();
+    double longitudinal = d->SliderWidget_TableRobotA5->value();
+    if (longitudinalAngle < 0.)
+    {
+      longitudinal -= longitudinalAngle;
+    }
+    else
+    {
+      longitudinal += longitudinalAngle;
+    }
+    d->SliderWidget_TableRobotA5->setValue(longitudinal);
 
-  vtkNew< vtkMatrix4x4 > transformMatrix;
-  // tableTopTransformNode - Source
-  // patientBeamTransformNode - Target
-  // Source -> Target transform
-  if (!vtkMRMLTransformNode::GetMatrixTransformBetweenNodes( tableTopTransformNode, patientBeamTransformNode, transformMatrix))
-  {
-    vtkErrorMacro("GetTableTopToPatientBeamTransform: Unable calculate transform between TableTop and patient beam nodes");
-    return false;
+    double lateral = d->SliderWidget_TableRobotA4->value();
+    if (lateralAngle >= 0.)
+    {
+      lateral += lateralAngle;
+    }
+    else
+    {
+      lateral -= lateralAngle;
+    }
+    d->SliderWidget_TableRobotA4->setValue(lateral);
   }
+  else if (parameterNode->GetCabin26AGeometryNode()->GetPatientHeadFeetRotation() && patientBeamNode->GetGantryAngle() <= 180. && patientBeamNode->GetCouchAngle() <= 180.)
+  {
+    double vertical = d->SliderWidget_TableRobotA1->value();
+    if (vertical >= -90. && vertical <= 90.)
+    {
+      vertical += 180. - std::abs(verticalAngle);
+    }
+    else
+    {
+      vertical -= std::abs(verticalAngle);
+    }
+    d->SliderWidget_TableRobotA1->setValue(vertical);
 
-  transform->SetMatrix(transformMatrix);
+    double longitudinal = d->SliderWidget_TableRobotA5->value();
+    if (longitudinalAngle < 0.)
+    {
+      longitudinal += longitudinalAngle;
+    }
+    else
+    {
+      longitudinal -= longitudinalAngle;
+    }
+    d->SliderWidget_TableRobotA5->setValue(longitudinal);
 
-  double longitudinalAngle;
-  double lateralAngle;
-  double patientSupportAngle;
-  this->GetTableTopAnglesFromPatientBeam( parameterNode, beamNode, longitudinalAngle, lateralAngle, patientSupportAngle);
-
-  parameterNode->DisableModifiedEventOn();
-  if (!parameterNode->GetPatientHeadFeetRotation() && beamNode->GetGantryAngle() <= 180. && beamNode->GetCouchAngle() <= 180.)
-  {
-    parameterNode->SetTableTopLateralAngle(lateralAngle);
-    parameterNode->SetTableTopLongitudinalAngle(longitudinalAngle);
-    parameterNode->SetPatientSupportRotationAngle(patientSupportAngle);
+    double lateral = d->SliderWidget_TableRobotA4->value();
+    if (lateralAngle >= 0.)
+    {
+      lateral -= lateralAngle;
+    }
+    else
+    {
+      lateral += lateralAngle;
+    }
+    d->SliderWidget_TableRobotA4->setValue(lateral);
   }
-  else if (parameterNode->GetPatientHeadFeetRotation() && beamNode->GetGantryAngle() <= 180. && beamNode->GetCouchAngle() <= 180.)
+  else if (!parameterNode->GetCabin26AGeometryNode()->GetPatientHeadFeetRotation() && patientBeamNode->GetGantryAngle() > 180. && patientBeamNode->GetCouchAngle() <= 180.)
   {
-    parameterNode->SetTableTopLateralAngle(lateralAngle);
-    parameterNode->SetTableTopLongitudinalAngle(longitudinalAngle);
-    parameterNode->SetPatientSupportRotationAngle(360. - patientSupportAngle);
+//    parameterNode->SetTableTopLateralAngle(-1. * lateralAngle);
+//    parameterNode->SetTableTopLongitudinalAngle(-1. * longitudinalAngle);
+///    parameterNode->SetPatientSupportRotationAngle(180. + patientSupportAngle);
+    double v = d->SliderWidget_TableRobotA1->value();
+    v += 180. + verticalAngle;
+    d->SliderWidget_TableRobotA1->setValue(v);
   }
-  else if (!parameterNode->GetPatientHeadFeetRotation() && beamNode->GetGantryAngle() > 180. && beamNode->GetCouchAngle() <= 180.)
+  else if (parameterNode->GetCabin26AGeometryNode()->GetPatientHeadFeetRotation() && patientBeamNode->GetGantryAngle() > 180. && patientBeamNode->GetCouchAngle() <= 180.)
   {
-    parameterNode->SetTableTopLateralAngle(-1. * lateralAngle);
-    parameterNode->SetTableTopLongitudinalAngle(-1. * longitudinalAngle);
-    parameterNode->SetPatientSupportRotationAngle(180. + patientSupportAngle);
+//    parameterNode->SetTableTopLateralAngle(-1. * lateralAngle);
+//    parameterNode->SetTableTopLongitudinalAngle(-1. * longitudinalAngle);
+///    parameterNode->SetPatientSupportRotationAngle(180. - patientSupportAngle);
+    double v = d->SliderWidget_TableRobotA1->value();
+    v += 180. - verticalAngle;
+    d->SliderWidget_TableRobotA1->setValue(v);
   }
-  else if (parameterNode->GetPatientHeadFeetRotation() && beamNode->GetGantryAngle() > 180. && beamNode->GetCouchAngle() <= 180.)
+  else if (!parameterNode->GetCabin26AGeometryNode()->GetPatientHeadFeetRotation() && patientBeamNode->GetGantryAngle() <= 180. && patientBeamNode->GetCouchAngle() > 180.)
   {
-    parameterNode->SetTableTopLateralAngle(-1. * lateralAngle);
-    parameterNode->SetTableTopLongitudinalAngle(-1. * longitudinalAngle);
-    parameterNode->SetPatientSupportRotationAngle(180. - patientSupportAngle);
+//    parameterNode->SetTableTopLateralAngle(lateralAngle);
+//    parameterNode->SetTableTopLongitudinalAngle(longitudinalAngle);
+///    parameterNode->SetPatientSupportRotationAngle(360. - patientSupportAngle);
+    double v = d->SliderWidget_TableRobotA1->value();
+    v += 360. - verticalAngle;
+    d->SliderWidget_TableRobotA1->setValue(v);
   }
-  else if (!parameterNode->GetPatientHeadFeetRotation() && beamNode->GetGantryAngle() <= 180. && beamNode->GetCouchAngle() > 180.)
+  else if (parameterNode->GetCabin26AGeometryNode()->GetPatientHeadFeetRotation() && patientBeamNode->GetGantryAngle() <= 180. && patientBeamNode->GetCouchAngle() > 180.)
   {
-    parameterNode->SetTableTopLateralAngle(lateralAngle);
-    parameterNode->SetTableTopLongitudinalAngle(longitudinalAngle);
-    parameterNode->SetPatientSupportRotationAngle(360. - patientSupportAngle);
+//    parameterNode->SetTableTopLateralAngle(lateralAngle);
+//    parameterNode->SetTableTopLongitudinalAngle(longitudinalAngle);
+///    parameterNode->SetPatientSupportRotationAngle(patientSupportAngle);
+    double v = d->SliderWidget_TableRobotA1->value();
+    v += verticalAngle;
+    d->SliderWidget_TableRobotA1->setValue(v);
   }
-  else if (parameterNode->GetPatientHeadFeetRotation() && beamNode->GetGantryAngle() <= 180. && beamNode->GetCouchAngle() > 180.)
+  else if (!parameterNode->GetCabin26AGeometryNode()->GetPatientHeadFeetRotation() && patientBeamNode->GetGantryAngle() > 180. && patientBeamNode->GetCouchAngle() > 180.)
   {
-    parameterNode->SetTableTopLateralAngle(lateralAngle);
-    parameterNode->SetTableTopLongitudinalAngle(longitudinalAngle);
-    parameterNode->SetPatientSupportRotationAngle(patientSupportAngle);
+//    parameterNode->SetTableTopLateralAngle(-1. * lateralAngle);
+//    parameterNode->SetTableTopLongitudinalAngle(-1. * longitudinalAngle);
+///    parameterNode->SetPatientSupportRotationAngle(180. - patientSupportAngle);
+    double v = d->SliderWidget_TableRobotA1->value();
+    v += 180. - verticalAngle;
+    d->SliderWidget_TableRobotA1->setValue(v);
   }
-  else if (!parameterNode->GetPatientHeadFeetRotation() && beamNode->GetGantryAngle() > 180. && beamNode->GetCouchAngle() > 180.)
+  else if (parameterNode->GetCabin26AGeometryNode()->GetPatientHeadFeetRotation() && patientBeamNode->GetGantryAngle() > 180. && patientBeamNode->GetCouchAngle() > 180.)
   {
-    parameterNode->SetTableTopLateralAngle(-1. * lateralAngle);
-    parameterNode->SetTableTopLongitudinalAngle(-1. * longitudinalAngle);
-    parameterNode->SetPatientSupportRotationAngle(180. - patientSupportAngle);
+//    parameterNode->SetTableTopLateralAngle(-1. * lateralAngle);
+//    parameterNode->SetTableTopLongitudinalAngle(-1. * longitudinalAngle);
+///    parameterNode->SetPatientSupportRotationAngle(180. + patientSupportAngle);
+    double v = d->SliderWidget_TableRobotA1->value();
+    v += 180. + verticalAngle;
+    d->SliderWidget_TableRobotA1->setValue(v);
   }
-  else if (parameterNode->GetPatientHeadFeetRotation() && beamNode->GetGantryAngle() > 180. && beamNode->GetCouchAngle() > 180.)
-  {
-    parameterNode->SetTableTopLateralAngle(-1. * lateralAngle);
-    parameterNode->SetTableTopLongitudinalAngle(-1. * longitudinalAngle);
-    parameterNode->SetPatientSupportRotationAngle(180. + patientSupportAngle);
-  }
+  parameterNode->GetCabin26AGeometryNode()->SetTableTopRobotAngles(a);
   parameterNode->DisableModifiedEventOff();
-*/
+  parameterNode->Modified();
 }
 
 //-----------------------------------------------------------------------------
@@ -819,22 +860,22 @@ void qSlicerPatientPositioningModuleWidget::onLoadTreatmentMachineButtonClicked(
       machineFolderItemIDs.push_back(*itemIt);
     }
   }
-  // Create a new vtkMRMLChannel25GeometryNode;
+  // Create a new vtkMRMLCabin26AGeometryNode;
   // Set and observe created node in PatientPositioningNode
-  if (!scene->GetFirstNodeByClass("vtkMRMLChannel25GeometryNode"))
+  if (!scene->GetFirstNodeByClass("vtkMRMLCabin26AGeometryNode"))
   {
-    vtkNew<vtkMRMLChannel25GeometryNode> channel25GeometryNode;
-    channel25GeometryNode->SetName("Channel25Geometry");
-    channel25GeometryNode->SetHideFromEditors(0);
-    channel25GeometryNode->SetSingletonTag("ChannelGeo");
-    scene->AddNode(channel25GeometryNode);
-    d->ParameterNode->SetAndObserveChannel25GeometryNode(channel25GeometryNode.GetPointer());
+    vtkNew<vtkMRMLCabin26AGeometryNode> cabin26AGeometryNode;
+    cabin26AGeometryNode->SetName("Cabin26AGeometry");
+    cabin26AGeometryNode->SetHideFromEditors(0);
+    cabin26AGeometryNode->SetSingletonTag("Cabin26AGeo");
+    scene->AddNode(cabin26AGeometryNode);
+    d->ParameterNode->SetAndObserveCabin26AGeometryNode(cabin26AGeometryNode.GetPointer());
   }
   else
   {
-    vtkMRMLChannel25GeometryNode* channel25GeometryNode = vtkMRMLChannel25GeometryNode::SafeDownCast(
-      scene->GetFirstNodeByClass("vtkMRMLChannel25GeometryNode"));
-    d->ParameterNode->SetAndObserveChannel25GeometryNode(channel25GeometryNode);
+    vtkMRMLCabin26AGeometryNode* cabin26AGeometryNode = vtkMRMLCabin26AGeometryNode::SafeDownCast(
+      scene->GetFirstNodeByClass("vtkMRMLCabin26AGeometryNode"));
+    d->ParameterNode->SetAndObserveCabin26AGeometryNode(cabin26AGeometryNode);
   }
   d->ParameterNode->SetTreatmentMachineDescriptorFilePath(descriptorFilePath.toUtf8().constData());
 
@@ -872,9 +913,8 @@ void qSlicerPatientPositioningModuleWidget::onLoadTreatmentMachineButtonClicked(
   }
   // Load and setup models
   std::vector< SysCoord > loadedParts;
-  vtkMRMLChannel25GeometryNode* channel25GeometryNode = d->ParameterNode->GetChannel25GeometryNode();
-  channel25GeometryNode->DisableModifiedEventOn();
-  if (channel25GeometryNode)
+  vtkMRMLCabin26AGeometryNode* cabin26AGeometryNode = d->ParameterNode->GetCabin26AGeometryNode();
+  if (cabin26AGeometryNode)
   {
     d->getLayoutManager()->pauseRender();
     loadedParts = d->logic()->LoadTreatmentMachineComponents(d->ParameterNode);
@@ -883,14 +923,13 @@ void qSlicerPatientPositioningModuleWidget::onLoadTreatmentMachineButtonClicked(
     d->FixedBeamAxisWidget->setParameterNode(d->ParameterNode);
 
     // Fixed and external beam
-    d->logic()->CreateExternalXrayPlanAndNode(d->ParameterNode);
-    d->logic()->CreateFixedBeamPlanAndNode(d->ParameterNode);
+    vtkMRMLRTFixedBeamNode* xrayNode = d->logic()->CreateExternalXrayPlanAndNode(d->ParameterNode);
+    vtkMRMLRTCabin26AIonBeamNode* fixedBeamNode = d->logic()->CreateFixedBeamPlanAndNode(d->ParameterNode);
     d->getLayoutManager()->resumeRender();
-//    channel25GeometryNode->SetPatientHeadFeetRotation(true);
+
+    d->MRMLNodeComboBox_ExternalXrayBeam->setCurrentNode(xrayNode);
+    d->MRMLNodeComboBox_FixedReferenceBeam->setCurrentNode(fixedBeamNode);
   }
-  channel25GeometryNode->DisableModifiedEventOff();
-  // DUMMY change to trigger geometry update
-//  channel25GeometryNode->Modified();
 
   // Warn the user if collision detection is disabled for certain part pairs
   QString disabledCollisionDetectionMessage(
@@ -940,25 +979,25 @@ void qSlicerPatientPositioningModuleWidget::onLoadTreatmentMachineButtonClicked(
   }
 
   // Set treatment machine dependent properties  //TODO: Use degrees of freedom from JSON
-  if (!treatmentMachineType.compare("Channel25Geometry"))
+  if (!treatmentMachineType.compare("Cabin26AGeometry"))
   {
-    qDebug() << Q_FUNC_INFO << "Channel-25";
-    d->ParameterNode->SetTreatmentMachineType("Channel25Geometry");
+    qDebug() << Q_FUNC_INFO << "Cabin26A";
+    d->ParameterNode->SetTreatmentMachineType("Cabin26AGeometry");
   }
-  else if (!treatmentMachineType.compare("Channel26Geometry_Cabin1"))
+  else if (!treatmentMachineType.compare("Cabin27A"))
   {
-    qDebug() << Q_FUNC_INFO << "Channel-26 cabin-1";
-    d->ParameterNode->SetTreatmentMachineType("Channel26Geometry_Cabin1");
+    qDebug() << Q_FUNC_INFO << "Cabin27A";
+    d->ParameterNode->SetTreatmentMachineType("Cabin27AGeometry");
   }
-  else if (!treatmentMachineType.compare("Channel26Geometry_Cabin2"))
+  else if (!treatmentMachineType.compare("Cabin27B"))
   {
-    qDebug() << Q_FUNC_INFO << "Channel-26 cabin-2";
-    d->ParameterNode->SetTreatmentMachineType("Channel26Geometry_Cabin2");
+    qDebug() << Q_FUNC_INFO << "Cabin27B";
+    d->ParameterNode->SetTreatmentMachineType("Cabin27BGeometry");
   }
-  else if (!treatmentMachineType.compare("Channel26Geometry_Cabin3"))
+  else if (!treatmentMachineType.compare("Cabin27C"))
   {
-    qDebug() << Q_FUNC_INFO << "Channel-26 cabin-3";
-    d->ParameterNode->SetTreatmentMachineType("Channel26Geometry_Cabin3");
+    qDebug() << Q_FUNC_INFO << "Cabin27C";
+    d->ParameterNode->SetTreatmentMachineType("Cabin27CGeometry");
   }
   // Enable treatment machine geometry controls
   d->CollapsibleButton_CollisionDetection->setEnabled(true);
@@ -967,14 +1006,31 @@ void qSlicerPatientPositioningModuleWidget::onLoadTreatmentMachineButtonClicked(
   d->CollapsibleButton_TableTopControl->setEnabled(true);
   d->CollapsibleButton_TableTopRobotControl->setEnabled(true);
   d->FixedBeamAxisWidget->setEnabled(true);
-  d->PushButton_TestAlignment->setEnabled(true);
-/*
+  d->PushButton_AlignBeams->setEnabled(true);
+
   // Reset camera
+/*
   qSlicerApplication* slicerApplication = qSlicerApplication::application();
   qSlicerLayoutManager* layoutManager = slicerApplication->layoutManager();
   qMRMLThreeDView* threeDView = layoutManager->threeDWidget(0)->threeDView();
   threeDView->resetCamera();
 */
+  vtkSlicerTableTopRobotTransformLogic* tableTopRobotLogic = d->tableTopRobotLogic();
+  if (tableTopRobotLogic && cabin26AGeometryNode)
+  {
+    tableTopRobotLogic->UpdatePatientToTableTopTransform(cabin26AGeometryNode);
+    tableTopRobotLogic->UpdateTableTopToFlangeTransform(cabin26AGeometryNode);
+    tableTopRobotLogic->UpdateFlangeToWristTransform(cabin26AGeometryNode);
+    tableTopRobotLogic->UpdateWristToElbowTransform(cabin26AGeometryNode);
+    tableTopRobotLogic->UpdateElbowToShoulderTransform(cabin26AGeometryNode);
+    tableTopRobotLogic->UpdateShoulderToBaseRotationTransform(cabin26AGeometryNode);
+    tableTopRobotLogic->UpdateBaseRotationToBaseFixedTransform(cabin26AGeometryNode);
+    tableTopRobotLogic->UpdateBaseFixedToFixedReferenceTransform(cabin26AGeometryNode);
+    // Update table top robot geometry position
+    cabin26AGeometryNode->SetPatientHeadFeetRotation(false);
+  }
+
+//  d->CheckBox_RotatePatientHeadFeet->setChecked(true);
 /*
   // Hide controls that do not have corresponding parts loaded
   bool imagingPanelsLoaded = (std::find(loadedParts.begin(), loadedParts.end(), vtkSlicerRoomsEyeViewModuleLogic::ImagingPanelLeft) != loadedParts.end() ||
@@ -1001,25 +1057,25 @@ void qSlicerPatientPositioningModuleWidget::onTableTopRobotA1Changed(double a1)
     return;
   }
 
-  vtkMRMLChannel25GeometryNode* channel25GeometryNode = d->ParameterNode->GetChannel25GeometryNode();
+  vtkMRMLCabin26AGeometryNode* cabin26AGeometryNode = d->ParameterNode->GetCabin26AGeometryNode();
 
   d->getLayoutManager()->pauseRender();
   qCritical() << Q_FUNC_INFO << ": Angle A1 " << a1;
   double a[6] = {};
-  channel25GeometryNode->GetTableTopRobotAngles(a);
-  channel25GeometryNode->DisableModifiedEventOn();
+  cabin26AGeometryNode->GetTableTopRobotAngles(a);
+  cabin26AGeometryNode->DisableModifiedEventOn();
   a[0] = a1;
-  channel25GeometryNode->SetTableTopRobotAngles(a);
-  channel25GeometryNode->DisableModifiedEventOff();
+  cabin26AGeometryNode->SetTableTopRobotAngles(a);
+  cabin26AGeometryNode->DisableModifiedEventOff();
 
   // Update IEC transform
   vtkSlicerTableTopRobotTransformLogic* tableTopRobotLogic = d->tableTopRobotLogic();
   if (tableTopRobotLogic)
   {
-    tableTopRobotLogic->UpdateBaseRotationToBaseFixedTransform(channel25GeometryNode);
-    tableTopRobotLogic->UpdateBaseFixedToFixedReferenceTransform(channel25GeometryNode);
+    tableTopRobotLogic->UpdateBaseRotationToBaseFixedTransform(cabin26AGeometryNode);
+    tableTopRobotLogic->UpdateBaseFixedToFixedReferenceTransform(cabin26AGeometryNode);
   }
-  channel25GeometryNode->Modified();
+  cabin26AGeometryNode->Modified();
   this->checkForCollisions();
   d->getLayoutManager()->resumeRender();
 }
@@ -1034,26 +1090,26 @@ void qSlicerPatientPositioningModuleWidget::onTableTopRobotA2Changed(double a2)
     qCritical() << Q_FUNC_INFO << ": Parameter node is invalid!";
     return;
   }
-  vtkMRMLChannel25GeometryNode* channel25GeometryNode = d->ParameterNode->GetChannel25GeometryNode();
+  vtkMRMLCabin26AGeometryNode* cabin26AGeometryNode = d->ParameterNode->GetCabin26AGeometryNode();
 
   d->getLayoutManager()->pauseRender();
   qCritical() << Q_FUNC_INFO << ": Angle A2 " << a2;
   double a[6] = {};
-  channel25GeometryNode->GetTableTopRobotAngles(a);
-  channel25GeometryNode->DisableModifiedEventOn();
+  cabin26AGeometryNode->GetTableTopRobotAngles(a);
+  cabin26AGeometryNode->DisableModifiedEventOn();
   a[1] = 90. + a2;
-  channel25GeometryNode->SetTableTopRobotAngles(a);
-  channel25GeometryNode->DisableModifiedEventOff();
+  cabin26AGeometryNode->SetTableTopRobotAngles(a);
+  cabin26AGeometryNode->DisableModifiedEventOff();
 
   // Update IEC transform
   vtkSlicerTableTopRobotTransformLogic* tableTopRobotLogic = d->tableTopRobotLogic();
   if (tableTopRobotLogic)
   {
-    tableTopRobotLogic->UpdateShoulderToBaseRotationTransform(channel25GeometryNode);
-    tableTopRobotLogic->UpdateBaseRotationToBaseFixedTransform(channel25GeometryNode);
-    tableTopRobotLogic->UpdateBaseFixedToFixedReferenceTransform(channel25GeometryNode);
+    tableTopRobotLogic->UpdateShoulderToBaseRotationTransform(cabin26AGeometryNode);
+    tableTopRobotLogic->UpdateBaseRotationToBaseFixedTransform(cabin26AGeometryNode);
+    tableTopRobotLogic->UpdateBaseFixedToFixedReferenceTransform(cabin26AGeometryNode);
   }
-  channel25GeometryNode->Modified();
+  cabin26AGeometryNode->Modified();
   this->checkForCollisions();
   d->getLayoutManager()->resumeRender();
 }
@@ -1068,27 +1124,27 @@ void qSlicerPatientPositioningModuleWidget::onTableTopRobotA3Changed(double a3)
     qCritical() << Q_FUNC_INFO << ": Parameter node is invalid!";
     return;
   }
-  vtkMRMLChannel25GeometryNode* channel25GeometryNode = d->ParameterNode->GetChannel25GeometryNode();
+  vtkMRMLCabin26AGeometryNode* cabin26AGeometryNode = d->ParameterNode->GetCabin26AGeometryNode();
 
   d->getLayoutManager()->pauseRender();
   qCritical() << Q_FUNC_INFO << ": Angle A3 " << a3;
   double a[6] = {};
-  channel25GeometryNode->GetTableTopRobotAngles(a);
-  channel25GeometryNode->DisableModifiedEventOn();
+  cabin26AGeometryNode->GetTableTopRobotAngles(a);
+  cabin26AGeometryNode->DisableModifiedEventOn();
   a[2] = a3 - 90.;
-  channel25GeometryNode->SetTableTopRobotAngles(a);
-  channel25GeometryNode->DisableModifiedEventOff();
+  cabin26AGeometryNode->SetTableTopRobotAngles(a);
+  cabin26AGeometryNode->DisableModifiedEventOff();
 
   // Update IEC transform
   vtkSlicerTableTopRobotTransformLogic* tableTopRobotLogic = d->tableTopRobotLogic();
   if (tableTopRobotLogic)
   {
-    tableTopRobotLogic->UpdateElbowToShoulderTransform(channel25GeometryNode);
-    tableTopRobotLogic->UpdateShoulderToBaseRotationTransform(channel25GeometryNode);
-    tableTopRobotLogic->UpdateBaseRotationToBaseFixedTransform(channel25GeometryNode);
-    tableTopRobotLogic->UpdateBaseFixedToFixedReferenceTransform(channel25GeometryNode);
+    tableTopRobotLogic->UpdateElbowToShoulderTransform(cabin26AGeometryNode);
+    tableTopRobotLogic->UpdateShoulderToBaseRotationTransform(cabin26AGeometryNode);
+    tableTopRobotLogic->UpdateBaseRotationToBaseFixedTransform(cabin26AGeometryNode);
+    tableTopRobotLogic->UpdateBaseFixedToFixedReferenceTransform(cabin26AGeometryNode);
   }
-  channel25GeometryNode->Modified();
+  cabin26AGeometryNode->Modified();
   this->checkForCollisions();
   d->getLayoutManager()->resumeRender();
 }
@@ -1103,28 +1159,28 @@ void qSlicerPatientPositioningModuleWidget::onTableTopRobotA4Changed(double a4)
     qCritical() << Q_FUNC_INFO << ": Parameter node is invalid!";
     return;
   }
-  vtkMRMLChannel25GeometryNode* channel25GeometryNode = d->ParameterNode->GetChannel25GeometryNode();
+  vtkMRMLCabin26AGeometryNode* cabin26AGeometryNode = d->ParameterNode->GetCabin26AGeometryNode();
 
   d->getLayoutManager()->pauseRender();
   qCritical() << Q_FUNC_INFO << ": Angle A4 " << a4;
   double a[6] = {};
-  channel25GeometryNode->GetTableTopRobotAngles(a);
-  channel25GeometryNode->DisableModifiedEventOn();
+  cabin26AGeometryNode->GetTableTopRobotAngles(a);
+  cabin26AGeometryNode->DisableModifiedEventOn();
   a[3] = a4;
-  channel25GeometryNode->SetTableTopRobotAngles(a);
-  channel25GeometryNode->DisableModifiedEventOff();
+  cabin26AGeometryNode->SetTableTopRobotAngles(a);
+  cabin26AGeometryNode->DisableModifiedEventOff();
 
   // Update IEC transform
   vtkSlicerTableTopRobotTransformLogic* tableTopRobotLogic = d->tableTopRobotLogic();
   if (tableTopRobotLogic)
   {
-    tableTopRobotLogic->UpdateWristToElbowTransform(channel25GeometryNode);
-    tableTopRobotLogic->UpdateElbowToShoulderTransform(channel25GeometryNode);
-    tableTopRobotLogic->UpdateShoulderToBaseRotationTransform(channel25GeometryNode);
-    tableTopRobotLogic->UpdateBaseRotationToBaseFixedTransform(channel25GeometryNode);
-    tableTopRobotLogic->UpdateBaseFixedToFixedReferenceTransform(channel25GeometryNode);
+    tableTopRobotLogic->UpdateWristToElbowTransform(cabin26AGeometryNode);
+    tableTopRobotLogic->UpdateElbowToShoulderTransform(cabin26AGeometryNode);
+    tableTopRobotLogic->UpdateShoulderToBaseRotationTransform(cabin26AGeometryNode);
+    tableTopRobotLogic->UpdateBaseRotationToBaseFixedTransform(cabin26AGeometryNode);
+    tableTopRobotLogic->UpdateBaseFixedToFixedReferenceTransform(cabin26AGeometryNode);
   }
-  channel25GeometryNode->Modified();
+  cabin26AGeometryNode->Modified();
   this->checkForCollisions();
   d->getLayoutManager()->resumeRender();
 }
@@ -1139,28 +1195,28 @@ void qSlicerPatientPositioningModuleWidget::onTableTopRobotA5Changed(double a5)
     qCritical() << Q_FUNC_INFO << ": Parameter node is invalid!";
     return;
   }
-  vtkMRMLChannel25GeometryNode* channel25GeometryNode = d->ParameterNode->GetChannel25GeometryNode();
+  vtkMRMLCabin26AGeometryNode* cabin26AGeometryNode = d->ParameterNode->GetCabin26AGeometryNode();
 
   d->getLayoutManager()->pauseRender();
   qCritical() << Q_FUNC_INFO << ": Angle A5 " << a5;
   double a[6] = {};
-  channel25GeometryNode->GetTableTopRobotAngles(a);
-  channel25GeometryNode->DisableModifiedEventOn();
-  a[4] = 90. - a5;
-  channel25GeometryNode->SetTableTopRobotAngles(a);
-  channel25GeometryNode->DisableModifiedEventOff();
+  cabin26AGeometryNode->GetTableTopRobotAngles(a);
+  cabin26AGeometryNode->DisableModifiedEventOn();
+  a[4] = 90. + a5; // - a5;
+  cabin26AGeometryNode->SetTableTopRobotAngles(a);
+  cabin26AGeometryNode->DisableModifiedEventOff();
 
   // Update IEC transform
   vtkSlicerTableTopRobotTransformLogic* tableTopRobotLogic = d->tableTopRobotLogic();
   if (tableTopRobotLogic)
   {
-    tableTopRobotLogic->UpdateWristToElbowTransform(channel25GeometryNode);
-    tableTopRobotLogic->UpdateElbowToShoulderTransform(channel25GeometryNode);
-    tableTopRobotLogic->UpdateShoulderToBaseRotationTransform(channel25GeometryNode);
-    tableTopRobotLogic->UpdateBaseRotationToBaseFixedTransform(channel25GeometryNode);
-    tableTopRobotLogic->UpdateBaseFixedToFixedReferenceTransform(channel25GeometryNode);
+    tableTopRobotLogic->UpdateWristToElbowTransform(cabin26AGeometryNode);
+    tableTopRobotLogic->UpdateElbowToShoulderTransform(cabin26AGeometryNode);
+    tableTopRobotLogic->UpdateShoulderToBaseRotationTransform(cabin26AGeometryNode);
+    tableTopRobotLogic->UpdateBaseRotationToBaseFixedTransform(cabin26AGeometryNode);
+    tableTopRobotLogic->UpdateBaseFixedToFixedReferenceTransform(cabin26AGeometryNode);
   }
-  channel25GeometryNode->Modified();
+  cabin26AGeometryNode->Modified();
   this->checkForCollisions();
   d->getLayoutManager()->resumeRender();
 }
@@ -1175,29 +1231,29 @@ void qSlicerPatientPositioningModuleWidget::onTableTopRobotA6Changed(double a6)
     qCritical() << Q_FUNC_INFO << ": Parameter node is invalid!";
     return;
   }
-  vtkMRMLChannel25GeometryNode* channel25GeometryNode = d->ParameterNode->GetChannel25GeometryNode();
+  vtkMRMLCabin26AGeometryNode* cabin26AGeometryNode = d->ParameterNode->GetCabin26AGeometryNode();
 
   d->getLayoutManager()->pauseRender();
   qCritical() << Q_FUNC_INFO << ": Angle A6 " << a6;
   double a[6] = {};
-  channel25GeometryNode->GetTableTopRobotAngles(a);
-  channel25GeometryNode->DisableModifiedEventOn();
+  cabin26AGeometryNode->GetTableTopRobotAngles(a);
+  cabin26AGeometryNode->DisableModifiedEventOn();
   a[5] = a6;
-  channel25GeometryNode->SetTableTopRobotAngles(a);
-  channel25GeometryNode->DisableModifiedEventOff();
+  cabin26AGeometryNode->SetTableTopRobotAngles(a);
+  cabin26AGeometryNode->DisableModifiedEventOff();
 
   // Update IEC transform
   vtkSlicerTableTopRobotTransformLogic* tableTopRobotLogic = d->tableTopRobotLogic();
   if (tableTopRobotLogic)
   {
-    tableTopRobotLogic->UpdateFlangeToWristTransform(channel25GeometryNode);
-    tableTopRobotLogic->UpdateWristToElbowTransform(channel25GeometryNode);
-    tableTopRobotLogic->UpdateElbowToShoulderTransform(channel25GeometryNode);
-    tableTopRobotLogic->UpdateShoulderToBaseRotationTransform(channel25GeometryNode);
-    tableTopRobotLogic->UpdateBaseRotationToBaseFixedTransform(channel25GeometryNode);
-    tableTopRobotLogic->UpdateBaseFixedToFixedReferenceTransform(channel25GeometryNode);
+    tableTopRobotLogic->UpdateFlangeToWristTransform(cabin26AGeometryNode);
+    tableTopRobotLogic->UpdateWristToElbowTransform(cabin26AGeometryNode);
+    tableTopRobotLogic->UpdateElbowToShoulderTransform(cabin26AGeometryNode);
+    tableTopRobotLogic->UpdateShoulderToBaseRotationTransform(cabin26AGeometryNode);
+    tableTopRobotLogic->UpdateBaseRotationToBaseFixedTransform(cabin26AGeometryNode);
+    tableTopRobotLogic->UpdateBaseFixedToFixedReferenceTransform(cabin26AGeometryNode);
   }
-  channel25GeometryNode->Modified();
+  cabin26AGeometryNode->Modified();
   this->checkForCollisions();
   d->getLayoutManager()->resumeRender();
 }
@@ -1225,25 +1281,25 @@ void qSlicerPatientPositioningModuleWidget::onPatientTableTopTranslationChanged(
     qCritical() << Q_FUNC_INFO << ": Parameter node is invalid!";
     return;
   }
-  vtkMRMLChannel25GeometryNode* channel25GeometryNode = d->ParameterNode->GetChannel25GeometryNode();
+  vtkMRMLCabin26AGeometryNode* cabin26AGeometryNode = d->ParameterNode->GetCabin26AGeometryNode();
 
   d->getLayoutManager()->pauseRender();
-  channel25GeometryNode->DisableModifiedEventOn();
-  channel25GeometryNode->SetPatientToTableTopTranslation(position);
-  channel25GeometryNode->DisableModifiedEventOff();
+  cabin26AGeometryNode->DisableModifiedEventOn();
+  cabin26AGeometryNode->SetPatientToTableTopTranslation(position);
+  cabin26AGeometryNode->DisableModifiedEventOff();
   vtkSlicerTableTopRobotTransformLogic* tableTopRobotLogic = d->tableTopRobotLogic();
   if (tableTopRobotLogic)
   {
-    tableTopRobotLogic->UpdatePatientToTableTopTransform(channel25GeometryNode);
-    tableTopRobotLogic->UpdateTableTopToFlangeTransform(channel25GeometryNode);
-    tableTopRobotLogic->UpdateFlangeToWristTransform(channel25GeometryNode);
-    tableTopRobotLogic->UpdateWristToElbowTransform(channel25GeometryNode);
-    tableTopRobotLogic->UpdateElbowToShoulderTransform(channel25GeometryNode);
-    tableTopRobotLogic->UpdateShoulderToBaseRotationTransform(channel25GeometryNode);
-    tableTopRobotLogic->UpdateBaseRotationToBaseFixedTransform(channel25GeometryNode);
-    tableTopRobotLogic->UpdateBaseFixedToFixedReferenceTransform(channel25GeometryNode);
+    tableTopRobotLogic->UpdatePatientToTableTopTransform(cabin26AGeometryNode);
+    tableTopRobotLogic->UpdateTableTopToFlangeTransform(cabin26AGeometryNode);
+    tableTopRobotLogic->UpdateFlangeToWristTransform(cabin26AGeometryNode);
+    tableTopRobotLogic->UpdateWristToElbowTransform(cabin26AGeometryNode);
+    tableTopRobotLogic->UpdateElbowToShoulderTransform(cabin26AGeometryNode);
+    tableTopRobotLogic->UpdateShoulderToBaseRotationTransform(cabin26AGeometryNode);
+    tableTopRobotLogic->UpdateBaseRotationToBaseFixedTransform(cabin26AGeometryNode);
+    tableTopRobotLogic->UpdateBaseFixedToFixedReferenceTransform(cabin26AGeometryNode);
   }
-  channel25GeometryNode->Modified();
+  cabin26AGeometryNode->Modified();
   this->checkForCollisions();
   d->getLayoutManager()->resumeRender();
 }
@@ -1258,18 +1314,18 @@ void qSlicerPatientPositioningModuleWidget::onBaseFixedToFixedReferenceTranslati
     qCritical() << Q_FUNC_INFO << ": Parameter node is invalid!";
     return;
   }
-  vtkMRMLChannel25GeometryNode* channel25GeometryNode = d->ParameterNode->GetChannel25GeometryNode();
+  vtkMRMLCabin26AGeometryNode* cabin26AGeometryNode = d->ParameterNode->GetCabin26AGeometryNode();
 
   d->getLayoutManager()->pauseRender();
-  channel25GeometryNode->DisableModifiedEventOn();
-  channel25GeometryNode->SetBaseFixedToFixedReferenceTranslation(position);
-  channel25GeometryNode->DisableModifiedEventOff();
+  cabin26AGeometryNode->DisableModifiedEventOn();
+  cabin26AGeometryNode->SetBaseFixedToFixedReferenceTranslation(position);
+  cabin26AGeometryNode->DisableModifiedEventOff();
   vtkSlicerTableTopRobotTransformLogic* tableTopRobotLogic = d->tableTopRobotLogic();
   if (tableTopRobotLogic)
   {
-    tableTopRobotLogic->UpdateBaseFixedToFixedReferenceTransform(channel25GeometryNode);
+    tableTopRobotLogic->UpdateBaseFixedToFixedReferenceTransform(cabin26AGeometryNode);
   }
-  channel25GeometryNode->Modified();
+  cabin26AGeometryNode->Modified();
   this->checkForCollisions();
   d->getLayoutManager()->resumeRender();
 }
@@ -1284,9 +1340,9 @@ void qSlicerPatientPositioningModuleWidget::onRotatePatientHeadFeetToggled(bool 
     qCritical() << Q_FUNC_INFO << ": Parameter node is invalid!";
     return;
   }
-  vtkMRMLChannel25GeometryNode* channel25GeometryNode = d->ParameterNode->GetChannel25GeometryNode();
+  vtkMRMLCabin26AGeometryNode* cabin26AGeometryNode = d->ParameterNode->GetCabin26AGeometryNode();
   d->getLayoutManager()->pauseRender();
-  channel25GeometryNode->SetPatientHeadFeetRotation(toggled);
+  cabin26AGeometryNode->SetPatientHeadFeetRotation(toggled);
   d->getLayoutManager()->resumeRender();
 }
 
@@ -1340,18 +1396,18 @@ void qSlicerPatientPositioningModuleWidget::checkForCollisions()
     return;
   }
 
-  if (!d->ParameterNode || !d->ParameterNode->GetChannel25GeometryNode() || !d->ModuleWindowInitialized)
+  if (!d->ParameterNode || !d->ParameterNode->GetCabin26AGeometryNode() || !d->ModuleWindowInitialized)
   {
     qCritical() << Q_FUNC_INFO << ": Parameter nodes are invalid!";
     return;
   }
-  vtkMRMLChannel25GeometryNode* channel25GeometryNode = d->ParameterNode->GetChannel25GeometryNode();
+  vtkMRMLCabin26AGeometryNode* cabin26AGeometryNode = d->ParameterNode->GetCabin26AGeometryNode();
 
   d->CollisionDetectionStatusLabel->setText(QString::fromStdString("Calculating collisions..."));
   d->CollisionDetectionStatusLabel->setStyleSheet("color: black");
   QApplication::processEvents();
 
-  std::string collisionString = d->logic()->CheckForCollisions(d->ParameterNode, channel25GeometryNode->GetCollisionDetectionEnabled());
+  std::string collisionString = d->logic()->CheckForCollisions(d->ParameterNode, cabin26AGeometryNode->GetCollisionDetectionEnabled());
 
   if (collisionString.length() > 0)
   {
@@ -1385,12 +1441,13 @@ void qSlicerPatientPositioningModuleWidget::onBeamsEyeViewOrientationChanged(con
     return;
   }
 
-  vtkMRMLRTChannel25IonBeamNode* beamNode = vtkMRMLRTChannel25IonBeamNode::SafeDownCast(d->MRMLNodeComboBox_FixedReferenceBeam->currentNode());
+  vtkMRMLRTCabin26AIonBeamNode* fixedReferenceNode = vtkMRMLRTCabin26AIonBeamNode::SafeDownCast(d->MRMLNodeComboBox_FixedReferenceBeam->currentNode());
+  vtkMRMLRTIonBeamNode* beamNode = vtkMRMLRTIonBeamNode::SafeDownCast(d->MRMLNodeComboBox_Beam->currentNode());
   double sourcePosition[3] = {};
   double isocenter[3] = {};
   qDebug() << Q_FUNC_INFO << viewUpVector[0] << ' ' << viewUpVector[1] << ' ' << viewUpVector[2];
 
-  if (beamNode && beamNode->GetSourcePosition(sourcePosition))
+  if (fixedReferenceNode && fixedReferenceNode->GetSourcePosition(sourcePosition))
   {
     vtkMRMLTransformNode* beamTransformNode = beamNode->GetParentTransformNode();
     vtkTransform* beamTransform = nullptr;
@@ -1413,6 +1470,7 @@ void qSlicerPatientPositioningModuleWidget::onBeamsEyeViewOrientationChanged(con
     if (beamTransform)
     {
       mat->MultiplyPoint( vupOrig, vup);
+      qDebug() << Q_FUNC_INFO << "VUP in FixedReference: " << vup[0] << ' ' << vup[1] << ' ' << vup[2];
     }
     else
     {
@@ -1420,7 +1478,7 @@ void qSlicerPatientPositioningModuleWidget::onBeamsEyeViewOrientationChanged(con
     }
 
     cameraNode->GetCamera()->SetPosition(sourcePosition);
-    if (beamNode->GetPlanIsocenterPositionWorld(isocenter))
+    if (fixedReferenceNode->GetPlanIsocenterPositionWorld(isocenter))
     {
       cameraNode->GetCamera()->SetFocalPoint(isocenter);
     }

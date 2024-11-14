@@ -36,7 +36,7 @@ class vtkGeneralTransform;
 class vtkTransform;
 class vtkMRMLRTBeamNode;
 class vtkMRMLLinearTransformNode;
-class vtkMRMLChannel25GeometryNode;
+class vtkMRMLCabin26AGeometryNode;
 
 // FixedReference -> BaseFixed -> BaseRotation -> Shoulder -> Elbow -> Wrist -> Flange -> TableTop
 class VTK_SLICER_PATIENTPOSITIONING_MODULE_LOGIC_EXPORT vtkSlicerTableTopRobotTransformLogic : public vtkMRMLAbstractLogic
@@ -95,38 +95,38 @@ public:
 
   /// Update BaseFixedToFixedReference transform based on translation
   /// Apply new BaseFixed to FixedReference translate (BaseFixed->FixedReference)
-  void UpdateBaseFixedToFixedReferenceTransform(vtkMRMLChannel25GeometryNode* channelNode);
+  void UpdateBaseFixedToFixedReferenceTransform(vtkMRMLCabin26AGeometryNode* channelNode);
   /// Apply new TableTop to Flange transform (TableTop->Flange)
-  void UpdateTableTopToFlangeTransform(vtkMRMLChannel25GeometryNode* parameterNode);
+  void UpdateTableTopToFlangeTransform(vtkMRMLCabin26AGeometryNode* parameterNode);
   /// Apply new TableTop to Flange transform (Flange->Wrist)
-  void UpdateFlangeToWristTransform(vtkMRMLChannel25GeometryNode* parameterNode);
+  void UpdateFlangeToWristTransform(vtkMRMLCabin26AGeometryNode* parameterNode);
   /// Apply new Wrist to Elbow transform (Wrist->Elbow)
-  void UpdateWristToElbowTransform(vtkMRMLChannel25GeometryNode* parameterNode);
+  void UpdateWristToElbowTransform(vtkMRMLCabin26AGeometryNode* parameterNode);
   /// Apply new Elbow to Shoulder transform (Elbow->Shoulder)
-  void UpdateElbowToShoulderTransform(vtkMRMLChannel25GeometryNode* parameterNode);
+  void UpdateElbowToShoulderTransform(vtkMRMLCabin26AGeometryNode* parameterNode);
   /// Apply new Shoulder to BaseRotation transform (Shoulder->BaseRotation)
-  void UpdateShoulderToBaseRotationTransform(vtkMRMLChannel25GeometryNode* parameterNode);
+  void UpdateShoulderToBaseRotationTransform(vtkMRMLCabin26AGeometryNode* parameterNode);
   /// Apply new BaseRotation to BaseFixed translate (BaseRotation->BaseFixed)
-  void UpdateBaseRotationToBaseFixedTransform(vtkMRMLChannel25GeometryNode* parameterNode);
+  void UpdateBaseRotationToBaseFixedTransform(vtkMRMLCabin26AGeometryNode* parameterNode);
   /// Apply new Patient to TableTop translate (Patient->TableTop)
-  void UpdatePatientToTableTopTransform(vtkMRMLChannel25GeometryNode* parameterNode);
+  void UpdatePatientToTableTopTransform(vtkMRMLCabin26AGeometryNode* parameterNode);
 
   /// Update (or create if absent) RAS to TableTop transform
-  vtkMRMLLinearTransformNode* UpdateRasToTableTopTransform(vtkMRMLChannel25GeometryNode* parameterNode);
+  vtkMRMLLinearTransformNode* UpdateRasToTableTopTransform(vtkMRMLCabin26AGeometryNode* parameterNode);
   /// Update (or create if absent) RAS to Flange transform
-  vtkMRMLLinearTransformNode* UpdateRasToFlangeTransform(vtkMRMLChannel25GeometryNode* parameterNode);
+  vtkMRMLLinearTransformNode* UpdateRasToFlangeTransform(vtkMRMLCabin26AGeometryNode* parameterNode);
   /// Update (or create if absent) RAS to BaseFixed transform
-  vtkMRMLLinearTransformNode* UpdateRasToBaseFixedTransform(vtkMRMLChannel25GeometryNode* parameterNode);
+  vtkMRMLLinearTransformNode* UpdateRasToBaseFixedTransform(vtkMRMLCabin26AGeometryNode* parameterNode);
   /// Update (or create if absent) RAS to BaseRotation transform
-  vtkMRMLLinearTransformNode* UpdateRasToBaseRotationTransform(vtkMRMLChannel25GeometryNode* parameterNode);
+  vtkMRMLLinearTransformNode* UpdateRasToBaseRotationTransform(vtkMRMLCabin26AGeometryNode* parameterNode);
   /// Update (or create if absent) RAS to Shoulder transform
-  vtkMRMLLinearTransformNode* UpdateRasToShoulderTransform(vtkMRMLChannel25GeometryNode* parameterNode);
+  vtkMRMLLinearTransformNode* UpdateRasToShoulderTransform(vtkMRMLCabin26AGeometryNode* parameterNode);
   /// Update (or create if absent) RAS to Elbow transform
-  vtkMRMLLinearTransformNode* UpdateRasToElbowTransform(vtkMRMLChannel25GeometryNode* parameterNode);
+  vtkMRMLLinearTransformNode* UpdateRasToElbowTransform(vtkMRMLCabin26AGeometryNode* parameterNode);
   /// Update (or create if absent) RAS to Wrist transform
-  vtkMRMLLinearTransformNode* UpdateRasToWristTransform(vtkMRMLChannel25GeometryNode* parameterNode);
+  vtkMRMLLinearTransformNode* UpdateRasToWristTransform(vtkMRMLCabin26AGeometryNode* parameterNode);
   /// Update (or create if absent) RAS to FixedReference transform
-  vtkMRMLLinearTransformNode* UpdateRasToFixedReferenceTransform(vtkMRMLChannel25GeometryNode* parameterNode);
+  vtkMRMLLinearTransformNode* UpdateRasToFixedReferenceTransform(vtkMRMLCabin26AGeometryNode* parameterNode);
 
   /// Get RAS to FixedReference transform
   vtkMRMLLinearTransformNode* GetFixedReferenceTransform();
@@ -156,7 +156,7 @@ protected:
 
   /// Get name of transform node between two coordinate systems
   /// \return Transform node name between the specified coordinate frames.
-  ///   Note: If IHEP does not specify a transform between the given coordinate frames, then there will be no node with the returned name.
+  ///   Note: If system does not specify a transform between the given coordinate frames, then there will be no node with the returned name.
   std::string GetTransformNodeNameBetween(CoordinateSystemIdentifier fromFrame, CoordinateSystemIdentifier toFrame);
 
   /// @brief Get coordinate system identifiers from frame system up to root system

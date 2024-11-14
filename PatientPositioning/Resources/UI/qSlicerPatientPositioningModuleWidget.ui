@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>387</width>
+    <width>395</width>
     <height>837</height>
    </rect>
   </property>
@@ -75,7 +75,7 @@
            <stringlist>
             <string>vtkMRMLRTIonBeamNode</string>
             <string>vtkMRMLRTFixedIonBeamNode</string>
-            <string>vtkMRMLRTChannel25IonBeamNode</string>
+            <string>vtkMRMLRTCabin26AIonBeamNode</string>
            </stringlist>
           </property>
           <property name="showChildNodeTypes">
@@ -167,28 +167,7 @@
          </widget>
         </item>
         <item row="8" column="0">
-         <widget class="QComboBox" name="ComboBox_TreatmentMachine">
-          <item>
-           <property name="text">
-            <string>Channel25Geometry</string>
-           </property>
-          </item>
-          <item>
-           <property name="text">
-            <string>Channel26Geometry_Cabin1</string>
-           </property>
-          </item>
-          <item>
-           <property name="text">
-            <string>Channel26Geometry_Cabin2</string>
-           </property>
-          </item>
-          <item>
-           <property name="text">
-            <string>Channel26Geometry_Cabin3</string>
-           </property>
-          </item>
-         </widget>
+         <widget class="QComboBox" name="ComboBox_TreatmentMachine"/>
         </item>
         <item row="2" column="1">
          <widget class="qMRMLNodeComboBox" name="MRMLNodeComboBox_Beam">
@@ -617,7 +596,7 @@
            <double>125.000000000000000</double>
           </property>
           <property name="value">
-           <double>90.000000000000000</double>
+           <double>-90.000000000000000</double>
           </property>
          </widget>
         </item>
@@ -647,12 +626,12 @@
     </widget>
    </item>
    <item>
-    <widget class="QPushButton" name="PushButton_TestAlignment">
+    <widget class="QPushButton" name="PushButton_AlignBeams">
      <property name="enabled">
       <bool>false</bool>
      </property>
      <property name="text">
-      <string>Test alignment</string>
+      <string>Align patient and FixedReference beams</string>
      </property>
     </widget>
    </item>

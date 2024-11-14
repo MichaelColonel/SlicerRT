@@ -18,14 +18,14 @@ set(${KIT}_INCLUDE_DIRECTORIES
 set(${KIT}_SRCS
   vtkMRML${MODULE_NAME}Node.cxx
   vtkMRML${MODULE_NAME}Node.h
-  vtkMRMLChannel25GeometryNode.cxx
-  vtkMRMLChannel25GeometryNode.h
+  vtkMRMLCabin26AGeometryNode.cxx
+  vtkMRMLCabin26AGeometryNode.h
   vtkMRMLRTFixedBeamNode.h
   vtkMRMLRTFixedBeamNode.cxx
   vtkMRMLRTFixedIonBeamNode.h
   vtkMRMLRTFixedIonBeamNode.cxx
-  vtkMRMLRTChannel25IonBeamNode.h
-  vtkMRMLRTChannel25IonBeamNode.cxx
+  vtkMRMLRTCabin26AIonBeamNode.h
+  vtkMRMLRTCabin26AIonBeamNode.cxx
   )
 
 SET (${KIT}_INCLUDE_DIRS

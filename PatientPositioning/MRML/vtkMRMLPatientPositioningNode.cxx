@@ -31,9 +31,9 @@
 #include <vtkSmartPointer.h>
 
 #include "vtkMRMLPatientPositioningNode.h"
-#include "vtkMRMLChannel25GeometryNode.h"
+#include "vtkMRMLCabin26AGeometryNode.h"
 #include "vtkMRMLRTFixedBeamNode.h"
-#include "vtkMRMLRTChannel25IonBeamNode.h"
+#include "vtkMRMLRTCabin26AIonBeamNode.h"
 
 //------------------------------------------------------------------------------
 namespace
@@ -43,7 +43,7 @@ const char* DRR_REFERENCE_ROLE = "drrRef";
 const char* XRAY_IMAGE_REFERENCE_ROLE = "xrayImageRef";
 const char* FIXED_BEAM_AXIS_REFERENCE_ROLE = "fixedBeamAxisRef";
 const char* FIXED_ISOCENTER_REFERENCE_ROLE = "fixedIsocenterRef";
-const char* CHANNEL25_GEOMETRY_REFERENCE_ROLE = "channel25GeometryRef";
+const char* CABIN26A_GEOMETRY_REFERENCE_ROLE = "cabin26AGeometryRef";
 const char* FIXED_ION_BEAM_REFERENCE_ROLE = "fixedIonBeamRef";
 const char* EXTERNAL_XRAY_BEAM_REFERENCE_ROLE = "externalXrayBeamRef";
 const char* BEAM_REFERENCE_ROLE = "beamRef";
@@ -206,21 +206,21 @@ void vtkMRMLPatientPositioningNode::ProcessMRMLEvents(vtkObject *caller, unsigne
 }
 
 //----------------------------------------------------------------------------
-vtkMRMLChannel25GeometryNode* vtkMRMLPatientPositioningNode::GetChannel25GeometryNode()
+vtkMRMLCabin26AGeometryNode* vtkMRMLPatientPositioningNode::GetCabin26AGeometryNode()
 {
-  return vtkMRMLChannel25GeometryNode::SafeDownCast( this->GetNodeReference(CHANNEL25_GEOMETRY_REFERENCE_ROLE) );
+  return vtkMRMLCabin26AGeometryNode::SafeDownCast( this->GetNodeReference(CABIN26A_GEOMETRY_REFERENCE_ROLE) );
 }
 
 //----------------------------------------------------------------------------
-void vtkMRMLPatientPositioningNode::SetAndObserveChannel25GeometryNode(vtkMRMLChannel25GeometryNode* node)
+void vtkMRMLPatientPositioningNode::SetAndObserveCabin26AGeometryNode(vtkMRMLCabin26AGeometryNode* node)
 {
   if (node && this->Scene != node->GetScene())
   {
-    vtkErrorMacro("SetAndObserveChannel25GeometryNode: Cannot set reference, the referenced and referencing node are not in the same scene");
+    vtkErrorMacro("SetAndObserveCabin26AGeometryNode: Cannot set reference, the referenced and referencing node are not in the same scene");
     return;
   }
 
-  this->SetNodeReferenceID(CHANNEL25_GEOMETRY_REFERENCE_ROLE, (node ? node->GetID() : nullptr));
+  this->SetNodeReferenceID(CABIN26A_GEOMETRY_REFERENCE_ROLE, (node ? node->GetID() : nullptr));
 }
 
 //----------------------------------------------------------------------------
@@ -297,13 +297,13 @@ void vtkMRMLPatientPositioningNode::SetAndObserveBeamNode(vtkMRMLRTBeamNode* nod
 }
 
 //----------------------------------------------------------------------------
-vtkMRMLRTChannel25IonBeamNode* vtkMRMLPatientPositioningNode::GetFixedReferenceBeamNode()
+vtkMRMLRTCabin26AIonBeamNode* vtkMRMLPatientPositioningNode::GetFixedReferenceBeamNode()
 {
-  return vtkMRMLRTChannel25IonBeamNode::SafeDownCast( this->GetNodeReference(FIXED_ION_BEAM_REFERENCE_ROLE) );
+  return vtkMRMLRTCabin26AIonBeamNode::SafeDownCast( this->GetNodeReference(FIXED_ION_BEAM_REFERENCE_ROLE) );
 }
 
 //----------------------------------------------------------------------------
-void vtkMRMLPatientPositioningNode::SetAndObserveFixedReferenceBeamNode(vtkMRMLRTChannel25IonBeamNode* node)
+void vtkMRMLPatientPositioningNode::SetAndObserveFixedReferenceBeamNode(vtkMRMLRTCabin26AIonBeamNode* node)
 {
   if (node && this->Scene != node->GetScene())
     {

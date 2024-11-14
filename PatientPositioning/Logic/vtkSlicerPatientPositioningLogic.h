@@ -29,7 +29,7 @@
 
 // MRML includes
 #include <vtkMRMLPatientPositioningNode.h>
-#include <vtkMRMLChannel25GeometryNode.h>
+#include <vtkMRMLCabin26AGeometryNode.h>
 
 // STD includes
 #include <cstdlib>
@@ -80,7 +80,6 @@ public:
   std::vector<vtkSlicerTableTopRobotTransformLogic::CoordinateSystemIdentifier> SetupTreatmentMachineModels(
     vtkMRMLPatientPositioningNode* parameterNode, bool forceEnableCollisionDetection=false);
 
-  void LoadTreatmentMachine(vtkMRMLPatientPositioningNode* parameterNode);
   void BuildRobotTableGeometryTransformHierarchy();
   std::string CheckForCollisions(vtkMRMLPatientPositioningNode* parameterNode, bool collisionDetectionEnabled = true);
 
@@ -97,9 +96,9 @@ public:
   vtkMRMLMarkupsFiducialNode* CreateFixedIsocenterFiducialNode(vtkMRMLPatientPositioningNode* parameterNode);
 
   /// Create fixed reference beam and plan and add beam to the parameter node
-  void CreateFixedBeamPlanAndNode(vtkMRMLPatientPositioningNode* parameterNode);
+  vtkMRMLRTCabin26AIonBeamNode* CreateFixedBeamPlanAndNode(vtkMRMLPatientPositioningNode* parameterNode);
   /// Create external xray beam and plan and add ext beam to the parameter node
-  void CreateExternalXrayPlanAndNode(vtkMRMLPatientPositioningNode* parameterNode);
+  vtkMRMLRTFixedBeamNode* CreateExternalXrayPlanAndNode(vtkMRMLPatientPositioningNode* parameterNode);
 
 public:
   // Get treatment machine properties from descriptor file
@@ -107,7 +106,6 @@ public:
   const char* GetTreatmentMachinePartTypeAsString(vtkSlicerTableTopRobotTransformLogic::CoordinateSystemIdentifier type);
 
   vtkGetObjectMacro(TableTopRobotLogic, vtkSlicerTableTopRobotTransformLogic);
-//  vtkGetObjectMacro(FixedReferenceBeamsLogic, vtkSlicerFixedReferenceBeamsLogic);
 
   /// Get part name for part type in the currently loaded treatment machine description
   std::string GetNameForPartType(std::string partType);
@@ -151,7 +149,6 @@ protected:
 //  bool GetPatientBodyPolyData(vtkMRMLPatientPositioningNode* parameterNode, vtkPolyData* patientBodyPolyData);
 
   vtkSlicerTableTopRobotTransformLogic* TableTopRobotLogic{ nullptr };
-//  vtkSlicerFixedReferenceBeamsLogic* FixedReferenceBeamsLogic{ nullptr };
 
   vtkCollisionDetectionFilter* TableTopElbowCollisionDetection{ nullptr };
   vtkCollisionDetectionFilter* TableTopShoulderCollisionDetection{ nullptr };
