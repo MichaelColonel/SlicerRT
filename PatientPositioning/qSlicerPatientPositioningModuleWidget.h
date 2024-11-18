@@ -69,7 +69,7 @@ public slots:
   void onTableTopRobotA4Changed(double a4);
   void onTableTopRobotA5Changed(double a5);
   void onTableTopRobotA6Changed(double a6);
-  void onRotatePatientHeadFeetToggled(bool toggled = false);
+  void onRotatePatientHeadFeetToggled(bool toggled);
   void onCollisionDetectionToggled(bool toggled);
   void onFixedReferenceCameraToggled(bool toggled);
   void onBeamsEyeViewOrientationChanged(const std::array< double, 3 >& viewUpVector);

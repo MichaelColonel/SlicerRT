@@ -398,7 +398,7 @@ void vtkSlicerTableTopRobotTransformLogic::UpdateBaseFixedToFixedReferenceTransf
     vtkErrorMacro("UpdateBaseRotationToBaseFixedTransform: Invalid scene");
     return;
   }
-  if (!parameterNode/* || !parameterNode->GetTreatmentMachineType() */)
+  if (!parameterNode)
   {
     vtkErrorMacro("UpdateBaseRotationToBaseFixedTransform: Invalid parameter node");
     return;
@@ -1233,7 +1233,7 @@ void vtkSlicerTableTopRobotTransformLogic::UpdatePatientToTableTopTransform(vtkM
     vtkErrorMacro("UpdatePatientToTableTopTransform: Invalid scene");
     return;
   }
-  if (!parameterNode/* || !parameterNode->GetTreatmentMachineType() */)
+  if (!parameterNode)
   {
     vtkErrorMacro("UpdatePatientToTableTopTransform: Invalid parameter node");
     return;
@@ -1265,9 +1265,9 @@ void vtkSlicerTableTopRobotTransformLogic::UpdateBaseRotationToBaseFixedTransfor
     vtkErrorMacro("UpdateBaseRotationToBaseFixedTransform: Invalid scene");
     return;
   }
-  if (!parameterNode/* || !parameterNode->GetTreatmentMachineType() */)
+  if (!parameterNode)
   {
-    vtkErrorMacro("UpdateBaseRotationToBaseFixedTransform: Invalid parameter node");
+    vtkErrorMacro("UpdateBaseRotationToBaseFixedTransform:  Invalid parameter node");
     return;
   }
 
@@ -1356,7 +1356,7 @@ void vtkSlicerTableTopRobotTransformLogic::UpdateTableTopToFlangeTransform(vtkMR
     vtkErrorMacro("UpdateTableTopToWristTransform: Invalid scene");
     return;
   }
-  if (!parameterNode/* || !parameterNode->GetTreatmentMachineType() */)
+  if (!parameterNode)
   {
     vtkErrorMacro("UpdateTableTopToWristTransform: Invalid parameter node");
     return;
@@ -1403,7 +1403,7 @@ void vtkSlicerTableTopRobotTransformLogic::UpdateFlangeToWristTransform(vtkMRMLC
     vtkErrorMacro("UpdateFlangeToWristTransform: Invalid scene");
     return;
   }
-  if (!parameterNode/* || !parameterNode->GetTreatmentMachineType() */)
+  if (!parameterNode)
   {
     vtkErrorMacro("UpdateFlangeToWristTransform: Invalid parameter node");
     return;
@@ -1456,7 +1456,7 @@ void vtkSlicerTableTopRobotTransformLogic::UpdateWristToElbowTransform(vtkMRMLCa
     vtkErrorMacro("UpdateWristToElbowTransform: Invalid scene");
     return;
   }
-  if (!parameterNode/* || !parameterNode->GetTreatmentMachineType() */)
+  if (!parameterNode)
   {
     vtkErrorMacro("UpdateWristToElbowTransform: Invalid parameter node");
     return;
@@ -1518,9 +1518,9 @@ void vtkSlicerTableTopRobotTransformLogic::UpdateElbowToShoulderTransform(vtkMRM
     vtkErrorMacro("UpdateElbowToShoulderTransform: Invalid scene");
     return;
   }
-  if (!parameterNode/* || !parameterNode->GetTreatmentMachineType() */)
+  if (!parameterNode)
   {
-    vtkErrorMacro("UpdateElbowToShoulderTransform: Invalid parameter node");
+    vtkErrorMacro("UpdateElbowToShoulderTransform:  Invalid parameter node");
     return;
   }
 
@@ -1612,7 +1612,7 @@ void vtkSlicerTableTopRobotTransformLogic::UpdateShoulderToBaseRotationTransform
     vtkErrorMacro("UpdateShoulderToBaseRotationTransform: Invalid scene");
     return;
   }
-  if (!parameterNode/* || !parameterNode->GetTreatmentMachineType() */)
+  if (!parameterNode)
   {
     vtkErrorMacro("UpdateShoulderToBaseRotationTransform: Invalid parameter node");
     return;

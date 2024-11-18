@@ -289,6 +289,9 @@ void qSlicerPatientPositioningModuleWidget::setParameterNode(vtkMRMLNode *node)
 
   d->ParameterNode = parameterNode;
 
+  // Set parameter node to FixedBeamAxis widgets
+  d->FixedBeamAxisWidget->setParameterNode(d->ParameterNode);
+
   // Set selected MRML nodes in comboboxes in the parameter set if it was nullptr there
   // (then in the meantime the comboboxes selected the first one from the scene and we have to set that)
   if (d->ParameterNode)
@@ -773,7 +776,7 @@ void qSlicerPatientPositioningModuleWidget::updateWidgetFromMRML()
 {
   Q_D(qSlicerPatientPositioningModuleWidget);
 
-//  vtkMRMLPatientPositioningNode* parameterNode = vtkMRMLPatientPositioningNode::SafeDownCast(d->MRMLNodeComboBox_ParameterSet->currentNode());
+  vtkMRMLPatientPositioningNode* parameterNode = vtkMRMLPatientPositioningNode::SafeDownCast(d->MRMLNodeComboBox_ParameterSet->currentNode());
 
   if (!this->mrmlScene())
   {
@@ -781,8 +784,8 @@ void qSlicerPatientPositioningModuleWidget::updateWidgetFromMRML()
     return;
   }
 
-//  if (!parameterNode)
-  if (!d->ParameterNode)
+  if (!parameterNode)
+//  if (!d->ParameterNode)
   {
     qCritical() << Q_FUNC_INFO << ": Invalid parameter node";
     return;
@@ -807,7 +810,8 @@ void qSlicerPatientPositioningModuleWidget::onSceneClosedEvent()
 void qSlicerPatientPositioningModuleWidget::onLoadTreatmentMachineButtonClicked()
 {
   Q_D(qSlicerPatientPositioningModuleWidget);
-//  int currentMachineIndex = d->ComboBox_TreatmentMachine->currentIndex();
+  int currentMachineIndex = d->ComboBox_TreatmentMachine->currentIndex();
+  Q_UNUSED(currentMachineIndex);
 
   vtkMRMLScene* scene = this->mrmlScene();
   if (!scene)
@@ -840,6 +844,28 @@ void qSlicerPatientPositioningModuleWidget::onLoadTreatmentMachineButtonClicked(
   }
   std::string descFilePath = descriptorFilePath.toStdString();
   d->ParameterNode->SetTreatmentMachineDescriptorFilePath(descFilePath.c_str());
+
+  // Set treatment machine dependent properties  //TODO: Use degrees of freedom from JSON
+  if (!treatmentMachineType.compare("Cabin26AGeometry"))
+  {
+    qDebug() << Q_FUNC_INFO << "Cabin26A";
+    d->ParameterNode->SetTreatmentMachineType("Cabin26AGeometry");
+  }
+  else if (!treatmentMachineType.compare("Cabin27A"))
+  {
+    qDebug() << Q_FUNC_INFO << "Cabin27A";
+    d->ParameterNode->SetTreatmentMachineType("Cabin27AGeometry");
+  }
+  else if (!treatmentMachineType.compare("Cabin27B"))
+  {
+    qDebug() << Q_FUNC_INFO << "Cabin27B";
+    d->ParameterNode->SetTreatmentMachineType("Cabin27BGeometry");
+  }
+  else if (!treatmentMachineType.compare("Cabin27C"))
+  {
+    qDebug() << Q_FUNC_INFO << "Cabin27C";
+    d->ParameterNode->SetTreatmentMachineType("Cabin27CGeometry");
+  }
 
   // Check if there is a machine already loaded and ask user what to do if so
   vtkMRMLSubjectHierarchyNode* shNode = this->mrmlScene()->GetSubjectHierarchyNode();
@@ -918,14 +944,11 @@ void qSlicerPatientPositioningModuleWidget::onLoadTreatmentMachineButtonClicked(
   {
     d->getLayoutManager()->pauseRender();
     loadedParts = d->logic()->LoadTreatmentMachineComponents(d->ParameterNode);
-
-    // Set parameter node to FixedBeamAxis widgets
-    d->FixedBeamAxisWidget->setParameterNode(d->ParameterNode);
+    d->getLayoutManager()->resumeRender();
 
     // Fixed and external beam
     vtkMRMLRTFixedBeamNode* xrayNode = d->logic()->CreateExternalXrayPlanAndNode(d->ParameterNode);
     vtkMRMLRTCabin26AIonBeamNode* fixedBeamNode = d->logic()->CreateFixedBeamPlanAndNode(d->ParameterNode);
-    d->getLayoutManager()->resumeRender();
 
     d->MRMLNodeComboBox_ExternalXrayBeam->setCurrentNode(xrayNode);
     d->MRMLNodeComboBox_FixedReferenceBeam->setCurrentNode(fixedBeamNode);
@@ -978,27 +1001,6 @@ void qSlicerPatientPositioningModuleWidget::onLoadTreatmentMachineButtonClicked(
     }
   }
 
-  // Set treatment machine dependent properties  //TODO: Use degrees of freedom from JSON
-  if (!treatmentMachineType.compare("Cabin26AGeometry"))
-  {
-    qDebug() << Q_FUNC_INFO << "Cabin26A";
-    d->ParameterNode->SetTreatmentMachineType("Cabin26AGeometry");
-  }
-  else if (!treatmentMachineType.compare("Cabin27A"))
-  {
-    qDebug() << Q_FUNC_INFO << "Cabin27A";
-    d->ParameterNode->SetTreatmentMachineType("Cabin27AGeometry");
-  }
-  else if (!treatmentMachineType.compare("Cabin27B"))
-  {
-    qDebug() << Q_FUNC_INFO << "Cabin27B";
-    d->ParameterNode->SetTreatmentMachineType("Cabin27BGeometry");
-  }
-  else if (!treatmentMachineType.compare("Cabin27C"))
-  {
-    qDebug() << Q_FUNC_INFO << "Cabin27C";
-    d->ParameterNode->SetTreatmentMachineType("Cabin27CGeometry");
-  }
   // Enable treatment machine geometry controls
   d->CollapsibleButton_CollisionDetection->setEnabled(true);
   d->CollapsibleButton_PatientTableTopControl->setEnabled(true);
@@ -1015,9 +1017,12 @@ void qSlicerPatientPositioningModuleWidget::onLoadTreatmentMachineButtonClicked(
   qMRMLThreeDView* threeDView = layoutManager->threeDWidget(0)->threeDView();
   threeDView->resetCamera();
 */
+
   vtkSlicerTableTopRobotTransformLogic* tableTopRobotLogic = d->tableTopRobotLogic();
   if (tableTopRobotLogic && cabin26AGeometryNode)
   {
+    d->getLayoutManager()->pauseRender();
+    tableTopRobotLogic->ResetToInitialPositions();
     tableTopRobotLogic->UpdatePatientToTableTopTransform(cabin26AGeometryNode);
     tableTopRobotLogic->UpdateTableTopToFlangeTransform(cabin26AGeometryNode);
     tableTopRobotLogic->UpdateFlangeToWristTransform(cabin26AGeometryNode);
@@ -1026,11 +1031,10 @@ void qSlicerPatientPositioningModuleWidget::onLoadTreatmentMachineButtonClicked(
     tableTopRobotLogic->UpdateShoulderToBaseRotationTransform(cabin26AGeometryNode);
     tableTopRobotLogic->UpdateBaseRotationToBaseFixedTransform(cabin26AGeometryNode);
     tableTopRobotLogic->UpdateBaseFixedToFixedReferenceTransform(cabin26AGeometryNode);
-    // Update table top robot geometry position
-    cabin26AGeometryNode->SetPatientHeadFeetRotation(false);
+    d->getLayoutManager()->resumeRender();
   }
-
-//  d->CheckBox_RotatePatientHeadFeet->setChecked(true);
+  // Update table top robot geometry
+  cabin26AGeometryNode->Modified();
 /*
   // Hide controls that do not have corresponding parts loaded
   bool imagingPanelsLoaded = (std::find(loadedParts.begin(), loadedParts.end(), vtkSlicerRoomsEyeViewModuleLogic::ImagingPanelLeft) != loadedParts.end() ||

@@ -1,0 +1,89 @@
+{
+  "TreatmentMachineName": "Cabin26A",
+  "Author": "Mikhail Polkovnikov",
+  "Date": "2024",
+  "$schema": "https://raw.githubusercontent.com/???/???-schema.json#",
+  "_comment": "Geometry based on KUKA KR 210 r2700 extra document",
+  "Part": [
+    {
+      "Type": "FixedReference",
+      "Number": 1,
+      "Name": "Fixed Reference",
+      "FilePath": "FixedReference.stl",
+      "FileToRASTransformMatrix": [ [-1, 0, 0, 0], [0, -1, 0, 0], [0, 0, 1, 0], [0, 0, 0, 1] ],
+      "Color": [179, 179, 244],
+      "State": "Active",
+      "PointRAS": [0, 0, 0]
+    },
+    {
+      "Type": "RobotBaseFixed",
+      "Number": 2,
+      "Name": "Robot Base (Fixed)",
+      "FilePath": "RobotBaseFixed.stl",
+      "FileToRASTransformMatrix": [ [-1, 0, 0, 0], [0, -1, 0, 0], [0, 0, 1, 0], [0, 0, 0, 1] ],
+      "Color": [0, 0, 0],
+      "State": "Active",
+      "PointRAS": [0, 0, 163]
+    },
+    {
+      "Type": "RobotBaseRotation",
+      "Number": 3,
+      "Name": "Robot Base (rotation)",
+      "FilePath": "RobotBaseRotation.stl",
+      "FileToRASTransformMatrix": [ [-1, 0, 0, 0], [0, -1, 0, 0], [0, 0, 1, 0], [0, 0, 0, 1] ],
+      "Color": [244, 244, 244],
+      "State": "Active",
+      "PointRAS": [0, 330, 645]
+    },
+    {
+      "Type": "RobotShoulder",
+      "Number": 4,
+      "Name": "Robot Shoulder",
+      "FilePath": "RobotShoulder.stl",
+      "FileToRASTransformMatrix": [ [-1, 0, 0, 0], [0, -1, 0, 0], [0, 0, 1, 0], [0, 0, 0, 1] ],
+      "Color": [244, 244, 244],
+      "State": "Active",
+      "PointRAS": [0, 330, 1795]
+    },
+    {
+      "Type": "RobotElbow",
+      "Number": 5,
+      "Name": "Robot Elbow",
+      "FilePath": "RobotElbow.stl",
+      "FileToRASTransformMatrix": [ [-1, 0, 0, 0], [0, -1, 0, 0], [0, 0, 1, 0], [0, 0, 0, 1] ],
+      "Color": [230, 230, 230],
+      "State": "Active",
+      "PointRAS": [0, 1550, 1910]
+    },
+    {
+      "Type": "RobotWrist",
+      "Number": 6,
+      "Name": "Robot Wrist",
+      "FilePath": "RobotWrist.stl",
+      "FileToRASTransformMatrix": [ [-1, 0, 0, 0], [0, -1, 0, 0], [0, 0, 1, 0], [0, 0, 0, 1] ],
+      "Color": [217, 217, 217],
+      "State": "Active",
+      "PointRAS": [0, 1790, 1910]
+    },
+    {
+      "Type": "Flange",
+      "Number": 7,
+      "Name": "Flange",
+      "FilePath": "Flange.stl",
+      "FileToRASTransformMatrix": [ [-1, 0, 0, 0], [0, -1, 0, 0], [0, 0, 1, 0], [0, 0, 0, 1] ],
+      "Color": [255, 0, 0],
+      "State": "Active",
+      "PointRAS": [-0.5, -210.0, 821.6]
+    },
+    {
+      "Type": "TableTop",
+      "Number": 8,
+      "Name": "Table top",
+      "FilePath": "TableTop.stl",
+      "FileToRASTransformMatrix": [ [-1, 0, 0, 0], [0, -1, 0, 0], [0, 0, 1, 0], [0, 0, 0, 1] ],
+      "Color": [0, 0, 0],
+      "State": "Active",
+      "PointRAS": [-0.5, -210.0, 821.6]
+    }
+  ]
+}

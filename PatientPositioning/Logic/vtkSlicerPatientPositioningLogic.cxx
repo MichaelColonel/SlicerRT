@@ -911,7 +911,6 @@ void vtkSlicerPatientPositioningLogic::BuildRobotTableGeometryTransformHierarchy
 
   // Build TableTop robot hierarchy
   this->TableTopRobotLogic->BuildTableRobotTransformHierarchy();
-//  this->TableTopRobotLogic->ResetToInitialPositions();
 }
 
 //----------------------------------------------------------------------------
@@ -1184,7 +1183,6 @@ vtkSlicerPatientPositioningLogic::SetupTreatmentMachineModels(vtkMRMLPatientPosi
   this->GantryPatientCollisionDetection->SetTransform(1, vtkLinearTransform::SafeDownCast(identityTransform));
   this->CollimatorPatientCollisionDetection->SetTransform(1, vtkLinearTransform::SafeDownCast(identityTransform));
 */
-  this->TableTopRobotLogic->ResetToInitialPositions();
   return loadedParts;
 }
 
