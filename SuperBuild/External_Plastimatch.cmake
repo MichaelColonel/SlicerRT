@@ -33,7 +33,7 @@ if(NOT DEFINED ${proj}_DIR AND NOT ${CMAKE_PROJECT_NAME}_USE_SYSTEM_${proj})
 
   ExternalProject_SetIfNotDefined(
     ${CMAKE_PROJECT_NAME}_${proj}_GIT_TAG
-    "436aebba99f2405deadec4d9186a6bee91a7bf10" # Fix to prevent compilation error after recent ITK and VTK update
+    "c2f802812ea9914894efde50fee1e99bdc98455f" # Branch slicerrt-1.10.0-2024.10.30-5036f97b
     QUIET
     )
 
@@ -93,6 +93,7 @@ if(NOT DEFINED ${proj}_DIR AND NOT ${CMAKE_PROJECT_NAME}_USE_SYSTEM_${proj})
       -DPLM_CONFIG_ENABLE_CUDA:BOOL=OFF  # CUDA build is disabled until ticket #226 can be resolved.
       -DPLM_CONFIG_LIBRARY_BUILD:BOOL=ON
       -DPLM_CONFIG_INSTALL_LIBRARIES:BOOL=ON
+      -DPLM_CONFIG_ENABLE_QT:BOOL=OFF
       -DPLM_PREFER_SYSTEM_DLIB:BOOL=OFF
       -DPLMLIB_CONFIG_ENABLE_REGISTER:BOOL=TRUE
       -DPLMLIB_CONFIG_ENABLE_RECONSTRUCT:BOOL=TRUE
