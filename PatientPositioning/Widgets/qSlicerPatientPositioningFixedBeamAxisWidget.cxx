@@ -29,6 +29,9 @@
 #include <vtkMRMLPatientPositioningNode.h>
 #include <vtkMRMLCabin26AGeometryNode.h>
 
+// Beams inlcudes
+#include <vtkMRMLRTBeamNode.h>
+
 // Logic includes
 #include <vtkSlicerPatientPositioningLogic.h>
 
@@ -209,29 +212,38 @@ void qSlicerPatientPositioningFixedBeamAxisWidget::updateWidgetFromMRML()
     qCritical() << Q_FUNC_INFO << ": Invalid parameter node";
     return;
   }
-  qDebug() << Q_FUNC_INFO << ": Calculate new Isocenter translations!";
 
-  if (d->PatientPositioningLogic)
+  if (!d->PatientPositioningLogic)
   {
-    if (d->RadioButton_FixedReference->isChecked())
-    {
-      vtkVector3d translationInFixedReference = d->PatientPositioningLogic->GetIsocenterToFixedBeamAxisTranslation(
-        d->ParameterNode,
-        vtkSlicerTableTopRobotTransformLogic::FixedReference);
-      // Correct translation along X_f, Y_f, Z_f axises
-      double pos[3] = { translationInFixedReference[0], translationInFixedReference[2], -1. * translationInFixedReference[1] };
-      d->CoordinatesWidget_FromIsocenterTranslation->setCoordinates(pos);
-    }
-    else /* if (d->RadioButton_TableTop->isChecked()) */
-    {
-      vtkVector3d translationInTableTop = d->PatientPositioningLogic->GetIsocenterToFixedBeamAxisTranslation(
-        d->ParameterNode,
-        vtkSlicerTableTopRobotTransformLogic::TableTop);
-      // Correct translation along X_t, Y_t, Z_t axises
-      double pos[3] = { translationInTableTop[0], translationInTableTop[2], -1. * translationInTableTop[1] };
-      d->CoordinatesWidget_FromIsocenterTranslation->setCoordinates(pos);
-    }
+    qCritical() << Q_FUNC_INFO << ": Invalid PatientPositioning logic";
+    return;
   }
+  if (d->RadioButton_FixedReference->isChecked())
+  {
+    vtkVector3d translationInFixedReference = d->PatientPositioningLogic->GetIsocenterToFixedBeamAxisTranslation(
+      d->ParameterNode,
+      vtkSlicerTableTopRobotTransformLogic::FixedReference);
+    // Correct translation along X_f, Y_f, Z_f axises
+    double pos[3] = { translationInFixedReference[0], translationInFixedReference[2], -1. * translationInFixedReference[1] };
+    d->CoordinatesWidget_FromIsocenterTranslation->setCoordinates(pos);
+  }
+  else /* if (d->RadioButton_TableTop->isChecked()) */
+  {
+    vtkVector3d translationInTableTop = d->PatientPositioningLogic->GetIsocenterToFixedBeamAxisTranslation(
+      d->ParameterNode,
+      vtkSlicerTableTopRobotTransformLogic::TableTop);
+    // Correct translation along X_t, Y_t, Z_t axises
+    double pos[3] = { translationInTableTop[0], translationInTableTop[2], -1. * translationInTableTop[1] };
+    d->CoordinatesWidget_FromIsocenterTranslation->setCoordinates(pos);
+  }
+  vtkMRMLRTBeamNode* patientBeamNode = d->ParameterNode->GetBeamNode();
+  vtkMRMLTransformNode* patientBeamTransformNode = nullptr;
+  if (patientBeamNode)
+  {
+    patientBeamTransformNode = patientBeamNode->GetParentTransformNode();
+  }
+  vtkVector3d alignmentAngles = d->PatientPositioningLogic->GetBeamToFixedReferenceAlignment(patientBeamTransformNode);
+  this->setTableTopAngles(alignmentAngles[0], alignmentAngles[1], alignmentAngles[2]);
 }
 
 //-----------------------------------------------------------------------------
@@ -239,11 +251,6 @@ void qSlicerPatientPositioningFixedBeamAxisWidget::setTableTopAngles(double late
 {
   Q_D(qSlicerPatientPositioningFixedBeamAxisWidget);
 
-  if (!d->ParameterNode)
-  {
-    qCritical() << Q_FUNC_INFO << ": Invalid parameter node";
-    return;
-  }
   d->Label_LateralAngle->setText(tr("%1").arg(lateral));
   d->Label_LongitudinalAngle->setText(tr("%1").arg(longitudinal));
   d->Label_VerticalAngle->setText(tr("%1").arg(vertical));

@@ -1050,6 +1050,42 @@ void qSlicerPatientPositioningModuleWidget::onLoadTreatmentMachineButtonClicked(
 }
 
 //-----------------------------------------------------------------------------
+void qSlicerPatientPositioningModuleWidget::onPatientTableTopTranslationChanged(double* position)
+{
+  Q_D(qSlicerPatientPositioningModuleWidget);
+
+  if (!d->ParameterNode || !d->ModuleWindowInitialized)
+  {
+    qCritical() << Q_FUNC_INFO << ": Parameter node is invalid!";
+    return;
+  }
+  vtkMRMLCabin26AGeometryNode* cabin26AGeometryNode = d->ParameterNode->GetCabin26AGeometryNode();
+
+  d->getLayoutManager()->pauseRender();
+  cabin26AGeometryNode->DisableModifiedEventOn();
+  cabin26AGeometryNode->SetPatientToTableTopTranslation(position);
+  cabin26AGeometryNode->DisableModifiedEventOff();
+
+  vtkSlicerTableTopRobotTransformLogic* tableTopRobotLogic = d->tableTopRobotLogic();
+  if (tableTopRobotLogic)
+  {
+    tableTopRobotLogic->UpdatePatientToTableTopTransform(cabin26AGeometryNode);
+    tableTopRobotLogic->UpdateTableTopToFlangeTransform(cabin26AGeometryNode);
+    tableTopRobotLogic->UpdateFlangeToWristTransform(cabin26AGeometryNode);
+    tableTopRobotLogic->UpdateWristToElbowTransform(cabin26AGeometryNode);
+    tableTopRobotLogic->UpdateElbowToShoulderTransform(cabin26AGeometryNode);
+    tableTopRobotLogic->UpdateShoulderToBaseRotationTransform(cabin26AGeometryNode);
+    tableTopRobotLogic->UpdateBaseRotationToBaseFixedTransform(cabin26AGeometryNode);
+    tableTopRobotLogic->UpdateBaseFixedToFixedReferenceTransform(cabin26AGeometryNode);
+  }
+
+  cabin26AGeometryNode->Modified();
+  this->checkForCollisions();
+  d->getLayoutManager()->resumeRender();
+  d->ParameterNode->Modified();
+}
+
+//-----------------------------------------------------------------------------
 void qSlicerPatientPositioningModuleWidget::onTableTopRobotA1Changed(double a1)
 {
   Q_D(qSlicerPatientPositioningModuleWidget);
@@ -1272,40 +1308,6 @@ void qSlicerPatientPositioningModuleWidget::onTableTopRobotAnglesChanged(double*
 void qSlicerPatientPositioningModuleWidget::onPatientSupportRotationAngleChanged(double angle)
 {
   Q_UNUSED(angle);
-}
-
-
-//-----------------------------------------------------------------------------
-void qSlicerPatientPositioningModuleWidget::onPatientTableTopTranslationChanged(double* position)
-{
-  Q_D(qSlicerPatientPositioningModuleWidget);
-
-  if (!d->ParameterNode || !d->ModuleWindowInitialized)
-  {
-    qCritical() << Q_FUNC_INFO << ": Parameter node is invalid!";
-    return;
-  }
-  vtkMRMLCabin26AGeometryNode* cabin26AGeometryNode = d->ParameterNode->GetCabin26AGeometryNode();
-
-  d->getLayoutManager()->pauseRender();
-  cabin26AGeometryNode->DisableModifiedEventOn();
-  cabin26AGeometryNode->SetPatientToTableTopTranslation(position);
-  cabin26AGeometryNode->DisableModifiedEventOff();
-  vtkSlicerTableTopRobotTransformLogic* tableTopRobotLogic = d->tableTopRobotLogic();
-  if (tableTopRobotLogic)
-  {
-    tableTopRobotLogic->UpdatePatientToTableTopTransform(cabin26AGeometryNode);
-    tableTopRobotLogic->UpdateTableTopToFlangeTransform(cabin26AGeometryNode);
-    tableTopRobotLogic->UpdateFlangeToWristTransform(cabin26AGeometryNode);
-    tableTopRobotLogic->UpdateWristToElbowTransform(cabin26AGeometryNode);
-    tableTopRobotLogic->UpdateElbowToShoulderTransform(cabin26AGeometryNode);
-    tableTopRobotLogic->UpdateShoulderToBaseRotationTransform(cabin26AGeometryNode);
-    tableTopRobotLogic->UpdateBaseRotationToBaseFixedTransform(cabin26AGeometryNode);
-    tableTopRobotLogic->UpdateBaseFixedToFixedReferenceTransform(cabin26AGeometryNode);
-  }
-  cabin26AGeometryNode->Modified();
-  this->checkForCollisions();
-  d->getLayoutManager()->resumeRender();
 }
 
 //-----------------------------------------------------------------------------

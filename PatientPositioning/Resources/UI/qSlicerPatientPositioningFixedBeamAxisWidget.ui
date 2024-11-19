@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>370</width>
-    <height>499</height>
+    <width>360</width>
+    <height>565</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -208,7 +208,7 @@
       <string>Beams alignment</string>
      </property>
      <property name="collapsed">
-      <bool>true</bool>
+      <bool>false</bool>
      </property>
      <layout class="QGridLayout" name="gridLayout_8">
       <item row="0" column="0">

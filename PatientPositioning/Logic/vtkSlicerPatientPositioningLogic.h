@@ -36,11 +36,11 @@
 
 #include "vtkSlicerPatientPositioningModuleLogicExport.h"
 #include "vtkSlicerTableTopRobotTransformLogic.h"
-//#include "vtkSlicerFixedReferenceBeamsLogic.h"
 
 class vtkMRMLLinearTransformNode;
 class vtkMRMLSliceCompositeNode;
 class vtkMRMLSliceNode;
+class vtkMRMLTransformNode;
 class vtkMRMLPatientPositioningNode;
 class vtkMRMLRTBeamNode;
 class vtkMRMLMarkupsLineNode;
@@ -88,6 +88,11 @@ public:
   /// Get translation vector from Patient isocenter to fixed beam axis (axis in FixedReference frame)
   vtkVector3d GetIsocenterToFixedBeamAxisTranslation(vtkMRMLPatientPositioningNode* parameterNode,
     vtkSlicerTableTopRobotTransformLogic::CoordinateSystemIdentifier fromFrame);
+
+  /// Get alignment angles (lateral, longitudinal, vertical) between Patient ion beam and FixedReference frame
+  /// \return (lateral, longitudinal, vertical) vector
+  vtkVector3d GetBeamToFixedReferenceAlignment(vtkMRMLTransformNode* patientBeamTransformNode);
+
   /// Creates a fixed beam axis line node (axis in FixedReference frame)
   /// \return a valid markups line node pointer or nullptr otherwise
   vtkMRMLMarkupsLineNode* CreateFixedBeamAxisLineNode(vtkMRMLPatientPositioningNode* parameterNode);

@@ -980,6 +980,57 @@ vtkSlicerPatientPositioningLogic::LoadTreatmentMachineComponents(vtkMRMLPatientP
 }
 
 //----------------------------------------------------------------------------
+vtkVector3d vtkSlicerPatientPositioningLogic::GetBeamToFixedReferenceAlignment(vtkMRMLTransformNode* patientBeamTransformNode)
+{
+  if (!this->TableTopRobotLogic)
+  {
+    vtkErrorMacro("GetBeamToFixedReferenceAlignment: TableTopRobot logic is invalid");
+    return vtkVector3d();
+  }
+
+  if (!patientBeamTransformNode)
+  {
+    vtkErrorMacro("GetBeamToFixedReferenceAlignment: Patient RT beam transform node is invalid");
+    return vtkVector3d();
+  }
+  // Get RAS->FixedReference Transform
+  vtkMRMLLinearTransformNode* rasToFixedReferenceTransformNode = this->TableTopRobotLogic->GetFixedReferenceTransform();
+
+  if (!rasToFixedReferenceTransformNode)
+  {
+    vtkErrorMacro("GetBeamToFixedReferenceAlignment: RAS->FixedReference transform node is invalid");
+    return vtkVector3d();
+  }
+
+  vtkNew< vtkMatrix4x4 > transformMatrix;
+  // From RAS->FixedReference to PatientBeam->RAS transform
+  // rasToFixedReferenceTransformNode - Source
+  // patientBeamTransformNode - Target
+  // Source -> Target transform
+  if (!vtkMRMLTransformNode::GetMatrixTransformBetweenNodes( rasToFixedReferenceTransformNode, patientBeamTransformNode, transformMatrix))
+  {
+    vtkErrorMacro("GetBeamToFixedReferenceAlignment: Unable calculate transform between patient beam and fixed reference nodes");
+    return vtkVector3d();
+  }
+
+  // TableTop -> PatientBeam
+  double tableTopUnityX[4] = { 1., 0., 0., 0. };
+  double tableTopUnityY[4] = { 0., 1., 0., 0. };
+  double tableTopUnityZ[4] = { 0., 0., 1., 0. };
+  double tableTopUnityXInPatientBeam[4] = {};
+  double tableTopUnityYInPatientBeam[4] = {};
+  double tableTopUnityZInPatientBeam[4] = {};
+  transformMatrix->MultiplyPoint( tableTopUnityX, tableTopUnityXInPatientBeam);
+  transformMatrix->MultiplyPoint( tableTopUnityY, tableTopUnityYInPatientBeam);
+  transformMatrix->MultiplyPoint( tableTopUnityZ, tableTopUnityZInPatientBeam);
+
+  double longitudinalAngle = vtkMath::DegreesFromRadians(acos(tableTopUnityXInPatientBeam[0])) - 90.;
+  double lateralAngle = vtkMath::DegreesFromRadians(acos(tableTopUnityZInPatientBeam[0])) - 90.;
+  double verticalAngle = vtkMath::DegreesFromRadians(acos(tableTopUnityZInPatientBeam[2])) - 90;
+  return vtkVector3d( lateralAngle, longitudinalAngle, verticalAngle);
+}
+
+//----------------------------------------------------------------------------
 std::vector<vtkSlicerTableTopRobotTransformLogic::CoordinateSystemIdentifier>
 vtkSlicerPatientPositioningLogic::SetupTreatmentMachineModels(vtkMRMLPatientPositioningNode* parameterNode, bool forceEnableCollisionDetection/*=false*/)
 {
