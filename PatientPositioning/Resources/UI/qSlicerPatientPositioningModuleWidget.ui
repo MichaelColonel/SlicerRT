@@ -243,7 +243,7 @@
       <bool>false</bool>
      </property>
      <property name="text">
-      <string>Patient on TableTop Control</string>
+      <string>Patient on TableTop control</string>
      </property>
      <property name="collapsed">
       <bool>true</bool>
@@ -301,7 +301,7 @@
       <bool>false</bool>
      </property>
      <property name="text">
-      <string>BaseFixed Control</string>
+      <string>BaseFixed control</string>
      </property>
      <property name="collapsed">
       <bool>true</bool>
@@ -337,7 +337,7 @@
       <bool>false</bool>
      </property>
      <property name="text">
-      <string>TableTop Control</string>
+      <string>TableTop control</string>
      </property>
      <property name="collapsed">
       <bool>true</bool>
@@ -476,7 +476,7 @@
       <bool>false</bool>
      </property>
      <property name="text">
-      <string>TableTop Robot Control</string>
+      <string>TableTop robot control</string>
      </property>
      <property name="collapsed">
       <bool>true</bool>
@@ -619,6 +619,88 @@
     </widget>
    </item>
    <item>
+    <widget class="ctkCollapsibleButton" name="CollapsibleButton_ImageRegistration">
+     <property name="text">
+      <string>X-ray and DRR registration</string>
+     </property>
+     <layout class="QGridLayout" name="gridLayout_12">
+      <item row="0" column="0">
+       <layout class="QGridLayout" name="gridLayout_11">
+        <item row="0" column="0">
+         <widget class="QLabel" name="label_21">
+          <property name="text">
+           <string>X-ray:</string>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="0">
+         <widget class="QLabel" name="label_20">
+          <property name="text">
+           <string>DRR:</string>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="1">
+         <widget class="qMRMLNodeComboBox" name="MRMLNodeComboBox_XrayImage">
+          <property name="nodeTypes">
+           <stringlist notr="true">
+            <string>vtkMRMLScalarVolumeNode</string>
+           </stringlist>
+          </property>
+          <property name="hideChildNodeTypes">
+           <stringlist notr="true"/>
+          </property>
+          <property name="interactionNodeSingletonTag">
+           <string notr="true"/>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="1">
+         <widget class="qMRMLNodeComboBox" name="MRMLNodeComboBox_DrrImage">
+          <property name="nodeTypes">
+           <stringlist notr="true">
+            <string>vtkMRMLScalarVolumeNode</string>
+           </stringlist>
+          </property>
+          <property name="hideChildNodeTypes">
+           <stringlist notr="true"/>
+          </property>
+          <property name="interactionNodeSingletonTag">
+           <string notr="true"/>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </item>
+      <item row="1" column="0">
+       <widget class="ctkCheckBox" name="CheckBox_ShowRegistration">
+        <property name="indicatorIcon">
+         <iconset resource="../../../../Slicer/Libs/MRML/Widgets/Resources/qMRMLWidgets.qrc">
+          <normaloff>:/Icons/VisibleOn.png</normaloff>
+          <normalon>:/Icons/VisibleOff.png</normalon>:/Icons/VisibleOn.png</iconset>
+        </property>
+        <property name="indicatorIconSize">
+         <size>
+          <width>21</width>
+          <height>21</height>
+         </size>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item>
+    <widget class="ctkCollapsibleButton" name="CollapsibleButton_XrayCarmRobotControl">
+     <property name="enabled">
+      <bool>false</bool>
+     </property>
+     <property name="text">
+      <string>X-ray C-arm robot control</string>
+     </property>
+    </widget>
+   </item>
+   <item>
     <widget class="qSlicerPatientPositioningFixedBeamAxisWidget" name="FixedBeamAxisWidget" native="true">
      <property name="enabled">
       <bool>false</bool>
@@ -651,6 +733,11 @@
   </layout>
  </widget>
  <customwidgets>
+  <customwidget>
+   <class>ctkCheckBox</class>
+   <extends>QCheckBox</extends>
+   <header>ctkCheckBox.h</header>
+  </customwidget>
   <customwidget>
    <class>ctkCollapsibleButton</class>
    <extends>QWidget</extends>
@@ -704,7 +791,9 @@
    <container>1</container>
   </customwidget>
  </customwidgets>
- <resources/>
+ <resources>
+  <include location="../../../../Slicer/Libs/MRML/Widgets/Resources/qMRMLWidgets.qrc"/>
+ </resources>
  <connections>
   <connection>
    <sender>qSlicerPatientPositioningModuleWidget</sender>
@@ -799,6 +888,38 @@
     <hint type="destinationlabel">
      <x>293</x>
      <y>195</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>qSlicerPatientPositioningModuleWidget</sender>
+   <signal>mrmlSceneChanged(vtkMRMLScene*)</signal>
+   <receiver>MRMLNodeComboBox_XrayImage</receiver>
+   <slot>setMRMLScene(vtkMRMLScene*)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>197</x>
+     <y>418</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>217</x>
+     <y>576</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>qSlicerPatientPositioningModuleWidget</sender>
+   <signal>mrmlSceneChanged(vtkMRMLScene*)</signal>
+   <receiver>MRMLNodeComboBox_DrrImage</receiver>
+   <slot>setMRMLScene(vtkMRMLScene*)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>197</x>
+     <y>418</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>217</x>
+     <y>605</y>
     </hint>
    </hints>
   </connection>
