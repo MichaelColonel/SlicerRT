@@ -184,6 +184,40 @@ public:
   /// Get number of control points in channel
   bool GetChannelControlPoint(unsigned int channelNumber, unsigned int controlPointNumber, double controlPointPosition[3]);
 
+  /// Get number of compensators associated with current beam
+  int GetNumberOfIonRangeCompensators(unsigned int beamNumber);
+  const char* GetIonRangeCompensatorDescription(unsigned int beamNumber,
+    unsigned int compensatorNumber);
+  int GetIonRangeCompensatorNumber(unsigned int beamNumber,
+    unsigned int compensatorNumber);
+  const char* GetIonRangeCompensatorMaterialID(unsigned int beamNumber,
+    unsigned int compensatorNumber);
+  /// Get compensator ID
+  const char* GetIonRangeCompensatorID(unsigned int beamNumber,
+    unsigned int compensatorNumber);
+  const char* GetIonRangeCompensatorAccessoryCode(unsigned int beamNumber,
+    unsigned int compensatorNumber);
+  /// Get isocenter to compensator tray distance
+  double GetIonRangeCompensatorIsocenterTrayDistance(unsigned int beamNumber,
+    unsigned int compensatorNumber);
+  const char* GetIonRangeCompensatorDivergence(unsigned int beamNumber,
+    unsigned int compensatorNumber);
+  const char* GetIonRangeCompensatorMountingPosition(unsigned int beamNumber,
+    unsigned int compensatorNumber);
+  int GetIonRangeCompensatorSurfaceRepresentationRows(unsigned int beamNumber,
+    unsigned int compensatorNumber);
+  int GetIonRangeCompensatorSurfaceRepresentationColumns(unsigned int beamNumber,
+    unsigned int compensatorNumber);
+  double* GetIonRangeCompensatorPixelSpacing(unsigned int beamNumber,
+    unsigned int compensatorNumber);
+  double GetIonRangeCompensatorColumnOffset(unsigned int beamNumber,
+    unsigned int compensatorNumber);
+  double* GetIonRangeCompensatorThicknessData(unsigned int beamNumber,
+    unsigned int compensatorNumber);
+  double* GetIonRangeCompensatorIsocenterDistances(unsigned int beamNumber,
+    unsigned int compensatorNumber);
+  double GetIonRangeCompensatorMillingToolDiameter(unsigned int beamNumber,
+    unsigned int compensatorNumber);
 
   /// Get referenced SOP instance UID list for the loaded structure set
   vtkGetStringMacro(RTStructureSetReferencedSOPInstanceUIDs);
