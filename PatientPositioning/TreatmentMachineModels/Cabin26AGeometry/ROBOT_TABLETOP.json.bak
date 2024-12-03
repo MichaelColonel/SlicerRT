@@ -1,0 +1,69 @@
+{
+  "TreatmentMachineName": "Varian TrueBeam STx",
+  "Author": "Eduardo Meilán Bermejo",
+  "Date":"2017",
+  "$schema": "https://raw.githubusercontent.com/???/???-schema.json#",
+  "Part": [
+    {
+      "Type": "FixedReference",
+      "Name": "Fixed Reference",
+      "FilePath": "FixedReference.stl",
+      "FileToRASTransformMatrix": [ [-1, 0, 0, 0], [0, -1, 0, 0], [0, 0, 1, 0], [0, 0, 0, 1] ],
+      "Color": [179, 179, 244],
+      "State": "Active"
+    },
+    {
+      "Type": "RobotBaseFixed",
+      "Name": "Robot fixed base",
+      "FilePath": "RobotBaseFixed.stl",
+      "FileToRASTransformMatrix": [ [-1, 0, 0, 0], [0, -1, 0, 0], [0, 0, 1, 0], [0, 0, 0, 1] ],
+      "Color": [244, 244, 244],
+      "State": "Active",
+      "Point": [0, 0, 163]
+    },
+    {
+      "Type": "RobotBaseRotation",
+      "Name": "Robot rotated base",
+      "FilePath": "RobotBaseRotation.stl",
+      "FileToRASTransformMatrix": [ [-1, 0, 0, 0], [0, -1, 0, 0], [0, 0, 1, 0], [0, 0, 0, 1] ],
+      "Color": [244, 244, 244],
+      "State": "Active",
+      "Point": [0, 330, 645]
+    },
+    {
+      "Type": "RobotShoulder",
+      "Name": "Robot shoulder",
+      "FilePath": "RobotShoulder.stl",
+      "FileToRASTransformMatrix": [ [-1, 0, 0, 0], [0, -1, 0, 0], [0, 0, 1, 0], [0, 0, 0, 1] ],
+      "Color": [244, 244, 244],
+      "State": "Active",
+      "Point": [0, 330, 1795]
+    },
+    {
+      "Type": "RobotElbow",
+      "Name": "Robot elbow",
+      "FilePath": "RobotElbow.stl",
+      "FileToRASTransformMatrix": [ [-1, 0, 0, 0], [0, -1, 0, 0], [0, 0, 1, 0], [0, 0, 0, 1] ],
+      "Color": [230, 230, 230],
+      "State": "Active",
+      "Point": [0, 1550, 1910],
+    },
+    {
+      "Type": "RobotWrist",
+      "Name": "Robot wrist",
+      "FilePath": "RobotWrist.stl",
+      "FileToRASTransformMatrix": [ [-1, 0, 0, 0], [0, -1, 0, 0], [0, 0, 1, 0], [0, 0, 0, 1] ],
+      "Color": [217, 217, 217],
+      "State": "Active",
+      "Point": [0, 1790, 1910],
+    },
+    {
+      "Type": "TableTop",
+      "Name": "Table top",
+      "FilePath": "TableTop.stl",
+      "FileToRASTransformMatrix": [ [-1, 0, 0, 0], [0, -1, 0, 0], [0, 0, 1, 0], [0, 0, 0, 1] ],
+      "Color": [0, 0, 0],
+      "State": "Active"
+    }
+  ]
+}

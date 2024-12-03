@@ -1,0 +1,24 @@
+{
+  "TreatmentMachineName": "Channel25",
+  "Author": "Mikhail Polkovnikov",
+  "Date":"2024",
+  "$schema": "https://raw.githubusercontent.com/???/???-schema.json#",
+  "Part": [
+    {
+      "Type": "FixedReference",
+      "Name": "Fixed Reference",
+      "FilePath": "FixedReference.stl",
+      "FileToRASTransformMatrix": [ [-1, 0, 0, 0], [0, -1, 0, 0], [0, 0, 1, 0], [0, 0, 0, 1] ],
+      "Color": [179, 179, 244],
+      "State": "Active"
+    },
+    {
+      "Type": "TableTop",
+      "Name": "Table top",
+      "FilePath": "TableTop.stl",
+      "FileToRASTransformMatrix": [ [-1, 0, 0, 0], [0, -1, 0, 0], [0, 0, 1, 0], [0, 0, 0, 1] ],
+      "Color": [0, 0, 0],
+      "State": "Active"
+    }
+  ]
+}
