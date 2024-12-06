@@ -187,37 +187,39 @@ public:
   /// Get number of compensators associated with current beam
   int GetNumberOfIonRangeCompensators(unsigned int beamNumber);
   const char* GetIonRangeCompensatorDescription(unsigned int beamNumber,
-    unsigned int compensatorNumber);
+    unsigned int compensatorIndex);
   int GetIonRangeCompensatorNumber(unsigned int beamNumber,
-    unsigned int compensatorNumber);
+    unsigned int compensatorIndex);
   const char* GetIonRangeCompensatorMaterialID(unsigned int beamNumber,
-    unsigned int compensatorNumber);
+    unsigned int compensatorIndex);
   /// Get compensator ID
   const char* GetIonRangeCompensatorID(unsigned int beamNumber,
-    unsigned int compensatorNumber);
+    unsigned int compensatorIndex);
   const char* GetIonRangeCompensatorAccessoryCode(unsigned int beamNumber,
-    unsigned int compensatorNumber);
+    unsigned int compensatorIndex);
   /// Get isocenter to compensator tray distance
   double GetIonRangeCompensatorIsocenterTrayDistance(unsigned int beamNumber,
-    unsigned int compensatorNumber);
+    unsigned int compensatorIndex);
   const char* GetIonRangeCompensatorDivergence(unsigned int beamNumber,
-    unsigned int compensatorNumber);
+    unsigned int compensatorIndex);
   const char* GetIonRangeCompensatorMountingPosition(unsigned int beamNumber,
-    unsigned int compensatorNumber);
-  int GetIonRangeCompensatorSurfaceRepresentationRows(unsigned int beamNumber,
-    unsigned int compensatorNumber);
-  int GetIonRangeCompensatorSurfaceRepresentationColumns(unsigned int beamNumber,
-    unsigned int compensatorNumber);
+    unsigned int compensatorIndex);
+  double* GetIonRangeCompensatorPosition(unsigned int beamNumber,
+    unsigned int compensatorIndex);
+  int GetIonRangeCompensatorRows(unsigned int beamNumber,
+    unsigned int compensatorIndex);
+  int GetIonRangeCompensatorColumns(unsigned int beamNumber,
+    unsigned int compensatorIndex);
   double* GetIonRangeCompensatorPixelSpacing(unsigned int beamNumber,
-    unsigned int compensatorNumber);
+    unsigned int compensatorIndex);
   double GetIonRangeCompensatorColumnOffset(unsigned int beamNumber,
-    unsigned int compensatorNumber);
+    unsigned int compensatorIndex);
   double* GetIonRangeCompensatorThicknessData(unsigned int beamNumber,
-    unsigned int compensatorNumber);
+    unsigned int compensatorIndex);
   double* GetIonRangeCompensatorIsocenterDistances(unsigned int beamNumber,
-    unsigned int compensatorNumber);
+    unsigned int compensatorIndex);
   double GetIonRangeCompensatorMillingToolDiameter(unsigned int beamNumber,
-    unsigned int compensatorNumber);
+    unsigned int compensatorIndex);
 
   /// Get referenced SOP instance UID list for the loaded structure set
   vtkGetStringMacro(RTStructureSetReferencedSOPInstanceUIDs);

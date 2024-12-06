@@ -107,17 +107,31 @@ public:
     std::string Description;
   };
 
-  //TODO: Add support of compensators
   //Structure storing a treatment compensator parameters associated with beam
-  class CompensatorEntry
+  class RangeCompensatorEntry
   {
   public:
-    CompensatorEntry()
+    RangeCompensatorEntry()
     {
     }
+    int Number;
+    std::string ID;
+    std::string Description;
+    std::string MaterialID;
+    std::string AccessoryCode;
+    double IsocenterCompensatorTrayDistance;
+    std::string Divergence;
+    std::string MountingPosition;
+    double Position[2] = { 0., 0. };
+    int Rows;
+    int Columns;
+    double PixelSpacing[2] = { 0., 0. };
+    double ColumnOffset;
+    std::vector< double > ThicknessData;
+    std::vector< double > IsocenterDistances;
+    double MillingToolDiameter;
   };
 
-  //TODO: Add support of shielding blocks
   //Structure storing a shielding block parameters associated with beam
   class BlockEntry
   {
@@ -125,6 +139,25 @@ public:
     BlockEntry()
     {
     }
+    int Number;
+    std::string Name;
+    std::string ID;
+    std::string MaterialID;
+    std::string AccessoryCode;
+    double IsocenterBlockTrayDistance;
+    std::string Type;
+    std::string Divergence;
+    std::string MountingPosition;
+    double Thickness;
+    int NumberOfPoints;
+    std::vector< double > Data;
+    int NumberOfBlockSlabItems;
+    struct SlabEntry {
+      int Number;
+      double Thickness;
+      std::string Code;
+    };
+    std::vector< SlabEntry > SlabSequence;
   };
 
   /// Structure storing a ROI of an RT structure set
@@ -293,7 +326,7 @@ public:
     BeamLimitingDeviceEntry MultiLeafCollimator;
 
     unsigned int NumberOfCompensators;
-    std::vector< CompensatorEntry > CompensatorSequenceVector;
+    std::vector< RangeCompensatorEntry > RangeCompensatorSequenceVector;
 
     unsigned int NumberOfBlocks;
     std::vector< BlockEntry > BlockSequenceVector;
@@ -1583,6 +1616,93 @@ void vtkSlicerDicomRtReader::vtkInternal::LoadRTIonPlan(DcmDataset* dataset)
         } while (rtIonBeamLimitingDeviceSequence.gotoNextItem().good());
       }
 
+      Sint32 numberOfIonCompensators = -1.;
+      currentIonBeamSequenceItem.getNumberOfCompensators(numberOfIonCompensators);
+      beamEntry.NumberOfCompensators = numberOfIonCompensators;
+
+      DRTIonRangeCompensatorSequence& rtIonRangeCompensatorSequence = 
+        currentIonBeamSequenceItem.getIonRangeCompensatorSequence();
+      if (rtIonRangeCompensatorSequence.isValid() && 
+        rtIonRangeCompensatorSequence.gotoFirstItem().good())
+      {
+        do
+        {
+          DRTIonRangeCompensatorSequence::Item &compensatorItem =
+            rtIonRangeCompensatorSequence.getCurrentItem();
+          if (compensatorItem.isValid())
+          {
+            RangeCompensatorEntry compensator;
+            // get compensator number
+            Sint32 compensatorNumber = -1;
+            compensatorItem.getCompensatorNumber(compensatorNumber);
+            compensator.Number = compensatorNumber;
+            // isocenter to comp. tray distance
+            Float32 isocenterToCompensatorTrayDistance = -1.;
+            compensatorItem.getIsocenterToCompensatorTrayDistance(isocenterToCompensatorTrayDistance);
+            compensator.IsocenterCompensatorTrayDistance = isocenterToCompensatorTrayDistance;
+            OFString ID("");
+            compensatorItem.getCompensatorID(ID);
+            compensator.ID = ID.c_str();
+            OFString Description("");
+            compensatorItem.getCompensatorDescription(Description);
+            compensator.Description = Description.c_str();
+            OFString MaterialID("");
+            compensatorItem.getMaterialID(MaterialID);
+            compensator.MaterialID = MaterialID.c_str();
+            OFString AccessoryCode("");
+            compensatorItem.getAccessoryCode(AccessoryCode);
+            compensator.AccessoryCode = AccessoryCode.c_str();
+            OFString Divergence("");
+            compensatorItem.getCompensatorDivergence(Divergence);
+            compensator.Divergence = Divergence.c_str();
+            OFString MountingPosition("");
+            compensatorItem.getCompensatorMountingPosition(MountingPosition);
+            compensator.MountingPosition = MountingPosition.c_str();
+            OFVector<Float64> Position;
+            compensatorItem.getCompensatorPosition(Position);
+            if (Position.size() == 2)
+            {
+              vtkWarningWithObjectMacro( this->External, "LoadRTIonPlan: compensator position is OK");
+              compensator.Position[0] = Position[0];
+              compensator.Position[1] = Position[1];
+            }
+            OFVector<Float64> PixelSpacing;
+            compensatorItem.getCompensatorPixelSpacing(PixelSpacing);
+            if (PixelSpacing.size() == 2)
+            {
+              vtkWarningWithObjectMacro( this->External, "LoadRTIonPlan: compensator pixel spacing is OK");
+              compensator.PixelSpacing[0] = PixelSpacing[0];
+              compensator.PixelSpacing[1] = PixelSpacing[1];
+            }
+            Sint32 Rows = -1;
+            compensatorItem.getCompensatorRows(Rows);
+            compensator.Rows = Rows;
+            Sint32 Columns = -1;
+            compensatorItem.getCompensatorColumns(Columns);
+            compensator.Columns = Columns;
+            Float32 ColumnOffset = -1.;
+            compensatorItem.getCompensatorColumnOffset(ColumnOffset);
+            compensator.ColumnOffset = ColumnOffset;
+            Float32 MillingToolDiameter = -1.;
+            compensatorItem.getCompensatorMillingToolDiameter(MillingToolDiameter);
+            compensator.MillingToolDiameter = MillingToolDiameter;
+            OFVector<Float64> ThicknessData;
+            compensatorItem.getCompensatorThicknessData(ThicknessData);
+            compensator.ThicknessData.resize(ThicknessData.size());
+            std::copy( ThicknessData.begin(), ThicknessData.end(), compensator.ThicknessData.begin());
+            OFVector<Float32> IsocenterDistances;
+            if (Rows > 0 && Columns > 0)
+            {
+              IsocenterDistances.resize(Rows * Columns);
+              compensatorItem.getIsocenterToCompensatorDistances(IsocenterDistances.front());
+              compensator.IsocenterDistances.resize(IsocenterDistances.size());
+              std::copy( IsocenterDistances.begin(), IsocenterDistances.end(), compensator.IsocenterDistances.begin());
+              beamEntry.RangeCompensatorSequenceVector.push_back(compensator);
+            }
+          }
+        } while (rtIonRangeCompensatorSequence.gotoNextItem().good());
+      }
+
       Sint32 beamNumberOfControlPoints = -1;
       currentIonBeamSequenceItem.getNumberOfControlPoints(beamNumberOfControlPoints);
       beamEntry.NumberOfControlPoints = beamNumberOfControlPoints;
@@ -2735,6 +2855,354 @@ double* vtkSlicerDicomRtReader::GetBeamVirtualSourceAxisDistance(unsigned int be
     return nullptr;
   }
   return beam->SourceAxisDistance.data();
+}
+
+//----------------------------------------------------------------------------
+int vtkSlicerDicomRtReader::GetNumberOfIonRangeCompensators(unsigned int beamNumber)
+{
+  vtkInternal::BeamEntry* beam=this->Internal->FindBeamByNumber(beamNumber);
+  if (!beam)
+  {
+    vtkErrorMacro("GetNumberOfIonRangeCompensators: Unable to find beam of number" << beamNumber);
+    return -1.;
+  }
+  return beam->NumberOfCompensators;
+}
+
+//----------------------------------------------------------------------------
+const char* vtkSlicerDicomRtReader::GetIonRangeCompensatorDescription(unsigned int beamNumber,
+  unsigned int compensatorIndex)
+{
+  vtkInternal::BeamEntry* beam=this->Internal->FindBeamByNumber(beamNumber);
+  if (!beam)
+  {
+    vtkErrorMacro("GetIonRangeCompensatorDescription: Unable to find beam of number" << beamNumber);
+    return nullptr;
+  }
+  if (beam->RangeCompensatorSequenceVector.size() <= compensatorIndex)
+  {
+    vtkErrorMacro("GetIonRangeCompensatorDescription: Wrong compensator index number");
+    return nullptr;
+  }
+  
+  vtkInternal::RangeCompensatorEntry& compensator = beam->RangeCompensatorSequenceVector.at(compensatorIndex);
+  
+  return compensator.Description.c_str();
+}
+
+//----------------------------------------------------------------------------
+int vtkSlicerDicomRtReader::GetIonRangeCompensatorNumber(unsigned int beamNumber,
+  unsigned int compensatorIndex)
+{
+  vtkInternal::BeamEntry* beam=this->Internal->FindBeamByNumber(beamNumber);
+  if (!beam)
+  {
+    vtkErrorMacro("GetIonRangeCompensatorNumber: Unable to find beam of number" << beamNumber);
+    return -1;
+  }
+  if (beam->RangeCompensatorSequenceVector.size() <= compensatorIndex)
+  {
+    vtkErrorMacro("GetIonRangeCompensatorNumber: Wrong compensator index number");
+    return -1;
+  }
+  
+  vtkInternal::RangeCompensatorEntry& compensator = beam->RangeCompensatorSequenceVector.at(compensatorIndex);
+  
+  return compensator.Number;
+}
+
+//----------------------------------------------------------------------------
+const char* vtkSlicerDicomRtReader::GetIonRangeCompensatorMaterialID(unsigned int beamNumber,
+  unsigned int compensatorIndex)
+{
+  vtkInternal::BeamEntry* beam=this->Internal->FindBeamByNumber(beamNumber);
+  if (!beam)
+  {
+    vtkErrorMacro("GetIonRangeCompensatorMaterialID: Unable to find beam of number" << beamNumber);
+    return nullptr;
+  }
+  if (beam->RangeCompensatorSequenceVector.size() <= compensatorIndex)
+  {
+    vtkErrorMacro("GetIonRangeCompensatorMaterialID: Wrong compensator index number");
+    return nullptr;
+  }
+  
+  vtkInternal::RangeCompensatorEntry& compensator = beam->RangeCompensatorSequenceVector.at(compensatorIndex);
+  
+  return compensator.MaterialID.c_str();
+}
+
+//----------------------------------------------------------------------------
+const char* vtkSlicerDicomRtReader::GetIonRangeCompensatorID(unsigned int beamNumber,
+  unsigned int compensatorIndex)
+{
+  vtkInternal::BeamEntry* beam=this->Internal->FindBeamByNumber(beamNumber);
+  if (!beam)
+  {
+    vtkErrorMacro("GetIonRangeCompensatorID: Unable to find beam of number" << beamNumber);
+    return nullptr;
+  }
+  if (beam->RangeCompensatorSequenceVector.size() <= compensatorIndex)
+  {
+    vtkErrorMacro("GetIonRangeCompensatorID: Wrong compensator index number");
+    return nullptr;
+  }
+  
+  vtkInternal::RangeCompensatorEntry& compensator = beam->RangeCompensatorSequenceVector.at(compensatorIndex);
+  
+  return compensator.ID.c_str();
+}
+
+//----------------------------------------------------------------------------
+const char* vtkSlicerDicomRtReader::GetIonRangeCompensatorAccessoryCode(unsigned int beamNumber,
+  unsigned int compensatorIndex)
+{
+  vtkInternal::BeamEntry* beam=this->Internal->FindBeamByNumber(beamNumber);
+  if (!beam)
+  {
+    vtkErrorMacro("GetIonRangeCompensatorAccessoryCode: Unable to find beam of number" << beamNumber);
+    return nullptr;
+  }
+  if (beam->RangeCompensatorSequenceVector.size() <= compensatorIndex)
+  {
+    vtkErrorMacro("GetIonRangeCompensatorAccessoryCode: Wrong compensator index number");
+    return nullptr;
+  }
+  
+  vtkInternal::RangeCompensatorEntry& compensator = beam->RangeCompensatorSequenceVector.at(compensatorIndex);
+  
+  return compensator.AccessoryCode.c_str();
+}
+
+//----------------------------------------------------------------------------
+double vtkSlicerDicomRtReader::GetIonRangeCompensatorIsocenterTrayDistance(unsigned int beamNumber,
+  unsigned int compensatorIndex)
+{
+  vtkInternal::BeamEntry* beam=this->Internal->FindBeamByNumber(beamNumber);
+  if (!beam)
+  {
+    vtkErrorMacro("GetIonRangeCompensatorIsocenterTrayDistance: Unable to find beam of number" << beamNumber);
+    return -1.;
+  }
+  if (beam->RangeCompensatorSequenceVector.size() <= compensatorIndex)
+  {
+    vtkErrorMacro("GetIonRangeCompensatorIsocenterTrayDistance: Wrong compensator index number");
+    return -1.;
+  }
+  
+  vtkInternal::RangeCompensatorEntry& compensator = beam->RangeCompensatorSequenceVector.at(compensatorIndex);
+  
+  return compensator.IsocenterCompensatorTrayDistance;
+}
+
+//----------------------------------------------------------------------------
+const char* vtkSlicerDicomRtReader::GetIonRangeCompensatorDivergence(unsigned int beamNumber,
+  unsigned int compensatorIndex)
+{
+  vtkInternal::BeamEntry* beam=this->Internal->FindBeamByNumber(beamNumber);
+  if (!beam)
+  {
+    vtkErrorMacro("GetIonRangeCompensatorDivergence: Unable to find beam of number" << beamNumber);
+    return nullptr;
+  }
+  if (beam->RangeCompensatorSequenceVector.size() <= compensatorIndex)
+  {
+    vtkErrorMacro("GetIonRangeCompensatorDivergence: Wrong compensator index number");
+    return nullptr;
+  }
+  
+  vtkInternal::RangeCompensatorEntry& compensator = beam->RangeCompensatorSequenceVector.at(compensatorIndex);
+  
+  return compensator.Divergence.c_str();
+}
+
+//----------------------------------------------------------------------------
+const char* vtkSlicerDicomRtReader::GetIonRangeCompensatorMountingPosition(unsigned int beamNumber,
+  unsigned int compensatorIndex)
+{
+  vtkInternal::BeamEntry* beam=this->Internal->FindBeamByNumber(beamNumber);
+  if (!beam)
+  {
+    vtkErrorMacro("GetIonRangeCompensatorMountingPosition: Unable to find beam of number" << beamNumber);
+    return nullptr;
+  }
+  if (beam->RangeCompensatorSequenceVector.size() <= compensatorIndex)
+  {
+    vtkErrorMacro("GetIonRangeCompensatorMountingPosition: Wrong compensator index number");
+    return nullptr;
+  }
+  
+  vtkInternal::RangeCompensatorEntry& compensator = beam->RangeCompensatorSequenceVector.at(compensatorIndex);
+  
+  return compensator.MountingPosition.c_str();
+}
+
+//----------------------------------------------------------------------------
+double* vtkSlicerDicomRtReader::GetIonRangeCompensatorPosition(unsigned int beamNumber,
+  unsigned int compensatorIndex)
+{
+  vtkInternal::BeamEntry* beam=this->Internal->FindBeamByNumber(beamNumber);
+  if (!beam)
+  {
+    vtkErrorMacro("GetIonRangeCompensatorPosition: Unable to find beam of number" << beamNumber);
+    return nullptr;
+  }
+  if (beam->RangeCompensatorSequenceVector.size() <= compensatorIndex)
+  {
+    vtkErrorMacro("GetIonRangeCompensatorPosition: Wrong compensator index number");
+    return nullptr;
+  }
+  
+  vtkInternal::RangeCompensatorEntry& compensator = beam->RangeCompensatorSequenceVector.at(compensatorIndex);
+  
+  return compensator.Position;
+}
+
+//----------------------------------------------------------------------------
+int vtkSlicerDicomRtReader::GetIonRangeCompensatorRows(unsigned int beamNumber,
+  unsigned int compensatorIndex)
+{
+  vtkInternal::BeamEntry* beam=this->Internal->FindBeamByNumber(beamNumber);
+  if (!beam)
+  {
+    vtkErrorMacro("GetIonRangeCompensatorRows: Unable to find beam of number" << beamNumber);
+    return -1;
+  }
+  if (beam->RangeCompensatorSequenceVector.size() <= compensatorIndex)
+  {
+    vtkErrorMacro("GetIonRangeCompensatorRows: Wrong compensator index number");
+    return -1;
+  }
+  
+  vtkInternal::RangeCompensatorEntry& compensator = beam->RangeCompensatorSequenceVector.at(compensatorIndex);
+  
+  return compensator.Rows;
+}
+
+//----------------------------------------------------------------------------
+int vtkSlicerDicomRtReader::GetIonRangeCompensatorColumns(unsigned int beamNumber,
+  unsigned int compensatorIndex)
+{
+  vtkInternal::BeamEntry* beam=this->Internal->FindBeamByNumber(beamNumber);
+  if (!beam)
+  {
+    vtkErrorMacro("GetIonRangeCompensatorColumns: Unable to find beam of number" << beamNumber);
+    return -1;
+  }
+  if (beam->RangeCompensatorSequenceVector.size() <= compensatorIndex)
+  {
+    vtkErrorMacro("GetIonRangeCompensatorColumns: Wrong compensator index number");
+    return -1;
+  }
+  
+  vtkInternal::RangeCompensatorEntry& compensator = beam->RangeCompensatorSequenceVector.at(compensatorIndex);
+  
+  return compensator.Columns;
+}
+
+//----------------------------------------------------------------------------
+double* vtkSlicerDicomRtReader::GetIonRangeCompensatorPixelSpacing(unsigned int beamNumber,
+  unsigned int compensatorIndex)
+{
+  vtkInternal::BeamEntry* beam=this->Internal->FindBeamByNumber(beamNumber);
+  if (!beam)
+  {
+    vtkErrorMacro("GetIonRangeCompensatorPixelSpacing: Unable to find beam of number" << beamNumber);
+    return nullptr;
+  }
+  if (beam->RangeCompensatorSequenceVector.size() <= compensatorIndex)
+  {
+    vtkErrorMacro("GetIonRangeCompensatorPixelSpacing: Wrong compensator index number");
+    return nullptr;
+  }
+  
+  vtkInternal::RangeCompensatorEntry& compensator = beam->RangeCompensatorSequenceVector.at(compensatorIndex);
+  
+  return compensator.PixelSpacing;
+}
+
+//----------------------------------------------------------------------------
+double vtkSlicerDicomRtReader::GetIonRangeCompensatorColumnOffset(unsigned int beamNumber,
+  unsigned int compensatorIndex)
+{
+  vtkInternal::BeamEntry* beam=this->Internal->FindBeamByNumber(beamNumber);
+  if (!beam)
+  {
+    vtkErrorMacro("GetIonRangeCompensatorColumnOffset: Unable to find beam of number" << beamNumber);
+    return -1.;
+  }
+  if (beam->RangeCompensatorSequenceVector.size() <= compensatorIndex)
+  {
+    vtkErrorMacro("GetIonRangeCompensatorColumnOffset: Wrong compensator index number");
+    return -1.;
+  }
+  
+  vtkInternal::RangeCompensatorEntry& compensator = beam->RangeCompensatorSequenceVector.at(compensatorIndex);
+  
+  return compensator.ColumnOffset;
+}
+
+//----------------------------------------------------------------------------
+double* vtkSlicerDicomRtReader::GetIonRangeCompensatorThicknessData(unsigned int beamNumber,
+  unsigned int compensatorIndex)
+{
+  vtkInternal::BeamEntry* beam=this->Internal->FindBeamByNumber(beamNumber);
+  if (!beam)
+  {
+    vtkErrorMacro("GetIonRangeCompensatorThicknessData: Unable to find beam of number" << beamNumber);
+    return nullptr;
+  }
+  if (beam->RangeCompensatorSequenceVector.size() <= compensatorIndex)
+  {
+    vtkErrorMacro("GetIonRangeCompensatorThicknessData: Wrong compensator index number");
+    return nullptr;
+  }
+  
+  vtkInternal::RangeCompensatorEntry& compensator = beam->RangeCompensatorSequenceVector.at(compensatorIndex);
+  
+  return compensator.ThicknessData.data();
+}
+
+//----------------------------------------------------------------------------
+double* vtkSlicerDicomRtReader::GetIonRangeCompensatorIsocenterDistances(unsigned int beamNumber,
+  unsigned int compensatorIndex)
+{
+  vtkInternal::BeamEntry* beam=this->Internal->FindBeamByNumber(beamNumber);
+  if (!beam)
+  {
+    vtkErrorMacro("GetIonRangeCompensatorIsocenterDistances: Unable to find beam of number" << beamNumber);
+    return nullptr;
+  }
+  if (beam->RangeCompensatorSequenceVector.size() <= compensatorIndex)
+  {
+    vtkErrorMacro("GetIonRangeCompensatorIsocenterDistances: Wrong compensator index number");
+    return nullptr;
+  }
+  
+  vtkInternal::RangeCompensatorEntry& compensator = beam->RangeCompensatorSequenceVector.at(compensatorIndex);
+  
+  return compensator.IsocenterDistances.data();
+}
+
+//----------------------------------------------------------------------------
+double vtkSlicerDicomRtReader::GetIonRangeCompensatorMillingToolDiameter(unsigned int beamNumber,
+  unsigned int compensatorIndex)
+{
+  vtkInternal::BeamEntry* beam=this->Internal->FindBeamByNumber(beamNumber);
+  if (!beam)
+  {
+    vtkErrorMacro("GetIonRangeCompensatorMillingToolDiameter: Unable to find beam of number" << beamNumber);
+    return -1.;
+  }
+  if (beam->RangeCompensatorSequenceVector.size() <= compensatorIndex)
+  {
+    vtkErrorMacro("GetIonRangeCompensatorMillingToolDiameter: Wrong compensator index number");
+    return -1.;
+  }
+  
+  vtkInternal::RangeCompensatorEntry& compensator = beam->RangeCompensatorSequenceVector.at(compensatorIndex);
+  
+  return compensator.MillingToolDiameter;
 }
 
 //----------------------------------------------------------------------------
