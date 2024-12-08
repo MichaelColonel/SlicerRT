@@ -56,6 +56,7 @@
 #include "vtkMRMLRTPlanNode.h"
 #include "vtkMRMLRTBeamNode.h"
 #include "vtkMRMLRTIonBeamNode.h"
+#include "vtkMRMLRTIonRangeCompensatorNode.h"
 #include "vtkSlicerBeamsModuleLogic.h"
 
 // Segmentations includes
@@ -853,6 +854,8 @@ vtkMRMLRTBeamNode* vtkSlicerDicomRtImportExportModuleLogic::vtkInternal::LoadSta
   // Create the beam node for each control point
   vtkSmartPointer<vtkMRMLRTBeamNode> beamNode; // for RTPlan
   vtkSmartPointer<vtkMRMLRTIonBeamNode> ionBeamNode; // for RTIonPlan
+  vtkSmartPointer<vtkMRMLRTIonRangeCompensatorNode> ionRangeCompensator; // for IonRangeCompensator
+
   if (rtReader->GetLoadRTPlanSuccessful())
   {
     beamNode = vtkSmartPointer<vtkMRMLRTBeamNode>::New();
@@ -899,6 +902,56 @@ vtkMRMLRTBeamNode* vtkSlicerDicomRtImportExportModuleLogic::vtkInternal::LoadSta
     if (res)
     {
       ionBeamNode->SetScanningSpotSize(ScanSpotSize);
+    }
+  }
+
+  // and range compesators if any
+  if (rtReader->GetLoadRTIonPlanSuccessful() && rtReader->GetNumberOfIonRangeCompensators(dicomBeamNumber) > 0)
+  {
+    ionRangeCompensator = vtkSmartPointer<vtkMRMLRTIonRangeCompensatorNode>::New();
+    // load compensator data
+    int compensators = rtReader->GetNumberOfIonRangeCompensators(dicomBeamNumber);
+    if (compensators == 1)
+    {
+      int rows = rtReader->GetIonRangeCompensatorRows(dicomBeamNumber, compensators - 1);
+      int columns = rtReader->GetIonRangeCompensatorRows(dicomBeamNumber, compensators - 1);
+      double* pixelSpacingXY = rtReader->GetIonRangeCompensatorPixelSpacing(dicomBeamNumber, compensators - 1);
+      double* thicknessDataVector = rtReader->GetIonRangeCompensatorThicknessData(dicomBeamNumber, compensators - 1);
+      const char* mountingPosition = rtReader->GetIonRangeCompensatorMountingPosition(dicomBeamNumber, compensators - 1);
+      double* positionXY = rtReader->GetIonRangeCompensatorPosition(dicomBeamNumber, compensators - 1);
+      const char* divergence = rtReader->GetIonRangeCompensatorDivergence(dicomBeamNumber, compensators - 1);
+      double isoToTrayDistance = rtReader->GetIonRangeCompensatorIsocenterTrayDistance(dicomBeamNumber, compensators - 1);
+      ionRangeCompensator->SetRows(rows);
+      ionRangeCompensator->SetColumns(columns);
+      ionRangeCompensator->SetPixelSpacing(pixelSpacingXY);
+      ionRangeCompensator->SetPosition(positionXY);
+      ionRangeCompensator->SetIsocenterToCompensatorTrayDistance(isoToTrayDistance);
+      if (rows > 1 && columns > 1)
+      {
+        std::vector< double > v(rows * columns);
+        std::copy( thicknessDataVector, thicknessDataVector + rows * columns, v.data());
+        ionRangeCompensator->SetThicknessDataVector(v);
+      }
+      if (std::strcmp(mountingPosition, "SOURCE_SIDE") == 0)
+      {
+        ionRangeCompensator->SetMountingPosition(vtkMRMLRTIonRangeCompensatorNode::SourceSide);
+      }
+      else if (std::strcmp(mountingPosition, "PATIENT_SIDE") == 0)
+      {
+        ionRangeCompensator->SetMountingPosition(vtkMRMLRTIonRangeCompensatorNode::PatientSide);
+      }
+      else if (std::strcmp(mountingPosition, "DOUBLE_SIDED") == 0)
+      {
+        ionRangeCompensator->SetMountingPosition(vtkMRMLRTIonRangeCompensatorNode::DoubleSided);
+      }
+      if (std::strcmp(divergence, "PRESENT") == 0)
+      {
+        ionRangeCompensator->SetDivergence(vtkMRMLRTIonRangeCompensatorNode::Present);
+      }
+      else if (std::strcmp(mountingPosition, "ABSENT") == 0)
+      {
+        ionRangeCompensator->SetDivergence(vtkMRMLRTIonRangeCompensatorNode::Absent);
+      }
     }
   }
 
@@ -963,6 +1016,11 @@ vtkMRMLRTBeamNode* vtkSlicerDicomRtImportExportModuleLogic::vtkInternal::LoadSta
 
   // Add beam to scene (triggers poly data and transform creation and update)
   scene->AddNode(beamNode);
+  // Add ion range compensator (only one)
+  if (ionRangeCompensator)
+  {
+    scene->AddNode(ionRangeCompensator);
+  }
 
   // Add beam to plan
   planNode->AddBeam(beamNode);
@@ -977,10 +1035,17 @@ vtkMRMLRTBeamNode* vtkSlicerDicomRtImportExportModuleLogic::vtkInternal::LoadSta
   }
   if (ionBeamNode)
   {
+    vtkMRMLLinearTransformNode* beamTransformNode = vtkMRMLLinearTransformNode::SafeDownCast(ionBeamNode->GetParentTransformNode());
     // Add scan spot to ion beam
     if (scanSpotTableNode)
     {
       ionBeamNode->SetAndObserveScanSpotTableNode(scanSpotTableNode);
+    }
+    // Add ion range compensator
+    if (ionRangeCompensator)
+    {
+      ionRangeCompensator->SetAndObserveBeamNode(ionBeamNode);
+      ionRangeCompensator->SetAndObserveTransformNodeID(beamTransformNode->GetID());
     }
   }
 
@@ -1122,6 +1187,7 @@ bool vtkSlicerDicomRtImportExportModuleLogic::vtkInternal::LoadDynamicBeamSequen
     // Create the beam node for each control point
     vtkSmartPointer<vtkMRMLRTBeamNode> beamNode; // for RTPlan
     vtkSmartPointer<vtkMRMLRTIonBeamNode> ionBeamNode; // for RTIonPlan
+    vtkSmartPointer<vtkMRMLRTIonRangeCompensatorNode> ionRangeCompNode; // for ion compensators (boli) and blocks
     if (rtReader->GetLoadRTPlanSuccessful())
     {
       beamNode = vtkSmartPointer<vtkMRMLRTBeamNode>::New();
@@ -1129,6 +1195,7 @@ bool vtkSlicerDicomRtImportExportModuleLogic::vtkInternal::LoadDynamicBeamSequen
     else if (rtReader->GetLoadRTIonPlanSuccessful())
     {
       beamNode = ionBeamNode = vtkSmartPointer<vtkMRMLRTIonBeamNode>::New();
+      ionRangeCompNode = vtkSmartPointer<vtkMRMLRTIonRangeCompensatorNode>::New();
     }
 
     std::ostringstream nameStream;

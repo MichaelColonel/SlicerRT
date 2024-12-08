@@ -45,7 +45,16 @@
 #include <vtkDoubleArray.h>
 #include <vtkTable.h>
 #include <vtkCellArray.h>
+#include <vtkCubeSource.h>
 #include <vtkAppendPolyData.h>
+#include <vtkTriangleFilter.h>
+#include <vtkBooleanOperationPolyDataFilter.h>
+#include <vtkPolyDataNormals.h>
+
+namespace
+{
+const char* PARENT_ION_BEAM_NODE_REFERENCE_ROLE = "parentIonBeamRef";
+}
 
 //------------------------------------------------------------------------------
 vtkMRMLNodeNewMacro(vtkMRMLRTIonRangeCompensatorNode);
@@ -73,6 +82,7 @@ void vtkMRMLRTIonRangeCompensatorNode::WriteXML(ostream& of, int nIndent)
   // Write all MRML node attributes into output stream
   vtkMRMLWriteXMLIntMacro( rows, Rows);
   vtkMRMLWriteXMLIntMacro( rows, Columns);
+  vtkMRMLWriteXMLFloatMacro( isocenterToCompensatorTrayDistance, IsocenterToCompensatorTrayDistance);
   vtkMRMLWriteXMLEnumMacro( divergence, Divergence);
   vtkMRMLWriteXMLEnumMacro( mountingPosition, MountingPosition);
   vtkMRMLWriteXMLEndMacro();
@@ -86,6 +96,7 @@ void vtkMRMLRTIonRangeCompensatorNode::ReadXMLAttributes(const char** atts)
   vtkMRMLReadXMLBeginMacro(atts);
   vtkMRMLReadXMLIntMacro( rows, Rows);
   vtkMRMLReadXMLIntMacro( rows, Columns);
+  vtkMRMLReadXMLFloatMacro( isocenterToCompensatorTrayDistance, IsocenterToCompensatorTrayDistance);
   vtkMRMLReadXMLEnumMacro( divergence, Divergence);
   vtkMRMLReadXMLEnumMacro( mountingPosition, MountingPosition);
   vtkMRMLReadXMLEndMacro();
@@ -124,6 +135,7 @@ void vtkMRMLRTIonRangeCompensatorNode::Copy(vtkMRMLNode *anode)
   vtkMRMLCopyBeginMacro(node);
   vtkMRMLCopyIntMacro(Rows);
   vtkMRMLCopyIntMacro(Columns);
+  vtkMRMLCopyFloatMacro(IsocenterToCompensatorTrayDistance);
   vtkMRMLCopyEnumMacro(Divergence);
   vtkMRMLCopyEnumMacro(MountingPosition);
   vtkMRMLCopyEndMacro();
@@ -148,6 +160,7 @@ void vtkMRMLRTIonRangeCompensatorNode::CopyContent(vtkMRMLNode *anode, bool deep
   vtkMRMLCopyBeginMacro(node);
   vtkMRMLCopyIntMacro(Rows);
   vtkMRMLCopyIntMacro(Columns);
+  vtkMRMLCopyFloatMacro(IsocenterToCompensatorTrayDistance);
   vtkMRMLCopyEnumMacro(Divergence);
   vtkMRMLCopyEnumMacro(MountingPosition);
   vtkMRMLCopyEndMacro();
@@ -157,6 +170,15 @@ void vtkMRMLRTIonRangeCompensatorNode::CopyContent(vtkMRMLNode *anode, bool deep
 void vtkMRMLRTIonRangeCompensatorNode::SetScene(vtkMRMLScene* scene)
 {
   Superclass::SetScene(scene);
+
+  if (!this->GetPolyData())
+  {
+    // Create compensator model
+    vtkSmartPointer<vtkPolyData> beamModelPolyData = vtkSmartPointer<vtkPolyData>::New();
+    this->SetAndObservePolyData(beamModelPolyData);
+  }
+
+  this->CreateCompensatorPolyData();
 }
 
 //----------------------------------------------------------------------------
@@ -167,6 +189,7 @@ void vtkMRMLRTIonRangeCompensatorNode::PrintSelf(ostream& os, vtkIndent indent)
   vtkMRMLPrintBeginMacro(os, indent);
   vtkMRMLPrintIntMacro(Rows);
   vtkMRMLPrintIntMacro(Columns);
+  vtkMRMLPrintFloatMacro(IsocenterToCompensatorTrayDistance);
   vtkMRMLPrintEnumMacro(Divergence);
   vtkMRMLPrintEnumMacro(MountingPosition);
   vtkMRMLPrintEndMacro();
@@ -177,6 +200,17 @@ void vtkMRMLRTIonRangeCompensatorNode::CreateDefaultDisplayNodes()
 {
   // Create default model display node
   Superclass::CreateDefaultDisplayNodes();
+
+  // Set beam-specific parameters when first created
+  vtkMRMLModelDisplayNode* displayNode = vtkMRMLModelDisplayNode::SafeDownCast(this->GetDisplayNode());
+  if (displayNode != nullptr)
+  {
+    displayNode->SetColor(0.0, 1.0, 0.2);
+    displayNode->SetOpacity(0.3);
+    displayNode->SetBackfaceCulling(0); // Disable backface culling to make the back side of the contour visible as well
+    displayNode->VisibilityOn();
+    displayNode->Visibility2DOff();
+  }
 }
 
 //---------------------------------------------------------------------------
@@ -192,11 +226,61 @@ void vtkMRMLRTIonRangeCompensatorNode::CreateCompensatorPolyData(vtkPolyData* co
     return;
   }
 
-  vtkSmartPointer<vtkPoints> points = vtkSmartPointer<vtkPoints>::New();
-  vtkSmartPointer<vtkCellArray> cellArray = vtkSmartPointer<vtkCellArray>::New();
+  double sizeX = this->Rows * this->PixelSpacing[0];
+  double sizeY = this->Columns * this->PixelSpacing[1];
 
-  compensatorModelPolyData->SetPoints(points);
-  compensatorModelPolyData->SetPolys(cellArray);
+  vtkNew<vtkAppendPolyData> appendFilter;
+  for (int i = 0; i < this->Rows; ++i)
+  {
+    for (int j = 0; j < this->Columns; ++j)
+    {
+      vtkNew< vtkCubeSource > voxel;
+      size_t pixelIndex = i * this->Columns + j;
+      double pixelThickness = this->ThicknessData[pixelIndex];
+      double minX = (-1. * sizeX / 2.) + i * this->PixelSpacing[0];
+      double maxX = minX + this->PixelSpacing[0];
+      double minY = (-1. * sizeY / 2.) + j * this->PixelSpacing[1];
+      double maxY = minY + this->PixelSpacing[1];
+
+      switch (this->MountingPosition)
+      {
+      case vtkMRMLRTIonRangeCompensatorNode::SourceSide:
+        voxel->SetBounds( minX, maxX, minY, maxY,
+          -1 * pixelThickness - this->IsocenterToCompensatorTrayDistance,
+          -1. * this->IsocenterToCompensatorTrayDistance);
+        break;
+      case vtkMRMLRTIonRangeCompensatorNode::PatientSide:
+        voxel->SetBounds( minX, maxX, minY, maxY,
+          -1 * this->IsocenterToCompensatorTrayDistance,
+          pixelThickness - this->IsocenterToCompensatorTrayDistance);
+        break;
+      default:
+      break;
+      }
+      voxel->Update();
+      appendFilter->AddInputData(voxel->GetOutput());
+    }
+  }
+  appendFilter->Update();
+  compensatorModelPolyData->DeepCopy(appendFilter->GetOutput());
+}
+
+//----------------------------------------------------------------------------
+vtkMRMLRTIonBeamNode* vtkMRMLRTIonRangeCompensatorNode::GetBeamNode()
+{
+  return vtkMRMLRTIonBeamNode::SafeDownCast( this->GetNodeReference(PARENT_ION_BEAM_NODE_REFERENCE_ROLE) );
+}
+
+//----------------------------------------------------------------------------
+void vtkMRMLRTIonRangeCompensatorNode::SetAndObserveBeamNode(vtkMRMLRTIonBeamNode* node)
+{
+  if (node && this->Scene != node->GetScene())
+  {
+    vtkErrorMacro("Cannot set reference: the referenced and referencing node are not in the same scene");
+    return;
+  }
+
+  this->SetNodeReferenceID(PARENT_ION_BEAM_NODE_REFERENCE_ROLE, (node ? node->GetID() : nullptr));
 }
 
 //---------------------------------------------------------------------------
@@ -304,4 +388,17 @@ void vtkMRMLRTIonRangeCompensatorNode::SetMountingPosition(int id)
     this->SetMountingPosition(vtkMRMLRTIonRangeCompensatorNode::MountingPosition_Last);
     break;
   }
+}
+
+//---------------------------------------------------------------------------
+void vtkMRMLRTIonRangeCompensatorNode::SetThicknessDataVector(const std::vector< double >& data)
+{
+  if (data.size() != static_cast< size_t >(this->Rows * this->Columns))
+  {
+    vtkErrorMacro("SetThicknessDataVector: A new thickness data size != rows*columns");
+    return;
+  }
+  this->ThicknessData.resize(data.size());
+  std::copy( std::begin(data), std::end(data), std::begin(this->ThicknessData));
+  this->Modified();
 }

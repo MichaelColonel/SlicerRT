@@ -24,6 +24,7 @@
 
 // Beams includes
 #include "vtkSlicerBeamsModuleMRMLExport.h"
+#include "vtkMRMLRTIonBeamNode.h"
 
 // MRML includes
 #include <vtkMRMLModelNode.h>
@@ -94,6 +95,36 @@ public:
   /// Set mounting position type
   vtkSetMacro(MountingPosition, MountingPositionType);
 
+  /// Get isocenter to compensator tray distance
+  vtkGetMacro(IsocenterToCompensatorTrayDistance, double);
+  /// Set isocenter to compensator tray distance
+  vtkSetMacro(IsocenterToCompensatorTrayDistance, double);
+
+  /// Get parent ion beam node
+  vtkMRMLRTIonBeamNode* GetBeamNode();
+  /// Set and observe parent ion beam node
+  void SetAndObserveBeamNode(vtkMRMLRTIonBeamNode* node);
+
+  vtkGetMacro(MaterialID, std::string);
+  vtkSetMacro(MaterialID, std::string);
+  vtkGetMacro(CompensatorID, std::string);
+  vtkSetMacro(CompensatorID, std::string);
+  vtkGetMacro(AccessoryCode, std::string);
+  vtkSetMacro(AccessoryCode, std::string);
+  vtkGetMacro(CompensatorDescription, std::string);
+  vtkSetMacro(CompensatorDescription, std::string);
+
+  vtkGetVector2Macro(MountingPositionCoordinate, double);
+  vtkSetVector2Macro(MountingPositionCoordinate, double);
+  vtkGetVector2Macro(PixelSpacing, double);
+  vtkSetVector2Macro(PixelSpacing, double);
+  vtkGetVector2Macro(Position, double);
+  vtkSetVector2Macro(Position, double);
+  vtkGetMacro(MillingToolDiameter, double);
+  vtkSetMacro(MillingToolDiameter, double);
+
+  void SetThicknessDataVector(const std::vector< double >&);
+
 protected:
   /// Create compensator model from compensator parameters
   /// \param compensatorModelPolyData Output polydata. If none given then the compensator node's own polydata is used
@@ -118,15 +149,16 @@ protected:
   int Columns;
   std::string MaterialID;
   std::string AccessoryCode;
-  std::string ID;
-  std::string Description;
-  DivergenceType Divergence{ vtkMRMLRTIonRangeCompensatorNode::Absent };
-  MountingPositionType MountingPosition{ vtkMRMLRTIonRangeCompensatorNode::PatientSide };
+  std::string CompensatorID;
+  std::string CompensatorDescription;
+  double IsocenterToCompensatorTrayDistance;
+  DivergenceType Divergence{ vtkMRMLRTIonRangeCompensatorNode::Divergence_Last };
+  MountingPositionType MountingPosition{ vtkMRMLRTIonRangeCompensatorNode::MountingPosition_Last };
   double MountingPositionCoordinate[2] = { 0., 0. };
-  double PixelSpacing[2] = { 0., 0. };
+  double PixelSpacing[2] = { -1., -1. };
   double Position[2] = { 0., 0. };
   std::vector< double > ThicknessData;
-  double MillingToolDiameter{ 0. };
+  double MillingToolDiameter{ -1. };
 };
 
 #endif // __vtkMRMLRTIonRangeCompensatorNode_h

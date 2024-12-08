@@ -107,7 +107,7 @@ public:
     std::string Description;
   };
 
-  //Structure storing a treatment compensator parameters associated with beam
+  /// Structure storing a treatment compensator parameters associated with beam
   class RangeCompensatorEntry
   {
   public:
@@ -132,7 +132,7 @@ public:
     double MillingToolDiameter;
   };
 
-  //Structure storing a shielding block parameters associated with beam
+  /// Structure storing a shielding block parameters associated with beam
   class BlockEntry
   {
   public:
