@@ -325,10 +325,10 @@ public:
     std::string MultiLeafCollimatorType; // "MLCX" or "MLCY"
     BeamLimitingDeviceEntry MultiLeafCollimator;
 
-    unsigned int NumberOfCompensators;
+    unsigned int NumberOfCompensators; // for RTIonPlan only
     std::vector< RangeCompensatorEntry > RangeCompensatorSequenceVector;
 
-    unsigned int NumberOfBlocks;
+    unsigned int NumberOfBlocks; // for RTIonPlan only
     std::vector< BlockEntry > BlockSequenceVector;
 
     unsigned int NumberOfRangeShifters; // for RTIonPlan only 

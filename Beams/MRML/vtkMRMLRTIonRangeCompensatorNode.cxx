@@ -226,8 +226,8 @@ void vtkMRMLRTIonRangeCompensatorNode::CreateCompensatorPolyData(vtkPolyData* co
     return;
   }
 
-  double sizeX = this->Rows * this->PixelSpacing[0];
-  double sizeY = this->Columns * this->PixelSpacing[1];
+//  double sizeX = this->Rows * this->PixelSpacing[0];
+//  double sizeY = this->Columns * this->PixelSpacing[1];
 
   vtkNew<vtkAppendPolyData> appendFilter;
   for (int i = 0; i < this->Rows; ++i)
@@ -237,22 +237,27 @@ void vtkMRMLRTIonRangeCompensatorNode::CreateCompensatorPolyData(vtkPolyData* co
       vtkNew< vtkCubeSource > voxel;
       size_t pixelIndex = i * this->Columns + j;
       double pixelThickness = this->ThicknessData[pixelIndex];
-      double minX = (-1. * sizeX / 2.) + i * this->PixelSpacing[0];
+//      double minX = (-1. * sizeX / 2.) + i * this->PixelSpacing[0];
+//      double maxX = minX + this->PixelSpacing[0];
+//      double minY = (-1. * sizeY / 2.) + j * this->PixelSpacing[1];
+//      double maxY = minY + this->PixelSpacing[1];
+
+      double minX = (this->Position[0]/* - this->PixelSpacing[0] / 2. */) + i * this->PixelSpacing[0];
       double maxX = minX + this->PixelSpacing[0];
-      double minY = (-1. * sizeY / 2.) + j * this->PixelSpacing[1];
-      double maxY = minY + this->PixelSpacing[1];
+      double maxY = (this->Position[1]/* + this->PixelSpacing[1] / 2. */) - j * this->PixelSpacing[1];
+      double minY = maxY - this->PixelSpacing[1];
 
       switch (this->MountingPosition)
       {
       case vtkMRMLRTIonRangeCompensatorNode::SourceSide:
         voxel->SetBounds( minX, maxX, minY, maxY,
-          -1 * pixelThickness - this->IsocenterToCompensatorTrayDistance,
-          -1. * this->IsocenterToCompensatorTrayDistance);
+          this->IsocenterToCompensatorTrayDistance,
+          this->IsocenterToCompensatorTrayDistance + pixelThickness);
         break;
       case vtkMRMLRTIonRangeCompensatorNode::PatientSide:
         voxel->SetBounds( minX, maxX, minY, maxY,
-          -1 * this->IsocenterToCompensatorTrayDistance,
-          pixelThickness - this->IsocenterToCompensatorTrayDistance);
+          this->IsocenterToCompensatorTrayDistance - pixelThickness,
+          this->IsocenterToCompensatorTrayDistance);
         break;
       default:
       break;

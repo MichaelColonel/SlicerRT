@@ -114,8 +114,6 @@ public:
   vtkGetMacro(CompensatorDescription, std::string);
   vtkSetMacro(CompensatorDescription, std::string);
 
-  vtkGetVector2Macro(MountingPositionCoordinate, double);
-  vtkSetVector2Macro(MountingPositionCoordinate, double);
   vtkGetVector2Macro(PixelSpacing, double);
   vtkSetVector2Macro(PixelSpacing, double);
   vtkGetVector2Macro(Position, double);
@@ -154,7 +152,6 @@ protected:
   double IsocenterToCompensatorTrayDistance;
   DivergenceType Divergence{ vtkMRMLRTIonRangeCompensatorNode::Divergence_Last };
   MountingPositionType MountingPosition{ vtkMRMLRTIonRangeCompensatorNode::MountingPosition_Last };
-  double MountingPositionCoordinate[2] = { 0., 0. };
   double PixelSpacing[2] = { -1., -1. };
   double Position[2] = { 0., 0. };
   std::vector< double > ThicknessData;

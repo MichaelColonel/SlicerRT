@@ -921,11 +921,19 @@ vtkMRMLRTBeamNode* vtkSlicerDicomRtImportExportModuleLogic::vtkInternal::LoadSta
       double* positionXY = rtReader->GetIonRangeCompensatorPosition(dicomBeamNumber, compensators - 1);
       const char* divergence = rtReader->GetIonRangeCompensatorDivergence(dicomBeamNumber, compensators - 1);
       double isoToTrayDistance = rtReader->GetIonRangeCompensatorIsocenterTrayDistance(dicomBeamNumber, compensators - 1);
+      const char* materialID = rtReader->GetIonRangeCompensatorMaterialID(dicomBeamNumber, compensators - 1);
+      const char* compensatorID = rtReader->GetIonRangeCompensatorID(dicomBeamNumber, compensators - 1);
+      const char* compensatorDescription = rtReader->GetIonRangeCompensatorDescription(dicomBeamNumber, compensators - 1);
+      const char* accessoryCode = rtReader->GetIonRangeCompensatorAccessoryCode(dicomBeamNumber, compensators - 1);
       ionRangeCompensator->SetRows(rows);
       ionRangeCompensator->SetColumns(columns);
       ionRangeCompensator->SetPixelSpacing(pixelSpacingXY);
       ionRangeCompensator->SetPosition(positionXY);
       ionRangeCompensator->SetIsocenterToCompensatorTrayDistance(isoToTrayDistance);
+      ionRangeCompensator->SetMaterialID(std::string(materialID));
+      ionRangeCompensator->SetCompensatorID(std::string(compensatorID));
+      ionRangeCompensator->SetCompensatorDescription(std::string(compensatorDescription));
+      ionRangeCompensator->SetAccessoryCode(std::string(accessoryCode));
       if (rows > 1 && columns > 1)
       {
         std::vector< double > v(rows * columns);
@@ -1019,6 +1027,20 @@ vtkMRMLRTBeamNode* vtkSlicerDicomRtImportExportModuleLogic::vtkInternal::LoadSta
   // Add ion range compensator (only one)
   if (ionRangeCompensator)
   {
+    // Unique compensator name
+    std::stringstream sstream;
+    sstream << ionRangeCompensator->GetCompensatorID();
+    if (!ionRangeCompensator->GetCompensatorDescription().empty())
+    {
+      sstream << " : [ " << ionRangeCompensator->GetCompensatorDescription() << " ]";
+    }
+    if (!ionRangeCompensator->GetMaterialID().empty())
+    {
+      sstream << " : ( " << ionRangeCompensator->GetMaterialID() << " )";
+    }
+    std::string name = sstream.str();
+    std::string uniqName = this->External->GetMRMLScene()->GenerateUniqueName(name);
+    ionRangeCompensator->SetName(uniqName.c_str());
     scene->AddNode(ionRangeCompensator);
   }
 
