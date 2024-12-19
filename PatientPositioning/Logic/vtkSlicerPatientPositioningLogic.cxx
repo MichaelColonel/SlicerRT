@@ -1003,7 +1003,7 @@ vtkVector3d vtkSlicerPatientPositioningLogic::GetBeamToFixedReferenceAlignment(v
   }
 
   vtkNew< vtkMatrix4x4 > transformMatrix;
-  // From RAS->FixedReference to PatientBeam->RAS transform
+  // From FixedReference->RAS to RAS->PatientBeam transform
   // rasToFixedReferenceTransformNode - Source
   // patientBeamTransformNode - Target
   // Source -> Target transform
