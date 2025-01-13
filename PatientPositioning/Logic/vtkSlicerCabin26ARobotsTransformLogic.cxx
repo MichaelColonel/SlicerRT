@@ -83,6 +83,7 @@ vtkSlicerCabin26ARobotsTransformLogic::vtkSlicerCabin26ARobotsTransformLogic()
   this->CoordinateSystemsMap[CoordSys::RAS] = "RAS";
   this->CoordinateSystemsMap[CoordSys::FixedReference] = "FixedReference";
   this->CoordinateSystemsMap[CoordSys::TableBaseFixed] = "TableBaseFixed";
+  this->CoordinateSystemsMap[CoordSys::CArmBaseFixed] = "CarmBaseFixed";
   this->CoordinateSystemsMap[CoordSys::TableBaseRotation] = "TableBaseRotation";
   this->CoordinateSystemsMap[CoordSys::TableShoulder] = "TableShoulder";
   this->CoordinateSystemsMap[CoordSys::TableElbow] = "TableElbow";
@@ -102,10 +103,11 @@ vtkSlicerCabin26ARobotsTransformLogic::vtkSlicerCabin26ARobotsTransformLogic()
   this->RobotsTransforms.push_back(std::make_pair(CoordSys::TableTop, CoordSys::TableFlange)); // Dummy, only fixed translation
   this->RobotsTransforms.push_back(std::make_pair(CoordSys::Patient, CoordSys::TableTop));
   this->RobotsTransforms.push_back(std::make_pair(CoordSys::RAS, CoordSys::Patient));
+  this->RobotsTransforms.push_back(std::make_pair(CoordSys::FixedReference, CoordSys::CArmBaseFixed));
 
   this->CoordinateSystemsHierarchy.clear();
   // key - parent, value - children
-  this->CoordinateSystemsHierarchy[CoordSys::FixedReference] = { CoordSys::TableBaseFixed };
+  this->CoordinateSystemsHierarchy[CoordSys::FixedReference] = { CoordSys::TableBaseFixed, CoordSys::CArmBaseFixed };
   this->CoordinateSystemsHierarchy[CoordSys::TableBaseFixed] = { CoordSys::TableBaseRotation };
   this->CoordinateSystemsHierarchy[CoordSys::TableBaseRotation] = { CoordSys::TableShoulder };
   this->CoordinateSystemsHierarchy[CoordSys::TableShoulder] = { CoordSys::TableElbow };
@@ -158,6 +160,7 @@ const char* vtkSlicerCabin26ARobotsTransformLogic::GetTreatmentMachinePartTypeAs
   {
     case FixedReference: return "FixedReference";
     case TableBaseFixed: return "TableRobotBaseFixed";
+    case CArmBaseFixed: return "CArmRobotBaseFixed";
     case TableBaseRotation: return "TableRobotBaseRotation";
     case TableShoulder: return "TableRobotShoulder";
     case TableFlange: return "TableFlange";
@@ -201,6 +204,8 @@ void vtkSlicerCabin26ARobotsTransformLogic::BuildRobotsTransformHierarchy()
 
   // FixedReference parent, translation of fixed base part of the robot from fixed reference isocenter
   this->GetTransformNodeBetween(CoordSys::TableBaseFixed, CoordSys::FixedReference)->SetAndObserveTransformNodeID(
+    this->GetTransformNodeBetween(CoordSys::FixedReference, CoordSys::RAS)->GetID() );
+  this->GetTransformNodeBetween(CoordSys::FixedReference, CoordSys::CArmBaseFixed)->SetAndObserveTransformNodeID(
     this->GetTransformNodeBetween(CoordSys::FixedReference, CoordSys::RAS)->GetID() );
 
   // BaseFixed parent, rotation of base part of the robot along Z-axis
@@ -295,6 +300,12 @@ void vtkSlicerCabin26ARobotsTransformLogic::ResetToInitialPositions()
   vtkTransform* baseFixedToFixedRerefenceTransform = vtkTransform::SafeDownCast(baseFixedToFixedRerefenceTransformNode->GetTransformToParent());
   baseFixedToFixedRerefenceTransform->Identity();
   baseFixedToFixedRerefenceTransform->Modified();
+
+  vtkMRMLLinearTransformNode* fixedRerefenceToCArmBaseFixedTransformNode =
+    this->GetTransformNodeBetween(CoordSys::FixedReference, CoordSys::CArmBaseFixed);
+  vtkTransform* fixedRerefenceToCArmBaseFixedTransform = vtkTransform::SafeDownCast(fixedRerefenceToCArmBaseFixedTransformNode->GetTransformToParent());
+  fixedRerefenceToCArmBaseFixedTransform->Identity();
+  fixedRerefenceToCArmBaseFixedTransform->Modified();
 }
 
 //-----------------------------------------------------------------------------
