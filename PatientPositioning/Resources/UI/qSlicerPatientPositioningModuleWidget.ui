@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>395</width>
-    <height>837</height>
+    <width>641</width>
+    <height>944</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -559,25 +559,34 @@
      </property>
      <layout class="QGridLayout" name="gridLayout_9">
       <item row="0" column="0">
-       <layout class="QHBoxLayout" name="horizontalLayout">
-        <item>
-         <widget class="QLabel" name="label_16">
-          <property name="text">
-           <string>RAS Offset (mm):</string>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="ctkCoordinatesWidget" name="CoordinatesWidget_BaseFixedTranslation">
-          <property name="decimals">
-           <number>1</number>
-          </property>
-          <property name="coordinates" stdset="0">
-           <string>-1500,-1600,1400</string>
-          </property>
-         </widget>
-        </item>
-       </layout>
+       <widget class="QGroupBox" name="groupBox">
+        <property name="title">
+         <string>BaseFixed origin offset from FixedReference frame origin (mm)</string>
+        </property>
+        <layout class="QGridLayout" name="gridLayout_16">
+         <item row="0" column="0">
+          <layout class="QHBoxLayout" name="horizontalLayout">
+           <item>
+            <widget class="QLabel" name="label_16">
+             <property name="text">
+              <string>(X,Y,Z) in FixedReference frame:</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="ctkCoordinatesWidget" name="CoordinatesWidget_BaseFixedTranslation">
+             <property name="decimals">
+              <number>1</number>
+             </property>
+             <property name="coordinates" stdset="0">
+              <string>-1685,600,-1800</string>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </item>
+        </layout>
+       </widget>
       </item>
      </layout>
     </widget>
@@ -585,19 +594,22 @@
    <item>
     <widget class="ctkCollapsibleButton" name="CollapsibleButton_TableTopControl">
      <property name="enabled">
-      <bool>false</bool>
+      <bool>true</bool>
      </property>
      <property name="text">
       <string>TableTop control</string>
      </property>
      <property name="collapsed">
-      <bool>true</bool>
+      <bool>false</bool>
      </property>
      <layout class="QGridLayout" name="gridLayout_5">
       <item row="0" column="0">
        <layout class="QGridLayout" name="gridLayout_4">
         <item row="0" column="0">
          <widget class="QLabel" name="label_11">
+          <property name="enabled">
+           <bool>false</bool>
+          </property>
           <property name="text">
            <string>Xt offset</string>
           </property>
@@ -605,6 +617,9 @@
         </item>
         <item row="0" column="1">
          <widget class="ctkSliderWidget" name="SliderWidget">
+          <property name="enabled">
+           <bool>false</bool>
+          </property>
           <property name="minimum">
            <double>-5000.000000000000000</double>
           </property>
@@ -617,7 +632,13 @@
          </widget>
         </item>
         <item row="3" column="1">
-         <widget class="ctkSliderWidget" name="SliderWidget_4">
+         <widget class="ctkSliderWidget" name="SliderWidget_Xt">
+          <property name="singleStep">
+           <double>0.100000000000000</double>
+          </property>
+          <property name="pageStep">
+           <double>0.500000000000000</double>
+          </property>
           <property name="minimum">
            <double>-5.000000000000000</double>
           </property>
@@ -631,6 +652,9 @@
         </item>
         <item row="1" column="1">
          <widget class="ctkSliderWidget" name="SliderWidget_2">
+          <property name="enabled">
+           <bool>false</bool>
+          </property>
           <property name="minimum">
            <double>-5000.000000000000000</double>
           </property>
@@ -644,6 +668,9 @@
         </item>
         <item row="1" column="0">
          <widget class="QLabel" name="label_10">
+          <property name="enabled">
+           <bool>false</bool>
+          </property>
           <property name="text">
            <string>Yt offset</string>
           </property>
@@ -651,6 +678,9 @@
         </item>
         <item row="2" column="1">
          <widget class="ctkSliderWidget" name="SliderWidget_3">
+          <property name="enabled">
+           <bool>false</bool>
+          </property>
           <property name="minimum">
            <double>-5000.000000000000000</double>
           </property>
@@ -663,7 +693,13 @@
          </widget>
         </item>
         <item row="4" column="1">
-         <widget class="ctkSliderWidget" name="SliderWidget_5">
+         <widget class="ctkSliderWidget" name="SliderWidget_Yt">
+          <property name="singleStep">
+           <double>0.100000000000000</double>
+          </property>
+          <property name="pageStep">
+           <double>0.500000000000000</double>
+          </property>
           <property name="minimum">
            <double>-5.000000000000000</double>
           </property>
@@ -676,7 +712,10 @@
          </widget>
         </item>
         <item row="5" column="1">
-         <widget class="ctkSliderWidget" name="SliderWidget_6">
+         <widget class="ctkSliderWidget" name="SliderWidget_Zt">
+          <property name="singleStep">
+           <double>1.000000000000000</double>
+          </property>
           <property name="minimum">
            <double>-360.000000000000000</double>
           </property>
@@ -690,6 +729,9 @@
         </item>
         <item row="2" column="0">
          <widget class="QLabel" name="label_12">
+          <property name="enabled">
+           <bool>false</bool>
+          </property>
           <property name="text">
            <string>Zt offset</string>
           </property>

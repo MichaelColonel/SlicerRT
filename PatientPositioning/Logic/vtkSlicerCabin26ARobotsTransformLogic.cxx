@@ -20,7 +20,7 @@
 ==============================================================================*/
 
 // Beams includes
-#include "vtkSlicerTableTopRobotTransformLogic.h"
+#include "vtkSlicerCabin26ARobotsTransformLogic.h"
 
 #include "vtkMRMLRTBeamNode.h"
 #include "vtkMRMLRTPlanNode.h"
@@ -72,66 +72,66 @@ constexpr std::array< double, 3 > InitialSholderElbowJointOffsetRAS{
 }
 
 //----------------------------------------------------------------------------
-vtkStandardNewMacro(vtkSlicerTableTopRobotTransformLogic);
+vtkStandardNewMacro(vtkSlicerCabin26ARobotsTransformLogic);
 
 //-----------------------------------------------------------------------------
-vtkSlicerTableTopRobotTransformLogic::vtkSlicerTableTopRobotTransformLogic()
+vtkSlicerCabin26ARobotsTransformLogic::vtkSlicerCabin26ARobotsTransformLogic()
 {
   using CoordSys = CoordinateSystemIdentifier;
   // Setup coordinate system ID to name map
   this->CoordinateSystemsMap.clear();
-  this->CoordinateSystemsMap[CoordSys::RAS] = "TTRRAS";
-  this->CoordinateSystemsMap[CoordSys::FixedReference] = "TTRFixedReference";
-  this->CoordinateSystemsMap[CoordSys::BaseFixed] = "TTRBaseFixed";
-  this->CoordinateSystemsMap[CoordSys::BaseRotation] = "TTRBaseRotation";
-  this->CoordinateSystemsMap[CoordSys::Shoulder] = "TTRShoulder";
-  this->CoordinateSystemsMap[CoordSys::Elbow] = "TTRElbow";
-  this->CoordinateSystemsMap[CoordSys::Wrist] = "TTRWrist";
-  this->CoordinateSystemsMap[CoordSys::Flange] = "TTRFlange";
-  this->CoordinateSystemsMap[CoordSys::TableTop] = "TTRTableTop";
-  this->CoordinateSystemsMap[CoordSys::Patient] = "TTRPatient";
+  this->CoordinateSystemsMap[CoordSys::RAS] = "RAS";
+  this->CoordinateSystemsMap[CoordSys::FixedReference] = "FixedReference";
+  this->CoordinateSystemsMap[CoordSys::TableBaseFixed] = "TableBaseFixed";
+  this->CoordinateSystemsMap[CoordSys::TableBaseRotation] = "TableBaseRotation";
+  this->CoordinateSystemsMap[CoordSys::TableShoulder] = "TableShoulder";
+  this->CoordinateSystemsMap[CoordSys::TableElbow] = "TableElbow";
+  this->CoordinateSystemsMap[CoordSys::TableWrist] = "TableWrist";
+  this->CoordinateSystemsMap[CoordSys::TableFlange] = "TableFlange";
+  this->CoordinateSystemsMap[CoordSys::TableTop] = "TableTop";
+  this->CoordinateSystemsMap[CoordSys::Patient] = "Patient";
 
-  this->TableTopRobotTransforms.clear();
-  this->TableTopRobotTransforms.push_back(std::make_pair(CoordSys::FixedReference, CoordSys::RAS)); // Dummy
-  this->TableTopRobotTransforms.push_back(std::make_pair(CoordSys::BaseFixed, CoordSys::FixedReference)); // Collimator in canyon system
-  this->TableTopRobotTransforms.push_back(std::make_pair(CoordSys::BaseRotation, CoordSys::BaseFixed)); // Rotation of patient support platform
-  this->TableTopRobotTransforms.push_back(std::make_pair(CoordSys::Shoulder, CoordSys::BaseRotation)); // Lateral movement along Y-axis in RAS of the table top
-  this->TableTopRobotTransforms.push_back(std::make_pair(CoordSys::Elbow, CoordSys::Shoulder)); // Longitudinal movement along X-axis in RAS of the table top
-  this->TableTopRobotTransforms.push_back(std::make_pair(CoordSys::Wrist, CoordSys::Elbow)); // Vertical movement of table top origin
-  this->TableTopRobotTransforms.push_back(std::make_pair(CoordSys::Flange, CoordSys::Wrist)); // Rotation of flange on table top center
-  this->TableTopRobotTransforms.push_back(std::make_pair(CoordSys::TableTop, CoordSys::Flange)); // Dummy, only fixed translation
-  this->TableTopRobotTransforms.push_back(std::make_pair(CoordSys::Patient, CoordSys::TableTop));
-  this->TableTopRobotTransforms.push_back(std::make_pair(CoordSys::RAS, CoordSys::Patient));
+  this->RobotsTransforms.clear();
+  this->RobotsTransforms.push_back(std::make_pair(CoordSys::FixedReference, CoordSys::RAS)); // Dummy
+  this->RobotsTransforms.push_back(std::make_pair(CoordSys::TableBaseFixed, CoordSys::FixedReference)); // Collimator in canyon system
+  this->RobotsTransforms.push_back(std::make_pair(CoordSys::TableBaseRotation, CoordSys::TableBaseFixed)); // Rotation of patient support platform
+  this->RobotsTransforms.push_back(std::make_pair(CoordSys::TableShoulder, CoordSys::TableBaseRotation)); // Lateral movement along Y-axis in RAS of the table top
+  this->RobotsTransforms.push_back(std::make_pair(CoordSys::TableElbow, CoordSys::TableShoulder)); // Longitudinal movement along X-axis in RAS of the table top
+  this->RobotsTransforms.push_back(std::make_pair(CoordSys::TableWrist, CoordSys::TableElbow)); // Vertical movement of table top origin
+  this->RobotsTransforms.push_back(std::make_pair(CoordSys::TableFlange, CoordSys::TableWrist)); // Rotation of flange on table top center
+  this->RobotsTransforms.push_back(std::make_pair(CoordSys::TableTop, CoordSys::TableFlange)); // Dummy, only fixed translation
+  this->RobotsTransforms.push_back(std::make_pair(CoordSys::Patient, CoordSys::TableTop));
+  this->RobotsTransforms.push_back(std::make_pair(CoordSys::RAS, CoordSys::Patient));
 
   this->CoordinateSystemsHierarchy.clear();
   // key - parent, value - children
-  this->CoordinateSystemsHierarchy[CoordSys::FixedReference] = { CoordSys::BaseFixed };
-  this->CoordinateSystemsHierarchy[CoordSys::BaseFixed] = { CoordSys::BaseRotation };
-  this->CoordinateSystemsHierarchy[CoordSys::BaseRotation] = { CoordSys::Shoulder };
-  this->CoordinateSystemsHierarchy[CoordSys::Shoulder] = { CoordSys::Elbow };
-  this->CoordinateSystemsHierarchy[CoordSys::Elbow] = { CoordSys::Wrist };
-  this->CoordinateSystemsHierarchy[CoordSys::Wrist] = { CoordSys::Flange };
-  this->CoordinateSystemsHierarchy[CoordSys::Flange] = { CoordSys::TableTop };
+  this->CoordinateSystemsHierarchy[CoordSys::FixedReference] = { CoordSys::TableBaseFixed };
+  this->CoordinateSystemsHierarchy[CoordSys::TableBaseFixed] = { CoordSys::TableBaseRotation };
+  this->CoordinateSystemsHierarchy[CoordSys::TableBaseRotation] = { CoordSys::TableShoulder };
+  this->CoordinateSystemsHierarchy[CoordSys::TableShoulder] = { CoordSys::TableElbow };
+  this->CoordinateSystemsHierarchy[CoordSys::TableElbow] = { CoordSys::TableWrist };
+  this->CoordinateSystemsHierarchy[CoordSys::TableWrist] = { CoordSys::TableFlange };
+  this->CoordinateSystemsHierarchy[CoordSys::TableFlange] = { CoordSys::TableTop };
   this->CoordinateSystemsHierarchy[CoordSys::TableTop] = { CoordSys::Patient };
   this->CoordinateSystemsHierarchy[CoordSys::Patient] = { CoordSys::RAS };
 }
 
 //-----------------------------------------------------------------------------
-vtkSlicerTableTopRobotTransformLogic::~vtkSlicerTableTopRobotTransformLogic()
+vtkSlicerCabin26ARobotsTransformLogic::~vtkSlicerCabin26ARobotsTransformLogic()
 {
   this->CoordinateSystemsMap.clear();
-  this->TableTopRobotTransforms.clear();
+  this->RobotsTransforms.clear();
 }
 
 //----------------------------------------------------------------------------
-void vtkSlicerTableTopRobotTransformLogic::PrintSelf(ostream& os, vtkIndent indent)
+void vtkSlicerCabin26ARobotsTransformLogic::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 
   // Transforms
   os << indent << "Transforms:" << std::endl;
   vtkSmartPointer<vtkMatrix4x4> matrix = vtkSmartPointer<vtkMatrix4x4>::New();
-  for ( auto& transformPair : this->TableTopRobotTransforms)
+  for ( auto& transformPair : this->RobotsTransforms)
   {
     std::string transformNodeName = this->GetTransformNodeNameBetween( transformPair.first, transformPair.second);
     vtkMRMLLinearTransformNode* transformNode = vtkMRMLLinearTransformNode::SafeDownCast(
@@ -152,18 +152,18 @@ void vtkSlicerTableTopRobotTransformLogic::PrintSelf(ostream& os, vtkIndent inde
 }
 
 //---------------------------------------------------------------------------
-const char* vtkSlicerTableTopRobotTransformLogic::GetTreatmentMachinePartTypeAsString(CoordinateSystemIdentifier type)
+const char* vtkSlicerCabin26ARobotsTransformLogic::GetTreatmentMachinePartTypeAsString(CoordinateSystemIdentifier type)
 {
   switch (type)
   {
     case FixedReference: return "FixedReference";
-    case BaseFixed: return "RobotBaseFixed";
+    case TableBaseFixed: return "TableRobotBaseFixed";
+    case TableBaseRotation: return "TableRobotBaseRotation";
+    case TableShoulder: return "TableRobotShoulder";
+    case TableFlange: return "TableFlange";
+    case TableElbow: return "TableRobotElbow";
+    case TableWrist: return "TableRobotWrist";
     case TableTop: return "TableTop";
-    case BaseRotation: return "RobotBaseRotation";
-    case Shoulder: return "RobotShoulder";
-    case Flange: return "Flange";
-    case Elbow: return "RobotElbow";
-    case Wrist: return "RobotWrist";
     case Patient: return "Patient";
     default:
       // invalid type
@@ -172,7 +172,7 @@ const char* vtkSlicerTableTopRobotTransformLogic::GetTreatmentMachinePartTypeAsS
 }
 
 //---------------------------------------------------------------------------
-void vtkSlicerTableTopRobotTransformLogic::BuildTableRobotTransformHierarchy()
+void vtkSlicerCabin26ARobotsTransformLogic::BuildRobotsTransformHierarchy()
 {
   if (!this->GetMRMLScene())
   {
@@ -181,7 +181,7 @@ void vtkSlicerTableTopRobotTransformLogic::BuildTableRobotTransformHierarchy()
   }
 
   // Create transform nodes if they do not exist
-  for (auto& transformPair : this->TableTopRobotTransforms)
+  for (auto& transformPair : this->RobotsTransforms)
   {
     std::string transformNodeName = this->GetTransformNodeNameBetween( transformPair.first, transformPair.second);
     if (!this->GetMRMLScene()->GetFirstNodeByName(transformNodeName.c_str()))
@@ -189,7 +189,7 @@ void vtkSlicerTableTopRobotTransformLogic::BuildTableRobotTransformHierarchy()
       vtkSmartPointer<vtkMRMLLinearTransformNode> transformNode = vtkSmartPointer<vtkMRMLLinearTransformNode>::New();
       transformNode->SetName(transformNodeName.c_str());
 //      transformNode->SetHideFromEditors(1);
-      std::string singletonTag = std::string("TTR_") + transformNodeName;
+      std::string singletonTag = std::string("C26A_") + transformNodeName;
       transformNode->SetSingletonTag(singletonTag.c_str());
       this->GetMRMLScene()->AddNode(transformNode);
     }
@@ -200,35 +200,35 @@ void vtkSlicerTableTopRobotTransformLogic::BuildTableRobotTransformHierarchy()
   // Organize transforms into hierarchy based on table top robot RBS geometry
 
   // FixedReference parent, translation of fixed base part of the robot from fixed reference isocenter
-  this->GetTransformNodeBetween(CoordSys::BaseFixed, CoordSys::FixedReference)->SetAndObserveTransformNodeID(
+  this->GetTransformNodeBetween(CoordSys::TableBaseFixed, CoordSys::FixedReference)->SetAndObserveTransformNodeID(
     this->GetTransformNodeBetween(CoordSys::FixedReference, CoordSys::RAS)->GetID() );
 
   // BaseFixed parent, rotation of base part of the robot along Z-axis
-  this->GetTransformNodeBetween(CoordSys::BaseRotation, CoordSys::BaseFixed)->SetAndObserveTransformNodeID(
-    this->GetTransformNodeBetween(CoordSys::BaseFixed, CoordSys::FixedReference)->GetID() );
+  this->GetTransformNodeBetween(CoordSys::TableBaseRotation, CoordSys::TableBaseFixed)->SetAndObserveTransformNodeID(
+    this->GetTransformNodeBetween(CoordSys::TableBaseFixed, CoordSys::FixedReference)->GetID() );
 
   // BaseRotation parent, rotation of shoulder part of the robot along Y-axis
-  this->GetTransformNodeBetween(CoordSys::Shoulder, CoordSys::BaseRotation)->SetAndObserveTransformNodeID(
-    this->GetTransformNodeBetween(CoordSys::BaseRotation, CoordSys::BaseFixed)->GetID() );
+  this->GetTransformNodeBetween(CoordSys::TableShoulder, CoordSys::TableBaseRotation)->SetAndObserveTransformNodeID(
+    this->GetTransformNodeBetween(CoordSys::TableBaseRotation, CoordSys::TableBaseFixed)->GetID() );
 
   // Shoulder parent, rotation of elbow part of the robot along Y-axis
-  this->GetTransformNodeBetween(CoordSys::Elbow, CoordSys::Shoulder)->SetAndObserveTransformNodeID(
-    this->GetTransformNodeBetween(CoordSys::Shoulder, CoordSys::BaseRotation)->GetID() );
+  this->GetTransformNodeBetween(CoordSys::TableElbow, CoordSys::TableShoulder)->SetAndObserveTransformNodeID(
+    this->GetTransformNodeBetween(CoordSys::TableShoulder, CoordSys::TableBaseRotation)->GetID() );
   // Elbow parent, rotation of wrist part of the robot along Y-axis
-  this->GetTransformNodeBetween(CoordSys::Wrist, CoordSys::Elbow)->SetAndObserveTransformNodeID(
-    this->GetTransformNodeBetween(CoordSys::Elbow, CoordSys::Shoulder)->GetID() );
+  this->GetTransformNodeBetween(CoordSys::TableWrist, CoordSys::TableElbow)->SetAndObserveTransformNodeID(
+    this->GetTransformNodeBetween(CoordSys::TableElbow, CoordSys::TableShoulder)->GetID() );
 
   // Wrist parent, translation of flange center from wrist center
-  this->GetTransformNodeBetween(CoordSys::Flange, CoordSys::Wrist)->SetAndObserveTransformNodeID(
-    this->GetTransformNodeBetween(CoordSys::Wrist, CoordSys::Elbow)->GetID() );
+  this->GetTransformNodeBetween(CoordSys::TableFlange, CoordSys::TableWrist)->SetAndObserveTransformNodeID(
+    this->GetTransformNodeBetween(CoordSys::TableWrist, CoordSys::TableElbow)->GetID() );
 
   // Flange parent, translation of table top center flange center
-  this->GetTransformNodeBetween(CoordSys::TableTop, CoordSys::Flange)->SetAndObserveTransformNodeID(
-    this->GetTransformNodeBetween(CoordSys::Flange, CoordSys::Wrist)->GetID() );
+  this->GetTransformNodeBetween(CoordSys::TableTop, CoordSys::TableFlange)->SetAndObserveTransformNodeID(
+    this->GetTransformNodeBetween(CoordSys::TableFlange, CoordSys::TableWrist)->GetID() );
 
   // TableTop parent, translation of patient from wrist flange center
   this->GetTransformNodeBetween( CoordSys::Patient, CoordSys::TableTop)->SetAndObserveTransformNodeID(
-    this->GetTransformNodeBetween(CoordSys::TableTop, CoordSys::Flange)->GetID() );
+    this->GetTransformNodeBetween(CoordSys::TableTop, CoordSys::TableFlange)->GetID() );
 
   // Patient parent, transform to RAS
   this->GetTransformNodeBetween( CoordSys::RAS, CoordSys::Patient)->SetAndObserveTransformNodeID(
@@ -236,7 +236,7 @@ void vtkSlicerTableTopRobotTransformLogic::BuildTableRobotTransformHierarchy()
 }
 
 //-----------------------------------------------------------------------------
-void vtkSlicerTableTopRobotTransformLogic::ResetToInitialPositions()
+void vtkSlicerCabin26ARobotsTransformLogic::ResetToInitialPositions()
 {
   using CoordSys = CoordinateSystemIdentifier;
   // Update IEC Patient to RAS transform based on the isocenter defined in the beam's parent plan
@@ -255,57 +255,57 @@ void vtkSlicerTableTopRobotTransformLogic::ResetToInitialPositions()
   patientToTableTopTransform->Modified();
 
   vtkMRMLLinearTransformNode* tableTopToFlangeTransformNode =
-    this->GetTransformNodeBetween(CoordSys::TableTop, CoordSys::Flange);
+    this->GetTransformNodeBetween(CoordSys::TableTop, CoordSys::TableFlange);
   vtkTransform* tableTopToFlangeTransform = vtkTransform::SafeDownCast(tableTopToFlangeTransformNode->GetTransformToParent());
   tableTopToFlangeTransform->Identity();
   tableTopToFlangeTransform->Modified();
 
   vtkMRMLLinearTransformNode* flangeToWristTransformNode =
-    this->GetTransformNodeBetween(CoordSys::Flange, CoordSys::Wrist);
+    this->GetTransformNodeBetween(CoordSys::TableFlange, CoordSys::TableWrist);
   vtkTransform* flangeToWristTransform = vtkTransform::SafeDownCast(flangeToWristTransformNode->GetTransformToParent());
   flangeToWristTransform->Identity();
   flangeToWristTransform->Modified();
 
   vtkMRMLLinearTransformNode* wristToElbowTransformNode =
-    this->GetTransformNodeBetween(CoordSys::Wrist, CoordSys::Elbow);
+    this->GetTransformNodeBetween(CoordSys::TableWrist, CoordSys::TableElbow);
   vtkTransform* wristToElbowTransform = vtkTransform::SafeDownCast(wristToElbowTransformNode->GetTransformToParent());
   wristToElbowTransform->Identity();
   wristToElbowTransform->Modified();
 
   vtkMRMLLinearTransformNode* elbowToShoulderTransformNode =
-    this->GetTransformNodeBetween(CoordSys::Elbow, CoordSys::Shoulder);
+    this->GetTransformNodeBetween(CoordSys::TableElbow, CoordSys::TableShoulder);
   vtkTransform* elbowToShoulderTransform = vtkTransform::SafeDownCast(elbowToShoulderTransformNode->GetTransformToParent());
   elbowToShoulderTransform->Identity();
   elbowToShoulderTransform->Modified();
 
   vtkMRMLLinearTransformNode* shoulderToBaseRotationTransformNode =
-    this->GetTransformNodeBetween(CoordSys::Shoulder, CoordSys::BaseRotation);
+    this->GetTransformNodeBetween(CoordSys::TableShoulder, CoordSys::TableBaseRotation);
   vtkTransform* shoulderToBaseRotationTransform = vtkTransform::SafeDownCast(shoulderToBaseRotationTransformNode->GetTransformToParent());
   shoulderToBaseRotationTransform->Identity();
   shoulderToBaseRotationTransform->Modified();
 
   vtkMRMLLinearTransformNode* baseRotationToBaseFixedTransformNode =
-    this->GetTransformNodeBetween(CoordSys::BaseRotation, CoordSys::BaseFixed);
+    this->GetTransformNodeBetween(CoordSys::TableBaseRotation, CoordSys::TableBaseFixed);
   vtkTransform* baseRotationToBaseFixedTransform = vtkTransform::SafeDownCast(baseRotationToBaseFixedTransformNode->GetTransformToParent());
   baseRotationToBaseFixedTransform->Identity();
   baseRotationToBaseFixedTransform->Modified();
 
   vtkMRMLLinearTransformNode* baseFixedToFixedRerefenceTransformNode =
-    this->GetTransformNodeBetween(CoordSys::BaseFixed, CoordSys::FixedReference);
+    this->GetTransformNodeBetween(CoordSys::TableBaseFixed, CoordSys::FixedReference);
   vtkTransform* baseFixedToFixedRerefenceTransform = vtkTransform::SafeDownCast(baseFixedToFixedRerefenceTransformNode->GetTransformToParent());
   baseFixedToFixedRerefenceTransform->Identity();
   baseFixedToFixedRerefenceTransform->Modified();
 }
 
 //-----------------------------------------------------------------------------
-std::string vtkSlicerTableTopRobotTransformLogic::GetTransformNodeNameBetween(
+std::string vtkSlicerCabin26ARobotsTransformLogic::GetTransformNodeNameBetween(
   CoordinateSystemIdentifier fromFrame, CoordinateSystemIdentifier toFrame)
 {
   return this->CoordinateSystemsMap[fromFrame] + "To" + this->CoordinateSystemsMap[toFrame] + "Transform";
 }
 
 //-----------------------------------------------------------------------------
-vtkMRMLLinearTransformNode* vtkSlicerTableTopRobotTransformLogic::GetTransformNodeBetween(
+vtkMRMLLinearTransformNode* vtkSlicerCabin26ARobotsTransformLogic::GetTransformNodeBetween(
   CoordinateSystemIdentifier fromFrame, CoordinateSystemIdentifier toFrame )
 {
   if (!this->GetMRMLScene())
@@ -319,7 +319,7 @@ vtkMRMLLinearTransformNode* vtkSlicerTableTopRobotTransformLogic::GetTransformNo
 }
 
 //-----------------------------------------------------------------------------
-bool vtkSlicerTableTopRobotTransformLogic::GetTransformForPointBetweenFrames( 
+bool vtkSlicerCabin26ARobotsTransformLogic::GetTransformForPointBetweenFrames( 
   CoordinateSystemIdentifier fromFrame, CoordinateSystemIdentifier toFrame,
   const double fromFramePoint[3], double toFramePoint[3], bool transformForBeam)
 {
@@ -392,7 +392,7 @@ bool vtkSlicerTableTopRobotTransformLogic::GetTransformForPointBetweenFrames(
 }
 
 //-----------------------------------------------------------------------------
-void vtkSlicerTableTopRobotTransformLogic::UpdateBaseFixedToFixedReferenceTransform(vtkMRMLCabin26AGeometryNode* parameterNode)
+void vtkSlicerCabin26ARobotsTransformLogic::UpdateBaseFixedToFixedReferenceTransform(vtkMRMLCabin26AGeometryNode* parameterNode)
 {
   vtkMRMLScene* scene = this->GetMRMLScene();
   if (!scene)
@@ -417,7 +417,7 @@ void vtkSlicerTableTopRobotTransformLogic::UpdateBaseFixedToFixedReferenceTransf
 
   using CoordSys = CoordinateSystemIdentifier;
   vtkNew<vtkTransform> baseFixedToPatientTransform;
-  if (!this->GetTransformBetween( CoordSys::BaseFixed, CoordSys::Patient, 
+  if (!this->GetTransformBetween( CoordSys::TableBaseFixed, CoordSys::Patient, 
     baseFixedToPatientTransform, false))
   {
     vtkWarningMacro("UpdateShoulderToBaseRotationTransform: Can't get BaseFixed->Patient transform");
@@ -425,14 +425,14 @@ void vtkSlicerTableTopRobotTransformLogic::UpdateBaseFixedToFixedReferenceTransf
 
   double PatientToBaseFixedTranslate[3] = {};
   vtkNew<vtkTransform> patientToBaseFixedTransform;
-  if (this->GetTransformBetween( CoordSys::Patient, CoordSys::BaseFixed, 
+  if (this->GetTransformBetween( CoordSys::Patient, CoordSys::TableBaseFixed, 
     patientToBaseFixedTransform, false))
   {
     patientToBaseFixedTransform->GetPosition(PatientToBaseFixedTranslate);
   }
 
   vtkMRMLLinearTransformNode* baseFixedToFixedReferenceTransformNode =
-    this->GetTransformNodeBetween(CoordSys::BaseFixed, CoordSys::FixedReference);
+    this->GetTransformNodeBetween(CoordSys::TableBaseFixed, CoordSys::FixedReference);
   if (baseFixedToFixedReferenceTransformNode)
   {
     double a[6] = {};
@@ -480,7 +480,7 @@ void vtkSlicerTableTopRobotTransformLogic::UpdateBaseFixedToFixedReferenceTransf
 }
 
 //-----------------------------------------------------------------------------
-bool vtkSlicerTableTopRobotTransformLogic::GetTransformBetween(
+bool vtkSlicerCabin26ARobotsTransformLogic::GetTransformBetween(
   CoordinateSystemIdentifier fromFrame, CoordinateSystemIdentifier toFrame, 
   vtkGeneralTransform* outputTransform, bool transformForBeam)
 {
@@ -577,7 +577,7 @@ bool vtkSlicerTableTopRobotTransformLogic::GetTransformBetween(
 }
 
 //------------------------------------------------------------------------------
-vtkMRMLLinearTransformNode* vtkSlicerTableTopRobotTransformLogic::GetElbowTransform()
+vtkMRMLLinearTransformNode* vtkSlicerCabin26ARobotsTransformLogic::GetElbowTransform()
 {
   vtkMRMLScene* scene = this->GetMRMLScene();
   if (!scene)
@@ -596,7 +596,7 @@ vtkMRMLLinearTransformNode* vtkSlicerTableTopRobotTransformLogic::GetElbowTransf
 }
 
 //------------------------------------------------------------------------------
-vtkMRMLLinearTransformNode* vtkSlicerTableTopRobotTransformLogic::GetFixedReferenceTransform()
+vtkMRMLLinearTransformNode* vtkSlicerCabin26ARobotsTransformLogic::GetFixedReferenceTransform()
 {
   vtkMRMLScene* scene = this->GetMRMLScene();
   if (!scene)
@@ -615,7 +615,7 @@ vtkMRMLLinearTransformNode* vtkSlicerTableTopRobotTransformLogic::GetFixedRefere
 }
 
 //------------------------------------------------------------------------------
-vtkMRMLLinearTransformNode* vtkSlicerTableTopRobotTransformLogic::GetPatientTransform()
+vtkMRMLLinearTransformNode* vtkSlicerCabin26ARobotsTransformLogic::GetPatientTransform()
 {
   vtkMRMLScene* scene = this->GetMRMLScene();
   if (!scene)
@@ -634,7 +634,7 @@ vtkMRMLLinearTransformNode* vtkSlicerTableTopRobotTransformLogic::GetPatientTran
 }
 
 //------------------------------------------------------------------------------
-vtkMRMLLinearTransformNode* vtkSlicerTableTopRobotTransformLogic::GetTableTopTransform()
+vtkMRMLLinearTransformNode* vtkSlicerCabin26ARobotsTransformLogic::GetTableTopTransform()
 {
   vtkMRMLScene* scene = this->GetMRMLScene();
   if (!scene)
@@ -653,7 +653,7 @@ vtkMRMLLinearTransformNode* vtkSlicerTableTopRobotTransformLogic::GetTableTopTra
 }
 
 //------------------------------------------------------------------------------
-vtkMRMLLinearTransformNode* vtkSlicerTableTopRobotTransformLogic::GetWristTransform()
+vtkMRMLLinearTransformNode* vtkSlicerCabin26ARobotsTransformLogic::GetWristTransform()
 {
   vtkMRMLScene* scene = this->GetMRMLScene();
   if (!scene)
@@ -672,7 +672,7 @@ vtkMRMLLinearTransformNode* vtkSlicerTableTopRobotTransformLogic::GetWristTransf
 }
 
 //------------------------------------------------------------------------------
-vtkMRMLLinearTransformNode* vtkSlicerTableTopRobotTransformLogic::GetShoulderTransform()
+vtkMRMLLinearTransformNode* vtkSlicerCabin26ARobotsTransformLogic::GetShoulderTransform()
 {
   vtkMRMLScene* scene = this->GetMRMLScene();
   if (!scene)
@@ -691,7 +691,7 @@ vtkMRMLLinearTransformNode* vtkSlicerTableTopRobotTransformLogic::GetShoulderTra
 }
 
 //------------------------------------------------------------------------------
-vtkMRMLLinearTransformNode* vtkSlicerTableTopRobotTransformLogic::GetFlangeTransform()
+vtkMRMLLinearTransformNode* vtkSlicerCabin26ARobotsTransformLogic::GetFlangeTransform()
 {
   vtkMRMLScene* scene = this->GetMRMLScene();
   if (!scene)
@@ -710,7 +710,7 @@ vtkMRMLLinearTransformNode* vtkSlicerTableTopRobotTransformLogic::GetFlangeTrans
 }
 
 //------------------------------------------------------------------------------
-vtkMRMLLinearTransformNode* vtkSlicerTableTopRobotTransformLogic::GetBaseRotationTransform()
+vtkMRMLLinearTransformNode* vtkSlicerCabin26ARobotsTransformLogic::GetBaseRotationTransform()
 {
   vtkMRMLScene* scene = this->GetMRMLScene();
   if (!scene)
@@ -729,7 +729,7 @@ vtkMRMLLinearTransformNode* vtkSlicerTableTopRobotTransformLogic::GetBaseRotatio
 }
 
 //------------------------------------------------------------------------------
-vtkMRMLLinearTransformNode* vtkSlicerTableTopRobotTransformLogic::GetBaseFixedTransform()
+vtkMRMLLinearTransformNode* vtkSlicerCabin26ARobotsTransformLogic::GetBaseFixedTransform()
 {
   vtkMRMLScene* scene = this->GetMRMLScene();
   if (!scene)
@@ -748,7 +748,7 @@ vtkMRMLLinearTransformNode* vtkSlicerTableTopRobotTransformLogic::GetBaseFixedTr
 }
 
 //------------------------------------------------------------------------------
-vtkMRMLLinearTransformNode* vtkSlicerTableTopRobotTransformLogic::UpdateRasToTableTopTransform(vtkMRMLCabin26AGeometryNode* parameterNode)
+vtkMRMLLinearTransformNode* vtkSlicerCabin26ARobotsTransformLogic::UpdateRasToTableTopTransform(vtkMRMLCabin26AGeometryNode* parameterNode)
 {
   if (!parameterNode)
   {
@@ -787,7 +787,7 @@ vtkMRMLLinearTransformNode* vtkSlicerTableTopRobotTransformLogic::UpdateRasToTab
     rasToTableTopTransformNode = vtkSmartPointer<vtkMRMLLinearTransformNode>::New();
     rasToTableTopTransformNode->SetName("RasToTableTopTransform");
 //    rasToTableTopTransformNode->SetHideFromEditors(1);
-    std::string singletonTag = std::string("TTR_") + "RasToTableTopTransform";
+    std::string singletonTag = std::string("C26A_") + "RasToTableTopTransform";
     rasToTableTopTransformNode->SetSingletonTag(singletonTag.c_str());
     scene->AddNode(rasToTableTopTransformNode);
   }
@@ -808,7 +808,7 @@ vtkMRMLLinearTransformNode* vtkSlicerTableTopRobotTransformLogic::UpdateRasToTab
 }
 
 //------------------------------------------------------------------------------
-vtkMRMLLinearTransformNode* vtkSlicerTableTopRobotTransformLogic::UpdateRasToFixedReferenceTransform(vtkMRMLCabin26AGeometryNode* parameterNode)
+vtkMRMLLinearTransformNode* vtkSlicerCabin26ARobotsTransformLogic::UpdateRasToFixedReferenceTransform(vtkMRMLCabin26AGeometryNode* parameterNode)
 {
   if (!parameterNode)
   {
@@ -847,7 +847,7 @@ vtkMRMLLinearTransformNode* vtkSlicerTableTopRobotTransformLogic::UpdateRasToFix
     rasToFixedReferenceTransformNode = vtkSmartPointer<vtkMRMLLinearTransformNode>::New();
     rasToFixedReferenceTransformNode->SetName("RasToFixedReferenceTransform");
 //    rasToFixedReferenceTransformNode->SetHideFromEditors(1);
-    std::string singletonTag = std::string("TTR_") + "RasToFixedReferenceTransform";
+    std::string singletonTag = std::string("C26A_") + "RasToFixedReferenceTransform";
     rasToFixedReferenceTransformNode->SetSingletonTag(singletonTag.c_str());
     scene->AddNode(rasToFixedReferenceTransformNode);
   }
@@ -868,7 +868,7 @@ vtkMRMLLinearTransformNode* vtkSlicerTableTopRobotTransformLogic::UpdateRasToFix
 }
 
 //------------------------------------------------------------------------------
-vtkMRMLLinearTransformNode* vtkSlicerTableTopRobotTransformLogic::UpdateRasToBaseFixedTransform(vtkMRMLCabin26AGeometryNode* parameterNode)
+vtkMRMLLinearTransformNode* vtkSlicerCabin26ARobotsTransformLogic::UpdateRasToBaseFixedTransform(vtkMRMLCabin26AGeometryNode* parameterNode)
 {
   if (!parameterNode)
   {
@@ -907,13 +907,13 @@ vtkMRMLLinearTransformNode* vtkSlicerTableTopRobotTransformLogic::UpdateRasToBas
     rasToBaseFixedTransformNode = vtkSmartPointer<vtkMRMLLinearTransformNode>::New();
     rasToBaseFixedTransformNode->SetName("RasToBaseFixedTransform");
 //    rasToBaseFixedTransformNode->SetHideFromEditors(1);
-    std::string singletonTag = std::string("TTR_") + "RasToBaseFixedTransform";
+    std::string singletonTag = std::string("C26A_") + "RasToBaseFixedTransform";
     rasToBaseFixedTransformNode->SetSingletonTag(singletonTag.c_str());
     scene->AddNode(rasToBaseFixedTransformNode);
   }
 
   vtkNew<vtkTransform> rasToBaseFixedTransform;
-  if (this->GetTransformBetween( CoordSys::RAS, CoordSys::BaseFixed, 
+  if (this->GetTransformBetween( CoordSys::RAS, CoordSys::TableBaseFixed, 
     rasToBaseFixedTransform, false))
   {
     vtkDebugMacro("UpdateRasToBaseFixedTransform: RAS->BaseFixed transform updated");
@@ -928,7 +928,7 @@ vtkMRMLLinearTransformNode* vtkSlicerTableTopRobotTransformLogic::UpdateRasToBas
 }
 
 //------------------------------------------------------------------------------
-vtkMRMLLinearTransformNode* vtkSlicerTableTopRobotTransformLogic::UpdateRasToFlangeTransform(vtkMRMLCabin26AGeometryNode* parameterNode)
+vtkMRMLLinearTransformNode* vtkSlicerCabin26ARobotsTransformLogic::UpdateRasToFlangeTransform(vtkMRMLCabin26AGeometryNode* parameterNode)
 {
   if (!parameterNode)
   {
@@ -967,13 +967,13 @@ vtkMRMLLinearTransformNode* vtkSlicerTableTopRobotTransformLogic::UpdateRasToFla
     rasToFlangeTransformNode = vtkSmartPointer<vtkMRMLLinearTransformNode>::New();
     rasToFlangeTransformNode->SetName("RasToFlangeTransform");
 //    rasToBaseFixedTransformNode->SetHideFromEditors(1);
-    std::string singletonTag = std::string("TTR_") + "RasToFlangeTransform";
+    std::string singletonTag = std::string("C26A_") + "RasToFlangeTransform";
     rasToFlangeTransformNode->SetSingletonTag(singletonTag.c_str());
     scene->AddNode(rasToFlangeTransformNode);
   }
 
   vtkNew<vtkTransform> rasToFlangeTransform;
-  if (this->GetTransformBetween( CoordSys::RAS, CoordSys::Flange, 
+  if (this->GetTransformBetween( CoordSys::RAS, CoordSys::TableFlange, 
     rasToFlangeTransform, false))
   {
     vtkDebugMacro("UpdateRasToFlangeTransform: RAS->Flange transform updated");
@@ -988,7 +988,7 @@ vtkMRMLLinearTransformNode* vtkSlicerTableTopRobotTransformLogic::UpdateRasToFla
 }
 
 //------------------------------------------------------------------------------
-vtkMRMLLinearTransformNode* vtkSlicerTableTopRobotTransformLogic::UpdateRasToBaseRotationTransform(vtkMRMLCabin26AGeometryNode* parameterNode)
+vtkMRMLLinearTransformNode* vtkSlicerCabin26ARobotsTransformLogic::UpdateRasToBaseRotationTransform(vtkMRMLCabin26AGeometryNode* parameterNode)
 {
   if (!parameterNode)
   {
@@ -1027,13 +1027,13 @@ vtkMRMLLinearTransformNode* vtkSlicerTableTopRobotTransformLogic::UpdateRasToBas
     rasToBaseRotationTransformNode = vtkSmartPointer<vtkMRMLLinearTransformNode>::New();
     rasToBaseRotationTransformNode->SetName("RasToBaseRotationTransform");
 //    rasToBaseRotationTransformNode->SetHideFromEditors(1);
-    std::string singletonTag = std::string("TTR_") + "RasToBaseRotationTransform";
+    std::string singletonTag = std::string("C26A_") + "RasToBaseRotationTransform";
     rasToBaseRotationTransformNode->SetSingletonTag(singletonTag.c_str());
     scene->AddNode(rasToBaseRotationTransformNode);
   }
 
   vtkNew<vtkTransform> rasToBaseRotationTransform;
-  if (this->GetTransformBetween( CoordSys::RAS, CoordSys::BaseRotation, 
+  if (this->GetTransformBetween( CoordSys::RAS, CoordSys::TableBaseRotation, 
     rasToBaseRotationTransform, false))
   {
     vtkDebugMacro("UpdateRasToBaseRotationTransform: RAS->BaseRotation transform updated");
@@ -1048,7 +1048,7 @@ vtkMRMLLinearTransformNode* vtkSlicerTableTopRobotTransformLogic::UpdateRasToBas
 }
 
 //------------------------------------------------------------------------------
-vtkMRMLLinearTransformNode* vtkSlicerTableTopRobotTransformLogic::UpdateRasToShoulderTransform(vtkMRMLCabin26AGeometryNode* parameterNode)
+vtkMRMLLinearTransformNode* vtkSlicerCabin26ARobotsTransformLogic::UpdateRasToShoulderTransform(vtkMRMLCabin26AGeometryNode* parameterNode)
 {
   if (!parameterNode)
   {
@@ -1087,13 +1087,13 @@ vtkMRMLLinearTransformNode* vtkSlicerTableTopRobotTransformLogic::UpdateRasToSho
     rasToShoulderTransformNode = vtkSmartPointer<vtkMRMLLinearTransformNode>::New();
     rasToShoulderTransformNode->SetName("RasToShoulderTransform");
 //    rasToShoulderTransformNode->SetHideFromEditors(1);
-    std::string singletonTag = std::string("TTR_") + "RasToShoulderTransform";
+    std::string singletonTag = std::string("C26A_") + "RasToShoulderTransform";
     rasToShoulderTransformNode->SetSingletonTag(singletonTag.c_str());
     scene->AddNode(rasToShoulderTransformNode);
   }
 
   vtkNew<vtkTransform> rasToShoulderTransform;
-  if (this->GetTransformBetween( CoordSys::RAS, CoordSys::Shoulder, 
+  if (this->GetTransformBetween( CoordSys::RAS, CoordSys::TableShoulder, 
     rasToShoulderTransform, false))
   {
     vtkDebugMacro("UpdateRasToShoulderTransform: RAS->Shoulder transform updated");
@@ -1108,7 +1108,7 @@ vtkMRMLLinearTransformNode* vtkSlicerTableTopRobotTransformLogic::UpdateRasToSho
 }
 
 //------------------------------------------------------------------------------
-vtkMRMLLinearTransformNode* vtkSlicerTableTopRobotTransformLogic::UpdateRasToWristTransform(vtkMRMLCabin26AGeometryNode* parameterNode)
+vtkMRMLLinearTransformNode* vtkSlicerCabin26ARobotsTransformLogic::UpdateRasToWristTransform(vtkMRMLCabin26AGeometryNode* parameterNode)
 {
   if (!parameterNode)
   {
@@ -1147,13 +1147,13 @@ vtkMRMLLinearTransformNode* vtkSlicerTableTopRobotTransformLogic::UpdateRasToWri
     rasToWristTransformNode = vtkSmartPointer<vtkMRMLLinearTransformNode>::New();
     rasToWristTransformNode->SetName("RasToWristTransform");
 //    rasToWristTransformNode->SetHideFromEditors(1);
-    std::string singletonTag = std::string("TTR_") + "RasToWristTransform";
+    std::string singletonTag = std::string("C26A_") + "RasToWristTransform";
     rasToWristTransformNode->SetSingletonTag(singletonTag.c_str());
     scene->AddNode(rasToWristTransformNode);
   }
 
   vtkNew<vtkTransform> rasToWristTransform;
-  if (this->GetTransformBetween( CoordSys::RAS, CoordSys::Wrist, 
+  if (this->GetTransformBetween( CoordSys::RAS, CoordSys::TableWrist, 
     rasToWristTransform, false))
   {
     vtkDebugMacro("UpdateRasToWristTransform: RAS->Wrist transform updated");
@@ -1168,7 +1168,7 @@ vtkMRMLLinearTransformNode* vtkSlicerTableTopRobotTransformLogic::UpdateRasToWri
 }
 
 //------------------------------------------------------------------------------
-vtkMRMLLinearTransformNode* vtkSlicerTableTopRobotTransformLogic::UpdateRasToElbowTransform(vtkMRMLCabin26AGeometryNode* parameterNode)
+vtkMRMLLinearTransformNode* vtkSlicerCabin26ARobotsTransformLogic::UpdateRasToElbowTransform(vtkMRMLCabin26AGeometryNode* parameterNode)
 {
   if (!parameterNode)
   {
@@ -1207,13 +1207,13 @@ vtkMRMLLinearTransformNode* vtkSlicerTableTopRobotTransformLogic::UpdateRasToElb
     rasToElbowTransformNode = vtkSmartPointer<vtkMRMLLinearTransformNode>::New();
     rasToElbowTransformNode->SetName("RasToElbowTransform");
 //    rasToElbowTransformNode->SetHideFromEditors(1);
-    std::string singletonTag = std::string("TTR_") + "RasToElbowTransform";
+    std::string singletonTag = std::string("C26A_") + "RasToElbowTransform";
     rasToElbowTransformNode->SetSingletonTag(singletonTag.c_str());
     scene->AddNode(rasToElbowTransformNode);
   }
 
   vtkNew<vtkTransform> rasToElbowTransform;
-  if (this->GetTransformBetween( CoordSys::RAS, CoordSys::Elbow, 
+  if (this->GetTransformBetween( CoordSys::RAS, CoordSys::TableElbow, 
     rasToElbowTransform, false))
   {
     vtkDebugMacro("UpdateRasToElbowTransform: RAS->Elbow transform updated");
@@ -1228,7 +1228,7 @@ vtkMRMLLinearTransformNode* vtkSlicerTableTopRobotTransformLogic::UpdateRasToElb
 }
 
 //----------------------------------------------------------------------------
-void vtkSlicerTableTopRobotTransformLogic::UpdatePatientToTableTopTransform(vtkMRMLCabin26AGeometryNode* parameterNode)
+void vtkSlicerCabin26ARobotsTransformLogic::UpdatePatientToTableTopTransform(vtkMRMLCabin26AGeometryNode* parameterNode)
 {
   vtkMRMLScene* scene = this->GetMRMLScene();
   if (!scene)
@@ -1260,7 +1260,7 @@ void vtkSlicerTableTopRobotTransformLogic::UpdatePatientToTableTopTransform(vtkM
 }
 
 //----------------------------------------------------------------------------
-void vtkSlicerTableTopRobotTransformLogic::UpdateBaseRotationToBaseFixedTransform(vtkMRMLCabin26AGeometryNode* parameterNode)
+void vtkSlicerCabin26ARobotsTransformLogic::UpdateBaseRotationToBaseFixedTransform(vtkMRMLCabin26AGeometryNode* parameterNode)
 {
   vtkMRMLScene* scene = this->GetMRMLScene();
   if (!scene)
@@ -1285,7 +1285,7 @@ void vtkSlicerTableTopRobotTransformLogic::UpdateBaseRotationToBaseFixedTransfor
 
   using CoordSys = CoordinateSystemIdentifier;
   vtkNew<vtkTransform> baseRotationToPatientTransform;
-  if (!this->GetTransformBetween( CoordSys::BaseRotation, CoordSys::Patient, 
+  if (!this->GetTransformBetween( CoordSys::TableBaseRotation, CoordSys::Patient, 
     baseRotationToPatientTransform, false))
   {
     vtkWarningMacro("UpdateShoulderToBaseRotationTransform: Can't get BaseRotation->Patient transform");
@@ -1293,14 +1293,14 @@ void vtkSlicerTableTopRobotTransformLogic::UpdateBaseRotationToBaseFixedTransfor
 
   double PatientToBaseRotationTranslate[3] = {};
   vtkNew<vtkTransform> patientToBaseRotationTransform;
-  if (this->GetTransformBetween( CoordSys::Patient, CoordSys::BaseRotation, 
+  if (this->GetTransformBetween( CoordSys::Patient, CoordSys::TableBaseRotation, 
     patientToBaseRotationTransform, false))
   {
     patientToBaseRotationTransform->GetPosition(PatientToBaseRotationTranslate);
   }
 
   vtkMRMLLinearTransformNode* baseRotationToBaseFixedTransformNode =
-    this->GetTransformNodeBetween(CoordSys::BaseRotation, CoordSys::BaseFixed);
+    this->GetTransformNodeBetween(CoordSys::TableBaseRotation, CoordSys::TableBaseFixed);
   if (baseRotationToBaseFixedTransformNode)
   {
     double a[6] = {};
@@ -1351,7 +1351,7 @@ void vtkSlicerTableTopRobotTransformLogic::UpdateBaseRotationToBaseFixedTransfor
 }
 
 //----------------------------------------------------------------------------
-void vtkSlicerTableTopRobotTransformLogic::UpdateTableTopToFlangeTransform(vtkMRMLCabin26AGeometryNode* parameterNode)
+void vtkSlicerCabin26ARobotsTransformLogic::UpdateTableTopToFlangeTransform(vtkMRMLCabin26AGeometryNode* parameterNode)
 {
   vtkMRMLScene* scene = this->GetMRMLScene();
   if (!scene)
@@ -1367,7 +1367,7 @@ void vtkSlicerTableTopRobotTransformLogic::UpdateTableTopToFlangeTransform(vtkMR
 
   using CoordSys = CoordinateSystemIdentifier;
   vtkMRMLLinearTransformNode* tableTopToFlangeTransformNode =
-    this->GetTransformNodeBetween(CoordSys::TableTop, CoordSys::Flange);
+    this->GetTransformNodeBetween(CoordSys::TableTop, CoordSys::TableFlange);
 
   if (tableTopToFlangeTransformNode)
   {
@@ -1398,7 +1398,7 @@ void vtkSlicerTableTopRobotTransformLogic::UpdateTableTopToFlangeTransform(vtkMR
 }
 
 //----------------------------------------------------------------------------
-void vtkSlicerTableTopRobotTransformLogic::UpdateFlangeToWristTransform(vtkMRMLCabin26AGeometryNode* parameterNode)
+void vtkSlicerCabin26ARobotsTransformLogic::UpdateFlangeToWristTransform(vtkMRMLCabin26AGeometryNode* parameterNode)
 {
   vtkMRMLScene* scene = this->GetMRMLScene();
   if (!scene)
@@ -1414,7 +1414,7 @@ void vtkSlicerTableTopRobotTransformLogic::UpdateFlangeToWristTransform(vtkMRMLC
 
   using CoordSys = CoordinateSystemIdentifier;
   vtkNew<vtkTransform> flangeToPatientTransform;
-  if (!this->GetTransformBetween( CoordSys::Flange, CoordSys::Patient, 
+  if (!this->GetTransformBetween( CoordSys::TableFlange, CoordSys::Patient, 
     flangeToPatientTransform, false))
   {
     vtkWarningMacro("UpdateFlangeToWristTransform: Can't get Flange->Patient transform");
@@ -1426,7 +1426,7 @@ void vtkSlicerTableTopRobotTransformLogic::UpdateFlangeToWristTransform(vtkMRMLC
   ReverseWristVerticalOrientationTransform->RotateY(90.);
 
   vtkMRMLLinearTransformNode* flangeToWristTransformNode =
-    this->GetTransformNodeBetween(CoordSys::Flange, CoordSys::Wrist);
+    this->GetTransformNodeBetween(CoordSys::TableFlange, CoordSys::TableWrist);
   if (flangeToWristTransformNode)
   {
     vtkNew<vtkTransform> FlangeToWristTransform;
@@ -1451,7 +1451,7 @@ void vtkSlicerTableTopRobotTransformLogic::UpdateFlangeToWristTransform(vtkMRMLC
 }
 
 //----------------------------------------------------------------------------
-void vtkSlicerTableTopRobotTransformLogic::UpdateWristToElbowTransform(vtkMRMLCabin26AGeometryNode* parameterNode)
+void vtkSlicerCabin26ARobotsTransformLogic::UpdateWristToElbowTransform(vtkMRMLCabin26AGeometryNode* parameterNode)
 {
   vtkMRMLScene* scene = this->GetMRMLScene();
   if (!scene)
@@ -1467,14 +1467,14 @@ void vtkSlicerTableTopRobotTransformLogic::UpdateWristToElbowTransform(vtkMRMLCa
 
   using CoordSys = CoordinateSystemIdentifier;
   vtkNew<vtkTransform> wristToPatientTransform;
-  if (!this->GetTransformBetween( CoordSys::Wrist, CoordSys::Patient, 
+  if (!this->GetTransformBetween( CoordSys::TableWrist, CoordSys::Patient, 
     wristToPatientTransform, false))
   {
     vtkWarningMacro("UpdateWristToElbowTransform: Can't get Wrist->Patient transform");
   }
 
   vtkMRMLLinearTransformNode* wristToElbowTransformNode =
-    this->GetTransformNodeBetween(CoordSys::Wrist, CoordSys::Elbow);
+    this->GetTransformNodeBetween(CoordSys::TableWrist, CoordSys::TableElbow);
   if (wristToElbowTransformNode)
   {
     double a[6] = {};
@@ -1513,7 +1513,7 @@ void vtkSlicerTableTopRobotTransformLogic::UpdateWristToElbowTransform(vtkMRMLCa
 }
 
 //----------------------------------------------------------------------------
-void vtkSlicerTableTopRobotTransformLogic::UpdateElbowToShoulderTransform(vtkMRMLCabin26AGeometryNode* parameterNode)
+void vtkSlicerCabin26ARobotsTransformLogic::UpdateElbowToShoulderTransform(vtkMRMLCabin26AGeometryNode* parameterNode)
 {
   vtkMRMLScene* scene = this->GetMRMLScene();
   if (!scene)
@@ -1529,7 +1529,7 @@ void vtkSlicerTableTopRobotTransformLogic::UpdateElbowToShoulderTransform(vtkMRM
 
   using CoordSys = CoordinateSystemIdentifier;
   vtkNew<vtkTransform> elbowToPatientTransform;
-  if (!this->GetTransformBetween( CoordSys::Elbow, CoordSys::Patient, 
+  if (!this->GetTransformBetween( CoordSys::TableElbow, CoordSys::Patient, 
     elbowToPatientTransform, false))
   {
     vtkWarningMacro("UpdateElbowToShoulderTransform: Can't get Elbow->Patient transform");
@@ -1545,7 +1545,7 @@ void vtkSlicerTableTopRobotTransformLogic::UpdateElbowToShoulderTransform(vtkMRM
   ShoulderTranslateTransform->Translate(0., 0., -1. * ShoulderLength);
 
   vtkMRMLLinearTransformNode* elbowToShoulderTransformNode =
-    this->GetTransformNodeBetween(CoordSys::Elbow, CoordSys::Shoulder);
+    this->GetTransformNodeBetween(CoordSys::TableElbow, CoordSys::TableShoulder);
   if (elbowToShoulderTransformNode)
   {
     double a[6] = {};
@@ -1607,7 +1607,7 @@ void vtkSlicerTableTopRobotTransformLogic::UpdateElbowToShoulderTransform(vtkMRM
 }
 
 //----------------------------------------------------------------------------
-void vtkSlicerTableTopRobotTransformLogic::UpdateShoulderToBaseRotationTransform(vtkMRMLCabin26AGeometryNode* parameterNode)
+void vtkSlicerCabin26ARobotsTransformLogic::UpdateShoulderToBaseRotationTransform(vtkMRMLCabin26AGeometryNode* parameterNode)
 {
   vtkMRMLScene* scene = this->GetMRMLScene();
   if (!scene)
@@ -1632,7 +1632,7 @@ void vtkSlicerTableTopRobotTransformLogic::UpdateShoulderToBaseRotationTransform
 
   using CoordSys = CoordinateSystemIdentifier;
   vtkNew<vtkTransform> shoulderToPatientTransform;
-  if (!this->GetTransformBetween( CoordSys::Shoulder, CoordSys::Patient, 
+  if (!this->GetTransformBetween( CoordSys::TableShoulder, CoordSys::Patient, 
     shoulderToPatientTransform, false))
   {
     vtkWarningMacro("UpdateShoulderToBaseRotationTransform: Can't get Shoulder->Patient transform");
@@ -1640,14 +1640,14 @@ void vtkSlicerTableTopRobotTransformLogic::UpdateShoulderToBaseRotationTransform
 
   double PatientToBaseRotationTranslate[3] = {};
   vtkNew<vtkTransform> patientToShoulderTransform;
-  if (this->GetTransformBetween( CoordSys::Patient, CoordSys::Shoulder, 
+  if (this->GetTransformBetween( CoordSys::Patient, CoordSys::TableShoulder, 
     patientToShoulderTransform, false))
   {
     patientToShoulderTransform->GetPosition(PatientToBaseRotationTranslate);
   }
 
   vtkMRMLLinearTransformNode* shoulderToBaseRotationTransformNode =
-    this->GetTransformNodeBetween(CoordSys::Shoulder, CoordSys::BaseRotation);
+    this->GetTransformNodeBetween(CoordSys::TableShoulder, CoordSys::TableBaseRotation);
   if (shoulderToBaseRotationTransformNode)
   {
     double a[6] = {};
@@ -1690,7 +1690,7 @@ void vtkSlicerTableTopRobotTransformLogic::UpdateShoulderToBaseRotationTransform
 }
 
 //-----------------------------------------------------------------------------
-bool vtkSlicerTableTopRobotTransformLogic::GetTransformBetween(
+bool vtkSlicerCabin26ARobotsTransformLogic::GetTransformBetween(
   CoordinateSystemIdentifier fromFrame, CoordinateSystemIdentifier toFrame, 
   vtkTransform* outputLinearTransform, bool transformForBeam)
 {
@@ -1711,7 +1711,7 @@ bool vtkSlicerTableTopRobotTransformLogic::GetTransformBetween(
 }
 
 //-----------------------------------------------------------------------------
-bool vtkSlicerTableTopRobotTransformLogic::GetPathToRoot( CoordinateSystemIdentifier frame, 
+bool vtkSlicerCabin26ARobotsTransformLogic::GetPathToRoot( CoordinateSystemIdentifier frame, 
   CoordinateSystemsList& path)
 {
   using CoordSys = CoordinateSystemIdentifier;
@@ -1762,7 +1762,7 @@ bool vtkSlicerTableTopRobotTransformLogic::GetPathToRoot( CoordinateSystemIdenti
 }
 
 //-----------------------------------------------------------------------------
-bool vtkSlicerTableTopRobotTransformLogic::GetPathFromRoot( CoordinateSystemIdentifier frame, 
+bool vtkSlicerCabin26ARobotsTransformLogic::GetPathFromRoot( CoordinateSystemIdentifier frame, 
   CoordinateSystemsList& path)
 {
   if (this->GetPathToRoot( frame, path))

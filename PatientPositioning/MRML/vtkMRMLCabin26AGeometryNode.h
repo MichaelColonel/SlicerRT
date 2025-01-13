@@ -130,8 +130,8 @@ protected:
   double TableTopVerticalAngle{ 0. };
   /// Translate Patient to TableTop
   double PatientToTableTopTranslation[3] = { 0., 0., 0. };
-  /// Translate BaseFixed begin (origin) from RAS origin
-  double BaseFixedToFixedReferenceTranslation[3] = { -1685., 600., 1800. };
+  /// Translate BaseFixed begin from FixedReference origin
+  double BaseFixedToFixedReferenceTranslation[3] = { -1685., 600., -1800. };
   /// Setup table top robot angles
   double TableTopRobotAngles[6] = { 0., 0., 0., 0., 0., 0. }; // A1=0, A2=-90, A3=90, A4=0, A5=-90, A6=0
   /// Setup x-ray c-arm robot angles

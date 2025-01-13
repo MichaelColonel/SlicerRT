@@ -35,7 +35,7 @@
 #include <cstdlib>
 
 #include "vtkSlicerPatientPositioningModuleLogicExport.h"
-#include "vtkSlicerTableTopRobotTransformLogic.h"
+#include "vtkSlicerCabin26ARobotsTransformLogic.h"
 
 class vtkMRMLLinearTransformNode;
 class vtkMRMLSliceCompositeNode;
@@ -71,23 +71,23 @@ public:
   /// Load and setup components of the treatment machine into the scene based on its description.
   /// \param parameterNode Parameter node contains the treatment machine descriptor file path.
   /// \return List of parts that were successfully set up.
-  std::vector<vtkSlicerTableTopRobotTransformLogic::CoordinateSystemIdentifier> LoadTreatmentMachineComponents(
+  std::vector<vtkSlicerCabin26ARobotsTransformLogic::CoordinateSystemIdentifier> LoadTreatmentMachineComponents(
     vtkMRMLPatientPositioningNode* parameterNode);
   /// Set up the IEC transforms and model properties on the treatment machine models.
   /// \param forceEnableCollisionDetection Enable collision detection between parts even if calculation is potentially
   ///        lengthy absed on the number of triangles of the parts.
   /// \return List of parts that were successfully set up.
-  std::vector<vtkSlicerTableTopRobotTransformLogic::CoordinateSystemIdentifier> SetupTreatmentMachineModels(
+  std::vector<vtkSlicerCabin26ARobotsTransformLogic::CoordinateSystemIdentifier> SetupTreatmentMachineModels(
     vtkMRMLPatientPositioningNode* parameterNode, bool forceEnableCollisionDetection=false);
 
   void BuildRobotTableGeometryTransformHierarchy();
   std::string CheckForCollisions(vtkMRMLPatientPositioningNode* parameterNode, bool collisionDetectionEnabled = true);
 
-  /// Get TableTopRobotTransformLogic
-  vtkSlicerTableTopRobotTransformLogic* GetTableTopRobotTransformLogic() const;
+  /// Get Cabin26ARobotsTransformLogic
+  vtkSlicerCabin26ARobotsTransformLogic* GetCabin26ARobotsTransformLogic() const;
   /// Get translation vector from Patient isocenter to fixed beam axis (axis in FixedReference frame)
   vtkVector3d GetIsocenterToFixedBeamAxisTranslation(vtkMRMLPatientPositioningNode* parameterNode,
-    vtkSlicerTableTopRobotTransformLogic::CoordinateSystemIdentifier fromFrame);
+    vtkSlicerCabin26ARobotsTransformLogic::CoordinateSystemIdentifier fromFrame);
 
   /// Get alignment angles (lateral, longitudinal, vertical) between Patient ion beam and FixedReference frame
   /// \return (lateral, longitudinal, vertical) vector
@@ -105,12 +105,16 @@ public:
   /// Create external xray beam and plan and add ext beam to the parameter node
   vtkMRMLRTFixedBeamNode* CreateExternalXrayPlanAndNode(vtkMRMLPatientPositioningNode* parameterNode);
 
+  /// Update fixed beam axis using two new points in beam limiting device frame
+  void UpdateFixedBeamAxisLineNode(vtkMRMLPatientPositioningNode* parameterNode,
+    const double point0[3], const double point1[3]);
+
 public:
   // Get treatment machine properties from descriptor file
   /// Get part type as string
-  const char* GetTreatmentMachinePartTypeAsString(vtkSlicerTableTopRobotTransformLogic::CoordinateSystemIdentifier type);
+  const char* GetTreatmentMachinePartTypeAsString(vtkSlicerCabin26ARobotsTransformLogic::CoordinateSystemIdentifier type);
 
-  vtkGetObjectMacro(TableTopRobotLogic, vtkSlicerTableTopRobotTransformLogic);
+  vtkGetObjectMacro(Cabin26ARobotsLogic, vtkSlicerCabin26ARobotsTransformLogic);
 
   /// Get part name for part type in the currently loaded treatment machine description
   std::string GetNameForPartType(std::string partType);
@@ -153,7 +157,7 @@ protected:
   /// Get patient body closed surface poly data from segmentation node and segment selection in the parameter node
 //  bool GetPatientBodyPolyData(vtkMRMLPatientPositioningNode* parameterNode, vtkPolyData* patientBodyPolyData);
 
-  vtkSlicerTableTopRobotTransformLogic* TableTopRobotLogic{ nullptr };
+  vtkSlicerCabin26ARobotsTransformLogic* Cabin26ARobotsLogic{ nullptr };
 
   vtkCollisionDetectionFilter* TableTopElbowCollisionDetection{ nullptr };
   vtkCollisionDetectionFilter* TableTopShoulderCollisionDetection{ nullptr };

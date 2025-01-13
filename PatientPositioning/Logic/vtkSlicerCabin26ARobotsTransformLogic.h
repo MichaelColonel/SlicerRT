@@ -19,8 +19,8 @@
 
 ==============================================================================*/
 
-#ifndef __vtkSlicerTableTopRobotTransformLogic_h
-#define __vtkSlicerTableTopRobotTransformLogic_h
+#ifndef __vtkSlicerCabin26ARobotsTransformLogic_h
+#define __vtkSlicerCabin26ARobotsTransformLogic_h
 
 #include "vtkSlicerPatientPositioningModuleLogicExport.h"
 
@@ -42,40 +42,40 @@ class vtkMRMLCabin26AGeometryNode;
 // FixedReference -> CArmBaseFixed -> CArmBaseRotation -> CArmShoulder -> CArmElbow -> CArmWrist -> CArmFlange -> CArm
 // CArm -> XraySource
 // CArm -> Imager
-class VTK_SLICER_PATIENTPOSITIONING_MODULE_LOGIC_EXPORT vtkSlicerTableTopRobotTransformLogic : public vtkMRMLAbstractLogic
+class VTK_SLICER_PATIENTPOSITIONING_MODULE_LOGIC_EXPORT vtkSlicerCabin26ARobotsTransformLogic : public vtkMRMLAbstractLogic
 {
 public:
   enum CoordinateSystemIdentifier : int
   {
     RAS = 0,
     FixedReference,
-    BaseFixed,
-    BaseRotation, // Rotation along Z-axis of BaseFixed
-    Shoulder, // Rotation along Y-axis of BaseRotation
-    Elbow, // Rotation along Y-axis of Shoulder
-    Wrist, // Rotation along Y-axis of Elbow
-    Flange, // Mounted under the Table Top center
+    TableBaseFixed, // Translate from BaseFixed center to FixedReference center
+    TableBaseRotation, // Rotation along Z-axis of BaseFixed
+    TableShoulder, // Rotation along Y-axis of BaseRotation
+    TableElbow, // Rotation along Y-axis of Shoulder
+    TableWrist, // Rotation along Y-axis of Elbow
+    TableFlange, // Mounted under the Table Top center
     TableTop, // Translate from Wrist flange center to Table Top center
     Patient, // Translate from Table Top center to Patient center
-    CArmBaseFixed,
+    CArmBaseFixed, // Translate from BaseFixed center to FixedReference center
     CArmBaseRotation, // Rotation along Z-axis of BaseFixed
     CArmShoulder, // Rotation along Y-axis of BaseRotation
     CArmElbow, // Rotation along Y-axis of Shoulder
     CArmWrist, // Rotation along Y-axis of Elbow
     CArmFlange, // Mounted under the Table Top center
-    CArm, // Translate from Wrist flange center to Table Top center
-    XRay, // Translate from Table Top center to Patient center
-    Imager, // Translate from Table Top center to Patient center
+    CArm, // Translate from Wrist flange center to CArm center
+    XRay,
+    Imager,
     CoordinateSystemIdentifier_Last // Last index used for adding more coordinate systems externally
   };
   typedef std::list< CoordinateSystemIdentifier > CoordinateSystemsList;
 
-  static vtkSlicerTableTopRobotTransformLogic *New();
-  vtkTypeMacro(vtkSlicerTableTopRobotTransformLogic, vtkMRMLAbstractLogic);
+  static vtkSlicerCabin26ARobotsTransformLogic *New();
+  vtkTypeMacro(vtkSlicerCabin26ARobotsTransformLogic, vtkMRMLAbstractLogic);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /// Create or get transforms taking part in the TableTop robot logic, and build the transform hierarchy
-  void BuildTableRobotTransformHierarchy();
+  void BuildRobotsTransformHierarchy();
 
   /// Get transform node between two coordinate systems is exists
   /// \return Transform node if there is a direct transform between the specified coordinate frames, nullptr otherwise
@@ -163,8 +163,8 @@ public:
   const char* GetTreatmentMachinePartTypeAsString(CoordinateSystemIdentifier type);
 
 protected:
-  vtkSlicerTableTopRobotTransformLogic();
-  ~vtkSlicerTableTopRobotTransformLogic() override;
+  vtkSlicerCabin26ARobotsTransformLogic();
+  ~vtkSlicerCabin26ARobotsTransformLogic() override;
 
   /// Get name of transform node between two coordinate systems
   /// \return Transform node name between the specified coordinate frames.
@@ -183,15 +183,15 @@ protected:
   std::map<CoordinateSystemIdentifier, std::string> CoordinateSystemsMap;
 
   /// List of table top coordinate system transforms
-  std::vector< std::pair<CoordinateSystemIdentifier, CoordinateSystemIdentifier> > TableTopRobotTransforms;
+  std::vector< std::pair<CoordinateSystemIdentifier, CoordinateSystemIdentifier> > RobotsTransforms;
 
   // TODO: for hierarchy use tree with nodes, something like graph
   /// Map of TableTop robot coordinate systems hierarchy
   std::map< CoordinateSystemIdentifier, CoordinateSystemsList > CoordinateSystemsHierarchy;
 
 private:
-  vtkSlicerTableTopRobotTransformLogic(const vtkSlicerTableTopRobotTransformLogic&) = delete;
-  void operator=(const vtkSlicerTableTopRobotTransformLogic&) = delete;
+  vtkSlicerCabin26ARobotsTransformLogic(const vtkSlicerCabin26ARobotsTransformLogic&) = delete;
+  void operator=(const vtkSlicerCabin26ARobotsTransformLogic&) = delete;
 };
 
 #endif

@@ -9,12 +9,12 @@ set(MACHINE_MODELS
   Cabin26AGeometry.json
   FixedReference.stl
   TableTop.stl
-  Flange.stl
-  RobotBaseFixed.stl
-  RobotBaseRotation.stl
-  RobotShoulder.stl
-  RobotElbow.stl
-  RobotWrist.stl
+  TableFlange.stl
+  TableRobotBaseFixed.stl
+  TableRobotBaseRotation.stl
+  TableRobotShoulder.stl
+  TableRobotElbow.stl
+  TableRobotWrist.stl
 )
 
 

@@ -186,7 +186,7 @@ void qSlicerPatientPositioningFixedBeamAxisWidget::onFrameBasisTranslationRadioB
   {
     vtkVector3d translationInFixedReference = d->PatientPositioningLogic->GetIsocenterToFixedBeamAxisTranslation(
       d->ParameterNode,
-      vtkSlicerTableTopRobotTransformLogic::FixedReference);
+      vtkSlicerCabin26ARobotsTransformLogic::FixedReference);
     // Correct translation along X_f, Y_f, Z_f axises
     double pos[3] = { translationInFixedReference[0], translationInFixedReference[2], -1. * translationInFixedReference[1] };
     d->CoordinatesWidget_FromIsocenterTranslation->setCoordinates(pos);
@@ -195,7 +195,7 @@ void qSlicerPatientPositioningFixedBeamAxisWidget::onFrameBasisTranslationRadioB
   {
     vtkVector3d translationInTableTop = d->PatientPositioningLogic->GetIsocenterToFixedBeamAxisTranslation(
       d->ParameterNode,
-      vtkSlicerTableTopRobotTransformLogic::TableTop);
+      vtkSlicerCabin26ARobotsTransformLogic::TableTop);
     // Correct translation along X_t, Y_t, Z_t axises
     double pos[3] = { translationInTableTop[0], translationInTableTop[2], -1. * translationInTableTop[1] };
     d->CoordinatesWidget_FromIsocenterTranslation->setCoordinates(pos);
@@ -222,7 +222,7 @@ void qSlicerPatientPositioningFixedBeamAxisWidget::updateWidgetFromMRML()
   {
     vtkVector3d translationInFixedReference = d->PatientPositioningLogic->GetIsocenterToFixedBeamAxisTranslation(
       d->ParameterNode,
-      vtkSlicerTableTopRobotTransformLogic::FixedReference);
+      vtkSlicerCabin26ARobotsTransformLogic::FixedReference);
     // Correct translation along X_f, Y_f, Z_f axises
     double pos[3] = { translationInFixedReference[0], translationInFixedReference[2], -1. * translationInFixedReference[1] };
     d->CoordinatesWidget_FromIsocenterTranslation->setCoordinates(pos);
@@ -231,7 +231,7 @@ void qSlicerPatientPositioningFixedBeamAxisWidget::updateWidgetFromMRML()
   {
     vtkVector3d translationInTableTop = d->PatientPositioningLogic->GetIsocenterToFixedBeamAxisTranslation(
       d->ParameterNode,
-      vtkSlicerTableTopRobotTransformLogic::TableTop);
+      vtkSlicerCabin26ARobotsTransformLogic::TableTop);
     // Correct translation along X_t, Y_t, Z_t axises
     double pos[3] = { translationInTableTop[0], translationInTableTop[2], -1. * translationInTableTop[1] };
     d->CoordinatesWidget_FromIsocenterTranslation->setCoordinates(pos);
@@ -244,6 +244,7 @@ void qSlicerPatientPositioningFixedBeamAxisWidget::updateWidgetFromMRML()
   }
   vtkVector3d alignmentAngles = d->PatientPositioningLogic->GetBeamToFixedReferenceAlignment(patientBeamTransformNode);
   this->setTableTopAngles(alignmentAngles[0], alignmentAngles[1], alignmentAngles[2]);
+  qDebug() << Q_FUNC_INFO << ": Update TableTop angles";
 }
 
 //-----------------------------------------------------------------------------

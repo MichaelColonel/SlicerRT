@@ -26,6 +26,7 @@
 // SlicerRT includes
 #include "vtkMRMLRTPlanNode.h"
 #include "vtkMRMLRTBeamNode.h"
+#include "vtkMRMLRTIonBeamNode.h"
 
 // MRML includes
 #include <vtkMRMLScene.h>
@@ -82,6 +83,10 @@ void vtkSlicerBeamsModuleLogic::RegisterNodes()
   if (!scene->IsNodeClassRegistered("vtkMRMLRTBeamNode"))
   {
     scene->RegisterNodeClass(vtkSmartPointer<vtkMRMLRTBeamNode>::New());
+  }
+  if (!scene->IsNodeClassRegistered("vtkMRMLRTIonBeamNode"))
+  {
+    scene->RegisterNodeClass(vtkSmartPointer<vtkMRMLRTIonBeamNode>::New());
   }
 }
 
