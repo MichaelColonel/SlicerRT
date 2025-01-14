@@ -102,6 +102,9 @@ public:
   vtkGetVector3Macro(BaseFixedToFixedReferenceTranslation, double);
   vtkSetVector3Macro(BaseFixedToFixedReferenceTranslation, double);
 
+  vtkGetVector3Macro(CArmBaseFixedToFixedReferenceTranslation, double);
+  vtkSetVector3Macro(CArmBaseFixedToFixedReferenceTranslation, double);
+
   vtkGetVector6Macro(TableTopRobotAngles, double);
   vtkSetVector6Macro(TableTopRobotAngles, double);
 
@@ -132,6 +135,8 @@ protected:
   double PatientToTableTopTranslation[3] = { 0., 0., 0. };
   /// Translate BaseFixed begin from FixedReference origin
   double BaseFixedToFixedReferenceTranslation[3] = { -1685., 600., -1800. };
+  /// Translate C-Arm BaseFixed begin from FixedReference origin
+  double CArmBaseFixedToFixedReferenceTranslation[3] = { -1685., -600., -1800. };
   /// Setup table top robot angles
   double TableTopRobotAngles[6] = { 0., 0., 0., 0., 0., 0. }; // A1=0, A2=-90, A3=90, A4=0, A5=-90, A6=0
   /// Setup x-ray c-arm robot angles

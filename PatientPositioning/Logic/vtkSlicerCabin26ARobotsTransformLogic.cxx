@@ -103,7 +103,7 @@ vtkSlicerCabin26ARobotsTransformLogic::vtkSlicerCabin26ARobotsTransformLogic()
   this->RobotsTransforms.push_back(std::make_pair(CoordSys::TableTop, CoordSys::TableFlange)); // Dummy, only fixed translation
   this->RobotsTransforms.push_back(std::make_pair(CoordSys::Patient, CoordSys::TableTop));
   this->RobotsTransforms.push_back(std::make_pair(CoordSys::RAS, CoordSys::Patient));
-  this->RobotsTransforms.push_back(std::make_pair(CoordSys::FixedReference, CoordSys::CArmBaseFixed));
+  this->RobotsTransforms.push_back(std::make_pair(CoordSys::CArmBaseFixed, CoordSys::FixedReference));
 
   this->CoordinateSystemsHierarchy.clear();
   // key - parent, value - children
@@ -205,7 +205,7 @@ void vtkSlicerCabin26ARobotsTransformLogic::BuildRobotsTransformHierarchy()
   // FixedReference parent, translation of fixed base part of the robot from fixed reference isocenter
   this->GetTransformNodeBetween(CoordSys::TableBaseFixed, CoordSys::FixedReference)->SetAndObserveTransformNodeID(
     this->GetTransformNodeBetween(CoordSys::FixedReference, CoordSys::RAS)->GetID() );
-  this->GetTransformNodeBetween(CoordSys::FixedReference, CoordSys::CArmBaseFixed)->SetAndObserveTransformNodeID(
+  this->GetTransformNodeBetween(CoordSys::CArmBaseFixed, CoordSys::FixedReference)->SetAndObserveTransformNodeID(
     this->GetTransformNodeBetween(CoordSys::FixedReference, CoordSys::RAS)->GetID() );
 
   // BaseFixed parent, rotation of base part of the robot along Z-axis
@@ -295,17 +295,17 @@ void vtkSlicerCabin26ARobotsTransformLogic::ResetToInitialPositions()
   baseRotationToBaseFixedTransform->Identity();
   baseRotationToBaseFixedTransform->Modified();
 
-  vtkMRMLLinearTransformNode* baseFixedToFixedRerefenceTransformNode =
+  vtkMRMLLinearTransformNode* tableBaseFixedToFixedRerefenceTransformNode =
     this->GetTransformNodeBetween(CoordSys::TableBaseFixed, CoordSys::FixedReference);
-  vtkTransform* baseFixedToFixedRerefenceTransform = vtkTransform::SafeDownCast(baseFixedToFixedRerefenceTransformNode->GetTransformToParent());
-  baseFixedToFixedRerefenceTransform->Identity();
-  baseFixedToFixedRerefenceTransform->Modified();
+  vtkTransform* tableBaseFixedToFixedRerefenceTransform = vtkTransform::SafeDownCast(tableBaseFixedToFixedRerefenceTransformNode->GetTransformToParent());
+  tableBaseFixedToFixedRerefenceTransform->Identity();
+  tableBaseFixedToFixedRerefenceTransform->Modified();
 
-  vtkMRMLLinearTransformNode* fixedRerefenceToCArmBaseFixedTransformNode =
-    this->GetTransformNodeBetween(CoordSys::FixedReference, CoordSys::CArmBaseFixed);
-  vtkTransform* fixedRerefenceToCArmBaseFixedTransform = vtkTransform::SafeDownCast(fixedRerefenceToCArmBaseFixedTransformNode->GetTransformToParent());
-  fixedRerefenceToCArmBaseFixedTransform->Identity();
-  fixedRerefenceToCArmBaseFixedTransform->Modified();
+  vtkMRMLLinearTransformNode* carmBaseFixedToFixedRerefenceTransformNode =
+    this->GetTransformNodeBetween(CoordSys::CArmBaseFixed, CoordSys::FixedReference);
+  vtkTransform* carmBaseFixedToFixedRerefenceTransform = vtkTransform::SafeDownCast(carmBaseFixedToFixedRerefenceTransformNode->GetTransformToParent());
+  carmBaseFixedToFixedRerefenceTransform->Identity();
+  carmBaseFixedToFixedRerefenceTransform->Modified();
 }
 
 //-----------------------------------------------------------------------------
@@ -487,6 +487,22 @@ void vtkSlicerCabin26ARobotsTransformLogic::UpdateBaseFixedToFixedReferenceTrans
     PatientToFixedReferenceTranslateTransform->Concatenate(A6A5A4RotationTransform);
 
     baseFixedToFixedReferenceTransformNode->SetAndObserveTransformToParent(PatientToFixedReferenceTranslateTransform);
+  }
+}
+
+//-----------------------------------------------------------------------------
+void vtkSlicerCabin26ARobotsTransformLogic::UpdateCArmBaseFixedToFixedReferenceTransform(vtkMRMLCabin26AGeometryNode* parameterNode)
+{
+  vtkMRMLScene* scene = this->GetMRMLScene();
+  if (!scene)
+  {
+    vtkErrorMacro("UpdateCarmBaseRotationToBaseFixedTransform: Invalid scene");
+    return;
+  }
+  if (!parameterNode)
+  {
+    vtkErrorMacro("UpdateCarmBaseRotationToBaseFixedTransform: Invalid parameter node");
+    return;
   }
 }
 
@@ -925,6 +941,67 @@ vtkMRMLLinearTransformNode* vtkSlicerCabin26ARobotsTransformLogic::UpdateRasToBa
 
   vtkNew<vtkTransform> rasToBaseFixedTransform;
   if (this->GetTransformBetween( CoordSys::RAS, CoordSys::TableBaseFixed, 
+    rasToBaseFixedTransform, false))
+  {
+    vtkDebugMacro("UpdateRasToBaseFixedTransform: RAS->BaseFixed transform updated");
+    // Transform to RAS, set transform to node, transform the model
+    rasToBaseFixedTransform->Concatenate(patientToRasTransform);
+  }
+  if (rasToBaseFixedTransformNode)
+  {
+    rasToBaseFixedTransformNode->SetAndObserveTransformToParent(rasToBaseFixedTransform);
+  }
+  return rasToBaseFixedTransformNode;
+}
+
+//------------------------------------------------------------------------------
+vtkMRMLLinearTransformNode* vtkSlicerCabin26ARobotsTransformLogic::UpdateRasToCArmBaseFixedTransform(vtkMRMLCabin26AGeometryNode* parameterNode)
+{
+  if (!parameterNode)
+  {
+    vtkErrorMacro("UpdateRasToCArmBaseFixedTransform: Invalid parameter node");
+    return nullptr;
+  }
+  vtkMRMLScene* scene = this->GetMRMLScene();
+  if (!scene)
+  {
+    vtkErrorMacro("UpdateRasToCArmBaseFixedTransform: Invalid MRML scene");
+    return nullptr;
+  }
+
+  // Display all pieces of the treatment room and sets each piece a color to provide realistic representation
+  using CoordSys = CoordinateSystemIdentifier;
+
+  // Transform robot models to RAS
+  vtkNew<vtkTransform> patientToRasTransform;
+  patientToRasTransform->RotateX(-90.);
+  if (parameterNode->GetPatientHeadFeetRotation())
+  {
+    patientToRasTransform->RotateZ(180.);
+  }
+
+  // BaseFixed -> RAS
+  // BaseFixed - mandatory
+  // Transform path: RAS -> Patient -> TableTop -> Flange -> Wrist -> Elbow -> Shoulder -> BaseRotation -> BaseFixed
+  // BaseFixed -> FixedReference -> CArmBaseFixed
+  // Find RasToCArmBaseFixedTransform or create it
+  vtkSmartPointer<vtkMRMLLinearTransformNode> rasToBaseFixedTransformNode;
+  if (vtkMRMLNode* node = scene->GetFirstNodeByName("RasToCArmBaseFixedTransform"))
+  {
+    rasToBaseFixedTransformNode = vtkMRMLLinearTransformNode::SafeDownCast(node);
+  }
+  else
+  {
+    rasToBaseFixedTransformNode = vtkSmartPointer<vtkMRMLLinearTransformNode>::New();
+    rasToBaseFixedTransformNode->SetName("RasToCArmBaseFixedTransform");
+//    rasToBaseFixedTransformNode->SetHideFromEditors(1);
+    std::string singletonTag = std::string("C26A_") + "RasToCArmBaseFixedTransform";
+    rasToBaseFixedTransformNode->SetSingletonTag(singletonTag.c_str());
+    scene->AddNode(rasToBaseFixedTransformNode);
+  }
+
+  vtkNew<vtkTransform> rasToBaseFixedTransform;
+  if (this->GetTransformBetween( CoordSys::RAS, CoordSys::CArmBaseFixed, 
     rasToBaseFixedTransform, false))
   {
     vtkDebugMacro("UpdateRasToBaseFixedTransform: RAS->BaseFixed transform updated");

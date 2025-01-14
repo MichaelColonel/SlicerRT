@@ -123,12 +123,18 @@ public:
   /// Apply new Patient to TableTop translate (Patient->TableTop)
   void UpdatePatientToTableTopTransform(vtkMRMLCabin26AGeometryNode* parameterNode);
 
+  /// Update CarmBaseFixedToFixedReference transform based on translation
+  /// Apply new C-Arm BaseFixed to FixedReference translate (CarmBaseFixed->FixedReference)
+  void UpdateCArmBaseFixedToFixedReferenceTransform(vtkMRMLCabin26AGeometryNode* channelNode);
+
   /// Update (or create if absent) RAS to TableTop transform
   vtkMRMLLinearTransformNode* UpdateRasToTableTopTransform(vtkMRMLCabin26AGeometryNode* parameterNode);
   /// Update (or create if absent) RAS to Flange transform
   vtkMRMLLinearTransformNode* UpdateRasToFlangeTransform(vtkMRMLCabin26AGeometryNode* parameterNode);
   /// Update (or create if absent) RAS to BaseFixed transform
   vtkMRMLLinearTransformNode* UpdateRasToBaseFixedTransform(vtkMRMLCabin26AGeometryNode* parameterNode);
+  /// Update (or create if absent) RAS to CarmBaseFixed transform
+  vtkMRMLLinearTransformNode* UpdateRasToCArmBaseFixedTransform(vtkMRMLCabin26AGeometryNode* parameterNode);
   /// Update (or create if absent) RAS to BaseRotation transform
   vtkMRMLLinearTransformNode* UpdateRasToBaseRotationTransform(vtkMRMLCabin26AGeometryNode* parameterNode);
   /// Update (or create if absent) RAS to Shoulder transform
