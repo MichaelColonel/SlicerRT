@@ -501,6 +501,7 @@ void vtkSlicerPatientPositioningLogic::ProcessMRMLNodesEvents(vtkObject* caller,
       this->Cabin26ARobotsLogic->UpdateRasToBaseRotationTransform(cabin26AGeometry);
       this->Cabin26ARobotsLogic->UpdateRasToBaseFixedTransform(cabin26AGeometry);
       this->Cabin26ARobotsLogic->UpdateRasToFixedReferenceTransform(cabin26AGeometry);
+      this->Cabin26ARobotsLogic->UpdateRasToCArmBaseFixedTransform(cabin26AGeometry);
     }
   }
 }
@@ -1081,6 +1082,7 @@ vtkSlicerPatientPositioningLogic::SetupTreatmentMachineModels(vtkMRMLPatientPosi
         case CoordSys::TableTop:
         case CoordSys::TableFlange:
         case CoordSys::TableBaseFixed:
+        case CoordSys::CArmBaseFixed:
         case CoordSys::TableBaseRotation:
         case CoordSys::TableShoulder:
         case CoordSys::TableElbow:
@@ -1140,6 +1142,16 @@ vtkSlicerPatientPositioningLogic::SetupTreatmentMachineModels(vtkMRMLPatientPosi
       {
         this->TableTopBaseFixedCollisionDetection->SetInputData(1, partModel->GetPolyData());
         partModel->SetAndObserveTransformNodeID(rasToBaseFixedTransformNode->GetID());
+      }
+    }
+    else if (partIdx == CoordSys::CArmBaseFixed)
+    {
+      this->Cabin26ARobotsLogic->UpdateCArmBaseFixedToFixedReferenceTransform(cabin26AGeoNode);
+      vtkMRMLLinearTransformNode* rasToCArmBaseFixedTransformNode = this->Cabin26ARobotsLogic->UpdateRasToCArmBaseFixedTransform(cabin26AGeoNode);
+      if (rasToCArmBaseFixedTransformNode)
+      {
+//        this->TableTopBaseFixedCollisionDetection->SetInputData(1, partModel->GetPolyData());
+        partModel->SetAndObserveTransformNodeID(rasToCArmBaseFixedTransformNode->GetID());
       }
     }
     else if (partIdx == CoordSys::TableBaseRotation)

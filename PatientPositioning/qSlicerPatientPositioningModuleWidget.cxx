@@ -1207,6 +1207,7 @@ void qSlicerPatientPositioningModuleWidget::onLoadTreatmentMachineButtonClicked(
     cabin26ARobotsLogic->UpdateShoulderToBaseRotationTransform(cabin26AGeometryNode);
     cabin26ARobotsLogic->UpdateBaseRotationToBaseFixedTransform(cabin26AGeometryNode);
     cabin26ARobotsLogic->UpdateBaseFixedToFixedReferenceTransform(cabin26AGeometryNode);
+    cabin26ARobotsLogic->UpdateCArmBaseFixedToFixedReferenceTransform(cabin26AGeometryNode);
     d->getLayoutManager()->resumeRender();
   }
   // Update table top robot geometry
@@ -1255,6 +1256,7 @@ void qSlicerPatientPositioningModuleWidget::onPatientTableTopTranslationChanged(
     cabin26ARobotsLogic->UpdateShoulderToBaseRotationTransform(cabin26AGeometryNode);
     cabin26ARobotsLogic->UpdateBaseRotationToBaseFixedTransform(cabin26AGeometryNode);
     cabin26ARobotsLogic->UpdateBaseFixedToFixedReferenceTransform(cabin26AGeometryNode);
+    cabin26ARobotsLogic->UpdateCArmBaseFixedToFixedReferenceTransform(cabin26AGeometryNode);
   }
   cabin26AGeometryNode->DisableModifiedEventOff();
   cabin26AGeometryNode->Modified();
@@ -1295,6 +1297,7 @@ void qSlicerPatientPositioningModuleWidget::onTableTopRobotA1Changed(double a1)
   {
     cabin26ARobotsLogic->UpdateBaseRotationToBaseFixedTransform(cabin26AGeometryNode);
     cabin26ARobotsLogic->UpdateBaseFixedToFixedReferenceTransform(cabin26AGeometryNode);
+    cabin26ARobotsLogic->UpdateCArmBaseFixedToFixedReferenceTransform(cabin26AGeometryNode);
   }
   this->checkForCollisions();
   d->getLayoutManager()->resumeRender();
@@ -1332,6 +1335,7 @@ void qSlicerPatientPositioningModuleWidget::onTableTopRobotA2Changed(double a2)
     cabin26ARobotsLogic->UpdateShoulderToBaseRotationTransform(cabin26AGeometryNode);
     cabin26ARobotsLogic->UpdateBaseRotationToBaseFixedTransform(cabin26AGeometryNode);
     cabin26ARobotsLogic->UpdateBaseFixedToFixedReferenceTransform(cabin26AGeometryNode);
+    cabin26ARobotsLogic->UpdateCArmBaseFixedToFixedReferenceTransform(cabin26AGeometryNode);
   }
   cabin26AGeometryNode->Modified();
   this->checkForCollisions();
@@ -1370,6 +1374,7 @@ void qSlicerPatientPositioningModuleWidget::onTableTopRobotA3Changed(double a3)
     cabin26ARobotsLogic->UpdateShoulderToBaseRotationTransform(cabin26AGeometryNode);
     cabin26ARobotsLogic->UpdateBaseRotationToBaseFixedTransform(cabin26AGeometryNode);
     cabin26ARobotsLogic->UpdateBaseFixedToFixedReferenceTransform(cabin26AGeometryNode);
+    cabin26ARobotsLogic->UpdateCArmBaseFixedToFixedReferenceTransform(cabin26AGeometryNode);
   }
   cabin26AGeometryNode->Modified();
   this->checkForCollisions();
@@ -1409,6 +1414,7 @@ void qSlicerPatientPositioningModuleWidget::onTableTopRobotA4Changed(double a4)
     cabin26ARobotsLogic->UpdateShoulderToBaseRotationTransform(cabin26AGeometryNode);
     cabin26ARobotsLogic->UpdateBaseRotationToBaseFixedTransform(cabin26AGeometryNode);
     cabin26ARobotsLogic->UpdateBaseFixedToFixedReferenceTransform(cabin26AGeometryNode);
+    cabin26ARobotsLogic->UpdateCArmBaseFixedToFixedReferenceTransform(cabin26AGeometryNode);
   }
   cabin26AGeometryNode->Modified();
   this->checkForCollisions();
@@ -1448,6 +1454,7 @@ void qSlicerPatientPositioningModuleWidget::onTableTopRobotA5Changed(double a5)
     cabin26ARobotsLogic->UpdateShoulderToBaseRotationTransform(cabin26AGeometryNode);
     cabin26ARobotsLogic->UpdateBaseRotationToBaseFixedTransform(cabin26AGeometryNode);
     cabin26ARobotsLogic->UpdateBaseFixedToFixedReferenceTransform(cabin26AGeometryNode);
+    cabin26ARobotsLogic->UpdateCArmBaseFixedToFixedReferenceTransform(cabin26AGeometryNode);
   }
   cabin26AGeometryNode->Modified();
   this->checkForCollisions();
@@ -1488,6 +1495,7 @@ void qSlicerPatientPositioningModuleWidget::onTableTopRobotA6Changed(double a6)
     cabin26ARobotsLogic->UpdateShoulderToBaseRotationTransform(cabin26AGeometryNode);
     cabin26ARobotsLogic->UpdateBaseRotationToBaseFixedTransform(cabin26AGeometryNode);
     cabin26ARobotsLogic->UpdateBaseFixedToFixedReferenceTransform(cabin26AGeometryNode);
+    cabin26ARobotsLogic->UpdateCArmBaseFixedToFixedReferenceTransform(cabin26AGeometryNode);
   }
   cabin26AGeometryNode->Modified();
   this->checkForCollisions();
@@ -1527,6 +1535,7 @@ void qSlicerPatientPositioningModuleWidget::onBaseFixedToFixedReferenceTranslati
   if (cabin26ARobotsLogic && cabin26AGeometryNode)
   {
     cabin26ARobotsLogic->UpdateBaseFixedToFixedReferenceTransform(cabin26AGeometryNode);
+    cabin26ARobotsLogic->UpdateCArmBaseFixedToFixedReferenceTransform(cabin26AGeometryNode);
   }
   cabin26AGeometryNode->Modified();
   this->checkForCollisions();

@@ -136,7 +136,7 @@ protected:
   /// Translate BaseFixed begin from FixedReference origin
   double BaseFixedToFixedReferenceTranslation[3] = { -1685., 600., -1800. };
   /// Translate C-Arm BaseFixed begin from FixedReference origin
-  double CArmBaseFixedToFixedReferenceTranslation[3] = { -1685., -600., -1800. };
+  double CArmBaseFixedToFixedReferenceTranslation[3] = { -1685., 600., -400. };
   /// Setup table top robot angles
   double TableTopRobotAngles[6] = { 0., 0., 0., 0., 0., 0. }; // A1=0, A2=-90, A3=90, A4=0, A5=-90, A6=0
   /// Setup x-ray c-arm robot angles
