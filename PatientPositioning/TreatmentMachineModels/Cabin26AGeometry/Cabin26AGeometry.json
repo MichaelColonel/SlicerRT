@@ -94,6 +94,16 @@
       "Color": [0, 0, 0],
       "State": "Active",
       "PointRAS": [0, 0, 163]
+    },
+    {
+      "Type": "CArmRobotBaseRotation",
+      "Number": 11,
+      "Name": "Robot Base (rotation)",
+      "FilePath": "CArmRobotBaseRotation.stl",
+      "FileToRASTransformMatrix": [ [-1, 0, 0, 0], [0, -1, 0, 0], [0, 0, 1, 0], [0, 0, 0, 1] ],
+      "Color": [244, 244, 244],
+      "State": "Active",
+      "PointRAS": [0, 0, 163]
     }
   ]
 }

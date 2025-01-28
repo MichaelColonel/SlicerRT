@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>641</width>
-    <height>944</height>
+    <width>645</width>
+    <height>1124</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -438,6 +438,85 @@
          <property name="text">
           <string>X-ray C-arm robot control</string>
          </property>
+         <property name="collapsed">
+          <bool>true</bool>
+         </property>
+         <layout class="QGridLayout" name="gridLayout_18">
+          <item row="0" column="0">
+           <layout class="QGridLayout" name="gridLayout_17">
+            <item row="0" column="0">
+             <widget class="QLabel" name="label_22">
+              <property name="text">
+               <string>A1</string>
+              </property>
+             </widget>
+            </item>
+            <item row="4" column="0">
+             <widget class="QLabel" name="label_24">
+              <property name="text">
+               <string>A5</string>
+              </property>
+             </widget>
+            </item>
+            <item row="5" column="0">
+             <widget class="QLabel" name="label_25">
+              <property name="text">
+               <string>A6</string>
+              </property>
+             </widget>
+            </item>
+            <item row="2" column="0">
+             <widget class="QLabel" name="label_27">
+              <property name="text">
+               <string>A3</string>
+              </property>
+             </widget>
+            </item>
+            <item row="1" column="0">
+             <widget class="QLabel" name="label_23">
+              <property name="text">
+               <string>A2</string>
+              </property>
+             </widget>
+            </item>
+            <item row="3" column="0">
+             <widget class="QLabel" name="label_26">
+              <property name="text">
+               <string>A4</string>
+              </property>
+             </widget>
+            </item>
+            <item row="0" column="1">
+             <widget class="ctkSliderWidget" name="SliderWidget_CarmRobotA1">
+              <property name="decimals">
+               <number>6</number>
+              </property>
+              <property name="minimum">
+               <double>-185.000000000000000</double>
+              </property>
+              <property name="maximum">
+               <double>185.000000000000000</double>
+              </property>
+             </widget>
+            </item>
+            <item row="1" column="1">
+             <widget class="ctkSliderWidget" name="SliderWidget_CarmRobotA2"/>
+            </item>
+            <item row="2" column="1">
+             <widget class="ctkSliderWidget" name="SliderWidget_CarmRobotA3"/>
+            </item>
+            <item row="3" column="1">
+             <widget class="ctkSliderWidget" name="SliderWidget_CarmRobotA4"/>
+            </item>
+            <item row="4" column="1">
+             <widget class="ctkSliderWidget" name="SliderWidget_CarmRobotA5"/>
+            </item>
+            <item row="5" column="1">
+             <widget class="ctkSliderWidget" name="SliderWidget_CarmRobotA6"/>
+            </item>
+           </layout>
+          </item>
+         </layout>
         </widget>
        </item>
       </layout>
