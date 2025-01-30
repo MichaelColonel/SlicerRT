@@ -48,6 +48,7 @@ constexpr std::array< double, 3 > FixedReferenceToFixedBasedOffset{ -1600., -150
 constexpr double BaseFixedHeight = 240.; // mm
 constexpr double CArmBaseFixedHeight = 240.; // mm
 constexpr double BaseRotationHeight = 675. - BaseFixedHeight; // mm
+constexpr double CArmBaseRotationHeight = 675. - CArmBaseFixedHeight; // mm
 constexpr double BaseRotationShoulderDiskCenterOffsetX = 350; // mm
 constexpr double BaseRotationShoulderDiskCenterOffsetY = BaseRotationHeight; // mm
 constexpr double TableThickness = 90.; // mm
@@ -444,7 +445,7 @@ void vtkSlicerCabin26ARobotsTransformLogic::UpdateBaseFixedToFixedReferenceTrans
   if (!this->GetTransformBetween( CoordSys::TableBaseFixed, CoordSys::Patient, 
     baseFixedToPatientTransform, false))
   {
-    vtkWarningMacro("UpdateShoulderToBaseRotationTransform: Can't get TableBaseFixed->Patient transform");
+    vtkWarningMacro("UpdateBaseRotationToBaseFixedTransform: Can't get TableBaseFixed->Patient transform");
   }
 
   double PatientToBaseFixedTranslate[3] = {};
@@ -533,7 +534,7 @@ void vtkSlicerCabin26ARobotsTransformLogic::UpdateCArmBaseFixedToFixedReferenceT
   if (!this->GetTransformBetween( CoordSys::TableBaseFixed, CoordSys::Patient, 
     baseFixedToPatientTransform, false))
   {
-    vtkWarningMacro("UpdateShoulderToBaseRotationTransform: Can't get TableBaseFixed->Patient transform");
+    vtkWarningMacro("UpdateCarmBaseRotationToBaseFixedTransform: Can't get TableBaseFixed->Patient transform");
   }
 
   double PatientToBaseFixedTranslate[3] = {};
@@ -605,6 +606,40 @@ void vtkSlicerCabin26ARobotsTransformLogic::UpdateCArmBaseRotationToCArmBaseFixe
   {
     vtkErrorMacro("UpdateCArmBaseRotationToCArmBaseFixedTransform: Invalid parameter node");
     return;
+  }
+
+  vtkNew<vtkTransform> carmBaseFixedTranslate;
+  carmBaseFixedTranslate->Translate(0., CArmBaseFixedHeight, 0.);
+
+  using CoordSys = CoordinateSystemIdentifier;
+  vtkNew<vtkTransform> patientToCarmBaseFixedTransform;
+  if (!this->GetTransformBetween( CoordSys::Patient, CoordSys::CArmBaseFixed, 
+    patientToCarmBaseFixedTransform, false))
+  {
+    vtkWarningMacro("UpdateCArmBaseRotationToCArmBaseFixedTransform: Can't get Patient->CArmBaseFixed transform");
+  }
+  vtkNew<vtkTransform> carmBaseFixedToPatientTransform;
+  if (!this->GetTransformBetween( CoordSys::CArmBaseFixed, CoordSys::Patient, 
+    carmBaseFixedToPatientTransform, false))
+  {
+    vtkWarningMacro("UpdateCArmBaseRotationToCArmBaseFixedTransform: Can't get CArmBaseFixed->Patient transform1");
+  }
+
+  vtkMRMLLinearTransformNode* carmBaseRotationToCArmBaseFixedTransformNode =
+    this->GetTransformNodeBetween(CoordSys::CArmBaseRotation, CoordSys::CArmBaseFixed);
+  if (carmBaseRotationToCArmBaseFixedTransformNode)
+  {
+    double a[6] = {};
+    parameterNode->GetCArmRobotAngles(a);
+
+    // BaseRotation->BaseFixed rotation around Y (A1 angle)
+    vtkNew<vtkTransform> baseRotationToBaseFixedTransform;
+    baseRotationToBaseFixedTransform->RotateY(a[0]);
+
+    carmBaseFixedToPatientTransform->Concatenate(carmBaseFixedTranslate);
+    carmBaseFixedToPatientTransform->Concatenate(baseRotationToBaseFixedTransform);
+    carmBaseFixedToPatientTransform->Concatenate(patientToCarmBaseFixedTransform);
+    carmBaseRotationToCArmBaseFixedTransformNode->SetAndObserveTransformToParent(carmBaseFixedToPatientTransform);
   }
 }
 

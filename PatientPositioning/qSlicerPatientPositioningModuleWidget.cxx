@@ -237,8 +237,8 @@ void qSlicerPatientPositioningModuleWidget::setup()
     this, SLOT(onTableTopRobotA5Changed(double)));
   connect( d->SliderWidget_TableRobotA6, SIGNAL(valueChanged(double)), 
     this, SLOT(onTableTopRobotA6Changed(double)));
-//  connect( d->SliderWidget_CarmRobotA1, SIGNAL(valueChanged(double)), 
-//    this, SLOT(onCArmRobotA1Changed(double)));
+  connect( d->SliderWidget_CarmRobotA1, SIGNAL(valueChanged(double)), 
+    this, SLOT(onCArmRobotA1Changed(double)));
 
   connect( d->CoordinatesWidget_PatientTableTopTranslation, SIGNAL(coordinatesChanged(double*)),
     this, SLOT(onPatientTableTopTranslationChanged(double*)));
@@ -1186,6 +1186,7 @@ void qSlicerPatientPositioningModuleWidget::onLoadTreatmentMachineButtonClicked(
   d->CollapsibleButton_BaseFixedControl->setEnabled(true);
   d->CollapsibleButton_TableTopControl->setEnabled(true);
   d->CollapsibleButton_TableTopRobotControl->setEnabled(true);
+  d->CollapsibleButton_XrayCarmRobotControl->setEnabled(true);
   d->FixedBeamAxisWidget->setEnabled(true);
   d->PushButton_AlignBeams->setEnabled(true);
 
