@@ -104,6 +104,16 @@
       "Color": [244, 244, 244],
       "State": "Active",
       "PointRAS": [0, 0, 163]
+    },
+    {
+      "Type": "CArmRobotShoulder",
+      "Number": 12,
+      "Name": "Robot Shoulder",
+      "FilePath": "CArmRobotShoulder.stl",
+      "FileToRASTransformMatrix": [ [-1, 0, 0, 0], [0, -1, 0, 0], [0, 0, 1, 0], [0, 0, 0, 1] ],
+      "Color": [244, 244, 244],
+      "State": "Active",
+      "PointRAS": [0, 0, 163]
     }
   ]
 }

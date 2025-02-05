@@ -503,6 +503,7 @@ void vtkSlicerPatientPositioningLogic::ProcessMRMLNodesEvents(vtkObject* caller,
       this->Cabin26ARobotsLogic->UpdateRasToFixedReferenceTransform(cabin26AGeometry);
       this->Cabin26ARobotsLogic->UpdateRasToCArmBaseFixedTransform(cabin26AGeometry);
       this->Cabin26ARobotsLogic->UpdateRasToCArmBaseRotationTransform(cabin26AGeometry);
+      this->Cabin26ARobotsLogic->UpdateRasToCArmShoulderTransform(cabin26AGeometry);
     }
   }
 }
@@ -1087,6 +1088,7 @@ vtkSlicerPatientPositioningLogic::SetupTreatmentMachineModels(vtkMRMLPatientPosi
         case CoordSys::TableBaseRotation:
         case CoordSys::CArmBaseRotation:
         case CoordSys::TableShoulder:
+        case CoordSys::CArmShoulder:
         case CoordSys::TableElbow:
         case CoordSys::TableWrist:
           vtkErrorMacro("SetupTreatmentMachineModels: Unable to access " << partType << " model " << partIdx);
@@ -1178,11 +1180,22 @@ vtkSlicerPatientPositioningLogic::SetupTreatmentMachineModels(vtkMRMLPatientPosi
     }
     else if (partIdx == CoordSys::TableShoulder)
     {
-      this->Cabin26ARobotsLogic->UpdateElbowToShoulderTransform(cabin26AGeoNode);
+//      this->Cabin26ARobotsLogic->UpdateElbowToShoulderTransform(cabin26AGeoNode);
+      this->Cabin26ARobotsLogic->UpdateShoulderToBaseRotationTransform(cabin26AGeoNode);
       vtkMRMLLinearTransformNode* rasToShoulderTransformNode = this->Cabin26ARobotsLogic->UpdateRasToShoulderTransform(cabin26AGeoNode);
       if (rasToShoulderTransformNode)
       {
         this->TableTopShoulderCollisionDetection->SetInputData(1, partModel->GetPolyData());
+        partModel->SetAndObserveTransformNodeID(rasToShoulderTransformNode->GetID());
+      }
+    }
+    else if (partIdx == CoordSys::CArmShoulder)
+    {
+      this->Cabin26ARobotsLogic->UpdateCArmShoulderToCArmBaseRotationTransform(cabin26AGeoNode);
+      vtkMRMLLinearTransformNode* rasToShoulderTransformNode = this->Cabin26ARobotsLogic->UpdateRasToCArmShoulderTransform(cabin26AGeoNode);
+      if (rasToShoulderTransformNode)
+      {
+//        this->TableTopShoulderCollisionDetection->SetInputData(1, partModel->GetPolyData());
         partModel->SetAndObserveTransformNodeID(rasToShoulderTransformNode->GetID());
       }
     }

@@ -17,6 +17,7 @@ set(MACHINE_MODELS
   TableRobotWrist.stl
   CArmRobotBaseFixed.stl
   CArmRobotBaseRotation.stl
+  CArmRobotShoulder.stl
 )
 
 

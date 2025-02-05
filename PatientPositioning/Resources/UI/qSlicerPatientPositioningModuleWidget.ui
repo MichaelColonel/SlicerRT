@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>645</width>
-    <height>1124</height>
+    <width>371</width>
+    <height>969</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -43,7 +43,7 @@
         </item>
         <item row="3" column="1">
          <widget class="qMRMLSegmentSelectorWidget" name="SegmentSelectorWidget_PatientBody">
-          <property name="noneEnabled">
+          <property name="noneEnabled" stdset="0">
            <bool>true</bool>
           </property>
          </widget>
@@ -268,7 +268,7 @@
    <item>
     <widget class="QTabWidget" name="TabWidget_RobotsControl">
      <property name="currentIndex">
-      <number>0</number>
+      <number>1</number>
      </property>
      <widget class="QWidget" name="Tab_TableTopRobot">
       <attribute name="title">
@@ -500,7 +500,20 @@
              </widget>
             </item>
             <item row="1" column="1">
-             <widget class="ctkSliderWidget" name="SliderWidget_CarmRobotA2"/>
+             <widget class="ctkSliderWidget" name="SliderWidget_CarmRobotA2">
+              <property name="decimals">
+               <number>6</number>
+              </property>
+              <property name="minimum">
+               <double>-140.000000000000000</double>
+              </property>
+              <property name="maximum">
+               <double>-5.000000000000000</double>
+              </property>
+              <property name="value">
+               <double>-90.000000000000000</double>
+              </property>
+             </widget>
             </item>
             <item row="2" column="1">
              <widget class="ctkSliderWidget" name="SliderWidget_CarmRobotA3"/>
