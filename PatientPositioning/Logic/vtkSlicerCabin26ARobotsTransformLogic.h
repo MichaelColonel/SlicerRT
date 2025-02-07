@@ -130,6 +130,7 @@ public:
   /// Apply new C-Arm BaseRotation to C-Arm BaseFixed translate (CArmBaseRotation->CArmBaseFixed)
   void UpdateCArmBaseRotationToCArmBaseFixedTransform(vtkMRMLCabin26AGeometryNode* channelNode);
   void UpdateCArmShoulderToCArmBaseRotationTransform(vtkMRMLCabin26AGeometryNode* channelNode);
+  void UpdateCArmElbowToCArmShoulderTransform(vtkMRMLCabin26AGeometryNode* channelNode);
 
   /// Update (or create if absent) RAS to TableTop transform
   vtkMRMLLinearTransformNode* UpdateRasToTableTopTransform(vtkMRMLCabin26AGeometryNode* parameterNode);
@@ -143,6 +144,8 @@ public:
   vtkMRMLLinearTransformNode* UpdateRasToCArmBaseRotationTransform(vtkMRMLCabin26AGeometryNode* parameterNode);
   /// Update (or create if absent) RAS to CArmRobotShoulder transform
   vtkMRMLLinearTransformNode* UpdateRasToCArmShoulderTransform(vtkMRMLCabin26AGeometryNode* parameterNode);
+  /// Update (or create if absent) RAS to CArmRobotElbow transform
+  vtkMRMLLinearTransformNode* UpdateRasToCArmElbowTransform(vtkMRMLCabin26AGeometryNode* parameterNode);
   /// Update (or create if absent) RAS to BaseRotation transform
   vtkMRMLLinearTransformNode* UpdateRasToBaseRotationTransform(vtkMRMLCabin26AGeometryNode* parameterNode);
   /// Update (or create if absent) RAS to Shoulder transform

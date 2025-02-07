@@ -99,6 +99,7 @@ vtkSlicerCabin26ARobotsTransformLogic::vtkSlicerCabin26ARobotsTransformLogic()
   this->CoordinateSystemsMap[CoordSys::CArmBaseFixed] = "CarmBaseFixed";
   this->CoordinateSystemsMap[CoordSys::CArmBaseRotation] = "CarmBaseRotation";
   this->CoordinateSystemsMap[CoordSys::CArmShoulder] = "CarmRotation";
+  this->CoordinateSystemsMap[CoordSys::CArmElbow] = "CarmElbow";
 
   this->RobotsTransforms.clear();
   this->RobotsTransforms.push_back(std::make_pair(CoordSys::FixedReference, CoordSys::RAS)); // Dummy
@@ -114,6 +115,7 @@ vtkSlicerCabin26ARobotsTransformLogic::vtkSlicerCabin26ARobotsTransformLogic()
   this->RobotsTransforms.push_back(std::make_pair(CoordSys::CArmBaseFixed, CoordSys::FixedReference)); // C-Arm robot basement translation in cabin 26a (FixedReference) system
   this->RobotsTransforms.push_back(std::make_pair(CoordSys::CArmBaseRotation, CoordSys::CArmBaseFixed)); // C-Arm robot basement rotation around C-Arm robot basement along Z-axis
   this->RobotsTransforms.push_back(std::make_pair(CoordSys::CArmShoulder, CoordSys::CArmBaseRotation)); // C-Arm robot shoulder to C-arm basement rotation around C-Arm robot basement along Y-axis
+  this->RobotsTransforms.push_back(std::make_pair(CoordSys::CArmElbow, CoordSys::CArmShoulder)); // C-Arm robot elbow to C-arm robot shoulder around C-Arm shoulder along Y-axis
 
   this->CoordinateSystemsHierarchy.clear();
   // key - parent, value - children
@@ -128,6 +130,7 @@ vtkSlicerCabin26ARobotsTransformLogic::vtkSlicerCabin26ARobotsTransformLogic()
   this->CoordinateSystemsHierarchy[CoordSys::Patient] = { CoordSys::RAS };
   this->CoordinateSystemsHierarchy[CoordSys::CArmBaseFixed] = { CoordSys::CArmBaseRotation };
   this->CoordinateSystemsHierarchy[CoordSys::CArmBaseRotation] = { CoordSys::CArmShoulder };
+  this->CoordinateSystemsHierarchy[CoordSys::CArmShoulder] = { CoordSys::CArmElbow };
 }
 
 //-----------------------------------------------------------------------------
@@ -179,6 +182,7 @@ const char* vtkSlicerCabin26ARobotsTransformLogic::GetTreatmentMachinePartTypeAs
     case CArmShoulder: return "CArmRobotShoulder";
     case TableFlange: return "TableFlange";
     case TableElbow: return "TableRobotElbow";
+    case CArmElbow: return "CArmRobotElbow";
     case TableWrist: return "TableRobotWrist";
     case TableTop: return "TableTop";
     case Patient: return "Patient";
@@ -237,6 +241,9 @@ void vtkSlicerCabin26ARobotsTransformLogic::BuildRobotsTransformHierarchy()
   // Shoulder parent, rotation of elbow part of the robot along Y-axis
   this->GetTransformNodeBetween(CoordSys::TableElbow, CoordSys::TableShoulder)->SetAndObserveTransformNodeID(
     this->GetTransformNodeBetween(CoordSys::TableShoulder, CoordSys::TableBaseRotation)->GetID() );
+  this->GetTransformNodeBetween(CoordSys::CArmElbow, CoordSys::CArmShoulder)->SetAndObserveTransformNodeID(
+    this->GetTransformNodeBetween(CoordSys::CArmShoulder, CoordSys::CArmBaseRotation)->GetID() );
+
   // Elbow parent, rotation of wrist part of the robot along Y-axis
   this->GetTransformNodeBetween(CoordSys::TableWrist, CoordSys::TableElbow)->SetAndObserveTransformNodeID(
     this->GetTransformNodeBetween(CoordSys::TableElbow, CoordSys::TableShoulder)->GetID() );
@@ -336,6 +343,12 @@ void vtkSlicerCabin26ARobotsTransformLogic::ResetToInitialPositions()
   vtkTransform* cArmShoulderToCArmBaseRotationTransform = vtkTransform::SafeDownCast(cArmShoulderToCArmBaseRotationTransformNode->GetTransformToParent());
   cArmShoulderToCArmBaseRotationTransform->Identity();
   cArmShoulderToCArmBaseRotationTransform->Modified();
+
+  vtkMRMLLinearTransformNode* cArmElbowToCArmShoulderTransformNode =
+    this->GetTransformNodeBetween(CoordSys::CArmElbow, CoordSys::CArmShoulder);
+  vtkTransform* cArmElbowToCArmShoulderTransform = vtkTransform::SafeDownCast(cArmElbowToCArmShoulderTransformNode->GetTransformToParent());
+  cArmElbowToCArmShoulderTransform->Identity();
+  cArmElbowToCArmShoulderTransform->Modified();
 }
 
 //-----------------------------------------------------------------------------
@@ -674,8 +687,8 @@ void vtkSlicerCabin26ARobotsTransformLogic::UpdateCArmShoulderToCArmBaseRotation
     return;
   }
   // Translate the C-Arm Shoulder to C-Arm BaseRotation empty disk centre
-  vtkNew<vtkTransform> carmBaseRotationTranslateTransform;
-  carmBaseRotationTranslateTransform->Translate( CArmBaseRotationShoulderDiskCenterOffsetX, CArmBaseRotationShoulderDiskCenterOffsetY, 0.);
+  vtkNew<vtkTransform> carmShoulderTranslateTransform;
+  carmShoulderTranslateTransform->Translate( CArmBaseRotationShoulderDiskCenterOffsetX, CArmBaseRotationShoulderDiskCenterOffsetY, 0.);
 
   using CoordSys = CoordinateSystemIdentifier;
   vtkNew<vtkTransform> patientToCarmBaseRotationTransform;
@@ -688,7 +701,7 @@ void vtkSlicerCabin26ARobotsTransformLogic::UpdateCArmShoulderToCArmBaseRotation
   if (!this->GetTransformBetween( CoordSys::CArmBaseRotation, CoordSys::Patient, 
     carmBaseRotationToPatientTransform, false))
   {
-    vtkWarningMacro("UpdateCArmShoulderToCArmBaseRotationTransform: Can't get CArmBaseFixed->Patient transform1");
+    vtkWarningMacro("UpdateCArmShoulderToCArmBaseRotationTransform: Can't get CArmBaseRotation->Patient transform1");
   }
 
   vtkMRMLLinearTransformNode* carmShoulderToCArmBaseRotationTransformNode =
@@ -702,10 +715,61 @@ void vtkSlicerCabin26ARobotsTransformLogic::UpdateCArmShoulderToCArmBaseRotation
     vtkNew<vtkTransform> shoulderToBaseRotationTransform;
     shoulderToBaseRotationTransform->RotateZ(a[1]);
 
-    carmBaseRotationToPatientTransform->Concatenate(carmBaseRotationTranslateTransform);
+    carmBaseRotationToPatientTransform->Concatenate(carmShoulderTranslateTransform);
     carmBaseRotationToPatientTransform->Concatenate(shoulderToBaseRotationTransform);
     carmBaseRotationToPatientTransform->Concatenate(patientToCarmBaseRotationTransform);
     carmShoulderToCArmBaseRotationTransformNode->SetAndObserveTransformToParent(carmBaseRotationToPatientTransform);
+  }
+}
+
+//-----------------------------------------------------------------------------
+void vtkSlicerCabin26ARobotsTransformLogic::UpdateCArmElbowToCArmShoulderTransform(vtkMRMLCabin26AGeometryNode* parameterNode)
+{
+  vtkMRMLScene* scene = this->GetMRMLScene();
+  if (!scene)
+  {
+    vtkErrorMacro("UpdateCArmElbowToCArmShoulderTransform: Invalid scene");
+    return;
+  }
+  if (!parameterNode)
+  {
+    vtkErrorMacro("UpdateCArmElbowToCArmShoulderTransform: Invalid parameter node");
+    return;
+  }
+  // Translate the C-Arm Elbow to C-Arm BaseRotation empty disk centre
+  vtkNew<vtkTransform> carmElbowTranslateTransform;
+  carmElbowTranslateTransform->Translate( 0., 1350., 0.);
+
+  using CoordSys = CoordinateSystemIdentifier;
+  vtkNew<vtkTransform> patientToCarmShoulderTransform;
+  if (!this->GetTransformBetween( CoordSys::Patient, CoordSys::CArmShoulder, 
+    patientToCarmShoulderTransform, false))
+  {
+    vtkWarningMacro("UpdateCArmElbowToCArmShoulderTransform: Can't get Patient->CArmShoulder transform");
+  }
+  vtkNew<vtkTransform> carmShoulderToPatientTransform;
+  if (!this->GetTransformBetween( CoordSys::CArmShoulder, CoordSys::Patient, 
+    carmShoulderToPatientTransform, false))
+  {
+    vtkWarningMacro("UpdateCArmElbowToCArmShoulderTransform: Can't get CArmShoulder->Patient transform1");
+  }
+
+  vtkMRMLLinearTransformNode* carmElbowToCArmShoulderTransformNode =
+    this->GetTransformNodeBetween(CoordSys::CArmElbow, CoordSys::CArmShoulder);
+  if (carmElbowToCArmShoulderTransformNode)
+  {
+    double a[6] = {};
+    parameterNode->GetCArmRobotAngles(a);
+
+    // Shoulder->BaseRotation rotation around Z (A3 angle)
+    vtkNew<vtkTransform> elbowToShoulderTransform;
+    elbowToShoulderTransform->Translate( 0., 115., 0.);
+    elbowToShoulderTransform->RotateZ(a[2]);
+
+    carmShoulderToPatientTransform->Concatenate(carmElbowTranslateTransform);
+    carmShoulderToPatientTransform->Concatenate(elbowToShoulderTransform);
+    carmShoulderToPatientTransform->Concatenate(patientToCarmShoulderTransform);
+    carmElbowToCArmShoulderTransformNode->SetAndObserveTransformToParent(carmShoulderToPatientTransform);
   }
 }
 
@@ -1337,6 +1401,67 @@ vtkMRMLLinearTransformNode* vtkSlicerCabin26ARobotsTransformLogic::UpdateRasToCA
     rasToCArmShoulderTransformNode->SetAndObserveTransformToParent(rasToCArmShoulderTransform);
   }
   return rasToCArmShoulderTransformNode;
+}
+
+//------------------------------------------------------------------------------
+vtkMRMLLinearTransformNode* vtkSlicerCabin26ARobotsTransformLogic::UpdateRasToCArmElbowTransform(vtkMRMLCabin26AGeometryNode* parameterNode)
+{
+  if (!parameterNode)
+  {
+    vtkErrorMacro("UpdateRasToCArmElbowTransform: Invalid parameter node");
+    return nullptr;
+  }
+  vtkMRMLScene* scene = this->GetMRMLScene();
+  if (!scene)
+  {
+    vtkErrorMacro("UpdateRasToCArmElbowTransform: Invalid MRML scene");
+    return nullptr;
+  }
+
+  // Display all pieces of the treatment room and sets each piece a color to provide realistic representation
+  using CoordSys = CoordinateSystemIdentifier;
+
+  // Transform robot models to RAS
+  vtkNew<vtkTransform> patientToRasTransform;
+  patientToRasTransform->RotateX(-90.);
+  if (parameterNode->GetPatientHeadFeetRotation())
+  {
+    patientToRasTransform->RotateZ(180.);
+  }
+
+  // BaseFixed -> RAS
+  // BaseFixed - mandatory
+  // Transform path: RAS -> Patient -> TableTop -> Flange -> Wrist -> Elbow -> Shoulder -> BaseRotation -> BaseFixed
+  // BaseFixed -> FixedReference -> CArmBaseFixed -> CArmBaseRotation -> CArmShoulder -> CArmElbow
+  // Find RasToCArmBaseFixedTransform or create it
+  vtkSmartPointer<vtkMRMLLinearTransformNode> rasToCArmElbowTransformNode;
+  if (vtkMRMLNode* node = scene->GetFirstNodeByName("RasToCArmElbowTransform"))
+  {
+    rasToCArmElbowTransformNode = vtkMRMLLinearTransformNode::SafeDownCast(node);
+  }
+  else
+  {
+    rasToCArmElbowTransformNode = vtkSmartPointer<vtkMRMLLinearTransformNode>::New();
+    rasToCArmElbowTransformNode->SetName("RasToCArmElbowTransform");
+//    rasToCArmElbowTransformNode->SetHideFromEditors(1);
+    std::string singletonTag = std::string("C26A_") + "RasToCArmElbowTransform";
+    rasToCArmElbowTransformNode->SetSingletonTag(singletonTag.c_str());
+    scene->AddNode(rasToCArmElbowTransformNode);
+  }
+
+  vtkNew<vtkTransform> rasToCArmElbowTransform;
+  if (this->GetTransformBetween( CoordSys::RAS, CoordSys::CArmElbow, 
+    rasToCArmElbowTransform, false))
+  {
+    vtkWarningMacro("UpdateRasToCArmElbowTransform: RAS->CArmShoulder transform updated");
+    // Transform to RAS, set transform to node, transform the model
+    rasToCArmElbowTransform->Concatenate(patientToRasTransform);
+  }
+  if (rasToCArmElbowTransform)
+  {
+    rasToCArmElbowTransformNode->SetAndObserveTransformToParent(rasToCArmElbowTransform);
+  }
+  return rasToCArmElbowTransformNode;
 }
 
 //------------------------------------------------------------------------------

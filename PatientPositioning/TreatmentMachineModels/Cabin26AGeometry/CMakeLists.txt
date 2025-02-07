@@ -18,6 +18,7 @@ set(MACHINE_MODELS
   CArmRobotBaseFixed.stl
   CArmRobotBaseRotation.stl
   CArmRobotShoulder.stl
+  CArmRobotElbow.stl
 )
 
 

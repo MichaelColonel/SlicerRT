@@ -114,6 +114,16 @@
       "Color": [244, 244, 244],
       "State": "Active",
       "PointRAS": [0, 0, 163]
+    },
+    {
+      "Type": "CArmRobotElbow",
+      "Number": 13,
+      "Name": "Robot Elbow",
+      "FilePath": "CArmRobotElbow.stl",
+      "FileToRASTransformMatrix": [ [-1, 0, 0, 0], [0, -1, 0, 0], [0, 0, 1, 0], [0, 0, 0, 1] ],
+      "Color": [230, 230, 230],
+      "State": "Active",
+      "PointRAS": [0, 0, 163]
     }
   ]
 }
