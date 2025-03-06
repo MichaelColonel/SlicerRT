@@ -532,10 +532,33 @@
              </widget>
             </item>
             <item row="3" column="1">
-             <widget class="ctkSliderWidget" name="SliderWidget_CarmRobotA4"/>
+             <widget class="ctkSliderWidget" name="SliderWidget_CarmRobotA4">
+              <property name="decimals">
+               <number>6</number>
+              </property>
+              <property name="minimum">
+               <double>-350.000000000000000</double>
+              </property>
+              <property name="maximum">
+               <double>350.000000000000000</double>
+              </property>
+             </widget>
             </item>
             <item row="4" column="1">
-             <widget class="ctkSliderWidget" name="SliderWidget_CarmRobotA5"/>
+             <widget class="ctkSliderWidget" name="SliderWidget_CarmRobotA5">
+              <property name="decimals">
+               <number>6</number>
+              </property>
+              <property name="minimum">
+               <double>-122.500000000000000</double>
+              </property>
+              <property name="maximum">
+               <double>122.500000000000000</double>
+              </property>
+              <property name="value">
+               <double>0.000000000000000</double>
+              </property>
+             </widget>
             </item>
             <item row="5" column="1">
              <widget class="ctkSliderWidget" name="SliderWidget_CarmRobotA6"/>
@@ -738,6 +761,9 @@
         </item>
         <item row="3" column="1">
          <widget class="ctkSliderWidget" name="SliderWidget_Xt">
+          <property name="decimals">
+           <number>6</number>
+          </property>
           <property name="singleStep">
            <double>0.100000000000000</double>
           </property>
@@ -745,10 +771,10 @@
            <double>0.500000000000000</double>
           </property>
           <property name="minimum">
-           <double>-5.000000000000000</double>
+           <double>-15.000000000000000</double>
           </property>
           <property name="maximum">
-           <double>5.000000000000000</double>
+           <double>15.000000000000000</double>
           </property>
           <property name="suffix">
            <string> deg</string>
@@ -799,6 +825,9 @@
         </item>
         <item row="4" column="1">
          <widget class="ctkSliderWidget" name="SliderWidget_Yt">
+          <property name="decimals">
+           <number>6</number>
+          </property>
           <property name="singleStep">
            <double>0.100000000000000</double>
           </property>
@@ -806,10 +835,10 @@
            <double>0.500000000000000</double>
           </property>
           <property name="minimum">
-           <double>-5.000000000000000</double>
+           <double>-15.000000000000000</double>
           </property>
           <property name="maximum">
-           <double>5.000000000000000</double>
+           <double>15.000000000000000</double>
           </property>
           <property name="suffix">
            <string> deg</string>
@@ -818,6 +847,9 @@
         </item>
         <item row="5" column="1">
          <widget class="ctkSliderWidget" name="SliderWidget_Zt">
+          <property name="decimals">
+           <number>6</number>
+          </property>
           <property name="singleStep">
            <double>1.000000000000000</double>
           </property>

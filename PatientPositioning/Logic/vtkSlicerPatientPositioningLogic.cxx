@@ -505,6 +505,7 @@ void vtkSlicerPatientPositioningLogic::ProcessMRMLNodesEvents(vtkObject* caller,
       this->Cabin26ARobotsLogic->UpdateRasToCArmBaseRotationTransform(cabin26AGeometry);
       this->Cabin26ARobotsLogic->UpdateRasToCArmShoulderTransform(cabin26AGeometry);
       this->Cabin26ARobotsLogic->UpdateRasToCArmElbowTransform(cabin26AGeometry);
+      this->Cabin26ARobotsLogic->UpdateRasToCArmWristTransform(cabin26AGeometry);
     }
   }
 }
@@ -1093,6 +1094,7 @@ vtkSlicerPatientPositioningLogic::SetupTreatmentMachineModels(vtkMRMLPatientPosi
         case CoordSys::TableElbow:
         case CoordSys::CArmElbow:
         case CoordSys::TableWrist:
+        case CoordSys::CArmWrist:
           vtkErrorMacro("SetupTreatmentMachineModels: Unable to access " << partType << " model " << partIdx);
           break;
         default:
@@ -1225,6 +1227,15 @@ vtkSlicerPatientPositioningLogic::SetupTreatmentMachineModels(vtkMRMLPatientPosi
     {
       this->Cabin26ARobotsLogic->UpdateFlangeToWristTransform(cabin26AGeoNode);
       vtkMRMLLinearTransformNode* rasToWristTransformNode = this->Cabin26ARobotsLogic->UpdateRasToWristTransform(cabin26AGeoNode);
+      if (rasToWristTransformNode)
+      {
+        partModel->SetAndObserveTransformNodeID(rasToWristTransformNode->GetID());
+      }
+    }
+    else if (partIdx == CoordSys::CArmWrist)
+    {
+      this->Cabin26ARobotsLogic->UpdateCArmWristToCArmElbowTransform(cabin26AGeoNode);
+      vtkMRMLLinearTransformNode* rasToWristTransformNode = this->Cabin26ARobotsLogic->UpdateRasToCArmWristTransform(cabin26AGeoNode);
       if (rasToWristTransformNode)
       {
         partModel->SetAndObserveTransformNodeID(rasToWristTransformNode->GetID());

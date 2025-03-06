@@ -72,6 +72,8 @@ public slots:
   void onCArmRobotA1Changed(double a1);
   void onCArmRobotA2Changed(double a2);
   void onCArmRobotA3Changed(double a3);
+  void onCArmRobotA4Changed(double a4);
+  void onCArmRobotA5Changed(double a5);
   void onRotatePatientHeadFeetToggled(bool toggled);
   void onCollisionDetectionToggled(bool toggled);
   void onFixedReferenceCameraToggled(bool toggled);
