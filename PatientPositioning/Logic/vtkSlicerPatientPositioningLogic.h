@@ -43,6 +43,7 @@ class vtkMRMLSliceNode;
 class vtkMRMLTransformNode;
 class vtkMRMLPatientPositioningNode;
 class vtkMRMLRTBeamNode;
+class vtkMRMLMarkupsPlaneNode;
 class vtkMRMLMarkupsLineNode;
 class vtkMRMLMarkupsFiducialNode;
 
@@ -63,6 +64,9 @@ public:
 
   static const char* DRR_TRANSFORM_NODE_NAME;
   static const char* DRR_TRANSLATE_NODE_NAME;
+
+  static const char* TABLETOP_MARKUPS_PLANE_NODE_NAME;
+  static const char* TABLETOP_MARKUPS_FIDUCIAL_NODE_NAME;
 
   static vtkSlicerPatientPositioningLogic *New();
   vtkTypeMacro(vtkSlicerPatientPositioningLogic, vtkSlicerModuleLogic);
@@ -108,6 +112,15 @@ public:
   /// Update fixed beam axis using two new points in beam limiting device frame
   void UpdateFixedBeamAxisLineNode(vtkMRMLPatientPositioningNode* parameterNode,
     const double point0[3], const double point1[3]);
+
+  /// Create TableTop plane markups node for visualization
+  vtkMRMLMarkupsPlaneNode* CreateTableTopPlaneNode(vtkMRMLCabin26AGeometryNode* parameterNode);
+  /// Create TableTop fiducial markups node for visualization of fix holes
+  vtkMRMLMarkupsFiducialNode* CreateTableTopFiducialNode(vtkMRMLCabin26AGeometryNode* parameterNode);
+  /// Update TableTop markups plane node using parameter node data and geometry hierarchy
+  void UpdateTableTopPlaneNode(vtkMRMLCabin26AGeometryNode* parameterNode);
+  /// Update TableTop markups fiducial node using parameter node data and geometry hierarchy
+  void UpdateTableTopFiducialNode(vtkMRMLCabin26AGeometryNode* parameterNode);
 
 public:
   // Get treatment machine properties from descriptor file
