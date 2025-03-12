@@ -56,7 +56,6 @@
 
 // Slicer includes
 #include <vtkSlicerModuleLogic.h>
-#include <vtkSlicerModelsLogic.h>
 
 const char* vtkSlicerPatientPositioningLogic::FIXEDBEAMAXIS_MARKUPS_LINE_NODE_NAME = "FixedBeamAxis";
 const char* vtkSlicerPatientPositioningLogic::FIXEDISOCENTER_MARKUPS_FIDUCIAL_NODE_NAME = "FixedIsocenter";
