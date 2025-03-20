@@ -585,6 +585,7 @@ void qSlicerPatientPositioningModuleWidget::onAlignBeamsButtonClicked()
   vtkMRMLTransformNode* patientBeamTransformNode = patientBeamNode->GetParentTransformNode();
 
   vtkNew< vtkMatrix4x4 > transformMatrix;
+  vtkNew< vtkTransform > transform;
   // From FixedReference->RAS to RAS->PatientBeam transform
   // rasToFixedReferenceTransformNode (FixedReference->RAS) - Source
   // patientBeamTransformNode (RAS->PatientBeam) - Target
@@ -595,22 +596,33 @@ void qSlicerPatientPositioningModuleWidget::onAlignBeamsButtonClicked()
     return;
   }
 
-  // TableTop -> PatientBeam
-  double tableTopUnityX[4] = { 1., 0., 0., 0. };
-  double tableTopUnityY[4] = { 0., 1., 0., 0. };
-  double tableTopUnityZ[4] = { 0., 0., 1., 0. };
-  double tableTopUnityXInPatientBeam[4] = {};
-  double tableTopUnityYInPatientBeam[4] = {};
-  double tableTopUnityZInPatientBeam[4] = {};
-  transformMatrix->MultiplyPoint( tableTopUnityX, tableTopUnityXInPatientBeam);
-  transformMatrix->MultiplyPoint( tableTopUnityY, tableTopUnityYInPatientBeam);
-  transformMatrix->MultiplyPoint( tableTopUnityZ, tableTopUnityZInPatientBeam);
+  // FixedReference -> PatientBeam
+  double fixedReferenceUnityX[4] = { 1., 0., 0., 0. };
+  double fixedReferenceUnityY[4] = { 0., 1., 0., 0. };
+  double fixedReferenceUnityZ[4] = { 0., 0., 1., 0. };
+  double fixedReferenceUnityXInPatientBeam[4] = {};
+  double fixedReferenceUnityYInPatientBeam[4] = {};
+  double fixedReferenceUnityZInPatientBeam[4] = {};
+  transformMatrix->MultiplyPoint( fixedReferenceUnityX, fixedReferenceUnityXInPatientBeam);
+  transformMatrix->MultiplyPoint( fixedReferenceUnityY, fixedReferenceUnityYInPatientBeam);
+  transformMatrix->MultiplyPoint( fixedReferenceUnityZ, fixedReferenceUnityZInPatientBeam);
 
-  double longitudinalAngle = vtkMath::DegreesFromRadians(acos(tableTopUnityXInPatientBeam[0])) - 90.;
-  double lateralAngle = vtkMath::DegreesFromRadians(acos(tableTopUnityZInPatientBeam[0])) - 90.;
-  double verticalAngle = vtkMath::DegreesFromRadians(acos(tableTopUnityZInPatientBeam[2])) - 90;
+  double orient[3] = {};
+  transform->SetMatrix(transformMatrix);
+  transform->GetOrientation(orient);
+  qDebug() << Q_FUNC_INFO << "X: " << orient[0]  << ", Y: " << orient[1] << ", Z: " << orient[2];
+
+  double longitudinalAngle = vtkMath::DegreesFromRadians(acos(fixedReferenceUnityXInPatientBeam[0])) - 90.;
+  double lateralAngle = vtkMath::DegreesFromRadians(acos(fixedReferenceUnityZInPatientBeam[0])) - 90.;
+  double verticalAngle = vtkMath::DegreesFromRadians(acos(fixedReferenceUnityZInPatientBeam[2])) - 90;
 
   qDebug() << Q_FUNC_INFO << "Lateral: " << lateralAngle  << ", Longitudinal: " << longitudinalAngle << ", Vertical: " << verticalAngle;
+  double* p = fixedReferenceUnityXInPatientBeam;
+  qDebug() << " " << vtkMath::DegreesFromRadians(acos(p[0])) - 90. << " " << vtkMath::DegreesFromRadians(acos(p[1])) - 90. << " " << vtkMath::DegreesFromRadians(acos(p[2])) - 90. << '\n';
+  p = fixedReferenceUnityYInPatientBeam;
+  qDebug() << " " << vtkMath::DegreesFromRadians(acos(p[0])) - 90. << " " << vtkMath::DegreesFromRadians(acos(p[1])) - 90. << " " << vtkMath::DegreesFromRadians(acos(p[2])) - 90. << '\n';
+  p = fixedReferenceUnityZInPatientBeam;
+  qDebug() << " " << vtkMath::DegreesFromRadians(acos(p[0])) - 90. << " " << vtkMath::DegreesFromRadians(acos(p[1])) - 90. << " " << vtkMath::DegreesFromRadians(acos(p[2])) - 90. << '\n';
 
   d->FixedBeamAxisWidget->setTableTopAngles(lateralAngle, longitudinalAngle, verticalAngle);
   double a[6] = {};

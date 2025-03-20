@@ -20,6 +20,9 @@ set(MACHINE_MODELS
   CArmRobotShoulder.stl
   CArmRobotElbow.stl
   CArmRobotWrist.stl
+  CArm.stl
+  XrayImager.stl
+  XrayImageReceptor.stl
 )
 
 

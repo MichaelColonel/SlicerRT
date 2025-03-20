@@ -1005,6 +1005,63 @@ void vtkSlicerPatientPositioningLogic::UpdateTableTopPlaneNode(vtkMRMLCabin26AGe
 }
 
 //----------------------------------------------------------------------------
+bool vtkSlicerPatientPositioningLogic::AlignTableTop(vtkMRMLCabin26AGeometryNode* parameterNode, vtkMRMLRTBeamNode* patientBeamNode,
+  vtkTransform* fixedReferenceToPatientBeamTransform, double tableTopAngles[6])
+{
+  vtkMRMLScene* scene = this->GetMRMLScene(); 
+  if (!scene)
+  {
+    vtkErrorMacro("AlignTableTop: Invalid MRML scene");
+    return false;
+  }
+
+  if (!parameterNode)
+  {
+    vtkErrorMacro("AlignTableTop: Invalid parameter node");
+    return false;
+  }
+
+  vtkNew< vtkMatrix4x4 > transformMatrix;
+  fixedReferenceToPatientBeamTransform->GetMatrix(transformMatrix);
+
+  // FixedReference -> PatientBeam
+  double fixedReferenceUnityX[4] = { 1., 0., 0., 0. };
+  double fixedReferenceUnityY[4] = { 0., 1., 0., 0. };
+  double fixedReferenceUnityZ[4] = { 0., 0., 1., 0. };
+  double fixedReferenceUnityXInPatientBeam[4] = {};
+  double fixedReferenceUnityYInPatientBeam[4] = {};
+  double fixedReferenceUnityZInPatientBeam[4] = {};
+  transformMatrix->MultiplyPoint( fixedReferenceUnityX, fixedReferenceUnityXInPatientBeam);
+  transformMatrix->MultiplyPoint( fixedReferenceUnityY, fixedReferenceUnityYInPatientBeam);
+  transformMatrix->MultiplyPoint( fixedReferenceUnityZ, fixedReferenceUnityZInPatientBeam);
+
+  double orient[3] = {};
+  fixedReferenceToPatientBeamTransform->GetOrientation(orient);
+//  qDebug() << Q_FUNC_INFO << "X: " << orient[0]  << ", Y: " << orient[1] << ", Z: " << orient[2];
+
+  double longitudinalAngle = vtkMath::DegreesFromRadians(acos(fixedReferenceUnityXInPatientBeam[0])) - 90.;
+  double lateralAngle = vtkMath::DegreesFromRadians(acos(fixedReferenceUnityZInPatientBeam[0])) - 90.;
+  double verticalAngle = vtkMath::DegreesFromRadians(acos(fixedReferenceUnityZInPatientBeam[2])) - 90;
+
+//  qDebug() << Q_FUNC_INFO << "Lateral: " << lateralAngle  << ", Longitudinal: " << longitudinalAngle << ", Vertical: " << verticalAngle;
+  double* p = fixedReferenceUnityXInPatientBeam;
+//  qDebug() << " " << vtkMath::DegreesFromRadians(acos(p[0])) - 90. << " " << vtkMath::DegreesFromRadians(acos(p[1])) - 90. << " " << vtkMath::DegreesFromRadians(acos(p[2])) - 90. << '\n';
+  p = fixedReferenceUnityYInPatientBeam;
+//  qDebug() << " " << vtkMath::DegreesFromRadians(acos(p[0])) - 90. << " " << vtkMath::DegreesFromRadians(acos(p[1])) - 90. << " " << vtkMath::DegreesFromRadians(acos(p[2])) - 90. << '\n';
+  p = fixedReferenceUnityZInPatientBeam;
+//  qDebug() << " " << vtkMath::DegreesFromRadians(acos(p[0])) - 90. << " " << vtkMath::DegreesFromRadians(acos(p[1])) - 90. << " " << vtkMath::DegreesFromRadians(acos(p[2])) - 90. << '\n';
+
+  double a[6] = {};
+  parameterNode->GetTableTopRobotAngles(a);
+
+  parameterNode->DisableModifiedEventOn();
+  if (!parameterNode->GetPatientHeadFeetRotation() && patientBeamNode->GetGantryAngle() <= 180. && patientBeamNode->GetCouchAngle() <= 90.)
+  {
+  }
+  return false;
+}
+
+//----------------------------------------------------------------------------
 void vtkSlicerPatientPositioningLogic::UpdateTableTopFiducialNode(vtkMRMLCabin26AGeometryNode* parameterNode)
 {
   vtkMRMLScene* scene = this->GetMRMLScene(); 

@@ -122,6 +122,9 @@ public:
   /// Update TableTop markups fiducial node using parameter node data and geometry hierarchy
   void UpdateTableTopFiducialNode(vtkMRMLCabin26AGeometryNode* parameterNode);
 
+  bool AlignTableTop(vtkMRMLCabin26AGeometryNode* parameterNode, vtkMRMLRTBeamNode* patientBeam,
+    vtkTransform* fixedReferenceToPatientBeamTransform, double tableTopAngles[6]);
+
 public:
   // Get treatment machine properties from descriptor file
   /// Get part type as string
