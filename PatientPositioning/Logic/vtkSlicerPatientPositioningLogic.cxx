@@ -538,6 +538,10 @@ void vtkSlicerPatientPositioningLogic::ProcessMRMLNodesEvents(vtkObject* caller,
       this->Cabin26ARobotsLogic->UpdateRasToCArmShoulderTransform(cabin26AGeometry);
       this->Cabin26ARobotsLogic->UpdateRasToCArmElbowTransform(cabin26AGeometry);
       this->Cabin26ARobotsLogic->UpdateRasToCArmWristTransform(cabin26AGeometry);
+      this->Cabin26ARobotsLogic->UpdateRasToCArmTransform(cabin26AGeometry);
+      this->Cabin26ARobotsLogic->UpdateRasToXrayImagerTransform(cabin26AGeometry);
+      this->Cabin26ARobotsLogic->UpdateRasToXrayReceptorTransform(cabin26AGeometry);
+      this->Cabin26ARobotsLogic->UpdateRasToExternalXrayBeamTransform(cabin26AGeometry);
       this->UpdateTableTopPlaneNode(cabin26AGeometry);
       this->UpdateTableTopFiducialNode(cabin26AGeometry);
     }
@@ -714,7 +718,7 @@ vtkMRMLMarkupsLineNode* vtkSlicerPatientPositioningLogic::CreateFixedBeamAxisLin
   lineMarkupsNode->SetName(FIXEDBEAMAXIS_MARKUPS_LINE_NODE_NAME);
 //  lineMarkupsNode->SetHideFromEditors(1);
   std::string singletonTag = std::string("C26A_") + FIXEDBEAMAXIS_MARKUPS_LINE_NODE_NAME;
-  lineMarkupsNode->SetSingletonTag(singletonTag.c_str());
+//  lineMarkupsNode->SetSingletonTag(singletonTag.c_str());
   lineMarkupsNode->LockedOn();
 
   if (parameterNode)
@@ -783,7 +787,7 @@ vtkMRMLMarkupsFiducialNode* vtkSlicerPatientPositioningLogic::CreateFixedIsocent
   pointMarkupsNode->SetName(FIXEDISOCENTER_MARKUPS_FIDUCIAL_NODE_NAME);
 //  pointMarkupsNode->SetHideFromEditors(1);
   std::string singletonTag = std::string("C26A_") + FIXEDISOCENTER_MARKUPS_FIDUCIAL_NODE_NAME;
-  pointMarkupsNode->SetSingletonTag(singletonTag.c_str());
+//  pointMarkupsNode->SetSingletonTag(singletonTag.c_str());
   pointMarkupsNode->LockedOn();
 
   if (parameterNode)
@@ -812,7 +816,7 @@ vtkMRMLMarkupsPlaneNode* vtkSlicerPatientPositioningLogic::CreateTableTopPlaneNo
   tableTopPlaneNode->SetName(TABLETOP_MARKUPS_PLANE_NODE_NAME);
 //  tableTopPlaneNode->SetHideFromEditors(1);
   std::string singletonTag = std::string("C26A_") + TABLETOP_MARKUPS_PLANE_NODE_NAME;
-  tableTopPlaneNode->SetSingletonTag(singletonTag.c_str());
+//  tableTopPlaneNode->SetSingletonTag(singletonTag.c_str());
   tableTopPlaneNode->LockedOn();
 
   // Transform IHEP stand models (IEC Patient) to RAS
@@ -878,7 +882,7 @@ vtkMRMLMarkupsFiducialNode* vtkSlicerPatientPositioningLogic::CreateTableTopFidu
   tableTopFiducialNode->SetName(TABLETOP_MARKUPS_FIDUCIAL_NODE_NAME);
 //  tableTopFiducialNode->SetHideFromEditors(1);
   std::string singletonTag = std::string("C26A_") + TABLETOP_MARKUPS_FIDUCIAL_NODE_NAME;
-  tableTopFiducialNode->SetSingletonTag(singletonTag.c_str());
+//  tableTopFiducialNode->SetSingletonTag(singletonTag.c_str());
   tableTopFiducialNode->LockedOn();
 
   // Transform IHEP stand models (IEC Patient) to RAS
@@ -1062,6 +1066,43 @@ bool vtkSlicerPatientPositioningLogic::AlignTableTop(vtkMRMLCabin26AGeometryNode
 }
 
 //----------------------------------------------------------------------------
+bool vtkSlicerPatientPositioningLogic::AlignExternalXrayBeamToCarmComponents(vtkMRMLCabin26AGeometryNode* parameterNode,
+  vtkMRMLRTBeamNode* externalXrayBeamNode)
+{
+  vtkMRMLScene* scene = this->GetMRMLScene(); 
+  if (!scene)
+  {
+    vtkErrorMacro("AlignExternalXrayBeamToCarmComponents: Invalid MRML scene");
+    return false;
+  }
+
+  if (!parameterNode)
+  {
+    vtkErrorMacro("AlignExternalXrayBeamToCarmComponents: Invalid parameter node");
+    return false;
+  }
+  if (!externalXrayBeamNode)
+  {
+    vtkErrorMacro("AlignExternalXrayBeamToCarmComponents: Invalid external xr-ay beam node");
+    return false;
+  }
+  vtkSlicerCabin26ARobotsTransformLogic* cabinLogic = this->GetCabin26ARobotsTransformLogic();
+  // plan node for isocenter position
+  vtkMRMLRTPlanNode* externalXrayPlan  = externalXrayBeamNode->GetParentPlanNode();
+  if (externalXrayPlan)
+  {
+    vtkMRMLMarkupsFiducialNode* externalIsocenter = externalXrayPlan->GetPoisMarkupsFiducialNode();
+  }
+  using CoordSys = vtkSlicerCabin26ARobotsTransformLogic::CoordinateSystemIdentifier;
+  vtkMRMLLinearTransformNode* transformNode = cabinLogic->GetTransformNodeBetween(CoordSys::RAS, CoordSys::CArm);
+  if (transformNode)
+  {
+    return true;
+  }
+  return false;
+}
+
+//----------------------------------------------------------------------------
 void vtkSlicerPatientPositioningLogic::UpdateTableTopFiducialNode(vtkMRMLCabin26AGeometryNode* parameterNode)
 {
   vtkMRMLScene* scene = this->GetMRMLScene(); 
@@ -1076,17 +1117,6 @@ void vtkSlicerPatientPositioningLogic::UpdateTableTopFiducialNode(vtkMRMLCabin26
     vtkErrorMacro("UpdateTableTopFiducialNode: Invalid parameter node");
     return;
   }
-
-  // Transform IHEP stand models (IEC Patient) to RAS
-  vtkNew<vtkMatrix4x4> patientToRasMatrix;
-  vtkNew<vtkTransform> patientToRasTransform;
-  patientToRasTransform->Identity();
-  patientToRasTransform->RotateX(-90.);
-  if (!parameterNode->GetPatientHeadFeetRotation())
-  {
-    patientToRasTransform->RotateZ(180.);
-  }
-  patientToRasTransform->GetMatrix(patientToRasMatrix);
 
   if (scene->GetFirstNodeByName(TABLETOP_MARKUPS_FIDUCIAL_NODE_NAME))
   {
@@ -1232,6 +1262,9 @@ vtkMRMLRTFixedBeamNode* vtkSlicerPatientPositioningLogic::CreateExternalXrayPlan
     return nullptr;
   }
 
+  // Find RasToFixedReferenceTransform or create it
+  vtkMRMLLinearTransformNode* rasToExternalXrayBeamTransformNode = this->Cabin26ARobotsLogic->GetExternalXrayBeamTransform();
+
   vtkMRMLRTPlanNode* externalXrayPlanNode = vtkMRMLRTPlanNode::SafeDownCast(scene->AddNewNodeByClass( "vtkMRMLRTPlanNode", "ExternalXray"));
 
   // Create beam and add to scene
@@ -1244,6 +1277,11 @@ vtkMRMLRTFixedBeamNode* vtkSlicerPatientPositioningLogic::CreateExternalXrayPlan
   {
     fixedIsocenterNode = vtkMRMLMarkupsFiducialNode::SafeDownCast(scene->GetFirstNodeByName(FIXEDISOCENTER_MARKUPS_FIDUCIAL_NODE_NAME));
   }
+  if (fixedIsocenterNode && rasToExternalXrayBeamTransformNode)
+  {
+    fixedIsocenterNode->SetAndObserveTransformNodeID(rasToExternalXrayBeamTransformNode->GetID() );
+  }
+
   std::string externalXrayBeamName = scene->GenerateUniqueName("ExternalXrayBeam");
   externalXrayBeamNode->SetName(externalXrayBeamName.c_str());
 //  externalXrayBeamNode->SetName(externalXrayPlanNode->GenerateNewBeamName().c_str());
@@ -1264,21 +1302,20 @@ vtkMRMLRTFixedBeamNode* vtkSlicerPatientPositioningLogic::CreateExternalXrayPlan
     }
 
     vtkMRMLMarkupsFiducialNode* prevIsocenterNode = externalXrayPlanNode->GetPoisMarkupsFiducialNode();
-    externalXrayPlanNode->SetAndObservePoisMarkupsFiducialNode(fixedIsocenterNode);
     if (prevIsocenterNode)
     {
-      vtkErrorMacro("CreateExternalXrayPlanAndNode: Delete previous isocenter markups");
-      scene->RemoveNode(prevIsocenterNode);
-      prevIsocenterNode = nullptr;
+      std::string externalXrayIsocenter = scene->GenerateUniqueName("ExternalXrayIsocenter");
+      prevIsocenterNode->SetName(externalXrayIsocenter.c_str());
     }
   }
 
-  vtkMRMLTransformNode* beamTranfsormNode =  externalXrayBeamNode->GetParentTransformNode();
-  // Find RasToFixedReferenceTransform or create it
-  vtkMRMLLinearTransformNode* rasToFixedReferenceTransformNode = this->Cabin26ARobotsLogic->GetFixedReferenceTransform();
-  if (beamTranfsormNode && rasToFixedReferenceTransformNode)
+  // Set SAD to 1. m
+  externalXrayBeamNode->SetSAD(1000.);
+
+  vtkMRMLTransformNode* beamTranfsormNode = externalXrayBeamNode->GetParentTransformNode();
+  if (beamTranfsormNode && rasToExternalXrayBeamTransformNode)
   {
-    beamTranfsormNode->SetAndObserveTransformNodeID(rasToFixedReferenceTransformNode->GetID() );
+    externalXrayBeamNode->SetAndObserveTransformNodeID(rasToExternalXrayBeamTransformNode->GetID() );
   }
   parameterNode->SetAndObserveExternalXrayBeamNode(externalXrayBeamNode);
   return externalXrayBeamNode.GetPointer();
@@ -1456,6 +1493,9 @@ vtkSlicerPatientPositioningLogic::SetupTreatmentMachineModels(vtkMRMLPatientPosi
         case CoordSys::CArmElbow:
         case CoordSys::TableWrist:
         case CoordSys::CArmWrist:
+        case CoordSys::CArm:
+        case CoordSys::XrayImager:
+        case CoordSys::XrayImageReceptor:
           vtkErrorMacro("SetupTreatmentMachineModels: Unable to access " << partType << " model " << partIdx);
           break;
         default:
@@ -1624,6 +1664,33 @@ vtkSlicerPatientPositioningLogic::SetupTreatmentMachineModels(vtkMRMLPatientPosi
         this->TableTopBaseFixedCollisionDetection->SetInputData(0, partModel->GetPolyData());
 
         partModel->SetAndObserveTransformNodeID(rasToTableTopTransformNode->GetID());
+      }
+    }
+    else if (partIdx == CoordSys::CArm)
+    {
+      this->Cabin26ARobotsLogic->UpdateCArmToCArmWristTransform(cabin26AGeoNode);
+      vtkMRMLLinearTransformNode* rasToCarmTransformNode = this->Cabin26ARobotsLogic->UpdateRasToCArmTransform(cabin26AGeoNode);
+      if (rasToCarmTransformNode)
+      {
+        partModel->SetAndObserveTransformNodeID(rasToCarmTransformNode->GetID());
+      }
+    }
+    else if (partIdx == CoordSys::XrayImager)
+    {
+      this->Cabin26ARobotsLogic->UpdateXrayImagerToCArmTransform(cabin26AGeoNode);
+      vtkMRMLLinearTransformNode* rasToXrayImagerTransformNode = this->Cabin26ARobotsLogic->UpdateRasToXrayImagerTransform(cabin26AGeoNode);
+      if (rasToXrayImagerTransformNode)
+      {
+        partModel->SetAndObserveTransformNodeID(rasToXrayImagerTransformNode->GetID());
+      }
+    }
+    else if (partIdx == CoordSys::XrayImageReceptor)
+    {
+      this->Cabin26ARobotsLogic->UpdateXrayReceptorToCArmTransform(cabin26AGeoNode);
+      vtkMRMLLinearTransformNode* rasToXrayReceptorTransformNode = this->Cabin26ARobotsLogic->UpdateRasToXrayReceptorTransform(cabin26AGeoNode);
+      if (rasToXrayReceptorTransformNode)
+      {
+        partModel->SetAndObserveTransformNodeID(rasToXrayReceptorTransformNode->GetID());
       }
     }
   }

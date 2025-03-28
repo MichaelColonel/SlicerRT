@@ -125,6 +125,8 @@ public:
   bool AlignTableTop(vtkMRMLCabin26AGeometryNode* parameterNode, vtkMRMLRTBeamNode* patientBeam,
     vtkTransform* fixedReferenceToPatientBeamTransform, double tableTopAngles[6]);
 
+  bool AlignExternalXrayBeamToCarmComponents(vtkMRMLCabin26AGeometryNode* parameterNode, vtkMRMLRTBeamNode* externalXrayBeamNode);
+
 public:
   // Get treatment machine properties from descriptor file
   /// Get part type as string

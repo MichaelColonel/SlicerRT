@@ -134,6 +134,36 @@
       "Color": [217, 217, 217],
       "State": "Active",
       "PointRAS": [0, 0, 163]
+    },
+    {
+      "Type": "CArm",
+      "Number": 16,
+      "Name": "C-Arm",
+      "FilePath": "CArm.stl",
+      "FileToRASTransformMatrix": [ [-1, 0, 0, 0], [0, -1, 0, 0], [0, 0, 1, 0], [0, 0, 0, 1] ],
+      "Color": [217, 217, 217],
+      "State": "Active",
+      "PointRAS": [0, 0, 163]
+    },
+    {
+      "Type": "XrayImager",
+      "Number": 17,
+      "Name": "C-Arm X-ray imager",
+      "FilePath": "XrayImager.stl",
+      "FileToRASTransformMatrix": [ [-1, 0, 0, 0], [0, -1, 0, 0], [0, 0, 1, 0], [0, 0, 0, 1] ],
+      "Color": [217, 217, 217],
+      "State": "Active",
+      "PointRAS": [0, 0, 163]
+    },
+    {
+      "Type": "XrayImageReceptor",
+      "Number": 18,
+      "Name": "C-Arm X-ray image receptor",
+      "FilePath": "XrayImageReceptor.stl",
+      "FileToRASTransformMatrix": [ [-1, 0, 0, 0], [0, -1, 0, 0], [0, 0, 1, 0], [0, 0, 0, 1] ],
+      "Color": [217, 217, 217],
+      "State": "Active",
+      "PointRAS": [0, 0, 163]
     }
   ]
 }

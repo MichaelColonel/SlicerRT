@@ -64,8 +64,9 @@ public:
     CArmWrist, // Rotation along Y-axis of Elbow
     CArmFlange, // Mounted under the Table Top center
     CArm, // Translate from Wrist flange center to CArm center
-    XRay,
-    Imager,
+    XrayImager, // X-ray imager (x-ray tube source)
+    XrayImageReceptor, // X-ray image receptor (x-ray flatpanel detector)
+    ExternalXrayBeam, // External x-ray beam (X-ray imager focal spot is a source)
     CoordinateSystemIdentifier_Last // Last index used for adding more coordinate systems externally
   };
   typedef std::list< CoordinateSystemIdentifier > CoordinateSystemsList;
@@ -138,6 +139,18 @@ public:
   /// Update CArmWristToCArmElbow transform based on translation
   /// Apply new C-Arm Wrist to C-Arm Elbow transform (CArmWrist->CArmElbow)
   void UpdateCArmWristToCArmElbowTransform(vtkMRMLCabin26AGeometryNode* channelNode);
+  /// Update CArmToCArmWrist transform based on translation
+  /// Apply new C-Arm to C-Arm Wrist transform (CArm->CArmWrist)
+  void UpdateCArmToCArmWristTransform(vtkMRMLCabin26AGeometryNode* channelNode);
+  /// Update XrayImageReceptor transform based on translation
+  /// Apply new XrayImageReceptor to C-Arm transform (XrayImageReceptor->CArm)
+  void UpdateXrayReceptorToCArmTransform(vtkMRMLCabin26AGeometryNode* channelNode);
+  /// Update XrayImager transform based on translation
+  /// Apply new XrayImager to C-Arm transform (XrayImager->CArm)
+  void UpdateXrayImagerToCArmTransform(vtkMRMLCabin26AGeometryNode* channelNode);
+  /// Update External x-ray beam transform based on translation
+  /// Apply new ExternalXrayBeam to XrayImager transform (ExternalXrayBeam->XrayImager)
+  void UpdateExternalXrayBeamToXrayImagerTransform(vtkMRMLCabin26AGeometryNode* channelNode);
 
   /// Update (or create if absent) RAS to TableTop transform
   vtkMRMLLinearTransformNode* UpdateRasToTableTopTransform(vtkMRMLCabin26AGeometryNode* parameterNode);
@@ -155,6 +168,12 @@ public:
   vtkMRMLLinearTransformNode* UpdateRasToCArmElbowTransform(vtkMRMLCabin26AGeometryNode* parameterNode);
   /// Update (or create if absent) RAS to CArmRobotWrist transform
   vtkMRMLLinearTransformNode* UpdateRasToCArmWristTransform(vtkMRMLCabin26AGeometryNode* parameterNode);
+  /// Update (or create if absent) RAS to CArm transform
+  vtkMRMLLinearTransformNode* UpdateRasToCArmTransform(vtkMRMLCabin26AGeometryNode* parameterNode);
+  /// Update (or create if absent) RAS to XrayImager transform
+  vtkMRMLLinearTransformNode* UpdateRasToXrayImagerTransform(vtkMRMLCabin26AGeometryNode* parameterNode);
+  /// Update (or create if absent) RAS to XrayImageReceptor transform
+  vtkMRMLLinearTransformNode* UpdateRasToXrayReceptorTransform(vtkMRMLCabin26AGeometryNode* parameterNode);
   /// Update (or create if absent) RAS to BaseRotation transform
   vtkMRMLLinearTransformNode* UpdateRasToBaseRotationTransform(vtkMRMLCabin26AGeometryNode* parameterNode);
   /// Update (or create if absent) RAS to Shoulder transform
@@ -165,6 +184,9 @@ public:
   vtkMRMLLinearTransformNode* UpdateRasToWristTransform(vtkMRMLCabin26AGeometryNode* parameterNode);
   /// Update (or create if absent) RAS to FixedReference transform
   vtkMRMLLinearTransformNode* UpdateRasToFixedReferenceTransform(vtkMRMLCabin26AGeometryNode* parameterNode);
+
+  /// Update (or create if absent) External x-ray beam transform
+  vtkMRMLLinearTransformNode* UpdateRasToExternalXrayBeamTransform(vtkMRMLCabin26AGeometryNode* channelNode);
 
   /// Get RAS to FixedReference transform
   vtkMRMLLinearTransformNode* GetFixedReferenceTransform();
@@ -184,6 +206,8 @@ public:
   vtkMRMLLinearTransformNode* GetBaseRotationTransform();
   /// Get RAS to BaseFixed
   vtkMRMLLinearTransformNode* GetBaseFixedTransform();
+  /// Get RAS to ExternalXrayBeam transform
+  vtkMRMLLinearTransformNode* GetExternalXrayBeamTransform();
 
   /// Get part type as string
   const char* GetTreatmentMachinePartTypeAsString(CoordinateSystemIdentifier type);
