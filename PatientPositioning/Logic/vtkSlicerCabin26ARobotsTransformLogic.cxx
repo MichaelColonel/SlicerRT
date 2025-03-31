@@ -1023,7 +1023,13 @@ void vtkSlicerCabin26ARobotsTransformLogic::UpdateExternalXrayBeamToXrayImagerTr
     this->GetTransformNodeBetween(CoordSys::ExternalXrayBeam, CoordSys::XrayImager);
   if (externalXrayBeamToXrayImagerTransformNode)
   {
+    // Carm->CarmRobotWrist rotation around X (A6 angle)
+    vtkNew<vtkTransform> carmToWristTransform;
+    carmToWristTransform->RotateX(90);
+//    wristToElbowTransform->RotateZ(a[4]);
+
     xrayImagerToPatientTransform->Concatenate(externalXrayBeamToXrayImagerTranslateTransform);
+    xrayImagerToPatientTransform->Concatenate(carmToWristTransform);
     xrayImagerToPatientTransform->Concatenate(patientToXrayImagerTransform);
     externalXrayBeamToXrayImagerTransformNode->SetAndObserveTransformToParent(xrayImagerToPatientTransform);
   }

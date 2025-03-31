@@ -38,8 +38,8 @@ vtkMRMLRTFixedBeamNode::vtkMRMLRTFixedBeamNode()
   :
   Superclass()
 {
-  this->SetGantryAngle(270.);
-  this->SetCollimatorAngle(90.);
+//  this->SetGantryAngle(270.);
+//  this->SetCollimatorAngle(90.);
 }
 
 //----------------------------------------------------------------------------

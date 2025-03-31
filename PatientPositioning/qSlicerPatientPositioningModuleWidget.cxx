@@ -1146,10 +1146,6 @@ void qSlicerPatientPositioningModuleWidget::onLoadTreatmentMachineButtonClicked(
     d->getLayoutManager()->pauseRender();
     loadedParts = d->logic()->LoadTreatmentMachineComponents(d->ParameterNode);
     d->getLayoutManager()->resumeRender();
-
-    // Fixed and external beam
-    vtkMRMLRTCabin26AIonBeamNode* fixedBeamNode = d->logic()->CreateFixedBeamPlanAndNode(d->ParameterNode);
-    d->MRMLNodeComboBox_FixedReferenceBeam->setCurrentNode(fixedBeamNode);
   }
 
   // Warn the user if collision detection is disabled for certain part pairs
@@ -1244,6 +1240,16 @@ void qSlicerPatientPositioningModuleWidget::onLoadTreatmentMachineButtonClicked(
   }
   // Update table top robot geometry
   cabin26AGeometryNode->Modified();
+
+  // Fixed and external beam
+  vtkMRMLRTCabin26AIonBeamNode* fixedBeamNode = d->logic()->CreateFixedBeamPlanAndNode(d->ParameterNode);
+  d->MRMLNodeComboBox_FixedReferenceBeam->setCurrentNode(fixedBeamNode);
+
+  /// Setup Markups fixed beam axis and fixed isocenter
+  /* vtkMRMLMarkupsLineNode* beamAxisLineNode = */ d->logic()->CreateFixedBeamAxisLineNode(d->ParameterNode);
+  /* vtkMRMLMarkupsFiducialNode* fixedIsocenterNode = */ // d->logic()->CreateFixedIsocenterFiducialNode(d->ParameterNode);
+  /* vtkMRMLMarkupsPlaneNode* tableTopPlaneNode = */ d->logic()->CreateTableTopPlaneNode(cabin26AGeometryNode);
+  /* vtkMRMLMarkupsFiducialNode* tableTopMarkersNode = */ d->logic()->CreateTableTopFiducialNode(cabin26AGeometryNode);
 
   // Fixed and external beam
   vtkMRMLRTFixedBeamNode* xrayNode = d->logic()->CreateExternalXrayPlanAndNode(d->ParameterNode);
