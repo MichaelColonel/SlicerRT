@@ -42,6 +42,7 @@
 // Utility functions
 namespace
 {
+/*
   vtkVector3d operator -(const vtkVector3d& a, const vtkVector3d& b)
   {
     vtkVector3d result;
@@ -50,6 +51,7 @@ namespace
     result.SetZ(a.GetZ() - b.GetZ());
     return result;
   }
+*/
 
   bool AreEqualWithTolerance(double a, double b)
   {
@@ -238,7 +240,13 @@ bool vtkPlanarContourToRibbonModelConversionRule::ComputePlaneForContour(vtkPoin
   vtkVector3d thirdPlanePoint(thirdPointArray[0], thirdPointArray[1], thirdPointArray[2]);
   // Compute plane vectors: two vectors on the plane, and the normal
   vtkVector3d currentPlaneIVector(secondPlanePoint - firstPlanePoint);
+//  currentPlaneIVector[0] = secondPlanePoint[0] - firstPlanePoint[0];
+//  currentPlaneIVector[1] = secondPlanePoint[1] - firstPlanePoint[1];
+//  currentPlaneIVector[2] = secondPlanePoint[2] - firstPlanePoint[2];
   vtkVector3d currentPlaneJVector(thirdPlanePoint - firstPlanePoint);
+//  currentPlaneJVector[0] = thirdPlanePoint[0] - firstPlanePoint[0];
+//  currentPlaneJVector[1] = thirdPlanePoint[1] - firstPlanePoint[1];
+//  currentPlaneJVector[2] = thirdPlanePoint[2] - firstPlanePoint[2];
   vtkVector3d currentPlaneKVector(currentPlaneIVector.Cross(currentPlaneJVector));
 
   // Attempt to compute plane equation with brute force

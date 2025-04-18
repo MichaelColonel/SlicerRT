@@ -132,6 +132,7 @@
           <property name="nodeTypes">
            <stringlist>
             <string>vtkMRMLRTBeamNode</string>
+            <string>vtkMRMLRTFixedBeamNode</string>
            </stringlist>
           </property>
           <property name="showChildNodeTypes">
