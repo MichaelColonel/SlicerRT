@@ -42,7 +42,7 @@
 // Utility functions
 namespace
 {
-/*
+
   vtkVector3d operator -(const vtkVector3d& a, const vtkVector3d& b)
   {
     vtkVector3d result;
@@ -51,7 +51,6 @@ namespace
     result.SetZ(a.GetZ() - b.GetZ());
     return result;
   }
-*/
 
   bool AreEqualWithTolerance(double a, double b)
   {
