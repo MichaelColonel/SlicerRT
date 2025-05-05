@@ -118,7 +118,7 @@ endif()
 if(BUILD_TESTING)
   add_subdirectory(Testing)
   add_subdirectory(PatientPositioning)
-  add_subdirectory(TestMe)
+  add_subdirectory(FiducialTransform)
 endif()
 
 #-----------------------------------------------------------------------------
