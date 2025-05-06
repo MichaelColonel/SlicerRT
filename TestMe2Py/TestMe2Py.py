@@ -208,6 +208,11 @@ class TestMe2PyWidget(ScriptedLoadableModuleWidget, VTKObservationMixin):
         if self.parent.isEntered:
             self.initializeParameterNode()
 
+    def onFiducialChanged(self, newFiducialNode):
+        pass
+    def onTransformChanged(self, newTransformNode):
+        pass
+
     def initializeParameterNode(self) -> None:
         """Ensure parameter node exists and observed."""
         # Parameter node stores all user choices in parameter values, node selections, etc.
