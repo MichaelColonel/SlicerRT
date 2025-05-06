@@ -43,6 +43,7 @@ public:
   static vtkSlicerTestMe2Logic *New();
   vtkTypeMacro(vtkSlicerTestMe2Logic, vtkSlicerModuleLogic);
   void PrintSelf(ostream& os, vtkIndent indent) override;
+  void createPoint();
 
 protected:
   vtkSlicerTestMe2Logic();

@@ -114,8 +114,8 @@ if (SLICERRT_ENABLE_EXPERIMENTAL_MODULES)
   add_subdirectory(PlmSynth)
   add_subdirectory(PlmVectorFieldAnalysis)
 
-#  add_subdirectory(TestMe2)
-  add_subdirectory(TestMe2Py)
+  add_subdirectory(TestMe2)
+#  add_subdirectory(TestMe2Py)
 endif()
 
 if(BUILD_TESTING)

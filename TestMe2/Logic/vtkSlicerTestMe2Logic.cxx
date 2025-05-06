@@ -81,3 +81,10 @@ void vtkSlicerTestMe2Logic
 ::OnMRMLSceneNodeRemoved(vtkMRMLNode* vtkNotUsed(node))
 {
 }
+
+void vtkSlicerTestMe2Logic::createPoint()
+{
+        fidNode = new slicer->mrmlScene->AddNewNodeByClass('vtkMRMLMarkupsFiducialNode', 'nodeFid_F');
+        cp = new fidNode->AddControlPoint(0, 0, 0);
+        fidNode->SetNthControlPointLabel( cp, 'Point_F');
+}

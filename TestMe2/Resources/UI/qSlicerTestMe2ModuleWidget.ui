@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>qSlicerTestMe2ModuleWidget</class>
- <widget class="qSlicerWidget" name="qSlicerTestMe2ModuleWidget">
+ <class>TestMe2PyModuleWidget</class>
+ <widget class="qSlicerWidget" name="TestMe2PyModuleWidget">
   <property name="geometry">
    <rect>
     <x>0</x>
@@ -14,87 +14,7 @@
    <string>TestMe2</string>
   </property>
   <layout class="QGridLayout" name="gridLayout_3">
-   <item row="0" column="0">
-    <widget class="ctkCollapsibleButton" name="CTKCollapsibleButton" native="true">
-     <property name="text" stdset="0">
-      <string>Parameters</string>
-     </property>
-     <layout class="QGridLayout" name="gridLayout_2">
-      <item row="0" column="0">
-       <layout class="QGridLayout" name="gridLayout">
-        <item row="2" column="0">
-         <widget class="QLabel" name="LabelPosition">
-          <property name="text">
-           <string>TextLabel</string>
-          </property>
-         </widget>
-        </item>
-        <item row="0" column="0">
-         <widget class="QLabel" name="LabelFiducial">
-          <property name="text">
-           <string>TextLabel</string>
-          </property>
-         </widget>
-        </item>
-        <item row="1" column="0">
-         <widget class="QLabel" name="LabelTransform">
-          <property name="text">
-           <string>TextLabel</string>
-          </property>
-         </widget>
-        </item>
-        <item row="0" column="1">
-         <widget class="qMRMLNodeComboBox" name="MRMLNodeComboBox_Fiducial" native="true">
-          <property name="nodeTypes" stdset="0">
-           <stringlist>
-            <string>vtkMRMLMarkupsFiducialNode</string>
-           </stringlist>
-          </property>
-          <property name="hideChildNodeTypes" stdset="0">
-           <stringlist/>
-          </property>
-          <property name="interactionNodeSingletonTag" stdset="0">
-           <string notr="true"/>
-          </property>
-         </widget>
-        </item>
-        <item row="1" column="1">
-         <widget class="qMRMLNodeComboBox" name="MRMLNodeComboBox_Transform" native="true">
-          <property name="nodeTypes" stdset="0">
-           <stringlist>
-            <string>vtkMRMLLinearTransformNode</string>
-           </stringlist>
-          </property>
-          <property name="hideChildNodeTypes" stdset="0">
-           <stringlist/>
-          </property>
-          <property name="interactionNodeSingletonTag" stdset="0">
-           <string notr="true"/>
-          </property>
-         </widget>
-        </item>
-        <item row="2" column="1">
-         <widget class="ctkSliderWidget" name="SliderWidget_Position" native="true">
-          <property name="decimals" stdset="0">
-           <number>2</number>
-          </property>
-          <property name="minimum" stdset="0">
-           <double>-100.000000000000000</double>
-          </property>
-          <property name="maximum" stdset="0">
-           <double>100.000000000000000</double>
-          </property>
-         </widget>
-        </item>
-       </layout>
-      </item>
-      <item row="1" column="0">
-       <widget class="qSlicerTestMe2FooBarWidget" name="FooBar" native="true"/>
-      </item>
-     </layout>
-    </widget>
-   </item>
-   <item row="1" column="0">
+   <item row="2" column="0">
     <spacer name="verticalSpacer">
      <property name="orientation">
       <enum>Qt::Vertical</enum>
@@ -106,6 +26,108 @@
       </size>
      </property>
     </spacer>
+   </item>
+   <item row="1" column="0">
+    <widget class="ctkCollapsibleButton" name="CTKCollapsibleButton">
+     <property name="text">
+      <string>Parameters</string>
+     </property>
+     <layout class="QGridLayout" name="gridLayout_2">
+      <item row="2" column="0">
+       <layout class="QGridLayout" name="gridLayout">
+        <item row="2" column="0">
+         <widget class="QLabel" name="LabelPosition">
+          <property name="text">
+           <string>Height</string>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="0">
+         <widget class="QLabel" name="LabelTransform">
+          <property name="text">
+           <string>Transform</string>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="0">
+         <widget class="QLabel" name="LabelFiducial">
+          <property name="text">
+           <string>Fiducial</string>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="2">
+         <widget class="qMRMLNodeComboBox" name="InputFiducial">
+          <property name="nodeTypes">
+           <stringlist>
+            <string>vtkMRMLMarkupsFiducialNode</string>
+           </stringlist>
+          </property>
+          <property name="hideChildNodeTypes">
+           <stringlist notr="true"/>
+          </property>
+          <property name="interactionNodeSingletonTag">
+           <string notr="true"/>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="2">
+         <widget class="qMRMLNodeComboBox" name="InputTransform">
+          <property name="nodeTypes">
+           <stringlist>
+            <string>vtkMRMLLinearTransformNode</string>
+           </stringlist>
+          </property>
+          <property name="hideChildNodeTypes">
+           <stringlist/>
+          </property>
+          <property name="interactionNodeSingletonTag">
+           <string notr="true"/>
+          </property>
+         </widget>
+        </item>
+        <item row="2" column="2">
+         <widget class="ctkSliderWidget" name="HeightSlider">
+          <property name="minimum">
+           <double>-100.000000000000000</double>
+          </property>
+          <property name="maximum">
+           <double>100.000000000000000</double>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </item>
+      <item row="1" column="0">
+       <widget class="QPushButton" name="CreateButton">
+        <property name="text">
+         <string>Create Markup Point</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item row="0" column="0">
+    <widget class="QLabel" name="title">
+     <property name="font">
+      <font>
+       <weight>75</weight>
+       <italic>false</italic>
+       <bold>true</bold>
+       <kerning>true</kerning>
+      </font>
+     </property>
+     <property name="text">
+      <string>TestMe2 &lt;i&gt;&lt;font color='red'&gt;Python&lt;/font&gt;&lt;/i&gt;</string>
+     </property>
+     <property name="textFormat">
+      <enum>Qt::AutoText</enum>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignCenter</set>
+     </property>
+    </widget>
    </item>
   </layout>
  </widget>
@@ -133,13 +155,40 @@
    <header>qSlicerWidget.h</header>
    <container>1</container>
   </customwidget>
-  <customwidget>
-   <class>qSlicerTestMe2FooBarWidget</class>
-   <extends>QWidget</extends>
-   <header>qSlicerTestMe2FooBarWidget.h</header>
-   <container>1</container>
-  </customwidget>
  </customwidgets>
  <resources/>
- <connections/>
+ <connections>
+  <connection>
+   <sender>TestMe2PyModuleWidget</sender>
+   <signal>mrmlSceneChanged(vtkMRMLScene*)</signal>
+   <receiver>InputTransform</receiver>
+   <slot>setMRMLScene(vtkMRMLScene*)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>182</x>
+     <y>159</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>213</x>
+     <y>82</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>TestMe2PyModuleWidget</sender>
+   <signal>mrmlSceneChanged(vtkMRMLScene*)</signal>
+   <receiver>InputFiducial</receiver>
+   <slot>setMRMLScene(vtkMRMLScene*)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>182</x>
+     <y>159</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>214</x>
+     <y>82</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
 </ui>

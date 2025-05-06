@@ -59,3 +59,8 @@ void qSlicerTestMe2ModuleWidget::setup()
   d->setupUi(this);
   this->Superclass::setup();
 }
+
+void qSlicerTestMe2ModuleWidget::onCreateButton();
+{
+  logic->createPoint();
+}
