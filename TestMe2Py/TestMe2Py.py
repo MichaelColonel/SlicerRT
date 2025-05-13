@@ -178,6 +178,7 @@ class TestMe2PyWidget(ScriptedLoadableModuleWidget, VTKObservationMixin):
         self.ui.HeightSlider.connect("valueChanged(double)", self.onSliderMove)
                                      #self.onSliderMove)
                                      #self.onCreateButton)
+        self.ui.InputFiducial.connect("currentNodeChanged(bool)", self.onFiducialChanged(InputFiducial))
         # Make sure parameter node is initialized (needed for module reload)
         self.initializeParameterNode()
 
@@ -208,8 +209,9 @@ class TestMe2PyWidget(ScriptedLoadableModuleWidget, VTKObservationMixin):
         if self.parent.isEntered:
             self.initializeParameterNode()
 
-    def onFiducialChanged(self, newFiducialNode):
-        pass
+    def onFiducialChanged(self, newFiducialNode) -> None:
+        createControlPoint(newFiducialNode)
+
     def onTransformChanged(self, newTransformNode):
         pass
 
@@ -250,11 +252,10 @@ class TestMe2PyWidget(ScriptedLoadableModuleWidget, VTKObservationMixin):
 
 
     def onSliderMove(self, height) -> None:
-        transformNode = self.ui.InputTransform.currentNode()
-        fidNode = self.ui.InputFiducial.currentNode()
+        transformNode = InputTransform
+        fidNode = InputFiducial
         if transformNode is None or fidNode is None:
             slicer.util.warningDisplay("Select both Transform and Fiducial")
-            return
         self.logic.updateHeight(transformNode, fidNode, height)
         """
         fidNode = self.ui.InputFiducial.currentNode()
@@ -296,6 +297,10 @@ class TestMe2PyLogic(ScriptedLoadableModuleLogic):
         cp = fidNode.AddControlPoint(0, 0, 0)
         fidNode.SetNthControlPointLabel( cp, 'Point_F')
         return fidNode
+
+    def createControlPoint(self, fidNode):
+        cp = fidNode.AddControlPoint(0, 0, 0)
+        fidNode.SetNthControlPointLabel( cp, 'Point_F')
 
 
     def updateHeight(self, transformNode, fidNode, height) -> None:
