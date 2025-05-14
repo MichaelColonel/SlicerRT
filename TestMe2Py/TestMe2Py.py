@@ -112,14 +112,11 @@ def registerSampleData():
 class TestMe2PyParameterNode:
     """
     The parameters needed by module.
-
-
     """
 
     InputTransform: vtkMRMLLinearTransformNode
     InputFiducial: vtkMRMLMarkupsFiducialNode
     HeightSlider: Annotated[float, WithinRange(-100, 100)] = 0
-#    TransformMatrix: vtkMatrix4x4()
 
 
 #
@@ -131,8 +128,6 @@ class TestMe2PyWidget(ScriptedLoadableModuleWidget, VTKObservationMixin):
     """Uses ScriptedLoadableModuleWidget base class, available at:
     https://github.com/Slicer/Slicer/blob/main/Base/Python/slicer/ScriptedLoadableModule.py
     """
-
-    matrixTransfrom = vtk.vtkMatrix4x4()
 
     def __init__(self, parent=None) -> None:
         """Called when the user opens the module the first time and the widget is initialized."""
@@ -169,21 +164,17 @@ class TestMe2PyWidget(ScriptedLoadableModuleWidget, VTKObservationMixin):
         self.addObserver(slicer.mrmlScene, slicer.mrmlScene.StartCloseEvent, self.onSceneStartClose)
         self.addObserver(slicer.mrmlScene, slicer.mrmlScene.EndCloseEvent, self.onSceneEndClose)
 
-        # Buttons
-        self.ui.CreateButton.connect("clicked(bool)", self.onCreateButton)
-
-        #Slider
-        self.ui.HeightSlider.connect("valueChanged(double)", self.onSliderMove)
-                                     #self.onSliderMove)
-                                     #self.onCreateButton)
-                                      #self.onCreateButton)
-
         # Make sure parameter node is initialized (needed for module reload)
         self.initializeParameterNode()
-
+        
+        # Connect signals and slots
+        # Node ComboBox
         self.ui.InputFiducial.connect("currentNodeChanged(vtkMRMLNode*)", self.onFiducialChanged)
-
         self.ui.InputTransform.connect("currentNodeChanged(vtkMRMLNode*)", self.onTransformChanged)
+        # Buttons
+        self.ui.CreateButton.connect("clicked(bool)", self.onCreateButton)
+        #Slider
+        self.ui.HeightSlider.connect("valueChanged(double)", self.onSliderMove)
 
 
     def cleanup(self) -> None:
@@ -233,16 +224,6 @@ class TestMe2PyWidget(ScriptedLoadableModuleWidget, VTKObservationMixin):
         self.setParameterNode(self.logic.getParameterNode())
 
         # Select default input nodes if nothing is selected yet to save a few clicks for the user
-        """
-        if not self._parameterNode.InputTransform:
-            firstTransformNode = slicer.mrmlScene.GetFirstNodeByClass("vtkMRMLLinearTransformNode")
-            if firstTransformNode:
-                self._parameterNode.InputTransform = firstTransformNode
-        """
-    """
-    def onMarkupsUpdated(self, caller=None, event=None):
-        self.onCreateButton()
-    """
     def setParameterNode(self, inputParameterNode: Optional[TestMe2PyParameterNode]) -> None:
         """
         Set and observe parameter node.
@@ -268,19 +249,8 @@ class TestMe2PyWidget(ScriptedLoadableModuleWidget, VTKObservationMixin):
         transformNode = self._parameterNode.InputTransform
         fidNode = self._parameterNode.InputFiducial
         if transformNode is None or fidNode is None:
-            slicer.util.warningDisplay("Select both Transform and Fiducial")
+            logging.warn('Nodes are invalid: Select both Transform and Fiducial')
         self.logic.updateHeight(transformNode, fidNode, height)
-        """
-        fidNode = self.ui.InputFiducial.currentNode()
-        transformNode = self.ui.InputTransform.currentNode()
-        height = self.ui.HeightSlider.value
-        fidNode.SetAndObserveTransformNodeID(transformNode.GetID())
-       # TransformMatrix.SetElement(2,3,height)
-      #  transformNode.SetMatrixTransformToParent(TransformMatrix)
-     #   matrixTransfrom = vtk.vtkMatrix4x4()
-        self.matrixTransfrom.SetElement(2,3,height)
-        transformNode.SetMatrixTransformToParent(self.matrixTransfrom)
-        """
 
 
 #
@@ -317,11 +287,7 @@ class TestMe2PyLogic(ScriptedLoadableModuleLogic):
 
 
     def updateHeight(self, transformNode, fidNode, height) -> None:
-      #  transformNode = self._parameterNode.InputTransform
-     #   fidNode = self._parameterNode.InputFiducial
         fidNode.SetAndObserveTransformNodeID(transformNode.GetID())
-       # TransformMatrix.SetElement(2,3,height)
-      #  transformNode.SetMatrixTransformToParent(TransformMatrix)
         matrixTransfrom = vtk.vtkMatrix4x4()
         matrixTransfrom.SetElement(2,3,height)
         transformNode.SetMatrixTransformToParent(matrixTransfrom)
