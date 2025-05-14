@@ -84,7 +84,7 @@ void vtkSlicerTestMe2Logic
 
 void vtkSlicerTestMe2Logic::createPoint()
 {
-        fidNode = new slicer->mrmlScene->AddNewNodeByClass('vtkMRMLMarkupsFiducialNode', 'nodeFid_F');
-        cp = new fidNode->AddControlPoint(0, 0, 0);
-        fidNode->SetNthControlPointLabel( cp, 'Point_F');
+//        fidNode = new slicer->mrmlScene->AddNewNodeByClass('vtkMRMLMarkupsFiducialNode', 'nodeFid_F');
+//        cp = new fidNode->AddControlPoint(0, 0, 0);
+//        fidNode->SetNthControlPointLabel( cp, 'Point_F');
 }

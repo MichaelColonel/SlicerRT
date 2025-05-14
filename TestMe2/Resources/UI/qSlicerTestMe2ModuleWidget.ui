@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>TestMe2PyModuleWidget</class>
- <widget class="qSlicerWidget" name="TestMe2PyModuleWidget">
+ <class>qSlicerTestMe2ModuleWidget</class>
+ <widget class="qSlicerWidget" name="qSlicerTestMe2ModuleWidget">
   <property name="geometry">
    <rect>
     <x>0</x>
@@ -119,7 +119,7 @@
       </font>
      </property>
      <property name="text">
-      <string>TestMe2 &lt;i&gt;&lt;font color='red'&gt;Python&lt;/font&gt;&lt;/i&gt;</string>
+      <string>TestMe2 &lt;i&gt;&lt;font color='blue'&gt;C++&lt;/font&gt;&lt;/i&gt;</string>
      </property>
      <property name="textFormat">
       <enum>Qt::AutoText</enum>
@@ -159,7 +159,7 @@
  <resources/>
  <connections>
   <connection>
-   <sender>TestMe2PyModuleWidget</sender>
+   <sender>qSlicerTestMe2ModuleWidget</sender>
    <signal>mrmlSceneChanged(vtkMRMLScene*)</signal>
    <receiver>InputTransform</receiver>
    <slot>setMRMLScene(vtkMRMLScene*)</slot>
@@ -175,7 +175,7 @@
    </hints>
   </connection>
   <connection>
-   <sender>TestMe2PyModuleWidget</sender>
+   <sender>qSlicerTestMe2ModuleWidget</sender>
    <signal>mrmlSceneChanged(vtkMRMLScene*)</signal>
    <receiver>InputFiducial</receiver>
    <slot>setMRMLScene(vtkMRMLScene*)</slot>

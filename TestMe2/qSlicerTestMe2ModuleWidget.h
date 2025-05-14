@@ -36,10 +36,11 @@ public:
   typedef qSlicerAbstractModuleWidget Superclass;
   qSlicerTestMe2ModuleWidget(QWidget *parent=0);
   virtual ~qSlicerTestMe2ModuleWidget();
-  void onCreateButton();
+//  void onCreateButton();
 
 public slots:
-
+  void onFiducialNodeChanged(vtkMRMLNode*);
+  void onTransformNodeChanged(vtkMRMLNode*);
 
 protected:
   QScopedPointer<qSlicerTestMe2ModuleWidgetPrivate> d_ptr;

@@ -22,11 +22,16 @@
 #include "qSlicerTestMe2ModuleWidget.h"
 #include "ui_qSlicerTestMe2ModuleWidget.h"
 
+#include <vtkMRMLMarkupsFiducialNode.h>
+#include <vtkMRMLLinearTransformNode.h>
+
 //-----------------------------------------------------------------------------
 class qSlicerTestMe2ModuleWidgetPrivate: public Ui_qSlicerTestMe2ModuleWidget
 {
 public:
   qSlicerTestMe2ModuleWidgetPrivate();
+  vtkSmartPointer< vtkMRMLMarkupsFiducialNode > m_FiducialNode;
+  vtkSmartPointer< vtkMRMLLinearTransformNode > m_TransformNode;
 };
 
 //-----------------------------------------------------------------------------
@@ -58,9 +63,33 @@ void qSlicerTestMe2ModuleWidget::setup()
   Q_D(qSlicerTestMe2ModuleWidget);
   d->setupUi(this);
   this->Superclass::setup();
+
+  connect( d->InputFiducial, SIGNAL(currentNodeChanged(vtkMRMLNode*)), this,
+    SLOT(onFiducialNodeChanged(vtkMRMLNode*)));
+
+  connect( d->InputTransform, SIGNAL(currentNodeChanged(vtkMRMLNode*)), this,
+    SLOT(onTransformNodeChanged(vtkMRMLNode*)));
 }
 
-void qSlicerTestMe2ModuleWidget::onCreateButton();
+
+void qSlicerTestMe2ModuleWidget::onFiducialNodeChanged(vtkMRMLNode *node)
 {
-  logic->createPoint();
+  Q_D(qSlicerTestMe2ModuleWidget);
+  if (node)
+  {
+    qDebug() << Q_FUNC_INFO << "Fiducial node is changed";
+    d->m_FiducialNode = vtkMRMLMarkupsFiducialNode::SafeDownCast(node);
+    if (d->m_FiducialNode)
+    {
+      qDebug() << Q_FUNC_INFO << "fiducial node name is " << d->m_FiducialNode->GetName();
+    }
+  }
+}
+
+void qSlicerTestMe2ModuleWidget::onTransformNodeChanged(vtkMRMLNode *node)
+{
+  if (node)
+  {
+    qDebug() << Q_FUNC_INFO << "Transform node is changed";
+  }
 }
