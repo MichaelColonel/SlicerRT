@@ -34,7 +34,7 @@ class TestMe2Py(ScriptedLoadableModule):
         ScriptedLoadableModule.__init__(self, parent)
         self.parent.title = _("TestMe2Py")  # TODO: make this more human readable by adding spaces
         # TODO: set categories (folders where the module shows up in the module selector)
-        self.parent.categories = [translate("qSlicerAbstractCoreModule", "Examples")]
+        self.parent.categories = [translate("qSlicerAbstractCoreModule", "Radiotherapy")]
         self.parent.dependencies = []  # TODO: add here list of module names that this module requires
         self.parent.contributors = ["T0JI9H"]  # TODO: replace with "Firstname Lastname (Organization)"
         # TODO: update with short description of the module and a link to online module documentation
@@ -114,8 +114,6 @@ class TestMe2PyParameterNode:
     The parameters needed by module.
 
 
-
-    InputTransform - The volume to threshold.
     """
 
     InputTransform: vtkMRMLLinearTransformNode
@@ -178,9 +176,15 @@ class TestMe2PyWidget(ScriptedLoadableModuleWidget, VTKObservationMixin):
         self.ui.HeightSlider.connect("valueChanged(double)", self.onSliderMove)
                                      #self.onSliderMove)
                                      #self.onCreateButton)
-        self.ui.InputFiducial.connect("currentNodeChanged(bool)", self.onFiducialChanged(InputFiducial))
+                                      #self.onCreateButton)
+
         # Make sure parameter node is initialized (needed for module reload)
         self.initializeParameterNode()
+
+        self.ui.InputFiducial.connect("currentNodeChanged(vtkMRMLNode*)", self.onFiducialChanged)
+
+        self.ui.InputTransform.connect("currentNodeChanged(vtkMRMLNode*)", self.onTransformChanged)
+
 
     def cleanup(self) -> None:
         """Called when the application closes and the module widget is destroyed."""
@@ -209,11 +213,17 @@ class TestMe2PyWidget(ScriptedLoadableModuleWidget, VTKObservationMixin):
         if self.parent.isEntered:
             self.initializeParameterNode()
 
-    def onFiducialChanged(self, newFiducialNode) -> None:
-        createControlPoint(newFiducialNode)
+    def onFiducialChanged(self, newFiducialNode: None) -> None:
+        if newFiducialNode:
+            self._parameterNode.InputFiducial = newFiducialNode
+            self.logic.createControlPoint(self._parameterNode.InputFiducial)
+            logging.info('New fiducial node is valid')
 
-    def onTransformChanged(self, newTransformNode):
-        pass
+    def onTransformChanged(self, newTransformNode: None):
+        if newTransformNode:
+            self._parameterNode.InputTransform = newTransformNode
+            self.ui.HeightSlider.enabled = True
+            logging.info('New transform node is valid')
 
     def initializeParameterNode(self) -> None:
         """Ensure parameter node exists and observed."""
@@ -223,10 +233,12 @@ class TestMe2PyWidget(ScriptedLoadableModuleWidget, VTKObservationMixin):
         self.setParameterNode(self.logic.getParameterNode())
 
         # Select default input nodes if nothing is selected yet to save a few clicks for the user
+        """
         if not self._parameterNode.InputTransform:
             firstTransformNode = slicer.mrmlScene.GetFirstNodeByClass("vtkMRMLLinearTransformNode")
             if firstTransformNode:
                 self._parameterNode.InputTransform = firstTransformNode
+        """
     """
     def onMarkupsUpdated(self, caller=None, event=None):
         self.onCreateButton()
@@ -252,8 +264,9 @@ class TestMe2PyWidget(ScriptedLoadableModuleWidget, VTKObservationMixin):
 
 
     def onSliderMove(self, height) -> None:
-        transformNode = InputTransform
-        fidNode = InputFiducial
+    #    self._parameterNode.InputTransform = self.ui.InputTransform.currentNode()
+        transformNode = self._parameterNode.InputTransform
+        fidNode = self._parameterNode.InputFiducial
         if transformNode is None or fidNode is None:
             slicer.util.warningDisplay("Select both Transform and Fiducial")
         self.logic.updateHeight(transformNode, fidNode, height)
@@ -298,7 +311,7 @@ class TestMe2PyLogic(ScriptedLoadableModuleLogic):
         fidNode.SetNthControlPointLabel( cp, 'Point_F')
         return fidNode
 
-    def createControlPoint(self, fidNode):
+    def createControlPoint(self, fidNode) -> None:
         cp = fidNode.AddControlPoint(0, 0, 0)
         fidNode.SetNthControlPointLabel( cp, 'Point_F')
 
