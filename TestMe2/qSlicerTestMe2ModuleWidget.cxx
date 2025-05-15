@@ -91,7 +91,7 @@ void qSlicerTestMe2ModuleWidget::onFiducialNodeChanged(vtkMRMLNode *node)
     d->m_FiducialNode = vtkMRMLMarkupsFiducialNode::SafeDownCast(node);
     if (d->m_FiducialNode)
     {
-      qDebug() << Q_FUNC_INFO << "Fiducial node name is " << d->m_FiducialNode->GetName();
+      qDebug() << Q_FUNC_INFO << "Fiducial node name is" << d->m_FiducialNode->GetName();
     }
   }
 }
@@ -105,7 +105,7 @@ void qSlicerTestMe2ModuleWidget::onTransformNodeChanged(vtkMRMLNode *node)
     d->m_TransformNode = vtkMRMLLinearTransformNode::SafeDownCast(node);
     if (d->m_TransformNode)
     {
-      qDebug() << Q_FUNC_INFO << "Transform node name is " << d->m_TransformNode->GetName();
+      qDebug() << Q_FUNC_INFO << "Transform node name is" << d->m_TransformNode->GetName();
     }
   }
 }
@@ -114,14 +114,14 @@ void qSlicerTestMe2ModuleWidget::onFiducialNodeRemoved()
   {
     Q_D(qSlicerTestMe2ModuleWidget);
     d->m_FiducialNode = nullptr;
-    qDebug() << Q_FUNC_INFO << "Fiducial node pointer is " << d->m_FiducialNode.GetPointer();
+    qDebug() << Q_FUNC_INFO << "Fiducial node pointer is" << d->m_FiducialNode.GetPointer();
   };
 
 void qSlicerTestMe2ModuleWidget::onTransformNodeRemoved()
   {
     Q_D(qSlicerTestMe2ModuleWidget);
     d->m_TransformNode = nullptr;
-    qDebug() << Q_FUNC_INFO << "Transform node pointer is " << d->m_TransformNode.GetPointer();
+    qDebug() << Q_FUNC_INFO << "Transform node pointer is" << d->m_TransformNode.GetPointer();
   };
 
 void qSlicerTestMe2ModuleWidget::onCheckNodesButtonClicked()
@@ -130,8 +130,8 @@ void qSlicerTestMe2ModuleWidget::onCheckNodesButtonClicked()
   if (d->m_FiducialNode && d->m_TransformNode)
   {
       qDebug() << Q_FUNC_INFO << "Fiducial & Transform nodes are valid";
-      qDebug() << "Fiducial node name is " << d->m_FiducialNode->GetName();
-      qDebug() << "Transform node name is " << d->m_TransformNode->GetName();
+      qDebug() << "Fiducial node name is" << d->m_FiducialNode->GetName();
+      qDebug() << "Transform node name is" << d->m_TransformNode->GetName();
   }
   else
   {
