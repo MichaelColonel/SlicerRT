@@ -32,6 +32,7 @@ public:
   qSlicerTestMe2ModuleWidgetPrivate();
   vtkSmartPointer< vtkMRMLMarkupsFiducialNode > m_FiducialNode;
   vtkSmartPointer< vtkMRMLLinearTransformNode > m_TransformNode;
+  double offset{ 0.0 };
 };
 
 //-----------------------------------------------------------------------------

@@ -27,7 +27,6 @@
 #include <vtkObjectFactory.h>
 
 // STD includes
-#include <cassert>
 
 //----------------------------------------------------------------------------
 vtkStandardNewMacro(vtkSlicerTestMe2Logic);
@@ -61,13 +60,19 @@ void vtkSlicerTestMe2Logic::SetMRMLSceneInternal(vtkMRMLScene * newScene)
 //-----------------------------------------------------------------------------
 void vtkSlicerTestMe2Logic::RegisterNodes()
 {
-  assert(this->GetMRMLScene() != 0);
+  if (this->GetMRMLScene() == nullptr)
+  {
+    return;
+  }
 }
 
 //---------------------------------------------------------------------------
 void vtkSlicerTestMe2Logic::UpdateFromMRMLScene()
 {
-  assert(this->GetMRMLScene() != 0);
+  if (this->GetMRMLScene() == nullptr)
+  {
+    return;
+  }
 }
 
 //---------------------------------------------------------------------------
@@ -84,7 +89,4 @@ void vtkSlicerTestMe2Logic
 
 void vtkSlicerTestMe2Logic::createPoint()
 {
-//        fidNode = new slicer->mrmlScene->AddNewNodeByClass('vtkMRMLMarkupsFiducialNode', 'nodeFid_F');
-//        cp = new fidNode->AddControlPoint(0, 0, 0);
-//        fidNode->SetNthControlPointLabel( cp, 'Point_F');
 }
