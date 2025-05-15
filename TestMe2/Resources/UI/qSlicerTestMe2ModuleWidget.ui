@@ -100,8 +100,18 @@
       </item>
       <item row="1" column="0">
        <widget class="QPushButton" name="CreateButton">
+        <property name="enabled">
+         <bool>true</bool>
+        </property>
         <property name="text">
          <string>Create Markup Point</string>
+        </property>
+       </widget>
+      </item>
+      <item row="3" column="0">
+       <widget class="QPushButton" name="CheckNodesButton">
+        <property name="text">
+         <string>Check Nodes validity</string>
         </property>
        </widget>
       </item>
