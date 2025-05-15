@@ -105,7 +105,7 @@ void qSlicerTestMe2ModuleWidget::onTransformNodeChanged(vtkMRMLNode *node)
     d->m_TransformNode = vtkMRMLLinearTransformNode::SafeDownCast(node);
     if (d->m_TransformNode)
     {
-      qDebug() << Q_FUNC_INFO << "Transform node name is " << d->m_TransformNode->GetReferenceCount();
+      qDebug() << Q_FUNC_INFO << "Transform node name is " << d->m_TransformNode->GetName();
     }
   }
 }
