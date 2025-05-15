@@ -43,6 +43,7 @@ public slots:
   void onFiducialNodeRemoved();
   void onTransformNodeRemoved();
   void onCheckNodesButtonClicked();
+  void onSliderMove(double);
 
 protected:
   QScopedPointer<qSlicerTestMe2ModuleWidgetPrivate> d_ptr;

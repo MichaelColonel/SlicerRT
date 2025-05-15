@@ -25,6 +25,8 @@
 #include <vtkMRMLMarkupsFiducialNode.h>
 #include <vtkMRMLLinearTransformNode.h>
 
+
+#include <vtkMatrix4x4.h>
 //-----------------------------------------------------------------------------
 class qSlicerTestMe2ModuleWidgetPrivate: public Ui_qSlicerTestMe2ModuleWidget
 {
@@ -32,6 +34,7 @@ public:
   qSlicerTestMe2ModuleWidgetPrivate();
   vtkSmartPointer< vtkMRMLMarkupsFiducialNode > m_FiducialNode;
   vtkSmartPointer< vtkMRMLLinearTransformNode > m_TransformNode;
+  vtkSmartPointer< vtkMatrix4x4 > m_matrixTransform;
   double offset{ 0.0 };
 };
 
@@ -40,9 +43,10 @@ public:
 
 //-----------------------------------------------------------------------------
 qSlicerTestMe2ModuleWidgetPrivate::qSlicerTestMe2ModuleWidgetPrivate()
+: m_matrixTransform(vtkSmartPointer<vtkMatrix4x4>::New())
 {
+    m_matrixTransform->Identity();
 }
-
 //-----------------------------------------------------------------------------
 // qSlicerTestMe2ModuleWidget methods
 
@@ -79,6 +83,9 @@ void qSlicerTestMe2ModuleWidget::setup()
 
   connect( d->CheckNodesButton, SIGNAL(clicked()), this,
     SLOT(onCheckNodesButtonClicked()));
+
+  connect( d->HeightSlider, SIGNAL(valueChanged(double)), this,
+    SLOT(onSliderMove(double)));
 }
 
 
@@ -139,4 +146,13 @@ void qSlicerTestMe2ModuleWidget::onCheckNodesButtonClicked()
       if (!d->m_FiducialNode) qWarning() << "Fiducial node is invalid";
       if (!d->m_TransformNode) qWarning() << "Transform node is invalid";
   }
+}
+
+void qSlicerTestMe2ModuleWidget::onSliderMove(double height)
+{
+  Q_D(qSlicerTestMe2ModuleWidget);
+  d->m_FiducialNode->SetAndObserveTransformNodeID(d->m_TransformNode->GetID());
+ // vtkNew<vtkMatrix4x4> matrixTransform;
+  d->m_matrixTransform->SetElement(2,3,height);
+  d->m_TransformNode->SetMatrixTransformToParent(d->m_matrixTransform);
 }
