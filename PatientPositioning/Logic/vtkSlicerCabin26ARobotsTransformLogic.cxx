@@ -43,7 +43,7 @@
 
 namespace {
 
-constexpr std::array< double, 3 > FixedReferenceToFixedBasedOffset{ -1600., -1500., 1400. };
+//constexpr std::array< double, 3 > FixedReferenceToFixedBasedOffset{ -1600., -1500., 1400. };
 
 constexpr double BaseFixedHeight = 240.; // mm
 constexpr double CArmBaseFixedHeight = 240.; // mm
@@ -600,31 +600,34 @@ void vtkSlicerCabin26ARobotsTransformLogic::UpdateCArmBaseFixedToFixedReferenceT
   vtkMRMLScene* scene = this->GetMRMLScene();
   if (!scene)
   {
-    vtkErrorMacro("UpdateCarmBaseRotationToBaseFixedTransform: Invalid scene");
+    vtkErrorMacro("UpdateCArmBaseFixedToFixedReferenceTransform: Invalid scene");
     return;
   }
   if (!parameterNode)
   {
-    vtkErrorMacro("UpdateCarmBaseRotationToBaseFixedTransform: Invalid parameter node");
+    vtkErrorMacro("UpdateCArmBaseFixedToFixedReferenceTransform: Invalid parameter node");
     return;
   }
 
   // Translate the BaseRotation so it's empty disk centre in RAS origin
   vtkNew<vtkTransform> BaseFixedTranslateTransform;
-  BaseFixedTranslateTransform->Translate(0., 0., -1. * CArmBaseFixedHeight);
-  double CArmBaseFixedToFixedReferenceTranslation[3] = {};
-  parameterNode->GetCArmBaseFixedToFixedReferenceTranslation(CArmBaseFixedToFixedReferenceTranslation);
+  BaseFixedTranslateTransform->Translate(0., 0., -1. * BaseFixedHeight);
+  double BaseFixedToFixedReferenceTranslate[3] = {};
+  double CArmBaseFixedToTableTopBaseFixedOffset[3] = {};
+  parameterNode->GetBaseFixedToFixedReferenceTranslation(BaseFixedToFixedReferenceTranslate);
+  parameterNode->GetCArmBaseFixedToTableTopBaseFixedOffset(CArmBaseFixedToTableTopBaseFixedOffset);
   // Default: FixedReferenceToFixedBasedOffset.data()
-  CArmBaseFixedToFixedReferenceTranslation[2] *= -1.; // Make negative Zt (vertical position) value
-  BaseFixedTranslateTransform->Translate(CArmBaseFixedToFixedReferenceTranslation);
-
+  BaseFixedToFixedReferenceTranslate[2] *= -1.; // Make negative Zt (vertical position) value
+  CArmBaseFixedToTableTopBaseFixedOffset[2] *= -1.; // Make negative Zt (vertical position) value
+  BaseFixedTranslateTransform->Translate(BaseFixedToFixedReferenceTranslate);
+  BaseFixedTranslateTransform->Translate(CArmBaseFixedToTableTopBaseFixedOffset);
 
   using CoordSys = CoordinateSystemIdentifier;
   vtkNew<vtkTransform> baseFixedToPatientTransform;
   if (!this->GetTransformBetween( CoordSys::TableBaseFixed, CoordSys::Patient, 
     baseFixedToPatientTransform, false))
   {
-    vtkWarningMacro("UpdateCarmBaseRotationToBaseFixedTransform: Can't get TableBaseFixed->Patient transform");
+    vtkWarningMacro("UpdateBaseRotationToBaseFixedTransform: Can't get TableBaseFixed->Patient transform");
   }
 
   double PatientToBaseFixedTranslate[3] = {};
@@ -633,6 +636,79 @@ void vtkSlicerCabin26ARobotsTransformLogic::UpdateCArmBaseFixedToFixedReferenceT
     patientToBaseFixedTransform, false))
   {
     patientToBaseFixedTransform->GetPosition(PatientToBaseFixedTranslate);
+  }
+
+  vtkMRMLLinearTransformNode* baseFixedToFixedReferenceTransformNode =
+    this->GetTransformNodeBetween(CoordSys::CArmBaseFixed, CoordSys::FixedReference);
+  if (baseFixedToFixedReferenceTransformNode)
+  {
+    double a[6] = {};
+    parameterNode->GetTableTopRobotAngles(a);
+    double patientToTableTopTranslation[3] = {};
+    parameterNode->GetPatientToTableTopTranslation(patientToTableTopTranslation);
+
+    // BaseRotation->BaseFixed rotation around Z (A1 angle)
+    vtkNew<vtkTransform> baseRotationToBaseFixedTransform;
+    baseRotationToBaseFixedTransform->RotateZ(a[0]);
+
+    // Shoulder->BaseRotation rotation around Y (A2 angle)
+    vtkNew<vtkTransform> shoulderToBaseRotationTransform;
+    shoulderToBaseRotationTransform->RotateY(a[1]);
+
+    // Elbow->Shoulder rotation around Y (A3 angle)
+    vtkNew<vtkTransform> ElbowToShoulderRotationTransform;
+    ElbowToShoulderRotationTransform->RotateY(a[2]);
+
+    // Apply transform (rotation around Y axis on A5 angle, around X axis on A4 angle and around Z axis on A6 angle in RAS origin)
+    vtkNew<vtkTransform> A6A5A4RotationTransform;
+    A6A5A4RotationTransform->RotateZ(a[5]);
+    A6A5A4RotationTransform->RotateY(a[4]);
+    A6A5A4RotationTransform->RotateX(a[3]);
+
+    // Translate BaseFixed disk end (top) to RAS (Patient) origin so, it's end (top) in RAS origin
+    BaseFixedTranslateTransform->Concatenate(baseFixedToPatientTransform);
+    // Apply A1 angle transform
+    baseRotationToBaseFixedTransform->Concatenate(BaseFixedTranslateTransform);
+    // Apply A2 angle transform
+    shoulderToBaseRotationTransform->Concatenate(baseRotationToBaseFixedTransform);
+    // Apply A3 angle transform
+    ElbowToShoulderRotationTransform->Concatenate(shoulderToBaseRotationTransform);
+    // Apply A6, A5, A4 angles transform
+    A6A5A4RotationTransform->Concatenate(ElbowToShoulderRotationTransform);
+
+    // Translate FixedReference model to the begin (bottom) of BaseFixed model (Patient->BaseFixed translation)
+    vtkNew<vtkTransform> PatientToFixedReferenceTranslateTransform;
+    PatientToFixedReferenceTranslateTransform->Translate(PatientToBaseFixedTranslate);
+    // Apply angles transform
+    PatientToFixedReferenceTranslateTransform->Concatenate(A6A5A4RotationTransform);
+
+    baseFixedToFixedReferenceTransformNode->SetAndObserveTransformToParent(PatientToFixedReferenceTranslateTransform);
+  }
+/*
+  // Translate the BaseRotation so it's empty disk centre in RAS origin
+  vtkNew<vtkTransform> BaseFixedTranslateTransform;
+///  BaseFixedTranslateTransform->Translate(0., 0., -1. * CArmBaseFixedHeight);
+  double CArmBaseFixedToFixedReferenceTranslation[3] = {};
+///  parameterNode->GetCArmBaseFixedToFixedReferenceTranslation(CArmBaseFixedToFixedReferenceTranslation);
+  // Default: FixedReferenceToFixedBasedOffset.data()
+///  CArmBaseFixedToFixedReferenceTranslation[2] *= -1.; // Make negative Zt (vertical position) value
+///  BaseFixedTranslateTransform->Translate(CArmBaseFixedToFixedReferenceTranslation);
+
+
+  using CoordSys = CoordinateSystemIdentifier;
+  vtkNew<vtkTransform> tableBaseFixedToPatientTransform;
+  if (!this->GetTransformBetween( CoordSys::TableBaseFixed, CoordSys::Patient, 
+    tableBaseFixedToPatientTransform, false))
+  {
+    vtkWarningMacro("UpdateCArmBaseFixedToFixedReferenceTransform: Can't get TableBaseFixed->Patient transform");
+  }
+
+  double PatientToBaseFixedTranslate[3] = {};
+  vtkNew<vtkTransform> patientToBaseFixedTransform;
+  if (this->GetTransformBetween( CoordSys::Patient, CoordSys::CArmBaseFixed, 
+    patientToBaseFixedTransform, false))
+  {
+///    patientToBaseFixedTransform->GetPosition(PatientToBaseFixedTranslate);
   }
 
   vtkMRMLLinearTransformNode* baseFixedToFixedReferenceTransformNode =
@@ -663,7 +739,7 @@ void vtkSlicerCabin26ARobotsTransformLogic::UpdateCArmBaseFixedToFixedReferenceT
     A6A5A4RotationTransform->RotateX(a[3]);
 
     // Translate BaseFixed disk end (top) to RAS (Patient) origin so, it's end (top) in RAS origin
-    BaseFixedTranslateTransform->Concatenate(baseFixedToPatientTransform);
+    BaseFixedTranslateTransform->Concatenate(tableBaseFixedToPatientTransform);
     // Apply A1 angle transform
     baseRotationToBaseFixedTransform->Concatenate(BaseFixedTranslateTransform);
     // Apply A2 angle transform
@@ -681,6 +757,7 @@ void vtkSlicerCabin26ARobotsTransformLogic::UpdateCArmBaseFixedToFixedReferenceT
 
     baseFixedToFixedReferenceTransformNode->SetAndObserveTransformToParent(PatientToFixedReferenceTranslateTransform);
   }
+*/
 }
 
 //-----------------------------------------------------------------------------

@@ -102,8 +102,8 @@ public:
   vtkGetVector3Macro(BaseFixedToFixedReferenceTranslation, double);
   vtkSetVector3Macro(BaseFixedToFixedReferenceTranslation, double);
 
-  vtkGetVector3Macro(CArmBaseFixedToFixedReferenceTranslation, double);
-  vtkSetVector3Macro(CArmBaseFixedToFixedReferenceTranslation, double);
+  vtkGetVector3Macro(CArmBaseFixedToTableTopBaseFixedOffset, double);
+  vtkSetVector3Macro(CArmBaseFixedToTableTopBaseFixedOffset, double);
 
   vtkGetVector6Macro(TableTopRobotAngles, double);
   vtkSetVector6Macro(TableTopRobotAngles, double);
@@ -134,9 +134,12 @@ protected:
   /// Translate Patient to TableTop
   double PatientToTableTopTranslation[3] = { 0., 0., 0. };
   /// Translate BaseFixed begin from FixedReference origin
-  double BaseFixedToFixedReferenceTranslation[3] = { -1685., 600., -1800. };
-  /// Translate C-Arm BaseFixed begin from FixedReference origin
-  double CArmBaseFixedToFixedReferenceTranslation[3] = { -1685., 600., -400. };
+  double BaseFixedToFixedReferenceTranslation[3] = { -1970., -822., -2150. - 240. };
+  /// Translate C-Arm BaseFixed to TableTop BaseFixed offset
+  /// X offset = CArmBaseFixed - TableTopBaseFixed (along X-axis) (minus beam axis)
+  /// Y offset = CArmBaseFixed basement height (along Z-axis)
+  /// Z offset = CArmBaseFixed + TableTopBaseFixed (along Y-axis)
+  double CArmBaseFixedToTableTopBaseFixedOffset[3] = { -2164 + 1970, 900, -1340 - 822 };
   /// Setup table top robot angles
   double TableTopRobotAngles[6] = { 0., 0., 0., 0., 0., 0. }; // A1=0, A2=-90, A3=90, A4=0, A5=-90, A6=0
   /// Setup x-ray c-arm robot angles
