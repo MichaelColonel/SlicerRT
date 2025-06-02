@@ -1639,6 +1639,17 @@ vtkMRMLLinearTransformNode* vtkSlicerDrrImageComputationLogic::UpdateImageTransf
     return nullptr;
   }
 
+  vtkTransform* externalBeamTransform = nullptr;
+  vtkMRMLTransformNode* beamTransformNode = beamNode->GetParentTransformNode();
+  if (beamTransformNode)
+  {
+    vtkMRMLTransformNode* externalBeamToRasTransformNode = beamTransformNode->GetParentTransformNode();
+    if (externalBeamToRasTransformNode)
+    {
+      externalBeamTransform = vtkTransform::SafeDownCast(externalBeamToRasTransformNode->GetTransformToParent());
+    }
+  }
+
   vtkSmartPointer<vtkMRMLLinearTransformNode> transformNode;
   if (!scene->GetFirstNodeByName(RTIMAGE_TRANSFORM_NODE_NAME))
   {
@@ -1677,7 +1688,14 @@ vtkMRMLLinearTransformNode* vtkSlicerDrrImageComputationLogic::UpdateImageTransf
       vtkErrorMacro("UpdateImageTransformFromBeam: Unable to set transform with non-linear components to beam " << beamNode->GetName());
       return nullptr;
     }
+
     // Set transform to node
+    if (externalBeamTransform)
+    {
+      linearTransform->Concatenate(externalBeamTransform);
+      linearTransform->Update();
+    }
+
     transformNode->SetAndObserveTransformToParent(linearTransform);
   }
   return transformNode;
@@ -1696,6 +1714,17 @@ bool vtkSlicerDrrImageComputationLogic::GetRtImageTransformMatrixFromBeam(vtkMRM
   {
     vtkErrorMacro("GetRtImageTransformMatrixFromBeam: Invalid MRML scene");
     return false;
+  }
+
+  vtkTransform* externalBeamTransform = nullptr;
+  vtkMRMLTransformNode* beamTransformNode = beamNode->GetParentTransformNode();
+  if (beamTransformNode)
+  {
+    vtkMRMLTransformNode* externalBeamToRasTransformNode = beamTransformNode->GetParentTransformNode();
+    if (externalBeamToRasTransformNode)
+    {
+      externalBeamTransform = vtkTransform::SafeDownCast(externalBeamToRasTransformNode->GetTransformToParent());
+    }
   }
 
   vtkNew<vtkSlicerIECTransformLogic> iecLogic;
@@ -1722,6 +1751,11 @@ bool vtkSlicerDrrImageComputationLogic::GetRtImageTransformMatrixFromBeam(vtkMRM
       return false;
     }
     // Set transform to node
+    if (externalBeamTransform)
+    {
+      linearTransform->Concatenate(externalBeamTransform);
+      linearTransform->Update();
+    }
     linearTransform->GetMatrix(mat);
   }
   return true;
@@ -1757,6 +1791,9 @@ void vtkSlicerDrrImageComputationLogic::UpdateNormalAndVupVectors(vtkMRMLDrrImag
     rtImageTransformNode = vtkMRMLLinearTransformNode::SafeDownCast(node);
   }
 
+  vtkNew<vtkMatrix4x4> beamParentTransformMatrix; // beam parent transform matrix
+  beamParentTransformMatrix->Identity();
+
   vtkTransform* beamTransform = nullptr;
   vtkMRMLTransformNode* beamTransformNode = beamNode->GetParentTransformNode();
   if (beamTransformNode)
@@ -1765,23 +1802,15 @@ void vtkSlicerDrrImageComputationLogic::UpdateNormalAndVupVectors(vtkMRMLDrrImag
     if (externalBeamToRasTransformNode)
     {
       beamTransform = vtkTransform::SafeDownCast(externalBeamToRasTransformNode->GetTransformToParent());
-      vtkNew<vtkMatrix4x4> mat; // beam transform matrix
-      mat->Identity();
-      beamTransform->GetMatrix(mat);
-      vtkWarningMacro("Beam to parent matrix: " << mat->GetElement(0, 0) << ' ' << mat->GetElement(0, 1) << ' ' << mat->GetElement(0, 2) << ' ' << mat->GetElement(0, 3) << '\n' \
-                                                << mat->GetElement(1, 0) << ' ' << mat->GetElement(1, 1) << ' ' << mat->GetElement(1, 2) << ' ' << mat->GetElement(1, 3) << '\n' \
-                                                << mat->GetElement(2, 0) << ' ' << mat->GetElement(2, 1) << ' ' << mat->GetElement(2, 2) << ' ' << mat->GetElement(2, 3) << '\n' \
-                                                << mat->GetElement(3, 0) << ' ' << mat->GetElement(3, 1) << ' ' << mat->GetElement(3, 2) << ' ' << mat->GetElement(3, 3) << '\n');
+//      vtkNew<vtkMatrix4x4> mat; // beam transform matrix
+//      mat->Identity();
+//      beamTransform->GetMatrix(mat);
+      beamTransform->GetMatrix(beamParentTransformMatrix);
+//      vtkWarningMacro("Beam to parent matrix: \n" << mat->GetElement(0, 0) << ' ' << mat->GetElement(0, 1) << ' ' << mat->GetElement(0, 2) << ' ' << mat->GetElement(0, 3) << '\n' \
+                                                  << mat->GetElement(1, 0) << ' ' << mat->GetElement(1, 1) << ' ' << mat->GetElement(1, 2) << ' ' << mat->GetElement(1, 3) << '\n' \
+                                                  << mat->GetElement(2, 0) << ' ' << mat->GetElement(2, 1) << ' ' << mat->GetElement(2, 2) << ' ' << mat->GetElement(2, 3) << '\n' \
+                                                  << mat->GetElement(3, 0) << ' ' << mat->GetElement(3, 1) << ' ' << mat->GetElement(3, 2) << ' ' << mat->GetElement(3, 3) << '\n');
     }
-    
-    beamTransform = vtkTransform::SafeDownCast(beamTransformNode->GetTransformToParent());
-    vtkNew<vtkMatrix4x4> mat; // beam transform matrix
-    mat->Identity();
-    beamTransform->GetMatrix(mat);
-    vtkWarningMacro("Beam to parent matrix: " << mat->GetElement(0, 0) << ' ' << mat->GetElement(0, 1) << ' ' << mat->GetElement(0, 2) << ' ' << mat->GetElement(0, 3) << '\n' \
-                                              << mat->GetElement(1, 0) << ' ' << mat->GetElement(1, 1) << ' ' << mat->GetElement(1, 2) << ' ' << mat->GetElement(1, 3) << '\n' \
-                                              << mat->GetElement(2, 0) << ' ' << mat->GetElement(2, 1) << ' ' << mat->GetElement(2, 2) << ' ' << mat->GetElement(2, 3) << '\n' \
-                                              << mat->GetElement(3, 0) << ' ' << mat->GetElement(3, 1) << ' ' << mat->GetElement(3, 2) << ' ' << mat->GetElement(3, 3) << '\n');
   }
 
   vtkTransform* rtImageTransform = nullptr;
@@ -1799,6 +1828,7 @@ void vtkSlicerDrrImageComputationLogic::UpdateNormalAndVupVectors(vtkMRMLDrrImag
     vtkNew<vtkTransform> dicomBeamTransform;
     dicomBeamTransform->Identity();
     dicomBeamTransform->PreMultiply();
+//    dicomBeamTransform->Concatenate(beamParentTransformMatrix);
     dicomBeamTransform->Concatenate(rasToLpsTransform);
     dicomBeamTransform->Concatenate(rtImageTransform);
 
