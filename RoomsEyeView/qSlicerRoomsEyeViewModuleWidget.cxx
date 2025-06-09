@@ -994,10 +994,29 @@ void qSlicerRoomsEyeViewModuleWidget::onBeamsEyeViewButtonClicked()
     vtkNew<vtkMatrix4x4> mat;
     mat->Identity();
 
+    vtkTransform* externalBeamTransform = nullptr;
     if (beamTransformNode)
     {
+      vtkMRMLTransformNode* externalBeamToRasTransformNode = beamTransformNode->GetParentTransformNode();
+      if (externalBeamToRasTransformNode)
+      {
+        externalBeamTransform = vtkTransform::SafeDownCast(externalBeamToRasTransformNode->GetTransformToParent());
+      }
+
       beamTransform = vtkTransform::SafeDownCast(beamTransformNode->GetTransformToParent());
-      beamTransform->GetMatrix(mat);
+///      beamTransform->GetMatrix(mat);
+
+      vtkNew<vtkTransform> linearTransform;
+      linearTransform->Identity();
+//      linearTransform->Concatenate(beamTransform);
+      // Set transform to node
+      if (externalBeamTransform)
+      {
+        linearTransform->Concatenate(externalBeamTransform);
+        linearTransform->Concatenate(beamTransform);
+        linearTransform->Update();
+      }
+      linearTransform->GetMatrix(mat);
     }
     else
     {

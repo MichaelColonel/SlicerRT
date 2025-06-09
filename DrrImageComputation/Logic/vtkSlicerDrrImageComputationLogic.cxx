@@ -1005,6 +1005,7 @@ vtkMRMLScalarVolumeNode* vtkSlicerDrrImageComputationLogic::ComputePlastimatchDR
   std::stringstream isocenterStream;
   double isocenter[3] = {};
   parameterNode->GetIsocenterPositionLPS(isocenter);
+  vtkWarningMacro("ComputePlastimatchDRR: Isocenter LPS: " << isocenter[0] << "," << isocenter[1] << "," << isocenter[2]);
   isocenterStream << isocenter[0] << "," << isocenter[1] << "," << isocenter[2];
   cmdNode->SetParameterAsString( "isocenterPosition", isocenterStream.str());
   
@@ -1200,6 +1201,19 @@ bool vtkSlicerDrrImageComputationLogic::SetupGeometry( vtkMRMLDrrImageComputatio
     return false;
   }
 
+  vtkTransform* externalBeamTransform = nullptr;
+  if (beamNode)
+  {
+    vtkMRMLTransformNode* beamTransformNode = beamNode->GetParentTransformNode();
+    if (beamTransformNode)
+    {
+      vtkMRMLTransformNode* externalBeamToRasTransformNode = beamTransformNode->GetParentTransformNode();
+      if (externalBeamToRasTransformNode)
+      {
+        externalBeamTransform = vtkTransform::SafeDownCast(externalBeamToRasTransformNode->GetTransformToParent());
+      }
+    }
+  }
   double gantryAngle = beamNode->GetGantryAngle();
   double couchAngle = beamNode->GetCouchAngle();
 
@@ -1260,6 +1274,16 @@ bool vtkSlicerDrrImageComputationLogic::SetupGeometry( vtkMRMLDrrImageComputatio
   vtkNew<vtkTransform> isocenterToRtImageRas;
   isocenterToRtImageRas->Identity();
   isocenterToRtImageRas->PreMultiply();
+  if (externalBeamTransform)
+  {
+//    vtkNew< vtkMatrix4x4 > mat;
+//    externalBeamTransform->GetMatrix(mat);
+//    mat->SetElement(0,3,0);
+//    mat->SetElement(1,3,0);
+//    mat->SetElement(2,3,0);
+//    externalBeamTransform->SetMatrix(mat);
+    isocenterToRtImageRas->Concatenate(externalBeamTransform);
+  }
   isocenterToRtImageRas->Concatenate(fixedToIsocenterTransform);
   isocenterToRtImageRas->Concatenate(couchToFixedTransform);
   isocenterToRtImageRas->Concatenate(gantryToCouchTransform);
@@ -1802,15 +1826,26 @@ void vtkSlicerDrrImageComputationLogic::UpdateNormalAndVupVectors(vtkMRMLDrrImag
     if (externalBeamToRasTransformNode)
     {
       beamTransform = vtkTransform::SafeDownCast(externalBeamToRasTransformNode->GetTransformToParent());
-//      vtkNew<vtkMatrix4x4> mat; // beam transform matrix
-//      mat->Identity();
-//      beamTransform->GetMatrix(mat);
+      vtkNew<vtkMatrix4x4> mat; // beam transform matrix
+      mat->Identity();
+      beamTransform->GetMatrix(mat);
       beamTransform->GetMatrix(beamParentTransformMatrix);
-//      vtkWarningMacro("Beam to parent matrix: \n" << mat->GetElement(0, 0) << ' ' << mat->GetElement(0, 1) << ' ' << mat->GetElement(0, 2) << ' ' << mat->GetElement(0, 3) << '\n' \
+      vtkWarningMacro("Beam to parent matrix: \n" << mat->GetElement(0, 0) << ' ' << mat->GetElement(0, 1) << ' ' << mat->GetElement(0, 2) << ' ' << mat->GetElement(0, 3) << '\n' \
                                                   << mat->GetElement(1, 0) << ' ' << mat->GetElement(1, 1) << ' ' << mat->GetElement(1, 2) << ' ' << mat->GetElement(1, 3) << '\n' \
                                                   << mat->GetElement(2, 0) << ' ' << mat->GetElement(2, 1) << ' ' << mat->GetElement(2, 2) << ' ' << mat->GetElement(2, 3) << '\n' \
                                                   << mat->GetElement(3, 0) << ' ' << mat->GetElement(3, 1) << ' ' << mat->GetElement(3, 2) << ' ' << mat->GetElement(3, 3) << '\n');
     }
+  }
+  if (rtImageTransformNode)
+  {
+      beamTransform = vtkTransform::SafeDownCast(rtImageTransformNode->GetTransformToParent());
+      vtkNew<vtkMatrix4x4> mat; // beam transform matrix
+      mat->Identity();
+      beamTransform->GetMatrix(mat);
+      vtkWarningMacro("Beam to parent matrix1: \n" << mat->GetElement(0, 0) << ' ' << mat->GetElement(0, 1) << ' ' << mat->GetElement(0, 2) << ' ' << mat->GetElement(0, 3) << '\n' \
+                                                  << mat->GetElement(1, 0) << ' ' << mat->GetElement(1, 1) << ' ' << mat->GetElement(1, 2) << ' ' << mat->GetElement(1, 3) << '\n' \
+                                                  << mat->GetElement(2, 0) << ' ' << mat->GetElement(2, 1) << ' ' << mat->GetElement(2, 2) << ' ' << mat->GetElement(2, 3) << '\n' \
+                                                  << mat->GetElement(3, 0) << ' ' << mat->GetElement(3, 1) << ' ' << mat->GetElement(3, 2) << ' ' << mat->GetElement(3, 3) << '\n');
   }
 
   vtkTransform* rtImageTransform = nullptr;
