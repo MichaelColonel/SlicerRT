@@ -26,6 +26,15 @@
 #include <vtkNew.h>
 #include <vtkObjectFactory.h>
 
+#include <vtkMRMLMarkupsNode.h>
+#include <vtkMRMLMarkupsFiducialNode.h>
+#include <vtkMRMLLinearTransformNode.h>
+
+
+
+//#include <vtkMatrix4x4.h>
+#include <vtkTransform.h>
+
 // STD includes
 
 //----------------------------------------------------------------------------
@@ -87,6 +96,21 @@ void vtkSlicerTestMe2Logic
 {
 }
 
-void vtkSlicerTestMe2Logic::createPoint()
+void vtkSlicerTestMe2Logic::createControlPoint(vtkMRMLMarkupsFiducialNode* inputFiducial)
 {
+    vtkVector3d point(0.0, 0.0, 0.0);
+    inputFiducial->AddControlPoint(point, "Point_F");
+}
+
+void vtkSlicerTestMe2Logic::updateHeight(vtkMRMLMarkupsFiducialNode* inputFiducial, vtkMRMLLinearTransformNode* inputTransform, double height)
+{
+      vtkNew<vtkTransform> transform;
+    transform->Identity();
+//    transform->RotateX(90);
+    transform->Translate(0,0,height);
+    inputTransform->SetAndObserveTransformToParent(transform);
+//  inputFiducial->SetAndObserveTransformNodeID(inputTransform->GetID());
+//  vtkNew<vtkMatrix4x4> matrixTransform;
+//  matrixTransform->SetElement(2,3,height);
+//  inputTransform->SetMatrixTransformToParent(matrixTransform);
 }

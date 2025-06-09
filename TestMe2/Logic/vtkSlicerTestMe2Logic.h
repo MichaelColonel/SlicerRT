@@ -34,6 +34,11 @@
 
 #include "vtkSlicerTestMe2ModuleLogicExport.h"
 
+class vtkMRMLMarkupsNode;
+class vtkMRMLMarkupsFiducialNode;
+class vtkMRMLLinearTransformNode;
+
+class vtkMatrix4x4;
 
 class VTK_SLICER_TESTME2_MODULE_LOGIC_EXPORT vtkSlicerTestMe2Logic :
   public vtkSlicerModuleLogic
@@ -43,7 +48,9 @@ public:
   static vtkSlicerTestMe2Logic *New();
   vtkTypeMacro(vtkSlicerTestMe2Logic, vtkSlicerModuleLogic);
   void PrintSelf(ostream& os, vtkIndent indent) override;
-  void createPoint();
+ // void createPoint();
+  void createControlPoint(vtkMRMLMarkupsFiducialNode*);
+  void updateHeight(vtkMRMLMarkupsFiducialNode*, vtkMRMLLinearTransformNode*, double);
 
 protected:
   vtkSlicerTestMe2Logic();

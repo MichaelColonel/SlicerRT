@@ -26,15 +26,28 @@
 #include <vtkMRMLLinearTransformNode.h>
 
 
-#include <vtkMatrix4x4.h>
+//#include <vtkMRMLTestMe2Node.h>
+
+
+//#include <vtkMatrix4x4.h>
+#include <vtkTransform.h>
+
+//Logic
+
+#include <vtkSlicerTestMe2Logic.h>
 //-----------------------------------------------------------------------------
 class qSlicerTestMe2ModuleWidgetPrivate: public Ui_qSlicerTestMe2ModuleWidget
 {
+  Q_DECLARE_PUBLIC(qSlicerTestMe2ModuleWidget);
+protected:
+  qSlicerTestMe2ModuleWidget* const q_ptr;
 public:
-  qSlicerTestMe2ModuleWidgetPrivate();
+  qSlicerTestMe2ModuleWidgetPrivate(qSlicerTestMe2ModuleWidget &object);
   vtkSmartPointer< vtkMRMLMarkupsFiducialNode > m_FiducialNode;
   vtkSmartPointer< vtkMRMLLinearTransformNode > m_TransformNode;
-  vtkSmartPointer< vtkMatrix4x4 > m_matrixTransform;
+//  vtkSmartPointer< vtkMatrix4x4 > m_matrixTransform;
+
+  vtkSlicerTestMe2Logic* logic() const;
   double offset{ 0.0 };
 };
 
@@ -42,10 +55,19 @@ public:
 // qSlicerTestMe2ModuleWidgetPrivate methods
 
 //-----------------------------------------------------------------------------
-qSlicerTestMe2ModuleWidgetPrivate::qSlicerTestMe2ModuleWidgetPrivate()
-: m_matrixTransform(vtkSmartPointer<vtkMatrix4x4>::New())
+qSlicerTestMe2ModuleWidgetPrivate::qSlicerTestMe2ModuleWidgetPrivate(qSlicerTestMe2ModuleWidget &object)
+:
+q_ptr(&object)
+//,
+//m_matrixTransform(vtkSmartPointer<vtkMatrix4x4>::New())
 {
-    m_matrixTransform->Identity();
+//    m_matrixTransform->Identity();
+}
+
+vtkSlicerTestMe2Logic* qSlicerTestMe2ModuleWidgetPrivate::logic() const
+{
+  Q_Q(const qSlicerTestMe2ModuleWidget);
+  return vtkSlicerTestMe2Logic::SafeDownCast(q->logic());
 }
 //-----------------------------------------------------------------------------
 // qSlicerTestMe2ModuleWidget methods
@@ -53,7 +75,7 @@ qSlicerTestMe2ModuleWidgetPrivate::qSlicerTestMe2ModuleWidgetPrivate()
 //-----------------------------------------------------------------------------
 qSlicerTestMe2ModuleWidget::qSlicerTestMe2ModuleWidget(QWidget* _parent)
   : Superclass( _parent )
-  , d_ptr( new qSlicerTestMe2ModuleWidgetPrivate )
+  , d_ptr( new qSlicerTestMe2ModuleWidgetPrivate(*this) )
 {
 }
 
@@ -72,14 +94,14 @@ void qSlicerTestMe2ModuleWidget::setup()
   connect( d->InputFiducial, SIGNAL(currentNodeChanged(vtkMRMLNode*)), this,
     SLOT(onFiducialNodeChanged(vtkMRMLNode*)));
 
-  connect( d->InputFiducial, SIGNAL(nodeAboutToBeRemoved(vtkMRMLNode *)), this,
-    SLOT(onFiducialNodeRemoved()));
+  connect( d->InputFiducial, SIGNAL(currentNodeChanged(vtkMRMLNode*)), this,
+    SLOT(onCheckNodesButtonClicked()));
 
   connect( d->InputTransform, SIGNAL(currentNodeChanged(vtkMRMLNode*)), this,
     SLOT(onTransformNodeChanged(vtkMRMLNode*)));
 
-   connect( d->InputTransform, SIGNAL(nodeAboutToBeRemoved(vtkMRMLNode *)), this,
-    SLOT(onTransformNodeRemoved()));
+  connect( d->InputTransform, SIGNAL(currentNodeChanged(vtkMRMLNode*)), this,
+    SLOT(onCheckNodesButtonClicked()));
 
   connect( d->CheckNodesButton, SIGNAL(clicked()), this,
     SLOT(onCheckNodesButtonClicked()));
@@ -92,67 +114,75 @@ void qSlicerTestMe2ModuleWidget::setup()
 void qSlicerTestMe2ModuleWidget::onFiducialNodeChanged(vtkMRMLNode *node)
 {
   Q_D(qSlicerTestMe2ModuleWidget);
+  d->m_FiducialNode = vtkMRMLMarkupsFiducialNode::SafeDownCast(node);
   if (node)
   {
     qDebug() << Q_FUNC_INFO << "Fiducial node is changed";
-    d->m_FiducialNode = vtkMRMLMarkupsFiducialNode::SafeDownCast(node);
-    if (d->m_FiducialNode)
-    {
-      qDebug() << Q_FUNC_INFO << "Fiducial node name is" << d->m_FiducialNode->GetName();
-    }
+  }
+  if (d->m_FiducialNode)
+  {
+    qDebug() << Q_FUNC_INFO << "Fiducial node name is" << d->m_FiducialNode->GetName();
+    int cp = d->m_FiducialNode->AddControlPoint(0,0,0);
+    d->m_FiducialNode->SetNthControlPointLabel( cp, "Point_F");
+  }
+  else
+  {
+    qWarning() << Q_FUNC_INFO << "Fiducial node is invalid";
   }
 }
 
 void qSlicerTestMe2ModuleWidget::onTransformNodeChanged(vtkMRMLNode *node)
 {
   Q_D(qSlicerTestMe2ModuleWidget);
+  d->m_TransformNode = vtkMRMLLinearTransformNode::SafeDownCast(node);
   if (node)
   {
     qDebug() << Q_FUNC_INFO << "Transform node is changed";
-    d->m_TransformNode = vtkMRMLLinearTransformNode::SafeDownCast(node);
-    if (d->m_TransformNode)
+  }
+  if (d->m_TransformNode)
+  {
+    if (d->m_FiducialNode)
     {
-      qDebug() << Q_FUNC_INFO << "Transform node name is" << d->m_TransformNode->GetName();
+      d->m_FiducialNode->SetAndObserveTransformNodeID(d->m_TransformNode->GetID());
     }
+    qDebug() << Q_FUNC_INFO << "Transform node name is" << d->m_TransformNode->GetName();
   }
 }
-
-void qSlicerTestMe2ModuleWidget::onFiducialNodeRemoved()
-  {
-    Q_D(qSlicerTestMe2ModuleWidget);
-    d->m_FiducialNode = nullptr;
-    qDebug() << Q_FUNC_INFO << "Fiducial node pointer is" << d->m_FiducialNode.GetPointer();
-  };
-
-void qSlicerTestMe2ModuleWidget::onTransformNodeRemoved()
-  {
-    Q_D(qSlicerTestMe2ModuleWidget);
-    d->m_TransformNode = nullptr;
-    qDebug() << Q_FUNC_INFO << "Transform node pointer is" << d->m_TransformNode.GetPointer();
-  };
 
 void qSlicerTestMe2ModuleWidget::onCheckNodesButtonClicked()
 {
   Q_D(qSlicerTestMe2ModuleWidget);
   if (d->m_FiducialNode && d->m_TransformNode)
   {
-      qDebug() << Q_FUNC_INFO << "Fiducial & Transform nodes are valid";
-      qDebug() << "Fiducial node name is" << d->m_FiducialNode->GetName();
-      qDebug() << "Transform node name is" << d->m_TransformNode->GetName();
+    d->HeightSlider->setEnabled(true);
+    qDebug() << Q_FUNC_INFO << "Fiducial & Transform nodes are valid";
+    qDebug() << "Fiducial node name is" << d->m_FiducialNode->GetName();
+    qDebug() << "Transform node name is" << d->m_TransformNode->GetName();
   }
   else
   {
-      qWarning() << Q_FUNC_INFO << "Nodes are invalid";
-      if (!d->m_FiducialNode) qWarning() << "Fiducial node is invalid";
-      if (!d->m_TransformNode) qWarning() << "Transform node is invalid";
+    qWarning() << Q_FUNC_INFO << "Nodes are invalid";
+    if (!d->m_FiducialNode)
+    {
+      qWarning() << "Fiducial node is invalid";
+    }
+    if (!d->m_TransformNode)
+    {
+      qWarning() << "Transform node is invalid";
+    }
   }
 }
 
 void qSlicerTestMe2ModuleWidget::onSliderMove(double height)
 {
   Q_D(qSlicerTestMe2ModuleWidget);
-  d->m_FiducialNode->SetAndObserveTransformNodeID(d->m_TransformNode->GetID());
+  if (d->m_FiducialNode && d->m_TransformNode)
+  {
+    d->logic()->updateHeight(d->m_FiducialNode, d->m_TransformNode, height);
+  }
+//  d->m_FiducialNode->SetAndObserveTransformNodeID(d->m_TransformNode->GetID());
  // vtkNew<vtkMatrix4x4> matrixTransform;
-  d->m_matrixTransform->SetElement(2,3,height);
-  d->m_TransformNode->SetMatrixTransformToParent(d->m_matrixTransform);
+//  d->m_matrixTransform->SetElement(2,3,height);
+//  d->m_TransformNode->SetMatrixTransformToParent(d->m_matrixTransform);
+//  d->logic()->updateHeight(d->m_FiducialNode, d->m_TransformNode, height);
 }

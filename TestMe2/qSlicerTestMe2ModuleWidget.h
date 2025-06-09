@@ -23,6 +23,7 @@
 
 #include "qSlicerTestMe2ModuleExport.h"
 
+/// \ingroup SlicerRt_QtModules_TestMe2
 class qSlicerTestMe2ModuleWidgetPrivate;
 class vtkMRMLNode;
 
@@ -40,8 +41,8 @@ public:
 public slots:
   void onFiducialNodeChanged(vtkMRMLNode*);
   void onTransformNodeChanged(vtkMRMLNode*);
-  void onFiducialNodeRemoved();
-  void onTransformNodeRemoved();
+//  void onFiducialNodeRemoved();
+//  void onTransformNodeRemoved();
   void onCheckNodesButtonClicked();
   void onSliderMove(double);
 
