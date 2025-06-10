@@ -102,7 +102,7 @@ void vtkSlicerTestMe2Logic::createControlPoint(vtkMRMLMarkupsFiducialNode* input
     inputFiducial->AddControlPoint(point, "Point_F");
 }
 
-void vtkSlicerTestMe2Logic::updateHeight(vtkMRMLMarkupsFiducialNode* inputFiducial, vtkMRMLLinearTransformNode* inputTransform, double height)
+void vtkSlicerTestMe2Logic::updateHeight(vtkMRMLLinearTransformNode* inputTransform, double height)
 {
       vtkNew<vtkTransform> transform;
     transform->Identity();

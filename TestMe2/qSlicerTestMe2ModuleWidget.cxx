@@ -32,8 +32,10 @@
 //#include <vtkMatrix4x4.h>
 #include <vtkTransform.h>
 
-//Logic
+// MRML
+#include <vtkMRMLTestMe2Node.h>
 
+// Logic
 #include <vtkSlicerTestMe2Logic.h>
 //-----------------------------------------------------------------------------
 class qSlicerTestMe2ModuleWidgetPrivate: public Ui_qSlicerTestMe2ModuleWidget
@@ -178,11 +180,6 @@ void qSlicerTestMe2ModuleWidget::onSliderMove(double height)
   Q_D(qSlicerTestMe2ModuleWidget);
   if (d->m_FiducialNode && d->m_TransformNode)
   {
-    d->logic()->updateHeight(d->m_FiducialNode, d->m_TransformNode, height);
+    d->logic()->updateHeight(d->m_TransformNode, height);
   }
-//  d->m_FiducialNode->SetAndObserveTransformNodeID(d->m_TransformNode->GetID());
- // vtkNew<vtkMatrix4x4> matrixTransform;
-//  d->m_matrixTransform->SetElement(2,3,height);
-//  d->m_TransformNode->SetMatrixTransformToParent(d->m_matrixTransform);
-//  d->logic()->updateHeight(d->m_FiducialNode, d->m_TransformNode, height);
 }

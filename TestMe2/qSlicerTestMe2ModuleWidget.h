@@ -41,8 +41,6 @@ public:
 public slots:
   void onFiducialNodeChanged(vtkMRMLNode*);
   void onTransformNodeChanged(vtkMRMLNode*);
-//  void onFiducialNodeRemoved();
-//  void onTransformNodeRemoved();
   void onCheckNodesButtonClicked();
   void onSliderMove(double);
 
