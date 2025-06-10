@@ -86,6 +86,7 @@ void vtkMRMLTestMe2Node::Copy(vtkMRMLNode *anode)
 
 //----------------------------------------------------------------------------
 void vtkMRMLTestMe2Node::CopyContent(vtkMRMLNode *anode, bool deepCopy/*=true*/
+
 /*)
 {
   MRMLNodeModifyBlocker blocker(this);
@@ -114,9 +115,6 @@ void vtkMRMLTestMe2Node::PrintSelf(ostream& os, vtkIndent indent)
 /*
   vtkMRMLPrintBeginMacro(os, indent);
 
-  vtkMRMLPrintStringMacro(Height);
-  vtkMRMLPrintStringMacro(FiducialNode);
-  vtkMRMLPrintStringMacro(TransformNode);
   // add new parameters here
   vtkMRMLPrintEndMacro();
   */
@@ -168,6 +166,12 @@ void vtkMRMLTestMe2Node::SetAndObserveFiducialNode(vtkMRMLMarkupsFiducialNode* n
 
   this->FiducialNode = node;
 
+  if (this->FiducialNode)
+  {
+    int cp = this->FiducialNode->AddControlPoint(0,0,0);
+    this->FiducialNode->SetNthControlPointLabel( cp, "Point_F");
+  }
+
   this->Modified();//TODO
 //  this->SetNodeReferenceID(PATIENT_BODY_SEGMENTATION_REFERENCE_ROLE, (node ? node->GetID() : nullptr)); TODO
 }
@@ -181,9 +185,10 @@ void vtkMRMLTestMe2Node::SetAndObserveTransformNode(vtkMRMLLinearTransformNode* 
     }
 
   this->TransformNode = node;
-  if (TransformNode && FiducialNode)
+  if (this->TransformNode && this->TransformNode)
   {
     this->FiducialNode->SetAndObserveTransformNodeID(this->TransformNode->GetID());
+
   }
   this->Modified();
 }
