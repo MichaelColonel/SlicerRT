@@ -23,6 +23,9 @@
 
 #include "qSlicerTestMe2ModuleExport.h"
 
+
+#include <vtkMRMLTestMe2Node.h>
+
 /// \ingroup SlicerRt_QtModules_TestMe2
 class qSlicerTestMe2ModuleWidgetPrivate;
 class vtkMRMLNode;
@@ -42,7 +45,7 @@ public slots:
   void onFiducialNodeChanged(vtkMRMLNode*);
   void onTransformNodeChanged(vtkMRMLNode*);
   void onCheckNodesButtonClicked();
-  void onSliderMove(double);
+  void onHeightSliderMove(double);
 
 protected:
   QScopedPointer<qSlicerTestMe2ModuleWidgetPrivate> d_ptr;

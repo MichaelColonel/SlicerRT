@@ -167,7 +167,8 @@ void vtkMRMLTestMe2Node::SetAndObserveFiducialNode(vtkMRMLMarkupsFiducialNode* n
   }
 
   this->FiducialNode = node;
-  this->Modified();//TODO: learn
+
+  this->Modified();//TODO
 //  this->SetNodeReferenceID(PATIENT_BODY_SEGMENTATION_REFERENCE_ROLE, (node ? node->GetID() : nullptr)); TODO
 }
 
@@ -180,6 +181,10 @@ void vtkMRMLTestMe2Node::SetAndObserveTransformNode(vtkMRMLLinearTransformNode* 
     }
 
   this->TransformNode = node;
+  if (TransformNode && FiducialNode)
+  {
+    this->FiducialNode->SetAndObserveTransformNodeID(this->TransformNode->GetID());
+  }
   this->Modified();
 }
 

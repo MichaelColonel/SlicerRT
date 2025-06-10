@@ -22,11 +22,10 @@
 #include "qSlicerTestMe2ModuleWidget.h"
 #include "ui_qSlicerTestMe2ModuleWidget.h"
 
+
+#include <vtkMRMLScene.h>
 #include <vtkMRMLMarkupsFiducialNode.h>
 #include <vtkMRMLLinearTransformNode.h>
-
-
-//#include <vtkMRMLTestMe2Node.h>
 
 
 //#include <vtkMatrix4x4.h>
@@ -45,9 +44,10 @@ protected:
   qSlicerTestMe2ModuleWidget* const q_ptr;
 public:
   qSlicerTestMe2ModuleWidgetPrivate(qSlicerTestMe2ModuleWidget &object);
+  vtkSmartPointer<vtkMRMLTestMe2Node> ParameterNode;
+
   vtkSmartPointer< vtkMRMLMarkupsFiducialNode > m_FiducialNode;
   vtkSmartPointer< vtkMRMLLinearTransformNode > m_TransformNode;
-//  vtkSmartPointer< vtkMatrix4x4 > m_matrixTransform;
 
   vtkSlicerTestMe2Logic* logic() const;
   double offset{ 0.0 };
@@ -93,6 +93,7 @@ void qSlicerTestMe2ModuleWidget::setup()
   d->setupUi(this);
   this->Superclass::setup();
 
+
   connect( d->InputFiducial, SIGNAL(currentNodeChanged(vtkMRMLNode*)), this,
     SLOT(onFiducialNodeChanged(vtkMRMLNode*)));
 
@@ -109,14 +110,16 @@ void qSlicerTestMe2ModuleWidget::setup()
     SLOT(onCheckNodesButtonClicked()));
 
   connect( d->HeightSlider, SIGNAL(valueChanged(double)), this,
-    SLOT(onSliderMove(double)));
+    SLOT(onHeightSliderMove(double)));
+
+
 }
 
 
 void qSlicerTestMe2ModuleWidget::onFiducialNodeChanged(vtkMRMLNode *node)
 {
   Q_D(qSlicerTestMe2ModuleWidget);
-  d->m_FiducialNode = vtkMRMLMarkupsFiducialNode::SafeDownCast(node);
+  d->ParameterNode->SetAndObserveFiducialNode(vtkMRMLMarkupsFiducialNode::SafeDownCast(node));
   if (node)
   {
     qDebug() << Q_FUNC_INFO << "Fiducial node is changed";
@@ -136,19 +139,21 @@ void qSlicerTestMe2ModuleWidget::onFiducialNodeChanged(vtkMRMLNode *node)
 void qSlicerTestMe2ModuleWidget::onTransformNodeChanged(vtkMRMLNode *node)
 {
   Q_D(qSlicerTestMe2ModuleWidget);
-  d->m_TransformNode = vtkMRMLLinearTransformNode::SafeDownCast(node);
+  d->ParameterNode->SetAndObserveTransformNode(vtkMRMLLinearTransformNode::SafeDownCast(node));
   if (node)
   {
     qDebug() << Q_FUNC_INFO << "Transform node is changed";
   }
-  if (d->m_TransformNode)
+  /*
+  if (d->ParameterNode->GetTransformNode())
   {
-    if (d->m_FiducialNode)
+    if (d->ParameterNode->GetFiducialNode())
     {
-      d->m_FiducialNode->SetAndObserveTransformNodeID(d->m_TransformNode->GetID());
+      d->{m_FiducialNode}->SetAndObserveTransformNodeID(d->m_TransformNode->GetID());
     }
     qDebug() << Q_FUNC_INFO << "Transform node name is" << d->m_TransformNode->GetName();
   }
+    */
 }
 
 void qSlicerTestMe2ModuleWidget::onCheckNodesButtonClicked()
@@ -175,7 +180,7 @@ void qSlicerTestMe2ModuleWidget::onCheckNodesButtonClicked()
   }
 }
 
-void qSlicerTestMe2ModuleWidget::onSliderMove(double height)
+void qSlicerTestMe2ModuleWidget::onHeightSliderMove(double height)
 {
   Q_D(qSlicerTestMe2ModuleWidget);
   if (d->m_FiducialNode && d->m_TransformNode)
