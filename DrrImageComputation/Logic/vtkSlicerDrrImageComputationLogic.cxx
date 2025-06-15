@@ -1692,6 +1692,8 @@ vtkMRMLLinearTransformNode* vtkSlicerDrrImageComputationLogic::UpdateImageTransf
   vtkNew<vtkSlicerIECTransformLogic> iecLogic;
   iecLogic->SetMRMLScene(scene);
 
+  double isocenter[3] = {};
+  beamNode->GetPlanIsocenterPosition(isocenter);
   // Update transforms in IEC logic from beam node parameters
   iecLogic->UpdateIECTransformsFromBeam(beamNode);
   // (a BUG?) For RT Image correct orientation PatientSupport -> Fixed Reference MUST have a negative sign
@@ -1716,7 +1718,13 @@ vtkMRMLLinearTransformNode* vtkSlicerDrrImageComputationLogic::UpdateImageTransf
     // Set transform to node
     if (externalBeamTransform)
     {
+//      linearTransform->GetPosition(isocenter);
+//      linearTransform->Translate(-1. * isocenter[0], -1. * isocenter[1], -1. * isocenter[2]);
+//      vtkNew< vtkTransform > isocenterTranslate;
+//      isocenterTranslate->Translate(isocenter[0], isocenter[1], isocenter[2]);
+//      linearTransform->Concatenate(isocenterTranslate);
       linearTransform->Concatenate(externalBeamTransform);
+//      linearTransform->Translate(isocenter[0], isocenter[1], isocenter[2]);
       linearTransform->Update();
     }
 
