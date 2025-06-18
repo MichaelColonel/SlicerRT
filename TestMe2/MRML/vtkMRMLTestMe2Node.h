@@ -52,6 +52,9 @@ public:
     vtkGetMacro(Height, double);
     vtkSetMacro(Height, double);
 
+    vtkGetMacro(RotateXAngle, double);
+    vtkSetMacro(RotateXAngle, double);
+
     void SetAndObserveFiducialNode(vtkMRMLMarkupsFiducialNode* node);
     void SetAndObserveTransformNode(vtkMRMLLinearTransformNode* node);
 
@@ -66,6 +69,7 @@ protected:
     vtkSmartPointer<vtkMRMLMarkupsFiducialNode> FiducialNode;
     vtkSmartPointer<vtkMRMLLinearTransformNode> TransformNode;
     double Height{0.0};
+    double RotateXAngle{0.0};
 };
 
 #endif

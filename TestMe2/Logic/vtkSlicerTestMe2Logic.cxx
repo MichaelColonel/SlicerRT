@@ -123,12 +123,12 @@ void vtkSlicerTestMe2Logic::createControlPoint(vtkMRMLMarkupsFiducialNode* input
     inputFiducial->AddControlPoint(point, "Point_F");
 }
 
-void vtkSlicerTestMe2Logic::updateHeight(vtkMRMLLinearTransformNode* inputTransform, double height)
+void vtkSlicerTestMe2Logic::updateTransform(vtkMRMLLinearTransformNode* inputTransform, double height, double rotateXAngle)
 {
       vtkNew<vtkTransform> transform;
     transform->Identity();
-//    transform->RotateX(90);
     transform->Translate(0,0,height);
+    transform->RotateX(rotateXAngle);
     inputTransform->SetAndObserveTransformToParent(transform);
 //  inputFiducial->SetAndObserveTransformNodeID(inputTransform->GetID());
 //  vtkNew<vtkMatrix4x4> matrixTransform;

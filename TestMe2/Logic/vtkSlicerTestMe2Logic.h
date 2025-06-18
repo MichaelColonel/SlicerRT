@@ -54,7 +54,7 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent) override;
  // void createPoint();
   void createControlPoint(vtkMRMLMarkupsFiducialNode*);
-  void updateHeight(vtkMRMLLinearTransformNode*, double);
+  void updateTransform(vtkMRMLLinearTransformNode*, double, double);
 
 protected:
   vtkSlicerTestMe2Logic();

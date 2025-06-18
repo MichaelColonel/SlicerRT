@@ -179,7 +179,7 @@ void vtkMRMLTestMe2Node::SetAndObserveFiducialNode(vtkMRMLMarkupsFiducialNode* n
 
   }
 
-  this->Modified();//TODO
+  this->Modified();
 //  this->SetNodeReferenceID(PATIENT_BODY_SEGMENTATION_REFERENCE_ROLE, (node ? node->GetID() : nullptr)); TODO
 }
 

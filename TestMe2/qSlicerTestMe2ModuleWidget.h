@@ -55,6 +55,7 @@ public slots:
   void onTransformNodeChanged(vtkMRMLNode*);
   void onCheckNodesButtonClicked();
   void onHeightSliderMove(double);
+  void onRotateXSliderMove(double);
 
   void updateWidgetFromMRML();
 
