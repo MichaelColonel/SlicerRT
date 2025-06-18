@@ -172,6 +172,13 @@ void vtkMRMLTestMe2Node::SetAndObserveFiducialNode(vtkMRMLMarkupsFiducialNode* n
     this->FiducialNode->SetNthControlPointLabel( cp, "Point_F");
   }
 
+  //
+  if (this->FiducialNode && this->TransformNode)
+  {
+    this->FiducialNode->SetAndObserveTransformNodeID(this->TransformNode->GetID());
+
+  }
+
   this->Modified();//TODO
 //  this->SetNodeReferenceID(PATIENT_BODY_SEGMENTATION_REFERENCE_ROLE, (node ? node->GetID() : nullptr)); TODO
 }
@@ -185,7 +192,7 @@ void vtkMRMLTestMe2Node::SetAndObserveTransformNode(vtkMRMLLinearTransformNode* 
     }
 
   this->TransformNode = node;
-  if (this->TransformNode && this->TransformNode)
+  if (this->FiducialNode && this->TransformNode)
   {
     this->FiducialNode->SetAndObserveTransformNodeID(this->TransformNode->GetID());
 

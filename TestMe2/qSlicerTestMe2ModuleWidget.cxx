@@ -110,13 +110,13 @@ void qSlicerTestMe2ModuleWidget::setup()
 //    SLOT(onCheckNodesButtonClicked()));
 
   connect( d->CheckNodesButton, SIGNAL(clicked()), this,
-  SLOT(onCheckNodesButtonClicked()));
+    SLOT(onCheckNodesButtonClicked()));
 
-//  connect( d->HeightSlider, SIGNAL(valueChanged(double)), this,
- //   SLOT(onHeightSliderMove(double)));
+  connect( d->HeightSlider, SIGNAL(valueChanged(double)), this,
+    SLOT(onHeightSliderMove(double)));
 
-    connect( d->InputParameterNode, SIGNAL(currentNodeChanged(vtkMRMLNode*)),
-    this, SLOT(onParameterNodeChanged(vtkMRMLNode*)));
+  connect( d->InputParameterNode, SIGNAL(currentNodeChanged(vtkMRMLNode*)), this,
+    SLOT(onParameterNodeChanged(vtkMRMLNode*)));
 
 }
 void qSlicerTestMe2ModuleWidget::setMRMLScene(vtkMRMLScene* scene)
