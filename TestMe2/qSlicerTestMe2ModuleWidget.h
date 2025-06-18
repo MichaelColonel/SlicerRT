@@ -42,16 +42,24 @@ public:
   virtual ~qSlicerTestMe2ModuleWidget();
 
 public slots:
+  void setMRMLScene(vtkMRMLScene*) override;
+  void setParameterNode(vtkMRMLNode*);
+  void onSceneImportedEvent();
+  void onSceneClosedEvent();
 
+  void onParameterNodeChanged(vtkMRMLNode* node);
   void onFiducialNodeChanged(vtkMRMLNode*);
   void onTransformNodeChanged(vtkMRMLNode*);
   void onCheckNodesButtonClicked();
   void onHeightSliderMove(double);
 
+  void updateWidgetFromMRML();
+
 protected:
   QScopedPointer<qSlicerTestMe2ModuleWidgetPrivate> d_ptr;
 
   void setup() override;
+  void onEnter();
 
 private:
   Q_DECLARE_PRIVATE(qSlicerTestMe2ModuleWidget);

@@ -35,43 +35,41 @@
      <layout class="QGridLayout" name="gridLayout_2">
       <item row="2" column="0">
        <layout class="QGridLayout" name="gridLayout">
-        <item row="2" column="0">
+        <item row="3" column="0">
          <widget class="QLabel" name="LabelPosition">
           <property name="text">
            <string>Height</string>
           </property>
          </widget>
         </item>
-        <item row="1" column="0">
+        <item row="3" column="2">
+         <widget class="ctkSliderWidget" name="HeightSlider">
+          <property name="enabled">
+           <bool>false</bool>
+          </property>
+          <property name="minimum">
+           <double>-100.000000000000000</double>
+          </property>
+          <property name="maximum">
+           <double>100.000000000000000</double>
+          </property>
+         </widget>
+        </item>
+        <item row="2" column="0">
          <widget class="QLabel" name="LabelTransform">
           <property name="text">
            <string>Transform</string>
           </property>
          </widget>
         </item>
-        <item row="0" column="0">
+        <item row="1" column="0">
          <widget class="QLabel" name="LabelFiducial">
           <property name="text">
            <string>Fiducial</string>
           </property>
          </widget>
         </item>
-        <item row="0" column="2">
-         <widget class="qMRMLNodeComboBox" name="InputFiducial">
-          <property name="nodeTypes">
-           <stringlist>
-            <string>vtkMRMLMarkupsFiducialNode</string>
-           </stringlist>
-          </property>
-          <property name="hideChildNodeTypes">
-           <stringlist notr="true"/>
-          </property>
-          <property name="interactionNodeSingletonTag">
-           <string notr="true"/>
-          </property>
-         </widget>
-        </item>
-        <item row="1" column="2">
+        <item row="2" column="2">
          <widget class="qMRMLNodeComboBox" name="InputTransform">
           <property name="nodeTypes">
            <stringlist>
@@ -86,16 +84,40 @@
           </property>
          </widget>
         </item>
-        <item row="2" column="2">
-         <widget class="ctkSliderWidget" name="HeightSlider">
-          <property name="enabled">
-           <bool>false</bool>
+        <item row="1" column="2">
+         <widget class="qMRMLNodeComboBox" name="InputFiducial">
+          <property name="nodeTypes">
+           <stringlist>
+            <string>vtkMRMLMarkupsFiducialNode</string>
+           </stringlist>
           </property>
-          <property name="minimum">
-           <double>-100.000000000000000</double>
+          <property name="hideChildNodeTypes">
+           <stringlist notr="true"/>
           </property>
-          <property name="maximum">
-           <double>100.000000000000000</double>
+          <property name="interactionNodeSingletonTag">
+           <string notr="true"/>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="0">
+         <widget class="QLabel" name="LabelParameterNode">
+          <property name="text">
+           <string>Parameter Node</string>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="2">
+         <widget class="qMRMLNodeComboBox" name="InputParameterNode">
+          <property name="nodeTypes">
+           <stringlist notr="true">
+            <string>vtkMRMLTestMe2Node</string>
+           </stringlist>
+          </property>
+          <property name="hideChildNodeTypes">
+           <stringlist notr="true"/>
+          </property>
+          <property name="interactionNodeSingletonTag">
+           <string notr="true"/>
           </property>
          </widget>
         </item>
@@ -104,7 +126,7 @@
       <item row="1" column="0">
        <widget class="QPushButton" name="CreateButton">
         <property name="enabled">
-         <bool>true</bool>
+         <bool>false</bool>
         </property>
         <property name="text">
          <string>Create Markup Point</string>
@@ -200,6 +222,22 @@
     <hint type="destinationlabel">
      <x>214</x>
      <y>82</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>qSlicerTestMe2ModuleWidget</sender>
+   <signal>mrmlSceneChanged(vtkMRMLScene*)</signal>
+   <receiver>InputParameterNode</receiver>
+   <slot>setMRMLScene(vtkMRMLScene*)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>182</x>
+     <y>159</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>232</x>
+     <y>103</y>
     </hint>
    </hints>
   </connection>

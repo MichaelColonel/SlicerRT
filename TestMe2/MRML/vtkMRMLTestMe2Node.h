@@ -21,8 +21,6 @@ public:
       /// Create instance of a GAD node.
     vtkMRMLNode* CreateNodeInstance() override;
 
-          /// Get unique node XML tag name
-
         /// Set node attributes from name/value pairs
     /*
     void ReadXMLAttributes(const char** atts) override;
@@ -43,7 +41,8 @@ public:
     /// Handles events registered in the observer manager
     void ProcessMRMLEvents(vtkObject *caller, unsigned long eventID, void *callData) override;
 
-
+ //   vtkMRMLMarkupsFiducialNode* GetFiducialNode();
+ //   vtkMRMLLinearTransformNode* GetTransformNode();
     vtkGetObjectMacro(FiducialNode, vtkMRMLMarkupsFiducialNode);
 //    vtkSetObjectMacro(FiducialNode, vtkMRMLMarkupsFiducialNode);
 
