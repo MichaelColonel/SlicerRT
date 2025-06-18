@@ -28,6 +28,7 @@
 #include "vtkSlicerModuleLogic.h"
 
 // MRML includes
+//#include <vtkMRMLTestMe2Node.h>
 
 // STD includes
 #include <cstdlib>
@@ -38,7 +39,10 @@ class vtkMRMLMarkupsNode;
 class vtkMRMLMarkupsFiducialNode;
 class vtkMRMLLinearTransformNode;
 
+class vtkMRMLTestMe2Node;
+
 class vtkMatrix4x4;
+class vtkTransform;
 
 class VTK_SLICER_TESTME2_MODULE_LOGIC_EXPORT vtkSlicerTestMe2Logic :
   public vtkSlicerModuleLogic

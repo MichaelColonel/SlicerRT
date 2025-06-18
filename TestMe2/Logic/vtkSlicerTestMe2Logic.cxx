@@ -29,6 +29,7 @@
 #include <vtkMRMLMarkupsNode.h>
 #include <vtkMRMLMarkupsFiducialNode.h>
 #include <vtkMRMLLinearTransformNode.h>
+#include <vtkMRMLTestMe2Node.h>
 
 
 
@@ -59,6 +60,8 @@ void vtkSlicerTestMe2Logic::PrintSelf(ostream& os, vtkIndent indent)
 //---------------------------------------------------------------------------
 void vtkSlicerTestMe2Logic::SetMRMLSceneInternal(vtkMRMLScene * newScene)
 {
+  this->Superclass::SetMRMLSceneInternal(newScene);
+
   vtkNew<vtkIntArray> events;
   events->InsertNextValue(vtkMRMLScene::NodeAddedEvent);
   events->InsertNextValue(vtkMRMLScene::NodeRemovedEvent);
@@ -69,9 +72,15 @@ void vtkSlicerTestMe2Logic::SetMRMLSceneInternal(vtkMRMLScene * newScene)
 //-----------------------------------------------------------------------------
 void vtkSlicerTestMe2Logic::RegisterNodes()
 {
-  if (this->GetMRMLScene() == nullptr)
+  vtkMRMLScene* scene = this->GetMRMLScene();
+  if (!scene)
   {
     return;
+  }
+
+  if (!scene->IsNodeClassRegistered("vtkMRMLTestMe2Node"))
+  {
+    scene->RegisterNodeClass(vtkSmartPointer<vtkMRMLTestMe2Node>::New());
   }
 }
 
@@ -86,8 +95,20 @@ void vtkSlicerTestMe2Logic::UpdateFromMRMLScene()
 
 //---------------------------------------------------------------------------
 void vtkSlicerTestMe2Logic
-::OnMRMLSceneNodeAdded(vtkMRMLNode* vtkNotUsed(node))
+::OnMRMLSceneNodeAdded(vtkMRMLNode* node)
 {
+    if (!node || !this->GetMRMLScene())
+  {
+    vtkErrorMacro("OnMRMLSceneNodeAdded: Invalid MRML scene or input node");
+    return;
+  }
+
+  if (node->IsA("vtkMRMLPatientPositioningNode"))
+  {
+    vtkNew<vtkIntArray> events;
+    events->InsertNextValue(vtkCommand::ModifiedEvent);
+    vtkObserveMRMLNodeEventsMacro(node, events);
+  }
 }
 
 //---------------------------------------------------------------------------

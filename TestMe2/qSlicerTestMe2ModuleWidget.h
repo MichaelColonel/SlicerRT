@@ -41,6 +41,9 @@ public:
   qSlicerTestMe2ModuleWidget(QWidget *parent=0);
   virtual ~qSlicerTestMe2ModuleWidget();
 
+  void exit() override;
+  void enter() override;
+
 public slots:
   void setMRMLScene(vtkMRMLScene*) override;
   void setParameterNode(vtkMRMLNode*);

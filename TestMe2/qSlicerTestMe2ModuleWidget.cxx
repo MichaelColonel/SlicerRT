@@ -100,7 +100,7 @@ void qSlicerTestMe2ModuleWidget::setup()
     SLOT(onFiducialNodeChanged(vtkMRMLNode*)));
 
 //  connect( d->InputFiducial, SIGNAL(currentNodeChanged(vtkMRMLNode*)), this,
- //   SLOT(onCheckNodesButtonClicked()));
+//    SLOT(onCheckNodesButtonClicked()));
 
   connect( d->InputTransform, SIGNAL(currentNodeChanged(vtkMRMLNode*)), this,
     SLOT(onTransformNodeChanged(vtkMRMLNode*)));
@@ -109,8 +109,8 @@ void qSlicerTestMe2ModuleWidget::setup()
 //  connect( d->InputTransform, SIGNAL(currentNodeChanged(vtkMRMLNode*)), this,
 //    SLOT(onCheckNodesButtonClicked()));
 
-//  connect( d->CheckNodesButton, SIGNAL(clicked()), this,
-//  SLOT(onCheckNodesButtonClicked()));
+  connect( d->CheckNodesButton, SIGNAL(clicked()), this,
+  SLOT(onCheckNodesButtonClicked()));
 
 //  connect( d->HeightSlider, SIGNAL(valueChanged(double)), this,
  //   SLOT(onHeightSliderMove(double)));
@@ -206,6 +206,21 @@ void qSlicerTestMe2ModuleWidget::onSceneClosedEvent()
   this->updateWidgetFromMRML();
 }
 
+void qSlicerTestMe2ModuleWidget::enter()
+{
+  Q_D(qSlicerTestMe2ModuleWidget);
+  this->Superclass::enter();
+  this->onEnter();
+}
+
+//-----------------------------------------------------------------------------
+void qSlicerTestMe2ModuleWidget::exit()
+{
+  Q_D(qSlicerTestMe2ModuleWidget);
+
+  this->Superclass::exit();
+}
+
 void qSlicerTestMe2ModuleWidget::onParameterNodeChanged(vtkMRMLNode* node)
 {
   Q_D(qSlicerTestMe2ModuleWidget);
@@ -256,6 +271,8 @@ void qSlicerTestMe2ModuleWidget::onEnter()
 */
   // All required data for GUI is initiated
   this->updateWidgetFromMRML();
+
+   d->ModuleWindowInitialized = true;
 }
 
 void qSlicerTestMe2ModuleWidget::onFiducialNodeChanged(vtkMRMLNode *node)
@@ -263,7 +280,7 @@ void qSlicerTestMe2ModuleWidget::onFiducialNodeChanged(vtkMRMLNode *node)
   Q_D(qSlicerTestMe2ModuleWidget);
   vtkMRMLMarkupsFiducialNode* fiducialNode = vtkMRMLMarkupsFiducialNode::SafeDownCast(node);
 
-  if (!d->ParameterNode || !d->ModuleWindowInitialized)
+  if (!d->ParameterNode)
   {
     qCritical() << Q_FUNC_INFO << ": Invalid parameter node";
     return;
@@ -312,12 +329,12 @@ void qSlicerTestMe2ModuleWidget::onCheckNodesButtonClicked()
 {
   Q_D(qSlicerTestMe2ModuleWidget);
 
-  if (d->m_FiducialNode && d->m_TransformNode)
+  if (d->ParameterNode->GetFiducialNode() && d->ParameterNode->GetTransformNode())
   {
     d->HeightSlider->setEnabled(true);
     qDebug() << Q_FUNC_INFO << "Fiducial & Transform nodes are valid";
-    qDebug() << "Fiducial node name is" << d->ParameterNode->GetFiducialNode();
-    qDebug() << "Transform node name is" << d->ParameterNode->GetTransformNode();
+    qDebug() << "Fiducial node name is" << d->ParameterNode->GetFiducialNode()->GetName();
+    qDebug() << "Transform node name is" << d->ParameterNode->GetTransformNode()->GetName();
   }
 
   else
@@ -332,7 +349,6 @@ void qSlicerTestMe2ModuleWidget::onCheckNodesButtonClicked()
       qWarning() << "Transform node is invalid";
     }
   }
-
 }
 
 void qSlicerTestMe2ModuleWidget::onHeightSliderMove(double height)
@@ -340,6 +356,6 @@ void qSlicerTestMe2ModuleWidget::onHeightSliderMove(double height)
   Q_D(qSlicerTestMe2ModuleWidget);
   if (d->ParameterNode->GetFiducialNode() && d->ParameterNode->GetTransformNode())
   {
-    d->logic()->updateHeight(d->m_TransformNode, height);
+    d->logic()->updateHeight(d->ParameterNode->GetTransformNode(), height);
   }
 }
