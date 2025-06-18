@@ -216,6 +216,21 @@ void vtkSlicerIECTransformLogic::UpdateBeamTransform(vtkMRMLRTBeamNode* beamNode
     return;
   }
 
+  vtkTransform* beamTransform = nullptr;
+  vtkMRMLTransformNode* externalBeamToRasTransformNode = beamTransformNode->GetParentTransformNode();
+  if (externalBeamToRasTransformNode)
+  {
+    beamTransformNode->SetAndObserveTransformNodeID(nullptr);
+    beamTransform = vtkTransform::SafeDownCast(externalBeamToRasTransformNode->GetTransformToParent());
+    vtkNew<vtkMatrix4x4> mat; // beam transform matrix
+    mat->Identity();
+    beamTransform->GetMatrix(mat);
+    vtkWarningMacro("Beam to parent matrix: \n" << mat->GetElement(0, 0) << ' ' << mat->GetElement(0, 1) << ' ' << mat->GetElement(0, 2) << ' ' << mat->GetElement(0, 3) << '\n' \
+                                                << mat->GetElement(1, 0) << ' ' << mat->GetElement(1, 1) << ' ' << mat->GetElement(1, 2) << ' ' << mat->GetElement(1, 3) << '\n' \
+                                                << mat->GetElement(2, 0) << ' ' << mat->GetElement(2, 1) << ' ' << mat->GetElement(2, 2) << ' ' << mat->GetElement(2, 3) << '\n' \
+                                                << mat->GetElement(3, 0) << ' ' << mat->GetElement(3, 1) << ' ' << mat->GetElement(3, 2) << ' ' << mat->GetElement(3, 3) << '\n');
+  }
+
   // Update transforms in IEC logic from beam node parameters
   this->UpdateIECTransformsFromBeam(beamNode, isocenter);
 
@@ -243,6 +258,10 @@ void vtkSlicerIECTransformLogic::UpdateBeamTransform(vtkMRMLRTBeamNode* beamNode
 
   // Set transform to beam node
   beamTransformNode->SetAndObserveTransformToParent(beamLinearTransform);
+  if (externalBeamToRasTransformNode)
+  {
+    beamTransformNode->SetAndObserveTransformNodeID(externalBeamToRasTransformNode->GetID());
+  }
 }
 
 //-----------------------------------------------------------------------------
@@ -296,9 +315,23 @@ void vtkSlicerIECTransformLogic::UpdateIECTransformsFromBeam(vtkMRMLRTBeamNode* 
     }
   }
 
+  vtkNew<vtkMatrix4x4> mat; // beam transform matrix
+  mat->Identity();
+  rasToPatientReferenceTransform->GetMatrix(mat);
+  vtkWarningMacro("Matrix isocenter: \n" << mat->GetElement(0, 0) << ' ' << mat->GetElement(0, 1) << ' ' << mat->GetElement(0, 2) << ' ' << mat->GetElement(0, 3) << '\n' \
+                                              << mat->GetElement(1, 0) << ' ' << mat->GetElement(1, 1) << ' ' << mat->GetElement(1, 2) << ' ' << mat->GetElement(1, 3) << '\n' \
+                                              << mat->GetElement(2, 0) << ' ' << mat->GetElement(2, 1) << ' ' << mat->GetElement(2, 2) << ' ' << mat->GetElement(2, 3) << '\n' \
+                                              << mat->GetElement(3, 0) << ' ' << mat->GetElement(3, 1) << ' ' << mat->GetElement(3, 2) << ' ' << mat->GetElement(3, 3) << '\n');
+                                              
   rasToPatientReferenceTransform->RotateX(-90.0);
   rasToPatientReferenceTransform->RotateZ(180.0);
   rasToPatientReferenceTransform->Modified();
+
+  rasToPatientReferenceTransform->GetMatrix(mat);
+  vtkWarningMacro("Matrix isocenter1: \n" << mat->GetElement(0, 0) << ' ' << mat->GetElement(0, 1) << ' ' << mat->GetElement(0, 2) << ' ' << mat->GetElement(0, 3) << '\n' \
+                                              << mat->GetElement(1, 0) << ' ' << mat->GetElement(1, 1) << ' ' << mat->GetElement(1, 2) << ' ' << mat->GetElement(1, 3) << '\n' \
+                                              << mat->GetElement(2, 0) << ' ' << mat->GetElement(2, 1) << ' ' << mat->GetElement(2, 2) << ' ' << mat->GetElement(2, 3) << '\n' \
+                                              << mat->GetElement(3, 0) << ' ' << mat->GetElement(3, 1) << ' ' << mat->GetElement(3, 2) << ' ' << mat->GetElement(3, 3) << '\n');
 
   // Update fixed reference to RAS transform as well
   vtkMRMLRTPlanNode* parentPlanNode = beamNode->GetParentPlanNode();

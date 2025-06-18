@@ -997,6 +997,8 @@ void qSlicerRoomsEyeViewModuleWidget::onBeamsEyeViewButtonClicked()
     vtkTransform* externalBeamTransform = nullptr;
     if (beamTransformNode)
     {
+      beamTransformNode->GetMatrixTransformToWorld(mat);
+/*
       vtkMRMLTransformNode* externalBeamToRasTransformNode = beamTransformNode->GetParentTransformNode();
       if (externalBeamToRasTransformNode)
       {
@@ -1017,6 +1019,7 @@ void qSlicerRoomsEyeViewModuleWidget::onBeamsEyeViewButtonClicked()
         linearTransform->Update();
       }
       linearTransform->GetMatrix(mat);
+*/
     }
     else
     {
