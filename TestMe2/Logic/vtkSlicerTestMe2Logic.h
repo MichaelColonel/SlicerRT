@@ -52,8 +52,8 @@ public:
   static vtkSlicerTestMe2Logic *New();
   vtkTypeMacro(vtkSlicerTestMe2Logic, vtkSlicerModuleLogic);
   void PrintSelf(ostream& os, vtkIndent indent) override;
- // void createPoint();
   void createControlPoint(vtkMRMLMarkupsFiducialNode*);
+  void updateFiducialTransformLink(vtkMRMLMarkupsFiducialNode*, vtkMRMLLinearTransformNode*);
   void updateTransform(vtkMRMLLinearTransformNode*, double, double);
 
 protected:

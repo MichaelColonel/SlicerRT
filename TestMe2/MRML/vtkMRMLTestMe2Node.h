@@ -41,12 +41,12 @@ public:
     /// Handles events registered in the observer manager
     void ProcessMRMLEvents(vtkObject *caller, unsigned long eventID, void *callData) override;
 
- //   vtkMRMLMarkupsFiducialNode* GetFiducialNode();
- //   vtkMRMLLinearTransformNode* GetTransformNode();
-    vtkGetObjectMacro(FiducialNode, vtkMRMLMarkupsFiducialNode);
+    vtkMRMLMarkupsFiducialNode* GetFiducialNode();
+    vtkMRMLLinearTransformNode* GetTransformNode();
+//    vtkGetObjectMacro(FiducialNode, vtkMRMLMarkupsFiducialNode);
 //    vtkSetObjectMacro(FiducialNode, vtkMRMLMarkupsFiducialNode);
 
-    vtkGetObjectMacro(TransformNode, vtkMRMLLinearTransformNode);
+//    vtkGetObjectMacro(TransformNode, vtkMRMLLinearTransformNode);
 //    vtkSetObjectMacro(TransformNode, vtkMRMLLinearTransformNode);
 
     vtkGetMacro(Height, double);
@@ -55,10 +55,10 @@ public:
     vtkGetMacro(RotateXAngle, double);
     vtkSetMacro(RotateXAngle, double);
 
+
+
     void SetAndObserveFiducialNode(vtkMRMLMarkupsFiducialNode* node);
     void SetAndObserveTransformNode(vtkMRMLLinearTransformNode* node);
-
-    void createControlPoint();
 
 protected:
     vtkMRMLTestMe2Node();
@@ -66,8 +66,8 @@ protected:
     vtkMRMLTestMe2Node(const vtkMRMLTestMe2Node&);
     void operator=(const vtkMRMLTestMe2Node&);
 
-    vtkSmartPointer<vtkMRMLMarkupsFiducialNode> FiducialNode;
-    vtkSmartPointer<vtkMRMLLinearTransformNode> TransformNode;
+//    vtkSmartPointer<vtkMRMLMarkupsFiducialNode> FiducialNode;
+//    vtkSmartPointer<vtkMRMLLinearTransformNode> TransformNode;
     double Height{0.0};
     double RotateXAngle{0.0};
 };

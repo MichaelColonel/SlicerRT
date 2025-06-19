@@ -60,10 +60,7 @@ public:
 qSlicerTestMe2ModuleWidgetPrivate::qSlicerTestMe2ModuleWidgetPrivate(qSlicerTestMe2ModuleWidget &object)
 :
 q_ptr(&object)
-//,
-//m_matrixTransform(vtkSmartPointer<vtkMatrix4x4>::New())
 {
-//    m_matrixTransform->Identity();
 }
 
 vtkSlicerTestMe2Logic* qSlicerTestMe2ModuleWidgetPrivate::logic() const
@@ -95,15 +92,15 @@ void qSlicerTestMe2ModuleWidget::setup()
   connect( d->InputFiducial, SIGNAL(currentNodeChanged(vtkMRMLNode*)), this,
     SLOT(onFiducialNodeChanged(vtkMRMLNode*)));
 
-  connect( d->InputFiducial, SIGNAL(currentNodeChanged(vtkMRMLNode*)), this,
-    SLOT(onCheckNodesButtonClicked()));
+//  connect( d->InputFiducial, SIGNAL(currentNodeChanged(vtkMRMLNode*)), this,
+//    SLOT(onCheckNodesButtonClicked()));
 
   connect( d->InputTransform, SIGNAL(currentNodeChanged(vtkMRMLNode*)), this,
     SLOT(onTransformNodeChanged(vtkMRMLNode*)));
 
 
-  connect( d->InputTransform, SIGNAL(currentNodeChanged(vtkMRMLNode*)), this,
-    SLOT(onCheckNodesButtonClicked()));
+//  connect( d->InputTransform, SIGNAL(currentNodeChanged(vtkMRMLNode*)), this,
+ //   SLOT(onCheckNodesButtonClicked()));
 
   connect( d->CheckNodesButton, SIGNAL(clicked()), this,
     SLOT(onCheckNodesButtonClicked()));
@@ -117,8 +114,8 @@ void qSlicerTestMe2ModuleWidget::setup()
   connect( d->InputParameterNode, SIGNAL(currentNodeChanged(vtkMRMLNode*)), this,
     SLOT(onParameterNodeChanged(vtkMRMLNode*)));
 
-  connect( d->InputParameterNode, SIGNAL(currentNodeChanged(vtkMRMLNode*)), this,
-    SLOT(onCheckNodesButtonClicked()));
+ // connect( d->InputParameterNode, SIGNAL(currentNodeChanged(vtkMRMLNode*)), this,
+ //   SLOT(onCheckNodesButtonClicked()));
 
 }
 void qSlicerTestMe2ModuleWidget::setMRMLScene(vtkMRMLScene* scene)
@@ -198,16 +195,26 @@ void qSlicerTestMe2ModuleWidget::updateWidgetFromMRML()
 
   // Update widgets
 
-  if (parameterNode->GetFiducialNode())
-  {
+
     d->InputFiducial->setCurrentNode(parameterNode->GetFiducialNode());
-  }
-  if (parameterNode->GetTransformNode())
-  {
+
+
     d->InputTransform->setCurrentNode(parameterNode->GetTransformNode());
-  }
+
   d->HeightSlider->setValue(parameterNode->GetHeight());
   d->RotateXSlider->setValue(parameterNode->GetRotateXAngle());
+
+  if (d->ParameterNode->GetFiducialNode() && d->ParameterNode->GetTransformNode())
+  {
+    d->HeightSlider->setEnabled(true);
+    d->RotateXSlider->setEnabled(true);
+  }
+  else
+  {
+    d->HeightSlider->setEnabled(false);
+    d->RotateXSlider->setEnabled(false);
+  }
+//  this->onCheckNodesButtonClicked();
   qDebug() << Q_FUNC_INFO << "Update";
 }
 
@@ -250,6 +257,7 @@ void qSlicerTestMe2ModuleWidget::onParameterNodeChanged(vtkMRMLNode* node)
   }
 
   this->setParameterNode(parameterNode);
+//  this->onCheckNodesButtonClicked();
 }
 
 void qSlicerTestMe2ModuleWidget::onEnter()
@@ -275,17 +283,7 @@ void qSlicerTestMe2ModuleWidget::onEnter()
   {
     parameterNode = vtkMRMLTestMe2Node::SafeDownCast(node);
   }
-/*
-  if (parameterNode && parameterNode->GetBeamNode())
-  {
-    // First thing first: update normal and vup vectors for parameter node
-    // in case observed beam node transformation has been modified
-    d->logic()->UpdateNormalAndVupVectors(parameterNode);
-  }
 
-  // Create DRR markups nodes
-  d->logic()->CreateMarkupsNodes(parameterNode);
-*/
   // All required data for GUI is initiated
   this->updateWidgetFromMRML();
 
@@ -305,10 +303,17 @@ void qSlicerTestMe2ModuleWidget::onFiducialNodeChanged(vtkMRMLNode *node)
 
   if (node)
   {
+    d->ParameterNode->SetAndObserveFiducialNode(fiducialNode);
+    d->logic()->createControlPoint(d->ParameterNode->GetFiducialNode());
+    if (d->ParameterNode->GetFiducialNode() && d->ParameterNode->GetTransformNode())
+    {
+      d->logic()->updateFiducialTransformLink(d->ParameterNode->GetFiducialNode(), d->ParameterNode->GetTransformNode());
+      d->logic()->updateTransform(d->ParameterNode->GetTransformNode(), d->ParameterNode->GetHeight(), d->ParameterNode->GetRotateXAngle());
+    }
     qDebug() << Q_FUNC_INFO << "Fiducial node is changed";
   }
-  d->ParameterNode->SetAndObserveFiducialNode(fiducialNode);
 
+//  this->onCheckNodesButtonClicked();
 //    qDebug() << Q_FUNC_INFO << "Fiducial node name is" << d->ParameterNode->GetFiducialNode();
 
 }
@@ -326,20 +331,17 @@ void qSlicerTestMe2ModuleWidget::onTransformNodeChanged(vtkMRMLNode *node)
 
   if (node)
   {
-    qDebug() << Q_FUNC_INFO << "Fiducial node is changed";
-  }
-  d->ParameterNode->SetAndObserveTransformNode(transformNode);
-//    qDebug() << Q_FUNC_INFO << "Transform node name is" << d->ParameterNode->GetTransformNode();
-  /*
-  if (d->ParameterNode->GetTransformNode())
-  {
-    if (d->ParameterNode->GetFiducialNode())
+    d->ParameterNode->SetAndObserveTransformNode(transformNode);
+    if (d->ParameterNode->GetFiducialNode() && d->ParameterNode->GetTransformNode())
     {
-      d->{m_FiducialNode}->SetAndObserveTransformNodeID(d->m_TransformNode->GetID());
+      d->logic()->updateFiducialTransformLink(d->ParameterNode->GetFiducialNode(), d->ParameterNode->GetTransformNode());
+      d->logic()->updateTransform(d->ParameterNode->GetTransformNode(), d->ParameterNode->GetHeight(), d->ParameterNode->GetRotateXAngle());
     }
-    qDebug() << Q_FUNC_INFO << "Transform node name is" << d->m_TransformNode->GetName();
+    qDebug() << Q_FUNC_INFO << "Transform node is changed";
   }
-    */
+
+//  this->onCheckNodesButtonClicked();
+//    qDebug() << Q_FUNC_INFO << "Transform node name is" << d->ParameterNode->GetTransformNode();
 }
 
 void qSlicerTestMe2ModuleWidget::onCheckNodesButtonClicked()
@@ -359,12 +361,14 @@ void qSlicerTestMe2ModuleWidget::onCheckNodesButtonClicked()
     qDebug() << "Transform node name is" << d->ParameterNode->GetTransformNode()->GetName();
 
     d->logic()->updateTransform(d->ParameterNode->GetTransformNode(), d->ParameterNode->GetHeight(), d->ParameterNode->GetRotateXAngle());
-
   }
 
   else
   {
-    qWarning() << Q_FUNC_INFO << "Nodes are invalid";
+
+    d->HeightSlider->setEnabled(false);
+    d->RotateXSlider->setEnabled(false);
+ //   qWarning() << Q_FUNC_INFO << "Nodes are invalid";
     if (!d->ParameterNode->GetFiducialNode())
     {
       qWarning() << "Fiducial node is invalid";

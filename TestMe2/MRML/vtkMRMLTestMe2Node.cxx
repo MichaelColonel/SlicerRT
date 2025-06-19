@@ -1,3 +1,7 @@
+
+// Qt includes
+#include <QDebug>
+
 #include <vtkTransform.h>
 // MRML includes
 #include <vtkMRMLScene.h>
@@ -11,12 +15,23 @@
 
 #include "vtkMRMLTestMe2Node.h"
 
+//------------------------------------------------------------------------------
+namespace
+{
+
+static const char* FIDUCIAL_NODE_REFERENCE_ROLE = "fiducialNodeRef";
+static const char* TRANSFORM_NODE_REFERENCE_ROLE = "transformNodeRef";
+
+}
+
+//------------------------------------------------------------------------------
 vtkMRMLNodeNewMacro(vtkMRMLTestMe2Node);
 
 vtkMRMLTestMe2Node::vtkMRMLTestMe2Node()
-  : FiducialNode(nullptr)
-  , TransformNode(nullptr)
-  , Height(0.0)
+//  : FiducialNode(nullptr)
+//  , TransformNode(nullptr)
+  : Height(0.0)
+  , RotateXAngle(0.0)
 {
 }
 
@@ -36,6 +51,11 @@ void vtkMRMLTestMe2Node::WriteXML(ostream& of, int nIndent)
 
   vtkMRMLWriteXMLFloatMacro(height, Height);
   vtkMRMLWriteXMLFloatMacro(rotateXAngle, RotateXAngle);
+ // if (this->GetFiducialNode())
+//    of << " fiducialNodeRef=\"" << this->GetFiducialNode()->GetID() << "\"";
+
+//  if (this->GetTransformNode())
+ //   of << " transformNodeRef=\"" << this->GetTransformNode()->GetID() << "\"";
 
   // add new parameters here
   vtkMRMLWriteXMLEndMacro();
@@ -52,6 +72,13 @@ void vtkMRMLTestMe2Node::ReadXMLAttributes(const char** atts)
 
   vtkMRMLReadXMLFloatMacro(height, Height);
   vtkMRMLReadXMLFloatMacro(rotateXAngle, RotateXAngle);
+
+//  if (!strcmp(xmlReadAttName, "fiducialNodeRef")) {
+ //     this->SetNodeReferenceID("fiducialNodeRef", xmlReadAttValue);
+//    }
+ // else if (!strcmp(xmlReadAttName, "transformNodeRef")) {
+ //     this->SetNodeReferenceID("transformNodeRef", xmlReadAttValue);
+//    }
 
   // add new parameters here
   vtkMRMLReadXMLEndMacro();
@@ -75,14 +102,14 @@ void vtkMRMLTestMe2Node::Copy(vtkMRMLNode *anode)
     return;
   }
 
-  // Copy beam parameters
   this->DisableModifiedEventOn();
 
   vtkMRMLCopyBeginMacro(node);
 
-
   vtkMRMLCopyFloatMacro(Height);
   vtkMRMLCopyFloatMacro(RotateXAngle);
+ // this->SetAndObserveFiducialNode(node->GetFiducialNode());
+ // this->SetAndObserveTransformNode(node->GetTransformNode());
   // add new parameters here
   vtkMRMLCopyEndMacro();
 
@@ -107,6 +134,8 @@ void vtkMRMLTestMe2Node::CopyContent(vtkMRMLNode *anode, bool deepCopy/*=true*/)
 
   vtkMRMLCopyFloatMacro(Height);
   vtkMRMLCopyFloatMacro(RotateXAngle);
+ // this->SetAndObserveFiducialNode(node->GetFiducialNode());
+ // this->SetAndObserveTransformNode(node->GetTransformNode());
 
   // add new parameters here
   vtkMRMLCopyEndMacro();
@@ -120,8 +149,8 @@ void vtkMRMLTestMe2Node::PrintSelf(ostream& os, vtkIndent indent)
 
   vtkMRMLPrintFloatMacro(Height);
   vtkMRMLPrintFloatMacro(RotateXAngle);
-  os << indent << "FiducialNode: " << (this->FiducialNode ? this->FiducialNode->GetName() : "null") << "\n";
-  os << indent << "TransformNode: " << (this->TransformNode ? this->TransformNode->GetName() : "null") << "\n";
+  os << indent << "FiducialNode: " << (this->GetFiducialNode() ? this->GetFiducialNode()->GetName() : "null") << "\n";
+  os << indent << "TransformNode: " << (this->GetTransformNode() ? this->GetTransformNode()->GetName() : "null") << "\n";
 
   // add new parameters here
   vtkMRMLPrintEndMacro();
@@ -142,27 +171,17 @@ void vtkMRMLTestMe2Node::ProcessMRMLEvents(vtkObject *caller, unsigned long even
     return;
   }
 
-  // Update the DRR View-Up and normal vectors, if beam geometry or transform was changed
-  switch (eventID)
-  {
-//  case vtkMRMLRTBeamNode::BeamGeometryModified:
-//  case vtkMRMLRTBeamNode::BeamTransformModified:
-//    this->Modified();
-//    break;
-  default:
-    break;
-  }
 }
-/*
+
 vtkMRMLMarkupsFiducialNode* vtkMRMLTestMe2Node::GetFiducialNode()
 {
-  return this->FiducialNode;
+  return vtkMRMLMarkupsFiducialNode::SafeDownCast(this->GetNodeReference(FIDUCIAL_NODE_REFERENCE_ROLE));
 }
 vtkMRMLLinearTransformNode* vtkMRMLTestMe2Node::GetTransformNode()
 {
-  return this->TransformNode;
+  return vtkMRMLLinearTransformNode::SafeDownCast(this->GetNodeReference(TRANSFORM_NODE_REFERENCE_ROLE));
 }
-*/
+
 
 void vtkMRMLTestMe2Node::SetAndObserveFiducialNode(vtkMRMLMarkupsFiducialNode* node)
 {
@@ -172,23 +191,11 @@ void vtkMRMLTestMe2Node::SetAndObserveFiducialNode(vtkMRMLMarkupsFiducialNode* n
     return;
   }
 
-  this->FiducialNode = node;
+  this->SetNodeReferenceID(FIDUCIAL_NODE_REFERENCE_ROLE, (node ? node->GetID() : nullptr));
 
-  if (this->FiducialNode)
-  {
-    int cp = this->FiducialNode->AddControlPoint(0,0,0);
-    this->FiducialNode->SetNthControlPointLabel( cp, "Point_F");
-  }
-
-  //
-  if (this->FiducialNode && this->TransformNode)
-  {
-    this->FiducialNode->SetAndObserveTransformNodeID(this->TransformNode->GetID());
-
-  }
+ // this->FiducialNode = node;
 
   this->Modified();
-//  this->SetNodeReferenceID(PATIENT_BODY_SEGMENTATION_REFERENCE_ROLE, (node ? node->GetID() : nullptr)); TODO
 }
 
 void vtkMRMLTestMe2Node::SetAndObserveTransformNode(vtkMRMLLinearTransformNode* node)
@@ -199,17 +206,7 @@ void vtkMRMLTestMe2Node::SetAndObserveTransformNode(vtkMRMLLinearTransformNode* 
     return;
     }
 
-  this->TransformNode = node;
-  if (this->FiducialNode && this->TransformNode)
-  {
-    this->FiducialNode->SetAndObserveTransformNodeID(this->TransformNode->GetID());
+  this->SetNodeReferenceID(TRANSFORM_NODE_REFERENCE_ROLE, (node ? node->GetID() : nullptr));
 
-  }
   this->Modified();
-}
-
-void vtkMRMLTestMe2Node::createControlPoint()
-{
-    vtkVector3d point(0.0, 0.0, 0.0);
-    this->FiducialNode->AddControlPoint(point, "Point_F");
 }
