@@ -26,17 +26,19 @@ vtkMRMLTestMe2Node::~vtkMRMLTestMe2Node()
   this->SetAndObserveFiducialNode(nullptr);
   this->SetAndObserveTransformNode(nullptr);
 }
-/*
+
 void vtkMRMLTestMe2Node::WriteXML(ostream& of, int nIndent)
 {
   Superclass::WriteXML(of, nIndent);
 
   // Write all MRML node attributes into output stream
-//  vtkMRMLWriteXMLBeginMacro(of);
+  vtkMRMLWriteXMLBeginMacro(of);
 
+  vtkMRMLWriteXMLFloatMacro(height, Height);
+  vtkMRMLWriteXMLFloatMacro(rotateXAngle, RotateXAngle);
 
   // add new parameters here
-//  vtkMRMLWriteXMLEndMacro();
+  vtkMRMLWriteXMLEndMacro();
 }
 
 //----------------------------------------------------------------------------
@@ -45,12 +47,14 @@ void vtkMRMLTestMe2Node::ReadXMLAttributes(const char** atts)
   int disabledModify = this->StartModify();
   vtkMRMLNode::ReadXMLAttributes(atts);
 
- // vtkMRMLReadXMLBeginMacro(atts);
+  vtkMRMLReadXMLBeginMacro(atts);
 
 
+  vtkMRMLReadXMLFloatMacro(height, Height);
+  vtkMRMLReadXMLFloatMacro(rotateXAngle, RotateXAngle);
 
   // add new parameters here
- // vtkMRMLReadXMLEndMacro();
+  vtkMRMLReadXMLEndMacro();
 
   this->EndModify(disabledModify);
 
@@ -74,10 +78,13 @@ void vtkMRMLTestMe2Node::Copy(vtkMRMLNode *anode)
   // Copy beam parameters
   this->DisableModifiedEventOn();
 
-//  vtkMRMLCopyBeginMacro(node);
+  vtkMRMLCopyBeginMacro(node);
 
+
+  vtkMRMLCopyFloatMacro(Height);
+  vtkMRMLCopyFloatMacro(RotateXAngle);
   // add new parameters here
-//  vtkMRMLCopyEndMacro();
+  vtkMRMLCopyEndMacro();
 
   this->EndModify(disabledModify);
 
@@ -85,9 +92,7 @@ void vtkMRMLTestMe2Node::Copy(vtkMRMLNode *anode)
 }
 
 //----------------------------------------------------------------------------
-void vtkMRMLTestMe2Node::CopyContent(vtkMRMLNode *anode, bool deepCopy/*=true*/
-
-/*)
+void vtkMRMLTestMe2Node::CopyContent(vtkMRMLNode *anode, bool deepCopy/*=true*/)
 {
   MRMLNodeModifyBlocker blocker(this);
   Superclass::CopyContent(anode, deepCopy);
@@ -98,26 +103,29 @@ void vtkMRMLTestMe2Node::CopyContent(vtkMRMLNode *anode, bool deepCopy/*=true*/
     return;
   }
 
-//  vtkMRMLCopyBeginMacro(node);
+  vtkMRMLCopyBeginMacro(node);
+
+  vtkMRMLCopyFloatMacro(Height);
+  vtkMRMLCopyFloatMacro(RotateXAngle);
 
   // add new parameters here
-//  vtkMRMLCopyEndMacro();
+  vtkMRMLCopyEndMacro();
 }
-*/
 
 void vtkMRMLTestMe2Node::PrintSelf(ostream& os, vtkIndent indent)
 {
   Superclass::PrintSelf(os,indent);
 
-  os << indent << "Height: " << this->Height << "\n";
+  vtkMRMLPrintBeginMacro(os, indent);
+
+  vtkMRMLPrintFloatMacro(Height);
+  vtkMRMLPrintFloatMacro(RotateXAngle);
   os << indent << "FiducialNode: " << (this->FiducialNode ? this->FiducialNode->GetName() : "null") << "\n";
   os << indent << "TransformNode: " << (this->TransformNode ? this->TransformNode->GetName() : "null") << "\n";
-/*
-  vtkMRMLPrintBeginMacro(os, indent);
 
   // add new parameters here
   vtkMRMLPrintEndMacro();
-  */
+
 }
 
 void vtkMRMLTestMe2Node::ProcessMRMLEvents(vtkObject *caller, unsigned long eventID, void *callData)

@@ -195,6 +195,19 @@ void qSlicerTestMe2ModuleWidget::updateWidgetFromMRML()
     qCritical() << Q_FUNC_INFO << ": Invalid parameter node";
     return;
   }
+
+  // Update widgets
+
+  if (parameterNode->GetFiducialNode())
+  {
+    d->InputFiducial->setCurrentNode(parameterNode->GetFiducialNode());
+  }
+  if (parameterNode->GetTransformNode())
+  {
+    d->InputTransform->setCurrentNode(parameterNode->GetTransformNode());
+  }
+  d->HeightSlider->setValue(parameterNode->GetHeight());
+  d->RotateXSlider->setValue(parameterNode->GetRotateXAngle());
   qDebug() << Q_FUNC_INFO << "Update";
 }
 

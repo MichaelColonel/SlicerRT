@@ -22,7 +22,7 @@ public:
     vtkMRMLNode* CreateNodeInstance() override;
 
         /// Set node attributes from name/value pairs
-    /*
+
     void ReadXMLAttributes(const char** atts) override;
 
     /// Write this node's information to a MRML file in XML format.
@@ -33,7 +33,7 @@ public:
 
     /// Copy node content (excludes basic data, such a name and node reference)
     vtkMRMLCopyContentMacro(vtkMRMLTestMe2Node);
-    */
+
 
       /// Get unique node XML tag name
     const char* GetNodeTagName() override { return "TestMe2"; };
