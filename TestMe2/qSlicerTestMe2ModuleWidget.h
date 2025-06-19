@@ -38,9 +38,6 @@ public:
   virtual ~qSlicerTestMe2ModuleWidget();
 
 public slots:
-  void onFiducialNodeChanged(vtkMRMLNode*);
-  void onTransformNodeChanged(vtkMRMLNode*);
-  void onCheckNodesButtonClicked();
   void onBeamNodeChanged(vtkMRMLNode* node);
   void onParentTransformNodeChanged(vtkMRMLNode* node);
   void onParentRotationXChanged(double angleX);

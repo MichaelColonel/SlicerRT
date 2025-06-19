@@ -29,18 +29,16 @@
 #include <vtkMRMLRTBeamNode.h>
 
 #include <vtkTransform.h>
+#include <vtkMatrix4x4.h>
 
 //-----------------------------------------------------------------------------
 class qSlicerTestMe2ModuleWidgetPrivate: public Ui_qSlicerTestMe2ModuleWidget
 {
 public:
   qSlicerTestMe2ModuleWidgetPrivate();
-  vtkSmartPointer< vtkMRMLMarkupsFiducialNode > m_FiducialNode;
-  vtkSmartPointer< vtkMRMLLinearTransformNode > m_TransformNode;
   vtkSmartPointer< vtkMRMLRTBeamNode > m_BeamNode;
   vtkSmartPointer< vtkMRMLTransformNode > m_BeamParentTransformNode;
-  
-  double offset{ 0.0 };
+
   double rotateX{ 0.0 };
   double rotateY{ 0.0 };
   double rotateZ{ 0.0 };
@@ -76,15 +74,6 @@ void qSlicerTestMe2ModuleWidget::setup()
   d->setupUi(this);
   this->Superclass::setup();
 
-  connect( d->InputFiducial, SIGNAL(currentNodeChanged(vtkMRMLNode*)), this,
-    SLOT(onFiducialNodeChanged(vtkMRMLNode*)));
-
-  connect( d->InputTransform, SIGNAL(currentNodeChanged(vtkMRMLNode*)), this,
-    SLOT(onTransformNodeChanged(vtkMRMLNode*)));
-
-  connect( d->CheckNodesButton, SIGNAL(clicked()), this,
-    SLOT(onCheckNodesButtonClicked()));
-
   connect( d->MRMLNodeComboBox_Beam, SIGNAL(currentNodeChanged(vtkMRMLNode*)), this,
     SLOT(onBeamNodeChanged(vtkMRMLNode*)));
   connect( d->MRMLNodeComboBox_ParentTransform, SIGNAL(currentNodeChanged(vtkMRMLNode*)), this,
@@ -98,47 +87,41 @@ void qSlicerTestMe2ModuleWidget::setup()
     SLOT(onParentRotationZChanged(double)));
 }
 
-
-void qSlicerTestMe2ModuleWidget::onFiducialNodeChanged(vtkMRMLNode *node)
-{
-  Q_D(qSlicerTestMe2ModuleWidget);
-  d->m_FiducialNode = vtkMRMLMarkupsFiducialNode::SafeDownCast(node);
-  if (d->m_FiducialNode)
-  {
-    qDebug() << Q_FUNC_INFO << "Fiducial node name is:" << d->m_FiducialNode->GetName();
-  }
-  else
-  {
-    qWarning() << Q_FUNC_INFO << "Fiducial node is invalid";
-  }
-}
-
-void qSlicerTestMe2ModuleWidget::onTransformNodeChanged(vtkMRMLNode *node)
-{
-  Q_D(qSlicerTestMe2ModuleWidget);
-  d->m_TransformNode = vtkMRMLLinearTransformNode::SafeDownCast(node);
-  if (d->m_TransformNode)
-  {
-    qDebug() << Q_FUNC_INFO << "Transform node name is" << d->m_TransformNode->GetName();
-  }
-  else
-  {
-    qWarning() << Q_FUNC_INFO << "Transform node is invalid";
-  }
-}
-
 void qSlicerTestMe2ModuleWidget::onBeamNodeChanged(vtkMRMLNode *node)
 {
   Q_D(qSlicerTestMe2ModuleWidget);
   d->m_BeamNode = vtkMRMLRTBeamNode::SafeDownCast(node);
-  this->updateParentTransform();
+  if (d->m_BeamParentTransformNode)
+  {
+    vtkMRMLLinearTransformNode* beamTransform = vtkMRMLLinearTransformNode::SafeDownCast(d->m_BeamNode->GetParentTransformNode());
+    if (beamTransform)
+    {
+      if (!beamTransform->GetParentTransformNode())
+      {
+        qDebug() << Q_FUNC_INFO << "Set new parent transform";
+        beamTransform->SetAndObserveTransformNodeID(d->m_BeamParentTransformNode->GetID());
+      }
+      else
+      {
+        qDebug() << Q_FUNC_INFO << "Change parent transform here";
+      }
+    }
+  }
 }
 
 void qSlicerTestMe2ModuleWidget::onParentTransformNodeChanged(vtkMRMLNode *node)
 {
   Q_D(qSlicerTestMe2ModuleWidget);
   d->m_BeamParentTransformNode = vtkMRMLTransformNode::SafeDownCast(node);
-  this->updateParentTransform();
+  if (d->m_BeamNode)
+  {
+    vtkMRMLLinearTransformNode* beamTransform = vtkMRMLLinearTransformNode::SafeDownCast(d->m_BeamNode->GetParentTransformNode());
+    if (d->m_BeamParentTransformNode && beamTransform)
+    {
+      qDebug() << Q_FUNC_INFO << "Set Parent transform";
+      beamTransform->SetAndObserveTransformNodeID(d->m_BeamParentTransformNode->GetID());
+    }
+  }
 }
 
 void qSlicerTestMe2ModuleWidget::onParentRotationXChanged(double x)
@@ -167,50 +150,22 @@ void qSlicerTestMe2ModuleWidget::updateParentTransform()
   Q_D(qSlicerTestMe2ModuleWidget);
   if (!d->m_BeamNode || !d->m_BeamParentTransformNode)
   {
-    qWarning() << Q_FUNC_INFO << "Beam and Parent transform nodes are invalid";
+    qWarning() << Q_FUNC_INFO << "Beam or Parent transform nodes are invalid";
     return;
   }
-  double isocenter[3] = {};
+  double isocenter[4] = {};
   d->m_BeamNode->GetPlanIsocenterPosition(isocenter);
-  vtkNew< vtkTransform > transform, translate;
-  
-  translate->Identity();
-  translate->Translate(isocenter[0], isocenter[1], isocenter[2]);
-  translate->Update();
-
+  vtkNew< vtkTransform > transform;
   transform->Identity();
+  transform->PostMultiply();
   transform->RotateX(d->rotateX);
   transform->RotateY(d->rotateY);
   transform->RotateZ(d->rotateZ);
   transform->Update();
-  vtkMRMLLinearTransformNode* beamTransform = vtkMRMLLinearTransformNode::SafeDownCast(d->m_BeamNode->GetParentTransformNode());
-  if (beamTransform)
-  {
-    qDebug() << Q_FUNC_INFO << "Beam transform is valid";
-    d->m_BeamParentTransformNode->SetAndObserveTransformToParent(transform);
-    beamTransform->SetAndObserveTransformNodeID(d->m_BeamParentTransformNode->GetID());
-  }
-}
-
-void qSlicerTestMe2ModuleWidget::onCheckNodesButtonClicked()
-{
-  Q_D(qSlicerTestMe2ModuleWidget);
-  if (d->m_FiducialNode && d->m_TransformNode)
-  {
-    qDebug() << Q_FUNC_INFO << "Nodes are valid. " \
-             << "fiducial node name is:" << d->m_FiducialNode->GetName() \
-             << "transform node name is:" << d->m_TransformNode->GetName();
-  }
-  else
-  {
-    qWarning() << Q_FUNC_INFO << "Nodes are invalid";
-    if (!d->m_FiducialNode)
-    {
-      qWarning() << Q_FUNC_INFO << "Fiducial node is invalid";
-    }
-    if (!d->m_TransformNode)
-    {
-      qWarning() << Q_FUNC_INFO << "Transform node is invalid";
-    }
-  }
+  double tmp[4] = {}; // transformed isocenter
+  transform->MultiplyPoint( isocenter, tmp);
+  // translate to new position so overall transform accurs around isocenter
+  transform->Translate(isocenter[0] - tmp[0], isocenter[1] - tmp[1], isocenter[2] - tmp[2]);
+  transform->Update();
+  d->m_BeamParentTransformNode->SetAndObserveTransformToParent(transform);
 }
