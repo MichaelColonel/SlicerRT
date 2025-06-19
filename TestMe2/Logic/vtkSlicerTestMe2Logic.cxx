@@ -103,7 +103,7 @@ void vtkSlicerTestMe2Logic
     return;
   }
 
-  if (node->IsA("vtkMRMLPatientPositioningNode"))
+  if (node->IsA("vtkMRMLTestMe2NodeNode"))
   {
     vtkNew<vtkIntArray> events;
     events->InsertNextValue(vtkCommand::ModifiedEvent);
