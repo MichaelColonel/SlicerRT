@@ -22,9 +22,9 @@
 #include <vtkMRMLScene.h>
 
 // VTK includes
-#include <vtkIntArray.h>
+//#include <vtkIntArray.h>
 #include <vtkNew.h>
-#include <vtkObjectFactory.h>
+//#include <vtkObjectFactory.h>
 
 #include <vtkMRMLMarkupsNode.h>
 #include <vtkMRMLMarkupsFiducialNode.h>

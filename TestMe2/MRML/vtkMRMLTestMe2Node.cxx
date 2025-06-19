@@ -1,11 +1,11 @@
 #include <vtkTransform.h>
 // MRML includes
 #include <vtkMRMLScene.h>
-#include <vtkMRMLScalarVolumeNode.h>
-#include <vtkMRMLMarkupsNode.h>
+//#include <vtkMRMLScalarVolumeNode.h>
+//#include <vtkMRMLMarkupsNode.h>
 
 // VTK includes
-#include <vtkObjectFactory.h>
+//#include <vtkObjectFactory.h>
 #include <vtkSmartPointer.h>
 
 
