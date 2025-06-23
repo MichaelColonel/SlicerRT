@@ -243,7 +243,7 @@ void vtkSlicerDrrImageComputationLogic::CreateMarkupsNodes(vtkMRMLDrrImageComput
   vtkMRMLTransformNode* transformNode = nullptr;
   if (beamNode)
   {
-    transformNode = this->UpdateImageTransformFromBeam(beamNode);
+    transformNode = this->UpdateImageTransformFromBeam(beamNode, parameterNode->GetIndependentBeamFlag());
   }
 
   // Create markups nodes if they don't exist
@@ -357,7 +357,7 @@ void vtkSlicerDrrImageComputationLogic::UpdateMarkupsNodes(vtkMRMLDrrImageComput
     return;
   }
 
-  vtkMRMLTransformNode* transformNode = this->UpdateImageTransformFromBeam(beamNode);
+  vtkMRMLTransformNode* transformNode = this->UpdateImageTransformFromBeam(beamNode, parameterNode->GetIndependentBeamFlag());
 
   double distance = parameterNode->GetIsocenterImagerDistance();
     
@@ -678,7 +678,7 @@ vtkMRMLMarkupsPlaneNode* vtkSlicerDrrImageComputationLogic::CreateImagerBoundary
 
     if (vtkMRMLRTBeamNode* beamNode = parameterNode->GetBeamNode())
     {
-      vtkMRMLTransformNode* transformNode = this->UpdateImageTransformFromBeam(beamNode);
+      vtkMRMLTransformNode* transformNode = this->UpdateImageTransformFromBeam(beamNode, parameterNode->GetIndependentBeamFlag());
 
       if (transformNode)
       {
@@ -754,7 +754,7 @@ vtkMRMLMarkupsPlaneNode* vtkSlicerDrrImageComputationLogic::CreateImageWindow(vt
 
     if (vtkMRMLRTBeamNode* beamNode = parameterNode->GetBeamNode())
     {
-      vtkMRMLTransformNode* transformNode = this->UpdateImageTransformFromBeam(beamNode);
+      vtkMRMLTransformNode* transformNode = this->UpdateImageTransformFromBeam(beamNode, parameterNode->GetIndependentBeamFlag());
 
       if (transformNode)
       {
@@ -801,7 +801,7 @@ vtkMRMLMarkupsLineNode* vtkSlicerDrrImageComputationLogic::CreateImagerNormal(vt
 
     if (vtkMRMLRTBeamNode* beamNode = parameterNode->GetBeamNode())
     {
-      vtkMRMLTransformNode* transformNode = this->UpdateImageTransformFromBeam(beamNode);
+      vtkMRMLTransformNode* transformNode = this->UpdateImageTransformFromBeam(beamNode, parameterNode->GetIndependentBeamFlag());
 
       if (transformNode)
       {
@@ -860,7 +860,7 @@ vtkMRMLMarkupsLineNode* vtkSlicerDrrImageComputationLogic::CreateImagerVUP(vtkMR
 
     if (vtkMRMLRTBeamNode* beamNode = parameterNode->GetBeamNode())
     {
-      vtkMRMLTransformNode* transformNode = this->UpdateImageTransformFromBeam(beamNode);
+      vtkMRMLTransformNode* transformNode = this->UpdateImageTransformFromBeam(beamNode, parameterNode->GetIndependentBeamFlag());
 
       if (transformNode)
       {
@@ -926,7 +926,7 @@ vtkMRMLMarkupsFiducialNode* vtkSlicerDrrImageComputationLogic::CreateFiducials(v
 
     if (vtkMRMLRTBeamNode* beamNode = parameterNode->GetBeamNode())
     {
-      vtkMRMLTransformNode* transformNode = this->UpdateImageTransformFromBeam(beamNode);
+      vtkMRMLTransformNode* transformNode = this->UpdateImageTransformFromBeam(beamNode, parameterNode->GetIndependentBeamFlag());
 
       if (transformNode)
       {
@@ -939,7 +939,7 @@ vtkMRMLMarkupsFiducialNode* vtkSlicerDrrImageComputationLogic::CreateFiducials(v
 
 //------------------------------------------------------------------------------
 vtkMRMLScalarVolumeNode* vtkSlicerDrrImageComputationLogic::ComputePlastimatchDRR( vtkMRMLDrrImageComputationNode* parameterNode, 
-  vtkMRMLScalarVolumeNode* ctVolumeNode)
+  vtkMRMLScalarVolumeNode* ctVolumeNode, bool independentBeamFlag)
 {
   vtkMRMLScene* scene = this->GetMRMLScene(); 
   if (!scene)
@@ -979,7 +979,7 @@ vtkMRMLScalarVolumeNode* vtkSlicerDrrImageComputationLogic::ComputePlastimatchDR
     vtkErrorMacro("ComputePlastimatchDRR: failed to create CLI module node");
     return nullptr;
   }
-
+  
   // Create node for the DRR image volume
   vtkNew<vtkMRMLScalarVolumeNode> drrVolumeNode;
   scene->AddNode(drrVolumeNode);
@@ -1005,8 +1005,26 @@ vtkMRMLScalarVolumeNode* vtkSlicerDrrImageComputationLogic::ComputePlastimatchDR
   std::stringstream isocenterStream;
   double isocenter[3] = {};
   parameterNode->GetIsocenterPositionLPS(isocenter);
-  vtkWarningMacro("ComputePlastimatchDRR: Isocenter LPS: " << isocenter[0] << "," << isocenter[1] << "," << isocenter[2]);
-  isocenterStream << isocenter[0] << "," << isocenter[1] << "," << isocenter[2];
+
+  vtkMRMLTransformNode* beamTransformNode = beamNode->GetParentTransformNode();
+  vtkNew< vtkMatrix4x4 > beamToWorldTransformMatrix;
+  beamToWorldTransformMatrix->Identity();
+
+  if (independentBeamFlag && beamTransformNode) // "independent" beam
+  {
+    beamTransformNode->GetMatrixTransformToWorld(beamToWorldTransformMatrix);
+    double independentBeamIsocenter[4] = { 0., 0., 0., 1. };
+    double independentBeamIsocenterRAS[4] = {};
+    beamToWorldTransformMatrix->MultiplyPoint(independentBeamIsocenter, independentBeamIsocenterRAS);
+    vtkWarningMacro("ComputePlastimatchDRR: Independent beam isocenter LPS: " << -independentBeamIsocenterRAS[0] \
+      << "," << -independentBeamIsocenterRAS[1] << "," << independentBeamIsocenterRAS[2]);
+    isocenterStream << -independentBeamIsocenterRAS[0] << "," << -independentBeamIsocenterRAS[1] << "," << independentBeamIsocenterRAS[2];
+  }
+  else // original beam
+  {
+    vtkWarningMacro("ComputePlastimatchDRR: Isocenter LPS: " << isocenter[0] << "," << isocenter[1] << "," << isocenter[2]);
+    isocenterStream << isocenter[0] << "," << isocenter[1] << "," << isocenter[2];
+  }
   cmdNode->SetParameterAsString( "isocenterPosition", isocenterStream.str());
   
   std::stringstream imagerResolutionStream;
@@ -1649,6 +1667,7 @@ bool vtkSlicerDrrImageComputationLogic::GetPlastimatchProjectionMatrix(vtkMRMLDr
 }
 
 //------------------------------------------------------------------------------
+/*
 vtkMRMLLinearTransformNode* vtkSlicerDrrImageComputationLogic::UpdateImageTransformFromBeam(vtkMRMLRTBeamNode* beamNode)
 {
   if (!beamNode)
@@ -1718,14 +1737,99 @@ vtkMRMLLinearTransformNode* vtkSlicerDrrImageComputationLogic::UpdateImageTransf
     // Set transform to node
     if (externalBeamTransform)
     {
-//      linearTransform->GetPosition(isocenter);
-//      linearTransform->Translate(-1. * isocenter[0], -1. * isocenter[1], -1. * isocenter[2]);
-//      vtkNew< vtkTransform > isocenterTranslate;
-//      isocenterTranslate->Translate(isocenter[0], isocenter[1], isocenter[2]);
-//      linearTransform->Concatenate(isocenterTranslate);
       linearTransform->Concatenate(externalBeamTransform);
-//      linearTransform->Translate(isocenter[0], isocenter[1], isocenter[2]);
       linearTransform->Update();
+    }
+
+    transformNode->SetAndObserveTransformToParent(linearTransform);
+  }
+  return transformNode;
+}
+*/
+//------------------------------------------------------------------------------
+vtkMRMLLinearTransformNode* vtkSlicerDrrImageComputationLogic::UpdateImageTransformFromBeam(vtkMRMLRTBeamNode* beamNode,
+  bool independentBeamFlag)
+{
+  if (!beamNode)
+  {
+    vtkErrorMacro("UpdateImageTransformFromBeam: Invalid beam node");
+    return nullptr;
+  }
+  vtkMRMLScene* scene = this->GetMRMLScene();
+  if (!scene)
+  {
+    vtkErrorMacro("UpdateImageTransformFromBeam: Invalid MRML scene");
+    return nullptr;
+  }
+
+  vtkTransform* externalBeamTransform = nullptr;
+  vtkMRMLTransformNode* beamTransformNode = beamNode->GetParentTransformNode();
+  if (beamTransformNode)
+  {
+    vtkMRMLTransformNode* externalBeamToRasTransformNode = beamTransformNode->GetParentTransformNode();
+    if (externalBeamToRasTransformNode)
+    {
+      externalBeamTransform = vtkTransform::SafeDownCast(externalBeamToRasTransformNode->GetTransformToParent());
+    }
+  }
+
+  vtkSmartPointer<vtkMRMLLinearTransformNode> transformNode;
+  if (!scene->GetFirstNodeByName(RTIMAGE_TRANSFORM_NODE_NAME))
+  {
+    transformNode = vtkSmartPointer<vtkMRMLLinearTransformNode>::New();
+    transformNode->SetName(RTIMAGE_TRANSFORM_NODE_NAME);
+    transformNode->SetHideFromEditors(1);
+    transformNode->SetSingletonTag("RTIMAGE_Transform");
+    scene->AddNode(transformNode);
+  }
+  else
+  {
+    transformNode = vtkMRMLLinearTransformNode::SafeDownCast(
+      scene->GetFirstNodeByName(RTIMAGE_TRANSFORM_NODE_NAME));
+  }
+
+  vtkNew<vtkSlicerIECTransformLogic> iecLogic;
+  iecLogic->SetMRMLScene(scene);
+
+  double isocenter[3] = {};
+  beamNode->GetPlanIsocenterPosition(isocenter);
+  // Update transforms in IEC logic from beam node parameters
+  iecLogic->UpdateIECTransformsFromBeam(beamNode);
+  // (a BUG?) For RT Image correct orientation PatientSupport -> Fixed Reference MUST have a negative sign
+  iecLogic->UpdatePatientSupportRotationToFixedReferenceTransform(-1. * beamNode->GetCouchAngle());
+
+  // Dynamic transform from Gantry to RAS
+  // Transformation path:
+  // Gantry -> FixedReference -> PatientSupport -> TableTopEccentricRotation -> TableTop -> Patient -> RAS
+  using IEC = vtkSlicerIECTransformLogic::CoordinateSystemIdentifier;
+  vtkNew<vtkGeneralTransform> generalTransform;
+  if (iecLogic->GetTransformBetween( IEC::Gantry, IEC::RAS, generalTransform))
+  {
+    // Convert general transform to linear
+    // This call also makes hard copy of the transform so that it doesn't change when other beam transforms change
+    vtkNew<vtkTransform> linearTransform;
+    if (!vtkMRMLTransformNode::IsGeneralTransformLinear(generalTransform, linearTransform))
+    {
+      vtkErrorMacro("UpdateImageTransformFromBeam: Unable to set transform with non-linear components to beam " << beamNode->GetName());
+      return nullptr;
+    }
+
+    // Set transform to node
+    if (externalBeamTransform && !independentBeamFlag)
+    {
+      linearTransform->Concatenate(externalBeamTransform);
+      linearTransform->Update();
+    }
+    else if (externalBeamTransform && independentBeamFlag)
+    {
+      vtkNew<vtkMatrix4x4> mat; // beam transform matrix
+      beamTransformNode->GetMatrixTransformToWorld(mat);
+      linearTransform->SetMatrix(mat);
+    }
+    else
+    {
+      vtkErrorMacro("UpdateImageTransformFromBeam: Unable to set transform to beam " << beamNode->GetName());
+      return nullptr;
     }
 
     transformNode->SetAndObserveTransformToParent(linearTransform);
@@ -1823,39 +1927,6 @@ void vtkSlicerDrrImageComputationLogic::UpdateNormalAndVupVectors(vtkMRMLDrrImag
     rtImageTransformNode = vtkMRMLLinearTransformNode::SafeDownCast(node);
   }
 
-  vtkNew<vtkMatrix4x4> beamParentTransformMatrix; // beam parent transform matrix
-  beamParentTransformMatrix->Identity();
-
-  vtkTransform* beamTransform = nullptr;
-  vtkMRMLTransformNode* beamTransformNode = beamNode->GetParentTransformNode();
-  if (beamTransformNode)
-  {
-    vtkMRMLTransformNode* externalBeamToRasTransformNode = beamTransformNode->GetParentTransformNode();
-    if (externalBeamToRasTransformNode)
-    {
-      beamTransform = vtkTransform::SafeDownCast(externalBeamToRasTransformNode->GetTransformToParent());
-      vtkNew<vtkMatrix4x4> mat; // beam transform matrix
-      mat->Identity();
-      beamTransform->GetMatrix(mat);
-      beamTransform->GetMatrix(beamParentTransformMatrix);
-      vtkWarningMacro("Beam to parent matrix: \n" << mat->GetElement(0, 0) << ' ' << mat->GetElement(0, 1) << ' ' << mat->GetElement(0, 2) << ' ' << mat->GetElement(0, 3) << '\n' \
-                                                  << mat->GetElement(1, 0) << ' ' << mat->GetElement(1, 1) << ' ' << mat->GetElement(1, 2) << ' ' << mat->GetElement(1, 3) << '\n' \
-                                                  << mat->GetElement(2, 0) << ' ' << mat->GetElement(2, 1) << ' ' << mat->GetElement(2, 2) << ' ' << mat->GetElement(2, 3) << '\n' \
-                                                  << mat->GetElement(3, 0) << ' ' << mat->GetElement(3, 1) << ' ' << mat->GetElement(3, 2) << ' ' << mat->GetElement(3, 3) << '\n');
-    }
-  }
-  if (rtImageTransformNode)
-  {
-      beamTransform = vtkTransform::SafeDownCast(rtImageTransformNode->GetTransformToParent());
-      vtkNew<vtkMatrix4x4> mat; // beam transform matrix
-      mat->Identity();
-      beamTransform->GetMatrix(mat);
-      vtkWarningMacro("Beam to parent matrix1: \n" << mat->GetElement(0, 0) << ' ' << mat->GetElement(0, 1) << ' ' << mat->GetElement(0, 2) << ' ' << mat->GetElement(0, 3) << '\n' \
-                                                  << mat->GetElement(1, 0) << ' ' << mat->GetElement(1, 1) << ' ' << mat->GetElement(1, 2) << ' ' << mat->GetElement(1, 3) << '\n' \
-                                                  << mat->GetElement(2, 0) << ' ' << mat->GetElement(2, 1) << ' ' << mat->GetElement(2, 2) << ' ' << mat->GetElement(2, 3) << '\n' \
-                                                  << mat->GetElement(3, 0) << ' ' << mat->GetElement(3, 1) << ' ' << mat->GetElement(3, 2) << ' ' << mat->GetElement(3, 3) << '\n');
-  }
-
   vtkTransform* rtImageTransform = nullptr;
   vtkNew<vtkMatrix4x4> mat; // DICOM beam transform matrix
   mat->Identity();
@@ -1871,7 +1942,6 @@ void vtkSlicerDrrImageComputationLogic::UpdateNormalAndVupVectors(vtkMRMLDrrImag
     vtkNew<vtkTransform> dicomBeamTransform;
     dicomBeamTransform->Identity();
     dicomBeamTransform->PreMultiply();
-//    dicomBeamTransform->Concatenate(beamParentTransformMatrix);
     dicomBeamTransform->Concatenate(rasToLpsTransform);
     dicomBeamTransform->Concatenate(rtImageTransform);
 
@@ -1881,6 +1951,11 @@ void vtkSlicerDrrImageComputationLogic::UpdateNormalAndVupVectors(vtkMRMLDrrImag
   {
     vtkWarningMacro("UpdateNormalAndVupVectors: Beam transform node is invalid, identity matrix will be used instead");
   }
+
+  vtkWarningMacro("Beam to parent matrix3: \n" << mat->GetElement(0, 0) << ' ' << mat->GetElement(0, 1) << ' ' << mat->GetElement(0, 2) << ' ' << mat->GetElement(0, 3) << '\n' \
+                                              << mat->GetElement(1, 0) << ' ' << mat->GetElement(1, 1) << ' ' << mat->GetElement(1, 2) << ' ' << mat->GetElement(1, 3) << '\n' \
+                                              << mat->GetElement(2, 0) << ' ' << mat->GetElement(2, 1) << ' ' << mat->GetElement(2, 2) << ' ' << mat->GetElement(2, 3) << '\n' \
+                                              << mat->GetElement(3, 0) << ' ' << mat->GetElement(3, 1) << ' ' << mat->GetElement(3, 2) << ' ' << mat->GetElement(3, 3) << '\n');
 
   double n[4], vup[4];
   const double normalVector[4] = { 0., 0., 1., 0. }; // beam positive Z-axis

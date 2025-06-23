@@ -58,6 +58,9 @@
 #include <vtkSlicerModuleLogic.h>
 #include <vtkSlicerModelsLogic.h>
 
+// Modules logic
+#include <vtkSlicerDrrImageComputationLogic.h>
+
 const char* vtkSlicerPatientPositioningLogic::FIXEDBEAMAXIS_MARKUPS_LINE_NODE_NAME = "FixedBeamAxis";
 const char* vtkSlicerPatientPositioningLogic::FIXEDISOCENTER_MARKUPS_FIDUCIAL_NODE_NAME = "FixedIsocenter";
 
@@ -104,6 +107,8 @@ const double TableTopLeftFixedReference[3] = {
 
 //----------------------------------------------------------------------------
 vtkStandardNewMacro(vtkSlicerPatientPositioningLogic);
+//----------------------------------------------------------------------------
+vtkCxxSetObjectMacro(vtkSlicerPatientPositioningLogic, DrrImageComputationLogic, vtkSlicerDrrImageComputationLogic);
 
 //---------------------------------------------------------------------------
 class vtkSlicerPatientPositioningLogic::vtkInternal
@@ -455,6 +460,10 @@ vtkSlicerPatientPositioningLogic::~vtkSlicerPatientPositioningLogic()
   {
     this->AdditionalModelsPatientSupportCollisionDetection->Delete();
     this->AdditionalModelsPatientSupportCollisionDetection = nullptr;
+  }
+  if (this->DrrImageComputationLogic)
+  {
+    this->SetDrrImageComputationLogic(nullptr);
   }
 }
 

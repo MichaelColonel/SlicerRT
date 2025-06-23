@@ -78,7 +78,8 @@ public slots:
   void onRotatePatientHeadFeetToggled(bool toggled);
   void onCollisionDetectionToggled(bool toggled);
   void onFixedReferenceCameraToggled(bool toggled);
-  void onBeamsEyeViewOrientationChanged(const std::array< double, 3 >& viewUpVector);
+  void onFixedIonBevOrientationChanged(const std::array< double, 3 >& viewUpVector);
+  void onCarmXrayBevOrientationChanged(const std::array< double, 3 >& viewUpVector);
   void onAlignBeamsButtonClicked();
 
   /// Update widget GUI from PatientPositioning parameters node

@@ -85,6 +85,7 @@ vtkMRMLDrrImageComputationNode::vtkMRMLDrrImageComputationNode()
 
   IsocenterImagerDistance = 300.;
   HUThresholdBelow = -1000;
+  IndependentBeamFlag = false;
 
   // Observe RTBeam node events (like change of transform or geometry)
   vtkNew<vtkIntArray> nodeEvents;
@@ -123,6 +124,7 @@ void vtkMRMLDrrImageComputationNode::WriteXML(ostream& of, int nIndent)
   vtkMRMLWriteXMLIntMacro(HUConversion, HUConversion);
   vtkMRMLWriteXMLIntMacro(HUThresholdBelow, HUThresholdBelow);
   vtkMRMLWriteXMLIntMacro(Threading, Threading);
+  vtkMRMLWriteXMLBooleanMacro(IndependentBeamFlag, IndependentBeamFlag);
   // add new parameters here
   vtkMRMLWriteXMLEndMacro(); 
 }
@@ -151,6 +153,7 @@ void vtkMRMLDrrImageComputationNode::ReadXMLAttributes(const char** atts)
   vtkMRMLReadXMLIntMacro(HUConversion, HUConversion);
   vtkMRMLReadXMLIntMacro(HUThresholdBelow, HUThresholdBelow);
   vtkMRMLReadXMLIntMacro(Threading, Threading);
+  vtkMRMLReadXMLBooleanMacro(IndependentBeamFlag, IndependentBeamFlag);
   // add new parameters here
   vtkMRMLReadXMLEndMacro();
 
@@ -193,6 +196,7 @@ void vtkMRMLDrrImageComputationNode::Copy(vtkMRMLNode *anode)
   vtkMRMLCopyIntMacro(HUConversion);
   vtkMRMLCopyIntMacro(HUThresholdBelow);
   vtkMRMLCopyIntMacro(Threading);
+  vtkMRMLCopyBooleanMacro(IndependentBeamFlag);
   // add new parameters here
   vtkMRMLCopyEndMacro(); 
 
@@ -231,6 +235,7 @@ void vtkMRMLDrrImageComputationNode::CopyContent(vtkMRMLNode *anode, bool deepCo
   vtkMRMLCopyIntMacro(HUConversion);
   vtkMRMLCopyIntMacro(HUThresholdBelow);
   vtkMRMLCopyIntMacro(Threading);
+  vtkMRMLCopyBooleanMacro(IndependentBeamFlag);
   // add new parameters here
   vtkMRMLCopyEndMacro();
 }
@@ -258,6 +263,7 @@ void vtkMRMLDrrImageComputationNode::PrintSelf(ostream& os, vtkIndent indent)
   vtkMRMLPrintIntMacro(HUConversion);
   vtkMRMLPrintIntMacro(HUThresholdBelow);
   vtkMRMLPrintIntMacro(Threading);
+  vtkMRMLPrintBooleanMacro(IndependentBeamFlag);
   // add new parameters here
   vtkMRMLPrintEndMacro(); 
 }

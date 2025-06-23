@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>350</width>
-    <height>1124</height>
+    <height>1131</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -201,20 +201,6 @@
      <layout class="QGridLayout" name="gridLayout_12">
       <item row="0" column="0">
        <layout class="QGridLayout" name="gridLayout_11">
-        <item row="0" column="0">
-         <widget class="QLabel" name="label_21">
-          <property name="text">
-           <string>X-ray:</string>
-          </property>
-         </widget>
-        </item>
-        <item row="1" column="0">
-         <widget class="QLabel" name="label_20">
-          <property name="text">
-           <string>DRR:</string>
-          </property>
-         </widget>
-        </item>
         <item row="0" column="1">
          <widget class="qMRMLNodeComboBox" name="MRMLNodeComboBox_XrayImage">
           <property name="nodeTypes">
@@ -230,6 +216,13 @@
           </property>
          </widget>
         </item>
+        <item row="0" column="0">
+         <widget class="QLabel" name="label_21">
+          <property name="text">
+           <string>X-ray:</string>
+          </property>
+         </widget>
+        </item>
         <item row="1" column="1">
          <widget class="qMRMLNodeComboBox" name="MRMLNodeComboBox_DrrImage">
           <property name="nodeTypes">
@@ -242,6 +235,13 @@
           </property>
           <property name="interactionNodeSingletonTag">
            <string notr="true"/>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="0">
+         <widget class="QLabel" name="label_20">
+          <property name="text">
+           <string>DRR:</string>
           </property>
          </widget>
         </item>
@@ -268,7 +268,7 @@
    <item>
     <widget class="QTabWidget" name="TabWidget_RobotsControl">
      <property name="currentIndex">
-      <number>1</number>
+      <number>0</number>
      </property>
      <widget class="QWidget" name="Tab_TableTopRobot">
       <attribute name="title">
@@ -284,7 +284,7 @@
           <string>TableTop robot control</string>
          </property>
          <property name="collapsed">
-          <bool>true</bool>
+          <bool>false</bool>
          </property>
          <layout class="QGridLayout" name="gridLayout_2">
           <item row="0" column="0">
@@ -433,7 +433,7 @@
        <item row="0" column="0">
         <widget class="ctkCollapsibleButton" name="CollapsibleButton_XrayCarmRobotControl">
          <property name="enabled">
-          <bool>true</bool>
+          <bool>false</bool>
          </property>
          <property name="text">
           <string>X-ray C-arm robot control</string>
@@ -738,7 +738,7 @@
       <string>TableTop control</string>
      </property>
      <property name="collapsed">
-      <bool>false</bool>
+      <bool>true</bool>
      </property>
      <layout class="QGridLayout" name="gridLayout_5">
       <item row="0" column="0">
@@ -918,6 +918,9 @@
     </widget>
    </item>
    <item>
+    <widget class="qSlicerPatientPositioningCarmXrayBeamWidget" name="CarmXrayBeamWidget" native="true"/>
+   </item>
+   <item>
     <widget class="QPushButton" name="PushButton_AlignBeams">
      <property name="enabled">
       <bool>false</bool>
@@ -998,6 +1001,12 @@
    <class>qSlicerPatientPositioningFixedBeamAxisWidget</class>
    <extends>QWidget</extends>
    <header>qSlicerPatientPositioningFixedBeamAxisWidget.h</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>qSlicerPatientPositioningCarmXrayBeamWidget</class>
+   <extends>QWidget</extends>
+   <header>qSlicerPatientPositioningCarmXrayBeamWidget.h</header>
    <container>1</container>
   </customwidget>
  </customwidgets>

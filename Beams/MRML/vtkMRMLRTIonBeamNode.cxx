@@ -279,6 +279,7 @@ void vtkMRMLRTIonBeamNode::SetVSAD( double xComponent, double yComponent)
 {
   this->VSADx = xComponent;
   this->VSADy = yComponent;
+  vtkWarningMacro("VSAD: " << this->VSADx << ' ' << this->VSADy << '\n');
   this->Modified();
   this->InvokeCustomModifiedEvent(vtkMRMLRTBeamNode::BeamGeometryModified);
 }

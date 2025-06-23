@@ -73,8 +73,9 @@
 
 // Logic includes
 #include <vtkSlicerPatientPositioningLogic.h>
-#include <vtkSlicerTableTopRobotTransformLogic.h>
+//#include <vtkSlicerTableTopRobotTransformLogic.h>
 #include <vtkSlicerCabin26ARobotsTransformLogic.h>
+#include <vtkSlicerDrrImageComputationLogic.h>
 
 //-----------------------------------------------------------------------------
 /// \ingroup Slicer_QtModules_PatientPositioning
@@ -88,6 +89,7 @@ public:
   virtual ~qSlicerPatientPositioningModuleWidgetPrivate();
   vtkSlicerPatientPositioningLogic* logic() const;
   vtkSlicerCabin26ARobotsTransformLogic* cabin26ARobotsLogic() const;
+  vtkSlicerDrrImageComputationLogic* drrImageComputationLogic() const;
   vtkMRMLCameraNode* get3DViewCameraNode() const;
   qMRMLLayoutManager* getLayoutManager() const;
 
@@ -256,7 +258,9 @@ void qSlicerPatientPositioningModuleWidget::setup()
     this, SLOT(onBaseFixedToFixedReferenceTranslationChanged(double*)));
   // Children widgets
   connect( d->FixedBeamAxisWidget, SIGNAL(bevOrientationChanged(const std::array< double, 3 >&)),
-    this, SLOT(onBeamsEyeViewOrientationChanged(const std::array< double, 3 >&)));
+    this, SLOT(onFixedIonBevOrientationChanged(const std::array< double, 3 >&)));
+  connect( d->CarmXrayBeamWidget, SIGNAL(bevOrientationChanged(const std::array< double, 3 >&)),
+    this, SLOT(onCarmXrayBevOrientationChanged(const std::array< double, 3 >&)));
 }
 
 //-----------------------------------------------------------------------------
@@ -303,8 +307,9 @@ void qSlicerPatientPositioningModuleWidget::setParameterNode(vtkMRMLNode *node)
 
   d->ParameterNode = parameterNode;
 
-  // Set parameter node to FixedBeamAxis widgets
+  // Set parameter node to children (FixedBeamAxis, CarmXrayBeamWidget) widgets
   d->FixedBeamAxisWidget->setParameterNode(d->ParameterNode);
+  d->CarmXrayBeamWidget->setParameterNode(d->ParameterNode);
 
   // Set selected MRML nodes in comboboxes in the parameter set if it was nullptr there
   // (then in the meantime the comboboxes selected the first one from the scene and we have to set that)
@@ -965,6 +970,7 @@ void qSlicerPatientPositioningModuleWidget::onEnter()
   // Create DRR markups nodes
 //  d->logic()->CreateMarkupsNodes(parameterNode);
   d->FixedBeamAxisWidget->setPatientPositioningLogic(d->logic());
+  d->CarmXrayBeamWidget->setPatientPositioningLogic(d->logic());
 
   // All required data for GUI is initiated
   this->updateWidgetFromMRML();
@@ -1969,7 +1975,7 @@ void qSlicerPatientPositioningModuleWidget::checkForCollisions()
 }
 
 //-----------------------------------------------------------------------------
-void qSlicerPatientPositioningModuleWidget::onBeamsEyeViewOrientationChanged(const std::array< double, 3 >& viewUpVector)
+void qSlicerPatientPositioningModuleWidget::onFixedIonBevOrientationChanged(const std::array< double, 3 >& viewUpVector)
 {
   Q_D(qSlicerPatientPositioningModuleWidget);
 
@@ -2023,4 +2029,48 @@ void qSlicerPatientPositioningModuleWidget::onBeamsEyeViewOrientationChanged(con
     cameraNode->SetViewUp(vup);
   }
   cameraNode->GetCamera()->Elevation(0.);
+}
+
+//-----------------------------------------------------------------------------
+void qSlicerPatientPositioningModuleWidget::onCarmXrayBevOrientationChanged(const std::array< double, 3 >& viewUpVector)
+{
+  Q_D(qSlicerPatientPositioningModuleWidget);
+
+  vtkMRMLCameraNode* cameraNode = d->get3DViewCameraNode();
+  if (!cameraNode)
+  {
+    return;
+  }
+
+  vtkMRMLRTFixedBeamNode* carmXrayBeamNode = vtkMRMLRTFixedBeamNode::SafeDownCast(d->MRMLNodeComboBox_ExternalXrayBeam->currentNode());
+
+  double sourcePosition[4] = { 0.0, 0.0, 0.0, 1.0 };
+  double isocenter[4] = { 0.0, 0.0, 0.0, 1.0 }; // isocenter in C-arm x-ray beam
+  if (carmXrayBeamNode && carmXrayBeamNode->GetSourcePosition(sourcePosition))
+  {
+    vtkMRMLTransformNode* beamTransformNode = carmXrayBeamNode->GetParentTransformNode();
+    vtkTransform* beamTransform = nullptr;
+    vtkNew<vtkMatrix4x4> mat;
+    mat->Identity();
+
+    if (beamTransformNode)
+    {
+      beamTransformNode->GetMatrixTransformToWorld(mat);
+    }
+    else
+    {
+      qCritical() << Q_FUNC_INFO << "C-Arm x-ray beam node is invalid";
+      return;
+    }
+
+    double vupCarmXrayBeam[4] = { viewUpVector[0], viewUpVector[1], viewUpVector[2], 0. }; // beam negative X-axis
+    double vupCamera[4];
+  
+    mat->MultiplyPoint( vupCarmXrayBeam, vupCamera);
+    cameraNode->GetCamera()->SetPosition(sourcePosition);
+    double isocenterWorld[4] = {};
+    mat->MultiplyPoint(isocenter, isocenterWorld);
+    cameraNode->GetCamera()->SetFocalPoint(isocenterWorld);
+    cameraNode->SetViewUp(vupCamera);
+  }
 }

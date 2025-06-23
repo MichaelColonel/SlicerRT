@@ -984,8 +984,8 @@ void qSlicerRoomsEyeViewModuleWidget::onBeamsEyeViewButtonClicked()
   }
 
   vtkMRMLRTBeamNode* beamNode = vtkMRMLRTBeamNode::SafeDownCast(d->MRMLNodeComboBox_Beam->currentNode());
-  double sourcePosition[3] = {0.0, 0.0, 0.0};
-  double isocenter[3] = {0.0, 0.0, 0.0};
+  double sourcePosition[4] = {0.0, 0.0, 0.0, 1.0};
+  double isocenter[4] = {0.0, 0.0, 0.0, 1.0};
 
   if (beamNode && beamNode->GetSourcePosition(sourcePosition))
   {
@@ -1044,10 +1044,16 @@ void qSlicerRoomsEyeViewModuleWidget::onBeamsEyeViewButtonClicked()
     //collimatorCenterOfRotation[2] = collimatorModelBounds[4];
 
     //cameraNode->GetCamera()->SetPosition(collimatorCenterOfRotation);
+    double temp[4] = {};
+//    mat->MultiplyPoint(sourcePosition, temp);
     cameraNode->GetCamera()->SetPosition(sourcePosition);
-    if (beamNode->GetPlanIsocenterPosition(isocenter))
+//    cameraNode->GetCamera()->SetPosition(temp);
+///    if (beamNode->GetPlanIsocenterPosition(isocenter))
     {
-      cameraNode->GetCamera()->SetFocalPoint(isocenter);
+      double tmp[4] = {};
+      mat->MultiplyPoint(isocenter, tmp);
+//      cameraNode->GetCamera()->SetFocalPoint(isocenter);
+      cameraNode->GetCamera()->SetFocalPoint(tmp);
     }
     cameraNode->SetViewUp(vup);
   }

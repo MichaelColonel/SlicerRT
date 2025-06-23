@@ -22,6 +22,15 @@
 #include "qSlicerPatientPositioningModule.h"
 #include "qSlicerPatientPositioningModuleWidget.h"
 
+// Slicer includes
+#include "qSlicerApplication.h"
+#include "qSlicerModuleManager.h"
+
+// Modules logic includes
+#include <vtkSlicerDrrImageComputationLogic.h>
+
+#include <QDebug>
+
 //-----------------------------------------------------------------------------
 class qSlicerPatientPositioningModulePrivate
 {
@@ -87,13 +96,27 @@ QStringList qSlicerPatientPositioningModule::categories() const
 //-----------------------------------------------------------------------------
 QStringList qSlicerPatientPositioningModule::dependencies() const
 {
-  return QStringList();
+  return QStringList() << "Beams" << "DrrImageComputation";
 }
 
 //-----------------------------------------------------------------------------
 void qSlicerPatientPositioningModule::setup()
 {
   this->Superclass::setup();
+
+  vtkSlicerPatientPositioningLogic* patPosLogic = vtkSlicerPatientPositioningLogic::SafeDownCast(this->logic());
+
+  // Set DRR image computation logic to the logic
+  qSlicerAbstractCoreModule* drrImageComputationModule = qSlicerCoreApplication::application()->moduleManager()->module("DrrImageComputation");
+  if (drrImageComputationModule && patPosLogic)
+  {
+    vtkSlicerDrrImageComputationLogic* drrImageComputationLogic = vtkSlicerDrrImageComputationLogic::SafeDownCast(drrImageComputationModule->logic());
+    patPosLogic->SetDrrImageComputationLogic(drrImageComputationLogic);
+  }
+  else
+  {
+    qCritical() << Q_FUNC_INFO << ": \"DRR Image Computation\" module is not found";
+  }
 }
 
 //-----------------------------------------------------------------------------

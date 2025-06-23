@@ -147,6 +147,9 @@ public:
   vtkGetVector4Macro(ImageWindow, int);
   vtkSetVector4Macro(ImageWindow, int);
 
+  vtkGetMacro(IndependentBeamFlag, bool);
+  vtkSetMacro(IndependentBeamFlag, bool);
+
 protected:
   vtkMRMLDrrImageComputationNode();
   ~vtkMRMLDrrImageComputationNode();
@@ -175,6 +178,7 @@ protected:
   bool InvertIntensityFlag;
   float AutoscaleRange[2];
   int HUThresholdBelow;
+  bool IndependentBeamFlag;
 };
 
 #endif

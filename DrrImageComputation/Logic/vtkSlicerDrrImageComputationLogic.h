@@ -88,8 +88,11 @@ public:
   /// Compute DRR image
   /// \param parameterNode - parameters of DRR image computation
   /// \param ctInputVolume - CT volume
-  /// \return valid computed DRR volume node or nullptr otherwise 
-  vtkMRMLScalarVolumeNode* ComputePlastimatchDRR(vtkMRMLDrrImageComputationNode* parameterNode, vtkMRMLScalarVolumeNode* ctInputVolume);
+  /// \param independentBeamFlag - if beam transform node has parent transform
+  ///   with "independent" isocenter (0,0,0) within the beam itself
+  /// \return valid computed DRR volume node or nullptr otherwise
+  vtkMRMLScalarVolumeNode* ComputePlastimatchDRR(vtkMRMLDrrImageComputationNode* parameterNode,
+    vtkMRMLScalarVolumeNode* ctInputVolume, bool independentBeamFlag = false);
 
   /// Update Beam node from 3D view camera position
   /// \param parameterNode - parameters of DRR image computation
@@ -190,7 +193,7 @@ private:
   /// \param drrVolumeNode - RTImage DRR volume
   bool SetupGeometry( vtkMRMLDrrImageComputationNode* parameterNode, vtkMRMLScalarVolumeNode* drrVolumeNode);
   /// IEC Transformation from Gantry -> RAS (without collimator)
-  vtkMRMLLinearTransformNode* UpdateImageTransformFromBeam(vtkMRMLRTBeamNode* node);
+  vtkMRMLLinearTransformNode* UpdateImageTransformFromBeam(vtkMRMLRTBeamNode* node, bool independentBeamFlag = false);
 
   /// Planar Image logic instance
   vtkSlicerPlanarImageModuleLogic* PlanarImageLogic;

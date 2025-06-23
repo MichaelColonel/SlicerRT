@@ -40,12 +40,17 @@ public:
 public slots:
   void onBeamNodeChanged(vtkMRMLNode* node);
   void onParentTransformNodeChanged(vtkMRMLNode* node);
+  void onNewParentTransformNodeChanged(vtkMRMLNode* node);
   void onParentRotationXChanged(double angleX);
   void onParentRotationYChanged(double angleY);
   void onParentRotationZChanged(double angleZ);
+  void onNewParentRotationPositionChanged(double*);
+  void onNewParentRotationRadiusChanged(double);
+  void onNewParentRotationAngleChanged(double);
 
 protected:
   void updateParentTransform();
+  void updateNewParentTransform();
   QScopedPointer<qSlicerTestMe2ModuleWidgetPrivate> d_ptr;
 
   void setup() override;

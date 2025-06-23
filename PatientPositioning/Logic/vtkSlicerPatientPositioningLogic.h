@@ -52,6 +52,8 @@ class vtkPolyData;
 class vtkVector3d;
 class vtkCollisionDetectionFilter;
 
+class vtkSlicerDrrImageComputationLogic;
+
 class VTK_SLICER_PATIENTPOSITIONING_MODULE_LOGIC_EXPORT vtkSlicerPatientPositioningLogic :
   public vtkSlicerModuleLogic
 {
@@ -159,6 +161,11 @@ public:
   vtkGetObjectMacro(AdditionalModelsTableTopCollisionDetection, vtkCollisionDetectionFilter);
   vtkGetObjectMacro(AdditionalModelsPatientSupportCollisionDetection, vtkCollisionDetectionFilter);
 
+  /// Set DRR Image Computation module logic
+  void SetDrrImageComputationLogic(vtkSlicerDrrImageComputationLogic* drrImageComputationLogic);
+  /// Get DRR Image Computation module logic
+  vtkGetObjectMacro(DrrImageComputationLogic, vtkSlicerDrrImageComputationLogic);
+
 protected:
   vtkSlicerPatientPositioningLogic();
   ~vtkSlicerPatientPositioningLogic() override;
@@ -188,6 +195,9 @@ protected:
 
   vtkCollisionDetectionFilter* AdditionalModelsTableTopCollisionDetection{ nullptr };
   vtkCollisionDetectionFilter* AdditionalModelsPatientSupportCollisionDetection{ nullptr };
+
+  /// DRR Image Computation module logic instance
+  vtkSlicerDrrImageComputationLogic* DrrImageComputationLogic{ nullptr };
 
 private:
   vtkSlicerPatientPositioningLogic(const vtkSlicerPatientPositioningLogic&); // Not implemented
