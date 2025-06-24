@@ -19,8 +19,9 @@
 
 ==============================================================================*/
 
-// Beams includes
+// Logic includes
 #include "vtkSlicerCabin26ARobotsTransformLogic.h"
+#include "vtkSlicerCabin26ARobotsGeometryCommon.h"
 
 #include "vtkMRMLRTBeamNode.h"
 #include "vtkMRMLRTPlanNode.h"

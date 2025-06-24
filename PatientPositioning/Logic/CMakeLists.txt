@@ -18,6 +18,7 @@ set(${KIT}_SRCS
   vtkSlicer${MODULE_NAME}Logic.h
   vtkSlicerCabin26ARobotsTransformLogic.cxx
   vtkSlicerCabin26ARobotsTransformLogic.h
+  vtkSlicerCabin26ARobotsGeometryCommon.h
   )
 
 set(${KIT}_TARGET_LIBRARIES
