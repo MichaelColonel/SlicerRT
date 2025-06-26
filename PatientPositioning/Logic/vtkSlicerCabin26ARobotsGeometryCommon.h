@@ -48,6 +48,7 @@ public:
   static constexpr double TABLE_TOP_ROBOT_FLOOR_HOLE_DIAMETER = 1800.;
   // Wall thickess (right, left, back)
   static constexpr double WALL_THICKNESS_RIGHT_LEFT_BACK = 1000.;
+  static constexpr double WALL_THICKNESS_DEFAULT = 1000.;
   // Table top width
   static constexpr double TABLE_TOP_WIDTH = 530.;
   // Table top length
@@ -57,7 +58,25 @@ public:
   // Distance from physical floor to fake floor
   static constexpr double D_PHYSCIAL_FLOOR_FAKE_FLOOR = 550.;
   // Table top robot base fake height
-  static constexpr double TABLE_TOP_ROBOT_BASE_HEIGHT = 900.;
+  static constexpr double TABLE_TOP_ROBOT_BASE_FAKE_FLOOR_HEIGHT = 900.;
+  // Table top robot KUKA KR 300 R2700-2
+  // Table top robot base fixed size
+  static constexpr double TABLE_TOP_ROBOT_BASE_FIXED_SIZE = 163.;
+  // Table top robot base rotation size
+  static constexpr double TABLE_TOP_ROBOT_BASE_ROTATION_SIZE = 645. - TABLE_TOP_ROBOT_BASE_FIXED_SIZE;
+  // Table top robot base rotation shoulder disk center offset X
+  static constexpr double TABLE_TOP_ROBOT_BASE_ROTATION_SHOULDER_OFFSET_X = 330.;
+  // Table top robot base rotation shoulder disk center offset Y
+  static constexpr double TABLE_TOP_ROBOT_BASE_ROTATION_SHOULDER_OFFSET_Y = TABLE_TOP_ROBOT_BASE_ROTATION_SIZE;
+  // Table top robot shoulder size
+  static constexpr double TABLE_TOP_SHOULDER_SIZE = 1150.;
+  // Table top robot elbow height-elbow offset Y
+  static constexpr double TABLE_TOP_SHOULDER_ELBOW_OFFSET_Y = 115.;
+  // Table top robot elbow size
+  static constexpr double TABLE_TOP_ELBOW_SIZE = 1220.;
+  // Table top robot wrist size
+  static constexpr double TABLE_TOP_WRIST_SIZE = 240.;
+  // C-arm X-ray robot KUKA KR 210 R3100-2
   //----------------------------------------------------------------------------
   // Utility functions
   //----------------------------------------------------------------------------
