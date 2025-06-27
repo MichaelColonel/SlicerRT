@@ -622,10 +622,11 @@ vtkVector3d vtkSlicerPatientPositioningLogic
   {
     vtkErrorMacro("GetIsocenterToFixedBeamAxisTranslation: Wrong patient isocenter position");
   }
-  // fixed isocenter in FixedReference frame
-  double fixedReferenceIsocenter[3] = {};
+  // fixed isocenter in FixedReference frame MUST BE ALWAYS (0.,0.,0.)
+  double fixedReferenceIsocenter[3] = {0.,0.,0.};
   // fixed isocenter in RAS frame
   double fixedReferenceIsocenterRAS[3] = {};
+/*
   vtkMRMLMarkupsFiducialNode* fixedIsocenterNode = parameterNode->GetFixedIsocenterFiducialNode();
   if (!fixedIsocenterNode)
   {
@@ -633,6 +634,7 @@ vtkVector3d vtkSlicerPatientPositioningLogic
     return vtkVector3d(0., 0., 0.);
   }
   fixedIsocenterNode->GetNthControlPointPosition(0, fixedReferenceIsocenter);
+*/
   // Get RAS -> FixedReference transform node
   vtkMRMLLinearTransformNode* rasToFixedReferenceTransformNode = this->Cabin26ARobotsLogic->GetFixedReferenceTransform();
   vtkNew<vtkMatrix4x4> rasToFixedReferenceToRasTransform;
@@ -797,10 +799,11 @@ vtkMRMLMarkupsFiducialNode* vtkSlicerPatientPositioningLogic::CreateFixedIsocent
 //  pointMarkupsNode->SetHideFromEditors(1);
   std::string singletonTag = std::string("C26A_") + FIXEDISOCENTER_MARKUPS_FIDUCIAL_NODE_NAME;
 //  pointMarkupsNode->SetSingletonTag(singletonTag.c_str());
-  pointMarkupsNode->LockedOn();
+//  pointMarkupsNode->LockedOn();
 
   if (parameterNode)
   {
+    vtkErrorMacro("CreateFixedIsocenterFiducialNode: Set Set Set");
     vtkVector3d pFixedIsocenter( 0., 0., 0.); // FixedIsocenter
     pointMarkupsNode->AddControlPoint( pFixedIsocenter, "FixedIsocenter");
 /*

@@ -59,24 +59,72 @@ public:
   static constexpr double D_PHYSCIAL_FLOOR_FAKE_FLOOR = 550.;
   // Table top robot base fake height
   static constexpr double TABLE_TOP_ROBOT_BASE_FAKE_FLOOR_HEIGHT = 900.;
+
   // Table top robot KUKA KR 300 R2700-2
-  // Table top robot base fixed size
-  static constexpr double TABLE_TOP_ROBOT_BASE_FIXED_SIZE = 163.;
+  // Table top robot base fixed size (no in documentation)
+  static constexpr double TABLE_TOP_ROBOT_BASE_FIXED_SIZE = 140.; // no in documentation
   // Table top robot base rotation size
   static constexpr double TABLE_TOP_ROBOT_BASE_ROTATION_SIZE = 645. - TABLE_TOP_ROBOT_BASE_FIXED_SIZE;
   // Table top robot base rotation shoulder disk center offset X
   static constexpr double TABLE_TOP_ROBOT_BASE_ROTATION_SHOULDER_OFFSET_X = 330.;
   // Table top robot base rotation shoulder disk center offset Y
-  static constexpr double TABLE_TOP_ROBOT_BASE_ROTATION_SHOULDER_OFFSET_Y = TABLE_TOP_ROBOT_BASE_ROTATION_SIZE;
+  static constexpr double TABLE_TOP_ROBOT_BASE_ROTATION_SHOULDER_OFFSET_Y = 645;
   // Table top robot shoulder size
   static constexpr double TABLE_TOP_SHOULDER_SIZE = 1150.;
+  // Table top robot shoulder top center rotation
+  static constexpr double TABLE_TOP_SHOLDER_TOP_CENTER_ROTATION = TABLE_TOP_ROBOT_BASE_ROTATION_SIZE + TABLE_TOP_SHOULDER_SIZE;
+  // Table top robot shoulder center
+  static constexpr double TABLE_TOP_SHOLDER_CENTER = TABLE_TOP_ROBOT_BASE_ROTATION_SIZE + (TABLE_TOP_SHOULDER_SIZE / 2.);
   // Table top robot elbow height-elbow offset Y
   static constexpr double TABLE_TOP_SHOULDER_ELBOW_OFFSET_Y = 115.;
   // Table top robot elbow size
   static constexpr double TABLE_TOP_ELBOW_SIZE = 1220.;
   // Table top robot wrist size
   static constexpr double TABLE_TOP_WRIST_SIZE = 240.;
-  // C-arm X-ray robot KUKA KR 210 R3100-2
+
+  // C-arm x-ray robot KUKA KR 210 R3100-2
+  // C-arm x-ray robot base fixed size (no in documentation)
+  static constexpr double CARM_XRAY_ROBOT_BASE_FIXED_SIZE = 140.; // no in documentation
+  // C-arm x-ray robot base rotation size
+  static constexpr double CARM_XRAY_ROBOT_BASE_ROTATION_SIZE = 645. - TABLE_TOP_ROBOT_BASE_FIXED_SIZE;
+  // C-arm x-ray robot base rotation shoulder disk center offset X
+  static constexpr double CARM_XRAY_ROBOT_BASE_ROTATION_SHOULDER_OFFSET_X = 330.;
+  // C-arm x-ray robot base rotation shoulder disk center offset Y
+  static constexpr double CARM_XRAY_ROBOT_BASE_ROTATION_SHOULDER_OFFSET_Y = 645;
+  // C-arm x-ray robot shoulder size
+  static constexpr double CARM_XRAY_SHOULDER_SIZE = 1350.;
+  // C-arm x-ray robot shoulder top center rotation
+  static constexpr double CARM_XRAY_SHOLDER_TOP_CENTER_ROTATION = TABLE_TOP_ROBOT_BASE_ROTATION_SIZE + TABLE_TOP_SHOULDER_SIZE;
+  // C-arm x-ray robot shoulder center
+  static constexpr double CARM_XRAY_SHOLDER_CENTER = TABLE_TOP_ROBOT_BASE_ROTATION_SIZE + (TABLE_TOP_SHOULDER_SIZE / 2.);
+  // C-arm x-ray robot elbow height-elbow offset Y
+  static constexpr double CARM_XRAY_SHOULDER_ELBOW_OFFSET_Y = 115.;
+  // C-arm x-ray robot elbow size
+  static constexpr double CARM_XRAY_ELBOW_SIZE = 1420.;
+  // C-arm x-ray robot wrist size
+  static constexpr double CARM_XRAY_WRIST_SIZE = 240.;
+
+  // C-arm x-ray
+  // C-arm x-ray outer size
+  static constexpr double CARM_XRAY_OUTER_SIZE = 1518.;
+  // C-arm x-ray inner size
+  static constexpr double CARM_XRAY_INNER_SIZE = 1372.;
+  // C-arm x-ray from focal spot to jaws distance
+  static constexpr double CARM_XRAY_FOCAL_SPOT_JAWS_DISTANCE = 51.;
+  // C-arm x-ray distance from x-ray window to detector surface
+  static constexpr double CARM_XRAY_WINDOW_DETECTOR_DISTANCE = 1149.;
+  // C-arm x-ray distance from jaws window to detector surface
+  static constexpr double CARM_XRAY_JAWS_DETECTOR_DISTANCE = 970.;
+  // C-arm x-ray from focal spot jaws to detector surface distance
+  static constexpr double CARM_XRAY_FOCAL_SPOT_DETECTOR_DISTANCE = 1200.;
+  // C-arm x-ray side size from outer c-arm border to far detector edge
+  static constexpr double CARM_XRAY_SIDE_OUTER_DETECTOR_SIZE = 980.;
+  // C-arm x-ray side size from inner c-arm border to far detector edge
+  static constexpr double CARM_XRAY_SIDE_INNER_DETECTOR_SIZE = 855.;
+  // C-arm x-ray source width
+  static constexpr double CARM_XRAY_SOURCE_WIDTH = 485.;
+  // C-arm x-ray detector width
+  static constexpr double CARM_XRAY_DETECTOR_WIDTH = 537.;
   //----------------------------------------------------------------------------
   // Utility functions
   //----------------------------------------------------------------------------

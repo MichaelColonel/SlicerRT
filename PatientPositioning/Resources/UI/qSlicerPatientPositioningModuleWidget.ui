@@ -25,7 +25,7 @@
         <item row="6" column="0">
          <widget class="QLabel" name="label_19">
           <property name="text">
-           <string>External x-ray beam:</string>
+           <string>C-arm x-ray beam:</string>
           </property>
          </widget>
         </item>
@@ -105,7 +105,7 @@
         <item row="1" column="0">
          <widget class="QLabel" name="label_17">
           <property name="text">
-           <string>Plan:</string>
+           <string>Ion plan:</string>
           </property>
          </widget>
         </item>
@@ -127,14 +127,14 @@
         <item row="2" column="0">
          <widget class="QLabel" name="label_4">
           <property name="text">
-           <string>Beam:</string>
+           <string>Simulated ion beam:</string>
           </property>
          </widget>
         </item>
         <item row="5" column="0">
          <widget class="QLabel" name="label_18">
           <property name="text">
-           <string>Fixed reference beam:</string>
+           <string>Physical ion beam:</string>
           </property>
          </widget>
         </item>

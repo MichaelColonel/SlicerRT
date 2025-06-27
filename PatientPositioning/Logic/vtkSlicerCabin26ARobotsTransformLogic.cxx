@@ -55,7 +55,7 @@ constexpr double BaseRotationShoulderDiskCenterOffsetY = BaseRotationHeight; // 
 constexpr double CArmBaseRotationShoulderDiskCenterOffsetX = 330; // mm
 constexpr double CArmBaseRotationShoulderDiskCenterOffsetY = CArmBaseRotationHeight; // mm
 
-constexpr double TableThickness = 90.; // mm
+constexpr double TableThickness = 91.; // mm
 constexpr double FlangeLength = 300.; // mm
 constexpr double WristLength = 215.; // mm
 constexpr double ElbowLength = 1200.; // mm
