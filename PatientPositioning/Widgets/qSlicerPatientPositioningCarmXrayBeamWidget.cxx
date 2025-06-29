@@ -234,7 +234,7 @@ void qSlicerPatientPositioningCarmXrayBeamWidget::onComputeDrrClicked()
     if (drrNode && ctInputVolumeNode)
     {
       qWarning() << Q_FUNC_INFO << "4";
-      vtkMRMLRTBeamNode* carmXrayBeamNode = d->ParameterNode->GetExternalXrayBeamNode();
+      vtkMRMLRTBeamNode* carmXrayBeamNode = d->ParameterNode->GetCarmXrayBeamNode();
       drrNode->SetAndObserveBeamNode(carmXrayBeamNode);
       // setup C-arm X-ray detector parameters
       drrNode->SetThreading(vtkMRMLDrrImageComputationNode::CUDA);

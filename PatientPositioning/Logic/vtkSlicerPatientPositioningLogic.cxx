@@ -550,7 +550,7 @@ void vtkSlicerPatientPositioningLogic::ProcessMRMLNodesEvents(vtkObject* caller,
       this->Cabin26ARobotsLogic->UpdateRasToCArmTransform(cabin26AGeometry);
       this->Cabin26ARobotsLogic->UpdateRasToXrayImagerTransform(cabin26AGeometry);
       this->Cabin26ARobotsLogic->UpdateRasToXrayReceptorTransform(cabin26AGeometry);
-      this->Cabin26ARobotsLogic->UpdateRasToExternalXrayBeamTransform(cabin26AGeometry);
+      this->Cabin26ARobotsLogic->UpdateRasToCarmXrayBeamTransform(cabin26AGeometry);
       this->UpdateTableTopPlaneNode(cabin26AGeometry);
       this->UpdateTableTopFiducialNode(cabin26AGeometry);
     }
@@ -1079,32 +1079,32 @@ bool vtkSlicerPatientPositioningLogic::AlignTableTop(vtkMRMLCabin26AGeometryNode
 }
 
 //----------------------------------------------------------------------------
-bool vtkSlicerPatientPositioningLogic::AlignExternalXrayBeamToCarmComponents(vtkMRMLCabin26AGeometryNode* parameterNode,
-  vtkMRMLRTBeamNode* externalXrayBeamNode)
+bool vtkSlicerPatientPositioningLogic::AlignCarmXrayBeamToCarmComponents(vtkMRMLCabin26AGeometryNode* parameterNode,
+  vtkMRMLRTBeamNode* carmXrayBeamNode)
 {
   vtkMRMLScene* scene = this->GetMRMLScene(); 
   if (!scene)
   {
-    vtkErrorMacro("AlignExternalXrayBeamToCarmComponents: Invalid MRML scene");
+    vtkErrorMacro("AlignCarmXrayBeamToCarmComponents: Invalid MRML scene");
     return false;
   }
 
   if (!parameterNode)
   {
-    vtkErrorMacro("AlignExternalXrayBeamToCarmComponents: Invalid parameter node");
+    vtkErrorMacro("AlignCarmXrayBeamToCarmComponents: Invalid parameter node");
     return false;
   }
-  if (!externalXrayBeamNode)
+  if (!carmXrayBeamNode)
   {
-    vtkErrorMacro("AlignExternalXrayBeamToCarmComponents: Invalid external xr-ay beam node");
+    vtkErrorMacro("AlignCarmXrayBeamToCarmComponents: Invalid external xr-ay beam node");
     return false;
   }
   vtkSlicerCabin26ARobotsTransformLogic* cabinLogic = this->GetCabin26ARobotsTransformLogic();
   // plan node for isocenter position
-  vtkMRMLRTPlanNode* externalXrayPlan  = externalXrayBeamNode->GetParentPlanNode();
-  if (externalXrayPlan)
+  vtkMRMLRTPlanNode* carmXrayPlan  = carmXrayBeamNode->GetParentPlanNode();
+  if (carmXrayPlan)
   {
-    vtkMRMLMarkupsFiducialNode* externalIsocenter = externalXrayPlan->GetPoisMarkupsFiducialNode();
+    vtkMRMLMarkupsFiducialNode* carmIsocenter = carmXrayPlan->GetPoisMarkupsFiducialNode();
   }
   using CoordSys = vtkSlicerCabin26ARobotsTransformLogic::CoordinateSystemIdentifier;
   vtkMRMLLinearTransformNode* transformNode = cabinLogic->GetTransformNodeBetween(CoordSys::RAS, CoordSys::CArm);
@@ -1274,33 +1274,33 @@ vtkMRMLRTCabin26AIonBeamNode* vtkSlicerPatientPositioningLogic::CreateFixedBeamP
 }
 
 //----------------------------------------------------------------------------
-vtkMRMLRTFixedBeamNode* vtkSlicerPatientPositioningLogic::CreateExternalXrayPlanAndNode(vtkMRMLPatientPositioningNode* parameterNode)
+vtkMRMLRTFixedBeamNode* vtkSlicerPatientPositioningLogic::CreateCarmXrayPlanAndNode(vtkMRMLPatientPositioningNode* parameterNode)
 {
   vtkMRMLScene* scene = this->GetMRMLScene();
 
   if (!scene)
   {
-    vtkErrorMacro("CreateExternalXrayPlanAndNode: Invalid scene");
+    vtkErrorMacro("CreateCarmXrayPlanAndNode: Invalid scene");
     return nullptr;
   }
 
   vtkMRMLSubjectHierarchyNode* shNode = vtkMRMLSubjectHierarchyNode::GetSubjectHierarchyNode(scene);
   if (!shNode)
   {
-    vtkErrorMacro("CreateExternalXrayPlanAndNode: Failed to access subject hierarchy node");
+    vtkErrorMacro("CreateCarmXrayPlanAndNode: Failed to access subject hierarchy node");
     return nullptr;
   }
 
   if (!parameterNode)
   {
-    vtkErrorMacro("CreateExternalXrayPlanAndNode: Invalid parameter node");
+    vtkErrorMacro("CreateCarmXrayPlanAndNode: Invalid parameter node");
     return nullptr;
   }
 
-  vtkMRMLRTPlanNode* externalXrayPlanNode = vtkMRMLRTPlanNode::SafeDownCast(scene->AddNewNodeByClass( "vtkMRMLRTPlanNode", "ExternalXray"));
+  vtkMRMLRTPlanNode* carmXrayPlanNode = vtkMRMLRTPlanNode::SafeDownCast(scene->AddNewNodeByClass( "vtkMRMLRTPlanNode", "CarmXrayPlan"));
 
   // Create beam and add to scene
-  vtkNew<vtkMRMLRTFixedBeamNode> externalXrayBeamNode;
+  vtkNew<vtkMRMLRTFixedBeamNode> carmXrayBeamNode;
 /*
   vtkMRMLMarkupsFiducialNode* fixedIsocenterNode = nullptr;
 
@@ -1309,16 +1309,16 @@ vtkMRMLRTFixedBeamNode* vtkSlicerPatientPositioningLogic::CreateExternalXrayPlan
   {
     fixedIsocenterNode = vtkMRMLMarkupsFiducialNode::SafeDownCast(scene->GetFirstNodeByName(FIXEDISOCENTER_MARKUPS_FIDUCIAL_NODE_NAME));
   }
-  if (fixedIsocenterNode && rasToExternalXrayBeamTransformNode)
+  if (fixedIsocenterNode && rasToCarmXrayBeamTransformNode)
   {
-    fixedIsocenterNode->SetAndObserveTransformNodeID(rasToExternalXrayBeamTransformNode->GetID() );
+    fixedIsocenterNode->SetAndObserveTransformNodeID(rasToCarmXrayBeamTransformNode->GetID() );
   }
 */
-  std::string externalXrayBeamName = scene->GenerateUniqueName("ExternalXrayBeam");
-  externalXrayBeamNode->SetName(externalXrayBeamName.c_str());
-//  externalXrayBeamNode->SetName(externalXrayPlanNode->GenerateNewBeamName().c_str());
-  externalXrayPlanNode->GetScene()->AddNode(externalXrayBeamNode);
-  externalXrayPlanNode->AddBeam(externalXrayBeamNode);
+  std::string carmXrayBeamName = scene->GenerateUniqueName("CarmXrayBeam");
+  carmXrayBeamNode->SetName(carmXrayBeamName.c_str());
+//  carmXrayBeamNode->SetName(carmXrayPlanNode->GenerateNewBeamName().c_str());
+  carmXrayPlanNode->GetScene()->AddNode(carmXrayBeamNode);
+  carmXrayPlanNode->AddBeam(carmXrayBeamNode);
 /*
   if (fixedIsocenterNode)
   {
@@ -1337,39 +1337,39 @@ vtkMRMLRTFixedBeamNode* vtkSlicerPatientPositioningLogic::CreateExternalXrayPlan
     vtkMRMLMarkupsFiducialNode* prevIsocenterNode = externalXrayPlanNode->GetPoisMarkupsFiducialNode();
     if (prevIsocenterNode)
     {
-      std::string externalXrayIsocenter = scene->GenerateUniqueName("ExternalXrayIsocenter");
+      std::string externalXrayIsocenter = scene->GenerateUniqueName("CarmXrayIsocenter");
       prevIsocenterNode->SetName(externalXrayIsocenter.c_str());
     }
   }
 */
   // Set SAD to 1. m
-  externalXrayBeamNode->SetSAD(1000.);
-  externalXrayBeamNode->SetX1Jaw(-80);
-  externalXrayBeamNode->SetX2Jaw(80);
+  carmXrayBeamNode->SetSAD(1000.);
+  carmXrayBeamNode->SetX1Jaw(-80);
+  carmXrayBeamNode->SetX2Jaw(80);
 
-  vtkMRMLMarkupsFiducialNode* externalXrayIsocenterNode = externalXrayPlanNode->GetPoisMarkupsFiducialNode();
-  externalXrayIsocenterNode->SetName("ExternalXrayIsocenter");
+  vtkMRMLMarkupsFiducialNode* carmXrayIsocenterNode = carmXrayPlanNode->GetPoisMarkupsFiducialNode();
+  carmXrayIsocenterNode->SetName("CarmXrayIsocenter");
 
-  vtkMRMLTransformNode* beamTranfsormNode = externalXrayBeamNode->GetParentTransformNode();
+  vtkMRMLTransformNode* beamTranfsormNode = carmXrayBeamNode->GetParentTransformNode();
   // Find RasToFixedReferenceTransform or create it
-  vtkMRMLLinearTransformNode* rasToExternalXrayBeamTransformNode = this->Cabin26ARobotsLogic->GetExternalXrayBeamTransform();
-  if (beamTranfsormNode && rasToExternalXrayBeamTransformNode)
+  vtkMRMLLinearTransformNode* rasToCarmXrayBeamTransformNode = this->Cabin26ARobotsLogic->GetCarmXrayBeamTransform();
+  if (beamTranfsormNode && rasToCarmXrayBeamTransformNode)
   {
-    beamTranfsormNode->SetAndObserveTransformNodeID(rasToExternalXrayBeamTransformNode->GetID() );
+    beamTranfsormNode->SetAndObserveTransformNodeID(rasToCarmXrayBeamTransformNode->GetID() );
   }
-  if (externalXrayIsocenterNode && rasToExternalXrayBeamTransformNode)
+  if (carmXrayIsocenterNode && rasToCarmXrayBeamTransformNode)
   {
-    externalXrayIsocenterNode->SetAndObserveTransformNodeID(rasToExternalXrayBeamTransformNode->GetID() );
+    carmXrayIsocenterNode->SetAndObserveTransformNodeID(rasToCarmXrayBeamTransformNode->GetID() );
   }
 /*
-  vtkMRMLTransformNode* beamTranfsormNode = externalXrayBeamNode->GetParentTransformNode();
-  if (beamTranfsormNode && rasToExternalXrayBeamTransformNode)
+  vtkMRMLTransformNode* beamTranfsormNode = carmXrayBeamNode->GetParentTransformNode();
+  if (beamTranfsormNode && rasToCarmXrayBeamTransformNode)
   {
-    externalXrayBeamNode->SetAndObserveTransformNodeID(rasToExternalXrayBeamTransformNode->GetID() );
+    carmXrayBeamNode->SetAndObserveTransformNodeID(rasToCarmXrayBeamTransformNode->GetID() );
   }
 */
-  parameterNode->SetAndObserveExternalXrayBeamNode(externalXrayBeamNode);
-  return externalXrayBeamNode.GetPointer();
+  parameterNode->SetAndObserveCarmXrayBeamNode(carmXrayBeamNode);
+  return carmXrayBeamNode.GetPointer();
 }
 
 //---------------------------------------------------------------------------

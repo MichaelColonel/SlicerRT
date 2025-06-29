@@ -146,7 +146,7 @@
          </widget>
         </item>
         <item row="6" column="1">
-         <widget class="qMRMLNodeComboBox" name="MRMLNodeComboBox_ExternalXrayBeam">
+         <widget class="qMRMLNodeComboBox" name="MRMLNodeComboBox_CarmXrayBeam">
           <property name="nodeTypes">
            <stringlist>
             <string>vtkMRMLRTFixedBeamNode</string>
@@ -1081,7 +1081,7 @@
   <connection>
    <sender>qSlicerPatientPositioningModuleWidget</sender>
    <signal>mrmlSceneChanged(vtkMRMLScene*)</signal>
-   <receiver>MRMLNodeComboBox_ExternalXrayBeam</receiver>
+   <receiver>MRMLNodeComboBox_CarmXrayBeam</receiver>
    <slot>setMRMLScene(vtkMRMLScene*)</slot>
    <hints>
     <hint type="sourcelabel">

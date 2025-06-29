@@ -108,8 +108,8 @@ public:
 
   /// Create fixed reference beam and plan and add beam to the parameter node
   vtkMRMLRTCabin26AIonBeamNode* CreateFixedBeamPlanAndNode(vtkMRMLPatientPositioningNode* parameterNode);
-  /// Create external xray beam and plan and add ext beam to the parameter node
-  vtkMRMLRTFixedBeamNode* CreateExternalXrayPlanAndNode(vtkMRMLPatientPositioningNode* parameterNode);
+  /// Create C-arm x-ray beam and plan and add C-arm x-ray beam to the parameter node
+  vtkMRMLRTFixedBeamNode* CreateCarmXrayPlanAndNode(vtkMRMLPatientPositioningNode* parameterNode);
 
   /// Update fixed beam axis using two new points in beam limiting device frame
   void UpdateFixedBeamAxisLineNode(vtkMRMLPatientPositioningNode* parameterNode,
@@ -127,7 +127,7 @@ public:
   bool AlignTableTop(vtkMRMLCabin26AGeometryNode* parameterNode, vtkMRMLRTBeamNode* patientBeam,
     vtkTransform* fixedReferenceToPatientBeamTransform, double tableTopAngles[6]);
 
-  bool AlignExternalXrayBeamToCarmComponents(vtkMRMLCabin26AGeometryNode* parameterNode, vtkMRMLRTBeamNode* externalXrayBeamNode);
+  bool AlignCarmXrayBeamToCarmComponents(vtkMRMLCabin26AGeometryNode* parameterNode, vtkMRMLRTBeamNode* carmXrayBeamNode);
 
 public:
   // Get treatment machine properties from descriptor file

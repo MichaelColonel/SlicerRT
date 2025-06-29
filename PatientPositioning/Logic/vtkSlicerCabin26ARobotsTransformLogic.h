@@ -66,7 +66,7 @@ public:
     CArm, // Translate from Wrist flange center to CArm center
     XrayImager, // X-ray imager (x-ray tube source)
     XrayImageReceptor, // X-ray image receptor (x-ray flatpanel detector)
-    ExternalXrayBeam, // External x-ray beam (X-ray imager focal spot is a source)
+    CArmXrayBeam, // C-arm x-ray beam (X-ray imager focal spot is a source)
     CoordinateSystemIdentifier_Last // Last index used for adding more coordinate systems externally
   };
   typedef std::list< CoordinateSystemIdentifier > CoordinateSystemsList;
@@ -150,7 +150,7 @@ public:
   void UpdateXrayImagerToCArmTransform(vtkMRMLCabin26AGeometryNode* channelNode);
   /// Update External x-ray beam transform based on translation
   /// Apply new ExternalXrayBeam to XrayImager transform (ExternalXrayBeam->XrayImager)
-  void UpdateExternalXrayBeamToXrayImagerTransform(vtkMRMLCabin26AGeometryNode* channelNode);
+  void UpdateCarmXrayBeamToXrayImagerTransform(vtkMRMLCabin26AGeometryNode* channelNode);
 
   /// Update (or create if absent) RAS to TableTop transform
   vtkMRMLLinearTransformNode* UpdateRasToTableTopTransform(vtkMRMLCabin26AGeometryNode* parameterNode);
@@ -185,8 +185,8 @@ public:
   /// Update (or create if absent) RAS to FixedReference transform
   vtkMRMLLinearTransformNode* UpdateRasToFixedReferenceTransform(vtkMRMLCabin26AGeometryNode* parameterNode);
 
-  /// Update (or create if absent) External x-ray beam transform
-  vtkMRMLLinearTransformNode* UpdateRasToExternalXrayBeamTransform(vtkMRMLCabin26AGeometryNode* channelNode);
+  /// Update (or create if absent) C-arm x-ray beam transform
+  vtkMRMLLinearTransformNode* UpdateRasToCarmXrayBeamTransform(vtkMRMLCabin26AGeometryNode* channelNode);
 
   /// Get RAS to FixedReference transform
   vtkMRMLLinearTransformNode* GetFixedReferenceTransform();
@@ -206,8 +206,8 @@ public:
   vtkMRMLLinearTransformNode* GetBaseRotationTransform();
   /// Get RAS to BaseFixed
   vtkMRMLLinearTransformNode* GetBaseFixedTransform();
-  /// Get RAS to ExternalXrayBeam transform
-  vtkMRMLLinearTransformNode* GetExternalXrayBeamTransform();
+  /// Get RAS to CarmXrayBeam transform
+  vtkMRMLLinearTransformNode* GetCarmXrayBeamTransform();
 
   /// Get part type as string
   const char* GetTreatmentMachinePartTypeAsString(CoordinateSystemIdentifier type);

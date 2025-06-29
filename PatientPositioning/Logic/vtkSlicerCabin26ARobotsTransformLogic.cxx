@@ -107,7 +107,7 @@ vtkSlicerCabin26ARobotsTransformLogic::vtkSlicerCabin26ARobotsTransformLogic()
   this->CoordinateSystemsMap[CoordSys::CArmWrist] = "CarmWrist";
   this->CoordinateSystemsMap[CoordSys::XrayImager] = "XrayImager";
   this->CoordinateSystemsMap[CoordSys::XrayImageReceptor] = "XrayImageReceptor";
-  this->CoordinateSystemsMap[CoordSys::ExternalXrayBeam] = "ExternalXrayBeam";
+  this->CoordinateSystemsMap[CoordSys::CArmXrayBeam] = "CarmXrayBeam";
 
   this->RobotsTransforms.clear();
   this->RobotsTransforms.push_back(std::make_pair(CoordSys::FixedReference, CoordSys::RAS)); // Dummy
@@ -127,8 +127,8 @@ vtkSlicerCabin26ARobotsTransformLogic::vtkSlicerCabin26ARobotsTransformLogic()
   this->RobotsTransforms.push_back(std::make_pair(CoordSys::CArmWrist, CoordSys::CArmElbow)); // C-Arm robot wrist to C-arm robot elbow around C-Arm elbow along Y-axis and Z-axis
   this->RobotsTransforms.push_back(std::make_pair(CoordSys::CArm, CoordSys::CArmWrist)); // C-Arm to C-arm robot wrist
   this->RobotsTransforms.push_back(std::make_pair(CoordSys::XrayImager, CoordSys::CArm)); // Xray Imager to C-arm
-  this->RobotsTransforms.push_back(std::make_pair(CoordSys::ExternalXrayBeam, CoordSys::XrayImager)); // External x-ray beam to C-arm
-  this->RobotsTransforms.push_back(std::make_pair(CoordSys::XrayImageReceptor, CoordSys::CArm)); // Xray image receptor to C-arm
+  this->RobotsTransforms.push_back(std::make_pair(CoordSys::CArmXrayBeam, CoordSys::XrayImager)); // C-arm x-ray beam to C-arm frame
+  this->RobotsTransforms.push_back(std::make_pair(CoordSys::XrayImageReceptor, CoordSys::CArm)); // Xray image receptor to C-arm frame
 
   this->CoordinateSystemsHierarchy.clear();
   // key - parent, value - children
@@ -147,7 +147,7 @@ vtkSlicerCabin26ARobotsTransformLogic::vtkSlicerCabin26ARobotsTransformLogic()
   this->CoordinateSystemsHierarchy[CoordSys::CArmElbow] = { CoordSys::CArmWrist };
   this->CoordinateSystemsHierarchy[CoordSys::CArmWrist] = { CoordSys::CArm };
   this->CoordinateSystemsHierarchy[CoordSys::CArm] = { CoordSys::XrayImager, CoordSys::XrayImageReceptor };
-  this->CoordinateSystemsHierarchy[CoordSys::XrayImager] = { CoordSys::ExternalXrayBeam };
+  this->CoordinateSystemsHierarchy[CoordSys::XrayImager] = { CoordSys::CArmXrayBeam };
 }
 
 //-----------------------------------------------------------------------------
@@ -293,7 +293,7 @@ void vtkSlicerCabin26ARobotsTransformLogic::BuildRobotsTransformHierarchy()
     this->GetTransformNodeBetween(CoordSys::CArm, CoordSys::CArmWrist)->GetID() );
   this->GetTransformNodeBetween(CoordSys::XrayImager, CoordSys::CArm)->SetAndObserveTransformNodeID(
     this->GetTransformNodeBetween(CoordSys::CArm, CoordSys::CArmWrist)->GetID() );
-  this->GetTransformNodeBetween(CoordSys::ExternalXrayBeam, CoordSys::XrayImager)->SetAndObserveTransformNodeID(
+  this->GetTransformNodeBetween(CoordSys::CArmXrayBeam, CoordSys::XrayImager)->SetAndObserveTransformNodeID(
     this->GetTransformNodeBetween(CoordSys::XrayImager, CoordSys::CArm)->GetID() );
 }
 
@@ -406,11 +406,11 @@ void vtkSlicerCabin26ARobotsTransformLogic::ResetToInitialPositions()
   xrayImagerToCArmTransform->Identity();
   xrayImagerToCArmTransform->Modified();
 
-  vtkMRMLLinearTransformNode* externalXrayToXrayImagerTransformNode =
-    this->GetTransformNodeBetween(CoordSys::ExternalXrayBeam, CoordSys::XrayImager);
-  vtkTransform* externalXrayToXrayImagerTransform = vtkTransform::SafeDownCast(externalXrayToXrayImagerTransformNode->GetTransformToParent());
-  externalXrayToXrayImagerTransform->Identity();
-  externalXrayToXrayImagerTransform->Modified();
+  vtkMRMLLinearTransformNode* carmXrayToXrayImagerTransformNode =
+    this->GetTransformNodeBetween(CoordSys::CArmXrayBeam, CoordSys::XrayImager);
+  vtkTransform* carmXrayToXrayImagerTransform = vtkTransform::SafeDownCast(carmXrayToXrayImagerTransformNode->GetTransformToParent());
+  carmXrayToXrayImagerTransform->Identity();
+  carmXrayToXrayImagerTransform->Modified();
 }
 
 //-----------------------------------------------------------------------------
@@ -1065,51 +1065,51 @@ void vtkSlicerCabin26ARobotsTransformLogic::UpdateXrayImagerToCArmTransform(vtkM
 }
 
 //-----------------------------------------------------------------------------
-void vtkSlicerCabin26ARobotsTransformLogic::UpdateExternalXrayBeamToXrayImagerTransform(vtkMRMLCabin26AGeometryNode* parameterNode)
+void vtkSlicerCabin26ARobotsTransformLogic::UpdateCarmXrayBeamToXrayImagerTransform(vtkMRMLCabin26AGeometryNode* parameterNode)
 {
   vtkMRMLScene* scene = this->GetMRMLScene();
   if (!scene)
   {
-    vtkErrorMacro("UpdateExternalXrayBeamToXrayImagerTransform: Invalid scene");
+    vtkErrorMacro("UpdateCarmXrayBeamToXrayImagerTransform: Invalid scene");
     return;
   }
   if (!parameterNode)
   {
-    vtkErrorMacro("UpdateExternalXrayBeamToXrayImagerTransform: Invalid parameter node");
+    vtkErrorMacro("UpdateCarmXrayBeamToXrayImagerTransform: Invalid parameter node");
     return;
   }
 
   // Translate the C-Arm Wrist to C-Arm Elbow origin
-  vtkNew<vtkTransform> externalXrayBeamToXrayImagerTranslateTransform;
-  externalXrayBeamToXrayImagerTranslateTransform->Translate( 0, -865. - 335., 0.);
+  vtkNew<vtkTransform> carmXrayBeamToXrayImagerTranslateTransform;
+  carmXrayBeamToXrayImagerTranslateTransform->Translate( 0, -865. - 335., 0.);
 
   using CoordSys = CoordinateSystemIdentifier;
   vtkNew<vtkTransform> patientToXrayImagerTransform;
   if (!this->GetTransformBetween( CoordSys::Patient, CoordSys::XrayImager, 
     patientToXrayImagerTransform, false))
   {
-    vtkWarningMacro("UpdateExternalXrayBeamToXrayImagerTransform: Can't get Patient->XrayImager transform");
+    vtkWarningMacro("UpdateCarmXrayBeamToXrayImagerTransform: Can't get Patient->XrayImager transform");
   }
   vtkNew<vtkTransform> xrayImagerToPatientTransform;
   if (!this->GetTransformBetween( CoordSys::XrayImager, CoordSys::Patient, 
     xrayImagerToPatientTransform, false))
   {
-    vtkWarningMacro("UpdateExternalXrayBeamToXrayImagerTransform: Can't get XrayImager->Patient transform");
+    vtkWarningMacro("UpdateCarmXrayBeamToXrayImagerTransform: Can't get XrayImager->Patient transform");
   }
 
-  vtkMRMLLinearTransformNode* externalXrayBeamToXrayImagerTransformNode =
-    this->GetTransformNodeBetween(CoordSys::ExternalXrayBeam, CoordSys::XrayImager);
-  if (externalXrayBeamToXrayImagerTransformNode)
+  vtkMRMLLinearTransformNode* carmXrayBeamToXrayImagerTransformNode =
+    this->GetTransformNodeBetween(CoordSys::CArmXrayBeam, CoordSys::XrayImager);
+  if (carmXrayBeamToXrayImagerTransformNode)
   {
     // Carm->CarmRobotWrist rotation around X (A6 angle)
     vtkNew<vtkTransform> carmToWristTransform;
     carmToWristTransform->RotateX(90);
 //    wristToElbowTransform->RotateZ(a[4]);
 
-    xrayImagerToPatientTransform->Concatenate(externalXrayBeamToXrayImagerTranslateTransform);
+    xrayImagerToPatientTransform->Concatenate(carmXrayBeamToXrayImagerTranslateTransform);
     xrayImagerToPatientTransform->Concatenate(carmToWristTransform);
     xrayImagerToPatientTransform->Concatenate(patientToXrayImagerTransform);
-    externalXrayBeamToXrayImagerTransformNode->SetAndObserveTransformToParent(xrayImagerToPatientTransform);
+    carmXrayBeamToXrayImagerTransformNode->SetAndObserveTransformToParent(xrayImagerToPatientTransform);
   }
 }
 
@@ -1293,17 +1293,17 @@ vtkMRMLLinearTransformNode* vtkSlicerCabin26ARobotsTransformLogic::GetFixedRefer
 }
 
 //------------------------------------------------------------------------------
-vtkMRMLLinearTransformNode* vtkSlicerCabin26ARobotsTransformLogic::GetExternalXrayBeamTransform()
+vtkMRMLLinearTransformNode* vtkSlicerCabin26ARobotsTransformLogic::GetCarmXrayBeamTransform()
 {
   vtkMRMLScene* scene = this->GetMRMLScene();
   if (!scene)
   {
-    vtkErrorMacro("GetExternalXrayBeamTransform: Invalid MRML scene");
+    vtkErrorMacro("GetCarmXrayBeamTransform: Invalid MRML scene");
     return nullptr;
   }
 
   vtkSmartPointer<vtkMRMLLinearTransformNode> transformNode;
-  if (vtkMRMLNode* node = scene->GetFirstNodeByName("RasToExternalXrayBeamTransform"))
+  if (vtkMRMLNode* node = scene->GetFirstNodeByName("RasToCarmXrayBeamTransform"))
   {
     transformNode = vtkMRMLLinearTransformNode::SafeDownCast(node);
   }
@@ -2051,17 +2051,17 @@ vtkMRMLLinearTransformNode* vtkSlicerCabin26ARobotsTransformLogic::UpdateRasToXr
 }
 
 //------------------------------------------------------------------------------
-vtkMRMLLinearTransformNode* vtkSlicerCabin26ARobotsTransformLogic::UpdateRasToExternalXrayBeamTransform(vtkMRMLCabin26AGeometryNode* parameterNode)
+vtkMRMLLinearTransformNode* vtkSlicerCabin26ARobotsTransformLogic::UpdateRasToCarmXrayBeamTransform(vtkMRMLCabin26AGeometryNode* parameterNode)
 {
   if (!parameterNode)
   {
-    vtkErrorMacro("UpdateRasToExternalXrayBeamTransform: Invalid parameter node");
+    vtkErrorMacro("UpdateRasToCarmXrayBeamTransform: Invalid parameter node");
     return nullptr;
   }
   vtkMRMLScene* scene = this->GetMRMLScene();
   if (!scene)
   {
-    vtkErrorMacro("UpdateRasToExternalXrayBeamTransform: Invalid MRML scene");
+    vtkErrorMacro("UpdateRasToCarmXrayBeamTransform: Invalid MRML scene");
     return nullptr;
   }
 
@@ -2080,36 +2080,36 @@ vtkMRMLLinearTransformNode* vtkSlicerCabin26ARobotsTransformLogic::UpdateRasToEx
   // BaseFixed - mandatory
   // Transform path: RAS -> Patient -> TableTop -> Flange -> Wrist -> Elbow -> Shoulder -> BaseRotation -> BaseFixed
   // BaseFixed -> FixedReference -> CArmBaseFixed -> CArmBaseRotation -> CArmShoulder -> CArmElbow -> CArmWrist
-  // CArmWrist -> CArm -> XrayImager ->ExternalXrayBeam
-  // Find RasToExternalXrayBeamTransform or create it
-  vtkSmartPointer<vtkMRMLLinearTransformNode> rasToExternalXrayBeamTransformNode;
-  if (vtkMRMLNode* node = scene->GetFirstNodeByName("RasToExternalXrayBeamTransform"))
+  // CArmWrist -> CArm -> XrayImager ->CArmXrayBeam
+  // Find RasToCarmXrayBeamTransform or create it
+  vtkSmartPointer<vtkMRMLLinearTransformNode> rasToCarmXrayBeamTransformNode;
+  if (vtkMRMLNode* node = scene->GetFirstNodeByName("RasToCarmXrayBeamTransform"))
   {
-    rasToExternalXrayBeamTransformNode = vtkMRMLLinearTransformNode::SafeDownCast(node);
+    rasToCarmXrayBeamTransformNode = vtkMRMLLinearTransformNode::SafeDownCast(node);
   }
   else
   {
-    rasToExternalXrayBeamTransformNode = vtkSmartPointer<vtkMRMLLinearTransformNode>::New();
-    rasToExternalXrayBeamTransformNode->SetName("RasToExternalXrayBeamTransform");
-//    rasToExternalXrayBeamTransformNode->SetHideFromEditors(1);
-    std::string singletonTag = std::string("C26A_") + "RasToExternalXrayBeamTransform";
-//    rasToExternalXrayBeamTransformNode->SetSingletonTag(singletonTag.c_str());
-    scene->AddNode(rasToExternalXrayBeamTransformNode);
+    rasToCarmXrayBeamTransformNode = vtkSmartPointer<vtkMRMLLinearTransformNode>::New();
+    rasToCarmXrayBeamTransformNode->SetName("RasToCarmXrayBeamTransform");
+//    rasToCarmXrayBeamTransformNode->SetHideFromEditors(1);
+    std::string singletonTag = std::string("C26A_") + "RasToCarmXrayBeamTransform";
+//    rasToCarmXrayBeamTransformNode->SetSingletonTag(singletonTag.c_str());
+    scene->AddNode(rasToCarmXrayBeamTransformNode);
   }
 
-  vtkNew<vtkTransform> rasToExternalXrayBeamTransform;
-  if (this->GetTransformBetween( CoordSys::RAS, CoordSys::ExternalXrayBeam, 
-    rasToExternalXrayBeamTransform, false))
+  vtkNew<vtkTransform> rasToCarmXrayBeamTransform;
+  if (this->GetTransformBetween( CoordSys::RAS, CoordSys::CArmXrayBeam, 
+    rasToCarmXrayBeamTransform, false))
   {
-    vtkWarningMacro("UpdateRasToXrayImagerTransform: RAS->ExternalXrayBeam transform updated");
+    vtkWarningMacro("UpdateRasToXrayImagerTransform: RAS->CarmXrayBeam transform updated");
     // Transform to RAS, set transform to node, transform the model
-    rasToExternalXrayBeamTransform->Concatenate(patientToRasTransform);
+    rasToCarmXrayBeamTransform->Concatenate(patientToRasTransform);
   }
-  if (rasToExternalXrayBeamTransform)
+  if (rasToCarmXrayBeamTransform)
   {
-    rasToExternalXrayBeamTransformNode->SetAndObserveTransformToParent(rasToExternalXrayBeamTransform);
+    rasToCarmXrayBeamTransformNode->SetAndObserveTransformToParent(rasToCarmXrayBeamTransform);
   }
-  return rasToExternalXrayBeamTransformNode;
+  return rasToCarmXrayBeamTransformNode;
 }
 
 //------------------------------------------------------------------------------

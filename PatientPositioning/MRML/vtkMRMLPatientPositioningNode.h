@@ -74,10 +74,10 @@ public:
   /// Set and observe fixed reference ion beam node
   void SetAndObserveFixedReferenceBeamNode(vtkMRMLRTCabin26AIonBeamNode* node);
 
-  /// Get external xray beam node
-  vtkMRMLRTFixedBeamNode* GetExternalXrayBeamNode();
-  /// Set and observe external xray beam node
-  void SetAndObserveExternalXrayBeamNode(vtkMRMLRTFixedBeamNode* node);
+  /// Get C-arm x-ray beam node
+  vtkMRMLRTFixedBeamNode* GetCarmXrayBeamNode();
+  /// Set and observe C-arm x-ray beam node
+  void SetAndObserveCarmXrayBeamNode(vtkMRMLRTFixedBeamNode* node);
 
   /// Get patient body segmentation node
   vtkMRMLSegmentationNode* GetPatientBodySegmentationNode();

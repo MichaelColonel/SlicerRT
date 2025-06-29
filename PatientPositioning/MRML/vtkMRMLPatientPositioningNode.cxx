@@ -45,7 +45,7 @@ const char* FIXED_BEAM_AXIS_REFERENCE_ROLE = "fixedBeamAxisRef";
 const char* FIXED_ISOCENTER_REFERENCE_ROLE = "fixedIsocenterRef";
 const char* CABIN26A_GEOMETRY_REFERENCE_ROLE = "cabin26AGeometryRef";
 const char* FIXED_ION_BEAM_REFERENCE_ROLE = "fixedIonBeamRef";
-const char* EXTERNAL_XRAY_BEAM_REFERENCE_ROLE = "externalXrayBeamRef";
+const char* CARM_XRAY_BEAM_REFERENCE_ROLE = "carmXrayBeamRef";
 const char* BEAM_REFERENCE_ROLE = "beamRef";
 const char* PATIENT_BODY_SEGMENTATION_REFERENCE_ROLE = "patientBodySegmentationRef";
 
@@ -315,13 +315,13 @@ void vtkMRMLPatientPositioningNode::SetAndObserveFixedReferenceBeamNode(vtkMRMLR
 }
 
 //----------------------------------------------------------------------------
-vtkMRMLRTFixedBeamNode* vtkMRMLPatientPositioningNode::GetExternalXrayBeamNode()
+vtkMRMLRTFixedBeamNode* vtkMRMLPatientPositioningNode::GetCarmXrayBeamNode()
 {
-  return vtkMRMLRTFixedBeamNode::SafeDownCast( this->GetNodeReference(EXTERNAL_XRAY_BEAM_REFERENCE_ROLE) );
+  return vtkMRMLRTFixedBeamNode::SafeDownCast( this->GetNodeReference(CARM_XRAY_BEAM_REFERENCE_ROLE) );
 }
 
 //----------------------------------------------------------------------------
-void vtkMRMLPatientPositioningNode::SetAndObserveExternalXrayBeamNode(vtkMRMLRTFixedBeamNode* node)
+void vtkMRMLPatientPositioningNode::SetAndObserveCarmXrayBeamNode(vtkMRMLRTFixedBeamNode* node)
 {
   if (node && this->Scene != node->GetScene())
     {
@@ -329,5 +329,5 @@ void vtkMRMLPatientPositioningNode::SetAndObserveExternalXrayBeamNode(vtkMRMLRTF
     return;
     }
 
-  this->SetNodeReferenceID(EXTERNAL_XRAY_BEAM_REFERENCE_ROLE, (node ? node->GetID() : nullptr));
+  this->SetNodeReferenceID(CARM_XRAY_BEAM_REFERENCE_ROLE, (node ? node->GetID() : nullptr));
 }

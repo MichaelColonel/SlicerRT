@@ -56,7 +56,7 @@ public slots:
   void onPatientBodySegmentationNodeChanged(vtkMRMLNode* segmentationNode);
   void onPatientBodySegmentChanged(QString bodySegmentName);
   void onFixedReferenceBeamNodeChanged(vtkMRMLNode* node);
-  void onExternalXrayBeamNodeChanged(vtkMRMLNode* node);
+  void onCarmXrayBeamNodeChanged(vtkMRMLNode* node);
 
   void onLoadTreatmentMachineButtonClicked();
   void onPatientSupportRotationAngleChanged(double angle);
