@@ -66,6 +66,8 @@ protected:
   void UpdateFromMRMLScene() override;
   void OnMRMLSceneNodeAdded(vtkMRMLNode* node) override;
   void OnMRMLSceneNodeRemoved(vtkMRMLNode* node) override;
+  void ProcessMRMLNodesEvents(vtkObject *caller, unsigned long eventID, void *callData) override;
+
 private:
 
   vtkSlicerTestMe2Logic(const vtkSlicerTestMe2Logic&); // Not implemented

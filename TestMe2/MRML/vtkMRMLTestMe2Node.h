@@ -39,7 +39,7 @@ public:
     const char* GetNodeTagName() override { return "TestMe2"; };
 
     /// Handles events registered in the observer manager
-    void ProcessMRMLEvents(vtkObject *caller, unsigned long eventID, void *callData) override;
+//    void ProcessMRMLEvents(vtkObject *caller, unsigned long eventID, void *callData) override;
 
     vtkMRMLMarkupsFiducialNode* GetFiducialNode();
     vtkMRMLLinearTransformNode* GetTransformNode();

@@ -156,7 +156,7 @@ void vtkMRMLTestMe2Node::PrintSelf(ostream& os, vtkIndent indent)
   vtkMRMLPrintEndMacro();
 
 }
-
+/*
 void vtkMRMLTestMe2Node::ProcessMRMLEvents(vtkObject *caller, unsigned long eventID, void *callData)
 {
   Superclass::ProcessMRMLEvents(caller, eventID, callData);
@@ -172,7 +172,7 @@ void vtkMRMLTestMe2Node::ProcessMRMLEvents(vtkObject *caller, unsigned long even
   }
 
 }
-
+*/
 vtkMRMLMarkupsFiducialNode* vtkMRMLTestMe2Node::GetFiducialNode()
 {
   return vtkMRMLMarkupsFiducialNode::SafeDownCast(this->GetNodeReference(FIDUCIAL_NODE_REFERENCE_ROLE));
@@ -195,7 +195,7 @@ void vtkMRMLTestMe2Node::SetAndObserveFiducialNode(vtkMRMLMarkupsFiducialNode* n
 
  // this->FiducialNode = node;
 
-  this->Modified();
+ // this->Modified();
 }
 
 void vtkMRMLTestMe2Node::SetAndObserveTransformNode(vtkMRMLLinearTransformNode* node)
@@ -208,5 +208,5 @@ void vtkMRMLTestMe2Node::SetAndObserveTransformNode(vtkMRMLLinearTransformNode* 
 
   this->SetNodeReferenceID(TRANSFORM_NODE_REFERENCE_ROLE, (node ? node->GetID() : nullptr));
 
-  this->Modified();
+//  this->Modified();
 }

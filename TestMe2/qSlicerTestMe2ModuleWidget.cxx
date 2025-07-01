@@ -215,7 +215,7 @@ void qSlicerTestMe2ModuleWidget::updateWidgetFromMRML()
     d->RotateXSlider->setEnabled(false);
   }
 //  this->onCheckNodesButtonClicked();
-  qDebug() << Q_FUNC_INFO << "Update";
+//  qDebug() << Q_FUNC_INFO << "Update";
 }
 
 void qSlicerTestMe2ModuleWidget::onSceneImportedEvent()
@@ -301,14 +301,15 @@ void qSlicerTestMe2ModuleWidget::onFiducialNodeChanged(vtkMRMLNode *node)
     return;
   }
 
-  if (node)
+  if (fiducialNode)
   {
     d->ParameterNode->SetAndObserveFiducialNode(fiducialNode);
     d->logic()->createControlPoint(d->ParameterNode->GetFiducialNode());
-    if (d->ParameterNode->GetFiducialNode() && d->ParameterNode->GetTransformNode())
+    if (d->ParameterNode->GetTransformNode())
     {
       d->logic()->updateFiducialTransformLink(d->ParameterNode->GetFiducialNode(), d->ParameterNode->GetTransformNode());
-      d->logic()->updateTransform(d->ParameterNode->GetTransformNode(), d->ParameterNode->GetHeight(), d->ParameterNode->GetRotateXAngle());
+//      d->ParameterNode->Modified();
+//      d->logic()->updateTransform(d->ParameterNode->GetTransformNode(), d->ParameterNode->GetHeight(), d->ParameterNode->GetRotateXAngle());
     }
     qDebug() << Q_FUNC_INFO << "Fiducial node is changed";
   }
@@ -329,13 +330,14 @@ void qSlicerTestMe2ModuleWidget::onTransformNodeChanged(vtkMRMLNode *node)
     return;
   }
 
-  if (node)
+  if (transformNode)
   {
     d->ParameterNode->SetAndObserveTransformNode(transformNode);
     if (d->ParameterNode->GetFiducialNode() && d->ParameterNode->GetTransformNode())
     {
       d->logic()->updateFiducialTransformLink(d->ParameterNode->GetFiducialNode(), d->ParameterNode->GetTransformNode());
-      d->logic()->updateTransform(d->ParameterNode->GetTransformNode(), d->ParameterNode->GetHeight(), d->ParameterNode->GetRotateXAngle());
+//      d->ParameterNode->Modified();
+//      d->logic()->updateTransform(d->ParameterNode->GetTransformNode(), d->ParameterNode->GetHeight(), d->ParameterNode->GetRotateXAngle());
     }
     qDebug() << Q_FUNC_INFO << "Transform node is changed";
   }
@@ -384,18 +386,18 @@ void qSlicerTestMe2ModuleWidget::onHeightSliderMove(double height)
 {
   Q_D(qSlicerTestMe2ModuleWidget);
   d->ParameterNode->SetHeight(height);
-  if (d->ParameterNode->GetFiducialNode() && d->ParameterNode->GetTransformNode())
-  {
-    d->logic()->updateTransform(d->ParameterNode->GetTransformNode(), d->ParameterNode->GetHeight(), d->ParameterNode->GetRotateXAngle());
-  }
+//  if (d->ParameterNode->GetFiducialNode() && d->ParameterNode->GetTransformNode())
+//  {
+//    d->logic()->updateTransform(d->ParameterNode->GetTransformNode(), d->ParameterNode->GetHeight(), d->ParameterNode->GetRotateXAngle());
+//  }
 }
 
 void qSlicerTestMe2ModuleWidget::onRotateXSliderMove(double rotateXAngle)
 {
   Q_D(qSlicerTestMe2ModuleWidget);
   d->ParameterNode->SetRotateXAngle(rotateXAngle);
-  if (d->ParameterNode->GetFiducialNode() && d->ParameterNode->GetTransformNode())
-  {
-    d->logic()->updateTransform(d->ParameterNode->GetTransformNode(), d->ParameterNode->GetHeight(), d->ParameterNode->GetRotateXAngle());
-  }
+//  if (d->ParameterNode->GetFiducialNode() && d->ParameterNode->GetTransformNode())
+//  {
+//    d->logic()->updateTransform(d->ParameterNode->GetTransformNode(), d->ParameterNode->GetHeight(), d->ParameterNode->GetRotateXAngle());
+//  }
 }

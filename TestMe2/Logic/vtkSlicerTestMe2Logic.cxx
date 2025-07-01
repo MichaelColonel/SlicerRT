@@ -103,7 +103,7 @@ void vtkSlicerTestMe2Logic
     return;
   }
 
-  if (node->IsA("vtkMRMLTestMe2NodeNode"))
+  if (node->IsA("vtkMRMLTestMe2Node"))
   {
     vtkNew<vtkIntArray> events;
     events->InsertNextValue(vtkCommand::ModifiedEvent);
@@ -115,6 +115,38 @@ void vtkSlicerTestMe2Logic
 void vtkSlicerTestMe2Logic
 ::OnMRMLSceneNodeRemoved(vtkMRMLNode* vtkNotUsed(node))
 {
+}
+
+//---------------------------------------------------------------------------
+void vtkSlicerTestMe2Logic::ProcessMRMLNodesEvents(vtkObject *caller, unsigned long eventID, void *callData)
+{
+  if (caller->IsA("vtkMRMLTestMe2Node"))
+  {
+    if (eventID == vtkCommand::ModifiedEvent)
+    {
+      vtkMRMLTestMe2Node* parameterNode = vtkMRMLTestMe2Node::SafeDownCast(caller);
+      if (parameterNode)
+      {
+        vtkMRMLMarkupsFiducialNode* fiducialNode = parameterNode->GetFiducialNode();
+        vtkMRMLLinearTransformNode* transformNode = parameterNode->GetTransformNode();
+        double height = parameterNode->GetHeight();
+        double rotateXAngle = parameterNode->GetRotateXAngle();
+ //       this->updateTransform(transformNode, parameterNode->GetHeight(), parameterNode->GetRotateXAngle());
+        if (!transformNode)
+          {
+            vtkErrorMacro("updateTransform: Transform node is invalid");
+            return;
+          }
+          vtkNew<vtkTransform> translate, rotate;
+          translate->Identity();
+          rotate->Identity();
+          translate->Translate(0,0,height);
+          rotate->RotateX(rotateXAngle);
+          rotate->Concatenate(translate);
+          transformNode->SetAndObserveTransformToParent(rotate);
+              }
+    }
+  }
 }
 
 void vtkSlicerTestMe2Logic::createControlPoint(vtkMRMLMarkupsFiducialNode* inputFiducial)
@@ -134,11 +166,18 @@ void vtkSlicerTestMe2Logic::updateFiducialTransformLink(vtkMRMLMarkupsFiducialNo
 
 void vtkSlicerTestMe2Logic::updateTransform(vtkMRMLLinearTransformNode* inputTransform, double height, double rotateXAngle)
 {
-      vtkNew<vtkTransform> transform;
-    transform->Identity();
-    transform->Translate(0,0,height);
-    transform->RotateX(rotateXAngle);
-    inputTransform->SetAndObserveTransformToParent(transform);
+  if (!inputTransform)
+  {
+    vtkErrorMacro("updateTransform: Transform node is invalid");
+    return;
+  }
+  vtkNew<vtkTransform> translate, rotate;
+  translate->Identity();
+  rotate->Identity();
+  translate->Translate(0,0,height);
+  rotate->RotateX(rotateXAngle);
+  rotate->Concatenate(translate);
+  inputTransform->SetAndObserveTransformToParent(rotate);
 //  inputFiducial->SetAndObserveTransformNodeID(inputTransform->GetID());
 //  vtkNew<vtkMatrix4x4> matrixTransform;
 //  matrixTransform->SetElement(2,3,height);
