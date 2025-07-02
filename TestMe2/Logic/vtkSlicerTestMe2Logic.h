@@ -54,7 +54,8 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent) override;
   void createControlPoint(vtkMRMLMarkupsFiducialNode*);
   void updateFiducialTransformLink(vtkMRMLMarkupsFiducialNode*, vtkMRMLLinearTransformNode*);
-  void updateTransform(vtkMRMLLinearTransformNode*, double, double);
+  void updateTransform(vtkMRMLLinearTransformNode*, double height, double rotateXAngle);
+  //void showDRR(vtkMRMLScalarVolumeNode*, vtkMRMLRTBeamNode*);
 
 protected:
   vtkSlicerTestMe2Logic();

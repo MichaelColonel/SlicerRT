@@ -11,6 +11,8 @@
 #include <vtkSmartPointer.h>
 #include <vtkMRMLMarkupsFiducialNode.h>
 #include <vtkMRMLLinearTransformNode.h>
+#include <vtkMRMLScalarVolumeNode.h>
+#include <vtkMRMLRTBeamNode.h>
 
 class VTK_SLICER_TESTME2_MODULE_MRML_EXPORT vtkMRMLTestMe2Node : public vtkMRMLNode
 {
@@ -43,6 +45,13 @@ public:
 
     vtkMRMLMarkupsFiducialNode* GetFiducialNode();
     vtkMRMLLinearTransformNode* GetTransformNode();
+    vtkMRMLScalarVolumeNode* GetDRRNode();
+    vtkMRMLRTBeamNode* GetBeamNode();
+
+    void SetAndObserveFiducialNode(vtkMRMLMarkupsFiducialNode* node);
+    void SetAndObserveTransformNode(vtkMRMLLinearTransformNode* node);
+    void SetAndObserveDRRNode(vtkMRMLScalarVolumeNode* node);
+    void SetAndObserveBeamNode(vtkMRMLRTBeamNode* node);
 //    vtkGetObjectMacro(FiducialNode, vtkMRMLMarkupsFiducialNode);
 //    vtkSetObjectMacro(FiducialNode, vtkMRMLMarkupsFiducialNode);
 
@@ -57,17 +66,12 @@ public:
 
 
 
-    void SetAndObserveFiducialNode(vtkMRMLMarkupsFiducialNode* node);
-    void SetAndObserveTransformNode(vtkMRMLLinearTransformNode* node);
-
 protected:
     vtkMRMLTestMe2Node();
     virtual ~vtkMRMLTestMe2Node();
     vtkMRMLTestMe2Node(const vtkMRMLTestMe2Node&);
     void operator=(const vtkMRMLTestMe2Node&);
 
-//    vtkSmartPointer<vtkMRMLMarkupsFiducialNode> FiducialNode;
-//    vtkSmartPointer<vtkMRMLLinearTransformNode> TransformNode;
     double Height{0.0};
     double RotateXAngle{0.0};
 };

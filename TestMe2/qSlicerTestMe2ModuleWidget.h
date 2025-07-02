@@ -50,12 +50,16 @@ public slots:
   void onSceneImportedEvent();
   void onSceneClosedEvent();
 
-  void onParameterNodeChanged(vtkMRMLNode* node);
+  void onParameterNodeChanged(vtkMRMLNode*);
   void onFiducialNodeChanged(vtkMRMLNode*);
   void onTransformNodeChanged(vtkMRMLNode*);
   void onCheckNodesButtonClicked();
-  void onHeightSliderMove(double);
-  void onRotateXSliderMove(double);
+  void onHeightSliderMove(double height);
+  void onRotateXSliderMove(double rotateXAngle);
+
+  void onDRRNodeChanged(vtkMRMLNode*);
+  void onBeamNodeChanged(vtkMRMLNode*);
+  void onShowDRRButtonClicked();
 
   void updateWidgetFromMRML();
 

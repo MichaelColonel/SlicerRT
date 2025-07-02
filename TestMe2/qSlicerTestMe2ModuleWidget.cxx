@@ -26,7 +26,14 @@
 #include <vtkMRMLScene.h>
 #include <vtkMRMLMarkupsFiducialNode.h>
 #include <vtkMRMLLinearTransformNode.h>
+#include <vtkMRMLScalarVolumeNode.h>
+#include <vtkMRMLRTBeamNode.h>
 
+#include <vtkMRMLSliceNode.h>
+#include <qSlicerLayoutManager.h>
+#include <qSlicerApplication.h>
+#include <qMRMLSliceWidget.h>
+#include <vtkMRMLSliceLogic.h>
 
 //#include <vtkMatrix4x4.h>
 #include <vtkTransform.h>
@@ -89,6 +96,10 @@ void qSlicerTestMe2ModuleWidget::setup()
   Q_D(qSlicerTestMe2ModuleWidget);
   d->setupUi(this);
   this->Superclass::setup();
+
+  connect( d->InputParameterNode, SIGNAL(currentNodeChanged(vtkMRMLNode*)), this,
+    SLOT(onParameterNodeChanged(vtkMRMLNode*)));
+
   connect( d->InputFiducial, SIGNAL(currentNodeChanged(vtkMRMLNode*)), this,
     SLOT(onFiducialNodeChanged(vtkMRMLNode*)));
 
@@ -97,7 +108,6 @@ void qSlicerTestMe2ModuleWidget::setup()
 
   connect( d->InputTransform, SIGNAL(currentNodeChanged(vtkMRMLNode*)), this,
     SLOT(onTransformNodeChanged(vtkMRMLNode*)));
-
 
 //  connect( d->InputTransform, SIGNAL(currentNodeChanged(vtkMRMLNode*)), this,
  //   SLOT(onCheckNodesButtonClicked()));
@@ -111,8 +121,16 @@ void qSlicerTestMe2ModuleWidget::setup()
   connect( d->RotateXSlider, SIGNAL(valueChanged(double)), this,
     SLOT(onRotateXSliderMove(double)));
 
-  connect( d->InputParameterNode, SIGNAL(currentNodeChanged(vtkMRMLNode*)), this,
-    SLOT(onParameterNodeChanged(vtkMRMLNode*)));
+  connect( d->InputDRR, SIGNAL(currentNodeChanged(vtkMRMLNode*)), this,
+    SLOT(onDRRNodeChanged(vtkMRMLNode*)));
+
+  connect( d->InputBeam, SIGNAL(currentNodeChanged(vtkMRMLNode*)), this,
+    SLOT(onBeamNodeChanged(vtkMRMLNode*)));
+
+  connect( d->ShowDRRButton, SIGNAL(clicked()), this,
+    SLOT(onShowDRRButtonClicked()));
+
+
 
  // connect( d->InputParameterNode, SIGNAL(currentNodeChanged(vtkMRMLNode*)), this,
  //   SLOT(onCheckNodesButtonClicked()));
@@ -169,6 +187,10 @@ void qSlicerTestMe2ModuleWidget::setParameterNode(vtkMRMLNode *node)
     d->ParameterNode->SetAndObserveTransformNode(transformNode);
     d->ParameterNode->SetHeight(d->HeightSlider->value());
     d->ParameterNode->SetRotateXAngle(d->RotateXSlider->value());
+    vtkMRMLScalarVolumeNode* drrNode = vtkMRMLScalarVolumeNode::SafeDownCast(d->InputDRR->currentNode());
+    d->ParameterNode->SetAndObserveDRRNode(drrNode);
+    vtkMRMLRTBeamNode* beamNode = vtkMRMLRTBeamNode::SafeDownCast(d->InputBeam->currentNode());
+    d->ParameterNode->SetAndObserveBeamNode(beamNode);
   }
 
   this->updateWidgetFromMRML();
@@ -196,13 +218,12 @@ void qSlicerTestMe2ModuleWidget::updateWidgetFromMRML()
   // Update widgets
 
 
-    d->InputFiducial->setCurrentNode(parameterNode->GetFiducialNode());
-
-
-    d->InputTransform->setCurrentNode(parameterNode->GetTransformNode());
-
+  d->InputFiducial->setCurrentNode(parameterNode->GetFiducialNode());
+  d->InputTransform->setCurrentNode(parameterNode->GetTransformNode());
   d->HeightSlider->setValue(parameterNode->GetHeight());
   d->RotateXSlider->setValue(parameterNode->GetRotateXAngle());
+  d->InputDRR->setCurrentNode(parameterNode->GetDRRNode());
+  d->InputBeam->setCurrentNode(parameterNode->GetBeamNode());
 
   if (d->ParameterNode->GetFiducialNode() && d->ParameterNode->GetTransformNode())
   {
@@ -213,6 +234,15 @@ void qSlicerTestMe2ModuleWidget::updateWidgetFromMRML()
   {
     d->HeightSlider->setEnabled(false);
     d->RotateXSlider->setEnabled(false);
+  }
+
+  if (d->ParameterNode->GetDRRNode() && d->ParameterNode->GetBeamNode())
+  {
+    d->ShowDRRButton->setEnabled(true);
+  }
+  else
+  {
+    d->ShowDRRButton->setEnabled(false);
   }
 //  this->onCheckNodesButtonClicked();
 //  qDebug() << Q_FUNC_INFO << "Update";
@@ -287,7 +317,7 @@ void qSlicerTestMe2ModuleWidget::onEnter()
   // All required data for GUI is initiated
   this->updateWidgetFromMRML();
 
-   d->ModuleWindowInitialized = true;
+  d->ModuleWindowInitialized = true;
 }
 
 void qSlicerTestMe2ModuleWidget::onFiducialNodeChanged(vtkMRMLNode *node)
@@ -367,7 +397,6 @@ void qSlicerTestMe2ModuleWidget::onCheckNodesButtonClicked()
 
   else
   {
-
     d->HeightSlider->setEnabled(false);
     d->RotateXSlider->setEnabled(false);
  //   qWarning() << Q_FUNC_INFO << "Nodes are invalid";
@@ -400,4 +429,87 @@ void qSlicerTestMe2ModuleWidget::onRotateXSliderMove(double rotateXAngle)
 //  {
 //    d->logic()->updateTransform(d->ParameterNode->GetTransformNode(), d->ParameterNode->GetHeight(), d->ParameterNode->GetRotateXAngle());
 //  }
+}
+
+void qSlicerTestMe2ModuleWidget::onDRRNodeChanged(vtkMRMLNode *node)
+{
+  Q_D(qSlicerTestMe2ModuleWidget);
+  vtkMRMLScalarVolumeNode* drrNode = vtkMRMLScalarVolumeNode::SafeDownCast(node);
+
+  if (!d->ParameterNode)
+  {
+    qCritical() << Q_FUNC_INFO << ": Invalid parameter node";
+    return;
+  }
+
+  if (drrNode)
+  {
+    d->ParameterNode->SetAndObserveDRRNode(drrNode);
+    qDebug() << Q_FUNC_INFO << "DRR node is changed";
+  }
+}
+
+void qSlicerTestMe2ModuleWidget::onBeamNodeChanged(vtkMRMLNode *node)
+{
+  Q_D(qSlicerTestMe2ModuleWidget);
+  vtkMRMLRTBeamNode* beamNode = vtkMRMLRTBeamNode::SafeDownCast(node);
+
+  if (!d->ParameterNode)
+  {
+    qCritical() << Q_FUNC_INFO << ": Invalid parameter node";
+    return;
+  }
+
+  if (beamNode)
+  {
+    d->ParameterNode->SetAndObserveBeamNode(beamNode);
+    qDebug() << Q_FUNC_INFO << "Beam node is changed";
+  }
+}
+
+void qSlicerTestMe2ModuleWidget::onShowDRRButtonClicked()
+{
+  Q_D(qSlicerTestMe2ModuleWidget);
+  if (!d->ParameterNode)
+    {
+      qCritical() << Q_FUNC_INFO << ": Invalid parameter node";
+      return;
+    }
+
+  qSlicerApplication* app = qSlicerApplication::application();
+
+  vtkMRMLSliceNode* sliceNode = vtkMRMLSliceNode::SafeDownCast(d->InputSlice->currentNode());
+  vtkMRMLSliceLogic* sliceLogic = app->layoutManager()->sliceWidget(sliceNode->GetName())->sliceLogic();
+
+
+
+  if (d->ParameterNode->GetDRRNode() && d->ParameterNode->GetBeamNode() && sliceNode)
+  {
+//  d->logic()->ShowDRR(d->ParameterNode->GetDRRNode(), d->ParameterNode->GetBeamNode());
+    sliceLogic->GetSliceCompositeNode()->SetForegroundVolumeID(d->ParameterNode->GetDRRNode()->GetID());
+    sliceLogic->FitSliceToAll();
+    sliceNode->UpdateMatrices();
+    sliceLogic->RotateSliceToLowestVolumeAxes();
+   // sliceNode->RotateToVolumePlane();
+
+//  d->SliceLogic->StartSliceNodeInteraction(vtkMRMLSliceNode::RotateToBackgroundVolumePlaneFlag);
+ // d->SliceLogic->RotateSliceToLowestVolumeAxes();
+ // d->SliceLogic->EndSliceNodeInteraction();
+  }
+
+  else
+  {
+    if (!d->ParameterNode->GetDRRNode())
+    {
+      qWarning() << "DRR node is invalid";
+    }
+    if (!d->ParameterNode->GetBeamNode())
+    {
+      qWarning() << "Beam node is invalid";
+    }
+    if (!sliceNode)
+    {
+      qWarning() << "Slice node is invalid";
+    }
+  }
 }

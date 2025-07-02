@@ -21,6 +21,8 @@ namespace
 
 static const char* FIDUCIAL_NODE_REFERENCE_ROLE = "fiducialNodeRef";
 static const char* TRANSFORM_NODE_REFERENCE_ROLE = "transformNodeRef";
+static const char* DRR_NODE_REFERENCE_ROLE = "drrNodeRef";
+static const char* BEAM_NODE_REFERENCE_ROLE = "beamNodeRef";
 
 }
 
@@ -40,6 +42,8 @@ vtkMRMLTestMe2Node::~vtkMRMLTestMe2Node()
 {
   this->SetAndObserveFiducialNode(nullptr);
   this->SetAndObserveTransformNode(nullptr);
+  this->SetAndObserveDRRNode(nullptr);
+  this->SetAndObserveBeamNode(nullptr);
 }
 
 void vtkMRMLTestMe2Node::WriteXML(ostream& of, int nIndent)
@@ -151,6 +155,8 @@ void vtkMRMLTestMe2Node::PrintSelf(ostream& os, vtkIndent indent)
   vtkMRMLPrintFloatMacro(RotateXAngle);
   os << indent << "FiducialNode: " << (this->GetFiducialNode() ? this->GetFiducialNode()->GetName() : "null") << "\n";
   os << indent << "TransformNode: " << (this->GetTransformNode() ? this->GetTransformNode()->GetName() : "null") << "\n";
+  os << indent << "DRRNode: " << (this->GetDRRNode() ? this->GetDRRNode()->GetName() : "null") << "\n";
+  os << indent << "BeamNode: " << (this->GetBeamNode() ? this->GetBeamNode()->GetName() : "null") << "\n";
 
   // add new parameters here
   vtkMRMLPrintEndMacro();
@@ -177,9 +183,20 @@ vtkMRMLMarkupsFiducialNode* vtkMRMLTestMe2Node::GetFiducialNode()
 {
   return vtkMRMLMarkupsFiducialNode::SafeDownCast(this->GetNodeReference(FIDUCIAL_NODE_REFERENCE_ROLE));
 }
+
 vtkMRMLLinearTransformNode* vtkMRMLTestMe2Node::GetTransformNode()
 {
   return vtkMRMLLinearTransformNode::SafeDownCast(this->GetNodeReference(TRANSFORM_NODE_REFERENCE_ROLE));
+}
+
+vtkMRMLScalarVolumeNode* vtkMRMLTestMe2Node::GetDRRNode()
+{
+  return vtkMRMLScalarVolumeNode::SafeDownCast(this->GetNodeReference(DRR_NODE_REFERENCE_ROLE));
+}
+
+vtkMRMLRTBeamNode* vtkMRMLTestMe2Node::GetBeamNode()
+{
+  return vtkMRMLRTBeamNode::SafeDownCast(this->GetNodeReference(BEAM_NODE_REFERENCE_ROLE));
 }
 
 
@@ -207,6 +224,34 @@ void vtkMRMLTestMe2Node::SetAndObserveTransformNode(vtkMRMLLinearTransformNode* 
     }
 
   this->SetNodeReferenceID(TRANSFORM_NODE_REFERENCE_ROLE, (node ? node->GetID() : nullptr));
+
+//  this->Modified();
+}
+
+void vtkMRMLTestMe2Node::SetAndObserveDRRNode(vtkMRMLScalarVolumeNode* node)
+{
+  if (node && this->Scene != node->GetScene())
+  {
+    vtkErrorMacro("Cannot set reference: the referenced and referencing node are not in the same scene");
+    return;
+  }
+
+  this->SetNodeReferenceID(DRR_NODE_REFERENCE_ROLE, (node ? node->GetID() : nullptr));
+
+ // this->FiducialNode = node;
+
+ // this->Modified();
+}
+
+void vtkMRMLTestMe2Node::SetAndObserveBeamNode(vtkMRMLRTBeamNode* node)
+{
+  if (node && this->Scene != node->GetScene())
+    {
+    vtkErrorMacro("Cannot set reference: the referenced and referencing node are not in the same scene");
+    return;
+    }
+
+  this->SetNodeReferenceID(BEAM_NODE_REFERENCE_ROLE, (node ? node->GetID() : nullptr));
 
 //  this->Modified();
 }

@@ -183,3 +183,18 @@ void vtkSlicerTestMe2Logic::updateTransform(vtkMRMLLinearTransformNode* inputTra
 //  matrixTransform->SetElement(2,3,height);
 //  inputTransform->SetMatrixTransformToParent(matrixTransform);
 }
+/*
+void vtkSlicerTestMe2Logic::showDRR(vtkMRMLScalarVolumeNode* inputDRR, vtkMRMLRTBeamNode* inputBeam);
+{
+  if (inputDRR && inputBeam)
+  {
+
+  }
+
+  else
+  {
+    vtkErrorMacro("showDRR: Nodes are invalid");
+    return;
+  }
+}
+*/
