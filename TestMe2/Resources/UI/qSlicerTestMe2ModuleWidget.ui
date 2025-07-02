@@ -182,7 +182,7 @@
            <bool>false</bool>
           </property>
           <property name="nodeTypes">
-           <stringlist notr="true">
+           <stringlist>
             <string>vtkMRMLRTBeamNode</string>
            </stringlist>
           </property>
@@ -207,7 +207,7 @@
            <bool>false</bool>
           </property>
           <property name="nodeTypes">
-           <stringlist notr="true">
+           <stringlist>
             <string>vtkMRMLScalarVolumeNode</string>
            </stringlist>
           </property>
@@ -232,12 +232,21 @@
            <bool>false</bool>
           </property>
           <property name="nodeTypes">
-           <stringlist notr="true">
+           <stringlist>
             <string>vtkMRMLSliceNode</string>
            </stringlist>
           </property>
           <property name="hideChildNodeTypes">
            <stringlist notr="true"/>
+          </property>
+          <property name="addEnabled">
+           <bool>false</bool>
+          </property>
+          <property name="removeEnabled">
+           <bool>false</bool>
+          </property>
+          <property name="renameEnabled">
+           <bool>false</bool>
           </property>
           <property name="interactionNodeSingletonTag">
            <string notr="true"/>

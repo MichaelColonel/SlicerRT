@@ -487,14 +487,16 @@ void qSlicerTestMe2ModuleWidget::onShowDRRButtonClicked()
   {
 //  d->logic()->ShowDRR(d->ParameterNode->GetDRRNode(), d->ParameterNode->GetBeamNode());
     sliceLogic->GetSliceCompositeNode()->SetForegroundVolumeID(d->ParameterNode->GetDRRNode()->GetID());
+    //TODO: Use reformat axis to align with beam. Get beam's angles and use vtkSlicerReformatLogic::RotateSlice(vtkMRMLSliceNode* sliceNode, int axisIndex, double rotationAngleDeg)
+
     sliceLogic->FitSliceToAll();
     sliceNode->UpdateMatrices();
     sliceLogic->RotateSliceToLowestVolumeAxes();
    // sliceNode->RotateToVolumePlane();
 
-//  d->SliceLogic->StartSliceNodeInteraction(vtkMRMLSliceNode::RotateToBackgroundVolumePlaneFlag);
- // d->SliceLogic->RotateSliceToLowestVolumeAxes();
- // d->SliceLogic->EndSliceNodeInteraction();
+//  sliceLogic->StartSliceNodeInteraction(vtkMRMLSliceNode::RotateToBackgroundVolumePlaneFlag);
+ // sliceLogic->RotateSliceToLowestVolumeAxes();
+ // sliceLogic->EndSliceNodeInteraction();
   }
 
   else
