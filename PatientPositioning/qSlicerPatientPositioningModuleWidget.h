@@ -81,6 +81,8 @@ public slots:
   void onFixedIonBevOrientationChanged(const std::array< double, 3 >& viewUpVector);
   void onCarmXrayBevOrientationChanged(const std::array< double, 3 >& viewUpVector);
   void onAlignBeamsButtonClicked();
+  void onShowMarkupsToggled(bool);
+  void onShowModelsToggled(bool);
 
   /// Update widget GUI from PatientPositioning parameters node
   void updateWidgetFromMRML();

@@ -256,6 +256,10 @@ void qSlicerPatientPositioningModuleWidget::setup()
     this, SLOT(onPatientTableTopTranslationChanged(double*)));
   connect( d->CoordinatesWidget_BaseFixedTranslation, SIGNAL(coordinatesChanged(double*)),
     this, SLOT(onBaseFixedToFixedReferenceTranslationChanged(double*)));
+  // models, markups checkboxes
+  connect( d->CheckBox_ShowModels, SIGNAL(toggled(bool)), this, SLOT(onShowModelsToggled(bool)));
+  connect( d->CheckBox_ShowMarkups, SIGNAL(toggled(bool)), this, SLOT(onShowMarkupsToggled(bool)));
+
   // Children widgets
   connect( d->FixedBeamAxisWidget, SIGNAL(bevOrientationChanged(const std::array< double, 3 >&)),
     this, SLOT(onFixedIonBevOrientationChanged(const std::array< double, 3 >&)));
@@ -1872,6 +1876,32 @@ void qSlicerPatientPositioningModuleWidget::onBaseFixedToFixedReferenceTranslati
   cabin26AGeometryNode->Modified();
   this->checkForCollisions();
   d->getLayoutManager()->resumeRender();
+}
+
+//-----------------------------------------------------------------------------
+void qSlicerPatientPositioningModuleWidget::onShowMarkupsToggled(bool toggled)
+{
+  Q_D(qSlicerPatientPositioningModuleWidget);
+
+  if (!d->ParameterNode || !d->ModuleWindowInitialized)
+  {
+    qCritical() << Q_FUNC_INFO << ": Parameter node is invalid!";
+    return;
+  }
+  d->logic()->ShowMarkupsNodes(d->ParameterNode, toggled);
+}
+
+//-----------------------------------------------------------------------------
+void qSlicerPatientPositioningModuleWidget::onShowModelsToggled(bool toggled)
+{
+  Q_D(qSlicerPatientPositioningModuleWidget);
+
+  if (!d->ParameterNode || !d->ModuleWindowInitialized)
+  {
+    qCritical() << Q_FUNC_INFO << ": Parameter node is invalid!";
+    return;
+  }
+  d->logic()->ShowModelsNodes(d->ParameterNode, toggled);
 }
 
 //-----------------------------------------------------------------------------

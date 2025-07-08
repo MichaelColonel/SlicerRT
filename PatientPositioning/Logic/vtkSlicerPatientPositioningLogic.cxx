@@ -830,7 +830,7 @@ vtkMRMLMarkupsPlaneNode* vtkSlicerPatientPositioningLogic::CreateTableTopPlaneNo
 //  tableTopPlaneNode->SetHideFromEditors(1);
   std::string singletonTag = std::string("C26A_") + TABLETOP_MARKUPS_PLANE_NODE_NAME;
 //  tableTopPlaneNode->SetSingletonTag(singletonTag.c_str());
-  tableTopPlaneNode->LockedOn();
+//  tableTopPlaneNode->LockedOn();
 
   // Transform IHEP stand models (IEC Patient) to RAS
   vtkNew<vtkMatrix4x4> patientToRasMatrix;
@@ -896,7 +896,7 @@ vtkMRMLMarkupsFiducialNode* vtkSlicerPatientPositioningLogic::CreateTableTopFidu
 //  tableTopFiducialNode->SetHideFromEditors(1);
   std::string singletonTag = std::string("C26A_") + TABLETOP_MARKUPS_FIDUCIAL_NODE_NAME;
 //  tableTopFiducialNode->SetSingletonTag(singletonTag.c_str());
-  tableTopFiducialNode->LockedOn();
+//  tableTopFiducialNode->LockedOn();
 
   // Transform IHEP stand models (IEC Patient) to RAS
   vtkNew<vtkMatrix4x4> patientToRasMatrix;
@@ -1909,6 +1909,90 @@ std::string vtkSlicerPatientPositioningLogic::CheckForCollisions(vtkMRMLPatientP
   }
 
   return statusString;
+}
+
+
+//----------------------------------------------------------------------------
+void vtkSlicerPatientPositioningLogic::ShowMarkupsNodes(vtkMRMLPatientPositioningNode* parameterNode, bool show)
+{
+  vtkMRMLScene* scene = this->GetMRMLScene(); 
+  if (!scene)
+  {
+    vtkErrorMacro("ShowMarkupsNodes: Invalid MRML scene");
+    return;
+  }
+  if (!parameterNode)
+  {
+    vtkErrorMacro("ShowMarkupsNodes: Invalid parameter set node");
+    return;
+  }
+
+  std::list<std::string> markupsNames;
+  markupsNames.push_back(vtkSlicerPatientPositioningLogic::FIXEDBEAMAXIS_MARKUPS_LINE_NODE_NAME);
+  markupsNames.push_back(vtkSlicerPatientPositioningLogic::FIXEDISOCENTER_MARKUPS_FIDUCIAL_NODE_NAME);
+  markupsNames.push_back(vtkSlicerPatientPositioningLogic::TABLETOP_MARKUPS_PLANE_NODE_NAME);
+  markupsNames.push_back(vtkSlicerPatientPositioningLogic::TABLETOP_MARKUPS_FIDUCIAL_NODE_NAME);
+  markupsNames.push_back("CarmXrayIsocenter");
+
+  for (auto markupName : markupsNames)
+  {
+    // model
+    vtkMRMLMarkupsNode* markupsNode = vtkMRMLMarkupsNode::SafeDownCast(
+      this->GetMRMLScene()->GetFirstNodeByName(markupName.c_str()) );
+    if (!markupsNode)
+    {
+      vtkErrorMacro("ShowModelsNodes: Unable to access markups: " << markupName.c_str());
+      continue;
+    }
+    markupsNode->GetDisplayNode()->SetVisibility(show);
+  }
+}
+
+//----------------------------------------------------------------------------
+void vtkSlicerPatientPositioningLogic::ShowModelsNodes(vtkMRMLPatientPositioningNode* parameterNode, bool show)
+{
+  vtkMRMLScene* scene = this->GetMRMLScene(); 
+  if (!scene)
+  {
+    vtkErrorMacro("ShowModelsNodes: Invalid MRML scene");
+    return;
+  }
+  if (!parameterNode)
+  {
+    vtkErrorMacro("ShowMarkupsNodes: Invalid parameter set node");
+    return;
+  }
+  std::list<std::string> modelsNames;
+  modelsNames.push_back("FixedReference");
+  modelsNames.push_back("TableRobotBaseFixed");
+  modelsNames.push_back("TableRobotBaseRotation");
+  modelsNames.push_back("TableRobotShoulder");
+  modelsNames.push_back("TableRobotElbow");
+  modelsNames.push_back("TableRobotWrist");
+  modelsNames.push_back("TableFlange");
+  modelsNames.push_back("TableTop");
+  modelsNames.push_back("CArmRobotBaseFixed");
+  modelsNames.push_back("CArmRobotBaseRotation");
+  modelsNames.push_back("CArmRobotShoulder");
+  modelsNames.push_back("CArmRobotElbow");
+  modelsNames.push_back("CArmRobotWrist");
+  modelsNames.push_back("CArm");
+  modelsNames.push_back("XrayImager");
+  modelsNames.push_back("XrayImageReceptor");
+
+  for (auto modelName : modelsNames)
+  {
+    std::string fullName = std::string("Cabin26AGeometry_") + modelName;
+    // model
+    vtkMRMLModelNode* modelNode = vtkMRMLModelNode::SafeDownCast(
+      this->GetMRMLScene()->GetFirstNodeByName(fullName.c_str()) );
+    if (!modelNode)
+    {
+      vtkErrorMacro("ShowModelsNodes: Unable to access model: " << fullName.c_str());
+      continue;
+    }
+    modelNode->GetDisplayNode()->SetVisibility(show);
+  }
 }
 
 //---------------------------------------------------------------------------

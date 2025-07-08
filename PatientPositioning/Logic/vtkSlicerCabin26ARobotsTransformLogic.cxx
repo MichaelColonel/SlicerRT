@@ -47,7 +47,7 @@ namespace {
 //constexpr std::array< double, 3 > FixedReferenceToFixedBasedOffset{ -1600., -1500., 1400. };
 
 constexpr double BaseFixedHeight = 240.; // mm
-constexpr double CArmBaseFixedHeight = 240.; // mm
+constexpr double CArmBaseFixedHeight = 225.6;//240.; // mm
 constexpr double BaseRotationHeight = 675. - BaseFixedHeight; // mm
 constexpr double CArmBaseRotationHeight = 645. - CArmBaseFixedHeight; // mm
 constexpr double BaseRotationShoulderDiskCenterOffsetX = 350; // mm

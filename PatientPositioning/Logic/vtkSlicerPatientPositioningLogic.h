@@ -87,8 +87,8 @@ public:
     vtkMRMLPatientPositioningNode* parameterNode, bool forceEnableCollisionDetection=false);
 
   void BuildRobotTableGeometryTransformHierarchy();
-  void ShowModels(vtkMRMLPatientPositioningNode* parameterNode, bool show = true);
-  void ShowMarkups(vtkMRMLPatientPositioningNode* parameterNode, bool show = true);
+  void ShowModelsNodes(vtkMRMLPatientPositioningNode* parameterNode, bool show = true);
+  void ShowMarkupsNodes(vtkMRMLPatientPositioningNode* parameterNode, bool show = true);
   std::string CheckForCollisions(vtkMRMLPatientPositioningNode* parameterNode, bool collisionDetectionEnabled = true);
 
   /// Get Cabin26ARobotsTransformLogic
