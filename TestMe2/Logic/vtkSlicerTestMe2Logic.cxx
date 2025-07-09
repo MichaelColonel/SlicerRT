@@ -35,6 +35,7 @@
 
 #include <vtkMRMLSliceNode.h>
 #include <qSlicerLayoutManager.h>
+#include <vtkMRMLLayoutLogic.h>
 #include <qSlicerApplication.h>
 #include <qMRMLSliceWidget.h>
 #include <vtkMRMLSliceLogic.h>
@@ -212,6 +213,7 @@ void vtkSlicerTestMe2Logic::showDRR(vtkMRMLScalarVolumeNode* drrNode, vtkMRMLRTB
 
     sliceLogic->FitSliceToAll();
     sliceNode->UpdateMatrices();
+    app->layoutManager()->layoutLogic()->MaximizeView(sliceNode);
   }
 
   else
