@@ -476,6 +476,9 @@ void qSlicerTestMe2ModuleWidget::onShowDRRButtonClicked()
       return;
     }
 
+  vtkMRMLScalarVolumeNode* drrNode = vtkMRMLScalarVolumeNode::SafeDownCast(d->ParameterNode->GetDRRNode());
+  vtkMRMLRTBeamNode* beamNode = vtkMRMLRTBeamNode::SafeDownCast(d->ParameterNode->GetBeamNode());
+
   qSlicerApplication* app = qSlicerApplication::application();
 
   vtkMRMLSliceNode* sliceNode = vtkMRMLSliceNode::SafeDownCast(d->InputSlice->currentNode());
@@ -483,20 +486,21 @@ void qSlicerTestMe2ModuleWidget::onShowDRRButtonClicked()
 
 
 
-  if (d->ParameterNode->GetDRRNode() && d->ParameterNode->GetBeamNode() && sliceNode)
+  if (drrNode && beamNode && sliceNode)
   {
 //  d->logic()->ShowDRR(d->ParameterNode->GetDRRNode(), d->ParameterNode->GetBeamNode());
-    sliceLogic->GetSliceCompositeNode()->SetForegroundVolumeID(d->ParameterNode->GetDRRNode()->GetID());
-    //TODO: Use reformat axis to align with beam. Get beam's angles and use vtkSlicerReformatLogic::RotateSlice(vtkMRMLSliceNode* sliceNode, int axisIndex, double rotationAngleDeg)
+    sliceLogic->GetSliceCompositeNode()->SetBackgroundVolumeID(drrNode->GetID());
+
+  //  sliceLogic->RotateSliceToLowestVolumeAxes(); // if without beam alignment
+
+    vtkMRMLTransformNode* beamTransformNode = beamNode->GetParentTransformNode();
+    vtkNew<vtkMatrix4x4> beamMatrix;
+    beamTransformNode->GetMatrixTransformToWorld(beamMatrix);
+
+    sliceNode->GetSliceToRAS()->DeepCopy(beamMatrix);
 
     sliceLogic->FitSliceToAll();
     sliceNode->UpdateMatrices();
-    sliceLogic->RotateSliceToLowestVolumeAxes();
-   // sliceNode->RotateToVolumePlane();
-
-//  sliceLogic->StartSliceNodeInteraction(vtkMRMLSliceNode::RotateToBackgroundVolumePlaneFlag);
- // sliceLogic->RotateSliceToLowestVolumeAxes();
- // sliceLogic->EndSliceNodeInteraction();
   }
 
   else
