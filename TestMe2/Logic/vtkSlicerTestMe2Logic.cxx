@@ -29,7 +29,15 @@
 #include <vtkMRMLMarkupsNode.h>
 #include <vtkMRMLMarkupsFiducialNode.h>
 #include <vtkMRMLLinearTransformNode.h>
+#include <vtkMRMLScalarVolumeNode.h>
+#include <vtkMRMLRTBeamNode.h>
 #include <vtkMRMLTestMe2Node.h>
+
+#include <vtkMRMLSliceNode.h>
+#include <qSlicerLayoutManager.h>
+#include <qSlicerApplication.h>
+#include <qMRMLSliceWidget.h>
+#include <vtkMRMLSliceLogic.h>
 
 
 
@@ -183,12 +191,27 @@ void vtkSlicerTestMe2Logic::updateTransform(vtkMRMLLinearTransformNode* inputTra
 //  matrixTransform->SetElement(2,3,height);
 //  inputTransform->SetMatrixTransformToParent(matrixTransform);
 }
-/*
-void vtkSlicerTestMe2Logic::showDRR(vtkMRMLScalarVolumeNode* inputDRR, vtkMRMLRTBeamNode* inputBeam);
-{
-  if (inputDRR && inputBeam)
-  {
 
+void vtkSlicerTestMe2Logic::showDRR(vtkMRMLScalarVolumeNode* drrNode, vtkMRMLRTBeamNode* beamNode, vtkMRMLSliceNode* sliceNode)
+{
+  if (drrNode && beamNode && sliceNode)
+  {
+    qSlicerApplication* app = qSlicerApplication::application();
+
+    vtkMRMLSliceLogic* sliceLogic = app->layoutManager()->sliceWidget(sliceNode->GetName())->sliceLogic();
+
+    sliceLogic->GetSliceCompositeNode()->SetBackgroundVolumeID(drrNode->GetID());
+
+  //  sliceLogic->RotateSliceToLowestVolumeAxes(); // if without beam alignment
+
+    vtkMRMLTransformNode* beamTransformNode = beamNode->GetParentTransformNode();
+    vtkNew<vtkMatrix4x4> beamMatrix;
+    beamTransformNode->GetMatrixTransformToWorld(beamMatrix);
+
+    sliceNode->GetSliceToRAS()->DeepCopy(beamMatrix);
+
+    sliceLogic->FitSliceToAll();
+    sliceNode->UpdateMatrices();
   }
 
   else
@@ -197,4 +220,3 @@ void vtkSlicerTestMe2Logic::showDRR(vtkMRMLScalarVolumeNode* inputDRR, vtkMRMLRT
     return;
   }
 }
-*/

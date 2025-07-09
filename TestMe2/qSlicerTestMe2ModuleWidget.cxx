@@ -479,28 +479,12 @@ void qSlicerTestMe2ModuleWidget::onShowDRRButtonClicked()
   vtkMRMLScalarVolumeNode* drrNode = vtkMRMLScalarVolumeNode::SafeDownCast(d->ParameterNode->GetDRRNode());
   vtkMRMLRTBeamNode* beamNode = vtkMRMLRTBeamNode::SafeDownCast(d->ParameterNode->GetBeamNode());
 
-  qSlicerApplication* app = qSlicerApplication::application();
-
   vtkMRMLSliceNode* sliceNode = vtkMRMLSliceNode::SafeDownCast(d->InputSlice->currentNode());
-  vtkMRMLSliceLogic* sliceLogic = app->layoutManager()->sliceWidget(sliceNode->GetName())->sliceLogic();
-
 
 
   if (drrNode && beamNode && sliceNode)
   {
-//  d->logic()->ShowDRR(d->ParameterNode->GetDRRNode(), d->ParameterNode->GetBeamNode());
-    sliceLogic->GetSliceCompositeNode()->SetBackgroundVolumeID(drrNode->GetID());
-
-  //  sliceLogic->RotateSliceToLowestVolumeAxes(); // if without beam alignment
-
-    vtkMRMLTransformNode* beamTransformNode = beamNode->GetParentTransformNode();
-    vtkNew<vtkMatrix4x4> beamMatrix;
-    beamTransformNode->GetMatrixTransformToWorld(beamMatrix);
-
-    sliceNode->GetSliceToRAS()->DeepCopy(beamMatrix);
-
-    sliceLogic->FitSliceToAll();
-    sliceNode->UpdateMatrices();
+    d->logic()->showDRR(drrNode, beamNode, sliceNode);
   }
 
   else

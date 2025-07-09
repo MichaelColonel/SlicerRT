@@ -38,6 +38,8 @@
 class vtkMRMLMarkupsNode;
 class vtkMRMLMarkupsFiducialNode;
 class vtkMRMLLinearTransformNode;
+class vtkMRMLScalarVolumeNode;
+class vtkMRMLRTBeamNode;
 
 class vtkMRMLTestMe2Node;
 
@@ -55,7 +57,7 @@ public:
   void createControlPoint(vtkMRMLMarkupsFiducialNode*);
   void updateFiducialTransformLink(vtkMRMLMarkupsFiducialNode*, vtkMRMLLinearTransformNode*);
   void updateTransform(vtkMRMLLinearTransformNode*, double height, double rotateXAngle);
-  //void showDRR(vtkMRMLScalarVolumeNode*, vtkMRMLRTBeamNode*);
+  void showDRR(vtkMRMLScalarVolumeNode* drrNode, vtkMRMLRTBeamNode* beamNode, vtkMRMLSliceNode* sliceNode);
 
 protected:
   vtkSlicerTestMe2Logic();
