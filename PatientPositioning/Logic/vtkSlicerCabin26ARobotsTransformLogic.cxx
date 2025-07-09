@@ -91,63 +91,26 @@ vtkSlicerCabin26ARobotsTransformLogic::vtkSlicerCabin26ARobotsTransformLogic()
   // Setup coordinate system ID to name map
   this->CoordinateSystemsMap.clear();
   this->CoordinateSystemsMap[CoordSys::RAS] = "RAS";
-  this->CoordinateSystemsMap[CoordSys::FixedReference] = "FixedReference";
-  this->CoordinateSystemsMap[CoordSys::TableBaseFixed] = "TableBaseFixed";
-  this->CoordinateSystemsMap[CoordSys::TableBaseRotation] = "TableBaseRotation";
-  this->CoordinateSystemsMap[CoordSys::TableShoulder] = "TableShoulder";
-  this->CoordinateSystemsMap[CoordSys::TableElbow] = "TableElbow";
   this->CoordinateSystemsMap[CoordSys::TableWrist] = "TableWrist";
   this->CoordinateSystemsMap[CoordSys::TableFlange] = "TableFlange";
+  this->CoordinateSystemsMap[CoordSys::TableXrayFlange] = "TableXrayFlange";
   this->CoordinateSystemsMap[CoordSys::TableTop] = "TableTop";
   this->CoordinateSystemsMap[CoordSys::Patient] = "Patient";
-  this->CoordinateSystemsMap[CoordSys::CArmBaseFixed] = "CarmBaseFixed";
-  this->CoordinateSystemsMap[CoordSys::CArmBaseRotation] = "CarmBaseRotation";
-  this->CoordinateSystemsMap[CoordSys::CArmShoulder] = "CarmRotation";
-  this->CoordinateSystemsMap[CoordSys::CArmElbow] = "CarmElbow";
-  this->CoordinateSystemsMap[CoordSys::CArmWrist] = "CarmWrist";
-  this->CoordinateSystemsMap[CoordSys::XrayImager] = "XrayImager";
-  this->CoordinateSystemsMap[CoordSys::XrayImageReceptor] = "XrayImageReceptor";
-  this->CoordinateSystemsMap[CoordSys::CArmXrayBeam] = "CarmXrayBeam";
 
   this->RobotsTransforms.clear();
-  this->RobotsTransforms.push_back(std::make_pair(CoordSys::FixedReference, CoordSys::RAS)); // Dummy
-  this->RobotsTransforms.push_back(std::make_pair(CoordSys::TableBaseFixed, CoordSys::FixedReference)); // Table robot basement translation in cabin 26a (FixedReference) system
-  this->RobotsTransforms.push_back(std::make_pair(CoordSys::TableBaseRotation, CoordSys::TableBaseFixed)); // Rotation of patient support platform
-  this->RobotsTransforms.push_back(std::make_pair(CoordSys::TableShoulder, CoordSys::TableBaseRotation)); // Lateral movement along Y-axis in RAS of the table top
-  this->RobotsTransforms.push_back(std::make_pair(CoordSys::TableElbow, CoordSys::TableShoulder)); // Longitudinal movement along X-axis in RAS of the table top
-  this->RobotsTransforms.push_back(std::make_pair(CoordSys::TableWrist, CoordSys::TableElbow)); // Vertical movement of table top origin
-  this->RobotsTransforms.push_back(std::make_pair(CoordSys::TableFlange, CoordSys::TableWrist)); // Rotation of flange on table top center
-  this->RobotsTransforms.push_back(std::make_pair(CoordSys::TableTop, CoordSys::TableFlange)); // Dummy, only fixed translation
+  this->RobotsTransforms.push_back(std::make_pair(CoordSys::TableFlange, CoordSys::TableWrist)); // Rotation A6 of flange on table top center
+  this->RobotsTransforms.push_back(std::make_pair(CoordSys::TableXrayFlange, CoordSys::TableFlange)); // Dummy, only fixed translation
+  this->RobotsTransforms.push_back(std::make_pair(CoordSys::TableTop, CoordSys::TableXrayFlange)); // Dummy, only fixed translation
   this->RobotsTransforms.push_back(std::make_pair(CoordSys::Patient, CoordSys::TableTop)); // Translate from oatient to table top center
   this->RobotsTransforms.push_back(std::make_pair(CoordSys::RAS, CoordSys::Patient));
-  this->RobotsTransforms.push_back(std::make_pair(CoordSys::CArmBaseFixed, CoordSys::FixedReference)); // C-Arm robot basement translation in cabin 26a (FixedReference) system
-  this->RobotsTransforms.push_back(std::make_pair(CoordSys::CArmBaseRotation, CoordSys::CArmBaseFixed)); // C-Arm robot basement rotation around C-Arm robot basement along Z-axis
-  this->RobotsTransforms.push_back(std::make_pair(CoordSys::CArmShoulder, CoordSys::CArmBaseRotation)); // C-Arm robot shoulder to C-arm basement rotation around C-Arm robot basement along Y-axis
-  this->RobotsTransforms.push_back(std::make_pair(CoordSys::CArmElbow, CoordSys::CArmShoulder)); // C-Arm robot elbow to C-arm robot shoulder around C-Arm shoulder along Y-axis
-  this->RobotsTransforms.push_back(std::make_pair(CoordSys::CArmWrist, CoordSys::CArmElbow)); // C-Arm robot wrist to C-arm robot elbow around C-Arm elbow along Y-axis and Z-axis
-  this->RobotsTransforms.push_back(std::make_pair(CoordSys::CArm, CoordSys::CArmWrist)); // C-Arm to C-arm robot wrist
-  this->RobotsTransforms.push_back(std::make_pair(CoordSys::XrayImager, CoordSys::CArm)); // Xray Imager to C-arm
-  this->RobotsTransforms.push_back(std::make_pair(CoordSys::CArmXrayBeam, CoordSys::XrayImager)); // C-arm x-ray beam to C-arm frame
-  this->RobotsTransforms.push_back(std::make_pair(CoordSys::XrayImageReceptor, CoordSys::CArm)); // Xray image receptor to C-arm frame
 
   this->CoordinateSystemsHierarchy.clear();
   // key - parent, value - children
-  this->CoordinateSystemsHierarchy[CoordSys::FixedReference] = { CoordSys::TableBaseFixed, CoordSys::CArmBaseFixed };
-  this->CoordinateSystemsHierarchy[CoordSys::TableBaseFixed] = { CoordSys::TableBaseRotation };
-  this->CoordinateSystemsHierarchy[CoordSys::TableBaseRotation] = { CoordSys::TableShoulder };
-  this->CoordinateSystemsHierarchy[CoordSys::TableShoulder] = { CoordSys::TableElbow };
-  this->CoordinateSystemsHierarchy[CoordSys::TableElbow] = { CoordSys::TableWrist };
   this->CoordinateSystemsHierarchy[CoordSys::TableWrist] = { CoordSys::TableFlange };
-  this->CoordinateSystemsHierarchy[CoordSys::TableFlange] = { CoordSys::TableTop };
+  this->CoordinateSystemsHierarchy[CoordSys::TableFlange] = { CoordSys::TableXrayFlange };
+  this->CoordinateSystemsHierarchy[CoordSys::TableXrayFlange] = { CoordSys::TableTop };
   this->CoordinateSystemsHierarchy[CoordSys::TableTop] = { CoordSys::Patient };
   this->CoordinateSystemsHierarchy[CoordSys::Patient] = { CoordSys::RAS };
-  this->CoordinateSystemsHierarchy[CoordSys::CArmBaseFixed] = { CoordSys::CArmBaseRotation };
-  this->CoordinateSystemsHierarchy[CoordSys::CArmBaseRotation] = { CoordSys::CArmShoulder };
-  this->CoordinateSystemsHierarchy[CoordSys::CArmShoulder] = { CoordSys::CArmElbow };
-  this->CoordinateSystemsHierarchy[CoordSys::CArmElbow] = { CoordSys::CArmWrist };
-  this->CoordinateSystemsHierarchy[CoordSys::CArmWrist] = { CoordSys::CArm };
-  this->CoordinateSystemsHierarchy[CoordSys::CArm] = { CoordSys::XrayImager, CoordSys::XrayImageReceptor };
-  this->CoordinateSystemsHierarchy[CoordSys::XrayImager] = { CoordSys::CArmXrayBeam };
 }
 
 //-----------------------------------------------------------------------------
@@ -190,22 +153,10 @@ const char* vtkSlicerCabin26ARobotsTransformLogic::GetTreatmentMachinePartTypeAs
 {
   switch (type)
   {
-    case FixedReference: return "FixedReference";
-    case TableBaseFixed: return "TableRobotBaseFixed";
-    case CArmBaseFixed: return "CArmRobotBaseFixed";
-    case TableBaseRotation: return "TableRobotBaseRotation";
-    case CArmBaseRotation: return "CArmRobotBaseRotation";
-    case TableShoulder: return "TableRobotShoulder";
-    case CArmShoulder: return "CArmRobotShoulder";
     case TableFlange: return "TableFlange";
-    case TableElbow: return "TableRobotElbow";
-    case CArmElbow: return "CArmRobotElbow";
+    case TableXrayFlange: return "TableXrayFlange";
     case TableWrist: return "TableRobotWrist";
-    case CArmWrist: return "CArmRobotWrist";
     case TableTop: return "TableTop";
-    case CArm: return "CArm";
-    case XrayImager: return "XrayImager";
-    case XrayImageReceptor: return "XrayImageReceptor";
     case Patient: return "Patient";
     default:
       // invalid type
@@ -231,7 +182,7 @@ void vtkSlicerCabin26ARobotsTransformLogic::BuildRobotsTransformHierarchy()
       vtkSmartPointer<vtkMRMLLinearTransformNode> transformNode = vtkSmartPointer<vtkMRMLLinearTransformNode>::New();
       transformNode->SetName(transformNodeName.c_str());
 //      transformNode->SetHideFromEditors(1);
-      std::string singletonTag = std::string("C26A_") + transformNodeName;
+      std::string singletonTag = std::string("C26C3_") + transformNodeName;
 //      transformNode->SetSingletonTag(singletonTag.c_str());
       this->GetMRMLScene()->AddNode(transformNode);
     }
@@ -239,62 +190,21 @@ void vtkSlicerCabin26ARobotsTransformLogic::BuildRobotsTransformHierarchy()
 
   using CoordSys = CoordinateSystemIdentifier;
 
-  // Organize transforms into hierarchy based on table top robot RBS geometry
+  // Organize transforms into hierarchy based on Channel26, Cabin3 geometry
 
-  // FixedReference parent, translation of fixed base part of the robot from fixed reference isocenter
-  this->GetTransformNodeBetween(CoordSys::TableBaseFixed, CoordSys::FixedReference)->SetAndObserveTransformNodeID(
-    this->GetTransformNodeBetween(CoordSys::FixedReference, CoordSys::RAS)->GetID() );
-  this->GetTransformNodeBetween(CoordSys::CArmBaseFixed, CoordSys::FixedReference)->SetAndObserveTransformNodeID(
-    this->GetTransformNodeBetween(CoordSys::FixedReference, CoordSys::RAS)->GetID() );
-
-  // BaseFixed parent, rotation of base part of the robot along Z-axis
-  this->GetTransformNodeBetween(CoordSys::TableBaseRotation, CoordSys::TableBaseFixed)->SetAndObserveTransformNodeID(
-    this->GetTransformNodeBetween(CoordSys::TableBaseFixed, CoordSys::FixedReference)->GetID() );
-  this->GetTransformNodeBetween(CoordSys::CArmBaseRotation, CoordSys::CArmBaseFixed)->SetAndObserveTransformNodeID(
-    this->GetTransformNodeBetween(CoordSys::CArmBaseFixed, CoordSys::FixedReference)->GetID() );
-
-  // BaseRotation parent, rotation of shoulder part of the robot along Y-axis
-  this->GetTransformNodeBetween(CoordSys::TableShoulder, CoordSys::TableBaseRotation)->SetAndObserveTransformNodeID(
-    this->GetTransformNodeBetween(CoordSys::TableBaseRotation, CoordSys::TableBaseFixed)->GetID() );
-  this->GetTransformNodeBetween(CoordSys::CArmShoulder, CoordSys::CArmBaseRotation)->SetAndObserveTransformNodeID(
-    this->GetTransformNodeBetween(CoordSys::CArmBaseRotation, CoordSys::CArmBaseFixed)->GetID() );
-
-  // Shoulder parent, rotation of elbow part of the robot along Y-axis
-  this->GetTransformNodeBetween(CoordSys::TableElbow, CoordSys::TableShoulder)->SetAndObserveTransformNodeID(
-    this->GetTransformNodeBetween(CoordSys::TableShoulder, CoordSys::TableBaseRotation)->GetID() );
-  this->GetTransformNodeBetween(CoordSys::CArmElbow, CoordSys::CArmShoulder)->SetAndObserveTransformNodeID(
-    this->GetTransformNodeBetween(CoordSys::CArmShoulder, CoordSys::CArmBaseRotation)->GetID() );
-
-  // Elbow parent, rotation of wrist part of the robot along Y-axis
-  this->GetTransformNodeBetween(CoordSys::TableWrist, CoordSys::TableElbow)->SetAndObserveTransformNodeID(
-    this->GetTransformNodeBetween(CoordSys::TableElbow, CoordSys::TableShoulder)->GetID() );
-  this->GetTransformNodeBetween(CoordSys::CArmWrist, CoordSys::CArmElbow)->SetAndObserveTransformNodeID(
-    this->GetTransformNodeBetween(CoordSys::CArmElbow, CoordSys::CArmShoulder)->GetID() );
-
-  // Wrist parent, translation of flange center from wrist center
-  this->GetTransformNodeBetween(CoordSys::TableFlange, CoordSys::TableWrist)->SetAndObserveTransformNodeID(
-    this->GetTransformNodeBetween(CoordSys::TableWrist, CoordSys::TableElbow)->GetID() );
-
-  // Flange parent, translation of table top center flange center
-  this->GetTransformNodeBetween(CoordSys::TableTop, CoordSys::TableFlange)->SetAndObserveTransformNodeID(
+  // TableFlange parent, translation of TableXrayFlange center flange center
+  this->GetTransformNodeBetween(CoordSys::TableXrayFlange, CoordSys::TableFlange)->SetAndObserveTransformNodeID(
     this->GetTransformNodeBetween(CoordSys::TableFlange, CoordSys::TableWrist)->GetID() );
 
-  // TableTop parent, translation of patient from wrist flange center
+  // TableXrayFlange parent, translation of table top center flange center
+  this->GetTransformNodeBetween(CoordSys::TableTop, CoordSys::TableXrayFlange)->SetAndObserveTransformNodeID(
+    this->GetTransformNodeBetween(CoordSys::TableXrayFlange, CoordSys::TableFlange)->GetID() );
+  // TableTop parent, translation of patient from TableXrayFlange (TableTop) center
   this->GetTransformNodeBetween( CoordSys::Patient, CoordSys::TableTop)->SetAndObserveTransformNodeID(
-    this->GetTransformNodeBetween(CoordSys::TableTop, CoordSys::TableFlange)->GetID() );
-
+    this->GetTransformNodeBetween(CoordSys::TableTop, CoordSys::TableXrayFlange)->GetID() );
   // Patient parent, transform to RAS
   this->GetTransformNodeBetween( CoordSys::RAS, CoordSys::Patient)->SetAndObserveTransformNodeID(
     this->GetTransformNodeBetween( CoordSys::Patient, CoordSys::TableTop)->GetID() );
-  // CArm, Imager, Receptor, Beam model
-  this->GetTransformNodeBetween(CoordSys::CArm, CoordSys::CArmWrist)->SetAndObserveTransformNodeID(
-    this->GetTransformNodeBetween(CoordSys::CArmWrist, CoordSys::CArmElbow)->GetID() );
-  this->GetTransformNodeBetween(CoordSys::XrayImageReceptor, CoordSys::CArm)->SetAndObserveTransformNodeID(
-    this->GetTransformNodeBetween(CoordSys::CArm, CoordSys::CArmWrist)->GetID() );
-  this->GetTransformNodeBetween(CoordSys::XrayImager, CoordSys::CArm)->SetAndObserveTransformNodeID(
-    this->GetTransformNodeBetween(CoordSys::CArm, CoordSys::CArmWrist)->GetID() );
-  this->GetTransformNodeBetween(CoordSys::CArmXrayBeam, CoordSys::XrayImager)->SetAndObserveTransformNodeID(
-    this->GetTransformNodeBetween(CoordSys::XrayImager, CoordSys::CArm)->GetID() );
 }
 
 //-----------------------------------------------------------------------------
@@ -316,101 +226,23 @@ void vtkSlicerCabin26ARobotsTransformLogic::ResetToInitialPositions()
   patientToTableTopTransform->Identity();
   patientToTableTopTransform->Modified();
 
-  vtkMRMLLinearTransformNode* tableTopToFlangeTransformNode =
-    this->GetTransformNodeBetween(CoordSys::TableTop, CoordSys::TableFlange);
-  vtkTransform* tableTopToFlangeTransform = vtkTransform::SafeDownCast(tableTopToFlangeTransformNode->GetTransformToParent());
-  tableTopToFlangeTransform->Identity();
-  tableTopToFlangeTransform->Modified();
+  vtkMRMLLinearTransformNode* tableTopToTableXrayFlangeTransformNode =
+    this->GetTransformNodeBetween(CoordSys::TableTop, CoordSys::TableXrayFlange);
+  vtkTransform* tableTopToTableXrayFlangeTransform = vtkTransform::SafeDownCast(tableTopToTableXrayFlangeTransformNode->GetTransformToParent());
+  tableTopToTableXrayFlangeTransform->Identity();
+  tableTopToTableXrayFlangeTransform->Modified();
 
-  vtkMRMLLinearTransformNode* flangeToWristTransformNode =
+  vtkMRMLLinearTransformNode* tableXrayFlangeToTableFlangeTransformNode =
+    this->GetTransformNodeBetween(CoordSys::TableXrayFlange, CoordSys::TableFlange);
+  vtkTransform* tableXrayFlangeToTableFlangeTransform = vtkTransform::SafeDownCast(tableXrayFlangeToTableFlangeTransformNode->GetTransformToParent());
+  tableXrayFlangeToTableFlangeTransform->Identity();
+  tableXrayFlangeToTableFlangeTransform->Modified();
+
+  vtkMRMLLinearTransformNode* tableFlangeToTableWristTransformNode =
     this->GetTransformNodeBetween(CoordSys::TableFlange, CoordSys::TableWrist);
-  vtkTransform* flangeToWristTransform = vtkTransform::SafeDownCast(flangeToWristTransformNode->GetTransformToParent());
-  flangeToWristTransform->Identity();
-  flangeToWristTransform->Modified();
-
-  vtkMRMLLinearTransformNode* wristToElbowTransformNode =
-    this->GetTransformNodeBetween(CoordSys::TableWrist, CoordSys::TableElbow);
-  vtkTransform* wristToElbowTransform = vtkTransform::SafeDownCast(wristToElbowTransformNode->GetTransformToParent());
-  wristToElbowTransform->Identity();
-  wristToElbowTransform->Modified();
-
-  vtkMRMLLinearTransformNode* elbowToShoulderTransformNode =
-    this->GetTransformNodeBetween(CoordSys::TableElbow, CoordSys::TableShoulder);
-  vtkTransform* elbowToShoulderTransform = vtkTransform::SafeDownCast(elbowToShoulderTransformNode->GetTransformToParent());
-  elbowToShoulderTransform->Identity();
-  elbowToShoulderTransform->Modified();
-
-  vtkMRMLLinearTransformNode* shoulderToBaseRotationTransformNode =
-    this->GetTransformNodeBetween(CoordSys::TableShoulder, CoordSys::TableBaseRotation);
-  vtkTransform* shoulderToBaseRotationTransform = vtkTransform::SafeDownCast(shoulderToBaseRotationTransformNode->GetTransformToParent());
-  shoulderToBaseRotationTransform->Identity();
-  shoulderToBaseRotationTransform->Modified();
-
-  vtkMRMLLinearTransformNode* baseRotationToBaseFixedTransformNode =
-    this->GetTransformNodeBetween(CoordSys::TableBaseRotation, CoordSys::TableBaseFixed);
-  vtkTransform* baseRotationToBaseFixedTransform = vtkTransform::SafeDownCast(baseRotationToBaseFixedTransformNode->GetTransformToParent());
-  baseRotationToBaseFixedTransform->Identity();
-  baseRotationToBaseFixedTransform->Modified();
-
-  vtkMRMLLinearTransformNode* tableBaseFixedToFixedRerefenceTransformNode =
-    this->GetTransformNodeBetween(CoordSys::TableBaseFixed, CoordSys::FixedReference);
-  vtkTransform* tableBaseFixedToFixedRerefenceTransform = vtkTransform::SafeDownCast(tableBaseFixedToFixedRerefenceTransformNode->GetTransformToParent());
-  tableBaseFixedToFixedRerefenceTransform->Identity();
-  tableBaseFixedToFixedRerefenceTransform->Modified();
-
-  vtkMRMLLinearTransformNode* cArmBaseFixedToFixedRerefenceTransformNode =
-    this->GetTransformNodeBetween(CoordSys::CArmBaseFixed, CoordSys::FixedReference);
-  vtkTransform* cArmBaseFixedToFixedRerefenceTransform = vtkTransform::SafeDownCast(cArmBaseFixedToFixedRerefenceTransformNode->GetTransformToParent());
-  cArmBaseFixedToFixedRerefenceTransform->Identity();
-  cArmBaseFixedToFixedRerefenceTransform->Modified();
-
-  vtkMRMLLinearTransformNode* cArmBaseRotationToCArmBaseFixedTransformNode =
-    this->GetTransformNodeBetween(CoordSys::CArmBaseRotation, CoordSys::CArmBaseFixed);
-  vtkTransform* cArmBaseRotationToCArmBaseFixedTransform = vtkTransform::SafeDownCast(cArmBaseRotationToCArmBaseFixedTransformNode->GetTransformToParent());
-  cArmBaseRotationToCArmBaseFixedTransform->Identity();
-  cArmBaseRotationToCArmBaseFixedTransform->Modified();
-
-  vtkMRMLLinearTransformNode* cArmShoulderToCArmBaseRotationTransformNode =
-    this->GetTransformNodeBetween(CoordSys::CArmShoulder, CoordSys::CArmBaseRotation);
-  vtkTransform* cArmShoulderToCArmBaseRotationTransform = vtkTransform::SafeDownCast(cArmShoulderToCArmBaseRotationTransformNode->GetTransformToParent());
-  cArmShoulderToCArmBaseRotationTransform->Identity();
-  cArmShoulderToCArmBaseRotationTransform->Modified();
-
-  vtkMRMLLinearTransformNode* cArmElbowToCArmShoulderTransformNode =
-    this->GetTransformNodeBetween(CoordSys::CArmElbow, CoordSys::CArmShoulder);
-  vtkTransform* cArmElbowToCArmShoulderTransform = vtkTransform::SafeDownCast(cArmElbowToCArmShoulderTransformNode->GetTransformToParent());
-  cArmElbowToCArmShoulderTransform->Identity();
-  cArmElbowToCArmShoulderTransform->Modified();
-
-  vtkMRMLLinearTransformNode* cArmWristToCArmElbowTransformNode =
-    this->GetTransformNodeBetween(CoordSys::CArmWrist, CoordSys::CArmElbow);
-  vtkTransform* cArmWristToCArmElbowTransform = vtkTransform::SafeDownCast(cArmWristToCArmElbowTransformNode->GetTransformToParent());
-  cArmWristToCArmElbowTransform->Identity();
-  cArmWristToCArmElbowTransform->Modified();
-
-  vtkMRMLLinearTransformNode* cArmToCArmWristTransformNode =
-    this->GetTransformNodeBetween(CoordSys::CArm, CoordSys::CArmWrist);
-  vtkTransform* cArmToCArmWristTransform = vtkTransform::SafeDownCast(cArmToCArmWristTransformNode->GetTransformToParent());
-  cArmToCArmWristTransform->Identity();
-  cArmToCArmWristTransform->Modified();
-
-  vtkMRMLLinearTransformNode* xrayImageReceptorToCArmTransformNode =
-    this->GetTransformNodeBetween(CoordSys::XrayImageReceptor, CoordSys::CArm);
-  vtkTransform* xrayImageReceptorToCArmTransform = vtkTransform::SafeDownCast(xrayImageReceptorToCArmTransformNode->GetTransformToParent());
-  xrayImageReceptorToCArmTransform->Identity();
-  xrayImageReceptorToCArmTransform->Modified();
-
-  vtkMRMLLinearTransformNode* xrayImagerToCArmTransformNode =
-    this->GetTransformNodeBetween(CoordSys::XrayImager, CoordSys::CArm);
-  vtkTransform* xrayImagerToCArmTransform = vtkTransform::SafeDownCast(xrayImagerToCArmTransformNode->GetTransformToParent());
-  xrayImagerToCArmTransform->Identity();
-  xrayImagerToCArmTransform->Modified();
-
-  vtkMRMLLinearTransformNode* carmXrayToXrayImagerTransformNode =
-    this->GetTransformNodeBetween(CoordSys::CArmXrayBeam, CoordSys::XrayImager);
-  vtkTransform* carmXrayToXrayImagerTransform = vtkTransform::SafeDownCast(carmXrayToXrayImagerTransformNode->GetTransformToParent());
-  carmXrayToXrayImagerTransform->Identity();
-  carmXrayToXrayImagerTransform->Modified();
+  vtkTransform* tableFlangeToTableWristTransform = vtkTransform::SafeDownCast(tableFlangeToTableWristTransformNode->GetTransformToParent());
+  tableFlangeToTableWristTransform->Identity();
+  tableFlangeToTableWristTransform->Modified();
 }
 
 //-----------------------------------------------------------------------------

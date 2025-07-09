@@ -23,6 +23,13 @@ set(MACHINE_MODELS
   CArm.stl
   XrayImager.stl
   XrayImageReceptor.stl
+  KR210_R3100-2_FixedReference_A1.stl
+  KR210_R3100-2_A1_A2.stl
+  KR210_R3100-2_A2_A3.stl
+  KR210_R3100-2_A1_A2.stl
+  KR210_R3100-2_A4_A5.stl
+  KR210_R3100-2_A5_A6.stl
+  KR210_R3100-2_A6_Flange.stl
 )
 
 

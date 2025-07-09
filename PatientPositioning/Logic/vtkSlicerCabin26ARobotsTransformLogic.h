@@ -38,35 +38,19 @@ class vtkMRMLRTBeamNode;
 class vtkMRMLLinearTransformNode;
 class vtkMRMLCabin26AGeometryNode;
 
-// FixedReference -> TableBaseFixed -> TableBaseRotation -> TableShoulder -> TableElbow -> TableWrist -> TableFlange -> TableTop
-// FixedReference -> CArmBaseFixed -> CArmBaseRotation -> CArmShoulder -> CArmElbow -> CArmWrist -> CArmFlange -> CArm
-// CArm -> XraySource
-// CArm -> Imager
+// FixedReference -> TableBaseFixed -> TableBaseRotation -> TableShoulder
+// TableShoulder -> TableElbow -> TableWrist -> TableFlange  -> TableXrayFlange -> TableTop -> Patient
 class VTK_SLICER_PATIENTPOSITIONING_MODULE_LOGIC_EXPORT vtkSlicerCabin26ARobotsTransformLogic : public vtkMRMLAbstractLogic
 {
 public:
   enum CoordinateSystemIdentifier : int
   {
     RAS = 0,
-    FixedReference,
-    TableBaseFixed, // Translate from BaseFixed center to FixedReference center
-    TableBaseRotation, // Rotation along Z-axis of BaseFixed
-    TableShoulder, // Rotation along Y-axis of BaseRotation
-    TableElbow, // Rotation along Y-axis of Shoulder
-    TableWrist, // Rotation along Y-axis of Elbow
-    TableFlange, // Mounted under the Table Top center
+    TableWrist, // Mounted on robot performes A5 rotation
+    TableFlange, // Mounted on robot performes A6 rotation
+    TableXrayFlange, // Mounted under the Table Top center (for Xray receptor)
     TableTop, // Translate from Wrist flange center to Table Top center
     Patient, // Translate from Table Top center to Patient center
-    CArmBaseFixed, // Translate from BaseFixed center to FixedReference center
-    CArmBaseRotation, // Rotation along Z-axis of BaseFixed
-    CArmShoulder, // Rotation along Y-axis of BaseRotation
-    CArmElbow, // Rotation along Y-axis of Shoulder
-    CArmWrist, // Rotation along Y-axis of Elbow
-    CArmFlange, // Mounted under the Table Top center
-    CArm, // Translate from Wrist flange center to CArm center
-    XrayImager, // X-ray imager (x-ray tube source)
-    XrayImageReceptor, // X-ray image receptor (x-ray flatpanel detector)
-    CArmXrayBeam, // C-arm x-ray beam (X-ray imager focal spot is a source)
     CoordinateSystemIdentifier_Last // Last index used for adding more coordinate systems externally
   };
   typedef std::list< CoordinateSystemIdentifier > CoordinateSystemsList;
@@ -106,108 +90,37 @@ public:
   /// Reset models position to initial ones
   void ResetToInitialPositions();
 
-  /// Update BaseFixedToFixedReference transform based on translation
-  /// Apply new BaseFixed to FixedReference translate (BaseFixed->FixedReference)
-  void UpdateBaseFixedToFixedReferenceTransform(vtkMRMLCabin26AGeometryNode* channelNode);
-  /// Apply new TableTop to Flange transform (TableTop->Flange)
-  void UpdateTableTopToFlangeTransform(vtkMRMLCabin26AGeometryNode* parameterNode);
-  /// Apply new TableTop to Flange transform (Flange->Wrist)
-  void UpdateFlangeToWristTransform(vtkMRMLCabin26AGeometryNode* parameterNode);
-  /// Apply new Wrist to Elbow transform (Wrist->Elbow)
-  void UpdateWristToElbowTransform(vtkMRMLCabin26AGeometryNode* parameterNode);
-  /// Apply new Elbow to Shoulder transform (Elbow->Shoulder)
-  void UpdateElbowToShoulderTransform(vtkMRMLCabin26AGeometryNode* parameterNode);
-  /// Apply new Shoulder to BaseRotation transform (Shoulder->BaseRotation)
-  void UpdateShoulderToBaseRotationTransform(vtkMRMLCabin26AGeometryNode* parameterNode);
-  /// Apply new BaseRotation to BaseFixed translate (BaseRotation->BaseFixed)
-  void UpdateBaseRotationToBaseFixedTransform(vtkMRMLCabin26AGeometryNode* parameterNode);
-  /// Apply new Patient to TableTop translate (Patient->TableTop)
+  /// Apply new Patient to TableTop transform (Patient->TableTop)
   void UpdatePatientToTableTopTransform(vtkMRMLCabin26AGeometryNode* parameterNode);
-
-  /// Update CArmBaseFixedToFixedReference transform based on translation
-  /// Apply new C-Arm BaseFixed to FixedReference translate (CArmBaseFixed->FixedReference)
-  void UpdateCArmBaseFixedToFixedReferenceTransform(vtkMRMLCabin26AGeometryNode* channelNode);
-  /// Update CArmBaseRotationToCArmBaseFixed transform based on translation
-  /// Apply new C-Arm BaseRotation to C-Arm BaseFixed translate (CArmBaseRotation->CArmBaseFixed)
-  void UpdateCArmBaseRotationToCArmBaseFixedTransform(vtkMRMLCabin26AGeometryNode* channelNode);
-  /// Update CArmShoulderToCArmBaseRotation transform based on translation
-  /// Apply new C-Arm Shoulder to C-Arm BaseRotation transform (CArmShoulder->CArmBaseRotation)
-  void UpdateCArmShoulderToCArmBaseRotationTransform(vtkMRMLCabin26AGeometryNode* channelNode);
-  /// Update CArmElbowToCArmShoulder transform based on translation
-  /// Apply new C-Arm Elbow to C-Arm Shoulder transform (CArmElbow->CArmShoulder)
-  void UpdateCArmElbowToCArmShoulderTransform(vtkMRMLCabin26AGeometryNode* channelNode);
-  /// Update CArmWristToCArmElbow transform based on translation
-  /// Apply new C-Arm Wrist to C-Arm Elbow transform (CArmWrist->CArmElbow)
-  void UpdateCArmWristToCArmElbowTransform(vtkMRMLCabin26AGeometryNode* channelNode);
-  /// Update CArmToCArmWrist transform based on translation
-  /// Apply new C-Arm to C-Arm Wrist transform (CArm->CArmWrist)
-  void UpdateCArmToCArmWristTransform(vtkMRMLCabin26AGeometryNode* channelNode);
-  /// Update XrayImageReceptor transform based on translation
-  /// Apply new XrayImageReceptor to C-Arm transform (XrayImageReceptor->CArm)
-  void UpdateXrayReceptorToCArmTransform(vtkMRMLCabin26AGeometryNode* channelNode);
-  /// Update XrayImager transform based on translation
-  /// Apply new XrayImager to C-Arm transform (XrayImager->CArm)
-  void UpdateXrayImagerToCArmTransform(vtkMRMLCabin26AGeometryNode* channelNode);
-  /// Update External x-ray beam transform based on translation
-  /// Apply new ExternalXrayBeam to XrayImager transform (ExternalXrayBeam->XrayImager)
-  void UpdateCarmXrayBeamToXrayImagerTransform(vtkMRMLCabin26AGeometryNode* channelNode);
+  /// Apply new TableTop to TableXrayFlange transform (TableTop->TableXrayFlange)
+  void UpdateTableTopToTableXrayFlangeTransform(vtkMRMLCabin26AGeometryNode* parameterNode);
+  /// Apply new TableXrayFlange to TableFlange transform (TableXrayFlange->TableFlange)
+  /// This must just a translation
+  void UpdateTableXrayFlangeToTableFlangeToTransform(vtkMRMLCabin26AGeometryNode* parameterNode);
+  /// Apply new TableTop to TableWrist transform (TableFlange->TableWrist)
+  void UpdateTableFlangeToTableWristTransform(vtkMRMLCabin26AGeometryNode* parameterNode);
+  /// Apply new TableTop to TableWrist transform (TableFlange->TableWrist)
+  void UpdateTableFlangeToTableWristTransform(vtkMRMLCabin26AGeometryNode* parameterNode);
 
   /// Update (or create if absent) RAS to TableTop transform
   vtkMRMLLinearTransformNode* UpdateRasToTableTopTransform(vtkMRMLCabin26AGeometryNode* parameterNode);
-  /// Update (or create if absent) RAS to Flange transform
-  vtkMRMLLinearTransformNode* UpdateRasToFlangeTransform(vtkMRMLCabin26AGeometryNode* parameterNode);
-  /// Update (or create if absent) RAS to BaseFixed transform
-  vtkMRMLLinearTransformNode* UpdateRasToBaseFixedTransform(vtkMRMLCabin26AGeometryNode* parameterNode);
-  /// Update (or create if absent) RAS to CArmBaseFixed transform
-  vtkMRMLLinearTransformNode* UpdateRasToCArmBaseFixedTransform(vtkMRMLCabin26AGeometryNode* parameterNode);
-  /// Update (or create if absent) RAS to CArmBaseRotation transform
-  vtkMRMLLinearTransformNode* UpdateRasToCArmBaseRotationTransform(vtkMRMLCabin26AGeometryNode* parameterNode);
-  /// Update (or create if absent) RAS to CArmRobotShoulder transform
-  vtkMRMLLinearTransformNode* UpdateRasToCArmShoulderTransform(vtkMRMLCabin26AGeometryNode* parameterNode);
-  /// Update (or create if absent) RAS to CArmRobotElbow transform
-  vtkMRMLLinearTransformNode* UpdateRasToCArmElbowTransform(vtkMRMLCabin26AGeometryNode* parameterNode);
-  /// Update (or create if absent) RAS to CArmRobotWrist transform
-  vtkMRMLLinearTransformNode* UpdateRasToCArmWristTransform(vtkMRMLCabin26AGeometryNode* parameterNode);
-  /// Update (or create if absent) RAS to CArm transform
-  vtkMRMLLinearTransformNode* UpdateRasToCArmTransform(vtkMRMLCabin26AGeometryNode* parameterNode);
-  /// Update (or create if absent) RAS to XrayImager transform
-  vtkMRMLLinearTransformNode* UpdateRasToXrayImagerTransform(vtkMRMLCabin26AGeometryNode* parameterNode);
-  /// Update (or create if absent) RAS to XrayImageReceptor transform
-  vtkMRMLLinearTransformNode* UpdateRasToXrayReceptorTransform(vtkMRMLCabin26AGeometryNode* parameterNode);
-  /// Update (or create if absent) RAS to BaseRotation transform
-  vtkMRMLLinearTransformNode* UpdateRasToBaseRotationTransform(vtkMRMLCabin26AGeometryNode* parameterNode);
-  /// Update (or create if absent) RAS to Shoulder transform
-  vtkMRMLLinearTransformNode* UpdateRasToShoulderTransform(vtkMRMLCabin26AGeometryNode* parameterNode);
-  /// Update (or create if absent) RAS to Elbow transform
-  vtkMRMLLinearTransformNode* UpdateRasToElbowTransform(vtkMRMLCabin26AGeometryNode* parameterNode);
+  /// Update (or create if absent) RAS to TableXrayFlange transform
+  vtkMRMLLinearTransformNode* UpdateRasToTableXrayFlangeTransform(vtkMRMLCabin26AGeometryNode* parameterNode);
+  /// Update (or create if absent) RAS to TableFlange transform
+  vtkMRMLLinearTransformNode* UpdateRasToTableFlangeTransform(vtkMRMLCabin26AGeometryNode* parameterNode);
   /// Update (or create if absent) RAS to Wrist transform
-  vtkMRMLLinearTransformNode* UpdateRasToWristTransform(vtkMRMLCabin26AGeometryNode* parameterNode);
-  /// Update (or create if absent) RAS to FixedReference transform
-  vtkMRMLLinearTransformNode* UpdateRasToFixedReferenceTransform(vtkMRMLCabin26AGeometryNode* parameterNode);
+  vtkMRMLLinearTransformNode* UpdateRasToTableWristTransform(vtkMRMLCabin26AGeometryNode* parameterNode);
 
-  /// Update (or create if absent) C-arm x-ray beam transform
-  vtkMRMLLinearTransformNode* UpdateRasToCarmXrayBeamTransform(vtkMRMLCabin26AGeometryNode* channelNode);
-
-  /// Get RAS to FixedReference transform
-  vtkMRMLLinearTransformNode* GetFixedReferenceTransform();
   /// Get RAS to Patient transform
   vtkMRMLLinearTransformNode* GetPatientTransform();
   /// Get RAS to TableTop transform
   vtkMRMLLinearTransformNode* GetTableTopTransform();
-  /// Get RAS to Elbow transform
-  vtkMRMLLinearTransformNode* GetElbowTransform();
+  /// Get RAS to TableXrayFlange transform
+  vtkMRMLLinearTransformNode* GetTableXrayFlangeTransform();
   /// Get RAS to Flange transform
-  vtkMRMLLinearTransformNode* GetFlangeTransform();
+  vtkMRMLLinearTransformNode* GetTableFlangeTransform();
   /// Get RAS to Wrist transform
-  vtkMRMLLinearTransformNode* GetWristTransform();
-  /// Get RAS to Shoulder transform
-  vtkMRMLLinearTransformNode* GetShoulderTransform();
-  /// Get RAS to BaseRotation
-  vtkMRMLLinearTransformNode* GetBaseRotationTransform();
-  /// Get RAS to BaseFixed
-  vtkMRMLLinearTransformNode* GetBaseFixedTransform();
-  /// Get RAS to CarmXrayBeam transform
-  vtkMRMLLinearTransformNode* GetCarmXrayBeamTransform();
+  vtkMRMLLinearTransformNode* GetTableWristTransform();
 
   /// Get part type as string
   const char* GetTreatmentMachinePartTypeAsString(CoordinateSystemIdentifier type);
