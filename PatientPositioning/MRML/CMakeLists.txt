@@ -20,15 +20,10 @@ set(${KIT}_SRCS
   vtkMRML${MODULE_NAME}Node.h
   vtkMRMLChannel26GeometryNode.cxx
   vtkMRMLChannel26GeometryNode.h
-  vtkMRMLCabin26AGeometryNode.h
-  vtkMRMLCabin26AGeometryNode.cxx
-  vtkMRMLCabin26AGeometryNode.h
   vtkMRMLRTFixedBeamNode.h
   vtkMRMLRTFixedBeamNode.cxx
   vtkMRMLRTFixedIonBeamNode.h
   vtkMRMLRTFixedIonBeamNode.cxx
-  vtkMRMLRTCabin26AIonBeamNode.h
-  vtkMRMLRTCabin26AIonBeamNode.cxx
   vtkMRMLRTChannel26Cabin3BeamNode.h
   vtkMRMLRTChannel26Cabin3BeamNode.cxx
   )

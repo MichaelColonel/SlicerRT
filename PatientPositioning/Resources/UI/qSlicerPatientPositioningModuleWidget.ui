@@ -238,7 +238,7 @@
    <item>
     <widget class="QTabWidget" name="TabWidget_RobotsControl">
      <property name="currentIndex">
-      <number>0</number>
+      <number>1</number>
      </property>
      <widget class="QWidget" name="Tab_TableTopRobot">
       <attribute name="title">

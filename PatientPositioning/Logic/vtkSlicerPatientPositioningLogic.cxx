@@ -33,7 +33,7 @@
 #include <vtkMRMLRTPlanNode.h>
 #include <vtkMRMLRTBeamNode.h>
 #include <vtkMRMLRTFixedBeamNode.h>
-#include <vtkMRMLRTCabin26AIonBeamNode.h>
+#include <vtkMRMLRTChannel26Cabin3BeamNode.h>
 
 // VTK includes
 #include <vtkIntArray.h>
@@ -117,7 +117,7 @@ public:
   vtkInternal(vtkSlicerPatientPositioningLogic* external);
   ~vtkInternal();
 
-  using CoordSys = vtkSlicerCabin26ARobotsTransformLogic::CoordinateSystemIdentifier;
+  using CoordSys = vtkSlicerChannel26Cabin3RobotsTransformLogic::CoordinateSystemIdentifier;
 
   vtkSlicerPatientPositioningLogic* External;
   rapidjson::Document* CurrentTreatmentMachineDescription{ nullptr };
@@ -377,7 +377,7 @@ vtkSlicerPatientPositioningLogic::vtkSlicerPatientPositioningLogic()
 {
   this->Internal = new vtkInternal(this); 
 
-  this->Cabin26ARobotsLogic = vtkSlicerCabin26ARobotsTransformLogic::New();
+  this->Channel26RobotsLogic = vtkSlicerChannel26Cabin3RobotsTransformLogic::New();
 
   this->TableTopElbowCollisionDetection = vtkCollisionDetectionFilter::New();
   this->TableTopElbowCollisionDetection->SetCollisionModeToFirstContact();
@@ -405,10 +405,10 @@ vtkSlicerPatientPositioningLogic::vtkSlicerPatientPositioningLogic()
 //----------------------------------------------------------------------------
 vtkSlicerPatientPositioningLogic::~vtkSlicerPatientPositioningLogic()
 {
-  if (this->Cabin26ARobotsLogic)
+  if (this->Channel26RobotsLogic)
   {
-    this->Cabin26ARobotsLogic->Delete();
-    this->Cabin26ARobotsLogic = nullptr;
+    this->Channel26RobotsLogic->Delete();
+    this->Channel26RobotsLogic = nullptr;
   }
 
   if (this->Internal)
@@ -500,9 +500,9 @@ void vtkSlicerPatientPositioningLogic::RegisterNodes()
   {
     scene->RegisterNodeClass(vtkSmartPointer<vtkMRMLPatientPositioningNode>::New());
   }
-  if (!scene->IsNodeClassRegistered("vtkMRMLCabin26AGeometryNode"))
+  if (!scene->IsNodeClassRegistered("vtkMRMLChannel26GeometryNode"))
   {
-    scene->RegisterNodeClass(vtkSmartPointer<vtkMRMLCabin26AGeometryNode>::New());
+    scene->RegisterNodeClass(vtkSmartPointer<vtkMRMLChannel26GeometryNode>::New());
   }
 }
 
@@ -529,30 +529,17 @@ void vtkSlicerPatientPositioningLogic::ProcessMRMLNodesEvents(vtkObject* caller,
     {
     }
   }
-  if (caller->IsA("vtkMRMLCabin26AGeometryNode"))
+  if (caller->IsA("vtkMRMLChannel26GeometryNode"))
   {
-    vtkMRMLCabin26AGeometryNode* cabin26AGeometry = vtkMRMLCabin26AGeometryNode::SafeDownCast(caller);
+    vtkMRMLChannel26GeometryNode* channel26Geometry = vtkMRMLChannel26GeometryNode::SafeDownCast(caller);
     if (event == vtkCommand::ModifiedEvent)
     {
-      this->Cabin26ARobotsLogic->UpdateRasToTableTopTransform(cabin26AGeometry);
-      this->Cabin26ARobotsLogic->UpdateRasToFlangeTransform(cabin26AGeometry);
-      this->Cabin26ARobotsLogic->UpdateRasToWristTransform(cabin26AGeometry);
-      this->Cabin26ARobotsLogic->UpdateRasToElbowTransform(cabin26AGeometry);
-      this->Cabin26ARobotsLogic->UpdateRasToShoulderTransform(cabin26AGeometry);
-      this->Cabin26ARobotsLogic->UpdateRasToBaseRotationTransform(cabin26AGeometry);
-      this->Cabin26ARobotsLogic->UpdateRasToBaseFixedTransform(cabin26AGeometry);
-      this->Cabin26ARobotsLogic->UpdateRasToFixedReferenceTransform(cabin26AGeometry);
-      this->Cabin26ARobotsLogic->UpdateRasToCArmBaseFixedTransform(cabin26AGeometry);
-      this->Cabin26ARobotsLogic->UpdateRasToCArmBaseRotationTransform(cabin26AGeometry);
-      this->Cabin26ARobotsLogic->UpdateRasToCArmShoulderTransform(cabin26AGeometry);
-      this->Cabin26ARobotsLogic->UpdateRasToCArmElbowTransform(cabin26AGeometry);
-      this->Cabin26ARobotsLogic->UpdateRasToCArmWristTransform(cabin26AGeometry);
-      this->Cabin26ARobotsLogic->UpdateRasToCArmTransform(cabin26AGeometry);
-      this->Cabin26ARobotsLogic->UpdateRasToXrayImagerTransform(cabin26AGeometry);
-      this->Cabin26ARobotsLogic->UpdateRasToXrayReceptorTransform(cabin26AGeometry);
-      this->Cabin26ARobotsLogic->UpdateRasToCarmXrayBeamTransform(cabin26AGeometry);
-      this->UpdateTableTopPlaneNode(cabin26AGeometry);
-      this->UpdateTableTopFiducialNode(cabin26AGeometry);
+      this->Channel26RobotsLogic->UpdateRasToTableTopTransform(channel26Geometry);
+      this->Channel26RobotsLogic->UpdateRasToTableXrayFlangeTransform(channel26Geometry);
+      this->Channel26RobotsLogic->UpdateRasToTableFlangeTransform(channel26Geometry);
+      this->Channel26RobotsLogic->UpdateRasToTableWristTransform(channel26Geometry);
+      this->UpdateTableTopPlaneNode(channel26Geometry);
+      this->UpdateTableTopFiducialNode(channel26Geometry);
     }
   }
 }
@@ -581,7 +568,7 @@ void vtkSlicerPatientPositioningLogic::OnMRMLSceneNodeAdded(vtkMRMLNode* node)
     events->InsertNextValue(vtkCommand::ModifiedEvent);
     vtkObserveMRMLNodeEventsMacro(node, events);
   }
-  if (node->IsA("vtkMRMLCabin26AGeometryNode"))
+  if (node->IsA("vtkMRMLChannel26GeometryNode"))
   {
     vtkNew<vtkIntArray> events;
     events->InsertNextValue(vtkCommand::ModifiedEvent);

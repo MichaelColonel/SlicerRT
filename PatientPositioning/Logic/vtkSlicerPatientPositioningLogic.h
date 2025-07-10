@@ -35,7 +35,7 @@
 #include <cstdlib>
 
 #include "vtkSlicerPatientPositioningModuleLogicExport.h"
-#include "vtkSlicerCabin26ARobotsTransformLogic.h"
+#include "vtkSlicerChannel26Cabin3RobotsTransformLogic.h"
 
 class vtkMRMLLinearTransformNode;
 class vtkMRMLSliceCompositeNode;
@@ -77,29 +77,21 @@ public:
   /// Load and setup components of the treatment machine into the scene based on its description.
   /// \param parameterNode Parameter node contains the treatment machine descriptor file path.
   /// \return List of parts that were successfully set up.
-  std::vector<vtkSlicerCabin26ARobotsTransformLogic::CoordinateSystemIdentifier> LoadTreatmentMachineComponents(
+  std::vector<vtkSlicerChannel26Cabin3RobotsTransformLogic::CoordinateSystemIdentifier> LoadTreatmentMachineComponents(
     vtkMRMLPatientPositioningNode* parameterNode);
   /// Set up the IEC transforms and model properties on the treatment machine models.
   /// \param forceEnableCollisionDetection Enable collision detection between parts even if calculation is potentially
   ///        lengthy absed on the number of triangles of the parts.
   /// \return List of parts that were successfully set up.
-  std::vector<vtkSlicerCabin26ARobotsTransformLogic::CoordinateSystemIdentifier> SetupTreatmentMachineModels(
+  std::vector<vtkSlicerChannel26Cabin3RobotsTransformLogic::CoordinateSystemIdentifier> SetupTreatmentMachineModels(
     vtkMRMLPatientPositioningNode* parameterNode, bool forceEnableCollisionDetection=false);
 
-  void BuildRobotTableGeometryTransformHierarchy();
+  void BuildRobotsTransformHierarchy();
   void ShowModelsNodes(vtkMRMLPatientPositioningNode* parameterNode, bool show = true);
   void ShowMarkupsNodes(vtkMRMLPatientPositioningNode* parameterNode, bool show = true);
-  std::string CheckForCollisions(vtkMRMLPatientPositioningNode* parameterNode, bool collisionDetectionEnabled = true);
 
   /// Get Cabin26ARobotsTransformLogic
-  vtkSlicerCabin26ARobotsTransformLogic* GetCabin26ARobotsTransformLogic() const;
-  /// Get translation vector from Patient isocenter to fixed beam axis (axis in FixedReference frame)
-  vtkVector3d GetIsocenterToFixedBeamAxisTranslation(vtkMRMLPatientPositioningNode* parameterNode,
-    vtkSlicerCabin26ARobotsTransformLogic::CoordinateSystemIdentifier fromFrame);
-
-  /// Get alignment angles (lateral, longitudinal, vertical) between Patient ion beam and FixedReference frame
-  /// \return (lateral, longitudinal, vertical) vector
-  vtkVector3d GetBeamToFixedReferenceAlignment(vtkMRMLTransformNode* patientBeamTransformNode);
+  vtkSlicerChannel26Cabin3RobotsTransformLogic* GetChannel26RobotsTransformLogic() const;
 
   /// Creates a fixed beam axis line node (axis in FixedReference frame)
   /// \return a valid markups line node pointer or nullptr otherwise
@@ -109,7 +101,7 @@ public:
   vtkMRMLMarkupsFiducialNode* CreateFixedIsocenterFiducialNode(vtkMRMLPatientPositioningNode* parameterNode);
 
   /// Create fixed reference beam and plan and add beam to the parameter node
-  vtkMRMLRTCabin26AIonBeamNode* CreateFixedBeamPlanAndNode(vtkMRMLPatientPositioningNode* parameterNode);
+  vtkMRMLRTChannel26Cabin3BeamNode* CreateFixedBeamPlanAndNode(vtkMRMLPatientPositioningNode* parameterNode);
   /// Create C-arm x-ray beam and plan and add C-arm x-ray beam to the parameter node
   vtkMRMLRTFixedBeamNode* CreateCarmXrayPlanAndNode(vtkMRMLPatientPositioningNode* parameterNode);
 
@@ -118,25 +110,20 @@ public:
     const double point0[3], const double point1[3]);
 
   /// Create TableTop plane markups node for visualization
-  vtkMRMLMarkupsPlaneNode* CreateTableTopPlaneNode(vtkMRMLCabin26AGeometryNode* parameterNode);
+  vtkMRMLMarkupsPlaneNode* CreateTableTopPlaneNode(vtkMRMLChannel26GeometryNode* parameterNode);
   /// Create TableTop fiducial markups node for visualization of fix holes
-  vtkMRMLMarkupsFiducialNode* CreateTableTopFiducialNode(vtkMRMLCabin26AGeometryNode* parameterNode);
+  vtkMRMLMarkupsFiducialNode* CreateTableTopFiducialNode(vtkMRMLChannel26GeometryNode* parameterNode);
   /// Update TableTop markups plane node using parameter node data and geometry hierarchy
-  void UpdateTableTopPlaneNode(vtkMRMLCabin26AGeometryNode* parameterNode);
+  void UpdateTableTopPlaneNode(vtkMRMLChannel26GeometryNode* parameterNode);
   /// Update TableTop markups fiducial node using parameter node data and geometry hierarchy
-  void UpdateTableTopFiducialNode(vtkMRMLCabin26AGeometryNode* parameterNode);
-
-  bool AlignTableTop(vtkMRMLCabin26AGeometryNode* parameterNode, vtkMRMLRTBeamNode* patientBeam,
-    vtkTransform* fixedReferenceToPatientBeamTransform, double tableTopAngles[6]);
-
-  bool AlignCarmXrayBeamToCarmComponents(vtkMRMLCabin26AGeometryNode* parameterNode, vtkMRMLRTBeamNode* carmXrayBeamNode);
+  void UpdateTableTopFiducialNode(vtkMRMLChannel26GeometryNode* parameterNode);
 
 public:
   // Get treatment machine properties from descriptor file
   /// Get part type as string
-  const char* GetTreatmentMachinePartTypeAsString(vtkSlicerCabin26ARobotsTransformLogic::CoordinateSystemIdentifier type);
+  const char* GetTreatmentMachinePartTypeAsString(vtkSlicerChannel26Cabin3RobotsTransformLogic::CoordinateSystemIdentifier type);
 
-  vtkGetObjectMacro(Cabin26ARobotsLogic, vtkSlicerCabin26ARobotsTransformLogic);
+  vtkGetObjectMacro(Channel26RobotsLogic, vtkSlicerChannel26Cabin3RobotsTransformLogic);
 
   /// Get part name for part type in the currently loaded treatment machine description
   std::string GetNameForPartType(std::string partType);
@@ -181,10 +168,7 @@ protected:
   /// Handles events registered in the observer manager
   void ProcessMRMLNodesEvents(vtkObject* caller, unsigned long event, void* callData) override;
 
-  /// Get patient body closed surface poly data from segmentation node and segment selection in the parameter node
-//  bool GetPatientBodyPolyData(vtkMRMLPatientPositioningNode* parameterNode, vtkPolyData* patientBodyPolyData);
-
-  vtkSlicerCabin26ARobotsTransformLogic* Cabin26ARobotsLogic{ nullptr };
+  vtkSlicerChannel26Cabin3RobotsTransformLogic* Channel26RobotsLogic{ nullptr };
 
   vtkCollisionDetectionFilter* TableTopElbowCollisionDetection{ nullptr };
   vtkCollisionDetectionFilter* TableTopShoulderCollisionDetection{ nullptr };

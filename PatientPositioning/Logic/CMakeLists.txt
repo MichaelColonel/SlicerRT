@@ -19,9 +19,6 @@ set(${KIT}_SRCS
   vtkSlicerChannel26Cabin3RobotsTransformLogic.cxx
   vtkSlicerChannel26Cabin3RobotsTransformLogic.h
   vtkSlicerChannel26Cabin3RobotsGeometryCommon.h
-  vtkSlicerCabin26ARobotsTransformLogic.cxx
-  vtkSlicerCabin26ARobotsTransformLogic.h
-  vtkSlicerCabin26ARobotsGeometryCommon.h
   )
 
 set(${KIT}_TARGET_LIBRARIES
