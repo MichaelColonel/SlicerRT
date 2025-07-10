@@ -16,6 +16,9 @@ set(${KIT}_INCLUDE_DIRECTORIES
 set(${KIT}_SRCS
   vtkSlicer${MODULE_NAME}Logic.cxx
   vtkSlicer${MODULE_NAME}Logic.h
+  vtkSlicerChannel26Cabin3RobotsTransformLogic.cxx
+  vtkSlicerChannel26Cabin3RobotsTransformLogic.h
+  vtkSlicerChannel26Cabin3RobotsGeometryCommon.h
   vtkSlicerCabin26ARobotsTransformLogic.cxx
   vtkSlicerCabin26ARobotsTransformLogic.h
   vtkSlicerCabin26ARobotsGeometryCommon.h

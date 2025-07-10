@@ -59,28 +59,9 @@ public slots:
   void onCarmXrayBeamNodeChanged(vtkMRMLNode* node);
 
   void onLoadTreatmentMachineButtonClicked();
-  void onPatientSupportRotationAngleChanged(double angle);
   void onPatientTableTopTranslationChanged(double* position);
-  void onBaseFixedToFixedReferenceTranslationChanged(double* position);
-  void onTableTopRobotAnglesChanged(double* a);
-  void onTableTopRobotA1Changed(double a1);
-  void onTableTopRobotA2Changed(double a2);
-  void onTableTopRobotA3Changed(double a3);
-  void onTableTopRobotA4Changed(double a4);
-  void onTableTopRobotA5Changed(double a5);
-  void onTableTopRobotA6Changed(double a6);
-  void onCArmRobotA1Changed(double a1);
-  void onCArmRobotA2Changed(double a2);
-  void onCArmRobotA3Changed(double a3);
-  void onCArmRobotA4Changed(double a4);
-  void onCArmRobotA5Changed(double a5);
-  void onCArmRobotA6Changed(double a6);
+  void onTableRobotA6Changed(double a6);
   void onRotatePatientHeadFeetToggled(bool toggled);
-  void onCollisionDetectionToggled(bool toggled);
-  void onFixedReferenceCameraToggled(bool toggled);
-  void onFixedIonBevOrientationChanged(const std::array< double, 3 >& viewUpVector);
-  void onCarmXrayBevOrientationChanged(const std::array< double, 3 >& viewUpVector);
-  void onAlignBeamsButtonClicked();
   void onShowMarkupsToggled(bool);
   void onShowModelsToggled(bool);
 

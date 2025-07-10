@@ -151,7 +151,7 @@
            <stringlist>
             <string>vtkMRMLRTIonBeamNode</string>
             <string>vtkMRMLRTFixedIonBeamNode</string>
-            <string>vtkMRMLRTCabin26AIonBeamNode</string>
+            <string>vtkMRMLRTChannel26Cabin3BeamNode</string>
            </stringlist>
           </property>
           <property name="showChildNodeTypes">
@@ -231,78 +231,6 @@
          </widget>
         </item>
        </layout>
-      </item>
-     </layout>
-    </widget>
-   </item>
-   <item>
-    <widget class="ctkCollapsibleButton" name="CollapsibleButton_ImageRegistration">
-     <property name="text">
-      <string>X-ray and DRR registration</string>
-     </property>
-     <layout class="QGridLayout" name="gridLayout_12">
-      <item row="0" column="0">
-       <layout class="QGridLayout" name="gridLayout_11">
-        <item row="0" column="1">
-         <widget class="qMRMLNodeComboBox" name="MRMLNodeComboBox_XrayImage">
-          <property name="nodeTypes">
-           <stringlist notr="true">
-            <string>vtkMRMLScalarVolumeNode</string>
-           </stringlist>
-          </property>
-          <property name="hideChildNodeTypes">
-           <stringlist notr="true"/>
-          </property>
-          <property name="interactionNodeSingletonTag">
-           <string notr="true"/>
-          </property>
-         </widget>
-        </item>
-        <item row="0" column="0">
-         <widget class="QLabel" name="label_21">
-          <property name="text">
-           <string>X-ray:</string>
-          </property>
-         </widget>
-        </item>
-        <item row="1" column="1">
-         <widget class="qMRMLNodeComboBox" name="MRMLNodeComboBox_DrrImage">
-          <property name="nodeTypes">
-           <stringlist notr="true">
-            <string>vtkMRMLScalarVolumeNode</string>
-           </stringlist>
-          </property>
-          <property name="hideChildNodeTypes">
-           <stringlist notr="true"/>
-          </property>
-          <property name="interactionNodeSingletonTag">
-           <string notr="true"/>
-          </property>
-         </widget>
-        </item>
-        <item row="1" column="0">
-         <widget class="QLabel" name="label_20">
-          <property name="text">
-           <string>DRR:</string>
-          </property>
-         </widget>
-        </item>
-       </layout>
-      </item>
-      <item row="1" column="0">
-       <widget class="ctkCheckBox" name="CheckBox_ShowRegistration">
-        <property name="indicatorIcon">
-         <iconset resource="../../../../Slicer/Libs/MRML/Widgets/Resources/qMRMLWidgets.qrc">
-          <normaloff>:/Icons/VisibleOn.png</normaloff>
-          <normalon>:/Icons/VisibleOff.png</normalon>:/Icons/VisibleOn.png</iconset>
-        </property>
-        <property name="indicatorIconSize">
-         <size>
-          <width>21</width>
-          <height>21</height>
-         </size>
-        </property>
-       </widget>
       </item>
      </layout>
     </widget>
@@ -625,50 +553,6 @@
     </widget>
    </item>
    <item>
-    <widget class="ctkCollapsibleButton" name="CollapsibleButton_CollisionDetection">
-     <property name="enabled">
-      <bool>false</bool>
-     </property>
-     <property name="text">
-      <string>Collision detection</string>
-     </property>
-     <property name="collapsed">
-      <bool>true</bool>
-     </property>
-     <layout class="QGridLayout" name="gridLayout_10">
-      <property name="leftMargin">
-       <number>4</number>
-      </property>
-      <property name="topMargin">
-       <number>4</number>
-      </property>
-      <property name="rightMargin">
-       <number>4</number>
-      </property>
-      <property name="bottomMargin">
-       <number>4</number>
-      </property>
-      <property name="spacing">
-       <number>4</number>
-      </property>
-      <item row="1" column="0" colspan="2">
-       <widget class="QLabel" name="CollisionDetectionStatusLabel">
-        <property name="text">
-         <string>No collisions detected.</string>
-        </property>
-       </widget>
-      </item>
-      <item row="0" column="0">
-       <widget class="QCheckBox" name="CheckBox_ForceCollisionDetectionUpdate">
-        <property name="text">
-         <string>Force update</string>
-        </property>
-       </widget>
-      </item>
-     </layout>
-    </widget>
-   </item>
-   <item>
     <widget class="ctkCollapsibleButton" name="CollapsibleButton_PatientTableTopControl">
      <property name="enabled">
       <bool>false</bool>
@@ -677,7 +561,7 @@
       <string>Patient on TableTop control</string>
      </property>
      <property name="collapsed">
-      <bool>true</bool>
+      <bool>false</bool>
      </property>
      <layout class="QGridLayout" name="gridLayout_7">
       <item row="0" column="0">
@@ -724,252 +608,6 @@
        </layout>
       </item>
      </layout>
-    </widget>
-   </item>
-   <item>
-    <widget class="ctkCollapsibleButton" name="CollapsibleButton_BaseFixedControl">
-     <property name="enabled">
-      <bool>false</bool>
-     </property>
-     <property name="text">
-      <string>BaseFixed control</string>
-     </property>
-     <property name="collapsed">
-      <bool>true</bool>
-     </property>
-     <layout class="QGridLayout" name="gridLayout_9">
-      <item row="0" column="0">
-       <widget class="QGroupBox" name="groupBox">
-        <property name="title">
-         <string>BaseFixed origin offset from FixedReference frame origin (mm)</string>
-        </property>
-        <layout class="QGridLayout" name="gridLayout_16">
-         <item row="0" column="0">
-          <layout class="QHBoxLayout" name="horizontalLayout">
-           <item>
-            <widget class="QLabel" name="label_16">
-             <property name="text">
-              <string>(X,Y,Z) in FixedReference frame:</string>
-             </property>
-            </widget>
-           </item>
-           <item>
-            <widget class="ctkCoordinatesWidget" name="CoordinatesWidget_BaseFixedTranslation">
-             <property name="decimals">
-              <number>1</number>
-             </property>
-             <property name="coordinates" stdset="0">
-              <string>-1685,600,-1800</string>
-             </property>
-            </widget>
-           </item>
-          </layout>
-         </item>
-        </layout>
-       </widget>
-      </item>
-     </layout>
-    </widget>
-   </item>
-   <item>
-    <widget class="ctkCollapsibleButton" name="CollapsibleButton_TableTopControl">
-     <property name="enabled">
-      <bool>true</bool>
-     </property>
-     <property name="text">
-      <string>TableTop control</string>
-     </property>
-     <property name="collapsed">
-      <bool>true</bool>
-     </property>
-     <layout class="QGridLayout" name="gridLayout_5">
-      <item row="0" column="0">
-       <layout class="QGridLayout" name="gridLayout_4">
-        <item row="0" column="0">
-         <widget class="QLabel" name="label_11">
-          <property name="enabled">
-           <bool>false</bool>
-          </property>
-          <property name="text">
-           <string>Xt offset</string>
-          </property>
-         </widget>
-        </item>
-        <item row="0" column="1">
-         <widget class="ctkSliderWidget" name="SliderWidget">
-          <property name="enabled">
-           <bool>false</bool>
-          </property>
-          <property name="minimum">
-           <double>-5000.000000000000000</double>
-          </property>
-          <property name="maximum">
-           <double>5000.000000000000000</double>
-          </property>
-          <property name="suffix">
-           <string> mm</string>
-          </property>
-         </widget>
-        </item>
-        <item row="3" column="1">
-         <widget class="ctkSliderWidget" name="SliderWidget_Xt">
-          <property name="decimals">
-           <number>6</number>
-          </property>
-          <property name="singleStep">
-           <double>0.100000000000000</double>
-          </property>
-          <property name="pageStep">
-           <double>0.500000000000000</double>
-          </property>
-          <property name="minimum">
-           <double>-15.000000000000000</double>
-          </property>
-          <property name="maximum">
-           <double>15.000000000000000</double>
-          </property>
-          <property name="suffix">
-           <string> deg</string>
-          </property>
-         </widget>
-        </item>
-        <item row="1" column="1">
-         <widget class="ctkSliderWidget" name="SliderWidget_2">
-          <property name="enabled">
-           <bool>false</bool>
-          </property>
-          <property name="minimum">
-           <double>-5000.000000000000000</double>
-          </property>
-          <property name="maximum">
-           <double>5000.000000000000000</double>
-          </property>
-          <property name="suffix">
-           <string> mm</string>
-          </property>
-         </widget>
-        </item>
-        <item row="1" column="0">
-         <widget class="QLabel" name="label_10">
-          <property name="enabled">
-           <bool>false</bool>
-          </property>
-          <property name="text">
-           <string>Yt offset</string>
-          </property>
-         </widget>
-        </item>
-        <item row="2" column="1">
-         <widget class="ctkSliderWidget" name="SliderWidget_3">
-          <property name="enabled">
-           <bool>false</bool>
-          </property>
-          <property name="minimum">
-           <double>-5000.000000000000000</double>
-          </property>
-          <property name="maximum">
-           <double>5000.000000000000000</double>
-          </property>
-          <property name="suffix">
-           <string> mm</string>
-          </property>
-         </widget>
-        </item>
-        <item row="4" column="1">
-         <widget class="ctkSliderWidget" name="SliderWidget_Yt">
-          <property name="decimals">
-           <number>6</number>
-          </property>
-          <property name="singleStep">
-           <double>0.100000000000000</double>
-          </property>
-          <property name="pageStep">
-           <double>0.500000000000000</double>
-          </property>
-          <property name="minimum">
-           <double>-15.000000000000000</double>
-          </property>
-          <property name="maximum">
-           <double>15.000000000000000</double>
-          </property>
-          <property name="suffix">
-           <string> deg</string>
-          </property>
-         </widget>
-        </item>
-        <item row="5" column="1">
-         <widget class="ctkSliderWidget" name="SliderWidget_Zt">
-          <property name="decimals">
-           <number>6</number>
-          </property>
-          <property name="singleStep">
-           <double>1.000000000000000</double>
-          </property>
-          <property name="minimum">
-           <double>-360.000000000000000</double>
-          </property>
-          <property name="maximum">
-           <double>360.000000000000000</double>
-          </property>
-          <property name="suffix">
-           <string> deg</string>
-          </property>
-         </widget>
-        </item>
-        <item row="2" column="0">
-         <widget class="QLabel" name="label_12">
-          <property name="enabled">
-           <bool>false</bool>
-          </property>
-          <property name="text">
-           <string>Zt offset</string>
-          </property>
-         </widget>
-        </item>
-        <item row="3" column="0">
-         <widget class="QLabel" name="label_13">
-          <property name="text">
-           <string>Xt angle</string>
-          </property>
-         </widget>
-        </item>
-        <item row="4" column="0">
-         <widget class="QLabel" name="label_14">
-          <property name="text">
-           <string>Yt angle</string>
-          </property>
-         </widget>
-        </item>
-        <item row="5" column="0">
-         <widget class="QLabel" name="label_15">
-          <property name="text">
-           <string>Zt angle</string>
-          </property>
-         </widget>
-        </item>
-       </layout>
-      </item>
-     </layout>
-    </widget>
-   </item>
-   <item>
-    <widget class="qSlicerPatientPositioningFixedBeamAxisWidget" name="FixedBeamAxisWidget" native="true">
-     <property name="enabled">
-      <bool>false</bool>
-     </property>
-    </widget>
-   </item>
-   <item>
-    <widget class="qSlicerPatientPositioningCarmXrayBeamWidget" name="CarmXrayBeamWidget" native="true"/>
-   </item>
-   <item>
-    <widget class="QPushButton" name="PushButton_AlignBeams">
-     <property name="enabled">
-      <bool>false</bool>
-     </property>
-     <property name="text">
-      <string>Align patient and FixedReference beams</string>
-     </property>
     </widget>
    </item>
    <item>
@@ -1037,18 +675,6 @@
    <class>qMRMLSegmentSelectorWidget</class>
    <extends>qMRMLWidget</extends>
    <header>qMRMLSegmentSelectorWidget.h</header>
-   <container>1</container>
-  </customwidget>
-  <customwidget>
-   <class>qSlicerPatientPositioningFixedBeamAxisWidget</class>
-   <extends>QWidget</extends>
-   <header>qSlicerPatientPositioningFixedBeamAxisWidget.h</header>
-   <container>1</container>
-  </customwidget>
-  <customwidget>
-   <class>qSlicerPatientPositioningCarmXrayBeamWidget</class>
-   <extends>QWidget</extends>
-   <header>qSlicerPatientPositioningCarmXrayBeamWidget.h</header>
    <container>1</container>
   </customwidget>
  </customwidgets>
@@ -1149,38 +775,6 @@
     <hint type="destinationlabel">
      <x>293</x>
      <y>195</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>qSlicerPatientPositioningModuleWidget</sender>
-   <signal>mrmlSceneChanged(vtkMRMLScene*)</signal>
-   <receiver>MRMLNodeComboBox_XrayImage</receiver>
-   <slot>setMRMLScene(vtkMRMLScene*)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>197</x>
-     <y>418</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>217</x>
-     <y>576</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>qSlicerPatientPositioningModuleWidget</sender>
-   <signal>mrmlSceneChanged(vtkMRMLScene*)</signal>
-   <receiver>MRMLNodeComboBox_DrrImage</receiver>
-   <slot>setMRMLScene(vtkMRMLScene*)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>197</x>
-     <y>418</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>217</x>
-     <y>605</y>
     </hint>
    </hints>
   </connection>
