@@ -29,7 +29,7 @@
 
 // MRML includes
 #include <vtkMRMLPatientPositioningNode.h>
-#include <vtkMRMLCabin26AGeometryNode.h>
+#include <vtkMRMLChannel26GeometryNode.h>
 
 // STD includes
 #include <cstdlib>
@@ -92,22 +92,6 @@ public:
 
   /// Get Cabin26ARobotsTransformLogic
   vtkSlicerChannel26Cabin3RobotsTransformLogic* GetChannel26RobotsTransformLogic() const;
-
-  /// Creates a fixed beam axis line node (axis in FixedReference frame)
-  /// \return a valid markups line node pointer or nullptr otherwise
-  vtkMRMLMarkupsLineNode* CreateFixedBeamAxisLineNode(vtkMRMLPatientPositioningNode* parameterNode);
-  /// Creates a fixed isocenter fiducial node (point in FixedReference frame)
-  /// \return a valid markups fiducial node pointer or nullptr otherwise
-  vtkMRMLMarkupsFiducialNode* CreateFixedIsocenterFiducialNode(vtkMRMLPatientPositioningNode* parameterNode);
-
-  /// Create fixed reference beam and plan and add beam to the parameter node
-  vtkMRMLRTChannel26Cabin3BeamNode* CreateFixedBeamPlanAndNode(vtkMRMLPatientPositioningNode* parameterNode);
-  /// Create C-arm x-ray beam and plan and add C-arm x-ray beam to the parameter node
-  vtkMRMLRTFixedBeamNode* CreateCarmXrayPlanAndNode(vtkMRMLPatientPositioningNode* parameterNode);
-
-  /// Update fixed beam axis using two new points in beam limiting device frame
-  void UpdateFixedBeamAxisLineNode(vtkMRMLPatientPositioningNode* parameterNode,
-    const double point0[3], const double point1[3]);
 
   /// Create TableTop plane markups node for visualization
   vtkMRMLMarkupsPlaneNode* CreateTableTopPlaneNode(vtkMRMLChannel26GeometryNode* parameterNode);
