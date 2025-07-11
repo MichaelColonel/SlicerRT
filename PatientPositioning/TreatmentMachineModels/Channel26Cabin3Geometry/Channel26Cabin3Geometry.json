@@ -1,0 +1,49 @@
+{
+  "TreatmentMachineName": "Cabin26A",
+  "Author": "Mikhail Polkovnikov",
+  "Date": "2024",
+  "$schema": "https://raw.githubusercontent.com/???/???-schema.json#",
+  "_comment": "Geometry based on KUKA KR 210 R3100-2 document",
+  "Part": [
+    {
+      "Type": "TableRobotWrist",
+      "Number": 6,
+      "Name": "Robot Wrist",
+      "FilePath": "KR_210_R3100-2_A5_A6.stl",
+      "FileToRASTransformMatrix": [ [-1, 0, 0, 0], [0, -1, 0, 0], [0, 0, 1, 0], [0, 0, 0, 1] ],
+      "Color": [217, 217, 217],
+      "State": "Active",
+      "PointRAS": [0, 1790, 1910]
+    },
+    {
+      "Type": "TableFlange",
+      "Number": 7,
+      "Name": "Flange",
+      "FilePath": "KR_210_R3100-2_A6_Flange.stl",
+      "FileToRASTransformMatrix": [ [-1, 0, 0, 0], [0, -1, 0, 0], [0, 0, 1, 0], [0, 0, 0, 1] ],
+      "Color": [255, 0, 0],
+      "State": "Active",
+      "PointRAS": [-0.5, -210.0, 821.6]
+    },
+    {
+      "Type": "TableXrayFlange",
+      "Number": 7,
+      "Name": "Flange",
+      "FilePath": "TableXrayFlange.stl",
+      "FileToRASTransformMatrix": [ [-1, 0, 0, 0], [0, -1, 0, 0], [0, 0, 1, 0], [0, 0, 0, 1] ],
+      "Color": [255, 0, 0],
+      "State": "Active",
+      "PointRAS": [-0.5, -210.0, 821.6]
+    },
+    {
+      "Type": "TableTop",
+      "Number": 8,
+      "Name": "Table top",
+      "FilePath": "TableTop.stl",
+      "FileToRASTransformMatrix": [ [-1, 0, 0, 0], [0, -1, 0, 0], [0, 0, 1, 0], [0, 0, 0, 1] ],
+      "Color": [0, 0, 0],
+      "State": "Active",
+      "PointRAS": [-0.5, -210.0, 821.6]
+    }
+  ]
+}

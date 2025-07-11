@@ -1,0 +1,189 @@
+{
+  "TreatmentMachineName": "Cabin26A",
+  "Author": "Mikhail Polkovnikov",
+  "Date": "2024",
+  "$schema": "https://raw.githubusercontent.com/???/???-schema.json#",
+  "_comment": "Geometry based on KUKA KR 210 R3100-2 document",
+  "Part": [
+    {
+      "Type": "FixedReference",
+      "Number": 1,
+      "Name": "Fixed Reference",
+      "FilePath": "FixedReference.stl",
+      "FileToRASTransformMatrix": [ [-1, 0, 0, 0], [0, -1, 0, 0], [0, 0, 1, 0], [0, 0, 0, 1] ],
+      "Color": [179, 179, 244],
+      "State": "Active",
+      "PointRAS": [0, 0, 0]
+    },
+    {
+      "Type": "TableRobotBaseFixed",
+      "Number": 2,
+      "Name": "Robot Base (Fixed)",
+      "FilePath": "KR_210_R3100-2_FixedReference_A1.stl",
+      "FileToRASTransformMatrix": [ [-1, 0, 0, 0], [0, -1, 0, 0], [0, 0, 1, 0], [0, 0, 0, 1] ],
+      "Color": [0, 0, 0],
+      "State": "Active",
+      "PointRAS": [0, 0, 163]
+    },
+    {
+      "Type": "TableRobotBaseRotation",
+      "Number": 3,
+      "Name": "Robot Base (rotation)",
+      "FilePath": "KR_210_R3100-2_A1_A2.stl",
+      "FileToRASTransformMatrix": [ [-1, 0, 0, 0], [0, -1, 0, 0], [0, 0, 1, 0], [0, 0, 0, 1] ],
+      "Color": [244, 244, 244],
+      "State": "Active",
+      "PointRAS": [0, 330, 645]
+    },
+    {
+      "Type": "TableRobotShoulder",
+      "Number": 4,
+      "Name": "Robot Shoulder",
+      "FilePath": "KR_210_R3100-2_A2_A3.stl",
+      "FileToRASTransformMatrix": [ [-1, 0, 0, 0], [0, -1, 0, 0], [0, 0, 1, 0], [0, 0, 0, 1] ],
+      "Color": [244, 244, 244],
+      "State": "Active",
+      "PointRAS": [0, 330, 1795]
+    },
+    {
+      "Type": "TableRobotElbowA3",
+      "Number": 5,
+      "Name": "Robot Elbow",
+      "FilePath": "KR_210_R3100-2_A3_A4.stl",
+      "FileToRASTransformMatrix": [ [-1, 0, 0, 0], [0, -1, 0, 0], [0, 0, 1, 0], [0, 0, 0, 1] ],
+      "Color": [230, 230, 230],
+      "State": "Active",
+      "PointRAS": [0, 1550, 1910]
+    },
+    {
+      "Type": "TableRobotElbowA4",
+      "Number": 5,
+      "Name": "Robot Elbow",
+      "FilePath": "KR_210_R3100-2_A4_A5.stl",
+      "FileToRASTransformMatrix": [ [-1, 0, 0, 0], [0, -1, 0, 0], [0, 0, 1, 0], [0, 0, 0, 1] ],
+      "Color": [230, 230, 230],
+      "State": "Active",
+      "PointRAS": [0, 1550, 1910]
+    },
+    {
+      "Type": "TableRobotWrist",
+      "Number": 6,
+      "Name": "Robot Wrist",
+      "FilePath": "KR_210_R3100-2_A5_A6.stl",
+      "FileToRASTransformMatrix": [ [-1, 0, 0, 0], [0, -1, 0, 0], [0, 0, 1, 0], [0, 0, 0, 1] ],
+      "Color": [217, 217, 217],
+      "State": "Active",
+      "PointRAS": [0, 1790, 1910]
+    },
+    {
+      "Type": "TableFlange",
+      "Number": 7,
+      "Name": "Flange",
+      "FilePath": "KR_210_R3100-2_A6_Flange.stl",
+      "FileToRASTransformMatrix": [ [-1, 0, 0, 0], [0, -1, 0, 0], [0, 0, 1, 0], [0, 0, 0, 1] ],
+      "Color": [255, 0, 0],
+      "State": "Active",
+      "PointRAS": [-0.5, -210.0, 821.6]
+    },
+    {
+      "Type": "TableXrayFlange",
+      "Number": 7,
+      "Name": "Flange",
+      "FilePath": "TableXrayFlange.stl",
+      "FileToRASTransformMatrix": [ [-1, 0, 0, 0], [0, -1, 0, 0], [0, 0, 1, 0], [0, 0, 0, 1] ],
+      "Color": [255, 0, 0],
+      "State": "Active",
+      "PointRAS": [-0.5, -210.0, 821.6]
+    },
+    {
+      "Type": "TableTop",
+      "Number": 8,
+      "Name": "Table top",
+      "FilePath": "TableTop.stl",
+      "FileToRASTransformMatrix": [ [-1, 0, 0, 0], [0, -1, 0, 0], [0, 0, 1, 0], [0, 0, 0, 1] ],
+      "Color": [0, 0, 0],
+      "State": "Active",
+      "PointRAS": [-0.5, -210.0, 821.6]
+    },
+    {
+      "Type": "CArmRobotBaseFixed",
+      "Number": 10,
+      "Name": "Robot Base (Fixed)",
+      "FilePath": "CArmRobotBaseFixed.stl",
+      "FileToRASTransformMatrix": [ [-1, 0, 0, 0], [0, -1, 0, 0], [0, 0, 1, 0], [0, 0, 0, 1] ],
+      "Color": [0, 0, 0],
+      "State": "Active",
+      "PointRAS": [0, 0, 163]
+    },
+    {
+      "Type": "CArmRobotBaseRotation",
+      "Number": 11,
+      "Name": "Robot Base (rotation)",
+      "FilePath": "CArmRobotBaseRotation.stl",
+      "FileToRASTransformMatrix": [ [-1, 0, 0, 0], [0, -1, 0, 0], [0, 0, 1, 0], [0, 0, 0, 1] ],
+      "Color": [244, 244, 244],
+      "State": "Active",
+      "PointRAS": [0, 0, 163]
+    },
+    {
+      "Type": "CArmRobotShoulder",
+      "Number": 12,
+      "Name": "Robot Shoulder",
+      "FilePath": "CArmRobotShoulder.stl",
+      "FileToRASTransformMatrix": [ [-1, 0, 0, 0], [0, -1, 0, 0], [0, 0, 1, 0], [0, 0, 0, 1] ],
+      "Color": [244, 244, 244],
+      "State": "Active",
+      "PointRAS": [0, 0, 163]
+    },
+    {
+      "Type": "CArmRobotElbow",
+      "Number": 13,
+      "Name": "Robot Elbow",
+      "FilePath": "CArmRobotElbow.stl",
+      "FileToRASTransformMatrix": [ [-1, 0, 0, 0], [0, -1, 0, 0], [0, 0, 1, 0], [0, 0, 0, 1] ],
+      "Color": [230, 230, 230],
+      "State": "Active",
+      "PointRAS": [0, 0, 163]
+    },
+    {
+      "Type": "CArmRobotWrist",
+      "Number": 14,
+      "Name": "Robot Wrist",
+      "FilePath": "CArmRobotWrist.stl",
+      "FileToRASTransformMatrix": [ [-1, 0, 0, 0], [0, -1, 0, 0], [0, 0, 1, 0], [0, 0, 0, 1] ],
+      "Color": [217, 217, 217],
+      "State": "Active",
+      "PointRAS": [0, 0, 163]
+    },
+    {
+      "Type": "CArm",
+      "Number": 16,
+      "Name": "C-Arm",
+      "FilePath": "CArm.stl",
+      "FileToRASTransformMatrix": [ [-1, 0, 0, 0], [0, -1, 0, 0], [0, 0, 1, 0], [0, 0, 0, 1] ],
+      "Color": [217, 217, 217],
+      "State": "Active",
+      "PointRAS": [0, 0, 163]
+    },
+    {
+      "Type": "XrayImager",
+      "Number": 17,
+      "Name": "C-Arm X-ray imager",
+      "FilePath": "XrayImager.stl",
+      "FileToRASTransformMatrix": [ [-1, 0, 0, 0], [0, -1, 0, 0], [0, 0, 1, 0], [0, 0, 0, 1] ],
+      "Color": [217, 217, 217],
+      "State": "Active",
+      "PointRAS": [0, 0, 163]
+    },
+    {
+      "Type": "XrayImageReceptor",
+      "Number": 18,
+      "Name": "C-Arm X-ray image receptor",
+      "FilePath": "XrayImageReceptor.stl",
+      "FileToRASTransformMatrix": [ [-1, 0, 0, 0], [0, -1, 0, 0], [0, 0, 1, 0], [0, 0, 0, 1] ],
+      "Color": [217, 217, 217],
+      "State": "Active",
+      "PointRAS": [0, 0, 163]
+    }
+  ]
+}
