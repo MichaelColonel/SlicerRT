@@ -6,10 +6,20 @@
   "_comment": "Geometry based on KUKA KR 210 R3100-2 document",
   "Part": [
     {
+      "Type": "FixedReference",
+      "Number": 1,
+      "Name": "Fixed Reference",
+      "FilePath": "FixedReference.stl",
+      "FileToRASTransformMatrix": [ [-1, 0, 0, 0], [0, -1, 0, 0], [0, 0, 1, 0], [0, 0, 0, 1] ],
+      "Color": [179, 179, 244],
+      "State": "Active",
+      "PointRAS": [0, 0, 0]
+    },
+    {
       "Type": "TableRobotWrist",
-      "Number": 6,
+      "Number": 2,
       "Name": "Robot Wrist",
-      "FilePath": "KR_210_R3100-2_A5_A6.stl",
+      "FilePath": "TableRobotWrist.stl",
       "FileToRASTransformMatrix": [ [-1, 0, 0, 0], [0, -1, 0, 0], [0, 0, 1, 0], [0, 0, 0, 1] ],
       "Color": [217, 217, 217],
       "State": "Active",
@@ -17,9 +27,9 @@
     },
     {
       "Type": "TableFlange",
-      "Number": 7,
-      "Name": "Flange",
-      "FilePath": "KR_210_R3100-2_A6_Flange.stl",
+      "Number": 3,
+      "Name": "Table Top Robot Flange",
+      "FilePath": "TableFlange.stl",
       "FileToRASTransformMatrix": [ [-1, 0, 0, 0], [0, -1, 0, 0], [0, 0, 1, 0], [0, 0, 0, 1] ],
       "Color": [255, 0, 0],
       "State": "Active",
@@ -27,8 +37,8 @@
     },
     {
       "Type": "TableXrayFlange",
-      "Number": 7,
-      "Name": "Flange",
+      "Number": 4,
+      "Name": "Table Top X-Ray Flange",
       "FilePath": "TableXrayFlange.stl",
       "FileToRASTransformMatrix": [ [-1, 0, 0, 0], [0, -1, 0, 0], [0, 0, 1, 0], [0, 0, 0, 1] ],
       "Color": [255, 0, 0],
@@ -37,7 +47,7 @@
     },
     {
       "Type": "TableTop",
-      "Number": 8,
+      "Number": 5,
       "Name": "Table top",
       "FilePath": "TableTop.stl",
       "FileToRASTransformMatrix": [ [-1, 0, 0, 0], [0, -1, 0, 0], [0, 0, 1, 0], [0, 0, 0, 1] ],

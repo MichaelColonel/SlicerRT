@@ -9,15 +9,15 @@ set(${KIT}_INCLUDE_DIRECTORIES
   )
 
 set(${KIT}_SRCS
-  qSlicer${MODULE_NAME}FixedBeamAxisWidget.cxx
-  qSlicer${MODULE_NAME}FixedBeamAxisWidget.h
-  qSlicer${MODULE_NAME}CarmXrayBeamWidget.cxx
-  qSlicer${MODULE_NAME}CarmXrayBeamWidget.h
+#  qSlicer${MODULE_NAME}FixedBeamAxisWidget.cxx
+#  qSlicer${MODULE_NAME}FixedBeamAxisWidget.h
+#  qSlicer${MODULE_NAME}CarmXrayBeamWidget.cxx
+#  qSlicer${MODULE_NAME}CarmXrayBeamWidget.h
   )
 
 set(${KIT}_MOC_SRCS
-  qSlicer${MODULE_NAME}FixedBeamAxisWidget.h
-  qSlicer${MODULE_NAME}CarmXrayBeamWidget.h
+#  qSlicer${MODULE_NAME}FixedBeamAxisWidget.h
+#  qSlicer${MODULE_NAME}CarmXrayBeamWidget.h
   )
 
 set(${KIT}_UI_SRCS

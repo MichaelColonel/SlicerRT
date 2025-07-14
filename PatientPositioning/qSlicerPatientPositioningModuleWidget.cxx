@@ -119,7 +119,7 @@ vtkSlicerPatientPositioningLogic* qSlicerPatientPositioningModuleWidgetPrivate::
 }
 
 //-----------------------------------------------------------------------------
-vtkSlicerChannel26Cabin3RobotsTransformLogic* qSlicerPatientPositioningModuleWidgetPrivate::cha() const
+vtkSlicerChannel26Cabin3RobotsTransformLogic* qSlicerPatientPositioningModuleWidgetPrivate::channel26RobotsLogic() const
 {
   Q_Q(const qSlicerPatientPositioningModuleWidget);
   vtkSlicerPatientPositioningLogic* logic = vtkSlicerPatientPositioningLogic::SafeDownCast(q->logic());
@@ -191,9 +191,9 @@ void qSlicerPatientPositioningModuleWidget::setup()
 
   // Add treatment machine options
   d->ComboBox_TreatmentMachine->clear();
-  d->ComboBox_TreatmentMachine->addItem("Channel-26 Cabin-3", "C26C3Geometry");
-  d->ComboBox_TreatmentMachine->addItem("Channel-26 Cabin-2", "C26C2Geometry");
-  d->ComboBox_TreatmentMachine->addItem("Channel-26 Cabin-1", "C26C1Geometry");
+  d->ComboBox_TreatmentMachine->addItem("Channel-26 Cabin-3", "Channel26Cabin3Geometry");
+  d->ComboBox_TreatmentMachine->addItem("Channel-26 Cabin-2", "Channel26Cabin2Geometry");
+  d->ComboBox_TreatmentMachine->addItem("Channel-26 Cabin-1", "Channel26Cabin1Geometry");
   d->ComboBox_TreatmentMachine->addItem("From file...", "FromFile");
 
   // Nodes
@@ -220,7 +220,7 @@ void qSlicerPatientPositioningModuleWidget::setup()
 
   // Widgets
   connect( d->SliderWidget_TableRobotA6, SIGNAL(valueChanged(double)), 
-    this, SLOT(onTableTopRobotA6Changed(double)));
+    this, SLOT(onTableRobotA6Changed(double)));
 
   connect( d->CoordinatesWidget_PatientTableTopTranslation, SIGNAL(coordinatesChanged(double*)),
     this, SLOT(onPatientTableTopTranslationChanged(double*)));
@@ -275,8 +275,8 @@ void qSlicerPatientPositioningModuleWidget::setParameterNode(vtkMRMLNode *node)
   d->ParameterNode = parameterNode;
 
   // Set parameter node to children (FixedBeamAxis, CarmXrayBeamWidget) widgets
-  d->FixedBeamAxisWidget->setParameterNode(d->ParameterNode);
-  d->CarmXrayBeamWidget->setParameterNode(d->ParameterNode);
+//  d->FixedBeamAxisWidget->setParameterNode(d->ParameterNode);
+//  d->CarmXrayBeamWidget->setParameterNode(d->ParameterNode);
 
   // Set selected MRML nodes in comboboxes in the parameter set if it was nullptr there
   // (then in the meantime the comboboxes selected the first one from the scene and we have to set that)
@@ -353,7 +353,7 @@ void qSlicerPatientPositioningModuleWidget::onBeamNodeChanged(vtkMRMLNode* node)
 void qSlicerPatientPositioningModuleWidget::onFixedReferenceBeamNodeChanged(vtkMRMLNode* node)
 {
   Q_D(qSlicerPatientPositioningModuleWidget);
-  vtkMRMLRTCabin26AIonBeamNode* beamNode = vtkMRMLRTCabin26AIonBeamNode::SafeDownCast(node);
+  vtkMRMLRTChannel26Cabin3BeamNode* beamNode = vtkMRMLRTChannel26Cabin3BeamNode::SafeDownCast(node);
 
   if (!d->ParameterNode || !d->ModuleWindowInitialized)
   {
@@ -516,17 +516,17 @@ void qSlicerPatientPositioningModuleWidget::onLoadTreatmentMachineButtonClicked(
   if (!treatmentMachineType.compare("Channel-26 Cabin-3"))
   {
     qDebug() << Q_FUNC_INFO << "Channel-26 Cabin-3";
-    d->ParameterNode->SetTreatmentMachineType("C26C3Geometry");
+    d->ParameterNode->SetTreatmentMachineType("Channel26Cabin3Geometry");
   }
   else if (!treatmentMachineType.compare("Channel-26 Cabin-2"))
   {
     qDebug() << Q_FUNC_INFO << "Channel-26 Cabin-2";
-    d->ParameterNode->SetTreatmentMachineType("C26C2Geometry");
+    d->ParameterNode->SetTreatmentMachineType("Channel26Cabin2Geometry");
   }
   else if (!treatmentMachineType.compare("Channel-26 Cabin-1"))
   {
     qDebug() << Q_FUNC_INFO << "Channel-26 Cabin-1";
-    d->ParameterNode->SetTreatmentMachineType("C26C1Geometry");
+    d->ParameterNode->SetTreatmentMachineType("Channel26Cabin1Geometry");
   }
 
   // Check if there is a machine already loaded and ask user what to do if so
@@ -563,7 +563,7 @@ void qSlicerPatientPositioningModuleWidget::onLoadTreatmentMachineButtonClicked(
   {
     vtkMRMLChannel26GeometryNode* channel26GeometryNode = vtkMRMLChannel26GeometryNode::SafeDownCast(
       scene->GetFirstNodeByClass("vtkMRMLChannel26GeometryNode"));
-    d->ParameterNode->SetAndObserveCabin26AGeometryNode(channel26GeometryNode);
+    d->ParameterNode->SetAndObserveChannel26GeometryNode(channel26GeometryNode);
   }
   d->ParameterNode->SetTreatmentMachineDescriptorFilePath(descriptorFilePath.toUtf8().constData());
 
@@ -674,26 +674,26 @@ void qSlicerPatientPositioningModuleWidget::onLoadTreatmentMachineButtonClicked(
     channel26Logic->ResetToInitialPositions();
     channel26Logic->UpdatePatientToTableTopTransform(channel26GeometryNode);
     channel26Logic->UpdateTableTopToTableXrayFlangeTransform(channel26GeometryNode);
-    channel26Logic->UpdateTableXrayFlangeToTableFlangeToTransform(channel26GeometryNode);
+    channel26Logic->UpdateTableXrayFlangeToTableFlangeTransform(channel26GeometryNode);
     channel26Logic->UpdateTableFlangeToTableWristTransform(channel26GeometryNode);
     d->getLayoutManager()->resumeRender();
   }
-  // Update table top robot geometry
-  cabin26AGeometryNode->Modified();
+  // Update channel-26 geometry node
+  channel26GeometryNode->Modified();
 
   // Fixed and external beam
-  vtkMRMLRTChannel26Cabin3BeamNode* fixedBeamNode = d->logic()->CreateFixedBeamPlanAndNode(d->ParameterNode);
-  d->MRMLNodeComboBox_FixedReferenceBeam->setCurrentNode(fixedBeamNode);
+//  vtkMRMLRTChannel26Cabin3BeamNode* fixedBeamNode = d->logic()->CreateFixedBeamPlanAndNode(d->ParameterNode);
+//  d->MRMLNodeComboBox_FixedReferenceBeam->setCurrentNode(fixedBeamNode);
 
   /// Setup Markups fixed beam axis and fixed isocenter
-  /* vtkMRMLMarkupsLineNode* beamAxisLineNode = */ d->logic()->CreateFixedBeamAxisLineNode(d->ParameterNode);
-  /* vtkMRMLMarkupsFiducialNode* fixedIsocenterNode = */ // d->logic()->CreateFixedIsocenterFiducialNode(d->ParameterNode);
-  /* vtkMRMLMarkupsPlaneNode* tableTopPlaneNode = */ d->logic()->CreateTableTopPlaneNode(channel26GeometryNode);
-  /* vtkMRMLMarkupsFiducialNode* tableTopMarkersNode = */ d->logic()->CreateTableTopFiducialNode(channel26GeometryNode);
+//  /* vtkMRMLMarkupsLineNode* beamAxisLineNode = */ d->logic()->CreateFixedBeamAxisLineNode(d->ParameterNode);
+//  /* vtkMRMLMarkupsFiducialNode* fixedIsocenterNode = */ // d->logic()->CreateFixedIsocenterFiducialNode(d->ParameterNode);
+//  /* vtkMRMLMarkupsPlaneNode* tableTopPlaneNode = */ d->logic()->CreateTableTopPlaneNode(channel26GeometryNode);
+//  /* vtkMRMLMarkupsFiducialNode* tableTopMarkersNode = */ d->logic()->CreateTableTopFiducialNode(channel26GeometryNode);
 
   // Fixed and C-arm beam
-  vtkMRMLRTFixedBeamNode* xrayNode = d->logic()->CreateCarmXrayPlanAndNode(d->ParameterNode);
-  d->MRMLNodeComboBox_CarmXrayBeam->setCurrentNode(xrayNode);
+//  vtkMRMLRTFixedBeamNode* xrayNode = d->logic()->CreateCarmXrayPlanAndNode(d->ParameterNode);
+//  d->MRMLNodeComboBox_CarmXrayBeam->setCurrentNode(xrayNode);
 
 /*
   // Hide controls that do not have corresponding parts loaded
@@ -725,25 +725,25 @@ void qSlicerPatientPositioningModuleWidget::onPatientTableTopTranslationChanged(
   double positionTmp[3] = { -1. * position[0], -1. * position[1], position[2] };
 
   d->getLayoutManager()->pauseRender();
-  cabin26AGeometryNode->DisableModifiedEventOn();
-  cabin26AGeometryNode->SetPatientToTableTopTranslation(positionTmp);
+  channel26GeometryNode->DisableModifiedEventOn();
+  channel26GeometryNode->SetPatientToTableTopTranslation(positionTmp);
 
   vtkSlicerChannel26Cabin3RobotsTransformLogic* channel26Logic = d->channel26RobotsLogic();
   if (channel26Logic && channel26GeometryNode)
   {
     channel26Logic->UpdatePatientToTableTopTransform(channel26GeometryNode);
     channel26Logic->UpdateTableTopToTableXrayFlangeTransform(channel26GeometryNode);
-    channel26Logic->UpdateTableXrayFlangeToTableFlangeToTransform(channel26GeometryNode);
+    channel26Logic->UpdateTableXrayFlangeToTableFlangeTransform(channel26GeometryNode);
     channel26Logic->UpdateTableFlangeToTableWristTransform(channel26GeometryNode);
   }
-  cabin26AGeometryNode->DisableModifiedEventOff();
-  cabin26AGeometryNode->Modified();
+  channel26GeometryNode->DisableModifiedEventOff();
+  channel26GeometryNode->Modified();
   d->getLayoutManager()->resumeRender();
   d->ParameterNode->Modified();
 }
 
 //-----------------------------------------------------------------------------
-void qSlicerPatientPositioningModuleWidget::onTableTopRobotA6Changed(double a6)
+void qSlicerPatientPositioningModuleWidget::onTableRobotA6Changed(double a6)
 {
   Q_D(qSlicerPatientPositioningModuleWidget);
 
@@ -762,8 +762,8 @@ void qSlicerPatientPositioningModuleWidget::onTableTopRobotA6Changed(double a6)
   channel26GeometryNode->SetTableTopRobotAngles(a);
   channel26GeometryNode->DisableModifiedEventOff();
 
-  // Update IEC transform
-  vtkSlicerCabin26ARobotsTransformLogic* channel26Logic = d->channel26RobotsLogic();
+  // Update Channel-26 transforms
+  vtkSlicerChannel26Cabin3RobotsTransformLogic* channel26Logic = d->channel26RobotsLogic();
   if (channel26Logic && channel26GeometryNode)
   {
     channel26Logic->UpdateTableFlangeToTableWristTransform(channel26GeometryNode);

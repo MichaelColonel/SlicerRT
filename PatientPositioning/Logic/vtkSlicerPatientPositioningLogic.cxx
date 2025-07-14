@@ -955,9 +955,11 @@ vtkSlicerPatientPositioningLogic::SetupTreatmentMachineModels(vtkMRMLPatientPosi
     {
       switch (partIdx)
       {
+        case CoordSys::FixedReference:
         case CoordSys::TableTop:
         case CoordSys::TableXrayFlange:
         case CoordSys::TableFlange:
+        case CoordSys::TableWrist:
           vtkErrorMacro("SetupTreatmentMachineModels: Unable to access " << partType << " model " << partIdx);
           break;
         default:
@@ -1019,15 +1021,15 @@ vtkSlicerPatientPositioningLogic::SetupTreatmentMachineModels(vtkMRMLPatientPosi
       vtkMRMLLinearTransformNode* rasToTableTopTransformNode = this->Channel26RobotsLogic->UpdateRasToTableTopTransform(channel26GeometryNode);
       if (rasToTableTopTransformNode)
       {
-        this->TableTopFixedReferenceCollisionDetection->SetInputData(0, partModel->GetPolyData());
-        this->TableTopElbowCollisionDetection->SetInputData(0, partModel->GetPolyData());
-        this->TableTopShoulderCollisionDetection->SetInputData(0, partModel->GetPolyData());
-        this->TableTopBaseRotationCollisionDetection->SetInputData(0, partModel->GetPolyData());
-        this->TableTopBaseFixedCollisionDetection->SetInputData(0, partModel->GetPolyData());
         partModel->SetAndObserveTransformNodeID(rasToTableTopTransformNode->GetID());
       }
     }
-
+    else if (partIdx == CoordSys::FixedReference)
+    {
+    }
+    else if (partIdx == CoordSys::TableWrist)
+    {
+    }
   }
 
   return loadedParts;
