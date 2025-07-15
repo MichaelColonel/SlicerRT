@@ -957,7 +957,6 @@ vtkSlicerPatientPositioningLogic::SetupTreatmentMachineModels(vtkMRMLPatientPosi
       {
         case CoordSys::FixedReference:
         case CoordSys::TableTop:
-        case CoordSys::TableXrayFlange:
         case CoordSys::TableFlange:
         case CoordSys::TableWrist:
           vtkErrorMacro("SetupTreatmentMachineModels: Unable to access " << partType << " model " << partIdx);
