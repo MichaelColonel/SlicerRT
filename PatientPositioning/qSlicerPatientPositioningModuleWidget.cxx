@@ -675,7 +675,7 @@ void qSlicerPatientPositioningModuleWidget::onLoadTreatmentMachineButtonClicked(
     channel26Logic->UpdatePatientToTableTopTransform(channel26GeometryNode);
     channel26Logic->UpdateTableTopToTableXrayFlangeTransform(channel26GeometryNode);
     channel26Logic->UpdateTableXrayFlangeToTableFlangeTransform(channel26GeometryNode);
-    channel26Logic->UpdateTableFlangeToTableWristTransform(channel26GeometryNode);
+//    channel26Logic->UpdateTableFlangeToTableWristTransform(channel26GeometryNode);
     d->getLayoutManager()->resumeRender();
   }
   // Update channel-26 geometry node
@@ -734,7 +734,7 @@ void qSlicerPatientPositioningModuleWidget::onPatientTableTopTranslationChanged(
     channel26Logic->UpdatePatientToTableTopTransform(channel26GeometryNode);
     channel26Logic->UpdateTableTopToTableXrayFlangeTransform(channel26GeometryNode);
     channel26Logic->UpdateTableXrayFlangeToTableFlangeTransform(channel26GeometryNode);
-    channel26Logic->UpdateTableFlangeToTableWristTransform(channel26GeometryNode);
+//    channel26Logic->UpdateTableFlangeToTableWristTransform(channel26GeometryNode);
   }
   channel26GeometryNode->DisableModifiedEventOff();
   channel26GeometryNode->Modified();
