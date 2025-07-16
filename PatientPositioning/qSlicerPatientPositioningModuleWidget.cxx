@@ -658,7 +658,8 @@ void qSlicerPatientPositioningModuleWidget::onLoadTreatmentMachineButtonClicked(
 
   // Enable treatment machine geometry controls
   d->CollapsibleButton_PatientTableTopControl->setEnabled(true);
-
+  d->CollapsibleButton_TableTopRobotControl->setEnabled(true);
+  
   // Reset camera
 /*
   qSlicerApplication* slicerApplication = qSlicerApplication::application();
@@ -673,9 +674,9 @@ void qSlicerPatientPositioningModuleWidget::onLoadTreatmentMachineButtonClicked(
     d->getLayoutManager()->pauseRender();
     channel26Logic->ResetToInitialPositions();
     channel26Logic->UpdatePatientToTableTopTransform(channel26GeometryNode);
-    channel26Logic->UpdateTableTopToTableXrayFlangeTransform(channel26GeometryNode);
-    channel26Logic->UpdateTableXrayFlangeToTableFlangeTransform(channel26GeometryNode);
-//    channel26Logic->UpdateTableFlangeToTableWristTransform(channel26GeometryNode);
+    channel26Logic->UpdateTableTopToTableFlangeTransform(channel26GeometryNode);
+    channel26Logic->UpdateTableFlangeToTableRobotFlangeTransform(channel26GeometryNode);
+    channel26Logic->UpdateTableRobotFlangeToTableRobotWristTransform(channel26GeometryNode);
     d->getLayoutManager()->resumeRender();
   }
   // Update channel-26 geometry node
@@ -732,9 +733,9 @@ void qSlicerPatientPositioningModuleWidget::onPatientTableTopTranslationChanged(
   if (channel26Logic && channel26GeometryNode)
   {
     channel26Logic->UpdatePatientToTableTopTransform(channel26GeometryNode);
-    channel26Logic->UpdateTableTopToTableXrayFlangeTransform(channel26GeometryNode);
-    channel26Logic->UpdateTableXrayFlangeToTableFlangeTransform(channel26GeometryNode);
-//    channel26Logic->UpdateTableFlangeToTableWristTransform(channel26GeometryNode);
+    channel26Logic->UpdateTableTopToTableFlangeTransform(channel26GeometryNode);
+    channel26Logic->UpdateTableFlangeToTableRobotFlangeTransform(channel26GeometryNode);
+    channel26Logic->UpdateTableRobotFlangeToTableRobotWristTransform(channel26GeometryNode);
   }
   channel26GeometryNode->DisableModifiedEventOff();
   channel26GeometryNode->Modified();
@@ -766,7 +767,7 @@ void qSlicerPatientPositioningModuleWidget::onTableRobotA6Changed(double a6)
   vtkSlicerChannel26Cabin3RobotsTransformLogic* channel26Logic = d->channel26RobotsLogic();
   if (channel26Logic && channel26GeometryNode)
   {
-    channel26Logic->UpdateTableFlangeToTableWristTransform(channel26GeometryNode);
+    channel26Logic->UpdateTableRobotFlangeToTableRobotWristTransform(channel26GeometryNode);
   }
   channel26GeometryNode->Modified();
   this->checkForCollisions();

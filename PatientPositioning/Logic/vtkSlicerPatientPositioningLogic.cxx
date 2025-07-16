@@ -538,9 +538,9 @@ void vtkSlicerPatientPositioningLogic::ProcessMRMLNodesEvents(vtkObject* caller,
     if (event == vtkCommand::ModifiedEvent)
     {
       this->Channel26RobotsLogic->UpdateRasToTableTopTransform(channel26Geometry);
-      this->Channel26RobotsLogic->UpdateRasToTableXrayFlangeTransform(channel26Geometry);
       this->Channel26RobotsLogic->UpdateRasToTableFlangeTransform(channel26Geometry);
-//      this->Channel26RobotsLogic->UpdateRasToTableWristTransform(channel26Geometry);
+      this->Channel26RobotsLogic->UpdateRasToTableRobotFlangeTransform(channel26Geometry);
+      this->Channel26RobotsLogic->UpdateRasToTableRobotWristTransform(channel26Geometry);
       this->UpdateTableTopPlaneNode(channel26Geometry);
       this->UpdateTableTopFiducialNode(channel26Geometry);
     }
@@ -958,7 +958,8 @@ vtkSlicerPatientPositioningLogic::SetupTreatmentMachineModels(vtkMRMLPatientPosi
         case CoordSys::FixedReference:
         case CoordSys::TableTop:
         case CoordSys::TableFlange:
-        case CoordSys::TableWrist:
+        case CoordSys::TableRobotFlange:
+        case CoordSys::TableRobotWrist:
           vtkErrorMacro("SetupTreatmentMachineModels: Unable to access " << partType << " model " << partIdx);
           break;
         default:
@@ -998,20 +999,22 @@ vtkSlicerPatientPositioningLogic::SetupTreatmentMachineModels(vtkMRMLPatientPosi
 
     if (partIdx == CoordSys::TableFlange)
     {
-      this->Channel26RobotsLogic->UpdateTableXrayFlangeToTableFlangeTransform(channel26GeometryNode);
-      vtkMRMLLinearTransformNode* rasToFlangeTransformNode = this->Channel26RobotsLogic->UpdateRasToTableFlangeTransform(channel26GeometryNode);
-      if (rasToFlangeTransformNode)
+      this->Channel26RobotsLogic->UpdateTableTopToTableFlangeTransform(channel26GeometryNode);
+      vtkMRMLLinearTransformNode* rasToTableFlangeTransformNode =
+        this->Channel26RobotsLogic->UpdateRasToTableFlangeTransform(channel26GeometryNode);
+      if (rasToTableFlangeTransformNode)
       {
-        partModel->SetAndObserveTransformNodeID(rasToFlangeTransformNode->GetID());
+        partModel->SetAndObserveTransformNodeID(rasToTableFlangeTransformNode->GetID());
       }
     }
-    if (partIdx == CoordSys::TableXrayFlange)
+    if (partIdx == CoordSys::TableRobotFlange)
     {
-      this->Channel26RobotsLogic->UpdateTableTopToTableXrayFlangeTransform(channel26GeometryNode);
-      vtkMRMLLinearTransformNode* rasToFlangeTransformNode = this->Channel26RobotsLogic->UpdateRasToTableXrayFlangeTransform(channel26GeometryNode);
-      if (rasToFlangeTransformNode)
+      this->Channel26RobotsLogic->UpdateTableFlangeToTableRobotFlangeTransform(channel26GeometryNode);
+      vtkMRMLLinearTransformNode* rasToTableRobotFlangeTransformNode =
+        this->Channel26RobotsLogic->UpdateRasToTableRobotFlangeTransform(channel26GeometryNode);
+      if (rasToTableRobotFlangeTransformNode)
       {
-        partModel->SetAndObserveTransformNodeID(rasToFlangeTransformNode->GetID());
+        partModel->SetAndObserveTransformNodeID(rasToTableRobotFlangeTransformNode->GetID());
       }
     }
     else if (partIdx == CoordSys::TableTop)
@@ -1026,8 +1029,15 @@ vtkSlicerPatientPositioningLogic::SetupTreatmentMachineModels(vtkMRMLPatientPosi
     else if (partIdx == CoordSys::FixedReference)
     {
     }
-    else if (partIdx == CoordSys::TableWrist)
+    else if (partIdx == CoordSys::TableRobotWrist)
     {
+      this->Channel26RobotsLogic->UpdateTableRobotFlangeToTableRobotWristTransform(channel26GeometryNode);
+      vtkMRMLLinearTransformNode* rasToTableRobotWristTransformNode =
+        this->Channel26RobotsLogic->UpdateRasToTableRobotWristTransform(channel26GeometryNode);
+      if (rasToTableRobotWristTransformNode)
+      {
+        partModel->SetAndObserveTransformNodeID(rasToTableRobotWristTransformNode->GetID());
+      }
     }
   }
 
