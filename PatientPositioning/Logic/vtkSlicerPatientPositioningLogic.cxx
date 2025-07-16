@@ -540,7 +540,7 @@ void vtkSlicerPatientPositioningLogic::ProcessMRMLNodesEvents(vtkObject* caller,
       this->Channel26RobotsLogic->UpdateRasToTableTopTransform(channel26Geometry);
       this->Channel26RobotsLogic->UpdateRasToTableXrayFlangeTransform(channel26Geometry);
       this->Channel26RobotsLogic->UpdateRasToTableFlangeTransform(channel26Geometry);
-      this->Channel26RobotsLogic->UpdateRasToTableWristTransform(channel26Geometry);
+//      this->Channel26RobotsLogic->UpdateRasToTableWristTransform(channel26Geometry);
       this->UpdateTableTopPlaneNode(channel26Geometry);
       this->UpdateTableTopFiducialNode(channel26Geometry);
     }
