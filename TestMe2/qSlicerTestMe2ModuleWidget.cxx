@@ -335,12 +335,12 @@ void qSlicerTestMe2ModuleWidget::onFiducialNodeChanged(vtkMRMLNode *node)
   {
     d->ParameterNode->SetAndObserveFiducialNode(fiducialNode);
     d->logic()->createControlPoint(d->ParameterNode->GetFiducialNode());
-    if (d->ParameterNode->GetTransformNode())
-    {
-      d->logic()->updateFiducialTransformLink(d->ParameterNode->GetFiducialNode(), d->ParameterNode->GetTransformNode());
+ //   if (d->ParameterNode->GetTransformNode())
+ //   {
+ //     d->logic()->updateFiducialTransformLink(d->ParameterNode->GetFiducialNode(), d->ParameterNode->GetTransformNode());
 //      d->ParameterNode->Modified();
 //      d->logic()->updateTransform(d->ParameterNode->GetTransformNode(), d->ParameterNode->GetHeight(), d->ParameterNode->GetRotateXAngle());
-    }
+//    }
     qDebug() << Q_FUNC_INFO << "Fiducial node is changed";
   }
 
@@ -363,12 +363,12 @@ void qSlicerTestMe2ModuleWidget::onTransformNodeChanged(vtkMRMLNode *node)
   if (transformNode)
   {
     d->ParameterNode->SetAndObserveTransformNode(transformNode);
-    if (d->ParameterNode->GetFiducialNode() && d->ParameterNode->GetTransformNode())
-    {
-      d->logic()->updateFiducialTransformLink(d->ParameterNode->GetFiducialNode(), d->ParameterNode->GetTransformNode());
+//    if (d->ParameterNode->GetFiducialNode() && d->ParameterNode->GetTransformNode())
+ //   {
+ //     d->logic()->updateFiducialTransformLink(d->ParameterNode->GetFiducialNode(), d->ParameterNode->GetTransformNode());
 //      d->ParameterNode->Modified();
 //      d->logic()->updateTransform(d->ParameterNode->GetTransformNode(), d->ParameterNode->GetHeight(), d->ParameterNode->GetRotateXAngle());
-    }
+//    }
     qDebug() << Q_FUNC_INFO << "Transform node is changed";
   }
 

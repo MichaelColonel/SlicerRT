@@ -141,11 +141,22 @@ void vtkSlicerTestMe2Logic::ProcessMRMLNodesEvents(vtkObject *caller, unsigned l
         double height = parameterNode->GetHeight();
         double rotateXAngle = parameterNode->GetRotateXAngle();
  //       this->updateTransform(transformNode, parameterNode->GetHeight(), parameterNode->GetRotateXAngle());
+
+        // Update Fiducial-Transform link
+        if (fiducialNode && transformNode)
+        {
+          fiducialNode->SetAndObserveTransformNodeID(transformNode->GetID());
+        }
+
+        // Update Transform
         if (!transformNode)
-          {
-            vtkErrorMacro("updateTransform: Transform node is invalid");
-            return;
-          }
+        {
+          vtkErrorMacro("ProcessMRMLNodesEvents: Transform node is invalid");
+          return;
+        }
+
+        else
+        {
           vtkNew<vtkTransform> translate, rotate;
           translate->Identity();
           rotate->Identity();
@@ -153,7 +164,8 @@ void vtkSlicerTestMe2Logic::ProcessMRMLNodesEvents(vtkObject *caller, unsigned l
           rotate->RotateX(rotateXAngle);
           rotate->Concatenate(translate);
           transformNode->SetAndObserveTransformToParent(rotate);
-              }
+        }
+      }
     }
   }
 }
@@ -180,13 +192,16 @@ void vtkSlicerTestMe2Logic::updateTransform(vtkMRMLLinearTransformNode* inputTra
     vtkErrorMacro("updateTransform: Transform node is invalid");
     return;
   }
-  vtkNew<vtkTransform> translate, rotate;
-  translate->Identity();
-  rotate->Identity();
-  translate->Translate(0,0,height);
-  rotate->RotateX(rotateXAngle);
-  rotate->Concatenate(translate);
-  inputTransform->SetAndObserveTransformToParent(rotate);
+  else
+  {
+    vtkNew<vtkTransform> translate, rotate;
+    translate->Identity();
+    rotate->Identity();
+    translate->Translate(0,0,height);
+    rotate->RotateX(rotateXAngle);
+    rotate->Concatenate(translate);
+    inputTransform->SetAndObserveTransformToParent(rotate);
+  }
 //  inputFiducial->SetAndObserveTransformNodeID(inputTransform->GetID());
 //  vtkNew<vtkMatrix4x4> matrixTransform;
 //  matrixTransform->SetElement(2,3,height);
@@ -203,16 +218,17 @@ void vtkSlicerTestMe2Logic::showDRR(vtkMRMLScalarVolumeNode* drrNode, vtkMRMLRTB
 
     sliceLogic->GetSliceCompositeNode()->SetBackgroundVolumeID(drrNode->GetID());
 
-  //  sliceLogic->RotateSliceToLowestVolumeAxes(); // if without beam alignment
+  //  sliceLogic->RotateSliceToLowestVolumeAxes(); // no beam alignment
 
+    // Beam alignment
     vtkMRMLTransformNode* beamTransformNode = beamNode->GetParentTransformNode();
     vtkNew<vtkMatrix4x4> beamMatrix;
     beamTransformNode->GetMatrixTransformToWorld(beamMatrix);
-
     sliceNode->GetSliceToRAS()->DeepCopy(beamMatrix);
 
     sliceLogic->FitSliceToAll();
     sliceNode->UpdateMatrices();
+
     app->layoutManager()->layoutLogic()->MaximizeView(sliceNode);
   }
 
