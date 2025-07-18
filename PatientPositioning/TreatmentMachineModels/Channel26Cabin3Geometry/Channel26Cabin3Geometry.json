@@ -3,7 +3,7 @@
   "Author": "Mikhail Polkovnikov",
   "Date": "2024",
   "$schema": "https://raw.githubusercontent.com/???/???-schema.json#",
-  "_comment": "Geometry based on KUKA KR 210 R3100-2 document",
+  "_comment": "Geometry based on KUKA KR 300 R2700-2 document for table top robot",
   "Part": [
     {
       "Type": "FixedReference",
@@ -16,12 +16,32 @@
       "PointRAS": [0, 0, 0]
     },
     {
+      "Type": "TableRobotElbowShoulder",
+      "Number": 5,
+      "Name": "Robot Elbow Shoulder",
+      "FilePath": "TableRobotElbowShoulder.stl",
+      "FileToRASTransformMatrix": [ [-1, 0, 0, 0], [0, -1, 0, 0], [0, 0, 1, 0], [0, 0, 0, 1] ],
+      "Color": [233, 116, 0],
+      "State": "Active",
+      "PointRAS": [0, 1790, 1910]
+    },
+    {
+      "Type": "TableRobotElbowWrist",
+      "Number": 6,
+      "Name": "Robot Elbow Wrist",
+      "FilePath": "TableRobotElbowWrist.stl",
+      "FileToRASTransformMatrix": [ [-1, 0, 0, 0], [0, -1, 0, 0], [0, 0, 1, 0], [0, 0, 0, 1] ],
+      "Color": [233, 116, 0],
+      "State": "Active",
+      "PointRAS": [0, 1790, 1910]
+    },
+    {
       "Type": "TableRobotWrist",
       "Number": 7,
       "Name": "Robot Wrist",
       "FilePath": "TableRobotWrist.stl",
       "FileToRASTransformMatrix": [ [-1, 0, 0, 0], [0, -1, 0, 0], [0, 0, 1, 0], [0, 0, 0, 1] ],
-      "Color": [217, 217, 217],
+      "Color": [233, 116, 0],
       "State": "Active",
       "PointRAS": [0, 1790, 1910]
     },
@@ -31,7 +51,7 @@
       "Name": "Table Top Robot Flange",
       "FilePath": "TableRobotFlange.stl",
       "FileToRASTransformMatrix": [ [-1, 0, 0, 0], [0, -1, 0, 0], [0, 0, 1, 0], [0, 0, 0, 1] ],
-      "Color": [255, 0, 0],
+      "Color": [80, 80, 80],
       "State": "Active",
       "PointRAS": [-0.5, -210.0, 821.6]
     },

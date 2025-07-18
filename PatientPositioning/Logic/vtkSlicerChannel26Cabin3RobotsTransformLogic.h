@@ -96,6 +96,10 @@ public:
   void UpdateTableFlangeToTableRobotFlangeTransform(vtkMRMLChannel26GeometryNode* parameterNode);
   /// Apply new TableRobotFlange to TableRobotWrist transform (TableRobotFlange->TableRobotWrist)
   void UpdateTableRobotFlangeToTableRobotWristTransform(vtkMRMLChannel26GeometryNode* parameterNode);
+  /// Apply new TableRobotWrist to TableRobotElbowWrist transform (TableRobotWrist->TableRobotElbowWrist)
+  void UpdateTableRobotWristToTableRobotElbowWristTransform(vtkMRMLChannel26GeometryNode* parameterNode);
+  /// Apply new TableRobotElbowWrist to TableRobotElbowShoulder transform (TableRobotElbowWrist->TableRobotElbowShoulder)
+  void UpdateTableRobotElbowWristToTableRobotElbowShoulderTransform(vtkMRMLChannel26GeometryNode* parameterNode);
 
   /// Update (or create if absent) RAS to TableTop transform
   vtkMRMLLinearTransformNode* UpdateRasToTableTopTransform(vtkMRMLChannel26GeometryNode* parameterNode);
@@ -105,6 +109,10 @@ public:
   vtkMRMLLinearTransformNode* UpdateRasToTableRobotFlangeTransform(vtkMRMLChannel26GeometryNode* parameterNode);
   /// Update (or create if absent) RAS to TableRobotWrist transform
   vtkMRMLLinearTransformNode* UpdateRasToTableRobotWristTransform(vtkMRMLChannel26GeometryNode* parameterNode);
+  /// Update (or create if absent) RAS to TableRobotElbowWrist transform
+  vtkMRMLLinearTransformNode* UpdateRasToTableRobotElbowWristTransform(vtkMRMLChannel26GeometryNode* parameterNode);
+  /// Update (or create if absent) RAS to TableRobotElbowShoulder transform
+  vtkMRMLLinearTransformNode* UpdateRasToTableRobotElbowShoulderTransform(vtkMRMLChannel26GeometryNode* parameterNode);
 
   /// Get RAS to Patient transform
   vtkMRMLLinearTransformNode* GetPatientTransform();
@@ -116,6 +124,10 @@ public:
   vtkMRMLLinearTransformNode* GetTableRobotFlangeTransform();
   /// Get RAS to TableRobotWrist transform
   vtkMRMLLinearTransformNode* GetTableRobotWristTransform();
+  /// Get RAS to TableRobotElbowWrist transform
+  vtkMRMLLinearTransformNode* GetTableRobotElbowWristTransform();
+  /// Get RAS to TableRobotElbowShoulder transform
+  vtkMRMLLinearTransformNode* GetTableRobotElbowShoulderTransform();
 
   /// Get part type as string
   const char* GetTreatmentMachinePartTypeAsString(CoordinateSystemIdentifier type);

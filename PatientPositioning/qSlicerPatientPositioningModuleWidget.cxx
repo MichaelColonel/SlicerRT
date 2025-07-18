@@ -221,6 +221,10 @@ void qSlicerPatientPositioningModuleWidget::setup()
   // Widgets
   connect( d->SliderWidget_TableRobotA6, SIGNAL(valueChanged(double)), 
     this, SLOT(onTableRobotA6Changed(double)));
+  connect( d->SliderWidget_TableRobotA5, SIGNAL(valueChanged(double)), 
+    this, SLOT(onTableRobotA5Changed(double)));
+  connect( d->SliderWidget_TableRobotA4, SIGNAL(valueChanged(double)), 
+    this, SLOT(onTableRobotA4Changed(double)));
 
   connect( d->CoordinatesWidget_PatientTableTopTranslation, SIGNAL(coordinatesChanged(double*)),
     this, SLOT(onPatientTableTopTranslationChanged(double*)));
@@ -608,7 +612,8 @@ void qSlicerPatientPositioningModuleWidget::onLoadTreatmentMachineButtonClicked(
     loadedParts = d->logic()->LoadTreatmentMachineComponents(d->ParameterNode);
     d->getLayoutManager()->resumeRender();
   }
-
+  // TODO: Unable collision detection later when models will be OK
+/*
   // Warn the user if collision detection is disabled for certain part pairs
   QString disabledCollisionDetectionMessage(
     tr("Collision detection for the following part pairs may take very long due to high triangle numbers:\n\n"));
@@ -655,6 +660,7 @@ void qSlicerPatientPositioningModuleWidget::onLoadTreatmentMachineButtonClicked(
       d->logic()->SetupTreatmentMachineModels(d->ParameterNode, true);
     }
   }
+*/
 
   // Enable treatment machine geometry controls
   d->CollapsibleButton_PatientTableTopControl->setEnabled(true);
@@ -677,6 +683,8 @@ void qSlicerPatientPositioningModuleWidget::onLoadTreatmentMachineButtonClicked(
     channel26Logic->UpdateTableTopToTableFlangeTransform(channel26GeometryNode);
     channel26Logic->UpdateTableFlangeToTableRobotFlangeTransform(channel26GeometryNode);
     channel26Logic->UpdateTableRobotFlangeToTableRobotWristTransform(channel26GeometryNode);
+    channel26Logic->UpdateTableRobotWristToTableRobotElbowWristTransform(channel26GeometryNode);
+    channel26Logic->UpdateTableRobotElbowWristToTableRobotElbowShoulderTransform(channel26GeometryNode);
     d->getLayoutManager()->resumeRender();
   }
   // Update channel-26 geometry node
@@ -736,6 +744,7 @@ void qSlicerPatientPositioningModuleWidget::onPatientTableTopTranslationChanged(
     channel26Logic->UpdateTableTopToTableFlangeTransform(channel26GeometryNode);
     channel26Logic->UpdateTableFlangeToTableRobotFlangeTransform(channel26GeometryNode);
     channel26Logic->UpdateTableRobotFlangeToTableRobotWristTransform(channel26GeometryNode);
+    channel26Logic->UpdateTableRobotWristToTableRobotElbowWristTransform(channel26GeometryNode);
   }
   channel26GeometryNode->DisableModifiedEventOff();
   channel26GeometryNode->Modified();
@@ -768,6 +777,71 @@ void qSlicerPatientPositioningModuleWidget::onTableRobotA6Changed(double a6)
   if (channel26Logic && channel26GeometryNode)
   {
     channel26Logic->UpdateTableRobotFlangeToTableRobotWristTransform(channel26GeometryNode);
+    channel26Logic->UpdateTableRobotWristToTableRobotElbowWristTransform(channel26GeometryNode);
+  }
+  channel26GeometryNode->Modified();
+  this->checkForCollisions();
+  d->getLayoutManager()->resumeRender();
+  d->ParameterNode->Modified();
+}
+
+//-----------------------------------------------------------------------------
+void qSlicerPatientPositioningModuleWidget::onTableRobotA5Changed(double a5)
+{
+  Q_D(qSlicerPatientPositioningModuleWidget);
+
+  if (!d->ParameterNode || !d->ModuleWindowInitialized)
+  {
+    qCritical() << Q_FUNC_INFO << ": Parameter node is invalid!";
+    return;
+  }
+  vtkMRMLChannel26GeometryNode* channel26GeometryNode = d->ParameterNode->GetChannel26GeometryNode();
+
+  d->getLayoutManager()->pauseRender();
+  double a[6] = {};
+  channel26GeometryNode->GetTableTopRobotAngles(a);
+  channel26GeometryNode->DisableModifiedEventOn();
+  a[4] = 90 + a5; // - a5;
+  channel26GeometryNode->SetTableTopRobotAngles(a);
+  channel26GeometryNode->DisableModifiedEventOff();
+
+  // Update Channel-26 transforms
+  vtkSlicerChannel26Cabin3RobotsTransformLogic* channel26Logic = d->channel26RobotsLogic();
+  if (channel26Logic && channel26GeometryNode)
+  {
+    channel26Logic->UpdateTableRobotWristToTableRobotElbowWristTransform(channel26GeometryNode);
+  }
+  channel26GeometryNode->Modified();
+  this->checkForCollisions();
+  d->getLayoutManager()->resumeRender();
+  d->ParameterNode->Modified();
+}
+
+//-----------------------------------------------------------------------------
+void qSlicerPatientPositioningModuleWidget::onTableRobotA4Changed(double a4)
+{
+  Q_D(qSlicerPatientPositioningModuleWidget);
+
+  if (!d->ParameterNode || !d->ModuleWindowInitialized)
+  {
+    qCritical() << Q_FUNC_INFO << ": Parameter node is invalid!";
+    return;
+  }
+  vtkMRMLChannel26GeometryNode* channel26GeometryNode = d->ParameterNode->GetChannel26GeometryNode();
+
+  d->getLayoutManager()->pauseRender();
+  double a[6] = {};
+  channel26GeometryNode->GetTableTopRobotAngles(a);
+  channel26GeometryNode->DisableModifiedEventOn();
+  a[3] = a4;
+  channel26GeometryNode->SetTableTopRobotAngles(a);
+  channel26GeometryNode->DisableModifiedEventOff();
+
+  // Update Channel-26 transforms
+  vtkSlicerChannel26Cabin3RobotsTransformLogic* channel26Logic = d->channel26RobotsLogic();
+  if (channel26Logic && channel26GeometryNode)
+  {
+    channel26Logic->UpdateTableRobotElbowWristToTableRobotElbowShoulderTransform(channel26GeometryNode);
   }
   channel26GeometryNode->Modified();
   this->checkForCollisions();

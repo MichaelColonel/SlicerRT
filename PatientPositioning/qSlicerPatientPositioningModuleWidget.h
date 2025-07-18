@@ -61,6 +61,8 @@ public slots:
   void onLoadTreatmentMachineButtonClicked();
   void onPatientTableTopTranslationChanged(double* position);
   void onTableRobotA6Changed(double a6);
+  void onTableRobotA5Changed(double a5);
+  void onTableRobotA4Changed(double a4);
   void onRotatePatientHeadFeetToggled(bool toggled);
   void onShowMarkupsToggled(bool);
   void onShowModelsToggled(bool);

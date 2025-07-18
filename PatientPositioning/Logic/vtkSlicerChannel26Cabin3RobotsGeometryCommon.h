@@ -19,8 +19,10 @@
 
 #include "vtkSlicerPatientPositioningModuleLogicExport.h"
 
+#include <array>
+
 /// \ingroup SlicerRt_SlicerRtCommon
-/// Common constants for Channel-26 Cabin-3 robots geometry.
+/// Common constants for Channel-26 Cabin-3 robots geometry (in mm).
 class VTK_SLICER_PATIENTPOSITIONING_MODULE_LOGIC_EXPORT vtkSlicerChannel26Cabin3RobotsGeometryCommon
 {
 
@@ -62,31 +64,39 @@ public:
 
   // Table top robot KUKA KR 300 R2700-2
   // Table top robot base fixed size (no in documentation)
-  static constexpr double TABLE_TOP_ROBOT_BASE_FIXED_SIZE = 140.; // no in documentation
+  static constexpr double TABLE_ROBOT_BASE_FIXED_SIZE = 140.; // no in documentation
   // Table top robot base rotation size
-  static constexpr double TABLE_TOP_ROBOT_BASE_ROTATION_SIZE = 645. - TABLE_TOP_ROBOT_BASE_FIXED_SIZE;
+  static constexpr double TABLE_ROBOT_BASE_ROTATION_SIZE = 645. - TABLE_ROBOT_BASE_FIXED_SIZE;
   // Table top robot base rotation shoulder disk center offset X
-  static constexpr double TABLE_TOP_ROBOT_BASE_ROTATION_SHOULDER_OFFSET_X = 330.;
+  static constexpr double TABLE_ROBOT_BASE_ROTATION_SHOULDER_OFFSET_X = 330.;
   // Table top robot base rotation shoulder disk center offset Y
-  static constexpr double TABLE_TOP_ROBOT_BASE_ROTATION_SHOULDER_OFFSET_Y = 645;
+  static constexpr double TABLE_ROBOT_BASE_ROTATION_SHOULDER_OFFSET_Y = 645;
   // Table top robot shoulder size
-  static constexpr double TABLE_TOP_SHOULDER_SIZE = 1150.;
+  static constexpr double TABLE_ROBOT_SHOULDER_SIZE = 1150.;
   // Table top robot shoulder top center rotation
-  static constexpr double TABLE_TOP_SHOLDER_TOP_CENTER_ROTATION = TABLE_TOP_ROBOT_BASE_ROTATION_SIZE + TABLE_TOP_SHOULDER_SIZE;
+  static constexpr double TABLE_ROBOT_SHOLDER_TOP_CENTER_ROTATION = TABLE_ROBOT_BASE_ROTATION_SIZE + TABLE_ROBOT_SHOULDER_SIZE;
   // Table top robot shoulder center
-  static constexpr double TABLE_TOP_SHOLDER_CENTER = TABLE_TOP_ROBOT_BASE_ROTATION_SIZE + (TABLE_TOP_SHOULDER_SIZE / 2.);
+  static constexpr double TABLE_ROBOT_SHOLDER_CENTER = TABLE_ROBOT_BASE_ROTATION_SIZE + (TABLE_ROBOT_SHOULDER_SIZE / 2.);
   // Table top robot elbow height-elbow offset Y
-  static constexpr double TABLE_TOP_SHOULDER_ELBOW_OFFSET_Y = 115.;
+  static constexpr double TABLE_ROBOT_SHOULDER_ELBOW_OFFSET_Y = 115.;
   // Table top robot elbow size
-  static constexpr double TABLE_TOP_ELBOW_SIZE = 1220.;
+  static constexpr double TABLE_ROBOT_ELBOW_SIZE = 1220.;
   // Table top robot wrist size
-  static constexpr double TABLE_TOP_WRIST_SIZE = 240.;
+  static constexpr double TABLE_ROBOT_WRIST_SIZE = 240.;
+  // Table top robot flange length (for model)
+  static constexpr double TABLE_ROBOT_FLANGE_LENGTH = 39.90;
+  // Table top robot wrist length (for model)
+  static constexpr double TABLE_ROBOT_WRIST_LENGTH = TABLE_ROBOT_WRIST_SIZE - TABLE_ROBOT_FLANGE_LENGTH;
+  // Table top robot elbow wrist length (for model)
+  static constexpr double TABLE_ROBOT_ELBOW_WRIST_LENGTH = 351.47;
+  // Table top robot elbow shoulder length (for model) 868.53 mm
+  static constexpr double TABLE_ROBOT_ELBOW_SHOULDER_LENGTH = TABLE_ROBOT_ELBOW_SIZE - TABLE_ROBOT_ELBOW_WRIST_LENGTH;
 
   // C-arm x-ray robot KUKA KR 210 R3100-2
   // C-arm x-ray robot base fixed size (no in documentation)
   static constexpr double CARM_XRAY_ROBOT_BASE_FIXED_SIZE = 140.; // no in documentation
   // C-arm x-ray robot base rotation size
-  static constexpr double CARM_XRAY_ROBOT_BASE_ROTATION_SIZE = 645. - TABLE_TOP_ROBOT_BASE_FIXED_SIZE;
+  static constexpr double CARM_XRAY_ROBOT_BASE_ROTATION_SIZE = 645. - TABLE_ROBOT_BASE_FIXED_SIZE;
   // C-arm x-ray robot base rotation shoulder disk center offset X
   static constexpr double CARM_XRAY_ROBOT_BASE_ROTATION_SHOULDER_OFFSET_X = 330.;
   // C-arm x-ray robot base rotation shoulder disk center offset Y
@@ -94,9 +104,9 @@ public:
   // C-arm x-ray robot shoulder size
   static constexpr double CARM_XRAY_SHOULDER_SIZE = 1350.;
   // C-arm x-ray robot shoulder top center rotation
-  static constexpr double CARM_XRAY_SHOLDER_TOP_CENTER_ROTATION = TABLE_TOP_ROBOT_BASE_ROTATION_SIZE + TABLE_TOP_SHOULDER_SIZE;
+  static constexpr double CARM_XRAY_SHOLDER_TOP_CENTER_ROTATION = TABLE_ROBOT_BASE_ROTATION_SIZE + TABLE_ROBOT_SHOULDER_SIZE;
   // C-arm x-ray robot shoulder center
-  static constexpr double CARM_XRAY_SHOLDER_CENTER = TABLE_TOP_ROBOT_BASE_ROTATION_SIZE + (TABLE_TOP_SHOULDER_SIZE / 2.);
+  static constexpr double CARM_XRAY_SHOLDER_CENTER = TABLE_ROBOT_BASE_ROTATION_SIZE + (TABLE_ROBOT_SHOULDER_SIZE / 2.);
   // C-arm x-ray robot elbow height-elbow offset Y
   static constexpr double CARM_XRAY_SHOULDER_ELBOW_OFFSET_Y = 115.;
   // C-arm x-ray robot elbow size
@@ -126,7 +136,33 @@ public:
   // C-arm x-ray detector width
   static constexpr double CARM_XRAY_DETECTOR_WIDTH = 537.;
   // Table top height
-  static constexpr double TABLE_TOP_HEIGHT = 90.;
+  static constexpr double TABLE_TOP_HEIGHT = 91.;
+  // Table flange height
+  static constexpr double TABLE_FLANGE_HEIGHT = 300.;
+
+  // Table top model top surface initial center (origin) offset
+  static constexpr std::array< double, 3 > INIT_TABLE_TOP_ORIGIN_OFFSET_RAS{ 0.5, 821.6, -210.};
+  // Table flange (TableTop->TableFlange origin) model initial origin offset
+  static constexpr std::array< double, 3 > INIT_TABLE_FLANGE_ORIGIN_OFFSET_RAS{
+    INIT_TABLE_TOP_ORIGIN_OFFSET_RAS[0],
+    INIT_TABLE_TOP_ORIGIN_OFFSET_RAS[1], 
+    INIT_TABLE_TOP_ORIGIN_OFFSET_RAS[2] - TABLE_TOP_HEIGHT
+  };
+  // (A6 angle rotation)
+  // Table robot flange (TableFlange->TableRobotFlange origin) model initial origin offset
+  static constexpr std::array< double, 3 > INIT_TABLE_ROBOT_FLANGE_ORIGIN_OFFSET_RAS{
+    INIT_TABLE_FLANGE_ORIGIN_OFFSET_RAS[0],
+    INIT_TABLE_FLANGE_ORIGIN_OFFSET_RAS[1], 
+    INIT_TABLE_FLANGE_ORIGIN_OFFSET_RAS[2] - (TABLE_FLANGE_HEIGHT + TABLE_ROBOT_FLANGE_LENGTH + TABLE_ROBOT_WRIST_LENGTH)
+  };
+  // (A5 angle rotation)
+  // Table robot wrist (TableRobotFlange->TableRobotWrist origin) model initial origin offset
+  static constexpr std::array< double, 3 > INIT_TABLE_ROBOT_WRIST_ORIGIN_OFFSET_RAS{
+    INIT_TABLE_ROBOT_FLANGE_ORIGIN_OFFSET_RAS[0],
+    INIT_TABLE_ROBOT_FLANGE_ORIGIN_OFFSET_RAS[1], 
+    INIT_TABLE_ROBOT_FLANGE_ORIGIN_OFFSET_RAS[2]
+  };
+
   //----------------------------------------------------------------------------
   // Utility functions
   //----------------------------------------------------------------------------
