@@ -355,7 +355,7 @@ void vtkMRMLPatientPositioningNode::SetAndObserveXrayBeamNode(vtkMRMLRTBeamNode*
 //----------------------------------------------------------------------------
 vtkMRMLScalarVolumeNode* vtkMRMLPatientPositioningNode::GetDrrImageNode()
 {
-  return vtkMRMLScalarVolumeNode::SafeDownCast( this->GetNodeReference(DRR_REFERENCE_ROLE) );
+  return vtkMRMLScalarVolumeNode::SafeDownCast( this->GetNodeReference(DRR_IMAGE_REFERENCE_ROLE) );
 }
 
 //----------------------------------------------------------------------------

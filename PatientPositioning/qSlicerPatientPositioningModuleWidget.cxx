@@ -983,10 +983,10 @@ void qSlicerPatientPositioningModuleWidget::onEnter()
 //  d->logic()->CreateMarkupsNodes(parameterNode);
   d->FixedBeamAxisWidget->setPatientPositioningLogic(d->logic());
 
-  // All required data for GUI is initiated
-
   // Create default DRR nodes
   d->logic()->InitializeDefaultDrrNodes();
+
+  // All required data for GUI is initiated
 
   this->updateWidgetFromMRML();
   
@@ -2079,6 +2079,7 @@ void qSlicerPatientPositioningModuleWidget::onDrrImageChanged(vtkMRMLNode* node)
   {
     d->ParameterNode->SetAndObserveDrrImageNode(drrImageNode);
     qDebug() << Q_FUNC_INFO << "DRR Image node is changed";
+    d->PushButton_ShowDrr->setEnabled(true);
   }
 }
 
@@ -2157,5 +2158,10 @@ void qSlicerPatientPositioningModuleWidget::onShowDrrButtonClicked()
 
 void qSlicerPatientPositioningModuleWidget::onComputeDrrButtonClicked()
 {
-
+  Q_D(qSlicerPatientPositioningModuleWidget);
+  if (!d->ParameterNode)
+  {
+    qCritical() << Q_FUNC_INFO << ": Invalid parameter node";
+    return;
+  }
 }
