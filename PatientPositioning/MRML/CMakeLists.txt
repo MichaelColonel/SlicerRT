@@ -10,6 +10,7 @@ set(${KIT}_INCLUDE_DIRECTORIES
   ${MRMLCore_INCLUDE_DIRS}
   ${vtkSlicerSegmentationsModuleMRML_INCLUDE_DIRS}
   ${vtkSlicerBeamsModuleMRML_INCLUDE_DIRS}
+  ${vtkSlicerPlanarImageModuleLogic_INCLUDE_DIRS}
   )
 
 # --------------------------------------------------------------------------
@@ -42,6 +43,7 @@ set(${KIT}_TARGET_LIBRARIES
   MRMLCore
   vtkSlicerSegmentationsModuleMRML
   vtkSlicerBeamsModuleMRML
+  vtkSlicerPlanarImageModuleLogic
   )
 
 SlicerMacroBuildModuleMRML(

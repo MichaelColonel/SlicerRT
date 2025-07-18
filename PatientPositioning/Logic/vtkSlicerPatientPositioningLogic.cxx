@@ -35,6 +35,9 @@
 #include <vtkMRMLRTFixedBeamNode.h>
 #include <vtkMRMLRTCabin26AIonBeamNode.h>
 
+#include <vtkMRMLDrrImageComputationNode.h>
+#include <vtkSlicerDrrImageComputationLogic.h>
+
 // VTK includes
 #include <vtkIntArray.h>
 #include <vtkNew.h>
@@ -2040,4 +2043,41 @@ std::string vtkSlicerPatientPositioningLogic::GetStateForPartType(std::string pa
 vtkSlicerCabin26ARobotsTransformLogic* vtkSlicerPatientPositioningLogic::GetCabin26ARobotsTransformLogic() const
 {
   return Cabin26ARobotsLogic;
+}
+
+void vtkSlicerPatientPositioningLogic::InitializeDefaultDrrNodes()
+{
+  if (!this->GetMRMLScene())
+    return;
+
+  struct DrrPreset {
+    const char* name;
+    double spacing[2];
+    int resolution[2];
+  };
+
+  const DrrPreset presets[] = {
+    {
+      "Whale4343FSM",
+      {0.14, 0.14},  // spacing
+      {3072, 3072}   // resolution
+    },
+
+    {
+      "Default Detector",
+      {0.25, 0.25},  // spacing
+      {2000, 2000}   // resolution
+    }
+  };
+
+
+  for (const auto& preset : presets)
+  {
+    vtkNew<vtkMRMLDrrImageComputationNode> drrNode;
+    drrNode->SetName(preset.name);
+    drrNode->SetImagerResolution(preset.resolution);
+    drrNode->SetImagerSpacing(preset.spacing);
+
+    this->GetMRMLScene()->AddNode(drrNode);
+  }
 }

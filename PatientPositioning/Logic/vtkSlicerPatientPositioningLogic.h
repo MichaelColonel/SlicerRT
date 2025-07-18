@@ -47,6 +47,8 @@ class vtkMRMLMarkupsPlaneNode;
 class vtkMRMLMarkupsLineNode;
 class vtkMRMLMarkupsFiducialNode;
 
+class vtkMRMLDrrImageComputationNode;
+
 class vtkMatrix4x4;
 class vtkPolyData;
 class vtkVector3d;
@@ -126,6 +128,8 @@ public:
     vtkTransform* fixedReferenceToPatientBeamTransform, double tableTopAngles[6]);
 
   bool AlignExternalXrayBeamToCarmComponents(vtkMRMLCabin26AGeometryNode* parameterNode, vtkMRMLRTBeamNode* externalXrayBeamNode);
+
+  void InitializeDefaultDrrNodes();
 
 public:
   // Get treatment machine properties from descriptor file

@@ -42,12 +42,16 @@
 #include <vtkMRMLSegmentationNode.h>
 #include <vtkMRMLCameraNode.h>
 #include <vtkMRMLViewNode.h>
-#include <vtkMRMLSliceNode.h>
 #include <vtkMRMLTransformNode.h>
 #include <vtkMRMLSubjectHierarchyNode.h>
 
 #include <vtkMRMLRTPlanNode.h>
 #include <vtkMRMLRTBeamNode.h>
+
+#include <vtkMRMLDrrImageComputationNode.h>
+#include <vtkSlicerDrrImageComputationLogic.h>
+#include <vtkMRMLSliceLogic.h>
+#include <vtkMRMLLayoutLogic.h>
 
 // PatientPositioning MRML includes
 #include <vtkMRMLRTCabin26AIonBeamNode.h>
@@ -56,7 +60,6 @@
 #include <vtkMRMLCabin26AGeometryNode.h>
 
 // Qt includes
-#include <QDebug>
 #include <QDir>
 #include <QFileDialog>
 
@@ -212,6 +215,15 @@ void qSlicerPatientPositioningModuleWidget::setup()
   connect( d->SegmentSelectorWidget_PatientBody, SIGNAL(currentSegmentChanged(QString)), 
     this, SLOT(onPatientBodySegmentChanged(QString)));
 
+  connect( d->MRMLNodeComboBox_DrrNode, SIGNAL(currentNodeChanged(vtkMRMLNode*)),
+    this, SLOT(onDrrNodeChanged(vtkMRMLNode*)));
+  connect( d->MRMLNodeComboBox_XrayBeam, SIGNAL(currentNodeChanged(vtkMRMLNode*)),
+    this, SLOT(onXrayBeamChanged(vtkMRMLNode*)));
+  connect( d->MRMLNodeComboBox_DrrImage, SIGNAL(currentNodeChanged(vtkMRMLNode*)),
+    this, SLOT(onDrrImageChanged(vtkMRMLNode*)));
+//  connect( d->MRMLNodeComboBox_Slice, SIGNAL(currentNodeChanged(vtkMRMLNode*)),
+//    this, SLOT(onSliceChanged(vtkMRMLNode*)));
+
   // Buttons
   connect( d->PushButton_LoadTreatmentMachine, SIGNAL(clicked()), 
     this, SLOT(onLoadTreatmentMachineButtonClicked()));
@@ -223,6 +235,11 @@ void qSlicerPatientPositioningModuleWidget::setup()
     this, SLOT(onFixedReferenceCameraToggled(bool)));
   connect( d->PushButton_AlignBeams, SIGNAL(clicked()), 
     this, SLOT(onAlignBeamsButtonClicked()));
+
+  connect( d->PushButton_ComputeDrr, SIGNAL(clicked()),
+    this, SLOT(onComputeDrrButtonClicked()));
+  connect( d->PushButton_ShowDrr, SIGNAL(clicked()),
+    this, SLOT(onShowDrrButtonClicked()));
 
   // Widgets
   connect( d->SliderWidget_TableRobotA1, SIGNAL(valueChanged(double)), 
@@ -967,6 +984,10 @@ void qSlicerPatientPositioningModuleWidget::onEnter()
   d->FixedBeamAxisWidget->setPatientPositioningLogic(d->logic());
 
   // All required data for GUI is initiated
+
+  // Create default DRR nodes
+  d->logic()->InitializeDefaultDrrNodes();
+
   this->updateWidgetFromMRML();
   
   d->ModuleWindowInitialized = true;
@@ -2023,4 +2044,118 @@ void qSlicerPatientPositioningModuleWidget::onBeamsEyeViewOrientationChanged(con
     cameraNode->SetViewUp(vup);
   }
   cameraNode->GetCamera()->Elevation(0.);
+}
+
+void qSlicerPatientPositioningModuleWidget::onXrayBeamChanged(vtkMRMLNode* node)
+{
+  Q_D(qSlicerPatientPositioningModuleWidget);
+  vtkMRMLRTBeamNode* beamNode = vtkMRMLRTBeamNode::SafeDownCast(node);
+
+  if (!d->ParameterNode)
+  {
+    qCritical() << Q_FUNC_INFO << ": Invalid parameter node";
+    return;
+  }
+
+  if (beamNode)
+  {
+    d->ParameterNode->SetAndObserveXrayBeamNode(beamNode);
+    qDebug() << Q_FUNC_INFO << "Xray Beam node is changed";
+  }
+}
+
+void qSlicerPatientPositioningModuleWidget::onDrrImageChanged(vtkMRMLNode* node)
+{
+  Q_D(qSlicerPatientPositioningModuleWidget);
+  vtkMRMLScalarVolumeNode* drrImageNode = vtkMRMLScalarVolumeNode::SafeDownCast(node);
+
+  if (!d->ParameterNode)
+  {
+    qCritical() << Q_FUNC_INFO << ": Invalid parameter node";
+    return;
+  }
+
+  if (drrImageNode)
+  {
+    d->ParameterNode->SetAndObserveDrrImageNode(drrImageNode);
+    qDebug() << Q_FUNC_INFO << "DRR Image node is changed";
+  }
+}
+
+void qSlicerPatientPositioningModuleWidget::onDrrNodeChanged(vtkMRMLNode* node)
+{
+  Q_D(qSlicerPatientPositioningModuleWidget);
+  vtkMRMLDrrImageComputationNode* drrNode = vtkMRMLDrrImageComputationNode::SafeDownCast(node);
+
+  if (!d->ParameterNode)
+  {
+    qCritical() << Q_FUNC_INFO << ": Invalid parameter node";
+    return;
+  }
+
+  if (drrNode)
+  {
+    d->ParameterNode->SetAndObserveDrrNode(drrNode);
+    qDebug() << Q_FUNC_INFO << "DRR node is changed";
+  }
+}
+
+void qSlicerPatientPositioningModuleWidget::onShowDrrButtonClicked()
+{
+  Q_D(qSlicerPatientPositioningModuleWidget);
+  if (!d->ParameterNode)
+  {
+    qCritical() << Q_FUNC_INFO << ": Invalid parameter node";
+    return;
+  }
+
+
+  vtkMRMLScalarVolumeNode* drrImageNode = vtkMRMLScalarVolumeNode::SafeDownCast(d->ParameterNode->GetDrrImageNode());
+//  vtkMRMLRTBeamNode* beamNode = vtkMRMLRTBeamNode::SafeDownCast(d->ParameterNode->GetBeamNode());
+
+  vtkMRMLSliceNode* sliceNode = vtkMRMLSliceNode::SafeDownCast(d->MRMLNodeComboBox_Slice->currentNode());
+
+
+
+
+  if (drrImageNode && sliceNode)
+  {
+    qSlicerApplication* app = qSlicerApplication::application();
+
+    vtkMRMLSliceLogic* sliceLogic = app->layoutManager()->sliceWidget(sliceNode->GetName())->sliceLogic();
+
+    sliceLogic->GetSliceCompositeNode()->SetBackgroundVolumeID(drrImageNode->GetID());
+
+    sliceLogic->RotateSliceToLowestVolumeAxes(); // no beam alignment
+
+    // Beam alignment
+    /*
+    vtkMRMLTransformNode* beamTransformNode = beamNode->GetParentTransformNode();
+    vtkNew<vtkMatrix4x4> beamMatrix;
+    beamTransformNode->GetMatrixTransformToWorld(beamMatrix);
+    sliceNode->GetSliceToRAS()->DeepCopy(beamMatrix);
+    */
+
+    sliceLogic->FitSliceToAll();
+    sliceNode->UpdateMatrices();
+
+    app->layoutManager()->layoutLogic()->MaximizeView(sliceNode);
+  }
+   else
+  {
+    if (!d->ParameterNode->GetDrrImageNode())
+    {
+      qWarning() << "DRR image node is invalid";
+    }
+    if (!sliceNode)
+    {
+      qWarning() << "Slice node is invalid";
+    }
+  }
+
+}
+
+void qSlicerPatientPositioningModuleWidget::onComputeDrrButtonClicked()
+{
+
 }

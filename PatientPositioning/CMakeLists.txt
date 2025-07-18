@@ -43,6 +43,8 @@ set(MODULE_TARGET_LIBRARIES
   vtkSlicer${MODULE_NAME}ModuleLogic
   qSlicer${MODULE_NAME}ModuleWidgets
   qSlicerSubjectHierarchyModuleWidgets
+  vtkSlicerDrrImageComputationModuleLogic
+  vtkSlicerDrrImageComputationModuleMRML
   )
 
 set(MODULE_RESOURCES
