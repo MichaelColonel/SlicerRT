@@ -745,6 +745,7 @@ void qSlicerPatientPositioningModuleWidget::onPatientTableTopTranslationChanged(
     channel26Logic->UpdateTableFlangeToTableRobotFlangeTransform(channel26GeometryNode);
     channel26Logic->UpdateTableRobotFlangeToTableRobotWristTransform(channel26GeometryNode);
     channel26Logic->UpdateTableRobotWristToTableRobotElbowWristTransform(channel26GeometryNode);
+    channel26Logic->UpdateTableRobotElbowWristToTableRobotElbowShoulderTransform(channel26GeometryNode);
   }
   channel26GeometryNode->DisableModifiedEventOff();
   channel26GeometryNode->Modified();
@@ -778,6 +779,7 @@ void qSlicerPatientPositioningModuleWidget::onTableRobotA6Changed(double a6)
   {
     channel26Logic->UpdateTableRobotFlangeToTableRobotWristTransform(channel26GeometryNode);
     channel26Logic->UpdateTableRobotWristToTableRobotElbowWristTransform(channel26GeometryNode);
+    channel26Logic->UpdateTableRobotElbowWristToTableRobotElbowShoulderTransform(channel26GeometryNode);
   }
   channel26GeometryNode->Modified();
   this->checkForCollisions();
@@ -810,6 +812,7 @@ void qSlicerPatientPositioningModuleWidget::onTableRobotA5Changed(double a5)
   if (channel26Logic && channel26GeometryNode)
   {
     channel26Logic->UpdateTableRobotWristToTableRobotElbowWristTransform(channel26GeometryNode);
+    channel26Logic->UpdateTableRobotElbowWristToTableRobotElbowShoulderTransform(channel26GeometryNode);
   }
   channel26GeometryNode->Modified();
   this->checkForCollisions();

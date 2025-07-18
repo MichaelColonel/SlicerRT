@@ -1289,7 +1289,7 @@ void vtkSlicerChannel26Cabin3RobotsTransformLogic::UpdateTableRobotElbowWristToT
   if (tableRobotElbowWristToTableRobotElbowShoulderTransformNode)
   {
     vtkNew<vtkTransform> tableRobotWristToTableRobotElbowWristTransform;
-/*    double a[6] = {};
+    double a[6] = {};
     parameterNode->GetTableTopRobotAngles(a);
     double patientToTableTopTranslation[3] = {};
     parameterNode->GetPatientToTableTopTranslation(patientToTableTopTranslation);
@@ -1305,7 +1305,7 @@ void vtkSlicerChannel26Cabin3RobotsTransformLogic::UpdateTableRobotElbowWristToT
     // Apply transform (rotation around Y axis on A5 angle, and around X axis on A4 angle in RAS origin)
     vtkNew<vtkTransform> WristToElbowTransform;
     WristToElbowTransform->RotateY(a[4]);
-    WristToElbowTransform->RotateX(90.);
+    WristToElbowTransform->RotateX(-90. + a[3]);
     // Transform elbow in RAS (Patient) origin so, it's begin in RAS origin
     ElbowTranslateTransform->Concatenate(tableRobotWristToPatientTransform);
     // Translate elbow in RAS (Patient) origin, so it's end in RAS origin
@@ -1327,8 +1327,6 @@ void vtkSlicerChannel26Cabin3RobotsTransformLogic::UpdateTableRobotElbowWristToT
 
     PatientToFlangeTranslateTransform->Concatenate(WristToFlangeTransform);
     tableRobotElbowWristToTableRobotElbowShoulderTransformNode->SetAndObserveTransformToParent(PatientToFlangeTranslateTransform);
-*/
-    tableRobotElbowWristToTableRobotElbowShoulderTransformNode->SetAndObserveTransformToParent(tableRobotWristToTableRobotElbowWristTransform);
   }
 }
 
