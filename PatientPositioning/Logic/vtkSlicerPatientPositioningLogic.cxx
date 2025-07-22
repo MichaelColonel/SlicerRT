@@ -2071,6 +2071,12 @@ void vtkSlicerPatientPositioningLogic::InitializeDefaultDrrNodes()
       "Default Detector",
       {0.25, 0.25},  // spacing
       {2000, 2000}   // resolution
+    },
+
+    {
+      "Small Detector",
+      {0.2, 0.2},  // spacing
+      {500, 500}   // resolution
     }
   };
 

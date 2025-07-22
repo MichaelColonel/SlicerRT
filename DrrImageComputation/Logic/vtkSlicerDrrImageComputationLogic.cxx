@@ -1103,9 +1103,9 @@ vtkMRMLScalarVolumeNode* vtkSlicerDrrImageComputationLogic::ComputePlastimatchDR
     drrVolumeNode->SetName(drrName.c_str());
 
     // Create parameter node name, and observe calculated drr volume
-    std::string parameterSetNodeName;
-    parameterSetNodeName = vtkMRMLPlanarImageNode::PLANARIMAGE_PARAMETER_SET_BASE_NAME_PREFIX + drrName;
-    parameterNode->SetName(parameterSetNodeName.c_str());
+//    std::string parameterSetNodeName;
+//   parameterSetNodeName = vtkMRMLPlanarImageNode::PLANARIMAGE_PARAMETER_SET_BASE_NAME_PREFIX + drrName;
+//    parameterNode->SetName(parameterSetNodeName.c_str());
     parameterNode->SetAndObserveRtImageVolumeNode(drrVolumeNode);
 
     if (this->SetupDisplayAndSubjectHierarchyNodes( parameterNode, drrVolumeNode))
