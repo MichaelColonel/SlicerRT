@@ -8,14 +8,14 @@ set(MACHINE_NAME Channel26Cabin3Geometry)
 set(MACHINE_MODELS
   Channel26Cabin3Geometry.json
   TableTop.stl
-  TableRobotFlange.stl
   TableFlange.stl
-  TableRobotWrist.stl
-  TableRobotElbowWrist.stl
-  TableRobotElbowShoulder.stl
-  TableRobotShoulder.stl
-  KR210_R3100-2_A5_A6.stl
-  KR210_R3100-2_A6_Flange.stl
+  KR300_R2700-2_BaseFixed.stl
+  KR300_R2700-2_BaseRotation.stl
+  KR300_R2700-2_Shoulder.stl
+  KR300_R2700-2_Elbow_A3.stl
+  KR300_R2700-2_Elbow_A4.stl
+  KR300_R2700-2_Wrist.stl
+  KR300_R2700-2_Flange.stl
   FixedReference.stl
 )
 

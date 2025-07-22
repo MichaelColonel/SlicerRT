@@ -75,6 +75,7 @@ const char* vtkSlicerPatientPositioningLogic::TABLETOP_MARKUPS_FIDUCIAL_NODE_NAM
 
 namespace
 {
+
 rapidjson::Value JSON_EMPTY_VALUE;
 
 const double TableTopUpLeftFixedReference[3] = { -264.5, 1821.6, 210. }; // table top point A, LPS coordinate system
@@ -544,6 +545,8 @@ void vtkSlicerPatientPositioningLogic::ProcessMRMLNodesEvents(vtkObject* caller,
       this->Channel26RobotsLogic->UpdateRasToTableRobotElbowWristTransform(channel26Geometry);
       this->Channel26RobotsLogic->UpdateRasToTableRobotElbowShoulderTransform(channel26Geometry);
       this->Channel26RobotsLogic->UpdateRasToTableRobotShoulderTransform(channel26Geometry);
+      this->Channel26RobotsLogic->UpdateRasToTableRobotBaseRotationTransform(channel26Geometry);
+      this->Channel26RobotsLogic->UpdateRasToTableRobotBaseFixedTransform(channel26Geometry);
       this->UpdateTableTopPlaneNode(channel26Geometry);
       this->UpdateTableTopFiducialNode(channel26Geometry);
     }
@@ -966,6 +969,7 @@ vtkSlicerPatientPositioningLogic::SetupTreatmentMachineModels(vtkMRMLPatientPosi
         case CoordSys::TableRobotElbowWrist:
         case CoordSys::TableRobotElbowShoulder:
         case CoordSys::TableRobotShoulder:
+        case CoordSys::TableRobotBaseRotation:
           vtkErrorMacro("SetupTreatmentMachineModels: Unable to access " << partType << " model " << partIdx);
           break;
         default:
@@ -1071,6 +1075,26 @@ vtkSlicerPatientPositioningLogic::SetupTreatmentMachineModels(vtkMRMLPatientPosi
       if (rasToTableRobotShoulderTransformNode)
       {
         partModel->SetAndObserveTransformNodeID(rasToTableRobotShoulderTransformNode->GetID());
+      }
+    }
+    else if (partIdx == CoordSys::TableRobotBaseRotation)
+    {
+      this->Channel26RobotsLogic->UpdateTableRobotShoulderToTableRobotBaseRotationTransform(channel26GeometryNode);
+      vtkMRMLLinearTransformNode* rasToTableRobotBaseRotationTransformNode =
+        this->Channel26RobotsLogic->UpdateRasToTableRobotBaseRotationTransform(channel26GeometryNode);
+      if (rasToTableRobotBaseRotationTransformNode)
+      {
+        partModel->SetAndObserveTransformNodeID(rasToTableRobotBaseRotationTransformNode->GetID());
+      }
+    }
+    else if (partIdx == CoordSys::TableRobotBaseFixed)
+    {
+      this->Channel26RobotsLogic->UpdateTableRobotBaseRotationToTableRobotBaseFixedTransform(channel26GeometryNode);
+      vtkMRMLLinearTransformNode* rasToTableRobotBaseFixedTransformNode =
+        this->Channel26RobotsLogic->UpdateRasToTableRobotBaseFixedTransform(channel26GeometryNode);
+      if (rasToTableRobotBaseFixedTransformNode)
+      {
+        partModel->SetAndObserveTransformNodeID(rasToTableRobotBaseFixedTransformNode->GetID());
       }
     }
     else if (partIdx == CoordSys::FixedReference)
