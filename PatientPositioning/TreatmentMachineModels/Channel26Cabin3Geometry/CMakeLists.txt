@@ -13,6 +13,7 @@ set(MACHINE_MODELS
   TableRobotWrist.stl
   TableRobotElbowWrist.stl
   TableRobotElbowShoulder.stl
+  TableRobotShoulder.stl
   KR210_R3100-2_A5_A6.stl
   KR210_R3100-2_A6_Flange.stl
   FixedReference.stl

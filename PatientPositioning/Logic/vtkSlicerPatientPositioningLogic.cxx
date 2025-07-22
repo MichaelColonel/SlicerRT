@@ -543,6 +543,7 @@ void vtkSlicerPatientPositioningLogic::ProcessMRMLNodesEvents(vtkObject* caller,
       this->Channel26RobotsLogic->UpdateRasToTableRobotWristTransform(channel26Geometry);
       this->Channel26RobotsLogic->UpdateRasToTableRobotElbowWristTransform(channel26Geometry);
       this->Channel26RobotsLogic->UpdateRasToTableRobotElbowShoulderTransform(channel26Geometry);
+      this->Channel26RobotsLogic->UpdateRasToTableRobotShoulderTransform(channel26Geometry);
       this->UpdateTableTopPlaneNode(channel26Geometry);
       this->UpdateTableTopFiducialNode(channel26Geometry);
     }
@@ -964,6 +965,7 @@ vtkSlicerPatientPositioningLogic::SetupTreatmentMachineModels(vtkMRMLPatientPosi
         case CoordSys::TableRobotWrist:
         case CoordSys::TableRobotElbowWrist:
         case CoordSys::TableRobotElbowShoulder:
+        case CoordSys::TableRobotShoulder:
           vtkErrorMacro("SetupTreatmentMachineModels: Unable to access " << partType << " model " << partIdx);
           break;
         default:
@@ -1059,6 +1061,16 @@ vtkSlicerPatientPositioningLogic::SetupTreatmentMachineModels(vtkMRMLPatientPosi
       if (rasToTableRobotElbowShoulderTransformNode)
       {
         partModel->SetAndObserveTransformNodeID(rasToTableRobotElbowShoulderTransformNode->GetID());
+      }
+    }
+    else if (partIdx == CoordSys::TableRobotShoulder)
+    {
+      this->Channel26RobotsLogic->UpdateTableRobotElbowShoulderToTableRobotShoulderTransform(channel26GeometryNode);
+      vtkMRMLLinearTransformNode* rasToTableRobotShoulderTransformNode =
+        this->Channel26RobotsLogic->UpdateRasToTableRobotShoulderTransform(channel26GeometryNode);
+      if (rasToTableRobotShoulderTransformNode)
+      {
+        partModel->SetAndObserveTransformNodeID(rasToTableRobotShoulderTransformNode->GetID());
       }
     }
     else if (partIdx == CoordSys::FixedReference)

@@ -16,6 +16,16 @@
       "PointRAS": [0, 0, 0]
     },
     {
+      "Type": "TableRobotShoulder",
+      "Number": 4,
+      "Name": "Robot Shoulder",
+      "FilePath": "TableRobotShoulder.stl",
+      "FileToRASTransformMatrix": [ [-1, 0, 0, 0], [0, -1, 0, 0], [0, 0, 1, 0], [0, 0, 0, 1] ],
+      "Color": [233, 116, 0],
+      "State": "Active",
+      "PointRAS": [0, 1790, 1910]
+    },
+    {
       "Type": "TableRobotElbowShoulder",
       "Number": 5,
       "Name": "Robot Elbow Shoulder",

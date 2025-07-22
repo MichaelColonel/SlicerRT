@@ -135,6 +135,7 @@ public:
   static constexpr double CARM_XRAY_SOURCE_WIDTH = 485.;
   // C-arm x-ray detector width
   static constexpr double CARM_XRAY_DETECTOR_WIDTH = 537.;
+
   // Table top height
   static constexpr double TABLE_TOP_HEIGHT = 91.;
   // Table flange height
@@ -153,14 +154,14 @@ public:
   static constexpr std::array< double, 3 > INIT_TABLE_ROBOT_FLANGE_ORIGIN_OFFSET_RAS{
     INIT_TABLE_FLANGE_ORIGIN_OFFSET_RAS[0],
     INIT_TABLE_FLANGE_ORIGIN_OFFSET_RAS[1], 
-    INIT_TABLE_FLANGE_ORIGIN_OFFSET_RAS[2] - (TABLE_FLANGE_HEIGHT + TABLE_ROBOT_FLANGE_LENGTH + TABLE_ROBOT_WRIST_LENGTH)
+    INIT_TABLE_FLANGE_ORIGIN_OFFSET_RAS[2] - TABLE_FLANGE_HEIGHT
   };
   // (A5 angle rotation)
   // Table robot wrist (TableRobotFlange->TableRobotWrist origin) model initial origin offset
   static constexpr std::array< double, 3 > INIT_TABLE_ROBOT_WRIST_ORIGIN_OFFSET_RAS{
     INIT_TABLE_ROBOT_FLANGE_ORIGIN_OFFSET_RAS[0],
     INIT_TABLE_ROBOT_FLANGE_ORIGIN_OFFSET_RAS[1], 
-    INIT_TABLE_ROBOT_FLANGE_ORIGIN_OFFSET_RAS[2]
+    INIT_TABLE_ROBOT_FLANGE_ORIGIN_OFFSET_RAS[2] - TABLE_ROBOT_WRIST_SIZE
   };
 
   //----------------------------------------------------------------------------

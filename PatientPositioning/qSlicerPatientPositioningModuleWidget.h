@@ -63,6 +63,7 @@ public slots:
   void onTableRobotA6Changed(double a6);
   void onTableRobotA5Changed(double a5);
   void onTableRobotA4Changed(double a4);
+  void onTableRobotA3Changed(double a3);
   void onRotatePatientHeadFeetToggled(bool toggled);
   void onShowMarkupsToggled(bool);
   void onShowModelsToggled(bool);
