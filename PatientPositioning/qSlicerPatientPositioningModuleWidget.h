@@ -60,6 +60,7 @@ public slots:
   void onDrrNodeChanged(vtkMRMLNode*);
   void onXrayBeamChanged(vtkMRMLNode*);
   void onDrrImageChanged(vtkMRMLNode*);
+  void onCtVolumeChanged(vtkMRMLNode*);
 //  void onSliceChanged(vtkMRMLNode*);
   void onLoadTreatmentMachineButtonClicked();
   void onPatientSupportRotationAngleChanged(double angle);

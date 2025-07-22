@@ -46,6 +46,7 @@ const char* FIXED_BEAM_AXIS_REFERENCE_ROLE = "fixedBeamAxisRef";
 const char* FIXED_ISOCENTER_REFERENCE_ROLE = "fixedIsocenterRef";
 const char* CABIN26A_GEOMETRY_REFERENCE_ROLE = "cabin26AGeometryRef";
 const char* DRR_REFERENCE_ROLE = "drrRef";
+const char* CT_VOLUME_REFERENCE_ROLE = "ctVolumeRef";
 const char* FIXED_ION_BEAM_REFERENCE_ROLE = "fixedIonBeamRef";
 const char* EXTERNAL_XRAY_BEAM_REFERENCE_ROLE = "externalXrayBeamRef";
 const char* BEAM_REFERENCE_ROLE = "beamRef";
@@ -369,6 +370,7 @@ void vtkMRMLPatientPositioningNode::SetAndObserveDrrImageNode(vtkMRMLScalarVolum
 
   this->SetNodeReferenceID(DRR_IMAGE_REFERENCE_ROLE, (node ? node->GetID() : nullptr));
 }
+
 //----------------------------------------------------------------------------
 vtkMRMLDrrImageComputationNode* vtkMRMLPatientPositioningNode::GetDrrNode()
 {
@@ -385,4 +387,22 @@ void vtkMRMLPatientPositioningNode::SetAndObserveDrrNode(vtkMRMLDrrImageComputat
     }
 
   this->SetNodeReferenceID(DRR_REFERENCE_ROLE, (node ? node->GetID() : nullptr));
+}
+
+//----------------------------------------------------------------------------
+vtkMRMLScalarVolumeNode* vtkMRMLPatientPositioningNode::GetCtVolumeNode()
+{
+  return vtkMRMLScalarVolumeNode::SafeDownCast( this->GetNodeReference(CT_VOLUME_REFERENCE_ROLE) );
+}
+
+//----------------------------------------------------------------------------
+void vtkMRMLPatientPositioningNode::SetAndObserveCtVolumeNode(vtkMRMLScalarVolumeNode* node)
+{
+  if (node && this->Scene != node->GetScene())
+    {
+    vtkErrorMacro("Cannot set reference: the referenced and referencing node are not in the same scene");
+    return;
+    }
+
+  this->SetNodeReferenceID(CT_VOLUME_REFERENCE_ROLE, (node ? node->GetID() : nullptr));
 }

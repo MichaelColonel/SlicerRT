@@ -212,20 +212,16 @@
            <stringlist notr="true"/>
           </property>
           <property name="addEnabled">
-           <bool>false</bool>
+           <bool>true</bool>
           </property>
           <property name="removeEnabled">
-           <bool>false</bool>
+           <bool>true</bool>
+          </property>
+          <property name="renameEnabled">
+           <bool>true</bool>
           </property>
           <property name="interactionNodeSingletonTag">
            <string notr="true"/>
-          </property>
-         </widget>
-        </item>
-        <item row="2" column="1">
-         <widget class="ctkSliderWidget" name="SliderWidget_4">
-          <property name="decimals">
-           <number>6</number>
           </property>
          </widget>
         </item>
@@ -236,17 +232,17 @@
           </property>
          </widget>
         </item>
+        <item row="3" column="1">
+         <widget class="ctkSliderWidget" name="SliderWidget_4">
+          <property name="decimals">
+           <number>6</number>
+          </property>
+         </widget>
+        </item>
         <item row="0" column="0">
          <widget class="QLabel" name="label_28">
           <property name="text">
            <string>Detector:</string>
-          </property>
-         </widget>
-        </item>
-        <item row="2" column="0">
-         <widget class="QLabel" name="label_29">
-          <property name="text">
-           <string>Distance</string>
           </property>
          </widget>
         </item>
@@ -271,6 +267,35 @@
           </property>
          </widget>
         </item>
+        <item row="3" column="0">
+         <widget class="QLabel" name="label_29">
+          <property name="text">
+           <string>Distance:</string>
+          </property>
+         </widget>
+        </item>
+        <item row="2" column="0">
+         <widget class="QLabel" name="label_31">
+          <property name="text">
+           <string>CT Volume:</string>
+          </property>
+         </widget>
+        </item>
+        <item row="2" column="1">
+         <widget class="qMRMLNodeComboBox" name="MRMLNodeComboBox_CtVolume">
+          <property name="nodeTypes">
+           <stringlist notr="true">
+            <string>vtkMRMLScalarVolumeNode</string>
+           </stringlist>
+          </property>
+          <property name="hideChildNodeTypes">
+           <stringlist notr="true"/>
+          </property>
+          <property name="interactionNodeSingletonTag">
+           <string notr="true"/>
+          </property>
+         </widget>
+        </item>
        </layout>
       </item>
       <item row="4" column="0">
@@ -278,19 +303,19 @@
         <item row="1" column="0">
          <widget class="QLabel" name="LabelSlice_2">
           <property name="text">
-           <string>Slice</string>
+           <string>Slice:</string>
           </property>
          </widget>
         </item>
         <item row="0" column="0">
          <widget class="QLabel" name="LabelDRR_2">
           <property name="text">
-           <string>DRR Image</string>
+           <string>DRR Image:</string>
           </property>
          </widget>
         </item>
         <item row="0" column="1">
-         <widget class="qMRMLNodeComboBox" name="MRMLNodeComboBox_Drr">
+         <widget class="qMRMLNodeComboBox" name="MRMLNodeComboBox_DrrImage">
           <property name="enabled">
            <bool>false</bool>
           </property>
@@ -425,7 +450,7 @@
          </widget>
         </item>
         <item row="1" column="1">
-         <widget class="qMRMLNodeComboBox" name="MRMLNodeComboBox_DrrImage">
+         <widget class="qMRMLNodeComboBox" name="MRMLNodeComboBox_Registration_DrrImage">
           <property name="nodeTypes">
            <stringlist notr="true">
             <string>vtkMRMLScalarVolumeNode</string>
@@ -1299,7 +1324,7 @@
   <connection>
    <sender>qSlicerPatientPositioningModuleWidget</sender>
    <signal>mrmlSceneChanged(vtkMRMLScene*)</signal>
-   <receiver>MRMLNodeComboBox_DrrImage</receiver>
+   <receiver>MRMLNodeComboBox_Registration_DrrImage</receiver>
    <slot>setMRMLScene(vtkMRMLScene*)</slot>
    <hints>
     <hint type="sourcelabel">
@@ -1315,7 +1340,7 @@
   <connection>
    <sender>qSlicerPatientPositioningModuleWidget</sender>
    <signal>mrmlSceneChanged(vtkMRMLScene*)</signal>
-   <receiver>MRMLNodeComboBox_Drr</receiver>
+   <receiver>MRMLNodeComboBox_DrrImage</receiver>
    <slot>setMRMLScene(vtkMRMLScene*)</slot>
    <hints>
     <hint type="sourcelabel">
@@ -1373,6 +1398,22 @@
     <hint type="destinationlabel">
      <x>208</x>
      <y>518</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>qSlicerPatientPositioningModuleWidget</sender>
+   <signal>mrmlSceneChanged(vtkMRMLScene*)</signal>
+   <receiver>MRMLNodeComboBox_CtVolume</receiver>
+   <slot>setMRMLScene(vtkMRMLScene*)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>226</x>
+     <y>701</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>264</x>
+     <y>411</y>
     </hint>
    </hints>
   </connection>

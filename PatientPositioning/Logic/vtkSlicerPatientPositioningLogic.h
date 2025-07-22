@@ -46,13 +46,14 @@ class vtkMRMLRTBeamNode;
 class vtkMRMLMarkupsPlaneNode;
 class vtkMRMLMarkupsLineNode;
 class vtkMRMLMarkupsFiducialNode;
-
 class vtkMRMLDrrImageComputationNode;
 
 class vtkMatrix4x4;
 class vtkPolyData;
 class vtkVector3d;
 class vtkCollisionDetectionFilter;
+
+class vtkSlicerDrrImageComputationLogic;
 
 class VTK_SLICER_PATIENTPOSITIONING_MODULE_LOGIC_EXPORT vtkSlicerPatientPositioningLogic :
   public vtkSlicerModuleLogic
@@ -129,7 +130,11 @@ public:
 
   bool AlignExternalXrayBeamToCarmComponents(vtkMRMLCabin26AGeometryNode* parameterNode, vtkMRMLRTBeamNode* externalXrayBeamNode);
 
+  /// Set Drr Image Computation module logic
+  void SetDrrImageCompuationLogic(vtkSlicerDrrImageComputationLogic* drrImageCompuationLogic);
+
   void InitializeDefaultDrrNodes();
+  vtkMRMLScalarVolumeNode* ComputeDrr(vtkMRMLDrrImageComputationNode* drrNode, vtkMRMLScalarVolumeNode* ctVolumeNode);
 
 public:
   // Get treatment machine properties from descriptor file
@@ -196,6 +201,9 @@ protected:
 private:
   vtkSlicerPatientPositioningLogic(const vtkSlicerPatientPositioningLogic&); // Not implemented
   void operator=(const vtkSlicerPatientPositioningLogic&); // Not implemented
+
+  /// DRR Image Computation logic instance
+  vtkSlicerDrrImageComputationLogic* DrrImageComputationLogic;
 
   class vtkInternal;
   vtkInternal* Internal;

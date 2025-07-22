@@ -110,6 +110,11 @@ public:
   /// Set and observe DRR image node (scalar volume)
   void SetAndObserveDrrImageNode(vtkMRMLScalarVolumeNode* node);
 
+  /// Get CT volume node (scalar volume)
+  vtkMRMLScalarVolumeNode* GetCtVolumeNode();
+  /// Set and observe CT volume node (scalar volume)
+  void SetAndObserveCtVolumeNode(vtkMRMLScalarVolumeNode* node);
+
   /// Get observed fixed beam axis (line node)
   vtkMRMLMarkupsLineNode* GetFixedBeamAxisLineNode();
   /// Set and observe fixed beam axis (line node)

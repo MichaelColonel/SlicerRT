@@ -372,6 +372,8 @@ vtkMRMLModelNode* vtkSlicerPatientPositioningLogic::vtkInternal::EnsureTreatment
 
 //----------------------------------------------------------------------------
 vtkSlicerPatientPositioningLogic::vtkSlicerPatientPositioningLogic()
+  :
+  DrrImageComputationLogic(nullptr)
 {
   this->Internal = new vtkInternal(this); 
 
@@ -2047,7 +2049,9 @@ vtkSlicerCabin26ARobotsTransformLogic* vtkSlicerPatientPositioningLogic::GetCabi
 
 void vtkSlicerPatientPositioningLogic::InitializeDefaultDrrNodes()
 {
-  if (!this->GetMRMLScene())
+  vtkMRMLScene* scene = this->GetMRMLScene();
+
+  if (!scene)
     return;
 
   struct DrrPreset {
@@ -2078,6 +2082,30 @@ void vtkSlicerPatientPositioningLogic::InitializeDefaultDrrNodes()
     drrNode->SetImagerResolution(preset.resolution);
     drrNode->SetImagerSpacing(preset.spacing);
 
-    this->GetMRMLScene()->AddNode(drrNode);
+    scene->AddNode(drrNode);
   }
+}
+
+vtkMRMLScalarVolumeNode* vtkSlicerPatientPositioningLogic::ComputeDrr(vtkMRMLDrrImageComputationNode* drrNode, vtkMRMLScalarVolumeNode* ctVolumeNode)
+{
+  if (!this->DrrImageComputationLogic)
+  {
+    vtkErrorMacro("DRR Image Computation Logic is not set");
+    return nullptr;
+  }
+  if (drrNode && ctVolumeNode)
+  {
+ //   vtkErrorMacro("ComputeDrr: start");
+    return this->DrrImageComputationLogic->ComputePlastimatchDRR(drrNode, ctVolumeNode);
+  }
+  else
+  {
+    return nullptr;
+  }
+}
+
+//------------------------------------------------------------------------------
+void vtkSlicerPatientPositioningLogic::SetDrrImageCompuationLogic(vtkSlicerDrrImageComputationLogic* drrImageCompuationLogic)
+{
+  this->DrrImageComputationLogic = drrImageCompuationLogic;
 }
