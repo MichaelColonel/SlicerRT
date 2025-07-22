@@ -1381,13 +1381,13 @@ void vtkSlicerChannel26Cabin3RobotsTransformLogic::UpdateTableRobotElbowWristToT
     return;
   }
 
-  // Initial table robot shoulder wrist model position offset
-  const double elbowWristOffsetX = CoordPos::TABLE_ROBOT_BASE_ROTATION_SHOULDER_OFFSET_X + \
+  // Initial table robot elbow shoulder model position offset
+  const double elbowShoulderOffsetX = CoordPos::TABLE_ROBOT_BASE_ROTATION_SHOULDER_OFFSET_X + \
     CoordPos::TABLE_ROBOT_ELBOW_SIZE;
-  const double elbowWristOffsetY = CoordPos::TABLE_ROBOT_BASE_ROTATION_SHOULDER_OFFSET_Y + \
+  const double elbowShoulderOffsetY = CoordPos::TABLE_ROBOT_BASE_ROTATION_SHOULDER_OFFSET_Y + \
     CoordPos::TABLE_ROBOT_SHOULDER_SIZE + CoordPos::TABLE_ROBOT_SHOULDER_ELBOW_OFFSET_Y;
 
-  tableRobotElbowWristToPatientTransform->Translate(elbowWristOffsetX, elbowWristOffsetY, 0.); // compansate initial position offset of elbow wrist model
+  tableRobotElbowWristToPatientTransform->Translate(elbowShoulderOffsetX, elbowShoulderOffsetY, 0.); // compansate initial position offset of elbow shoulder model
 
   vtkNew<vtkTransform> ReverseWristVerticalOrientationTransform; // vertical orientation
   ReverseWristVerticalOrientationTransform->Identity();
@@ -1457,6 +1457,14 @@ void vtkSlicerChannel26Cabin3RobotsTransformLogic::UpdateTableRobotElbowShoulder
     vtkWarningMacro("UpdateTableRobotElbowShoulderToTableRobotShoulderTransform: Can't get TableRobotElbowShoulder->Patient transform");
     return;
   }
+
+  // Initial table robot shoulder model position offset
+  const double shoulderOffsetX = CoordPos::TABLE_ROBOT_BASE_ROTATION_SHOULDER_OFFSET_X;
+  const double shoulderOffsetY = CoordPos::TABLE_ROBOT_BASE_ROTATION_SHOULDER_OFFSET_Y + \
+    CoordPos::TABLE_ROBOT_SHOULDER_SIZE;
+
+  tableRobotElbowShoulderToPatientTransform->Translate(shoulderOffsetX, shoulderOffsetY, 0.); // compansate initial position offset of shoulder model
+
   // Transform model to vertical position
   vtkNew<vtkTransform> ShoulderVerticalOrientationTransform; // vertical orientation
   ShoulderVerticalOrientationTransform->Identity();
@@ -1504,7 +1512,6 @@ void vtkSlicerChannel26Cabin3RobotsTransformLogic::UpdateTableRobotElbowShoulder
     // Transform shoulder in RAS (Patient) origin so, it's begin in RAS origin
     // Transform to RAS origin and model vertical orientation
     ShoulderVerticalOrientationTransform->Concatenate(tableRobotElbowShoulderToPatientTransform);
-//    ShoulderTranslateTransform->Concatenate(ShoulderVerticalOrientationTransform);
     // Translate  Shoulder end to RAS (Patient) origin so, it's begin in RAS origin
     ElbowToShoulderRotationTransform->Concatenate(ShoulderVerticalOrientationTransform);
     // Apply transform of the Elbow (A6, A5, A4 angles) to Shoulder model in RAS origin
