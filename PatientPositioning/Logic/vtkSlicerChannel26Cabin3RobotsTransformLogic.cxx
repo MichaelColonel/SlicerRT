@@ -2025,7 +2025,7 @@ void vtkSlicerChannel26Cabin3RobotsTransformLogic::UpdateTableRobotBaseFixedToFi
   // Translate the FixedReference model origin (isocenter position)
   // to BaseFixed model origin (0,0,0 position in robot model file)
   vtkNew<vtkTransform> BaseFixedTranslateTransform;
-  BaseFixedTranslateTransform->Translate(0., 0., CoordPos::TABLE_ROBOT_BASE_MOUNTING_OFFSET_Y); // -30. mm offset
+  BaseFixedTranslateTransform->Translate(0., 0., 0.);//CoordPos::TABLE_ROBOT_BASE_MOUNTING_OFFSET_Y); // -30. mm offset
   BaseFixedTranslateTransform->Translate(BaseFixedToFixedReferenceTranslate);
 
   using CoordSys = CoordinateSystemIdentifier;

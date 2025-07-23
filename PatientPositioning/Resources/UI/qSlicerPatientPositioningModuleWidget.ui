@@ -167,7 +167,7 @@
            <bool>false</bool>
           </property>
           <property name="noneDisplay">
-           <string>Please select a fixed beam node</string>
+           <string>Please select a fixed ion beam node</string>
           </property>
          </widget>
         </item>
@@ -202,7 +202,7 @@
            <bool>false</bool>
           </property>
           <property name="noneDisplay">
-           <string>Please select an external x-ray beam node</string>
+           <string>Please select a C-arm X-ray beam node</string>
           </property>
          </widget>
         </item>
@@ -236,27 +236,27 @@
     </widget>
    </item>
    <item>
-    <widget class="QTabWidget" name="TabWidget_RobotsControl">
-     <property name="currentIndex">
-      <number>1</number>
+    <widget class="ctkCollapsibleButton" name="CollapsibleButton_RobotsControl">
+     <property name="enabled">
+      <bool>false</bool>
      </property>
-     <widget class="QWidget" name="Tab_TableTopRobot">
-      <attribute name="title">
-       <string>TableTop robot</string>
-      </attribute>
-      <layout class="QGridLayout" name="gridLayout_15">
-       <item row="0" column="0">
-        <widget class="ctkCollapsibleButton" name="CollapsibleButton_TableTopRobotControl">
-         <property name="enabled">
-          <bool>false</bool>
-         </property>
-         <property name="text">
-          <string>TableTop robot control</string>
-         </property>
-         <property name="collapsed">
-          <bool>false</bool>
-         </property>
-         <layout class="QGridLayout" name="gridLayout_2">
+     <property name="text">
+      <string>Robots control</string>
+     </property>
+     <property name="collapsed">
+      <bool>true</bool>
+     </property>
+     <layout class="QGridLayout" name="gridLayout_4">
+      <item row="0" column="0">
+       <widget class="QTabWidget" name="TabWidget_RobotsControl">
+        <property name="currentIndex">
+         <number>0</number>
+        </property>
+        <widget class="QWidget" name="Tab_TableRobot">
+         <attribute name="title">
+          <string>Table robot</string>
+         </attribute>
+         <layout class="QGridLayout" name="gridLayout_15">
           <item row="0" column="0">
            <layout class="QGridLayout" name="gridLayout">
             <item row="0" column="0">
@@ -295,7 +295,7 @@
                <double>-140.000000000000000</double>
               </property>
               <property name="maximum">
-               <double>5.000000000000000</double>
+               <double>-5.000000000000000</double>
               </property>
               <property name="value">
                <double>-90.000000000000000</double>
@@ -332,7 +332,7 @@
                <double>-120.000000000000000</double>
               </property>
               <property name="maximum">
-               <double>155.000000000000000</double>
+               <double>168.000000000000000</double>
               </property>
               <property name="value">
                <double>90.000000000000000</double>
@@ -365,10 +365,10 @@
                <number>6</number>
               </property>
               <property name="minimum">
-               <double>-125.000000000000000</double>
+               <double>-122.500000000000000</double>
               </property>
               <property name="maximum">
-               <double>125.000000000000000</double>
+               <double>122.500000000000000</double>
               </property>
               <property name="value">
                <double>-90.000000000000000</double>
@@ -392,26 +392,11 @@
           </item>
          </layout>
         </widget>
-       </item>
-      </layout>
-     </widget>
-     <widget class="QWidget" name="Tab_CarmRobot">
-      <attribute name="title">
-       <string>X-ray C-arm robot</string>
-      </attribute>
-      <layout class="QGridLayout" name="gridLayout_14">
-       <item row="0" column="0">
-        <widget class="ctkCollapsibleButton" name="CollapsibleButton_XrayCarmRobotControl">
-         <property name="enabled">
-          <bool>false</bool>
-         </property>
-         <property name="text">
-          <string>X-ray C-arm robot control</string>
-         </property>
-         <property name="collapsed">
-          <bool>false</bool>
-         </property>
-         <layout class="QGridLayout" name="gridLayout_18">
+        <widget class="QWidget" name="Tab_CarmRobot">
+         <attribute name="title">
+          <string>C-arm robot</string>
+         </attribute>
+         <layout class="QGridLayout" name="gridLayout_14">
           <item row="0" column="0">
            <layout class="QGridLayout" name="gridLayout_17">
             <item row="0" column="0">
@@ -547,9 +532,9 @@
           </item>
          </layout>
         </widget>
-       </item>
-      </layout>
-     </widget>
+       </widget>
+      </item>
+     </layout>
     </widget>
    </item>
    <item>
@@ -561,7 +546,7 @@
       <string>Patient on TableTop control</string>
      </property>
      <property name="collapsed">
-      <bool>false</bool>
+      <bool>true</bool>
      </property>
      <layout class="QGridLayout" name="gridLayout_7">
       <item row="0" column="0">
@@ -608,6 +593,13 @@
        </layout>
       </item>
      </layout>
+    </widget>
+   </item>
+   <item>
+    <widget class="ctkCollapsibleButton" name="CollapsibleButton_CarmRtImageDrrControl">
+     <property name="text">
+      <string>C-arm RT Image and DRR control</string>
+     </property>
     </widget>
    </item>
    <item>

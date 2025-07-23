@@ -235,9 +235,11 @@ void qSlicerPatientPositioningModuleWidget::setup()
   connect( d->CoordinatesWidget_PatientTableTopTranslation, SIGNAL(coordinatesChanged(double*)),
     this, SLOT(onPatientTableTopTranslationChanged(double*)));
  
-  // models, markups checkboxes
+  // models, markups, camera checkboxes
   connect( d->CheckBox_ShowModels, SIGNAL(toggled(bool)), this, SLOT(onShowModelsToggled(bool)));
   connect( d->CheckBox_ShowMarkups, SIGNAL(toggled(bool)), this, SLOT(onShowMarkupsToggled(bool)));
+  connect( d->CheckBox_FixedReferenceCamera, SIGNAL(toggled(bool)), 
+    this, SLOT(onFixedReferenceCameraToggled(bool)));
 }
 
 //-----------------------------------------------------------------------------
@@ -669,9 +671,9 @@ void qSlicerPatientPositioningModuleWidget::onLoadTreatmentMachineButtonClicked(
 */
 
   // Enable treatment machine geometry controls
+  d->CollapsibleButton_RobotsControl->setEnabled(true);
   d->CollapsibleButton_PatientTableTopControl->setEnabled(true);
-  d->CollapsibleButton_TableTopRobotControl->setEnabled(true);
-  
+
   // Reset camera
 /*
   qSlicerApplication* slicerApplication = qSlicerApplication::application();
@@ -1020,6 +1022,35 @@ void qSlicerPatientPositioningModuleWidget::onRotatePatientHeadFeetToggled(bool 
   d->getLayoutManager()->pauseRender();
   channel26GeometryNode->SetPatientHeadFeetRotation(toggled);
   d->getLayoutManager()->resumeRender();
+}
+
+//-----------------------------------------------------------------------------
+void qSlicerPatientPositioningModuleWidget::onFixedReferenceCameraToggled(bool toggled)
+{
+  Q_D(qSlicerPatientPositioningModuleWidget);
+
+  vtkMRMLCameraNode* cameraNode = d->get3DViewCameraNode();
+
+  // Get RAS -> FixedReference transform node
+  vtkSlicerChannel26Cabin3RobotsTransformLogic* robotsLogic = d->logic()->GetChannel26RobotsTransformLogic();
+  
+  vtkMRMLLinearTransformNode* node = nullptr; // FixedReference->RAS transform node
+  if (robotsLogic)
+  {
+    node = robotsLogic->GetFixedReferenceTransform();
+  }
+  if (toggled)
+  {
+    vtkNew<vtkMatrix4x4> rasToFixedReferenceToRasTransform;
+    if (node)
+    {
+      node->GetMatrixTransformToParent(rasToFixedReferenceToRasTransform);
+    }
+    cameraNode->SetAppliedTransform(rasToFixedReferenceToRasTransform);
+    cameraNode->SetAndObserveTransformNodeID(node ? node->GetID() : nullptr);
+    return;
+  }
+  cameraNode->SetAndObserveTransformNodeID(nullptr);
 }
 
 //-----------------------------------------------------------------------------

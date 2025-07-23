@@ -66,9 +66,11 @@ public slots:
   void onTableRobotA3Changed(double a3);
   void onTableRobotA2Changed(double a2);
   void onTableRobotA1Changed(double a1);
+  // Check boxes
   void onRotatePatientHeadFeetToggled(bool toggled);
   void onShowMarkupsToggled(bool);
   void onShowModelsToggled(bool);
+  void onFixedReferenceCameraToggled(bool toggled);
 
   /// Update widget GUI from PatientPositioning parameters node
   void updateWidgetFromMRML();
