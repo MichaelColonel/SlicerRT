@@ -547,6 +547,7 @@ void vtkSlicerPatientPositioningLogic::ProcessMRMLNodesEvents(vtkObject* caller,
       this->Channel26RobotsLogic->UpdateRasToTableRobotShoulderTransform(channel26Geometry);
       this->Channel26RobotsLogic->UpdateRasToTableRobotBaseRotationTransform(channel26Geometry);
       this->Channel26RobotsLogic->UpdateRasToTableRobotBaseFixedTransform(channel26Geometry);
+      this->Channel26RobotsLogic->UpdateRasToFixedReferenceTransform(channel26Geometry);
       this->UpdateTableTopPlaneNode(channel26Geometry);
       this->UpdateTableTopFiducialNode(channel26Geometry);
     }
@@ -1099,6 +1100,13 @@ vtkSlicerPatientPositioningLogic::SetupTreatmentMachineModels(vtkMRMLPatientPosi
     }
     else if (partIdx == CoordSys::FixedReference)
     {
+      this->Channel26RobotsLogic->UpdateTableRobotBaseFixedToFixedReferenceTransform(channel26GeometryNode);
+      vtkMRMLLinearTransformNode* rasToFixedReferenceTransformNode =
+        this->Channel26RobotsLogic->UpdateRasToFixedReferenceTransform(channel26GeometryNode);
+      if (rasToFixedReferenceTransformNode)
+      {
+        partModel->SetAndObserveTransformNodeID(rasToFixedReferenceTransformNode->GetID());
+      }
     }
   }
 
@@ -1153,13 +1161,21 @@ void vtkSlicerPatientPositioningLogic::ShowModelsNodes(vtkMRMLPatientPositioning
     return;
   }
   std::list<std::string> modelsNames;
+  modelsNames.push_back("FixedReference");
+  modelsNames.push_back("TableRobotBaseFixed");
+  modelsNames.push_back("TableRobotBaseRotation");
+  modelsNames.push_back("TableRobotShoulder");
+  modelsNames.push_back("TableRobotElbowShoulder");
+  modelsNames.push_back("TableRobotElbowWrist");
+  modelsNames.push_back("TableRobotWrist");
+  modelsNames.push_back("TableRobotFlange");
   modelsNames.push_back("TableFlange");
-  modelsNames.push_back("TableXrayFlange");
   modelsNames.push_back("TableTop");
 
   for (auto modelName : modelsNames)
   {
-    std::string fullName = std::string("Cabin26AGeometry_") + modelName;
+    const char* treatmentMachineType = parameterNode->GetTreatmentMachineType();
+    std::string fullName = std::string(treatmentMachineType) + std::string("_") + modelName;
     // model
     vtkMRMLModelNode* modelNode = vtkMRMLModelNode::SafeDownCast(
       this->GetMRMLScene()->GetFirstNodeByName(fullName.c_str()) );

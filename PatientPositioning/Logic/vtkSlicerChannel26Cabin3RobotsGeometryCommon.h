@@ -64,7 +64,8 @@ public:
 
   // Table top robot KUKA KR 300 R2700-2
   // Table top robot base fixed size (no in documentation)
-  static constexpr double TABLE_ROBOT_BASE_FIXED_SIZE = 140.; // no in documentation
+  static constexpr double TABLE_ROBOT_BASE_MOUNTING_OFFSET_Y = -30.; // no in documentation
+  static constexpr double TABLE_ROBOT_BASE_FIXED_SIZE = 225.6; // no in documentation
   // Table top robot base rotation size
   static constexpr double TABLE_ROBOT_BASE_ROTATION_SIZE = 645. - TABLE_ROBOT_BASE_FIXED_SIZE;
   // Table top robot base rotation shoulder disk center offset X

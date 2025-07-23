@@ -72,17 +72,21 @@ public:
   /// Get transform node between two coordinate systems is exists
   /// \return Transform node if there is a direct transform between the specified coordinate frames, nullptr otherwise
   ///   Note: If it does not specify a transform between the given coordinate frames, then there will be no node with the returned name.
-  vtkMRMLLinearTransformNode* GetTransformNodeBetween(
-    CoordinateSystemIdentifier fromFrame, CoordinateSystemIdentifier toFrame );
+  vtkMRMLLinearTransformNode* GetTransformNodeBetween(CoordinateSystemIdentifier fromFrame,
+    CoordinateSystemIdentifier toFrame );
 
   /// Get general transform from one coordinate frame to another (toFrame->fromFrame)
   /// @param transformForBeam - calculate dynamic transformation for beam model or other models
   /// \return Success flag (false on any error)
-  bool GetTransformBetween(CoordinateSystemIdentifier fromFrame, CoordinateSystemIdentifier toFrame, vtkGeneralTransform* outputTransform, bool transformForBeam = true);
+  bool GetTransformBetween(CoordinateSystemIdentifier fromFrame,
+    CoordinateSystemIdentifier toFrame, vtkGeneralTransform* outputTransform,
+    bool transformForBeam = true);
   /// Get linear transform from one coordinate frame to another (toFrame->fromFrame)
   /// @param transformForBeam - calculate dynamic transformation for beam model or other models
   /// \return Success flag (false on any error)
-  bool GetTransformBetween(CoordinateSystemIdentifier fromFrame, CoordinateSystemIdentifier toFrame, vtkTransform* outputTransform, bool transformForBeam = true);
+  bool GetTransformBetween(CoordinateSystemIdentifier fromFrame,
+    CoordinateSystemIdentifier toFrame, vtkTransform* outputTransform,
+    bool transformForBeam = true);
 
   /// Reset models position to initial ones
   void ResetToInitialPositions();
@@ -106,6 +110,8 @@ public:
   void UpdateTableRobotShoulderToTableRobotBaseRotationTransform(vtkMRMLChannel26GeometryNode* parameterNode);
   /// Apply new TableRobotBaseRotation to TableRobotBaseFixed transform (TableRobotBaseRotation->TableRobotBaseFixed)
   void UpdateTableRobotBaseRotationToTableRobotBaseFixedTransform(vtkMRMLChannel26GeometryNode* parameterNode);
+  /// Apply new TableRobotBaseFixed to FixedReference transform (TableRobotBaseRotation->TableRobotBaseFixed)
+  void UpdateTableRobotBaseFixedToFixedReferenceTransform(vtkMRMLChannel26GeometryNode* parameterNode);
 
   /// Update (or create if absent) RAS to TableTop transform
   vtkMRMLLinearTransformNode* UpdateRasToTableTopTransform(vtkMRMLChannel26GeometryNode* parameterNode);
@@ -125,6 +131,8 @@ public:
   vtkMRMLLinearTransformNode* UpdateRasToTableRobotBaseRotationTransform(vtkMRMLChannel26GeometryNode* parameterNode);
   /// Update (or create if absent) RAS to TableRobotBaseFixed transform
   vtkMRMLLinearTransformNode* UpdateRasToTableRobotBaseFixedTransform(vtkMRMLChannel26GeometryNode* parameterNode);
+  /// Update (or create if absent) RAS to FixedReference transform
+  vtkMRMLLinearTransformNode* UpdateRasToFixedReferenceTransform(vtkMRMLChannel26GeometryNode* parameterNode);
 
   /// Get RAS to Patient transform
   vtkMRMLLinearTransformNode* GetPatientTransform();
@@ -146,6 +154,8 @@ public:
   vtkMRMLLinearTransformNode* GetTableRobotBaseRotationTransform();
   /// Get RAS to TableRobotBaseFixed transform
   vtkMRMLLinearTransformNode* GetTableRobotBaseFixedTransform();
+  /// Get RAS to FixedReference transform
+  vtkMRMLLinearTransformNode* GetFixedReferenceTransform();
 
   /// Get part type as string
   const char* GetTreatmentMachinePartTypeAsString(CoordinateSystemIdentifier type);
@@ -161,17 +171,17 @@ protected:
 
   /// @brief Get coordinate system identifiers from frame system up to root system
   /// Root system = FixedReference system
-  bool GetPathToRoot( CoordinateSystemIdentifier frame, CoordinateSystemsList& path);
+  bool GetPathToRoot(CoordinateSystemIdentifier frame, CoordinateSystemsList& path);
 
   /// @brief Get coordinate system identifiers from root system down to frame system
   /// Root system = FixedReference system
-  bool GetPathFromRoot( CoordinateSystemIdentifier frame, CoordinateSystemsList& path);
+  bool GetPathFromRoot(CoordinateSystemIdentifier frame, CoordinateSystemsList& path);
 
   /// Map from \sa CoordinateSystemIdentifier to coordinate system name. Used for getting transforms
-  std::map<CoordinateSystemIdentifier, std::string> CoordinateSystemsMap;
+  std::map< CoordinateSystemIdentifier, std::string > CoordinateSystemsMap;
 
-  /// List of table top coordinate system transforms
-  std::vector< std::pair<CoordinateSystemIdentifier, CoordinateSystemIdentifier> > RobotsTransforms;
+  /// List of robots coordinate system transforms
+  std::vector< std::pair< CoordinateSystemIdentifier, CoordinateSystemIdentifier > > RobotsTransforms;
 
   // TODO: for hierarchy use tree with nodes, something like graph
   /// Map of TableTop robot coordinate systems hierarchy

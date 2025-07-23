@@ -694,6 +694,7 @@ void qSlicerPatientPositioningModuleWidget::onLoadTreatmentMachineButtonClicked(
     channel26Logic->UpdateTableRobotElbowShoulderToTableRobotShoulderTransform(channel26GeometryNode);
     channel26Logic->UpdateTableRobotShoulderToTableRobotBaseRotationTransform(channel26GeometryNode);
     channel26Logic->UpdateTableRobotBaseRotationToTableRobotBaseFixedTransform(channel26GeometryNode);
+    channel26Logic->UpdateTableRobotBaseFixedToFixedReferenceTransform(channel26GeometryNode);
     d->getLayoutManager()->resumeRender();
   }
   // Update channel-26 geometry node
@@ -758,6 +759,7 @@ void qSlicerPatientPositioningModuleWidget::onPatientTableTopTranslationChanged(
     channel26Logic->UpdateTableRobotElbowShoulderToTableRobotShoulderTransform(channel26GeometryNode);
     channel26Logic->UpdateTableRobotShoulderToTableRobotBaseRotationTransform(channel26GeometryNode);
     channel26Logic->UpdateTableRobotBaseRotationToTableRobotBaseFixedTransform(channel26GeometryNode);
+    channel26Logic->UpdateTableRobotBaseFixedToFixedReferenceTransform(channel26GeometryNode);
   }
   channel26GeometryNode->DisableModifiedEventOff();
   channel26GeometryNode->Modified();
@@ -795,6 +797,7 @@ void qSlicerPatientPositioningModuleWidget::onTableRobotA6Changed(double a6)
     channel26Logic->UpdateTableRobotElbowShoulderToTableRobotShoulderTransform(channel26GeometryNode);
     channel26Logic->UpdateTableRobotShoulderToTableRobotBaseRotationTransform(channel26GeometryNode);
     channel26Logic->UpdateTableRobotBaseRotationToTableRobotBaseFixedTransform(channel26GeometryNode);
+    channel26Logic->UpdateTableRobotBaseFixedToFixedReferenceTransform(channel26GeometryNode);
   }
   channel26GeometryNode->Modified();
   this->checkForCollisions();
@@ -831,6 +834,7 @@ void qSlicerPatientPositioningModuleWidget::onTableRobotA5Changed(double a5)
     channel26Logic->UpdateTableRobotElbowShoulderToTableRobotShoulderTransform(channel26GeometryNode);
     channel26Logic->UpdateTableRobotShoulderToTableRobotBaseRotationTransform(channel26GeometryNode);
     channel26Logic->UpdateTableRobotBaseRotationToTableRobotBaseFixedTransform(channel26GeometryNode);
+    channel26Logic->UpdateTableRobotBaseFixedToFixedReferenceTransform(channel26GeometryNode);
   }
   channel26GeometryNode->Modified();
   this->checkForCollisions();
@@ -866,6 +870,7 @@ void qSlicerPatientPositioningModuleWidget::onTableRobotA4Changed(double a4)
     channel26Logic->UpdateTableRobotElbowShoulderToTableRobotShoulderTransform(channel26GeometryNode);
     channel26Logic->UpdateTableRobotShoulderToTableRobotBaseRotationTransform(channel26GeometryNode);
     channel26Logic->UpdateTableRobotBaseRotationToTableRobotBaseFixedTransform(channel26GeometryNode);
+    channel26Logic->UpdateTableRobotBaseFixedToFixedReferenceTransform(channel26GeometryNode);
   }
   channel26GeometryNode->Modified();
   this->checkForCollisions();
@@ -900,6 +905,7 @@ void qSlicerPatientPositioningModuleWidget::onTableRobotA3Changed(double a3)
     channel26Logic->UpdateTableRobotElbowShoulderToTableRobotShoulderTransform(channel26GeometryNode);
     channel26Logic->UpdateTableRobotShoulderToTableRobotBaseRotationTransform(channel26GeometryNode);
     channel26Logic->UpdateTableRobotBaseRotationToTableRobotBaseFixedTransform(channel26GeometryNode);
+    channel26Logic->UpdateTableRobotBaseFixedToFixedReferenceTransform(channel26GeometryNode);
   }
   channel26GeometryNode->Modified();
   this->checkForCollisions();
@@ -933,6 +939,7 @@ void qSlicerPatientPositioningModuleWidget::onTableRobotA2Changed(double a2)
   {
     channel26Logic->UpdateTableRobotShoulderToTableRobotBaseRotationTransform(channel26GeometryNode);
     channel26Logic->UpdateTableRobotBaseRotationToTableRobotBaseFixedTransform(channel26GeometryNode);
+    channel26Logic->UpdateTableRobotBaseFixedToFixedReferenceTransform(channel26GeometryNode);
   }
   channel26GeometryNode->Modified();
   this->checkForCollisions();
@@ -965,6 +972,7 @@ void qSlicerPatientPositioningModuleWidget::onTableRobotA1Changed(double a1)
   if (channel26Logic && channel26GeometryNode)
   {
     channel26Logic->UpdateTableRobotBaseRotationToTableRobotBaseFixedTransform(channel26GeometryNode);
+    channel26Logic->UpdateTableRobotBaseFixedToFixedReferenceTransform(channel26GeometryNode);
   }
   channel26GeometryNode->Modified();
   this->checkForCollisions();

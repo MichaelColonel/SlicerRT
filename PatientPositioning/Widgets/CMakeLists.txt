@@ -21,8 +21,8 @@ set(${KIT}_MOC_SRCS
   )
 
 set(${KIT}_UI_SRCS
-  ../Resources/UI/qSlicer${MODULE_NAME}FixedBeamAxisWidget.ui
-  ../Resources/UI/qSlicer${MODULE_NAME}CarmXrayBeamWidget.ui
+#  ../Resources/UI/qSlicer${MODULE_NAME}FixedBeamAxisWidget.ui
+#  ../Resources/UI/qSlicer${MODULE_NAME}CarmXrayBeamWidget.ui
   )
 
 set(${KIT}_RESOURCES
