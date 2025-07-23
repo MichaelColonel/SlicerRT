@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>453</width>
-    <height>1403</height>
+    <width>533</width>
+    <height>1453</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -193,240 +193,12 @@
      </layout>
     </widget>
    </item>
-   <item row="1" column="0">
-    <widget class="ctkCollapsibleButton" name="CollapsibleButton">
-     <property name="text">
-      <string>DRR</string>
-     </property>
-     <layout class="QGridLayout" name="gridLayout_23">
-      <item row="1" column="0" colspan="2">
-       <layout class="QGridLayout" name="gridLayout_20">
-        <item row="0" column="1">
-         <widget class="qMRMLNodeComboBox" name="MRMLNodeComboBox_DrrNode">
-          <property name="nodeTypes">
-           <stringlist notr="true">
-            <string>vtkMRMLDrrImageComputationNode</string>
-           </stringlist>
-          </property>
-          <property name="hideChildNodeTypes">
-           <stringlist notr="true"/>
-          </property>
-          <property name="noneEnabled">
-           <bool>false</bool>
-          </property>
-          <property name="addEnabled">
-           <bool>true</bool>
-          </property>
-          <property name="removeEnabled">
-           <bool>true</bool>
-          </property>
-          <property name="renameEnabled">
-           <bool>true</bool>
-          </property>
-          <property name="interactionNodeSingletonTag">
-           <string notr="true"/>
-          </property>
-         </widget>
-        </item>
-        <item row="1" column="0">
-         <widget class="QLabel" name="label_30">
-          <property name="text">
-           <string>X-ray beam:</string>
-          </property>
-         </widget>
-        </item>
-        <item row="3" column="1">
-         <widget class="ctkSliderWidget" name="SliderWidget_4">
-          <property name="decimals">
-           <number>6</number>
-          </property>
-         </widget>
-        </item>
-        <item row="0" column="0">
-         <widget class="QLabel" name="label_28">
-          <property name="text">
-           <string>Detector:</string>
-          </property>
-         </widget>
-        </item>
-        <item row="1" column="1">
-         <widget class="qMRMLNodeComboBox" name="MRMLNodeComboBox_XrayBeam">
-          <property name="nodeTypes">
-           <stringlist notr="true">
-            <string>vtkMRMLRTBeamNode</string>
-           </stringlist>
-          </property>
-          <property name="hideChildNodeTypes">
-           <stringlist notr="true"/>
-          </property>
-          <property name="noneEnabled">
-           <bool>true</bool>
-          </property>
-          <property name="addEnabled">
-           <bool>false</bool>
-          </property>
-          <property name="renameEnabled">
-           <bool>true</bool>
-          </property>
-          <property name="interactionNodeSingletonTag">
-           <string notr="true"/>
-          </property>
-         </widget>
-        </item>
-        <item row="3" column="0">
-         <widget class="QLabel" name="label_29">
-          <property name="text">
-           <string>Distance:</string>
-          </property>
-         </widget>
-        </item>
-        <item row="2" column="0">
-         <widget class="QLabel" name="label_31">
-          <property name="text">
-           <string>CT Volume:</string>
-          </property>
-         </widget>
-        </item>
-        <item row="2" column="1">
-         <widget class="qMRMLNodeComboBox" name="MRMLNodeComboBox_CtVolume">
-          <property name="nodeTypes">
-           <stringlist notr="true">
-            <string>vtkMRMLScalarVolumeNode</string>
-           </stringlist>
-          </property>
-          <property name="hideChildNodeTypes">
-           <stringlist notr="true"/>
-          </property>
-          <property name="noneEnabled">
-           <bool>true</bool>
-          </property>
-          <property name="interactionNodeSingletonTag">
-           <string notr="true"/>
-          </property>
-         </widget>
-        </item>
-       </layout>
-      </item>
-      <item row="4" column="0">
-       <layout class="QGridLayout" name="gridLayout_21">
-        <item row="1" column="0">
-         <widget class="QLabel" name="LabelSlice_2">
-          <property name="text">
-           <string>Slice:</string>
-          </property>
-         </widget>
-        </item>
-        <item row="0" column="0">
-         <widget class="QLabel" name="LabelDRR_2">
-          <property name="text">
-           <string>DRR Image:</string>
-          </property>
-         </widget>
-        </item>
-        <item row="0" column="1">
-         <widget class="qMRMLNodeComboBox" name="MRMLNodeComboBox_DrrImage">
-          <property name="enabled">
-           <bool>false</bool>
-          </property>
-          <property name="nodeTypes">
-           <stringlist>
-            <string>vtkMRMLScalarVolumeNode</string>
-           </stringlist>
-          </property>
-          <property name="hideChildNodeTypes">
-           <stringlist notr="true"/>
-          </property>
-          <property name="noneEnabled">
-           <bool>true</bool>
-          </property>
-          <property name="addEnabled">
-           <bool>false</bool>
-          </property>
-          <property name="renameEnabled">
-           <bool>true</bool>
-          </property>
-          <property name="interactionNodeSingletonTag">
-           <string notr="true"/>
-          </property>
-         </widget>
-        </item>
-        <item row="1" column="1">
-         <widget class="qMRMLNodeComboBox" name="MRMLNodeComboBox_Slice">
-          <property name="enabled">
-           <bool>false</bool>
-          </property>
-          <property name="nodeTypes">
-           <stringlist>
-            <string>vtkMRMLSliceNode</string>
-           </stringlist>
-          </property>
-          <property name="hideChildNodeTypes">
-           <stringlist notr="true"/>
-          </property>
-          <property name="addEnabled">
-           <bool>false</bool>
-          </property>
-          <property name="removeEnabled">
-           <bool>false</bool>
-          </property>
-          <property name="renameEnabled">
-           <bool>false</bool>
-          </property>
-          <property name="interactionNodeSingletonTag">
-           <string notr="true"/>
-          </property>
-         </widget>
-        </item>
-       </layout>
-      </item>
-      <item row="2" column="0">
-       <widget class="QPushButton" name="PushButton_ComputeDrr">
-        <property name="text">
-         <string>Compute DRR</string>
-        </property>
-       </widget>
-      </item>
-      <item row="5" column="0">
-       <widget class="QPushButton" name="PushButton_ShowDrr">
-        <property name="enabled">
-         <bool>false</bool>
-        </property>
-        <property name="text">
-         <string>Show DRR</string>
-        </property>
-       </widget>
-      </item>
-      <item row="3" column="0">
-       <widget class="Line" name="line_3">
-        <property name="orientation">
-         <enum>Qt::Horizontal</enum>
-        </property>
-       </widget>
-      </item>
-     </layout>
-    </widget>
-   </item>
    <item row="2" column="0">
     <widget class="ctkCollapsibleButton" name="CollapsibleButton_ImageRegistration">
      <property name="text">
       <string>X-ray and DRR registration</string>
      </property>
      <layout class="QGridLayout" name="gridLayout_12">
-      <item row="1" column="0">
-       <widget class="ctkCheckBox" name="CheckBox_ShowRegistration">
-        <property name="indicatorIcon">
-         <iconset resource="../../../../Slicer/Libs/MRML/Widgets/Resources/qMRMLWidgets.qrc">
-          <normaloff>:/Icons/VisibleOn.png</normaloff>
-          <normalon>:/Icons/VisibleOff.png</normalon>:/Icons/VisibleOn.png</iconset>
-        </property>
-        <property name="indicatorIconSize">
-         <size>
-          <width>21</width>
-          <height>21</height>
-         </size>
-        </property>
-       </widget>
-      </item>
       <item row="0" column="0">
        <layout class="QGridLayout" name="gridLayout_11">
         <item row="0" column="0">
@@ -475,13 +247,28 @@
         </item>
        </layout>
       </item>
+      <item row="1" column="0">
+       <widget class="ctkCheckBox" name="CheckBox_ShowRegistration">
+        <property name="indicatorIcon">
+         <iconset resource="../../../../Slicer/Libs/MRML/Widgets/Resources/qMRMLWidgets.qrc">
+          <normaloff>:/Icons/VisibleOn.png</normaloff>
+          <normalon>:/Icons/VisibleOff.png</normalon>:/Icons/VisibleOn.png</iconset>
+        </property>
+        <property name="indicatorIconSize">
+         <size>
+          <width>21</width>
+          <height>21</height>
+         </size>
+        </property>
+       </widget>
+      </item>
      </layout>
     </widget>
    </item>
    <item row="3" column="0">
     <widget class="QTabWidget" name="TabWidget_RobotsControl">
      <property name="currentIndex">
-      <number>0</number>
+      <number>1</number>
      </property>
      <widget class="QWidget" name="Tab_TableTopRobot">
       <attribute name="title">
@@ -1152,6 +939,278 @@
       </size>
      </property>
     </spacer>
+   </item>
+   <item row="1" column="0">
+    <widget class="ctkCollapsibleButton" name="CollapsibleButton">
+     <property name="text">
+      <string>DRR</string>
+     </property>
+     <layout class="QGridLayout" name="gridLayout_23">
+      <item row="3" column="0">
+       <widget class="Line" name="line_3">
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+       </widget>
+      </item>
+      <item row="4" column="0">
+       <layout class="QGridLayout" name="gridLayout_21">
+        <item row="1" column="0">
+         <widget class="QLabel" name="LabelSlice_2">
+          <property name="text">
+           <string>Slice:</string>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="0">
+         <widget class="QLabel" name="LabelDRR_2">
+          <property name="text">
+           <string>DRR Image:</string>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="1">
+         <widget class="qMRMLNodeComboBox" name="MRMLNodeComboBox_DrrImage">
+          <property name="enabled">
+           <bool>false</bool>
+          </property>
+          <property name="nodeTypes">
+           <stringlist>
+            <string>vtkMRMLScalarVolumeNode</string>
+           </stringlist>
+          </property>
+          <property name="hideChildNodeTypes">
+           <stringlist notr="true"/>
+          </property>
+          <property name="noneEnabled">
+           <bool>true</bool>
+          </property>
+          <property name="addEnabled">
+           <bool>false</bool>
+          </property>
+          <property name="renameEnabled">
+           <bool>true</bool>
+          </property>
+          <property name="interactionNodeSingletonTag">
+           <string notr="true"/>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="1">
+         <widget class="qMRMLNodeComboBox" name="MRMLNodeComboBox_Slice">
+          <property name="enabled">
+           <bool>false</bool>
+          </property>
+          <property name="nodeTypes">
+           <stringlist>
+            <string>vtkMRMLSliceNode</string>
+           </stringlist>
+          </property>
+          <property name="hideChildNodeTypes">
+           <stringlist notr="true"/>
+          </property>
+          <property name="addEnabled">
+           <bool>false</bool>
+          </property>
+          <property name="removeEnabled">
+           <bool>false</bool>
+          </property>
+          <property name="renameEnabled">
+           <bool>false</bool>
+          </property>
+          <property name="interactionNodeSingletonTag">
+           <string notr="true"/>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </item>
+      <item row="5" column="0">
+       <widget class="QPushButton" name="PushButton_ShowDrr">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
+        <property name="text">
+         <string>Show DRR</string>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="0">
+       <widget class="QPushButton" name="PushButton_ComputeDrr">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
+        <property name="text">
+         <string>Compute DRR</string>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="0" colspan="2">
+       <layout class="QGridLayout" name="gridLayout_20">
+        <item row="3" column="0" colspan="2">
+         <widget class="Line" name="line_4">
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="1">
+         <widget class="qMRMLNodeComboBox" name="MRMLNodeComboBox_DrrNode">
+          <property name="nodeTypes">
+           <stringlist notr="true">
+            <string>vtkMRMLDrrImageComputationNode</string>
+           </stringlist>
+          </property>
+          <property name="hideChildNodeTypes">
+           <stringlist notr="true"/>
+          </property>
+          <property name="noneEnabled">
+           <bool>false</bool>
+          </property>
+          <property name="addEnabled">
+           <bool>true</bool>
+          </property>
+          <property name="removeEnabled">
+           <bool>true</bool>
+          </property>
+          <property name="renameEnabled">
+           <bool>true</bool>
+          </property>
+          <property name="interactionNodeSingletonTag">
+           <string notr="true"/>
+          </property>
+         </widget>
+        </item>
+        <item row="2" column="1">
+         <widget class="QLabel" name="Label_ImagerSpacing">
+          <property name="text">
+           <string/>
+          </property>
+         </widget>
+        </item>
+        <item row="4" column="0">
+         <widget class="QLabel" name="label_30">
+          <property name="text">
+           <string>X-ray beam:</string>
+          </property>
+         </widget>
+        </item>
+        <item row="2" column="0">
+         <widget class="QLabel" name="label_33">
+          <property name="text">
+           <string>Image spacing:</string>
+          </property>
+         </widget>
+        </item>
+        <item row="6" column="0">
+         <widget class="QLabel" name="label_29">
+          <property name="text">
+           <string>Isocenter to imager distance:</string>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="0">
+         <widget class="QLabel" name="label_32">
+          <property name="text">
+           <string>Image resolution:</string>
+          </property>
+         </widget>
+        </item>
+        <item row="5" column="1">
+         <widget class="qMRMLNodeComboBox" name="MRMLNodeComboBox_CtVolume">
+          <property name="nodeTypes">
+           <stringlist notr="true">
+            <string>vtkMRMLScalarVolumeNode</string>
+           </stringlist>
+          </property>
+          <property name="hideChildNodeTypes">
+           <stringlist notr="true"/>
+          </property>
+          <property name="noneEnabled">
+           <bool>true</bool>
+          </property>
+          <property name="interactionNodeSingletonTag">
+           <string notr="true"/>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="0">
+         <widget class="QLabel" name="label_28">
+          <property name="text">
+           <string>Detector:</string>
+          </property>
+         </widget>
+        </item>
+        <item row="5" column="0">
+         <widget class="QLabel" name="label_31">
+          <property name="text">
+           <string>CT Volume:</string>
+          </property>
+         </widget>
+        </item>
+        <item row="6" column="1">
+         <widget class="ctkSliderWidget" name="SliderWidget_IsocenterImagerDistance">
+          <property name="decimals">
+           <number>2</number>
+          </property>
+          <property name="minimum">
+           <double>0.000000000000000</double>
+          </property>
+          <property name="maximum">
+           <double>1200.000000000000000</double>
+          </property>
+          <property name="value">
+           <double>300.000000000000000</double>
+          </property>
+          <property name="suffix">
+           <string> mm</string>
+          </property>
+          <property name="popupSlider">
+           <bool>false</bool>
+          </property>
+          <property name="invertedAppearance">
+           <bool>false</bool>
+          </property>
+          <property name="invertedControls">
+           <bool>false</bool>
+          </property>
+         </widget>
+        </item>
+        <item row="4" column="1">
+         <widget class="qMRMLNodeComboBox" name="MRMLNodeComboBox_XrayBeam">
+          <property name="nodeTypes">
+           <stringlist notr="true">
+            <string>vtkMRMLRTBeamNode</string>
+           </stringlist>
+          </property>
+          <property name="hideChildNodeTypes">
+           <stringlist notr="true"/>
+          </property>
+          <property name="noneEnabled">
+           <bool>true</bool>
+          </property>
+          <property name="addEnabled">
+           <bool>false</bool>
+          </property>
+          <property name="renameEnabled">
+           <bool>true</bool>
+          </property>
+          <property name="interactionNodeSingletonTag">
+           <string notr="true"/>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="1">
+         <widget class="QLabel" name="Label_ImagerResolution">
+          <property name="text">
+           <string/>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </item>
+     </layout>
+    </widget>
    </item>
   </layout>
  </widget>

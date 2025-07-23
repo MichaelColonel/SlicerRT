@@ -29,12 +29,12 @@ class vtkMRMLScalarVolumeNode;
 class vtkMRMLMarkupsLineNode;
 class vtkMRMLMarkupsFiducialNode;
 class vtkMRMLSegmentationNode;
+class vtkMRMLDrrImageComputationNode;
 
 class vtkMRMLRTFixedBeamNode;
 class vtkMRMLRTCabin26AIonBeamNode;
 class vtkMRMLRTBeamNode;
 class vtkMRMLCabin26AGeometryNode;
-class vtkMRMLDrrImageComputationNode;
 
 class VTK_SLICER_PATIENTPOSITIONING_MODULE_MRML_EXPORT vtkMRMLPatientPositioningNode : public vtkMRMLNode
 {

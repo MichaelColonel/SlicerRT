@@ -61,7 +61,6 @@ public slots:
   void onXrayBeamChanged(vtkMRMLNode*);
   void onDrrImageChanged(vtkMRMLNode*);
   void onCtVolumeChanged(vtkMRMLNode*);
-//  void onSliceChanged(vtkMRMLNode*);
   void onLoadTreatmentMachineButtonClicked();
   void onPatientSupportRotationAngleChanged(double angle);
   void onPatientTableTopTranslationChanged(double* position);
@@ -86,6 +85,7 @@ public slots:
   void onAlignBeamsButtonClicked();
   void onShowDrrButtonClicked();
   void onComputeDrrButtonClicked();
+  void onIsocenterImagerDistanceChanged(double distance);
 
   /// Update widget GUI from PatientPositioning parameters node
   void updateWidgetFromMRML();

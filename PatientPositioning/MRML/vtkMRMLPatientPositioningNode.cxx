@@ -22,6 +22,7 @@
 #include <vtkMRMLMarkupsFiducialNode.h>
 #include <vtkMRMLLinearTransformNode.h>
 #include <vtkMRMLSegmentationNode.h>
+#include <vtkMRMLDrrImageComputationNode.h>
 
 // Beams includes
 #include <vtkMRMLRTBeamNode.h>
@@ -34,7 +35,6 @@
 #include "vtkMRMLCabin26AGeometryNode.h"
 #include "vtkMRMLRTFixedBeamNode.h"
 #include "vtkMRMLRTCabin26AIonBeamNode.h"
-#include "vtkMRMLDrrImageComputationNode.h"
 
 //------------------------------------------------------------------------------
 namespace

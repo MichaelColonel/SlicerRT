@@ -49,6 +49,7 @@
 #include <vtkMRMLRTBeamNode.h>
 
 #include <vtkMRMLDrrImageComputationNode.h>
+
 #include <vtkMRMLSliceLogic.h>
 #include <vtkMRMLLayoutLogic.h>
 
@@ -98,8 +99,6 @@ public:
   /// PatientPositioning and Geometry MRML nodes containing shown parameters
   vtkSmartPointer<vtkMRMLPatientPositioningNode> ParameterNode;
   bool ModuleWindowInitialized{ false };
-
-  //  vtkSlicerDrrImageComputationLogic* DrrImageComputationLogic;
 };
 
 //-----------------------------------------------------------------------------
@@ -231,8 +230,6 @@ void qSlicerPatientPositioningModuleWidget::setup()
     this, SLOT(onDrrImageChanged(vtkMRMLNode*)));
   connect( d->MRMLNodeComboBox_CtVolume, SIGNAL(currentNodeChanged(vtkMRMLNode*)),
     this, SLOT(onCtVolumeChanged(vtkMRMLNode*)));
-//  connect( d->MRMLNodeComboBox_Slice, SIGNAL(currentNodeChanged(vtkMRMLNode*)),
-//    this, SLOT(onSliceChanged(vtkMRMLNode*)));
 
   // Buttons
   connect( d->PushButton_LoadTreatmentMachine, SIGNAL(clicked()), 
@@ -276,6 +273,9 @@ void qSlicerPatientPositioningModuleWidget::setup()
     this, SLOT(onCArmRobotA5Changed(double)));
   connect( d->SliderWidget_CarmRobotA6, SIGNAL(valueChanged(double)), 
     this, SLOT(onCArmRobotA6Changed(double)));
+
+  connect( d->SliderWidget_IsocenterImagerDistance, SIGNAL(valueChanged(double)),
+    this, SLOT(onIsocenterImagerDistanceChanged(double)));
 
   connect( d->CoordinatesWidget_PatientTableTopTranslation, SIGNAL(coordinatesChanged(double*)),
     this, SLOT(onPatientTableTopTranslationChanged(double*)));
@@ -1024,6 +1024,8 @@ void qSlicerPatientPositioningModuleWidget::updateWidgetFromMRML()
 
   vtkMRMLPatientPositioningNode* parameterNode = vtkMRMLPatientPositioningNode::SafeDownCast(d->MRMLNodeComboBox_ParameterSet->currentNode());
 
+
+
   if (!this->mrmlScene())
   {
     qCritical() << Q_FUNC_INFO << ": Invalid scene";
@@ -1036,6 +1038,49 @@ void qSlicerPatientPositioningModuleWidget::updateWidgetFromMRML()
     qCritical() << Q_FUNC_INFO << ": Invalid parameter node";
     return;
   }
+
+  vtkMRMLDrrImageComputationNode* drrNode = parameterNode->GetDrrNode();
+
+
+  // Update widgets
+  d->MRMLNodeComboBox_DrrNode->setCurrentNode(parameterNode->GetDrrNode());
+  d->MRMLNodeComboBox_CtVolume->setCurrentNode(parameterNode->GetCtVolumeNode());
+  d->MRMLNodeComboBox_XrayBeam->setCurrentNode(parameterNode->GetXrayBeamNode());
+  d->MRMLNodeComboBox_DrrImage->setCurrentNode(parameterNode->GetDrrImageNode());
+
+  // Enable widgets
+
+  if (drrNode && parameterNode->GetCtVolumeNode() && parameterNode->GetXrayBeamNode())
+  {
+    d->PushButton_ComputeDrr->setEnabled(true);
+  }
+  else
+  {
+    d->PushButton_ComputeDrr->setEnabled(false);
+  }
+
+  if (parameterNode->GetDrrImageNode() && d->MRMLNodeComboBox_Slice->currentNode())
+  {
+    d->PushButton_ShowDrr->setEnabled(true);
+  }
+  else
+  {
+    d->PushButton_ShowDrr->setEnabled(false);
+  }
+
+  // Update and output info about detector
+
+  if (drrNode)
+  {
+    d->SliderWidget_IsocenterImagerDistance->setValue(parameterNode->GetDrrNode()->GetIsocenterImagerDistance());
+
+    int* imagerResolution = drrNode->GetImagerResolution();
+    d->Label_ImagerResolution->setText(QString("%1 x %2").arg(imagerResolution[0]).arg(imagerResolution[1]));
+
+    double* imagerSpacing = drrNode->GetImagerSpacing();
+    d->Label_ImagerSpacing->setText(QString("%1 x %2").arg(imagerSpacing[0]).arg(imagerSpacing[1]));
+  }
+
   qDebug() << Q_FUNC_INFO << "Update";
 }
 
@@ -2193,11 +2238,11 @@ void qSlicerPatientPositioningModuleWidget::onShowDrrButtonClicked()
   {
     if (!d->ParameterNode->GetDrrImageNode())
     {
-      qWarning() << "DRR image node is invalid";
+      qWarning() << Q_FUNC_INFO << "DRR image node is invalid";
     }
     if (!sliceNode)
     {
-      qWarning() << "Slice node is invalid";
+      qWarning() << Q_FUNC_INFO << "Slice node is invalid";
     }
   }
 
@@ -2225,11 +2270,34 @@ void qSlicerPatientPositioningModuleWidget::onComputeDrrButtonClicked()
   {
     if (!drrNode)
     {
-      qWarning() << "DRR node is invalid";
+      qWarning() << Q_FUNC_INFO << "DRR node is invalid";
     }
     if (!ctVolume)
     {
-      qWarning() << "ctVolume node is invalid";
+      qWarning() << Q_FUNC_INFO << "ctVolume node is invalid";
     }
+  }
+}
+
+void qSlicerPatientPositioningModuleWidget::onIsocenterImagerDistanceChanged(double distance)
+{
+  Q_D(qSlicerPatientPositioningModuleWidget);
+  if (!d->ParameterNode)
+  {
+    qCritical() << Q_FUNC_INFO << ": Invalid parameter node";
+    return;
+  }
+
+  // Set in DRR node
+  vtkMRMLDrrImageComputationNode* drrNode = d->ParameterNode->GetDrrNode();
+
+  if (drrNode)
+  {
+    drrNode->SetIsocenterImagerDistance(distance);
+    qDebug() << Q_FUNC_INFO << "DRR node: Isocenter to imager distance is changed";
+  }
+  else
+  {
+    qWarning() << Q_FUNC_INFO << "DRR node is invalid";
   }
 }
