@@ -1796,7 +1796,7 @@ void vtkSlicerChannel26Cabin3RobotsTransformLogic::UpdateTableRobotShoulderToTab
     /// Get current position of Elbow origin (begin)
     // Translate the Elbow so it's end in RAS origin
     vtkNew<vtkTransform> ElbowTranslateTransform;
-    ElbowTranslateTransform->Translate(CoordPos::TABLE_ROBOT_ELBOW_SIZE, 0., 0.);
+    ElbowTranslateTransform->Translate(CoordPos::TABLE_ROBOT_ELBOW_SIZE, 0., -1. * CoordPos::TABLE_ROBOT_SHOULDER_ELBOW_OFFSET_Y);
 
     // Wrist->Flange (TableTop) rotation
     vtkNew<vtkTransform> WristToFlangeTransform;
@@ -1833,7 +1833,7 @@ void vtkSlicerChannel26Cabin3RobotsTransformLogic::UpdateTableRobotShoulderToTab
     // BaseRotation model -> move back to BaseRotation rotation origin A2
     vtkNew<vtkTransform> InverseBaseRotationOriginToShoulderOriginTransform;
     InverseBaseRotationOriginToShoulderOriginTransform->Translate(0., 0.,
-      -1. * CoordPos::TABLE_ROBOT_SHOULDER_SIZE - CoordPos::TABLE_ROBOT_SHOULDER_ELBOW_OFFSET_Y);
+      -1. * CoordPos::TABLE_ROBOT_SHOULDER_SIZE);
 
     ShoulderToBaseRotationTransform->Concatenate(BaseRotationOriginToShoulderOriginTransform);
     InverseBaseRotationOriginToShoulderOriginTransform->Concatenate(ShoulderToBaseRotationTransform);
@@ -1947,10 +1947,12 @@ void vtkSlicerChannel26Cabin3RobotsTransformLogic::UpdateTableRobotBaseRotationT
     BaseRotationToBaseFixedTransform->RotateZ(a[0]);
     // BaseFixed model -> move to BaseRotation rotation origin A2 along X
     vtkNew<vtkTransform> BaseFixedOriginToBaseRotationOriginTransform;
-    BaseFixedOriginToBaseRotationOriginTransform->Translate(-1. * CoordPos::TABLE_ROBOT_BASE_ROTATION_SHOULDER_OFFSET_X, 0., 0.);
+    BaseFixedOriginToBaseRotationOriginTransform->Translate(-1. * CoordPos::TABLE_ROBOT_BASE_ROTATION_SHOULDER_OFFSET_X,
+      0., CoordPos::TABLE_ROBOT_SHOULDER_ELBOW_OFFSET_Y);
     // BaseFixed model -> move back to BaseFixed rotation origin A1 along X
     vtkNew<vtkTransform> InverseBaseFixedOriginToBaseRotationOriginTransform;
-    InverseBaseFixedOriginToBaseRotationOriginTransform->Translate(CoordPos::TABLE_ROBOT_BASE_ROTATION_SHOULDER_OFFSET_X, 0., 0.);
+    InverseBaseFixedOriginToBaseRotationOriginTransform->Translate(CoordPos::TABLE_ROBOT_BASE_ROTATION_SHOULDER_OFFSET_X,
+      0., -1. * CoordPos::TABLE_ROBOT_SHOULDER_ELBOW_OFFSET_Y);
 
     BaseRotationToBaseFixedTransform->Concatenate(BaseFixedOriginToBaseRotationOriginTransform);
     InverseBaseFixedOriginToBaseRotationOriginTransform->Concatenate(BaseRotationToBaseFixedTransform);
@@ -1965,7 +1967,7 @@ void vtkSlicerChannel26Cabin3RobotsTransformLogic::UpdateTableRobotBaseRotationT
     // BaseRotation model -> move back to BaseRotation rotation origin A2
     vtkNew<vtkTransform> InverseBaseRotationOriginToShoulderOriginTransform;
     InverseBaseRotationOriginToShoulderOriginTransform->Translate(0., 0.,
-      -1. * CoordPos::TABLE_ROBOT_SHOULDER_SIZE - CoordPos::TABLE_ROBOT_SHOULDER_ELBOW_OFFSET_Y);
+      -1. * CoordPos::TABLE_ROBOT_SHOULDER_SIZE);
 
     ShoulderToBaseRotationTransform->Concatenate(BaseRotationOriginToShoulderOriginTransform);
     InverseBaseRotationOriginToShoulderOriginTransform->Concatenate(ShoulderToBaseRotationTransform);
