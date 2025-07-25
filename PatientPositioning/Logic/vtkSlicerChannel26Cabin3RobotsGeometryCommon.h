@@ -66,12 +66,12 @@ public:
   // Table top robot base fixed size (no in documentation)
   static constexpr double TABLE_ROBOT_BASE_MOUNTING_OFFSET_Y = -30.; // no in documentation
   static constexpr double TABLE_ROBOT_BASE_FIXED_SIZE = 225.6; // no in documentation
-  // Table top robot base rotation size
-  static constexpr double TABLE_ROBOT_BASE_ROTATION_SIZE = 645. - TABLE_ROBOT_BASE_FIXED_SIZE;
   // Table top robot base rotation shoulder disk center offset X
   static constexpr double TABLE_ROBOT_BASE_ROTATION_SHOULDER_OFFSET_X = 330.;
   // Table top robot base rotation shoulder disk center offset Y
   static constexpr double TABLE_ROBOT_BASE_ROTATION_SHOULDER_OFFSET_Y = 645;
+  // Table top robot base rotation size
+  static constexpr double TABLE_ROBOT_BASE_ROTATION_SIZE = TABLE_ROBOT_BASE_ROTATION_SHOULDER_OFFSET_Y - TABLE_ROBOT_BASE_FIXED_SIZE;
   // Table top robot shoulder size
   static constexpr double TABLE_ROBOT_SHOULDER_SIZE = 1150.;
   // Table top robot shoulder top center rotation

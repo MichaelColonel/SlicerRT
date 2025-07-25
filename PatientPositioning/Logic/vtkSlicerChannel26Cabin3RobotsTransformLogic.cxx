@@ -79,7 +79,7 @@ vtkSlicerChannel26Cabin3RobotsTransformLogic::vtkSlicerChannel26Cabin3RobotsTran
   this->RobotsTransforms.push_back(std::make_pair(CoordSys::TableRobotFlange, CoordSys::TableRobotWrist)); // Rotation A6
   this->RobotsTransforms.push_back(std::make_pair(CoordSys::TableFlange, CoordSys::TableRobotFlange)); // Dummy, only fixed translation
   this->RobotsTransforms.push_back(std::make_pair(CoordSys::TableTop, CoordSys::TableFlange)); // Dummy, only fixed translation
-  this->RobotsTransforms.push_back(std::make_pair(CoordSys::Patient, CoordSys::TableTop)); // Translate from oatient to table top center
+  this->RobotsTransforms.push_back(std::make_pair(CoordSys::Patient, CoordSys::TableTop)); // Translate from patient to table top center
   this->RobotsTransforms.push_back(std::make_pair(CoordSys::RAS, CoordSys::Patient));
 
   this->CoordinateSystemsHierarchy.clear();
@@ -1377,10 +1377,10 @@ void vtkSlicerChannel26Cabin3RobotsTransformLogic::UpdateTableFlangeToTableRobot
   }
 
   // Initial table robot flange model position offset
-  const double flangeOffsetX = CoordPos::TABLE_ROBOT_BASE_ROTATION_SHOULDER_OFFSET_X + \
-    CoordPos::TABLE_ROBOT_ELBOW_SIZE + CoordPos::TABLE_ROBOT_WRIST_SIZE;
-  const double flangeOffsetY = CoordPos::TABLE_ROBOT_BASE_ROTATION_SHOULDER_OFFSET_Y + \
-    CoordPos::TABLE_ROBOT_SHOULDER_SIZE + CoordPos::TABLE_ROBOT_SHOULDER_ELBOW_OFFSET_Y;
+//  const double flangeOffsetX = CoordPos::TABLE_ROBOT_BASE_ROTATION_SHOULDER_OFFSET_X + CoordPos::TABLE_ROBOT_ELBOW_SIZE + CoordPos::TABLE_ROBOT_WRIST_SIZE;
+//  const double flangeOffsetY = CoordPos::TABLE_ROBOT_BASE_ROTATION_SHOULDER_OFFSET_Y + CoordPos::TABLE_ROBOT_SHOULDER_SIZE + CoordPos::TABLE_ROBOT_SHOULDER_ELBOW_OFFSET_Y;
+  const double flangeOffsetX = CoordPos::TABLE_ROBOT_WRIST_SIZE;
+  const double flangeOffsetY = 0.;
 
   // compansate initial position offset of flange model
   tableFlangeToPatientTransform->Translate(flangeOffsetX, flangeOffsetY, 0.);
@@ -1443,10 +1443,10 @@ void vtkSlicerChannel26Cabin3RobotsTransformLogic::UpdateTableRobotFlangeToTable
   }
 
   // Initial table robot wrist model position offset
-  const double wristOffsetX = CoordPos::TABLE_ROBOT_BASE_ROTATION_SHOULDER_OFFSET_X + \
-    CoordPos::TABLE_ROBOT_ELBOW_SIZE + CoordPos::TABLE_ROBOT_WRIST_SIZE;
-  const double wristOffsetY = CoordPos::TABLE_ROBOT_BASE_ROTATION_SHOULDER_OFFSET_Y + \
-    CoordPos::TABLE_ROBOT_SHOULDER_SIZE + CoordPos::TABLE_ROBOT_SHOULDER_ELBOW_OFFSET_Y;
+//  const double wristOffsetX = CoordPos::TABLE_ROBOT_BASE_ROTATION_SHOULDER_OFFSET_X + CoordPos::TABLE_ROBOT_ELBOW_SIZE + CoordPos::TABLE_ROBOT_WRIST_SIZE;
+//  const double wristOffsetY = CoordPos::TABLE_ROBOT_BASE_ROTATION_SHOULDER_OFFSET_Y + CoordPos::TABLE_ROBOT_SHOULDER_SIZE + CoordPos::TABLE_ROBOT_SHOULDER_ELBOW_OFFSET_Y;
+  const double wristOffsetX = CoordPos::TABLE_ROBOT_WRIST_SIZE;
+  const double wristOffsetY = 0.;
 
   // compansate initial position offset of wrist model
   tableRobotFlangeToPatientTransform->Translate(wristOffsetX, wristOffsetY, 0.);
@@ -1513,11 +1513,10 @@ void vtkSlicerChannel26Cabin3RobotsTransformLogic::UpdateTableRobotWristToTableR
   }
 
   // Initial table robot elbow wrist model position offset
-  const double elbowWristOffsetX = CoordPos::TABLE_ROBOT_BASE_ROTATION_SHOULDER_OFFSET_X + \
-    CoordPos::TABLE_ROBOT_ELBOW_SIZE;
-  const double elbowWristOffsetY = CoordPos::TABLE_ROBOT_BASE_ROTATION_SHOULDER_OFFSET_Y + \
-    CoordPos::TABLE_ROBOT_SHOULDER_SIZE + CoordPos::TABLE_ROBOT_SHOULDER_ELBOW_OFFSET_Y;
-
+//  const double elbowWristOffsetX = CoordPos::TABLE_ROBOT_BASE_ROTATION_SHOULDER_OFFSET_X + CoordPos::TABLE_ROBOT_ELBOW_SIZE;
+//  const double elbowWristOffsetY = CoordPos::TABLE_ROBOT_BASE_ROTATION_SHOULDER_OFFSET_Y + CoordPos::TABLE_ROBOT_SHOULDER_SIZE + CoordPos::TABLE_ROBOT_SHOULDER_ELBOW_OFFSET_Y;
+  const double elbowWristOffsetX = CoordPos::TABLE_ROBOT_ELBOW_SIZE;
+  const double elbowWristOffsetY = 0.;
   // compansate initial position offset of elbow wrist model
   tableRobotWristToPatientTransform->Translate(elbowWristOffsetX, elbowWristOffsetY, 0.);
 
@@ -1591,10 +1590,10 @@ void vtkSlicerChannel26Cabin3RobotsTransformLogic::UpdateTableRobotElbowWristToT
   }
 
   // Initial table robot elbow shoulder model position offset
-  const double elbowShoulderOffsetX = CoordPos::TABLE_ROBOT_BASE_ROTATION_SHOULDER_OFFSET_X + \
-    CoordPos::TABLE_ROBOT_ELBOW_SIZE;
-  const double elbowShoulderOffsetY = CoordPos::TABLE_ROBOT_BASE_ROTATION_SHOULDER_OFFSET_Y + \
-    CoordPos::TABLE_ROBOT_SHOULDER_SIZE + CoordPos::TABLE_ROBOT_SHOULDER_ELBOW_OFFSET_Y;
+//  const double elbowShoulderOffsetX = CoordPos::TABLE_ROBOT_BASE_ROTATION_SHOULDER_OFFSET_X + CoordPos::TABLE_ROBOT_ELBOW_SIZE;
+//  const double elbowShoulderOffsetY = CoordPos::TABLE_ROBOT_BASE_ROTATION_SHOULDER_OFFSET_Y + CoordPos::TABLE_ROBOT_SHOULDER_SIZE + CoordPos::TABLE_ROBOT_SHOULDER_ELBOW_OFFSET_Y;
+  const double elbowShoulderOffsetX = CoordPos::TABLE_ROBOT_ELBOW_SIZE;
+  const double elbowShoulderOffsetY = 0.;
 
   // compansate initial position offset of elbow shoulder model
   tableRobotElbowWristToPatientTransform->Translate(elbowShoulderOffsetX, elbowShoulderOffsetY, 0.);
@@ -1669,9 +1668,10 @@ void vtkSlicerChannel26Cabin3RobotsTransformLogic::UpdateTableRobotElbowShoulder
   }
 
   // Initial table robot shoulder model position offset
-  const double shoulderOffsetX = CoordPos::TABLE_ROBOT_BASE_ROTATION_SHOULDER_OFFSET_X;
-  const double shoulderOffsetY = CoordPos::TABLE_ROBOT_BASE_ROTATION_SHOULDER_OFFSET_Y + \
-    CoordPos::TABLE_ROBOT_SHOULDER_SIZE;
+//  const double shoulderOffsetX = CoordPos::TABLE_ROBOT_BASE_ROTATION_SHOULDER_OFFSET_X;
+//  const double shoulderOffsetY = CoordPos::TABLE_ROBOT_BASE_ROTATION_SHOULDER_OFFSET_Y + CoordPos::TABLE_ROBOT_SHOULDER_SIZE;
+  const double shoulderOffsetX = 0.0;
+  const double shoulderOffsetY = CoordPos::TABLE_ROBOT_SHOULDER_SIZE;
 
   // compansate initial position offset of shoulder model
   tableRobotElbowShoulderToPatientTransform->Translate(shoulderOffsetX, shoulderOffsetY, 0.);
@@ -1774,8 +1774,7 @@ void vtkSlicerChannel26Cabin3RobotsTransformLogic::UpdateTableRobotShoulderToTab
 
   // Initial table robot base rotation model position offset
   const double baseRotationOffsetX = CoordPos::TABLE_ROBOT_BASE_ROTATION_SHOULDER_OFFSET_X;
-  const double baseRotationOffsetY = CoordPos::TABLE_ROBOT_BASE_ROTATION_SHOULDER_OFFSET_Y + \
-    CoordPos::TABLE_ROBOT_SHOULDER_SIZE;
+  const double baseRotationOffsetY = CoordPos::TABLE_ROBOT_BASE_ROTATION_SHOULDER_OFFSET_Y + CoordPos::TABLE_ROBOT_SHOULDER_SIZE;
 
   // compansate initial position offset of shoulder model
   tableRobotShoulderToPatientTransform->Translate(baseRotationOffsetX, baseRotationOffsetY, 0.);
@@ -1894,8 +1893,7 @@ void vtkSlicerChannel26Cabin3RobotsTransformLogic::UpdateTableRobotBaseRotationT
 
   // Initial table robot base rotation model position offset
   const double baseRotationOffsetX = CoordPos::TABLE_ROBOT_BASE_ROTATION_SHOULDER_OFFSET_X;
-  const double baseRotationOffsetY = CoordPos::TABLE_ROBOT_BASE_ROTATION_SHOULDER_OFFSET_Y + \
-    CoordPos::TABLE_ROBOT_SHOULDER_SIZE;
+  const double baseRotationOffsetY = CoordPos::TABLE_ROBOT_BASE_ROTATION_SHOULDER_OFFSET_Y + CoordPos::TABLE_ROBOT_SHOULDER_SIZE;
 
   // compansate initial position offset of shoulder model
   tableRobotBaseRotationToPatientTransform->Translate(baseRotationOffsetX, baseRotationOffsetY, 0.);
