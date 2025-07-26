@@ -551,35 +551,20 @@ void vtkSlicerPatientPositioningLogic::ProcessMRMLNodesEvents(vtkObject* caller,
       this->UpdateTableTopPlaneNode(channel26Geometry);
       this->UpdateTableTopFiducialNode(channel26Geometry);
       {
-        double wristOrigin[4] = { 0., 0., 1150., 1. };
-        double wristOriginInRobotBaseFixed[4] = {};
-//        double tmp[4] = {0., 0., 0., 1.};
-        vtkMRMLLinearTransformNode* tableBaseFixedToRAS = this->Channel26RobotsLogic->GetTableRobotBaseFixedTransform();
-        vtkMRMLLinearTransformNode* tableElbowWristToRAS = this->Channel26RobotsLogic->GetTableRobotShoulderTransform();
-        vtkNew< vtkMatrix4x4 > rasToTableBaseFixedMatrix;
-        vtkNew< vtkMatrix4x4 > tableElbowWristToRASMatrix;
-        tableElbowWristToRAS->GetMatrixTransformToParent(tableElbowWristToRASMatrix);
-        tableBaseFixedToRAS->GetMatrixTransformToParent(rasToTableBaseFixedMatrix);
-        rasToTableBaseFixedMatrix->Invert();
-//        tableWristFixedToRASMatrix->MultiplyPoint(wristOrigin, tmp);
-//        rasToTableBaseFixedMatrix->MultiplyPoint(tmp, wristOriginInRobotBaseFixed);
-        vtkNew< vtkMatrix4x4 > res;
-        // C = B * A
-        vtkMatrix4x4::Multiply4x4(rasToTableBaseFixedMatrix, tableElbowWristToRASMatrix, res);
-//        vtkErrorMacro("ProcessMRMLNodesEvents: POS: " << wristOriginInRobotBaseFixed[0] << ' ' << wristOriginInRobotBaseFixed[1] << ' ' << wristOriginInRobotBaseFixed[2]);
-        res->MultiplyPoint(wristOrigin, wristOriginInRobotBaseFixed);
-        vtkErrorMacro("ProcessMRMLNodesEvents: POS: " << wristOriginInRobotBaseFixed[0] << ' ' << wristOriginInRobotBaseFixed[1] << ' ' << wristOriginInRobotBaseFixed[2]);
-        
-        double wristOrigin1[4] = { 0., 0., 115., 1. };
-        double wristOriginInRobotBaseFixed1[4] = {};
-        vtkMRMLLinearTransformNode* tableWristToRAS = this->Channel26RobotsLogic->GetTableRobotElbowWristTransform();
-        vtkNew< vtkMatrix4x4 > tableWristToRASMatrix;
-        tableWristToRAS->GetMatrixTransformToParent(tableWristToRASMatrix);
-        vtkNew< vtkMatrix4x4 > res1;
-        // C1 = B1 * A1
-        vtkMatrix4x4::Multiply4x4(rasToTableBaseFixedMatrix, tableWristToRASMatrix, res1);
-        res1->MultiplyPoint(wristOrigin1, wristOriginInRobotBaseFixed1);
-        vtkErrorMacro("ProcessMRMLNodesEvents: POS1: " << wristOriginInRobotBaseFixed1[0] << ' ' << wristOriginInRobotBaseFixed1[1] << ' ' << wristOriginInRobotBaseFixed1[2]);
+        double pos[3] = { 1220., 0., 0. };
+        double res[3];
+        using CoordSys = vtkSlicerChannel26Cabin3RobotsTransformLogic::CoordinateSystemIdentifier;
+        if (this->Channel26RobotsLogic->GetTransformForPointBetweenFrames(CoordSys::TableRobotElbowWrist,
+          CoordSys::TableRobotBaseFixed, pos, res))
+        {
+          vtkErrorMacro("ProcessMRMLNodesEvents: ElbowWrist = [1220., 0., 0.] " << res[0] << ' ' << res[1] << ' ' << res[2]);
+        }
+        pos[0] = 0.;
+        if (this->Channel26RobotsLogic->GetTransformForPointBetweenFrames(CoordSys::TableRobotWrist,
+          CoordSys::TableRobotBaseFixed, pos, res))
+        {
+          vtkErrorMacro("ProcessMRMLNodesEvents: Wrist = [0., 0., 0.] " << res[0] << ' ' << res[1] << ' ' << res[2]);
+        }
       }
     }
   }

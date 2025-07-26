@@ -73,7 +73,7 @@ public:
   /// \return Transform node if there is a direct transform between the specified coordinate frames, nullptr otherwise
   ///   Note: If it does not specify a transform between the given coordinate frames, then there will be no node with the returned name.
   vtkMRMLLinearTransformNode* GetTransformNodeBetween(CoordinateSystemIdentifier fromFrame,
-    CoordinateSystemIdentifier toFrame );
+    CoordinateSystemIdentifier toFrame);
 
   /// Get general transform from one coordinate frame to another (toFrame->fromFrame)
   /// @param transformForBeam - calculate dynamic transformation for beam model or other models
@@ -87,6 +87,15 @@ public:
   bool GetTransformBetween(CoordinateSystemIdentifier fromFrame,
     CoordinateSystemIdentifier toFrame, vtkTransform* outputTransform,
     bool transformForBeam = true);
+
+  /// Get point coordinate transform from one coordinate frame to another
+  /// 1. Calculate point coordinate fromFrame system into RAS (fromFrame->RAS transform)
+  /// 2. Calculate point coordinate from RAS into toFrame system (toFrame->RAS inverse transform)
+  /// Dynamic Path, fromFrame (point in fromFrame) -> RAS (point in RAS) -> toFrame (point in toFrame)
+  /// @param transformForBeam - calculate dynamic transformation for beam model or other models
+  /// \return Success flag (false on any error)
+  bool GetTransformForPointBetweenFrames(CoordinateSystemIdentifier fromFrame, CoordinateSystemIdentifier toFrame,
+  const double fromFramePoint[3], double toFramePoint[3], bool transformForBeam = false);
 
   /// Reset models position to initial ones
   void ResetToInitialPositions();

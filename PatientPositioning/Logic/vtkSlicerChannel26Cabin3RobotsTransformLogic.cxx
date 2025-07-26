@@ -1915,7 +1915,7 @@ void vtkSlicerChannel26Cabin3RobotsTransformLogic::UpdateTableRobotBaseRotationT
     /// Get current position of Elbow origin (begin)
     // Translate the Elbow so it's end in RAS origin
     vtkNew<vtkTransform> ElbowTranslateTransform;
-    ElbowTranslateTransform->Translate(CoordPos::TABLE_ROBOT_ELBOW_SIZE, 0., 0.);
+    ElbowTranslateTransform->Translate(CoordPos::TABLE_ROBOT_ELBOW_SIZE, 0., -1. * CoordPos::TABLE_ROBOT_SHOULDER_ELBOW_OFFSET_Y);
 
     // Wrist->Flange (TableTop) rotation
     vtkNew<vtkTransform> WristToFlangeTransform;
@@ -1942,21 +1942,6 @@ void vtkSlicerChannel26Cabin3RobotsTransformLogic::UpdateTableRobotBaseRotationT
     A6A5A4RotationTransform->RotateY(a[4]);
     A6A5A4RotationTransform->RotateX(a[3]);
 
-    // BaseRotation->BaseFixed rotation around Z (A1 angle)
-    vtkNew<vtkTransform> BaseRotationToBaseFixedTransform;
-    BaseRotationToBaseFixedTransform->RotateZ(a[0]);
-    // BaseFixed model -> move to BaseRotation rotation origin A2 along X
-    vtkNew<vtkTransform> BaseFixedOriginToBaseRotationOriginTransform;
-    BaseFixedOriginToBaseRotationOriginTransform->Translate(-1. * CoordPos::TABLE_ROBOT_BASE_ROTATION_SHOULDER_OFFSET_X,
-      0., CoordPos::TABLE_ROBOT_SHOULDER_ELBOW_OFFSET_Y);
-    // BaseFixed model -> move back to BaseFixed rotation origin A1 along X
-    vtkNew<vtkTransform> InverseBaseFixedOriginToBaseRotationOriginTransform;
-    InverseBaseFixedOriginToBaseRotationOriginTransform->Translate(CoordPos::TABLE_ROBOT_BASE_ROTATION_SHOULDER_OFFSET_X,
-      0., -1. * CoordPos::TABLE_ROBOT_SHOULDER_ELBOW_OFFSET_Y);
-
-    BaseRotationToBaseFixedTransform->Concatenate(BaseFixedOriginToBaseRotationOriginTransform);
-    InverseBaseFixedOriginToBaseRotationOriginTransform->Concatenate(BaseRotationToBaseFixedTransform);
-  
     // Shoulder->BaseRotation rotation around Y (A2 angle)
     vtkNew<vtkTransform> ShoulderToBaseRotationTransform;
     ShoulderToBaseRotationTransform->RotateY(a[1]);
@@ -1971,13 +1956,28 @@ void vtkSlicerChannel26Cabin3RobotsTransformLogic::UpdateTableRobotBaseRotationT
 
     ShoulderToBaseRotationTransform->Concatenate(BaseRotationOriginToShoulderOriginTransform);
     InverseBaseRotationOriginToShoulderOriginTransform->Concatenate(ShoulderToBaseRotationTransform);
-    
+
+
+    // BaseRotation->BaseFixed rotation around Z (A1 angle)
+    vtkNew<vtkTransform> BaseRotationToBaseFixedTransform;
+    BaseRotationToBaseFixedTransform->RotateZ(a[0]);
+    // BaseFixed model -> move to BaseRotation rotation origin A2 along X
+    vtkNew<vtkTransform> BaseFixedOriginToBaseRotationOriginTransform;
+    BaseFixedOriginToBaseRotationOriginTransform->Translate(-1. * CoordPos::TABLE_ROBOT_BASE_ROTATION_SHOULDER_OFFSET_X,
+      0., 0.);
+    // BaseFixed model -> move back to BaseFixed rotation origin A1 along X
+    vtkNew<vtkTransform> InverseBaseFixedOriginToBaseRotationOriginTransform;
+    InverseBaseFixedOriginToBaseRotationOriginTransform->Translate(CoordPos::TABLE_ROBOT_BASE_ROTATION_SHOULDER_OFFSET_X,
+      0., 0.);
+
+    BaseRotationToBaseFixedTransform->Concatenate(BaseFixedOriginToBaseRotationOriginTransform);
+    InverseBaseFixedOriginToBaseRotationOriginTransform->Concatenate(BaseRotationToBaseFixedTransform);
+
     // Transform shoulder in RAS (Patient) origin so, it's begin in RAS origin
     // Transform to RAS origin and model vertical orientation
     ShoulderVerticalOrientationTransform->Concatenate(tableRobotBaseRotationToPatientTransform);
     // Translate  Shoulder end to RAS (Patient) origin so, it's begin in RAS origin
     InverseBaseFixedOriginToBaseRotationOriginTransform->Concatenate(ShoulderVerticalOrientationTransform);
-    // Apply A1 angle to BaseRotation model
     InverseBaseRotationOriginToShoulderOriginTransform->Concatenate(InverseBaseFixedOriginToBaseRotationOriginTransform);
     // Apply A2 angle to Shoulder A3 model 
     ElbowToShoulderRotationTransform->Concatenate(InverseBaseRotationOriginToShoulderOriginTransform);
@@ -2110,6 +2110,40 @@ bool vtkSlicerChannel26Cabin3RobotsTransformLogic::GetTransformBetween(
     vtkErrorMacro("GetTransformBetween: Can't transform general transform to linear! General trasform is not linear.");
     return false;
   }
+  return true;
+}
+
+//-----------------------------------------------------------------------------
+bool vtkSlicerChannel26Cabin3RobotsTransformLogic::GetTransformForPointBetweenFrames( 
+  CoordinateSystemIdentifier fromFrame, CoordinateSystemIdentifier toFrame,
+  const double fromFramePoint[3], double toFramePoint[3], bool transformForBeam)
+{
+  // RAS == World
+  // fromFrame->RAS transform
+  vtkNew<vtkTransform> fromFrameToRasTransform;
+  if (!this->GetTransformBetween(CoordinateSystemIdentifier::RAS,
+    fromFrame, fromFrameToRasTransform, transformForBeam))
+  {
+    return false;
+  }
+
+  // toFrame->RAS
+  vtkNew<vtkTransform> rasToToFrameTransform;
+  if (this->GetTransformBetween(CoordinateSystemIdentifier::RAS,
+    toFrame, rasToToFrameTransform, transformForBeam))
+  {
+    rasToToFrameTransform->Inverse(); // inverse to get (RAS->toFrame)
+  }
+  else
+  {
+    return false;
+  }
+
+  // Get transform fromFrame -> toFrame
+  // fromFrame -> RAS -> RAS -> toFrame
+  fromFrameToRasTransform->Concatenate(rasToToFrameTransform);
+  fromFrameToRasTransform->TransformPoint( fromFramePoint, toFramePoint);
+
   return true;
 }
 
