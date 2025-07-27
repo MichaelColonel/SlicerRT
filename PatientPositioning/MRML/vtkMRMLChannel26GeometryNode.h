@@ -99,17 +99,17 @@ public:
   vtkGetVector3Macro(PatientToTableTopTranslation, double);
   vtkSetVector3Macro(PatientToTableTopTranslation, double);
 
-  vtkGetVector3Macro(BaseFixedToFixedReferenceTranslation, double);
-  vtkSetVector3Macro(BaseFixedToFixedReferenceTranslation, double);
+  vtkGetVector3Macro(TableBaseFixedToFixedReferenceTranslation, double);
+  vtkSetVector3Macro(TableBaseFixedToFixedReferenceTranslation, double);
 
-  vtkGetVector3Macro(CArmBaseFixedToTableTopBaseFixedOffset, double);
-  vtkSetVector3Macro(CArmBaseFixedToTableTopBaseFixedOffset, double);
+  vtkGetVector3Macro(CarmBaseFixedToTableBaseFixedOffset, double);
+  vtkSetVector3Macro(CarmBaseFixedToTableBaseFixedOffset, double);
 
-  vtkGetVector6Macro(TableTopRobotAngles, double);
-  vtkSetVector6Macro(TableTopRobotAngles, double);
+  vtkGetVector6Macro(TableRobotAngles, double);
+  vtkSetVector6Macro(TableRobotAngles, double);
 
-  vtkGetVector6Macro(CArmRobotAngles, double);
-  vtkSetVector6Macro(CArmRobotAngles, double);
+  vtkGetVector6Macro(CarmRobotAngles, double);
+  vtkSetVector6Macro(CarmRobotAngles, double);
 
   vtkGetMacro(PatientHeadFeetRotation, bool);
   vtkSetMacro(PatientHeadFeetRotation, bool);
@@ -133,17 +133,17 @@ protected:
   double TableTopVerticalAngle{ 0. };
   /// Translate Patient to TableTop
   double PatientToTableTopTranslation[3] = { 0., 0., 0. };
-  /// Translate BaseFixed begin from FixedReference origin
-  double BaseFixedToFixedReferenceTranslation[3] = { -1900., -430., -2150. };
-  /// Translate C-Arm BaseFixed to TableTop BaseFixed offset
-  /// X offset = CArmBaseFixed - TableTopBaseFixed (along X-axis) (minus beam axis)
-  /// Y offset = CArmBaseFixed basement height (along Z-axis)
-  /// Z offset = CArmBaseFixed + TableTopBaseFixed (along Y-axis)
-  double CArmBaseFixedToTableTopBaseFixedOffset[3] = { -1950 + 1900, 900, -1340 - 430 };
+  /// Translate TableRobotBaseFixed begin from FixedReference origin
+  double TableBaseFixedToFixedReferenceTranslation[3] = { -1900., -430., -2150. };
+  /// Translate C-Arm BaseFixed to Table BaseFixed offset (robots)
+  /// X offset = CarmBaseFixed - TableBaseFixed (along X-axis) (minus beam axis)
+  /// Y offset = CarmBaseFixed basement height (along Z-axis)
+  /// Z offset = CarmBaseFixed + TableBaseFixed (along Y-axis)
+  double CarmBaseFixedToTableBaseFixedOffset[3] = { -1950 + 1900, 900, -1340 - 430 };
   /// Setup table top robot angles
-  double TableTopRobotAngles[6] = { 0., 0., 0., 0., 0., 0. }; // A1=0, A2=-90, A3=90, A4=0, A5=-90, A6=0
+  double TableRobotAngles[6] = { 0., 0., 0., 0., 0., 0. }; // A1=0, A2=-90, A3=90, A4=0, A5=-90, A6=0
   /// Setup x-ray c-arm robot angles
-  double CArmRobotAngles[6] = { 0., 0., 0., 0., 0., 0. };
+  double CarmRobotAngles[6] = { 0., 0., 0., 0., 0., 0. };
 
   /// Head first or feet first rotation
   bool PatientHeadFeetRotation{ false };

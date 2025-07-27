@@ -697,6 +697,7 @@ void qSlicerPatientPositioningModuleWidget::onLoadTreatmentMachineButtonClicked(
     channel26Logic->UpdateTableRobotShoulderToTableRobotBaseRotationTransform(channel26GeometryNode);
     channel26Logic->UpdateTableRobotBaseRotationToTableRobotBaseFixedTransform(channel26GeometryNode);
     channel26Logic->UpdateTableRobotBaseFixedToFixedReferenceTransform(channel26GeometryNode);
+    channel26Logic->UpdateCarmRobotBaseFixedToFixedReferenceTransform(channel26GeometryNode);
     d->getLayoutManager()->resumeRender();
   }
   // Update channel-26 geometry node
@@ -762,6 +763,7 @@ void qSlicerPatientPositioningModuleWidget::onPatientTableTopTranslationChanged(
     channel26Logic->UpdateTableRobotShoulderToTableRobotBaseRotationTransform(channel26GeometryNode);
     channel26Logic->UpdateTableRobotBaseRotationToTableRobotBaseFixedTransform(channel26GeometryNode);
     channel26Logic->UpdateTableRobotBaseFixedToFixedReferenceTransform(channel26GeometryNode);
+    channel26Logic->UpdateCarmRobotBaseFixedToFixedReferenceTransform(channel26GeometryNode);
   }
   channel26GeometryNode->DisableModifiedEventOff();
   channel26GeometryNode->Modified();
@@ -783,10 +785,10 @@ void qSlicerPatientPositioningModuleWidget::onTableRobotA6Changed(double a6)
 
   d->getLayoutManager()->pauseRender();
   double a[6] = {};
-  channel26GeometryNode->GetTableTopRobotAngles(a);
+  channel26GeometryNode->GetTableRobotAngles(a);
   channel26GeometryNode->DisableModifiedEventOn();
   a[5] = a6;
-  channel26GeometryNode->SetTableTopRobotAngles(a);
+  channel26GeometryNode->SetTableRobotAngles(a);
   channel26GeometryNode->DisableModifiedEventOff();
 
   // Update Channel-26 transforms
@@ -800,6 +802,7 @@ void qSlicerPatientPositioningModuleWidget::onTableRobotA6Changed(double a6)
     channel26Logic->UpdateTableRobotShoulderToTableRobotBaseRotationTransform(channel26GeometryNode);
     channel26Logic->UpdateTableRobotBaseRotationToTableRobotBaseFixedTransform(channel26GeometryNode);
     channel26Logic->UpdateTableRobotBaseFixedToFixedReferenceTransform(channel26GeometryNode);
+    channel26Logic->UpdateCarmRobotBaseFixedToFixedReferenceTransform(channel26GeometryNode);
   }
   channel26GeometryNode->Modified();
   this->checkForCollisions();
@@ -821,10 +824,10 @@ void qSlicerPatientPositioningModuleWidget::onTableRobotA5Changed(double a5)
 
   d->getLayoutManager()->pauseRender();
   double a[6] = {};
-  channel26GeometryNode->GetTableTopRobotAngles(a);
+  channel26GeometryNode->GetTableRobotAngles(a);
   channel26GeometryNode->DisableModifiedEventOn();
   a[4] = 90 + a5; // - a5;
-  channel26GeometryNode->SetTableTopRobotAngles(a);
+  channel26GeometryNode->SetTableRobotAngles(a);
   channel26GeometryNode->DisableModifiedEventOff();
 
   // Update Channel-26 transforms
@@ -837,6 +840,7 @@ void qSlicerPatientPositioningModuleWidget::onTableRobotA5Changed(double a5)
     channel26Logic->UpdateTableRobotShoulderToTableRobotBaseRotationTransform(channel26GeometryNode);
     channel26Logic->UpdateTableRobotBaseRotationToTableRobotBaseFixedTransform(channel26GeometryNode);
     channel26Logic->UpdateTableRobotBaseFixedToFixedReferenceTransform(channel26GeometryNode);
+    channel26Logic->UpdateCarmRobotBaseFixedToFixedReferenceTransform(channel26GeometryNode);
   }
   channel26GeometryNode->Modified();
   this->checkForCollisions();
@@ -858,10 +862,10 @@ void qSlicerPatientPositioningModuleWidget::onTableRobotA4Changed(double a4)
 
   d->getLayoutManager()->pauseRender();
   double a[6] = {};
-  channel26GeometryNode->GetTableTopRobotAngles(a);
+  channel26GeometryNode->GetTableRobotAngles(a);
   channel26GeometryNode->DisableModifiedEventOn();
   a[3] = a4;
-  channel26GeometryNode->SetTableTopRobotAngles(a);
+  channel26GeometryNode->SetTableRobotAngles(a);
   channel26GeometryNode->DisableModifiedEventOff();
 
   // Update Channel-26 transforms
@@ -873,6 +877,7 @@ void qSlicerPatientPositioningModuleWidget::onTableRobotA4Changed(double a4)
     channel26Logic->UpdateTableRobotShoulderToTableRobotBaseRotationTransform(channel26GeometryNode);
     channel26Logic->UpdateTableRobotBaseRotationToTableRobotBaseFixedTransform(channel26GeometryNode);
     channel26Logic->UpdateTableRobotBaseFixedToFixedReferenceTransform(channel26GeometryNode);
+    channel26Logic->UpdateCarmRobotBaseFixedToFixedReferenceTransform(channel26GeometryNode);
   }
   channel26GeometryNode->Modified();
   this->checkForCollisions();
@@ -894,10 +899,10 @@ void qSlicerPatientPositioningModuleWidget::onTableRobotA3Changed(double a3)
 
   d->getLayoutManager()->pauseRender();
   double a[6] = {};
-  channel26GeometryNode->GetTableTopRobotAngles(a);
+  channel26GeometryNode->GetTableRobotAngles(a);
   channel26GeometryNode->DisableModifiedEventOn();
   a[2] = 90. - a3;
-  channel26GeometryNode->SetTableTopRobotAngles(a);
+  channel26GeometryNode->SetTableRobotAngles(a);
   channel26GeometryNode->DisableModifiedEventOff();
 
   // Update Channel-26 transforms
@@ -908,6 +913,7 @@ void qSlicerPatientPositioningModuleWidget::onTableRobotA3Changed(double a3)
     channel26Logic->UpdateTableRobotShoulderToTableRobotBaseRotationTransform(channel26GeometryNode);
     channel26Logic->UpdateTableRobotBaseRotationToTableRobotBaseFixedTransform(channel26GeometryNode);
     channel26Logic->UpdateTableRobotBaseFixedToFixedReferenceTransform(channel26GeometryNode);
+    channel26Logic->UpdateCarmRobotBaseFixedToFixedReferenceTransform(channel26GeometryNode);
   }
   channel26GeometryNode->Modified();
   this->checkForCollisions();
@@ -929,10 +935,10 @@ void qSlicerPatientPositioningModuleWidget::onTableRobotA2Changed(double a2)
 
   d->getLayoutManager()->pauseRender();
   double a[6] = {};
-  channel26GeometryNode->GetTableTopRobotAngles(a);
+  channel26GeometryNode->GetTableRobotAngles(a);
   channel26GeometryNode->DisableModifiedEventOn();
   a[1] = 90. + a2;
-  channel26GeometryNode->SetTableTopRobotAngles(a);
+  channel26GeometryNode->SetTableRobotAngles(a);
   channel26GeometryNode->DisableModifiedEventOff();
 
   // Update Channel-26 transforms
@@ -942,6 +948,7 @@ void qSlicerPatientPositioningModuleWidget::onTableRobotA2Changed(double a2)
     channel26Logic->UpdateTableRobotShoulderToTableRobotBaseRotationTransform(channel26GeometryNode);
     channel26Logic->UpdateTableRobotBaseRotationToTableRobotBaseFixedTransform(channel26GeometryNode);
     channel26Logic->UpdateTableRobotBaseFixedToFixedReferenceTransform(channel26GeometryNode);
+    channel26Logic->UpdateCarmRobotBaseFixedToFixedReferenceTransform(channel26GeometryNode);
   }
   channel26GeometryNode->Modified();
   this->checkForCollisions();
@@ -963,10 +970,10 @@ void qSlicerPatientPositioningModuleWidget::onTableRobotA1Changed(double a1)
 
   d->getLayoutManager()->pauseRender();
   double a[6] = {};
-  channel26GeometryNode->GetTableTopRobotAngles(a);
+  channel26GeometryNode->GetTableRobotAngles(a);
   channel26GeometryNode->DisableModifiedEventOn();
   a[0] = a1;
-  channel26GeometryNode->SetTableTopRobotAngles(a);
+  channel26GeometryNode->SetTableRobotAngles(a);
   channel26GeometryNode->DisableModifiedEventOff();
 
   // Update Channel-26 transforms
@@ -975,6 +982,7 @@ void qSlicerPatientPositioningModuleWidget::onTableRobotA1Changed(double a1)
   {
     channel26Logic->UpdateTableRobotBaseRotationToTableRobotBaseFixedTransform(channel26GeometryNode);
     channel26Logic->UpdateTableRobotBaseFixedToFixedReferenceTransform(channel26GeometryNode);
+    channel26Logic->UpdateCarmRobotBaseFixedToFixedReferenceTransform(channel26GeometryNode);
   }
   channel26GeometryNode->Modified();
   this->checkForCollisions();
@@ -1031,7 +1039,7 @@ void qSlicerPatientPositioningModuleWidget::onFixedReferenceCameraToggled(bool t
 
   vtkMRMLCameraNode* cameraNode = d->get3DViewCameraNode();
 
-  // Get RAS -> FixedReference transform node
+  // Get FixedReference->RAS transform node
   vtkSlicerChannel26Cabin3RobotsTransformLogic* robotsLogic = d->logic()->GetChannel26RobotsTransformLogic();
   
   vtkMRMLLinearTransformNode* node = nullptr; // FixedReference->RAS transform node
@@ -1041,12 +1049,12 @@ void qSlicerPatientPositioningModuleWidget::onFixedReferenceCameraToggled(bool t
   }
   if (toggled)
   {
-    vtkNew<vtkMatrix4x4> rasToFixedReferenceToRasTransform;
+    vtkNew<vtkMatrix4x4> fixedReferenceToRasTransform;
     if (node)
     {
-      node->GetMatrixTransformToParent(rasToFixedReferenceToRasTransform);
+      node->GetMatrixTransformToParent(fixedReferenceToRasTransform);
     }
-    cameraNode->SetAppliedTransform(rasToFixedReferenceToRasTransform);
+    cameraNode->SetAppliedTransform(fixedReferenceToRasTransform);
     cameraNode->SetAndObserveTransformNodeID(node ? node->GetID() : nullptr);
     return;
   }

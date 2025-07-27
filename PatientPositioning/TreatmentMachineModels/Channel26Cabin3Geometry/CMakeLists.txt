@@ -17,6 +17,7 @@ set(MACHINE_MODELS
   KR300_R2700-2_Wrist.stl
   KR300_R2700-2_Flange.stl
   FixedReference.stl
+  KR210_R3100-2_BaseFixed.stl
 )
 
 

@@ -58,6 +58,7 @@ vtkSlicerChannel26Cabin3RobotsTransformLogic::vtkSlicerChannel26Cabin3RobotsTran
   this->CoordinateSystemsMap[CoordSys::RAS] = "RAS";
   this->CoordinateSystemsMap[CoordSys::FixedReference] = "FixedReference";
   this->CoordinateSystemsMap[CoordSys::TableRobotBaseFixed] = "TableRobotBaseFixed";
+  this->CoordinateSystemsMap[CoordSys::CarmRobotBaseFixed] = "CarmRobotBaseFixed";
   this->CoordinateSystemsMap[CoordSys::TableRobotBaseRotation] = "TableRobotBaseRotation";
   this->CoordinateSystemsMap[CoordSys::TableRobotShoulder] = "TableRobotShoulder";
   this->CoordinateSystemsMap[CoordSys::TableRobotElbowShoulder] = "TableRobotElbowShoulder";
@@ -71,6 +72,7 @@ vtkSlicerChannel26Cabin3RobotsTransformLogic::vtkSlicerChannel26Cabin3RobotsTran
   this->RobotsTransforms.clear();
   this->RobotsTransforms.push_back(std::make_pair(CoordSys::FixedReference, CoordSys::RAS)); // Dummy, unity, identity
   this->RobotsTransforms.push_back(std::make_pair(CoordSys::TableRobotBaseFixed, CoordSys::FixedReference)); // Translate
+  this->RobotsTransforms.push_back(std::make_pair(CoordSys::CarmRobotBaseFixed, CoordSys::FixedReference)); // Translate
   this->RobotsTransforms.push_back(std::make_pair(CoordSys::TableRobotBaseRotation, CoordSys::TableRobotBaseFixed)); // Rotation A1
   this->RobotsTransforms.push_back(std::make_pair(CoordSys::TableRobotShoulder, CoordSys::TableRobotBaseRotation)); // Rotation A2
   this->RobotsTransforms.push_back(std::make_pair(CoordSys::TableRobotElbowShoulder, CoordSys::TableRobotShoulder)); // Rotation A3
@@ -84,7 +86,7 @@ vtkSlicerChannel26Cabin3RobotsTransformLogic::vtkSlicerChannel26Cabin3RobotsTran
 
   this->CoordinateSystemsHierarchy.clear();
   // key - parent, value - children
-  this->CoordinateSystemsHierarchy[CoordSys::FixedReference] = { CoordSys::TableRobotBaseFixed };
+  this->CoordinateSystemsHierarchy[CoordSys::FixedReference] = { CoordSys::TableRobotBaseFixed, CoordSys::CarmRobotBaseFixed };
   this->CoordinateSystemsHierarchy[CoordSys::TableRobotBaseFixed] = { CoordSys::TableRobotBaseRotation };
   this->CoordinateSystemsHierarchy[CoordSys::TableRobotBaseRotation] = { CoordSys::TableRobotShoulder };
   this->CoordinateSystemsHierarchy[CoordSys::TableRobotShoulder] = { CoordSys::TableRobotElbowShoulder };
@@ -143,6 +145,9 @@ const char* vtkSlicerChannel26Cabin3RobotsTransformLogic::GetTreatmentMachinePar
     break;
   case TableRobotBaseFixed:
     partAsString = "TableRobotBaseFixed";
+    break;
+  case CarmRobotBaseFixed:
+    partAsString = "CarmRobotBaseFixed";
     break;
   case TableRobotBaseRotation:
     partAsString = "TableRobotBaseRotation";
@@ -205,6 +210,8 @@ void vtkSlicerChannel26Cabin3RobotsTransformLogic::BuildRobotsTransformHierarchy
 
   // FixedReference parent, translation of fixed base part of the robot from fixed reference isocenter
   this->GetTransformNodeBetween(CoordSys::TableRobotBaseFixed, CoordSys::FixedReference)->SetAndObserveTransformNodeID(
+    this->GetTransformNodeBetween(CoordSys::FixedReference, CoordSys::RAS)->GetID() );
+  this->GetTransformNodeBetween(CoordSys::CarmRobotBaseFixed, CoordSys::FixedReference)->SetAndObserveTransformNodeID(
     this->GetTransformNodeBetween(CoordSys::FixedReference, CoordSys::RAS)->GetID() );
 
   // BaseFixed parent, rotation of base part of the robot along Z-axis
@@ -453,6 +460,8 @@ bool vtkSlicerChannel26Cabin3RobotsTransformLogic::GetTransformBetween(
 //------------------------------------------------------------------------------
 vtkMRMLLinearTransformNode* vtkSlicerChannel26Cabin3RobotsTransformLogic::GetPatientTransform()
 {
+  return this->GetFrameToRasTransform(CoordinateSystemIdentifier::Patient);
+/*
   vtkMRMLScene* scene = this->GetMRMLScene();
   if (!scene)
   {
@@ -461,17 +470,20 @@ vtkMRMLLinearTransformNode* vtkSlicerChannel26Cabin3RobotsTransformLogic::GetPat
   }
 
   vtkSmartPointer<vtkMRMLLinearTransformNode> transformNode;
-  if (vtkMRMLNode* node = scene->GetFirstNodeByName("RasToPatientTransform"))
+  if (vtkMRMLNode* node = scene->GetFirstNodeByName("PatientToRasTransform"))
   {
     transformNode = vtkMRMLLinearTransformNode::SafeDownCast(node);
   }
 
   return transformNode;
+*/
 }
 
 //------------------------------------------------------------------------------
 vtkMRMLLinearTransformNode* vtkSlicerChannel26Cabin3RobotsTransformLogic::GetTableTopTransform()
 {
+  return this->GetFrameToRasTransform(CoordinateSystemIdentifier::TableTop);
+/*
   vtkMRMLScene* scene = this->GetMRMLScene();
   if (!scene)
   {
@@ -480,17 +492,20 @@ vtkMRMLLinearTransformNode* vtkSlicerChannel26Cabin3RobotsTransformLogic::GetTab
   }
 
   vtkSmartPointer<vtkMRMLLinearTransformNode> transformNode;
-  if (vtkMRMLNode* node = scene->GetFirstNodeByName("RasToTableTopTransform"))
+  if (vtkMRMLNode* node = scene->GetFirstNodeByName("TableTopToRasTransform"))
   {
     transformNode = vtkMRMLLinearTransformNode::SafeDownCast(node);
   }
 
   return transformNode;
+*/
 }
 
 //------------------------------------------------------------------------------
 vtkMRMLLinearTransformNode* vtkSlicerChannel26Cabin3RobotsTransformLogic::GetTableRobotWristTransform()
 {
+  return this->GetFrameToRasTransform(CoordinateSystemIdentifier::TableRobotWrist);
+/*
   vtkMRMLScene* scene = this->GetMRMLScene();
   if (!scene)
   {
@@ -499,17 +514,20 @@ vtkMRMLLinearTransformNode* vtkSlicerChannel26Cabin3RobotsTransformLogic::GetTab
   }
 
   vtkSmartPointer<vtkMRMLLinearTransformNode> transformNode;
-  if (vtkMRMLNode* node = scene->GetFirstNodeByName("RasToTableRobotWristTransform"))
+  if (vtkMRMLNode* node = scene->GetFirstNodeByName("TableRobotWristToRasTransform"))
   {
     transformNode = vtkMRMLLinearTransformNode::SafeDownCast(node);
   }
 
   return transformNode;
+*/
 }
 
 //------------------------------------------------------------------------------
 vtkMRMLLinearTransformNode* vtkSlicerChannel26Cabin3RobotsTransformLogic::GetTableRobotElbowWristTransform()
 {
+  return this->GetFrameToRasTransform(CoordinateSystemIdentifier::TableRobotElbowWrist);
+/*
   vtkMRMLScene* scene = this->GetMRMLScene();
   if (!scene)
   {
@@ -518,17 +536,20 @@ vtkMRMLLinearTransformNode* vtkSlicerChannel26Cabin3RobotsTransformLogic::GetTab
   }
 
   vtkSmartPointer<vtkMRMLLinearTransformNode> transformNode;
-  if (vtkMRMLNode* node = scene->GetFirstNodeByName("RasToTableRobotElbowWristTransform"))
+  if (vtkMRMLNode* node = scene->GetFirstNodeByName("TableRobotElbowWristToRasTransform"))
   {
     transformNode = vtkMRMLLinearTransformNode::SafeDownCast(node);
   }
 
   return transformNode;
+*/
 }
 
 //------------------------------------------------------------------------------
 vtkMRMLLinearTransformNode* vtkSlicerChannel26Cabin3RobotsTransformLogic::GetTableRobotElbowShoulderTransform()
 {
+  return this->GetFrameToRasTransform(CoordinateSystemIdentifier::TableRobotElbowShoulder);
+/*
   vtkMRMLScene* scene = this->GetMRMLScene();
   if (!scene)
   {
@@ -537,17 +558,20 @@ vtkMRMLLinearTransformNode* vtkSlicerChannel26Cabin3RobotsTransformLogic::GetTab
   }
 
   vtkSmartPointer<vtkMRMLLinearTransformNode> transformNode;
-  if (vtkMRMLNode* node = scene->GetFirstNodeByName("RasToTableRobotElbowShoulderTransform"))
+  if (vtkMRMLNode* node = scene->GetFirstNodeByName("TableRobotElbowShoulderToRasTransform"))
   {
     transformNode = vtkMRMLLinearTransformNode::SafeDownCast(node);
   }
 
   return transformNode;
+*/
 }
 
 //------------------------------------------------------------------------------
 vtkMRMLLinearTransformNode* vtkSlicerChannel26Cabin3RobotsTransformLogic::GetTableRobotShoulderTransform()
 {
+  return this->GetFrameToRasTransform(CoordinateSystemIdentifier::TableRobotShoulder);
+/*
   vtkMRMLScene* scene = this->GetMRMLScene();
   if (!scene)
   {
@@ -556,17 +580,20 @@ vtkMRMLLinearTransformNode* vtkSlicerChannel26Cabin3RobotsTransformLogic::GetTab
   }
 
   vtkSmartPointer<vtkMRMLLinearTransformNode> transformNode;
-  if (vtkMRMLNode* node = scene->GetFirstNodeByName("RasToTableRobotShoulderTransform"))
+  if (vtkMRMLNode* node = scene->GetFirstNodeByName("TableRobotShoulderToRasTransform"))
   {
     transformNode = vtkMRMLLinearTransformNode::SafeDownCast(node);
   }
 
   return transformNode;
+*/
 }
 
 //------------------------------------------------------------------------------
 vtkMRMLLinearTransformNode* vtkSlicerChannel26Cabin3RobotsTransformLogic::GetTableRobotBaseRotationTransform()
 {
+  return this->GetFrameToRasTransform(CoordinateSystemIdentifier::TableRobotBaseRotation);
+/*
   vtkMRMLScene* scene = this->GetMRMLScene();
   if (!scene)
   {
@@ -575,17 +602,20 @@ vtkMRMLLinearTransformNode* vtkSlicerChannel26Cabin3RobotsTransformLogic::GetTab
   }
 
   vtkSmartPointer<vtkMRMLLinearTransformNode> transformNode;
-  if (vtkMRMLNode* node = scene->GetFirstNodeByName("RasToTableRobotBaseRotationTransform"))
+  if (vtkMRMLNode* node = scene->GetFirstNodeByName("TableRobotBaseRotationToRasTransform"))
   {
     transformNode = vtkMRMLLinearTransformNode::SafeDownCast(node);
   }
 
   return transformNode;
+*/
 }
 
 //------------------------------------------------------------------------------
 vtkMRMLLinearTransformNode* vtkSlicerChannel26Cabin3RobotsTransformLogic::GetTableRobotBaseFixedTransform()
 {
+  return this->GetFrameToRasTransform(CoordinateSystemIdentifier::TableRobotBaseFixed);
+/*
   vtkMRMLScene* scene = this->GetMRMLScene();
   if (!scene)
   {
@@ -594,17 +624,20 @@ vtkMRMLLinearTransformNode* vtkSlicerChannel26Cabin3RobotsTransformLogic::GetTab
   }
 
   vtkSmartPointer<vtkMRMLLinearTransformNode> transformNode;
-  if (vtkMRMLNode* node = scene->GetFirstNodeByName("RasToTableRobotBaseFixedTransform"))
+  if (vtkMRMLNode* node = scene->GetFirstNodeByName("TableRobotBaseFixedToRasTransform"))
   {
     transformNode = vtkMRMLLinearTransformNode::SafeDownCast(node);
   }
 
   return transformNode;
+*/
 }
 
 //------------------------------------------------------------------------------
 vtkMRMLLinearTransformNode* vtkSlicerChannel26Cabin3RobotsTransformLogic::GetFixedReferenceTransform()
 {
+  return this->GetFrameToRasTransform(CoordinateSystemIdentifier::FixedReference);
+/*
   vtkMRMLScene* scene = this->GetMRMLScene();
   if (!scene)
   {
@@ -613,17 +646,20 @@ vtkMRMLLinearTransformNode* vtkSlicerChannel26Cabin3RobotsTransformLogic::GetFix
   }
 
   vtkSmartPointer<vtkMRMLLinearTransformNode> transformNode;
-  if (vtkMRMLNode* node = scene->GetFirstNodeByName("RasToFixedReferenceTransform"))
+  if (vtkMRMLNode* node = scene->GetFirstNodeByName("FixedReferenceToRasTransform"))
   {
     transformNode = vtkMRMLLinearTransformNode::SafeDownCast(node);
   }
 
   return transformNode;
+*/
 }
 
 //------------------------------------------------------------------------------
 vtkMRMLLinearTransformNode* vtkSlicerChannel26Cabin3RobotsTransformLogic::GetTableFlangeTransform()
 {
+  return this->GetFrameToRasTransform(CoordinateSystemIdentifier::TableFlange);
+/*
   vtkMRMLScene* scene = this->GetMRMLScene();
   if (!scene)
   {
@@ -632,17 +668,20 @@ vtkMRMLLinearTransformNode* vtkSlicerChannel26Cabin3RobotsTransformLogic::GetTab
   }
 
   vtkSmartPointer<vtkMRMLLinearTransformNode> transformNode;
-  if (vtkMRMLNode* node = scene->GetFirstNodeByName("RasToTableFlangeTransform"))
+  if (vtkMRMLNode* node = scene->GetFirstNodeByName("TableFlangeToRasTransform"))
   {
     transformNode = vtkMRMLLinearTransformNode::SafeDownCast(node);
   }
 
   return transformNode;
+*/
 }
 
 //------------------------------------------------------------------------------
 vtkMRMLLinearTransformNode* vtkSlicerChannel26Cabin3RobotsTransformLogic::GetTableRobotFlangeTransform()
 {
+  return this->GetFrameToRasTransform(CoordinateSystemIdentifier::TableRobotFlange);
+/*
   vtkMRMLScene* scene = this->GetMRMLScene();
   if (!scene)
   {
@@ -651,26 +690,35 @@ vtkMRMLLinearTransformNode* vtkSlicerChannel26Cabin3RobotsTransformLogic::GetTab
   }
 
   vtkSmartPointer<vtkMRMLLinearTransformNode> transformNode;
-  if (vtkMRMLNode* node = scene->GetFirstNodeByName("RasToTableRobotFlangeTransform"))
+  if (vtkMRMLNode* node = scene->GetFirstNodeByName("TableRobotFlangeToRasTransform"))
   {
     transformNode = vtkMRMLLinearTransformNode::SafeDownCast(node);
   }
 
   return transformNode;
+*/
 }
 
 //------------------------------------------------------------------------------
-vtkMRMLLinearTransformNode* vtkSlicerChannel26Cabin3RobotsTransformLogic::UpdateRasToTableTopTransform(vtkMRMLChannel26GeometryNode* parameterNode)
+vtkMRMLLinearTransformNode* vtkSlicerChannel26Cabin3RobotsTransformLogic::GetCarmRobotBaseFixedTransform()
 {
+  return this->GetFrameToRasTransform(CoordinateSystemIdentifier::CarmRobotBaseFixed);
+}
+
+//------------------------------------------------------------------------------
+vtkMRMLLinearTransformNode* vtkSlicerChannel26Cabin3RobotsTransformLogic::UpdateTableTopToRasTransform(vtkMRMLChannel26GeometryNode* parameterNode)
+{
+  return this->UpdateFrameToRasTransform(parameterNode, CoordinateSystemIdentifier::TableTop);
+/*
   if (!parameterNode)
   {
-    vtkErrorMacro("UpdateRasToTableTopTransform: Invalid parameter node");
+    vtkErrorMacro("UpdateTableTopToRasTransform: Invalid parameter node");
     return nullptr;
   }
   vtkMRMLScene* scene = this->GetMRMLScene();
   if (!scene)
   {
-    vtkErrorMacro("UpdateRasToTableTopTransform: Invalid MRML scene");
+    vtkErrorMacro("UpdateTableTopToRasTransform: Invalid MRML scene");
     return nullptr;
   }
 
@@ -688,49 +736,52 @@ vtkMRMLLinearTransformNode* vtkSlicerChannel26Cabin3RobotsTransformLogic::Update
   // TableTop -> RAS
   // TableTop - mandatory
   // Inverse transform path: RAS -> Patient -> TableTop
-  // Find RasToTableTopTransform or create it
-  vtkSmartPointer<vtkMRMLLinearTransformNode> rasToTableTopTransformNode;
-  if (vtkMRMLNode* node = scene->GetFirstNodeByName("RasToTableTopTransform"))
+  // Find TableTopToRasTransform or create it
+  vtkSmartPointer<vtkMRMLLinearTransformNode> TableTopToRasTransformNode;
+  if (vtkMRMLNode* node = scene->GetFirstNodeByName("TableTopToRasTransform"))
   {
-    rasToTableTopTransformNode = vtkMRMLLinearTransformNode::SafeDownCast(node);
+    TableTopToRasTransformNode = vtkMRMLLinearTransformNode::SafeDownCast(node);
   }
   else
   {
-    rasToTableTopTransformNode = vtkSmartPointer<vtkMRMLLinearTransformNode>::New();
-    rasToTableTopTransformNode->SetName("RasToTableTopTransform");
-//    rasToTableTopTransformNode->SetHideFromEditors(1);
-    std::string singletonTag = std::string("C26C3_") + "RasToTableTopTransform";
-//    rasToTableTopTransformNode->SetSingletonTag(singletonTag.c_str());
-    scene->AddNode(rasToTableTopTransformNode);
+    TableTopToRasTransformNode = vtkSmartPointer<vtkMRMLLinearTransformNode>::New();
+    TableTopToRasTransformNode->SetName("TableTopToRasTransform");
+//    TableTopToRasTransformNode->SetHideFromEditors(1);
+    std::string singletonTag = std::string("C26C3_") + "TableTopToRasTransform";
+//    TableTopToRasTransformNode->SetSingletonTag(singletonTag.c_str());
+    scene->AddNode(TableTopToRasTransformNode);
   }
 
-  vtkNew<vtkTransform> rasToTableTopTransform;
+  vtkNew<vtkTransform> TableTopToRasTransform;
   if (this->GetTransformBetween( CoordSys::RAS, CoordSys::TableTop, 
-    rasToTableTopTransform, false))
+    TableTopToRasTransform, false))
   {
-    vtkDebugMacro("UpdateRasToTableTopTransform: RAS->TableTop transform updated");
+    vtkDebugMacro("UpdateTableTopToRasTransform: TableTop->RAS transform updated");
     // Transform to RAS, set transform to node, transform the model
-    rasToTableTopTransform->Concatenate(patientToRasTransform);
+    TableTopToRasTransform->Concatenate(patientToRasTransform);
   }
-  if (rasToTableTopTransformNode)
+  if (TableTopToRasTransformNode)
   {
-    rasToTableTopTransformNode->SetAndObserveTransformToParent(rasToTableTopTransform);
+    TableTopToRasTransformNode->SetAndObserveTransformToParent(TableTopToRasTransform);
   }
-  return rasToTableTopTransformNode;
+  return TableTopToRasTransformNode;
+*/
 }
 
 //------------------------------------------------------------------------------
-vtkMRMLLinearTransformNode* vtkSlicerChannel26Cabin3RobotsTransformLogic::UpdateRasToTableFlangeTransform(vtkMRMLChannel26GeometryNode* parameterNode)
+vtkMRMLLinearTransformNode* vtkSlicerChannel26Cabin3RobotsTransformLogic::UpdateTableFlangeToRasTransform(vtkMRMLChannel26GeometryNode* parameterNode)
 {
+  return this->UpdateFrameToRasTransform(parameterNode, CoordinateSystemIdentifier::TableFlange);
+/*
   if (!parameterNode)
   {
-    vtkErrorMacro("UpdateRasToTableFlangeTransform: Invalid parameter node");
+    vtkErrorMacro("UpdateTableFlangeToRasTransform: Invalid parameter node");
     return nullptr;
   }
   vtkMRMLScene* scene = this->GetMRMLScene();
   if (!scene)
   {
-    vtkErrorMacro("UpdateRasToTableFlangeTransform: Invalid MRML scene");
+    vtkErrorMacro("UpdateTableFlangeToRasTransform: Invalid MRML scene");
     return nullptr;
   }
 
@@ -748,49 +799,52 @@ vtkMRMLLinearTransformNode* vtkSlicerChannel26Cabin3RobotsTransformLogic::Update
   // TableFlange -> RAS
   // TableFlange - mandatory
   // Transform path: RAS -> Patient -> TableTop -> TableFlange
-  // Find RasToTableFlangeTransform or create it
-  vtkSmartPointer<vtkMRMLLinearTransformNode> rasToTableFlangeTransformNode;
-  if (vtkMRMLNode* node = scene->GetFirstNodeByName("RasToTableFlangeTransform"))
+  // Find TableFlangeToRasTransform or create it
+  vtkSmartPointer<vtkMRMLLinearTransformNode> TableFlangeToRasTransformNode;
+  if (vtkMRMLNode* node = scene->GetFirstNodeByName("TableFlangeToRasTransform"))
   {
-    rasToTableFlangeTransformNode = vtkMRMLLinearTransformNode::SafeDownCast(node);
+    TableFlangeToRasTransformNode = vtkMRMLLinearTransformNode::SafeDownCast(node);
   }
   else
   {
-    rasToTableFlangeTransformNode = vtkSmartPointer<vtkMRMLLinearTransformNode>::New();
-    rasToTableFlangeTransformNode->SetName("RasToTableFlangeTransform");
-//    rasToTableFlangeTransformNode->SetHideFromEditors(1);
-    std::string singletonTag = std::string("C26C3_") + "RasToTableFlangeTransform";
-//    rasToTableFlangeTransformNode->SetSingletonTag(singletonTag.c_str());
-    scene->AddNode(rasToTableFlangeTransformNode);
+    TableFlangeToRasTransformNode = vtkSmartPointer<vtkMRMLLinearTransformNode>::New();
+    TableFlangeToRasTransformNode->SetName("TableFlangeToRasTransform");
+//    TableFlangeToRasTransformNode->SetHideFromEditors(1);
+    std::string singletonTag = std::string("C26C3_") + "TableFlangeToRasTransform";
+//    TableFlangeToRasTransformNode->SetSingletonTag(singletonTag.c_str());
+    scene->AddNode(TableFlangeToRasTransformNode);
   }
 
-  vtkNew<vtkTransform> rasToTableFlangeTransform;
+  vtkNew<vtkTransform> TableFlangeToRasTransform;
   if (this->GetTransformBetween( CoordSys::RAS, CoordSys::TableFlange, 
-    rasToTableFlangeTransform, false))
+    TableFlangeToRasTransform, false))
   {
-    vtkDebugMacro("UpdateRasToFlangeTransform: RAS->TableFlange transform updated");
+    vtkDebugMacro("UpdateTableFlangeToRasTransform: TableFlange->RAS transform updated");
     // Transform to RAS, set transform to node, transform the model
-    rasToTableFlangeTransform->Concatenate(patientToRasTransform);
+    TableFlangeToRasTransform->Concatenate(patientToRasTransform);
   }
-  if (rasToTableFlangeTransformNode)
+  if (TableFlangeToRasTransformNode)
   {
-    rasToTableFlangeTransformNode->SetAndObserveTransformToParent(rasToTableFlangeTransform);
+    TableFlangeToRasTransformNode->SetAndObserveTransformToParent(TableFlangeToRasTransform);
   }
-  return rasToTableFlangeTransformNode;
+  return TableFlangeToRasTransformNode;
+*/
 }
 
 //------------------------------------------------------------------------------
-vtkMRMLLinearTransformNode* vtkSlicerChannel26Cabin3RobotsTransformLogic::UpdateRasToTableRobotFlangeTransform(vtkMRMLChannel26GeometryNode* parameterNode)
+vtkMRMLLinearTransformNode* vtkSlicerChannel26Cabin3RobotsTransformLogic::UpdateTableRobotFlangeToRasTransform(vtkMRMLChannel26GeometryNode* parameterNode)
 {
+  return this->UpdateFrameToRasTransform(parameterNode, CoordinateSystemIdentifier::TableRobotFlange);
+/*
   if (!parameterNode)
   {
-    vtkErrorMacro("UpdateRasToTableRobotFlangeTransform: Invalid parameter node");
+    vtkErrorMacro("UpdateTableRobotFlangeToRasTransform: Invalid parameter node");
     return nullptr;
   }
   vtkMRMLScene* scene = this->GetMRMLScene();
   if (!scene)
   {
-    vtkErrorMacro("UpdateRasToTableRobotFlangeTransform: Invalid MRML scene");
+    vtkErrorMacro("UpdateTableRobotFlangeToRasTransform: Invalid MRML scene");
     return nullptr;
   }
 
@@ -808,49 +862,52 @@ vtkMRMLLinearTransformNode* vtkSlicerChannel26Cabin3RobotsTransformLogic::Update
   // TableRobotFlange -> RAS
   // TableRobotFlange - mandatory
   // Transform path: RAS -> Patient -> TableTop -> TableFlange -> TableRobotFlange
-  // Find RasToTableRobotFlangeTransform or create it
-  vtkSmartPointer<vtkMRMLLinearTransformNode> rasToTableRobotFlangeTransformNode;
-  if (vtkMRMLNode* node = scene->GetFirstNodeByName("RasToTableRobotFlangeTransform"))
+  // Find TableRobotFlangeToRasTransform or create it
+  vtkSmartPointer<vtkMRMLLinearTransformNode> TableRobotFlangeToRasTransformNode;
+  if (vtkMRMLNode* node = scene->GetFirstNodeByName("TableRobotFlangeToRasTransform"))
   {
-    rasToTableRobotFlangeTransformNode = vtkMRMLLinearTransformNode::SafeDownCast(node);
+    TableRobotFlangeToRasTransformNode = vtkMRMLLinearTransformNode::SafeDownCast(node);
   }
   else
   {
-    rasToTableRobotFlangeTransformNode = vtkSmartPointer<vtkMRMLLinearTransformNode>::New();
-    rasToTableRobotFlangeTransformNode->SetName("RasToTableRobotFlangeTransform");
-//    rasToTableRobotFlangeTransformNode->SetHideFromEditors(1);
-    std::string singletonTag = std::string("C26C3_") + "RasToTableRobotFlangeTransform";
-//    rasToTableRobotFlangeTransformNode->SetSingletonTag(singletonTag.c_str());
-    scene->AddNode(rasToTableRobotFlangeTransformNode);
+    TableRobotFlangeToRasTransformNode = vtkSmartPointer<vtkMRMLLinearTransformNode>::New();
+    TableRobotFlangeToRasTransformNode->SetName("TableRobotFlangeToRasTransform");
+//    TableRobotFlangeToRasTransformNode->SetHideFromEditors(1);
+    std::string singletonTag = std::string("C26C3_") + "TableRobotFlangeToRasTransform";
+//    TableRobotFlangeToRasTransformNode->SetSingletonTag(singletonTag.c_str());
+    scene->AddNode(TableRobotFlangeToRasTransformNode);
   }
 
-  vtkNew<vtkTransform> rasToTableRobotFlangeTransform;
+  vtkNew<vtkTransform> TableRobotFlangeToRasTransform;
   if (this->GetTransformBetween( CoordSys::RAS, CoordSys::TableRobotFlange, 
-    rasToTableRobotFlangeTransform, false))
+    TableRobotFlangeToRasTransform, false))
   {
-    vtkDebugMacro("UpdateRasToTableRobotFlangeTransform: RAS->TableRobotFlange transform updated");
+    vtkDebugMacro("UpdateTableRobotFlangeToRasTransform: TableRobotFlange->RAS transform updated");
     // Transform to RAS, set transform to node, transform the model
-    rasToTableRobotFlangeTransform->Concatenate(patientToRasTransform);
+    TableRobotFlangeToRasTransform->Concatenate(patientToRasTransform);
   }
-  if (rasToTableRobotFlangeTransformNode)
+  if (TableRobotFlangeToRasTransformNode)
   {
-    rasToTableRobotFlangeTransformNode->SetAndObserveTransformToParent(rasToTableRobotFlangeTransform);
+    TableRobotFlangeToRasTransformNode->SetAndObserveTransformToParent(TableRobotFlangeToRasTransform);
   }
-  return rasToTableRobotFlangeTransformNode;
+  return TableRobotFlangeToRasTransformNode;
+*/
 }
 
 //------------------------------------------------------------------------------
-vtkMRMLLinearTransformNode* vtkSlicerChannel26Cabin3RobotsTransformLogic::UpdateRasToTableRobotWristTransform(vtkMRMLChannel26GeometryNode* parameterNode)
+vtkMRMLLinearTransformNode* vtkSlicerChannel26Cabin3RobotsTransformLogic::UpdateTableRobotWristToRasTransform(vtkMRMLChannel26GeometryNode* parameterNode)
 {
+  return this->UpdateFrameToRasTransform(parameterNode, CoordinateSystemIdentifier::TableRobotWrist);
+/*
   if (!parameterNode)
   {
-    vtkErrorMacro("UpdateRasToTableRobotWristTransform: Invalid parameter node");
+    vtkErrorMacro("UpdateTableRobotWristToRasTransform: Invalid parameter node");
     return nullptr;
   }
   vtkMRMLScene* scene = this->GetMRMLScene();
   if (!scene)
   {
-    vtkErrorMacro("UpdateRasToTableRobotWristTransform: Invalid MRML scene");
+    vtkErrorMacro("UpdateTableRobotWristToRasTransform: Invalid MRML scene");
     return nullptr;
   }
 
@@ -868,49 +925,52 @@ vtkMRMLLinearTransformNode* vtkSlicerChannel26Cabin3RobotsTransformLogic::Update
   // TableRobotWrist -> RAS
   // TableRobotWrist - mandatory
   // Transform path: RAS -> Patient -> TableTop -> TableFlange -> TableRobotFlange -> TableRobotWrist
-  // Find RasToTableRobotWristTransform or create it
-  vtkSmartPointer<vtkMRMLLinearTransformNode> rasToTableRobotWristTransformNode;
-  if (vtkMRMLNode* node = scene->GetFirstNodeByName("RasToTableRobotWristTransform"))
+  // Find TableRobotWristToRasTransform or create it
+  vtkSmartPointer<vtkMRMLLinearTransformNode> TableRobotWristToRasTransformNode;
+  if (vtkMRMLNode* node = scene->GetFirstNodeByName("TableRobotWristToRasTransform"))
   {
-    rasToTableRobotWristTransformNode = vtkMRMLLinearTransformNode::SafeDownCast(node);
+    TableRobotWristToRasTransformNode = vtkMRMLLinearTransformNode::SafeDownCast(node);
   }
   else
   {
-    rasToTableRobotWristTransformNode = vtkSmartPointer<vtkMRMLLinearTransformNode>::New();
-    rasToTableRobotWristTransformNode->SetName("RasToTableRobotWristTransform");
-//    rasToTableRobotWristTransformNode->SetHideFromEditors(1);
-    std::string singletonTag = std::string("C26C3_") + "RasToTableRobotWristTransform";
-//    rasToTableRobotWristTransformNode->SetSingletonTag(singletonTag.c_str());
-    scene->AddNode(rasToTableRobotWristTransformNode);
+    TableRobotWristToRasTransformNode = vtkSmartPointer<vtkMRMLLinearTransformNode>::New();
+    TableRobotWristToRasTransformNode->SetName("TableRobotWristToRasTransform");
+//    TableRobotWristToRasTransformNode->SetHideFromEditors(1);
+    std::string singletonTag = std::string("C26C3_") + "RasToTableRobotWristToRasTransform";
+//    TableRobotWristToRasTransformNode->SetSingletonTag(singletonTag.c_str());
+    scene->AddNode(TableRobotWristToRasTransformNode);
   }
 
-  vtkNew<vtkTransform> rasToTableRobotWristTransform;
+  vtkNew<vtkTransform> TableRobotWristToRasTransform;
   if (this->GetTransformBetween( CoordSys::RAS, CoordSys::TableRobotWrist, 
-    rasToTableRobotWristTransform, false))
+    TableRobotWristToRasTransform, false))
   {
-    vtkDebugMacro("UpdateRasToTableRobotWristTransform: RAS->TableRobotWrist transform updated");
+    vtkDebugMacro("UpdateTableRobotWristToRasTransform: TableRobotWrist->RAS transform updated");
     // Transform to RAS, set transform to node, transform the model
-    rasToTableRobotWristTransform->Concatenate(patientToRasTransform);
+    TableRobotWristToRasTransform->Concatenate(patientToRasTransform);
   }
-  if (rasToTableRobotWristTransformNode)
+  if (TableRobotWristToRasTransformNode)
   {
-    rasToTableRobotWristTransformNode->SetAndObserveTransformToParent(rasToTableRobotWristTransform);
+    TableRobotWristToRasTransformNode->SetAndObserveTransformToParent(TableRobotWristToRasTransform);
   }
-  return rasToTableRobotWristTransformNode;
+  return TableRobotWristToRasTransformNode;
+*/
 }
 
 //------------------------------------------------------------------------------
-vtkMRMLLinearTransformNode* vtkSlicerChannel26Cabin3RobotsTransformLogic::UpdateRasToTableRobotElbowWristTransform(vtkMRMLChannel26GeometryNode* parameterNode)
+vtkMRMLLinearTransformNode* vtkSlicerChannel26Cabin3RobotsTransformLogic::UpdateTableRobotElbowWristToRasTransform(vtkMRMLChannel26GeometryNode* parameterNode)
 {
+  return this->UpdateFrameToRasTransform(parameterNode, CoordinateSystemIdentifier::TableRobotElbowWrist);
+/*
   if (!parameterNode)
   {
-    vtkErrorMacro("UpdateRasToTableRobotElbowWristTransform: Invalid parameter node");
+    vtkErrorMacro("UpdateTableRobotElbowWristToRasTransform: Invalid parameter node");
     return nullptr;
   }
   vtkMRMLScene* scene = this->GetMRMLScene();
   if (!scene)
   {
-    vtkErrorMacro("UpdateRasToTableRobotElbowWristTransform: Invalid MRML scene");
+    vtkErrorMacro("UpdateTableRobotElbowWristToRasTransform: Invalid MRML scene");
     return nullptr;
   }
 
@@ -929,49 +989,52 @@ vtkMRMLLinearTransformNode* vtkSlicerChannel26Cabin3RobotsTransformLogic::Update
   // TableRobotElbowWrist - mandatory
   // Transform path: RAS -> Patient -> TableTop -> TableFlange -> TableRobotFlange -> TableRobotWrist
   // TableRobotWrist - > TableRobotElbowWrist
-  // Find RasToTableRobotWristTransform or create it
-  vtkSmartPointer<vtkMRMLLinearTransformNode> rasToTableRobotElbowWristTransformNode;
-  if (vtkMRMLNode* node = scene->GetFirstNodeByName("RasToTableRobotElbowWristTransform"))
+  // Find TableRobotWristToRasTransform or create it
+  vtkSmartPointer<vtkMRMLLinearTransformNode> TableRobotElbowWristToRasTransformNode;
+  if (vtkMRMLNode* node = scene->GetFirstNodeByName("TableRobotElbowWristToRasTransform"))
   {
-    rasToTableRobotElbowWristTransformNode = vtkMRMLLinearTransformNode::SafeDownCast(node);
+    TableRobotElbowWristToRasTransformNode = vtkMRMLLinearTransformNode::SafeDownCast(node);
   }
   else
   {
-    rasToTableRobotElbowWristTransformNode = vtkSmartPointer<vtkMRMLLinearTransformNode>::New();
-    rasToTableRobotElbowWristTransformNode->SetName("RasToTableRobotElbowWristTransform");
-//    rasToTableRobotElbowWristTransformNode->SetHideFromEditors(1);
-    std::string singletonTag = std::string("C26C3_") + "RasToTableRobotElbowWristTransform";
-//    rasToTableRobotElbowWristTransformNode->SetSingletonTag(singletonTag.c_str());
-    scene->AddNode(rasToTableRobotElbowWristTransformNode);
+    TableRobotElbowWristToRasTransformNode = vtkSmartPointer<vtkMRMLLinearTransformNode>::New();
+    TableRobotElbowWristToRasTransformNode->SetName("TableRobotElbowWristToRasTransform");
+//    rasToTableRobotElbowWristToRasTransformNode->SetHideFromEditors(1);
+    std::string singletonTag = std::string("C26C3_") + "TableRobotElbowWristToRasTransform";
+//    rasToTableRobotElbowWristToRasTransformNode->SetSingletonTag(singletonTag.c_str());
+    scene->AddNode(TableRobotElbowWristToRasTransformNode);
   }
 
-  vtkNew<vtkTransform> rasToTableRobotElbowWristTransform;
+  vtkNew<vtkTransform> TableRobotElbowWristToRasTransform;
   if (this->GetTransformBetween( CoordSys::RAS, CoordSys::TableRobotElbowWrist, 
-    rasToTableRobotElbowWristTransform, false))
+    TableRobotElbowWristToRasTransform, false))
   {
-    vtkDebugMacro("UpdateRasToTableRobotElbowWristTransform: RAS->TableRobotElbowWrist transform updated");
+    vtkDebugMacro("UpdateTableRobotElbowWristToRasTransform: TableRobotElbowWrist->RAS transform updated");
     // Transform to RAS, set transform to node, transform the model
-    rasToTableRobotElbowWristTransform->Concatenate(patientToRasTransform);
+    TableRobotElbowWristToRasTransform->Concatenate(patientToRasTransform);
   }
-  if (rasToTableRobotElbowWristTransformNode)
+  if (TableRobotElbowWristToRasTransformNode)
   {
-    rasToTableRobotElbowWristTransformNode->SetAndObserveTransformToParent(rasToTableRobotElbowWristTransform);
+    TableRobotElbowWristToRasTransformNode->SetAndObserveTransformToParent(TableRobotElbowWristToRasTransform);
   }
-  return rasToTableRobotElbowWristTransformNode;
+  return TableRobotElbowWristToRasTransformNode;
+*/
 }
 
 //------------------------------------------------------------------------------
-vtkMRMLLinearTransformNode* vtkSlicerChannel26Cabin3RobotsTransformLogic::UpdateRasToTableRobotElbowShoulderTransform(vtkMRMLChannel26GeometryNode* parameterNode)
+vtkMRMLLinearTransformNode* vtkSlicerChannel26Cabin3RobotsTransformLogic::UpdateTableRobotElbowShoulderToRasTransform(vtkMRMLChannel26GeometryNode* parameterNode)
 {
+  return this->UpdateFrameToRasTransform(parameterNode, CoordinateSystemIdentifier::TableRobotElbowShoulder);
+/*
   if (!parameterNode)
   {
-    vtkErrorMacro("UpdateRasToTableRobotElbowShoulderTransform: Invalid parameter node");
+    vtkErrorMacro("UpdateTableRobotElbowShoulderToRasTransform: Invalid parameter node");
     return nullptr;
   }
   vtkMRMLScene* scene = this->GetMRMLScene();
   if (!scene)
   {
-    vtkErrorMacro("UpdateRasToTableRobotElbowShoulderTransform: Invalid MRML scene");
+    vtkErrorMacro("UpdateTableRobotElbowShoulderToRasTransform: Invalid MRML scene");
     return nullptr;
   }
 
@@ -990,49 +1053,52 @@ vtkMRMLLinearTransformNode* vtkSlicerChannel26Cabin3RobotsTransformLogic::Update
   // TableRobotElbowShoulder - mandatory
   // Transform path: RAS -> Patient -> TableTop -> TableFlange -> TableRobotFlange -> TableRobotWrist
   // TableRobotWrist -> TableRobotElbowWrist -> TableRobotElbowShoulder
-  // Find RasToTableRobotWristTransform or create it
-  vtkSmartPointer<vtkMRMLLinearTransformNode> rasToTableRobotElbowShoulderTransformNode;
-  if (vtkMRMLNode* node = scene->GetFirstNodeByName("RasToTableRobotElbowShoulderTransform"))
+  // Find TableRobotWristToRasTransform or create it
+  vtkSmartPointer<vtkMRMLLinearTransformNode> TableRobotElbowShoulderToRasTransformNode;
+  if (vtkMRMLNode* node = scene->GetFirstNodeByName("TableRobotElbowShoulderToRasTransform"))
   {
-    rasToTableRobotElbowShoulderTransformNode = vtkMRMLLinearTransformNode::SafeDownCast(node);
+    TableRobotElbowShoulderToRasTransformNode = vtkMRMLLinearTransformNode::SafeDownCast(node);
   }
   else
   {
-    rasToTableRobotElbowShoulderTransformNode = vtkSmartPointer<vtkMRMLLinearTransformNode>::New();
-    rasToTableRobotElbowShoulderTransformNode->SetName("RasToTableRobotElbowShoulderTransform");
-//    rasToTableRobotElbowShoulderTransformNode->SetHideFromEditors(1);
-    std::string singletonTag = std::string("C26C3_") + "RasToTableRobotElbowShoulderTransform";
-//    rasToTableRobotElbowShoulderTransformNode->SetSingletonTag(singletonTag.c_str());
-    scene->AddNode(rasToTableRobotElbowShoulderTransformNode);
+    TableRobotElbowShoulderToRasTransformNode = vtkSmartPointer<vtkMRMLLinearTransformNode>::New();
+    TableRobotElbowShoulderToRasTransformNode->SetName("TableRobotElbowShoulderToRasTransform");
+//    TableRobotElbowShoulderToRasTransformNode->SetHideFromEditors(1);
+    std::string singletonTag = std::string("C26C3_") + "TableRobotElbowShoulderToRasTransform";
+//    TableRobotElbowShoulderToRasTransformNode->SetSingletonTag(singletonTag.c_str());
+    scene->AddNode(TableRobotElbowShoulderToRasTransformNode);
   }
 
-  vtkNew<vtkTransform> rasToTableRobotElbowShoulderTransform;
+  vtkNew<vtkTransform> TableRobotElbowShoulderToRasTransform;
   if (this->GetTransformBetween( CoordSys::RAS, CoordSys::TableRobotElbowShoulder, 
-    rasToTableRobotElbowShoulderTransform, false))
+    TableRobotElbowShoulderToRasTransform, false))
   {
-    vtkDebugMacro("UpdateRasToTableRobotElbowShoulderTransform: RAS->TableRobotElbowShoulder transform updated");
+    vtkDebugMacro("UpdateTableRobotElbowShoulderTransform: TableRobotElbowShoulder->RAS transform updated");
     // Transform to RAS, set transform to node, transform the model
-    rasToTableRobotElbowShoulderTransform->Concatenate(patientToRasTransform);
+    TableRobotElbowShoulderToRasTransform->Concatenate(patientToRasTransform);
   }
-  if (rasToTableRobotElbowShoulderTransformNode)
+  if (TableRobotElbowShoulderToRasTransformNode)
   {
-    rasToTableRobotElbowShoulderTransformNode->SetAndObserveTransformToParent(rasToTableRobotElbowShoulderTransform);
+    TableRobotElbowShoulderToRasTransformNode->SetAndObserveTransformToParent(TableRobotElbowShoulderToRasTransform);
   }
-  return rasToTableRobotElbowShoulderTransformNode;
+  return TableRobotElbowShoulderToRasTransformNode;
+*/
 }
 
 //------------------------------------------------------------------------------
-vtkMRMLLinearTransformNode* vtkSlicerChannel26Cabin3RobotsTransformLogic::UpdateRasToTableRobotShoulderTransform(vtkMRMLChannel26GeometryNode* parameterNode)
+vtkMRMLLinearTransformNode* vtkSlicerChannel26Cabin3RobotsTransformLogic::UpdateTableRobotShoulderToRasTransform(vtkMRMLChannel26GeometryNode* parameterNode)
 {
+  return this->UpdateFrameToRasTransform(parameterNode, CoordinateSystemIdentifier::TableRobotShoulder);
+/*
   if (!parameterNode)
   {
-    vtkErrorMacro("UpdateRasToTableRobotShoulderTransform: Invalid parameter node");
+    vtkErrorMacro("UpdateTableRobotShoulderToRasTransform: Invalid parameter node");
     return nullptr;
   }
   vtkMRMLScene* scene = this->GetMRMLScene();
   if (!scene)
   {
-    vtkErrorMacro("UpdateRasToTableRobotShoulderTransform: Invalid MRML scene");
+    vtkErrorMacro("UpdateTableRobotShoulderToRasTransform: Invalid MRML scene");
     return nullptr;
   }
 
@@ -1052,48 +1118,51 @@ vtkMRMLLinearTransformNode* vtkSlicerChannel26Cabin3RobotsTransformLogic::Update
   // Transform path: RAS -> Patient -> TableTop -> TableFlange -> TableRobotFlange -> TableRobotWrist
   // TableRobotWrist -> TableRobotElbowWrist -> TableRobotElbowShoulder -> TableRobotShoulder
   // Find RasToTableRobotWristTransform or create it
-  vtkSmartPointer<vtkMRMLLinearTransformNode> rasToTableRobotShoulderTransformNode;
-  if (vtkMRMLNode* node = scene->GetFirstNodeByName("RasToTableRobotShoulderTransform"))
+  vtkSmartPointer<vtkMRMLLinearTransformNode> TableRobotShoulderToRasTransformNode;
+  if (vtkMRMLNode* node = scene->GetFirstNodeByName("TableRobotShoulderToRasTransform"))
   {
-    rasToTableRobotShoulderTransformNode = vtkMRMLLinearTransformNode::SafeDownCast(node);
+    TableRobotShoulderToRasTransformNode = vtkMRMLLinearTransformNode::SafeDownCast(node);
   }
   else
   {
-    rasToTableRobotShoulderTransformNode = vtkSmartPointer<vtkMRMLLinearTransformNode>::New();
-    rasToTableRobotShoulderTransformNode->SetName("RasToTableRobotShoulderTransform");
-//    rasToTableRobotShoulderTransformNode->SetHideFromEditors(1);
-    std::string singletonTag = std::string("C26C3_") + "RasToTableRobotShoulderTransform";
-//    rasToTableRobotShoulderTransformNode->SetSingletonTag(singletonTag.c_str());
-    scene->AddNode(rasToTableRobotShoulderTransformNode);
+    TableRobotShoulderToRasTransformNode = vtkSmartPointer<vtkMRMLLinearTransformNode>::New();
+    TableRobotShoulderToRasTransformNode->SetName("TableRobotShoulderToRasTransform");
+//    TableRobotShoulderToRasTransformNode->SetHideFromEditors(1);
+    std::string singletonTag = std::string("C26C3_") + "TableRobotShoulderToRasTransform";
+//    TableRobotShoulderToRasTransformNode->SetSingletonTag(singletonTag.c_str());
+    scene->AddNode(TableRobotShoulderToRasTransformNode);
   }
 
-  vtkNew<vtkTransform> rasToTableRobotShoulderTransform;
+  vtkNew<vtkTransform> TableRobotShoulderToRasTransform;
   if (this->GetTransformBetween( CoordSys::RAS, CoordSys::TableRobotShoulder, 
-    rasToTableRobotShoulderTransform, false))
+    TableRobotShoulderToRasTransform, false))
   {
-    vtkDebugMacro("UpdateRasToTableRobotShoulderTransform: RAS->TableRobotShoulder transform updated");
+    vtkDebugMacro("UpdateTableRobotShoulderToRasTransform: TableRobotShoulder->RAS transform updated");
     // Transform to RAS, set transform to node, transform the model
-    rasToTableRobotShoulderTransform->Concatenate(patientToRasTransform);
+    TableRobotShoulderToRasTransform->Concatenate(patientToRasTransform);
   }
-  if (rasToTableRobotShoulderTransform)
+  if (TableRobotShoulderToRasTransformNode)
   {
-    rasToTableRobotShoulderTransformNode->SetAndObserveTransformToParent(rasToTableRobotShoulderTransform);
+    TableRobotShoulderToRasTransformNode->SetAndObserveTransformToParent(TableRobotShoulderToRasTransform);
   }
-  return rasToTableRobotShoulderTransformNode;
+  return TableRobotShoulderToRasTransformNode;
+*/
 }
 
 //------------------------------------------------------------------------------
-vtkMRMLLinearTransformNode* vtkSlicerChannel26Cabin3RobotsTransformLogic::UpdateRasToTableRobotBaseRotationTransform(vtkMRMLChannel26GeometryNode* parameterNode)
+vtkMRMLLinearTransformNode* vtkSlicerChannel26Cabin3RobotsTransformLogic::UpdateTableRobotBaseRotationToRasTransform(vtkMRMLChannel26GeometryNode* parameterNode)
 {
+  return this->UpdateFrameToRasTransform(parameterNode, CoordinateSystemIdentifier::TableRobotBaseRotation);
+/*
   if (!parameterNode)
   {
-    vtkErrorMacro("UpdateRasToTableRobotBaseRotationTransform: Invalid parameter node");
+    vtkErrorMacro("UpdateTableRobotBaseRotationToRasTransform: Invalid parameter node");
     return nullptr;
   }
   vtkMRMLScene* scene = this->GetMRMLScene();
   if (!scene)
   {
-    vtkErrorMacro("UpdateRasToTableRobotBaseRotationTransform: Invalid MRML scene");
+    vtkErrorMacro("UpdateTableRobotBaseRotationToRasTransform: Invalid MRML scene");
     return nullptr;
   }
 
@@ -1114,48 +1183,51 @@ vtkMRMLLinearTransformNode* vtkSlicerChannel26Cabin3RobotsTransformLogic::Update
   // TableRobotWrist -> TableRobotElbowWrist -> TableRobotElbowShoulder -> TableRobotShoulder
   // TableRobotShoulder -> TableRobotBaseRotation
   // Find RasToTableRobotWristTransform or create it
-  vtkSmartPointer<vtkMRMLLinearTransformNode> rasToTableRobotBaseRotationTransformNode;
-  if (vtkMRMLNode* node = scene->GetFirstNodeByName("RasToTableRobotBaseRotationTransform"))
+  vtkSmartPointer<vtkMRMLLinearTransformNode> TableRobotBaseRotationToRasTransformNode;
+  if (vtkMRMLNode* node = scene->GetFirstNodeByName("TableRobotBaseRotationToRasTransform"))
   {
-    rasToTableRobotBaseRotationTransformNode = vtkMRMLLinearTransformNode::SafeDownCast(node);
+    TableRobotBaseRotationToRasTransformNode = vtkMRMLLinearTransformNode::SafeDownCast(node);
   }
   else
   {
-    rasToTableRobotBaseRotationTransformNode = vtkSmartPointer<vtkMRMLLinearTransformNode>::New();
-    rasToTableRobotBaseRotationTransformNode->SetName("RasToTableRobotBaseRotationTransform");
-//    rasToTableRobotBaseRotationTransformNode->SetHideFromEditors(1);
-    std::string singletonTag = std::string("C26C3_") + "RasToTableRobotBaseRotationTransform";
-//    rasToTableRobotBaseRotationTransformNode->SetSingletonTag(singletonTag.c_str());
-    scene->AddNode(rasToTableRobotBaseRotationTransformNode);
+    TableRobotBaseRotationToRasTransformNode = vtkSmartPointer<vtkMRMLLinearTransformNode>::New();
+    TableRobotBaseRotationToRasTransformNode->SetName("TableRobotBaseRotationToRasTransform");
+//    TableRobotBaseRotationToRasTransformNode->SetHideFromEditors(1);
+    std::string singletonTag = std::string("C26C3_") + "TableRobotBaseRotationToRasTransform";
+//    TableRobotBaseRotationTransformNode->SetSingletonTag(singletonTag.c_str());
+    scene->AddNode(TableRobotBaseRotationToRasTransformNode);
   }
 
-  vtkNew<vtkTransform> rasToTableRobotBaseRotationTransform;
+  vtkNew<vtkTransform> TableRobotBaseRotationToRasTransform;
   if (this->GetTransformBetween( CoordSys::RAS, CoordSys::TableRobotBaseRotation, 
-    rasToTableRobotBaseRotationTransform, false))
+    TableRobotBaseRotationToRasTransform, false))
   {
-    vtkDebugMacro("UpdateRasToTableRobotBaseRotationTransform: RAS->TableRobotBaseRotation transform updated");
+    vtkDebugMacro("UpdateTableRobotBaseRotationToRasTransform: TableRobotBaseRotation->RAS transform updated");
     // Transform to RAS, set transform to node, transform the model
-    rasToTableRobotBaseRotationTransform->Concatenate(patientToRasTransform);
+    TableRobotBaseRotationToRasTransform->Concatenate(patientToRasTransform);
   }
-  if (rasToTableRobotBaseRotationTransform)
+  if (TableRobotBaseRotationToRasTransformNode)
   {
-    rasToTableRobotBaseRotationTransformNode->SetAndObserveTransformToParent(rasToTableRobotBaseRotationTransform);
+    TableRobotBaseRotationToRasTransformNode->SetAndObserveTransformToParent(TableRobotBaseRotationToRasTransform);
   }
-  return rasToTableRobotBaseRotationTransformNode;
+  return TableRobotBaseRotationToRasTransformNode;
+*/
 }
 
 //------------------------------------------------------------------------------
-vtkMRMLLinearTransformNode* vtkSlicerChannel26Cabin3RobotsTransformLogic::UpdateRasToTableRobotBaseFixedTransform(vtkMRMLChannel26GeometryNode* parameterNode)
+vtkMRMLLinearTransformNode* vtkSlicerChannel26Cabin3RobotsTransformLogic::UpdateTableRobotBaseFixedToRasTransform(vtkMRMLChannel26GeometryNode* parameterNode)
 {
+  return this->UpdateFrameToRasTransform(parameterNode, CoordinateSystemIdentifier::TableRobotBaseFixed);
+/*
   if (!parameterNode)
   {
-    vtkErrorMacro("UpdateRasToTableRobotBaseFixedTransform: Invalid parameter node");
+    vtkErrorMacro("UpdateRasToTableRobotBaseFixedToRasTransform: Invalid parameter node");
     return nullptr;
   }
   vtkMRMLScene* scene = this->GetMRMLScene();
   if (!scene)
   {
-    vtkErrorMacro("UpdateRasToTableRobotBaseFixedTransform: Invalid MRML scene");
+    vtkErrorMacro("UpdateRasToTableRobotBaseFixedToRasTransform: Invalid MRML scene");
     return nullptr;
   }
 
@@ -1175,49 +1247,52 @@ vtkMRMLLinearTransformNode* vtkSlicerChannel26Cabin3RobotsTransformLogic::Update
   // Transform path: RAS -> Patient -> TableTop -> TableFlange -> TableRobotFlange -> TableRobotWrist
   // TableRobotWrist -> TableRobotElbowWrist -> TableRobotElbowShoulder -> TableRobotShoulder
   // TableRobotShoulder -> TableRobotBaseRotation -> TableRobotBaseFixed
-  // Find RasToTableRobotWristTransform or create it
-  vtkSmartPointer<vtkMRMLLinearTransformNode> rasToTableRobotBaseFixedTransformNode;
-  if (vtkMRMLNode* node = scene->GetFirstNodeByName("RasToTableRobotBaseFixedTransform"))
+  // Find TableRobotWristToRasTransform or create it
+  vtkSmartPointer<vtkMRMLLinearTransformNode> TableRobotBaseFixedToRasTransformNode;
+  if (vtkMRMLNode* node = scene->GetFirstNodeByName("TableRobotBaseFixedToRasTransform"))
   {
-    rasToTableRobotBaseFixedTransformNode = vtkMRMLLinearTransformNode::SafeDownCast(node);
+    TableRobotBaseFixedToRasTransformNode = vtkMRMLLinearTransformNode::SafeDownCast(node);
   }
   else
   {
-    rasToTableRobotBaseFixedTransformNode = vtkSmartPointer<vtkMRMLLinearTransformNode>::New();
-    rasToTableRobotBaseFixedTransformNode->SetName("RasToTableRobotBaseFixedTransform");
-//    rasToTableRobotBaseFixedTransformNode->SetHideFromEditors(1);
-    std::string singletonTag = std::string("C26C3_") + "RasToTableRobotBaseFixedTransform";
-//    rasToTableRobotBaseFixedTransformNode->SetSingletonTag(singletonTag.c_str());
-    scene->AddNode(rasToTableRobotBaseFixedTransformNode);
+    TableRobotBaseFixedToRasTransformNode = vtkSmartPointer<vtkMRMLLinearTransformNode>::New();
+    TableRobotBaseFixedToRasTransformNode->SetName("TableRobotBaseFixedToRasTransform");
+//    TableRobotBaseFixedToRasTransformNode->SetHideFromEditors(1);
+    std::string singletonTag = std::string("C26C3_") + "TableRobotBaseFixedToRasTransform";
+//    TableRobotBaseFixedToRasTransformNode->SetSingletonTag(singletonTag.c_str());
+    scene->AddNode(TableRobotBaseFixedToRasTransformNode);
   }
 
-  vtkNew<vtkTransform> rasToTableRobotBaseFixedTransform;
-  if (this->GetTransformBetween( CoordSys::RAS, CoordSys::TableRobotBaseFixed, 
-    rasToTableRobotBaseFixedTransform, false))
+  vtkNew<vtkTransform> TableRobotBaseFixedToRasTransform;
+  if (this->GetTransformBetween( CoordSys::RAS, CoordSys::TableRobotBaseFixed,
+    TableRobotBaseFixedToRasTransform, false))
   {
-    vtkDebugMacro("UpdateRasToTableRobotBaseFixedTransform: RAS->TableRobotBaseFixed transform updated");
+    vtkDebugMacro("UpdateTableRobotBaseFixedToRasTransform: TableRobotBaseFixed->RAS transform updated");
     // Transform to RAS, set transform to node, transform the model
-    rasToTableRobotBaseFixedTransform->Concatenate(patientToRasTransform);
+    TableRobotBaseFixedToRasTransform->Concatenate(patientToRasTransform);
   }
-  if (rasToTableRobotBaseFixedTransform)
+  if (TableRobotBaseFixedToRasTransform)
   {
-    rasToTableRobotBaseFixedTransformNode->SetAndObserveTransformToParent(rasToTableRobotBaseFixedTransform);
+    TableRobotBaseFixedToRasTransformNode->SetAndObserveTransformToParent(TableRobotBaseFixedToRasTransform);
   }
-  return rasToTableRobotBaseFixedTransformNode;
+  return TableRobotBaseFixedToRasTransformNode;
+*/
 }
 
 //------------------------------------------------------------------------------
-vtkMRMLLinearTransformNode* vtkSlicerChannel26Cabin3RobotsTransformLogic::UpdateRasToFixedReferenceTransform(vtkMRMLChannel26GeometryNode* parameterNode)
+vtkMRMLLinearTransformNode* vtkSlicerChannel26Cabin3RobotsTransformLogic::UpdateFixedReferenceToRasTransform(vtkMRMLChannel26GeometryNode* parameterNode)
 {
+  return this->UpdateFrameToRasTransform(parameterNode, CoordinateSystemIdentifier::FixedReference);
+/*
   if (!parameterNode)
   {
-    vtkErrorMacro("UpdateRasToFixedReferenceTransform: Invalid parameter node");
+    vtkErrorMacro("UpdateFixedReferenceToRasTransform: Invalid parameter node");
     return nullptr;
   }
   vtkMRMLScene* scene = this->GetMRMLScene();
   if (!scene)
   {
-    vtkErrorMacro("UpdateRasToFixedReferenceTransform: Invalid MRML scene");
+    vtkErrorMacro("UpdateFixedReferenceToRasTransform: Invalid MRML scene");
     return nullptr;
   }
 
@@ -1238,34 +1313,41 @@ vtkMRMLLinearTransformNode* vtkSlicerChannel26Cabin3RobotsTransformLogic::Update
   // TableRobotWrist -> TableRobotElbowWrist -> TableRobotElbowShoulder -> TableRobotShoulder
   // TableRobotShoulder -> TableRobotBaseRotation -> TableRobotBaseFixed -> FixedReference
   // Find RasToTableRobotWristTransform or create it
-  vtkSmartPointer<vtkMRMLLinearTransformNode> rasToFixedReferenceTransformNode;
-  if (vtkMRMLNode* node = scene->GetFirstNodeByName("RasToFixedReferenceTransform"))
+  vtkSmartPointer<vtkMRMLLinearTransformNode> FixedReferenceToRasTransformNode;
+  if (vtkMRMLNode* node = scene->GetFirstNodeByName("FixedReferenceToRasTransform"))
   {
-    rasToFixedReferenceTransformNode = vtkMRMLLinearTransformNode::SafeDownCast(node);
+    FixedReferenceToRasTransformNode = vtkMRMLLinearTransformNode::SafeDownCast(node);
   }
   else
   {
-    rasToFixedReferenceTransformNode = vtkSmartPointer<vtkMRMLLinearTransformNode>::New();
-    rasToFixedReferenceTransformNode->SetName("RasToFixedReferenceTransform");
-//    rasToFixedReferenceTransformNode->SetHideFromEditors(1);
-    std::string singletonTag = std::string("C26C3_") + "RasToFixedReferenceTransform";
-//    rasToFixedReferenceTransformNode->SetSingletonTag(singletonTag.c_str());
-    scene->AddNode(rasToFixedReferenceTransformNode);
+    FixedReferenceToRasTransformNode = vtkSmartPointer<vtkMRMLLinearTransformNode>::New();
+    FixedReferenceToRasTransformNode->SetName("FixedReferenceToRasTransform");
+//    FixedReferenceToRasTransformNode->SetHideFromEditors(1);
+    std::string singletonTag = std::string("C26C3_") + "FixedReferenceToRasTransform";
+//    FixedReferenceToRasTransformNode->SetSingletonTag(singletonTag.c_str());
+    scene->AddNode(FixedReferenceToRasTransformNode);
   }
 
-  vtkNew<vtkTransform> rasToFixedReferenceTransform;
+  vtkNew<vtkTransform> FixedReferenceToRasTransform;
   if (this->GetTransformBetween( CoordSys::RAS, CoordSys::FixedReference, 
-    rasToFixedReferenceTransform, false))
+    FixedReferenceToRasTransform, false))
   {
-    vtkDebugMacro("UpdateRasToFixedReferenceTransform: RAS->FixedReference transform updated");
+    vtkDebugMacro("UpdateFixedReferenceTransform: FixedReference->RAS transform updated");
     // Transform to RAS, set transform to node, transform the model
-    rasToFixedReferenceTransform->Concatenate(patientToRasTransform);
+    FixedReferenceToRasTransform->Concatenate(patientToRasTransform);
   }
-  if (rasToFixedReferenceTransform)
+  if (FixedReferenceToRasTransform)
   {
-    rasToFixedReferenceTransformNode->SetAndObserveTransformToParent(rasToFixedReferenceTransform);
+    FixedReferenceToRasTransformNode->SetAndObserveTransformToParent(FixedReferenceToRasTransform);
   }
-  return rasToFixedReferenceTransformNode;
+  return FixedReferenceToRasTransformNode;
+*/
+}
+
+//------------------------------------------------------------------------------
+vtkMRMLLinearTransformNode* vtkSlicerChannel26Cabin3RobotsTransformLogic::UpdateCarmRobotBaseFixedToRasTransform(vtkMRMLChannel26GeometryNode* parameterNode)
+{
+  return this->UpdateFrameToRasTransform(parameterNode, CoordinateSystemIdentifier::CarmRobotBaseFixed);
 }
 
 //----------------------------------------------------------------------------
@@ -1462,7 +1544,7 @@ void vtkSlicerChannel26Cabin3RobotsTransformLogic::UpdateTableRobotFlangeToTable
 
     vtkNew<vtkTransform> tableFlangeToTableRobotFlangeTransform;
     double a[6] = {};
-    parameterNode->GetTableTopRobotAngles(a);
+    parameterNode->GetTableRobotAngles(a);
     double patientToTableTopTranslation[3] = {};
     parameterNode->GetPatientToTableTopTranslation(patientToTableTopTranslation);
 
@@ -1530,7 +1612,7 @@ void vtkSlicerChannel26Cabin3RobotsTransformLogic::UpdateTableRobotWristToTableR
   {
     vtkNew<vtkTransform> tableRobotWristToTableRobotElbowWristTransform;
     double a[6] = {};
-    parameterNode->GetTableTopRobotAngles(a);
+    parameterNode->GetTableRobotAngles(a);
     double patientToTableTopTranslation[3] = {};
     parameterNode->GetPatientToTableTopTranslation(patientToTableTopTranslation);
 
@@ -1608,7 +1690,7 @@ void vtkSlicerChannel26Cabin3RobotsTransformLogic::UpdateTableRobotElbowWristToT
   {
     vtkNew<vtkTransform> tableRobotWristToTableRobotElbowWristTransform;
     double a[6] = {};
-    parameterNode->GetTableTopRobotAngles(a);
+    parameterNode->GetTableRobotAngles(a);
     double patientToTableTopTranslation[3] = {};
     parameterNode->GetPatientToTableTopTranslation(patientToTableTopTranslation);
 
@@ -1686,7 +1768,7 @@ void vtkSlicerChannel26Cabin3RobotsTransformLogic::UpdateTableRobotElbowShoulder
   if (elbowToShoulderTransformNode)
   {
     double a[6] = {};
-    parameterNode->GetTableTopRobotAngles(a);
+    parameterNode->GetTableRobotAngles(a);
     double patientToTableTopTranslation[3] = {};
     parameterNode->GetPatientToTableTopTranslation(patientToTableTopTranslation);
 
@@ -1789,7 +1871,7 @@ void vtkSlicerChannel26Cabin3RobotsTransformLogic::UpdateTableRobotShoulderToTab
   if (shoulderToBaseRotationTransformNode)
   {
     double a[6] = {};
-    parameterNode->GetTableTopRobotAngles(a);
+    parameterNode->GetTableRobotAngles(a);
     double patientToTableTopTranslation[3] = {};
     parameterNode->GetPatientToTableTopTranslation(patientToTableTopTranslation);
 
@@ -1908,7 +1990,7 @@ void vtkSlicerChannel26Cabin3RobotsTransformLogic::UpdateTableRobotBaseRotationT
   if (baseRotatioToBaseFixedTransformNode)
   {
     double a[6] = {};
-    parameterNode->GetTableTopRobotAngles(a);
+    parameterNode->GetTableRobotAngles(a);
     double patientToTableTopTranslation[3] = {};
     parameterNode->GetPatientToTableTopTranslation(patientToTableTopTranslation);
 
@@ -2019,7 +2101,7 @@ void vtkSlicerChannel26Cabin3RobotsTransformLogic::UpdateTableRobotBaseFixedToFi
 
   using CoordPos = vtkSlicerChannel26Cabin3RobotsGeometryCommon;
   double BaseFixedToFixedReferenceTranslate[3] = {};
-  parameterNode->GetBaseFixedToFixedReferenceTranslation(BaseFixedToFixedReferenceTranslate);
+  parameterNode->GetTableBaseFixedToFixedReferenceTranslation(BaseFixedToFixedReferenceTranslate);
   // Default: FixedReferenceToFixedBasedOffset.data()
   BaseFixedToFixedReferenceTranslate[2] *= -1.; // Make negative Zt (vertical position) value
   // Translate the FixedReference model origin (isocenter position)
@@ -2049,7 +2131,7 @@ void vtkSlicerChannel26Cabin3RobotsTransformLogic::UpdateTableRobotBaseFixedToFi
   if (tableRobotBaseFixedToFixedReferenceTransformNode)
   {
     double a[6] = {};
-    parameterNode->GetTableTopRobotAngles(a);
+    parameterNode->GetTableRobotAngles(a);
     double patientToTableTopTranslation[3] = {};
     parameterNode->GetPatientToTableTopTranslation(patientToTableTopTranslation);
 
@@ -2093,19 +2175,204 @@ void vtkSlicerChannel26Cabin3RobotsTransformLogic::UpdateTableRobotBaseFixedToFi
 }
 
 //-----------------------------------------------------------------------------
+void vtkSlicerChannel26Cabin3RobotsTransformLogic::UpdateCarmRobotBaseFixedToFixedReferenceTransform(vtkMRMLChannel26GeometryNode* parameterNode)
+{
+  vtkMRMLScene* scene = this->GetMRMLScene();
+  if (!scene)
+  {
+    vtkErrorMacro("UpdateCarmRobotBaseFixedToFixedReferenceTransform: Invalid scene");
+    return;
+  }
+  if (!parameterNode)
+  {
+    vtkErrorMacro("UpdateCarmRobotBaseFixedToFixedReferenceTransform: Invalid parameter node");
+    return;
+  }
+
+  // Translate the BaseRotation so it's empty disk centre in RAS origin
+  vtkNew<vtkTransform> BaseFixedTranslateTransform;
+  BaseFixedTranslateTransform->Translate(0., 0., 0.);
+  double TableBaseFixedToFixedReferenceTranslate[3] = {};
+  double CarmBaseFixedToTableBaseFixedOffset[3] = {};
+  parameterNode->GetTableBaseFixedToFixedReferenceTranslation(TableBaseFixedToFixedReferenceTranslate);
+  parameterNode->GetCarmBaseFixedToTableBaseFixedOffset(CarmBaseFixedToTableBaseFixedOffset);
+  // Default: FixedReferenceToFixedBasedOffset.data()
+  TableBaseFixedToFixedReferenceTranslate[2] *= -1.; // Make negative Zt (vertical position) value
+  CarmBaseFixedToTableBaseFixedOffset[2] *= -1.; // Make negative Zt (vertical position) value
+  BaseFixedTranslateTransform->Translate(TableBaseFixedToFixedReferenceTranslate);
+  BaseFixedTranslateTransform->Translate(CarmBaseFixedToTableBaseFixedOffset);
+
+  using CoordSys = CoordinateSystemIdentifier;
+  vtkNew<vtkTransform> baseFixedToPatientTransform;
+  if (!this->GetTransformBetween( CoordSys::TableRobotBaseFixed, CoordSys::Patient, 
+    baseFixedToPatientTransform, false))
+  {
+    vtkWarningMacro("UpdateCarmRobotBaseFixedToFixedReferenceTransform: Can't get TableRobotBaseFixed->Patient transform");
+  }
+
+  double PatientToBaseFixedTranslate[3] = {};
+  vtkNew<vtkTransform> patientToBaseFixedTransform;
+  if (this->GetTransformBetween( CoordSys::Patient, CoordSys::TableRobotBaseFixed, 
+    patientToBaseFixedTransform, false))
+  {
+    patientToBaseFixedTransform->GetPosition(PatientToBaseFixedTranslate);
+  }
+
+  vtkMRMLLinearTransformNode* baseFixedToFixedReferenceTransformNode =
+    this->GetTransformNodeBetween(CoordSys::CarmRobotBaseFixed, CoordSys::FixedReference);
+  if (baseFixedToFixedReferenceTransformNode)
+  {
+    double a[6] = {};
+    parameterNode->GetTableRobotAngles(a);
+    double patientToTableTopTranslation[3] = {};
+    parameterNode->GetPatientToTableTopTranslation(patientToTableTopTranslation);
+
+    // BaseRotation->BaseFixed rotation around Z (A1 angle)
+    vtkNew<vtkTransform> baseRotationToBaseFixedTransform;
+    baseRotationToBaseFixedTransform->RotateZ(a[0]);
+
+    // Shoulder->BaseRotation rotation around Y (A2 angle)
+    vtkNew<vtkTransform> shoulderToBaseRotationTransform;
+    shoulderToBaseRotationTransform->RotateY(a[1]);
+
+    // Elbow->Shoulder rotation around Y (A3 angle)
+    vtkNew<vtkTransform> ElbowToShoulderRotationTransform;
+    ElbowToShoulderRotationTransform->RotateY(a[2]);
+
+    // Apply transform (rotation around Y axis on A5 angle, around X axis on A4 angle and around Z axis on A6 angle in RAS origin)
+    vtkNew<vtkTransform> A6A5A4RotationTransform;
+    A6A5A4RotationTransform->RotateZ(a[5]);
+    A6A5A4RotationTransform->RotateY(a[4]);
+    A6A5A4RotationTransform->RotateX(a[3]);
+
+    // Translate BaseFixed disk end (top) to RAS (Patient) origin so, it's end (top) in RAS origin
+    BaseFixedTranslateTransform->Concatenate(baseFixedToPatientTransform);
+    // Apply A1 angle transform
+    baseRotationToBaseFixedTransform->Concatenate(BaseFixedTranslateTransform);
+    // Apply A2 angle transform
+    shoulderToBaseRotationTransform->Concatenate(baseRotationToBaseFixedTransform);
+    // Apply A3 angle transform
+    ElbowToShoulderRotationTransform->Concatenate(shoulderToBaseRotationTransform);
+    // Apply A6, A5, A4 angles transform
+    A6A5A4RotationTransform->Concatenate(ElbowToShoulderRotationTransform);
+
+    // Translate FixedReference model to the begin (bottom) of BaseFixed model (Patient->BaseFixed translation)
+    vtkNew<vtkTransform> PatientToFixedReferenceTranslateTransform;
+    PatientToFixedReferenceTranslateTransform->Translate(PatientToBaseFixedTranslate);
+    // Apply angles transform
+    PatientToFixedReferenceTranslateTransform->Concatenate(A6A5A4RotationTransform);
+
+    baseFixedToFixedReferenceTransformNode->SetAndObserveTransformToParent(PatientToFixedReferenceTranslateTransform);
+  }
+}
+
+//------------------------------------------------------------------------------
+vtkMRMLLinearTransformNode* vtkSlicerChannel26Cabin3RobotsTransformLogic::UpdateFrameToRasTransform(vtkMRMLChannel26GeometryNode* parameterNode,
+  CoordinateSystemIdentifier frame)
+{
+  if (!parameterNode)
+  {
+    vtkErrorMacro("UpdateFrameToRasTransform: Invalid parameter node");
+    return nullptr;
+  }
+  vtkMRMLScene* scene = this->GetMRMLScene();
+  if (!scene)
+  {
+    vtkErrorMacro("UpdateFrameToRasTransform: Invalid MRML scene");
+    return nullptr;
+  }
+
+  // Display all pieces of the treatment room and sets each piece a color to provide realistic representation
+  using CoordSys = CoordinateSystemIdentifier;
+
+  // Transform robot models to RAS
+  vtkNew<vtkTransform> patientToRasTransform;
+  patientToRasTransform->RotateX(-90.);
+  if (parameterNode->GetPatientHeadFeetRotation())
+  {
+    patientToRasTransform->RotateZ(180.);
+  }
+
+  // Frame -> RAS
+  // Frame - mandatory
+  // Find FrameToRasTransform or create it
+  const char* frameName = this->GetTreatmentMachinePartTypeAsString(frame);
+  if (!frameName)
+  {
+    vtkErrorMacro("UpdateFrameToRasTransform: Frame name is invalid");
+    return nullptr;
+  }
+  std::string frameToRasTransformName = std::string(frameName) + std::string("ToRasTransform");
+  vtkSmartPointer<vtkMRMLLinearTransformNode> frameToRasTransformNode;
+  if (vtkMRMLNode* node = scene->GetFirstNodeByName(frameToRasTransformName.c_str()))
+  {
+    frameToRasTransformNode = vtkMRMLLinearTransformNode::SafeDownCast(node);
+  }
+  else
+  {
+    frameToRasTransformNode = vtkSmartPointer<vtkMRMLLinearTransformNode>::New();
+    frameToRasTransformNode->SetName(frameToRasTransformName.c_str());
+//    frameToRasTransformNode->SetHideFromEditors(1);
+    std::string singletonTag = std::string("C26C3_") + frameToRasTransformName;
+//    frameToRasTransformNode->SetSingletonTag(singletonTag.c_str());
+    scene->AddNode(frameToRasTransformNode);
+  }
+
+  vtkNew<vtkTransform> frameToRasTransform;
+  if (this->GetTransformBetween(CoordSys::RAS, frame, frameToRasTransform, false))
+  {
+    vtkDebugMacro("UpdateFrameToRasTransform: " << frameName << "->RAS transform updated");
+    // Transform to RAS, set transform to node, transform the model
+    frameToRasTransform->Concatenate(patientToRasTransform);
+  }
+  if (frameToRasTransformNode)
+  {
+    frameToRasTransformNode->SetAndObserveTransformToParent(frameToRasTransform);
+  }
+  return frameToRasTransformNode;
+}
+
+//------------------------------------------------------------------------------
+vtkMRMLLinearTransformNode* vtkSlicerChannel26Cabin3RobotsTransformLogic::GetFrameToRasTransform(CoordinateSystemIdentifier frame)
+{
+  vtkMRMLScene* scene = this->GetMRMLScene();
+  if (!scene)
+  {
+    vtkErrorMacro("GetFrameToRasTransform: Invalid MRML scene");
+    return nullptr;
+  }
+
+  const char* frameName = this->GetTreatmentMachinePartTypeAsString(frame);
+  if (!frameName)
+  {
+    vtkErrorMacro("GetFrameToRasTransform: Frame name is invalid");
+    return nullptr;
+  }
+  std::string frameToRasTransformName = std::string(frameName) + std::string("ToRasTransform");
+
+  vtkSmartPointer<vtkMRMLLinearTransformNode> transformNode;
+  if (vtkMRMLNode* node = scene->GetFirstNodeByName(frameToRasTransformName.c_str()))
+  {
+    transformNode = vtkMRMLLinearTransformNode::SafeDownCast(node);
+  }
+
+  return transformNode;
+}
+
+//-----------------------------------------------------------------------------
 bool vtkSlicerChannel26Cabin3RobotsTransformLogic::GetTransformBetween(
   CoordinateSystemIdentifier fromFrame, CoordinateSystemIdentifier toFrame, 
   vtkTransform* outputLinearTransform, bool transformForBeam)
 {
   vtkNew<vtkGeneralTransform> inputGeneralTransform;
-  if (!this->GetTransformBetween( fromFrame, toFrame, inputGeneralTransform, transformForBeam))
+  if (!this->GetTransformBetween(fromFrame, toFrame, inputGeneralTransform, transformForBeam))
   {
     return false;
   }
 
   // Convert general transform to linear
   // This call also makes hard copy of the transform so that it doesn't change when input transform changed
-  if (!vtkMRMLTransformNode::IsGeneralTransformLinear( inputGeneralTransform, outputLinearTransform))
+  if (!vtkMRMLTransformNode::IsGeneralTransformLinear(inputGeneralTransform, outputLinearTransform))
   {
     vtkErrorMacro("GetTransformBetween: Can't transform general transform to linear! General trasform is not linear.");
     return false;
@@ -2127,7 +2394,7 @@ bool vtkSlicerChannel26Cabin3RobotsTransformLogic::GetTransformForPointBetweenFr
     return false;
   }
 
-  // toFrame->RAS
+  // toFrame->RAS transform
   vtkNew<vtkTransform> rasToToFrameTransform;
   if (this->GetTransformBetween(CoordinateSystemIdentifier::RAS,
     toFrame, rasToToFrameTransform, transformForBeam))
@@ -2142,7 +2409,7 @@ bool vtkSlicerChannel26Cabin3RobotsTransformLogic::GetTransformForPointBetweenFr
   // Get transform fromFrame -> toFrame
   // fromFrame -> RAS -> RAS -> toFrame
   fromFrameToRasTransform->Concatenate(rasToToFrameTransform);
-  fromFrameToRasTransform->TransformPoint( fromFramePoint, toFramePoint);
+  fromFrameToRasTransform->TransformPoint(fromFramePoint, toFramePoint);
 
   return true;
 }

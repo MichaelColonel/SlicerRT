@@ -48,7 +48,7 @@ public:
   {
     RAS = 0,
     FixedReference,
-    TableRobotBaseFixed, // Mounted on FixedReference. Translate from BaseFixed center to FixedReference center
+    TableRobotBaseFixed, // Mounted on FixedReference. Translate from TableRobotBaseFixed center to FixedReference center
     TableRobotBaseRotation, //Mounted on TableRobotBaseFixed, performes A1 rotation. Rotation along Z-axis of BaseFixed
     TableRobotShoulder, // Mounted on TableRobotBaseRotation, performes A2 rotation. Rotation along Y-axis of BaseRotation
     TableRobotElbowShoulder, // Mounted on TableRobotShoulder, performes A3 rotation. Rotation along Y-axis of Shoulder
@@ -56,7 +56,8 @@ public:
     TableRobotWrist, // Mounted on TableRobotElbowWrist, performes A5 rotation
     TableRobotFlange, // Mounted on TableRobotWrist, performes A6 rotation
     TableFlange, // Mounted on TableRobotFlange under the Table Top center (for Xray receptor)
-    TableTop, // Mounted on TableXrayFlange. Translate from TableXrayFlange flange center to Table Top center
+    TableTop, // Mounted on TableFlange. Translate from TableFlange flange center to Table Top center
+    CarmRobotBaseFixed, // Mounted on FixedReference. Translate from CarmRobotBaseFixed center to FixedReference center
     Patient, // Mounted on TableTop. Translate from Table Top center to Patient center
     CoordinateSystemIdentifier_Last // Last index used for adding more coordinate systems externally
   };
@@ -121,50 +122,56 @@ public:
   void UpdateTableRobotBaseRotationToTableRobotBaseFixedTransform(vtkMRMLChannel26GeometryNode* parameterNode);
   /// Apply new TableRobotBaseFixed to FixedReference transform (TableRobotBaseRotation->TableRobotBaseFixed)
   void UpdateTableRobotBaseFixedToFixedReferenceTransform(vtkMRMLChannel26GeometryNode* parameterNode);
+  /// Apply new CarmRobotBaseFixed to FixedReference transform (CarmRobotBaseRotation->TableRobotBaseFixed)
+  void UpdateCarmRobotBaseFixedToFixedReferenceTransform(vtkMRMLChannel26GeometryNode* parameterNode);
 
-  /// Update (or create if absent) RAS to TableTop transform
-  vtkMRMLLinearTransformNode* UpdateRasToTableTopTransform(vtkMRMLChannel26GeometryNode* parameterNode);
-  /// Update (or create if absent) RAS to TableFlange transform
-  vtkMRMLLinearTransformNode* UpdateRasToTableFlangeTransform(vtkMRMLChannel26GeometryNode* parameterNode);
-  /// Update (or create if absent) RAS to TableRobotFlange transform
-  vtkMRMLLinearTransformNode* UpdateRasToTableRobotFlangeTransform(vtkMRMLChannel26GeometryNode* parameterNode);
-  /// Update (or create if absent) RAS to TableRobotWrist transform
-  vtkMRMLLinearTransformNode* UpdateRasToTableRobotWristTransform(vtkMRMLChannel26GeometryNode* parameterNode);
-  /// Update (or create if absent) RAS to TableRobotElbowWrist transform
-  vtkMRMLLinearTransformNode* UpdateRasToTableRobotElbowWristTransform(vtkMRMLChannel26GeometryNode* parameterNode);
-  /// Update (or create if absent) RAS to TableRobotElbowShoulder transform
-  vtkMRMLLinearTransformNode* UpdateRasToTableRobotElbowShoulderTransform(vtkMRMLChannel26GeometryNode* parameterNode);
-  /// Update (or create if absent) RAS to TableRobotShoulder transform
-  vtkMRMLLinearTransformNode* UpdateRasToTableRobotShoulderTransform(vtkMRMLChannel26GeometryNode* parameterNode);
-  /// Update (or create if absent) RAS to TableRobotBaseRotation transform
-  vtkMRMLLinearTransformNode* UpdateRasToTableRobotBaseRotationTransform(vtkMRMLChannel26GeometryNode* parameterNode);
-  /// Update (or create if absent) RAS to TableRobotBaseFixed transform
-  vtkMRMLLinearTransformNode* UpdateRasToTableRobotBaseFixedTransform(vtkMRMLChannel26GeometryNode* parameterNode);
-  /// Update (or create if absent) RAS to FixedReference transform
-  vtkMRMLLinearTransformNode* UpdateRasToFixedReferenceTransform(vtkMRMLChannel26GeometryNode* parameterNode);
+  /// Update (or create if absent) TableTop to RAS transform
+  vtkMRMLLinearTransformNode* UpdateTableTopToRasTransform(vtkMRMLChannel26GeometryNode* parameterNode);
+  /// Update (or create if absent) TableFlange to RAS transform
+  vtkMRMLLinearTransformNode* UpdateTableFlangeToRasTransform(vtkMRMLChannel26GeometryNode* parameterNode);
+  /// Update (or create if absent) TableRobotFlange to RAS transform
+  vtkMRMLLinearTransformNode* UpdateTableRobotFlangeToRasTransform(vtkMRMLChannel26GeometryNode* parameterNode);
+  /// Update (or create if absent) TableRobotWrist to RAS transform
+  vtkMRMLLinearTransformNode* UpdateTableRobotWristToRasTransform(vtkMRMLChannel26GeometryNode* parameterNode);
+  /// Update (or create if absent) TableRobotElbowWrist to RAS transform
+  vtkMRMLLinearTransformNode* UpdateTableRobotElbowWristToRasTransform(vtkMRMLChannel26GeometryNode* parameterNode);
+  /// Update (or create if absent) TableRobotElbowShoulder to RAS transform
+  vtkMRMLLinearTransformNode* UpdateTableRobotElbowShoulderToRasTransform(vtkMRMLChannel26GeometryNode* parameterNode);
+  /// Update (or create if absent) TableRobotShoulder to RAS transform
+  vtkMRMLLinearTransformNode* UpdateTableRobotShoulderToRasTransform(vtkMRMLChannel26GeometryNode* parameterNode);
+  /// Update (or create if absent) TableRobotBaseRotation to RAS transform
+  vtkMRMLLinearTransformNode* UpdateTableRobotBaseRotationToRasTransform(vtkMRMLChannel26GeometryNode* parameterNode);
+  /// Update (or create if absent) TableRobotBaseFixed to RAS transform
+  vtkMRMLLinearTransformNode* UpdateTableRobotBaseFixedToRasTransform(vtkMRMLChannel26GeometryNode* parameterNode);
+  /// Update (or create if absent) FixedReference to RAS transform
+  vtkMRMLLinearTransformNode* UpdateFixedReferenceToRasTransform(vtkMRMLChannel26GeometryNode* parameterNode);
+  /// Update (or create if absent) CarmRobotBaseFixed to RAS transform
+  vtkMRMLLinearTransformNode* UpdateCarmRobotBaseFixedToRasTransform(vtkMRMLChannel26GeometryNode* parameterNode);
 
-  /// Get RAS to Patient transform
+  /// Get Patient to RAS transform
   vtkMRMLLinearTransformNode* GetPatientTransform();
-  /// Get RAS to TableTop transform
+  /// Get TableTop to RAS transform
   vtkMRMLLinearTransformNode* GetTableTopTransform();
-  /// Get RAS to TableFlange transform
+  /// Get TableFlange to RAS transform
   vtkMRMLLinearTransformNode* GetTableFlangeTransform();
-  /// Get RAS to TableRobotFlange transform
+  /// Get TableRobotFlange to RAS transform
   vtkMRMLLinearTransformNode* GetTableRobotFlangeTransform();
-  /// Get RAS to TableRobotWrist transform
+  /// Get TableRobotWrist to RAS transform
   vtkMRMLLinearTransformNode* GetTableRobotWristTransform();
-  /// Get RAS to TableRobotElbowWrist transform
+  /// Get TableRobotElbowWrist to RAS transform
   vtkMRMLLinearTransformNode* GetTableRobotElbowWristTransform();
-  /// Get RAS to TableRobotElbowShoulder transform
+  /// Get TableRobotElbowShoulder to RAS transform
   vtkMRMLLinearTransformNode* GetTableRobotElbowShoulderTransform();
-  /// Get RAS to TableRobotShoulder transform
+  /// Get TableRobotShoulder to RAS transform
   vtkMRMLLinearTransformNode* GetTableRobotShoulderTransform();
-  /// Get RAS to TableRobotBaseRotation transform
+  /// Get TableRobotBaseRotation to RAS transform
   vtkMRMLLinearTransformNode* GetTableRobotBaseRotationTransform();
-  /// Get RAS to TableRobotBaseFixed transform
+  /// Get TableRobotBaseFixed to RAS transform
   vtkMRMLLinearTransformNode* GetTableRobotBaseFixedTransform();
-  /// Get RAS to FixedReference transform
+  /// Get FixedReference to RAS transform
   vtkMRMLLinearTransformNode* GetFixedReferenceTransform();
+  /// Get CarmRobotBaseFixed to RAS transform
+  vtkMRMLLinearTransformNode* GetCarmRobotBaseFixedTransform();
 
   /// Get part type as string
   const char* GetTreatmentMachinePartTypeAsString(CoordinateSystemIdentifier type);
@@ -195,6 +202,12 @@ protected:
   // TODO: for hierarchy use tree with nodes, something like graph
   /// Map of TableTop robot coordinate systems hierarchy
   std::map< CoordinateSystemIdentifier, CoordinateSystemsList > CoordinateSystemsHierarchy;
+
+  /// Update (or create if absent) Frame to RAS transform
+  vtkMRMLLinearTransformNode* UpdateFrameToRasTransform(vtkMRMLChannel26GeometryNode* parameterNode,
+    CoordinateSystemIdentifier frame);
+  /// Get Frame to RAS transform
+  vtkMRMLLinearTransformNode* GetFrameToRasTransform(CoordinateSystemIdentifier frame);
 
 private:
   vtkSlicerChannel26Cabin3RobotsTransformLogic(const vtkSlicerChannel26Cabin3RobotsTransformLogic&) = delete;

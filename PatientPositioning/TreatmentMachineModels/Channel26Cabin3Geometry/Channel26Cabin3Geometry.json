@@ -104,6 +104,16 @@
       "Color": [0, 0, 0],
       "State": "Active",
       "PointRAS": [-0.5, -210.0, 821.6]
+    },
+    {
+      "Type": "CarmRobotBaseFixed",
+      "Number": 11,
+      "Name": "Robot Base (Fixed)",
+      "FilePath": "KR210_R3100-2_BaseFixed.stl",
+      "FileToRASTransformMatrix": [ [-1, 0, 0, 0], [0, -1, 0, 0], [0, 0, 1, 0], [0, 0, 0, 1] ],
+      "Color": [0, 0, 0],
+      "State": "Active",
+      "PointRAS": [0, 1790, 1910]
     }
   ]
 }

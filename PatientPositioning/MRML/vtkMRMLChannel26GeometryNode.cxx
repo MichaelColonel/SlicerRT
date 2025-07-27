@@ -68,10 +68,10 @@ void vtkMRMLChannel26GeometryNode::WriteXML(ostream& of, int nIndent)
   // Write all MRML node attributes into output stream
   vtkMRMLWriteXMLBeginMacro(of);
 
-  vtkMRMLWriteXMLVectorMacro(cArmRobotAngles, CArmRobotAngles, double, 6);
-  vtkMRMLWriteXMLVectorMacro(tableTopRobotAngles, TableTopRobotAngles, double, 6);
-  vtkMRMLWriteXMLVectorMacro(baseFixedToFixedReferenceTranslation, BaseFixedToFixedReferenceTranslation, double, 3);
-  vtkMRMLWriteXMLVectorMacro(cArmBaseFixedToTableTopBaseFixedOffset, CArmBaseFixedToTableTopBaseFixedOffset, double, 3);
+  vtkMRMLWriteXMLVectorMacro(carmRobotAngles, CarmRobotAngles, double, 6);
+  vtkMRMLWriteXMLVectorMacro(tableRobotAngles, TableRobotAngles, double, 6);
+  vtkMRMLWriteXMLVectorMacro(tableBaseFixedToFixedReferenceTranslation, TableBaseFixedToFixedReferenceTranslation, double, 3);
+  vtkMRMLWriteXMLVectorMacro(carmBaseFixedToTableTopBaseFixedOffset, CarmBaseFixedToTableBaseFixedOffset, double, 3);
   vtkMRMLWriteXMLVectorMacro(patientToTableTopTranslation, PatientToTableTopTranslation, double, 3);
   vtkMRMLWriteXMLFloatMacro(tableTopLateralAngle, TableTopLateralAngle);
   vtkMRMLWriteXMLFloatMacro(tableTopLongitudinalAngle, TableTopLongitudinalAngle);
@@ -93,10 +93,10 @@ void vtkMRMLChannel26GeometryNode::ReadXMLAttributes(const char** atts)
 
   vtkMRMLReadXMLBeginMacro(atts);
 
-  vtkMRMLReadXMLVectorMacro(cArmRobotAngles, CArmRobotAngles, double, 6);
-  vtkMRMLReadXMLVectorMacro(tableTopRobotAngles, TableTopRobotAngles, double, 6);
-  vtkMRMLReadXMLVectorMacro(baseFixedToFixedReferenceTranslation, BaseFixedToFixedReferenceTranslation, double, 3);
-  vtkMRMLReadXMLVectorMacro(cArmBaseFixedToTableTopBaseFixedOffset, CArmBaseFixedToTableTopBaseFixedOffset, double, 3);
+  vtkMRMLReadXMLVectorMacro(carmRobotAngles, CarmRobotAngles, double, 6);
+  vtkMRMLReadXMLVectorMacro(tableRobotAngles, TableRobotAngles, double, 6);
+  vtkMRMLReadXMLVectorMacro(tableBaseFixedToFixedReferenceTranslation, TableBaseFixedToFixedReferenceTranslation, double, 3);
+  vtkMRMLReadXMLVectorMacro(carmBaseFixedToTableBaseFixedOffset, CarmBaseFixedToTableBaseFixedOffset, double, 3);
   vtkMRMLReadXMLVectorMacro(patientToTableTopTranslation, PatientToTableTopTranslation, double, 3);
   vtkMRMLReadXMLFloatMacro(tableTopLateralAngle, TableTopLateralAngle);
   vtkMRMLReadXMLFloatMacro(tableTopLongitudinalAngle, TableTopLongitudinalAngle);
@@ -132,10 +132,10 @@ void vtkMRMLChannel26GeometryNode::Copy(vtkMRMLNode *anode)
 
   vtkMRMLCopyBeginMacro(node);
 
-  vtkMRMLCopyVectorMacro(CArmRobotAngles, double, 6);
-  vtkMRMLCopyVectorMacro(TableTopRobotAngles, double, 6);
-  vtkMRMLCopyVectorMacro(BaseFixedToFixedReferenceTranslation, double, 6);
-  vtkMRMLCopyVectorMacro(CArmBaseFixedToTableTopBaseFixedOffset, double, 6);
+  vtkMRMLCopyVectorMacro(CarmRobotAngles, double, 6);
+  vtkMRMLCopyVectorMacro(TableRobotAngles, double, 6);
+  vtkMRMLCopyVectorMacro(TableBaseFixedToFixedReferenceTranslation, double, 6);
+  vtkMRMLCopyVectorMacro(CarmBaseFixedToTableBaseFixedOffset, double, 6);
   vtkMRMLCopyVectorMacro(PatientToTableTopTranslation, double, 3);
   vtkMRMLCopyFloatMacro(TableTopLateralAngle);
   vtkMRMLCopyFloatMacro(TableTopLongitudinalAngle);
@@ -166,10 +166,10 @@ void vtkMRMLChannel26GeometryNode::CopyContent(vtkMRMLNode *anode, bool deepCopy
 
   vtkMRMLCopyBeginMacro(node);
 
-  vtkMRMLCopyVectorMacro(CArmRobotAngles, double, 6);
-  vtkMRMLCopyVectorMacro(TableTopRobotAngles, double, 6);
-  vtkMRMLCopyVectorMacro(BaseFixedToFixedReferenceTranslation, double, 6);
-  vtkMRMLCopyVectorMacro(CArmBaseFixedToTableTopBaseFixedOffset, double, 6);
+  vtkMRMLCopyVectorMacro(CarmRobotAngles, double, 6);
+  vtkMRMLCopyVectorMacro(TableRobotAngles, double, 6);
+  vtkMRMLCopyVectorMacro(TableBaseFixedToFixedReferenceTranslation, double, 6);
+  vtkMRMLCopyVectorMacro(CarmBaseFixedToTableBaseFixedOffset, double, 6);
   vtkMRMLCopyVectorMacro(PatientToTableTopTranslation, double, 3);
   vtkMRMLCopyFloatMacro(TableTopLateralAngle);
   vtkMRMLCopyFloatMacro(TableTopLongitudinalAngle);
@@ -190,10 +190,10 @@ void vtkMRMLChannel26GeometryNode::PrintSelf(ostream& os, vtkIndent indent)
 
   vtkMRMLPrintBeginMacro(os, indent);
 
-  vtkMRMLPrintVectorMacro(CArmRobotAngles, double, 6);
-  vtkMRMLPrintVectorMacro(TableTopRobotAngles, double, 6);
-  vtkMRMLPrintVectorMacro(BaseFixedToFixedReferenceTranslation, double, 6);
-  vtkMRMLPrintVectorMacro(CArmBaseFixedToTableTopBaseFixedOffset, double, 6);
+  vtkMRMLPrintVectorMacro(CarmRobotAngles, double, 6);
+  vtkMRMLPrintVectorMacro(TableRobotAngles, double, 6);
+  vtkMRMLPrintVectorMacro(TableBaseFixedToFixedReferenceTranslation, double, 6);
+  vtkMRMLPrintVectorMacro(CarmBaseFixedToTableBaseFixedOffset, double, 6);
   vtkMRMLPrintVectorMacro(PatientToTableTopTranslation, double, 3);
   vtkMRMLPrintFloatMacro(TableTopLateralAngle);
   vtkMRMLPrintFloatMacro(TableTopLongitudinalAngle);
