@@ -58,6 +58,7 @@ public:
     TableFlange, // Mounted on TableRobotFlange under the Table Top center (for Xray receptor)
     TableTop, // Mounted on TableFlange. Translate from TableFlange flange center to Table Top center
     CarmRobotBaseFixed, // Mounted on FixedReference. Translate from CarmRobotBaseFixed center to FixedReference center
+    CarmRobotBaseRotation, // Mounted on CarmRobotBaseFixed, performes A1 rotation. Rotation along Z-axis of BaseFixed
     Patient, // Mounted on TableTop. Translate from Table Top center to Patient center
     CoordinateSystemIdentifier_Last // Last index used for adding more coordinate systems externally
   };
@@ -120,10 +121,12 @@ public:
   void UpdateTableRobotShoulderToTableRobotBaseRotationTransform(vtkMRMLChannel26GeometryNode* parameterNode);
   /// Apply new TableRobotBaseRotation to TableRobotBaseFixed transform (TableRobotBaseRotation->TableRobotBaseFixed)
   void UpdateTableRobotBaseRotationToTableRobotBaseFixedTransform(vtkMRMLChannel26GeometryNode* parameterNode);
-  /// Apply new TableRobotBaseFixed to FixedReference transform (TableRobotBaseRotation->TableRobotBaseFixed)
+  /// Apply new TableRobotBaseFixed to FixedReference transform (TableRobotBaseFixed->FixedReference)
   void UpdateTableRobotBaseFixedToFixedReferenceTransform(vtkMRMLChannel26GeometryNode* parameterNode);
-  /// Apply new CarmRobotBaseFixed to FixedReference transform (CarmRobotBaseRotation->TableRobotBaseFixed)
+  /// Apply new CarmRobotBaseFixed to FixedReference transform (CarmRobotBaseFixed->FixedReference)
   void UpdateCarmRobotBaseFixedToFixedReferenceTransform(vtkMRMLChannel26GeometryNode* parameterNode);
+  /// Apply new CarmRobotBaseRotation to CarmRobotBaseFixed transform (CarmRobotBaseRotation->CarmRobotBaseFixed)
+  void UpdateCarmRobotBaseRotationToCarmRobotBaseFixedTransform(vtkMRMLChannel26GeometryNode* parameterNode);
 
   /// Update (or create if absent) TableTop to RAS transform
   vtkMRMLLinearTransformNode* UpdateTableTopToRasTransform(vtkMRMLChannel26GeometryNode* parameterNode);
@@ -147,6 +150,8 @@ public:
   vtkMRMLLinearTransformNode* UpdateFixedReferenceToRasTransform(vtkMRMLChannel26GeometryNode* parameterNode);
   /// Update (or create if absent) CarmRobotBaseFixed to RAS transform
   vtkMRMLLinearTransformNode* UpdateCarmRobotBaseFixedToRasTransform(vtkMRMLChannel26GeometryNode* parameterNode);
+  /// Update (or create if absent) CarmRobotBaseRotation to RAS transform
+  vtkMRMLLinearTransformNode* UpdateCarmRobotBaseRotationToRasTransform(vtkMRMLChannel26GeometryNode* parameterNode);
 
   /// Get Patient to RAS transform
   vtkMRMLLinearTransformNode* GetPatientTransform();
@@ -172,9 +177,14 @@ public:
   vtkMRMLLinearTransformNode* GetFixedReferenceTransform();
   /// Get CarmRobotBaseFixed to RAS transform
   vtkMRMLLinearTransformNode* GetCarmRobotBaseFixedTransform();
+  /// Get CarmRobotBaseRotation to RAS transform
+  vtkMRMLLinearTransformNode* GetCarmRobotBaseRotationTransform();
 
   /// Get part type as string
   const char* GetTreatmentMachinePartTypeAsString(CoordinateSystemIdentifier type);
+
+  void UpdateFrameToRasHierarchy(vtkMRMLChannel26GeometryNode* parameterNode, CoordinateSystemIdentifier type);
+  void UpdateTransformsHierarchy(vtkMRMLChannel26GeometryNode* parameterNode, CoordinateSystemIdentifier type);
 
 protected:
   vtkSlicerChannel26Cabin3RobotsTransformLogic();

@@ -18,7 +18,7 @@
     {
       "Type": "TableRobotBaseFixed",
       "Number": 2,
-      "Name": "Robot Base (Fixed)",
+      "Name": "Table Robot Base (Fixed)",
       "FilePath": "KR300_R2700-2_BaseFixed.stl",
       "FileToRASTransformMatrix": [ [-1, 0, 0, 0], [0, -1, 0, 0], [0, 0, 1, 0], [0, 0, 0, 1] ],
       "Color": [0, 0, 0],
@@ -28,7 +28,7 @@
     {
       "Type": "TableRobotBaseRotation",
       "Number": 3,
-      "Name": "Robot Base (Rotation)",
+      "Name": "Table Robot Base (Rotation)",
       "FilePath": "KR300_R2700-2_BaseRotation.stl",
       "FileToRASTransformMatrix": [ [-1, 0, 0, 0], [0, -1, 0, 0], [0, 0, 1, 0], [0, 0, 0, 1] ],
       "Color": [233, 116, 0],
@@ -38,7 +38,7 @@
     {
       "Type": "TableRobotShoulder",
       "Number": 4,
-      "Name": "Robot Shoulder",
+      "Name": "Table Robot Shoulder",
       "FilePath": "KR300_R2700-2_Shoulder.stl",
       "FileToRASTransformMatrix": [ [-1, 0, 0, 0], [0, -1, 0, 0], [0, 0, 1, 0], [0, 0, 0, 1] ],
       "Color": [233, 116, 0],
@@ -48,7 +48,7 @@
     {
       "Type": "TableRobotElbowShoulder",
       "Number": 5,
-      "Name": "Robot Elbow Shoulder",
+      "Name": "Table Robot Elbow Shoulder",
       "FilePath": "KR300_R2700-2_Elbow_A3.stl",
       "FileToRASTransformMatrix": [ [-1, 0, 0, 0], [0, -1, 0, 0], [0, 0, 1, 0], [0, 0, 0, 1] ],
       "Color": [233, 116, 0],
@@ -58,7 +58,7 @@
     {
       "Type": "TableRobotElbowWrist",
       "Number": 6,
-      "Name": "Robot Elbow Wrist",
+      "Name": "Table Robot Elbow Wrist",
       "FilePath": "KR300_R2700-2_Elbow_A4.stl",
       "FileToRASTransformMatrix": [ [-1, 0, 0, 0], [0, -1, 0, 0], [0, 0, 1, 0], [0, 0, 0, 1] ],
       "Color": [233, 116, 0],
@@ -68,7 +68,7 @@
     {
       "Type": "TableRobotWrist",
       "Number": 7,
-      "Name": "Robot Wrist",
+      "Name": "Table Robot Wrist",
       "FilePath": "KR300_R2700-2_Wrist.stl",
       "FileToRASTransformMatrix": [ [-1, 0, 0, 0], [0, -1, 0, 0], [0, 0, 1, 0], [0, 0, 0, 1] ],
       "Color": [233, 116, 0],
@@ -78,7 +78,7 @@
     {
       "Type": "TableRobotFlange",
       "Number": 8,
-      "Name": "Table Top Robot Flange",
+      "Name": "Table Robot Flange",
       "FilePath": "KR300_R2700-2_Flange.stl",
       "FileToRASTransformMatrix": [ [-1, 0, 0, 0], [0, -1, 0, 0], [0, 0, 1, 0], [0, 0, 0, 1] ],
       "Color": [80, 80, 80],
@@ -88,7 +88,7 @@
     {
       "Type": "TableFlange",
       "Number": 9,
-      "Name": "Table Top Flange",
+      "Name": "Table Flange",
       "FilePath": "TableFlange.stl",
       "FileToRASTransformMatrix": [ [-1, 0, 0, 0], [0, -1, 0, 0], [0, 0, 1, 0], [0, 0, 0, 1] ],
       "Color": [255, 0, 0],
@@ -98,7 +98,7 @@
     {
       "Type": "TableTop",
       "Number": 10,
-      "Name": "Table top",
+      "Name": "Table Top",
       "FilePath": "TableTop.stl",
       "FileToRASTransformMatrix": [ [-1, 0, 0, 0], [0, -1, 0, 0], [0, 0, 1, 0], [0, 0, 0, 1] ],
       "Color": [0, 0, 0],
@@ -108,10 +108,20 @@
     {
       "Type": "CarmRobotBaseFixed",
       "Number": 11,
-      "Name": "Robot Base (Fixed)",
+      "Name": "C-arm Robot Base (Fixed)",
       "FilePath": "KR210_R3100-2_BaseFixed.stl",
       "FileToRASTransformMatrix": [ [-1, 0, 0, 0], [0, -1, 0, 0], [0, 0, 1, 0], [0, 0, 0, 1] ],
       "Color": [0, 0, 0],
+      "State": "Active",
+      "PointRAS": [0, 1790, 1910]
+    },
+    {
+      "Type": "CarmRobotBaseRotation",
+      "Number": 12,
+      "Name": "C-arm Robot Base (Rotation)",
+      "FilePath": "KR210_R3100-2_BaseRotation.stl",
+      "FileToRASTransformMatrix": [ [-1, 0, 0, 0], [0, -1, 0, 0], [0, 0, 1, 0], [0, 0, 0, 1] ],
+      "Color": [233, 116, 0],
       "State": "Active",
       "PointRAS": [0, 1790, 1910]
     }

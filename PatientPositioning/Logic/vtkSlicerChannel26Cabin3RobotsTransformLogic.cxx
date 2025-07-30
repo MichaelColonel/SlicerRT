@@ -60,6 +60,7 @@ vtkSlicerChannel26Cabin3RobotsTransformLogic::vtkSlicerChannel26Cabin3RobotsTran
   this->CoordinateSystemsMap[CoordSys::TableRobotBaseFixed] = "TableRobotBaseFixed";
   this->CoordinateSystemsMap[CoordSys::CarmRobotBaseFixed] = "CarmRobotBaseFixed";
   this->CoordinateSystemsMap[CoordSys::TableRobotBaseRotation] = "TableRobotBaseRotation";
+  this->CoordinateSystemsMap[CoordSys::CarmRobotBaseRotation] = "CarmRobotBaseRotation";
   this->CoordinateSystemsMap[CoordSys::TableRobotShoulder] = "TableRobotShoulder";
   this->CoordinateSystemsMap[CoordSys::TableRobotElbowShoulder] = "TableRobotElbowShoulder";
   this->CoordinateSystemsMap[CoordSys::TableRobotElbowWrist] = "TableRobotElbowWrist";
@@ -74,6 +75,7 @@ vtkSlicerChannel26Cabin3RobotsTransformLogic::vtkSlicerChannel26Cabin3RobotsTran
   this->RobotsTransforms.push_back(std::make_pair(CoordSys::TableRobotBaseFixed, CoordSys::FixedReference)); // Translate
   this->RobotsTransforms.push_back(std::make_pair(CoordSys::CarmRobotBaseFixed, CoordSys::FixedReference)); // Translate
   this->RobotsTransforms.push_back(std::make_pair(CoordSys::TableRobotBaseRotation, CoordSys::TableRobotBaseFixed)); // Rotation A1
+  this->RobotsTransforms.push_back(std::make_pair(CoordSys::CarmRobotBaseRotation, CoordSys::CarmRobotBaseFixed)); // Rotation A1
   this->RobotsTransforms.push_back(std::make_pair(CoordSys::TableRobotShoulder, CoordSys::TableRobotBaseRotation)); // Rotation A2
   this->RobotsTransforms.push_back(std::make_pair(CoordSys::TableRobotElbowShoulder, CoordSys::TableRobotShoulder)); // Rotation A3
   this->RobotsTransforms.push_back(std::make_pair(CoordSys::TableRobotElbowWrist, CoordSys::TableRobotElbowShoulder)); // Rotation A4
@@ -88,6 +90,7 @@ vtkSlicerChannel26Cabin3RobotsTransformLogic::vtkSlicerChannel26Cabin3RobotsTran
   // key - parent, value - children
   this->CoordinateSystemsHierarchy[CoordSys::FixedReference] = { CoordSys::TableRobotBaseFixed, CoordSys::CarmRobotBaseFixed };
   this->CoordinateSystemsHierarchy[CoordSys::TableRobotBaseFixed] = { CoordSys::TableRobotBaseRotation };
+  this->CoordinateSystemsHierarchy[CoordSys::CarmRobotBaseFixed] = { CoordSys::CarmRobotBaseRotation };
   this->CoordinateSystemsHierarchy[CoordSys::TableRobotBaseRotation] = { CoordSys::TableRobotShoulder };
   this->CoordinateSystemsHierarchy[CoordSys::TableRobotShoulder] = { CoordSys::TableRobotElbowShoulder };
   this->CoordinateSystemsHierarchy[CoordSys::TableRobotElbowShoulder] = { CoordSys::TableRobotElbowWrist };
@@ -151,6 +154,9 @@ const char* vtkSlicerChannel26Cabin3RobotsTransformLogic::GetTreatmentMachinePar
     break;
   case TableRobotBaseRotation:
     partAsString = "TableRobotBaseRotation";
+    break;
+  case CarmRobotBaseRotation:
+    partAsString = "CarmRobotBaseRotation";
     break;
   case TableRobotShoulder:
     partAsString = "TableRobotShoulder";
@@ -217,6 +223,8 @@ void vtkSlicerChannel26Cabin3RobotsTransformLogic::BuildRobotsTransformHierarchy
   // BaseFixed parent, rotation of base part of the robot along Z-axis
   this->GetTransformNodeBetween(CoordSys::TableRobotBaseRotation, CoordSys::TableRobotBaseFixed)->SetAndObserveTransformNodeID(
     this->GetTransformNodeBetween(CoordSys::TableRobotBaseFixed, CoordSys::FixedReference)->GetID() );
+  this->GetTransformNodeBetween(CoordSys::CarmRobotBaseRotation, CoordSys::CarmRobotBaseFixed)->SetAndObserveTransformNodeID(
+    this->GetTransformNodeBetween(CoordSys::CarmRobotBaseFixed, CoordSys::FixedReference)->GetID() );
 
   // BaseRotation parent, rotation of shoulder part of the robot along Y-axis
   this->GetTransformNodeBetween(CoordSys::TableRobotShoulder, CoordSys::TableRobotBaseRotation)->SetAndObserveTransformNodeID(
@@ -268,6 +276,7 @@ void vtkSlicerChannel26Cabin3RobotsTransformLogic::ResetToInitialPositions()
   rasToPatientReferenceTransform->RotateY(180.);
   rasToPatientReferenceTransform->Modified();
 
+  // Table top
   vtkMRMLLinearTransformNode* patientToTableTopTransformNode =
     this->GetTransformNodeBetween(CoordSys::Patient, CoordSys::TableTop);
   vtkTransform* patientToTableTopTransform =
@@ -282,6 +291,7 @@ void vtkSlicerChannel26Cabin3RobotsTransformLogic::ResetToInitialPositions()
   tableTopToTableFlangeTransform->Identity();
   tableTopToTableFlangeTransform->Modified();
 
+  // Table robot
   vtkMRMLLinearTransformNode* tableFlangeToTableRobotFlangeTransformNode =
     this->GetTransformNodeBetween(CoordSys::TableFlange, CoordSys::TableRobotFlange);
   vtkTransform* tableFlangeToTableRobotFlangeTransform =
@@ -337,6 +347,21 @@ void vtkSlicerChannel26Cabin3RobotsTransformLogic::ResetToInitialPositions()
     vtkTransform::SafeDownCast(tableRobotBaseFixedToFixedReferenceTransformNode->GetTransformToParent());
   tableRobotBaseFixedToFixedReferenceTransform->Identity();
   tableRobotBaseFixedToFixedReferenceTransform->Modified();
+
+  // C-arm robot
+  vtkMRMLLinearTransformNode* carmRobotBaseFixedToFixedReferenceTransformNode =
+    this->GetTransformNodeBetween(CoordSys::CarmRobotBaseFixed, CoordSys::FixedReference);
+  vtkTransform* carmRobotBaseFixedToFixedReferenceTransform =
+    vtkTransform::SafeDownCast(carmRobotBaseFixedToFixedReferenceTransformNode->GetTransformToParent());
+  carmRobotBaseFixedToFixedReferenceTransform->Identity();
+  carmRobotBaseFixedToFixedReferenceTransform->Modified();
+
+  vtkMRMLLinearTransformNode* carmRobotBaseRotationToCarmRobotBaseFixedTransformNode =
+    this->GetTransformNodeBetween(CoordSys::CarmRobotBaseRotation, CoordSys::CarmRobotBaseFixed);
+  vtkTransform* carmRobotBaseRotationToCarmRobotBaseFixedTransform =
+    vtkTransform::SafeDownCast(carmRobotBaseRotationToCarmRobotBaseFixedTransformNode->GetTransformToParent());
+  carmRobotBaseRotationToCarmRobotBaseFixedTransform->Identity();
+  carmRobotBaseRotationToCarmRobotBaseFixedTransform->Modified();
 }
 
 //-----------------------------------------------------------------------------
@@ -703,6 +728,12 @@ vtkMRMLLinearTransformNode* vtkSlicerChannel26Cabin3RobotsTransformLogic::GetTab
 vtkMRMLLinearTransformNode* vtkSlicerChannel26Cabin3RobotsTransformLogic::GetCarmRobotBaseFixedTransform()
 {
   return this->GetFrameToRasTransform(CoordinateSystemIdentifier::CarmRobotBaseFixed);
+}
+
+//------------------------------------------------------------------------------
+vtkMRMLLinearTransformNode* vtkSlicerChannel26Cabin3RobotsTransformLogic::GetCarmRobotBaseRotationTransform()
+{
+  return this->GetFrameToRasTransform(CoordinateSystemIdentifier::CarmRobotBaseRotation);
 }
 
 //------------------------------------------------------------------------------
@@ -1348,6 +1379,12 @@ vtkMRMLLinearTransformNode* vtkSlicerChannel26Cabin3RobotsTransformLogic::Update
 vtkMRMLLinearTransformNode* vtkSlicerChannel26Cabin3RobotsTransformLogic::UpdateCarmRobotBaseFixedToRasTransform(vtkMRMLChannel26GeometryNode* parameterNode)
 {
   return this->UpdateFrameToRasTransform(parameterNode, CoordinateSystemIdentifier::CarmRobotBaseFixed);
+}
+
+//------------------------------------------------------------------------------
+vtkMRMLLinearTransformNode* vtkSlicerChannel26Cabin3RobotsTransformLogic::UpdateCarmRobotBaseRotationToRasTransform(vtkMRMLChannel26GeometryNode* parameterNode)
+{
+  return this->UpdateFrameToRasTransform(parameterNode, CoordinateSystemIdentifier::CarmRobotBaseRotation);
 }
 
 //----------------------------------------------------------------------------
@@ -2266,6 +2303,53 @@ void vtkSlicerChannel26Cabin3RobotsTransformLogic::UpdateCarmRobotBaseFixedToFix
   }
 }
 
+//-----------------------------------------------------------------------------
+void vtkSlicerChannel26Cabin3RobotsTransformLogic::UpdateCarmRobotBaseRotationToCarmRobotBaseFixedTransform(vtkMRMLChannel26GeometryNode* parameterNode)
+{
+  vtkMRMLScene* scene = this->GetMRMLScene();
+  if (!scene)
+  {
+    vtkErrorMacro("UpdateCarmRobotBaseRotationToCarmRobotBaseFixedTransform: Invalid scene");
+    return;
+  }
+  if (!parameterNode)
+  {
+    vtkErrorMacro("UpdateCarmRobotBaseRotationToCarmRobotBaseFixedTransform: Invalid parameter node");
+    return;
+  }
+
+  using CoordSys = CoordinateSystemIdentifier;
+  vtkNew<vtkTransform> patientToCarmRobotBaseFixedTransform;
+  if (!this->GetTransformBetween( CoordSys::Patient, CoordSys::CarmRobotBaseFixed, 
+    patientToCarmRobotBaseFixedTransform, false))
+  {
+    vtkWarningMacro("UpdateCarmRobotBaseRotationToCarmRobotBaseFixedTransform: Can't get Patient->CarmRobotBaseFixed transform");
+  }
+  vtkNew<vtkTransform> carmRobotBaseFixedToPatientTransform;
+  if (!this->GetTransformBetween( CoordSys::CarmRobotBaseFixed, CoordSys::Patient, 
+    carmRobotBaseFixedToPatientTransform, false))
+  {
+    vtkWarningMacro("UpdateCarmRobotBaseRotationToCarmRobotBaseFixedTransform: Can't get CarmRobotBaseFixed->Patient transform");
+  }
+
+  vtkMRMLLinearTransformNode* carmRobotBaseRotationToCarmRobotBaseFixedTransformNode =
+    this->GetTransformNodeBetween(CoordSys::CarmRobotBaseRotation, CoordSys::CarmRobotBaseFixed);
+  if (carmRobotBaseRotationToCarmRobotBaseFixedTransformNode)
+  {
+    double a[6] = {};
+    parameterNode->GetCarmRobotAngles(a);
+
+    // BaseRotation->BaseFixed rotation around Y (A1 angle)
+    vtkNew<vtkTransform> baseRotationToBaseFixedTransform;
+    baseRotationToBaseFixedTransform->RotateY(a[0]);
+
+    carmRobotBaseFixedToPatientTransform->Concatenate(carmRobotBaseFixedToPatientTransform);
+    carmRobotBaseFixedToPatientTransform->Concatenate(baseRotationToBaseFixedTransform);
+    carmRobotBaseFixedToPatientTransform->Concatenate(patientToCarmRobotBaseFixedTransform);
+    carmRobotBaseRotationToCarmRobotBaseFixedTransformNode->SetAndObserveTransformToParent(carmRobotBaseFixedToPatientTransform);
+  }
+}
+
 //------------------------------------------------------------------------------
 vtkMRMLLinearTransformNode* vtkSlicerChannel26Cabin3RobotsTransformLogic::UpdateFrameToRasTransform(vtkMRMLChannel26GeometryNode* parameterNode,
   CoordinateSystemIdentifier frame)
@@ -2412,6 +2496,47 @@ bool vtkSlicerChannel26Cabin3RobotsTransformLogic::GetTransformForPointBetweenFr
   fromFrameToRasTransform->TransformPoint(fromFramePoint, toFramePoint);
 
   return true;
+}
+
+//-----------------------------------------------------------------------------
+void vtkSlicerChannel26Cabin3RobotsTransformLogic::UpdateFrameToRasHierarchy(vtkMRMLChannel26GeometryNode*,
+  CoordinateSystemIdentifier)
+{
+}
+
+//-----------------------------------------------------------------------------
+void vtkSlicerChannel26Cabin3RobotsTransformLogic::UpdateTransformsHierarchy(vtkMRMLChannel26GeometryNode* parameterNode,
+  CoordinateSystemIdentifier type)
+{
+  switch (type)
+  {
+  case CoordinateSystemIdentifier::Patient:
+    this->UpdatePatientToTableTopTransform(parameterNode);
+  case CoordinateSystemIdentifier::TableTop:
+    this->UpdateTableTopToTableFlangeTransform(parameterNode);
+  case CoordinateSystemIdentifier::TableFlange:
+    this->UpdateTableFlangeToTableRobotFlangeTransform(parameterNode);
+  case CoordinateSystemIdentifier::TableRobotFlange:
+    this->UpdateTableRobotFlangeToTableRobotWristTransform(parameterNode);
+  case CoordinateSystemIdentifier::TableRobotWrist:
+    this->UpdateTableRobotWristToTableRobotElbowWristTransform(parameterNode);
+  case CoordinateSystemIdentifier::TableRobotElbowWrist:
+    this->UpdateTableRobotElbowWristToTableRobotElbowShoulderTransform(parameterNode);
+  case CoordinateSystemIdentifier::TableRobotElbowShoulder:
+    this->UpdateTableRobotElbowShoulderToTableRobotShoulderTransform(parameterNode);
+  case CoordinateSystemIdentifier::TableRobotShoulder:
+    this->UpdateTableRobotShoulderToTableRobotBaseRotationTransform(parameterNode);
+  case CoordinateSystemIdentifier::TableRobotBaseRotation:
+    this->UpdateTableRobotBaseRotationToTableRobotBaseFixedTransform(parameterNode);
+  case CoordinateSystemIdentifier::TableRobotBaseFixed:
+    this->UpdateTableRobotBaseFixedToFixedReferenceTransform(parameterNode);
+  case CoordinateSystemIdentifier::FixedReference:
+    this->UpdateCarmRobotBaseFixedToFixedReferenceTransform(parameterNode);
+  case CoordinateSystemIdentifier::CarmRobotBaseRotation:
+    this->UpdateCarmRobotBaseRotationToCarmRobotBaseFixedTransform(parameterNode);
+  default:
+    break;
+  }
 }
 
 //-----------------------------------------------------------------------------

@@ -549,6 +549,7 @@ void vtkSlicerPatientPositioningLogic::ProcessMRMLNodesEvents(vtkObject* caller,
       this->Channel26RobotsLogic->UpdateTableRobotBaseFixedToRasTransform(channel26Geometry);
       this->Channel26RobotsLogic->UpdateFixedReferenceToRasTransform(channel26Geometry);
       this->Channel26RobotsLogic->UpdateCarmRobotBaseFixedToRasTransform(channel26Geometry);
+      this->Channel26RobotsLogic->UpdateCarmRobotBaseRotationToRasTransform(channel26Geometry);
       this->UpdateTableTopPlaneNode(channel26Geometry);
       this->UpdateTableTopFiducialNode(channel26Geometry);
       {
@@ -572,14 +573,6 @@ void vtkSlicerPatientPositioningLogic::ProcessMRMLNodesEvents(vtkObject* caller,
           CoordSys::TableRobotBaseFixed, pos, res))
         {
           vtkErrorMacro("ProcessMRMLNodesEvents: RobotFlange = [240., 0., 0.] " << res[0] << ' ' << res[1] << ' ' << res[2]);
-        }
-        pos[0] = 0.;
-        pos[1] = 0.;
-        pos[2] = 0.;
-        if (this->Channel26RobotsLogic->GetTransformForPointBetweenFrames(CoordSys::CarmRobotBaseFixed,
-          CoordSys::RAS, pos, res))
-        {
-          vtkErrorMacro("ProcessMRMLNodesEvents: CarmRobotBaseFixed in RAS = [0., 0., 0.] " << res[0] << ' ' << res[2] << ' ' << -1. * res[1]);
         }
       }
     }
@@ -1005,6 +998,7 @@ vtkSlicerPatientPositioningLogic::SetupTreatmentMachineModels(vtkMRMLPatientPosi
         case CoordSys::TableRobotBaseRotation:
         case CoordSys::TableRobotBaseFixed:
         case CoordSys::CarmRobotBaseFixed:
+        case CoordSys::CarmRobotBaseRotation:
           vtkErrorMacro("SetupTreatmentMachineModels: Unable to access " << partType << " model " << partIdx);
           break;
         default:
@@ -1137,6 +1131,15 @@ vtkSlicerPatientPositioningLogic::SetupTreatmentMachineModels(vtkMRMLPatientPosi
     {
       this->Channel26RobotsLogic->UpdateCarmRobotBaseFixedToFixedReferenceTransform(channel26GeometryNode);
       partFrameToRasTransformNode = this->Channel26RobotsLogic->UpdateCarmRobotBaseFixedToRasTransform(channel26GeometryNode);
+      if (partFrameToRasTransformNode)
+      {
+        partModel->SetAndObserveTransformNodeID(partFrameToRasTransformNode->GetID());
+      }
+    }
+    else if (partIdx == CoordSys::CarmRobotBaseRotation)
+    {
+      this->Channel26RobotsLogic->UpdateCarmRobotBaseRotationToCarmRobotBaseFixedTransform(channel26GeometryNode);
+      partFrameToRasTransformNode = this->Channel26RobotsLogic->UpdateCarmRobotBaseRotationToRasTransform(channel26GeometryNode);
       if (partFrameToRasTransformNode)
       {
         partModel->SetAndObserveTransformNodeID(partFrameToRasTransformNode->GetID());

@@ -232,6 +232,9 @@ void qSlicerPatientPositioningModuleWidget::setup()
   connect( d->SliderWidget_TableRobotA1, SIGNAL(valueChanged(double)), 
     this, SLOT(onTableRobotA1Changed(double)));
 
+  connect( d->SliderWidget_CarmRobotA1, SIGNAL(valueChanged(double)), 
+    this, SLOT(onCarmRobotA1Changed(double)));
+
   connect( d->CoordinatesWidget_PatientTableTopTranslation, SIGNAL(coordinatesChanged(double*)),
     this, SLOT(onPatientTableTopTranslationChanged(double*)));
  
@@ -687,6 +690,8 @@ void qSlicerPatientPositioningModuleWidget::onLoadTreatmentMachineButtonClicked(
   {
     d->getLayoutManager()->pauseRender();
     channel26Logic->ResetToInitialPositions();
+    channel26Logic->UpdateTransformsHierarchy(channel26GeometryNode, SysCoord::Patient);
+/*
     channel26Logic->UpdatePatientToTableTopTransform(channel26GeometryNode);
     channel26Logic->UpdateTableTopToTableFlangeTransform(channel26GeometryNode);
     channel26Logic->UpdateTableFlangeToTableRobotFlangeTransform(channel26GeometryNode);
@@ -698,6 +703,8 @@ void qSlicerPatientPositioningModuleWidget::onLoadTreatmentMachineButtonClicked(
     channel26Logic->UpdateTableRobotBaseRotationToTableRobotBaseFixedTransform(channel26GeometryNode);
     channel26Logic->UpdateTableRobotBaseFixedToFixedReferenceTransform(channel26GeometryNode);
     channel26Logic->UpdateCarmRobotBaseFixedToFixedReferenceTransform(channel26GeometryNode);
+    channel26Logic->UpdateCarmRobotBaseRotationToCarmRobotBaseFixedTransform(channel26GeometryNode);
+*/
     d->getLayoutManager()->resumeRender();
   }
   // Update channel-26 geometry node
@@ -753,6 +760,7 @@ void qSlicerPatientPositioningModuleWidget::onPatientTableTopTranslationChanged(
   vtkSlicerChannel26Cabin3RobotsTransformLogic* channel26Logic = d->channel26RobotsLogic();
   if (channel26Logic && channel26GeometryNode)
   {
+/*
     channel26Logic->UpdatePatientToTableTopTransform(channel26GeometryNode);
     channel26Logic->UpdateTableTopToTableFlangeTransform(channel26GeometryNode);
     channel26Logic->UpdateTableFlangeToTableRobotFlangeTransform(channel26GeometryNode);
@@ -764,6 +772,10 @@ void qSlicerPatientPositioningModuleWidget::onPatientTableTopTranslationChanged(
     channel26Logic->UpdateTableRobotBaseRotationToTableRobotBaseFixedTransform(channel26GeometryNode);
     channel26Logic->UpdateTableRobotBaseFixedToFixedReferenceTransform(channel26GeometryNode);
     channel26Logic->UpdateCarmRobotBaseFixedToFixedReferenceTransform(channel26GeometryNode);
+    channel26Logic->UpdateCarmRobotBaseRotationToCarmRobotBaseFixedTransform(channel26GeometryNode);
+*/
+    using SysCoord = vtkSlicerChannel26Cabin3RobotsTransformLogic::CoordinateSystemIdentifier;
+    channel26Logic->UpdateTransformsHierarchy(channel26GeometryNode, SysCoord::Patient);
   }
   channel26GeometryNode->DisableModifiedEventOff();
   channel26GeometryNode->Modified();
@@ -795,6 +807,7 @@ void qSlicerPatientPositioningModuleWidget::onTableRobotA6Changed(double a6)
   vtkSlicerChannel26Cabin3RobotsTransformLogic* channel26Logic = d->channel26RobotsLogic();
   if (channel26Logic && channel26GeometryNode)
   {
+/*
     channel26Logic->UpdateTableRobotFlangeToTableRobotWristTransform(channel26GeometryNode);
     channel26Logic->UpdateTableRobotWristToTableRobotElbowWristTransform(channel26GeometryNode);
     channel26Logic->UpdateTableRobotElbowWristToTableRobotElbowShoulderTransform(channel26GeometryNode);
@@ -803,6 +816,10 @@ void qSlicerPatientPositioningModuleWidget::onTableRobotA6Changed(double a6)
     channel26Logic->UpdateTableRobotBaseRotationToTableRobotBaseFixedTransform(channel26GeometryNode);
     channel26Logic->UpdateTableRobotBaseFixedToFixedReferenceTransform(channel26GeometryNode);
     channel26Logic->UpdateCarmRobotBaseFixedToFixedReferenceTransform(channel26GeometryNode);
+    channel26Logic->UpdateCarmRobotBaseRotationToCarmRobotBaseFixedTransform(channel26GeometryNode);
+*/
+    using SysCoord = vtkSlicerChannel26Cabin3RobotsTransformLogic::CoordinateSystemIdentifier;
+    channel26Logic->UpdateTransformsHierarchy(channel26GeometryNode, SysCoord::TableRobotFlange);
   }
   channel26GeometryNode->Modified();
   this->checkForCollisions();
@@ -834,6 +851,7 @@ void qSlicerPatientPositioningModuleWidget::onTableRobotA5Changed(double a5)
   vtkSlicerChannel26Cabin3RobotsTransformLogic* channel26Logic = d->channel26RobotsLogic();
   if (channel26Logic && channel26GeometryNode)
   {
+/*
     channel26Logic->UpdateTableRobotWristToTableRobotElbowWristTransform(channel26GeometryNode);
     channel26Logic->UpdateTableRobotElbowWristToTableRobotElbowShoulderTransform(channel26GeometryNode);
     channel26Logic->UpdateTableRobotElbowShoulderToTableRobotShoulderTransform(channel26GeometryNode);
@@ -841,6 +859,10 @@ void qSlicerPatientPositioningModuleWidget::onTableRobotA5Changed(double a5)
     channel26Logic->UpdateTableRobotBaseRotationToTableRobotBaseFixedTransform(channel26GeometryNode);
     channel26Logic->UpdateTableRobotBaseFixedToFixedReferenceTransform(channel26GeometryNode);
     channel26Logic->UpdateCarmRobotBaseFixedToFixedReferenceTransform(channel26GeometryNode);
+    channel26Logic->UpdateCarmRobotBaseRotationToCarmRobotBaseFixedTransform(channel26GeometryNode);
+*/
+    using SysCoord = vtkSlicerChannel26Cabin3RobotsTransformLogic::CoordinateSystemIdentifier;
+    channel26Logic->UpdateTransformsHierarchy(channel26GeometryNode, SysCoord::TableRobotWrist);
   }
   channel26GeometryNode->Modified();
   this->checkForCollisions();
@@ -872,12 +894,17 @@ void qSlicerPatientPositioningModuleWidget::onTableRobotA4Changed(double a4)
   vtkSlicerChannel26Cabin3RobotsTransformLogic* channel26Logic = d->channel26RobotsLogic();
   if (channel26Logic && channel26GeometryNode)
   {
+/*
     channel26Logic->UpdateTableRobotElbowWristToTableRobotElbowShoulderTransform(channel26GeometryNode);
     channel26Logic->UpdateTableRobotElbowShoulderToTableRobotShoulderTransform(channel26GeometryNode);
     channel26Logic->UpdateTableRobotShoulderToTableRobotBaseRotationTransform(channel26GeometryNode);
     channel26Logic->UpdateTableRobotBaseRotationToTableRobotBaseFixedTransform(channel26GeometryNode);
     channel26Logic->UpdateTableRobotBaseFixedToFixedReferenceTransform(channel26GeometryNode);
     channel26Logic->UpdateCarmRobotBaseFixedToFixedReferenceTransform(channel26GeometryNode);
+    channel26Logic->UpdateCarmRobotBaseRotationToCarmRobotBaseFixedTransform(channel26GeometryNode);
+*/
+    using SysCoord = vtkSlicerChannel26Cabin3RobotsTransformLogic::CoordinateSystemIdentifier;
+    channel26Logic->UpdateTransformsHierarchy(channel26GeometryNode, SysCoord::TableRobotElbowWrist);
   }
   channel26GeometryNode->Modified();
   this->checkForCollisions();
@@ -909,11 +936,16 @@ void qSlicerPatientPositioningModuleWidget::onTableRobotA3Changed(double a3)
   vtkSlicerChannel26Cabin3RobotsTransformLogic* channel26Logic = d->channel26RobotsLogic();
   if (channel26Logic && channel26GeometryNode)
   {
+/*
     channel26Logic->UpdateTableRobotElbowShoulderToTableRobotShoulderTransform(channel26GeometryNode);
     channel26Logic->UpdateTableRobotShoulderToTableRobotBaseRotationTransform(channel26GeometryNode);
     channel26Logic->UpdateTableRobotBaseRotationToTableRobotBaseFixedTransform(channel26GeometryNode);
     channel26Logic->UpdateTableRobotBaseFixedToFixedReferenceTransform(channel26GeometryNode);
     channel26Logic->UpdateCarmRobotBaseFixedToFixedReferenceTransform(channel26GeometryNode);
+    channel26Logic->UpdateCarmRobotBaseRotationToCarmRobotBaseFixedTransform(channel26GeometryNode);
+*/
+    using SysCoord = vtkSlicerChannel26Cabin3RobotsTransformLogic::CoordinateSystemIdentifier;
+    channel26Logic->UpdateTransformsHierarchy(channel26GeometryNode, SysCoord::TableRobotElbowShoulder);
   }
   channel26GeometryNode->Modified();
   this->checkForCollisions();
@@ -945,10 +977,15 @@ void qSlicerPatientPositioningModuleWidget::onTableRobotA2Changed(double a2)
   vtkSlicerChannel26Cabin3RobotsTransformLogic* channel26Logic = d->channel26RobotsLogic();
   if (channel26Logic && channel26GeometryNode)
   {
+/*
     channel26Logic->UpdateTableRobotShoulderToTableRobotBaseRotationTransform(channel26GeometryNode);
     channel26Logic->UpdateTableRobotBaseRotationToTableRobotBaseFixedTransform(channel26GeometryNode);
     channel26Logic->UpdateTableRobotBaseFixedToFixedReferenceTransform(channel26GeometryNode);
     channel26Logic->UpdateCarmRobotBaseFixedToFixedReferenceTransform(channel26GeometryNode);
+    channel26Logic->UpdateCarmRobotBaseRotationToCarmRobotBaseFixedTransform(channel26GeometryNode);
+*/
+    using SysCoord = vtkSlicerChannel26Cabin3RobotsTransformLogic::CoordinateSystemIdentifier;
+    channel26Logic->UpdateTransformsHierarchy(channel26GeometryNode, SysCoord::TableRobotShoulder);
   }
   channel26GeometryNode->Modified();
   this->checkForCollisions();
@@ -980,9 +1017,48 @@ void qSlicerPatientPositioningModuleWidget::onTableRobotA1Changed(double a1)
   vtkSlicerChannel26Cabin3RobotsTransformLogic* channel26Logic = d->channel26RobotsLogic();
   if (channel26Logic && channel26GeometryNode)
   {
+/*
     channel26Logic->UpdateTableRobotBaseRotationToTableRobotBaseFixedTransform(channel26GeometryNode);
     channel26Logic->UpdateTableRobotBaseFixedToFixedReferenceTransform(channel26GeometryNode);
     channel26Logic->UpdateCarmRobotBaseFixedToFixedReferenceTransform(channel26GeometryNode);
+    channel26Logic->UpdateCarmRobotBaseRotationToCarmRobotBaseFixedTransform(channel26GeometryNode);
+*/
+    using SysCoord = vtkSlicerChannel26Cabin3RobotsTransformLogic::CoordinateSystemIdentifier;
+    channel26Logic->UpdateTransformsHierarchy(channel26GeometryNode, SysCoord::TableRobotBaseRotation);
+  }
+  channel26GeometryNode->Modified();
+  this->checkForCollisions();
+  d->getLayoutManager()->resumeRender();
+  d->ParameterNode->Modified();
+}
+
+//-----------------------------------------------------------------------------
+void qSlicerPatientPositioningModuleWidget::onCarmRobotA1Changed(double a1)
+{
+  Q_D(qSlicerPatientPositioningModuleWidget);
+
+  if (!d->ParameterNode || !d->ModuleWindowInitialized)
+  {
+    qCritical() << Q_FUNC_INFO << ": Parameter node is invalid!";
+    return;
+  }
+  vtkMRMLChannel26GeometryNode* channel26GeometryNode = d->ParameterNode->GetChannel26GeometryNode();
+
+  d->getLayoutManager()->pauseRender();
+  double a[6] = {};
+  channel26GeometryNode->GetCarmRobotAngles(a);
+  channel26GeometryNode->DisableModifiedEventOn();
+  a[0] = a1;
+  channel26GeometryNode->SetCarmRobotAngles(a);
+  channel26GeometryNode->DisableModifiedEventOff();
+
+  // Update Channel-26 transforms
+  vtkSlicerChannel26Cabin3RobotsTransformLogic* channel26Logic = d->channel26RobotsLogic();
+  if (channel26Logic && channel26GeometryNode)
+  {
+//    channel26Logic->UpdateCarmRobotBaseRotationToCarmRobotBaseFixedTransform(channel26GeometryNode);
+    using SysCoord = vtkSlicerChannel26Cabin3RobotsTransformLogic::CoordinateSystemIdentifier;
+    channel26Logic->UpdateTransformsHierarchy(channel26GeometryNode, SysCoord::CarmRobotBaseRotation);
   }
   channel26GeometryNode->Modified();
   this->checkForCollisions();

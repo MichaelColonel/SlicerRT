@@ -18,8 +18,8 @@ set(MACHINE_MODELS
   KR300_R2700-2_Flange.stl
   FixedReference.stl
   KR210_R3100-2_BaseFixed.stl
+  KR210_R3100-2_BaseRotation.stl
 )
-
 
 SlicerMacroConfigureTreatmentMachineComponentModels(
   NAME ${MACHINE_NAME}
