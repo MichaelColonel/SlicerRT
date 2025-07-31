@@ -67,6 +67,11 @@ public slots:
   void onTableRobotA2Changed(double a2);
   void onTableRobotA1Changed(double a1);
   void onCarmRobotA1Changed(double a1);
+  void onCarmRobotA2Changed(double a2);
+  void onCarmRobotA3Changed(double a3);
+  void onCarmRobotA4Changed(double a4);
+  void onCarmRobotA5Changed(double a5);
+  void onCarmRobotA6Changed(double a6);
 
   // Check boxes
   void onRotatePatientHeadFeetToggled(bool toggled);

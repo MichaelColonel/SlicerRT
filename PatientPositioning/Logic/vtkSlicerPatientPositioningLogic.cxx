@@ -535,9 +535,12 @@ void vtkSlicerPatientPositioningLogic::ProcessMRMLNodesEvents(vtkObject* caller,
   }
   if (caller->IsA("vtkMRMLChannel26GeometryNode"))
   {
+    using CoordSys = vtkSlicerChannel26Cabin3RobotsTransformLogic::CoordinateSystemIdentifier;
     vtkMRMLChannel26GeometryNode* channel26Geometry = vtkMRMLChannel26GeometryNode::SafeDownCast(caller);
     if (event == vtkCommand::ModifiedEvent)
     {
+      this->Channel26RobotsLogic->UpdateFrameToRasHierarchy(channel26Geometry, CoordSys::TableTop);
+/*
       this->Channel26RobotsLogic->UpdateTableTopToRasTransform(channel26Geometry);
       this->Channel26RobotsLogic->UpdateTableFlangeToRasTransform(channel26Geometry);
       this->Channel26RobotsLogic->UpdateTableRobotFlangeToRasTransform(channel26Geometry);
@@ -550,12 +553,12 @@ void vtkSlicerPatientPositioningLogic::ProcessMRMLNodesEvents(vtkObject* caller,
       this->Channel26RobotsLogic->UpdateFixedReferenceToRasTransform(channel26Geometry);
       this->Channel26RobotsLogic->UpdateCarmRobotBaseFixedToRasTransform(channel26Geometry);
       this->Channel26RobotsLogic->UpdateCarmRobotBaseRotationToRasTransform(channel26Geometry);
+*/
       this->UpdateTableTopPlaneNode(channel26Geometry);
       this->UpdateTableTopFiducialNode(channel26Geometry);
       {
         double pos[3] = { 1220., 0., 0. };
         double res[3];
-        using CoordSys = vtkSlicerChannel26Cabin3RobotsTransformLogic::CoordinateSystemIdentifier;
         if (this->Channel26RobotsLogic->GetTransformForPointBetweenFrames(CoordSys::TableRobotElbowWrist,
           CoordSys::TableRobotBaseFixed, pos, res))
         {
@@ -999,6 +1002,11 @@ vtkSlicerPatientPositioningLogic::SetupTreatmentMachineModels(vtkMRMLPatientPosi
         case CoordSys::TableRobotBaseFixed:
         case CoordSys::CarmRobotBaseFixed:
         case CoordSys::CarmRobotBaseRotation:
+        case CoordSys::CarmRobotShoulder:
+        case CoordSys::CarmRobotElbowShoulder:
+        case CoordSys::CarmRobotElbowWrist:
+        case CoordSys::CarmRobotWrist:
+        case CoordSys::CarmRobotFlange:
           vtkErrorMacro("SetupTreatmentMachineModels: Unable to access " << partType << " model " << partIdx);
           break;
         default:
@@ -1145,6 +1153,51 @@ vtkSlicerPatientPositioningLogic::SetupTreatmentMachineModels(vtkMRMLPatientPosi
         partModel->SetAndObserveTransformNodeID(partFrameToRasTransformNode->GetID());
       }
     }
+    else if (partIdx == CoordSys::CarmRobotShoulder)
+    {
+      this->Channel26RobotsLogic->UpdateCarmRobotShoulderToCarmRobotBaseRotationTransform(channel26GeometryNode);
+      partFrameToRasTransformNode = this->Channel26RobotsLogic->UpdateCarmRobotShoulderToRasTransform(channel26GeometryNode);
+      if (partFrameToRasTransformNode)
+      {
+        partModel->SetAndObserveTransformNodeID(partFrameToRasTransformNode->GetID());
+      }
+    }
+    else if (partIdx == CoordSys::CarmRobotElbowShoulder)
+    {
+      this->Channel26RobotsLogic->UpdateCarmRobotShoulderToCarmRobotBaseRotationTransform(channel26GeometryNode);
+      partFrameToRasTransformNode = this->Channel26RobotsLogic->UpdateCarmRobotElbowShoulderToRasTransform(channel26GeometryNode);
+      if (partFrameToRasTransformNode)
+      {
+        partModel->SetAndObserveTransformNodeID(partFrameToRasTransformNode->GetID());
+      }
+    }
+    else if (partIdx == CoordSys::CarmRobotElbowWrist)
+    {
+      this->Channel26RobotsLogic->UpdateCarmRobotElbowWristToCarmRobotElbowShoulderTransform(channel26GeometryNode);
+      partFrameToRasTransformNode = this->Channel26RobotsLogic->UpdateCarmRobotElbowWristToRasTransform(channel26GeometryNode);
+      if (partFrameToRasTransformNode)
+      {
+        partModel->SetAndObserveTransformNodeID(partFrameToRasTransformNode->GetID());
+      }
+    }
+    else if (partIdx == CoordSys::CarmRobotWrist)
+    {
+      this->Channel26RobotsLogic->UpdateCarmRobotWristToCarmRobotElbowWristTransform(channel26GeometryNode);
+      partFrameToRasTransformNode = this->Channel26RobotsLogic->UpdateCarmRobotWristToRasTransform(channel26GeometryNode);
+      if (partFrameToRasTransformNode)
+      {
+        partModel->SetAndObserveTransformNodeID(partFrameToRasTransformNode->GetID());
+      }
+    }
+    else if (partIdx == CoordSys::CarmRobotFlange)
+    {
+      this->Channel26RobotsLogic->UpdateCarmRobotFlangeToCarmRobotWristTransform(channel26GeometryNode);
+      partFrameToRasTransformNode = this->Channel26RobotsLogic->UpdateCarmRobotFlangeToRasTransform(channel26GeometryNode);
+      if (partFrameToRasTransformNode)
+      {
+        partModel->SetAndObserveTransformNodeID(partFrameToRasTransformNode->GetID());
+      }
+    }
   }
 
   return loadedParts;
@@ -1201,7 +1254,9 @@ void vtkSlicerPatientPositioningLogic::ShowModelsNodes(vtkMRMLPatientPositioning
   modelsNames.push_back("FixedReference");
   modelsNames.push_back("CarmRobotBaseFixed");
   modelsNames.push_back("TableRobotBaseFixed");
+  modelsNames.push_back("CarmRobotBaseRotation");
   modelsNames.push_back("TableRobotBaseRotation");
+  modelsNames.push_back("CarmRobotShoulder");
   modelsNames.push_back("TableRobotShoulder");
   modelsNames.push_back("TableRobotElbowShoulder");
   modelsNames.push_back("TableRobotElbowWrist");

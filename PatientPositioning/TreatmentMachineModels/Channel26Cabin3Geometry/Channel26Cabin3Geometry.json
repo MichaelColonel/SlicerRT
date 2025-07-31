@@ -124,6 +124,56 @@
       "Color": [233, 116, 0],
       "State": "Active",
       "PointRAS": [0, 1790, 1910]
+    },
+    {
+      "Type": "CarmRobotShoulder",
+      "Number": 13,
+      "Name": "C-arm Robot Shoulder",
+      "FilePath": "KR210_R3100-2_Shoulder.stl",
+      "FileToRASTransformMatrix": [ [-1, 0, 0, 0], [0, -1, 0, 0], [0, 0, 1, 0], [0, 0, 0, 1] ],
+      "Color": [233, 116, 0],
+      "State": "Active",
+      "PointRAS": [0, 1790, 1910]
+    },
+    {
+      "Type": "CarmRobotElbowShoulder",
+      "Number": 14,
+      "Name": "C-arm Robot Elbow Shoulder",
+      "FilePath": "KR210_R3100-2_Elbow_A3.stl",
+      "FileToRASTransformMatrix": [ [-1, 0, 0, 0], [0, -1, 0, 0], [0, 0, 1, 0], [0, 0, 0, 1] ],
+      "Color": [233, 116, 0],
+      "State": "Active",
+      "PointRAS": [0, 1790, 1910]
+    },
+    {
+      "Type": "CarmRobotElbowWrist",
+      "Number": 15,
+      "Name": "C-arm Robot Elbow Wrist",
+      "FilePath": "KR210_R3100-2_Elbow_A4.stl",
+      "FileToRASTransformMatrix": [ [-1, 0, 0, 0], [0, -1, 0, 0], [0, 0, 1, 0], [0, 0, 0, 1] ],
+      "Color": [233, 116, 0],
+      "State": "Active",
+      "PointRAS": [0, 1790, 1910]
+    },
+    {
+      "Type": "CarmRobotWrist",
+      "Number": 16,
+      "Name": "C-arm Robot Wrist",
+      "FilePath": "KR210_R3100-2_Wrist.stl",
+      "FileToRASTransformMatrix": [ [-1, 0, 0, 0], [0, -1, 0, 0], [0, 0, 1, 0], [0, 0, 0, 1] ],
+      "Color": [233, 116, 0],
+      "State": "Active",
+      "PointRAS": [0, 1790, 1910]
+    },
+    {
+      "Type": "CarmRobotFlange",
+      "Number": 17,
+      "Name": "C-arm Robot Flange",
+      "FilePath": "KR210_R3100-2_Flange.stl",
+      "FileToRASTransformMatrix": [ [-1, 0, 0, 0], [0, -1, 0, 0], [0, 0, 1, 0], [0, 0, 0, 1] ],
+      "Color": [80, 80, 80],
+      "State": "Active",
+      "PointRAS": [-0.5, -210.0, 821.6]
     }
   ]
 }

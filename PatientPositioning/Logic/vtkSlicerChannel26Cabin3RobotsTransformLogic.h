@@ -41,6 +41,8 @@ class vtkMRMLChannel26GeometryNode;
 // FixedReference -> TableRobotBaseFixed -> TableRobotBaseRotation -> TableRobotShoulder
 // TableRobotShoulder -> TableRobotElbowShoulder -> TableRobotElbowWrist -> TableRobotWrist
 // TableRobotWrist -> TableRobotFlange -> TableFlange -> TableTop -> Patient
+
+// FixedReference -> CarmRobotBaseFixed -> CarmRobotBaseRotation -> CarmRobotShoulder
 class VTK_SLICER_PATIENTPOSITIONING_MODULE_LOGIC_EXPORT vtkSlicerChannel26Cabin3RobotsTransformLogic : public vtkMRMLAbstractLogic
 {
 public:
@@ -59,6 +61,11 @@ public:
     TableTop, // Mounted on TableFlange. Translate from TableFlange flange center to Table Top center
     CarmRobotBaseFixed, // Mounted on FixedReference. Translate from CarmRobotBaseFixed center to FixedReference center
     CarmRobotBaseRotation, // Mounted on CarmRobotBaseFixed, performes A1 rotation. Rotation along Z-axis of BaseFixed
+    CarmRobotShoulder, // Mounted on CarmRobotBaseRotation, performes A2 rotation. Rotation along Y-axis of BaseRotation
+    CarmRobotElbowShoulder, // Mounted on CarmRobotShoulder, performes A3 rotation. Rotation along Y-axis of Shoulder
+    CarmRobotElbowWrist, // Mounted on CarmRobotElbowShoulderr, performes A4 rotation. Rotation along Y-axis of Elbow
+    CarmRobotWrist, // Mounted on CarmRobotElbowWrist, performes A5 rotation
+    CarmRobotFlange, // Mounted on CarmRobotWrist, performes A6 rotation
     Patient, // Mounted on TableTop. Translate from Table Top center to Patient center
     CoordinateSystemIdentifier_Last // Last index used for adding more coordinate systems externally
   };
@@ -127,6 +134,16 @@ public:
   void UpdateCarmRobotBaseFixedToFixedReferenceTransform(vtkMRMLChannel26GeometryNode* parameterNode);
   /// Apply new CarmRobotBaseRotation to CarmRobotBaseFixed transform (CarmRobotBaseRotation->CarmRobotBaseFixed)
   void UpdateCarmRobotBaseRotationToCarmRobotBaseFixedTransform(vtkMRMLChannel26GeometryNode* parameterNode);
+  /// Apply new CarmRobotShoulder to CarmRobotBaseRotation transform (CarmRobotShoulder->CarmRobotBaseRotation)
+  void UpdateCarmRobotShoulderToCarmRobotBaseRotationTransform(vtkMRMLChannel26GeometryNode* parameterNode);
+  /// Apply new CarmRobotElbowShoulder to CarmRobotShoulder transform (CarmRobotElbowShoulder->CarmRobotShoulder)
+  void UpdateCarmRobotElbowShoulderToCarmRobotShoulderTransform(vtkMRMLChannel26GeometryNode* parameterNode);
+  /// Apply new CarmRobotElbowWrist to CarmRobotElbowShoulder transform (CarmRobotElbowWrist->CarmRobotElbowShoulder)
+  void UpdateCarmRobotElbowWristToCarmRobotElbowShoulderTransform(vtkMRMLChannel26GeometryNode* parameterNode);
+  /// Apply new CarmRobotWrist to CarmRobotElbowWrist transform (CarmRobotWrist->CarmRobotElbowWrist)
+  void UpdateCarmRobotWristToCarmRobotElbowWristTransform(vtkMRMLChannel26GeometryNode* parameterNode);
+  /// Apply new CarmRobotFlange to CarmRobotWrist transform (CarmRobotFlange->CarmRobotWrist)
+  void UpdateCarmRobotFlangeToCarmRobotWristTransform(vtkMRMLChannel26GeometryNode* parameterNode);
 
   /// Update (or create if absent) TableTop to RAS transform
   vtkMRMLLinearTransformNode* UpdateTableTopToRasTransform(vtkMRMLChannel26GeometryNode* parameterNode);
@@ -152,6 +169,16 @@ public:
   vtkMRMLLinearTransformNode* UpdateCarmRobotBaseFixedToRasTransform(vtkMRMLChannel26GeometryNode* parameterNode);
   /// Update (or create if absent) CarmRobotBaseRotation to RAS transform
   vtkMRMLLinearTransformNode* UpdateCarmRobotBaseRotationToRasTransform(vtkMRMLChannel26GeometryNode* parameterNode);
+  /// Update (or create if absent) CarmRobotShoulder to RAS transform
+  vtkMRMLLinearTransformNode* UpdateCarmRobotShoulderToRasTransform(vtkMRMLChannel26GeometryNode* parameterNode);
+  /// Update (or create if absent) CarmRobotElbowShoulder to RAS transform
+  vtkMRMLLinearTransformNode* UpdateCarmRobotElbowShoulderToRasTransform(vtkMRMLChannel26GeometryNode* parameterNode);
+  /// Update (or create if absent) CarmRobotElbowWrist to RAS transform
+  vtkMRMLLinearTransformNode* UpdateCarmRobotElbowWristToRasTransform(vtkMRMLChannel26GeometryNode* parameterNode);
+  /// Update (or create if absent) CarmRobotWrist to RAS transform
+  vtkMRMLLinearTransformNode* UpdateCarmRobotWristToRasTransform(vtkMRMLChannel26GeometryNode* parameterNode);
+  /// Update (or create if absent) CarmRobotFlange to RAS transform
+  vtkMRMLLinearTransformNode* UpdateCarmRobotFlangeToRasTransform(vtkMRMLChannel26GeometryNode* parameterNode);
 
   /// Get Patient to RAS transform
   vtkMRMLLinearTransformNode* GetPatientTransform();
@@ -179,6 +206,16 @@ public:
   vtkMRMLLinearTransformNode* GetCarmRobotBaseFixedTransform();
   /// Get CarmRobotBaseRotation to RAS transform
   vtkMRMLLinearTransformNode* GetCarmRobotBaseRotationTransform();
+  /// Get CarmRobotShoulder to RAS transform
+  vtkMRMLLinearTransformNode* GetCarmRobotShoulderTransform();
+  /// Get CarmRobotElbowShoulder to RAS transform
+  vtkMRMLLinearTransformNode* GetCarmRobotElbowShoulderTransform();
+  /// Get CarmRobotElbowWrist to RAS transform
+  vtkMRMLLinearTransformNode* GetCarmRobotElbowWristTransform();
+  /// Get CarmRobotWrist to RAS transform
+  vtkMRMLLinearTransformNode* GetCarmRobotWristTransform();
+  /// Get CarmRobotFlange to RAS transform
+  vtkMRMLLinearTransformNode* GetCarmRobotFlangeTransform();
 
   /// Get part type as string
   const char* GetTreatmentMachinePartTypeAsString(CoordinateSystemIdentifier type);

@@ -19,6 +19,11 @@ set(MACHINE_MODELS
   FixedReference.stl
   KR210_R3100-2_BaseFixed.stl
   KR210_R3100-2_BaseRotation.stl
+  KR210_R3100-2_Shoulder.stl
+  KR210_R3100-2_Elbow_A3.stl
+  KR210_R3100-2_Elbow_A4.stl
+  KR210_R3100-2_Wrist.stl
+  KR210_R3100-2_Flange.stl
 )
 
 SlicerMacroConfigureTreatmentMachineComponentModels(

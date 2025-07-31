@@ -95,25 +95,25 @@ public:
 
   // C-arm x-ray robot KUKA KR 210 R3100-2
   // C-arm x-ray robot base fixed size (no in documentation)
-  static constexpr double CARM_XRAY_ROBOT_BASE_FIXED_SIZE = 140.; // no in documentation
-  // C-arm x-ray robot base rotation size
-  static constexpr double CARM_XRAY_ROBOT_BASE_ROTATION_SIZE = 645. - TABLE_ROBOT_BASE_FIXED_SIZE;
+  static constexpr double CARM_ROBOT_BASE_FIXED_SIZE = 140.; // no in documentation
   // C-arm x-ray robot base rotation shoulder disk center offset X
-  static constexpr double CARM_XRAY_ROBOT_BASE_ROTATION_SHOULDER_OFFSET_X = 330.;
+  static constexpr double CARM_ROBOT_BASE_ROTATION_SHOULDER_OFFSET_X = 330.;
   // C-arm x-ray robot base rotation shoulder disk center offset Y
-  static constexpr double CARM_XRAY_ROBOT_BASE_ROTATION_SHOULDER_OFFSET_Y = 645;
+  static constexpr double CARM_ROBOT_BASE_ROTATION_SHOULDER_OFFSET_Y = 645;
+  // C-arm x-ray robot base rotation size
+  static constexpr double CARM_ROBOT_BASE_ROTATION_SIZE = CARM_ROBOT_BASE_ROTATION_SHOULDER_OFFSET_Y - CARM_ROBOT_BASE_FIXED_SIZE;
   // C-arm x-ray robot shoulder size
-  static constexpr double CARM_XRAY_SHOULDER_SIZE = 1350.;
+  static constexpr double CARM_ROBOT_SHOULDER_SIZE = 1350.;
   // C-arm x-ray robot shoulder top center rotation
-  static constexpr double CARM_XRAY_SHOLDER_TOP_CENTER_ROTATION = TABLE_ROBOT_BASE_ROTATION_SIZE + TABLE_ROBOT_SHOULDER_SIZE;
+  static constexpr double CARM_ROBOT_SHOLDER_TOP_CENTER_ROTATION = CARM_ROBOT_BASE_ROTATION_SIZE + CARM_ROBOT_SHOULDER_SIZE;
   // C-arm x-ray robot shoulder center
-  static constexpr double CARM_XRAY_SHOLDER_CENTER = TABLE_ROBOT_BASE_ROTATION_SIZE + (TABLE_ROBOT_SHOULDER_SIZE / 2.);
+  static constexpr double CARM_ROBOT_SHOLDER_CENTER = CARM_ROBOT_BASE_ROTATION_SIZE + (CARM_ROBOT_SHOULDER_SIZE / 2.);
   // C-arm x-ray robot elbow height-elbow offset Y
-  static constexpr double CARM_XRAY_SHOULDER_ELBOW_OFFSET_Y = 115.;
+  static constexpr double CARM_ROBOT_SHOULDER_ELBOW_OFFSET_Y = 115.;
   // C-arm x-ray robot elbow size
-  static constexpr double CARM_XRAY_ELBOW_SIZE = 1420.;
+  static constexpr double CARM_ROBOT_ELBOW_SIZE = 1420.;
   // C-arm x-ray robot wrist size
-  static constexpr double CARM_XRAY_WRIST_SIZE = 240.;
+  static constexpr double CARM_ROBOT_WRIST_SIZE = 240.;
 
   // C-arm x-ray
   // C-arm x-ray outer size
