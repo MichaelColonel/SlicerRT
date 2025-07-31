@@ -577,6 +577,12 @@ void vtkSlicerPatientPositioningLogic::ProcessMRMLNodesEvents(vtkObject* caller,
         {
           vtkErrorMacro("ProcessMRMLNodesEvents: RobotFlange = [240., 0., 0.] " << res[0] << ' ' << res[1] << ' ' << res[2]);
         }
+        pos[0] = 1420.;
+        if (this->Channel26RobotsLogic->GetTransformForPointBetweenFrames(CoordSys::CarmRobotElbowWrist,
+          CoordSys::CarmRobotBaseFixed, pos, res))
+        {
+          vtkErrorMacro("ProcessMRMLNodesEvents: CarmElbowWrist = [1420., 0., 0.] " << res[0] << ' ' << res[1] << ' ' << res[2]);
+        }
       }
     }
   }

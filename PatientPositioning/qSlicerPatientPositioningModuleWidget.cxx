@@ -1125,7 +1125,7 @@ void qSlicerPatientPositioningModuleWidget::onCarmRobotA3Changed(double a3)
   double a[6] = {};
   channel26GeometryNode->GetCarmRobotAngles(a);
   channel26GeometryNode->DisableModifiedEventOn();
-  a[2] = a3 - 90.;
+  a[2] = 90. - a3;
   channel26GeometryNode->SetCarmRobotAngles(a);
   channel26GeometryNode->DisableModifiedEventOff();
 
