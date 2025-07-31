@@ -1863,7 +1863,7 @@ void vtkSlicerChannel26Cabin3RobotsTransformLogic::UpdateCarmRobotElbowShoulderT
     return;
   }
   using CoordPos = vtkSlicerChannel26Cabin3RobotsGeometryCommon;
-  // Translate the C-Arm Elbow to C-Arm BaseRotation empty disk centre
+  // Translate the C-Arm Elbow to C-Arm Shoulder size up
   vtkNew<vtkTransform> carmElbowTranslateTransform;
   carmElbowTranslateTransform->Translate( 0., CoordPos::CARM_ROBOT_SHOULDER_SIZE, 0.);
 
@@ -1888,18 +1888,14 @@ void vtkSlicerChannel26Cabin3RobotsTransformLogic::UpdateCarmRobotElbowShoulderT
     double a[6] = {};
     parameterNode->GetCarmRobotAngles(a);
 
-    // Wrist->Elbow rotation around X (A4 angle)
-    vtkNew<vtkTransform> a4Transform;
-//    a4Transform->RotateX(a[3]);
-
-    // Shoulder->BaseRotation rotation around Z (A3 angle)
+    // Elbow->Shoulder rotation around Z (A3 angle)
     vtkNew<vtkTransform> elbowToShoulderTransform;
+    // Elbow->Shoulder translation from point of rotation on Shoulder->Elbow offset (115 mm) along Y-axis
     elbowToShoulderTransform->Translate( 0., CoordPos::CARM_ROBOT_SHOULDER_ELBOW_OFFSET_Y, 0.);
     elbowToShoulderTransform->RotateZ(a[2]);
 
-    a4Transform->Concatenate(elbowToShoulderTransform);
     carmShoulderToPatientTransform->Concatenate(carmElbowTranslateTransform);
-    carmShoulderToPatientTransform->Concatenate(a4Transform);
+    carmShoulderToPatientTransform->Concatenate(elbowToShoulderTransform);
     carmShoulderToPatientTransform->Concatenate(patientToCarmShoulderTransform);
     carmElbowToCArmShoulderTransformNode->SetAndObserveTransformToParent(carmShoulderToPatientTransform);
   }
@@ -1949,10 +1945,9 @@ void vtkSlicerChannel26Cabin3RobotsTransformLogic::UpdateCarmRobotElbowWristToCa
     vtkNew<vtkTransform> a4Transform;
     a4Transform->RotateX(a[3]);
 
-    // Shoulder->BaseRotation rotation around Z (A3 angle)
+    // Elbow->Shoulder translation from point of rotation on Shoulder->Elbow offset (115 mm) along Y-axis
     vtkNew<vtkTransform> elbowToShoulderTransform;
     elbowToShoulderTransform->Translate( 0., CoordPos::CARM_ROBOT_SHOULDER_ELBOW_OFFSET_Y, 0.);
-//    elbowToShoulderTransform->RotateZ(a[2]);
 
     a4Transform->Concatenate(elbowToShoulderTransform);
     carmShoulderToPatientTransform->Concatenate(carmElbowTranslateTransform);
@@ -1976,7 +1971,7 @@ void vtkSlicerChannel26Cabin3RobotsTransformLogic::UpdateCarmRobotWristToCarmRob
     vtkErrorMacro("UpdateCarmRobotWristToCarmRobotElbowWristTransform: Invalid parameter node");
     return;
   }
-  // Translate the C-Arm Wrist to C-Arm Elbow origin
+  // Translate the C-arm wrist from C-arm elbow origin along X-axis
   using CoordPos = vtkSlicerChannel26Cabin3RobotsGeometryCommon;
   vtkNew<vtkTransform> carmWristTranslateTransform;
   carmWristTranslateTransform->Translate( CoordPos::CARM_ROBOT_ELBOW_SIZE, 0., 0.);
@@ -2002,9 +1997,8 @@ void vtkSlicerChannel26Cabin3RobotsTransformLogic::UpdateCarmRobotWristToCarmRob
     double a[6] = {};
     parameterNode->GetCarmRobotAngles(a);
 
-    // Shoulder->BaseRotation rotation around Z (A5 angle)
+    // Wrist->Elbow rotation around Z (A5 angle)
     vtkNew<vtkTransform> wristToElbowTransform;
-//    wristToElbowTransform->RotateY(a[3]);
     wristToElbowTransform->RotateZ(a[4]);
 
     carmElbowToPatientTransform->Concatenate(carmWristTranslateTransform);
@@ -2028,10 +2022,6 @@ void vtkSlicerChannel26Cabin3RobotsTransformLogic::UpdateCarmRobotFlangeToCarmRo
     vtkErrorMacro("UpdateCarmRobotFlangeToCarmRobotWristTransform: Invalid parameter node");
     return;
   }
-  using CoordPos = vtkSlicerChannel26Cabin3RobotsGeometryCommon;
-  // Translate the C-Arm Wrist to C-Arm Elbow origin
-  vtkNew<vtkTransform> carmWristTranslateTransform;
-  carmWristTranslateTransform->Translate( 0., 0., 0.);
 
   using CoordSys = CoordinateSystemIdentifier;
   vtkNew<vtkTransform> patientToCarmWristTransform;
@@ -2054,13 +2044,11 @@ void vtkSlicerChannel26Cabin3RobotsTransformLogic::UpdateCarmRobotFlangeToCarmRo
     double a[6] = {};
     parameterNode->GetCarmRobotAngles(a);
 
-    // Carm->CarmRobotWrist rotation around X (A6 angle)
-    vtkNew<vtkTransform> carmToWristTransform;
-    carmToWristTransform->RotateX(a[5]);
-//    wristToElbowTransform->RotateZ(a[4]);
+    // Flange->Wrist rotation around X (A6 angle)
+    vtkNew<vtkTransform> flangeToWristTransform;
+    flangeToWristTransform->RotateX(a[5]);
 
-    carmWristToPatientTransform->Concatenate(carmWristTranslateTransform);
-    carmWristToPatientTransform->Concatenate(carmToWristTransform);
+    carmWristToPatientTransform->Concatenate(flangeToWristTransform);
     carmWristToPatientTransform->Concatenate(patientToCarmWristTransform);
     carmToCArmWristTransformNode->SetAndObserveTransformToParent(carmWristToPatientTransform);
   }
