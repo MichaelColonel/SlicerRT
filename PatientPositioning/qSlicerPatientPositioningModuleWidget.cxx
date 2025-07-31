@@ -203,7 +203,7 @@ void qSlicerPatientPositioningModuleWidget::setup()
   d->ComboBox_TreatmentMachine->addItem("27C", "Cabin27CGeometry");
   d->ComboBox_TreatmentMachine->addItem("From file...", "FromFile");
 
-    // Create default DRR nodes
+  // Create default DRR nodes
   d->logic()->InitializeDefaultDrrNodes();
 
   // Nodes
@@ -2233,6 +2233,9 @@ void qSlicerPatientPositioningModuleWidget::onShowDrrButtonClicked()
     sliceNode->UpdateMatrices();
 
     app->layoutManager()->layoutLogic()->MaximizeView(sliceNode);
+
+    // Hide markups
+    d->logic()->ShowDrrMarkupsNodes(0);
   }
    else
   {
@@ -2262,9 +2265,14 @@ void qSlicerPatientPositioningModuleWidget::onComputeDrrButtonClicked()
 
   if (drrNode && ctVolume)
   {
+
+    QApplication::setOverrideCursor(Qt::WaitCursor);
+
     vtkMRMLScalarVolumeNode* drrImageNode = d->logic()->ComputeDrr(drrNode, ctVolume);
     d->ParameterNode->SetAndObserveDrrImageNode(drrImageNode);
     d->MRMLNodeComboBox_DrrImage->setCurrentNodeID(drrImageNode->GetID());
+
+    QApplication::restoreOverrideCursor();
   }
   else
   {

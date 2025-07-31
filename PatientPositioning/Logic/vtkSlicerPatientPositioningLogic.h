@@ -135,6 +135,7 @@ public:
 
   void InitializeDefaultDrrNodes();
   vtkMRMLScalarVolumeNode* ComputeDrr(vtkMRMLDrrImageComputationNode* drrNode, vtkMRMLScalarVolumeNode* ctVolumeNode);
+  void ShowDrrMarkupsNodes(bool);
 
 public:
   // Get treatment machine properties from descriptor file

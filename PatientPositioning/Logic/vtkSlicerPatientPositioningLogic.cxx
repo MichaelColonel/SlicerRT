@@ -2041,12 +2041,12 @@ std::string vtkSlicerPatientPositioningLogic::GetStateForPartType(std::string pa
 
   return stateStr;
 }
-
+//------------------------------------------------------------------------------
 vtkSlicerCabin26ARobotsTransformLogic* vtkSlicerPatientPositioningLogic::GetCabin26ARobotsTransformLogic() const
 {
   return Cabin26ARobotsLogic;
 }
-
+//------------------------------------------------------------------------------
 void vtkSlicerPatientPositioningLogic::InitializeDefaultDrrNodes()
 {
   vtkMRMLScene* scene = this->GetMRMLScene();
@@ -2091,7 +2091,7 @@ void vtkSlicerPatientPositioningLogic::InitializeDefaultDrrNodes()
     scene->AddNode(drrNode);
   }
 }
-
+//------------------------------------------------------------------------------
 vtkMRMLScalarVolumeNode* vtkSlicerPatientPositioningLogic::ComputeDrr(vtkMRMLDrrImageComputationNode* drrNode, vtkMRMLScalarVolumeNode* ctVolumeNode)
 {
   if (!this->DrrImageComputationLogic)
@@ -2109,7 +2109,16 @@ vtkMRMLScalarVolumeNode* vtkSlicerPatientPositioningLogic::ComputeDrr(vtkMRMLDrr
     return nullptr;
   }
 }
-
+//------------------------------------------------------------------------------
+void vtkSlicerPatientPositioningLogic::ShowDrrMarkupsNodes(bool toggled)
+{
+  if (!this->DrrImageComputationLogic)
+  {
+    vtkErrorMacro("DRR Image Computation Logic is not set");
+    return;
+  }
+  this->DrrImageComputationLogic->ShowMarkupsNodes(toggled);
+}
 //------------------------------------------------------------------------------
 void vtkSlicerPatientPositioningLogic::SetDrrImageCompuationLogic(vtkSlicerDrrImageComputationLogic* drrImageCompuationLogic)
 {

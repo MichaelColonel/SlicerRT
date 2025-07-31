@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>533</width>
-    <height>1453</height>
+    <height>1462</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -941,9 +941,9 @@
     </spacer>
    </item>
    <item row="1" column="0">
-    <widget class="ctkCollapsibleButton" name="CollapsibleButton">
+    <widget class="ctkCollapsibleButton" name="CollapsibleButton_DrrComputation">
      <property name="text">
-      <string>DRR</string>
+      <string>DRR computation</string>
      </property>
      <layout class="QGridLayout" name="gridLayout_23">
       <item row="3" column="0">
@@ -965,7 +965,7 @@
         <item row="0" column="0">
          <widget class="QLabel" name="LabelDRR_2">
           <property name="text">
-           <string>DRR Image:</string>
+           <string>DRR image:</string>
           </property>
          </widget>
         </item>
@@ -1098,7 +1098,7 @@
         <item row="2" column="0">
          <widget class="QLabel" name="label_33">
           <property name="text">
-           <string>Image spacing:</string>
+           <string>Imager spacing, mm:</string>
           </property>
          </widget>
         </item>
@@ -1112,7 +1112,7 @@
         <item row="1" column="0">
          <widget class="QLabel" name="label_32">
           <property name="text">
-           <string>Image resolution:</string>
+           <string>Imager resolution:</string>
           </property>
          </widget>
         </item>
@@ -1144,7 +1144,7 @@
         <item row="5" column="0">
          <widget class="QLabel" name="label_31">
           <property name="text">
-           <string>CT Volume:</string>
+           <string>CT volume:</string>
           </property>
          </widget>
         </item>
