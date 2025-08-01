@@ -2235,7 +2235,7 @@ void qSlicerPatientPositioningModuleWidget::onShowDrrButtonClicked()
     app->layoutManager()->layoutLogic()->MaximizeView(sliceNode);
 
     // Hide markups
-    d->logic()->ShowDrrMarkupsNodes(0);
+    d->logic()->ShowDrrMarkupsNodes(false);
   }
    else
   {
