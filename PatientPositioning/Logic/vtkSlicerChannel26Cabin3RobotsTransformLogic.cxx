@@ -731,6 +731,17 @@ vtkMRMLLinearTransformNode* vtkSlicerChannel26Cabin3RobotsTransformLogic::GetCar
   return this->GetFrameToRasTransform(CoordinateSystemIdentifier::Carm);
 }
 
+//------------------------------------------------------------------------------
+vtkMRMLLinearTransformNode* vtkSlicerChannel26Cabin3RobotsTransformLogic::GetCarmXrayBeamTransform()
+{
+  return this->GetFrameToRasTransform(CoordinateSystemIdentifier::CarmXrayBeam);
+}
+
+//------------------------------------------------------------------------------
+vtkMRMLLinearTransformNode* vtkSlicerChannel26Cabin3RobotsTransformLogic::GetCarmXrayDetectorTransform()
+{
+  return this->GetFrameToRasTransform(CoordinateSystemIdentifier::CarmXrayDetector);
+}
 
 //------------------------------------------------------------------------------
 vtkMRMLLinearTransformNode* vtkSlicerChannel26Cabin3RobotsTransformLogic::UpdateTableTopToRasTransform(vtkMRMLChannel26GeometryNode* parameterNode)
@@ -897,6 +908,18 @@ vtkMRMLLinearTransformNode* vtkSlicerChannel26Cabin3RobotsTransformLogic::Update
 vtkMRMLLinearTransformNode* vtkSlicerChannel26Cabin3RobotsTransformLogic::UpdateCarmToRasTransform(vtkMRMLChannel26GeometryNode* parameterNode)
 {
   return this->UpdateFrameToRasTransform(parameterNode, CoordinateSystemIdentifier::Carm);
+}
+
+//------------------------------------------------------------------------------
+vtkMRMLLinearTransformNode* vtkSlicerChannel26Cabin3RobotsTransformLogic::UpdateCarmXrayBeamToRasTransform(vtkMRMLChannel26GeometryNode* parameterNode)
+{
+  return this->UpdateFrameToRasTransform(parameterNode, CoordinateSystemIdentifier::CarmXrayBeam);
+}
+
+//------------------------------------------------------------------------------
+vtkMRMLLinearTransformNode* vtkSlicerChannel26Cabin3RobotsTransformLogic::UpdateCarmXrayDetectorToRasTransform(vtkMRMLChannel26GeometryNode* parameterNode)
+{
+  return this->UpdateFrameToRasTransform(parameterNode, CoordinateSystemIdentifier::CarmXrayDetector);
 }
 
 //----------------------------------------------------------------------------
@@ -2149,17 +2172,93 @@ void vtkSlicerChannel26Cabin3RobotsTransformLogic::UpdateCarmToCarmRobotFlangeTr
     this->GetTransformNodeBetween(CoordSys::Carm, CoordSys::CarmRobotFlange);
   if (carmToCarmFlangeTransformNode)
   {
-//    double a[6] = {};
-//    parameterNode->GetCarmRobotAngles(a);
-
-    // Flange->Wrist rotation around X (A6 angle)
-    vtkNew<vtkTransform> flangeToWristTransform;
-//    flangeToWristTransform->RotateX(a[5]);
-
     carmFlangeToPatientTransform->Concatenate(carmToCarmFlangeTranslate);
-    carmFlangeToPatientTransform->Concatenate(flangeToWristTransform);
     carmFlangeToPatientTransform->Concatenate(patientToCarmFlangeTransform);
     carmToCarmFlangeTransformNode->SetAndObserveTransformToParent(carmFlangeToPatientTransform);
+  }
+}
+
+//-----------------------------------------------------------------------------
+void vtkSlicerChannel26Cabin3RobotsTransformLogic::UpdateCarmXrayBeamToCarmTransform(vtkMRMLChannel26GeometryNode* parameterNode)
+{
+  vtkMRMLScene* scene = this->GetMRMLScene();
+  if (!scene)
+  {
+    vtkErrorMacro("UpdateCarmXrayBeamToCarmTransform: Invalid scene");
+    return;
+  }
+  if (!parameterNode)
+  {
+    vtkErrorMacro("UpdateCarmXrayBeamToCarmTransform: Invalid parameter node");
+    return;
+  }
+
+  // Translate the C-arm X-ray beam mount position to from C-arm origin along X-axis and Y-axis
+  using CoordPos = vtkSlicerChannel26Cabin3RobotsGeometryCommon;
+  vtkNew<vtkTransform> carmXrayBeamToCarmTranslate;
+  carmXrayBeamToCarmTranslate->Translate(586.5, CoordPos::CARM_XRAY_INNER_SIZE / 2., 0.);
+
+  using CoordSys = CoordinateSystemIdentifier;
+  vtkNew<vtkTransform> patientToCarmTransform;
+  if (!this->GetTransformBetween(CoordSys::Patient, CoordSys::Carm, patientToCarmTransform, false))
+  {
+    vtkWarningMacro("UpdateCarmXrayBeamToCarmTransform: Can't get Patient->Carm transform");
+  }
+  vtkNew<vtkTransform> carmToPatientTransform;
+  if (!this->GetTransformBetween(CoordSys::Carm, CoordSys::Patient, carmToPatientTransform, false))
+  {
+    vtkWarningMacro("UpdateCarmXrayBeamToCarmTransform: Can't get Carm->Patient transform");
+  }
+
+  vtkMRMLLinearTransformNode* carmXrayBeamToCarmTransformNode =
+    this->GetTransformNodeBetween(CoordSys::CarmXrayBeam, CoordSys::Carm);
+  if (carmXrayBeamToCarmTransformNode)
+  {
+    carmToPatientTransform->Concatenate(carmXrayBeamToCarmTranslate);
+    carmToPatientTransform->Concatenate(patientToCarmTransform);
+    carmXrayBeamToCarmTransformNode->SetAndObserveTransformToParent(carmToPatientTransform);
+  }
+}
+
+//-----------------------------------------------------------------------------
+void vtkSlicerChannel26Cabin3RobotsTransformLogic::UpdateCarmXrayDetectorToCarmTransform(vtkMRMLChannel26GeometryNode* parameterNode)
+{
+  vtkMRMLScene* scene = this->GetMRMLScene();
+  if (!scene)
+  {
+    vtkErrorMacro("UpdateCarmXrayDetectorToCarmTransform: Invalid scene");
+    return;
+  }
+  if (!parameterNode)
+  {
+    vtkErrorMacro("UpdateCarmXrayDetectorToCarmTransform: Invalid parameter node");
+    return;
+  }
+
+  // Translate the C-arm X-ray beam mount position to from C-arm origin along X-axis and Y-axis
+  using CoordPos = vtkSlicerChannel26Cabin3RobotsGeometryCommon;
+  vtkNew<vtkTransform> carmXrayDetectorToCarmTranslate;
+  carmXrayDetectorToCarmTranslate->Translate(0., 0., 0.);
+
+  using CoordSys = CoordinateSystemIdentifier;
+  vtkNew<vtkTransform> patientToCarmTransform;
+  if (!this->GetTransformBetween(CoordSys::Patient, CoordSys::Carm, patientToCarmTransform, false))
+  {
+    vtkWarningMacro("UpdateCarmXrayDetectorToCarmTransform: Can't get Patient->Carm transform");
+  }
+  vtkNew<vtkTransform> carmToPatientTransform;
+  if (!this->GetTransformBetween(CoordSys::Carm, CoordSys::Patient, carmToPatientTransform, false))
+  {
+    vtkWarningMacro("UpdateCarmXrayDetectorToCarmTransform: Can't get Carm->Patient transform");
+  }
+
+  vtkMRMLLinearTransformNode* carmXrayDetectorToCarmTransformNode =
+    this->GetTransformNodeBetween(CoordSys::CarmXrayDetector, CoordSys::Carm);
+  if (carmXrayDetectorToCarmTransformNode)
+  {
+    carmToPatientTransform->Concatenate(carmXrayDetectorToCarmTranslate);
+    carmToPatientTransform->Concatenate(patientToCarmTransform);
+    carmXrayDetectorToCarmTransformNode->SetAndObserveTransformToParent(carmToPatientTransform);
   }
 }
 
@@ -2355,6 +2454,10 @@ void vtkSlicerChannel26Cabin3RobotsTransformLogic::UpdateFrameToRasHierarchy(vtk
     this->UpdateCarmRobotFlangeToRasTransform(parameterNode);
   case CoordinateSystemIdentifier::Carm:
     this->UpdateCarmToRasTransform(parameterNode);
+  case CoordinateSystemIdentifier::CarmXrayBeam:
+    this->UpdateCarmXrayBeamToRasTransform(parameterNode);
+  case CoordinateSystemIdentifier::CarmXrayDetector:
+    this->UpdateCarmXrayDetectorToRasTransform(parameterNode);
   default:
     break;
   }
@@ -2403,6 +2506,10 @@ void vtkSlicerChannel26Cabin3RobotsTransformLogic::UpdateTransformsHierarchy(vtk
     this->UpdateCarmRobotFlangeToCarmRobotWristTransform(parameterNode);
   case CoordinateSystemIdentifier::Carm:
     this->UpdateCarmToCarmRobotFlangeTransform(parameterNode);
+  case CoordinateSystemIdentifier::CarmXrayBeam:
+    this->UpdateCarmXrayBeamToCarmTransform(parameterNode);
+  case CoordinateSystemIdentifier::CarmXrayDetector:
+    this->UpdateCarmXrayDetectorToCarmTransform(parameterNode);
   default:
     break;
   }

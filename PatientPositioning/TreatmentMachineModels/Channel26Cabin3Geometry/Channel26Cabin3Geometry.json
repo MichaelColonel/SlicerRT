@@ -184,6 +184,26 @@
       "Color": [127, 127, 127],
       "State": "Active",
       "PointRAS": [-0.5, -210.0, 821.6]
+    },
+    {
+      "Type": "CarmXrayBeam",
+      "Number": 19,
+      "Name": "C-arm X-ray beam",
+      "FilePath": "CarmXrayBeam.stl",
+      "FileToRASTransformMatrix": [ [-1, 0, 0, 0], [0, -1, 0, 0], [0, 0, 1, 0], [0, 0, 0, 1] ],
+      "Color": [255, 64, 64],
+      "State": "Active",
+      "PointRAS": [-0.5, -210.0, 821.6]
+    },
+    {
+      "Type": "CarmXrayDetector",
+      "Number": 20,
+      "Name": "C-arm X-ray detector",
+      "FilePath": "CarmXrayDetector.stl",
+      "FileToRASTransformMatrix": [ [-1, 0, 0, 0], [0, -1, 0, 0], [0, 0, 1, 0], [0, 0, 0, 1] ],
+      "Color": [255, 0, 64],
+      "State": "Active",
+      "PointRAS": [-0.5, -210.0, 821.6]
     }
   ]
 }

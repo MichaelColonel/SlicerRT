@@ -1214,6 +1214,24 @@ vtkSlicerPatientPositioningLogic::SetupTreatmentMachineModels(vtkMRMLPatientPosi
         partModel->SetAndObserveTransformNodeID(partFrameToRasTransformNode->GetID());
       }
     }
+    else if (partIdx == CoordSys::CarmXrayBeam)
+    {
+      this->Channel26RobotsLogic->UpdateCarmXrayBeamToCarmTransform(channel26GeometryNode);
+      partFrameToRasTransformNode = this->Channel26RobotsLogic->UpdateCarmXrayBeamToRasTransform(channel26GeometryNode);
+      if (partFrameToRasTransformNode)
+      {
+        partModel->SetAndObserveTransformNodeID(partFrameToRasTransformNode->GetID());
+      }
+    }
+    else if (partIdx == CoordSys::CarmXrayDetector)
+    {
+      this->Channel26RobotsLogic->UpdateCarmXrayDetectorToCarmTransform(channel26GeometryNode);
+      partFrameToRasTransformNode = this->Channel26RobotsLogic->UpdateCarmXrayDetectorToRasTransform(channel26GeometryNode);
+      if (partFrameToRasTransformNode)
+      {
+        partModel->SetAndObserveTransformNodeID(partFrameToRasTransformNode->GetID());
+      }
+    }
   }
 
   return loadedParts;
@@ -1274,12 +1292,19 @@ void vtkSlicerPatientPositioningLogic::ShowModelsNodes(vtkMRMLPatientPositioning
   modelsNames.push_back("TableRobotBaseRotation");
   modelsNames.push_back("CarmRobotShoulder");
   modelsNames.push_back("TableRobotShoulder");
+  modelsNames.push_back("CarmRobotElbowShoulder");
   modelsNames.push_back("TableRobotElbowShoulder");
+  modelsNames.push_back("CarmRobotElbowWrist");
   modelsNames.push_back("TableRobotElbowWrist");
+  modelsNames.push_back("CarmRobotWrist");
   modelsNames.push_back("TableRobotWrist");
+  modelsNames.push_back("CarmRobotFlange");
   modelsNames.push_back("TableRobotFlange");
   modelsNames.push_back("TableFlange");
   modelsNames.push_back("TableTop");
+  modelsNames.push_back("Carm");
+  modelsNames.push_back("CarmXrayBeam");
+  modelsNames.push_back("CarmXrayDetector");
 
   for (auto modelName : modelsNames)
   {

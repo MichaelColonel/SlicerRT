@@ -67,7 +67,7 @@ public:
     CarmRobotWrist, // Mounted on CarmRobotElbowWrist, performes A5 rotation
     CarmRobotFlange, // Mounted on CarmRobotWrist, performes A6 rotation
     Carm, // Mounted on CarmRobotFlange
-    CarmXrayBeam, // Mounted on Carm
+    CarmXrayBeam, // Mounted on Carm (Assemble of X-ray tube and collimator)
     CarmXrayDetector, // Mounted on Carm
     Patient, // Mounted on TableTop. Translate from Table Top center to Patient center
     CoordinateSystemIdentifier_Last // Last index used for adding more coordinate systems externally
@@ -149,6 +149,10 @@ public:
   void UpdateCarmRobotFlangeToCarmRobotWristTransform(vtkMRMLChannel26GeometryNode* parameterNode);
   /// Apply new Carm to CarmRobotFlange transform (Carm->CarmRobotFlange)
   void UpdateCarmToCarmRobotFlangeTransform(vtkMRMLChannel26GeometryNode* parameterNode);
+  /// Apply new CarmXrayBeam to Carm transform (CarmXrayBeam->Carm)
+  void UpdateCarmXrayBeamToCarmTransform(vtkMRMLChannel26GeometryNode* parameterNode);
+  /// Apply new CarmXrayDetector to Carm transform (CarmXrayDetector->Carm)
+  void UpdateCarmXrayDetectorToCarmTransform(vtkMRMLChannel26GeometryNode* parameterNode);
 
   /// Update (or create if absent) TableTop to RAS transform
   vtkMRMLLinearTransformNode* UpdateTableTopToRasTransform(vtkMRMLChannel26GeometryNode* parameterNode);
@@ -186,6 +190,10 @@ public:
   vtkMRMLLinearTransformNode* UpdateCarmRobotFlangeToRasTransform(vtkMRMLChannel26GeometryNode* parameterNode);
   /// Update (or create if absent) Carm to RAS transform
   vtkMRMLLinearTransformNode* UpdateCarmToRasTransform(vtkMRMLChannel26GeometryNode* parameterNode);
+  /// Update (or create if absent) CarmXrayBeam to RAS transform
+  vtkMRMLLinearTransformNode* UpdateCarmXrayBeamToRasTransform(vtkMRMLChannel26GeometryNode* parameterNode);
+  /// Update (or create if absent) CarmXrayDetector to RAS transform
+  vtkMRMLLinearTransformNode* UpdateCarmXrayDetectorToRasTransform(vtkMRMLChannel26GeometryNode* parameterNode);
 
   /// Get TableTop to RAS transform
   vtkMRMLLinearTransformNode* GetTableTopTransform();
@@ -223,6 +231,10 @@ public:
   vtkMRMLLinearTransformNode* GetCarmRobotFlangeTransform();
   /// Get Carm to RAS transform
   vtkMRMLLinearTransformNode* GetCarmTransform();
+  /// Get CarmXrayBeam to RAS transform
+  vtkMRMLLinearTransformNode* GetCarmXrayBeamTransform();
+  /// Get CarmXrayDetector to RAS transform
+  vtkMRMLLinearTransformNode* GetCarmXrayDetectorTransform();
 
   /// Get part type as string
   const char* GetTreatmentMachinePartTypeAsString(CoordinateSystemIdentifier type);

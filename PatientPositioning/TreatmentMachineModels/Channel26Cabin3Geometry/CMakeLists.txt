@@ -25,6 +25,8 @@ set(MACHINE_MODELS
   KR210_R3100-2_Wrist.stl
   KR210_R3100-2_Flange.stl
   Carm.stl
+  CarmXrayBeam.stl
+  CarmXrayDetector.stl
 )
 
 SlicerMacroConfigureTreatmentMachineComponentModels(
