@@ -2102,6 +2102,7 @@ vtkMRMLScalarVolumeNode* vtkSlicerPatientPositioningLogic::ComputeDrr(vtkMRMLDrr
   if (drrNode && ctVolumeNode)
   {
  //   vtkErrorMacro("ComputeDrr: start");
+    this->DrrImageComputationLogic->UpdateNormalAndVupVectors(drrNode);
     return this->DrrImageComputationLogic->ComputePlastimatchDRR(drrNode, ctVolumeNode);
   }
   else
