@@ -66,6 +66,9 @@ public:
     CarmRobotElbowWrist, // Mounted on CarmRobotElbowShoulderr, performes A4 rotation. Rotation along Y-axis of Elbow
     CarmRobotWrist, // Mounted on CarmRobotElbowWrist, performes A5 rotation
     CarmRobotFlange, // Mounted on CarmRobotWrist, performes A6 rotation
+    Carm, // Mounted on CarmRobotFlange
+    CarmXrayBeam, // Mounted on Carm
+    CarmXrayDetector, // Mounted on Carm
     Patient, // Mounted on TableTop. Translate from Table Top center to Patient center
     CoordinateSystemIdentifier_Last // Last index used for adding more coordinate systems externally
   };
@@ -144,6 +147,8 @@ public:
   void UpdateCarmRobotWristToCarmRobotElbowWristTransform(vtkMRMLChannel26GeometryNode* parameterNode);
   /// Apply new CarmRobotFlange to CarmRobotWrist transform (CarmRobotFlange->CarmRobotWrist)
   void UpdateCarmRobotFlangeToCarmRobotWristTransform(vtkMRMLChannel26GeometryNode* parameterNode);
+  /// Apply new Carm to CarmRobotFlange transform (Carm->CarmRobotFlange)
+  void UpdateCarmToCarmRobotFlangeTransform(vtkMRMLChannel26GeometryNode* parameterNode);
 
   /// Update (or create if absent) TableTop to RAS transform
   vtkMRMLLinearTransformNode* UpdateTableTopToRasTransform(vtkMRMLChannel26GeometryNode* parameterNode);
@@ -179,9 +184,9 @@ public:
   vtkMRMLLinearTransformNode* UpdateCarmRobotWristToRasTransform(vtkMRMLChannel26GeometryNode* parameterNode);
   /// Update (or create if absent) CarmRobotFlange to RAS transform
   vtkMRMLLinearTransformNode* UpdateCarmRobotFlangeToRasTransform(vtkMRMLChannel26GeometryNode* parameterNode);
+  /// Update (or create if absent) Carm to RAS transform
+  vtkMRMLLinearTransformNode* UpdateCarmToRasTransform(vtkMRMLChannel26GeometryNode* parameterNode);
 
-  /// Get Patient to RAS transform
-  vtkMRMLLinearTransformNode* GetPatientTransform();
   /// Get TableTop to RAS transform
   vtkMRMLLinearTransformNode* GetTableTopTransform();
   /// Get TableFlange to RAS transform
@@ -216,6 +221,8 @@ public:
   vtkMRMLLinearTransformNode* GetCarmRobotWristTransform();
   /// Get CarmRobotFlange to RAS transform
   vtkMRMLLinearTransformNode* GetCarmRobotFlangeTransform();
+  /// Get Carm to RAS transform
+  vtkMRMLLinearTransformNode* GetCarmTransform();
 
   /// Get part type as string
   const char* GetTreatmentMachinePartTypeAsString(CoordinateSystemIdentifier type);

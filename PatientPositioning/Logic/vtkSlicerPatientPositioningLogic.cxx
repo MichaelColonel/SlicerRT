@@ -1013,6 +1013,7 @@ vtkSlicerPatientPositioningLogic::SetupTreatmentMachineModels(vtkMRMLPatientPosi
         case CoordSys::CarmRobotElbowWrist:
         case CoordSys::CarmRobotWrist:
         case CoordSys::CarmRobotFlange:
+        case CoordSys::Carm:
           vtkErrorMacro("SetupTreatmentMachineModels: Unable to access " << partType << " model " << partIdx);
           break;
         default:
@@ -1199,6 +1200,15 @@ vtkSlicerPatientPositioningLogic::SetupTreatmentMachineModels(vtkMRMLPatientPosi
     {
       this->Channel26RobotsLogic->UpdateCarmRobotFlangeToCarmRobotWristTransform(channel26GeometryNode);
       partFrameToRasTransformNode = this->Channel26RobotsLogic->UpdateCarmRobotFlangeToRasTransform(channel26GeometryNode);
+      if (partFrameToRasTransformNode)
+      {
+        partModel->SetAndObserveTransformNodeID(partFrameToRasTransformNode->GetID());
+      }
+    }
+    else if (partIdx == CoordSys::Carm)
+    {
+      this->Channel26RobotsLogic->UpdateCarmToCarmRobotFlangeTransform(channel26GeometryNode);
+      partFrameToRasTransformNode = this->Channel26RobotsLogic->UpdateCarmToRasTransform(channel26GeometryNode);
       if (partFrameToRasTransformNode)
       {
         partModel->SetAndObserveTransformNodeID(partFrameToRasTransformNode->GetID());

@@ -71,6 +71,9 @@ vtkSlicerChannel26Cabin3RobotsTransformLogic::vtkSlicerChannel26Cabin3RobotsTran
   this->CoordinateSystemsMap[CoordSys::CarmRobotWrist] = "CarmRobotWrist";
   this->CoordinateSystemsMap[CoordSys::TableRobotFlange] = "TableRobotFlange";
   this->CoordinateSystemsMap[CoordSys::CarmRobotFlange] = "CarmRobotFlange";
+  this->CoordinateSystemsMap[CoordSys::Carm] = "Carm";
+  this->CoordinateSystemsMap[CoordSys::CarmXrayBeam] = "CarmXrayBeam";
+  this->CoordinateSystemsMap[CoordSys::CarmXrayDetector] = "CarmXrayDetector";
   this->CoordinateSystemsMap[CoordSys::TableFlange] = "TableFlange";
   this->CoordinateSystemsMap[CoordSys::TableTop] = "TableTop";
   this->CoordinateSystemsMap[CoordSys::Patient] = "Patient";
@@ -91,6 +94,9 @@ vtkSlicerChannel26Cabin3RobotsTransformLogic::vtkSlicerChannel26Cabin3RobotsTran
   this->RobotsTransforms.push_back(std::make_pair(CoordSys::CarmRobotWrist, CoordSys::CarmRobotElbowWrist)); // Rotation A5
   this->RobotsTransforms.push_back(std::make_pair(CoordSys::TableRobotFlange, CoordSys::TableRobotWrist)); // Rotation A6
   this->RobotsTransforms.push_back(std::make_pair(CoordSys::CarmRobotFlange, CoordSys::CarmRobotWrist)); // Rotation A6
+  this->RobotsTransforms.push_back(std::make_pair(CoordSys::Carm, CoordSys::CarmRobotFlange)); // Translate
+  this->RobotsTransforms.push_back(std::make_pair(CoordSys::CarmXrayBeam, CoordSys::Carm)); // Translate
+  this->RobotsTransforms.push_back(std::make_pair(CoordSys::CarmXrayDetector, CoordSys::Carm)); // Translate
   this->RobotsTransforms.push_back(std::make_pair(CoordSys::TableFlange, CoordSys::TableRobotFlange)); // Dummy, only fixed translation
   this->RobotsTransforms.push_back(std::make_pair(CoordSys::TableTop, CoordSys::TableFlange)); // Dummy, only fixed translation
   this->RobotsTransforms.push_back(std::make_pair(CoordSys::Patient, CoordSys::TableTop)); // Translate from patient to table top center
@@ -111,6 +117,8 @@ vtkSlicerChannel26Cabin3RobotsTransformLogic::vtkSlicerChannel26Cabin3RobotsTran
   this->CoordinateSystemsHierarchy[CoordSys::CarmRobotElbowWrist] = { CoordSys::CarmRobotWrist };
   this->CoordinateSystemsHierarchy[CoordSys::TableRobotWrist] = { CoordSys::TableRobotFlange };
   this->CoordinateSystemsHierarchy[CoordSys::CarmRobotWrist] = { CoordSys::CarmRobotFlange };
+  this->CoordinateSystemsHierarchy[CoordSys::CarmRobotFlange] = { CoordSys::Carm };
+  this->CoordinateSystemsHierarchy[CoordSys::Carm] = { CoordSys::CarmXrayBeam, CoordSys::CarmXrayDetector };
   this->CoordinateSystemsHierarchy[CoordSys::TableRobotFlange] = { CoordSys::TableFlange };
   this->CoordinateSystemsHierarchy[CoordSys::TableFlange] = { CoordSys::TableTop };
   this->CoordinateSystemsHierarchy[CoordSys::TableTop] = { CoordSys::Patient };
@@ -203,6 +211,15 @@ const char* vtkSlicerChannel26Cabin3RobotsTransformLogic::GetTreatmentMachinePar
   case CarmRobotFlange:
     partAsString = "CarmRobotFlange";
     break;
+  case Carm:
+    partAsString = "Carm";
+    break;
+  case CarmXrayBeam:
+    partAsString = "CarmXrayBeam";
+    break;
+  case CarmXrayDetector:
+    partAsString = "CarmXrayDetector";
+    break;
   case TableFlange:
     partAsString = "TableFlange";
     break;
@@ -290,6 +307,18 @@ void vtkSlicerChannel26Cabin3RobotsTransformLogic::BuildRobotsTransformHierarchy
   this->GetTransformNodeBetween(CoordSys::TableFlange, CoordSys::TableRobotFlange)->SetAndObserveTransformNodeID(
     this->GetTransformNodeBetween(CoordSys::TableRobotFlange, CoordSys::TableRobotWrist)->GetID() );
 
+  // CarmRobotWristFlange parent, translation of C-arm center from wrist flange center
+  this->GetTransformNodeBetween(CoordSys::Carm, CoordSys::CarmRobotFlange)->SetAndObserveTransformNodeID(
+    this->GetTransformNodeBetween(CoordSys::CarmRobotFlange, CoordSys::CarmRobotWrist)->GetID() );
+
+  // Carm parent, translation of C-arm X-ray beam center from C-arm origin
+  this->GetTransformNodeBetween(CoordSys::CarmXrayBeam, CoordSys::Carm)->SetAndObserveTransformNodeID(
+    this->GetTransformNodeBetween(CoordSys::Carm, CoordSys::CarmRobotFlange)->GetID() );
+
+  // Carm parent, translation of C-arm X-ray detector center from C-arm origin
+  this->GetTransformNodeBetween(CoordSys::CarmXrayDetector, CoordSys::Carm)->SetAndObserveTransformNodeID(
+    this->GetTransformNodeBetween(CoordSys::Carm, CoordSys::CarmRobotFlange)->GetID() );
+
   // Flange parent, translation of table top center flange center
   this->GetTransformNodeBetween(CoordSys::TableTop, CoordSys::TableFlange)->SetAndObserveTransformNodeID(
     this->GetTransformNodeBetween(CoordSys::TableFlange, CoordSys::TableRobotFlange)->GetID() );
@@ -308,13 +337,13 @@ void vtkSlicerChannel26Cabin3RobotsTransformLogic::ResetToInitialPositions()
 {
   using CoordSys = CoordinateSystemIdentifier;
   // Update IEC Patient to RAS transform based on the isocenter defined in the beam's parent plan
-  vtkMRMLLinearTransformNode* rasToPatientReferenceTransformNode =
+  vtkMRMLLinearTransformNode* iecPatientToRasTransformNode =
     this->GetTransformNodeBetween( CoordSys::RAS, CoordSys::Patient);
-  vtkTransform* rasToPatientReferenceTransform = vtkTransform::SafeDownCast(rasToPatientReferenceTransformNode->GetTransformToParent());
-  rasToPatientReferenceTransform->Identity();
-  rasToPatientReferenceTransform->RotateX(-90.);
-  rasToPatientReferenceTransform->RotateY(180.);
-  rasToPatientReferenceTransform->Modified();
+  vtkTransform* iecPatientToRasTransform = vtkTransform::SafeDownCast(iecPatientToRasTransformNode->GetTransformToParent());
+  iecPatientToRasTransform->Identity();
+  iecPatientToRasTransform->RotateX(-90.);
+  iecPatientToRasTransform->RotateY(180.);
+  iecPatientToRasTransform->Modified();
 
   // Table top
   vtkMRMLLinearTransformNode* patientToTableTopTransformNode =
@@ -437,6 +466,27 @@ void vtkSlicerChannel26Cabin3RobotsTransformLogic::ResetToInitialPositions()
     vtkTransform::SafeDownCast(carmRobotFlangeToCarmRobotWristTransformNode->GetTransformToParent());
   carmRobotFlangeToCarmRobotWristTransform->Identity();
   carmRobotFlangeToCarmRobotWristTransform->Modified();
+
+  vtkMRMLLinearTransformNode* carmToCarmRobotFlangeTransformNode =
+    this->GetTransformNodeBetween(CoordSys::Carm, CoordSys::CarmRobotFlange);
+  vtkTransform* carmToCarmRobotFlangeTransform =
+    vtkTransform::SafeDownCast(carmToCarmRobotFlangeTransformNode->GetTransformToParent());
+  carmToCarmRobotFlangeTransform->Identity();
+  carmToCarmRobotFlangeTransform->Modified();
+
+  vtkMRMLLinearTransformNode* carmXrayBeamToCarmTransformNode =
+    this->GetTransformNodeBetween(CoordSys::CarmXrayBeam, CoordSys::Carm);
+  vtkTransform* carmXrayBeamToCarmTransform =
+    vtkTransform::SafeDownCast(carmXrayBeamToCarmTransformNode->GetTransformToParent());
+  carmXrayBeamToCarmTransform->Identity();
+  carmXrayBeamToCarmTransform->Modified();
+
+  vtkMRMLLinearTransformNode* carmXrayDetectorToCarmTransformNode =
+    this->GetTransformNodeBetween(CoordSys::CarmXrayDetector, CoordSys::Carm);
+  vtkTransform* carmXrayDetectorToCarmTransform =
+    vtkTransform::SafeDownCast(carmXrayDetectorToCarmTransformNode->GetTransformToParent());
+  carmXrayDetectorToCarmTransform->Identity();
+  carmXrayDetectorToCarmTransform->Modified();
 }
 
 //-----------------------------------------------------------------------------
@@ -558,12 +608,6 @@ bool vtkSlicerChannel26Cabin3RobotsTransformLogic::GetTransformBetween(
 }
 
 //------------------------------------------------------------------------------
-vtkMRMLLinearTransformNode* vtkSlicerChannel26Cabin3RobotsTransformLogic::GetPatientTransform()
-{
-  return this->GetFrameToRasTransform(CoordinateSystemIdentifier::Patient);
-}
-
-//------------------------------------------------------------------------------
 vtkMRMLLinearTransformNode* vtkSlicerChannel26Cabin3RobotsTransformLogic::GetTableTopTransform()
 {
   return this->GetFrameToRasTransform(CoordinateSystemIdentifier::TableTop);
@@ -680,6 +724,13 @@ vtkMRMLLinearTransformNode* vtkSlicerChannel26Cabin3RobotsTransformLogic::GetCar
 {
   return this->GetFrameToRasTransform(CoordinateSystemIdentifier::CarmRobotFlange);
 }
+
+//------------------------------------------------------------------------------
+vtkMRMLLinearTransformNode* vtkSlicerChannel26Cabin3RobotsTransformLogic::GetCarmTransform()
+{
+  return this->GetFrameToRasTransform(CoordinateSystemIdentifier::Carm);
+}
+
 
 //------------------------------------------------------------------------------
 vtkMRMLLinearTransformNode* vtkSlicerChannel26Cabin3RobotsTransformLogic::UpdateTableTopToRasTransform(vtkMRMLChannel26GeometryNode* parameterNode)
@@ -840,6 +891,12 @@ vtkMRMLLinearTransformNode* vtkSlicerChannel26Cabin3RobotsTransformLogic::Update
 vtkMRMLLinearTransformNode* vtkSlicerChannel26Cabin3RobotsTransformLogic::UpdateCarmRobotFlangeToRasTransform(vtkMRMLChannel26GeometryNode* parameterNode)
 {
   return this->UpdateFrameToRasTransform(parameterNode, CoordinateSystemIdentifier::CarmRobotFlange);
+}
+
+//------------------------------------------------------------------------------
+vtkMRMLLinearTransformNode* vtkSlicerChannel26Cabin3RobotsTransformLogic::UpdateCarmToRasTransform(vtkMRMLChannel26GeometryNode* parameterNode)
+{
+  return this->UpdateFrameToRasTransform(parameterNode, CoordinateSystemIdentifier::Carm);
 }
 
 //----------------------------------------------------------------------------
@@ -1974,7 +2031,7 @@ void vtkSlicerChannel26Cabin3RobotsTransformLogic::UpdateCarmRobotWristToCarmRob
   // Translate the C-arm wrist from C-arm elbow origin along X-axis
   using CoordPos = vtkSlicerChannel26Cabin3RobotsGeometryCommon;
   vtkNew<vtkTransform> carmWristTranslateTransform;
-  carmWristTranslateTransform->Translate( CoordPos::CARM_ROBOT_ELBOW_SIZE, 0., 0.);
+  carmWristTranslateTransform->Translate(CoordPos::CARM_ROBOT_ELBOW_SIZE, 0., 0.);
 
   using CoordSys = CoordinateSystemIdentifier;
   vtkNew<vtkTransform> patientToCarmElbowTransform;
@@ -2025,21 +2082,21 @@ void vtkSlicerChannel26Cabin3RobotsTransformLogic::UpdateCarmRobotFlangeToCarmRo
 
   using CoordSys = CoordinateSystemIdentifier;
   vtkNew<vtkTransform> patientToCarmWristTransform;
-  if (!this->GetTransformBetween( CoordSys::Patient, CoordSys::CarmRobotWrist, 
+  if (!this->GetTransformBetween(CoordSys::Patient, CoordSys::CarmRobotWrist, 
     patientToCarmWristTransform, false))
   {
     vtkWarningMacro("UpdateCarmRobotFlangeToCarmRobotWristTransform: Can't get Patient->CarmRobotWrist transform");
   }
   vtkNew<vtkTransform> carmWristToPatientTransform;
-  if (!this->GetTransformBetween( CoordSys::CarmRobotWrist, CoordSys::Patient, 
+  if (!this->GetTransformBetween(CoordSys::CarmRobotWrist, CoordSys::Patient, 
     carmWristToPatientTransform, false))
   {
     vtkWarningMacro("UpdateCarmRobotFlangeToCarmRobotWristTransform: Can't get CarmRobotWrist->Patient transform");
   }
 
-  vtkMRMLLinearTransformNode* carmToCArmWristTransformNode =
+  vtkMRMLLinearTransformNode* carmFlangeToCarmWristTransformNode =
     this->GetTransformNodeBetween(CoordSys::CarmRobotFlange, CoordSys::CarmRobotWrist);
-  if (carmToCArmWristTransformNode)
+  if (carmFlangeToCarmWristTransformNode)
   {
     double a[6] = {};
     parameterNode->GetCarmRobotAngles(a);
@@ -2050,7 +2107,59 @@ void vtkSlicerChannel26Cabin3RobotsTransformLogic::UpdateCarmRobotFlangeToCarmRo
 
     carmWristToPatientTransform->Concatenate(flangeToWristTransform);
     carmWristToPatientTransform->Concatenate(patientToCarmWristTransform);
-    carmToCArmWristTransformNode->SetAndObserveTransformToParent(carmWristToPatientTransform);
+    carmFlangeToCarmWristTransformNode->SetAndObserveTransformToParent(carmWristToPatientTransform);
+  }
+}
+
+//-----------------------------------------------------------------------------
+void vtkSlicerChannel26Cabin3RobotsTransformLogic::UpdateCarmToCarmRobotFlangeTransform(vtkMRMLChannel26GeometryNode* parameterNode)
+{
+  vtkMRMLScene* scene = this->GetMRMLScene();
+  if (!scene)
+  {
+    vtkErrorMacro("UpdateCarmToCarmRobotFlangeTransform: Invalid scene");
+    return;
+  }
+  if (!parameterNode)
+  {
+    vtkErrorMacro("UpdateCarmToCarmRobotFlangeTransform: Invalid parameter node");
+    return;
+  }
+
+  // Translate the C-arm from C-arm wrist origin along X-axis
+  using CoordPos = vtkSlicerChannel26Cabin3RobotsGeometryCommon;
+  vtkNew<vtkTransform> carmToCarmFlangeTranslate;
+  carmToCarmFlangeTranslate->Translate(CoordPos::CARM_ROBOT_WRIST_SIZE, 0., 0.);
+
+  using CoordSys = CoordinateSystemIdentifier;
+  vtkNew<vtkTransform> patientToCarmFlangeTransform;
+  if (!this->GetTransformBetween(CoordSys::Patient, CoordSys::CarmRobotFlange, 
+    patientToCarmFlangeTransform, false))
+  {
+    vtkWarningMacro("UpdateCarmToCarmRobotFlangeTransform: Can't get Patient->CarmRobotFlange transform");
+  }
+  vtkNew<vtkTransform> carmFlangeToPatientTransform;
+  if (!this->GetTransformBetween(CoordSys::CarmRobotFlange, CoordSys::Patient, 
+    carmFlangeToPatientTransform, false))
+  {
+    vtkWarningMacro("UpdateCarmToCarmRobotFlangeTransform: Can't get CarmRobotFlange->Patient transform");
+  }
+
+  vtkMRMLLinearTransformNode* carmToCarmFlangeTransformNode =
+    this->GetTransformNodeBetween(CoordSys::Carm, CoordSys::CarmRobotFlange);
+  if (carmToCarmFlangeTransformNode)
+  {
+//    double a[6] = {};
+//    parameterNode->GetCarmRobotAngles(a);
+
+    // Flange->Wrist rotation around X (A6 angle)
+    vtkNew<vtkTransform> flangeToWristTransform;
+//    flangeToWristTransform->RotateX(a[5]);
+
+    carmFlangeToPatientTransform->Concatenate(carmToCarmFlangeTranslate);
+    carmFlangeToPatientTransform->Concatenate(flangeToWristTransform);
+    carmFlangeToPatientTransform->Concatenate(patientToCarmFlangeTransform);
+    carmToCarmFlangeTransformNode->SetAndObserveTransformToParent(carmFlangeToPatientTransform);
   }
 }
 
@@ -2073,12 +2182,13 @@ vtkMRMLLinearTransformNode* vtkSlicerChannel26Cabin3RobotsTransformLogic::Update
   // Display all pieces of the treatment room and sets each piece a color to provide realistic representation
   using CoordSys = CoordinateSystemIdentifier;
 
-  // Transform robot models to RAS
-  vtkNew<vtkTransform> patientToRasTransform;
-  patientToRasTransform->RotateX(-90.);
+  // Transform robots, table, C-arm models to RAS, according to patient orientation
+  // on the table top
+  vtkNew<vtkTransform> iecPatientToRasTransform;
+  iecPatientToRasTransform->RotateX(-90.);
   if (parameterNode->GetPatientHeadFeetRotation())
   {
-    patientToRasTransform->RotateZ(180.);
+    iecPatientToRasTransform->RotateZ(180.);
   }
 
   // Frame -> RAS
@@ -2111,7 +2221,7 @@ vtkMRMLLinearTransformNode* vtkSlicerChannel26Cabin3RobotsTransformLogic::Update
   {
     vtkDebugMacro("UpdateFrameToRasTransform: " << frameName << "->RAS transform updated");
     // Transform to RAS, set transform to node, transform the model
-    frameToRasTransform->Concatenate(patientToRasTransform);
+    frameToRasTransform->Concatenate(iecPatientToRasTransform);
   }
   if (frameToRasTransformNode)
   {
@@ -2243,6 +2353,8 @@ void vtkSlicerChannel26Cabin3RobotsTransformLogic::UpdateFrameToRasHierarchy(vtk
     this->UpdateCarmRobotWristToRasTransform(parameterNode);
   case CoordinateSystemIdentifier::CarmRobotFlange:
     this->UpdateCarmRobotFlangeToRasTransform(parameterNode);
+  case CoordinateSystemIdentifier::Carm:
+    this->UpdateCarmToRasTransform(parameterNode);
   default:
     break;
   }
@@ -2289,6 +2401,8 @@ void vtkSlicerChannel26Cabin3RobotsTransformLogic::UpdateTransformsHierarchy(vtk
     this->UpdateCarmRobotWristToCarmRobotElbowWristTransform(parameterNode);
   case CoordinateSystemIdentifier::CarmRobotFlange:
     this->UpdateCarmRobotFlangeToCarmRobotWristTransform(parameterNode);
+  case CoordinateSystemIdentifier::Carm:
+    this->UpdateCarmToCarmRobotFlangeTransform(parameterNode);
   default:
     break;
   }

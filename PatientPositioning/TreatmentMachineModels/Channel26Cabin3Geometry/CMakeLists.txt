@@ -24,6 +24,7 @@ set(MACHINE_MODELS
   KR210_R3100-2_Elbow_A4.stl
   KR210_R3100-2_Wrist.stl
   KR210_R3100-2_Flange.stl
+  Carm.stl
 )
 
 SlicerMacroConfigureTreatmentMachineComponentModels(
