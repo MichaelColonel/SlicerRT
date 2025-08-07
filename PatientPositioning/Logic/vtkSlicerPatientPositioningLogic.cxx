@@ -17,6 +17,7 @@
 
 // PatientPositioning Logic includes
 #include "vtkSlicerPatientPositioningLogic.h"
+#include "vtkSlicerChannel26Cabin3RobotsGeometryCommon.h"
 
 // MRML includes
 #include <vtkMRMLScene.h>
@@ -961,7 +962,12 @@ vtkMRMLRTCarmBeamNode* vtkSlicerPatientPositioningLogic::CreateCarmXrayPlanAndNo
   carmXrayPlanNode->GetScene()->AddNode(carmXrayBeamNode);
   carmXrayPlanNode->AddBeam(carmXrayBeamNode);
 
+  using CoordPos = vtkSlicerChannel26Cabin3RobotsGeometryCommon;
+
   // Set SAD to 1. m
+  double isocenter[3] = { 0., 0., (-1. * CoordPos::CARM_XRAY_INNER_SIZE / 2.) - 400. };
+  carmXrayPlanNode->SetIsocenterPosition(isocenter);
+
   carmXrayBeamNode->SetSAD(1000.);
   carmXrayBeamNode->SetX1Jaw(-80);
   carmXrayBeamNode->SetX2Jaw(80);
@@ -1004,7 +1010,7 @@ vtkMRMLMarkupsLineNode* vtkSlicerPatientPositioningLogic::CreateCabin3BeamAxisLi
     
   vtkMRMLMarkupsLineNode* lineMarkupsNode = vtkMRMLMarkupsLineNode::SafeDownCast(scene->AddNewNodeByClass("vtkMRMLMarkupsLineNode"));
   lineMarkupsNode->SetName(FIXEDBEAMAXIS_MARKUPS_LINE_NODE_NAME);
-  std::string singletonTag = std::string("C26C3_") + FIXEDBEAMAXIS_MARKUPS_LINE_NODE_NAME;
+//  std::string singletonTag = std::string("C26C3_") + FIXEDBEAMAXIS_MARKUPS_LINE_NODE_NAME;
   lineMarkupsNode->LockedOn();
 
   if (parameterNode)
