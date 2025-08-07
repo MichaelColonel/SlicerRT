@@ -964,13 +964,10 @@ vtkMRMLRTCarmBeamNode* vtkSlicerPatientPositioningLogic::CreateCarmXrayPlanAndNo
 
   using CoordPos = vtkSlicerChannel26Cabin3RobotsGeometryCommon;
 
-  // Set SAD to 1. m
-  double isocenter[3] = { 0., 0., (-1. * CoordPos::CARM_XRAY_INNER_SIZE / 2.) - 400. };
+  // Get Beam SAD
+  double sad = carmXrayBeamNode->GetSAD();
+  double isocenter[3] = { 0., 0., -167. - sad };
   carmXrayPlanNode->SetIsocenterPosition(isocenter);
-
-  carmXrayBeamNode->SetSAD(1000.);
-  carmXrayBeamNode->SetX1Jaw(-80);
-  carmXrayBeamNode->SetX2Jaw(80);
 
   vtkMRMLMarkupsFiducialNode* carmXrayIsocenterNode = carmXrayPlanNode->GetPoisMarkupsFiducialNode();
   carmXrayIsocenterNode->SetName("CarmXrayIsocenter");
@@ -1436,6 +1433,7 @@ void vtkSlicerPatientPositioningLogic::ShowMarkupsNodes(vtkMRMLPatientPositionin
   std::list<std::string> markupsNames;
   markupsNames.push_back(vtkSlicerPatientPositioningLogic::TABLETOP_MARKUPS_PLANE_NODE_NAME);
   markupsNames.push_back(vtkSlicerPatientPositioningLogic::TABLETOP_MARKUPS_FIDUCIAL_NODE_NAME);
+  markupsNames.push_back(vtkSlicerPatientPositioningLogic::FIXEDBEAMAXIS_MARKUPS_LINE_NODE_NAME);
 
   for (auto markupName : markupsNames)
   {

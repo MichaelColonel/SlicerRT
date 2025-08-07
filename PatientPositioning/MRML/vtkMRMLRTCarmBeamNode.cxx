@@ -41,6 +41,11 @@ vtkMRMLRTCarmBeamNode::vtkMRMLRTCarmBeamNode()
   this->SetGantryAngle(270.);
   this->SetCollimatorAngle(270.);
   this->SetCouchAngle(90.);
+  this->SetSAD(1000.);
+  this->SetX1Jaw(-80);
+  this->SetX2Jaw(80);
+  this->SetSourceToJawsDistanceX(230.);
+  this->SetSourceToJawsDistanceY(230.);
 }
 
 //----------------------------------------------------------------------------
