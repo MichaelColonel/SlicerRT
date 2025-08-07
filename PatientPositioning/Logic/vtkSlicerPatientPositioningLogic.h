@@ -101,6 +101,16 @@ public:
   void UpdateTableTopPlaneNode(vtkMRMLChannel26GeometryNode* parameterNode);
   /// Update TableTop markups fiducial node using parameter node data and geometry hierarchy
   void UpdateTableTopFiducialNode(vtkMRMLChannel26GeometryNode* parameterNode);
+  /// Creates a Cabin-3 beam axis line node (axis in FixedReference frame)
+  /// \return a valid markups line node pointer or nullptr otherwise
+  vtkMRMLMarkupsLineNode* CreateCabin3BeamAxisLineNode(vtkMRMLPatientPositioningNode* parameterNode);
+  /// Creates a Cabin-3 isocenter fiducial node (point in FixedReference frame)
+  /// \return a valid markups fiducial node pointer or nullptr otherwise
+  vtkMRMLMarkupsFiducialNode* CreateCabin3IsocenterFiducialNode(vtkMRMLPatientPositioningNode* parameterNode);
+  /// Create Cabin-3 fixed reference ion beam and plan and add beam to the parameter node
+  vtkMRMLRTChannel26Cabin3BeamNode* CreateCabin3BeamPlanAndNode(vtkMRMLPatientPositioningNode* parameterNode);
+  /// Create C-arm x-ray beam and plan and add C-arm x-ray beam to the parameter node
+  vtkMRMLRTCarmBeamNode* CreateCarmXrayPlanAndNode(vtkMRMLPatientPositioningNode* parameterNode);
 
 public:
   // Get treatment machine properties from descriptor file

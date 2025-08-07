@@ -66,6 +66,9 @@ vtkMRMLRTChannel26Cabin3BeamNode::vtkMRMLRTChannel26Cabin3BeamNode()
   IsocenterToMlcLayer1Distance(vtkMRMLRTIonBeamNode::IsocenterToMultiLeafCollimatorDistance),
   IsocenterToMlcLayer2Distance(IsocenterToMlcLayer1Distance)
 {
+  this->SetGantryAngle(270.);
+  this->SetCollimatorAngle(90.);
+
   this->IsocenterToMlcLayer1Distance = 2500.;
   this->IsocenterToMlcLayer2Distance = 2500.;
 }
@@ -74,6 +77,27 @@ vtkMRMLRTChannel26Cabin3BeamNode::vtkMRMLRTChannel26Cabin3BeamNode()
 vtkMRMLRTChannel26Cabin3BeamNode::~vtkMRMLRTChannel26Cabin3BeamNode()
 {
   this->SetBeamDescription(nullptr);
+}
+
+//----------------------------------------------------------------------------
+void vtkMRMLRTChannel26Cabin3BeamNode::CreateDefaultDisplayNodes()
+{
+  // Create default model display node
+  this->vtkMRMLModelNode::CreateDefaultDisplayNodes();
+
+  // Set beam-specific parameters
+  vtkMRMLModelDisplayNode* displayNode = vtkMRMLModelDisplayNode::SafeDownCast(this->GetDisplayNode());
+  if (!displayNode)
+  {
+    vtkErrorMacro("CreateDefaultDisplayNodes: Failed to create default display node");
+    return;
+  }
+
+  displayNode->SetColor(0.3, 0.1, 1.0);
+  displayNode->SetOpacity(0.3);
+  displayNode->SetBackfaceCulling(0); // Disable backface culling to make the back side of the contour visible as well
+  displayNode->VisibilityOn();
+  displayNode->Visibility2DOn();
 }
 
 //----------------------------------------------------------------------------

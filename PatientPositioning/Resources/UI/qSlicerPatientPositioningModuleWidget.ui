@@ -189,7 +189,7 @@
          <widget class="qMRMLNodeComboBox" name="MRMLNodeComboBox_CarmXrayBeam">
           <property name="nodeTypes">
            <stringlist>
-            <string>vtkMRMLRTFixedBeamNode</string>
+            <string>vtkMRMLRTCarmBeamNode</string>
            </stringlist>
           </property>
           <property name="noneEnabled">

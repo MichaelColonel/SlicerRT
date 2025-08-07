@@ -32,7 +32,7 @@
 
 #include "vtkMRMLPatientPositioningNode.h"
 #include "vtkMRMLChannel26GeometryNode.h"
-#include "vtkMRMLRTFixedBeamNode.h"
+#include "vtkMRMLRTCarmBeamNode.h"
 #include "vtkMRMLRTChannel26Cabin3BeamNode.h"
 
 //------------------------------------------------------------------------------
@@ -224,17 +224,17 @@ void vtkMRMLPatientPositioningNode::SetAndObserveChannel26GeometryNode(vtkMRMLCh
 }
 
 //----------------------------------------------------------------------------
-vtkMRMLMarkupsLineNode* vtkMRMLPatientPositioningNode::GetFixedBeamAxisLineNode()
+vtkMRMLMarkupsLineNode* vtkMRMLPatientPositioningNode::GetCabin3BeamAxisLineNode()
 {
   return vtkMRMLMarkupsLineNode::SafeDownCast( this->GetNodeReference(FIXED_BEAM_AXIS_REFERENCE_ROLE) );
 }
 
 //----------------------------------------------------------------------------
-void vtkMRMLPatientPositioningNode::SetAndObserveFixedBeamAxisLineNode(vtkMRMLMarkupsLineNode* node)
+void vtkMRMLPatientPositioningNode::SetAndObserveCabin3BeamAxisLineNode(vtkMRMLMarkupsLineNode* node)
 {
   if (node && this->Scene != node->GetScene())
   {
-    vtkErrorMacro("SetAndObserveFixedBeamAxisLineNode: Cannot set reference, the referenced and referencing node are not in the same scene");
+    vtkErrorMacro("SetAndObserveCabin3BeamAxisLineNode: Cannot set reference, the referenced and referencing node are not in the same scene");
     return;
   }
 
@@ -242,17 +242,17 @@ void vtkMRMLPatientPositioningNode::SetAndObserveFixedBeamAxisLineNode(vtkMRMLMa
 }
 
 //----------------------------------------------------------------------------
-vtkMRMLMarkupsFiducialNode* vtkMRMLPatientPositioningNode::GetFixedIsocenterFiducialNode()
+vtkMRMLMarkupsFiducialNode* vtkMRMLPatientPositioningNode::GetCabin3IsocenterFiducialNode()
 {
   return vtkMRMLMarkupsFiducialNode::SafeDownCast( this->GetNodeReference(FIXED_ISOCENTER_REFERENCE_ROLE) );
 }
 
 //----------------------------------------------------------------------------
-void vtkMRMLPatientPositioningNode::SetAndObserveFixedIsocenterFiducialNode(vtkMRMLMarkupsFiducialNode* node)
+void vtkMRMLPatientPositioningNode::SetAndObserveCabin3IsocenterFiducialNode(vtkMRMLMarkupsFiducialNode* node)
 {
   if (node && this->Scene != node->GetScene())
   {
-    vtkErrorMacro("SetAndObserveFixedBeamAxisLineNode: Cannot set reference, the referenced and referencing node are not in the same scene");
+    vtkErrorMacro("SetAndObserveCabin3IsocenterFiducialNode: Cannot set reference, the referenced and referencing node are not in the same scene");
     return;
   }
 
@@ -315,13 +315,13 @@ void vtkMRMLPatientPositioningNode::SetAndObserveFixedReferenceBeamNode(vtkMRMLR
 }
 
 //----------------------------------------------------------------------------
-vtkMRMLRTFixedBeamNode* vtkMRMLPatientPositioningNode::GetCarmXrayBeamNode()
+vtkMRMLRTCarmBeamNode* vtkMRMLPatientPositioningNode::GetCarmXrayBeamNode()
 {
-  return vtkMRMLRTFixedBeamNode::SafeDownCast( this->GetNodeReference(CARM_XRAY_BEAM_REFERENCE_ROLE) );
+  return vtkMRMLRTCarmBeamNode::SafeDownCast( this->GetNodeReference(CARM_XRAY_BEAM_REFERENCE_ROLE) );
 }
 
 //----------------------------------------------------------------------------
-void vtkMRMLPatientPositioningNode::SetAndObserveCarmXrayBeamNode(vtkMRMLRTFixedBeamNode* node)
+void vtkMRMLPatientPositioningNode::SetAndObserveCarmXrayBeamNode(vtkMRMLRTCarmBeamNode* node)
 {
   if (node && this->Scene != node->GetScene())
     {

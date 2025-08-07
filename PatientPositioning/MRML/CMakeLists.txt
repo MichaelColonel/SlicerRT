@@ -22,6 +22,8 @@ set(${KIT}_SRCS
   vtkMRMLChannel26GeometryNode.h
   vtkMRMLRTFixedBeamNode.h
   vtkMRMLRTFixedBeamNode.cxx
+  vtkMRMLRTCarmBeamNode.h
+  vtkMRMLRTCarmBeamNode.cxx
   vtkMRMLRTFixedIonBeamNode.h
   vtkMRMLRTFixedIonBeamNode.cxx
   vtkMRMLRTChannel26Cabin3BeamNode.h

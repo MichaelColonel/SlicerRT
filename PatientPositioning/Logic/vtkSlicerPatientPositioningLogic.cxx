@@ -32,7 +32,7 @@
 
 #include <vtkMRMLRTPlanNode.h>
 #include <vtkMRMLRTBeamNode.h>
-#include <vtkMRMLRTFixedBeamNode.h>
+#include <vtkMRMLRTCarmBeamNode.h>
 #include <vtkMRMLRTChannel26Cabin3BeamNode.h>
 
 // VTK includes
@@ -540,20 +540,7 @@ void vtkSlicerPatientPositioningLogic::ProcessMRMLNodesEvents(vtkObject* caller,
     if (event == vtkCommand::ModifiedEvent)
     {
       this->Channel26RobotsLogic->UpdateFrameToRasHierarchy(channel26Geometry, CoordSys::TableTop);
-/*
-      this->Channel26RobotsLogic->UpdateTableTopToRasTransform(channel26Geometry);
-      this->Channel26RobotsLogic->UpdateTableFlangeToRasTransform(channel26Geometry);
-      this->Channel26RobotsLogic->UpdateTableRobotFlangeToRasTransform(channel26Geometry);
-      this->Channel26RobotsLogic->UpdateTableRobotWristToRasTransform(channel26Geometry);
-      this->Channel26RobotsLogic->UpdateTableRobotElbowWristToRasTransform(channel26Geometry);
-      this->Channel26RobotsLogic->UpdateTableRobotElbowShoulderToRasTransform(channel26Geometry);
-      this->Channel26RobotsLogic->UpdateTableRobotShoulderToRasTransform(channel26Geometry);
-      this->Channel26RobotsLogic->UpdateTableRobotBaseRotationToRasTransform(channel26Geometry);
-      this->Channel26RobotsLogic->UpdateTableRobotBaseFixedToRasTransform(channel26Geometry);
-      this->Channel26RobotsLogic->UpdateFixedReferenceToRasTransform(channel26Geometry);
-      this->Channel26RobotsLogic->UpdateCarmRobotBaseFixedToRasTransform(channel26Geometry);
-      this->Channel26RobotsLogic->UpdateCarmRobotBaseRotationToRasTransform(channel26Geometry);
-*/
+
       this->UpdateTableTopPlaneNode(channel26Geometry);
       this->UpdateTableTopFiducialNode(channel26Geometry);
       {
@@ -633,7 +620,7 @@ vtkMRMLMarkupsPlaneNode* vtkSlicerPatientPositioningLogic::CreateTableTopPlaneNo
   this->GetMRMLScene()->AddNode(tableTopPlaneNode);
   tableTopPlaneNode->SetName(TABLETOP_MARKUPS_PLANE_NODE_NAME);
 //  tableTopPlaneNode->SetHideFromEditors(1);
-  std::string singletonTag = std::string("C26A_") + TABLETOP_MARKUPS_PLANE_NODE_NAME;
+  std::string singletonTag = std::string("C26C3_") + TABLETOP_MARKUPS_PLANE_NODE_NAME;
 //  tableTopPlaneNode->SetSingletonTag(singletonTag.c_str());
 //  tableTopPlaneNode->LockedOn();
 
@@ -699,7 +686,7 @@ vtkMRMLMarkupsFiducialNode* vtkSlicerPatientPositioningLogic::CreateTableTopFidu
   this->GetMRMLScene()->AddNode(tableTopFiducialNode);
   tableTopFiducialNode->SetName(TABLETOP_MARKUPS_FIDUCIAL_NODE_NAME);
 //  tableTopFiducialNode->SetHideFromEditors(1);
-  std::string singletonTag = std::string("C26A_") + TABLETOP_MARKUPS_FIDUCIAL_NODE_NAME;
+  std::string singletonTag = std::string("C26C3_") + TABLETOP_MARKUPS_FIDUCIAL_NODE_NAME;
 //  tableTopFiducialNode->SetSingletonTag(singletonTag.c_str());
 //  tableTopFiducialNode->LockedOn();
 
@@ -884,6 +871,194 @@ void vtkSlicerPatientPositioningLogic::UpdateTableTopFiducialNode(vtkMRMLChannel
     this->CreateTableTopFiducialNode(parameterNode);
   }
 }
+
+
+//----------------------------------------------------------------------------
+vtkMRMLRTChannel26Cabin3BeamNode* vtkSlicerPatientPositioningLogic::CreateCabin3BeamPlanAndNode(vtkMRMLPatientPositioningNode* parameterNode)
+{
+  vtkMRMLScene* scene = this->GetMRMLScene();
+
+  if (!scene)
+  {
+    vtkErrorMacro("CreateCabin3BeamPlanAndNode: Invalid scene");
+    return nullptr;
+  }
+
+  vtkMRMLSubjectHierarchyNode* shNode = vtkMRMLSubjectHierarchyNode::GetSubjectHierarchyNode(scene);
+  if (!shNode)
+  {
+    vtkErrorMacro("CreateCabin3BeamPlanAndNode: Failed to access subject hierarchy node");
+    return nullptr;
+  }
+
+  if (!parameterNode)
+  {
+    vtkErrorMacro("CreateCabin3BeamPlanAndNode: Invalid parameter node");
+    return nullptr;
+  }
+  vtkMRMLRTPlanNode* cabin3PlanNode = vtkMRMLRTPlanNode::SafeDownCast(scene->AddNewNodeByClass( "vtkMRMLRTPlanNode", "Cabin3Plan"));
+  cabin3PlanNode->SetIonPlanFlag(true);
+  cabin3PlanNode->SetIsocenterSpecification(vtkMRMLRTPlanNode::ArbitraryPoint);
+
+  // Create beam and add to scene
+  vtkNew< vtkMRMLRTChannel26Cabin3BeamNode > cabin3BeamNode;
+
+  std::string cabin3IonBeamName = scene->GenerateUniqueName("Cabin3IonBeam");
+  cabin3BeamNode->SetName(cabin3IonBeamName.c_str());
+  cabin3PlanNode->GetScene()->AddNode(cabin3BeamNode);
+  cabin3PlanNode->AddBeam(cabin3BeamNode);
+
+  vtkMRMLMarkupsFiducialNode* cabin3IsocenterNode = cabin3PlanNode->GetPoisMarkupsFiducialNode();
+  cabin3IsocenterNode->SetName("Cabin3Isocenter");
+
+  vtkMRMLTransformNode* cabin3BeamTranfsormNode = cabin3BeamNode->GetParentTransformNode();
+  // Find FixedReferenceToRasTransform or create it
+  vtkMRMLLinearTransformNode* fixedReferenceToRasTransformNode = this->Channel26RobotsLogic->GetFixedReferenceTransform();
+
+  if (cabin3BeamTranfsormNode && fixedReferenceToRasTransformNode)
+  {
+    cabin3BeamTranfsormNode->SetAndObserveTransformNodeID(fixedReferenceToRasTransformNode->GetID() );
+  }
+  if (cabin3IsocenterNode && fixedReferenceToRasTransformNode)
+  {
+    cabin3IsocenterNode->SetAndObserveTransformNodeID(fixedReferenceToRasTransformNode->GetID() );
+  }
+
+  parameterNode->SetAndObserveFixedReferenceBeamNode(cabin3BeamNode);
+  return cabin3BeamNode.GetPointer();
+}
+
+//----------------------------------------------------------------------------
+vtkMRMLRTCarmBeamNode* vtkSlicerPatientPositioningLogic::CreateCarmXrayPlanAndNode(vtkMRMLPatientPositioningNode* parameterNode)
+{
+  vtkMRMLScene* scene = this->GetMRMLScene();
+
+  if (!scene)
+  {
+    vtkErrorMacro("CreateCarmXrayPlanAndNode: Invalid scene");
+    return nullptr;
+  }
+
+  vtkMRMLSubjectHierarchyNode* shNode = vtkMRMLSubjectHierarchyNode::GetSubjectHierarchyNode(scene);
+  if (!shNode)
+  {
+    vtkErrorMacro("CreateCarmXrayPlanAndNode: Failed to access subject hierarchy node");
+    return nullptr;
+  }
+
+  if (!parameterNode)
+  {
+    vtkErrorMacro("CreateCarmXrayPlanAndNode: Invalid parameter node");
+    return nullptr;
+  }
+
+  vtkMRMLRTPlanNode* carmXrayPlanNode = vtkMRMLRTPlanNode::SafeDownCast(scene->AddNewNodeByClass( "vtkMRMLRTPlanNode", "CarmXrayPlan"));
+
+  vtkNew< vtkMRMLRTCarmBeamNode > carmXrayBeamNode;
+
+  std::string carmXrayBeamName = scene->GenerateUniqueName("CarmXrayBeam");
+  carmXrayBeamNode->SetName(carmXrayBeamName.c_str());
+  carmXrayPlanNode->GetScene()->AddNode(carmXrayBeamNode);
+  carmXrayPlanNode->AddBeam(carmXrayBeamNode);
+
+  // Set SAD to 1. m
+  carmXrayBeamNode->SetSAD(1000.);
+  carmXrayBeamNode->SetX1Jaw(-80);
+  carmXrayBeamNode->SetX2Jaw(80);
+
+  vtkMRMLMarkupsFiducialNode* carmXrayIsocenterNode = carmXrayPlanNode->GetPoisMarkupsFiducialNode();
+  carmXrayIsocenterNode->SetName("CarmXrayIsocenter");
+
+  vtkMRMLTransformNode* carmBeamTranfsormNode = carmXrayBeamNode->GetParentTransformNode();
+  // Find CarmXrayBeamToRasTransform or create it
+  vtkMRMLLinearTransformNode* carmXrayBeamToRasTransformNode = this->Channel26RobotsLogic->GetCarmXrayBeamTransform();
+  if (carmBeamTranfsormNode && carmXrayBeamToRasTransformNode)
+  {
+    carmBeamTranfsormNode->SetAndObserveTransformNodeID(carmXrayBeamToRasTransformNode->GetID() );
+  }
+  if (carmXrayIsocenterNode && carmXrayBeamToRasTransformNode)
+  {
+    carmXrayIsocenterNode->SetAndObserveTransformNodeID(carmXrayBeamToRasTransformNode->GetID() );
+  }
+
+  parameterNode->SetAndObserveCarmXrayBeamNode(carmXrayBeamNode);
+  return carmXrayBeamNode.GetPointer();
+}
+
+
+//----------------------------------------------------------------------------
+vtkMRMLMarkupsLineNode* vtkSlicerPatientPositioningLogic::CreateCabin3BeamAxisLineNode(vtkMRMLPatientPositioningNode* parameterNode)
+{
+  vtkMRMLScene* scene = this->GetMRMLScene();
+  if (!scene)
+  {
+    vtkErrorMacro("CreateCabin3BeamAxisLineNode: Invalid MRML scene");
+    return nullptr;
+  }
+
+  // line markups node
+  if (scene->GetFirstNodeByName(FIXEDBEAMAXIS_MARKUPS_LINE_NODE_NAME))
+  {
+    return vtkMRMLMarkupsLineNode::SafeDownCast(scene->GetFirstNodeByName(FIXEDBEAMAXIS_MARKUPS_LINE_NODE_NAME));
+  }
+    
+  vtkMRMLMarkupsLineNode* lineMarkupsNode = vtkMRMLMarkupsLineNode::SafeDownCast(scene->AddNewNodeByClass("vtkMRMLMarkupsLineNode"));
+  lineMarkupsNode->SetName(FIXEDBEAMAXIS_MARKUPS_LINE_NODE_NAME);
+  std::string singletonTag = std::string("C26C3_") + FIXEDBEAMAXIS_MARKUPS_LINE_NODE_NAME;
+  lineMarkupsNode->LockedOn();
+
+  if (parameterNode)
+  {
+    // add points to line node
+    vtkVector3d p0( -4000., 0., 0.); // Begin
+    vtkVector3d p1( 4000., 0., 0.); // End
+
+    lineMarkupsNode->AddControlPoint( p0, "Cabin3BeamAxisBegin");
+    lineMarkupsNode->AddControlPoint( p1, "Cabin3BeamAxisEnd");
+
+    vtkMRMLTransformNode* transformNode = this->GetChannel26RobotsTransformLogic()->GetFixedReferenceTransform();
+
+    // add transform to fiducial node
+    if (transformNode)
+    {
+      lineMarkupsNode->SetAndObserveTransformNodeID(transformNode->GetID());
+    }
+    parameterNode->SetAndObserveCabin3BeamAxisLineNode(lineMarkupsNode);
+  }
+
+  return lineMarkupsNode;
+}
+
+//----------------------------------------------------------------------------
+vtkMRMLMarkupsFiducialNode* vtkSlicerPatientPositioningLogic::CreateCabin3IsocenterFiducialNode(vtkMRMLPatientPositioningNode* parameterNode)
+{
+  vtkMRMLScene* scene = this->GetMRMLScene();
+  if (!scene)
+  {
+    vtkErrorMacro("CreateCabin3IsocenterFiducialNode: Invalid MRML scene");
+    return nullptr;
+  }
+
+  // Fixed isocenter fiducial markups node
+  if (scene->GetFirstNodeByName(FIXEDISOCENTER_MARKUPS_FIDUCIAL_NODE_NAME))
+  {
+    return vtkMRMLMarkupsFiducialNode::SafeDownCast(scene->GetFirstNodeByName(FIXEDISOCENTER_MARKUPS_FIDUCIAL_NODE_NAME));
+  }
+
+  vtkMRMLMarkupsFiducialNode* pointMarkupsNode = vtkMRMLMarkupsFiducialNode::SafeDownCast(scene->AddNewNodeByClass("vtkMRMLMarkupsFiducialNode"));
+  pointMarkupsNode->SetName(FIXEDISOCENTER_MARKUPS_FIDUCIAL_NODE_NAME);
+  std::string singletonTag = std::string("C26C3_") + FIXEDISOCENTER_MARKUPS_FIDUCIAL_NODE_NAME;
+  if (parameterNode)
+  {
+    vtkVector3d pFixedIsocenter( 0., 0., 0.); // FixedIsocenter
+    pointMarkupsNode->AddControlPoint( pFixedIsocenter, "Cabin3Isocenter");
+
+    parameterNode->SetAndObserveCabin3IsocenterFiducialNode(pointMarkupsNode);
+  }
+
+  return pointMarkupsNode;
+}
+
 
 //---------------------------------------------------------------------------
 void vtkSlicerPatientPositioningLogic::BuildRobotsTransformHierarchy()

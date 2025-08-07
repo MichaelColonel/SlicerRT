@@ -166,6 +166,9 @@ const char* vtkSlicerChannel26Cabin3RobotsTransformLogic::GetTreatmentMachinePar
   const char* partAsString = nullptr;
   switch (type)
   {
+  case RAS:
+    partAsString = "RAS";
+    break;
   case FixedReference:
     partAsString = "FixedReference";
     break;
@@ -1850,6 +1853,7 @@ void vtkSlicerChannel26Cabin3RobotsTransformLogic::UpdateCarmRobotBaseRotationTo
   {
     vtkWarningMacro("UpdateCarmRobotBaseRotationToCarmRobotBaseFixedTransform: Can't get Patient->CarmRobotBaseFixed transform");
   }
+
   vtkNew<vtkTransform> carmRobotBaseFixedToPatientTransform;
   if (!this->GetTransformBetween( CoordSys::CarmRobotBaseFixed, CoordSys::Patient, 
     carmRobotBaseFixedToPatientTransform, false))
@@ -1868,7 +1872,6 @@ void vtkSlicerChannel26Cabin3RobotsTransformLogic::UpdateCarmRobotBaseRotationTo
     vtkNew<vtkTransform> baseRotationToBaseFixedTransform;
     baseRotationToBaseFixedTransform->RotateY(a[0]);
 
-    carmRobotBaseFixedToPatientTransform->Concatenate(carmRobotBaseFixedToPatientTransform);
     carmRobotBaseFixedToPatientTransform->Concatenate(baseRotationToBaseFixedTransform);
     carmRobotBaseFixedToPatientTransform->Concatenate(patientToCarmRobotBaseFixedTransform);
     carmRobotBaseRotationToCarmRobotBaseFixedTransformNode->SetAndObserveTransformToParent(carmRobotBaseFixedToPatientTransform);
@@ -2238,7 +2241,7 @@ void vtkSlicerChannel26Cabin3RobotsTransformLogic::UpdateCarmXrayDetectorToCarmT
   // Translate the C-arm X-ray beam mount position to from C-arm origin along X-axis and Y-axis
   using CoordPos = vtkSlicerChannel26Cabin3RobotsGeometryCommon;
   vtkNew<vtkTransform> carmXrayDetectorToCarmTranslate;
-  carmXrayDetectorToCarmTranslate->Translate(0., 0., 0.);
+  carmXrayDetectorToCarmTranslate->Translate(586.5, -736., 0.);
 
   using CoordSys = CoordinateSystemIdentifier;
   vtkNew<vtkTransform> patientToCarmTransform;
@@ -2299,7 +2302,17 @@ vtkMRMLLinearTransformNode* vtkSlicerChannel26Cabin3RobotsTransformLogic::Update
     vtkErrorMacro("UpdateFrameToRasTransform: Frame name is invalid");
     return nullptr;
   }
-  std::string frameToRasTransformName = std::string(frameName) + std::string("ToRasTransform");
+
+  const char* rasName = this->GetTreatmentMachinePartTypeAsString(CoordSys::RAS);
+  if (!frameName)
+  {
+    vtkErrorMacro("UpdateFrameToRasTransform: RAS name is invalid");
+    return nullptr;
+  }
+
+  std::string frameToRasTransformName = std::string(frameName) + std::string("To") \
+    + std::string(rasName) + std::string("Transform");
+
   vtkSmartPointer<vtkMRMLLinearTransformNode> frameToRasTransformNode;
   if (vtkMRMLNode* node = scene->GetFirstNodeByName(frameToRasTransformName.c_str()))
   {
@@ -2345,7 +2358,16 @@ vtkMRMLLinearTransformNode* vtkSlicerChannel26Cabin3RobotsTransformLogic::GetFra
     vtkErrorMacro("GetFrameToRasTransform: Frame name is invalid");
     return nullptr;
   }
-  std::string frameToRasTransformName = std::string(frameName) + std::string("ToRasTransform");
+
+  const char* rasName = this->GetTreatmentMachinePartTypeAsString(CoordinateSystemIdentifier::RAS);
+  if (!frameName)
+  {
+    vtkErrorMacro("UpdateFrameToRasTransform: RAS name is invalid");
+    return nullptr;
+  }
+
+  std::string frameToRasTransformName = std::string(frameName) + std::string("To") \
+    + std::string(rasName) + std::string("Transform");
 
   vtkSmartPointer<vtkMRMLLinearTransformNode> transformNode;
   if (vtkMRMLNode* node = scene->GetFirstNodeByName(frameToRasTransformName.c_str()))

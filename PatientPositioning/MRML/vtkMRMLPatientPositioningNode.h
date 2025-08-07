@@ -30,7 +30,7 @@ class vtkMRMLMarkupsLineNode;
 class vtkMRMLMarkupsFiducialNode;
 class vtkMRMLSegmentationNode;
 
-class vtkMRMLRTFixedBeamNode;
+class vtkMRMLRTCarmBeamNode;
 class vtkMRMLRTChannel26Cabin3BeamNode;
 class vtkMRMLRTBeamNode;
 class vtkMRMLChannel26GeometryNode;
@@ -75,9 +75,9 @@ public:
   void SetAndObserveFixedReferenceBeamNode(vtkMRMLRTChannel26Cabin3BeamNode* node);
 
   /// Get C-arm x-ray beam node
-  vtkMRMLRTFixedBeamNode* GetCarmXrayBeamNode();
+  vtkMRMLRTCarmBeamNode* GetCarmXrayBeamNode();
   /// Set and observe C-arm x-ray beam node
-  void SetAndObserveCarmXrayBeamNode(vtkMRMLRTFixedBeamNode* node);
+  void SetAndObserveCarmXrayBeamNode(vtkMRMLRTCarmBeamNode* node);
 
   /// Get patient body segmentation node
   vtkMRMLSegmentationNode* GetPatientBodySegmentationNode();
@@ -94,15 +94,15 @@ public:
   /// Set and observe Channel-26 geometry node
   void SetAndObserveChannel26GeometryNode(vtkMRMLChannel26GeometryNode* node);
 
-  /// Get observed fixed beam axis (line node)
-  vtkMRMLMarkupsLineNode* GetFixedBeamAxisLineNode();
-  /// Set and observe fixed beam axis (line node)
-  void SetAndObserveFixedBeamAxisLineNode(vtkMRMLMarkupsLineNode* node);
+  /// Get observed Cabin-3 beam axis (line node)
+  vtkMRMLMarkupsLineNode* GetCabin3BeamAxisLineNode();
+  /// Set and observe Cabin-3 beam axis (line node)
+  void SetAndObserveCabin3BeamAxisLineNode(vtkMRMLMarkupsLineNode* node);
 
-  /// Get observed fixed isocenter point (fiducial node)
-  vtkMRMLMarkupsFiducialNode* GetFixedIsocenterFiducialNode();
-  /// Set and observe fixed isocenter point (fiducial node)
-  void SetAndObserveFixedIsocenterFiducialNode(vtkMRMLMarkupsFiducialNode* node);
+  /// Get observed Cabin-3 isocenter point (fiducial node)
+  vtkMRMLMarkupsFiducialNode* GetCabin3IsocenterFiducialNode();
+  /// Set and observe Cabin-3 isocenter point (fiducial node)
+  void SetAndObserveCabin3IsocenterFiducialNode(vtkMRMLMarkupsFiducialNode* node);
 
   /// Get path to the treatment machine descriptor JSON file
   vtkGetStringMacro(TreatmentMachineDescriptorFilePath);

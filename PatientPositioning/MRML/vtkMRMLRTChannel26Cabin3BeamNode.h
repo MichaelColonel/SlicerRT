@@ -28,15 +28,15 @@
 #include <vtkMRMLRTBeamNode.h>
 
 // MRML includes
-#include "vtkMRMLRTFixedIonBeamNode.h"
+#include "vtkMRMLRTIonBeamNode.h"
 
 /// \ingroup SlicerRt_QtModules_PatientPositioning
-class VTK_SLICER_PATIENTPOSITIONING_MODULE_MRML_EXPORT vtkMRMLRTChannel26Cabin3BeamNode : public vtkMRMLRTFixedIonBeamNode
+class VTK_SLICER_PATIENTPOSITIONING_MODULE_MRML_EXPORT vtkMRMLRTChannel26Cabin3BeamNode : public vtkMRMLRTIonBeamNode
 {
 
 public:
   static vtkMRMLRTChannel26Cabin3BeamNode *New();
-  vtkTypeMacro(vtkMRMLRTChannel26Cabin3BeamNode,vtkMRMLRTFixedIonBeamNode);
+  vtkTypeMacro(vtkMRMLRTChannel26Cabin3BeamNode, vtkMRMLRTIonBeamNode);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /// Create instance of a GAD node. 
@@ -59,6 +59,9 @@ public:
 
   /// Get unique node XML tag name (like Volume, Model) 
   const char* GetNodeTagName() override { return "RTChannel26Cabin3BeamNode"; };
+
+  /// Create and observe default display node
+  void CreateDefaultDisplayNodes() override;
 
 public:
   /// Get Isocenter to MLC layer-1 distance
