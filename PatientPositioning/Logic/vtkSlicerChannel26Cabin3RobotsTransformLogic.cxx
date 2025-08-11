@@ -166,9 +166,6 @@ const char* vtkSlicerChannel26Cabin3RobotsTransformLogic::GetTreatmentMachinePar
   const char* partAsString = nullptr;
   switch (type)
   {
-  case RAS:
-    partAsString = "RAS";
-    break;
   case FixedReference:
     partAsString = "FixedReference";
     break;
@@ -2303,15 +2300,8 @@ vtkMRMLLinearTransformNode* vtkSlicerChannel26Cabin3RobotsTransformLogic::Update
     return nullptr;
   }
 
-  const char* rasName = this->GetTreatmentMachinePartTypeAsString(CoordSys::RAS);
-  if (!frameName)
-  {
-    vtkErrorMacro("UpdateFrameToRasTransform: RAS name is invalid");
-    return nullptr;
-  }
-
-  std::string frameToRasTransformName = std::string(frameName) + std::string("To") \
-    + std::string(rasName) + std::string("Transform");
+  std::string rasName = this->CoordinateSystemsMap[CoordinateSystemIdentifier::RAS];
+  std::string frameToRasTransformName = std::string(frameName) + "To" + rasName + "Transform";
 
   vtkSmartPointer<vtkMRMLLinearTransformNode> frameToRasTransformNode;
   if (vtkMRMLNode* node = scene->GetFirstNodeByName(frameToRasTransformName.c_str()))
@@ -2359,15 +2349,8 @@ vtkMRMLLinearTransformNode* vtkSlicerChannel26Cabin3RobotsTransformLogic::GetFra
     return nullptr;
   }
 
-  const char* rasName = this->GetTreatmentMachinePartTypeAsString(CoordinateSystemIdentifier::RAS);
-  if (!frameName)
-  {
-    vtkErrorMacro("UpdateFrameToRasTransform: RAS name is invalid");
-    return nullptr;
-  }
-
-  std::string frameToRasTransformName = std::string(frameName) + std::string("To") \
-    + std::string(rasName) + std::string("Transform");
+  std::string rasName = this->CoordinateSystemsMap[CoordinateSystemIdentifier::RAS];
+  std::string frameToRasTransformName = std::string(frameName) + "To" + rasName + "Transform";
 
   vtkSmartPointer<vtkMRMLLinearTransformNode> transformNode;
   if (vtkMRMLNode* node = scene->GetFirstNodeByName(frameToRasTransformName.c_str()))

@@ -30,16 +30,16 @@
    <item row="1" column="0">
     <widget class="ctkCollapsibleButton" name="CollapsibleButton_CarmXrayBeam">
      <property name="text">
-      <string>C-Arm x-ray beam</string>
+      <string>C-arm x-ray beam</string>
      </property>
      <property name="collapsed">
       <bool>false</bool>
      </property>
      <layout class="QGridLayout" name="gridLayout_3">
       <item row="0" column="0">
-       <widget class="QTabWidget" name="TabWidget_CarmXrayBeam">
+       <widget class="QTabWidget" name="TabWidget_CarmXrayDrrRegistration">
         <property name="currentIndex">
-         <number>0</number>
+         <number>1</number>
         </property>
         <widget class="QWidget" name="tabBev">
          <attribute name="title">
@@ -137,12 +137,94 @@
           <string>DRR</string>
          </attribute>
          <layout class="QGridLayout" name="gridLayout_5">
-          <item row="0" column="0">
+          <item row="2" column="0">
            <widget class="QPushButton" name="PushButton_ComputeCarmXrayDrr">
             <property name="text">
              <string>Compute</string>
             </property>
            </widget>
+          </item>
+          <item row="0" column="0">
+           <layout class="QGridLayout" name="gridLayout_6">
+            <item row="0" column="0">
+             <widget class="QLabel" name="label">
+              <property name="text">
+               <string>DRR node:</string>
+              </property>
+             </widget>
+            </item>
+            <item row="1" column="0">
+             <widget class="QLabel" name="label_3">
+              <property name="text">
+               <string>Resolution:</string>
+              </property>
+             </widget>
+            </item>
+            <item row="0" column="1">
+             <widget class="qMRMLNodeComboBox" name="MRMLNodeComboBox">
+              <property name="nodeTypes">
+               <stringlist notr="true">
+                <string>vtkMRMLDrrImageComputationNode</string>
+               </stringlist>
+              </property>
+              <property name="hideChildNodeTypes">
+               <stringlist notr="true"/>
+              </property>
+              <property name="interactionNodeSingletonTag">
+               <string notr="true"/>
+              </property>
+             </widget>
+            </item>
+            <item row="2" column="0">
+             <widget class="QLabel" name="label_2">
+              <property name="text">
+               <string>Spacing:</string>
+              </property>
+             </widget>
+            </item>
+            <item row="3" column="0">
+             <widget class="QLabel" name="label_4">
+              <property name="text">
+               <string>SAD:</string>
+              </property>
+             </widget>
+            </item>
+            <item row="4" column="0">
+             <widget class="QLabel" name="label_5">
+              <property name="text">
+               <string>SID:</string>
+              </property>
+             </widget>
+            </item>
+            <item row="1" column="1">
+             <widget class="QLabel" name="Label_DrrResolution">
+              <property name="text">
+               <string/>
+              </property>
+             </widget>
+            </item>
+            <item row="2" column="1">
+             <widget class="QLabel" name="Label_DrrSpacing">
+              <property name="text">
+               <string/>
+              </property>
+             </widget>
+            </item>
+            <item row="3" column="1">
+             <widget class="QLabel" name="Label_DrrSAD">
+              <property name="text">
+               <string/>
+              </property>
+             </widget>
+            </item>
+            <item row="4" column="1">
+             <widget class="QLabel" name="Label_DrrSID">
+              <property name="text">
+               <string/>
+              </property>
+             </widget>
+            </item>
+           </layout>
           </item>
          </layout>
         </widget>
@@ -158,6 +240,12 @@
    <class>ctkCollapsibleButton</class>
    <extends>QWidget</extends>
    <header>ctkCollapsibleButton.h</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>qMRMLNodeComboBox</class>
+   <extends>QWidget</extends>
+   <header>qMRMLNodeComboBox.h</header>
    <container>1</container>
   </customwidget>
  </customwidgets>

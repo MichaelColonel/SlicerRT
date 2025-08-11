@@ -43,6 +43,10 @@ class vtkMRMLChannel26GeometryNode;
 // TableRobotWrist -> TableRobotFlange -> TableFlange -> TableTop -> Patient
 
 // FixedReference -> CarmRobotBaseFixed -> CarmRobotBaseRotation -> CarmRobotShoulder
+// CarmRobotShoulder -> CarmRobotElbowShoulder -> CarmRobotElbowWrist -> CarmRobotWrist
+// CarmRobotWrist -> CarmRobotFlange -> Carm
+// Carm -> CarmXrayBeam
+// Carm -> CarmXrayDetector
 class VTK_SLICER_PATIENTPOSITIONING_MODULE_LOGIC_EXPORT vtkSlicerChannel26Cabin3RobotsTransformLogic : public vtkMRMLAbstractLogic
 {
 public:

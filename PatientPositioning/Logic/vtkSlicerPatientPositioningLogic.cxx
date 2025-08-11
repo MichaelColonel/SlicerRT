@@ -971,9 +971,10 @@ vtkMRMLRTCarmBeamNode* vtkSlicerPatientPositioningLogic::CreateCarmXrayPlanAndNo
 
   vtkMRMLMarkupsFiducialNode* carmXrayIsocenterNode = carmXrayPlanNode->GetPoisMarkupsFiducialNode();
   carmXrayIsocenterNode->SetName("CarmXrayIsocenter");
+  carmXrayIsocenterNode->SetNthMarkupLabel(0, "CarmXrayIsocenter");
 
   vtkMRMLTransformNode* carmBeamTranfsormNode = carmXrayBeamNode->GetParentTransformNode();
-  // Find CarmXrayBeamToRasTransform or create it
+  // Find CarmXrayBeamToRASTransform or create it
   vtkMRMLLinearTransformNode* carmXrayBeamToRasTransformNode = this->Channel26RobotsLogic->GetCarmXrayBeamTransform();
   if (carmBeamTranfsormNode && carmXrayBeamToRasTransformNode)
   {
@@ -1053,7 +1054,7 @@ vtkMRMLMarkupsFiducialNode* vtkSlicerPatientPositioningLogic::CreateCabin3Isocen
   std::string singletonTag = std::string("C26C3_") + FIXEDISOCENTER_MARKUPS_FIDUCIAL_NODE_NAME;
   if (parameterNode)
   {
-    vtkVector3d pFixedIsocenter( 0., 0., 0.); // FixedIsocenter
+    vtkVector3d pFixedIsocenter( 0., 0., 0.); // Isocenter in origin of FixedReference frame
     pointMarkupsNode->AddControlPoint( pFixedIsocenter, "Cabin3Isocenter");
 
     parameterNode->SetAndObserveCabin3IsocenterFiducialNode(pointMarkupsNode);
@@ -1230,185 +1231,94 @@ vtkSlicerPatientPositioningLogic::SetupTreatmentMachineModels(vtkMRMLPatientPosi
     }
 
     vtkMRMLLinearTransformNode* partFrameToRasTransformNode = nullptr;
-    if (partIdx == CoordSys::TableTop)
+    switch (partIdx)
     {
-      this->Channel26RobotsLogic->UpdatePatientToTableTopTransform(channel26GeometryNode);
-      partFrameToRasTransformNode = this->Channel26RobotsLogic->UpdateTableTopToRasTransform(channel26GeometryNode);
-      if (partFrameToRasTransformNode)
-      {
-        partModel->SetAndObserveTransformNodeID(partFrameToRasTransformNode->GetID());
-      }
+      case CoordSys::TableTop:
+        this->Channel26RobotsLogic->UpdatePatientToTableTopTransform(channel26GeometryNode);
+        partFrameToRasTransformNode = this->Channel26RobotsLogic->UpdateTableTopToRasTransform(channel26GeometryNode);
+        break;
+      case CoordSys::TableFlange:
+        this->Channel26RobotsLogic->UpdateTableTopToTableFlangeTransform(channel26GeometryNode);
+        partFrameToRasTransformNode = this->Channel26RobotsLogic->UpdateTableFlangeToRasTransform(channel26GeometryNode);
+        break;
+      case CoordSys::TableRobotFlange:
+        this->Channel26RobotsLogic->UpdateTableFlangeToTableRobotFlangeTransform(channel26GeometryNode);
+        partFrameToRasTransformNode = this->Channel26RobotsLogic->UpdateTableRobotFlangeToRasTransform(channel26GeometryNode);
+        break;
+      case CoordSys::TableRobotWrist:
+        this->Channel26RobotsLogic->UpdateTableRobotFlangeToTableRobotWristTransform(channel26GeometryNode);
+        partFrameToRasTransformNode = this->Channel26RobotsLogic->UpdateTableRobotWristToRasTransform(channel26GeometryNode);
+        break;
+      case CoordSys::TableRobotElbowWrist:
+        this->Channel26RobotsLogic->UpdateTableRobotWristToTableRobotElbowWristTransform(channel26GeometryNode);
+        partFrameToRasTransformNode = this->Channel26RobotsLogic->UpdateTableRobotElbowWristToRasTransform(channel26GeometryNode);
+        break;
+      case CoordSys::TableRobotElbowShoulder:
+        this->Channel26RobotsLogic->UpdateTableRobotElbowWristToTableRobotElbowShoulderTransform(channel26GeometryNode);
+        partFrameToRasTransformNode = this->Channel26RobotsLogic->UpdateTableRobotElbowShoulderToRasTransform(channel26GeometryNode);
+        break;
+      case CoordSys::TableRobotShoulder:
+        this->Channel26RobotsLogic->UpdateTableRobotElbowShoulderToTableRobotShoulderTransform(channel26GeometryNode);
+        partFrameToRasTransformNode = this->Channel26RobotsLogic->UpdateTableRobotShoulderToRasTransform(channel26GeometryNode);
+        break;
+      case CoordSys::TableRobotBaseRotation:
+        this->Channel26RobotsLogic->UpdateTableRobotShoulderToTableRobotBaseRotationTransform(channel26GeometryNode);
+        partFrameToRasTransformNode = this->Channel26RobotsLogic->UpdateTableRobotBaseRotationToRasTransform(channel26GeometryNode);
+        break;
+      case CoordSys::TableRobotBaseFixed:
+        this->Channel26RobotsLogic->UpdateTableRobotBaseRotationToTableRobotBaseFixedTransform(channel26GeometryNode);
+        partFrameToRasTransformNode = this->Channel26RobotsLogic->UpdateTableRobotBaseFixedToRasTransform(channel26GeometryNode);
+        break;
+      case CoordSys::FixedReference:
+        this->Channel26RobotsLogic->UpdateTableRobotBaseFixedToFixedReferenceTransform(channel26GeometryNode);
+        partFrameToRasTransformNode = this->Channel26RobotsLogic->UpdateFixedReferenceToRasTransform(channel26GeometryNode);
+        break;
+      case CoordSys::CarmRobotBaseFixed:
+        this->Channel26RobotsLogic->UpdateCarmRobotBaseFixedToFixedReferenceTransform(channel26GeometryNode);
+        partFrameToRasTransformNode = this->Channel26RobotsLogic->UpdateCarmRobotBaseFixedToRasTransform(channel26GeometryNode);
+        break;
+      case CoordSys::CarmRobotBaseRotation:
+        this->Channel26RobotsLogic->UpdateCarmRobotBaseRotationToCarmRobotBaseFixedTransform(channel26GeometryNode);
+        partFrameToRasTransformNode = this->Channel26RobotsLogic->UpdateCarmRobotBaseRotationToRasTransform(channel26GeometryNode);
+        break;
+      case CoordSys::CarmRobotShoulder:
+        this->Channel26RobotsLogic->UpdateCarmRobotShoulderToCarmRobotBaseRotationTransform(channel26GeometryNode);
+        partFrameToRasTransformNode = this->Channel26RobotsLogic->UpdateCarmRobotShoulderToRasTransform(channel26GeometryNode);
+        break;
+      case CoordSys::CarmRobotElbowShoulder:
+        this->Channel26RobotsLogic->UpdateCarmRobotShoulderToCarmRobotBaseRotationTransform(channel26GeometryNode);
+        partFrameToRasTransformNode = this->Channel26RobotsLogic->UpdateCarmRobotElbowShoulderToRasTransform(channel26GeometryNode);
+        break;
+      case CoordSys::CarmRobotElbowWrist:
+        this->Channel26RobotsLogic->UpdateCarmRobotElbowWristToCarmRobotElbowShoulderTransform(channel26GeometryNode);
+        partFrameToRasTransformNode = this->Channel26RobotsLogic->UpdateCarmRobotElbowWristToRasTransform(channel26GeometryNode);
+        break;
+      case CoordSys::CarmRobotWrist:
+        this->Channel26RobotsLogic->UpdateCarmRobotWristToCarmRobotElbowWristTransform(channel26GeometryNode);
+        partFrameToRasTransformNode = this->Channel26RobotsLogic->UpdateCarmRobotWristToRasTransform(channel26GeometryNode);
+        break;
+      case CoordSys::CarmRobotFlange:
+        this->Channel26RobotsLogic->UpdateCarmRobotFlangeToCarmRobotWristTransform(channel26GeometryNode);
+        partFrameToRasTransformNode = this->Channel26RobotsLogic->UpdateCarmRobotFlangeToRasTransform(channel26GeometryNode);
+        break;
+      case CoordSys::Carm:
+        this->Channel26RobotsLogic->UpdateCarmToCarmRobotFlangeTransform(channel26GeometryNode);
+        partFrameToRasTransformNode = this->Channel26RobotsLogic->UpdateCarmToRasTransform(channel26GeometryNode);
+        break;
+      case CoordSys::CarmXrayBeam:
+        this->Channel26RobotsLogic->UpdateCarmXrayBeamToCarmTransform(channel26GeometryNode);
+        partFrameToRasTransformNode = this->Channel26RobotsLogic->UpdateCarmXrayBeamToRasTransform(channel26GeometryNode);
+        break;
+      case CoordSys::CarmXrayDetector:
+        this->Channel26RobotsLogic->UpdateCarmXrayDetectorToCarmTransform(channel26GeometryNode);
+        partFrameToRasTransformNode = this->Channel26RobotsLogic->UpdateCarmXrayDetectorToRasTransform(channel26GeometryNode);
+        break;
+      default:
+        break;
     }
-    else if (partIdx == CoordSys::TableFlange)
+    if (partFrameToRasTransformNode)
     {
-      this->Channel26RobotsLogic->UpdateTableTopToTableFlangeTransform(channel26GeometryNode);
-      partFrameToRasTransformNode = this->Channel26RobotsLogic->UpdateTableFlangeToRasTransform(channel26GeometryNode);
-      if (partFrameToRasTransformNode)
-      {
-        partModel->SetAndObserveTransformNodeID(partFrameToRasTransformNode->GetID());
-      }
-    }
-    else if (partIdx == CoordSys::TableRobotFlange)
-    {
-      this->Channel26RobotsLogic->UpdateTableFlangeToTableRobotFlangeTransform(channel26GeometryNode);
-      partFrameToRasTransformNode = this->Channel26RobotsLogic->UpdateTableRobotFlangeToRasTransform(channel26GeometryNode);
-      if (partFrameToRasTransformNode)
-      {
-        partModel->SetAndObserveTransformNodeID(partFrameToRasTransformNode->GetID());
-      }
-    }
-    else if (partIdx == CoordSys::TableRobotWrist)
-    {
-      this->Channel26RobotsLogic->UpdateTableRobotFlangeToTableRobotWristTransform(channel26GeometryNode);
-      partFrameToRasTransformNode = this->Channel26RobotsLogic->UpdateTableRobotWristToRasTransform(channel26GeometryNode);
-      if (partFrameToRasTransformNode)
-      {
-        partModel->SetAndObserveTransformNodeID(partFrameToRasTransformNode->GetID());
-      }
-    }
-    else if (partIdx == CoordSys::TableRobotElbowWrist)
-    {
-      this->Channel26RobotsLogic->UpdateTableRobotWristToTableRobotElbowWristTransform(channel26GeometryNode);
-      partFrameToRasTransformNode = this->Channel26RobotsLogic->UpdateTableRobotElbowWristToRasTransform(channel26GeometryNode);
-      if (partFrameToRasTransformNode)
-      {
-        partModel->SetAndObserveTransformNodeID(partFrameToRasTransformNode->GetID());
-      }
-    }
-    else if (partIdx == CoordSys::TableRobotElbowShoulder)
-    {
-      this->Channel26RobotsLogic->UpdateTableRobotElbowWristToTableRobotElbowShoulderTransform(channel26GeometryNode);
-      partFrameToRasTransformNode = this->Channel26RobotsLogic->UpdateTableRobotElbowShoulderToRasTransform(channel26GeometryNode);
-      if (partFrameToRasTransformNode)
-      {
-        partModel->SetAndObserveTransformNodeID(partFrameToRasTransformNode->GetID());
-      }
-    }
-    else if (partIdx == CoordSys::TableRobotShoulder)
-    {
-      this->Channel26RobotsLogic->UpdateTableRobotElbowShoulderToTableRobotShoulderTransform(channel26GeometryNode);
-      partFrameToRasTransformNode = this->Channel26RobotsLogic->UpdateTableRobotShoulderToRasTransform(channel26GeometryNode);
-      if (partFrameToRasTransformNode)
-      {
-        partModel->SetAndObserveTransformNodeID(partFrameToRasTransformNode->GetID());
-      }
-    }
-    else if (partIdx == CoordSys::TableRobotBaseRotation)
-    {
-      this->Channel26RobotsLogic->UpdateTableRobotShoulderToTableRobotBaseRotationTransform(channel26GeometryNode);
-      partFrameToRasTransformNode = this->Channel26RobotsLogic->UpdateTableRobotBaseRotationToRasTransform(channel26GeometryNode);
-      if (partFrameToRasTransformNode)
-      {
-        partModel->SetAndObserveTransformNodeID(partFrameToRasTransformNode->GetID());
-      }
-    }
-    else if (partIdx == CoordSys::TableRobotBaseFixed)
-    {
-      this->Channel26RobotsLogic->UpdateTableRobotBaseRotationToTableRobotBaseFixedTransform(channel26GeometryNode);
-      partFrameToRasTransformNode = this->Channel26RobotsLogic->UpdateTableRobotBaseFixedToRasTransform(channel26GeometryNode);
-      if (partFrameToRasTransformNode)
-      {
-        partModel->SetAndObserveTransformNodeID(partFrameToRasTransformNode->GetID());
-      }
-    }
-    else if (partIdx == CoordSys::FixedReference)
-    {
-      this->Channel26RobotsLogic->UpdateTableRobotBaseFixedToFixedReferenceTransform(channel26GeometryNode);
-      partFrameToRasTransformNode = this->Channel26RobotsLogic->UpdateFixedReferenceToRasTransform(channel26GeometryNode);
-      if (partFrameToRasTransformNode)
-      {
-        partModel->SetAndObserveTransformNodeID(partFrameToRasTransformNode->GetID());
-      }
-    }
-    else if (partIdx == CoordSys::CarmRobotBaseFixed)
-    {
-      this->Channel26RobotsLogic->UpdateCarmRobotBaseFixedToFixedReferenceTransform(channel26GeometryNode);
-      partFrameToRasTransformNode = this->Channel26RobotsLogic->UpdateCarmRobotBaseFixedToRasTransform(channel26GeometryNode);
-      if (partFrameToRasTransformNode)
-      {
-        partModel->SetAndObserveTransformNodeID(partFrameToRasTransformNode->GetID());
-      }
-    }
-    else if (partIdx == CoordSys::CarmRobotBaseRotation)
-    {
-      this->Channel26RobotsLogic->UpdateCarmRobotBaseRotationToCarmRobotBaseFixedTransform(channel26GeometryNode);
-      partFrameToRasTransformNode = this->Channel26RobotsLogic->UpdateCarmRobotBaseRotationToRasTransform(channel26GeometryNode);
-      if (partFrameToRasTransformNode)
-      {
-        partModel->SetAndObserveTransformNodeID(partFrameToRasTransformNode->GetID());
-      }
-    }
-    else if (partIdx == CoordSys::CarmRobotShoulder)
-    {
-      this->Channel26RobotsLogic->UpdateCarmRobotShoulderToCarmRobotBaseRotationTransform(channel26GeometryNode);
-      partFrameToRasTransformNode = this->Channel26RobotsLogic->UpdateCarmRobotShoulderToRasTransform(channel26GeometryNode);
-      if (partFrameToRasTransformNode)
-      {
-        partModel->SetAndObserveTransformNodeID(partFrameToRasTransformNode->GetID());
-      }
-    }
-    else if (partIdx == CoordSys::CarmRobotElbowShoulder)
-    {
-      this->Channel26RobotsLogic->UpdateCarmRobotShoulderToCarmRobotBaseRotationTransform(channel26GeometryNode);
-      partFrameToRasTransformNode = this->Channel26RobotsLogic->UpdateCarmRobotElbowShoulderToRasTransform(channel26GeometryNode);
-      if (partFrameToRasTransformNode)
-      {
-        partModel->SetAndObserveTransformNodeID(partFrameToRasTransformNode->GetID());
-      }
-    }
-    else if (partIdx == CoordSys::CarmRobotElbowWrist)
-    {
-      this->Channel26RobotsLogic->UpdateCarmRobotElbowWristToCarmRobotElbowShoulderTransform(channel26GeometryNode);
-      partFrameToRasTransformNode = this->Channel26RobotsLogic->UpdateCarmRobotElbowWristToRasTransform(channel26GeometryNode);
-      if (partFrameToRasTransformNode)
-      {
-        partModel->SetAndObserveTransformNodeID(partFrameToRasTransformNode->GetID());
-      }
-    }
-    else if (partIdx == CoordSys::CarmRobotWrist)
-    {
-      this->Channel26RobotsLogic->UpdateCarmRobotWristToCarmRobotElbowWristTransform(channel26GeometryNode);
-      partFrameToRasTransformNode = this->Channel26RobotsLogic->UpdateCarmRobotWristToRasTransform(channel26GeometryNode);
-      if (partFrameToRasTransformNode)
-      {
-        partModel->SetAndObserveTransformNodeID(partFrameToRasTransformNode->GetID());
-      }
-    }
-    else if (partIdx == CoordSys::CarmRobotFlange)
-    {
-      this->Channel26RobotsLogic->UpdateCarmRobotFlangeToCarmRobotWristTransform(channel26GeometryNode);
-      partFrameToRasTransformNode = this->Channel26RobotsLogic->UpdateCarmRobotFlangeToRasTransform(channel26GeometryNode);
-      if (partFrameToRasTransformNode)
-      {
-        partModel->SetAndObserveTransformNodeID(partFrameToRasTransformNode->GetID());
-      }
-    }
-    else if (partIdx == CoordSys::Carm)
-    {
-      this->Channel26RobotsLogic->UpdateCarmToCarmRobotFlangeTransform(channel26GeometryNode);
-      partFrameToRasTransformNode = this->Channel26RobotsLogic->UpdateCarmToRasTransform(channel26GeometryNode);
-      if (partFrameToRasTransformNode)
-      {
-        partModel->SetAndObserveTransformNodeID(partFrameToRasTransformNode->GetID());
-      }
-    }
-    else if (partIdx == CoordSys::CarmXrayBeam)
-    {
-      this->Channel26RobotsLogic->UpdateCarmXrayBeamToCarmTransform(channel26GeometryNode);
-      partFrameToRasTransformNode = this->Channel26RobotsLogic->UpdateCarmXrayBeamToRasTransform(channel26GeometryNode);
-      if (partFrameToRasTransformNode)
-      {
-        partModel->SetAndObserveTransformNodeID(partFrameToRasTransformNode->GetID());
-      }
-    }
-    else if (partIdx == CoordSys::CarmXrayDetector)
-    {
-      this->Channel26RobotsLogic->UpdateCarmXrayDetectorToCarmTransform(channel26GeometryNode);
-      partFrameToRasTransformNode = this->Channel26RobotsLogic->UpdateCarmXrayDetectorToRasTransform(channel26GeometryNode);
-      if (partFrameToRasTransformNode)
-      {
-        partModel->SetAndObserveTransformNodeID(partFrameToRasTransformNode->GetID());
-      }
+      partModel->SetAndObserveTransformNodeID(partFrameToRasTransformNode->GetID());
     }
   }
 

@@ -596,9 +596,9 @@
     </widget>
    </item>
    <item>
-    <widget class="ctkCollapsibleButton" name="CollapsibleButton_CarmRtImageDrrControl">
+    <widget class="ctkCollapsibleButton" name="CollapsibleButton_CarmRtImageDrrRegistration">
      <property name="text">
-      <string>C-arm RT Image and DRR control</string>
+      <string>C-arm x-ray image and DRR registration</string>
      </property>
     </widget>
    </item>
