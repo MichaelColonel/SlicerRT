@@ -309,6 +309,8 @@ void qSlicerPatientPositioningModuleWidget::setup()
   connect( d->PushButton_ShowDrr, SIGNAL(clicked()),
     this, SLOT(onShowDrrButtonClicked()));
 
+  connect( d->PushButton_ClearProjectedTableWidget, SIGNAL(clicked()), this, SLOT(onClearProjectedTableClicked()));
+
   connect( d->PushButton_ProjectControlPoints, SIGNAL(clicked()), this, SLOT(onProjectMarkupsControlPointsClicked()));
 
   // Widgets
@@ -2297,7 +2299,7 @@ void qSlicerPatientPositioningModuleWidget::onShowDrrButtonClicked()
     sliceLogic->FitSliceToAll();
     sliceNode->UpdateMatrices();
 
-    app->layoutManager()->layoutLogic()->MaximizeView(sliceNode);
+    //app->layoutManager()->layoutLogic()->MaximizeView(sliceNode);
 
     // Hide markups
     d->logic()->ShowDrrMarkupsNodes(false);
@@ -2441,7 +2443,15 @@ void qSlicerPatientPositioningModuleWidget::onProjectMarkupsControlPointsClicked
   vtkMRMLMarkupsFiducialNode* projectedPointsNode = nullptr;
   if (d->CheckBox_CreateValidProjectionsMarkupsNode->isChecked())
   {
-    std::string name = std::string(markupsNode->GetName()) + "_Projected";
+    std::string name;
+    if (d->RadioButton_ProjectToIsocenter->isChecked())
+    {
+      name = std::string(markupsNode->GetName()) + "_ProjectedToIsocenter";
+    }
+    else if (d->RadioButton_ProjectToImager->isChecked())
+    {
+      name = std::string(markupsNode->GetName()) + "_ProjectedToImager";
+    }
     projectedPointsNode = vtkMRMLMarkupsFiducialNode::SafeDownCast(this->mrmlScene()->AddNewNodeByClass("vtkMRMLMarkupsFiducialNode", name.c_str()));
   }
 
@@ -2588,4 +2598,22 @@ void qSlicerPatientPositioningModuleWidget::onProjectMarkupsControlPointsClicked
     }
     projectedRowCount++;
   }
+}
+//-----------------------------------------------------------------------------
+void qSlicerPatientPositioningModuleWidget::onClearProjectedTableClicked()
+{
+  Q_D(qSlicerPatientPositioningModuleWidget);
+  vtkMRMLPatientPositioningNode* parameterNode = vtkMRMLPatientPositioningNode::SafeDownCast(d->MRMLNodeComboBox_ParameterSet->currentNode());
+
+  if (!parameterNode)
+  {
+    qCritical() << Q_FUNC_INFO << ": Invalid parameter node";
+    return;
+  }
+  d->TableWidget_ProjectedPointsCoordinates->clear();
+  d->TableWidget_ProjectedPointsCoordinates->setRowCount(0);
+  d->TableWidget_ProjectedPointsCoordinates->setHorizontalHeaderLabels( QStringList() << tr("Original label") << tr("R") << tr("A") << tr("S") \
+    << tr("Width") << tr("Height") << tr("Column") << tr("Row") << tr("Status") );
+  d->PushButton_ProjectControlPoints->setEnabled(true);
+  d->PushButton_ClearProjectedTableWidget->setEnabled(false);
 }

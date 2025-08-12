@@ -88,6 +88,7 @@ public slots:
   void onIsocenterImagerDistanceChanged(double distance);
   void onMarkupsNodeChanged();
   void onProjectMarkupsControlPointsClicked();
+  void onClearProjectedTableClicked();
 
   /// Update widget GUI from PatientPositioning parameters node
   void updateWidgetFromMRML();
