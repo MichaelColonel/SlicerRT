@@ -47,6 +47,7 @@ class vtkMRMLMarkupsPlaneNode;
 class vtkMRMLMarkupsLineNode;
 class vtkMRMLMarkupsFiducialNode;
 class vtkMRMLDrrImageComputationNode;
+class vtkMRMLTableNode;
 
 class vtkMatrix4x4;
 class vtkPolyData;
@@ -136,6 +137,13 @@ public:
   void InitializeDefaultDrrNodes();
   vtkMRMLScalarVolumeNode* ComputeDrr(vtkMRMLDrrImageComputationNode* drrNode, vtkMRMLScalarVolumeNode* ctVolumeNode);
   void ShowDrrMarkupsNodes(bool);
+  bool GetRayIntersectWithIsocenterPlane(vtkMRMLDrrImageComputationNode* drrNode, const double point[3], double pointIntersect[3]);
+  vtkMRMLTableNode* CreateProjectionsTableNode(vtkMRMLScalarVolumeNode* drrInputImage);
+  bool GetRayIntersectWithImagerPlane(vtkMRMLDrrImageComputationNode* drrNode,
+  const double point[3], double pointIntersect[3]);
+  bool CheckPointWithinVolumeBounds(vtkMRMLScalarVolumeNode* volumeNode,
+  const double pointRAS[3]) const;
+
 
 public:
   // Get treatment machine properties from descriptor file
