@@ -18,8 +18,8 @@
 
 ==============================================================================*/
 
-#ifndef __qSlicerPatientPositioningCarmXrayBeamWidget_h
-#define __qSlicerPatientPositioningCarmXrayBeamWidget_h
+#ifndef __qSlicerCarmXrayBeamWidget_h
+#define __qSlicerCarmXrayBeamWidget_h
 
 // Qt includes
 #include <QWidget>
@@ -34,11 +34,11 @@
 class vtkMRMLNode;
 class vtkSlicerPatientPositioningLogic;
 
-class qSlicerPatientPositioningCarmXrayBeamWidgetPrivate;
+class qSlicerCarmXrayBeamWidgetPrivate;
 
 class QAbstractButton;
 
-class Q_SLICER_MODULE_PATIENTPOSITIONING_WIDGETS_EXPORT qSlicerPatientPositioningCarmXrayBeamWidget
+class Q_SLICER_MODULE_PATIENTPOSITIONING_WIDGETS_EXPORT qSlicerCarmXrayBeamWidget
   : public QWidget
 {
   Q_OBJECT
@@ -46,8 +46,8 @@ class Q_SLICER_MODULE_PATIENTPOSITIONING_WIDGETS_EXPORT qSlicerPatientPositionin
 
 public:
   typedef QWidget Superclass;
-  qSlicerPatientPositioningCarmXrayBeamWidget(QWidget *parent=0);
-  ~qSlicerPatientPositioningCarmXrayBeamWidget() override;
+  qSlicerCarmXrayBeamWidget(QWidget *parent=0);
+  ~qSlicerCarmXrayBeamWidget() override;
 
 public slots:
   /// Set PatientPositioning MRML node (Parameter node)
@@ -69,11 +69,11 @@ signals:
 protected slots:
 
 protected:
-  QScopedPointer<qSlicerPatientPositioningCarmXrayBeamWidgetPrivate> d_ptr;
+  QScopedPointer<qSlicerCarmXrayBeamWidgetPrivate> d_ptr;
 
 private:
-  Q_DECLARE_PRIVATE(qSlicerPatientPositioningCarmXrayBeamWidget);
-  Q_DISABLE_COPY(qSlicerPatientPositioningCarmXrayBeamWidget);
+  Q_DECLARE_PRIVATE(qSlicerCarmXrayBeamWidget);
+  Q_DISABLE_COPY(qSlicerCarmXrayBeamWidget);
 };
 
 #endif

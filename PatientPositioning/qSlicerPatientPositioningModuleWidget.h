@@ -78,6 +78,7 @@ public slots:
   void onShowMarkupsToggled(bool);
   void onShowModelsToggled(bool);
   void onFixedReferenceCameraToggled(bool toggled);
+  void onCarmXrayBevOrientationChanged(const std::array< double, 3 >& viewUpVector);
 
   /// Update widget GUI from PatientPositioning parameters node
   void updateWidgetFromMRML();

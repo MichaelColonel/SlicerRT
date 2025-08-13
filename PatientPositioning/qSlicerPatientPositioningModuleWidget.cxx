@@ -254,6 +254,10 @@ void qSlicerPatientPositioningModuleWidget::setup()
   connect( d->CheckBox_ShowMarkups, SIGNAL(toggled(bool)), this, SLOT(onShowMarkupsToggled(bool)));
   connect( d->CheckBox_FixedReferenceCamera, SIGNAL(toggled(bool)), 
     this, SLOT(onFixedReferenceCameraToggled(bool)));
+
+  // Children widgets
+  connect( d->CarmXrayBeamWidget, SIGNAL(bevOrientationChanged(const std::array< double, 3 >&)),
+    this, SLOT(onCarmXrayBevOrientationChanged(const std::array< double, 3 >&)));
 }
 
 //-----------------------------------------------------------------------------
@@ -302,7 +306,7 @@ void qSlicerPatientPositioningModuleWidget::setParameterNode(vtkMRMLNode *node)
 
   // Set parameter node to children (FixedBeamAxis, CarmXrayBeamWidget) widgets
 //  d->FixedBeamAxisWidget->setParameterNode(d->ParameterNode);
-//  d->CarmXrayBeamWidget->setParameterNode(d->ParameterNode);
+  d->CarmXrayBeamWidget->setParameterNode(d->ParameterNode);
 
   // Set selected MRML nodes in comboboxes in the parameter set if it was nullptr there
   // (then in the meantime the comboboxes selected the first one from the scene and we have to set that)
@@ -1229,6 +1233,50 @@ void qSlicerPatientPositioningModuleWidget::onFixedReferenceCameraToggled(bool t
     return;
   }
   cameraNode->SetAndObserveTransformNodeID(nullptr);
+}
+
+//-----------------------------------------------------------------------------
+void qSlicerPatientPositioningModuleWidget::onCarmXrayBevOrientationChanged(const std::array< double, 3 >& viewUpVector)
+{
+  Q_D(qSlicerPatientPositioningModuleWidget);
+
+  vtkMRMLCameraNode* cameraNode = d->get3DViewCameraNode();
+  if (!cameraNode)
+  {
+    return;
+  }
+
+  vtkMRMLRTCarmBeamNode* carmXrayBeamNode = vtkMRMLRTCarmBeamNode::SafeDownCast(d->MRMLNodeComboBox_CarmXrayBeam->currentNode());
+
+  double sourcePosition[4] = { 0.0, 0.0, 0.0, 1.0 };
+  double isocenter[4] = { 0.0, 0.0, 0.0, 1.0 }; // isocenter in C-arm x-ray beam
+  if (carmXrayBeamNode && carmXrayBeamNode->GetSourcePosition(sourcePosition))
+  {
+    vtkMRMLTransformNode* beamTransformNode = carmXrayBeamNode->GetParentTransformNode();
+
+    vtkNew<vtkMatrix4x4> mat;
+    mat->Identity();
+
+    if (beamTransformNode)
+    {
+      beamTransformNode->GetMatrixTransformToWorld(mat);
+    }
+    else
+    {
+      qCritical() << Q_FUNC_INFO << "C-Arm x-ray beam node is invalid";
+      return;
+    }
+
+    double vupCarmXrayBeam[4] = { viewUpVector[0], viewUpVector[1], viewUpVector[2], 0. }; // beam negative X-axis
+    double vupCamera[4];
+  
+    mat->MultiplyPoint( vupCarmXrayBeam, vupCamera);
+    cameraNode->GetCamera()->SetPosition(sourcePosition);
+    double isocenterWorld[4] = {};
+    mat->MultiplyPoint(isocenter, isocenterWorld);
+    cameraNode->GetCamera()->SetFocalPoint(isocenterWorld);
+    cameraNode->SetViewUp(vupCamera);
+  }
 }
 
 //-----------------------------------------------------------------------------

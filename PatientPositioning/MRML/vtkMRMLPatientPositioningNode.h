@@ -75,9 +75,9 @@ public:
   void SetAndObserveFixedReferenceBeamNode(vtkMRMLRTChannel26Cabin3BeamNode* node);
 
   /// Get C-arm x-ray beam node
-  vtkMRMLRTCarmBeamNode* GetCarmXrayBeamNode();
+  vtkMRMLRTBeamNode* GetCarmXrayBeamNode();
   /// Set and observe C-arm x-ray beam node
-  void SetAndObserveCarmXrayBeamNode(vtkMRMLRTCarmBeamNode* node);
+  void SetAndObserveCarmXrayBeamNode(vtkMRMLRTBeamNode* node);
 
   /// Get patient body segmentation node
   vtkMRMLSegmentationNode* GetPatientBodySegmentationNode();

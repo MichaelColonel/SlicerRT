@@ -315,13 +315,13 @@ void vtkMRMLPatientPositioningNode::SetAndObserveFixedReferenceBeamNode(vtkMRMLR
 }
 
 //----------------------------------------------------------------------------
-vtkMRMLRTCarmBeamNode* vtkMRMLPatientPositioningNode::GetCarmXrayBeamNode()
+vtkMRMLRTBeamNode* vtkMRMLPatientPositioningNode::GetCarmXrayBeamNode()
 {
-  return vtkMRMLRTCarmBeamNode::SafeDownCast( this->GetNodeReference(CARM_XRAY_BEAM_REFERENCE_ROLE) );
+  return vtkMRMLRTBeamNode::SafeDownCast( this->GetNodeReference(CARM_XRAY_BEAM_REFERENCE_ROLE) );
 }
 
 //----------------------------------------------------------------------------
-void vtkMRMLPatientPositioningNode::SetAndObserveCarmXrayBeamNode(vtkMRMLRTCarmBeamNode* node)
+void vtkMRMLPatientPositioningNode::SetAndObserveCarmXrayBeamNode(vtkMRMLRTBeamNode* node)
 {
   if (node && this->Scene != node->GetScene())
     {

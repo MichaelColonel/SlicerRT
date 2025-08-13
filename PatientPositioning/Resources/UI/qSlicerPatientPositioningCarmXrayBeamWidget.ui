@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>qSlicerPatientPositioningCarmXrayBeamWidget</class>
- <widget class="QWidget" name="qSlicerPatientPositioningCarmXrayBeamWidget">
+ <class>qSlicerCarmXrayBeamWidget</class>
+ <widget class="QWidget" name="qSlicerCarmXrayBeamWidget">
   <property name="geometry">
    <rect>
     <x>0</x>
     <y>0</y>
     <width>404</width>
-    <height>310</height>
+    <height>252</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -37,9 +37,9 @@
      </property>
      <layout class="QGridLayout" name="gridLayout_3">
       <item row="0" column="0">
-       <widget class="QTabWidget" name="TabWidget_CarmXrayDrrRegistration">
+       <widget class="QTabWidget" name="TabWidget_CarmXray">
         <property name="currentIndex">
-         <number>1</number>
+         <number>0</number>
         </property>
         <widget class="QWidget" name="tabBev">
          <attribute name="title">
@@ -80,7 +80,7 @@
                <string>X+</string>
               </property>
               <property name="icon">
-               <iconset resource="../qSlicerPatientPositioningModule.qrc">
+               <iconset>
                 <normaloff>:/Icons/go-up.png</normaloff>:/Icons/go-up.png</iconset>
               </property>
              </widget>
@@ -91,7 +91,7 @@
                <string>Y-</string>
               </property>
               <property name="icon">
-               <iconset resource="../qSlicerPatientPositioningModule.qrc">
+               <iconset>
                 <normaloff>:/Icons/go-down.png</normaloff>:/Icons/go-down.png</iconset>
               </property>
              </widget>
@@ -102,7 +102,7 @@
                <string>Y+</string>
               </property>
               <property name="icon">
-               <iconset resource="../qSlicerPatientPositioningModule.qrc">
+               <iconset>
                 <normaloff>:/Icons/go-up.png</normaloff>:/Icons/go-up.png</iconset>
               </property>
              </widget>
@@ -113,7 +113,7 @@
                <string>X-</string>
               </property>
               <property name="icon">
-               <iconset resource="../qSlicerPatientPositioningModule.qrc">
+               <iconset>
                 <normaloff>:/Icons/go-previous.png</normaloff>:/Icons/go-previous.png</iconset>
               </property>
              </widget>

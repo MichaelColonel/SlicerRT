@@ -600,6 +600,11 @@
      <property name="text">
       <string>C-arm x-ray image and DRR registration</string>
      </property>
+     <layout class="QGridLayout" name="gridLayout_2">
+      <item row="0" column="0">
+       <widget class="qSlicerCarmXrayBeamWidget" name="CarmXrayBeamWidget" native="true"/>
+      </item>
+     </layout>
     </widget>
    </item>
    <item>
@@ -667,6 +672,12 @@
    <class>qMRMLSegmentSelectorWidget</class>
    <extends>qMRMLWidget</extends>
    <header>qMRMLSegmentSelectorWidget.h</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>qSlicerCarmXrayBeamWidget</class>
+   <extends>QWidget</extends>
+   <header>qSlicerCarmXrayBeamWidget.h</header>
    <container>1</container>
   </customwidget>
  </customwidgets>
