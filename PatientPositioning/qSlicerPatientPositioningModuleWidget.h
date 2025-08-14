@@ -73,16 +73,21 @@ public slots:
   void onCarmRobotA5Changed(double a5);
   void onCarmRobotA6Changed(double a6);
 
+  void onBeamsEyeViewPlusXButtonClicked();
+  void onBeamsEyeViewMinusXButtonClicked();
+  void onBeamsEyeViewPlusYButtonClicked();
+  void onBeamsEyeViewMinusYButtonClicked();
+
   // Check boxes
   void onRotatePatientHeadFeetToggled(bool toggled);
   void onShowMarkupsToggled(bool);
   void onShowModelsToggled(bool);
   void onFixedReferenceCameraToggled(bool toggled);
-  void onCarmXrayBevOrientationChanged(const std::array< double, 3 >& viewUpVector);
 
   /// Update widget GUI from PatientPositioning parameters node
   void updateWidgetFromMRML();
   void checkForCollisions();
+  void bevOrientationChanged(const std::array< double, 3 >& viewUpVector);
 
 protected:
   QScopedPointer<qSlicerPatientPositioningModuleWidgetPrivate> d_ptr;

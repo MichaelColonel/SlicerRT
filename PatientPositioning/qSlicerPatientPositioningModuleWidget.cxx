@@ -75,6 +75,7 @@
 #include <vtkSlicerPatientPositioningLogic.h>
 #include <vtkSlicerChannel26Cabin3RobotsTransformLogic.h>
 #include <vtkSlicerDrrImageComputationLogic.h>
+#include <vtkMRMLDrrImageComputationNode.h>
 
 //-----------------------------------------------------------------------------
 /// \ingroup Slicer_QtModules_PatientPositioning
@@ -218,6 +219,12 @@ void qSlicerPatientPositioningModuleWidget::setup()
   connect( d->CheckBox_RotatePatientHeadFeet, SIGNAL(toggled(bool)), 
     this, SLOT(onRotatePatientHeadFeetToggled(bool)));
 
+  // Buttons
+  connect( d->PushButton_BevXPlus, SIGNAL(clicked()), this, SLOT(onBeamsEyeViewPlusXButtonClicked()));
+  connect( d->PushButton_BevXMinus, SIGNAL(clicked()), this, SLOT(onBeamsEyeViewMinusXButtonClicked()));
+  connect( d->PushButton_BevYMinus, SIGNAL(clicked()), this, SLOT(onBeamsEyeViewMinusYButtonClicked()));
+  connect( d->PushButton_BevYPlus, SIGNAL(clicked()), this, SLOT(onBeamsEyeViewPlusYButtonClicked()));
+
   // Widgets
   // Table robot angles
   connect( d->SliderWidget_TableRobotA6, SIGNAL(valueChanged(double)), 
@@ -254,10 +261,6 @@ void qSlicerPatientPositioningModuleWidget::setup()
   connect( d->CheckBox_ShowMarkups, SIGNAL(toggled(bool)), this, SLOT(onShowMarkupsToggled(bool)));
   connect( d->CheckBox_FixedReferenceCamera, SIGNAL(toggled(bool)), 
     this, SLOT(onFixedReferenceCameraToggled(bool)));
-
-  // Children widgets
-  connect( d->CarmXrayBeamWidget, SIGNAL(bevOrientationChanged(const std::array< double, 3 >&)),
-    this, SLOT(onCarmXrayBevOrientationChanged(const std::array< double, 3 >&)));
 }
 
 //-----------------------------------------------------------------------------
@@ -723,7 +726,8 @@ void qSlicerPatientPositioningModuleWidget::onLoadTreatmentMachineButtonClicked(
   // C-arm beam
   vtkMRMLRTCarmBeamNode* xrayNode = d->logic()->CreateCarmXrayPlanAndNode(d->ParameterNode);
   d->MRMLNodeComboBox_CarmXrayBeam->setCurrentNode(xrayNode);
-
+  vtkMRMLDrrImageComputationNode* drrNode = d->logic()->CreateCarmXrayDrrNode(d->ParameterNode);
+  drrNode->SetAndObserveBeamNode(xrayNode);
 /*
   // Hide controls that do not have corresponding parts loaded
   bool imagingPanelsLoaded = (std::find(loadedParts.begin(), loadedParts.end(), vtkSlicerRoomsEyeViewModuleLogic::ImagingPanelLeft) != loadedParts.end() ||
@@ -1236,7 +1240,7 @@ void qSlicerPatientPositioningModuleWidget::onFixedReferenceCameraToggled(bool t
 }
 
 //-----------------------------------------------------------------------------
-void qSlicerPatientPositioningModuleWidget::onCarmXrayBevOrientationChanged(const std::array< double, 3 >& viewUpVector)
+void qSlicerPatientPositioningModuleWidget::bevOrientationChanged(const std::array< double, 3 >& viewUpVector)
 {
   Q_D(qSlicerPatientPositioningModuleWidget);
 
@@ -1246,7 +1250,7 @@ void qSlicerPatientPositioningModuleWidget::onCarmXrayBevOrientationChanged(cons
     return;
   }
 
-  vtkMRMLRTCarmBeamNode* carmXrayBeamNode = vtkMRMLRTCarmBeamNode::SafeDownCast(d->MRMLNodeComboBox_CarmXrayBeam->currentNode());
+  vtkMRMLRTBeamNode* carmXrayBeamNode = vtkMRMLRTBeamNode::SafeDownCast(d->MRMLNodeComboBox_BevBeamNode->currentNode());
 
   double sourcePosition[4] = { 0.0, 0.0, 0.0, 1.0 };
   double isocenter[4] = { 0.0, 0.0, 0.0, 1.0 }; // isocenter in C-arm x-ray beam
@@ -1267,16 +1271,56 @@ void qSlicerPatientPositioningModuleWidget::onCarmXrayBevOrientationChanged(cons
       return;
     }
 
-    double vupCarmXrayBeam[4] = { viewUpVector[0], viewUpVector[1], viewUpVector[2], 0. }; // beam negative X-axis
+    double vupBeam[4] = { viewUpVector[0], viewUpVector[1], viewUpVector[2], 0. };
     double vupCamera[4];
-  
-    mat->MultiplyPoint( vupCarmXrayBeam, vupCamera);
+
+    mat->MultiplyPoint( vupBeam, vupCamera);
     cameraNode->GetCamera()->SetPosition(sourcePosition);
     double isocenterWorld[4] = {};
     mat->MultiplyPoint(isocenter, isocenterWorld);
     cameraNode->GetCamera()->SetFocalPoint(isocenterWorld);
     cameraNode->SetViewUp(vupCamera);
   }
+}
+
+//-----------------------------------------------------------------------------
+void qSlicerPatientPositioningModuleWidget::onBeamsEyeViewPlusXButtonClicked()
+{
+  Q_D(qSlicerPatientPositioningModuleWidget);
+//  double viewUpVector[4] = { 1., 0., 0., 0. };
+//  this->onBeamsEyeViewButtonClicked(viewUpVector);
+  d->Label_BevOrientation->setText(tr("+X"));
+  this->bevOrientationChanged(std::array< double, 3 >{ 1., 0., 0.});
+}
+
+//-----------------------------------------------------------------------------
+void qSlicerPatientPositioningModuleWidget::onBeamsEyeViewMinusXButtonClicked()
+{
+  Q_D(qSlicerPatientPositioningModuleWidget);
+//  double viewUpVector[4] = { -1., 0., 0., 0. };
+//  this->onBeamsEyeViewButtonClicked(viewUpVector);
+  d->Label_BevOrientation->setText(tr("-X"));
+  this->bevOrientationChanged(std::array< double, 3 >{ -1., 0., 0.});
+}
+
+//-----------------------------------------------------------------------------
+void qSlicerPatientPositioningModuleWidget::onBeamsEyeViewPlusYButtonClicked()
+{
+  Q_D(qSlicerPatientPositioningModuleWidget);
+//  double viewUpVector[4] = { 0., 1., 0., 0. };
+//  this->onBeamsEyeViewButtonClicked(viewUpVector);
+  d->Label_BevOrientation->setText(tr("+Y"));
+  this->bevOrientationChanged(std::array< double, 3 >{ 0., 1., 0.});
+}
+
+//-----------------------------------------------------------------------------
+void qSlicerPatientPositioningModuleWidget::onBeamsEyeViewMinusYButtonClicked()
+{
+  Q_D(qSlicerPatientPositioningModuleWidget);
+//  double viewUpVector[4] = { 0., -1., 0., 0. };
+//  this->onBeamsEyeViewButtonClicked(viewUpVector);
+  d->Label_BevOrientation->setText(tr("-Y"));
+  this->bevOrientationChanged(std::array< double, 3 >{ 0., -1., 0.});
 }
 
 //-----------------------------------------------------------------------------

@@ -110,34 +110,6 @@
           </property>
          </widget>
         </item>
-        <item row="9" column="0" colspan="2">
-         <widget class="QCheckBox" name="CheckBox_FixedReferenceCamera">
-          <property name="text">
-           <string>Fix a 3D camera within the FixedReference frame</string>
-          </property>
-         </widget>
-        </item>
-        <item row="10" column="0">
-         <widget class="ctkCheckBox" name="CheckBox_ShowModels">
-          <property name="text">
-           <string>Show models</string>
-          </property>
-          <property name="checked">
-           <bool>true</bool>
-          </property>
-          <property name="indicatorIcon">
-           <iconset resource="../../../../Slicer/Libs/MRML/Widgets/Resources/qMRMLWidgets.qrc">
-            <normaloff>:/Icons/VisibleOn.png</normaloff>
-            <normalon>:/Icons/VisibleOff.png</normalon>:/Icons/VisibleOn.png</iconset>
-          </property>
-          <property name="indicatorIconSize">
-           <size>
-            <width>21</width>
-            <height>21</height>
-           </size>
-          </property>
-         </widget>
-        </item>
         <item row="1" column="0">
          <widget class="QLabel" name="label_17">
           <property name="text">
@@ -209,7 +181,30 @@
         <item row="8" column="0">
          <widget class="QComboBox" name="ComboBox_TreatmentMachine"/>
         </item>
-        <item row="11" column="0">
+       </layout>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item>
+    <widget class="ctkCollapsibleGroupBox" name="CollapsibleGroupBox">
+     <property name="title">
+      <string>Vizualization</string>
+     </property>
+     <property name="collapsed">
+      <bool>true</bool>
+     </property>
+     <layout class="QGridLayout" name="gridLayout_10">
+      <item row="0" column="0">
+       <layout class="QVBoxLayout" name="verticalLayout_2">
+        <item>
+         <widget class="QCheckBox" name="CheckBox_FixedReferenceCamera">
+          <property name="text">
+           <string>Fix a 3D camera within the FixedReference frame</string>
+          </property>
+         </widget>
+        </item>
+        <item>
          <widget class="ctkCheckBox" name="CheckBox_ShowMarkups">
           <property name="text">
            <string>Show markups</string>
@@ -227,6 +222,152 @@
             <width>21</width>
             <height>21</height>
            </size>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="ctkCheckBox" name="CheckBox_ShowModels">
+          <property name="text">
+           <string>Show models</string>
+          </property>
+          <property name="checked">
+           <bool>true</bool>
+          </property>
+          <property name="indicatorIcon">
+           <iconset resource="../../../../Slicer/Libs/MRML/Widgets/Resources/qMRMLWidgets.qrc">
+            <normaloff>:/Icons/VisibleOn.png</normaloff>
+            <normalon>:/Icons/VisibleOff.png</normalon>:/Icons/VisibleOn.png</iconset>
+          </property>
+          <property name="indicatorIconSize">
+           <size>
+            <width>21</width>
+            <height>21</height>
+           </size>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item>
+    <widget class="ctkCollapsibleGroupBox" name="CollapsibleGroupBox_BeamEyeView">
+     <property name="title">
+      <string>Beam's eye view</string>
+     </property>
+     <property name="collapsed">
+      <bool>true</bool>
+     </property>
+     <layout class="QGridLayout" name="gridLayout_9">
+      <item row="1" column="0">
+       <layout class="QGridLayout" name="gridLayout_5">
+        <item row="1" column="3">
+         <widget class="QPushButton" name="PushButton_BevXPlus">
+          <property name="text">
+           <string>X+</string>
+          </property>
+          <property name="icon">
+           <iconset resource="../qSlicerPatientPositioningModule.qrc">
+            <normaloff>:/Icons/go-up.png</normaloff>:/Icons/go-up.png</iconset>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="1">
+         <widget class="QPushButton" name="PushButton_BevXMinus">
+          <property name="text">
+           <string>X-</string>
+          </property>
+          <property name="icon">
+           <iconset resource="../qSlicerPatientPositioningModule.qrc">
+            <normaloff>:/Icons/go-previous.png</normaloff>:/Icons/go-previous.png</iconset>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="4">
+         <spacer name="horizontalSpacer_2">
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>40</width>
+            <height>20</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+        <item row="2" column="2">
+         <widget class="QPushButton" name="PushButton_BevYMinus">
+          <property name="text">
+           <string>Y-</string>
+          </property>
+          <property name="icon">
+           <iconset resource="../qSlicerPatientPositioningModule.qrc">
+            <normaloff>:/Icons/go-down.png</normaloff>:/Icons/go-down.png</iconset>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="2">
+         <widget class="QLabel" name="Label_BevOrientation">
+          <property name="text">
+           <string/>
+          </property>
+          <property name="alignment">
+           <set>Qt::AlignCenter</set>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="2">
+         <widget class="QPushButton" name="PushButton_BevYPlus">
+          <property name="text">
+           <string>Y+</string>
+          </property>
+          <property name="icon">
+           <iconset resource="../qSlicerPatientPositioningModule.qrc">
+            <normaloff>:/Icons/go-up.png</normaloff>:/Icons/go-up.png</iconset>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="0">
+         <spacer name="horizontalSpacer">
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>40</width>
+            <height>20</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+       </layout>
+      </item>
+      <item row="0" column="0">
+       <layout class="QHBoxLayout" name="horizontalLayout">
+        <item>
+         <widget class="QLabel" name="label_10">
+          <property name="text">
+           <string>Beam node:</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="qMRMLNodeComboBox" name="MRMLNodeComboBox_BevBeamNode">
+          <property name="nodeTypes">
+           <stringlist notr="true">
+            <string>vtkMRMLRTBeamNode</string>
+            <string>vtkMRMLRTCarmBeamNode</string>
+            <string>vtkMRMLRTIonBeamNode</string>
+            <string>vtkMRMLRTChannel26Cabin3BeamNode</string>
+           </stringlist>
+          </property>
+          <property name="hideChildNodeTypes">
+           <stringlist notr="true"/>
+          </property>
+          <property name="interactionNodeSingletonTag">
+           <string notr="true"/>
           </property>
          </widget>
         </item>
@@ -600,6 +741,9 @@
      <property name="text">
       <string>C-arm x-ray image and DRR registration</string>
      </property>
+     <property name="collapsed">
+      <bool>true</bool>
+     </property>
      <layout class="QGridLayout" name="gridLayout_2">
       <item row="0" column="0">
        <widget class="qSlicerCarmXrayBeamWidget" name="CarmXrayBeamWidget" native="true"/>
@@ -683,6 +827,7 @@
  </customwidgets>
  <resources>
   <include location="../../../../Slicer/Libs/MRML/Widgets/Resources/qMRMLWidgets.qrc"/>
+  <include location="../qSlicerPatientPositioningModule.qrc"/>
  </resources>
  <connections>
   <connection>
@@ -778,6 +923,22 @@
     <hint type="destinationlabel">
      <x>293</x>
      <y>195</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>qSlicerPatientPositioningModuleWidget</sender>
+   <signal>mrmlSceneChanged(vtkMRMLScene*)</signal>
+   <receiver>MRMLNodeComboBox_BevBeamNode</receiver>
+   <slot>setMRMLScene(vtkMRMLScene*)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>174</x>
+     <y>565</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>212</x>
+     <y>415</y>
     </hint>
    </hints>
   </connection>

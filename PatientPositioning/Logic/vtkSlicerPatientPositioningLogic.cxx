@@ -61,6 +61,7 @@
 
 // Modules logic
 #include <vtkSlicerDrrImageComputationLogic.h>
+#include <vtkMRMLDrrImageComputationNode.h>
 
 const char* vtkSlicerPatientPositioningLogic::FIXEDBEAMAXIS_MARKUPS_LINE_NODE_NAME = "FixedBeamAxis";
 const char* vtkSlicerPatientPositioningLogic::FIXEDISOCENTER_MARKUPS_FIDUCIAL_NODE_NAME = "FixedIsocenter";
@@ -1063,6 +1064,59 @@ vtkMRMLMarkupsFiducialNode* vtkSlicerPatientPositioningLogic::CreateCabin3Isocen
   return pointMarkupsNode;
 }
 
+//---------------------------------------------------------------------------
+vtkMRMLDrrImageComputationNode* vtkSlicerPatientPositioningLogic::CreateCarmXrayDrrNode(
+  vtkMRMLPatientPositioningNode* parameterNode)
+{
+  vtkMRMLScene* scene = this->GetMRMLScene();
+  if (!scene)
+  {
+    vtkErrorMacro("CreateCarmXrayDrrNode: Invalid MRML scene");
+    return nullptr;
+  }
+  if (!parameterNode)
+  {
+    vtkErrorMacro("CreateCarmXrayDrrNode: Invalid parameter set node");
+    return nullptr;
+  }
+
+  std::string machineType = std::string(parameterNode->GetTreatmentMachineType());
+  std::string nodeName = std::string("CarmXrayDRR_") + machineType;
+  vtkMRMLNode* node = nullptr;
+  node = scene->GetFirstNodeByName(nodeName.c_str());
+  // DRR node
+  if (node)
+  {
+    return vtkMRMLDrrImageComputationNode::SafeDownCast(node);
+  }
+  else
+  {
+    node = scene->AddNewNodeByClass("vtkMRMLDrrImageComputationNode", nodeName.c_str());
+  }
+  if (node)
+  {
+    // set detector parameters
+    // set beam, SAD, SID
+    vtkMRMLDrrImageComputationNode* drrNode = vtkMRMLDrrImageComputationNode::SafeDownCast(node);
+    // setup C-arm X-ray detector parameters
+    if (!machineType.compare("Channel26Cabin3Geometry")) // Cabin3
+    {
+      vtkMRMLRTBeamNode* carmXrayBeamNode = parameterNode->GetCarmXrayBeamNode();
+      drrNode->SetAndObserveBeamNode(carmXrayBeamNode);
+      drrNode->SetImagerResolution(3072, 3072);
+      drrNode->SetImagerSpacing(0.14, 0.14);
+      drrNode->SetThreading(vtkMRMLDrrImageComputationNode::CPU);
+      drrNode->SetInvertIntensityFlag(true);
+      drrNode->SetHUThresholdBelow(80);
+      using CoordPos = vtkSlicerChannel26Cabin3RobotsGeometryCommon;
+      double isoImagerDist = CoordPos::CARM_XRAY_FOCAL_SPOT_DETECTOR_DISTANCE - carmXrayBeamNode->GetSAD();
+      drrNode->SetIsocenterImagerDistance(isoImagerDist);
+    }
+    return drrNode;
+  }
+
+  return nullptr;
+}
 
 //---------------------------------------------------------------------------
 void vtkSlicerPatientPositioningLogic::BuildRobotsTransformHierarchy()

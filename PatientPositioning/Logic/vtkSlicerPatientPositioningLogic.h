@@ -53,6 +53,7 @@ class vtkVector3d;
 class vtkCollisionDetectionFilter;
 
 class vtkSlicerDrrImageComputationLogic;
+class vtkMRMLDrrImageComputationNode;
 
 class VTK_SLICER_PATIENTPOSITIONING_MODULE_LOGIC_EXPORT vtkSlicerPatientPositioningLogic :
   public vtkSlicerModuleLogic
@@ -111,6 +112,8 @@ public:
   vtkMRMLRTChannel26Cabin3BeamNode* CreateCabin3BeamPlanAndNode(vtkMRMLPatientPositioningNode* parameterNode);
   /// Create C-arm x-ray beam and plan and add C-arm x-ray beam to the parameter node
   vtkMRMLRTCarmBeamNode* CreateCarmXrayPlanAndNode(vtkMRMLPatientPositioningNode* parameterNode);
+  /// Create DRR node for C-arm x-ray beam and detector and add tp the parameter node
+  vtkMRMLDrrImageComputationNode* CreateCarmXrayDrrNode(vtkMRMLPatientPositioningNode* parameterNode);
 
 public:
   // Get treatment machine properties from descriptor file
