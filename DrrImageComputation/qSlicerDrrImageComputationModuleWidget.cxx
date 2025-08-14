@@ -299,7 +299,7 @@ void qSlicerDrrImageComputationModuleWidget::updateWidgetFromMRML()
   d->CollapsibleButton_GeometryBasicParameters->setEnabled(parameterNode);
   d->PlastimatchParametersWidget->setEnabled(parameterNode);
   d->PushButton_ComputeDrr->setEnabled(parameterNode);
-  
+
   if (!parameterNode)
   {
     qCritical() << Q_FUNC_INFO << ": Invalid parameter node";
@@ -353,7 +353,7 @@ void qSlicerDrrImageComputationModuleWidget::updateWidgetFromMRML()
       static_cast<double>(std::max<int>( 0, imageWindow[1])), 
       static_cast<double>(std::min<int>( imagerResolution[1] - 1, imageWindow[3])));
   }
-  
+
   // update RT beam from camera button
   vtkMRMLCameraNode* cameraNode = vtkMRMLCameraNode::SafeDownCast(d->MRMLNodeComboBox_Camera->currentNode());
   d->PushButton_UpdateBeamFromCamera->setEnabled(cameraNode);
@@ -514,9 +514,9 @@ void qSlicerDrrImageComputationModuleWidget::onEnter()
     return;
   }
 
-  vtkMRMLDrrImageComputationNode* parameterNode = nullptr; 
+  vtkMRMLDrrImageComputationNode* parameterNode = nullptr;
   // Try to find one in the scene
-  if (vtkMRMLNode* node = this->mrmlScene()->GetNthNodeByClass( 0, "vtkMRMLDrrImageComputationNode"))
+  if (vtkMRMLNode* node = this->mrmlScene()->GetFirstNodeByClass("vtkMRMLDrrImageComputationNode"))
   {
     parameterNode = vtkMRMLDrrImageComputationNode::SafeDownCast(node);
   }

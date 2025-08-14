@@ -962,17 +962,19 @@ vtkMRMLRTCarmBeamNode* vtkSlicerPatientPositioningLogic::CreateCarmXrayPlanAndNo
   carmXrayBeamNode->SetName(carmXrayBeamName.c_str());
   carmXrayPlanNode->GetScene()->AddNode(carmXrayBeamNode);
   carmXrayPlanNode->AddBeam(carmXrayBeamNode);
+  vtkMRMLMarkupsFiducialNode* carmXrayIsocenterNode = carmXrayPlanNode->GetPoisMarkupsFiducialNode();
+  if (!carmXrayIsocenterNode)
+  {
+    carmXrayIsocenterNode = carmXrayPlanNode->CreatePoisMarkupsFiducialNode();
+  }
+  carmXrayPlanNode->SetIsocenterSpecification(vtkMRMLRTPlanNode::ArbitraryPoint);
+  carmXrayIsocenterNode->SetName("CarmXrayIsocenter");
 
   using CoordPos = vtkSlicerChannel26Cabin3RobotsGeometryCommon;
-
   // Get Beam SAD
   double sad = carmXrayBeamNode->GetSAD();
-  double isocenter[3] = { 0., 0., -167. - sad };
+  double isocenter[3] = { 0., 0., -1 * CoordPos::CARM_XRAY_MOUNTING_POINT_SOURCE_OFFSET_Z - sad };
   carmXrayPlanNode->SetIsocenterPosition(isocenter);
-
-  vtkMRMLMarkupsFiducialNode* carmXrayIsocenterNode = carmXrayPlanNode->GetPoisMarkupsFiducialNode();
-  carmXrayIsocenterNode->SetName("CarmXrayIsocenter");
-  carmXrayIsocenterNode->SetNthMarkupLabel(0, "CarmXrayIsocenter");
 
   vtkMRMLTransformNode* carmBeamTranfsormNode = carmXrayBeamNode->GetParentTransformNode();
   // Find CarmXrayBeamToRASTransform or create it
