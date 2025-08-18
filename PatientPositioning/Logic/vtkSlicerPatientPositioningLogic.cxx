@@ -1110,7 +1110,7 @@ vtkMRMLDrrImageComputationNode* vtkSlicerPatientPositioningLogic::CreateCarmXray
       drrNode->SetImagerSpacing(0.14, 0.14);
       drrNode->SetThreading(vtkMRMLDrrImageComputationNode::CUDA);
       drrNode->SetInvertIntensityFlag(false);
-//      drrNode->SetHUThresholdBelow(80);
+      drrNode->SetHUThresholdBelow(-100);
       drrNode->SetIndependentBeamFlag(true);
       using CoordPos = vtkSlicerChannel26Cabin3RobotsGeometryCommon;
       double isoImagerDist = CoordPos::CARM_XRAY_FOCAL_SPOT_DETECTOR_DISTANCE - carmXrayBeamNode->GetSAD();
