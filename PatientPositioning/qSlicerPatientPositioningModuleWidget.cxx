@@ -75,6 +75,7 @@
 #include <vtkSlicerPatientPositioningLogic.h>
 #include <vtkSlicerChannel26Cabin3RobotsTransformLogic.h>
 #include <vtkSlicerDrrImageComputationLogic.h>
+// DRR MRML includes
 #include <vtkMRMLDrrImageComputationNode.h>
 
 //-----------------------------------------------------------------------------
@@ -458,7 +459,7 @@ void qSlicerPatientPositioningModuleWidget::onEnter()
   // Select or create parameter node
   vtkMRMLPatientPositioningNode* parameterNode = nullptr; 
   // Try to find one in the scene
-  if (vtkMRMLNode* node = this->mrmlScene()->GetNthNodeByClass( 0, "vtkMRMLPatientPositioningNode"))
+  if (vtkMRMLNode* node = this->mrmlScene()->GetFirstNodeByClass("vtkMRMLPatientPositioningNode"))
   {
     parameterNode = vtkMRMLPatientPositioningNode::SafeDownCast(node);
   }
@@ -466,6 +467,9 @@ void qSlicerPatientPositioningModuleWidget::onEnter()
   if (parameterNode)
   {
   }
+
+  // Set logics to childred widgets
+  d->CarmXrayBeamWidget->setPatientPositioningLogic(d->logic());
 
   // All required data for GUI is initiated
   this->updateWidgetFromMRML();
@@ -728,6 +732,10 @@ void qSlicerPatientPositioningModuleWidget::onLoadTreatmentMachineButtonClicked(
   d->MRMLNodeComboBox_CarmXrayBeam->setCurrentNode(xrayNode);
   vtkMRMLDrrImageComputationNode* drrNode = d->logic()->CreateCarmXrayDrrNode(d->ParameterNode);
   drrNode->SetAndObserveBeamNode(xrayNode);
+
+  // set DRR node to children widgets
+  d->CarmXrayBeamWidget->setDrrImageComputationNode(drrNode);
+
 /*
   // Hide controls that do not have corresponding parts loaded
   bool imagingPanelsLoaded = (std::find(loadedParts.begin(), loadedParts.end(), vtkSlicerRoomsEyeViewModuleLogic::ImagingPanelLeft) != loadedParts.end() ||

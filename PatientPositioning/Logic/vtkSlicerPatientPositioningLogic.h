@@ -112,7 +112,7 @@ public:
   vtkMRMLRTChannel26Cabin3BeamNode* CreateCabin3BeamPlanAndNode(vtkMRMLPatientPositioningNode* parameterNode);
   /// Create C-arm x-ray beam and plan and add C-arm x-ray beam to the parameter node
   vtkMRMLRTCarmBeamNode* CreateCarmXrayPlanAndNode(vtkMRMLPatientPositioningNode* parameterNode);
-  /// Create DRR node for C-arm x-ray beam and detector and add tp the parameter node
+  /// Create a DRR node for C-arm x-ray beam and detector and add tp the parameter node
   vtkMRMLDrrImageComputationNode* CreateCarmXrayDrrNode(vtkMRMLPatientPositioningNode* parameterNode);
 
 public:

@@ -1952,10 +1952,10 @@ void vtkSlicerDrrImageComputationLogic::UpdateNormalAndVupVectors(vtkMRMLDrrImag
     vtkWarningMacro("UpdateNormalAndVupVectors: Beam transform node is invalid, identity matrix will be used instead");
   }
 
-  vtkWarningMacro("Beam to parent matrix3: \n" << mat->GetElement(0, 0) << ' ' << mat->GetElement(0, 1) << ' ' << mat->GetElement(0, 2) << ' ' << mat->GetElement(0, 3) << '\n' \
-                                              << mat->GetElement(1, 0) << ' ' << mat->GetElement(1, 1) << ' ' << mat->GetElement(1, 2) << ' ' << mat->GetElement(1, 3) << '\n' \
-                                              << mat->GetElement(2, 0) << ' ' << mat->GetElement(2, 1) << ' ' << mat->GetElement(2, 2) << ' ' << mat->GetElement(2, 3) << '\n' \
-                                              << mat->GetElement(3, 0) << ' ' << mat->GetElement(3, 1) << ' ' << mat->GetElement(3, 2) << ' ' << mat->GetElement(3, 3) << '\n');
+//  vtkWarningMacro("Beam to parent matrix3: \n" << mat->GetElement(0, 0) << ' ' << mat->GetElement(0, 1) << ' ' << mat->GetElement(0, 2) << ' ' << mat->GetElement(0, 3) << '\n' \
+//                                              << mat->GetElement(1, 0) << ' ' << mat->GetElement(1, 1) << ' ' << mat->GetElement(1, 2) << ' ' << mat->GetElement(1, 3) << '\n' \
+//                                              << mat->GetElement(2, 0) << ' ' << mat->GetElement(2, 1) << ' ' << mat->GetElement(2, 2) << ' ' << mat->GetElement(2, 3) << '\n' \
+//                                              << mat->GetElement(3, 0) << ' ' << mat->GetElement(3, 1) << ' ' << mat->GetElement(3, 2) << ' ' << mat->GetElement(3, 3) << '\n');
 
   double n[4], vup[4];
   const double normalVector[4] = { 0., 0., 1., 0. }; // beam positive Z-axis
