@@ -1929,8 +1929,6 @@ void vtkSlicerDrrImageComputationLogic::UpdateNormalAndVupVectors(vtkMRMLDrrImag
 
   vtkTransform* rtImageTransform = nullptr;
   vtkNew<vtkMatrix4x4> mat; // DICOM beam transform matrix
-  mat->Identity();
-
   if (rtImageTransformNode)
   {
     rtImageTransform = vtkTransform::SafeDownCast(rtImageTransformNode->GetTransformToParent());
@@ -1950,6 +1948,7 @@ void vtkSlicerDrrImageComputationLogic::UpdateNormalAndVupVectors(vtkMRMLDrrImag
   else
   {
     vtkWarningMacro("UpdateNormalAndVupVectors: Beam transform node is invalid, identity matrix will be used instead");
+    mat->Identity();
   }
 
 //  vtkWarningMacro("Beam to parent matrix3: \n" << mat->GetElement(0, 0) << ' ' << mat->GetElement(0, 1) << ' ' << mat->GetElement(0, 2) << ' ' << mat->GetElement(0, 3) << '\n' \
@@ -1959,8 +1958,13 @@ void vtkSlicerDrrImageComputationLogic::UpdateNormalAndVupVectors(vtkMRMLDrrImag
 
   double n[4], vup[4];
   const double normalVector[4] = { 0., 0., 1., 0. }; // beam positive Z-axis
-  const double viewUpVector[4] = { -1., 0., 0., 0. }; // beam negative X-axis
-
+  double viewUpVector[4] = { -1., 0., 0., 0. }; // beam negative X-axis
+  if (parameterNode->GetIndependentBeamFlag())
+  {
+    viewUpVector[0] = 0.;
+    viewUpVector[1] = -1.;
+  }
+  
   mat->MultiplyPoint( normalVector, n);
   mat->MultiplyPoint( viewUpVector, vup);
 
