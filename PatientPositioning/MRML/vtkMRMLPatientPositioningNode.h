@@ -38,6 +38,16 @@ class vtkMRMLChannel26GeometryNode;
 class VTK_SLICER_PATIENTPOSITIONING_MODULE_MRML_EXPORT vtkMRMLPatientPositioningNode : public vtkMRMLNode
 {
 public:
+  enum CarmProjectionOrientation : int {
+    ORIENTATION_HORIZONTAL,
+    ORIENTATION_VERTICAL,
+    ORIENTATION_ANGLE,
+    CarmProjectionOrientation_Last
+  };
+  typedef std::pair< vtkSmartPointer<vtkMRMLScalarVolumeNode>, vtkSmartPointer<vtkMRMLScalarVolumeNode> > RtImagePair;
+  
+  typedef std::map< CarmProjectionOrientation, RtImagePair > OrientationRtImagePairMap;
+
   static vtkMRMLPatientPositioningNode *New();
   vtkTypeMacro(vtkMRMLPatientPositioningNode,vtkMRMLNode);
   void PrintSelf(ostream& os, vtkIndent indent) override;
@@ -127,6 +137,7 @@ protected:
   char* TreatmentMachineDescriptorFilePath;
   /// Name of treatment machine used (must match folder name where the models can be found)
   char* TreatmentMachineType;
+  OrientationRtImagePairMap OrientationImagesMap;
 };
 
 #endif

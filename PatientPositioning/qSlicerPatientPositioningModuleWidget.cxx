@@ -262,6 +262,9 @@ void qSlicerPatientPositioningModuleWidget::setup()
   connect( d->CheckBox_ShowMarkups, SIGNAL(toggled(bool)), this, SLOT(onShowMarkupsToggled(bool)));
   connect( d->CheckBox_FixedReferenceCamera, SIGNAL(toggled(bool)), 
     this, SLOT(onFixedReferenceCameraToggled(bool)));
+
+  // Children custom widgets
+  connect( this, SIGNAL(mrmlSceneChanged(vtkMRMLScene*)), d->CarmXrayBeamWidget, SLOT(setMRMLScene(vtkMRMLScene*)));
 }
 
 //-----------------------------------------------------------------------------
@@ -436,7 +439,9 @@ void qSlicerPatientPositioningModuleWidget::onPatientBodySegmentChanged(QString 
     return;
   }
 
-  d->ParameterNode->SetPatientBodySegmentID(segmentID.toUtf8().constData());
+  std::string segID = segmentID.toStdString();
+  d->ParameterNode->SetPatientBodySegmentID(segID.c_str());
+//  d->ParameterNode->SetPatientBodySegmentID(segmentID.toUtf8().constData());
 }
 
 //-----------------------------------------------------------------------------
@@ -469,6 +474,7 @@ void qSlicerPatientPositioningModuleWidget::onEnter()
   }
 
   // Set logics to childred widgets
+//  d->CarmXrayBeamWidget->setMRMLScene(this->mrmlScene());
   d->CarmXrayBeamWidget->setPatientPositioningLogic(d->logic());
 
   // All required data for GUI is initiated
@@ -592,7 +598,6 @@ void qSlicerPatientPositioningModuleWidget::onLoadTreatmentMachineButtonClicked(
     vtkNew<vtkMRMLChannel26GeometryNode> channel26GeometryNode;
     channel26GeometryNode->SetName("Channel26Geometry");
     channel26GeometryNode->SetHideFromEditors(0);
-//    channel26GeometryNode->SetSingletonTag("Cabin26AGeo");
     scene->AddNode(channel26GeometryNode);
     d->ParameterNode->SetAndObserveChannel26GeometryNode(channel26GeometryNode.GetPointer());
   }
@@ -724,9 +729,11 @@ void qSlicerPatientPositioningModuleWidget::onLoadTreatmentMachineButtonClicked(
   d->MRMLNodeComboBox_FixedReferenceBeam->setCurrentNode(cabin3BeamNode);
 
   /// Setup Markups fixed beam axis and fixed isocenter
-  /* vtkMRMLMarkupsLineNode* beamAxisLineNode = */ d->logic()->CreateCabin3BeamAxisLineNode(d->ParameterNode);
-  /* vtkMRMLMarkupsFiducialNode* fixedIsocenterNode = */ // d->logic()->CreateFixedIsocenterFiducialNode(d->ParameterNode);
-
+  vtkMRMLMarkupsLineNode* beamAxisLineNode = d->logic()->CreateCabin3BeamAxisLineNode(d->ParameterNode);
+  vtkMRMLMarkupsFiducialNode* fixedIsocenterNode = d->logic()->CreateCabin3IsocenterFiducialNode(d->ParameterNode);
+  Q_UNUSED(beamAxisLineNode);
+  Q_UNUSED(fixedIsocenterNode);
+  
   // C-arm beam
   vtkMRMLRTCarmBeamNode* xrayNode = d->logic()->CreateCarmXrayPlanAndNode(d->ParameterNode);
   d->MRMLNodeComboBox_CarmXrayBeam->setCurrentNode(xrayNode);
@@ -735,7 +742,7 @@ void qSlicerPatientPositioningModuleWidget::onLoadTreatmentMachineButtonClicked(
 
   // set DRR node to children widgets
   d->CarmXrayBeamWidget->setDrrImageComputationNode(drrNode);
-
+  d->CollapsibleButton_CarmRtImageDrrRegistration->setEnabled(drrNode ? true : false);
 /*
   // Hide controls that do not have corresponding parts loaded
   bool imagingPanelsLoaded = (std::find(loadedParts.begin(), loadedParts.end(), vtkSlicerRoomsEyeViewModuleLogic::ImagingPanelLeft) != loadedParts.end() ||

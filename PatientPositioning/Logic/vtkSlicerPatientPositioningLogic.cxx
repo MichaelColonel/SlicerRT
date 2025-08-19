@@ -66,8 +66,8 @@
 const char* vtkSlicerPatientPositioningLogic::FIXEDBEAMAXIS_MARKUPS_LINE_NODE_NAME = "FixedBeamAxis";
 const char* vtkSlicerPatientPositioningLogic::FIXEDISOCENTER_MARKUPS_FIDUCIAL_NODE_NAME = "FixedIsocenter";
 
-const char* vtkSlicerPatientPositioningLogic::DRR_TRANSFORM_NODE_NAME = "DrrPatientPositioningTransform";
-const char* vtkSlicerPatientPositioningLogic::DRR_TRANSLATE_NODE_NAME = "DrrPatientPositioningTranslate";
+const char* vtkSlicerPatientPositioningLogic::DRR_TRANSFORM_NODE_NAME = "DrrTransform";
+const char* vtkSlicerPatientPositioningLogic::DRR_TRANSLATE_NODE_NAME = "DrrTranslate";
 
 const char* vtkSlicerPatientPositioningLogic::TREATMENT_MACHINE_DESCRIPTOR_FILE_PATH_ATTRIBUTE_NAME = "TreatmentMachineDescriptorFilePath";
 unsigned long vtkSlicerPatientPositioningLogic::MAX_TRIANGLE_NUMBER_PRODUCT_FOR_COLLISIONS = 10E+10;
@@ -1058,7 +1058,15 @@ vtkMRMLMarkupsFiducialNode* vtkSlicerPatientPositioningLogic::CreateCabin3Isocen
   if (parameterNode)
   {
     vtkVector3d pFixedIsocenter( 0., 0., 0.); // Isocenter in origin of FixedReference frame
-    pointMarkupsNode->AddControlPoint( pFixedIsocenter, "Cabin3Isocenter");
+    pointMarkupsNode->AddControlPoint( pFixedIsocenter, "FixedIsocenter");
+
+    vtkMRMLTransformNode* transformNode = this->GetChannel26RobotsTransformLogic()->GetFixedReferenceTransform();
+
+    // add transform to fiducial node
+    if (transformNode)
+    {
+      pointMarkupsNode->SetAndObserveTransformNodeID(transformNode->GetID());
+    }
 
     parameterNode->SetAndObserveCabin3IsocenterFiducialNode(pointMarkupsNode);
   }
@@ -1402,6 +1410,7 @@ void vtkSlicerPatientPositioningLogic::ShowMarkupsNodes(vtkMRMLPatientPositionin
   markupsNames.push_back(vtkSlicerPatientPositioningLogic::TABLETOP_MARKUPS_PLANE_NODE_NAME);
   markupsNames.push_back(vtkSlicerPatientPositioningLogic::TABLETOP_MARKUPS_FIDUCIAL_NODE_NAME);
   markupsNames.push_back(vtkSlicerPatientPositioningLogic::FIXEDBEAMAXIS_MARKUPS_LINE_NODE_NAME);
+  markupsNames.push_back(vtkSlicerPatientPositioningLogic::FIXEDISOCENTER_MARKUPS_FIDUCIAL_NODE_NAME);
 
   for (auto markupName : markupsNames)
   {

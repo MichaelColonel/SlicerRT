@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>350</width>
+    <width>356</width>
     <height>1131</height>
    </rect>
   </property>
@@ -385,7 +385,7 @@
       <string>Robots control</string>
      </property>
      <property name="collapsed">
-      <bool>false</bool>
+      <bool>true</bool>
      </property>
      <layout class="QGridLayout" name="gridLayout_4">
       <item row="0" column="0">
@@ -738,6 +738,9 @@
    </item>
    <item>
     <widget class="ctkCollapsibleButton" name="CollapsibleButton_CarmRtImageDrrRegistration">
+     <property name="enabled">
+      <bool>false</bool>
+     </property>
      <property name="text">
       <string>C-arm x-ray image and DRR registration</string>
      </property>

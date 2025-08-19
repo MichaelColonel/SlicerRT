@@ -136,7 +136,7 @@ public:
   static constexpr double CARM_XRAY_SOURCE_WIDTH = 485.;
   // C-arm x-ray detector width
   static constexpr double CARM_XRAY_DETECTOR_WIDTH = 537.;
-
+  // C-arm x-ray distance between mounting point and focal spot along Z-axis
   static constexpr double CARM_XRAY_MOUNTING_POINT_SOURCE_OFFSET_Z = 167.;
 
   // Table top height
