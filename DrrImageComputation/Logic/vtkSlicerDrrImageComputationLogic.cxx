@@ -644,8 +644,9 @@ vtkMRMLMarkupsPlaneNode* vtkSlicerDrrImageComputationLogic::CreateImagerBoundary
   }
   imagerMarkupsNode->SetHideFromEditors(1);
   std::string singletonTag = std::string("RTIMAGE_") + IMAGER_BOUNDARY_MARKUPS_NODE_NAME;
-  imagerMarkupsNode->SetSingletonTag(singletonTag.c_str());
-  imagerMarkupsNode->LockedOn();
+//  imagerMarkupsNode->SetSingletonTag(singletonTag.c_str());
+//  imagerMarkupsNode->LockedOn();
+  imagerMarkupsNode->GetMarkupsDisplayNode()->SetHandlesInteractive(false);
 
   if (parameterNode)
   {
@@ -709,8 +710,9 @@ vtkMRMLMarkupsPlaneNode* vtkSlicerDrrImageComputationLogic::CreateImageWindow(vt
   }
   imageWindowMarkupsNode->SetHideFromEditors(1);
   std::string singletonTag = std::string("RTIMAGE_") + IMAGE_WINDOW_MARKUPS_NODE_NAME;
-  imageWindowMarkupsNode->SetSingletonTag(singletonTag.c_str());
-  imageWindowMarkupsNode->LockedOn();
+//  imageWindowMarkupsNode->SetSingletonTag(singletonTag.c_str());
+//  imageWindowMarkupsNode->LockedOn();
+  imageWindowMarkupsNode->GetMarkupsDisplayNode()->SetHandlesInteractive(false);
 
   if (parameterNode)
   {
@@ -785,8 +787,8 @@ vtkMRMLMarkupsLineNode* vtkSlicerDrrImageComputationLogic::CreateImagerNormal(vt
   }
   vectorMarkupsNode->SetHideFromEditors(1);
   std::string singletonTag = std::string("RTIMAGE_") + NORMAL_VECTOR_MARKUPS_NODE_NAME;
-  vectorMarkupsNode->SetSingletonTag(singletonTag.c_str());
-  vectorMarkupsNode->LockedOn();
+//  vectorMarkupsNode->SetSingletonTag(singletonTag.c_str());
+//  vectorMarkupsNode->LockedOn();
 
   if (parameterNode)
   {
@@ -832,8 +834,8 @@ vtkMRMLMarkupsLineNode* vtkSlicerDrrImageComputationLogic::CreateImagerVUP(vtkMR
   }
   vectorMarkupsNode->SetHideFromEditors(1);
   std::string singletonTag = std::string("RTIMAGE_") + VUP_VECTOR_MARKUPS_NODE_NAME;
-  vectorMarkupsNode->SetSingletonTag(singletonTag.c_str());
-  vectorMarkupsNode->LockedOn();
+//  vectorMarkupsNode->SetSingletonTag(singletonTag.c_str());
+//  vectorMarkupsNode->LockedOn();
 
   if (parameterNode)
   {
@@ -891,8 +893,8 @@ vtkMRMLMarkupsFiducialNode* vtkSlicerDrrImageComputationLogic::CreateFiducials(v
   }
   pointsMarkupsNode->SetHideFromEditors(1);
   std::string singletonTag = std::string("RTIMAGE_") + FIDUCIALS_MARKUPS_NODE_NAME;
-  pointsMarkupsNode->SetSingletonTag(singletonTag.c_str());
-  pointsMarkupsNode->LockedOn();
+//  pointsMarkupsNode->SetSingletonTag(singletonTag.c_str());
+//  pointsMarkupsNode->LockedOn();
 
   if (parameterNode)
   {
@@ -1779,7 +1781,7 @@ vtkMRMLLinearTransformNode* vtkSlicerDrrImageComputationLogic::UpdateImageTransf
     transformNode = vtkSmartPointer<vtkMRMLLinearTransformNode>::New();
     transformNode->SetName(RTIMAGE_TRANSFORM_NODE_NAME);
     transformNode->SetHideFromEditors(1);
-    transformNode->SetSingletonTag("RTIMAGE_Transform");
+//    transformNode->SetSingletonTag("RTIMAGE_Transform");
     scene->AddNode(transformNode);
   }
   else
