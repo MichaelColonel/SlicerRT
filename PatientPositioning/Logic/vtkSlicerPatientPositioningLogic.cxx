@@ -1116,8 +1116,8 @@ vtkMRMLDrrImageComputationNode* vtkSlicerPatientPositioningLogic::CreateCarmXray
       // setup C-arm x-ray detector parameters
       drrNode->SetImagerResolution(3072, 3072);
       drrNode->SetImagerSpacing(0.14, 0.14);
-      drrNode->SetThreading(vtkMRMLDrrImageComputationNode::CUDA);
-      drrNode->SetInvertIntensityFlag(false);
+      drrNode->SetThreading(vtkMRMLDrrImageComputationNode::CPU);
+      drrNode->SetInvertIntensityFlag(true);
       drrNode->SetHUThresholdBelow(-100);
       drrNode->SetIndependentBeamFlag(true);
       using CoordPos = vtkSlicerChannel26Cabin3RobotsGeometryCommon;
