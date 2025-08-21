@@ -44,6 +44,8 @@
 
 
 #include <vtkMRMLScene.h>
+#include <vtkMRMLLayoutNode.h>
+#include <vtkMRMLSliceNode.h>
 
 // Beams inlcudes
 #include <vtkMRMLRTBeamNode.h>
@@ -51,6 +53,8 @@
 // Logic includes
 #include <vtkSlicerPatientPositioningLogic.h>
 #include <vtkSlicerDrrImageComputationLogic.h>
+
+#include <vtkMRMLSliceLogic.h>
 
 // VTK includes
 #include <vtkVector.h>
@@ -99,9 +103,10 @@ void qSlicerCarmXrayBeamWidgetPrivate::init()
 
   QObject::connect( this->PushButton_ComputeCarmXrayDrr, SIGNAL(clicked()), q, SLOT(onComputeDrrClicked()));
   QObject::connect( this->MRMLNodeComboBox_DrrImageNode, SIGNAL(currentNodeChanged(vtkMRMLNode*)), 
-    q, SLOT(onDrrNodeChanged(vtkMRMLNode*)));
+    q, SLOT(onDrrImageNodeChanged(vtkMRMLNode*)));
   QObject::connect( this->MRMLNodeComboBox_CarmXrayImageNode, SIGNAL(currentNodeChanged(vtkMRMLNode*)), 
     q, SLOT(onCarmXrayImageNodeChanged(vtkMRMLNode*)));
+  QObject::connect( this->CheckBox_ShowRtImageView, SIGNAL(toggled(bool)), q, SLOT(onSetImagesToSliceViewToggled(bool)));
 }
 
 // --------------------------------------------------------------------------
@@ -288,7 +293,7 @@ void qSlicerCarmXrayBeamWidget::updateWidgetFromMRML()
 }
 
 //-----------------------------------------------------------------------------
-void qSlicerCarmXrayBeamWidget::onSetImagesToSliceViewClicked()
+void qSlicerCarmXrayBeamWidget::onSetImagesToSliceViewToggled(bool maximize)
 {
   Q_D(qSlicerCarmXrayBeamWidget);
 
@@ -299,6 +304,8 @@ void qSlicerCarmXrayBeamWidget::onSetImagesToSliceViewClicked()
   }
 
   vtkMRMLPatientPositioningNode::CarmProjectionOrientation projType = vtkMRMLPatientPositioningNode::CarmProjectionOrientation_Last;
+
+  qSlicerApplication* slicerApplication = qSlicerApplication::application();
 
   if (d->RadioButton_OrientationVertical->isChecked())
   {
@@ -312,11 +319,78 @@ void qSlicerCarmXrayBeamWidget::onSetImagesToSliceViewClicked()
   {
     projType = vtkMRMLPatientPositioningNode::ORIENTATION_ANGLE;
   }
+
+  vtkMRMLPatientPositioningNode::RtImagePair& pair = d->RtImagePairMap[projType];
+
+  vtkMRMLScalarVolumeNode* drrImageNode = pair.first;
+
+  // Manage "Red" slice for DRR
+  qMRMLSliceWidget* sliceWidget = slicerApplication->layoutManager()->sliceWidget("Red");
+
+  if (!sliceWidget)
+  {
+    qCritical() << Q_FUNC_INFO << ": Invalid slice widget";
+    return;
+  }
+
+  if (!drrImageNode)
+  {
+    qCritical() << Q_FUNC_INFO << ": Invalid DRR image node";
+    return;
+  }
+
+  vtkMRMLSliceLogic* sliceLogic = sliceWidget->sliceLogic();
+  vtkMRMLSliceNode* sliceNode = sliceWidget->mrmlSliceNode();
+
+  // When enabling checkbox, set DRR image as background and maximize slice
+  if (maximize)
+  {
+    sliceLogic->GetSliceCompositeNode()->SetBackgroundVolumeID(drrImageNode->GetID());
+
+    sliceLogic->RotateSliceToLowestVolumeAxes(); // Reformat
+
+    sliceLogic->FitSliceToAll();
+    sliceNode->UpdateMatrices();
+
+    // Maximize
+    bool isMaximized = false;
+    bool canBeMaximized = false;
+    vtkMRMLLayoutNode* layoutNode = sliceNode->GetMaximizedState(isMaximized, canBeMaximized);
+
+    if (!layoutNode || !canBeMaximized)
+    {
+      return;
+    }
+
+    if (!isMaximized)
+    {
+      layoutNode->AddMaximizedViewNode(sliceNode);
+    }
+  }
+
+  // When disabling checkbox, restore view layout
+  else
+  {
+    bool isMaximized = false;
+    bool canBeMaximized = false;
+    vtkMRMLLayoutNode* layoutNode = sliceNode->GetMaximizedState(isMaximized, canBeMaximized);
+
+    if (!layoutNode)
+    {
+      return;
+    }
+
+    if (isMaximized)
+    {
+      layoutNode->RemoveMaximizedViewNode(sliceNode);
+    }
+  }
+
   emit registrationRtImagePairChanged(projType, nullptr, nullptr);
 }
 
 //-----------------------------------------------------------------------------
-void qSlicerCarmXrayBeamWidget::onDrrNodeChanged(vtkMRMLNode* drrNode)
+void qSlicerCarmXrayBeamWidget::onDrrImageNodeChanged(vtkMRMLNode* drrNode)
 {
   Q_D(qSlicerCarmXrayBeamWidget);
 
