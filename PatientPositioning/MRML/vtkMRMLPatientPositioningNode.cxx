@@ -22,6 +22,7 @@
 #include <vtkMRMLMarkupsFiducialNode.h>
 #include <vtkMRMLLinearTransformNode.h>
 #include <vtkMRMLSegmentationNode.h>
+#include <vtkMRMLDrrImageComputationNode.h>
 
 // Beams includes
 #include <vtkMRMLRTBeamNode.h>
@@ -39,14 +40,17 @@
 namespace
 {
 
-const char* DRR_REFERENCE_ROLE = "drrRef";
+const char* DRR_IMAGE_REFERENCE_ROLE = "drrImageRef";
 const char* XRAY_IMAGE_REFERENCE_ROLE = "xrayImageRef";
 const char* FIXED_BEAM_AXIS_REFERENCE_ROLE = "fixedBeamAxisRef";
 const char* FIXED_ISOCENTER_REFERENCE_ROLE = "fixedIsocenterRef";
 const char* CABIN26A_GEOMETRY_REFERENCE_ROLE = "cabin26AGeometryRef";
+const char* DRR_REFERENCE_ROLE = "drrRef";
+const char* CT_VOLUME_REFERENCE_ROLE = "ctVolumeRef";
 const char* FIXED_ION_BEAM_REFERENCE_ROLE = "fixedIonBeamRef";
 const char* EXTERNAL_XRAY_BEAM_REFERENCE_ROLE = "externalXrayBeamRef";
 const char* BEAM_REFERENCE_ROLE = "beamRef";
+const char* XRAY_BEAM_REFERENCE_ROLE = "xrayBeamRef";
 const char* PATIENT_BODY_SEGMENTATION_REFERENCE_ROLE = "patientBodySegmentationRef";
 
 } // namespace
@@ -330,4 +334,75 @@ void vtkMRMLPatientPositioningNode::SetAndObserveExternalXrayBeamNode(vtkMRMLRTF
     }
 
   this->SetNodeReferenceID(EXTERNAL_XRAY_BEAM_REFERENCE_ROLE, (node ? node->GetID() : nullptr));
+}
+//----------------------------------------------------------------------------
+vtkMRMLRTBeamNode* vtkMRMLPatientPositioningNode::GetXrayBeamNode()
+{
+  return vtkMRMLRTBeamNode::SafeDownCast( this->GetNodeReference(XRAY_BEAM_REFERENCE_ROLE) );
+}
+
+//----------------------------------------------------------------------------
+void vtkMRMLPatientPositioningNode::SetAndObserveXrayBeamNode(vtkMRMLRTBeamNode* node)
+{
+  if (node && this->Scene != node->GetScene())
+    {
+    vtkErrorMacro("Cannot set reference: the referenced and referencing node are not in the same scene");
+    return;
+    }
+
+  this->SetNodeReferenceID(XRAY_BEAM_REFERENCE_ROLE, (node ? node->GetID() : nullptr));
+}
+
+//----------------------------------------------------------------------------
+vtkMRMLScalarVolumeNode* vtkMRMLPatientPositioningNode::GetDrrImageNode()
+{
+  return vtkMRMLScalarVolumeNode::SafeDownCast( this->GetNodeReference(DRR_IMAGE_REFERENCE_ROLE) );
+}
+
+//----------------------------------------------------------------------------
+void vtkMRMLPatientPositioningNode::SetAndObserveDrrImageNode(vtkMRMLScalarVolumeNode* node)
+{
+  if (node && this->Scene != node->GetScene())
+    {
+    vtkErrorMacro("Cannot set reference: the referenced and referencing node are not in the same scene");
+    return;
+    }
+
+  this->SetNodeReferenceID(DRR_IMAGE_REFERENCE_ROLE, (node ? node->GetID() : nullptr));
+}
+
+//----------------------------------------------------------------------------
+vtkMRMLDrrImageComputationNode* vtkMRMLPatientPositioningNode::GetDrrNode()
+{
+  return vtkMRMLDrrImageComputationNode::SafeDownCast( this->GetNodeReference(DRR_REFERENCE_ROLE) );
+}
+
+//----------------------------------------------------------------------------
+void vtkMRMLPatientPositioningNode::SetAndObserveDrrNode(vtkMRMLDrrImageComputationNode* node)
+{
+  if (node && this->Scene != node->GetScene())
+    {
+    vtkErrorMacro("Cannot set reference: the referenced and referencing node are not in the same scene");
+    return;
+    }
+
+  this->SetNodeReferenceID(DRR_REFERENCE_ROLE, (node ? node->GetID() : nullptr));
+}
+
+//----------------------------------------------------------------------------
+vtkMRMLScalarVolumeNode* vtkMRMLPatientPositioningNode::GetCtVolumeNode()
+{
+  return vtkMRMLScalarVolumeNode::SafeDownCast( this->GetNodeReference(CT_VOLUME_REFERENCE_ROLE) );
+}
+
+//----------------------------------------------------------------------------
+void vtkMRMLPatientPositioningNode::SetAndObserveCtVolumeNode(vtkMRMLScalarVolumeNode* node)
+{
+  if (node && this->Scene != node->GetScene())
+    {
+    vtkErrorMacro("Cannot set reference: the referenced and referencing node are not in the same scene");
+    return;
+    }
+
+  this->SetNodeReferenceID(CT_VOLUME_REFERENCE_ROLE, (node ? node->GetID() : nullptr));
 }

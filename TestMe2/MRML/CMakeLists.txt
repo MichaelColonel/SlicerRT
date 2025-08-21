@@ -10,7 +10,6 @@ set(${KIT}_INCLUDE_DIRECTORIES
   ${MRMLCore_INCLUDE_DIRS}
   ${vtkSlicerSegmentationsModuleMRML_INCLUDE_DIRS}
   ${vtkSlicerBeamsModuleMRML_INCLUDE_DIRS}
-  ${vtkSlicerPlanarImageModuleLogic_INCLUDE_DIRS}
   )
 
 # --------------------------------------------------------------------------
@@ -19,14 +18,6 @@ set(${KIT}_INCLUDE_DIRECTORIES
 set(${KIT}_SRCS
   vtkMRML${MODULE_NAME}Node.cxx
   vtkMRML${MODULE_NAME}Node.h
-  vtkMRMLCabin26AGeometryNode.cxx
-  vtkMRMLCabin26AGeometryNode.h
-  vtkMRMLRTFixedBeamNode.h
-  vtkMRMLRTFixedBeamNode.cxx
-  vtkMRMLRTFixedIonBeamNode.h
-  vtkMRMLRTFixedIonBeamNode.cxx
-  vtkMRMLRTCabin26AIonBeamNode.h
-  vtkMRMLRTCabin26AIonBeamNode.cxx
   )
 
 SET (${KIT}_INCLUDE_DIRS
@@ -43,7 +34,6 @@ set(${KIT}_TARGET_LIBRARIES
   MRMLCore
   vtkSlicerSegmentationsModuleMRML
   vtkSlicerBeamsModuleMRML
-  vtkSlicerPlanarImageModuleLogic
   )
 
 SlicerMacroBuildModuleMRML(

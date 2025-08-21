@@ -29,6 +29,7 @@ class vtkMRMLScalarVolumeNode;
 class vtkMRMLMarkupsLineNode;
 class vtkMRMLMarkupsFiducialNode;
 class vtkMRMLSegmentationNode;
+class vtkMRMLDrrImageComputationNode;
 
 class vtkMRMLRTFixedBeamNode;
 class vtkMRMLRTCabin26AIonBeamNode;
@@ -69,6 +70,11 @@ public:
   /// Set and observe beam node
   void SetAndObserveBeamNode(vtkMRMLRTBeamNode* node);
 
+  /// Get X-ray beam node
+  vtkMRMLRTBeamNode* GetXrayBeamNode();
+  /// Set and observe X-ray beam node
+  void SetAndObserveXrayBeamNode(vtkMRMLRTBeamNode* node);
+
   /// Get fixed reference ion beam node
   vtkMRMLRTCabin26AIonBeamNode* GetFixedReferenceBeamNode();
   /// Set and observe fixed reference ion beam node
@@ -93,6 +99,21 @@ public:
   vtkMRMLCabin26AGeometryNode* GetCabin26AGeometryNode();
   /// Set and observe Channel-25 geometry node
   void SetAndObserveCabin26AGeometryNode(vtkMRMLCabin26AGeometryNode* node);
+
+  /// Get detector node
+  vtkMRMLDrrImageComputationNode* GetDrrNode();
+  /// Set and observe detector node
+  void SetAndObserveDrrNode(vtkMRMLDrrImageComputationNode* node);
+
+  /// Get DRR image node (scalar volume)
+  vtkMRMLScalarVolumeNode* GetDrrImageNode();
+  /// Set and observe DRR image node (scalar volume)
+  void SetAndObserveDrrImageNode(vtkMRMLScalarVolumeNode* node);
+
+  /// Get CT volume node (scalar volume)
+  vtkMRMLScalarVolumeNode* GetCtVolumeNode();
+  /// Set and observe CT volume node (scalar volume)
+  void SetAndObserveCtVolumeNode(vtkMRMLScalarVolumeNode* node);
 
   /// Get observed fixed beam axis (line node)
   vtkMRMLMarkupsLineNode* GetFixedBeamAxisLineNode();

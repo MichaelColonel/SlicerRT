@@ -5,6 +5,7 @@ set(MODULE_NAME TestMe2)
 string(TOUPPER ${MODULE_NAME} MODULE_NAME_UPPER)
 
 #-----------------------------------------------------------------------------
+add_subdirectory(MRML)
 add_subdirectory(Logic)
 add_subdirectory(Widgets)
 
@@ -17,6 +18,8 @@ set(MODULE_INCLUDE_DIRECTORIES
   ${CMAKE_CURRENT_BINARY_DIR}/Logic
   ${CMAKE_CURRENT_SOURCE_DIR}/Widgets
   ${CMAKE_CURRENT_BINARY_DIR}/Widgets
+  ${qSlicerSubjectHierarchyModuleWidgets_INCLUDE_DIRS}
+  ${vtkSlicer${MODULE_NAME}ModuleMRML_INCLUDE_DIRS}
   )
 
 set(MODULE_SRCS
@@ -38,6 +41,7 @@ set(MODULE_UI_SRCS
 set(MODULE_TARGET_LIBRARIES
   vtkSlicer${MODULE_NAME}ModuleLogic
   qSlicer${MODULE_NAME}ModuleWidgets
+  vtkSlicer${MODULE_NAME}ModuleMRML # почему в других модулях этого нет?
   )
 
 set(MODULE_RESOURCES

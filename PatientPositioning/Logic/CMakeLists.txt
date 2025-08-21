@@ -25,6 +25,9 @@ set(${KIT}_TARGET_LIBRARIES
   vtkSlicerBeamsModuleLogic
   vtkSlicerModelsModuleLogic
   vtkSlicerSubjectHierarchyModuleLogic
+  vtkSlicerDrrImageComputationModuleLogic
+  vtkSlicerDrrImageComputationModuleMRML
+  vtkSlicerMarkupsModuleMRML
   )
 
 #-----------------------------------------------------------------------------

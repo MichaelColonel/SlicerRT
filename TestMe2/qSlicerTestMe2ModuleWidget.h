@@ -23,6 +23,10 @@
 
 #include "qSlicerTestMe2ModuleExport.h"
 
+
+#include <vtkMRMLTestMe2Node.h>
+
+/// \ingroup SlicerRt_QtModules_TestMe2
 class qSlicerTestMe2ModuleWidgetPrivate;
 class vtkMRMLNode;
 
@@ -37,15 +41,33 @@ public:
   qSlicerTestMe2ModuleWidget(QWidget *parent=0);
   virtual ~qSlicerTestMe2ModuleWidget();
 
+  void exit() override;
+  void enter() override;
+
 public slots:
+  void setMRMLScene(vtkMRMLScene*) override;
+  void setParameterNode(vtkMRMLNode*);
+  void onSceneImportedEvent();
+  void onSceneClosedEvent();
+
+  void onParameterNodeChanged(vtkMRMLNode*);
   void onFiducialNodeChanged(vtkMRMLNode*);
   void onTransformNodeChanged(vtkMRMLNode*);
   void onCheckNodesButtonClicked();
+  void onHeightSliderMove(double height);
+  void onRotateXSliderMove(double rotateXAngle);
+
+  void onDRRNodeChanged(vtkMRMLNode*);
+  void onBeamNodeChanged(vtkMRMLNode*);
+  void onShowDRRButtonClicked();
+
+  void updateWidgetFromMRML();
 
 protected:
   QScopedPointer<qSlicerTestMe2ModuleWidgetPrivate> d_ptr;
 
   void setup() override;
+  void onEnter();
 
 private:
   Q_DECLARE_PRIVATE(qSlicerTestMe2ModuleWidget);

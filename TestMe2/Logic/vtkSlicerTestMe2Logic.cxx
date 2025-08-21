@@ -22,9 +22,28 @@
 #include <vtkMRMLScene.h>
 
 // VTK includes
-#include <vtkIntArray.h>
+//#include <vtkIntArray.h>
 #include <vtkNew.h>
-#include <vtkObjectFactory.h>
+//#include <vtkObjectFactory.h>
+
+#include <vtkMRMLMarkupsNode.h>
+#include <vtkMRMLMarkupsFiducialNode.h>
+#include <vtkMRMLLinearTransformNode.h>
+#include <vtkMRMLScalarVolumeNode.h>
+#include <vtkMRMLRTBeamNode.h>
+#include <vtkMRMLTestMe2Node.h>
+
+#include <vtkMRMLSliceNode.h>
+#include <qSlicerLayoutManager.h>
+#include <vtkMRMLLayoutLogic.h>
+#include <qSlicerApplication.h>
+#include <qMRMLSliceWidget.h>
+#include <vtkMRMLSliceLogic.h>
+
+
+
+//#include <vtkMatrix4x4.h>
+#include <vtkTransform.h>
 
 // STD includes
 
@@ -50,6 +69,8 @@ void vtkSlicerTestMe2Logic::PrintSelf(ostream& os, vtkIndent indent)
 //---------------------------------------------------------------------------
 void vtkSlicerTestMe2Logic::SetMRMLSceneInternal(vtkMRMLScene * newScene)
 {
+  this->Superclass::SetMRMLSceneInternal(newScene);
+
   vtkNew<vtkIntArray> events;
   events->InsertNextValue(vtkMRMLScene::NodeAddedEvent);
   events->InsertNextValue(vtkMRMLScene::NodeRemovedEvent);
@@ -60,9 +81,15 @@ void vtkSlicerTestMe2Logic::SetMRMLSceneInternal(vtkMRMLScene * newScene)
 //-----------------------------------------------------------------------------
 void vtkSlicerTestMe2Logic::RegisterNodes()
 {
-  if (this->GetMRMLScene() == nullptr)
+  vtkMRMLScene* scene = this->GetMRMLScene();
+  if (!scene)
   {
     return;
+  }
+
+  if (!scene->IsNodeClassRegistered("vtkMRMLTestMe2Node"))
+  {
+    scene->RegisterNodeClass(vtkSmartPointer<vtkMRMLTestMe2Node>::New());
   }
 }
 
@@ -77,8 +104,20 @@ void vtkSlicerTestMe2Logic::UpdateFromMRMLScene()
 
 //---------------------------------------------------------------------------
 void vtkSlicerTestMe2Logic
-::OnMRMLSceneNodeAdded(vtkMRMLNode* vtkNotUsed(node))
+::OnMRMLSceneNodeAdded(vtkMRMLNode* node)
 {
+    if (!node || !this->GetMRMLScene())
+  {
+    vtkErrorMacro("OnMRMLSceneNodeAdded: Invalid MRML scene or input node");
+    return;
+  }
+
+  if (node->IsA("vtkMRMLTestMe2Node"))
+  {
+    vtkNew<vtkIntArray> events;
+    events->InsertNextValue(vtkCommand::ModifiedEvent);
+    vtkObserveMRMLNodeEventsMacro(node, events);
+  }
 }
 
 //---------------------------------------------------------------------------
@@ -87,6 +126,115 @@ void vtkSlicerTestMe2Logic
 {
 }
 
-void vtkSlicerTestMe2Logic::createPoint()
+//---------------------------------------------------------------------------
+void vtkSlicerTestMe2Logic::ProcessMRMLNodesEvents(vtkObject *caller, unsigned long eventID, void *callData)
 {
+  if (caller->IsA("vtkMRMLTestMe2Node"))
+  {
+    if (eventID == vtkCommand::ModifiedEvent)
+    {
+      vtkMRMLTestMe2Node* parameterNode = vtkMRMLTestMe2Node::SafeDownCast(caller);
+      if (parameterNode)
+      {
+        vtkMRMLMarkupsFiducialNode* fiducialNode = parameterNode->GetFiducialNode();
+        vtkMRMLLinearTransformNode* transformNode = parameterNode->GetTransformNode();
+        double height = parameterNode->GetHeight();
+        double rotateXAngle = parameterNode->GetRotateXAngle();
+ //       this->updateTransform(transformNode, parameterNode->GetHeight(), parameterNode->GetRotateXAngle());
+
+        // Update Fiducial-Transform link
+        if (fiducialNode && transformNode)
+        {
+          fiducialNode->SetAndObserveTransformNodeID(transformNode->GetID());
+        }
+
+        // Update Transform
+        if (!transformNode)
+        {
+          vtkErrorMacro("ProcessMRMLNodesEvents: Transform node is invalid");
+          return;
+        }
+
+        else
+        {
+          vtkNew<vtkTransform> translate, rotate;
+          translate->Identity();
+          rotate->Identity();
+          translate->Translate(0,0,height);
+          rotate->RotateX(rotateXAngle);
+          rotate->Concatenate(translate);
+          transformNode->SetAndObserveTransformToParent(rotate);
+        }
+      }
+    }
+  }
+}
+
+void vtkSlicerTestMe2Logic::createControlPoint(vtkMRMLMarkupsFiducialNode* inputFiducial)
+{
+    vtkVector3d point(0.0, 0.0, 0.0);
+    inputFiducial->AddControlPoint(point, "Point_F");
+}
+
+void vtkSlicerTestMe2Logic::updateFiducialTransformLink(vtkMRMLMarkupsFiducialNode* inputFiducial, vtkMRMLLinearTransformNode* inputTransform)
+{
+  if (inputFiducial && inputTransform)
+  {
+    inputFiducial->SetAndObserveTransformNodeID(inputTransform->GetID());
+  }
+
+}
+
+void vtkSlicerTestMe2Logic::updateTransform(vtkMRMLLinearTransformNode* inputTransform, double height, double rotateXAngle)
+{
+  if (!inputTransform)
+  {
+    vtkErrorMacro("updateTransform: Transform node is invalid");
+    return;
+  }
+  else
+  {
+    vtkNew<vtkTransform> translate, rotate;
+    translate->Identity();
+    rotate->Identity();
+    translate->Translate(0,0,height);
+    rotate->RotateX(rotateXAngle);
+    rotate->Concatenate(translate);
+    inputTransform->SetAndObserveTransformToParent(rotate);
+  }
+//  inputFiducial->SetAndObserveTransformNodeID(inputTransform->GetID());
+//  vtkNew<vtkMatrix4x4> matrixTransform;
+//  matrixTransform->SetElement(2,3,height);
+//  inputTransform->SetMatrixTransformToParent(matrixTransform);
+}
+
+void vtkSlicerTestMe2Logic::showDRR(vtkMRMLScalarVolumeNode* drrNode, vtkMRMLRTBeamNode* beamNode, vtkMRMLSliceNode* sliceNode)
+{
+  if (drrNode && beamNode && sliceNode)
+  {
+    qSlicerApplication* app = qSlicerApplication::application();
+
+    vtkMRMLSliceLogic* sliceLogic = app->layoutManager()->sliceWidget(sliceNode->GetName())->sliceLogic();
+
+    sliceLogic->GetSliceCompositeNode()->SetBackgroundVolumeID(drrNode->GetID());
+
+  //  sliceLogic->RotateSliceToLowestVolumeAxes(); // no beam alignment
+
+    // Beam alignment
+    vtkMRMLTransformNode* beamTransformNode = beamNode->GetParentTransformNode();
+    vtkNew<vtkMatrix4x4> beamMatrix;
+    beamTransformNode->GetMatrixTransformToWorld(beamMatrix);
+    sliceNode->GetSliceToRAS()->DeepCopy(beamMatrix);
+
+    sliceLogic->FitSliceToAll();
+    sliceNode->UpdateMatrices();
+
+    app->layoutManager()->layoutLogic()->MaximizeView(sliceNode);
+  }
+
+  else
+  {
+    vtkErrorMacro("showDRR: Nodes are invalid");
+    return;
+  }
 }

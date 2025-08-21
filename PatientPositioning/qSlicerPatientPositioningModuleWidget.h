@@ -57,7 +57,10 @@ public slots:
   void onPatientBodySegmentChanged(QString bodySegmentName);
   void onFixedReferenceBeamNodeChanged(vtkMRMLNode* node);
   void onExternalXrayBeamNodeChanged(vtkMRMLNode* node);
-
+  void onDrrNodeChanged(vtkMRMLNode*);
+  void onXrayBeamChanged(vtkMRMLNode*);
+  void onDrrImageChanged(vtkMRMLNode*);
+  void onCtVolumeChanged(vtkMRMLNode*);
   void onLoadTreatmentMachineButtonClicked();
   void onPatientSupportRotationAngleChanged(double angle);
   void onPatientTableTopTranslationChanged(double* position);
@@ -80,6 +83,12 @@ public slots:
   void onFixedReferenceCameraToggled(bool toggled);
   void onBeamsEyeViewOrientationChanged(const std::array< double, 3 >& viewUpVector);
   void onAlignBeamsButtonClicked();
+  void onShowDrrButtonClicked();
+  void onComputeDrrButtonClicked();
+  void onIsocenterImagerDistanceChanged(double distance);
+  void onMarkupsNodeChanged();
+  void onProjectMarkupsControlPointsClicked();
+  void onClearProjectedTableClicked();
 
   /// Update widget GUI from PatientPositioning parameters node
   void updateWidgetFromMRML();

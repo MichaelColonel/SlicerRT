@@ -28,12 +28,23 @@
 #include "vtkSlicerModuleLogic.h"
 
 // MRML includes
+//#include <vtkMRMLTestMe2Node.h>
 
 // STD includes
 #include <cstdlib>
 
 #include "vtkSlicerTestMe2ModuleLogicExport.h"
 
+class vtkMRMLMarkupsNode;
+class vtkMRMLMarkupsFiducialNode;
+class vtkMRMLLinearTransformNode;
+class vtkMRMLScalarVolumeNode;
+class vtkMRMLRTBeamNode;
+
+class vtkMRMLTestMe2Node;
+
+//class vtkMatrix4x4;
+class vtkTransform;
 
 class VTK_SLICER_TESTME2_MODULE_LOGIC_EXPORT vtkSlicerTestMe2Logic :
   public vtkSlicerModuleLogic
@@ -43,7 +54,10 @@ public:
   static vtkSlicerTestMe2Logic *New();
   vtkTypeMacro(vtkSlicerTestMe2Logic, vtkSlicerModuleLogic);
   void PrintSelf(ostream& os, vtkIndent indent) override;
-  void createPoint();
+  void createControlPoint(vtkMRMLMarkupsFiducialNode*);
+  void updateFiducialTransformLink(vtkMRMLMarkupsFiducialNode*, vtkMRMLLinearTransformNode*);
+  void updateTransform(vtkMRMLLinearTransformNode*, double height, double rotateXAngle);
+  void showDRR(vtkMRMLScalarVolumeNode* drrNode, vtkMRMLRTBeamNode* beamNode, vtkMRMLSliceNode* sliceNode);
 
 protected:
   vtkSlicerTestMe2Logic();
@@ -55,6 +69,8 @@ protected:
   void UpdateFromMRMLScene() override;
   void OnMRMLSceneNodeAdded(vtkMRMLNode* node) override;
   void OnMRMLSceneNodeRemoved(vtkMRMLNode* node) override;
+  void ProcessMRMLNodesEvents(vtkObject *caller, unsigned long eventID, void *callData) override;
+
 private:
 
   vtkSlicerTestMe2Logic(const vtkSlicerTestMe2Logic&); // Not implemented

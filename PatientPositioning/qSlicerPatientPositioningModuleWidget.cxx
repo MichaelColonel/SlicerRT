@@ -42,12 +42,18 @@
 #include <vtkMRMLSegmentationNode.h>
 #include <vtkMRMLCameraNode.h>
 #include <vtkMRMLViewNode.h>
-#include <vtkMRMLSliceNode.h>
 #include <vtkMRMLTransformNode.h>
 #include <vtkMRMLSubjectHierarchyNode.h>
+#include <vtkMRMLTableNode.h>
+#include <vtkMRMLMarkupsFiducialNode.h>
 
 #include <vtkMRMLRTPlanNode.h>
 #include <vtkMRMLRTBeamNode.h>
+
+#include <vtkMRMLDrrImageComputationNode.h>
+
+#include <vtkMRMLSliceLogic.h>
+#include <vtkMRMLLayoutLogic.h>
 
 // PatientPositioning MRML includes
 #include <vtkMRMLRTCabin26AIonBeamNode.h>
@@ -56,7 +62,6 @@
 #include <vtkMRMLCabin26AGeometryNode.h>
 
 // Qt includes
-#include <QDebug>
 #include <QDir>
 #include <QFileDialog>
 
@@ -70,11 +75,27 @@
 #include <vtkPolyData.h>
 #include <vtkMatrix4x4.h>
 #include <vtkTransform.h>
+#include <vtkTable.h>
 
 // Logic includes
 #include <vtkSlicerPatientPositioningLogic.h>
 #include <vtkSlicerTableTopRobotTransformLogic.h>
 #include <vtkSlicerCabin26ARobotsTransformLogic.h>
+
+namespace {
+
+constexpr int PROJECTED_POINT_LABEL_COLUMN = 0;
+constexpr int PROJECTED_POINT_X_COLUMN = 1;
+constexpr int PROJECTED_POINT_Y_COLUMN = 2;
+constexpr int PROJECTED_POINT_Z_COLUMN = 3;
+constexpr int PROJECTED_POINT_WIDTH_COLUMN = 4;
+constexpr int PROJECTED_POINT_HEIGHT_COLUMN = 5;
+constexpr int PROJECTED_POINT_COLUMN_COLUMN = 6;
+constexpr int PROJECTED_POINT_ROW_COLUMN = 7;
+constexpr int PROJECTED_POINT_STATUS_COLUMN = 8;
+constexpr int PROJECTED_POINT_COLUMNS = 9;
+
+};
 
 //-----------------------------------------------------------------------------
 /// \ingroup Slicer_QtModules_PatientPositioning
@@ -90,6 +111,7 @@ public:
   vtkSlicerCabin26ARobotsTransformLogic* cabin26ARobotsLogic() const;
   vtkMRMLCameraNode* get3DViewCameraNode() const;
   qMRMLLayoutManager* getLayoutManager() const;
+  bool GetMarkupsWidgetRowList(std::list< int >& list);
 
   /// PatientPositioning and Geometry MRML nodes containing shown parameters
   vtkSmartPointer<vtkMRMLPatientPositioningNode> ParameterNode;
@@ -103,7 +125,9 @@ public:
 qSlicerPatientPositioningModuleWidgetPrivate::qSlicerPatientPositioningModuleWidgetPrivate(qSlicerPatientPositioningModuleWidget &object)
   :
   q_ptr(&object)
+  //, DrrImageComputationLogic(nullptr)
 {
+ // this->DrrImageComputationLogic = new vtkSlicerDrrImageComputationLogic(&object);
 }
 
 qSlicerPatientPositioningModuleWidgetPrivate::~qSlicerPatientPositioningModuleWidgetPrivate()
@@ -165,6 +189,32 @@ qMRMLLayoutManager* qSlicerPatientPositioningModuleWidgetPrivate::getLayoutManag
   qSlicerApplication* slicerApplication = qSlicerApplication::application();
   return slicerApplication->layoutManager();
 }
+//------------------------------------------------------------------------------
+bool qSlicerPatientPositioningModuleWidgetPrivate::GetMarkupsWidgetRowList(std::list< int >& list)
+{
+  Q_Q(qSlicerPatientPositioningModuleWidget);
+  QTableWidget* markupsTableWidget = this->SimpleMarkupsWidget_PointCoordinates->tableWidget();
+  if (this->RadioButton_ProjectSelectedControlPoints->isChecked())
+  {
+    for (int i = 0; i < markupsTableWidget->rowCount(); ++i)
+    {
+      QTableWidgetItem* item = markupsTableWidget->item( i, 0);
+      if (item && item->isSelected())
+      {
+        list.push_back(i);
+      }
+    }
+  }
+  else if (this->RadioButton_ProjectAllControlPoints->isChecked())
+  {
+    if (markupsTableWidget->rowCount() > 0)
+    {
+      list.resize(markupsTableWidget->rowCount());
+      std::iota(list.begin(), list.end(), 0);
+    }
+  }
+  return (list.size() > 0);
+}
 
 //-----------------------------------------------------------------------------
 // qSlicerPatientPositioningModuleWidget methods
@@ -188,6 +238,24 @@ void qSlicerPatientPositioningModuleWidget::setup()
   d->setupUi(this);
   this->Superclass::setup();
 
+  // Table widgets
+  d->TableWidget_ProjectedPointsCoordinates->setColumnCount( PROJECTED_POINT_COLUMNS );
+  d->TableWidget_ProjectedPointsCoordinates->setHorizontalHeaderLabels( QStringList() << tr("Original label") << tr("R") << tr("A") << tr("S") \
+    << tr("Width") << tr("Height") << tr("Column") << tr("Row") << tr("Status") );
+  d->TableWidget_ProjectedPointsCoordinates->horizontalHeader()->setSectionResizeMode(0, QHeaderView::ResizeToContents);
+  d->TableWidget_ProjectedPointsCoordinates->horizontalHeader()->setSectionResizeMode(1, QHeaderView::ResizeToContents);
+  d->TableWidget_ProjectedPointsCoordinates->horizontalHeader()->setSectionResizeMode(2, QHeaderView::ResizeToContents);
+  d->TableWidget_ProjectedPointsCoordinates->horizontalHeader()->setSectionResizeMode(3, QHeaderView::ResizeToContents);
+  d->TableWidget_ProjectedPointsCoordinates->horizontalHeader()->setSectionResizeMode(4, QHeaderView::ResizeToContents);
+  d->TableWidget_ProjectedPointsCoordinates->horizontalHeader()->setSectionResizeMode(5, QHeaderView::ResizeToContents);
+  d->TableWidget_ProjectedPointsCoordinates->horizontalHeader()->setSectionResizeMode(6, QHeaderView::ResizeToContents);
+  d->TableWidget_ProjectedPointsCoordinates->horizontalHeader()->setSectionResizeMode(7, QHeaderView::ResizeToContents);
+  d->TableWidget_ProjectedPointsCoordinates->horizontalHeader()->setSectionResizeMode(8, QHeaderView::Stretch);
+
+  // Reduce row height to minimum necessary
+  d->TableWidget_ProjectedPointsCoordinates->setWordWrap(true);
+  d->TableWidget_ProjectedPointsCoordinates->verticalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
+
   // Add treatment machine options
   d->ComboBox_TreatmentMachine->clear();
   d->ComboBox_TreatmentMachine->addItem("26A", "Cabin26AGeometry");
@@ -195,6 +263,9 @@ void qSlicerPatientPositioningModuleWidget::setup()
   d->ComboBox_TreatmentMachine->addItem("27B", "Cabin27BGeometry");
   d->ComboBox_TreatmentMachine->addItem("27C", "Cabin27CGeometry");
   d->ComboBox_TreatmentMachine->addItem("From file...", "FromFile");
+
+  // Create default DRR nodes
+  d->logic()->InitializeDefaultDrrNodes();
 
   // Nodes
   connect( d->MRMLNodeComboBox_ParameterSet, SIGNAL(currentNodeChanged(vtkMRMLNode*)), 
@@ -212,6 +283,15 @@ void qSlicerPatientPositioningModuleWidget::setup()
   connect( d->SegmentSelectorWidget_PatientBody, SIGNAL(currentSegmentChanged(QString)), 
     this, SLOT(onPatientBodySegmentChanged(QString)));
 
+  connect( d->MRMLNodeComboBox_DrrNode, SIGNAL(currentNodeChanged(vtkMRMLNode*)),
+    this, SLOT(onDrrNodeChanged(vtkMRMLNode*)));
+  connect( d->MRMLNodeComboBox_XrayBeam, SIGNAL(currentNodeChanged(vtkMRMLNode*)),
+    this, SLOT(onXrayBeamChanged(vtkMRMLNode*)));
+  connect( d->MRMLNodeComboBox_DrrImage, SIGNAL(currentNodeChanged(vtkMRMLNode*)),
+    this, SLOT(onDrrImageChanged(vtkMRMLNode*)));
+  connect( d->MRMLNodeComboBox_CtVolume, SIGNAL(currentNodeChanged(vtkMRMLNode*)),
+    this, SLOT(onCtVolumeChanged(vtkMRMLNode*)));
+
   // Buttons
   connect( d->PushButton_LoadTreatmentMachine, SIGNAL(clicked()), 
     this, SLOT(onLoadTreatmentMachineButtonClicked()));
@@ -223,6 +303,15 @@ void qSlicerPatientPositioningModuleWidget::setup()
     this, SLOT(onFixedReferenceCameraToggled(bool)));
   connect( d->PushButton_AlignBeams, SIGNAL(clicked()), 
     this, SLOT(onAlignBeamsButtonClicked()));
+
+  connect( d->PushButton_ComputeDrr, SIGNAL(clicked()),
+    this, SLOT(onComputeDrrButtonClicked()));
+  connect( d->PushButton_ShowDrr, SIGNAL(clicked()),
+    this, SLOT(onShowDrrButtonClicked()));
+
+  connect( d->PushButton_ClearProjectedTableWidget, SIGNAL(clicked()), this, SLOT(onClearProjectedTableClicked()));
+
+  connect( d->PushButton_ProjectControlPoints, SIGNAL(clicked()), this, SLOT(onProjectMarkupsControlPointsClicked()));
 
   // Widgets
   connect( d->SliderWidget_TableRobotA1, SIGNAL(valueChanged(double)), 
@@ -250,10 +339,15 @@ void qSlicerPatientPositioningModuleWidget::setup()
   connect( d->SliderWidget_CarmRobotA6, SIGNAL(valueChanged(double)), 
     this, SLOT(onCArmRobotA6Changed(double)));
 
+  connect( d->SliderWidget_IsocenterImagerDistance, SIGNAL(valueChanged(double)),
+    this, SLOT(onIsocenterImagerDistanceChanged(double)));
+
   connect( d->CoordinatesWidget_PatientTableTopTranslation, SIGNAL(coordinatesChanged(double*)),
     this, SLOT(onPatientTableTopTranslationChanged(double*)));
   connect( d->CoordinatesWidget_BaseFixedTranslation, SIGNAL(coordinatesChanged(double*)),
     this, SLOT(onBaseFixedToFixedReferenceTranslationChanged(double*)));
+  connect( d->SimpleMarkupsWidget_PointCoordinates, SIGNAL(markupsNodeChanged()),
+    this, SLOT(onMarkupsNodeChanged()));
   // Children widgets
   connect( d->FixedBeamAxisWidget, SIGNAL(bevOrientationChanged(const std::array< double, 3 >&)),
     this, SLOT(onBeamsEyeViewOrientationChanged(const std::array< double, 3 >&)));
@@ -313,8 +407,23 @@ void qSlicerPatientPositioningModuleWidget::setParameterNode(vtkMRMLNode *node)
     vtkMRMLRTBeamNode* beamNode = vtkMRMLRTBeamNode::SafeDownCast(d->MRMLNodeComboBox_Beam->currentNode());
     d->ParameterNode->SetAndObserveBeamNode(beamNode);
     vtkMRMLRTBeamNode* planNode = vtkMRMLRTBeamNode::SafeDownCast(d->MRMLNodeComboBox_Plan->currentNode());
+
+    vtkMRMLDrrImageComputationNode* drrNode = vtkMRMLDrrImageComputationNode::SafeDownCast(d->MRMLNodeComboBox_DrrNode->currentNode());
+    d->ParameterNode->SetAndObserveDrrNode(drrNode);
+
+    vtkMRMLRTBeamNode* xrayBeamNode = vtkMRMLRTBeamNode::SafeDownCast(d->MRMLNodeComboBox_XrayBeam->currentNode());
+    d->ParameterNode->SetAndObserveXrayBeamNode(xrayBeamNode);
+
+    vtkMRMLScalarVolumeNode* ctVolumeNode = vtkMRMLScalarVolumeNode::SafeDownCast(d->MRMLNodeComboBox_CtVolume->currentNode());
+    d->ParameterNode->SetAndObserveCtVolumeNode(ctVolumeNode);
+
+    vtkMRMLScalarVolumeNode* drrImageNode = vtkMRMLScalarVolumeNode::SafeDownCast(d->MRMLNodeComboBox_DrrImage->currentNode());
+    d->ParameterNode->SetAndObserveDrrImageNode(drrImageNode);
     Q_UNUSED(planNode);
   }
+
+
+
   this->updateWidgetFromMRML();
 }
 
@@ -966,9 +1075,12 @@ void qSlicerPatientPositioningModuleWidget::onEnter()
 //  d->logic()->CreateMarkupsNodes(parameterNode);
   d->FixedBeamAxisWidget->setPatientPositioningLogic(d->logic());
 
+
+
   // All required data for GUI is initiated
+
   this->updateWidgetFromMRML();
-  
+
   d->ModuleWindowInitialized = true;
 }
 
@@ -978,6 +1090,8 @@ void qSlicerPatientPositioningModuleWidget::updateWidgetFromMRML()
   Q_D(qSlicerPatientPositioningModuleWidget);
 
   vtkMRMLPatientPositioningNode* parameterNode = vtkMRMLPatientPositioningNode::SafeDownCast(d->MRMLNodeComboBox_ParameterSet->currentNode());
+
+
 
   if (!this->mrmlScene())
   {
@@ -991,6 +1105,49 @@ void qSlicerPatientPositioningModuleWidget::updateWidgetFromMRML()
     qCritical() << Q_FUNC_INFO << ": Invalid parameter node";
     return;
   }
+
+  vtkMRMLDrrImageComputationNode* drrNode = parameterNode->GetDrrNode();
+
+
+  // Update widgets
+  d->MRMLNodeComboBox_DrrNode->setCurrentNode(parameterNode->GetDrrNode());
+  d->MRMLNodeComboBox_CtVolume->setCurrentNode(parameterNode->GetCtVolumeNode());
+  d->MRMLNodeComboBox_XrayBeam->setCurrentNode(parameterNode->GetXrayBeamNode());
+  d->MRMLNodeComboBox_DrrImage->setCurrentNode(parameterNode->GetDrrImageNode());
+
+  // Enable widgets
+
+  if (drrNode && parameterNode->GetCtVolumeNode() && parameterNode->GetXrayBeamNode())
+  {
+    d->PushButton_ComputeDrr->setEnabled(true);
+  }
+  else
+  {
+    d->PushButton_ComputeDrr->setEnabled(false);
+  }
+
+  if (parameterNode->GetDrrImageNode() && d->MRMLNodeComboBox_Slice->currentNode())
+  {
+    d->PushButton_ShowDrr->setEnabled(true);
+  }
+  else
+  {
+    d->PushButton_ShowDrr->setEnabled(false);
+  }
+
+  // Update and output info about detector
+
+  if (drrNode)
+  {
+    d->SliderWidget_IsocenterImagerDistance->setValue(parameterNode->GetDrrNode()->GetIsocenterImagerDistance());
+
+    int* imagerResolution = drrNode->GetImagerResolution();
+    d->Label_ImagerResolution->setText(QString("%1 x %2").arg(imagerResolution[0]).arg(imagerResolution[1]));
+
+    double* imagerSpacing = drrNode->GetImagerSpacing();
+    d->Label_ImagerSpacing->setText(QString("%1 x %2").arg(imagerSpacing[0]).arg(imagerSpacing[1]));
+  }
+
   qDebug() << Q_FUNC_INFO << "Update";
 }
 
@@ -2023,4 +2180,440 @@ void qSlicerPatientPositioningModuleWidget::onBeamsEyeViewOrientationChanged(con
     cameraNode->SetViewUp(vup);
   }
   cameraNode->GetCamera()->Elevation(0.);
+}
+
+void qSlicerPatientPositioningModuleWidget::onXrayBeamChanged(vtkMRMLNode* node)
+{
+  Q_D(qSlicerPatientPositioningModuleWidget);
+  vtkMRMLRTBeamNode* beamNode = vtkMRMLRTBeamNode::SafeDownCast(node);
+
+  if (!d->ParameterNode)
+  {
+    qCritical() << Q_FUNC_INFO << ": Invalid parameter node";
+    return;
+  }
+
+  if (beamNode)
+  {
+    d->ParameterNode->SetAndObserveXrayBeamNode(beamNode);
+    if (d->ParameterNode->GetDrrNode())
+    {
+      d->ParameterNode->GetDrrNode()->SetAndObserveBeamNode(beamNode);
+      qDebug() << Q_FUNC_INFO << "Drr node: Xray Beam node is changed";
+    }
+    qDebug() << Q_FUNC_INFO << "Xray Beam node is changed";
+  }
+}
+
+void qSlicerPatientPositioningModuleWidget::onDrrImageChanged(vtkMRMLNode* node)
+{
+  Q_D(qSlicerPatientPositioningModuleWidget);
+  vtkMRMLScalarVolumeNode* drrImageNode = vtkMRMLScalarVolumeNode::SafeDownCast(node);
+
+  if (!d->ParameterNode)
+  {
+    qCritical() << Q_FUNC_INFO << ": Invalid parameter node";
+    return;
+  }
+
+  if (drrImageNode)
+  {
+    d->ParameterNode->SetAndObserveDrrImageNode(drrImageNode);
+    qDebug() << Q_FUNC_INFO << "DRR Image node is changed";
+    d->PushButton_ShowDrr->setEnabled(true);
+  }
+}
+
+void qSlicerPatientPositioningModuleWidget::onDrrNodeChanged(vtkMRMLNode* node)
+{
+  Q_D(qSlicerPatientPositioningModuleWidget);
+  vtkMRMLDrrImageComputationNode* drrNode = vtkMRMLDrrImageComputationNode::SafeDownCast(node);
+
+  if (!d->ParameterNode)
+  {
+    qCritical() << Q_FUNC_INFO << ": Invalid parameter node";
+    return;
+  }
+
+  if (drrNode)
+  {
+    d->ParameterNode->SetAndObserveDrrNode(drrNode);
+    qDebug() << Q_FUNC_INFO << "DRR node is changed";
+  }
+}
+
+void qSlicerPatientPositioningModuleWidget::onCtVolumeChanged(vtkMRMLNode* node)
+{
+  Q_D(qSlicerPatientPositioningModuleWidget);
+  vtkMRMLScalarVolumeNode* ctVolumeNode = vtkMRMLScalarVolumeNode::SafeDownCast(node);
+
+  if (!d->ParameterNode)
+  {
+    qCritical() << Q_FUNC_INFO << ": Invalid parameter node";
+    return;
+  }
+
+  if (ctVolumeNode)
+  {
+    d->ParameterNode->SetAndObserveCtVolumeNode(ctVolumeNode);
+    qDebug() << Q_FUNC_INFO << "ctVolumeNode is changed";
+  }
+}
+
+void qSlicerPatientPositioningModuleWidget::onShowDrrButtonClicked()
+{
+  Q_D(qSlicerPatientPositioningModuleWidget);
+  if (!d->ParameterNode)
+  {
+    qCritical() << Q_FUNC_INFO << ": Invalid parameter node";
+    return;
+  }
+
+
+  vtkMRMLScalarVolumeNode* drrImageNode = vtkMRMLScalarVolumeNode::SafeDownCast(d->ParameterNode->GetDrrImageNode());
+//  vtkMRMLRTBeamNode* beamNode = vtkMRMLRTBeamNode::SafeDownCast(d->ParameterNode->GetBeamNode());
+
+  vtkMRMLSliceNode* sliceNode = vtkMRMLSliceNode::SafeDownCast(d->MRMLNodeComboBox_Slice->currentNode());
+
+
+
+
+  if (drrImageNode && sliceNode)
+  {
+    qSlicerApplication* app = qSlicerApplication::application();
+
+    vtkMRMLSliceLogic* sliceLogic = app->layoutManager()->sliceWidget(sliceNode->GetName())->sliceLogic();
+
+    sliceLogic->GetSliceCompositeNode()->SetBackgroundVolumeID(drrImageNode->GetID());
+
+    sliceLogic->RotateSliceToLowestVolumeAxes(); // no beam alignment
+
+    // Beam alignment
+    /*
+    vtkMRMLTransformNode* beamTransformNode = beamNode->GetParentTransformNode();
+    vtkNew<vtkMatrix4x4> beamMatrix;
+    beamTransformNode->GetMatrixTransformToWorld(beamMatrix);
+    sliceNode->GetSliceToRAS()->DeepCopy(beamMatrix);
+    */
+
+    sliceLogic->FitSliceToAll();
+    sliceNode->UpdateMatrices();
+
+    //app->layoutManager()->layoutLogic()->MaximizeView(sliceNode);
+
+    // Hide markups
+    d->logic()->ShowDrrMarkupsNodes(false);
+  }
+   else
+  {
+    if (!d->ParameterNode->GetDrrImageNode())
+    {
+      qWarning() << Q_FUNC_INFO << "DRR image node is invalid";
+    }
+    if (!sliceNode)
+    {
+      qWarning() << Q_FUNC_INFO << "Slice node is invalid";
+    }
+  }
+
+}
+
+void qSlicerPatientPositioningModuleWidget::onComputeDrrButtonClicked()
+{
+  Q_D(qSlicerPatientPositioningModuleWidget);
+  if (!d->ParameterNode)
+  {
+    qCritical() << Q_FUNC_INFO << ": Invalid parameter node";
+    return;
+  }
+
+  vtkMRMLDrrImageComputationNode* drrNode = d->ParameterNode->GetDrrNode();
+  vtkMRMLScalarVolumeNode* ctVolume = d->ParameterNode->GetCtVolumeNode();
+
+  if (drrNode && ctVolume)
+  {
+
+    QApplication::setOverrideCursor(Qt::WaitCursor);
+
+    vtkMRMLScalarVolumeNode* drrImageNode = d->logic()->ComputeDrr(drrNode, ctVolume);
+    d->ParameterNode->SetAndObserveDrrImageNode(drrImageNode);
+    d->MRMLNodeComboBox_DrrImage->setCurrentNodeID(drrImageNode->GetID());
+
+    QApplication::restoreOverrideCursor();
+  }
+  else
+  {
+    if (!drrNode)
+    {
+      qWarning() << Q_FUNC_INFO << "DRR node is invalid";
+    }
+    if (!ctVolume)
+    {
+      qWarning() << Q_FUNC_INFO << "ctVolume node is invalid";
+    }
+  }
+}
+
+void qSlicerPatientPositioningModuleWidget::onIsocenterImagerDistanceChanged(double distance)
+{
+  Q_D(qSlicerPatientPositioningModuleWidget);
+  if (!d->ParameterNode)
+  {
+    qCritical() << Q_FUNC_INFO << ": Invalid parameter node";
+    return;
+  }
+
+  // Set in DRR node
+  vtkMRMLDrrImageComputationNode* drrNode = d->ParameterNode->GetDrrNode();
+
+  if (drrNode)
+  {
+    drrNode->SetIsocenterImagerDistance(distance);
+    qDebug() << Q_FUNC_INFO << "DRR node: Isocenter to imager distance is changed";
+  }
+  else
+  {
+    qWarning() << Q_FUNC_INFO << "DRR node is invalid";
+  }
+}
+
+//-----------------------------------------------------------------------------
+void qSlicerPatientPositioningModuleWidget::onMarkupsNodeChanged()
+{
+  Q_D(qSlicerPatientPositioningModuleWidget);
+  vtkMRMLPatientPositioningNode* parameterNode = vtkMRMLPatientPositioningNode::SafeDownCast(d->MRMLNodeComboBox_ParameterSet->currentNode());
+
+  if (!parameterNode)
+  {
+    qCritical() << Q_FUNC_INFO << ": Invalid parameter node";
+    return;
+  }
+  vtkMRMLMarkupsFiducialNode* markupsNode = vtkMRMLMarkupsFiducialNode::SafeDownCast(d->SimpleMarkupsWidget_PointCoordinates->currentNode());
+
+  d->TableWidget_ProjectedPointsCoordinates->clear();
+  d->TableWidget_ProjectedPointsCoordinates->setHorizontalHeaderLabels( QStringList() << tr("Original label") << tr("R") << tr("A") << tr("S") \
+    << tr("Width") << tr("Height") << tr("Column") << tr("Row") << tr("Status") );
+
+  d->PushButton_ClearProjectedTableWidget->setEnabled(false);
+  if (markupsNode)
+  {
+    d->PushButton_ProjectControlPoints->setEnabled(markupsNode->GetNumberOfControlPoints());
+  }
+  else
+  {
+    d->PushButton_ProjectControlPoints->setEnabled(false);
+  }
+}
+//-----------------------------------------------------------------------------
+void qSlicerPatientPositioningModuleWidget::onProjectMarkupsControlPointsClicked()
+{
+  Q_D(qSlicerPatientPositioningModuleWidget);
+  vtkMRMLDrrImageComputationNode* drrNode = vtkMRMLDrrImageComputationNode::SafeDownCast(d->MRMLNodeComboBox_DrrNode->currentNode());
+
+  if (!drrNode)
+  {
+    qCritical() << Q_FUNC_INFO << ": Invalid parameter node";
+    return;
+  }
+
+  vtkMRMLMarkupsFiducialNode* markupsNode = vtkMRMLMarkupsFiducialNode::SafeDownCast(d->SimpleMarkupsWidget_PointCoordinates->currentNode());
+  if (!markupsNode)
+  {
+    qCritical() << Q_FUNC_INFO << ": Invalid markups fiducial node";
+    return;
+  }
+
+  vtkMRMLScalarVolumeNode* ctVolumeNode = vtkMRMLScalarVolumeNode::SafeDownCast(d->MRMLNodeComboBox_CtVolume->currentNode());
+  if (!ctVolumeNode)
+  {
+    qCritical() << Q_FUNC_INFO << ": Invalid referenced volume node";
+    return;
+  }
+
+  d->TableWidget_ProjectedPointsCoordinates->clear();
+
+  std::list<int> list;
+  bool res = d->GetMarkupsWidgetRowList(list);
+  if (res)
+  {
+    d->PushButton_ProjectControlPoints->setEnabled(false);
+    d->PushButton_ClearProjectedTableWidget->setEnabled(true);
+  }
+
+  vtkMRMLMarkupsFiducialNode* projectedPointsNode = nullptr;
+  if (d->CheckBox_CreateValidProjectionsMarkupsNode->isChecked())
+  {
+    std::string name;
+    if (d->RadioButton_ProjectToIsocenter->isChecked())
+    {
+      name = std::string(markupsNode->GetName()) + "_ProjectedToIsocenter";
+    }
+    else if (d->RadioButton_ProjectToImager->isChecked())
+    {
+      name = std::string(markupsNode->GetName()) + "_ProjectedToImager";
+    }
+    projectedPointsNode = vtkMRMLMarkupsFiducialNode::SafeDownCast(this->mrmlScene()->AddNewNodeByClass("vtkMRMLMarkupsFiducialNode", name.c_str()));
+  }
+
+  vtkMRMLTableNode* projectedPointsTableNode = nullptr;
+  vtkTable* projectionTable = nullptr;
+  if (d->CheckBox_CreateValidProjectionsTableNode->isChecked())
+  {
+    if (d->RadioButton_ProjectToIsocenter->isChecked())
+    {
+      vtkMRMLScalarVolumeNode* drrImageNode = vtkMRMLScalarVolumeNode::SafeDownCast(d->MRMLNodeComboBox_DrrImage->currentNode());
+      if (!drrImageNode)
+      {
+        qCritical() << Q_FUNC_INFO << ": Invalid referenced DRR image node";
+        return;
+      }
+      projectedPointsTableNode = d->logic()->CreateProjectionsTableNode(drrImageNode);
+    }
+    else if (d->RadioButton_ProjectToImager->isChecked())
+    {
+      projectedPointsTableNode = d->logic()->CreateProjectionsTableNode(ctVolumeNode);
+    }
+  }
+  if (projectedPointsTableNode)
+  {
+    projectionTable = projectedPointsTableNode->GetTable();
+    if (list.size())
+    {
+      projectionTable->SetNumberOfRows(list.size());
+    }
+  }
+
+  if (d->CheckBox_CreateValidProjectionsTableNode->isChecked() && !projectionTable)
+  {
+    qCritical() << Q_FUNC_INFO << ": Invalid vtkTable to fill projection data";
+    return;
+  }
+
+  d->TableWidget_ProjectedPointsCoordinates->setColumnCount(PROJECTED_POINT_COLUMNS);
+  d->TableWidget_ProjectedPointsCoordinates->setRowCount(list.size());
+  d->TableWidget_ProjectedPointsCoordinates->setHorizontalHeaderLabels( QStringList() << tr("Original label") << tr("R") << tr("A") << tr("S") \
+    << tr("Width") << tr("Height") << tr("Column") << tr("Row") << tr("Status") );
+  d->TableWidget_ProjectedPointsCoordinates->horizontalHeader()->setSectionResizeMode(0, QHeaderView::ResizeToContents);
+  d->TableWidget_ProjectedPointsCoordinates->horizontalHeader()->setSectionResizeMode(1, QHeaderView::ResizeToContents);
+  d->TableWidget_ProjectedPointsCoordinates->horizontalHeader()->setSectionResizeMode(2, QHeaderView::ResizeToContents);
+  d->TableWidget_ProjectedPointsCoordinates->horizontalHeader()->setSectionResizeMode(3, QHeaderView::ResizeToContents);
+  d->TableWidget_ProjectedPointsCoordinates->horizontalHeader()->setSectionResizeMode(4, QHeaderView::ResizeToContents);
+  d->TableWidget_ProjectedPointsCoordinates->horizontalHeader()->setSectionResizeMode(5, QHeaderView::ResizeToContents);
+  d->TableWidget_ProjectedPointsCoordinates->horizontalHeader()->setSectionResizeMode(6, QHeaderView::ResizeToContents);
+  d->TableWidget_ProjectedPointsCoordinates->horizontalHeader()->setSectionResizeMode(7, QHeaderView::ResizeToContents);
+  d->TableWidget_ProjectedPointsCoordinates->horizontalHeader()->setSectionResizeMode(8, QHeaderView::Stretch);
+
+
+  int projectedRowCount = 0;
+  for (int cpIndex : list)
+  {
+    double pointPos[3] = {};
+    markupsNode->GetNthControlPointPosition( cpIndex, pointPos);
+
+    // Check if point is within Volume bounds for Project to imager
+    if (d->RadioButton_ProjectToImager->isChecked() && !d->logic()->CheckPointWithinVolumeBounds(ctVolumeNode, pointPos))
+    {
+      d->TableWidget_ProjectedPointsCoordinates->setItem(projectedRowCount, PROJECTED_POINT_STATUS_COLUMN, new QTableWidgetItem(tr("Point is out of volume bounds!")));
+      if (projectionTable)
+      {
+        projectionTable->SetValue(projectedRowCount, PROJECTED_POINT_STATUS_COLUMN, "Point is out of volume bounds!");
+      }
+      projectedRowCount++;
+      continue;
+    }
+
+    double pointImagerIntersection[3] = {};
+    double offsetFromOrigin[2] = {};
+    double offsetRowColumn[2] = {};
+
+    if (d->RadioButton_ProjectToIsocenter->isChecked())
+    {
+      res = d->logic()->GetRayIntersectWithIsocenterPlane(drrNode, pointPos, pointImagerIntersection);
+    }
+    else if (d->RadioButton_ProjectToImager->isChecked())
+    {
+      res = d->logic()->GetRayIntersectWithImagerPlane(drrNode, pointPos, pointImagerIntersection);
+    }
+    else
+    {
+      return;
+    }
+
+    QString msg = res ? tr("Intersection found") : tr("No intersection");
+
+    if (res)
+    {
+      msg = tr("Projection is valid");
+    }
+    else
+    {
+      d->TableWidget_ProjectedPointsCoordinates->setItem(projectedRowCount, PROJECTED_POINT_STATUS_COLUMN, new QTableWidgetItem(msg));
+      if (projectionTable)
+      {
+        std::string strMsg = msg.toStdString();
+        projectionTable->SetValue(projectedRowCount, PROJECTED_POINT_STATUS_COLUMN, strMsg.c_str());
+      }
+      projectedRowCount++;
+      continue;
+    }
+
+    if (projectedPointsNode)
+    {
+      projectedPointsNode->AddControlPoint(pointImagerIntersection, markupsNode->GetNthControlPointLabel(cpIndex));
+    }
+
+    QTableWidgetItem* itemLabel = new QTableWidgetItem(QString::fromStdString(markupsNode->GetNthControlPointLabel(cpIndex)));
+    QTableWidgetItem* itemR = new QTableWidgetItem(QString::number(pointImagerIntersection[0], 'g', 4));
+    QTableWidgetItem* itemA = new QTableWidgetItem(QString::number(pointImagerIntersection[1], 'g', 4));
+    QTableWidgetItem* itemS = new QTableWidgetItem(QString::number(pointImagerIntersection[2], 'g', 4));
+    QTableWidgetItem* itemWidth = new QTableWidgetItem(QString::number(offsetFromOrigin[0], 'g', 4));
+    QTableWidgetItem* itemHeight = new QTableWidgetItem(QString::number(offsetFromOrigin[1], 'g', 4));
+    QTableWidgetItem* itemRow = new QTableWidgetItem(QString::number(offsetRowColumn[0], 'g', 4));
+    QTableWidgetItem* itemColumn = new QTableWidgetItem(QString::number(offsetRowColumn[1], 'g', 4));
+    QTableWidgetItem* itemStatus = new QTableWidgetItem(msg);
+
+    d->TableWidget_ProjectedPointsCoordinates->setItem(projectedRowCount, PROJECTED_POINT_LABEL_COLUMN, itemLabel);
+    d->TableWidget_ProjectedPointsCoordinates->setItem(projectedRowCount, PROJECTED_POINT_X_COLUMN, itemR);
+    d->TableWidget_ProjectedPointsCoordinates->setItem(projectedRowCount, PROJECTED_POINT_Y_COLUMN, itemA);
+    d->TableWidget_ProjectedPointsCoordinates->setItem(projectedRowCount, PROJECTED_POINT_Z_COLUMN, itemS);
+    d->TableWidget_ProjectedPointsCoordinates->setItem(projectedRowCount, PROJECTED_POINT_WIDTH_COLUMN, itemWidth);
+    d->TableWidget_ProjectedPointsCoordinates->setItem(projectedRowCount, PROJECTED_POINT_HEIGHT_COLUMN, itemHeight);
+    d->TableWidget_ProjectedPointsCoordinates->setItem(projectedRowCount, PROJECTED_POINT_ROW_COLUMN, itemRow);
+    d->TableWidget_ProjectedPointsCoordinates->setItem(projectedRowCount, PROJECTED_POINT_COLUMN_COLUMN, itemColumn);
+    d->TableWidget_ProjectedPointsCoordinates->setItem(projectedRowCount, PROJECTED_POINT_STATUS_COLUMN, itemStatus);
+
+    if (projectionTable)
+    {
+      std::string strMsg = msg.toStdString();
+      vtkVariant strLabel(markupsNode->GetNthControlPointLabel(cpIndex));
+      projectionTable->SetValue(projectedRowCount, PROJECTED_POINT_LABEL_COLUMN, strLabel);
+      projectionTable->SetValue(projectedRowCount, PROJECTED_POINT_X_COLUMN, pointImagerIntersection[0]);
+      projectionTable->SetValue(projectedRowCount, PROJECTED_POINT_Y_COLUMN, pointImagerIntersection[1]);
+      projectionTable->SetValue(projectedRowCount, PROJECTED_POINT_Z_COLUMN, pointImagerIntersection[2]);
+      projectionTable->SetValue(projectedRowCount, PROJECTED_POINT_WIDTH_COLUMN, offsetFromOrigin[0]);
+      projectionTable->SetValue(projectedRowCount, PROJECTED_POINT_HEIGHT_COLUMN, offsetFromOrigin[1]);
+      projectionTable->SetValue(projectedRowCount, PROJECTED_POINT_ROW_COLUMN, offsetRowColumn[0]);
+      projectionTable->SetValue(projectedRowCount, PROJECTED_POINT_COLUMN_COLUMN, offsetRowColumn[1]);
+      projectionTable->SetValue(projectedRowCount, PROJECTED_POINT_STATUS_COLUMN, strMsg.c_str());
+    }
+    projectedRowCount++;
+  }
+}
+//-----------------------------------------------------------------------------
+void qSlicerPatientPositioningModuleWidget::onClearProjectedTableClicked()
+{
+  Q_D(qSlicerPatientPositioningModuleWidget);
+  vtkMRMLPatientPositioningNode* parameterNode = vtkMRMLPatientPositioningNode::SafeDownCast(d->MRMLNodeComboBox_ParameterSet->currentNode());
+
+  if (!parameterNode)
+  {
+    qCritical() << Q_FUNC_INFO << ": Invalid parameter node";
+    return;
+  }
+  d->TableWidget_ProjectedPointsCoordinates->clear();
+  d->TableWidget_ProjectedPointsCoordinates->setRowCount(0);
+  d->TableWidget_ProjectedPointsCoordinates->setHorizontalHeaderLabels( QStringList() << tr("Original label") << tr("R") << tr("A") << tr("S") \
+    << tr("Width") << tr("Height") << tr("Column") << tr("Row") << tr("Status") );
+  d->PushButton_ProjectControlPoints->setEnabled(true);
+  d->PushButton_ClearProjectedTableWidget->setEnabled(false);
 }

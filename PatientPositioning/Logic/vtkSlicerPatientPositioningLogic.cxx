@@ -29,11 +29,15 @@
 #include <vtkMRMLMarkupsPlaneNode.h>
 #include <vtkMRMLMarkupsDisplayNode.h>
 #include <vtkMRMLMarkupsFiducialNode.h>
+#include <vtkMRMLTableNode.h>
 
 #include <vtkMRMLRTPlanNode.h>
 #include <vtkMRMLRTBeamNode.h>
 #include <vtkMRMLRTFixedBeamNode.h>
 #include <vtkMRMLRTCabin26AIonBeamNode.h>
+
+#include <vtkMRMLDrrImageComputationNode.h>
+#include <vtkSlicerDrrImageComputationLogic.h>
 
 // VTK includes
 #include <vtkIntArray.h>
@@ -46,6 +50,11 @@
 #include <vtkTransformFilter.h>
 #include <vtkTransformPolyDataFilter.h>
 #include <vtkCollisionDetectionFilter.h>
+#include <vtkPlane.h>
+#include <vtkTable.h>
+#include <vtkDoubleArray.h>
+#include <vtkStringArray.h>
+#include <vtkIntArray.h>
 
 // VTKSYS includes
 #include <vtksys/SystemTools.hxx>
@@ -369,6 +378,8 @@ vtkMRMLModelNode* vtkSlicerPatientPositioningLogic::vtkInternal::EnsureTreatment
 
 //----------------------------------------------------------------------------
 vtkSlicerPatientPositioningLogic::vtkSlicerPatientPositioningLogic()
+  :
+  DrrImageComputationLogic(nullptr)
 {
   this->Internal = new vtkInternal(this); 
 
@@ -2036,8 +2047,238 @@ std::string vtkSlicerPatientPositioningLogic::GetStateForPartType(std::string pa
 
   return stateStr;
 }
-
+//------------------------------------------------------------------------------
 vtkSlicerCabin26ARobotsTransformLogic* vtkSlicerPatientPositioningLogic::GetCabin26ARobotsTransformLogic() const
 {
   return Cabin26ARobotsLogic;
+}
+//------------------------------------------------------------------------------
+void vtkSlicerPatientPositioningLogic::InitializeDefaultDrrNodes()
+{
+  vtkMRMLScene* scene = this->GetMRMLScene();
+
+  if (!scene)
+    return;
+
+  struct DrrPreset {
+    const char* name;
+    double spacing[2];
+    int resolution[2];
+  };
+
+  const DrrPreset presets[] = {
+    {
+      "Whale4343FSM",
+      {0.14, 0.14},  // spacing
+      {3072, 3072}   // resolution
+    },
+
+    {
+      "Default Detector",
+      {0.25, 0.25},  // spacing
+      {2000, 2000}   // resolution
+    },
+
+    {
+      "Small Detector",
+      {0.2, 0.2},  // spacing
+      {500, 500}   // resolution
+    }
+  };
+
+
+  for (const auto& preset : presets)
+  {
+    vtkNew<vtkMRMLDrrImageComputationNode> drrNode;
+    drrNode->SetName(preset.name);
+    drrNode->SetImagerResolution(preset.resolution);
+    drrNode->SetImagerSpacing(preset.spacing);
+
+    scene->AddNode(drrNode);
+  }
+}
+//------------------------------------------------------------------------------
+vtkMRMLScalarVolumeNode* vtkSlicerPatientPositioningLogic::ComputeDrr(vtkMRMLDrrImageComputationNode* drrNode, vtkMRMLScalarVolumeNode* ctVolumeNode)
+{
+  if (!this->DrrImageComputationLogic)
+  {
+    vtkErrorMacro("DRR Image Computation Logic is not set");
+    return nullptr;
+  }
+  if (drrNode && ctVolumeNode)
+  {
+ //   vtkErrorMacro("ComputeDrr: start");
+    this->DrrImageComputationLogic->UpdateNormalAndVupVectors(drrNode);
+    return this->DrrImageComputationLogic->ComputePlastimatchDRR(drrNode, ctVolumeNode);
+  }
+  else
+  {
+    return nullptr;
+  }
+}
+//------------------------------------------------------------------------------
+void vtkSlicerPatientPositioningLogic::ShowDrrMarkupsNodes(bool toggled)
+{
+  if (!this->DrrImageComputationLogic)
+  {
+    vtkErrorMacro("DRR Image Computation Logic is not set");
+    return;
+  }
+  this->DrrImageComputationLogic->ShowMarkupsNodes(toggled);
+}
+//------------------------------------------------------------------------------
+bool vtkSlicerPatientPositioningLogic::GetRayIntersectWithIsocenterPlane(vtkMRMLDrrImageComputationNode* drrNode,
+  const double point[3], double pointIntersect[3])
+{
+  vtkMRMLScene* scene = this->GetMRMLScene();
+  if (!scene)
+  {
+    vtkErrorMacro("GetRayIntersectWithIsocenterPlane: Invalid MRML scene");
+    return false;
+  }
+
+  if (!drrNode)
+  {
+    vtkErrorMacro("GetRayIntersectWithIsocenterPlane: Invalid parameter node");
+    return false;
+  }
+
+  vtkMRMLRTBeamNode* beamNode = drrNode->GetBeamNode();
+  if (!beamNode)
+  {
+    vtkErrorMacro("GetRayIntersectWithIsocenterPlane: Invalid RT Beam node");
+    return false;
+  }
+
+  if (beamNode)
+  {
+    vtkNew<vtkPlane> isocenterPlane;
+    // Set isocenter plane
+    isocenterPlane->SetNormal( drrNode->GetNormalVector() );
+    double isocenter[3];
+    beamNode->GetPlanIsocenterPosition(isocenter);
+    isocenterPlane->SetOrigin( isocenter );
+    // Calculate 2 ray points: p1 - xraySource coordinates in RAS, p2 - point coordinates in RAS
+    double rayOrigin[3] = {};
+    beamNode->GetSourcePosition(rayOrigin);
+
+    vtkErrorMacro("GetRayIntersectWithIsocenterPlane: Isocenter: " << isocenter <<"rayOrigin: " << rayOrigin << "isocenterPlane: " << isocenterPlane);
+//      double rayDirection[3] = {};
+//     double rayEndPoint[3] = {};
+//      for (int i = 0; i < 3; ++i)
+//      {
+//        rayDirection[i] = point[i] - rayOrigin[i];
+//        rayEndPoint[i] = rayOrigin[i] + rayDirection[i] * 10000.;
+//      }
+
+    double t;
+    int res = isocenterPlane->IntersectWithLine(rayOrigin, point, t, pointIntersect);
+    if (res == 0)
+    {
+      vtkWarningMacro("GetRayIntersectWithIsocenterPlane: No intersection! The parametric coordinate along the line is " << t);
+      return false;
+    }
+  }
+  return true;
+}
+//------------------------------------------------------------------------------
+bool vtkSlicerPatientPositioningLogic::GetRayIntersectWithImagerPlane(vtkMRMLDrrImageComputationNode* drrNode,
+  const double point[3], double pointIntersect[3])
+{
+  return this->DrrImageComputationLogic->GetRayIntersectWithImagerPlane(drrNode, point, pointIntersect);
+}
+
+vtkMRMLTableNode* vtkSlicerPatientPositioningLogic::CreateProjectionsTableNode(vtkMRMLScalarVolumeNode* inputVolume)
+{
+  vtkMRMLScene* scene = this->GetMRMLScene();
+  if (!scene)
+  {
+    vtkErrorMacro("CreateProjectionsTableNode: Invalid MRML scene");
+    return nullptr;
+  }
+
+  if (!inputVolume)
+  {
+    vtkErrorMacro("CreateProjectionsTableNode: Invalid DRR Image node");
+    return nullptr;
+  }
+
+  std::string name = std::string("DRR : ") + inputVolume->GetName() + "_MarkupsProjectionData";
+  vtkMRMLTableNode* tableNode = vtkMRMLTableNode::SafeDownCast(scene->AddNewNodeByClass("vtkMRMLTableNode", name.c_str()));
+
+  vtkTable* table = tableNode->GetTable();
+  if (!table)
+  {
+    vtkErrorMacro("CreateProjectionsTableNode: Unable to create vtkTable to fill projection data");
+    return nullptr;
+  }
+
+  // Column 0; Original label name
+  vtkNew<vtkStringArray> originLabelString;
+  originLabelString->SetName("Original label");
+  table->AddColumn(originLabelString);
+
+  // Column 1; R
+  vtkNew<vtkDoubleArray> rPosition;
+  rPosition->SetName("R");
+  table->AddColumn(rPosition);
+
+  // Column 2; A
+  vtkNew<vtkDoubleArray> aPosition;
+  aPosition->SetName("A");
+  table->AddColumn(aPosition);
+
+  // Column 3; S
+  vtkNew<vtkDoubleArray> sPosition;
+  sPosition->SetName("S");
+  table->AddColumn(sPosition);
+
+  // Column 4; Width
+  vtkNew<vtkDoubleArray> widthOffset;
+  widthOffset->SetName("Width");
+  table->AddColumn(widthOffset);
+
+  // Column 5; Height
+  vtkNew<vtkDoubleArray> heigthOffset;
+  heigthOffset->SetName("Height");
+  table->AddColumn(heigthOffset);
+
+  // Column 6; Column
+  vtkNew<vtkIntArray> columnOffset;
+  columnOffset->SetName("Column");
+  table->AddColumn(columnOffset);
+
+  // Column 7; Row
+  vtkNew<vtkIntArray> rowOffset;
+  rowOffset->SetName("Row");
+  table->AddColumn(rowOffset);
+
+  // Column 8; Status string
+  vtkNew<vtkStringArray> statusString;
+  statusString->SetName("Status");
+  table->AddColumn(statusString);
+
+  return tableNode;
+}
+//------------------------------------------------------------------------------
+bool vtkSlicerPatientPositioningLogic::CheckPointWithinVolumeBounds(vtkMRMLScalarVolumeNode* volumeNode,
+  const double pointRAS[3]) const
+{
+  if (!volumeNode)
+  {
+    vtkErrorMacro("CheckPointWithinVolumeBounds: Volume node is invalid");
+    return false;
+  }
+  double bounds[6] = {};
+  volumeNode->GetRASBounds(bounds);
+
+  return (pointRAS[0] > bounds[0] && pointRAS[0] < bounds[1] &&
+  pointRAS[1] > bounds[2] && pointRAS[1] < bounds[3] &&
+  pointRAS[2] > bounds[4] && pointRAS[2] < bounds[5]);
+}
+
+//------------------------------------------------------------------------------
+void vtkSlicerPatientPositioningLogic::SetDrrImageCompuationLogic(vtkSlicerDrrImageComputationLogic* drrImageCompuationLogic)
+{
+  this->DrrImageComputationLogic = drrImageCompuationLogic;
 }
