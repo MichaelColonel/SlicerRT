@@ -29,18 +29,21 @@
 // VTK includes
 #include <vtkObjectFactory.h>
 #include <vtkSmartPointer.h>
+#include <vtkTransform.h>
 
 #include "vtkMRMLPatientPositioningNode.h"
 #include "vtkMRMLChannel26GeometryNode.h"
 #include "vtkMRMLRTCarmBeamNode.h"
 #include "vtkMRMLRTChannel26Cabin3BeamNode.h"
+#include "vtkMRMLDrrImageComputationNode.h"
 
 //------------------------------------------------------------------------------
 namespace
 {
 
 const char* DRR_REFERENCE_ROLE = "drrRef";
-const char* XRAY_IMAGE_REFERENCE_ROLE = "xrayImageRef";
+const char* DRR_IMAGE_REFERENCE_ROLE = "drrImageRef";
+const char* CARM_XRAY_IMAGE_REFERENCE_ROLE = "carmXrayImageRef";
 const char* FIXED_BEAM_AXIS_REFERENCE_ROLE = "fixedBeamAxisRef";
 const char* FIXED_ISOCENTER_REFERENCE_ROLE = "fixedIsocenterRef";
 const char* CHANNEL26_GEOMETRY_REFERENCE_ROLE = "channel26GeometryRef";
@@ -330,4 +333,52 @@ void vtkMRMLPatientPositioningNode::SetAndObserveCarmXrayBeamNode(vtkMRMLRTBeamN
     }
 
   this->SetNodeReferenceID(CARM_XRAY_BEAM_REFERENCE_ROLE, (node ? node->GetID() : nullptr));
+}
+
+//----------------------------------------------------------------------------
+vtkMRMLDrrImageComputationNode* vtkMRMLPatientPositioningNode::GetDrrComputationNode()
+{
+  return vtkMRMLDrrImageComputationNode::SafeDownCast( this->GetNodeReference(DRR_REFERENCE_ROLE) );
+}
+
+//----------------------------------------------------------------------------
+void vtkMRMLPatientPositioningNode::SetAndObserveDrrComputationNode(vtkMRMLDrrImageComputationNode* node)
+{
+  if (node && this->Scene != node->GetScene())
+    {
+    vtkErrorMacro("Cannot set reference: the referenced and referencing node are not in the same scene");
+    return;
+    }
+
+  this->SetNodeReferenceID(DRR_REFERENCE_ROLE, (node ? node->GetID() : nullptr));
+}
+
+//----------------------------------------------------------------------------
+vtkTransform* vtkMRMLPatientPositioningNode::GetRegistrationTransform(CarmProjectionOrientation proj)
+{
+  return this->OrientationTransformMatrixMap[proj];
+}
+
+//----------------------------------------------------------------------------
+void vtkMRMLPatientPositioningNode::SetRegistrationTransform(CarmProjectionOrientation proj,
+  vtkTransform* transform)
+{
+  this->OrientationTransformMatrixMap[proj] = transform;
+}
+
+//----------------------------------------------------------------------------
+bool vtkMRMLPatientPositioningNode::GetRegistrationImages(CarmProjectionOrientation proj,
+  vtkMRMLScalarVolumeNode* staticImage, vtkMRMLScalarVolumeNode* movedImage)
+{
+  auto pair = this->OrientationImagesMap[proj];
+  staticImage = pair.first;
+  movedImage = pair.second;
+  return false;
+}
+
+//----------------------------------------------------------------------------
+void vtkMRMLPatientPositioningNode::SetRegistrationImages(CarmProjectionOrientation proj,
+  vtkMRMLScalarVolumeNode* staticImage, vtkMRMLScalarVolumeNode* moveImage)
+{
+  this->OrientationImagesMap[proj] = { staticImage, moveImage };
 }

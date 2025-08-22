@@ -439,9 +439,7 @@ void qSlicerPatientPositioningModuleWidget::onPatientBodySegmentChanged(QString 
     return;
   }
 
-  std::string segID = segmentID.toStdString();
-  d->ParameterNode->SetPatientBodySegmentID(segID.c_str());
-//  d->ParameterNode->SetPatientBodySegmentID(segmentID.toUtf8().constData());
+  d->ParameterNode->SetPatientBodySegmentID(segmentID.toUtf8().constData());
 }
 
 //-----------------------------------------------------------------------------
@@ -734,14 +732,15 @@ void qSlicerPatientPositioningModuleWidget::onLoadTreatmentMachineButtonClicked(
   Q_UNUSED(beamAxisLineNode);
   Q_UNUSED(fixedIsocenterNode);
   
-  // C-arm beam
+  // C-arm x-ray beam and DRR computation node
   vtkMRMLRTCarmBeamNode* xrayNode = d->logic()->CreateCarmXrayPlanAndNode(d->ParameterNode);
   d->MRMLNodeComboBox_CarmXrayBeam->setCurrentNode(xrayNode);
   vtkMRMLDrrImageComputationNode* drrNode = d->logic()->CreateCarmXrayDrrNode(d->ParameterNode);
   drrNode->SetAndObserveBeamNode(xrayNode);
+  d->ParameterNode->SetAndObserveDrrComputationNode(drrNode);
 
   // set DRR node to children widgets
-  d->CarmXrayBeamWidget->setDrrImageComputationNode(drrNode);
+//  d->CarmXrayBeamWidget->setDrrImageComputationNode(drrNode);
   d->CollapsibleButton_CarmRtImageDrrRegistration->setEnabled(drrNode ? true : false);
 /*
   // Hide controls that do not have corresponding parts loaded
@@ -755,6 +754,7 @@ void qSlicerPatientPositioningModuleWidget::onLoadTreatmentMachineButtonClicked(
   //vtkMRMLViewNode* viewNode = threeDView->mrmlViewNode();
   //viewNode->SetOrientationMarkerHumanModelNodeID(this->mrmlScene()->GetFirstNodeByName("EBRTOrientationMarkerModel")->GetID());
 */
+  d->ParameterNode->Modified();
 }
 
 //-----------------------------------------------------------------------------

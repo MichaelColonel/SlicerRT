@@ -22,6 +22,7 @@
 // MRML includes
 #include <vtkMRMLScene.h>
 #include <vtkMRMLScalarVolumeNode.h>
+#include <vtkMRMLScalarVolumeDisplayNode.h>
 #include <vtkMRMLLinearTransformNode.h>
 #include <vtkMRMLSubjectHierarchyNode.h>
 #include <vtkMRMLModelNode.h>
@@ -59,9 +60,14 @@
 #include <vtkSlicerModuleLogic.h>
 #include <vtkSlicerModelsLogic.h>
 
-// Modules logic
+// Modules DRR Computation logic
 #include <vtkSlicerDrrImageComputationLogic.h>
 #include <vtkMRMLDrrImageComputationNode.h>
+// PlanarImage logic
+#include <vtkSlicerPlanarImageModuleLogic.h>
+
+// SlicerRT includes
+#include <vtkSlicerRtCommon.h>
 
 const char* vtkSlicerPatientPositioningLogic::FIXEDBEAMAXIS_MARKUPS_LINE_NODE_NAME = "FixedBeamAxis";
 const char* vtkSlicerPatientPositioningLogic::FIXEDISOCENTER_MARKUPS_FIDUCIAL_NODE_NAME = "FixedIsocenter";
@@ -112,6 +118,7 @@ const double TableTopLeftFixedReference[3] = {
 vtkStandardNewMacro(vtkSlicerPatientPositioningLogic);
 //----------------------------------------------------------------------------
 vtkCxxSetObjectMacro(vtkSlicerPatientPositioningLogic, DrrImageComputationLogic, vtkSlicerDrrImageComputationLogic);
+vtkCxxSetObjectMacro(vtkSlicerPatientPositioningLogic, PlanarImageLogic, vtkSlicerPlanarImageModuleLogic);
 
 //---------------------------------------------------------------------------
 class vtkSlicerPatientPositioningLogic::vtkInternal
@@ -467,6 +474,10 @@ vtkSlicerPatientPositioningLogic::~vtkSlicerPatientPositioningLogic()
   if (this->DrrImageComputationLogic)
   {
     this->SetDrrImageComputationLogic(nullptr);
+  }
+  if (this->PlanarImageLogic)
+  {
+    this->SetPlanarImageLogic(nullptr);
   }
 }
 
@@ -1476,6 +1487,202 @@ void vtkSlicerPatientPositioningLogic::ShowModelsNodes(vtkMRMLPatientPositioning
     }
     modelNode->GetDisplayNode()->SetVisibility(show);
   }
+}
+
+//---------------------------------------------------------------------------
+bool vtkSlicerPatientPositioningLogic::ApplyCarmXrayDetectorTransformToXrayImage(vtkMRMLPatientPositioningNode* parameterNode,
+  vtkMRMLScalarVolumeNode* xrayImageVolume)
+{
+  vtkMRMLRTBeamNode* beamNode = parameterNode->GetCarmXrayBeamNode();
+
+  vtkMRMLSubjectHierarchyNode* shNode = vtkMRMLSubjectHierarchyNode::GetSubjectHierarchyNode(this->GetMRMLScene());
+  if (!shNode)
+  {
+    vtkErrorMacro("SetupDisplayAndSubjectHierarchyNodes: Failed to access subject hierarchy node");
+    return false;
+  }
+
+  // Create display node for the rt image volume
+  vtkNew<vtkMRMLScalarVolumeDisplayNode> volumeDisplayNode;
+  this->GetMRMLScene()->AddNode(volumeDisplayNode);
+  volumeDisplayNode->SetDefaultColorMap();
+
+  // TODO: add manual level setting
+  volumeDisplayNode->AutoWindowLevelOn();
+
+  xrayImageVolume->SetAndObserveDisplayNodeID(volumeDisplayNode->GetID());
+
+  // Set up subject hierarchy item
+  vtkIdType rtImageVolumeShItemID = shNode->CreateItem(shNode->GetSceneItemID(), xrayImageVolume);
+
+  vtkMRMLDrrImageComputationNode* drrNode = parameterNode->GetDrrComputationNode();
+
+  double sid = beamNode->GetSAD() + drrNode->GetIsocenterImagerDistance();
+  // Set RT image specific attributes
+  shNode->SetItemAttribute(rtImageVolumeShItemID, vtkSlicerRtCommon::DICOMRTIMPORT_RTIMAGE_IDENTIFIER_ATTRIBUTE_NAME, "1");
+  shNode->SetItemAttribute(rtImageVolumeShItemID, vtkMRMLSubjectHierarchyConstants::GetDICOMReferencedInstanceUIDsAttributeName(), "");
+  shNode->SetItemAttribute(rtImageVolumeShItemID, vtkSlicerRtCommon::DICOMRTIMPORT_SOURCE_AXIS_DISTANCE_ATTRIBUTE_NAME, std::to_string(beamNode->GetSAD()));
+  shNode->SetItemAttribute(rtImageVolumeShItemID, vtkSlicerRtCommon::DICOMRTIMPORT_GANTRY_ANGLE_ATTRIBUTE_NAME, std::to_string(beamNode->GetGantryAngle()));
+  shNode->SetItemAttribute(rtImageVolumeShItemID, vtkSlicerRtCommon::DICOMRTIMPORT_COUCH_ANGLE_ATTRIBUTE_NAME, std::to_string(beamNode->GetCouchAngle()));
+  shNode->SetItemAttribute(rtImageVolumeShItemID, vtkSlicerRtCommon::DICOMRTIMPORT_COLLIMATOR_ANGLE_ATTRIBUTE_NAME, std::to_string(beamNode->GetCollimatorAngle()));
+  shNode->SetItemAttribute(rtImageVolumeShItemID, vtkSlicerRtCommon::DICOMRTIMPORT_BEAM_NUMBER_ATTRIBUTE_NAME, std::to_string(beamNode->GetBeamNumber()));
+  shNode->SetItemAttribute(rtImageVolumeShItemID, vtkSlicerRtCommon::DICOMRTIMPORT_RTIMAGE_SID_ATTRIBUTE_NAME, std::to_string(sid));
+
+  double rtImagePosition[2] = {};
+  drrNode->GetRTImagePosition(rtImagePosition);
+  std::string rtImagePositionString = std::to_string(rtImagePosition[0]) + std::string(" ") + std::to_string(rtImagePosition[1]);
+  shNode->SetItemAttribute(rtImageVolumeShItemID, vtkSlicerRtCommon::DICOMRTIMPORT_RTIMAGE_POSITION_ATTRIBUTE_NAME, rtImagePositionString);
+
+  // Compute and set RT image geometry. Uses the referenced beam 
+  return this->SetupGeometry(parameterNode, xrayImageVolume);
+}
+
+//------------------------------------------------------------------------------
+bool vtkSlicerPatientPositioningLogic::SetupGeometry(vtkMRMLPatientPositioningNode* parameterNode,
+  vtkMRMLScalarVolumeNode* xrayImageVolume)
+{
+  vtkMRMLDrrImageComputationNode* drrNode = parameterNode->GetDrrComputationNode();
+  vtkMRMLRTBeamNode* beamNode = parameterNode->GetCarmXrayBeamNode();
+
+  vtkMRMLSubjectHierarchyNode* shNode = vtkMRMLSubjectHierarchyNode::GetSubjectHierarchyNode(this->GetMRMLScene());
+
+  // Get RT plan for beam
+  vtkMRMLRTPlanNode *planNode = beamNode->GetParentPlanNode();
+  if (!planNode)
+  {
+    vtkErrorMacro("SetupGeometry: Failed to retrieve valid plan node for beam '" << beamNode->GetName() << "'");
+    return false;
+  }
+  vtkIdType planShItemID = planNode->GetPlanSubjectHierarchyItemID();
+  if (planShItemID == vtkMRMLSubjectHierarchyNode::INVALID_ITEM_ID)
+  {
+    vtkErrorMacro("SetupGeometry: Failed to retrieve valid plan subject hierarchy item for beam '" << beamNode->GetName() << "'");
+    return false;
+  }
+  std::string rtPlanSopInstanceUid = shNode->GetItemUID(planShItemID, vtkMRMLSubjectHierarchyConstants::GetDICOMInstanceUIDName());
+  if (rtPlanSopInstanceUid.empty())
+  {
+    vtkWarningMacro("SetupGeometry: Failed to get RT Plan DICOM UID for beam '" << beamNode->GetName() << "'");
+  }
+
+  // Return if a referenced displayed model is present for the RT image, because it means that the geometry has been set up successfully before
+  vtkMRMLModelNode* modelNode = vtkMRMLModelNode::SafeDownCast(
+    xrayImageVolume->GetNodeReference(vtkMRMLPlanarImageNode::PLANARIMAGE_DISPLAYED_MODEL_REFERENCE_ROLE.c_str()) );
+  if (modelNode)
+  {
+    vtkWarningMacro("SetupGeometry: C-arm x-ray image '" << xrayImageVolume->GetName() << "' belonging to beam '" << beamNode->GetName() << "' seems to have been set up already.");
+    return false;
+  }
+
+  vtkTransform* externalBeamTransform = nullptr;
+  if (beamNode)
+  {
+    vtkMRMLTransformNode* beamTransformNode = beamNode->GetParentTransformNode();
+    if (beamTransformNode)
+    {
+      vtkMRMLTransformNode* externalBeamToRasTransformNode = beamTransformNode->GetParentTransformNode();
+      if (externalBeamToRasTransformNode)
+      {
+        externalBeamTransform = vtkTransform::SafeDownCast(externalBeamToRasTransformNode->GetTransformToParent());
+      }
+    }
+  }
+  double gantryAngle = beamNode->GetGantryAngle();
+  double couchAngle = beamNode->GetCouchAngle();
+
+  // RT image position (the x and y coordinates (in mm) of the upper left hand corner of the image, in the IEC X-RAY IMAGE RECEPTOR coordinate system)
+  double rtImagePosition[2] = {};
+  drrNode->GetRTImagePosition(rtImagePosition);
+
+  // Get isocenter coordinates
+  double isocenterWorldCoordinates[3] = {};
+  if (!beamNode->GetPlanIsocenterPosition(isocenterWorldCoordinates))
+  {
+    vtkErrorMacro("SetupGeometry: Failed to get plan isocenter position");
+    return false;
+  }
+
+  // Assemble transform from isocenter IEC to RT image RAS
+  vtkNew<vtkTransform> fixedToIsocenterTransform;
+  fixedToIsocenterTransform->Identity();
+  fixedToIsocenterTransform->Translate(isocenterWorldCoordinates);
+
+  vtkNew<vtkTransform> couchToFixedTransform;
+  couchToFixedTransform->Identity();
+  couchToFixedTransform->RotateWXYZ(-1. * couchAngle, 0.0, 1.0, 0.0);
+
+  vtkNew<vtkTransform> gantryToCouchTransform;
+  gantryToCouchTransform->Identity();
+  gantryToCouchTransform->RotateWXYZ(gantryAngle, 0.0, 0.0, 1.0);
+
+  vtkNew<vtkTransform> rtImageCenterToGantryTransform;
+  rtImageCenterToGantryTransform->Identity();
+  rtImageCenterToGantryTransform->Translate(0.0, -1. * drrNode->GetIsocenterImagerDistance(), 0.0);
+
+  vtkNew<vtkTransform> rtImageCenterToCornerTransform;
+  rtImageCenterToCornerTransform->Identity();
+  rtImageCenterToCornerTransform->Translate( -1. * rtImagePosition[0], 0.0, rtImagePosition[1]);
+
+  // Create isocenter to RAS transform
+  // The transformation below is based section C.8.8 in DICOM standard volume 3:
+  // "Note: IEC document 62C/269/CDV 'Amendment to IEC 61217: Radiotherapy Equipment -
+  //  Coordinates, movements and scales' also defines a patient-based coordinate system, and
+  //  specifies the relationship between the DICOM Patient Coordinate System (see Section
+  //  C.7.6.2.1.1) and the IEC PATIENT Coordinate System. Rotating the IEC PATIENT Coordinate
+  //  System described in IEC 62C/269/CDV (1999) by 90 degrees counter-clockwise (in the negative
+  //  direction) about the x-axis yields the DICOM Patient Coordinate System, i.e. (XDICOM, YDICOM,
+  //  ZDICOM) = (XIEC, -ZIEC, YIEC). Refer to the latest IEC documentation for the current definition of the
+  //  IEC PATIENT Coordinate System."
+  // The IJK to RAS transform already contains the LPS to RAS conversion, so we only need to consider this rotation
+  vtkNew<vtkTransform> iecToLpsTransform;
+  iecToLpsTransform->Identity();
+  iecToLpsTransform->RotateX(90.0);
+  iecToLpsTransform->RotateZ(-90.0);
+
+  // Get RT image IJK to RAS matrix (containing the spacing and the LPS-RAS conversion)
+  vtkNew<vtkMatrix4x4> rtImageIjkToRtImageRasTransformMatrix;
+  xrayImageVolume->GetIJKToRASMatrix(rtImageIjkToRtImageRasTransformMatrix);
+
+  // Concatenate the transform components
+  vtkNew<vtkTransform> isocenterToRtImageRas;
+  isocenterToRtImageRas->Identity();
+  isocenterToRtImageRas->PreMultiply();
+  if (externalBeamTransform)
+  {
+//    vtkNew< vtkMatrix4x4 > mat;
+//    externalBeamTransform->GetMatrix(mat);
+//    mat->SetElement(0,3,0);
+//    mat->SetElement(1,3,0);
+//    mat->SetElement(2,3,0);
+//    externalBeamTransform->SetMatrix(mat);
+    isocenterToRtImageRas->Concatenate(externalBeamTransform);
+  }
+  isocenterToRtImageRas->Concatenate(fixedToIsocenterTransform);
+  isocenterToRtImageRas->Concatenate(couchToFixedTransform);
+  isocenterToRtImageRas->Concatenate(gantryToCouchTransform);
+  isocenterToRtImageRas->Concatenate(rtImageCenterToGantryTransform);
+  isocenterToRtImageRas->Concatenate(rtImageCenterToCornerTransform);
+  isocenterToRtImageRas->Concatenate(iecToLpsTransform); // LPS = IJK
+  isocenterToRtImageRas->Concatenate(rtImageIjkToRtImageRasTransformMatrix);
+
+  // Transform RT image to proper position and orientation
+  xrayImageVolume->SetIJKToRASMatrix(isocenterToRtImageRas->GetMatrix());
+
+  // Set up outputs for the planar image display
+  vtkNew<vtkMRMLModelNode> displayedModelNode;
+  this->GetMRMLScene()->AddNode(displayedModelNode);
+  std::string displayedModelNodeName = vtkMRMLPlanarImageNode::PLANARIMAGE_MODEL_NODE_NAME_PREFIX + std::string(xrayImageVolume->GetName());
+  displayedModelNode->SetName(displayedModelNodeName.c_str());
+  displayedModelNode->SetAttribute(vtkMRMLSubjectHierarchyConstants::GetSubjectHierarchyExcludeFromTreeAttributeName().c_str(), "1");
+  drrNode->SetAndObserveDisplayedModelNode(displayedModelNode);
+
+  // Create planar image model for the RT Image
+  this->PlanarImageLogic->CreateModelForPlanarImage(drrNode);
+
+  // Show the displayed planar image model by default
+  displayedModelNode->SetDisplayVisibility(1);
+
+  return true;
 }
 
 //---------------------------------------------------------------------------

@@ -140,6 +140,49 @@
        </item>
       </layout>
      </widget>
+     <widget class="QWidget" name="tabCarm">
+      <attribute name="title">
+       <string>C-arm x-ray image</string>
+      </attribute>
+      <layout class="QGridLayout" name="gridLayout_9">
+       <item row="0" column="0">
+        <layout class="QGridLayout" name="gridLayout_8">
+         <item row="1" column="0" colspan="2">
+          <widget class="qMRMLVolumeInfoWidget" name="MRMLVolumeInfoWidget_CarmXrayImageVolume"/>
+         </item>
+         <item row="0" column="0">
+          <widget class="QLabel" name="label_8">
+           <property name="text">
+            <string>C-arm x-ray image volume:</string>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="1">
+          <widget class="qMRMLNodeComboBox" name="MRMLNodeComboBox_CarmRawVolume">
+           <property name="nodeTypes">
+            <stringlist notr="true">
+             <string>vtkMRMLScalarVolumeNode</string>
+            </stringlist>
+           </property>
+           <property name="hideChildNodeTypes">
+            <stringlist notr="true"/>
+           </property>
+           <property name="interactionNodeSingletonTag">
+            <string notr="true"/>
+           </property>
+          </widget>
+         </item>
+         <item row="2" column="0" colspan="2">
+          <widget class="QPushButton" name="PushButton_TransformCarmRawImage">
+           <property name="text">
+            <string>Transform c-arm raw image</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </item>
+      </layout>
+     </widget>
      <widget class="QWidget" name="tabDrrRtImageRegistration">
       <attribute name="title">
        <string>Registration</string>
@@ -394,6 +437,11 @@
    <header>qMRMLTransformSliders.h</header>
   </customwidget>
   <customwidget>
+   <class>qMRMLVolumeInfoWidget</class>
+   <extends>qMRMLWidget</extends>
+   <header>qMRMLVolumeInfoWidget.h</header>
+  </customwidget>
+  <customwidget>
    <class>qMRMLWidget</class>
    <extends>QWidget</extends>
    <header>qMRMLWidget.h</header>
@@ -456,6 +504,38 @@
     <hint type="destinationlabel">
      <x>267</x>
      <y>57</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>qSlicerCarmXrayBeamWidget</sender>
+   <signal>mrmlSceneChanged(vtkMRMLScene*)</signal>
+   <receiver>MRMLNodeComboBox_CarmRawVolume</receiver>
+   <slot>setMRMLScene(vtkMRMLScene*)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>200</x>
+     <y>324</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>282</x>
+     <y>57</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>MRMLNodeComboBox_CarmRawVolume</sender>
+   <signal>currentNodeChanged(vtkMRMLNode*)</signal>
+   <receiver>MRMLVolumeInfoWidget_CarmXrayImageVolume</receiver>
+   <slot>setVolumeNode(vtkMRMLNode*)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>282</x>
+     <y>57</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>200</x>
+     <y>273</y>
     </hint>
    </hints>
   </connection>

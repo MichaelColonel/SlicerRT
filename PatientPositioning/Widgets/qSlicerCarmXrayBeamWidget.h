@@ -60,7 +60,7 @@ public slots:
   /// Set PatientPositioning logic
   void setPatientPositioningLogic(vtkSlicerPatientPositioningLogic* logic);
   /// Set DRR image computation node
-  void setDrrImageComputationNode(vtkMRMLDrrImageComputationNode* node);
+//  void setDrrImageComputationNode(vtkMRMLDrrImageComputationNode* node);
   /// Update widget GUI from RT Image parameters node
   void updateWidgetFromMRML();
 

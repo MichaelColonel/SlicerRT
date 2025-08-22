@@ -178,6 +178,7 @@ void qSlicerCarmXrayBeamWidget::setPatientPositioningLogic(vtkSlicerPatientPosit
 }
 
 //-----------------------------------------------------------------------------
+/*
 void qSlicerCarmXrayBeamWidget::setDrrImageComputationNode(vtkMRMLDrrImageComputationNode* node)
 {
   Q_D(qSlicerCarmXrayBeamWidget);
@@ -188,7 +189,7 @@ void qSlicerCarmXrayBeamWidget::setDrrImageComputationNode(vtkMRMLDrrImageComput
   d->MRMLNodeComboBox_DrrNode->setCurrentNode(node);
   this->updateWidgetFromMRML();
 }
-
+*/
 //-----------------------------------------------------------------------------
 void qSlicerCarmXrayBeamWidget::onComputeDrrClicked()
 {
@@ -268,10 +269,11 @@ void qSlicerCarmXrayBeamWidget::updateWidgetFromMRML()
     qCritical() << Q_FUNC_INFO << ": Invalid PatientPositioning logic";
     return;
   }
-  vtkMRMLNode* node = d->MRMLNodeComboBox_DrrNode->currentNode();
-  vtkMRMLDrrImageComputationNode* drrNode = vtkMRMLDrrImageComputationNode::SafeDownCast(node);
+//  vtkMRMLNode* node = d->MRMLNodeComboBox_DrrNode->currentNode();
+  vtkMRMLDrrImageComputationNode* drrNode = d->ParameterNode->GetDrrComputationNode();
   if (drrNode)
   {
+    d->MRMLNodeComboBox_DrrNode->setCurrentNode(drrNode);
     int res[2] = { -1, -1 };
     drrNode->GetImagerResolution(res);
     double spacing[2] = { -0.1, -0.1 };

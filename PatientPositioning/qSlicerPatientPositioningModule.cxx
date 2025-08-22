@@ -28,6 +28,7 @@
 
 // Modules logic includes
 #include <vtkSlicerDrrImageComputationLogic.h>
+#include <vtkSlicerPlanarImageModuleLogic.h>
 
 #include <QDebug>
 
@@ -96,7 +97,7 @@ QStringList qSlicerPatientPositioningModule::categories() const
 //-----------------------------------------------------------------------------
 QStringList qSlicerPatientPositioningModule::dependencies() const
 {
-  return QStringList() << "Beams" << "DrrImageComputation";
+  return QStringList() << "Beams" << "DrrImageComputation" << "PlanarImage";
 }
 
 //-----------------------------------------------------------------------------
@@ -105,6 +106,18 @@ void qSlicerPatientPositioningModule::setup()
   this->Superclass::setup();
 
   vtkSlicerPatientPositioningLogic* patPosLogic = vtkSlicerPatientPositioningLogic::SafeDownCast(this->logic());
+
+  // Set planar image logic to the logic
+  qSlicerAbstractCoreModule* planarImageModule = qSlicerCoreApplication::application()->moduleManager()->module("PlanarImage");
+  if (planarImageModule && patPosLogic)
+  {
+    vtkSlicerPlanarImageModuleLogic* planarImageLogic = vtkSlicerPlanarImageModuleLogic::SafeDownCast(planarImageModule->logic());
+    patPosLogic->SetPlanarImageLogic(planarImageLogic);
+  }
+  else
+  {
+    qCritical() << Q_FUNC_INFO << ": \"Planar Image\" module is not found";
+  }
 
   // Set DRR image computation logic to the logic
   qSlicerAbstractCoreModule* drrImageComputationModule = qSlicerCoreApplication::application()->moduleManager()->module("DrrImageComputation");

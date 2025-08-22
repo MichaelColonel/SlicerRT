@@ -1296,12 +1296,6 @@ bool vtkSlicerDrrImageComputationLogic::SetupGeometry( vtkMRMLDrrImageComputatio
   isocenterToRtImageRas->PreMultiply();
   if (externalBeamTransform)
   {
-//    vtkNew< vtkMatrix4x4 > mat;
-//    externalBeamTransform->GetMatrix(mat);
-//    mat->SetElement(0,3,0);
-//    mat->SetElement(1,3,0);
-//    mat->SetElement(2,3,0);
-//    externalBeamTransform->SetMatrix(mat);
     isocenterToRtImageRas->Concatenate(externalBeamTransform);
   }
   isocenterToRtImageRas->Concatenate(fixedToIsocenterTransform);

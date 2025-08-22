@@ -53,6 +53,7 @@ class vtkVector3d;
 class vtkCollisionDetectionFilter;
 
 class vtkSlicerDrrImageComputationLogic;
+class vtkSlicerPlanarImageModuleLogic;
 class vtkMRMLDrrImageComputationNode;
 
 class VTK_SLICER_PATIENTPOSITIONING_MODULE_LOGIC_EXPORT vtkSlicerPatientPositioningLogic :
@@ -114,6 +115,12 @@ public:
   vtkMRMLRTCarmBeamNode* CreateCarmXrayPlanAndNode(vtkMRMLPatientPositioningNode* parameterNode);
   /// Create a DRR node for C-arm x-ray beam and detector and add tp the parameter node
   vtkMRMLDrrImageComputationNode* CreateCarmXrayDrrNode(vtkMRMLPatientPositioningNode* parameterNode);
+  /// Apply C-arm x-ray detector transform to radiogram scalar volume from C-arm
+  /// Create display node similar to DRR image
+  bool ApplyCarmXrayDetectorTransformToXrayImage(vtkMRMLPatientPositioningNode* parameterNode,
+    vtkMRMLScalarVolumeNode* xrayImageVolume);
+  bool SetupGeometry(vtkMRMLPatientPositioningNode* parameterNode,
+    vtkMRMLScalarVolumeNode* xrayImageVolume);
 
 public:
   // Get treatment machine properties from descriptor file
@@ -152,6 +159,11 @@ public:
   /// Get DRR Image Computation module logic
   vtkGetObjectMacro(DrrImageComputationLogic, vtkSlicerDrrImageComputationLogic);
 
+  /// Set Planar Image module logic
+  void SetPlanarImageLogic(vtkSlicerPlanarImageModuleLogic* planarImageLogic);
+  /// Get Planar Image module logic
+  vtkGetObjectMacro(PlanarImageLogic, vtkSlicerPlanarImageModuleLogic);
+
 protected:
   vtkSlicerPatientPositioningLogic();
   ~vtkSlicerPatientPositioningLogic() override;
@@ -181,6 +193,8 @@ protected:
 
   /// DRR Image Computation module logic instance
   vtkSlicerDrrImageComputationLogic* DrrImageComputationLogic{ nullptr };
+  /// Planar Image logic instance
+  vtkSlicerPlanarImageModuleLogic* PlanarImageLogic{ nullptr };
 
 private:
   vtkSlicerPatientPositioningLogic(const vtkSlicerPatientPositioningLogic&); // Not implemented

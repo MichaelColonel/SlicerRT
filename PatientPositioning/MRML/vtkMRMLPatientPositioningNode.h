@@ -34,6 +34,9 @@ class vtkMRMLRTCarmBeamNode;
 class vtkMRMLRTChannel26Cabin3BeamNode;
 class vtkMRMLRTBeamNode;
 class vtkMRMLChannel26GeometryNode;
+class vtkMRMLDrrImageComputationNode;
+
+class vtkTransform;
 
 class VTK_SLICER_PATIENTPOSITIONING_MODULE_MRML_EXPORT vtkMRMLPatientPositioningNode : public vtkMRMLNode
 {
@@ -47,6 +50,7 @@ public:
   typedef std::pair< vtkSmartPointer<vtkMRMLScalarVolumeNode>, vtkSmartPointer<vtkMRMLScalarVolumeNode> > RtImagePair;
   
   typedef std::map< CarmProjectionOrientation, RtImagePair > OrientationRtImagePairMap;
+  typedef std::map< CarmProjectionOrientation, vtkSmartPointer< vtkTransform > > OrientationTransformMap;
 
   static vtkMRMLPatientPositioningNode *New();
   vtkTypeMacro(vtkMRMLPatientPositioningNode,vtkMRMLNode);
@@ -114,6 +118,11 @@ public:
   /// Set and observe Cabin-3 isocenter point (fiducial node)
   void SetAndObserveCabin3IsocenterFiducialNode(vtkMRMLMarkupsFiducialNode* node);
 
+  /// Get observed DRR computation node
+  vtkMRMLDrrImageComputationNode* GetDrrComputationNode();
+  /// Set and observe DRR computation node
+  void SetAndObserveDrrComputationNode(vtkMRMLDrrImageComputationNode* node);
+
   /// Get path to the treatment machine descriptor JSON file
   vtkGetStringMacro(TreatmentMachineDescriptorFilePath);
   /// Set path to the treatment machine descriptor JSON file
@@ -123,6 +132,14 @@ public:
   vtkGetStringMacro(TreatmentMachineType);
   /// Set treatment machine name
   vtkSetStringMacro(TreatmentMachineType);
+
+  vtkTransform* GetRegistrationTransform(CarmProjectionOrientation proj);
+  void SetRegistrationTransform(CarmProjectionOrientation proj,
+    vtkTransform*);
+  bool GetRegistrationImages(CarmProjectionOrientation proj,
+    vtkMRMLScalarVolumeNode* staticImage, vtkMRMLScalarVolumeNode* moveImage);
+  void SetRegistrationImages(CarmProjectionOrientation proj,
+    vtkMRMLScalarVolumeNode* staticImage, vtkMRMLScalarVolumeNode* moveImage);
 
 protected:
   vtkMRMLPatientPositioningNode();
@@ -138,6 +155,7 @@ protected:
   /// Name of treatment machine used (must match folder name where the models can be found)
   char* TreatmentMachineType;
   OrientationRtImagePairMap OrientationImagesMap;
+  OrientationTransformMap OrientationTransformMatrixMap;
 };
 
 #endif
