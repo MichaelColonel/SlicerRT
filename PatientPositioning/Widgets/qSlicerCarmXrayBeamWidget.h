@@ -65,8 +65,8 @@ public slots:
   void updateWidgetFromMRML();
 
   void onComputeDrrClicked();
-  void onSetImagesToSliceViewClicked();
-  void onDrrNodeChanged(vtkMRMLNode* drrNode);
+  void onSetImagesToSliceViewToggled(bool);
+  void onDrrImageNodeChanged(vtkMRMLNode* drrNode);
   void onCarmXrayImageNodeChanged(vtkMRMLNode* xrayImageNode);
 
 signals:
