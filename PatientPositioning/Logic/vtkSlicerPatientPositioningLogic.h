@@ -60,6 +60,12 @@ class VTK_SLICER_PATIENTPOSITIONING_MODULE_LOGIC_EXPORT vtkSlicerPatientPosition
   public vtkSlicerModuleLogic
 {
 public:
+  enum Channel26CabinGeometryType : int {
+    CABIN1,
+    CABIN2,
+    CABIN3,
+    Channel26CabinGeometryType_Last
+  };
   static const char* TREATMENT_MACHINE_DESCRIPTOR_FILE_PATH_ATTRIBUTE_NAME;
   static unsigned long MAX_TRIANGLE_NUMBER_PRODUCT_FOR_COLLISIONS;
 
@@ -119,7 +125,7 @@ public:
   /// Create display node similar to DRR image
   bool ApplyCarmXrayDetectorTransformToXrayImage(vtkMRMLPatientPositioningNode* parameterNode,
     vtkMRMLScalarVolumeNode* xrayImageVolume);
-  bool SetupGeometry(vtkMRMLPatientPositioningNode* parameterNode,
+  bool SetupXrayImageGeometry(vtkMRMLPatientPositioningNode* parameterNode,
     vtkMRMLScalarVolumeNode* xrayImageVolume);
 
 public:

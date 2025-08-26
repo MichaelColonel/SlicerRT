@@ -107,6 +107,8 @@ void qSlicerCarmXrayBeamWidgetPrivate::init()
   QObject::connect( this->MRMLNodeComboBox_CarmXrayImageNode, SIGNAL(currentNodeChanged(vtkMRMLNode*)), 
     q, SLOT(onCarmXrayImageNodeChanged(vtkMRMLNode*)));
   QObject::connect( this->CheckBox_ShowRtImageView, SIGNAL(toggled(bool)), q, SLOT(onSetImagesToSliceViewToggled(bool)));
+  
+  QObject::connect( this->PushButton_TransformCarmRawImage, SIGNAL(clicked()), q, SLOT(onTransformCarmRawImageClicked()));
 }
 
 // --------------------------------------------------------------------------
@@ -269,7 +271,6 @@ void qSlicerCarmXrayBeamWidget::updateWidgetFromMRML()
     qCritical() << Q_FUNC_INFO << ": Invalid PatientPositioning logic";
     return;
   }
-//  vtkMRMLNode* node = d->MRMLNodeComboBox_DrrNode->currentNode();
   vtkMRMLDrrImageComputationNode* drrNode = d->ParameterNode->GetDrrComputationNode();
   if (drrNode)
   {
@@ -341,51 +342,28 @@ void qSlicerCarmXrayBeamWidget::onSetImagesToSliceViewToggled(bool maximize)
     return;
   }
 
-  vtkMRMLSliceLogic* sliceLogic = sliceWidget->sliceLogic();
+  bool isMaximized = false;
+  bool canBeMaximized = false;
   vtkMRMLSliceNode* sliceNode = sliceWidget->mrmlSliceNode();
+  vtkMRMLLayoutNode* layoutNode = sliceNode->GetMaximizedState(isMaximized, canBeMaximized);
 
-  // When enabling checkbox, set DRR image as background and maximize slice
-  if (maximize)
+  // When toggled, set DRR image as background and maximize slice
+  if (maximize && layoutNode)
   {
+    vtkMRMLSliceLogic* sliceLogic = sliceWidget->sliceLogic();
     sliceLogic->GetSliceCompositeNode()->SetBackgroundVolumeID(drrImageNode->GetID());
-
     sliceLogic->RotateSliceToLowestVolumeAxes(); // Reformat
 
     sliceLogic->FitSliceToAll();
     sliceNode->UpdateMatrices();
-
-    // Maximize
-    bool isMaximized = false;
-    bool canBeMaximized = false;
-    vtkMRMLLayoutNode* layoutNode = sliceNode->GetMaximizedState(isMaximized, canBeMaximized);
-
-    if (!layoutNode || !canBeMaximized)
-    {
-      return;
-    }
-
-    if (!isMaximized)
+    if (canBeMaximized && !isMaximized)
     {
       layoutNode->AddMaximizedViewNode(sliceNode);
     }
   }
-
-  // When disabling checkbox, restore view layout
-  else
+  else if (!maximize && layoutNode && isMaximized) // When released, restore view layout
   {
-    bool isMaximized = false;
-    bool canBeMaximized = false;
-    vtkMRMLLayoutNode* layoutNode = sliceNode->GetMaximizedState(isMaximized, canBeMaximized);
-
-    if (!layoutNode)
-    {
-      return;
-    }
-
-    if (isMaximized)
-    {
-      layoutNode->RemoveMaximizedViewNode(sliceNode);
-    }
+    layoutNode->RemoveMaximizedViewNode(sliceNode);
   }
 
   emit registrationRtImagePairChanged(projType, nullptr, nullptr);
@@ -420,4 +398,26 @@ void qSlicerCarmXrayBeamWidget::onCarmXrayImageNodeChanged(vtkMRMLNode* xrayImag
 
   vtkMRMLPatientPositioningNode::RtImagePair& pair = d->RtImagePairMap[proj];
   pair.second = vtkMRMLScalarVolumeNode::SafeDownCast(xrayImageNode);
+}
+
+//-----------------------------------------------------------------------------
+void qSlicerCarmXrayBeamWidget::onTransformCarmRawImageClicked()
+{
+  Q_D(qSlicerCarmXrayBeamWidget);
+  if (!d->ParameterNode)
+  {
+    qCritical() << Q_FUNC_INFO << ": Invalid parameter node";
+    return;
+  }
+  vtkMRMLNode* node = d->MRMLNodeComboBox_CarmRawVolume->currentNode();
+  vtkMRMLScalarVolumeNode* imageNode = vtkMRMLScalarVolumeNode::SafeDownCast(node);
+  if (!imageNode)
+  {
+    return;
+  }
+  d->ParameterNode->GetDrrComputationNode()->SetAndObserveRtImageVolumeNode(imageNode);
+  if (d->PatientPositioningLogic->ApplyCarmXrayDetectorTransformToXrayImage(d->ParameterNode, imageNode))
+  {
+    ;
+  }
 }

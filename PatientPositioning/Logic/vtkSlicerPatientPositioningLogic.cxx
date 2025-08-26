@@ -1498,7 +1498,7 @@ bool vtkSlicerPatientPositioningLogic::ApplyCarmXrayDetectorTransformToXrayImage
   vtkMRMLSubjectHierarchyNode* shNode = vtkMRMLSubjectHierarchyNode::GetSubjectHierarchyNode(this->GetMRMLScene());
   if (!shNode)
   {
-    vtkErrorMacro("SetupDisplayAndSubjectHierarchyNodes: Failed to access subject hierarchy node");
+    vtkErrorMacro("ApplyCarmXrayDetectorTransformToXrayImage: Failed to access subject hierarchy node");
     return false;
   }
 
@@ -1534,11 +1534,11 @@ bool vtkSlicerPatientPositioningLogic::ApplyCarmXrayDetectorTransformToXrayImage
   shNode->SetItemAttribute(rtImageVolumeShItemID, vtkSlicerRtCommon::DICOMRTIMPORT_RTIMAGE_POSITION_ATTRIBUTE_NAME, rtImagePositionString);
 
   // Compute and set RT image geometry. Uses the referenced beam 
-  return this->SetupGeometry(parameterNode, xrayImageVolume);
+  return this->SetupXrayImageGeometry(parameterNode, xrayImageVolume);
 }
 
 //------------------------------------------------------------------------------
-bool vtkSlicerPatientPositioningLogic::SetupGeometry(vtkMRMLPatientPositioningNode* parameterNode,
+bool vtkSlicerPatientPositioningLogic::SetupXrayImageGeometry(vtkMRMLPatientPositioningNode* parameterNode,
   vtkMRMLScalarVolumeNode* xrayImageVolume)
 {
   vtkMRMLDrrImageComputationNode* drrNode = parameterNode->GetDrrComputationNode();
@@ -1550,19 +1550,19 @@ bool vtkSlicerPatientPositioningLogic::SetupGeometry(vtkMRMLPatientPositioningNo
   vtkMRMLRTPlanNode *planNode = beamNode->GetParentPlanNode();
   if (!planNode)
   {
-    vtkErrorMacro("SetupGeometry: Failed to retrieve valid plan node for beam '" << beamNode->GetName() << "'");
+    vtkErrorMacro("SetupXrayImageGeometry: Failed to retrieve valid plan node for beam '" << beamNode->GetName() << "'");
     return false;
   }
   vtkIdType planShItemID = planNode->GetPlanSubjectHierarchyItemID();
   if (planShItemID == vtkMRMLSubjectHierarchyNode::INVALID_ITEM_ID)
   {
-    vtkErrorMacro("SetupGeometry: Failed to retrieve valid plan subject hierarchy item for beam '" << beamNode->GetName() << "'");
+    vtkErrorMacro("SetupXrayImageGeometry: Failed to retrieve valid plan subject hierarchy item for beam '" << beamNode->GetName() << "'");
     return false;
   }
   std::string rtPlanSopInstanceUid = shNode->GetItemUID(planShItemID, vtkMRMLSubjectHierarchyConstants::GetDICOMInstanceUIDName());
   if (rtPlanSopInstanceUid.empty())
   {
-    vtkWarningMacro("SetupGeometry: Failed to get RT Plan DICOM UID for beam '" << beamNode->GetName() << "'");
+    vtkWarningMacro("SetupXrayImageGeometry: Failed to get RT Plan DICOM UID for beam '" << beamNode->GetName() << "'");
   }
 
   // Return if a referenced displayed model is present for the RT image, because it means that the geometry has been set up successfully before
@@ -1570,8 +1570,9 @@ bool vtkSlicerPatientPositioningLogic::SetupGeometry(vtkMRMLPatientPositioningNo
     xrayImageVolume->GetNodeReference(vtkMRMLPlanarImageNode::PLANARIMAGE_DISPLAYED_MODEL_REFERENCE_ROLE.c_str()) );
   if (modelNode)
   {
-    vtkWarningMacro("SetupGeometry: C-arm x-ray image '" << xrayImageVolume->GetName() << "' belonging to beam '" << beamNode->GetName() << "' seems to have been set up already.");
-    return false;
+    vtkWarningMacro("SetupXrayImageGeometry: C-arm x-ray image '" << xrayImageVolume->GetName() << "' belonging to beam '" << beamNode->GetName() << "' seems to have been set up already.");
+    drrNode->SetNodeReferenceID(vtkMRMLPlanarImageNode::PLANARIMAGE_DISPLAYED_MODEL_REFERENCE_ROLE.c_str(), nullptr);
+    this->GetMRMLScene()->RemoveNode(modelNode);
   }
 
   vtkTransform* externalBeamTransform = nullptr;
@@ -1602,6 +1603,12 @@ bool vtkSlicerPatientPositioningLogic::SetupGeometry(vtkMRMLPatientPositioningNo
     return false;
   }
 
+  vtkTransform* regTransform = parameterNode->GetRegistrationTransform(vtkMRMLPatientPositioningNode::ORIENTATION_HORIZONTAL);
+  double regOffset[3] = {};
+  if (regTransform)
+  {
+    regTransform->GetPosition(regOffset);
+  }
   // Assemble transform from isocenter IEC to RT image RAS
   vtkNew<vtkTransform> fixedToIsocenterTransform;
   fixedToIsocenterTransform->Identity();
@@ -1617,7 +1624,7 @@ bool vtkSlicerPatientPositioningLogic::SetupGeometry(vtkMRMLPatientPositioningNo
 
   vtkNew<vtkTransform> rtImageCenterToGantryTransform;
   rtImageCenterToGantryTransform->Identity();
-  rtImageCenterToGantryTransform->Translate(0.0, -1. * drrNode->GetIsocenterImagerDistance(), 0.0);
+  rtImageCenterToGantryTransform->Translate(regOffset[0], -1. * drrNode->GetIsocenterImagerDistance(), regOffset[1]);
 
   vtkNew<vtkTransform> rtImageCenterToCornerTransform;
   rtImageCenterToCornerTransform->Identity();
@@ -1649,12 +1656,6 @@ bool vtkSlicerPatientPositioningLogic::SetupGeometry(vtkMRMLPatientPositioningNo
   isocenterToRtImageRas->PreMultiply();
   if (externalBeamTransform)
   {
-//    vtkNew< vtkMatrix4x4 > mat;
-//    externalBeamTransform->GetMatrix(mat);
-//    mat->SetElement(0,3,0);
-//    mat->SetElement(1,3,0);
-//    mat->SetElement(2,3,0);
-//    externalBeamTransform->SetMatrix(mat);
     isocenterToRtImageRas->Concatenate(externalBeamTransform);
   }
   isocenterToRtImageRas->Concatenate(fixedToIsocenterTransform);

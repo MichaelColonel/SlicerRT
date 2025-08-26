@@ -59,15 +59,14 @@ public slots:
   void setParameterNode(vtkMRMLNode* node);
   /// Set PatientPositioning logic
   void setPatientPositioningLogic(vtkSlicerPatientPositioningLogic* logic);
-  /// Set DRR image computation node
-//  void setDrrImageComputationNode(vtkMRMLDrrImageComputationNode* node);
-  /// Update widget GUI from RT Image parameters node
+  /// Update widget GUI from PatientPositioning parameters node
   void updateWidgetFromMRML();
 
   void onComputeDrrClicked();
   void onSetImagesToSliceViewToggled(bool);
   void onDrrImageNodeChanged(vtkMRMLNode* drrNode);
   void onCarmXrayImageNodeChanged(vtkMRMLNode* xrayImageNode);
+  void onTransformCarmRawImageClicked();
 
 signals:
   void registrationRtImagePairChanged(vtkMRMLPatientPositioningNode::CarmProjectionOrientation,
