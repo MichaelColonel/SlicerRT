@@ -113,13 +113,15 @@ if (SLICERRT_ENABLE_EXPERIMENTAL_MODULES)
   # Registration validation routines
   add_subdirectory(PlmSynth)
   add_subdirectory(PlmVectorFieldAnalysis)
+# Patient Positioning
+  add_subdirectory(PatientPositioning)
+#  add_subdirectory(FiducialTransform)
+#  add_subdirectory(TestMe2)
+
 endif()
 
 if(BUILD_TESTING)
   add_subdirectory(Testing)
-  add_subdirectory(PatientPositioning)
-#  add_subdirectory(FiducialTransform)
-#  add_subdirectory(TestMe2)
 endif()
 
 #-----------------------------------------------------------------------------
