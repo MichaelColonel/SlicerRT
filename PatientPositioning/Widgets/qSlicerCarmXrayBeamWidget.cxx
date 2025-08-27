@@ -46,6 +46,7 @@
 #include <vtkMRMLScene.h>
 #include <vtkMRMLLayoutNode.h>
 #include <vtkMRMLSliceNode.h>
+#include <vtkMRMLLinearTransformNode.h>
 
 // Beams inlcudes
 #include <vtkMRMLRTBeamNode.h>
@@ -58,6 +59,7 @@
 
 // VTK includes
 #include <vtkVector.h>
+#include <vtkTransform.h>
 
 //-----------------------------------------------------------------------------
 class qSlicerCarmXrayBeamWidgetPrivate : public Ui_qSlicerCarmXrayBeamWidget
@@ -77,9 +79,6 @@ public:
   vtkWeakPointer< vtkMRMLPatientPositioningNode > ParameterNode;
   vtkWeakPointer< vtkMRMLChannel26GeometryNode > Channel26GeoNode;
   vtkWeakPointer< vtkSlicerPatientPositioningLogic > PatientPositioningLogic;
-  vtkMRMLPatientPositioningNode::OrientationRtImagePairMap RtImagePairMap;
-  std::map< vtkMRMLPatientPositioningNode::CarmProjectionOrientation,
-    std::array< double, 3 > > RtImagePairOffsetMap;
 };
 
 // --------------------------------------------------------------------------
@@ -293,6 +292,14 @@ void qSlicerCarmXrayBeamWidget::updateWidgetFromMRML()
     d->Label_DrrSAD->setText("");
     d->Label_DrrSID->setText("");
   }
+  vtkMRMLPatientPositioningNode::CarmProjectionOrientation proj = d->getCurrentOrientation();
+  vtkTransform* registrationTransform = d->ParameterNode->GetRegistrationTransform(proj);
+  vtkMRMLLinearTransformNode* transformNode = d->PatientPositioningLogic->GetDefaultRegistrationTransformNode();
+  if (transformNode)
+  {
+    transformNode->SetAndObserveTransformToParent(registrationTransform);
+    d->MRMLTransformSliders_RegistrationTranslate->setMRMLTransformNode(transformNode);
+  }
 }
 
 //-----------------------------------------------------------------------------
@@ -306,28 +313,15 @@ void qSlicerCarmXrayBeamWidget::onSetImagesToSliceViewToggled(bool maximize)
     return;
   }
 
-  vtkMRMLPatientPositioningNode::CarmProjectionOrientation projType = vtkMRMLPatientPositioningNode::CarmProjectionOrientation_Last;
+  vtkMRMLPatientPositioningNode::CarmProjectionOrientation projType = d->getCurrentOrientation();
 
-  qSlicerApplication* slicerApplication = qSlicerApplication::application();
-
-  if (d->RadioButton_OrientationVertical->isChecked())
-  {
-    projType = vtkMRMLPatientPositioningNode::ORIENTATION_VERTICAL;
-  }
-  else if (d->RadioButton_OrientationHorizontal->isChecked())
-  {
-    projType = vtkMRMLPatientPositioningNode::ORIENTATION_HORIZONTAL;
-  }
-  else if (d->RadioButton_OrientationAngle->isChecked())
-  {
-    projType = vtkMRMLPatientPositioningNode::ORIENTATION_ANGLE;
-  }
-
-  vtkMRMLPatientPositioningNode::RtImagePair& pair = d->RtImagePairMap[projType];
-
-  vtkMRMLScalarVolumeNode* drrImageNode = pair.first;
+  vtkMRMLScalarVolumeNode* carmDrrImageNode = vtkMRMLScalarVolumeNode::SafeDownCast(
+    d->MRMLNodeComboBox_DrrImageNode->currentNode()); // moved image
+  vtkMRMLScalarVolumeNode* carmXrayImageNode = vtkMRMLScalarVolumeNode::SafeDownCast(
+    d->MRMLNodeComboBox_CarmXrayImageNode->currentNode()); // static image
 
   // Manage "Red" slice for DRR
+  qSlicerApplication* slicerApplication = qSlicerApplication::application();
   qMRMLSliceWidget* sliceWidget = slicerApplication->layoutManager()->sliceWidget("Red");
 
   if (!sliceWidget)
@@ -336,7 +330,7 @@ void qSlicerCarmXrayBeamWidget::onSetImagesToSliceViewToggled(bool maximize)
     return;
   }
 
-  if (!drrImageNode)
+  if (!carmDrrImageNode)
   {
     qCritical() << Q_FUNC_INFO << ": Invalid DRR image node";
     return;
@@ -351,7 +345,7 @@ void qSlicerCarmXrayBeamWidget::onSetImagesToSliceViewToggled(bool maximize)
   if (maximize && layoutNode)
   {
     vtkMRMLSliceLogic* sliceLogic = sliceWidget->sliceLogic();
-    sliceLogic->GetSliceCompositeNode()->SetBackgroundVolumeID(drrImageNode->GetID());
+    sliceLogic->GetSliceCompositeNode()->SetBackgroundVolumeID(carmDrrImageNode->GetID());
     sliceLogic->RotateSliceToLowestVolumeAxes(); // Reformat
 
     sliceLogic->FitSliceToAll();
@@ -366,7 +360,7 @@ void qSlicerCarmXrayBeamWidget::onSetImagesToSliceViewToggled(bool maximize)
     layoutNode->RemoveMaximizedViewNode(sliceNode);
   }
 
-  emit registrationRtImagePairChanged(projType, nullptr, nullptr);
+  emit registrationRtImagePairChanged(projType, carmXrayImageNode, carmDrrImageNode);
 }
 
 //-----------------------------------------------------------------------------
@@ -380,13 +374,16 @@ void qSlicerCarmXrayBeamWidget::onDrrImageNodeChanged(vtkMRMLNode* drrNode)
     return;
   }
   vtkMRMLPatientPositioningNode::CarmProjectionOrientation proj = d->getCurrentOrientation();
-
-  vtkMRMLPatientPositioningNode::RtImagePair& pair = d->RtImagePairMap[proj];
-  pair.first = vtkMRMLScalarVolumeNode::SafeDownCast(drrNode);
+  vtkMRMLScalarVolumeNode* drrImageNode = vtkMRMLScalarVolumeNode::SafeDownCast(drrNode);
+  if (drrImageNode)
+  {
+    qDebug() << Q_FUNC_INFO << "C-arm x-ray image is valid: " << drrImageNode->GetName();
+    d->ParameterNode->SetRegistrationImages(proj, nullptr, drrImageNode);
+  }
 }
 
 //-----------------------------------------------------------------------------
-void qSlicerCarmXrayBeamWidget::onCarmXrayImageNodeChanged(vtkMRMLNode* xrayImageNode)
+void qSlicerCarmXrayBeamWidget::onCarmXrayImageNodeChanged(vtkMRMLNode* xrayNode)
 {
   Q_D(qSlicerCarmXrayBeamWidget);
   if (!d->ParameterNode)
@@ -395,9 +392,12 @@ void qSlicerCarmXrayBeamWidget::onCarmXrayImageNodeChanged(vtkMRMLNode* xrayImag
     return;
   }
   vtkMRMLPatientPositioningNode::CarmProjectionOrientation proj = d->getCurrentOrientation();
-
-  vtkMRMLPatientPositioningNode::RtImagePair& pair = d->RtImagePairMap[proj];
-  pair.second = vtkMRMLScalarVolumeNode::SafeDownCast(xrayImageNode);
+  vtkMRMLScalarVolumeNode* xrayImageNode = vtkMRMLScalarVolumeNode::SafeDownCast(xrayNode);
+  if (xrayImageNode)
+  {
+    qDebug() << Q_FUNC_INFO << "C-arm x-ray image is valid: " << xrayImageNode->GetName();
+    d->ParameterNode->SetRegistrationImages(proj, xrayImageNode, nullptr);
+  }
 }
 
 //-----------------------------------------------------------------------------
@@ -418,6 +418,30 @@ void qSlicerCarmXrayBeamWidget::onTransformCarmRawImageClicked()
   d->ParameterNode->GetDrrComputationNode()->SetAndObserveRtImageVolumeNode(imageNode);
   if (d->PatientPositioningLogic->ApplyCarmXrayDetectorTransformToXrayImage(d->ParameterNode, imageNode))
   {
-    ;
+    d->MRMLNodeComboBox_CarmXrayImageNode->setCurrentNode(imageNode);
   }
+}
+
+//-----------------------------------------------------------------------------
+void qSlicerCarmXrayBeamWidget::onMoveUpClicked()
+{
+  Q_D(qSlicerCarmXrayBeamWidget);
+}
+
+//-----------------------------------------------------------------------------
+void qSlicerCarmXrayBeamWidget::onMoveDownClicked()
+{
+  Q_D(qSlicerCarmXrayBeamWidget);
+}
+
+//-----------------------------------------------------------------------------
+void qSlicerCarmXrayBeamWidget::onMoveLeftClicked()
+{
+  Q_D(qSlicerCarmXrayBeamWidget);
+}
+
+//-----------------------------------------------------------------------------
+void qSlicerCarmXrayBeamWidget::onMoveRightClicked()
+{
+  Q_D(qSlicerCarmXrayBeamWidget);
 }

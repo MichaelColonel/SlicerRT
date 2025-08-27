@@ -125,8 +125,11 @@ public:
   /// Create display node similar to DRR image
   bool ApplyCarmXrayDetectorTransformToXrayImage(vtkMRMLPatientPositioningNode* parameterNode,
     vtkMRMLScalarVolumeNode* xrayImageVolume);
+  /// Setup (or update) C-arm x-ray model display node, as a texture using PlanarImageLogic
   bool SetupXrayImageGeometry(vtkMRMLPatientPositioningNode* parameterNode,
     vtkMRMLScalarVolumeNode* xrayImageVolume);
+  /// Get default registration transform node (hidden from SH and editor)
+  vtkMRMLLinearTransformNode* GetDefaultRegistrationTransformNode();
 
 public:
   // Get treatment machine properties from descriptor file

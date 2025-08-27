@@ -84,6 +84,8 @@ const char* vtkSlicerPatientPositioningLogic::TABLETOP_MARKUPS_FIDUCIAL_NODE_NAM
 namespace
 {
 
+const char* RegistrationTransformNodeName = "PatientPositioningRegTransform";
+
 rapidjson::Value JSON_EMPTY_VALUE;
 
 const double TableTopUpLeftFixedReference[3] = { -264.5, 1821.6, 210. }; // table top point A, LPS coordinate system
@@ -1476,6 +1478,11 @@ void vtkSlicerPatientPositioningLogic::ShowModelsNodes(vtkMRMLPatientPositioning
   for (auto modelName : modelsNames)
   {
     const char* treatmentMachineType = parameterNode->GetTreatmentMachineType();
+    if (!treatmentMachineType)
+    {
+      vtkErrorMacro("ShowModelsNodes: Invalid treatment machine type");
+      continue;
+    }
     std::string fullName = std::string(treatmentMachineType) + std::string("_") + modelName;
     // model
     vtkMRMLModelNode* modelNode = vtkMRMLModelNode::SafeDownCast(
@@ -1487,6 +1494,31 @@ void vtkSlicerPatientPositioningLogic::ShowModelsNodes(vtkMRMLPatientPositioning
     }
     modelNode->GetDisplayNode()->SetVisibility(show);
   }
+}
+
+//---------------------------------------------------------------------------
+vtkMRMLLinearTransformNode* vtkSlicerPatientPositioningLogic::GetDefaultRegistrationTransformNode()
+{
+  vtkMRMLScene* scene = this->GetMRMLScene(); 
+  if (!scene)
+  {
+    vtkErrorMacro("GetDefaultRegistrationTransformNode: Invalid MRML scene");
+    return nullptr;
+  }
+
+  vtkMRMLLinearTransformNode* transformNode = vtkMRMLLinearTransformNode::SafeDownCast(
+    scene->GetFirstNodeByName(RegistrationTransformNodeName));
+
+  if (!transformNode)
+  {
+    // Create transform node for registration
+    vtkNew<vtkMRMLLinearTransformNode> newTransformNode;
+    newTransformNode->SetName(RegistrationTransformNodeName);
+    newTransformNode->SetHideFromEditors(1);
+    scene->AddNode(newTransformNode);
+    return newTransformNode.GetPointer();
+  }
+  return transformNode;
 }
 
 //---------------------------------------------------------------------------

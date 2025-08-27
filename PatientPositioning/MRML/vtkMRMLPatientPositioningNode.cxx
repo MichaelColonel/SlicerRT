@@ -63,6 +63,13 @@ vtkMRMLPatientPositioningNode::vtkMRMLPatientPositioningNode()
   TreatmentMachineDescriptorFilePath(nullptr)
   , TreatmentMachineType(nullptr)
 {
+  vtkNew< vtkTransform > horiz, vert, angle;
+  horiz->Identity();
+  vert->Identity();
+  angle->Identity();
+  this->OrientationTransformMatrixMap[ORIENTATION_HORIZONTAL] = horiz;
+  this->OrientationTransformMatrixMap[ORIENTATION_VERTICAL] = vert;
+  this->OrientationTransformMatrixMap[ORIENTATION_ANGLE] = angle;
   // Observe RTBeam node events (like change of transform or geometry)
 ///  vtkNew<vtkIntArray> nodeEvents;
 ///  nodeEvents->InsertNextValue(vtkCommand::ModifiedEvent);
@@ -367,18 +374,44 @@ void vtkMRMLPatientPositioningNode::SetRegistrationTransform(CarmProjectionOrien
 }
 
 //----------------------------------------------------------------------------
-bool vtkMRMLPatientPositioningNode::GetRegistrationImages(CarmProjectionOrientation proj,
+void vtkMRMLPatientPositioningNode::GetRegistrationImages(CarmProjectionOrientation proj,
   vtkMRMLScalarVolumeNode* staticImage, vtkMRMLScalarVolumeNode* movedImage)
 {
   auto pair = this->OrientationImagesMap[proj];
   staticImage = pair.first;
   movedImage = pair.second;
-  return false;
+}
+
+//----------------------------------------------------------------------------
+vtkMRMLScalarVolumeNode* vtkMRMLPatientPositioningNode::GetRegistrationStaticImage(CarmProjectionOrientation proj)
+{
+  auto pair = this->OrientationImagesMap[proj];
+  return pair.first;
+}
+
+//----------------------------------------------------------------------------
+vtkMRMLScalarVolumeNode* vtkMRMLPatientPositioningNode::GetRegistrationMovedImage(CarmProjectionOrientation proj)
+{
+  auto pair = this->OrientationImagesMap[proj];
+  return pair.second;
 }
 
 //----------------------------------------------------------------------------
 void vtkMRMLPatientPositioningNode::SetRegistrationImages(CarmProjectionOrientation proj,
-  vtkMRMLScalarVolumeNode* staticImage, vtkMRMLScalarVolumeNode* moveImage)
+  vtkMRMLScalarVolumeNode* staticImage, vtkMRMLScalarVolumeNode* movedImage)
 {
-  this->OrientationImagesMap[proj] = { staticImage, moveImage };
+  auto& pair = this->OrientationImagesMap[proj];
+  if (staticImage && movedImage)
+  {
+    pair.first = staticImage;
+    pair.second = movedImage;
+  }
+  else if (staticImage && !movedImage)
+  {
+    pair.first = staticImage;
+  }
+  else if (!staticImage && movedImage)
+  {
+    pair.second = movedImage;
+  }
 }

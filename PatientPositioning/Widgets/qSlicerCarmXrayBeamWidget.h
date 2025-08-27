@@ -67,6 +67,10 @@ public slots:
   void onDrrImageNodeChanged(vtkMRMLNode* drrNode);
   void onCarmXrayImageNodeChanged(vtkMRMLNode* xrayImageNode);
   void onTransformCarmRawImageClicked();
+  void onMoveUpClicked();
+  void onMoveDownClicked();
+  void onMoveLeftClicked();
+  void onMoveRightClicked();
 
 signals:
   void registrationRtImagePairChanged(vtkMRMLPatientPositioningNode::CarmProjectionOrientation,

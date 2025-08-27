@@ -23,7 +23,7 @@
 // MRML includes
 #include <vtkMRML.h>
 #include <vtkMRMLNode.h>
-#include <vtkSmartPointer.h>
+#include <vtkWeakPointer.h>
 
 class vtkMRMLScalarVolumeNode;
 class vtkMRMLMarkupsLineNode;
@@ -47,10 +47,10 @@ public:
     ORIENTATION_ANGLE,
     CarmProjectionOrientation_Last
   };
-  typedef std::pair< vtkSmartPointer<vtkMRMLScalarVolumeNode>, vtkSmartPointer<vtkMRMLScalarVolumeNode> > RtImagePair;
+  typedef std::pair< vtkWeakPointer<vtkMRMLScalarVolumeNode>, vtkWeakPointer<vtkMRMLScalarVolumeNode> > RtImagePair;
   
   typedef std::map< CarmProjectionOrientation, RtImagePair > OrientationRtImagePairMap;
-  typedef std::map< CarmProjectionOrientation, vtkSmartPointer< vtkTransform > > OrientationTransformMap;
+  typedef std::map< CarmProjectionOrientation, vtkWeakPointer< vtkTransform > > OrientationTransformMap;
 
   static vtkMRMLPatientPositioningNode *New();
   vtkTypeMacro(vtkMRMLPatientPositioningNode,vtkMRMLNode);
@@ -136,10 +136,12 @@ public:
   vtkTransform* GetRegistrationTransform(CarmProjectionOrientation proj);
   void SetRegistrationTransform(CarmProjectionOrientation proj,
     vtkTransform*);
-  bool GetRegistrationImages(CarmProjectionOrientation proj,
-    vtkMRMLScalarVolumeNode* staticImage, vtkMRMLScalarVolumeNode* moveImage);
+  void GetRegistrationImages(CarmProjectionOrientation proj,
+    vtkMRMLScalarVolumeNode* staticImage, vtkMRMLScalarVolumeNode* movedImage);
+  vtkMRMLScalarVolumeNode* GetRegistrationStaticImage(CarmProjectionOrientation proj);
+  vtkMRMLScalarVolumeNode* GetRegistrationMovedImage(CarmProjectionOrientation proj);
   void SetRegistrationImages(CarmProjectionOrientation proj,
-    vtkMRMLScalarVolumeNode* staticImage, vtkMRMLScalarVolumeNode* moveImage);
+    vtkMRMLScalarVolumeNode* staticImage, vtkMRMLScalarVolumeNode* movedImage);
 
 protected:
   vtkMRMLPatientPositioningNode();
