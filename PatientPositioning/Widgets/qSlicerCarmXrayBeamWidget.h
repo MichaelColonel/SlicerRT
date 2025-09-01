@@ -71,6 +71,8 @@ public slots:
   void onMoveDownClicked();
   void onMoveLeftClicked();
   void onMoveRightClicked();
+  void onTranslateSlidersValuesChanged();
+  void onTranslateSlidersRangeChanged();
 
 signals:
   void registrationRtImagePairChanged(vtkMRMLPatientPositioningNode::CarmProjectionOrientation,

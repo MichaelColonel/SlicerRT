@@ -73,6 +73,10 @@ public:
     qSlicerCarmXrayBeamWidget& object);
   virtual void setupUi(qSlicerCarmXrayBeamWidget*);
   vtkMRMLPatientPositioningNode::CarmProjectionOrientation getCurrentOrientation();
+  bool getTransformSlidersPosition(double pos[3]);
+  vtkMRMLLinearTransformNode* getRegistrationLinearTransformNode();
+  vtkLinearTransform* getRegistrationTransformToParent();
+  void setNewPosition(double pos[3]);
 
   void init();
 
@@ -107,7 +111,80 @@ void qSlicerCarmXrayBeamWidgetPrivate::init()
     q, SLOT(onCarmXrayImageNodeChanged(vtkMRMLNode*)));
   QObject::connect( this->CheckBox_ShowRtImageView, SIGNAL(toggled(bool)), q, SLOT(onSetImagesToSliceViewToggled(bool)));
   
+  QObject::connect( this->MRMLTransformSliders_RegistrationTranslate, SIGNAL(valuesChanged()),
+    q, SLOT(onTranslateSlidersValuesChanged()));
+  QObject::connect( this->MRMLTransformSliders_RegistrationTranslate, SIGNAL(rangeChanged()),
+    q, SLOT(onTranslateSlidersRangeChanged()));
+
   QObject::connect( this->PushButton_TransformCarmRawImage, SIGNAL(clicked()), q, SLOT(onTransformCarmRawImageClicked()));
+  QObject::connect( this->PushButton_Up, SIGNAL(clicked()), q, SLOT(onMoveUpClicked()));
+  QObject::connect( this->PushButton_Down, SIGNAL(clicked()), q, SLOT(onMoveDownClicked()));
+  QObject::connect( this->PushButton_Left, SIGNAL(clicked()), q, SLOT(onMoveLeftClicked()));
+  QObject::connect( this->PushButton_Right, SIGNAL(clicked()), q, SLOT(onMoveRightClicked()));
+
+  q->onTranslateSlidersRangeChanged();
+}
+
+// --------------------------------------------------------------------------
+bool qSlicerCarmXrayBeamWidgetPrivate::getTransformSlidersPosition(double pos[3])
+{
+  Q_Q(qSlicerCarmXrayBeamWidget);
+  vtkMRMLLinearTransformNode* transNode = vtkMRMLLinearTransformNode::SafeDownCast(
+    this->MRMLTransformSliders_RegistrationTranslate->mrmlTransformNode());
+  if (!transNode)
+  {
+    return false;
+  }
+  vtkNew< vtkMatrix4x4 > mat;
+  transNode->GetMatrixTransformToParent(mat);
+  pos[0] = mat->GetElement(0, 3);
+  pos[1] = mat->GetElement(1, 3);
+  pos[2] = mat->GetElement(2, 3);
+  return true;
+}
+
+// --------------------------------------------------------------------------
+vtkMRMLLinearTransformNode* qSlicerCarmXrayBeamWidgetPrivate::getRegistrationLinearTransformNode()
+{
+  Q_Q(qSlicerCarmXrayBeamWidget);
+  vtkMRMLLinearTransformNode* transNode = vtkMRMLLinearTransformNode::SafeDownCast(
+    this->MRMLTransformSliders_RegistrationTranslate->mrmlTransformNode());
+  if (!transNode)
+  {
+    return nullptr;
+  }
+  return transNode;
+}
+
+// --------------------------------------------------------------------------
+vtkLinearTransform* qSlicerCarmXrayBeamWidgetPrivate::getRegistrationTransformToParent()
+{
+  Q_Q(qSlicerCarmXrayBeamWidget);
+  vtkMRMLLinearTransformNode* transNode = this->getRegistrationLinearTransformNode();
+  if (!transNode)
+  {
+    return nullptr;
+  }
+  return vtkLinearTransform::SafeDownCast(transNode->GetTransformToParent());
+}
+
+// --------------------------------------------------------------------------
+void qSlicerCarmXrayBeamWidgetPrivate::setNewPosition(double pos[3])
+{
+  Q_Q(qSlicerCarmXrayBeamWidget);
+  vtkMRMLLinearTransformNode* transNode = vtkMRMLLinearTransformNode::SafeDownCast(
+    this->MRMLTransformSliders_RegistrationTranslate->mrmlTransformNode());
+  if (!transNode)
+  {
+    return;
+  }
+  vtkNew< vtkMatrix4x4 > mat;
+  transNode->GetMatrixTransformToParent(mat);
+  mat->SetElement(0, 3, pos[0]);
+  mat->SetElement(1, 3, pos[1]);
+  mat->SetElement(2, 3, pos[2]);
+  transNode->SetMatrixTransformToParent(mat);
+  this->MRMLCoordinatesWidget_TranslatePosition->setCoordinates(pos);
 }
 
 // --------------------------------------------------------------------------
@@ -299,6 +376,7 @@ void qSlicerCarmXrayBeamWidget::updateWidgetFromMRML()
   {
     transformNode->SetAndObserveTransformToParent(registrationTransform);
     d->MRMLTransformSliders_RegistrationTranslate->setMRMLTransformNode(transformNode);
+    d->MRMLMatrixWidget_TransformMatrix->setMRMLTransformNode(transformNode);
   }
 }
 
@@ -426,22 +504,68 @@ void qSlicerCarmXrayBeamWidget::onTransformCarmRawImageClicked()
 void qSlicerCarmXrayBeamWidget::onMoveUpClicked()
 {
   Q_D(qSlicerCarmXrayBeamWidget);
+  double pos[3] = {};
+  if (d->getTransformSlidersPosition(pos))
+  {
+    pos[1] += 0.05;
+    d->setNewPosition(pos);
+  }
 }
 
 //-----------------------------------------------------------------------------
 void qSlicerCarmXrayBeamWidget::onMoveDownClicked()
 {
   Q_D(qSlicerCarmXrayBeamWidget);
+  double pos[3] = {};
+  if (d->getTransformSlidersPosition(pos))
+  {
+    pos[1] -= 0.05;
+    d->setNewPosition(pos);
+  }
 }
 
 //-----------------------------------------------------------------------------
 void qSlicerCarmXrayBeamWidget::onMoveLeftClicked()
 {
   Q_D(qSlicerCarmXrayBeamWidget);
+  double pos[3] = {};
+  if (d->getTransformSlidersPosition(pos))
+  {
+    pos[0] -= 0.05;
+    d->setNewPosition(pos);
+  }
 }
 
 //-----------------------------------------------------------------------------
 void qSlicerCarmXrayBeamWidget::onMoveRightClicked()
 {
   Q_D(qSlicerCarmXrayBeamWidget);
+  double pos[3] = {};
+  if (d->getTransformSlidersPosition(pos))
+  {
+    pos[0] += 0.05;
+    d->setNewPosition(pos);
+  }
+}
+
+//-----------------------------------------------------------------------------
+void qSlicerCarmXrayBeamWidget::onTranslateSlidersValuesChanged()
+{
+  Q_D(qSlicerCarmXrayBeamWidget);
+  double pos[3] = {};
+  if (d->getTransformSlidersPosition(pos))
+  {
+    d->MRMLCoordinatesWidget_TranslatePosition->setCoordinates(pos);
+  }
+}
+
+//-----------------------------------------------------------------------------
+void qSlicerCarmXrayBeamWidget::onTranslateSlidersRangeChanged()
+{
+  Q_D(qSlicerCarmXrayBeamWidget);
+  double min = d->MRMLCoordinatesWidget_TranslatePosition->minimum();
+  double max = d->MRMLCoordinatesWidget_TranslatePosition->maximum();
+  qDebug() << Q_FUNC_INFO << "Mixn: " << min << ", max: " << max;
+  d->MRMLMatrixWidget_TransformMatrix->setRange(min, max);
+  d->MRMLCoordinatesWidget_TranslatePosition->setRange(min, max);
 }

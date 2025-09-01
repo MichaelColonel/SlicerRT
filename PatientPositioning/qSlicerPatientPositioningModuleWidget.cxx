@@ -639,6 +639,7 @@ void qSlicerPatientPositioningModuleWidget::onLoadTreatmentMachineButtonClicked(
       }
     }
   }
+  QApplication::setOverrideCursor(Qt::WaitCursor);
   // Load and setup models
   std::vector< SysCoord > loadedParts;
   vtkMRMLChannel26GeometryNode* channel26GeometryNode = d->ParameterNode->GetChannel26GeometryNode();
@@ -755,6 +756,7 @@ void qSlicerPatientPositioningModuleWidget::onLoadTreatmentMachineButtonClicked(
   //viewNode->SetOrientationMarkerHumanModelNodeID(this->mrmlScene()->GetFirstNodeByName("EBRTOrientationMarkerModel")->GetID());
 */
   d->ParameterNode->Modified();
+  QApplication::restoreOverrideCursor();
 }
 
 //-----------------------------------------------------------------------------
