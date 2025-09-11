@@ -470,6 +470,15 @@ void qSlicerCarmXrayBeamWidget::onCarmXrayImageNodeChanged(vtkMRMLNode* xrayNode
     return;
   }
   vtkMRMLPatientPositioningNode::CarmProjectionOrientation proj = d->getCurrentOrientation();
+
+  vtkTransform* regTransform = d->ParameterNode->GetRegistrationTransform(proj);
+  double regOffset[3] = {};
+  if (regTransform)
+  {
+    regTransform->GetPosition(regOffset);
+    qDebug() << Q_FUNC_INFO << "SetupGeometry: Reg offset: " << regOffset[0] << ' ' << regOffset[1] << ' ' << regOffset[2];
+  }
+
   vtkMRMLScalarVolumeNode* xrayImageNode = vtkMRMLScalarVolumeNode::SafeDownCast(xrayNode);
   if (xrayImageNode)
   {
@@ -565,7 +574,7 @@ void qSlicerCarmXrayBeamWidget::onTranslateSlidersRangeChanged()
   Q_D(qSlicerCarmXrayBeamWidget);
   double min = d->MRMLCoordinatesWidget_TranslatePosition->minimum();
   double max = d->MRMLCoordinatesWidget_TranslatePosition->maximum();
-  qDebug() << Q_FUNC_INFO << "Mixn: " << min << ", max: " << max;
+  qDebug() << Q_FUNC_INFO << "Min: " << min << ", max: " << max;
   d->MRMLMatrixWidget_TransformMatrix->setRange(min, max);
   d->MRMLCoordinatesWidget_TranslatePosition->setRange(min, max);
 }

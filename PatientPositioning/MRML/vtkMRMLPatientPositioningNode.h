@@ -50,7 +50,7 @@ public:
   typedef std::pair< vtkWeakPointer<vtkMRMLScalarVolumeNode>, vtkWeakPointer<vtkMRMLScalarVolumeNode> > RtImagePair;
   
   typedef std::map< CarmProjectionOrientation, RtImagePair > OrientationRtImagePairMap;
-  typedef std::map< CarmProjectionOrientation, vtkWeakPointer< vtkTransform > > OrientationTransformMap;
+  typedef std::map< CarmProjectionOrientation, vtkSmartPointer< vtkTransform > > OrientationTransformMap;
 
   static vtkMRMLPatientPositioningNode *New();
   vtkTypeMacro(vtkMRMLPatientPositioningNode,vtkMRMLNode);

@@ -84,6 +84,10 @@ vtkMRMLPatientPositioningNode::~vtkMRMLPatientPositioningNode()
 {
   this->SetTreatmentMachineDescriptorFilePath(nullptr);
   this->SetTreatmentMachineType(nullptr);
+
+  this->OrientationTransformMatrixMap[ORIENTATION_HORIZONTAL] = nullptr;
+  this->OrientationTransformMatrixMap[ORIENTATION_VERTICAL] = nullptr;
+  this->OrientationTransformMatrixMap[ORIENTATION_ANGLE] = nullptr;
 }
 
 //----------------------------------------------------------------------------

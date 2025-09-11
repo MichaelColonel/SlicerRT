@@ -1603,8 +1603,9 @@ bool vtkSlicerPatientPositioningLogic::SetupXrayImageGeometry(vtkMRMLPatientPosi
   if (modelNode)
   {
     vtkWarningMacro("SetupXrayImageGeometry: C-arm x-ray image '" << xrayImageVolume->GetName() << "' belonging to beam '" << beamNode->GetName() << "' seems to have been set up already.");
-    drrNode->SetNodeReferenceID(vtkMRMLPlanarImageNode::PLANARIMAGE_DISPLAYED_MODEL_REFERENCE_ROLE.c_str(), nullptr);
-    this->GetMRMLScene()->RemoveNode(modelNode);
+//    drrNode->SetNodeReferenceID(vtkMRMLPlanarImageNode::PLANARIMAGE_DISPLAYED_MODEL_REFERENCE_ROLE.c_str(), nullptr);
+//    this->GetMRMLScene()->RemoveNode(modelNode);
+    return false;
   }
 
   vtkTransform* externalBeamTransform = nullptr;
@@ -1640,7 +1641,9 @@ bool vtkSlicerPatientPositioningLogic::SetupXrayImageGeometry(vtkMRMLPatientPosi
   if (regTransform)
   {
     regTransform->GetPosition(regOffset);
+    vtkWarningMacro("SetupGeometry: Reg offset: " << regOffset[0] << ' ' << regOffset[1] << ' ' << regOffset[2]);
   }
+
   // Assemble transform from isocenter IEC to RT image RAS
   vtkNew<vtkTransform> fixedToIsocenterTransform;
   fixedToIsocenterTransform->Identity();
@@ -1678,9 +1681,14 @@ bool vtkSlicerPatientPositioningLogic::SetupXrayImageGeometry(vtkMRMLPatientPosi
   iecToLpsTransform->RotateX(90.0);
   iecToLpsTransform->RotateZ(-90.0);
 
+  vtkNew<vtkTransform> dicomToLpsTransform;
+  dicomToLpsTransform->Identity();
+  dicomToLpsTransform->RotateZ(180.0);
+
   // Get RT image IJK to RAS matrix (containing the spacing and the LPS-RAS conversion)
   vtkNew<vtkMatrix4x4> rtImageIjkToRtImageRasTransformMatrix;
-  xrayImageVolume->GetIJKToRASMatrix(rtImageIjkToRtImageRasTransformMatrix);
+//  xrayImageVolume->GetIJKToRASMatrix(rtImageIjkToRtImageRasTransformMatrix);
+  dicomToLpsTransform->GetMatrix(rtImageIjkToRtImageRasTransformMatrix);
 
   // Concatenate the transform components
   vtkNew<vtkTransform> isocenterToRtImageRas;
