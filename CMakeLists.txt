@@ -115,8 +115,7 @@ if (SLICERRT_ENABLE_EXPERIMENTAL_MODULES)
   add_subdirectory(PlmVectorFieldAnalysis)
 # Patient Positioning
   add_subdirectory(PatientPositioning)
-#  add_subdirectory(FiducialTransform)
-#  add_subdirectory(TestMe2)
+#  add_subdirectory(MlcControl)
 
 endif()
 
