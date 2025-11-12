@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>482</width>
-    <height>586</height>
+    <width>527</width>
+    <height>635</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -42,8 +42,8 @@
       </widget>
      </item>
      <item>
-      <widget class="qMRMLNodeComboBox" name="MRMLNodeComboBox_RtPlan" native="true">
-       <property name="nodeTypes" stdset="0">
+      <widget class="qMRMLNodeComboBox" name="MRMLNodeComboBox_RtPlan">
+       <property name="nodeTypes">
         <stringlist>
          <string>vtkMRMLRTPlanNode</string>
         </stringlist>
@@ -63,8 +63,8 @@
     </layout>
    </item>
    <item>
-    <widget class="ctkCollapsibleButton" name="CollapsibleButton_PlanParameters" native="true">
-     <property name="text" stdset="0">
+    <widget class="ctkCollapsibleButton" name="CollapsibleButton_PlanParameters">
+     <property name="text">
       <string>Plan parameters</string>
      </property>
      <layout class="QGridLayout" name="gridLayout_3">
@@ -106,7 +106,7 @@
       <item row="6" column="1">
        <layout class="QHBoxLayout" name="horizontalLayout_3">
         <item>
-         <widget class="qMRMLCoordinatesWidget" name="MRMLCoordinatesWidget_IsocenterCoordinates" native="true">
+         <widget class="qMRMLCoordinatesWidget" name="MRMLCoordinatesWidget_IsocenterCoordinates">
           <property name="enabled">
            <bool>true</bool>
           </property>
@@ -129,55 +129,55 @@
        </layout>
       </item>
       <item row="1" column="1">
-       <widget class="qMRMLNodeComboBox" name="MRMLNodeComboBox_ReferenceVolume" native="true">
-        <property name="nodeTypes" stdset="0">
+       <widget class="qMRMLNodeComboBox" name="MRMLNodeComboBox_ReferenceVolume">
+        <property name="nodeTypes">
          <stringlist>
           <string>vtkMRMLScalarVolumeNode</string>
          </stringlist>
         </property>
-        <property name="showChildNodeTypes" stdset="0">
+        <property name="showChildNodeTypes">
          <bool>false</bool>
         </property>
-        <property name="noneEnabled" stdset="0">
+        <property name="noneEnabled">
          <bool>true</bool>
         </property>
-        <property name="addEnabled" stdset="0">
+        <property name="addEnabled">
          <bool>false</bool>
         </property>
-        <property name="removeEnabled" stdset="0">
+        <property name="removeEnabled">
          <bool>false</bool>
         </property>
-        <property name="noneDisplay" stdset="0">
+        <property name="noneDisplay">
          <string>Please select node</string>
         </property>
        </widget>
       </item>
       <item row="3" column="1">
-       <widget class="qMRMLNodeComboBox" name="MRMLNodeComboBox_PlanPOIs" native="true">
-        <property name="nodeTypes" stdset="0">
+       <widget class="qMRMLNodeComboBox" name="MRMLNodeComboBox_PlanPOIs">
+        <property name="nodeTypes">
          <stringlist>
           <string>vtkMRMLMarkupsFiducialNode</string>
          </stringlist>
         </property>
-        <property name="addEnabled" stdset="0">
+        <property name="addEnabled">
          <bool>false</bool>
         </property>
-        <property name="removeEnabled" stdset="0">
+        <property name="removeEnabled">
          <bool>false</bool>
         </property>
        </widget>
       </item>
       <item row="2" column="1">
-       <widget class="qMRMLNodeComboBox" name="MRMLNodeComboBox_PlanSegmentation" native="true">
-        <property name="nodeTypes" stdset="0">
+       <widget class="qMRMLNodeComboBox" name="MRMLNodeComboBox_PlanSegmentation">
+        <property name="nodeTypes">
          <stringlist>
           <string>vtkMRMLSegmentationNode</string>
          </stringlist>
         </property>
-        <property name="noneEnabled" stdset="0">
+        <property name="noneEnabled">
          <bool>true</bool>
         </property>
-        <property name="noneDisplay" stdset="0">
+        <property name="noneDisplay">
          <string>Please select node</string>
         </property>
        </widget>
@@ -267,17 +267,17 @@
           <item>
            <layout class="QVBoxLayout" name="verticalLayout_5">
             <item>
-             <widget class="qMRMLSegmentSelectorWidget" name="MRMLSegmentSelectorWidget_TargetStructure" native="true">
+             <widget class="qMRMLSegmentSelectorWidget" name="MRMLSegmentSelectorWidget_TargetStructure">
               <property name="sizePolicy">
                <sizepolicy hsizetype="MinimumExpanding" vsizetype="Preferred">
                 <horstretch>0</horstretch>
                 <verstretch>0</verstretch>
                </sizepolicy>
               </property>
-              <property name="noneEnabled" stdset="0">
+              <property name="noneEnabled">
                <bool>true</bool>
               </property>
-              <property name="segmentationNodeSelectorVisible" stdset="0">
+              <property name="segmentationNodeSelectorVisible">
                <bool>false</bool>
               </property>
              </widget>
@@ -326,8 +326,8 @@
     </widget>
    </item>
    <item>
-    <widget class="ctkCollapsibleButton" name="CollapsibleButton_Beams" native="true">
-     <property name="text" stdset="0">
+    <widget class="ctkCollapsibleButton" name="CollapsibleButton_Beams">
+     <property name="text">
       <string>Beams</string>
      </property>
      <layout class="QGridLayout" name="gridLayout_2">
@@ -347,7 +347,7 @@
        <number>4</number>
       </property>
       <item row="1" column="0">
-       <widget class="qMRMLBeamsTableView" name="BeamsTableView" native="true">
+       <widget class="qMRMLBeamsTableView" name="BeamsTableView">
         <property name="sizePolicy">
          <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
           <horstretch>0</horstretch>
@@ -411,11 +411,11 @@
     </widget>
    </item>
    <item>
-    <widget class="ctkCollapsibleButton" name="CollapsibleButton_Objectives" native="true">
+    <widget class="ctkCollapsibleButton" name="CollapsibleButton_Objectives">
      <property name="enabled">
       <bool>false</bool>
      </property>
-     <property name="text" stdset="0">
+     <property name="text">
       <string>Objectives</string>
      </property>
      <layout class="QGridLayout" name="gridLayout_5">
@@ -499,8 +499,8 @@
     </widget>
    </item>
    <item>
-    <widget class="ctkCollapsibleButton" name="CollapsibleButton_Output" native="true">
-     <property name="text" stdset="0">
+    <widget class="ctkCollapsibleButton" name="CollapsibleButton_Output">
+     <property name="text">
       <string>Output</string>
      </property>
      <layout class="QGridLayout" name="gridLayout">
@@ -527,22 +527,22 @@
        </widget>
       </item>
       <item row="0" column="1">
-       <widget class="qMRMLNodeComboBox" name="MRMLNodeComboBox_DoseVolume" native="true">
-        <property name="nodeTypes" stdset="0">
+       <widget class="qMRMLNodeComboBox" name="MRMLNodeComboBox_DoseVolume">
+        <property name="nodeTypes">
          <stringlist>
           <string>vtkMRMLScalarVolumeNode</string>
          </stringlist>
         </property>
-        <property name="showChildNodeTypes" stdset="0">
+        <property name="showChildNodeTypes">
          <bool>false</bool>
         </property>
-        <property name="baseName" stdset="0">
+        <property name="baseName">
          <string>TotalDose</string>
         </property>
-        <property name="noneEnabled" stdset="0">
+        <property name="noneEnabled">
          <bool>true</bool>
         </property>
-        <property name="noneDisplay" stdset="0">
+        <property name="noneDisplay">
          <string>Create new output dose volume</string>
         </property>
        </widget>
@@ -555,8 +555,8 @@
        </widget>
       </item>
       <item row="1" column="1">
-       <widget class="qMRMLNodeComboBox" name="MRMLNodeComboBox_DoseROI" native="true">
-        <property name="nodeTypes" stdset="0">
+       <widget class="qMRMLNodeComboBox" name="MRMLNodeComboBox_DoseROI">
+        <property name="nodeTypes">
          <stringlist>
           <string>vtkMRMLMarkupsROINode</string>
          </stringlist>
@@ -564,52 +564,52 @@
        </widget>
       </item>
       <item row="2" column="0">
-      <widget class="QLabel" name="label_DoseGridSpacing">
+       <widget class="QLabel" name="label_DoseGridSpacing">
         <property name="text">
-        <string>Dose grid spacing:</string>
+         <string>Dose grid spacing:</string>
         </property>
-      </widget>
+       </widget>
       </item>
       <item row="2" column="1">
        <layout class="QHBoxLayout" name="horizontalLayout_DoseGrid">
         <item>
-          <widget class="QDoubleSpinBox" name="doubleSpinBox_DoseGridSpacingX">
-          <property name="value">
-            <number>5</number>
-          </property>
+         <widget class="QDoubleSpinBox" name="doubleSpinBox_DoseGridSpacingX">
           <property name="minimum">
-            <number>0.01</number>
+           <double>0.000000000000000</double>
           </property>
           <property name="maximum">
-            <number>100</number>
+           <double>100.000000000000000</double>
           </property>
-          </widget>
+          <property name="value">
+           <double>5.000000000000000</double>
+          </property>
+         </widget>
         </item>
         <item>
-          <widget class="QDoubleSpinBox" name="doubleSpinBox_DoseGridSpacingY">
-          <property name="value">
-            <number>5</number>
-          </property>
+         <widget class="QDoubleSpinBox" name="doubleSpinBox_DoseGridSpacingY">
           <property name="minimum">
-            <number>0.01</number>
+           <double>0.000000000000000</double>
           </property>
           <property name="maximum">
-            <number>100</number>
+           <double>100.000000000000000</double>
           </property>
-          </widget>
+          <property name="value">
+           <double>5.000000000000000</double>
+          </property>
+         </widget>
         </item>
         <item>
-          <widget class="QDoubleSpinBox" name="doubleSpinBox_DoseGridSpacingZ">
-          <property name="value">
-            <number>5</number>
-          </property>
+         <widget class="QDoubleSpinBox" name="doubleSpinBox_DoseGridSpacingZ">
           <property name="minimum">
-            <number>0.01</number>
+           <double>0.000000000000000</double>
           </property>
           <property name="maximum">
-            <number>100</number>
+           <double>100.000000000000000</double>
           </property>
-          </widget>
+          <property name="value">
+           <double>5.000000000000000</double>
+          </property>
+         </widget>
         </item>
         <item>
          <widget class="QPushButton" name="pushButton_UseCTGridForDoseGridSpacing">
@@ -779,6 +779,11 @@
    <extends>qMRMLWidget</extends>
    <header>qMRMLSegmentSelectorWidget.h</header>
    <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>qMRMLObjectivesTableWidget</class>
+   <extends>QWidget</extends>
+   <header>qMRMLObjectivesTableWidget.h</header>
   </customwidget>
  </customwidgets>
  <resources>
