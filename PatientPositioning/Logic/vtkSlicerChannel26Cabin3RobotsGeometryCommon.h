@@ -55,6 +55,8 @@ public:
   static constexpr double TABLE_TOP_WIDTH = 530.;
   // Table top length
   static constexpr double TABLE_TOP_LENGTH = 2165.;
+  // Table top height
+  static constexpr double TABLE_TOP_HEIGHT = 58.;
   // Distance from isocenter to physical floor
   static constexpr double D_ISOCENTER_PHYSCIAL_FLOOR = 2150.;
   // Distance from physical floor to fake floor
@@ -139,13 +141,16 @@ public:
   // C-arm x-ray distance between mounting point and focal spot along Z-axis
   static constexpr double CARM_XRAY_MOUNTING_POINT_SOURCE_OFFSET_Z = 167.;
 
-  // Table top height
-  static constexpr double TABLE_TOP_HEIGHT = 58.;
   // Table flange height
   static constexpr double TABLE_FLANGE_HEIGHT = 258.;
+  // Table top shorter edge to flange center lenght offset
+  static constexpr double TABLE_TOP_FLANGE_LENGTH_OFFSET = 640.;
 
   // Table top model top surface initial center (origin) offset
-  static constexpr std::array< double, 3 > INIT_TABLE_TOP_ORIGIN_OFFSET_RAS{ 0.0, -442.5, TABLE_TOP_HEIGHT };
+  static constexpr std::array< double, 3 > INIT_TABLE_TOP_ORIGIN_OFFSET_RAS{
+   0.0,
+   TABLE_TOP_FLANGE_LENGTH_OFFSET - (TABLE_TOP_LENGTH / 2),
+   TABLE_TOP_HEIGHT };
   // Table flange (TableTop->TableFlange origin) model initial origin offset
   static constexpr std::array< double, 3 > INIT_TABLE_FLANGE_ORIGIN_OFFSET_RAS{
     INIT_TABLE_TOP_ORIGIN_OFFSET_RAS[0],
