@@ -49,13 +49,13 @@ constexpr double BaseFixedHeight = 240.; // mm
 constexpr double BaseRotationHeight = 675. - BaseFixedHeight; // mm
 constexpr double BaseRotationShoulderDiskCenterOffsetX = 350; // mm
 constexpr double BaseRotationShoulderDiskCenterOffsetY = BaseRotationHeight; // mm
-constexpr double TableThickness = 90.; // mm
-constexpr double FlangeLength = 300.; // mm
+constexpr double TableThickness = 58.; // mm
+constexpr double FlangeLength = 258.; // mm
 constexpr double WristLength = 215.; // mm
 constexpr double ElbowLength = 1200.; // mm
 constexpr double ShoulderLength = 1150. - 41.; // mm
 
-constexpr std::array< double, 3 > InitialTableTopCenterOffsetRAS{ 0.5, 821.6, -210.};
+constexpr std::array< double, 3 > InitialTableTopCenterOffsetRAS{ 0., 472.5, 0.};
 constexpr std::array< double, 3 > InitialFlangeOriginOffsetRAS{
   InitialTableTopCenterOffsetRAS[0],
   InitialTableTopCenterOffsetRAS[1], 

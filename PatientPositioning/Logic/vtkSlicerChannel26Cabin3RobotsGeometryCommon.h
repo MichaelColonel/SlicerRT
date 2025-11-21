@@ -140,12 +140,12 @@ public:
   static constexpr double CARM_XRAY_MOUNTING_POINT_SOURCE_OFFSET_Z = 167.;
 
   // Table top height
-  static constexpr double TABLE_TOP_HEIGHT = 91.;
+  static constexpr double TABLE_TOP_HEIGHT = 58.;
   // Table flange height
-  static constexpr double TABLE_FLANGE_HEIGHT = 300.;
+  static constexpr double TABLE_FLANGE_HEIGHT = 258.;
 
   // Table top model top surface initial center (origin) offset
-  static constexpr std::array< double, 3 > INIT_TABLE_TOP_ORIGIN_OFFSET_RAS{ 0.5, 821.6, -210.};
+  static constexpr std::array< double, 3 > INIT_TABLE_TOP_ORIGIN_OFFSET_RAS{ 0.0, -442.5, TABLE_TOP_HEIGHT };
   // Table flange (TableTop->TableFlange origin) model initial origin offset
   static constexpr std::array< double, 3 > INIT_TABLE_FLANGE_ORIGIN_OFFSET_RAS{
     INIT_TABLE_TOP_ORIGIN_OFFSET_RAS[0],
