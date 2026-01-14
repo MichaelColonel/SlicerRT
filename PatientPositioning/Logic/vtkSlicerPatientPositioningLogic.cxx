@@ -88,13 +88,13 @@ const char* RegistrationTransformNodeName = "PatientPositioningRegTransform";
 
 rapidjson::Value JSON_EMPTY_VALUE;
 
-const double TableTopUpLeftFixedReference[3] = { -264.5, 1821.6, 210. }; // table top point A, LPS coordinate system
-const double TableTopUpRightFixedReference[3] = { 265.5, 1821.6, 210. }; // table top point B, LPS coordinate system
-const double TableTopDownRightFixedReference[3] = { 265.5, -178.4, 210. }; // table top point C, LPS coordinate system
-const double TableTopDownLeftFixedReference[3] = { -264.5, -178.4, 210. }; // table top point D, LPS coordinate system
+const double TableTopUpLeftFixedReference[3] = { -265., 1082.5, 0. }; // table top point A, LPS coordinate system
+const double TableTopUpRightFixedReference[3] = { 265., 1082.5, 0. }; // table top point B, LPS coordinate system
+const double TableTopDownRightFixedReference[3] = { 265, -1082.5, 0. }; // table top point C, LPS coordinate system
+const double TableTopDownLeftFixedReference[3] = { -265., -1082.5, 0. }; // table top point D, LPS coordinate system
 
-const double TableTopHole1FixedReference[3] = { -249.5, -133.4, 210. }; // table top hole "1", LPS coordinate system
-const double TableTopMirrorHole1FixedReference[3] = { 250.5, -133.4, 210. }; // table top mirror hole "1", LPS coordinate system
+const double TableTopHole1FixedReference[3] = { -265., -1037., 0. }; // table top hole "1", LPS coordinate system
+const double TableTopMirrorHole1FixedReference[3] = { 265., -1037., 0. }; // table top mirror hole "1", LPS coordinate system
 
 const double TableTopCenterFixedReference[3] = {
   TableTopUpLeftFixedReference[0] + (TableTopUpRightFixedReference[0] - TableTopUpLeftFixedReference[0]) / 2.,
@@ -666,14 +666,16 @@ vtkMRMLMarkupsPlaneNode* vtkSlicerPatientPositioningLogic::CreateTableTopPlaneNo
     double tableTopUpRAS[4] = { };
     double tableTopLeft[4] = { TableTopLeftFixedReference[0], TableTopLeftFixedReference[1], TableTopLeftFixedReference[2], 1. };
     double tableTopLeftRAS[4] = { };
-    patientToRasMatrix->MultiplyPoint( tableTopCenter, tableTopCenterRAS);
-    patientToRasMatrix->MultiplyPoint( tableTopUp, tableTopUpRAS);
-    patientToRasMatrix->MultiplyPoint( tableTopLeft, tableTopLeftRAS);
+    patientToRasMatrix->MultiplyPoint(tableTopCenter, tableTopCenterRAS);
+    patientToRasMatrix->MultiplyPoint(tableTopUp, tableTopUpRAS);
+    patientToRasMatrix->MultiplyPoint(tableTopLeft, tableTopLeftRAS);
 
+    using CoordPos = vtkSlicerChannel26Cabin3RobotsGeometryCommon;
     tableTopPlaneNode->SetOrigin(tableTopCenterRAS);
-    tableTopPlaneNode->SetPlaneBounds( -264.5, 265.5, -1000., 1000.);
-    tableTopPlaneNode->SetSize( 530., 2000.);
-    tableTopPlaneNode->SetNormal( 0., -1., 0.);
+    tableTopPlaneNode->SetPlaneBounds(-0.5 * CoordPos::TABLE_TOP_WIDTH, 0.5 * CoordPos::TABLE_TOP_WIDTH,
+      -0.5 * CoordPos::TABLE_TOP_LENGTH, 0.5 * CoordPos::TABLE_TOP_LENGTH);
+    tableTopPlaneNode->SetSize(CoordPos::TABLE_TOP_WIDTH, CoordPos::TABLE_TOP_LENGTH);
+    tableTopPlaneNode->SetNormal(0., -1., 0.);
     tableTopPlaneNode->SetSizeMode(vtkMRMLMarkupsPlaneNode::SizeModeAuto);
     tableTopPlaneNode->SetPlaneType(vtkMRMLMarkupsPlaneNode::PlaneType3Points);
 
@@ -726,15 +728,16 @@ vtkMRMLMarkupsFiducialNode* vtkSlicerPatientPositioningLogic::CreateTableTopFidu
 
   if (parameterNode)
   {
-    for (int i = 0; i < 27; ++i)
+    using CoordPos = vtkSlicerChannel26Cabin3RobotsGeometryCommon;
+    for (int i = 0; i < CoordPos::TABLE_TOP_NUMBER_OF_MARKERS; ++i)
     {
       // add point to fiducial node (initial position)
       vtkVector3d p( -1. * TableTopHole1FixedReference[0],
         TableTopHole1FixedReference[2],
-        TableTopHole1FixedReference[1] + i * 70.);
+        TableTopHole1FixedReference[1] + i * CoordPos::TABLE_TOP_MARKERS_STEP);
       vtkVector3d pm( -1. * TableTopMirrorHole1FixedReference[0],
         TableTopMirrorHole1FixedReference[2],
-        TableTopMirrorHole1FixedReference[1] + i * 70.);
+        TableTopMirrorHole1FixedReference[1] + i * CoordPos::TABLE_TOP_MARKERS_STEP);
       std::string name;
       if (!(i % 2))
       {
@@ -746,8 +749,8 @@ vtkMRMLMarkupsFiducialNode* vtkSlicerPatientPositioningLogic::CreateTableTopFidu
       }
       
 
-      tableTopFiducialNode->AddControlPoint( p, name.c_str());
-      tableTopFiducialNode->AddControlPoint( pm, name.c_str());
+      tableTopFiducialNode->AddControlPoint(p, name.c_str());
+      tableTopFiducialNode->AddControlPoint(pm, name.c_str());
     }
 
     vtkMRMLTransformNode* transformNode = this->GetChannel26RobotsTransformLogic()->GetTableTopTransform();

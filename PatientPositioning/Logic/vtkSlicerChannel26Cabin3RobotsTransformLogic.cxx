@@ -2196,7 +2196,8 @@ void vtkSlicerChannel26Cabin3RobotsTransformLogic::UpdateCarmXrayBeamToCarmTrans
   // Translate the C-arm X-ray beam mount position to from C-arm origin along X-axis and Y-axis
   using CoordPos = vtkSlicerChannel26Cabin3RobotsGeometryCommon;
   vtkNew<vtkTransform> carmXrayBeamToCarmTranslate;
-  carmXrayBeamToCarmTranslate->Translate(586.5, CoordPos::CARM_XRAY_INNER_SIZE / 2., 0.);
+  carmXrayBeamToCarmTranslate->Translate(CoordPos::CARM_XRAY_ORIGIN_OFFSET_X,
+    CoordPos::CARM_XRAY_ORIGIN_OFFSET_Z, CoordPos::CARM_XRAY_ORIGIN_OFFSET_Y);
 
   using CoordSys = CoordinateSystemIdentifier;
   vtkNew<vtkTransform> patientToCarmTransform;
@@ -2238,7 +2239,8 @@ void vtkSlicerChannel26Cabin3RobotsTransformLogic::UpdateCarmXrayDetectorToCarmT
   // Translate the C-arm X-ray beam mount position to from C-arm origin along X-axis and Y-axis
   using CoordPos = vtkSlicerChannel26Cabin3RobotsGeometryCommon;
   vtkNew<vtkTransform> carmXrayDetectorToCarmTranslate;
-  carmXrayDetectorToCarmTranslate->Translate(586.5, -736., 0.);
+  carmXrayDetectorToCarmTranslate->Translate(CoordPos::CARM_DETECTOR_ORIGIN_OFFSET_Z,
+    -1. * CoordPos::CARM_DETECTOR_ORIGIN_OFFSET_X, -1. * CoordPos::CARM_DETECTOR_ORIGIN_OFFSET_Y);
 
   using CoordSys = CoordinateSystemIdentifier;
   vtkNew<vtkTransform> patientToCarmTransform;

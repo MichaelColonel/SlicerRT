@@ -57,6 +57,11 @@ public:
   static constexpr double TABLE_TOP_LENGTH = 2165.;
   // Table top height
   static constexpr double TABLE_TOP_HEIGHT = 58.;
+  // Table top immobilization system markers step
+  static constexpr double TABLE_TOP_MARKERS_STEP = 140.;
+  // Table top immobilization system number of markers
+  static constexpr int TABLE_TOP_NUMBER_OF_MARKERS = 15;
+
   // Distance from isocenter to physical floor
   static constexpr double D_ISOCENTER_PHYSCIAL_FLOOR = 2150.;
   // Distance from physical floor to fake floor
@@ -117,7 +122,10 @@ public:
   // C-arm x-ray robot wrist size
   static constexpr double CARM_ROBOT_WRIST_SIZE = 240.;
 
-  // C-arm x-ray
+  // C-arm x-ray offset (from C-arm mounting point to X-ray source mounting point)
+  static constexpr double CARM_XRAY_ORIGIN_OFFSET_X = 739.5;
+  static constexpr double CARM_XRAY_ORIGIN_OFFSET_Y = 0.0;
+  static constexpr double CARM_XRAY_ORIGIN_OFFSET_Z = 676.0;
   // C-arm x-ray outer size
   static constexpr double CARM_XRAY_OUTER_SIZE = 1518.;
   // C-arm x-ray inner size
@@ -137,9 +145,14 @@ public:
   // C-arm x-ray source width
   static constexpr double CARM_XRAY_SOURCE_WIDTH = 485.;
   // C-arm x-ray detector width
-  static constexpr double CARM_XRAY_DETECTOR_WIDTH = 537.;
+  static constexpr double CARM_XRAY_DETECTOR_WIDTH = 470.;
   // C-arm x-ray distance between mounting point and focal spot along Z-axis
   static constexpr double CARM_XRAY_MOUNTING_POINT_SOURCE_OFFSET_Z = 167.;
+
+  // C-arm x-ray detector offset (from C-arm mounting point to X-ray detector bottom center)
+  static constexpr double CARM_DETECTOR_ORIGIN_OFFSET_X = 720.01;
+  static constexpr double CARM_DETECTOR_ORIGIN_OFFSET_Y = 0.2;
+  static constexpr double CARM_DETECTOR_ORIGIN_OFFSET_Z = 751.;
 
   // Table flange height
   static constexpr double TABLE_FLANGE_HEIGHT = 258.;
