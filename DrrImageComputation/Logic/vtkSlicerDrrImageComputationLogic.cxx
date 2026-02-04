@@ -1822,11 +1822,11 @@ vtkMRMLLinearTransformNode* vtkSlicerDrrImageComputationLogic::UpdateImageTransf
       beamTransformNode->GetMatrixTransformToWorld(mat);
       linearTransform->SetMatrix(mat);
     }
-    else
-    {
-      vtkErrorMacro("UpdateImageTransformFromBeam: Unable to set transform to beam " << beamNode->GetName());
-      return nullptr;
-    }
+//    else
+//    {
+//      vtkErrorMacro("UpdateImageTransformFromBeam: Unable to set transform to beam " << beamNode->GetName());
+//      return nullptr;
+//    }
 
     transformNode->SetAndObserveTransformToParent(linearTransform);
   }
