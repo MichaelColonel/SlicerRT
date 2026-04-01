@@ -540,12 +540,43 @@ void vtkSlicerPatientPositioningLogic::ProcessMRMLNodesEvents(vtkObject* caller,
     return;
   }
 
+  using CoordSys = vtkSlicerChannel26Cabin3RobotsTransformLogic::CoordinateSystemIdentifier;
+
   if (caller->IsA("vtkMRMLPatientPositioningNode"))
   {
-//    vtkMRMLPatientPositioningNode* parameterNode = vtkMRMLPatientPositioningNode::SafeDownCast(caller);
+    vtkMRMLPatientPositioningNode* parameterNode = vtkMRMLPatientPositioningNode::SafeDownCast(caller);
 
     if (event == vtkCommand::ModifiedEvent)
     {
+/*
+      double pos[3] = {};
+      if (this->UpdateIsocenterTranslate(parameterNode, CoordSys::FixedReference, pos))
+      {
+        vtkErrorMacro("ProcessMRMLNodesEvents: FixedReference translate " << pos[0] << ' ' << pos[1] << ' ' << pos[2]);
+      }
+      if (this->UpdateIsocenterTranslate(parameterNode, CoordSys::TableTop, pos))
+      {
+        vtkErrorMacro("ProcessMRMLNodesEvents: TableTop translate " << pos[0] << ' ' << pos[1] << ' ' << pos[2]);
+      }
+*/
+/*
+      using CoordSys = vtkSlicerChannel26Cabin3RobotsTransformLogic::CoordinateSystemIdentifier;
+      double pos[3] = { 0., 0., 0. };
+      double res[3];
+      if (this->Channel26RobotsLogic->GetTransformForPointBetweenFrames(CoordSys::FixedReference,
+        CoordSys::TableTop, pos, res))
+      {
+        vtkErrorMacro("ProcessMRMLNodesEvents: FixedReference = [0., 0., 0.] " << res[0] << ' ' << res[1] << ' ' << res[2]);
+        vtkMRMLChannel26GeometryNode* geoNode = parameterNode->GetChannel26GeometryNode();
+        if (geoNode)
+        {
+          double patToTableTopTranslation[3] = {};
+          geoNode->GetPatientToTableTopTranslation(patToTableTopTranslation);
+          double* t = patToTableTopTranslation;
+          vtkErrorMacro("ProcessMRMLNodesEvents: PatientToTableTopTranslation " << t[0] << ' ' << t[1] << ' ' << t[2]);
+        }
+      }
+*/
     }
   }
   if (caller->IsA("vtkMRMLChannel26GeometryNode"))
@@ -558,6 +589,7 @@ void vtkSlicerPatientPositioningLogic::ProcessMRMLNodesEvents(vtkObject* caller,
 
       this->UpdateTableTopPlaneNode(channel26Geometry);
       this->UpdateTableTopFiducialNode(channel26Geometry);
+/*
       {
         double pos[3] = { 1220., 0., 0. };
         double res[3];
@@ -586,6 +618,7 @@ void vtkSlicerPatientPositioningLogic::ProcessMRMLNodesEvents(vtkObject* caller,
           vtkErrorMacro("ProcessMRMLNodesEvents: CarmElbowWrist = [1420., 0., 0.] " << res[0] << ' ' << res[1] << ' ' << res[2]);
         }
       }
+*/
     }
   }
 }
@@ -1727,6 +1760,63 @@ bool vtkSlicerPatientPositioningLogic::SetupXrayImageGeometry(vtkMRMLPatientPosi
   displayedModelNode->SetDisplayVisibility(1);
 
   return true;
+}
+
+//---------------------------------------------------------------------------
+bool vtkSlicerPatientPositioningLogic::UpdateIsocenterTranslate(vtkMRMLPatientPositioningNode* parameterNode,
+  vtkSlicerChannel26Cabin3RobotsTransformLogic::CoordinateSystemIdentifier frame,
+  double translate[3])
+{
+  using CoordSys = vtkSlicerChannel26Cabin3RobotsTransformLogic::CoordinateSystemIdentifier;
+
+  vtkNew< vtkTransform > tableTopToFixedReferenceTransform;
+  vtkMRMLChannel26GeometryNode* geoNode = parameterNode->GetChannel26GeometryNode();
+  if (geoNode)
+  {
+    this->Channel26RobotsLogic->UpdateFrameToRasHierarchy(geoNode, CoordSys::TableTop);
+    vtkMRMLRTBeamNode* patBeamNode = parameterNode->GetBeamNode();
+    double isocenter[4] = {};
+    double isocenterInTableTop[4] = {};
+    if (patBeamNode && patBeamNode->GetPlanIsocenterPosition(isocenter))
+    {
+      vtkNew< vtkTransform > rasToTableTopTransform;
+      isocenter[3] = 1.;
+      if (this->Channel26RobotsLogic->GetTransformBetween(CoordSys::RAS, CoordSys::TableTop,
+        rasToTableTopTransform, false))
+      {
+        rasToTableTopTransform->MultiplyPoint(isocenter, isocenterInTableTop);
+      }
+      else
+      {
+        return false;
+      }
+    }
+    if (this->Channel26RobotsLogic->GetTransformBetween(CoordSys::TableTop, CoordSys::FixedReference,
+      tableTopToFixedReferenceTransform, false))
+    {
+      double pos[4] = {};
+      isocenterInTableTop[3] = 1.0; 
+      tableTopToFixedReferenceTransform->MultiplyPoint(isocenterInTableTop, pos);
+//      translate[0] = pos[0];
+//      translate[1] = pos[1];
+//      translate[2] = pos[2];
+//      return true;
+
+      vtkNew< vtkTransform > trans;
+      if (this->Channel26RobotsLogic->GetTransformBetween(CoordSys::FixedReference, frame,
+        trans, false))
+      {
+        pos[3] = 0.;
+        double res[4] = {};
+        trans->MultiplyPoint(pos, res);
+        translate[0] = res[0];
+        translate[1] = res[1];
+        translate[2] = res[2];
+        return true;
+      }
+    }
+  }
+  return false;
 }
 
 //---------------------------------------------------------------------------

@@ -130,6 +130,10 @@ public:
     vtkMRMLScalarVolumeNode* xrayImageVolume);
   /// Get default registration transform node (hidden from SH and editor)
   vtkMRMLLinearTransformNode* GetDefaultRegistrationTransformNode();
+  /// Update patient isocenter to fixed isocenter in frame
+  bool UpdateIsocenterTranslate(vtkMRMLPatientPositioningNode* parameterNode,
+    vtkSlicerChannel26Cabin3RobotsTransformLogic::CoordinateSystemIdentifier frame,
+    double translate[3]);
 
 public:
   // Get treatment machine properties from descriptor file

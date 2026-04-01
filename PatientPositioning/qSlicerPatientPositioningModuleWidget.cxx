@@ -499,6 +499,29 @@ void qSlicerPatientPositioningModuleWidget::updateWidgetFromMRML()
     qCritical() << Q_FUNC_INFO << ": Invalid parameter node";
     return;
   }
+  using CoordSys = vtkSlicerChannel26Cabin3RobotsTransformLogic::CoordinateSystemIdentifier;
+
+  CoordSys frameReference = CoordSys::CoordinateSystemIdentifier_Last;
+  QString frame = d->ComboBox_FrameReference->currentText();
+  if (frame == tr("Fixed reference"))
+  {
+    frameReference = CoordSys::FixedReference;
+  }
+  else if (frame == tr("Table top"))
+  {
+    frameReference = CoordSys::TableTop;
+  }
+  double pos[3] = {};
+  if (frameReference != CoordSys::CoordinateSystemIdentifier_Last)
+  {
+    bool res = d->logic()->UpdateIsocenterTranslate(parameterNode, frameReference, pos);
+    d->CoordinatesWidget_IsocenterTranslation->setEnabled(res);
+  }
+  else
+  {
+    d->CoordinatesWidget_IsocenterTranslation->setEnabled(false);
+  }
+  d->CoordinatesWidget_IsocenterTranslation->setCoordinates(pos);
 }
 
 //-----------------------------------------------------------------------------
@@ -905,7 +928,7 @@ void qSlicerPatientPositioningModuleWidget::onTableRobotA3Changed(double a3)
   double a[6] = {};
   channel26GeometryNode->GetTableRobotAngles(a);
   channel26GeometryNode->DisableModifiedEventOn();
-  a[2] = 90. - a3;
+  a[2] = a3 - 90.;
   channel26GeometryNode->SetTableRobotAngles(a);
   channel26GeometryNode->DisableModifiedEventOff();
 
