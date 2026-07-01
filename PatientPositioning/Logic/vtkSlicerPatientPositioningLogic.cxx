@@ -63,6 +63,10 @@
 // Modules DRR Computation logic
 #include <vtkSlicerDrrImageComputationLogic.h>
 #include <vtkMRMLDrrImageComputationNode.h>
+
+// Modules ImagePositioning MRML
+#include <vtkMRMLScadaOpcUaNode.h>
+
 // PlanarImage logic
 #include <vtkSlicerPlanarImageModuleLogic.h>
 
@@ -542,6 +546,14 @@ void vtkSlicerPatientPositioningLogic::ProcessMRMLNodesEvents(vtkObject* caller,
 
   using CoordSys = vtkSlicerChannel26Cabin3RobotsTransformLogic::CoordinateSystemIdentifier;
 
+  if (caller->IsA("vtkMRMLScadaOpcUaNode"))
+  {
+    vtkMRMLScadaOpcUaNode* parameterNode = vtkMRMLScadaOpcUaNode::SafeDownCast(caller);
+    if (event == vtkCommand::ModifiedEvent)
+    {
+      vtkErrorMacro("ProcessMRMLNodesEvents: SCADA OPC-UA node is modified: " << parameterNode->GetSysTime());
+    }
+  }
   if (caller->IsA("vtkMRMLPatientPositioningNode"))
   {
     vtkMRMLPatientPositioningNode* parameterNode = vtkMRMLPatientPositioningNode::SafeDownCast(caller);
@@ -648,6 +660,12 @@ void vtkSlicerPatientPositioningLogic::OnMRMLSceneNodeAdded(vtkMRMLNode* node)
     vtkObserveMRMLNodeEventsMacro(node, events);
   }
   if (node->IsA("vtkMRMLChannel26GeometryNode"))
+  {
+    vtkNew<vtkIntArray> events;
+    events->InsertNextValue(vtkCommand::ModifiedEvent);
+    vtkObserveMRMLNodeEventsMacro(node, events);
+  }
+  if (node->IsA("vtkMRMLScadaOpcUaNode"))
   {
     vtkNew<vtkIntArray> events;
     events->InsertNextValue(vtkCommand::ModifiedEvent);

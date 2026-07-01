@@ -63,6 +63,7 @@ public:
     TableRobotFlange, // Mounted on TableRobotWrist, performes A6 rotation
     TableFlange, // Mounted on TableRobotFlange under the Table Top center (for Xray receptor)
     TableTop, // Mounted on TableFlange. Translate from TableFlange flange center to Table Top center
+    TableTopPlaneCorrection, // Mounted on TableTop. Transform from TableTop according to external plane correction
     CarmRobotBaseFixed, // Mounted on FixedReference. Translate from CarmRobotBaseFixed center to FixedReference center
     CarmRobotBaseRotation, // Mounted on CarmRobotBaseFixed, performes A1 rotation. Rotation along Z-axis of BaseFixed
     CarmRobotShoulder, // Mounted on CarmRobotBaseRotation, performes A2 rotation. Rotation along Y-axis of BaseRotation
@@ -118,6 +119,8 @@ public:
 
   /// Apply new Patient to TableTop transform (Patient->TableTop)
   void UpdatePatientToTableTopTransform(vtkMRMLChannel26GeometryNode* parameterNode);
+  /// Apply new TableTopPlaneCorrection to TableTop transform (TableTopPlaneCorrection->TableTop)
+  void UpdateTableTopPlaneCorrectionToTableTopTransform(vtkMRMLChannel26GeometryNode* parameterNode);
   /// Apply new TableTop to TableFlange transform (TableTop->TableFlange)
   void UpdateTableTopToTableFlangeTransform(vtkMRMLChannel26GeometryNode* parameterNode);
   /// Apply new TableFlange to TableRobotFlange transform (TableFlange->TableRobotFlange)
@@ -158,6 +161,8 @@ public:
   /// Apply new CarmXrayDetector to Carm transform (CarmXrayDetector->Carm)
   void UpdateCarmXrayDetectorToCarmTransform(vtkMRMLChannel26GeometryNode* parameterNode);
 
+  /// Update (or create if absent) TableTopPlaneCorrection to RAS transform
+  vtkMRMLLinearTransformNode* UpdateTableTopPlaneCorrectionToRasTransform(vtkMRMLChannel26GeometryNode* parameterNode);
   /// Update (or create if absent) TableTop to RAS transform
   vtkMRMLLinearTransformNode* UpdateTableTopToRasTransform(vtkMRMLChannel26GeometryNode* parameterNode);
   /// Update (or create if absent) TableFlange to RAS transform

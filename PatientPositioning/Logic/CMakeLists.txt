@@ -12,6 +12,7 @@ set(${KIT}_INCLUDE_DIRECTORIES
   ${vtkSlicerBeamsModuleLogic_INCLUDE_DIRS}
   ${vtkSlicerDrrImageComputationModuleMRML_INCLUDE_DIRS}
   ${vtkSlicerDrrImageComputationModuleLogic_INCLUDE_DIRS}
+  ${vtkSlicerImagePositioningModuleMRML_INCLUDE_DIRS}
   ${RapidJSON_INCLUDE_DIR}
   )
 
@@ -30,6 +31,7 @@ set(${KIT}_TARGET_LIBRARIES
   vtkSlicerModelsModuleLogic
   vtkSlicerSubjectHierarchyModuleLogic
   vtkSlicerDrrImageComputationModuleMRML
+  vtkSlicerImagePositioningModuleMRML
   vtkSlicerRtCommon
   )
 

@@ -97,7 +97,7 @@ QStringList qSlicerPatientPositioningModule::categories() const
 //-----------------------------------------------------------------------------
 QStringList qSlicerPatientPositioningModule::dependencies() const
 {
-  return QStringList() << "Beams" << "DrrImageComputation" << "PlanarImage";
+  return QStringList() << "Beams" << "DrrImageComputation" << "PlanarImage" << "ImagePositioning";
 }
 
 //-----------------------------------------------------------------------------
