@@ -1,0 +1,380 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>qSlicerImagePositioningFooBarWidget</class>
+ <widget class="QWidget" name="qSlicerImagePositioningFooBarWidget">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>461</width>
+    <height>773</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Foo bar</string>
+  </property>
+  <layout class="QGridLayout" name="gridLayout">
+   <item row="9" column="0">
+    <spacer name="verticalSpacer">
+     <property name="orientation">
+      <enum>Qt::Vertical</enum>
+     </property>
+     <property name="sizeHint" stdset="0">
+      <size>
+       <width>20</width>
+       <height>40</height>
+      </size>
+     </property>
+    </spacer>
+   </item>
+   <item row="6" column="0">
+    <widget class="QCheckBox" name="CheckBox_RobotsReadyForXray2">
+     <property name="text">
+      <string>RobotsReadyForXray2</string>
+     </property>
+    </widget>
+   </item>
+   <item row="7" column="0">
+    <widget class="QCheckBox" name="CheckBox_RobotsReadyForBeam">
+     <property name="text">
+      <string>RobotsReadyForBeam</string>
+     </property>
+    </widget>
+   </item>
+   <item row="0" column="0">
+    <widget class="ctkCollapsibleButton" name="CollapsibleButton_AutomaticMovement">
+     <property name="text">
+      <string>Automatic Movement</string>
+     </property>
+     <property name="collapsed">
+      <bool>true</bool>
+     </property>
+     <layout class="QGridLayout" name="gridLayout_3">
+      <item row="0" column="0">
+       <layout class="QVBoxLayout" name="verticalLayout">
+        <item>
+         <widget class="QPushButton" name="PushButton_AM_R1_LoadToIso">
+          <property name="text">
+           <string>R1_LoadToIso</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QPushButton" name="PushButton_AM_R1_ToNewCoords">
+          <property name="text">
+           <string>R1_ToNewCoords</string>
+          </property>
+          <property name="iconSize">
+           <size>
+            <width>16</width>
+            <height>16</height>
+           </size>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QPushButton" name="PushButton_AM_R1_ToHome">
+          <property name="text">
+           <string>R1_ToHome</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QPushButton" name="PushButton_AM_R1_ToLoad">
+          <property name="text">
+           <string>R1_ToLoad</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QPushButton" name="PushButton_AM_R2_ToIso">
+          <property name="text">
+           <string>R2_ToIso</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QPushButton" name="PushButton_AM_R2_To2ndPl">
+          <property name="text">
+           <string>R2_To2ndPl</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QPushButton" name="PushButton_AM_MakeXRay">
+          <property name="text">
+           <string>MakeXRay</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QPushButton" name="PushButton_AM_R2_ToHome">
+          <property name="text">
+           <string>R2_ToHome</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QPushButton" name="PushButton_AM_R2_Set_New_Z">
+          <property name="text">
+           <string>R2_Set_New_Z</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item row="4" column="0">
+    <widget class="QPushButton" name="PushButton_ResetErrors">
+     <property name="text">
+      <string>ResetErrors</string>
+     </property>
+    </widget>
+   </item>
+   <item row="1" column="0">
+    <widget class="ctkCollapsibleButton" name="CollapsibleButton_ManualMovement">
+     <property name="text">
+      <string>Manual Movement</string>
+     </property>
+     <property name="collapsed">
+      <bool>true</bool>
+     </property>
+     <layout class="QGridLayout" name="gridLayout_2">
+      <item row="0" column="0">
+       <layout class="QVBoxLayout" name="verticalLayout_2">
+        <item>
+         <widget class="QPushButton" name="PushButton_MM_R1_LoadToIso">
+          <property name="text">
+           <string>R1_LoadToIso</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QPushButton" name="PushButton_MM_R1_ToNewCoords">
+          <property name="text">
+           <string>R1_ToNewCoords</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QPushButton" name="PushButton_MM_R1_ToHome">
+          <property name="text">
+           <string>R1_ToHome</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QPushButton" name="PushButton_MM_R1_ToLoad">
+          <property name="text">
+           <string>R1_ToLoad</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QPushButton" name="PushButton_MM_R2_ToIso">
+          <property name="text">
+           <string>R2_ToIso</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QPushButton" name="PushButton_MM_R2_To2ndPl">
+          <property name="text">
+           <string>R2_To2ndPl</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QPushButton" name="PushButton_MM_MakeXRay">
+          <property name="text">
+           <string>MakeXRay</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QPushButton" name="PushButton_MM_R2_ToHome">
+          <property name="text">
+           <string>R2_ToHome</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QPushButton" name="PushButton_MM_R2_Set_New_Z">
+          <property name="text">
+           <string>R2_Set_New_Z</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item row="3" column="0">
+    <widget class="ctkCollapsibleButton" name="CollapsibleButton_KukaControllersMovement">
+     <property name="text">
+      <string>KUKA Controllers Movement</string>
+     </property>
+     <property name="collapsed">
+      <bool>true</bool>
+     </property>
+     <layout class="QGridLayout" name="gridLayout_5">
+      <item row="0" column="0">
+       <layout class="QVBoxLayout" name="verticalLayout_4">
+        <item>
+         <widget class="QPushButton" name="PushButton_KCM_AllowT1">
+          <property name="text">
+           <string>AllowT1</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QPushButton" name="PushButton_KCM_AllowXRay">
+          <property name="text">
+           <string>AllowXRay</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QPushButton" name="PushButton_KCM_MakeXRay">
+          <property name="text">
+           <string>MakeXRay</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QPushButton" name="PushButton_KCM_AllowBeam">
+          <property name="text">
+           <string>AllowBeam</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item row="2" column="0">
+    <widget class="ctkCollapsibleButton" name="CollapsibleButton_ServiceMovement">
+     <property name="text">
+      <string>Service Movement</string>
+     </property>
+     <property name="collapsed">
+      <bool>true</bool>
+     </property>
+     <layout class="QGridLayout" name="gridLayout_4">
+      <item row="0" column="0">
+       <layout class="QVBoxLayout" name="verticalLayout_3">
+        <item>
+         <widget class="QPushButton" name="PushButton_SM_BrakeTestR1">
+          <property name="text">
+           <string>BrakeTestR1</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QPushButton" name="PushButton_SM_MasResTestR1">
+          <property name="text">
+           <string>MasResTestR1</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QPushButton" name="PushButton_SM_HomeR1">
+          <property name="text">
+           <string>HomeR1</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QPushButton" name="PushButton_SM_IsoR1">
+          <property name="text">
+           <string>IsoR1</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QPushButton" name="PushButton_SM_ServicePosR1">
+          <property name="text">
+           <string>ServicePosR1</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QPushButton" name="PushButton_SM_BrakeTestR2">
+          <property name="text">
+           <string>BrakeTestR2</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QPushButton" name="PushButton_SM_MasResTestR2">
+          <property name="text">
+           <string>MasResTestR2</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QPushButton" name="PushButton_SM_HomeR2">
+          <property name="text">
+           <string>HomeR2</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QPushButton" name="PushButton_SM_IsoR2">
+          <property name="text">
+           <string>IsoR2</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QPushButton" name="PushButton_SM_ServicePosR2">
+          <property name="text">
+           <string>ServicePosR2</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QPushButton" name="PushButton_SM_RestartSM">
+          <property name="text">
+           <string>RestartSM</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item row="5" column="0">
+    <widget class="QCheckBox" name="CheckBox_RobotsReadyForXray1">
+     <property name="text">
+      <string>RobotsReadyForXray1</string>
+     </property>
+    </widget>
+   </item>
+   <item row="8" column="0">
+    <widget class="QCheckBox" name="CheckBox_HUMAN_ON_DEKA">
+     <property name="text">
+      <string>HUMAN_ON_DEKA</string>
+     </property>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <customwidgets>
+  <customwidget>
+   <class>ctkCollapsibleButton</class>
+   <extends>QWidget</extends>
+   <header>ctkCollapsibleButton.h</header>
+   <container>1</container>
+  </customwidget>
+ </customwidgets>
+ <resources>
+  <include location="../../../PatientPositioning/Resources/qSlicerPatientPositioningModule.qrc"/>
+ </resources>
+ <connections/>
+</ui>
