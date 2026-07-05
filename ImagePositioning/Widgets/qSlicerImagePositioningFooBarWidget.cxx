@@ -22,6 +22,10 @@
 #include "qSlicerImagePositioningFooBarWidget.h"
 #include "ui_qSlicerImagePositioningFooBarWidget.h"
 
+#include <qSlicerScadaOpcUaLogic.h>
+
+#include <vtkMRMLScadaOpcUaNode.h>
+
 //-----------------------------------------------------------------------------
 class qSlicerImagePositioningFooBarWidgetPrivate
   : public Ui_qSlicerImagePositioningFooBarWidget
@@ -35,6 +39,8 @@ public:
     qSlicerImagePositioningFooBarWidget& object);
   virtual void setupUi(qSlicerImagePositioningFooBarWidget*);
 
+  qSlicerScadaOpcUaLogic* opcUaLogic{ nullptr };
+  vtkWeakPointer< vtkMRMLScadaOpcUaNode > ParameterNode;
 };
 
 // --------------------------------------------------------------------------
@@ -85,4 +91,28 @@ void qSlicerImagePositioningFooBarWidget::onMoveLeftClicked()
 
 void qSlicerImagePositioningFooBarWidget::onMoveRightClicked()
 {
+}
+
+void qSlicerImagePositioningFooBarWidget::setParameterNode(vtkMRMLNode* node)
+{
+  Q_D(qSlicerImagePositioningFooBarWidget);
+
+  vtkMRMLScadaOpcUaNode* parameterNode = vtkMRMLScadaOpcUaNode::SafeDownCast(node);
+  // Each time the node is modified, the UI widgets are updated
+  qvtkReconnect(d->ParameterNode, parameterNode, vtkCommand::ModifiedEvent, 
+    this, SLOT(updateWidgetFromMRML()));
+
+  d->ParameterNode = parameterNode;
+
+  this->updateWidgetFromMRML();
+}
+
+void qSlicerImagePositioningFooBarWidget::setScadaOpcUaLogic(qSlicerScadaOpcUaLogic* logic)
+{
+  Q_D(qSlicerImagePositioningFooBarWidget);
+}
+
+void qSlicerImagePositioningFooBarWidget::updateWidgetFromMRML()
+{
+  Q_D(qSlicerImagePositioningFooBarWidget);
 }

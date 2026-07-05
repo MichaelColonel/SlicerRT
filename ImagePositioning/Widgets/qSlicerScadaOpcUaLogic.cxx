@@ -85,9 +85,9 @@ public:
   const std::string SCADA_TOASU_COORDFROMASU_Y_NODE_ID = SCADA_TOASU_COORDFROMASU_NODE_ID + ".Y";
   const std::string SCADA_TOASU_COORDFROMASU_Z_NODE_ID = SCADA_TOASU_COORDFROMASU_NODE_ID + ".Z";
   const std::string SCADA_TOASU_COORDFROMASU_XRAY_Z_CORRECTION_NODE_ID = SCADA_TOASU_COORDFROMASU_NODE_ID + ".XRAY_Z_correction";
-  const std::string SCADA_TOASU_COORDFROMASU_ANGLEA_R1_CORRECTION_NODE_ID = SCADA_TOASU_COORDFROMASU_NODE_ID + ".AngleA_R1";
-  const std::string SCADA_TOASU_COORDFROMASU_ANGLEB_R1_CORRECTION_NODE_ID = SCADA_TOASU_COORDFROMASU_NODE_ID + ".AngleB_R1";
-  const std::string SCADA_TOASU_COORDFROMASU_ANGLEC_R1_CORRECTION_NODE_ID = SCADA_TOASU_COORDFROMASU_NODE_ID + ".AngleC_R1";
+  const std::string SCADA_TOASU_COORDFROMASU_ANGLEA_R1_NODE_ID = SCADA_TOASU_COORDFROMASU_NODE_ID + ".AngleA_R1";
+  const std::string SCADA_TOASU_COORDFROMASU_ANGLEB_R1_NODE_ID = SCADA_TOASU_COORDFROMASU_NODE_ID + ".AngleB_R1";
+  const std::string SCADA_TOASU_COORDFROMASU_ANGLEC_R1_NODE_ID = SCADA_TOASU_COORDFROMASU_NODE_ID + ".AngleC_R1";
   const std::string SCADA_TOASU_BUTTONS_NODE_ID = SCADA_TOASU_NODE_ID + ".Buttons";
   const std::string SCADA_TOASU_BUTTONS_AM_NODE_ID = SCADA_TOASU_BUTTONS_NODE_ID + ".AM";
 
@@ -264,11 +264,21 @@ public:
   QScopedPointer<QOpcUaNode> OpcUaScadaStatusRtkNode;
   QScopedPointer<QOpcUaNode> OpcUaScadaStatusR1RobotNode;
   QScopedPointer<QOpcUaNode> OpcUaScadaStatusR2CarmNode;
+
+  QScopedPointer<QOpcUaNode> OpcUaScadaCoordAsuXNode;
+  QScopedPointer<QOpcUaNode> OpcUaScadaCoordAsuYNode;
+  QScopedPointer<QOpcUaNode> OpcUaScadaCoordAsuZNode;
+  QScopedPointer<QOpcUaNode> OpcUaScadaCoordAsuXrayZNode;
+  QScopedPointer<QOpcUaNode> OpcUaScadaCoordAsuAngleAR1Node;
+  QScopedPointer<QOpcUaNode> OpcUaScadaCoordAsuAngleBR1Node;
+  QScopedPointer<QOpcUaNode> OpcUaScadaCoordAsuAngleCR1Node;
+
   QScopedPointer<QOpcUaNode> OpcUaPatPosLocalTimeNode;
   QScopedPointer<QOpcUaNode> OpcUaPatPosErrorMessageNode;
   QScopedPointer<QOpcUaNode> OpcUaPatPosEventMessageNode;
 
   bool connectStatusNodes();
+  bool connectCoordFromAsuNodes();
 
   bool ClientConnectedFlag{ false };
 };
@@ -408,6 +418,216 @@ bool qSlicerScadaOpcUaLogicPrivate::connectStatusNodes()
         {
           mrmlNode->SetStatus_R2_C_Duga(statusR2);
           qDebug() << Q_FUNC_INFO << "PatPos module status R2 C-Arm: " << statusR2;
+        }
+      }
+    }
+  );
+  // Subscribe to data changes
+  opcNode->enableMonitoring(QOpcUa::NodeAttribute::Value, QOpcUaMonitoringParameters(100));
+
+  return true;
+}
+
+//-----------------------------------------------------------------------------
+bool qSlicerScadaOpcUaLogicPrivate::connectCoordFromAsuNodes()
+{
+  if (!this->OpcUaClient || !this->ParameterNode)
+  {
+    return false;
+  }
+  vtkMRMLScadaOpcUaNode* mrmlNode = this->ParameterNode.GetPointer();
+  // write values
+  // Coord from ASU coord X in TableTop frame
+  QString nodeIdStr = QString::fromStdString(this->SCADA_TOASU_COORDFROMASU_X_NODE_ID);
+  this->OpcUaScadaCoordAsuXNode.reset(this->OpcUaClient->node(nodeIdStr));
+
+  // Coord from ASU coord Y in TableTop frame
+  nodeIdStr = QString::fromStdString(this->SCADA_TOASU_COORDFROMASU_Y_NODE_ID);
+  this->OpcUaScadaCoordAsuYNode.reset(this->OpcUaClient->node(nodeIdStr));
+
+  // Coord from ASU coord Z in TableTop frame
+  nodeIdStr = QString::fromStdString(this->SCADA_TOASU_COORDFROMASU_Z_NODE_ID);
+  this->OpcUaScadaCoordAsuZNode.reset(this->OpcUaClient->node(nodeIdStr));
+
+  // Coord from ASU coord Z in C-arm frame (Z correction in C-arm frame)
+  nodeIdStr = QString::fromStdString(this->SCADA_TOASU_COORDFROMASU_XRAY_Z_CORRECTION_NODE_ID);
+  this->OpcUaScadaCoordAsuXrayZNode.reset(this->OpcUaClient->node(nodeIdStr));
+
+  // Coord from ASU angleA of TableTop robot
+  nodeIdStr = QString::fromStdString(this->SCADA_TOASU_COORDFROMASU_ANGLEA_R1_NODE_ID);
+  this->OpcUaScadaCoordAsuAngleAR1Node.reset(this->OpcUaClient->node(nodeIdStr));
+
+  // Coord from ASU angleB of TableTop robot
+  nodeIdStr = QString::fromStdString(this->SCADA_TOASU_COORDFROMASU_ANGLEB_R1_NODE_ID);
+  this->OpcUaScadaCoordAsuAngleBR1Node.reset(this->OpcUaClient->node(nodeIdStr));
+
+  // Coord from ASU angleB of TableTop robot
+  nodeIdStr = QString::fromStdString(this->SCADA_TOASU_COORDFROMASU_ANGLEC_R1_NODE_ID);
+  this->OpcUaScadaCoordAsuAngleCR1Node.reset(this->OpcUaClient->node(nodeIdStr));
+
+
+  // Connect signal handlers for subscribed values
+  // Coord from ASU coord X in TableTop frame
+  if (!this->OpcUaScadaCoordAsuXNode)
+  {
+    return false;
+  }
+  QOpcUaNode* opcNode = this->OpcUaScadaCoordAsuXNode.get();
+  QObject::connect(opcNode,
+    &QOpcUaNode::dataChangeOccurred, [mrmlNode](QOpcUa::NodeAttribute attr, QVariant value)
+    {
+      if (attr == QOpcUa::NodeAttribute::Value)
+      {
+        bool ok = false;
+        int32_t posX = value.toInt(&ok);
+        if (ok && mrmlNode)
+        {
+          mrmlNode->SetCoordFromASU_X(posX);
+          qDebug() << Q_FUNC_INFO << "Coord from ASU position X: " << posX;
+        }
+      }
+    }
+  );
+  // Subscribe to data changes
+  opcNode->enableMonitoring(QOpcUa::NodeAttribute::Value, QOpcUaMonitoringParameters(100));
+
+  // Coord from ASU coord Y in TableTop frame
+  if (!this->OpcUaScadaCoordAsuYNode)
+  {
+    return false;
+  }
+  opcNode = this->OpcUaScadaCoordAsuYNode.get();
+  QObject::connect(opcNode,
+    &QOpcUaNode::dataChangeOccurred, [mrmlNode](QOpcUa::NodeAttribute attr, QVariant value)
+    {
+      if (attr == QOpcUa::NodeAttribute::Value)
+      {
+        bool ok = false;
+        int32_t posY = value.toInt(&ok);
+        if (ok && mrmlNode)
+        {
+          mrmlNode->SetCoordFromASU_Y(posY);
+          qDebug() << Q_FUNC_INFO << "Coord from ASU position Y: " << posY;
+        }
+      }
+    }
+  );
+  // Subscribe to data changes
+  opcNode->enableMonitoring(QOpcUa::NodeAttribute::Value, QOpcUaMonitoringParameters(100));
+
+  // Coord from ASU coord Z in TableTop frame
+  if (!this->OpcUaScadaCoordAsuZNode)
+  {
+    return false;
+  }
+  opcNode = this->OpcUaScadaCoordAsuZNode.get();
+  QObject::connect(opcNode,
+    &QOpcUaNode::dataChangeOccurred, [mrmlNode](QOpcUa::NodeAttribute attr, QVariant value)
+    {
+      if (attr == QOpcUa::NodeAttribute::Value)
+      {
+        bool ok = false;
+        int32_t posZ = value.toInt(&ok);
+        if (ok && mrmlNode)
+        {
+          mrmlNode->SetCoordFromASU_Z(posZ);
+          qDebug() << Q_FUNC_INFO << "Coord from ASU position Z: " << posZ;
+        }
+      }
+    }
+  );
+  // Subscribe to data changes
+  opcNode->enableMonitoring(QOpcUa::NodeAttribute::Value, QOpcUaMonitoringParameters(100));
+
+  // Coord from ASU C-arm Z correction
+  if (!this->OpcUaScadaCoordAsuXrayZNode)
+  {
+    return false;
+  }
+  opcNode = this->OpcUaScadaCoordAsuXrayZNode.get();
+  QObject::connect(opcNode,
+    &QOpcUaNode::dataChangeOccurred, [mrmlNode](QOpcUa::NodeAttribute attr, QVariant value)
+    {
+      if (attr == QOpcUa::NodeAttribute::Value)
+      {
+        bool ok = false;
+        int32_t carmZ = value.toInt(&ok);
+        if (ok && mrmlNode)
+        {
+          mrmlNode->SetCoordFromASU_XRAY_Z_correction(carmZ);
+          qDebug() << Q_FUNC_INFO << "Coord from ASU position C-arm Z correction: " << carmZ;
+        }
+      }
+    }
+  );
+  // Subscribe to data changes
+  opcNode->enableMonitoring(QOpcUa::NodeAttribute::Value, QOpcUaMonitoringParameters(100));
+
+  // Coord from ASU TableTop (R1) angle-A
+  if (!this->OpcUaScadaCoordAsuAngleAR1Node)
+  {
+    return false;
+  }
+  opcNode = this->OpcUaScadaCoordAsuAngleAR1Node.get();
+  QObject::connect(opcNode,
+    &QOpcUaNode::dataChangeOccurred, [mrmlNode](QOpcUa::NodeAttribute attr, QVariant value)
+    {
+      if (attr == QOpcUa::NodeAttribute::Value)
+      {
+        bool ok = false;
+        int32_t angleA = value.toInt(&ok);
+        if (ok && mrmlNode)
+        {
+          mrmlNode->SetCoordFromASU_AngleA_R1(angleA);
+          qDebug() << Q_FUNC_INFO << "Coord from ASU TablTop robot (R1) angle-A: " << angleA;
+        }
+      }
+    }
+  );
+  // Subscribe to data changes
+  opcNode->enableMonitoring(QOpcUa::NodeAttribute::Value, QOpcUaMonitoringParameters(100));
+
+  // Coord from ASU TableTop (R1) angle-B
+  if (!this->OpcUaScadaCoordAsuAngleBR1Node)
+  {
+    return false;
+  }
+  opcNode = this->OpcUaScadaCoordAsuAngleBR1Node.get();
+  QObject::connect(opcNode,
+    &QOpcUaNode::dataChangeOccurred, [mrmlNode](QOpcUa::NodeAttribute attr, QVariant value)
+    {
+      if (attr == QOpcUa::NodeAttribute::Value)
+      {
+        bool ok = false;
+        int32_t angleB = value.toInt(&ok);
+        if (ok && mrmlNode)
+        {
+          mrmlNode->SetCoordFromASU_AngleB_R1(angleB);
+          qDebug() << Q_FUNC_INFO << "Coord from ASU TablTop robot (R1) angle-B: " << angleB;
+        }
+      }
+    }
+  );
+  // Subscribe to data changes
+  opcNode->enableMonitoring(QOpcUa::NodeAttribute::Value, QOpcUaMonitoringParameters(100));
+
+  // Coord from ASU TableTop (R1) angle-C
+  if (!this->OpcUaScadaCoordAsuAngleCR1Node)
+  {
+    return false;
+  }
+  opcNode = this->OpcUaScadaCoordAsuAngleCR1Node.get();
+  QObject::connect(opcNode,
+    &QOpcUaNode::dataChangeOccurred, [mrmlNode](QOpcUa::NodeAttribute attr, QVariant value)
+    {
+      if (attr == QOpcUa::NodeAttribute::Value)
+      {
+        bool ok = false;
+        int32_t angleC = value.toInt(&ok);
+        if (ok && mrmlNode)
+        {
+          mrmlNode->SetCoordFromASU_AngleC_R1(angleC);
+          qDebug() << Q_FUNC_INFO << "Coord from ASU TablTop robot (R1) angle-C: " << angleC;
         }
       }
     }
@@ -648,6 +868,13 @@ void qSlicerScadaOpcUaLogic::clientConnected()
   {
     qWarning() << Q_FUNC_INFO << "Can't connect status nodes";
   }
+
+  resStatusModes = d->connectCoordFromAsuNodes();
+  if (!resStatusModes)
+  {
+    qWarning() << Q_FUNC_INFO << "Can't connect coord from ASU nodes";
+  }
+  
   d->ClientConnectedFlag = true;
 
   // emit signal before node connection

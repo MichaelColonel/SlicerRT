@@ -24,19 +24,37 @@
 // Qt includes
 #include <QWidget>
 
+// CTK includes
+#include <ctkPimpl.h>
+#include <ctkVTKObject.h>
+
 // FooBar Widgets includes
 #include "qSlicerImagePositioningModuleWidgetsExport.h"
 
 class qSlicerImagePositioningFooBarWidgetPrivate;
+class qSlicerScadaOpcUaLogic;
+
+class vtkMRMLNode;
 
 class Q_SLICER_MODULE_IMAGEPOSITIONING_WIDGETS_EXPORT qSlicerImagePositioningFooBarWidget
   : public QWidget
 {
   Q_OBJECT
+  QVTK_OBJECT
+    
 public:
   typedef QWidget Superclass;
   qSlicerImagePositioningFooBarWidget(QWidget *parent=0);
   ~qSlicerImagePositioningFooBarWidget() override;
+
+public slots:
+  /// Set PatientPositioning MRML node (Parameter node)
+  void setParameterNode(vtkMRMLNode* node);
+  /// Set PatientPositioning logic
+  void setScadaOpcUaLogic(qSlicerScadaOpcUaLogic* logic);
+  /// Update widget GUI from RT Image parameters node
+  void updateWidgetFromMRML();
+  /// Display table top angles
 
 protected slots:
   void onMoveUpClicked();
