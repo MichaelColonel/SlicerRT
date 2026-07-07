@@ -61,6 +61,7 @@ public:
   bool setPatientPositioningLocalTime(const QDateTime&);
   bool setPatientPositioningErrorMessage(const QString&);
   bool setPatientPositioningEventMessage(const QString&);
+  bool setButtonAmR1LoadToIsoIsPressed(bool);
 
 public slots:
   /// Set ScadaOpcUa MRML node (Parameter node)

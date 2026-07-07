@@ -100,7 +100,7 @@ vtkSlicerChannel26Cabin3RobotsTransformLogic::vtkSlicerChannel26Cabin3RobotsTran
   this->RobotsTransforms.push_back(std::make_pair(CoordSys::CarmXrayDetector, CoordSys::Carm)); // Translate
   this->RobotsTransforms.push_back(std::make_pair(CoordSys::TableFlange, CoordSys::TableRobotFlange)); // Dummy, only fixed translation
   this->RobotsTransforms.push_back(std::make_pair(CoordSys::TableTop, CoordSys::TableFlange)); // Dummy, only fixed translation
-  this->RobotsTransforms.push_back(std::make_pair(CoordSys::TableTop, CoordSys::TableTopPlaneCorrection)); // TableTop plane transform
+  this->RobotsTransforms.push_back(std::make_pair(CoordSys::TableTopPlaneCorrection, CoordSys::TableTop)); // Translate from table top plane to table top center
   this->RobotsTransforms.push_back(std::make_pair(CoordSys::Patient, CoordSys::TableTop)); // Translate from patient to table top center
   this->RobotsTransforms.push_back(std::make_pair(CoordSys::RAS, CoordSys::Patient));
 
@@ -361,6 +361,14 @@ void vtkSlicerChannel26Cabin3RobotsTransformLogic::ResetToInitialPositions()
   patientToTableTopTransform->Identity();
   patientToTableTopTransform->Modified();
 
+  // Table top plane correction
+  vtkMRMLLinearTransformNode* planeCorrToTableTopTransformNode =
+    this->GetTransformNodeBetween(CoordSys::TableTopPlaneCorrection, CoordSys::TableTop);
+  vtkTransform* planeCorrToTableTopTransform =
+    vtkTransform::SafeDownCast(planeCorrToTableTopTransformNode->GetTransformToParent());
+  planeCorrToTableTopTransform->Identity();
+  planeCorrToTableTopTransform->Modified();
+
   vtkMRMLLinearTransformNode* tableTopToTableFlangeTransformNode =
     this->GetTransformNodeBetween(CoordSys::TableTop, CoordSys::TableFlange);
   vtkTransform* tableTopToTableFlangeTransform =
@@ -619,6 +627,12 @@ bool vtkSlicerChannel26Cabin3RobotsTransformLogic::GetTransformBetween(
 vtkMRMLLinearTransformNode* vtkSlicerChannel26Cabin3RobotsTransformLogic::GetTableTopTransform()
 {
   return this->GetFrameToRasTransform(CoordinateSystemIdentifier::TableTop);
+}
+
+//------------------------------------------------------------------------------
+vtkMRMLLinearTransformNode* vtkSlicerChannel26Cabin3RobotsTransformLogic::GetTableTopPlaneCorrectionTransform()
+{
+  return this->GetFrameToRasTransform(CoordinateSystemIdentifier::TableTopPlaneCorrection);
 }
 
 //------------------------------------------------------------------------------
@@ -2473,6 +2487,7 @@ void vtkSlicerChannel26Cabin3RobotsTransformLogic::UpdateFrameToRasHierarchy(vtk
   {
   case CoordinateSystemIdentifier::Patient:
   case CoordinateSystemIdentifier::TableTopPlaneCorrection:
+    this->UpdateTableTopPlaneCorrectionToRasTransform(parameterNode);
   case CoordinateSystemIdentifier::TableTop:
     this->UpdateTableTopToRasTransform(parameterNode);
   case CoordinateSystemIdentifier::TableFlange:

@@ -93,6 +93,33 @@ public:
   vtkGetMacro(CoordFromASU_AngleC_R1, int32_t);
   vtkSetMacro(CoordFromASU_AngleC_R1, int32_t);
 
+  vtkGetVector2Macro(AM_Buttons_R1_LoadToIso, bool);
+  vtkSetVector2Macro(AM_Buttons_R1_LoadToIso, bool);
+
+  vtkGetVector2Macro(AM_Buttons_R1_ToNewCoords, bool);
+  vtkSetVector2Macro(AM_Buttons_R1_ToNewCoords, bool);
+
+  vtkGetVector2Macro(AM_Buttons_R1_ToHome, bool);
+  vtkSetVector2Macro(AM_Buttons_R1_ToHome, bool);
+
+  vtkGetVector2Macro(AM_Buttons_R1_ToLoad, bool);
+  vtkSetVector2Macro(AM_Buttons_R1_ToLoad, bool);
+
+  vtkGetVector2Macro(AM_Buttons_R2_ToIso, bool);
+  vtkSetVector2Macro(AM_Buttons_R2_ToIso, bool);
+
+  vtkGetVector2Macro(AM_Buttons_R2_To2ndPl, bool);
+  vtkSetVector2Macro(AM_Buttons_R2_To2ndPl, bool);
+
+  vtkGetVector2Macro(AM_Buttons_MakeXRay, bool);
+  vtkSetVector2Macro(AM_Buttons_MakeXRay, bool);
+
+  vtkGetVector2Macro(AM_Buttons_R2_ToHome, bool);
+  vtkSetVector2Macro(AM_Buttons_R2_ToHome, bool);
+
+  vtkGetVector2Macro(AM_Buttons_R2_Set_New_Z, bool);
+  vtkSetVector2Macro(AM_Buttons_R2_Set_New_Z, bool);
+
   vtkGetMacro(SysTime, uint64_t);
   vtkSetMacro(SysTime, uint64_t);
 
@@ -122,7 +149,17 @@ private:
   int32_t CoordFromASU_AngleA_R1;
   int32_t CoordFromASU_AngleB_R1;
   int32_t CoordFromASU_AngleC_R1;
-  
+
+  bool AM_Buttons_R1_LoadToIso[2]{ false, false }; // [0] == isEnabled, [1] == isPressed
+  bool AM_Buttons_R1_ToNewCoords[2]{ false, false }; // [0] == isEnabled, [1] == isPressed
+  bool AM_Buttons_R1_ToHome[2]{ false, false }; // [0] == isEnabled, [1] == isPressed
+  bool AM_Buttons_R1_ToLoad[2]{ false, false }; // [0] == isEnabled, [1] == isPressed
+  bool AM_Buttons_R2_ToIso[2]{ false, false }; // [0] == isEnabled, [1] == isPressed
+  bool AM_Buttons_R2_To2ndPl[2]{ false, false }; // [0] == isEnabled, [1] == isPressed
+  bool AM_Buttons_MakeXRay[2]{ false, false }; // [0] == isEnabled, [1] == isPressed
+  bool AM_Buttons_R2_ToHome[2]{ false, false }; // [0] == isEnabled, [1] == isPressed
+  bool AM_Buttons_R2_Set_New_Z[2]{ false, false }; // [0] == isEnabled, [1] == isPressed
+
   struct Button {
     bool IsPressed{ false };
     bool IsEnable{ false };

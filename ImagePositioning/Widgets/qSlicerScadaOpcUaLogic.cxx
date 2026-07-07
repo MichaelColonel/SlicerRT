@@ -260,11 +260,14 @@ public:
   QScopedPointer<QOpcUaProvider> OpcUaProvider;
   QScopedPointer<QOpcUaClient> OpcUaClient;
   QScopedPointer<QOpcUaNode> OpcUaScadaLocalTimeNode;
+
+  // Modes
   QScopedPointer<QOpcUaNode> OpcUaScadaModeNode;
   QScopedPointer<QOpcUaNode> OpcUaScadaStatusRtkNode;
   QScopedPointer<QOpcUaNode> OpcUaScadaStatusR1RobotNode;
   QScopedPointer<QOpcUaNode> OpcUaScadaStatusR2CarmNode;
 
+  // Coords from ASUTP
   QScopedPointer<QOpcUaNode> OpcUaScadaCoordAsuXNode;
   QScopedPointer<QOpcUaNode> OpcUaScadaCoordAsuYNode;
   QScopedPointer<QOpcUaNode> OpcUaScadaCoordAsuZNode;
@@ -273,12 +276,41 @@ public:
   QScopedPointer<QOpcUaNode> OpcUaScadaCoordAsuAngleBR1Node;
   QScopedPointer<QOpcUaNode> OpcUaScadaCoordAsuAngleCR1Node;
 
+  // Automatic Movement (AM) robots mode
+  QScopedPointer<QOpcUaNode> OpcUaScadaAmR1LoadToIsoIsEnabledNode;
+  QScopedPointer<QOpcUaNode> OpcUaScadaAmR1LoadToIsoIsPressedNode;
+
+  QScopedPointer<QOpcUaNode> OpcUaScadaAmR1ToNewCoordsIsEnabledNode;
+  QScopedPointer<QOpcUaNode> OpcUaScadaAmR1ToNewCoordsIsPressedNode;
+
+  QScopedPointer<QOpcUaNode> OpcUaScadaAmR1ToHomeIsEnabledNode;
+  QScopedPointer<QOpcUaNode> OpcUaScadaAmR1ToHomeIsPressedNode;
+
+  QScopedPointer<QOpcUaNode> OpcUaScadaAmR1ToLoadIsEnabledNode;
+  QScopedPointer<QOpcUaNode> OpcUaScadaAmR1ToLoadIsPressedNode;
+
+  QScopedPointer<QOpcUaNode> OpcUaScadaAmR2ToIsoIsEnabledNode;
+  QScopedPointer<QOpcUaNode> OpcUaScadaAmR2ToIsoIsPressedNode;
+
+  QScopedPointer<QOpcUaNode> OpcUaScadaAmR2ToSecondPlaneIsEnabledNode;
+  QScopedPointer<QOpcUaNode> OpcUaScadaAmR2ToSecondPlaneIsPressedNode;
+
+  QScopedPointer<QOpcUaNode> OpcUaScadaAmR2MakeXrayIsEnabledNode;
+  QScopedPointer<QOpcUaNode> OpcUaScadaAmR2MakeXrayIsPressedNode;
+
+  QScopedPointer<QOpcUaNode> OpcUaScadaAmR2ToHomeIsEnabledNode;
+  QScopedPointer<QOpcUaNode> OpcUaScadaAmR2ToHomeIsPressedNode;
+
+  QScopedPointer<QOpcUaNode> OpcUaScadaAmR2SetNewZIsEnabledNode;
+  QScopedPointer<QOpcUaNode> OpcUaScadaAmR2SetNewZIsPressedNode;
+
   QScopedPointer<QOpcUaNode> OpcUaPatPosLocalTimeNode;
   QScopedPointer<QOpcUaNode> OpcUaPatPosErrorMessageNode;
   QScopedPointer<QOpcUaNode> OpcUaPatPosEventMessageNode;
 
   bool connectStatusNodes();
   bool connectCoordFromAsuNodes();
+  bool connectAutomaticMovementNodes();
 
   bool ClientConnectedFlag{ false };
 };
@@ -639,6 +671,81 @@ bool qSlicerScadaOpcUaLogicPrivate::connectCoordFromAsuNodes()
 }
 
 //-----------------------------------------------------------------------------
+bool qSlicerScadaOpcUaLogicPrivate::connectAutomaticMovementNodes()
+{
+  if (!this->OpcUaClient || !this->ParameterNode)
+  {
+    return false;
+  }
+  vtkMRMLScadaOpcUaNode* mrmlNode = this->ParameterNode.GetPointer();
+  // write values
+  // Automatic movement R1_LoadToIso is enabled (read-only)
+  QString nodeIdStr = QString::fromStdString(this->SCADA_TOASU_BUTTONS_AM_R1_LOADTOISO_ISENABLE_NODE_ID);
+  this->OpcUaScadaAmR1LoadToIsoIsEnabledNode.reset(this->OpcUaClient->node(nodeIdStr));
+
+  // Automatic movement R1_LoadToIso is pressed (read-write)
+  nodeIdStr = QString::fromStdString(this->SCADA_TOASU_BUTTONS_AM_R1_LOADTOISO_ISPRESSED_NODE_ID);
+  this->OpcUaScadaAmR1LoadToIsoIsPressedNode.reset(this->OpcUaClient->node(nodeIdStr));
+
+  // Connect signal handlers for subscribed values
+  // Automatic movement R1_LoadToIso is enabled (read-only)
+  if (!this->OpcUaScadaAmR1LoadToIsoIsEnabledNode)
+  {
+    return false;
+  }
+  QOpcUaNode* opcNode = this->OpcUaScadaAmR1LoadToIsoIsEnabledNode.get();
+  QObject::connect(opcNode,
+    &QOpcUaNode::dataChangeOccurred, [mrmlNode](QOpcUa::NodeAttribute attr, QVariant value)
+    {
+      if (attr == QOpcUa::NodeAttribute::Value)
+      {
+        bool isEnabled = value.toBool();
+        if (mrmlNode)
+        {
+          bool state[2] = {false, false};
+          
+          mrmlNode->GetAM_Buttons_R1_LoadToIso(state);
+          state[0] = isEnabled;
+          mrmlNode->SetAM_Buttons_R1_LoadToIso(state);
+          qDebug() << Q_FUNC_INFO << "Automatic movement R1_LoadToIso is enabled: " << isEnabled;
+        }
+      }
+    }
+  );
+  // Subscribe to data changes
+  opcNode->enableMonitoring(QOpcUa::NodeAttribute::Value, QOpcUaMonitoringParameters(100));
+
+  // Automatic movement R1_LoadToIso is pressed (read-write)
+  if (!this->OpcUaScadaAmR1LoadToIsoIsPressedNode)
+  {
+    return false;
+  }
+  opcNode = this->OpcUaScadaAmR1LoadToIsoIsPressedNode.get();
+  QObject::connect(opcNode,
+    &QOpcUaNode::dataChangeOccurred, [mrmlNode](QOpcUa::NodeAttribute attr, QVariant value)
+    {
+      if (attr == QOpcUa::NodeAttribute::Value)
+      {
+        bool isPressed = value.toBool();
+        if (mrmlNode)
+        {
+          bool state[2] = {false, false};
+          
+          mrmlNode->GetAM_Buttons_R1_LoadToIso(state);
+          state[1] = isPressed;
+          mrmlNode->SetAM_Buttons_R1_LoadToIso(state);
+          qDebug() << Q_FUNC_INFO << "Automatic movement R1_LoadToIso is pressed: " << isPressed;
+        }
+      }
+    }
+  );
+  // Subscribe to data changes
+  opcNode->enableMonitoring(QOpcUa::NodeAttribute::Value, QOpcUaMonitoringParameters(100));
+
+  return true;
+}
+
+//-----------------------------------------------------------------------------
 // qSlicerScadaOpcUaLogic methods
 
 //----------------------------------------------------------------------------
@@ -874,7 +981,13 @@ void qSlicerScadaOpcUaLogic::clientConnected()
   {
     qWarning() << Q_FUNC_INFO << "Can't connect coord from ASU nodes";
   }
-  
+
+  resStatusModes = d->connectAutomaticMovementNodes();
+  if (!resStatusModes)
+  {
+    qWarning() << Q_FUNC_INFO << "Can't connect automatic movement nodes";
+  }
+
   d->ClientConnectedFlag = true;
 
   // emit signal before node connection
@@ -1026,6 +1139,17 @@ bool qSlicerScadaOpcUaLogic::setPatientPositioningEventMessage(const QString& ev
   {
     QString val = currentTime.toString("dd.MM.yyyy hh:mm:ss") + QString(": ") + eventMsg;
     return d->OpcUaPatPosEventMessageNode->writeAttribute(QOpcUa::NodeAttribute::Value, val, QOpcUa::Types::String);
+  }
+  return false;
+}
+
+bool qSlicerScadaOpcUaLogic::setButtonAmR1LoadToIsoIsPressed(bool state)
+{
+  Q_D(qSlicerScadaOpcUaLogic);
+  if (d->OpcUaScadaAmR1LoadToIsoIsPressedNode)
+  {
+    QVariant valIsPressed(state);
+    return d->OpcUaScadaAmR1LoadToIsoIsPressedNode->writeAttribute(QOpcUa::NodeAttribute::Value, valIsPressed, QOpcUa::Types::Boolean);
   }
   return false;
 }

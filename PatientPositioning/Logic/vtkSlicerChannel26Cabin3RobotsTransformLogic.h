@@ -206,6 +206,8 @@ public:
 
   /// Get TableTop to RAS transform
   vtkMRMLLinearTransformNode* GetTableTopTransform();
+  /// Get TableTopPlaneCorrection to RAS transform
+  vtkMRMLLinearTransformNode* GetTableTopPlaneCorrectionTransform();
   /// Get TableFlange to RAS transform
   vtkMRMLLinearTransformNode* GetTableFlangeTransform();
   /// Get TableRobotFlange to RAS transform
