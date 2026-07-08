@@ -38,7 +38,7 @@ public:
   virtual ~qSlicerPatientsQueueModuleWidget();
 
 public slots:
-
+  void onSetCustomLayoutClicked();
 
 protected:
   QScopedPointer<qSlicerPatientsQueueModuleWidgetPrivate> d_ptr;
