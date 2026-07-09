@@ -111,6 +111,9 @@ public:
   vtkGetVector6Macro(CarmRobotAngles, double);
   vtkSetVector6Macro(CarmRobotAngles, double);
 
+  vtkGetVector3Macro(AnglesABC, double);
+  vtkSetVector3Macro(AnglesABC, double);
+
   vtkGetMacro(PatientHeadFeetRotation, bool);
   vtkSetMacro(PatientHeadFeetRotation, bool);
 
@@ -144,7 +147,8 @@ protected:
   double TableRobotAngles[6] = { 0., 0., 0., 0., 0., 0. }; // A1=0, A2=-90, A3=90, A4=0, A5=-90, A6=0
   /// Setup x-ray c-arm robot angles
   double CarmRobotAngles[6] = { 0., 0., 0., 0., 0., 0. };
-
+  /// table top plane correction angles
+  double AnglesABC[3] = { 0., 0., 0. };
   /// Head first or feet first rotation
   bool PatientHeadFeetRotation{ false };
 };

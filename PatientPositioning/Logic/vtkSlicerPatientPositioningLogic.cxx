@@ -735,7 +735,7 @@ vtkMRMLMarkupsPlaneNode* vtkSlicerPatientPositioningLogic::CreateTableTopPlaneNo
     {
       tableTopPlaneDisplayNode->SetScaleHandleVisibility(false);
     }
-    vtkMRMLTransformNode* transformNode = this->GetChannel26RobotsTransformLogic()->GetTableTopTransform();
+    vtkMRMLTransformNode* transformNode = this->GetChannel26RobotsTransformLogic()->GetTableTopPlaneCorrectionTransform();
 
     // add transform to fiducial node
     if (transformNode)
@@ -804,7 +804,7 @@ vtkMRMLMarkupsFiducialNode* vtkSlicerPatientPositioningLogic::CreateTableTopFidu
       tableTopFiducialNode->AddControlPoint(pm, name.c_str());
     }
 
-    vtkMRMLTransformNode* transformNode = this->GetChannel26RobotsTransformLogic()->GetTableTopTransform();
+    vtkMRMLTransformNode* transformNode = this->GetChannel26RobotsTransformLogic()->GetTableTopPlaneCorrectionTransform();
 
     // add transform to fiducial node
     if (transformNode)
@@ -869,7 +869,7 @@ void vtkSlicerPatientPositioningLogic::UpdateTableTopPlaneNode(vtkMRMLChannel26G
     }
 
     // Update markups plane transform node if it's changed    
-    vtkMRMLTransformNode* markupsPlaneTransformNode = this->GetChannel26RobotsTransformLogic()->GetTableTopTransform();
+    vtkMRMLTransformNode* markupsPlaneTransformNode = this->GetChannel26RobotsTransformLogic()->GetTableTopPlaneCorrectionTransform();
 
     if (markupsPlaneTransformNode)
     {
@@ -926,7 +926,7 @@ void vtkSlicerPatientPositioningLogic::UpdateTableTopFiducialNode(vtkMRMLChannel
         tableTopFiducialNode->AddControlPoint( pm, name.c_str());
       }
 
-      vtkMRMLTransformNode* transformNode = this->GetChannel26RobotsTransformLogic()->GetTableTopTransform();
+      vtkMRMLTransformNode* transformNode = this->GetChannel26RobotsTransformLogic()->GetTableTopPlaneCorrectionTransform();
 
       // Update markups fiducial transform node if it's changed
       if (transformNode)

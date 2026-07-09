@@ -1010,7 +1010,16 @@ void vtkSlicerChannel26Cabin3RobotsTransformLogic::UpdateTableTopPlaneCorrection
     patientToTableTopTranslation[2] *= -1;
     vtkNew<vtkTransform> patientToTableTopTransform;
     patientToTableTopTransform->Translate(patientToTableTopTranslation);
+
     vtkNew<vtkTransform> planeCorrectionToTableTopTransform;
+    double planeAnglesABC[3] = {};
+    parameterNode->GetAnglesABC(planeAnglesABC);
+    planeCorrectionToTableTopTransform->Identity();
+    planeCorrectionToTableTopTransform->RotateX(planeAnglesABC[0]);
+    planeCorrectionToTableTopTransform->RotateY(planeAnglesABC[1]);
+    planeCorrectionToTableTopTransform->RotateZ(planeAnglesABC[2]);
+    
+    patientToTableTopTransform->Concatenate(planeCorrectionToTableTopTransform);
     tableTopPlaneCorrectionToTableTopTransformNode->SetAndObserveTransformToParent(patientToTableTopTransform);
   }
 }

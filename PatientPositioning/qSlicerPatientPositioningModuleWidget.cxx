@@ -253,6 +253,13 @@ void qSlicerPatientPositioningModuleWidget::setup()
     this, SLOT(onCarmRobotA5Changed(double)));
   connect( d->SliderWidget_CarmRobotA6, SIGNAL(valueChanged(double)), 
     this, SLOT(onCarmRobotA6Changed(double)));
+  // TableTop plane correction angles
+  connect( d->SliderWidget_TableTopAngleA, SIGNAL(valueChanged(double)), 
+    this, SLOT(onTableTopAngleAChanged(double)));
+  connect( d->SliderWidget_TableTopAngleB, SIGNAL(valueChanged(double)), 
+    this, SLOT(onTableTopAngleBChanged(double)));
+  connect( d->SliderWidget_TableTopAngleC, SIGNAL(valueChanged(double)), 
+    this, SLOT(onTableTopAngleCChanged(double)));
 
   connect( d->CoordinatesWidget_PatientTableTopTranslation, SIGNAL(coordinatesChanged(double*)),
     this, SLOT(onPatientTableTopTranslationChanged(double*)));
@@ -1202,6 +1209,105 @@ void qSlicerPatientPositioningModuleWidget::onCarmRobotA6Changed(double a6)
   {
     using SysCoord = vtkSlicerChannel26Cabin3RobotsTransformLogic::CoordinateSystemIdentifier;
     channel26Logic->UpdateTransformsHierarchy(channel26GeometryNode, SysCoord::CarmRobotFlange);
+  }
+  channel26GeometryNode->Modified();
+  this->checkForCollisions();
+  d->getLayoutManager()->resumeRender();
+  d->ParameterNode->Modified();
+}
+
+//-----------------------------------------------------------------------------
+void qSlicerPatientPositioningModuleWidget::onTableTopAngleAChanged(double a)
+{
+  Q_D(qSlicerPatientPositioningModuleWidget);
+
+  if (!d->ParameterNode || !d->ModuleWindowInitialized)
+  {
+    qCritical() << Q_FUNC_INFO << ": Parameter node is invalid!";
+    return;
+  }
+  vtkMRMLChannel26GeometryNode* channel26GeometryNode = d->ParameterNode->GetChannel26GeometryNode();
+
+  d->getLayoutManager()->pauseRender();
+  double tableTopAngles[3] = {};
+  channel26GeometryNode->GetAnglesABC(tableTopAngles);
+  channel26GeometryNode->DisableModifiedEventOn();
+  tableTopAngles[0] = a;
+  channel26GeometryNode->SetAnglesABC(tableTopAngles);
+  channel26GeometryNode->DisableModifiedEventOff();
+
+  // Update Channel-26 transforms
+  vtkSlicerChannel26Cabin3RobotsTransformLogic* channel26Logic = d->channel26RobotsLogic();
+  if (channel26Logic && channel26GeometryNode)
+  {
+    using SysCoord = vtkSlicerChannel26Cabin3RobotsTransformLogic::CoordinateSystemIdentifier;
+    channel26Logic->UpdateTransformsHierarchy(channel26GeometryNode, SysCoord::TableTopPlaneCorrection);
+  }
+  channel26GeometryNode->Modified();
+  this->checkForCollisions();
+  d->getLayoutManager()->resumeRender();
+  d->ParameterNode->Modified();
+}
+
+//-----------------------------------------------------------------------------
+void qSlicerPatientPositioningModuleWidget::onTableTopAngleBChanged(double b)
+{
+  Q_D(qSlicerPatientPositioningModuleWidget);
+
+  if (!d->ParameterNode || !d->ModuleWindowInitialized)
+  {
+    qCritical() << Q_FUNC_INFO << ": Parameter node is invalid!";
+    return;
+  }
+  vtkMRMLChannel26GeometryNode* channel26GeometryNode = d->ParameterNode->GetChannel26GeometryNode();
+
+  d->getLayoutManager()->pauseRender();
+  double tableTopAngles[3] = {};
+  channel26GeometryNode->GetAnglesABC(tableTopAngles);
+  channel26GeometryNode->DisableModifiedEventOn();
+  tableTopAngles[1] = b;
+  channel26GeometryNode->SetAnglesABC(tableTopAngles);
+  channel26GeometryNode->DisableModifiedEventOff();
+
+  // Update Channel-26 transforms
+  vtkSlicerChannel26Cabin3RobotsTransformLogic* channel26Logic = d->channel26RobotsLogic();
+  if (channel26Logic && channel26GeometryNode)
+  {
+    using SysCoord = vtkSlicerChannel26Cabin3RobotsTransformLogic::CoordinateSystemIdentifier;
+    channel26Logic->UpdateTransformsHierarchy(channel26GeometryNode, SysCoord::TableTopPlaneCorrection);
+  }
+  channel26GeometryNode->Modified();
+  this->checkForCollisions();
+  d->getLayoutManager()->resumeRender();
+  d->ParameterNode->Modified();
+}
+
+//-----------------------------------------------------------------------------
+void qSlicerPatientPositioningModuleWidget::onTableTopAngleCChanged(double c)
+{
+  Q_D(qSlicerPatientPositioningModuleWidget);
+
+  if (!d->ParameterNode || !d->ModuleWindowInitialized)
+  {
+    qCritical() << Q_FUNC_INFO << ": Parameter node is invalid!";
+    return;
+  }
+  vtkMRMLChannel26GeometryNode* channel26GeometryNode = d->ParameterNode->GetChannel26GeometryNode();
+
+  d->getLayoutManager()->pauseRender();
+  double tableTopAngles[3] = {};
+  channel26GeometryNode->GetAnglesABC(tableTopAngles);
+  channel26GeometryNode->DisableModifiedEventOn();
+  tableTopAngles[2] = c;
+  channel26GeometryNode->SetAnglesABC(tableTopAngles);
+  channel26GeometryNode->DisableModifiedEventOff();
+
+  // Update Channel-26 transforms
+  vtkSlicerChannel26Cabin3RobotsTransformLogic* channel26Logic = d->channel26RobotsLogic();
+  if (channel26Logic && channel26GeometryNode)
+  {
+    using SysCoord = vtkSlicerChannel26Cabin3RobotsTransformLogic::CoordinateSystemIdentifier;
+    channel26Logic->UpdateTransformsHierarchy(channel26GeometryNode, SysCoord::TableTopPlaneCorrection);
   }
   channel26GeometryNode->Modified();
   this->checkForCollisions();

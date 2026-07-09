@@ -63,7 +63,6 @@ public:
     TableRobotFlange, // Mounted on TableRobotWrist, performes A6 rotation
     TableFlange, // Mounted on TableRobotFlange under the Table Top center (for Xray receptor)
     TableTop, // Mounted on TableFlange. Translate from TableFlange flange center to Table Top center
-    TableTopPlaneCorrection, // Mounted on TableTop. Transform from TableTop according to external plane correction
     CarmRobotBaseFixed, // Mounted on FixedReference. Translate from CarmRobotBaseFixed center to FixedReference center
     CarmRobotBaseRotation, // Mounted on CarmRobotBaseFixed, performes A1 rotation. Rotation along Z-axis of BaseFixed
     CarmRobotShoulder, // Mounted on CarmRobotBaseRotation, performes A2 rotation. Rotation along Y-axis of BaseRotation
@@ -75,6 +74,8 @@ public:
     CarmXrayBeam, // Mounted on Carm (Assemble of X-ray tube and collimator)
     CarmXrayDetector, // Mounted on Carm
     Patient, // Mounted on TableTop. Translate from Table Top center to Patient center
+    /// All other Frames
+    TableTopPlaneCorrection, // Mounted on TableTop. Transform from TableTop according to external plane correction
     CoordinateSystemIdentifier_Last // Last index used for adding more coordinate systems externally
   };
   typedef std::list< CoordinateSystemIdentifier > CoordinateSystemsList;

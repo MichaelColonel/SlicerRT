@@ -73,6 +73,10 @@ public slots:
   void onCarmRobotA5Changed(double a5);
   void onCarmRobotA6Changed(double a6);
 
+  void onTableTopAngleAChanged(double a);
+  void onTableTopAngleBChanged(double b);
+  void onTableTopAngleCChanged(double c);
+
   void onBeamsEyeViewPlusXButtonClicked();
   void onBeamsEyeViewMinusXButtonClicked();
   void onBeamsEyeViewPlusYButtonClicked();
