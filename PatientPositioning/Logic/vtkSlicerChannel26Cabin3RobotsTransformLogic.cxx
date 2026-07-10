@@ -1005,22 +1005,24 @@ void vtkSlicerChannel26Cabin3RobotsTransformLogic::UpdateTableTopPlaneCorrection
   {
     double patientToTableTopTranslation[3] = {};
     parameterNode->GetPatientToTableTopTranslation(patientToTableTopTranslation);
-    patientToTableTopTranslation[0] *= -1;
-    patientToTableTopTranslation[1] *= -1;
-    patientToTableTopTranslation[2] *= -1;
-    vtkNew<vtkTransform> patientToTableTopTransform;
-    patientToTableTopTransform->Translate(patientToTableTopTranslation);
+//    patientToTableTopTranslation[0] *= -1;
+//    patientToTableTopTranslation[1] *= -1;
+//    patientToTableTopTranslation[2] *= -1;
+//    vtkNew<vtkTransform> patientToTableTopTransform;
+//    patientToTableTopTransform->Translate(patientToTableTopTranslation);
 
     vtkNew<vtkTransform> planeCorrectionToTableTopTransform;
     double planeAnglesABC[3] = {};
     parameterNode->GetAnglesABC(planeAnglesABC);
     planeCorrectionToTableTopTransform->Identity();
+    vtkWarningMacro("UpdateTableTopPlaneCorrectionToTableTopTransform:" << planeAnglesABC[0] << ' ' << planeAnglesABC[1] << ' ' << planeAnglesABC[2]);
     planeCorrectionToTableTopTransform->RotateX(planeAnglesABC[0]);
     planeCorrectionToTableTopTransform->RotateY(planeAnglesABC[1]);
     planeCorrectionToTableTopTransform->RotateZ(planeAnglesABC[2]);
+//    planeCorrectionToTableTopTransform->Translate(patientToTableTopTranslation);
     
-    patientToTableTopTransform->Concatenate(planeCorrectionToTableTopTransform);
-    tableTopPlaneCorrectionToTableTopTransformNode->SetAndObserveTransformToParent(patientToTableTopTransform);
+//    planeCorrectionToTableTopTransform->Concatenate(patientToTableTopTransform);
+    tableTopPlaneCorrectionToTableTopTransformNode->SetAndObserveTransformToParent(planeCorrectionToTableTopTransform);
   }
 }
 
@@ -2495,10 +2497,10 @@ void vtkSlicerChannel26Cabin3RobotsTransformLogic::UpdateFrameToRasHierarchy(vtk
   switch (type)
   {
   case CoordinateSystemIdentifier::Patient:
-  case CoordinateSystemIdentifier::TableTopPlaneCorrection:
-    this->UpdateTableTopPlaneCorrectionToRasTransform(parameterNode);
   case CoordinateSystemIdentifier::TableTop:
     this->UpdateTableTopToRasTransform(parameterNode);
+  case CoordinateSystemIdentifier::TableTopPlaneCorrection:
+    this->UpdateTableTopPlaneCorrectionToRasTransform(parameterNode);
   case CoordinateSystemIdentifier::TableFlange:
     this->UpdateTableFlangeToRasTransform(parameterNode);
   case CoordinateSystemIdentifier::TableRobotFlange:
@@ -2550,9 +2552,10 @@ void vtkSlicerChannel26Cabin3RobotsTransformLogic::UpdateTransformsHierarchy(vtk
   {
   case CoordinateSystemIdentifier::Patient:
     this->UpdatePatientToTableTopTransform(parameterNode);
-    this->UpdateTableTopPlaneCorrectionToTableTopTransform(parameterNode);
   case CoordinateSystemIdentifier::TableTop:
     this->UpdateTableTopToTableFlangeTransform(parameterNode);
+  case CoordinateSystemIdentifier::TableTopPlaneCorrection:
+    this->UpdateTableTopPlaneCorrectionToTableTopTransform(parameterNode);
   case CoordinateSystemIdentifier::TableFlange:
     this->UpdateTableFlangeToTableRobotFlangeTransform(parameterNode);
   case CoordinateSystemIdentifier::TableRobotFlange:
