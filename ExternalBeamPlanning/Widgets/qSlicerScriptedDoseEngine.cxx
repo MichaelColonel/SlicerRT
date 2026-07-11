@@ -213,8 +213,11 @@ QString qSlicerScriptedDoseEngine::calculateDoseUsingEngine(vtkMRMLRTBeamNode* b
     qWarning() << d->PythonSource << ": qSlicerScriptedDoseEngine: Function 'calculateDoseUsingEngine' is expected to return a string!";
     return QString();
     }
-
+  #if VTK_MAJOR_VERSION < 9 || (VTK_MAJOR_VERSION == 9 && VTK_MINOR_VERSION < 4)
   return PyString_AsString(result);
+  #else
+  return PyUnicode_AsUTF8(result);
+  #endif
 }
 
 //-----------------------------------------------------------------------------

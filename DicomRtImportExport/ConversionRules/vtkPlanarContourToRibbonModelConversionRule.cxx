@@ -42,6 +42,7 @@
 // Utility functions
 namespace
 {
+  #if VTK_MAJOR_VERSION < 9 || (VTK_MAJOR_VERSION == 9 && VTK_MINOR_VERSION < 4)
 
   vtkVector3d operator -(const vtkVector3d& a, const vtkVector3d& b)
   {
@@ -51,6 +52,8 @@ namespace
     result.SetZ(a.GetZ() - b.GetZ());
     return result;
   }
+
+  #endif
 
   bool AreEqualWithTolerance(double a, double b)
   {

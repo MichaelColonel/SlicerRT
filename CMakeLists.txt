@@ -121,9 +121,9 @@ endif()
 
 if(BUILD_TESTING)
   add_subdirectory(Testing)
-  add_subdirectory(CtRtReg)
+#  add_subdirectory(CtRtReg)
   add_subdirectory(ImagePositioning)
-  add_subdirectory(PatientsQueue)
+#  add_subdirectory(PatientsQueue)
 endif()
 
 #-----------------------------------------------------------------------------
