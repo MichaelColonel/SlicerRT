@@ -168,11 +168,11 @@ void qSlicerImagePositioningModuleWidget::setup()
   d->OpcUaServerUrlLineEdit->setText("opc.tcp://192.168.26.128:62544");
   d->OpcUaPluginComboBox->addItems(d->ScadaOpcUaProvider->availableBackends());
   
-  d->OpcUaTreeView->setModel(d->ScadaOpcUaModel.get());
-  d->OpcUaTreeView->header()->setSectionResizeMode(QHeaderView::ResizeToContents);
-  d->OpcUaTreeView->setTextElideMode(Qt::ElideRight);
-  d->OpcUaTreeView->setAlternatingRowColors(true);
-  d->OpcUaTreeView->setSelectionBehavior(QAbstractItemView::SelectItems);
+//  d->OpcUaTreeView->setModel(d->ScadaOpcUaModel.get());
+//  d->OpcUaTreeView->header()->setSectionResizeMode(QHeaderView::ResizeToContents);
+//  d->OpcUaTreeView->setTextElideMode(Qt::ElideRight);
+//  d->OpcUaTreeView->setAlternatingRowColors(true);
+//  d->OpcUaTreeView->setSelectionBehavior(QAbstractItemView::SelectItems);
 
   // Get layout manager
   qSlicerApplication* slicerApplication = qSlicerApplication::application();

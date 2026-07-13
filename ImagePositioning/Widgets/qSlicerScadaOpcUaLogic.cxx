@@ -1143,13 +1143,120 @@ bool qSlicerScadaOpcUaLogic::setPatientPositioningEventMessage(const QString& ev
   return false;
 }
 
-bool qSlicerScadaOpcUaLogic::setButtonAmR1LoadToIsoIsPressed(bool state)
+bool qSlicerScadaOpcUaLogic::setButtonAmR1LoadToIsoPressed(bool state)
 {
   Q_D(qSlicerScadaOpcUaLogic);
   if (d->OpcUaScadaAmR1LoadToIsoIsPressedNode)
   {
-    QVariant valIsPressed(state);
-    return d->OpcUaScadaAmR1LoadToIsoIsPressedNode->writeAttribute(QOpcUa::NodeAttribute::Value, valIsPressed, QOpcUa::Types::Boolean);
+    QVariant pressed(state);
+    return d->OpcUaScadaAmR1LoadToIsoIsPressedNode->writeAttribute(QOpcUa::NodeAttribute::Value, pressed, QOpcUa::Types::Boolean);
+  }
+  return false;
+}
+
+bool qSlicerScadaOpcUaLogic::checkButtonAmR1LoadToIsoIsEnabled(bool& state)
+{
+  Q_D(qSlicerScadaOpcUaLogic);
+  if (!d->OpcUaScadaLocalTimeNode)
+  {
+    state = false;
+    return false;
+  }
+  bool res = false;
+  QOpcUaNode* opcNode = d->OpcUaScadaLocalTimeNode.get();
+  if (opcNode->attributeError(QOpcUa::NodeAttribute::Value) == QOpcUa::UaStatusCode::Good)
+  {
+    QVariant value = opcNode->attribute(QOpcUa::NodeAttribute::Value);
+    state = true;
+    res = value.toBool(); // Get the attribute from the cache
+  }
+  return res;
+}
+
+bool qSlicerScadaOpcUaLogic::setButtonAmR1ToNewCoordsPressed(bool state)
+{
+  Q_D(qSlicerScadaOpcUaLogic);
+  if (d->OpcUaScadaAmR1ToNewCoordsIsPressedNode)
+  {
+    QVariant pressed(state);
+    return d->OpcUaScadaAmR1ToNewCoordsIsPressedNode->writeAttribute(QOpcUa::NodeAttribute::Value, pressed, QOpcUa::Types::Boolean);
+  }
+  return false;
+}
+
+bool qSlicerScadaOpcUaLogic::setButtonAmR1ToHomePressed(bool state)
+{
+  Q_D(qSlicerScadaOpcUaLogic);
+  if (d->OpcUaScadaAmR1ToHomeIsPressedNode)
+  {
+    QVariant pressed(state);
+    return d->OpcUaScadaAmR1ToHomeIsPressedNode->writeAttribute(QOpcUa::NodeAttribute::Value, pressed, QOpcUa::Types::Boolean);
+  }
+  return false;
+}
+
+bool qSlicerScadaOpcUaLogic::setButtonAmR1ToLoadPressed(bool state)
+{
+  Q_D(qSlicerScadaOpcUaLogic);
+  if (d->OpcUaScadaAmR1ToLoadIsPressedNode)
+  {
+    QVariant pressed(state);
+    return d->OpcUaScadaAmR1ToLoadIsPressedNode->writeAttribute(QOpcUa::NodeAttribute::Value, pressed, QOpcUa::Types::Boolean);
+  }
+  return false;
+}
+
+bool qSlicerScadaOpcUaLogic::setButtonAmR2ToIsoPressed(bool state)
+{
+  Q_D(qSlicerScadaOpcUaLogic);
+  if (d->OpcUaScadaAmR2ToIsoIsPressedNode)
+  {
+    QVariant pressed(state);
+    return d->OpcUaScadaAmR2ToIsoIsPressedNode->writeAttribute(QOpcUa::NodeAttribute::Value, pressed, QOpcUa::Types::Boolean);
+  }
+  return false;
+}
+
+bool qSlicerScadaOpcUaLogic::setButtonAmR2ToSecondPlanePressed(bool state)
+{
+  Q_D(qSlicerScadaOpcUaLogic);
+  if (d->OpcUaScadaAmR2ToSecondPlaneIsPressedNode)
+  {
+    QVariant pressed(state);
+    return d->OpcUaScadaAmR2ToSecondPlaneIsPressedNode->writeAttribute(QOpcUa::NodeAttribute::Value, pressed, QOpcUa::Types::Boolean);
+  }
+  return false;
+}
+
+bool qSlicerScadaOpcUaLogic::setButtonAmR2MakeXrayPressed(bool state)
+{
+  Q_D(qSlicerScadaOpcUaLogic);
+  if (d->OpcUaScadaAmR2MakeXrayIsPressedNode)
+  {
+    QVariant pressed(state);
+    return d->OpcUaScadaAmR2MakeXrayIsPressedNode->writeAttribute(QOpcUa::NodeAttribute::Value, pressed, QOpcUa::Types::Boolean);
+  }
+  return false;
+}
+
+bool qSlicerScadaOpcUaLogic::setButtonAmR2ToHomePressed(bool state)
+{
+  Q_D(qSlicerScadaOpcUaLogic);
+  if (d->OpcUaScadaAmR2ToHomeIsPressedNode)
+  {
+    QVariant pressed(state);
+    return d->OpcUaScadaAmR2ToHomeIsPressedNode->writeAttribute(QOpcUa::NodeAttribute::Value, pressed, QOpcUa::Types::Boolean);
+  }
+  return false;
+}
+
+bool qSlicerScadaOpcUaLogic::setButtonAmR2SetNewZPressed(bool state)
+{
+  Q_D(qSlicerScadaOpcUaLogic);
+  if (d->OpcUaScadaAmR2SetNewZIsPressedNode)
+  {
+    QVariant pressed(state);
+    return d->OpcUaScadaAmR2SetNewZIsPressedNode->writeAttribute(QOpcUa::NodeAttribute::Value, pressed, QOpcUa::Types::Boolean);
   }
   return false;
 }

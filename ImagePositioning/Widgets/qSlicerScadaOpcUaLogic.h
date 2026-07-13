@@ -61,7 +61,16 @@ public:
   bool setPatientPositioningLocalTime(const QDateTime&);
   bool setPatientPositioningErrorMessage(const QString&);
   bool setPatientPositioningEventMessage(const QString&);
-  bool setButtonAmR1LoadToIsoIsPressed(bool);
+  bool checkButtonAmR1LoadToIsoIsEnabled(bool& state);
+  bool setButtonAmR1LoadToIsoPressed(bool state);
+  bool setButtonAmR1ToNewCoordsPressed(bool state);
+  bool setButtonAmR1ToLoadPressed(bool state);
+  bool setButtonAmR1ToHomePressed(bool state);
+  bool setButtonAmR2ToIsoPressed(bool state);
+  bool setButtonAmR2ToSecondPlanePressed(bool state);
+  bool setButtonAmR2MakeXrayPressed(bool state);
+  bool setButtonAmR2ToHomePressed(bool state);
+  bool setButtonAmR2SetNewZPressed(bool state);
 
 public slots:
   /// Set ScadaOpcUa MRML node (Parameter node)

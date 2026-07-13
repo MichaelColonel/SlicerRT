@@ -1,0 +1,934 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>qSlicerScadaOpcUaRobotsControlWidget</class>
+ <widget class="QWidget" name="qSlicerScadaOpcUaRobotsControlWidget">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>644</width>
+    <height>736</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Robots control</string>
+  </property>
+  <layout class="QGridLayout" name="gridLayout">
+   <item row="0" column="0">
+    <widget class="QTabWidget" name="tabWidget">
+     <property name="currentIndex">
+      <number>0</number>
+     </property>
+     <widget class="QWidget" name="tab_ControlButtons">
+      <attribute name="title">
+       <string>Control buttons</string>
+      </attribute>
+      <layout class="QGridLayout" name="gridLayout_8">
+       <item row="0" column="0">
+        <layout class="QGridLayout" name="gridLayout_7">
+         <item row="2" column="0">
+          <widget class="ctkCollapsibleButton" name="CollapsibleButton_ServiceMovement">
+           <property name="text">
+            <string>Service Movement</string>
+           </property>
+           <property name="collapsed">
+            <bool>true</bool>
+           </property>
+           <layout class="QGridLayout" name="gridLayout_16">
+            <item row="1" column="0">
+             <widget class="ctkCollapsibleGroupBox" name="CollapsibleGroupBox">
+              <property name="title">
+               <string>C-Arm robot (R2)</string>
+              </property>
+              <layout class="QGridLayout" name="gridLayout_18">
+               <item row="0" column="0">
+                <layout class="QVBoxLayout" name="verticalLayout_2">
+                 <item>
+                  <widget class="QPushButton" name="PushButton_SM_BrakeTestR2">
+                   <property name="text">
+                    <string>Brake test</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item>
+                  <widget class="QPushButton" name="PushButton_SM_MasResTestR2">
+                   <property name="text">
+                    <string>Master reference test</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item>
+                  <widget class="QPushButton" name="PushButton_SM_HomeR2">
+                   <property name="text">
+                    <string>To home position</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item>
+                  <widget class="QPushButton" name="PushButton_SM_IsoR2">
+                   <property name="text">
+                    <string>To isocenter position</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item>
+                  <widget class="QPushButton" name="PushButton_SM_ServicePosR2">
+                   <property name="text">
+                    <string>To service position</string>
+                   </property>
+                  </widget>
+                 </item>
+                </layout>
+               </item>
+              </layout>
+             </widget>
+            </item>
+            <item row="0" column="0">
+             <widget class="ctkCollapsibleGroupBox" name="CollapsibleGroupBox_SmTableTopRobot">
+              <property name="title">
+               <string>Table top robot (R1)</string>
+              </property>
+              <layout class="QGridLayout" name="gridLayout_17">
+               <item row="0" column="0">
+                <layout class="QVBoxLayout" name="verticalLayout">
+                 <item>
+                  <widget class="QPushButton" name="PushButton_SM_BrakeTestR1">
+                   <property name="text">
+                    <string>Brake test</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item>
+                  <widget class="QPushButton" name="PushButton_SM_MasResTestR1">
+                   <property name="text">
+                    <string>Master reference test</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item>
+                  <widget class="QPushButton" name="PushButton_SM_HomeR1">
+                   <property name="text">
+                    <string>To home position</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item>
+                  <widget class="QPushButton" name="PushButton_SM_IsoR1">
+                   <property name="text">
+                    <string>To isocenter position</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item>
+                  <widget class="QPushButton" name="PushButton_SM_ServicePosR1">
+                   <property name="text">
+                    <string>To service position</string>
+                   </property>
+                  </widget>
+                 </item>
+                </layout>
+               </item>
+              </layout>
+             </widget>
+            </item>
+            <item row="2" column="0">
+             <widget class="QPushButton" name="PushButton_SM_RestartSM">
+              <property name="text">
+               <string>Restart</string>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </widget>
+         </item>
+         <item row="0" column="0">
+          <widget class="ctkCollapsibleButton" name="CollapsibleButton_AutomaticMovement">
+           <property name="text">
+            <string>Automatic Movement</string>
+           </property>
+           <property name="collapsed">
+            <bool>true</bool>
+           </property>
+           <layout class="QGridLayout" name="gridLayout_6">
+            <item row="2" column="0">
+             <widget class="ctkCollapsibleGroupBox" name="CollapsibleGroupBox_AmXray">
+              <property name="title">
+               <string>X-Ray</string>
+              </property>
+              <layout class="QGridLayout" name="gridLayout_14">
+               <item row="0" column="0">
+                <widget class="QPushButton" name="PushButton_AM_MakeXRay">
+                 <property name="text">
+                  <string>Make exposure and picture</string>
+                 </property>
+                </widget>
+               </item>
+              </layout>
+             </widget>
+            </item>
+            <item row="0" column="0">
+             <widget class="ctkCollapsibleGroupBox" name="CollapsibleGroupBox_AmTableTopRobot">
+              <property name="title">
+               <string>Table top robot (R1)</string>
+              </property>
+              <layout class="QGridLayout" name="gridLayout_9">
+               <item row="0" column="0">
+                <layout class="QHBoxLayout" name="horizontalLayout">
+                 <item>
+                  <widget class="QPushButton" name="PushButton_AM_R1_ToHome">
+                   <property name="text">
+                    <string>To home</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item>
+                  <widget class="QPushButton" name="PushButton_AM_R1_ToLoad">
+                   <property name="text">
+                    <string>To load</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item>
+                  <widget class="QPushButton" name="PushButton_AM_R1_LoadToIso">
+                   <property name="text">
+                    <string>Load to isocenter</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item>
+                  <widget class="QPushButton" name="PushButton_AM_R1_ToNewCoords">
+                   <property name="text">
+                    <string>To new coordinates</string>
+                   </property>
+                   <property name="iconSize">
+                    <size>
+                     <width>16</width>
+                     <height>16</height>
+                    </size>
+                   </property>
+                  </widget>
+                 </item>
+                </layout>
+               </item>
+              </layout>
+             </widget>
+            </item>
+            <item row="1" column="0">
+             <widget class="ctkCollapsibleGroupBox" name="CollapsibleGroupBox_AmCarmRobot">
+              <property name="title">
+               <string>C-Arm robot (R2)</string>
+              </property>
+              <layout class="QGridLayout" name="gridLayout_10">
+               <item row="0" column="0">
+                <layout class="QHBoxLayout" name="horizontalLayout_2">
+                 <item>
+                  <widget class="QPushButton" name="PushButton_AM_R2_ToHome">
+                   <property name="text">
+                    <string>To home</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item>
+                  <widget class="QPushButton" name="PushButton_AM_R2_ToIso">
+                   <property name="text">
+                    <string>To isocenter</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item>
+                  <widget class="QPushButton" name="PushButton_AM_R2_To2ndPl">
+                   <property name="text">
+                    <string>To second plane</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item>
+                  <widget class="QPushButton" name="PushButton_AM_R2_Set_New_Z">
+                   <property name="text">
+                    <string>Set new Z correction</string>
+                   </property>
+                  </widget>
+                 </item>
+                </layout>
+               </item>
+              </layout>
+             </widget>
+            </item>
+           </layout>
+          </widget>
+         </item>
+         <item row="5" column="0">
+          <spacer name="verticalSpacer_2">
+           <property name="orientation">
+            <enum>Qt::Vertical</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>20</width>
+             <height>40</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+         <item row="3" column="0">
+          <widget class="ctkCollapsibleButton" name="CollapsibleButton_KukaControllersMovement">
+           <property name="text">
+            <string>KUKA Controllers Movement</string>
+           </property>
+           <property name="collapsed">
+            <bool>true</bool>
+           </property>
+           <layout class="QGridLayout" name="gridLayout_19">
+            <item row="0" column="0">
+             <layout class="QVBoxLayout" name="verticalLayout_4">
+              <item>
+               <widget class="QPushButton" name="PushButton_KCM_AllowT1">
+                <property name="text">
+                 <string>Allow T1 mode</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QPushButton" name="PushButton_KCM_AllowXRay">
+                <property name="text">
+                 <string>Allow x-ray exposure</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QPushButton" name="PushButton_KCM_MakeXRay">
+                <property name="text">
+                 <string>Make x-ray picture</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QPushButton" name="PushButton_KCM_AllowBeam">
+                <property name="text">
+                 <string>Allow beam</string>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </item>
+           </layout>
+          </widget>
+         </item>
+         <item row="1" column="0">
+          <widget class="ctkCollapsibleButton" name="CollapsibleButton_ManualMovement">
+           <property name="text">
+            <string>Manual Movement</string>
+           </property>
+           <property name="collapsed">
+            <bool>true</bool>
+           </property>
+           <layout class="QGridLayout" name="gridLayout_11">
+            <item row="2" column="0">
+             <widget class="ctkCollapsibleGroupBox" name="CollapsibleGroupBox_MmXray">
+              <property name="title">
+               <string>X-Ray</string>
+              </property>
+              <layout class="QGridLayout" name="gridLayout_15">
+               <item row="0" column="0">
+                <widget class="QPushButton" name="PushButton_MM_MakeXRay">
+                 <property name="text">
+                  <string>Make exposure and picture</string>
+                 </property>
+                </widget>
+               </item>
+              </layout>
+             </widget>
+            </item>
+            <item row="0" column="0">
+             <widget class="ctkCollapsibleGroupBox" name="CollapsibleGroupBox_MmTableTopRobot">
+              <property name="title">
+               <string>Table top robot (R1)</string>
+              </property>
+              <layout class="QGridLayout" name="gridLayout_12">
+               <item row="0" column="0">
+                <layout class="QHBoxLayout" name="horizontalLayout_3">
+                 <item>
+                  <widget class="QPushButton" name="PushButton_MM_R1_ToHome">
+                   <property name="text">
+                    <string>To home</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item>
+                  <widget class="QPushButton" name="PushButton_MM_R1_ToLoad">
+                   <property name="text">
+                    <string>To load</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item>
+                  <widget class="QPushButton" name="PushButton_MM_R1_LoadToIso">
+                   <property name="text">
+                    <string>Load to isocenter</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item>
+                  <widget class="QPushButton" name="PushButton_MM_R1_ToNewCoords">
+                   <property name="text">
+                    <string>To new coordinates</string>
+                   </property>
+                  </widget>
+                 </item>
+                </layout>
+               </item>
+              </layout>
+             </widget>
+            </item>
+            <item row="1" column="0">
+             <widget class="ctkCollapsibleGroupBox" name="CollapsibleGroupBox_MmCarmRobot">
+              <property name="title">
+               <string>C-Arm robot (R2)</string>
+              </property>
+              <layout class="QGridLayout" name="gridLayout_13">
+               <item row="0" column="0">
+                <layout class="QHBoxLayout" name="horizontalLayout_4">
+                 <item>
+                  <widget class="QPushButton" name="PushButton_MM_R2_ToHome">
+                   <property name="text">
+                    <string>To home</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item>
+                  <widget class="QPushButton" name="PushButton_MM_R2_ToIso">
+                   <property name="text">
+                    <string>To isocenter</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item>
+                  <widget class="QPushButton" name="PushButton_MM_R2_To2ndPl">
+                   <property name="text">
+                    <string>To second plane</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item>
+                  <widget class="QPushButton" name="PushButton_MM_R2_Set_New_Z">
+                   <property name="text">
+                    <string>Set new Z correction</string>
+                   </property>
+                  </widget>
+                 </item>
+                </layout>
+               </item>
+              </layout>
+             </widget>
+            </item>
+           </layout>
+          </widget>
+         </item>
+         <item row="4" column="0">
+          <widget class="ctkCollapsibleGroupBox" name="CollapsibleGroupBox_MiscControl">
+           <property name="title">
+            <string>Misc. control</string>
+           </property>
+           <layout class="QGridLayout" name="gridLayout_20">
+            <item row="0" column="0">
+             <layout class="QVBoxLayout" name="verticalLayout_3">
+              <item>
+               <widget class="QPushButton" name="PushButton_ResetErrors">
+                <property name="text">
+                 <string>Reset errors</string>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </item>
+            <item row="1" column="0">
+             <widget class="QGroupBox" name="GroupBox_RobotsReadiness">
+              <property name="title">
+               <string>Robots readiness</string>
+              </property>
+              <layout class="QGridLayout" name="gridLayout_21">
+               <item row="0" column="0">
+                <layout class="QVBoxLayout" name="verticalLayout_5">
+                 <item>
+                  <widget class="QCheckBox" name="CheckBox_RobotsReadyForXray1">
+                   <property name="text">
+                    <string>Ready for x-ray exposure in plane #1</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item>
+                  <widget class="QCheckBox" name="CheckBox_RobotsReadyForXray2">
+                   <property name="text">
+                    <string>Ready for x-ray exposure in plane #2</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item>
+                  <widget class="QCheckBox" name="CheckBox_RobotsReadyForBeam">
+                   <property name="text">
+                    <string>Ready for beam</string>
+                   </property>
+                  </widget>
+                 </item>
+                </layout>
+               </item>
+              </layout>
+             </widget>
+            </item>
+            <item row="2" column="0">
+             <widget class="QCheckBox" name="CheckBox_HUMAN_ON_DEKA">
+              <property name="text">
+               <string>Patient on the table</string>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </widget>
+         </item>
+        </layout>
+       </item>
+      </layout>
+     </widget>
+     <widget class="QWidget" name="tab_RobotsPosition">
+      <attribute name="title">
+       <string>Robots position and coordinates</string>
+      </attribute>
+      <layout class="QGridLayout" name="gridLayout_24">
+       <item row="0" column="0">
+        <layout class="QGridLayout" name="gridLayout_22">
+         <item row="0" column="0">
+          <widget class="ctkCollapsibleGroupBox" name="CollapsibleGroupBox_R1TscCoords">
+           <property name="title">
+            <string>Table top robot (R1) Tool-Space Control coordinates (mm)</string>
+           </property>
+           <layout class="QGridLayout" name="gridLayout_23">
+            <item row="0" column="0">
+             <widget class="ctkCoordinatesWidget" name="CoordinatesWidget">
+              <property name="dimension">
+               <number>3</number>
+              </property>
+              <property name="decimals">
+               <number>6</number>
+              </property>
+              <property name="frame">
+               <bool>true</bool>
+              </property>
+              <property name="readOnly">
+               <bool>true</bool>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </widget>
+         </item>
+         <item row="1" column="0">
+          <widget class="ctkCollapsibleGroupBox" name="CollapsibleGroupBox_R1AxisCoordinates">
+           <property name="title">
+            <string>Table top robot (R1) axis coordinates</string>
+           </property>
+           <layout class="QGridLayout" name="gridLayout_27">
+            <item row="0" column="0">
+             <layout class="QGridLayout" name="gridLayout_25">
+              <item row="0" column="0">
+               <widget class="QLabel" name="Label_R1A1">
+                <property name="text">
+                 <string>A1:</string>
+                </property>
+               </widget>
+              </item>
+              <item row="2" column="0">
+               <widget class="QLabel" name="Label_R1A3">
+                <property name="text">
+                 <string>A3:</string>
+                </property>
+               </widget>
+              </item>
+              <item row="1" column="0">
+               <widget class="QLabel" name="Label_R1A2">
+                <property name="text">
+                 <string>A2:</string>
+                </property>
+               </widget>
+              </item>
+              <item row="4" column="0">
+               <widget class="QLabel" name="Label_R1A5">
+                <property name="text">
+                 <string>A5:</string>
+                </property>
+               </widget>
+              </item>
+              <item row="3" column="0">
+               <widget class="QLabel" name="Label_R1A4">
+                <property name="text">
+                 <string>A4:</string>
+                </property>
+               </widget>
+              </item>
+              <item row="5" column="0">
+               <widget class="QLabel" name="Label_R1A6">
+                <property name="text">
+                 <string>A6:</string>
+                </property>
+               </widget>
+              </item>
+              <item row="0" column="1">
+               <widget class="ctkSliderWidget" name="SliderWidget_R1A1">
+                <property name="decimals">
+                 <number>6</number>
+                </property>
+                <property name="minimum">
+                 <double>-185.000000000000000</double>
+                </property>
+                <property name="maximum">
+                 <double>185.000000000000000</double>
+                </property>
+                <property name="suffix">
+                 <string> deg</string>
+                </property>
+                <property name="spinBoxVisible">
+                 <bool>true</bool>
+                </property>
+               </widget>
+              </item>
+              <item row="1" column="1">
+               <widget class="ctkSliderWidget" name="SliderWidget_R1A2">
+                <property name="decimals">
+                 <number>6</number>
+                </property>
+                <property name="minimum">
+                 <double>-140.000000000000000</double>
+                </property>
+                <property name="maximum">
+                 <double>-5.000000000000000</double>
+                </property>
+                <property name="value">
+                 <double>-90.000000000000000</double>
+                </property>
+                <property name="suffix">
+                 <string> deg</string>
+                </property>
+               </widget>
+              </item>
+              <item row="2" column="1">
+               <widget class="ctkSliderWidget" name="SliderWidget_R1A3">
+                <property name="decimals">
+                 <number>6</number>
+                </property>
+                <property name="minimum">
+                 <double>-120.000000000000000</double>
+                </property>
+                <property name="maximum">
+                 <double>168.000000000000000</double>
+                </property>
+                <property name="value">
+                 <double>90.000000000000000</double>
+                </property>
+                <property name="suffix">
+                 <string> deg</string>
+                </property>
+               </widget>
+              </item>
+              <item row="3" column="1">
+               <widget class="ctkSliderWidget" name="SliderWidget_R1A4">
+                <property name="decimals">
+                 <number>6</number>
+                </property>
+                <property name="minimum">
+                 <double>-350.000000000000000</double>
+                </property>
+                <property name="maximum">
+                 <double>350.000000000000000</double>
+                </property>
+                <property name="suffix">
+                 <string> deg</string>
+                </property>
+               </widget>
+              </item>
+              <item row="4" column="1">
+               <widget class="ctkSliderWidget" name="SliderWidget_R1A5">
+                <property name="decimals">
+                 <number>6</number>
+                </property>
+                <property name="minimum">
+                 <double>-122.500000000000000</double>
+                </property>
+                <property name="maximum">
+                 <double>122.500000000000000</double>
+                </property>
+                <property name="value">
+                 <double>-90.000000000000000</double>
+                </property>
+                <property name="suffix">
+                 <string> deg</string>
+                </property>
+               </widget>
+              </item>
+              <item row="5" column="1">
+               <widget class="ctkSliderWidget" name="SliderWidget_R1A6">
+                <property name="decimals">
+                 <number>6</number>
+                </property>
+                <property name="minimum">
+                 <double>-350.000000000000000</double>
+                </property>
+                <property name="maximum">
+                 <double>350.000000000000000</double>
+                </property>
+                <property name="suffix">
+                 <string> deg</string>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </item>
+           </layout>
+          </widget>
+         </item>
+         <item row="2" column="0">
+          <widget class="ctkCollapsibleGroupBox" name="CollapsibleGroupBox_R2AxisCoordinates">
+           <property name="title">
+            <string>C-Arm robot (R2) axis coordinates</string>
+           </property>
+           <layout class="QGridLayout" name="gridLayout_28">
+            <item row="0" column="0">
+             <layout class="QGridLayout" name="gridLayout_26">
+              <item row="2" column="1">
+               <widget class="ctkSliderWidget" name="SliderWidget_R2A3">
+                <property name="decimals">
+                 <number>6</number>
+                </property>
+                <property name="minimum">
+                 <double>-120.000000000000000</double>
+                </property>
+                <property name="maximum">
+                 <double>168.000000000000000</double>
+                </property>
+                <property name="value">
+                 <double>90.000000000000000</double>
+                </property>
+                <property name="suffix">
+                 <string> deg</string>
+                </property>
+               </widget>
+              </item>
+              <item row="3" column="0">
+               <widget class="QLabel" name="Label_R2A4">
+                <property name="text">
+                 <string>A4:</string>
+                </property>
+               </widget>
+              </item>
+              <item row="0" column="0">
+               <widget class="QLabel" name="Label_R2A1">
+                <property name="text">
+                 <string>A1:</string>
+                </property>
+               </widget>
+              </item>
+              <item row="0" column="1">
+               <widget class="ctkSliderWidget" name="SliderWidget_R2A1">
+                <property name="decimals">
+                 <number>6</number>
+                </property>
+                <property name="minimum">
+                 <double>-185.000000000000000</double>
+                </property>
+                <property name="maximum">
+                 <double>185.000000000000000</double>
+                </property>
+                <property name="suffix">
+                 <string> deg</string>
+                </property>
+               </widget>
+              </item>
+              <item row="1" column="1">
+               <widget class="ctkSliderWidget" name="SliderWidget_R2A2">
+                <property name="decimals">
+                 <number>6</number>
+                </property>
+                <property name="minimum">
+                 <double>-140.000000000000000</double>
+                </property>
+                <property name="maximum">
+                 <double>-5.000000000000000</double>
+                </property>
+                <property name="value">
+                 <double>-90.000000000000000</double>
+                </property>
+                <property name="suffix">
+                 <string> deg</string>
+                </property>
+               </widget>
+              </item>
+              <item row="4" column="0">
+               <widget class="QLabel" name="Label_R2A5">
+                <property name="text">
+                 <string>A5:</string>
+                </property>
+               </widget>
+              </item>
+              <item row="3" column="1">
+               <widget class="ctkSliderWidget" name="SliderWidget_R2A4">
+                <property name="decimals">
+                 <number>6</number>
+                </property>
+                <property name="minimum">
+                 <double>-350.000000000000000</double>
+                </property>
+                <property name="maximum">
+                 <double>350.000000000000000</double>
+                </property>
+                <property name="suffix">
+                 <string> deg</string>
+                </property>
+               </widget>
+              </item>
+              <item row="1" column="0">
+               <widget class="QLabel" name="Label_R2A2">
+                <property name="text">
+                 <string>A2:</string>
+                </property>
+               </widget>
+              </item>
+              <item row="4" column="1">
+               <widget class="ctkSliderWidget" name="SliderWidget_R2A5">
+                <property name="decimals">
+                 <number>6</number>
+                </property>
+                <property name="minimum">
+                 <double>-122.500000000000000</double>
+                </property>
+                <property name="maximum">
+                 <double>122.500000000000000</double>
+                </property>
+                <property name="value">
+                 <double>-90.000000000000000</double>
+                </property>
+                <property name="suffix">
+                 <string> deg</string>
+                </property>
+               </widget>
+              </item>
+              <item row="2" column="0">
+               <widget class="QLabel" name="Label_R2A3">
+                <property name="text">
+                 <string>A3:</string>
+                </property>
+               </widget>
+              </item>
+              <item row="5" column="0">
+               <widget class="QLabel" name="Label_R2A6">
+                <property name="text">
+                 <string>A6:</string>
+                </property>
+               </widget>
+              </item>
+              <item row="5" column="1">
+               <widget class="ctkSliderWidget" name="SliderWidget_R2A6">
+                <property name="decimals">
+                 <number>6</number>
+                </property>
+                <property name="minimum">
+                 <double>-350.000000000000000</double>
+                </property>
+                <property name="maximum">
+                 <double>350.000000000000000</double>
+                </property>
+                <property name="suffix">
+                 <string> deg</string>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </item>
+           </layout>
+          </widget>
+         </item>
+        </layout>
+       </item>
+       <item row="1" column="0">
+        <spacer name="verticalSpacer">
+         <property name="orientation">
+          <enum>Qt::Vertical</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>20</width>
+           <height>40</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+      </layout>
+     </widget>
+     <widget class="QWidget" name="tab_OpcUaModel">
+      <attribute name="title">
+       <string>OPC UA model</string>
+      </attribute>
+      <layout class="QGridLayout" name="gridLayout_2">
+       <item row="0" column="0">
+        <widget class="QTreeView" name="TreeView_ScadaOpcUaModel"/>
+       </item>
+      </layout>
+     </widget>
+     <widget class="QWidget" name="tab_ErrorMessages">
+      <attribute name="title">
+       <string>Error messages</string>
+      </attribute>
+      <layout class="QGridLayout" name="gridLayout_3">
+       <item row="0" column="0">
+        <widget class="QListWidget" name="ListWidget_ErrorMessages"/>
+       </item>
+      </layout>
+     </widget>
+     <widget class="QWidget" name="tab_ServiceMessages">
+      <attribute name="title">
+       <string>Service messages</string>
+      </attribute>
+      <layout class="QGridLayout" name="gridLayout_4">
+       <item row="0" column="0">
+        <widget class="QListWidget" name="ListWidget_ServiceMessages"/>
+       </item>
+      </layout>
+     </widget>
+     <widget class="QWidget" name="tab_MiscMessages">
+      <attribute name="title">
+       <string>Misc. messages</string>
+      </attribute>
+      <layout class="QGridLayout" name="gridLayout_5">
+       <item row="0" column="0">
+        <widget class="QListWidget" name="ListWidget_MiscMessages"/>
+       </item>
+      </layout>
+     </widget>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <customwidgets>
+  <customwidget>
+   <class>ctkCollapsibleButton</class>
+   <extends>QWidget</extends>
+   <header>ctkCollapsibleButton.h</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>ctkCollapsibleGroupBox</class>
+   <extends>QGroupBox</extends>
+   <header>ctkCollapsibleGroupBox.h</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>ctkCoordinatesWidget</class>
+   <extends>QWidget</extends>
+   <header>ctkCoordinatesWidget.h</header>
+  </customwidget>
+  <customwidget>
+   <class>ctkSliderWidget</class>
+   <extends>QWidget</extends>
+   <header>ctkSliderWidget.h</header>
+  </customwidget>
+ </customwidgets>
+ <resources/>
+ <connections/>
+</ui>

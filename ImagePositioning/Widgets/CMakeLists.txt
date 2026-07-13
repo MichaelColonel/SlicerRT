@@ -13,6 +13,8 @@ set(${KIT}_SRCS
   qSlicer${MODULE_NAME}FooBarWidget.h
   qSlicerScadaOpcUaLogic.cxx
   qSlicerScadaOpcUaLogic.h
+  qSlicerScadaOpcUaRobotsControlWidget.cxx
+  qSlicerScadaOpcUaRobotsControlWidget.h
   opcuamodel.cpp
   opcuamodel.h
   treeitem.cpp
@@ -22,12 +24,14 @@ set(${KIT}_SRCS
 set(${KIT}_MOC_SRCS
   qSlicer${MODULE_NAME}FooBarWidget.h
   qSlicerScadaOpcUaLogic.h
+  qSlicerScadaOpcUaRobotsControlWidget.h
   opcuamodel.h
   treeitem.h
   )
 
 set(${KIT}_UI_SRCS
   ../Resources/UI/qSlicer${MODULE_NAME}FooBarWidget.ui
+  ../Resources/UI/qSlicerScadaOpcUaRobotsControlWidget.ui
   )
 
 set(${KIT}_RESOURCES
