@@ -28,6 +28,7 @@
 #include <vtkMRMLLayoutLogic.h>
 
 // Slicer includes
+#include <qSlicerSingletonViewFactory.h>
 #include <qSlicerLayoutManager.h>
 #include <qSlicerApplication.h>
 
@@ -37,6 +38,7 @@
 // vtkSlicer and qSlicer logic includes
 #include <vtkSlicerImagePositioningLogic.h>
 #include "qSlicerScadaOpcUaLogic.h"
+#include "qSlicerScadaOpcUaRobotsControlWidget.h"
 
 // Local widgets includes
 #include "opcuamodel.h"
@@ -111,6 +113,14 @@ public:
     "</layout>";
   const int GENERIC_LAYOUT_ID = 1020;
 
+  const char* SCADA_OPCUA_ROBOTS_CONTROL_LAYOUT_DESCRIPTION = \
+    "<layout type=\"vertical\">" \
+    " <item>" \
+    "  <ScadaOpcUaRobotsControl></ScadaOpcUaRobotsControl>" \
+    " </item>" \
+    "</layout>";
+  const int SCADA_OPCUA_ROBOTS_CONTROL_LAYOUT_ID = 1021;
+
   const QString SCADA_PATPOS_NODE_ID = "ns=1;s=Модуль Позиционирования";
   const QString SCADA_TEST_READ_NODE_ID = SCADA_PATPOS_NODE_ID + ".SysTimeScada";
 
@@ -118,6 +128,7 @@ public:
   bool ModuleWindowInitialized{ false };
 
   QScopedPointer< qSlicerScadaOpcUaLogic > ScadaOpcUaLogic;
+  QScopedPointer< qSlicerScadaOpcUaRobotsControlWidget > ScadaOpcUaRobotsControlWidget;
   vtkSmartPointer< vtkMRMLScadaOpcUaNode > ScadaOpcUaNode;
   QScopedPointer< OpcUaModel > ScadaOpcUaModel;
   QScopedPointer<QOpcUaProvider> ScadaOpcUaProvider;
@@ -162,6 +173,7 @@ void qSlicerImagePositioningModuleWidget::setup()
   this->Superclass::setup();
 
   d->ScadaOpcUaLogic.reset(new qSlicerScadaOpcUaLogic(this));
+  d->ScadaOpcUaRobotsControlWidget.reset(new qSlicerScadaOpcUaRobotsControlWidget(this));
   d->ScadaOpcUaModel.reset(new OpcUaModel(this));
   d->ScadaOpcUaProvider.reset(new QOpcUaProvider(this));
 
@@ -187,6 +199,23 @@ void qSlicerImagePositioningModuleWidget::setup()
     if (!layoutNode->SetLayoutDescription(d->GENERIC_LAYOUT_ID, d->GENERIC_LAYOUT_DESCRIPTION))
     {
       layoutNode->AddLayoutDescription(d->GENERIC_LAYOUT_ID, d->GENERIC_LAYOUT_DESCRIPTION);
+    }
+  }
+
+
+  qSlicerSingletonViewFactory* viewFactory = new qSlicerSingletonViewFactory();
+  viewFactory->setWidget(d->ScadaOpcUaRobotsControlWidget.get());
+  viewFactory->setTagName("ScadaOpcUaRobotsControl");
+
+  layoutManager->registerViewFactory(viewFactory);
+  // Save previous layout
+  d->PreviousLayoutId = layoutManager->layout();
+
+  if (layoutNode)
+  {
+    if (!layoutNode->SetLayoutDescription(d->SCADA_OPCUA_ROBOTS_CONTROL_LAYOUT_ID, d->SCADA_OPCUA_ROBOTS_CONTROL_LAYOUT_DESCRIPTION))
+    {
+      layoutNode->AddLayoutDescription(d->SCADA_OPCUA_ROBOTS_CONTROL_LAYOUT_ID, d->SCADA_OPCUA_ROBOTS_CONTROL_LAYOUT_DESCRIPTION);
     }
   }
   
