@@ -30,44 +30,28 @@ public:
   //----------------------------------------------------------------------------
   // Constants
   //----------------------------------------------------------------------------
-  // Distance from collimator wall to isocenter
-  static constexpr double D_COLL_WALL_ISOCENTER = 2450.;
-  // Distance from collimator wall to back wall
-  static constexpr double D_COLL_WALL_BACK_WALL = 6745.;
-  // Distance from isocenter to right wall
-  static constexpr double D_ISOCENTER_RIGHT_WALL = 2270.;
-  // Distance from collimator wall to C-arm x-ray robot base
-  static constexpr double D_COLL_WALL_CARM_XRAY_ROBOT_BASE = 4400.;
-  // Distance from right wall to C-arm x-ray robot base
-  static constexpr double D_RIGHT_WALL_CARM_XRAY_ROBOT_BASE = 930.;
-  // Distance from collimator wall to table top robot base
-  static constexpr double D_COLL_WALL_TABLE_TOP_ROBOT_BASE = 4350.;
-  // Distance from right wall to table top robot base
-  static constexpr double D_RIGHT_WALL_TABLE_TOP_ROBOT_BASE = 2700.;
-  // Distance from back right wall to left wall
-  static constexpr double D_BACK_RIGHT_WALL_LEFT_WALL = 4644.;
-  // Table top robot base fake floor hole diameter
-  static constexpr double TABLE_TOP_ROBOT_FLOOR_HOLE_DIAMETER = 1800.;
-  // Wall thickess (right, left, back)
-  static constexpr double WALL_THICKNESS_RIGHT_LEFT_BACK = 1000.;
-  static constexpr double WALL_THICKNESS_DEFAULT = 1000.;
-  // Table top width
-  static constexpr double TABLE_TOP_WIDTH = 530.;
-  // Table top length
-  static constexpr double TABLE_TOP_LENGTH = 2165.;
-  // Table top height
-  static constexpr double TABLE_TOP_HEIGHT = 58.;
-  // Table top immobilization system markers step
-  static constexpr double TABLE_TOP_MARKERS_STEP = 140.;
-  // Table top immobilization system number of markers
-  static constexpr int TABLE_TOP_NUMBER_OF_MARKERS = 15;
 
-  // Distance from isocenter to physical floor
-  static constexpr double D_ISOCENTER_PHYSCIAL_FLOOR = 2150.;
-  // Distance from physical floor to fake floor
-  static constexpr double D_PHYSCIAL_FLOOR_FAKE_FLOOR = 550.;
-  // Table top robot base fake height
-  static constexpr double TABLE_TOP_ROBOT_BASE_FAKE_FLOOR_HEIGHT = 900.;
+  // Distance from the north (collimator) wall to the south (back) wall
+  static constexpr double D_NORTH_SOUTH_WALL = 6745.;
+  // Distance from the north (collimator) wall to C-arm x-ray robot base
+  static constexpr double D_NORTH_WALL_CARM_XRAY_ROBOT_BASE = 4400.;
+  // Distance from the east (right) wall to C-arm x-ray robot base
+  static constexpr double D_EAST_WALL_CARM_XRAY_ROBOT_BASE = 930.;
+  // Distance from the north (collimator) wall to table top robot base
+  static constexpr double D_NORTH_WALL_TABLE_TOP_ROBOT_BASE = 4350.;
+  // Distance from the east (right) wall to table top robot base
+  static constexpr double D_EAST_WALL_TABLE_TOP_ROBOT_BASE = 2750.;
+
+  // Distance from the north (collimator) wall to isocenter
+  static constexpr double D_NORTH_WALL_ISOCENTER = 2450.;
+  // Distance from the east (right) wall to isocenter
+  static constexpr double D_EAST_WALL_ISOCENTER = 2270.;
+  // Distance from basement (physical floor) to isocenter
+  static constexpr double D_BASEMENT_ISOCENTER = 2150.;
+  // Distance from basement (physical floor) to fake floor
+  static constexpr double D_BASEMENT_FAKE_FLOOR = 1000.;
+  // Distance from basement (physical floor) to C-Arm robot base
+  static constexpr double D_BASEMENT_CARM_ROBOT_BASE = 1500.;
 
   // Table top robot KUKA KR 300 R2700-2
   // Table top robot base fixed size (no in documentation)
@@ -154,8 +138,23 @@ public:
   static constexpr double CARM_DETECTOR_ORIGIN_OFFSET_Y = 0.2;
   static constexpr double CARM_DETECTOR_ORIGIN_OFFSET_Z = 751.;
 
-  // Table flange height
-  static constexpr double TABLE_FLANGE_HEIGHT = 258.;
+  // Table top robot base fake floor hole diameter
+  static constexpr double TABLE_TOP_ROBOT_FLOOR_HOLE_DIAMETER = 2224.;
+  // Table top width
+  static constexpr double TABLE_TOP_WIDTH = 530.;
+  // Table top length
+  static constexpr double TABLE_TOP_LENGTH = 2165.;
+  // Table top height
+  static constexpr double TABLE_TOP_HEIGHT = 58.;
+  // Table top immobilization system markers step
+  static constexpr double TABLE_TOP_MARKERS_STEP = 140.;
+  // Table top immobilization system number of markers
+  static constexpr int TABLE_TOP_NUMBER_OF_MARKERS = 15;
+
+  // Table top flange height
+  static constexpr double TABLE_TOP_FLANGE_HEIGHT = 200.;
+  // Table flange height = 258 mm
+  static constexpr double TABLE_FLANGE_HEIGHT = TABLE_TOP_FLANGE_HEIGHT + TABLE_TOP_HEIGHT;
   // Table top shorter edge to flange center lenght offset
   static constexpr double TABLE_TOP_FLANGE_LENGTH_OFFSET = 640.;
 

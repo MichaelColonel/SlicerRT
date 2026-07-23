@@ -20,6 +20,8 @@
 
 #include "vtkSlicerPatientPositioningModuleMRMLExport.h"
 
+#include "vtkSlicerChannel26Cabin3RobotsGeometryCommon.h"
+
 // MRML includes
 #include <vtkMRML.h>
 #include <vtkMRMLNode.h>
@@ -123,6 +125,8 @@ protected:
   vtkMRMLChannel26GeometryNode(const vtkMRMLChannel26GeometryNode&);
   void operator=(const vtkMRMLChannel26GeometryNode&);
 
+  using CoordPos = vtkSlicerChannel26Cabin3RobotsGeometryCommon;
+
   /// Patient body segment ID in selected segmentation node
   char* PatientBodySegmentID{ nullptr };
 
@@ -137,14 +141,30 @@ protected:
   /// Translate Patient to TableTop
   double PatientToTableTopTranslation[3] = { 0., 0., 0. };
   /// Translate TableRobotBaseFixed begin from FixedReference origin
-  double TableBaseFixedToFixedReferenceTranslation[3] = { -1900., -430., -2150. };
+///  double TableBaseFixedToFixedReferenceTranslation[3] = { -1900., -430., -2150. };
+  double TableBaseFixedToFixedReferenceTranslation[3] = {
+    CoordPos::D_NORTH_WALL_ISOCENTER - CoordPos::D_NORTH_WALL_TABLE_TOP_ROBOT_BASE,
+    CoordPos::D_EAST_WALL_ISOCENTER - CoordPos::D_EAST_WALL_TABLE_TOP_ROBOT_BASE,
+    -1. * CoordPos::D_BASEMENT_ISOCENTER };
   /// Translate C-Arm BaseFixed to Table BaseFixed offset (robots)
   /// X offset = CarmBaseFixed - TableBaseFixed (along X-axis) (minus beam axis)
   /// Y offset = CarmBaseFixed basement height (along Z-axis)
   /// Z offset = CarmBaseFixed + TableBaseFixed (along Y-axis)
-  double CarmBaseFixedToTableBaseFixedOffset[3] = { -1950 + 1900, 900, -1340 - 430 };
+///  double CarmBaseFixedToTableBaseFixedOffset[3] = { -1950 + 1900, 1500, -1340 - 430 };
+  double CarmBaseFixedToTableBaseFixedOffset[3] = {
+    CoordPos::D_NORTH_WALL_TABLE_TOP_ROBOT_BASE - CoordPos::D_NORTH_WALL_CARM_XRAY_ROBOT_BASE,
+    CoordPos::D_BASEMENT_CARM_ROBOT_BASE,
+    CoordPos::D_EAST_WALL_CARM_XRAY_ROBOT_BASE - CoordPos::D_EAST_WALL_TABLE_TOP_ROBOT_BASE };
+  /// Translate C-Arm BaseFixed to TableTop BaseFixed offset
+  /// X offset = CArmBaseFixed - TableTopBaseFixed (along X-axis) (minus beam axis)
+  /// Y offset = CArmBaseFixed basement height (along Z-axis)
+  /// Z offset = CArmBaseFixed + TableTopBaseFixed (along Y-axis)
+//  double CArmBaseFixedToTableTopBaseFixedOffset[3] = { -1950 + 1900, 1500, -1340 - 430 };
+//  double CArmBaseFixedToTableTopBaseFixedOffset[3] = {
+//    CoordPos::D_NORTH_WALL_TABLE_TOP_ROBOT_BASE - CoordPos::D_NORTH_WALL_CARM_XRAY_ROBOT_BASE,
+//    CoordPos::D_BASEMENT_CARM_ROBOT_BASE, 0 };
   /// Setup table top robot angles
-  double TableRobotAngles[6] = { 0., 0., 0., 0., 0., 0. }; // A1=0, A2=-90, A3=90, A4=0, A5=-90, A6=0
+  double TableRobotAngles[6] = { 0., 0., 0., 0., 0., 90. }; // A1=0, A2=-90, A3=90, A4=0, A5=-90, A6=0
   /// Setup x-ray c-arm robot angles
   double CarmRobotAngles[6] = { 0., 0., 0., 0., 0., 0. };
   /// table top plane correction angles

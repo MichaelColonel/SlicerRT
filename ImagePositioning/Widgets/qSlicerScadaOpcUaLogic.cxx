@@ -304,6 +304,34 @@ public:
   QScopedPointer<QOpcUaNode> OpcUaScadaAmR2SetNewZIsEnabledNode;
   QScopedPointer<QOpcUaNode> OpcUaScadaAmR2SetNewZIsPressedNode;
 
+  // Manual Movement (MM) robots mode
+  QScopedPointer<QOpcUaNode> OpcUaScadaMmR1LoadToIsoIsEnabledNode;
+  QScopedPointer<QOpcUaNode> OpcUaScadaMmR1LoadToIsoIsPressedNode;
+
+  QScopedPointer<QOpcUaNode> OpcUaScadaMmR1ToNewCoordsIsEnabledNode;
+  QScopedPointer<QOpcUaNode> OpcUaScadaMmR1ToNewCoordsIsPressedNode;
+
+  QScopedPointer<QOpcUaNode> OpcUaScadaMmR1ToHomeIsEnabledNode;
+  QScopedPointer<QOpcUaNode> OpcUaScadaMmR1ToHomeIsPressedNode;
+
+  QScopedPointer<QOpcUaNode> OpcUaScadaMmR1ToLoadIsEnabledNode;
+  QScopedPointer<QOpcUaNode> OpcUaScadaMmR1ToLoadIsPressedNode;
+
+  QScopedPointer<QOpcUaNode> OpcUaScadaMmR2ToIsoIsEnabledNode;
+  QScopedPointer<QOpcUaNode> OpcUaScadaMmR2ToIsoIsPressedNode;
+
+  QScopedPointer<QOpcUaNode> OpcUaScadaMmR2ToSecondPlaneIsEnabledNode;
+  QScopedPointer<QOpcUaNode> OpcUaScadaMmR2ToSecondPlaneIsPressedNode;
+
+  QScopedPointer<QOpcUaNode> OpcUaScadaMmR2MakeXrayIsEnabledNode;
+  QScopedPointer<QOpcUaNode> OpcUaScadaMmR2MakeXrayIsPressedNode;
+
+  QScopedPointer<QOpcUaNode> OpcUaScadaMmR2ToHomeIsEnabledNode;
+  QScopedPointer<QOpcUaNode> OpcUaScadaMmR2ToHomeIsPressedNode;
+
+  QScopedPointer<QOpcUaNode> OpcUaScadaMmR2SetNewZIsEnabledNode;
+  QScopedPointer<QOpcUaNode> OpcUaScadaMmR2SetNewZIsPressedNode;
+
   QScopedPointer<QOpcUaNode> OpcUaPatPosLocalTimeNode;
   QScopedPointer<QOpcUaNode> OpcUaPatPosErrorMessageNode;
   QScopedPointer<QOpcUaNode> OpcUaPatPosEventMessageNode;
@@ -311,6 +339,7 @@ public:
   bool connectStatusNodes();
   bool connectCoordFromAsuNodes();
   bool connectAutomaticMovementNodes();
+  bool connectManualMovementNodes();
 
   bool ClientConnectedFlag{ false };
 };
@@ -742,6 +771,333 @@ bool qSlicerScadaOpcUaLogicPrivate::connectAutomaticMovementNodes()
   // Subscribe to data changes
   opcNode->enableMonitoring(QOpcUa::NodeAttribute::Value, QOpcUaMonitoringParameters(100));
 
+  // Automatic movement R1_ToNewCoords is enabled (read-only)
+  nodeIdStr = QString::fromStdString(this->SCADA_TOASU_BUTTONS_AM_R1_TONEWCOORDS_ISENABLE_NODE_ID);
+  this->OpcUaScadaAmR1ToNewCoordsIsEnabledNode.reset(this->OpcUaClient->node(nodeIdStr));
+
+  // Automatic movement R1_ToNewCoords is pressed (read-write)
+  nodeIdStr = QString::fromStdString(this->SCADA_TOASU_BUTTONS_AM_R1_TONEWCOORDS_ISPRESSED_NODE_ID);
+  this->OpcUaScadaAmR1ToNewCoordsIsPressedNode.reset(this->OpcUaClient->node(nodeIdStr));
+
+  // Connect signal handlers for subscribed values
+  // Automatic movement R1_ToNewCoords is enabled (read-only)
+  if (!this->OpcUaScadaAmR1LoadToIsoIsEnabledNode)
+  {
+    return false;
+  }
+  opcNode = this->OpcUaScadaAmR1ToNewCoordsIsEnabledNode.get();
+  QObject::connect(opcNode,
+    &QOpcUaNode::dataChangeOccurred, [mrmlNode](QOpcUa::NodeAttribute attr, QVariant value)
+    {
+      if (attr == QOpcUa::NodeAttribute::Value)
+      {
+        bool isEnabled = value.toBool();
+        if (mrmlNode)
+        {
+          bool state[2] = {false, false};
+          
+          mrmlNode->GetAM_Buttons_R1_ToNewCoords(state);
+          state[0] = isEnabled;
+          mrmlNode->SetAM_Buttons_R1_ToNewCoords(state);
+          qDebug() << Q_FUNC_INFO << "Automatic movement R1_ToNewCoords is enabled: " << isEnabled;
+        }
+      }
+    }
+  );
+  // Subscribe to data changes
+  opcNode->enableMonitoring(QOpcUa::NodeAttribute::Value, QOpcUaMonitoringParameters(100));
+
+  // Automatic movement R1_ToNewCoords is pressed (read-write)
+  if (!this->OpcUaScadaAmR1ToNewCoordsIsPressedNode)
+  {
+    return false;
+  }
+  opcNode = this->OpcUaScadaAmR1ToNewCoordsIsPressedNode.get();
+  QObject::connect(opcNode,
+    &QOpcUaNode::dataChangeOccurred, [mrmlNode](QOpcUa::NodeAttribute attr, QVariant value)
+    {
+      if (attr == QOpcUa::NodeAttribute::Value)
+      {
+        bool isPressed = value.toBool();
+        if (mrmlNode)
+        {
+          bool state[2] = {false, false};
+          
+          mrmlNode->GetAM_Buttons_R1_ToNewCoords(state);
+          state[1] = isPressed;
+          mrmlNode->GetAM_Buttons_R1_ToNewCoords(state);
+          qDebug() << Q_FUNC_INFO << "Automatic movement R1_ToNewCoords is pressed: " << isPressed;
+        }
+      }
+    }
+  );
+  // Subscribe to data changes
+  opcNode->enableMonitoring(QOpcUa::NodeAttribute::Value, QOpcUaMonitoringParameters(100));
+
+  // Automatic movement R1_ToHome is enabled (read-only)
+  nodeIdStr = QString::fromStdString(this->SCADA_TOASU_BUTTONS_AM_R1_TOHOME_ISENABLE_NODE_ID);
+  this->OpcUaScadaAmR1ToHomeIsEnabledNode.reset(this->OpcUaClient->node(nodeIdStr));
+
+  // Automatic movement R1_ToHome is pressed (read-write)
+  nodeIdStr = QString::fromStdString(this->SCADA_TOASU_BUTTONS_AM_R1_TOHOME_ISPRESSED_NODE_ID);
+  this->OpcUaScadaAmR1ToHomeIsPressedNode.reset(this->OpcUaClient->node(nodeIdStr));
+
+  // Connect signal handlers for subscribed values
+  // Automatic movement R1_ToHome is enabled (read-only)
+  if (!this->OpcUaScadaAmR1ToHomeIsEnabledNode)
+  {
+    return false;
+  }
+  opcNode = this->OpcUaScadaAmR1ToHomeIsEnabledNode.get();
+  QObject::connect(opcNode,
+    &QOpcUaNode::dataChangeOccurred, [mrmlNode](QOpcUa::NodeAttribute attr, QVariant value)
+    {
+      if (attr == QOpcUa::NodeAttribute::Value)
+      {
+        bool isEnabled = value.toBool();
+        if (mrmlNode)
+        {
+          bool state[2] = {false, false};
+          
+          mrmlNode->GetAM_Buttons_R1_ToHome(state);
+          state[0] = isEnabled;
+          mrmlNode->SetAM_Buttons_R1_ToHome(state);
+          qDebug() << Q_FUNC_INFO << "Automatic movement R1_ToHome is enabled: " << isEnabled;
+        }
+      }
+    }
+  );
+  // Subscribe to data changes
+  opcNode->enableMonitoring(QOpcUa::NodeAttribute::Value, QOpcUaMonitoringParameters(100));
+
+  // Automatic movement R1_ToHome is pressed (read-write)
+  if (!this->OpcUaScadaAmR1ToHomeIsPressedNode)
+  {
+    return false;
+  }
+  opcNode = this->OpcUaScadaAmR1ToHomeIsPressedNode.get();
+  QObject::connect(opcNode,
+    &QOpcUaNode::dataChangeOccurred, [mrmlNode](QOpcUa::NodeAttribute attr, QVariant value)
+    {
+      if (attr == QOpcUa::NodeAttribute::Value)
+      {
+        bool isPressed = value.toBool();
+        if (mrmlNode)
+        {
+          bool state[2] = {false, false};
+          
+          mrmlNode->GetAM_Buttons_R1_ToHome(state);
+          state[1] = isPressed;
+          mrmlNode->SetAM_Buttons_R1_ToHome(state);
+          qDebug() << Q_FUNC_INFO << "Automatic movement R1_ToHome is pressed: " << isPressed;
+        }
+      }
+    }
+  );
+  // Subscribe to data changes
+  opcNode->enableMonitoring(QOpcUa::NodeAttribute::Value, QOpcUaMonitoringParameters(100));
+
+  return true;
+}
+
+//-----------------------------------------------------------------------------
+bool qSlicerScadaOpcUaLogicPrivate::connectManualMovementNodes()
+{
+  if (!this->OpcUaClient || !this->ParameterNode)
+  {
+    return false;
+  }
+  vtkMRMLScadaOpcUaNode* mrmlNode = this->ParameterNode.GetPointer();
+  // write values
+  // Manual movement R1_LoadToIso is enabled (read-only)
+  QString nodeIdStr = QString::fromStdString(this->SCADA_TOASU_BUTTONS_MM_R1_LOADTOISO_ISENABLE_NODE_ID);
+  this->OpcUaScadaMmR1LoadToIsoIsEnabledNode.reset(this->OpcUaClient->node(nodeIdStr));
+
+  // Manual movement R1_LoadToIso is pressed (read-write)
+  nodeIdStr = QString::fromStdString(this->SCADA_TOASU_BUTTONS_MM_R1_LOADTOISO_ISPRESSED_NODE_ID);
+  this->OpcUaScadaMmR1LoadToIsoIsPressedNode.reset(this->OpcUaClient->node(nodeIdStr));
+
+  // Connect signal handlers for subscribed values
+  // Manual movement R1_LoadToIso is enabled (read-only)
+  if (!this->OpcUaScadaMmR1LoadToIsoIsEnabledNode)
+  {
+    return false;
+  }
+  QOpcUaNode* opcNode = this->OpcUaScadaMmR1LoadToIsoIsEnabledNode.get();
+  QObject::connect(opcNode,
+    &QOpcUaNode::dataChangeOccurred, [mrmlNode](QOpcUa::NodeAttribute attr, QVariant value)
+    {
+      if (attr == QOpcUa::NodeAttribute::Value)
+      {
+        bool isEnabled = value.toBool();
+        if (mrmlNode)
+        {
+          bool state[2] = {false, false};
+          
+          mrmlNode->GetMM_Buttons_R1_LoadToIso(state);
+          state[0] = isEnabled;
+          mrmlNode->SetMM_Buttons_R1_LoadToIso(state);
+          qDebug() << Q_FUNC_INFO << "Manual movement R1_LoadToIso is enabled: " << isEnabled;
+        }
+      }
+    }
+  );
+  // Subscribe to data changes
+  opcNode->enableMonitoring(QOpcUa::NodeAttribute::Value, QOpcUaMonitoringParameters(100));
+
+  // Manual movement R1_LoadToIso is pressed (read-write)
+  if (!this->OpcUaScadaMmR1LoadToIsoIsPressedNode)
+  {
+    return false;
+  }
+  opcNode = this->OpcUaScadaMmR1LoadToIsoIsPressedNode.get();
+  QObject::connect(opcNode,
+    &QOpcUaNode::dataChangeOccurred, [mrmlNode](QOpcUa::NodeAttribute attr, QVariant value)
+    {
+      if (attr == QOpcUa::NodeAttribute::Value)
+      {
+        bool isPressed = value.toBool();
+        if (mrmlNode)
+        {
+          bool state[2] = {false, false};
+          
+          mrmlNode->GetMM_Buttons_R1_LoadToIso(state);
+          state[1] = isPressed;
+          mrmlNode->SetMM_Buttons_R1_LoadToIso(state);
+          qDebug() << Q_FUNC_INFO << "Manual movement R1_LoadToIso is pressed: " << isPressed;
+        }
+      }
+    }
+  );
+  // Subscribe to data changes
+  opcNode->enableMonitoring(QOpcUa::NodeAttribute::Value, QOpcUaMonitoringParameters(100));
+
+  // Manual movement R1_ToNewCoords is enabled (read-only)
+  nodeIdStr = QString::fromStdString(this->SCADA_TOASU_BUTTONS_MM_R1_TONEWCOORDS_ISENABLE_NODE_ID);
+  this->OpcUaScadaMmR1ToNewCoordsIsEnabledNode.reset(this->OpcUaClient->node(nodeIdStr));
+
+  // Manual movement R1_ToNewCoords is pressed (read-write)
+  nodeIdStr = QString::fromStdString(this->SCADA_TOASU_BUTTONS_MM_R1_TONEWCOORDS_ISPRESSED_NODE_ID);
+  this->OpcUaScadaAmR1ToNewCoordsIsPressedNode.reset(this->OpcUaClient->node(nodeIdStr));
+
+  // Connect signal handlers for subscribed values
+  // Manual movement R1_ToNewCoords is enabled (read-only)
+  if (!this->OpcUaScadaMmR1LoadToIsoIsEnabledNode)
+  {
+    return false;
+  }
+  opcNode = this->OpcUaScadaMmR1ToNewCoordsIsEnabledNode.get();
+  QObject::connect(opcNode,
+    &QOpcUaNode::dataChangeOccurred, [mrmlNode](QOpcUa::NodeAttribute attr, QVariant value)
+    {
+      if (attr == QOpcUa::NodeAttribute::Value)
+      {
+        bool isEnabled = value.toBool();
+        if (mrmlNode)
+        {
+          bool state[2] = {false, false};
+          
+          mrmlNode->GetMM_Buttons_R1_ToNewCoords(state);
+          state[0] = isEnabled;
+          mrmlNode->SetMM_Buttons_R1_ToNewCoords(state);
+          qDebug() << Q_FUNC_INFO << "Manual movement R1_ToNewCoords is enabled: " << isEnabled;
+        }
+      }
+    }
+  );
+  // Subscribe to data changes
+  opcNode->enableMonitoring(QOpcUa::NodeAttribute::Value, QOpcUaMonitoringParameters(100));
+
+  // Manual movement R1_ToNewCoords is pressed (read-write)
+  if (!this->OpcUaScadaMmR1ToNewCoordsIsPressedNode)
+  {
+    return false;
+  }
+  opcNode = this->OpcUaScadaMmR1ToNewCoordsIsPressedNode.get();
+  QObject::connect(opcNode,
+    &QOpcUaNode::dataChangeOccurred, [mrmlNode](QOpcUa::NodeAttribute attr, QVariant value)
+    {
+      if (attr == QOpcUa::NodeAttribute::Value)
+      {
+        bool isPressed = value.toBool();
+        if (mrmlNode)
+        {
+          bool state[2] = {false, false};
+          
+          mrmlNode->GetMM_Buttons_R1_ToNewCoords(state);
+          state[1] = isPressed;
+          mrmlNode->GetMM_Buttons_R1_ToNewCoords(state);
+          qDebug() << Q_FUNC_INFO << "Manual movement R1_ToNewCoords is pressed: " << isPressed;
+        }
+      }
+    }
+  );
+  // Subscribe to data changes
+  opcNode->enableMonitoring(QOpcUa::NodeAttribute::Value, QOpcUaMonitoringParameters(100));
+
+  // Manual movement R1_ToHome is enabled (read-only)
+  nodeIdStr = QString::fromStdString(this->SCADA_TOASU_BUTTONS_MM_R1_TOHOME_ISENABLE_NODE_ID);
+  this->OpcUaScadaMmR1ToHomeIsEnabledNode.reset(this->OpcUaClient->node(nodeIdStr));
+
+  // Manual movement R1_ToHome is pressed (read-write)
+  nodeIdStr = QString::fromStdString(this->SCADA_TOASU_BUTTONS_MM_R1_TOHOME_ISPRESSED_NODE_ID);
+  this->OpcUaScadaMmR1ToHomeIsPressedNode.reset(this->OpcUaClient->node(nodeIdStr));
+
+  // Connect signal handlers for subscribed values
+  // Automatic movement R1_ToHome is enabled (read-only)
+  if (!this->OpcUaScadaMmR1ToHomeIsEnabledNode)
+  {
+    return false;
+  }
+  opcNode = this->OpcUaScadaMmR1ToHomeIsEnabledNode.get();
+  QObject::connect(opcNode,
+    &QOpcUaNode::dataChangeOccurred, [mrmlNode](QOpcUa::NodeAttribute attr, QVariant value)
+    {
+      if (attr == QOpcUa::NodeAttribute::Value)
+      {
+        bool isEnabled = value.toBool();
+        if (mrmlNode)
+        {
+          bool state[2] = {false, false};
+          
+          mrmlNode->GetMM_Buttons_R1_ToHome(state);
+          state[0] = isEnabled;
+          mrmlNode->SetMM_Buttons_R1_ToHome(state);
+          qDebug() << Q_FUNC_INFO << "Manual movement R1_ToHome is enabled: " << isEnabled;
+        }
+      }
+    }
+  );
+  // Subscribe to data changes
+  opcNode->enableMonitoring(QOpcUa::NodeAttribute::Value, QOpcUaMonitoringParameters(100));
+
+  // Manual movement R1_ToHome is pressed (read-write)
+  if (!this->OpcUaScadaMmR1ToHomeIsPressedNode)
+  {
+    return false;
+  }
+  opcNode = this->OpcUaScadaMmR1ToHomeIsPressedNode.get();
+  QObject::connect(opcNode,
+    &QOpcUaNode::dataChangeOccurred, [mrmlNode](QOpcUa::NodeAttribute attr, QVariant value)
+    {
+      if (attr == QOpcUa::NodeAttribute::Value)
+      {
+        bool isPressed = value.toBool();
+        if (mrmlNode)
+        {
+          bool state[2] = {false, false};
+          
+          mrmlNode->GetMM_Buttons_R1_ToHome(state);
+          state[1] = isPressed;
+          mrmlNode->SetMM_Buttons_R1_ToHome(state);
+          qDebug() << Q_FUNC_INFO << "Manual movement R1_ToHome is pressed: " << isPressed;
+        }
+      }
+    }
+  );
+  // Subscribe to data changes
+  opcNode->enableMonitoring(QOpcUa::NodeAttribute::Value, QOpcUaMonitoringParameters(100));
+
   return true;
 }
 
@@ -983,6 +1339,12 @@ void qSlicerScadaOpcUaLogic::clientConnected()
   }
 
   resStatusModes = d->connectAutomaticMovementNodes();
+  if (!resStatusModes)
+  {
+    qWarning() << Q_FUNC_INFO << "Can't connect automatic movement nodes";
+  }
+
+  resStatusModes = d->connectManualMovementNodes();
   if (!resStatusModes)
   {
     qWarning() << Q_FUNC_INFO << "Can't connect automatic movement nodes";

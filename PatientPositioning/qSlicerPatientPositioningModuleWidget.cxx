@@ -836,7 +836,7 @@ void qSlicerPatientPositioningModuleWidget::onTableRobotA6Changed(double a6)
   double a[6] = {};
   channel26GeometryNode->GetTableRobotAngles(a);
   channel26GeometryNode->DisableModifiedEventOn();
-  a[5] = a6;
+  a[5] = 90. + a6;
   channel26GeometryNode->SetTableRobotAngles(a);
   channel26GeometryNode->DisableModifiedEventOff();
 

@@ -12,6 +12,7 @@ set(${KIT}_INCLUDE_DIRECTORIES
   ${vtkSlicerBeamsModuleMRML_INCLUDE_DIRS}
   ${vtkSlicerDrrImageComputationModuleLogic_INCLUDE_DIRS}
   ${vtkSlicerPlanarImageModuleLogic_INCLUDE_DIRS}
+  ${vtkSlicer${MODULE_NAME}ModuleLogic_INCLUDE_DIRS}
   )
 
 # --------------------------------------------------------------------------

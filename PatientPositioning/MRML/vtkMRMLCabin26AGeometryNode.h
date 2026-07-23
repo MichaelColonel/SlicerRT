@@ -136,13 +136,20 @@ protected:
   double TableTopVerticalAngle{ 0. };
   /// Translate Patient to TableTop
   double PatientToTableTopTranslation[3] = { 0., 0., 0. };
-  /// Translate BaseFixed begin from FixedReference origin
-  double BaseFixedToFixedReferenceTranslation[3] = { -1900., -430., -2150. - 240. };
+  /// Translate TableTopBaseFixed begin from FixedReference origin
+//  double BaseFixedToFixedReferenceTranslation[3] = { -1900., -430., -1. * D_ISOCENTER_PHYSCIAL_FLOOR. - 240. };
+  double BaseFixedToFixedReferenceTranslation[3] = {
+    D_NORTH_WALL_ISOCENTER - D_NORTH_WALL_TABLE_TOP_ROBOT_BASE,
+    D_EAST_WALL_TABLE_TOP_ROBOT_BASE - D_EAST_WALL_ISOCENTER,
+    -1. * (D_ISOCENTER_PHYSCIAL_FLOOR. + TABLE_ROBOT_WRIST_SIZE) };
   /// Translate C-Arm BaseFixed to TableTop BaseFixed offset
   /// X offset = CArmBaseFixed - TableTopBaseFixed (along X-axis) (minus beam axis)
   /// Y offset = CArmBaseFixed basement height (along Z-axis)
   /// Z offset = CArmBaseFixed + TableTopBaseFixed (along Y-axis)
-  double CArmBaseFixedToTableTopBaseFixedOffset[3] = { -1950 + 1900, 900, -1340 - 430 };
+//  double CArmBaseFixedToTableTopBaseFixedOffset[3] = { -1950 + 1900, 1500, -1340 - 430 };
+  double CArmBaseFixedToTableTopBaseFixedOffset[3] = {
+    D_NORTH_WALL_TABLE_TOP_ROBOT_BASE - D_NORTH_WALL_CARM_XRAY_ROBOT_BASE,
+    D_BASEMENT_CARM_ROBOT_BASE, 0 };
   /// Setup table top robot angles
   double TableTopRobotAngles[6] = { 0., 0., 0., 0., 0., 0. }; // A1=0, A2=-90, A3=90, A4=0, A5=-90, A6=0
   /// Setup x-ray c-arm robot angles

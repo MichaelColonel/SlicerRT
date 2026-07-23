@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>293</width>
-    <height>853</height>
+    <width>401</width>
+    <height>867</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -355,7 +355,7 @@
             <number>3</number>
            </property>
            <property name="decimals">
-            <number>0</number>
+            <number>6</number>
            </property>
           </widget>
          </item>
@@ -506,7 +506,7 @@
  <resources/>
  <connections/>
  <buttongroups>
-  <buttongroup name="buttonGroup"/>
   <buttongroup name="ButtonGroup_Cabin"/>
+  <buttongroup name="buttonGroup"/>
  </buttongroups>
 </ui>

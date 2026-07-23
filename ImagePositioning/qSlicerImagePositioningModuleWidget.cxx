@@ -252,7 +252,7 @@ void qSlicerImagePositioningModuleWidget::onSetCustomLayoutClicked()
   {
     if (layoutManager)
     {
-      layoutManager->setLayout(d->GENERIC_LAYOUT_ID);
+      layoutManager->setLayout(d->SCADA_OPCUA_ROBOTS_CONTROL_LAYOUT_ID);
     }
   }
   else
