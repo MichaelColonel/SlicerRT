@@ -1,0 +1,219 @@
+{
+  "TreatmentMachineName": "Channel-26 Cabin-3",
+  "Author": "Mikhail Polkovnikov",
+  "Date": "2025",
+  "$schema": "https://raw.githubusercontent.com/???/???-schema.json#",
+  "_comment": "Geometry based on KUKA KR 300 R2700-2 document for table top robot",
+  "Part": [
+    {
+      "Type": "FixedReference",
+      "Number": 1,
+      "Name": "Fixed Reference",
+      "FilePath": "FixedReference.stl",
+      "FileToRASTransformMatrix": [ [-1, 0, 0, 0], [0, -1, 0, 0], [0, 0, 1, 0], [0, 0, 0, 1] ],
+      "Color": [179, 179, 244],
+      "State": "Active",
+      "PointRAS": [0, 0, 0]
+    },
+    {
+      "Type": "TableRobotBaseFixed",
+      "Number": 2,
+      "Name": "Table Robot Base (Fixed)",
+      "FilePath": "KR300_R2700-2_BaseFixed.stl",
+      "FileToRASTransformMatrix": [ [-1, 0, 0, 0], [0, -1, 0, 0], [0, 0, 1, 0], [0, 0, 0, 1] ],
+      "Color": [0, 0, 0],
+      "State": "Active",
+      "PointRAS": [0, 1790, 1910]
+    },
+    {
+      "Type": "TableRobotBaseRotation",
+      "Number": 3,
+      "Name": "Table Robot Base (Rotation)",
+      "FilePath": "KR300_R2700-2_BaseRotation.stl",
+      "FileToRASTransformMatrix": [ [-1, 0, 0, 0], [0, -1, 0, 0], [0, 0, 1, 0], [0, 0, 0, 1] ],
+      "Color": [233, 116, 0],
+      "State": "Active",
+      "PointRAS": [0, 1790, 1910]
+    },
+    {
+      "Type": "TableRobotShoulder",
+      "Number": 4,
+      "Name": "Table Robot Shoulder",
+      "FilePath": "KR300_R2700-2_Shoulder.stl",
+      "FileToRASTransformMatrix": [ [-1, 0, 0, 0], [0, -1, 0, 0], [0, 0, 1, 0], [0, 0, 0, 1] ],
+      "Color": [233, 116, 0],
+      "State": "Active",
+      "PointRAS": [0, 1790, 1910]
+    },
+    {
+      "Type": "TableRobotElbowShoulder",
+      "Number": 5,
+      "Name": "Table Robot Elbow Shoulder",
+      "FilePath": "KR300_R2700-2_Elbow_A3.stl",
+      "FileToRASTransformMatrix": [ [-1, 0, 0, 0], [0, -1, 0, 0], [0, 0, 1, 0], [0, 0, 0, 1] ],
+      "Color": [233, 116, 0],
+      "State": "Active",
+      "PointRAS": [0, 1790, 1910]
+    },
+    {
+      "Type": "TableRobotElbowWrist",
+      "Number": 6,
+      "Name": "Table Robot Elbow Wrist",
+      "FilePath": "KR300_R2700-2_Elbow_A4.stl",
+      "FileToRASTransformMatrix": [ [-1, 0, 0, 0], [0, -1, 0, 0], [0, 0, 1, 0], [0, 0, 0, 1] ],
+      "Color": [233, 116, 0],
+      "State": "Active",
+      "PointRAS": [0, 1790, 1910]
+    },
+    {
+      "Type": "TableRobotWrist",
+      "Number": 7,
+      "Name": "Table Robot Wrist",
+      "FilePath": "KR300_R2700-2_Wrist.stl",
+      "FileToRASTransformMatrix": [ [-1, 0, 0, 0], [0, -1, 0, 0], [0, 0, 1, 0], [0, 0, 0, 1] ],
+      "Color": [233, 116, 0],
+      "State": "Active",
+      "PointRAS": [0, 1790, 1910]
+    },
+    {
+      "Type": "TableRobotFlange",
+      "Number": 8,
+      "Name": "Table Robot Flange",
+      "FilePath": "KR300_R2700-2_Flange.stl",
+      "FileToRASTransformMatrix": [ [-1, 0, 0, 0], [0, -1, 0, 0], [0, 0, 1, 0], [0, 0, 0, 1] ],
+      "Color": [80, 80, 80],
+      "State": "Active",
+      "PointRAS": [-0.5, -210.0, 821.6]
+    },
+    {
+      "Type": "TableFlange",
+      "Number": 9,
+      "Name": "Table Flange",
+      "FilePath": "TableFlange.stl",
+      "FileToRASTransformMatrix": [ [-1, 0, 0, 0], [0, -1, 0, 0], [0, 0, 1, 0], [0, 0, 0, 1] ],
+      "Color": [255, 0, 0],
+      "State": "Active",
+      "PointRAS": [-0.5, -210.0, 821.6]
+    },
+    {
+      "Type": "TableTop",
+      "Number": 10,
+      "Name": "Table Top",
+      "FilePath": "TableTop.stl",
+      "FileToRASTransformMatrix": [ [-1, 0, 0, 0], [0, -1, 0, 0], [0, 0, 1, 0], [0, 0, 0, 1] ],
+      "Color": [0, 0, 0],
+      "State": "Active",
+      "PointRAS": [-0.5, -210.0, 821.6]
+    },
+    {
+      "Type": "CarmRobotBaseFixed",
+      "Number": 11,
+      "Name": "C-arm Robot Base (Fixed)",
+      "FilePath": "KR210_R3100-2_BaseFixed.stl",
+      "FileToRASTransformMatrix": [ [-1, 0, 0, 0], [0, -1, 0, 0], [0, 0, 1, 0], [0, 0, 0, 1] ],
+      "Color": [0, 0, 0],
+      "State": "Active",
+      "PointRAS": [0, 1790, 1910]
+    },
+    {
+      "Type": "CarmRobotBaseRotation",
+      "Number": 12,
+      "Name": "C-arm Robot Base (Rotation)",
+      "FilePath": "KR210_R3100-2_BaseRotation.stl",
+      "FileToRASTransformMatrix": [ [-1, 0, 0, 0], [0, -1, 0, 0], [0, 0, 1, 0], [0, 0, 0, 1] ],
+      "Color": [233, 116, 0],
+      "State": "Active",
+      "PointRAS": [0, 1790, 1910]
+    },
+    {
+      "Type": "CarmRobotShoulder",
+      "Number": 13,
+      "Name": "C-arm Robot Shoulder",
+      "FilePath": "KR210_R3100-2_Shoulder.stl",
+      "FileToRASTransformMatrix": [ [-1, 0, 0, 0], [0, -1, 0, 0], [0, 0, 1, 0], [0, 0, 0, 1] ],
+      "Color": [233, 116, 0],
+      "State": "Active",
+      "PointRAS": [0, 1790, 1910]
+    },
+    {
+      "Type": "CarmRobotElbowShoulder",
+      "Number": 14,
+      "Name": "C-arm Robot Elbow Shoulder",
+      "FilePath": "KR210_R3100-2_Elbow_A3.stl",
+      "FileToRASTransformMatrix": [ [-1, 0, 0, 0], [0, -1, 0, 0], [0, 0, 1, 0], [0, 0, 0, 1] ],
+      "Color": [233, 116, 0],
+      "State": "Active",
+      "PointRAS": [0, 1790, 1910]
+    },
+    {
+      "Type": "CarmRobotElbowWrist",
+      "Number": 15,
+      "Name": "C-arm Robot Elbow Wrist",
+      "FilePath": "KR210_R3100-2_Elbow_A4.stl",
+      "FileToRASTransformMatrix": [ [-1, 0, 0, 0], [0, -1, 0, 0], [0, 0, 1, 0], [0, 0, 0, 1] ],
+      "Color": [233, 116, 0],
+      "State": "Active",
+      "PointRAS": [0, 1790, 1910]
+    },
+    {
+      "Type": "CarmRobotWrist",
+      "Number": 16,
+      "Name": "C-arm Robot Wrist",
+      "FilePath": "KR210_R3100-2_Wrist.stl",
+      "FileToRASTransformMatrix": [ [-1, 0, 0, 0], [0, -1, 0, 0], [0, 0, 1, 0], [0, 0, 0, 1] ],
+      "Color": [233, 116, 0],
+      "State": "Active",
+      "PointRAS": [0, 1790, 1910]
+    },
+    {
+      "Type": "CarmRobotFlange",
+      "Number": 17,
+      "Name": "C-arm Robot Flange",
+      "FilePath": "KR210_R3100-2_Flange.stl",
+      "FileToRASTransformMatrix": [ [-1, 0, 0, 0], [0, -1, 0, 0], [0, 0, 1, 0], [0, 0, 0, 1] ],
+      "Color": [80, 80, 80],
+      "State": "Active",
+      "PointRAS": [-0.5, -210.0, 821.6]
+    },
+    {
+      "Type": "Carm",
+      "Number": 18,
+      "Name": "C-arm",
+      "FilePath": "Carm.stl",
+      "FileToRASTransformMatrix": [ [-1, 0, 0, 0], [0, -1, 0, 0], [0, 0, 1, 0], [0, 0, 0, 1] ],
+      "Color": [127, 127, 127],
+      "State": "Active",
+      "PointRAS": [-0.5, -210.0, 821.6]
+    },
+    {
+      "Type": "CarmXrayBeam",
+      "Number": 19,
+      "Name": "C-arm X-ray beam",
+      "FilePath": "CarmXrayBeam.stl",
+      "FileToRASTransformMatrix": [ [-1, 0, 0, 0], [0, -1, 0, 0], [0, 0, 1, 0], [0, 0, 0, 1] ],
+      "Color": [255, 64, 64],
+      "State": "Active",
+      "PointRAS": [-0.5, -210.0, 821.6]
+    },
+    {
+      "Type": "CarmXrayDetector",
+      "Number": 20,
+      "Name": "C-arm X-ray detector",
+      "FilePath": "CarmXrayDetector.stl",
+      "FileToRASTransformMatrix": [ [-1, 0, 0, 0], [0, -1, 0, 0], [0, 0, 1, 0], [0, 0, 0, 1] ],
+      "Color": [255, 0, 64],
+      "State": "Active",
+      "PointRAS": [-0.5, -210.0, 821.6]
+    },
+    {
+      "Type": "TableRobotBaseRotationDisk",
+      "Number": 21,
+      "Name": "Protactive Disk Above Table Robot Base (Rotation)",
+      "FilePath": "TableRobotBaseRotationDisk.stl",
+      "FileToRASTransformMatrix": [ [-1, 0, 0, 0], [0, -1, 0, 0], [0, 0, 1, 0], [0, 0, 0, 1] ],
+      "Color": [222, 222, 222],
+      "State": "Active",
+      "PointRAS": [0, 1790, 1910]
+    }
+  ]
+}

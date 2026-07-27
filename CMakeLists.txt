@@ -138,6 +138,9 @@ if (SLICERRT_ENABLE_EXPERIMENTAL_MODULES)
   # Registration validation routines
   add_subdirectory(PlmSynth)
   add_subdirectory(PlmVectorFieldAnalysis)
+
+  # Luch U-70 modules
+  add_subdirectory(U70RoomGeo)
 endif()
 
 if(BUILD_TESTING)

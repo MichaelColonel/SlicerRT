@@ -1,0 +1,105 @@
+/*==============================================================================
+
+  Program: 3D Slicer
+
+  Portions (c) Copyright Brigham and Women's Hospital (BWH) All Rights Reserved.
+
+  See COPYRIGHT.txt
+  or http://www.slicer.org/copyright/copyright.txt for details.
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+
+==============================================================================*/
+
+// U70RoomGeo Logic includes
+#include <vtkSlicerU70RoomGeoLogic.h>
+
+// U70RoomGeo includes
+#include "qSlicerU70RoomGeoModule.h"
+#include "qSlicerU70RoomGeoModuleWidget.h"
+
+//-----------------------------------------------------------------------------
+class qSlicerU70RoomGeoModulePrivate
+{
+public:
+  qSlicerU70RoomGeoModulePrivate();
+};
+
+//-----------------------------------------------------------------------------
+// qSlicerU70RoomGeoModulePrivate methods
+
+//-----------------------------------------------------------------------------
+qSlicerU70RoomGeoModulePrivate::qSlicerU70RoomGeoModulePrivate() {}
+
+//-----------------------------------------------------------------------------
+// qSlicerU70RoomGeoModule methods
+
+//-----------------------------------------------------------------------------
+qSlicerU70RoomGeoModule::qSlicerU70RoomGeoModule(QObject* _parent)
+  : Superclass(_parent)
+  , d_ptr(new qSlicerU70RoomGeoModulePrivate)
+{
+}
+
+//-----------------------------------------------------------------------------
+qSlicerU70RoomGeoModule::~qSlicerU70RoomGeoModule() {}
+
+//-----------------------------------------------------------------------------
+QString qSlicerU70RoomGeoModule::helpText() const
+{
+  return "This is a loadable module that can be bundled in an extension";
+}
+
+//-----------------------------------------------------------------------------
+QString qSlicerU70RoomGeoModule::acknowledgementText() const
+{
+  return "This work was partially funded by NIH grant NXNNXXNNNNNN-NNXN";
+}
+
+//-----------------------------------------------------------------------------
+QStringList qSlicerU70RoomGeoModule::contributors() const
+{
+  QStringList moduleContributors;
+  moduleContributors << QString("John Doe (AnyWare Corp.)");
+  return moduleContributors;
+}
+
+//-----------------------------------------------------------------------------
+QIcon qSlicerU70RoomGeoModule::icon() const
+{
+  return QIcon(":/Icons/U70RoomGeo.png");
+}
+
+//-----------------------------------------------------------------------------
+QStringList qSlicerU70RoomGeoModule::categories() const
+{
+  return QStringList() << "Luch U-70";
+}
+
+//-----------------------------------------------------------------------------
+QStringList qSlicerU70RoomGeoModule::dependencies() const
+{
+  return QStringList();
+}
+
+//-----------------------------------------------------------------------------
+void qSlicerU70RoomGeoModule::setup()
+{
+  this->Superclass::setup();
+}
+
+//-----------------------------------------------------------------------------
+qSlicerAbstractModuleRepresentation* qSlicerU70RoomGeoModule::createWidgetRepresentation()
+{
+  return new qSlicerU70RoomGeoModuleWidget;
+}
+
+//-----------------------------------------------------------------------------
+vtkMRMLAbstractLogic* qSlicerU70RoomGeoModule::createLogic()
+{
+  return vtkSlicerU70RoomGeoLogic::New();
+}
