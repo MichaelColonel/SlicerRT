@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>395</width>
-    <height>387</height>
+    <width>360</width>
+    <height>460</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -15,48 +15,81 @@
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
-    <layout class="QVBoxLayout" name="verticalLayout_2">
-     <item>
-      <widget class="QPushButton" name="PushButton_Worklist1">
-       <property name="text">
-        <string>Patient WORKLIST</string>
-       </property>
-       <property name="checkable">
-        <bool>true</bool>
-       </property>
-       <property name="checked">
-        <bool>false</bool>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QPushButton" name="PushButton_Worklist2">
-       <property name="enabled">
-        <bool>false</bool>
-       </property>
-       <property name="text">
-        <string>WORKLIST2</string>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QPushButton" name="PushButton_Worklist3">
-       <property name="enabled">
-        <bool>false</bool>
-       </property>
-       <property name="text">
-        <string>WORKLIST3</string>
-       </property>
-      </widget>
-     </item>
-    </layout>
+    <widget class="ctkCollapsibleButton" name="CollapsibleButton_WorklistServer">
+     <property name="text">
+      <string>Worklist server</string>
+     </property>
+     <layout class="QGridLayout" name="gridLayout_2">
+      <item row="0" column="0">
+       <layout class="QGridLayout" name="gridLayout">
+        <item row="2" column="0">
+         <widget class="QLabel" name="label_3">
+          <property name="text">
+           <string>AE Title:</string>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="0">
+         <widget class="QLabel" name="label_2">
+          <property name="text">
+           <string>Port:</string>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="0">
+         <widget class="QLabel" name="label">
+          <property name="text">
+           <string>Host / Peer:</string>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="1">
+         <widget class="QLineEdit" name="LineEdit_WorklistServerHost"/>
+        </item>
+        <item row="2" column="1">
+         <widget class="QLineEdit" name="LineEdit_WorklistServerAETitle"/>
+        </item>
+        <item row="1" column="1">
+         <widget class="QSpinBox" name="SpinBox_WorklistServerPort"/>
+        </item>
+       </layout>
+      </item>
+      <item row="1" column="0">
+       <widget class="QPushButton" name="PushButton_CheckConnection">
+        <property name="text">
+         <string>Check connection...</string>
+        </property>
+        <property name="icon">
+         <iconset resource="../../../../Slicer/Base/QTGUI/Resources/qSlicerBaseQTGUI.qrc">
+          <normaloff>:/Icons/ExtensionUpdateAvailable.svg</normaloff>:/Icons/ExtensionUpdateAvailable.svg</iconset>
+        </property>
+        <property name="iconSize">
+         <size>
+          <width>16</width>
+          <height>16</height>
+         </size>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
    </item>
    <item>
-    <widget class="ctkCollapsibleButton" name="CTKCollapsibleButton">
+    <widget class="ctkCollapsibleButton" name="CTKCollapsibleButton_Query">
      <property name="text">
-      <string>Display</string>
+      <string>Query</string>
      </property>
      <layout class="QVBoxLayout" name="verticalLayout_3">
+      <item>
+       <widget class="QPushButton" name="PushButton_Worklist1">
+        <property name="text">
+         <string>Queue table...</string>
+        </property>
+        <property name="checkable">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
       <item>
        <widget class="qSlicerPatientsQueueFooBarWidget" name="FooBar" native="true"/>
       </item>
@@ -98,6 +131,8 @@
    <container>1</container>
   </customwidget>
  </customwidgets>
- <resources/>
+ <resources>
+  <include location="../../../../Slicer/Base/QTGUI/Resources/qSlicerBaseQTGUI.qrc"/>
+ </resources>
  <connections/>
 </ui>

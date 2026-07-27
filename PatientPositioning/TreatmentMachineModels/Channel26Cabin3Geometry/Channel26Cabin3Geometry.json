@@ -204,6 +204,16 @@
       "Color": [255, 0, 64],
       "State": "Active",
       "PointRAS": [-0.5, -210.0, 821.6]
+    },
+    {
+      "Type": "TableRobotBaseRotationDisk",
+      "Number": 21,
+      "Name": "Protactive Disk Above Table Robot Base (Rotation)",
+      "FilePath": "TableRobotBaseRotationDisk.stl",
+      "FileToRASTransformMatrix": [ [-1, 0, 0, 0], [0, -1, 0, 0], [0, 0, 1, 0], [0, 0, 0, 1] ],
+      "Color": [222, 222, 222],
+      "State": "Active",
+      "PointRAS": [0, 1790, 1910]
     }
   ]
 }

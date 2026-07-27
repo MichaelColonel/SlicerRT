@@ -2,7 +2,6 @@
 # Add models
 #-----------------------------------------------------------------------------
 
-# Geometry based on KUKA KR 210 r2700 extra document
 set(MACHINE_NAME Channel26Cabin3Geometry)
 
 set(MACHINE_MODELS
@@ -27,6 +26,7 @@ set(MACHINE_MODELS
   Carm.stl
   CarmXrayBeam.stl
   CarmXrayDetector.stl
+  TableRobotBaseRotationDisk.stl
 )
 
 SlicerMacroConfigureTreatmentMachineComponentModels(

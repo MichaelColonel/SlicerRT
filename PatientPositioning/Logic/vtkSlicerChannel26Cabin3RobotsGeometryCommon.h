@@ -140,6 +140,10 @@ public:
 
   // Table top robot base fake floor hole diameter
   static constexpr double TABLE_TOP_ROBOT_FLOOR_HOLE_DIAMETER = 2224.;
+  // Table top robot base rotation disk from basement height
+  static constexpr double TABLE_TOP_ROBOT_DISK_HEIGHT = 30.;
+  // Table top robot base rotation disk from basement height
+  static constexpr double TABLE_TOP_ROBOT_DISK_BASEMENT_HEIGHT = 1000.;
   // Table top width
   static constexpr double TABLE_TOP_WIDTH = 530.;
   // Table top length

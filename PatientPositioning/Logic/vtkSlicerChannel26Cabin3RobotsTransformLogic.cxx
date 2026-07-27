@@ -77,6 +77,7 @@ vtkSlicerChannel26Cabin3RobotsTransformLogic::vtkSlicerChannel26Cabin3RobotsTran
   this->CoordinateSystemsMap[CoordSys::TableFlange] = "TableFlange";
   this->CoordinateSystemsMap[CoordSys::TableTop] = "TableTop";
   this->CoordinateSystemsMap[CoordSys::TableTopPlaneCorrection] = "TableTopPlaneCorrection";
+  this->CoordinateSystemsMap[CoordSys::TableRobotBaseRotationDisk] = "TableRobotBaseRotationDisk";
   this->CoordinateSystemsMap[CoordSys::Patient] = "Patient";
 
   this->RobotsTransforms.clear();
@@ -84,6 +85,7 @@ vtkSlicerChannel26Cabin3RobotsTransformLogic::vtkSlicerChannel26Cabin3RobotsTran
   this->RobotsTransforms.push_back(std::make_pair(CoordSys::TableRobotBaseFixed, CoordSys::FixedReference)); // Translate
   this->RobotsTransforms.push_back(std::make_pair(CoordSys::CarmRobotBaseFixed, CoordSys::FixedReference)); // Translate
   this->RobotsTransforms.push_back(std::make_pair(CoordSys::TableRobotBaseRotation, CoordSys::TableRobotBaseFixed)); // Rotation A1
+  this->RobotsTransforms.push_back(std::make_pair(CoordSys::TableRobotBaseRotationDisk, CoordSys::TableRobotBaseFixed)); // Rotation A1
   this->RobotsTransforms.push_back(std::make_pair(CoordSys::CarmRobotBaseRotation, CoordSys::CarmRobotBaseFixed)); // Rotation A1
   this->RobotsTransforms.push_back(std::make_pair(CoordSys::TableRobotShoulder, CoordSys::TableRobotBaseRotation)); // Rotation A2
   this->RobotsTransforms.push_back(std::make_pair(CoordSys::CarmRobotShoulder, CoordSys::CarmRobotBaseRotation)); // Rotation A2
@@ -107,7 +109,7 @@ vtkSlicerChannel26Cabin3RobotsTransformLogic::vtkSlicerChannel26Cabin3RobotsTran
   this->CoordinateSystemsHierarchy.clear();
   // key - parent, value - children
   this->CoordinateSystemsHierarchy[CoordSys::FixedReference] = { CoordSys::TableRobotBaseFixed, CoordSys::CarmRobotBaseFixed };
-  this->CoordinateSystemsHierarchy[CoordSys::TableRobotBaseFixed] = { CoordSys::TableRobotBaseRotation };
+  this->CoordinateSystemsHierarchy[CoordSys::TableRobotBaseFixed] = { CoordSys::TableRobotBaseRotation, CoordSys::TableRobotBaseRotationDisk };
   this->CoordinateSystemsHierarchy[CoordSys::CarmRobotBaseFixed] = { CoordSys::CarmRobotBaseRotation };
   this->CoordinateSystemsHierarchy[CoordSys::TableRobotBaseRotation] = { CoordSys::TableRobotShoulder };
   this->CoordinateSystemsHierarchy[CoordSys::CarmRobotBaseRotation] = { CoordSys::CarmRobotShoulder };
@@ -231,6 +233,9 @@ const char* vtkSlicerChannel26Cabin3RobotsTransformLogic::GetTreatmentMachinePar
   case TableTopPlaneCorrection:
     partAsString = "TableTopPlaneCorrection";
     break;
+  case TableRobotBaseRotationDisk:
+    partAsString = "TableRobotBaseRotationDisk";
+    break;
   default:
     // invalid type
     break;
@@ -274,6 +279,8 @@ void vtkSlicerChannel26Cabin3RobotsTransformLogic::BuildRobotsTransformHierarchy
 
   // BaseFixed parent, rotation of base part of the robot along Z-axis
   this->GetTransformNodeBetween(CoordSys::TableRobotBaseRotation, CoordSys::TableRobotBaseFixed)->SetAndObserveTransformNodeID(
+    this->GetTransformNodeBetween(CoordSys::TableRobotBaseFixed, CoordSys::FixedReference)->GetID() );
+  this->GetTransformNodeBetween(CoordSys::TableRobotBaseRotationDisk, CoordSys::TableRobotBaseFixed)->SetAndObserveTransformNodeID(
     this->GetTransformNodeBetween(CoordSys::TableRobotBaseFixed, CoordSys::FixedReference)->GetID() );
   this->GetTransformNodeBetween(CoordSys::CarmRobotBaseRotation, CoordSys::CarmRobotBaseFixed)->SetAndObserveTransformNodeID(
     this->GetTransformNodeBetween(CoordSys::CarmRobotBaseFixed, CoordSys::FixedReference)->GetID() );
@@ -425,6 +432,13 @@ void vtkSlicerChannel26Cabin3RobotsTransformLogic::ResetToInitialPositions()
     vtkTransform::SafeDownCast(tableRobotBaseRotationToTableRobotBaseFixedTransformNode->GetTransformToParent());
   tableRobotBaseRotationToTableRobotBaseFixedTransform->Identity();
   tableRobotBaseRotationToTableRobotBaseFixedTransform->Modified();
+
+  vtkMRMLLinearTransformNode* tableRobotBaseRotationDiskToTableRobotBaseFixedTransformNode =
+    this->GetTransformNodeBetween(CoordSys::TableRobotBaseRotationDisk, CoordSys::TableRobotBaseFixed);
+  vtkTransform* tableRobotBaseRotationDiskToTableRobotBaseFixedTransform =
+    vtkTransform::SafeDownCast(tableRobotBaseRotationDiskToTableRobotBaseFixedTransformNode->GetTransformToParent());
+  tableRobotBaseRotationDiskToTableRobotBaseFixedTransform->Identity();
+  tableRobotBaseRotationDiskToTableRobotBaseFixedTransform->Modified();
 
   vtkMRMLLinearTransformNode* tableRobotBaseFixedToFixedReferenceTransformNode =
     this->GetTransformNodeBetween(CoordSys::TableRobotBaseFixed, CoordSys::FixedReference);
@@ -666,6 +680,12 @@ vtkMRMLLinearTransformNode* vtkSlicerChannel26Cabin3RobotsTransformLogic::GetTab
 }
 
 //------------------------------------------------------------------------------
+vtkMRMLLinearTransformNode* vtkSlicerChannel26Cabin3RobotsTransformLogic::GetTableRobotBaseRotationDiskTransform()
+{
+  return this->GetFrameToRasTransform(CoordinateSystemIdentifier::TableRobotBaseRotationDisk);
+}
+
+//------------------------------------------------------------------------------
 vtkMRMLLinearTransformNode* vtkSlicerChannel26Cabin3RobotsTransformLogic::GetTableRobotBaseFixedTransform()
 {
   return this->GetFrameToRasTransform(CoordinateSystemIdentifier::TableRobotBaseFixed);
@@ -817,6 +837,12 @@ vtkMRMLLinearTransformNode* vtkSlicerChannel26Cabin3RobotsTransformLogic::Update
 vtkMRMLLinearTransformNode* vtkSlicerChannel26Cabin3RobotsTransformLogic::UpdateTableRobotBaseRotationToRasTransform(vtkMRMLChannel26GeometryNode* parameterNode)
 {
   return this->UpdateFrameToRasTransform(parameterNode, CoordinateSystemIdentifier::TableRobotBaseRotation);
+}
+
+//------------------------------------------------------------------------------
+vtkMRMLLinearTransformNode* vtkSlicerChannel26Cabin3RobotsTransformLogic::UpdateTableRobotBaseRotationDiskToRasTransform(vtkMRMLChannel26GeometryNode* parameterNode)
+{
+  return this->UpdateFrameToRasTransform(parameterNode, CoordinateSystemIdentifier::TableRobotBaseRotationDisk);
 }
 
 //------------------------------------------------------------------------------
@@ -1718,6 +1744,144 @@ void vtkSlicerChannel26Cabin3RobotsTransformLogic::UpdateTableRobotBaseRotationT
   }
 }
 
+//----------------------------------------------------------------------------
+void vtkSlicerChannel26Cabin3RobotsTransformLogic::UpdateTableRobotBaseRotationDiskToTableRobotBaseFixedTransform(vtkMRMLChannel26GeometryNode* parameterNode)
+{
+  vtkMRMLScene* scene = this->GetMRMLScene();
+  if (!scene)
+  {
+    vtkErrorMacro("UpdateTableRobotBaseRotationDiskToTableRobotBaseFixedTransform: Invalid scene");
+    return;
+  }
+  if (!parameterNode)
+  {
+    vtkErrorMacro("UpdateTableRobotBaseRotationDiskToTableRobotBaseFixedTransform: Invalid parameter node");
+    return;
+  }
+
+  using CoordPos = vtkSlicerChannel26Cabin3RobotsGeometryCommon;
+  using CoordSys = CoordinateSystemIdentifier;
+  vtkNew<vtkTransform> tableRobotBaseRotationToPatientTransform;
+  if (!this->GetTransformBetween(CoordSys::TableRobotBaseRotation, CoordSys::Patient, 
+    tableRobotBaseRotationToPatientTransform, false))
+  {
+    vtkWarningMacro("UpdateTableRobotBaseRotationDiskToTableRobotBaseFixedTransform: Can't get TableRobotBaseRotation->Patient transform");
+    return;
+  }
+
+  // Initial table robot base rotation model position offset
+  const double baseRotationOffsetX = CoordPos::TABLE_ROBOT_BASE_ROTATION_SHOULDER_OFFSET_X;
+  const double baseRotationOffsetY = CoordPos::TABLE_ROBOT_BASE_ROTATION_SHOULDER_OFFSET_Y + CoordPos::TABLE_ROBOT_SHOULDER_SIZE;
+
+  // compansate initial position offset of shoulder model
+  tableRobotBaseRotationToPatientTransform->Translate(baseRotationOffsetX, baseRotationOffsetY, 0);
+
+  // Transform model to vertical position
+  vtkNew<vtkTransform> ShoulderVerticalOrientationTransform; // vertical orientation
+  ShoulderVerticalOrientationTransform->Identity();
+  ShoulderVerticalOrientationTransform->RotateX(-90.);
+
+  vtkMRMLLinearTransformNode* baseRotatioToBaseFixedTransformNode =
+    this->GetTransformNodeBetween(CoordSys::TableRobotBaseRotationDisk, CoordSys::TableRobotBaseFixed);
+  if (baseRotatioToBaseFixedTransformNode)
+  {
+    double a[6] = {};
+    parameterNode->GetTableRobotAngles(a);
+    double patientToTableTopTranslation[3] = {};
+    parameterNode->GetPatientToTableTopTranslation(patientToTableTopTranslation);
+
+    /// Get current position of Elbow origin (begin)
+    // Translate the Elbow so it's end in RAS origin
+    vtkNew<vtkTransform> ElbowTranslateTransform;
+    ElbowTranslateTransform->Translate(CoordPos::TABLE_ROBOT_ELBOW_SIZE, 0., -1. * CoordPos::TABLE_ROBOT_SHOULDER_ELBOW_OFFSET_Y);
+
+    // Wrist->Flange (TableTop) rotation
+    vtkNew<vtkTransform> WristToFlangeTransform;
+    WristToFlangeTransform->RotateZ(a[5]);
+
+    // Apply transform (rotation around Y axis on A5 angle, and around X axis on A4 angle in RAS origin)
+    vtkNew<vtkTransform> WristToElbowTransform;
+    WristToElbowTransform->RotateY(a[4]);
+    WristToElbowTransform->RotateX(a[3]);
+    // Translate elbow in RAS (Patient) origin, so it's end in RAS origin
+    WristToElbowTransform->Concatenate(ElbowTranslateTransform);
+    // Apply Wrist->Flange (TableTop) rotation transform
+    WristToFlangeTransform->Concatenate(WristToElbowTransform);
+    double NewElbowBeginPositionTranslate[3] = {};
+    WristToFlangeTransform->GetPosition(NewElbowBeginPositionTranslate);
+
+    // Elbow->Shoulder rotation around Y (A3 angle)
+    vtkNew<vtkTransform> ElbowToShoulderRotationTransform;
+    ElbowToShoulderRotationTransform->RotateY(a[2]);
+
+    // Apply transform (rotation around Y axis on A5 angle, around X axis on A4 angle and around Z axis on A6 angle in RAS origin)
+    vtkNew<vtkTransform> A6A5A4RotationTransform;
+    A6A5A4RotationTransform->RotateZ(a[5]);
+    A6A5A4RotationTransform->RotateY(a[4]);
+    A6A5A4RotationTransform->RotateX(a[3]);
+
+    // Shoulder->BaseRotation rotation around Y (A2 angle)
+    vtkNew<vtkTransform> ShoulderToBaseRotationTransform;
+    ShoulderToBaseRotationTransform->RotateY(a[1]);
+    // BaseRotation model -> move to Shoulder rotation origin A3
+    vtkNew<vtkTransform> BaseRotationOriginToShoulderOriginTransform;
+    BaseRotationOriginToShoulderOriginTransform->Translate(0., 0.,
+      CoordPos::TABLE_ROBOT_SHOULDER_SIZE);
+    // BaseRotation model -> move back to BaseRotation rotation origin A2
+    vtkNew<vtkTransform> InverseBaseRotationOriginToShoulderOriginTransform;
+    InverseBaseRotationOriginToShoulderOriginTransform->Translate(0., 0.,
+      -1. * CoordPos::TABLE_ROBOT_SHOULDER_SIZE);
+
+    ShoulderToBaseRotationTransform->Concatenate(BaseRotationOriginToShoulderOriginTransform);
+    InverseBaseRotationOriginToShoulderOriginTransform->Concatenate(ShoulderToBaseRotationTransform);
+
+
+    // BaseRotation->BaseFixed rotation around Z (A1 angle)
+    vtkNew<vtkTransform> BaseRotationToBaseFixedTransform;
+    BaseRotationToBaseFixedTransform->RotateZ(a[0]);
+    BaseRotationToBaseFixedTransform->Translate(0.,
+      0., -1000.);
+    // BaseFixed model -> move to BaseRotation rotation origin A2 along X
+    vtkNew<vtkTransform> BaseFixedOriginToBaseRotationOriginTransform;
+    BaseFixedOriginToBaseRotationOriginTransform->Translate(-1. * CoordPos::TABLE_ROBOT_BASE_ROTATION_SHOULDER_OFFSET_X,
+      0., 0.);
+    // BaseFixed model -> move back to BaseFixed rotation origin A1 along X
+    vtkNew<vtkTransform> InverseBaseFixedOriginToBaseRotationOriginTransform;
+    InverseBaseFixedOriginToBaseRotationOriginTransform->Translate(CoordPos::TABLE_ROBOT_BASE_ROTATION_SHOULDER_OFFSET_X,
+      0., 0.);
+
+    BaseRotationToBaseFixedTransform->Concatenate(BaseFixedOriginToBaseRotationOriginTransform);
+    InverseBaseFixedOriginToBaseRotationOriginTransform->Concatenate(BaseRotationToBaseFixedTransform);
+
+    // Transform shoulder in RAS (Patient) origin so, it's begin in RAS origin
+    // Transform to RAS origin and model vertical orientation
+    ShoulderVerticalOrientationTransform->Concatenate(tableRobotBaseRotationToPatientTransform);
+    // Translate  Shoulder end to RAS (Patient) origin so, it's begin in RAS origin
+    InverseBaseFixedOriginToBaseRotationOriginTransform->Concatenate(ShoulderVerticalOrientationTransform);
+    InverseBaseRotationOriginToShoulderOriginTransform->Concatenate(InverseBaseFixedOriginToBaseRotationOriginTransform);
+    // Apply A2 angle to Shoulder A3 model 
+    ElbowToShoulderRotationTransform->Concatenate(InverseBaseRotationOriginToShoulderOriginTransform);
+    // Apply transform of the Elbow (A6, A5, A4 angles) to Shoulder model in RAS origin
+    A6A5A4RotationTransform->Concatenate(ElbowToShoulderRotationTransform);
+
+    vtkNew<vtkTransform> PatientToFlangeTranslateTransform;
+    // Reverse compensate Patient->TableTop translation
+    PatientToFlangeTranslateTransform->Translate(-1. * patientToTableTopTranslation[0],
+      -1. * patientToTableTopTranslation[1], -1. * patientToTableTopTranslation[2]);
+
+    // Translate to Table robot wrist elbow position under Table robot wrist position (A4 angle rotation)
+    PatientToFlangeTranslateTransform->Translate(-1. * CoordPos::INIT_TABLE_ROBOT_WRIST_ORIGIN_OFFSET_RAS[0],
+      -1. * CoordPos::INIT_TABLE_ROBOT_WRIST_ORIGIN_OFFSET_RAS[1],
+      CoordPos::INIT_TABLE_ROBOT_WRIST_ORIGIN_OFFSET_RAS[2]);
+    // Translate to new elbow begin position
+    PatientToFlangeTranslateTransform->Translate(NewElbowBeginPositionTranslate);
+    // Apply Translation of a Shoulder model to the new Elbow begin position
+    PatientToFlangeTranslateTransform->Concatenate(A6A5A4RotationTransform);
+
+    baseRotatioToBaseFixedTransformNode->SetAndObserveTransformToParent(PatientToFlangeTranslateTransform);
+  }
+}
+
 //-----------------------------------------------------------------------------
 void vtkSlicerChannel26Cabin3RobotsTransformLogic::UpdateTableRobotBaseFixedToFixedReferenceTransform(vtkMRMLChannel26GeometryNode* parameterNode)
 {
@@ -2469,13 +2633,15 @@ bool vtkSlicerChannel26Cabin3RobotsTransformLogic::GetTransformForPointBetweenFr
   {
     return false;
   }
+  double pointInRas[3] = {};
+  fromFrameToRasTransform->TransformPoint(fromFramePoint, pointInRas);
 
   // toFrame->RAS transform
   vtkNew<vtkTransform> rasToToFrameTransform;
-  if (this->GetTransformBetween(CoordinateSystemIdentifier::RAS,
-    toFrame, rasToToFrameTransform, transformForBeam))
+  if (this->GetTransformBetween(toFrame,
+    CoordinateSystemIdentifier::RAS, rasToToFrameTransform, transformForBeam))
   {
-    rasToToFrameTransform->Inverse(); // inverse to get (RAS->toFrame)
+//    rasToToFrameTransform->Inverse(); // inverse to get (RAS->toFrame)
   }
   else
   {
@@ -2486,7 +2652,7 @@ bool vtkSlicerChannel26Cabin3RobotsTransformLogic::GetTransformForPointBetweenFr
   // fromFrame -> RAS -> RAS -> toFrame
   fromFrameToRasTransform->Concatenate(rasToToFrameTransform);
   fromFrameToRasTransform->TransformPoint(fromFramePoint, toFramePoint);
-
+///  rasToToFrameTransform->TransformPoint(pointInRas, toFramePoint);
   return true;
 }
 
@@ -2514,7 +2680,9 @@ void vtkSlicerChannel26Cabin3RobotsTransformLogic::UpdateFrameToRasHierarchy(vtk
   case CoordinateSystemIdentifier::TableRobotShoulder:
     this->UpdateTableRobotShoulderToRasTransform(parameterNode);
   case CoordinateSystemIdentifier::TableRobotBaseRotation:
+  case CoordinateSystemIdentifier::TableRobotBaseRotationDisk:
     this->UpdateTableRobotBaseRotationToRasTransform(parameterNode);
+    this->UpdateTableRobotBaseRotationDiskToRasTransform(parameterNode);
   case CoordinateSystemIdentifier::TableRobotBaseFixed:
     this->UpdateTableRobotBaseFixedToRasTransform(parameterNode);
   case CoordinateSystemIdentifier::FixedReference:
@@ -2570,6 +2738,7 @@ void vtkSlicerChannel26Cabin3RobotsTransformLogic::UpdateTransformsHierarchy(vtk
     this->UpdateTableRobotShoulderToTableRobotBaseRotationTransform(parameterNode);
   case CoordinateSystemIdentifier::TableRobotBaseRotation:
     this->UpdateTableRobotBaseRotationToTableRobotBaseFixedTransform(parameterNode);
+    this->UpdateTableRobotBaseRotationDiskToTableRobotBaseFixedTransform(parameterNode);
   case CoordinateSystemIdentifier::TableRobotBaseFixed:
   case CoordinateSystemIdentifier::FixedReference:
     this->UpdateTableRobotBaseFixedToFixedReferenceTransform(parameterNode);

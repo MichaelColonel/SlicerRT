@@ -73,8 +73,9 @@ public:
     Carm, // Mounted on CarmRobotFlange
     CarmXrayBeam, // Mounted on Carm (Assemble of X-ray tube and collimator)
     CarmXrayDetector, // Mounted on Carm
+    TableRobotBaseRotationDisk, // Mounted above TableRobotBaseRotation (optional)
     Patient, // Mounted on TableTop. Translate from Table Top center to Patient center
-    /// All other Frames
+    /// All other Frames without models
     TableTopPlaneCorrection, // Mounted on TableTop. Transform from TableTop according to external plane correction
     CoordinateSystemIdentifier_Last // Last index used for adding more coordinate systems externally
   };
@@ -139,6 +140,8 @@ public:
   void UpdateTableRobotShoulderToTableRobotBaseRotationTransform(vtkMRMLChannel26GeometryNode* parameterNode);
   /// Apply new TableRobotBaseRotation to TableRobotBaseFixed transform (TableRobotBaseRotation->TableRobotBaseFixed)
   void UpdateTableRobotBaseRotationToTableRobotBaseFixedTransform(vtkMRMLChannel26GeometryNode* parameterNode);
+  /// Apply new TableRobotBaseRotationDisk to TableRobotBaseFixed transform (TableRobotBaseRotationDisk->TableRobotBaseFixed)
+  void UpdateTableRobotBaseRotationDiskToTableRobotBaseFixedTransform(vtkMRMLChannel26GeometryNode* parameterNode);
   /// Apply new TableRobotBaseFixed to FixedReference transform (TableRobotBaseFixed->FixedReference)
   void UpdateTableRobotBaseFixedToFixedReferenceTransform(vtkMRMLChannel26GeometryNode* parameterNode);
   /// Apply new CarmRobotBaseFixed to FixedReference transform (CarmRobotBaseFixed->FixedReference)
@@ -180,6 +183,8 @@ public:
   vtkMRMLLinearTransformNode* UpdateTableRobotShoulderToRasTransform(vtkMRMLChannel26GeometryNode* parameterNode);
   /// Update (or create if absent) TableRobotBaseRotation to RAS transform
   vtkMRMLLinearTransformNode* UpdateTableRobotBaseRotationToRasTransform(vtkMRMLChannel26GeometryNode* parameterNode);
+  /// Update (or create if absent) TableRobotBaseRotationDisk to RAS transform
+  vtkMRMLLinearTransformNode* UpdateTableRobotBaseRotationDiskToRasTransform(vtkMRMLChannel26GeometryNode* parameterNode);
   /// Update (or create if absent) TableRobotBaseFixed to RAS transform
   vtkMRMLLinearTransformNode* UpdateTableRobotBaseFixedToRasTransform(vtkMRMLChannel26GeometryNode* parameterNode);
   /// Update (or create if absent) FixedReference to RAS transform
@@ -223,6 +228,8 @@ public:
   vtkMRMLLinearTransformNode* GetTableRobotShoulderTransform();
   /// Get TableRobotBaseRotation to RAS transform
   vtkMRMLLinearTransformNode* GetTableRobotBaseRotationTransform();
+  /// Get TableRobotBaseRotationDisk to RAS transform
+  vtkMRMLLinearTransformNode* GetTableRobotBaseRotationDiskTransform();
   /// Get TableRobotBaseFixed to RAS transform
   vtkMRMLLinearTransformNode* GetTableRobotBaseFixedTransform();
   /// Get FixedReference to RAS transform

@@ -556,24 +556,28 @@ void vtkSlicerPatientPositioningLogic::ProcessMRMLNodesEvents(vtkObject* caller,
   }
   if (caller->IsA("vtkMRMLPatientPositioningNode"))
   {
+/*
     vtkMRMLPatientPositioningNode* parameterNode = vtkMRMLPatientPositioningNode::SafeDownCast(caller);
 
     if (event == vtkCommand::ModifiedEvent)
     {
-/*
       double pos[3] = {};
       if (this->UpdateIsocenterTranslate(parameterNode, CoordSys::FixedReference, pos))
       {
         vtkErrorMacro("ProcessMRMLNodesEvents: FixedReference translate " << pos[0] << ' ' << pos[1] << ' ' << pos[2]);
       }
+      if (this->UpdateIsocenterTranslate(parameterNode, CoordSys::TableRobotBaseFixed, pos))
+      {
+        vtkErrorMacro("ProcessMRMLNodesEvents: TableRobotBaseFixed translate " << pos[0] << ' ' << pos[1] << ' ' << pos[2]);
+      }
       if (this->UpdateIsocenterTranslate(parameterNode, CoordSys::TableTop, pos))
       {
         vtkErrorMacro("ProcessMRMLNodesEvents: TableTop translate " << pos[0] << ' ' << pos[1] << ' ' << pos[2]);
       }
-*/
-/*
-      using CoordSys = vtkSlicerChannel26Cabin3RobotsTransformLogic::CoordinateSystemIdentifier;
-      double pos[3] = { 0., 0., 0. };
+
+      pos[0] = 0.;
+      pos[1] = 0.;
+      pos[2] = 0.;
       double res[3];
       if (this->Channel26RobotsLogic->GetTransformForPointBetweenFrames(CoordSys::FixedReference,
         CoordSys::TableTop, pos, res))
@@ -588,8 +592,38 @@ void vtkSlicerPatientPositioningLogic::ProcessMRMLNodesEvents(vtkObject* caller,
           vtkErrorMacro("ProcessMRMLNodesEvents: PatientToTableTopTranslation " << t[0] << ' ' << t[1] << ' ' << t[2]);
         }
       }
-*/
+
+      pos[0] = 0.;
+      pos[1] = 0.;
+      pos[2] = 0.;
+      if (this->Channel26RobotsLogic->GetTransformForPointBetweenFrames(CoordSys::TableRobotBaseFixed,
+        CoordSys::RAS, pos, res))
+      {
+        vtkErrorMacro("ProcessMRMLNodesEvents: TableRobotBaseFixed->RAS = [0., 0., 0.] " << res[0] << ' ' << res[1] << ' ' << res[2]);
+      }
+      if (this->Channel26RobotsLogic->GetTransformForPointBetweenFrames(CoordSys::FixedReference,
+        CoordSys::RAS, pos, res))
+      {
+        vtkErrorMacro("ProcessMRMLNodesEvents: FixedReference->RAS = [0., 0., 0.] " << res[0] << ' ' << res[1] << ' ' << res[2]);
+      }
+      using CoordPos = vtkSlicerChannel26Cabin3RobotsGeometryCommon;
+      pos[0] = 0.;
+      pos[1] = 0.;
+      pos[2] = 0.;
+      if (this->Channel26RobotsLogic->GetTransformForPointBetweenFrames(CoordSys::TableFlange,
+        CoordSys::FixedReference, pos, res))
+      {
+        vtkErrorMacro("ProcessMRMLNodesEvents: 0 in TableFlange = [0., 0., 0.] " << pos[0] << ' ' << pos[1] << ' ' << pos[2]);
+        vtkErrorMacro("ProcessMRMLNodesEvents: TableFlange->FixedReference = [0., 0., 0.] " << res[0] << ' ' << res[1] << ' ' << res[2]);
+      }
+      if (this->Channel26RobotsLogic->GetTransformForPointBetweenFrames(CoordSys::TableTop,
+        CoordSys::FixedReference, pos, res))
+      {
+        vtkErrorMacro("ProcessMRMLNodesEvents: 0 in TableTop = [0., 0., 0.] " << pos[0] << ' ' << pos[1] << ' ' << pos[2]);
+        vtkErrorMacro("ProcessMRMLNodesEvents: TableTop->FixedReference = [0., 0., 0.] " << res[0] << ' ' << res[1] << ' ' << res[2]);
+      }
     }
+*/
   }
   if (caller->IsA("vtkMRMLChannel26GeometryNode"))
   {
@@ -601,7 +635,7 @@ void vtkSlicerPatientPositioningLogic::ProcessMRMLNodesEvents(vtkObject* caller,
 
       this->UpdateTableTopPlaneNode(channel26Geometry);
       this->UpdateTableTopFiducialNode(channel26Geometry);
-/*
+
       {
         double pos[3] = { 1220., 0., 0. };
         double res[3];
@@ -628,6 +662,39 @@ void vtkSlicerPatientPositioningLogic::ProcessMRMLNodesEvents(vtkObject* caller,
           CoordSys::CarmRobotBaseFixed, pos, res))
         {
           vtkErrorMacro("ProcessMRMLNodesEvents: CarmElbowWrist = [1420., 0., 0.] " << res[0] << ' ' << res[1] << ' ' << res[2]);
+        }
+        pos[0] = 0.;
+        pos[1] = 0.;
+        pos[2] = 0.;
+        if (this->Channel26RobotsLogic->GetTransformForPointBetweenFrames(CoordSys::FixedReference,
+          CoordSys::RAS, pos, res))
+        {
+          vtkErrorMacro("ProcessMRMLNodesEvents: FixedReference->RAS = [0., 0., 0.] " << res[0] << ' ' << res[1] << ' ' << res[2]);
+        }
+        if (this->Channel26RobotsLogic->GetTransformForPointBetweenFrames(CoordSys::TableTop,
+          CoordSys::FixedReference, pos, res))
+        {
+          vtkErrorMacro("ProcessMRMLNodesEvents: TableTop->FixedReference = [0., 0., 0.] " << res[0] << ' ' << res[1] << ' ' << res[2]);
+        }
+      }
+/*
+      {
+        double pos[3];
+        double res[3];
+        pos[0] = 0.;
+        pos[1] = 0.;
+        pos[2] = 0.;
+        if (this->Channel26RobotsLogic->GetTransformForPointBetweenFrames(CoordSys::TableFlange,
+          CoordSys::FixedReference, pos, res))
+        {
+          vtkErrorMacro("ProcessMRMLNodesEvents: 0 in TableFlange = [0., 0., 0.] " << pos[0] << ' ' << pos[1] << ' ' << pos[2]);
+          vtkErrorMacro("ProcessMRMLNodesEvents: TableFlange->FixedReference = [0., 0., 0.] " << res[0] << ' ' << res[1] << ' ' << res[2]);
+        }
+        if (this->Channel26RobotsLogic->GetTransformForPointBetweenFrames(CoordSys::TableTop,
+          CoordSys::FixedReference, pos, res))
+        {
+          vtkErrorMacro("ProcessMRMLNodesEvents: 0 in TableTop = [0., 0., 0.] " << pos[0] << ' ' << pos[1] << ' ' << pos[2]);
+          vtkErrorMacro("ProcessMRMLNodesEvents: TableTop->FixedReference = [0., 0., 0.] " << res[0] << ' ' << res[1] << ' ' << res[2]);
         }
       }
 */
@@ -1317,6 +1384,7 @@ vtkSlicerPatientPositioningLogic::SetupTreatmentMachineModels(vtkMRMLPatientPosi
         case CoordSys::TableRobotElbowShoulder:
         case CoordSys::TableRobotShoulder:
         case CoordSys::TableRobotBaseRotation:
+        case CoordSys::TableRobotBaseRotationDisk:
         case CoordSys::TableRobotBaseFixed:
         case CoordSys::CarmRobotBaseFixed:
         case CoordSys::CarmRobotBaseRotation:
@@ -1393,6 +1461,10 @@ vtkSlicerPatientPositioningLogic::SetupTreatmentMachineModels(vtkMRMLPatientPosi
       case CoordSys::TableRobotShoulder:
         this->Channel26RobotsLogic->UpdateTableRobotElbowShoulderToTableRobotShoulderTransform(channel26GeometryNode);
         partFrameToRasTransformNode = this->Channel26RobotsLogic->UpdateTableRobotShoulderToRasTransform(channel26GeometryNode);
+        break;
+      case CoordSys::TableRobotBaseRotationDisk:
+        this->Channel26RobotsLogic->UpdateTableRobotShoulderToTableRobotBaseRotationTransform(channel26GeometryNode);
+        partFrameToRasTransformNode = this->Channel26RobotsLogic->UpdateTableRobotBaseRotationDiskToRasTransform(channel26GeometryNode);
         break;
       case CoordSys::TableRobotBaseRotation:
         this->Channel26RobotsLogic->UpdateTableRobotShoulderToTableRobotBaseRotationTransform(channel26GeometryNode);
@@ -1513,6 +1585,7 @@ void vtkSlicerPatientPositioningLogic::ShowModelsNodes(vtkMRMLPatientPositioning
   modelsNames.push_back("TableRobotBaseFixed");
   modelsNames.push_back("CarmRobotBaseRotation");
   modelsNames.push_back("TableRobotBaseRotation");
+  modelsNames.push_back("TableRobotBaseRotationDisk");
   modelsNames.push_back("CarmRobotShoulder");
   modelsNames.push_back("TableRobotShoulder");
   modelsNames.push_back("CarmRobotElbowShoulder");
