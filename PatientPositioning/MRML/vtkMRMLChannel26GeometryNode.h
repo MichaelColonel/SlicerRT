@@ -156,8 +156,8 @@ protected:
     CoordPos::D_BASEMENT_CARM_ROBOT_BASE,
     CoordPos::D_EAST_WALL_CARM_XRAY_ROBOT_BASE - CoordPos::D_EAST_WALL_TABLE_TOP_ROBOT_BASE };
   /// Setup table top robot angles
-//  double TableRobotAngles[6] = { 0., 0., 0., 0., 0., 90. }; // A1=0, A2=-90, A3=90, A4=0, A5=-90, A6=0
-  double TableRobotAngles[6] = { 40.52, 90-39.32, 55.44-90., 0.08, 90.-106.29, 90.-40.6 }; // A1=40.52, A2=-39.32, A3=55.44, A4=0.08, A5=-106.29, A6=-40.6
+  double TableRobotAngles[6] = { 0., 0., 0., 0., 0., 90. }; // A1=0, A2=-90, A3=90, A4=0, A5=-90, A6=0
+//  double TableRobotAngles[6] = { 40.52, 90-39.32, 55.44-90., 0.08, 90.-106.29, 90.-40.6 }; // A1=40.52, A2=-39.32, A3=55.44, A4=0.08, A5=-106.29, A6=-40.6
   /// Setup x-ray c-arm robot angles
   double CarmRobotAngles[6] = { 0., 0., 0., 0., 0., 0. };
   /// table top plane correction angles

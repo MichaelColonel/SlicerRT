@@ -676,6 +676,24 @@ void vtkSlicerPatientPositioningLogic::ProcessMRMLNodesEvents(vtkObject* caller,
         {
           vtkErrorMacro("ProcessMRMLNodesEvents: TableTop->FixedReference = [0., 0., 0.] " << res[0] << ' ' << res[1] << ' ' << res[2]);
         }
+        if (this->Channel26RobotsLogic->GetTransformForPointBetweenFrames(CoordSys::TableRobotBaseFixed,
+          CoordSys::RAS, pos, res))
+        {
+          vtkErrorMacro("ProcessMRMLNodesEvents: TableRobotBaseFixed->RAS = [0., 0., 0.] " << res[0] << ' ' << res[1] << ' ' << res[2]);
+        }
+        if (this->Channel26RobotsLogic->GetTransformForPointBetweenFrames(CoordSys::TableRobotBaseFixed,
+          CoordSys::TableFlange, pos, res))
+        {
+          vtkErrorMacro("ProcessMRMLNodesEvents: TableRobotBaseFixed->TableFlange = [0., 0., 0.] " << res[0] << ' ' << res[1] << ' ' << res[2]);
+        }
+        pos[0] = 0.;
+        pos[1] = 0.;
+        pos[2] = 0.;
+        if (this->Channel26RobotsLogic->GetTransformForPointBetweenFrames(CoordSys::TableRobotBaseFixed,
+          CoordSys::TableRobotWrist, pos, res))
+        {
+          vtkErrorMacro("ProcessMRMLNodesEvents: TableRobotBaseFixed->TableRobotWrist = [0., 0., 0.] " << res[0] << ' ' << res[1] << ' ' << res[2]);
+        }
       }
 /*
       {
