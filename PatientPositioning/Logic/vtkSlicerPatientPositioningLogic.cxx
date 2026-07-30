@@ -637,6 +637,7 @@ void vtkSlicerPatientPositioningLogic::ProcessMRMLNodesEvents(vtkObject* caller,
       this->UpdateTableTopFiducialNode(channel26Geometry);
 
       {
+        // Coordinates if TableRobotBaseFixed also known as $ROBROOT
         double pos[3] = { 1220., 0., 0. };
         double res[3];
         if (this->Channel26RobotsLogic->GetTransformForPointBetweenFrames(CoordSys::TableRobotElbowWrist,
@@ -645,6 +646,7 @@ void vtkSlicerPatientPositioningLogic::ProcessMRMLNodesEvents(vtkObject* caller,
           vtkErrorMacro("ProcessMRMLNodesEvents: ElbowWrist = [1220., 0., 0.] " << res[0] << ' ' << res[1] << ' ' << res[2]);
         }
         pos[0] = 0.;
+        pos[1] = 0.;
         pos[2] = 0.;
         if (this->Channel26RobotsLogic->GetTransformForPointBetweenFrames(CoordSys::TableRobotWrist,
           CoordSys::TableRobotBaseFixed, pos, res))
@@ -652,12 +654,101 @@ void vtkSlicerPatientPositioningLogic::ProcessMRMLNodesEvents(vtkObject* caller,
           vtkErrorMacro("ProcessMRMLNodesEvents: RobotWrist = [0., 0., 0.] " << res[0] << ' ' << res[1] << ' ' << res[2]);
         }
         pos[0] = 240.;
+        pos[1] = 0.;
+        pos[2] = 0.;
         if (this->Channel26RobotsLogic->GetTransformForPointBetweenFrames(CoordSys::TableRobotFlange,
           CoordSys::TableRobotBaseFixed, pos, res))
         {
-          vtkErrorMacro("ProcessMRMLNodesEvents: RobotFlange = [240., 0., 0.] " << res[0] << ' ' << res[1] << ' ' << res[2]);
+          vtkErrorMacro("ProcessMRMLNodesEvents: TableRobotFlange = [240., 0., 0.] " << res[0] << ' ' << res[1] << ' ' << res[2]);
         }
+        pos[0] = 0.;
+        pos[1] = 0.;
+        pos[2] = 0.;
+        if (this->Channel26RobotsLogic->GetTransformForPointBetweenFrames(CoordSys::TableFlange,
+          CoordSys::TableRobotBaseFixed, pos, res))
+        {
+          vtkErrorMacro("ProcessMRMLNodesEvents: RobotFlange = [0., 0., 0.] " << res[0] << ' ' << res[1] << ' ' << res[2]);
+        }
+        pos[0] = 0.;
+        pos[1] = 0.;
+        pos[2] = 258.;
+        if (this->Channel26RobotsLogic->GetTransformForPointBetweenFrames(CoordSys::TableFlange,
+          CoordSys::TableRobotBaseFixed, pos, res))
+        {
+          vtkErrorMacro("ProcessMRMLNodesEvents: RobotFlange = [0., 0., 258.] " << res[0] << ' ' << res[1] << ' ' << res[2]);
+        }
+        pos[0] = 0.;
+        pos[1] = 0.;
+        pos[2] = 0.;
+        if (this->Channel26RobotsLogic->GetTransformForPointBetweenFrames(CoordSys::TableTop,
+          CoordSys::TableRobotBaseFixed, pos, res))
+        {
+          vtkErrorMacro("ProcessMRMLNodesEvents: TableTop = [0., 0., 0.] " << res[0] << ' ' << res[1] << ' ' << res[2]);
+        }
+
+        // Coordinates if FixedReference also known as $WORLD
+        pos[0] = 1220.;
+        pos[1] = 0.;
+        pos[2] = 0.;
+        if (this->Channel26RobotsLogic->GetTransformForPointBetweenFrames(CoordSys::TableRobotElbowWrist,
+          CoordSys::FixedReference, pos, res))
+        {
+          vtkErrorMacro("ProcessMRMLNodesEvents: ElbowWrist = [1220., 0., 0.] " << res[0] << ' ' << res[1] << ' ' << res[2]);
+        }
+        pos[0] = 0.;
+        pos[1] = 0.;
+        pos[2] = 0.;
+        if (this->Channel26RobotsLogic->GetTransformForPointBetweenFrames(CoordSys::TableRobotWrist,
+          CoordSys::FixedReference, pos, res))
+        {
+          vtkErrorMacro("ProcessMRMLNodesEvents: RobotWrist = [0., 0., 0.] " << res[0] << ' ' << res[1] << ' ' << res[2]);
+        }
+        pos[0] = 240.;
+        pos[1] = 0.;
+        pos[2] = 0.;
+        if (this->Channel26RobotsLogic->GetTransformForPointBetweenFrames(CoordSys::TableRobotFlange,
+          CoordSys::FixedReference, pos, res))
+        {
+          vtkErrorMacro("ProcessMRMLNodesEvents: TableRobotFlange = [240., 0., 0.] " << res[0] << ' ' << res[1] << ' ' << res[2]);
+        }
+        pos[0] = 0.;
+        pos[1] = 0.;
+        pos[2] = 0.;
+        if (this->Channel26RobotsLogic->GetTransformForPointBetweenFrames(CoordSys::TableFlange,
+          CoordSys::FixedReference, pos, res))
+        {
+          vtkErrorMacro("ProcessMRMLNodesEvents: RobotFlange = [0., 0., 0.] " << res[0] << ' ' << res[1] << ' ' << res[2]);
+        }
+        pos[0] = 0.;
+        pos[1] = 0.;
+        pos[2] = 258.;
+        if (this->Channel26RobotsLogic->GetTransformForPointBetweenFrames(CoordSys::TableFlange,
+          CoordSys::FixedReference, pos, res))
+        {
+          vtkErrorMacro("ProcessMRMLNodesEvents: RobotFlange = [0., 0., 258.] " << res[0] << ' ' << res[1] << ' ' << res[2]);
+        }
+        pos[0] = 0.;
+        pos[1] = 0.;
+        pos[2] = 0.;
+        if (this->Channel26RobotsLogic->GetTransformForPointBetweenFrames(CoordSys::TableTop,
+          CoordSys::FixedReference, pos, res))
+        {
+          vtkErrorMacro("ProcessMRMLNodesEvents: TableTop = [0., 0., 0.] " << res[0] << ' ' << res[1] << ' ' << res[2]);
+        }
+
+        // Coordinates if FixedReference also known as $WORLD
+        pos[0] = 0.;
+        pos[1] = 0.;
+        pos[2] = 0.;
+        if (this->Channel26RobotsLogic->GetTransformForPointBetweenFrames(CoordSys::TableRobotBaseFixed,
+          CoordSys::FixedReference, pos, res))
+        {
+          vtkErrorMacro("ProcessMRMLNodesEvents: 0 Offset of $ROBROBOT in $WORILD " << res[0] << ' ' << res[1] << ' ' << res[2]);
+        }
+/*
         pos[0] = 1420.;
+        pos[1] = 0.;
+        pos[2] = 0.;
         if (this->Channel26RobotsLogic->GetTransformForPointBetweenFrames(CoordSys::CarmRobotElbowWrist,
           CoordSys::CarmRobotBaseFixed, pos, res))
         {
@@ -694,6 +785,7 @@ void vtkSlicerPatientPositioningLogic::ProcessMRMLNodesEvents(vtkObject* caller,
         {
           vtkErrorMacro("ProcessMRMLNodesEvents: TableRobotBaseFixed->TableRobotWrist = [0., 0., 0.] " << res[0] << ' ' << res[1] << ' ' << res[2]);
         }
+*/
       }
 /*
       {
