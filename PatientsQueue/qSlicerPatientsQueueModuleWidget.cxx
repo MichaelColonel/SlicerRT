@@ -17,6 +17,8 @@
 
 // Qt includes
 #include <QDebug>
+#include <QMessageBox>
+#include <QScopedPointer>
 
 // Slicer includes
 #include "qSlicerPatientsQueueModuleWidget.h"
@@ -31,6 +33,13 @@
 #include <qSlicerSingletonViewFactory.h>
 #include <qSlicerLayoutManager.h>
 #include <qSlicerApplication.h>
+
+// DCMTK includes
+#include "dcmtk/config/osconfig.h"    /* make sure OS specific configuration is included first */
+#include "dcmtk/dcmnet/scu.h"
+
+// CTK includes
+#include <ctkDICOMEcho.h>
 
 #include "qSlicerPatientsQueueWorklistWidget.h"
 
@@ -183,6 +192,8 @@ void qSlicerPatientsQueueModuleWidget::setup()
   // Buttons
   QObject::connect(d->PushButton_Worklist1, SIGNAL(clicked()),
     this, SLOT(onSetCustomLayoutClicked()));
+  QObject::connect(d->PushButton_CheckConnection, SIGNAL(clicked()),
+    this, SLOT(onCheckConnectionClicked()));
 }
 
 void qSlicerPatientsQueueModuleWidget::onSetCustomLayoutClicked()
@@ -207,4 +218,89 @@ void qSlicerPatientsQueueModuleWidget::onSetCustomLayoutClicked()
     }
   }
   slicerApplication->processEvents();
+}
+
+void qSlicerPatientsQueueModuleWidget::onCheckConnectionClicked()
+{
+  Q_D(qSlicerPatientsQueueModuleWidget);
+
+  QString hostStr = d->LineEdit_WorklistServerHost->text();
+  int hostPort = d->SpinBox_WorklistServerPort->value();
+  QString aeTitleStr = d->LineEdit_WorklistServerAETitle->text();
+
+  QScopedPointer< ctkDICOMEcho > mwlServerEcho(new ctkDICOMEcho(this));
+  mwlServerEcho->setCallingAETitle("ECHOSCU");
+  mwlServerEcho->setCalledAETitle(aeTitleStr);
+  mwlServerEcho->setHost(hostStr);
+  mwlServerEcho->setPort(hostPort);
+
+  if (mwlServerEcho->echo())
+  {
+    int res = QMessageBox::information(this, tr("Check connection (ECHO)"), tr("Connection to peer was successful!"));
+    Q_UNUSED(res);
+  }
+  else
+  {
+    int res = QMessageBox::warning(this, tr("Check connection (ECHO)"), tr("Unable to execute C-ECHO!"));
+    Q_UNUSED(res);
+  }
+  
+/*
+  if (hostStr.isEmpty())
+  {
+    return;
+  }
+  
+  OFString host(hostStr.toStdString().c_str());
+  OFString peerAET(aeTitleStr.toStdString().c_str());
+
+  // Setup SCU
+  DcmSCU scu;
+  scu.setPeerHostName(host);
+  scu.setPeerPort(hostPort);
+  OFString verificationSOP = UID_VerificationSOPClass;
+  OFList<OFString> ts;
+  ts.push_back(UID_LittleEndianExplicitTransferSyntax);
+  ts.push_back(UID_BigEndianExplicitTransferSyntax);
+  ts.push_back(UID_LittleEndianImplicitTransferSyntax);
+  scu.addPresentationContext(verificationSOP, ts);
+  if (peerAET != "")
+  {
+    scu.setPeerAETitle(peerAET);
+  }
+
+  OFCondition result = scu.initNetwork();
+  if (result.bad())
+  {
+    qWarning() << Q_FUNC_INFO << "Error setting up SCU: " << result.text() << "\n";
+    return;
+  }
+
+  // Negotiate association
+  result = scu.negotiateAssociation();
+  if (result.bad())
+  {
+    qWarning() << Q_FUNC_INFO << "Error negotiating association: " << result.text() << "\n";
+    return;
+  }
+
+  // Issue ECHO request and let scu find presentation context itself (0)
+  result = scu.sendECHORequest(0);
+  if (result.bad())
+  {
+    qWarning() << Q_FUNC_INFO << "Error issuing ECHO request or received rejecting response: " << result.text() << "\n";
+    return;
+  }
+  qWarning() << Q_FUNC_INFO  << "Successfully sent DICOM Echo to host " << hostStr << " on port " << hostPort << "\n";
+
+  result = scu.releaseAssociation();
+  if (result.bad())
+  {
+    qWarning() << Q_FUNC_INFO << "Error releasing association with peer: " << result.text() << "\n";
+    return;
+  }
+
+  int res = QMessageBox::information(this, tr("Check connection (ECHO)"), tr("Connection to peer was successful!"));
+  Q_UNUSED(res);
+*/
 }

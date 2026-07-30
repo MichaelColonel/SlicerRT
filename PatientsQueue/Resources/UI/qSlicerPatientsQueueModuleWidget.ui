@@ -44,13 +44,28 @@
          </widget>
         </item>
         <item row="0" column="1">
-         <widget class="QLineEdit" name="LineEdit_WorklistServerHost"/>
+         <widget class="QLineEdit" name="LineEdit_WorklistServerHost">
+          <property name="text">
+           <string>localhost</string>
+          </property>
+         </widget>
         </item>
         <item row="2" column="1">
-         <widget class="QLineEdit" name="LineEdit_WorklistServerAETitle"/>
+         <widget class="QLineEdit" name="LineEdit_WorklistServerAETitle">
+          <property name="text">
+           <string>CABIN3</string>
+          </property>
+         </widget>
         </item>
         <item row="1" column="1">
-         <widget class="QSpinBox" name="SpinBox_WorklistServerPort"/>
+         <widget class="QSpinBox" name="SpinBox_WorklistServerPort">
+          <property name="maximum">
+           <number>65535</number>
+          </property>
+          <property name="value">
+           <number>1234</number>
+          </property>
+         </widget>
         </item>
        </layout>
       </item>
