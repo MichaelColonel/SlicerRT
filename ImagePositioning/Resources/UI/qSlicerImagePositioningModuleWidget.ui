@@ -506,7 +506,7 @@
  <resources/>
  <connections/>
  <buttongroups>
-  <buttongroup name="ButtonGroup_Cabin"/>
   <buttongroup name="buttonGroup"/>
+  <buttongroup name="ButtonGroup_Cabin"/>
  </buttongroups>
 </ui>

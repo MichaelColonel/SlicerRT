@@ -47,6 +47,7 @@
 
 // Qt includes
 #include <QDebug>
+#include <QVariant>
 
 // STD includes
 #include <cstring>
@@ -75,7 +76,7 @@ public:
   const std::string SCADA_TOASU_NODE_ID = SCADA_PATPOS_NODE_ID + ".TO_ASU";
   const std::string SCADA_TOASU_ERROR_MES_NODE_ID = SCADA_TOASU_NODE_ID + ".ErrorMes";
   const std::string SCADA_TOASU_SERV_MES_NODE_ID = SCADA_TOASU_NODE_ID + ".ServMes";
-  const std::string SCADA_TOASU_MESSAGES_NODE_ID = SCADA_TOASU_NODE_ID + ".Messages";
+  const std::string SCADA_TOASU_MISC_MES_NODE_ID = SCADA_TOASU_NODE_ID + ".Messages";
   const std::string SCADA_TOASU_MODE_NODE_ID = SCADA_TOASU_NODE_ID + ".Mode";
   const std::string SCADA_TOASU_STATUS_RTK_NODE_ID = SCADA_TOASU_NODE_ID + ".Status_RTK";
   const std::string SCADA_TOASU_STATUS_R1_DEKA_NODE_ID = SCADA_TOASU_NODE_ID + ".Status_R1_deka";
@@ -261,6 +262,11 @@ public:
   QScopedPointer<QOpcUaClient> OpcUaClient;
   QScopedPointer<QOpcUaNode> OpcUaScadaLocalTimeNode;
 
+  // Messages
+  QScopedPointer<QOpcUaNode> OpcUaScadaErrorMessagesNode;
+  QScopedPointer<QOpcUaNode> OpcUaScadaServiceMessagesNode;
+  QScopedPointer<QOpcUaNode> OpcUaScadaMiscMessagesNode;
+
   // Modes
   QScopedPointer<QOpcUaNode> OpcUaScadaModeNode;
   QScopedPointer<QOpcUaNode> OpcUaScadaStatusRtkNode;
@@ -332,14 +338,24 @@ public:
   QScopedPointer<QOpcUaNode> OpcUaScadaMmR2SetNewZIsEnabledNode;
   QScopedPointer<QOpcUaNode> OpcUaScadaMmR2SetNewZIsPressedNode;
 
+  // Service Movement (SM) robots mode
+  QScopedPointer<QOpcUaNode> OpcUaScadaSmR1BrakeTestIsEnabledNode;
+  QScopedPointer<QOpcUaNode> OpcUaScadaSmR1BrakeTestIsPressedNode;
+
+  QScopedPointer<QOpcUaNode> OpcUaScadaSmR2BrakeTestIsEnabledNode;
+  QScopedPointer<QOpcUaNode> OpcUaScadaSmR2BrakeTestIsPressedNode;
+
+  // Messages modes
   QScopedPointer<QOpcUaNode> OpcUaPatPosLocalTimeNode;
   QScopedPointer<QOpcUaNode> OpcUaPatPosErrorMessageNode;
   QScopedPointer<QOpcUaNode> OpcUaPatPosEventMessageNode;
 
+  bool connectMessagesNodes();
   bool connectStatusNodes();
   bool connectCoordFromAsuNodes();
   bool connectAutomaticMovementNodes();
   bool connectManualMovementNodes();
+  bool connectServiceMovementNodes();
 
   bool ClientConnectedFlag{ false };
 };
@@ -365,6 +381,122 @@ void qSlicerScadaOpcUaLogicPrivate::loadApplicationSettings()
 {
   //TODO: Implement if there are application settings (such as default dose engine)
   //      See qSlicerSubjectHierarchyPluginLogicPrivate::loadApplicationSettings
+}
+
+//-----------------------------------------------------------------------------
+bool qSlicerScadaOpcUaLogicPrivate::connectMessagesNodes()
+{
+  if (!this->OpcUaClient || !this->ParameterNode)
+  {
+    return false;
+  }
+  vtkMRMLScadaOpcUaNode* mrmlNode = this->ParameterNode.GetPointer();
+  // write values
+  // Error messages
+  QString nodeIdStr = QString::fromStdString(this->SCADA_TOASU_ERROR_MES_NODE_ID);
+  this->OpcUaScadaErrorMessagesNode.reset(this->OpcUaClient->node(nodeIdStr));
+  // Service messages
+  nodeIdStr = QString::fromStdString(this->SCADA_TOASU_SERV_MES_NODE_ID);
+  this->OpcUaScadaServiceMessagesNode.reset(this->OpcUaClient->node(nodeIdStr));
+  // Miscellaneous messages
+  nodeIdStr = QString::fromStdString(this->SCADA_TOASU_MISC_MES_NODE_ID);
+  this->OpcUaScadaMiscMessagesNode.reset(this->OpcUaClient->node(nodeIdStr));
+
+  // Connect signal handlers for subscribed values
+  // Error messages
+  if (!this->OpcUaScadaErrorMessagesNode)
+  {
+    return false;
+  }
+  QOpcUaNode* opcNode = this->OpcUaScadaErrorMessagesNode.get();
+  QObject::connect(opcNode,
+    &QOpcUaNode::dataChangeOccurred, [mrmlNode](QOpcUa::NodeAttribute attr, QVariant value)
+    {
+      if (attr == QOpcUa::NodeAttribute::Value)
+      {
+        QVariantList errMessages = value.toList(); // Get the attribute from the cache
+        if (errMessages.size() == vtkMRMLScadaOpcUaNode::MESSAGES_BUFFER_SIZE)
+        {
+          std::bitset< vtkMRMLScadaOpcUaNode::MESSAGES_BUFFER_SIZE - 1 > errFlags;
+          for (size_t i = 0; i < vtkMRMLScadaOpcUaNode::MESSAGES_BUFFER_SIZE - 1; ++i)
+          {
+            errFlags.set(i, errMessages.at(i).toBool());
+          }
+          bool errFlag65 = errMessages.at(vtkMRMLScadaOpcUaNode::MESSAGES_BUFFER_SIZE - 1).toBool();
+          uint64_t errFlags64 = errFlags.to_ullong();
+          mrmlNode->SetErrorMessages64(errFlags64);
+          mrmlNode->SetErrorMessage65(errFlag65);
+          qDebug() << Q_FUNC_INFO << "PatPos error messages flags: " << errFlags64 << ' ' << errFlag65;
+        }
+      }
+    }
+  );
+  // Subscribe to data changes
+  opcNode->enableMonitoring(QOpcUa::NodeAttribute::Value, QOpcUaMonitoringParameters(100));
+
+  // Service messages
+  if (!this->OpcUaScadaServiceMessagesNode)
+  {
+    return false;
+  }
+  opcNode = this->OpcUaScadaServiceMessagesNode.get();
+  QObject::connect(opcNode,
+    &QOpcUaNode::dataChangeOccurred, [mrmlNode](QOpcUa::NodeAttribute attr, QVariant value)
+    {
+      if (attr == QOpcUa::NodeAttribute::Value)
+      {
+        QVariantList servMessages = value.toList(); // Get the attribute from the cache
+        if (servMessages.size() == vtkMRMLScadaOpcUaNode::MESSAGES_BUFFER_SIZE)
+        {
+          std::bitset< vtkMRMLScadaOpcUaNode::MESSAGES_BUFFER_SIZE - 1 > servFlags;
+          for (size_t i = 0; i < vtkMRMLScadaOpcUaNode::MESSAGES_BUFFER_SIZE - 1; ++i)
+          {
+            servFlags.set(i, servMessages.at(i).toBool());
+          }
+          bool servFlag65 = servMessages.at(vtkMRMLScadaOpcUaNode::MESSAGES_BUFFER_SIZE - 1).toBool();
+          uint64_t servFlags64 = servFlags.to_ullong();
+          mrmlNode->SetServiceMessages64(servFlags64);
+          mrmlNode->SetServiceMessage65(servFlag65);
+          qDebug() << Q_FUNC_INFO << "PatPos service messages flags: " << servFlags64 << ' ' << servFlag65;
+        }
+      }
+    }
+  );
+  // Subscribe to data changes
+  opcNode->enableMonitoring(QOpcUa::NodeAttribute::Value, QOpcUaMonitoringParameters(100));
+
+  // Misc. messages
+  if (!this->OpcUaScadaMiscMessagesNode)
+  {
+    return false;
+  }
+  opcNode = this->OpcUaScadaMiscMessagesNode.get();
+  QObject::connect(opcNode,
+    &QOpcUaNode::dataChangeOccurred, [mrmlNode](QOpcUa::NodeAttribute attr, QVariant value)
+    {
+      if (attr == QOpcUa::NodeAttribute::Value)
+      {
+        QVariantList miscMessages = value.toList(); // Get the attribute from the cache
+        if (miscMessages.size() == vtkMRMLScadaOpcUaNode::MESSAGES_BUFFER_SIZE)
+        {
+          std::bitset< vtkMRMLScadaOpcUaNode::MESSAGES_BUFFER_SIZE - 1 > miscFlags;
+          for (size_t i = 0; i < vtkMRMLScadaOpcUaNode::MESSAGES_BUFFER_SIZE - 1; ++i)
+          {
+            miscFlags.set(i, miscMessages.at(i).toBool());
+          }
+          bool miscFlag65 = miscMessages.at(vtkMRMLScadaOpcUaNode::MESSAGES_BUFFER_SIZE - 1).toBool();
+          uint64_t miscFlags64 = miscFlags.to_ullong();
+          mrmlNode->SetMiscMessages64(miscFlags64);
+          mrmlNode->SetMiscMessage65(miscFlag65);
+          qDebug() << Q_FUNC_INFO << "PatPos service messages flags: " << miscFlags64 << ' ' << miscFlag65;
+        }
+      }
+    }
+  );
+  // Subscribe to data changes
+  opcNode->enableMonitoring(QOpcUa::NodeAttribute::Value, QOpcUaMonitoringParameters(100));
+
+  return true;
 }
 
 //-----------------------------------------------------------------------------
@@ -1102,6 +1234,144 @@ bool qSlicerScadaOpcUaLogicPrivate::connectManualMovementNodes()
 }
 
 //-----------------------------------------------------------------------------
+bool qSlicerScadaOpcUaLogicPrivate::connectServiceMovementNodes()
+{
+  if (!this->OpcUaClient || !this->ParameterNode)
+  {
+    return false;
+  }
+  vtkMRMLScadaOpcUaNode* mrmlNode = this->ParameterNode.GetPointer();
+  // write values
+  // Service movement R1_BreakTest is enabled (read-only)
+  QString nodeIdStr = QString::fromStdString(this->SCADA_TOASU_BUTTONS_SM_BRAKETESTR1_ISENABLE_NODE_ID);
+  this->OpcUaScadaSmR1BrakeTestIsEnabledNode.reset(this->OpcUaClient->node(nodeIdStr));
+
+  // Service movement R1_BreakTest is pressed (read-write)
+  nodeIdStr = QString::fromStdString(this->SCADA_TOASU_BUTTONS_SM_BRAKETESTR1_ISPRESSED_NODE_ID);
+  this->OpcUaScadaSmR1BrakeTestIsPressedNode.reset(this->OpcUaClient->node(nodeIdStr));
+
+  // Connect signal handlers for subscribed values
+  // Manual movement R1_BreakTest is enabled (read-only)
+  if (!this->OpcUaScadaSmR1BrakeTestIsEnabledNode)
+  {
+    return false;
+  }
+  QOpcUaNode* opcNode = this->OpcUaScadaSmR1BrakeTestIsEnabledNode.get();
+  QObject::connect(opcNode,
+    &QOpcUaNode::dataChangeOccurred, [mrmlNode](QOpcUa::NodeAttribute attr, QVariant value)
+    {
+      if (attr == QOpcUa::NodeAttribute::Value)
+      {
+        bool isEnabled = value.toBool();
+        if (mrmlNode)
+        {
+          bool state[2] = {false, false};
+          
+          mrmlNode->GetSM_Buttons_R1_BreakTest(state);
+          state[0] = isEnabled;
+          mrmlNode->SetSM_Buttons_R1_BreakTest(state);
+          qDebug() << Q_FUNC_INFO << "Service movement R1_BreakTest is enabled: " << isEnabled;
+        }
+      }
+    }
+  );
+  // Subscribe to data changes
+  opcNode->enableMonitoring(QOpcUa::NodeAttribute::Value, QOpcUaMonitoringParameters(100));
+
+  // Manual movement R1_BreakTest is pressed (read-write)
+  if (!this->OpcUaScadaSmR1BrakeTestIsPressedNode)
+  {
+    return false;
+  }
+  opcNode = this->OpcUaScadaSmR1BrakeTestIsPressedNode.get();
+  QObject::connect(opcNode,
+    &QOpcUaNode::dataChangeOccurred, [mrmlNode](QOpcUa::NodeAttribute attr, QVariant value)
+    {
+      if (attr == QOpcUa::NodeAttribute::Value)
+      {
+        bool isPressed = value.toBool();
+        if (mrmlNode)
+        {
+          bool state[2] = {false, false};
+          
+          mrmlNode->GetSM_Buttons_R1_BreakTest(state);
+          state[0] = isPressed;
+          mrmlNode->SetSM_Buttons_R1_BreakTest(state);
+          qDebug() << Q_FUNC_INFO << "Service movement R1_BreakTest is pressed: " << isPressed;
+        }
+      }
+    }
+  );
+  // Subscribe to data changes
+  opcNode->enableMonitoring(QOpcUa::NodeAttribute::Value, QOpcUaMonitoringParameters(100));
+
+  // Service movement R2_BreakTest is enabled (read-only)
+  nodeIdStr = QString::fromStdString(this->SCADA_TOASU_BUTTONS_SM_BRAKETESTR2_ISENABLE_NODE_ID);
+  this->OpcUaScadaSmR2BrakeTestIsEnabledNode.reset(this->OpcUaClient->node(nodeIdStr));
+
+  // Service movement R2_BreakTest is pressed (read-write)
+  nodeIdStr = QString::fromStdString(this->SCADA_TOASU_BUTTONS_SM_BRAKETESTR2_ISPRESSED_NODE_ID);
+  this->OpcUaScadaSmR2BrakeTestIsPressedNode.reset(this->OpcUaClient->node(nodeIdStr));
+
+  // Connect signal handlers for subscribed values
+  // Manual movement R2_BreakTest is enabled (read-only)
+  if (!this->OpcUaScadaSmR2BrakeTestIsEnabledNode)
+  {
+    return false;
+  }
+  opcNode = this->OpcUaScadaSmR2BrakeTestIsEnabledNode.get();
+  QObject::connect(opcNode,
+    &QOpcUaNode::dataChangeOccurred, [mrmlNode](QOpcUa::NodeAttribute attr, QVariant value)
+    {
+      if (attr == QOpcUa::NodeAttribute::Value)
+      {
+        bool isEnabled = value.toBool();
+        if (mrmlNode)
+        {
+          bool state[2] = {false, false};
+          
+          mrmlNode->GetSM_Buttons_R2_BreakTest(state);
+          state[0] = isEnabled;
+          mrmlNode->SetSM_Buttons_R2_BreakTest(state);
+          qDebug() << Q_FUNC_INFO << "Service movement R2_BreakTest is enabled: " << isEnabled;
+        }
+      }
+    }
+  );
+  // Subscribe to data changes
+  opcNode->enableMonitoring(QOpcUa::NodeAttribute::Value, QOpcUaMonitoringParameters(100));
+
+  // Manual movement R2_BreakTest is pressed (read-write)
+  if (!this->OpcUaScadaSmR2BrakeTestIsPressedNode)
+  {
+    return false;
+  }
+  opcNode = this->OpcUaScadaSmR2BrakeTestIsPressedNode.get();
+  QObject::connect(opcNode,
+    &QOpcUaNode::dataChangeOccurred, [mrmlNode](QOpcUa::NodeAttribute attr, QVariant value)
+    {
+      if (attr == QOpcUa::NodeAttribute::Value)
+      {
+        bool isPressed = value.toBool();
+        if (mrmlNode)
+        {
+          bool state[2] = {false, false};
+          
+          mrmlNode->GetSM_Buttons_R2_BreakTest(state);
+          state[0] = isPressed;
+          mrmlNode->SetSM_Buttons_R2_BreakTest(state);
+          qDebug() << Q_FUNC_INFO << "Service movement R2_BreakTest is pressed: " << isPressed;
+        }
+      }
+    }
+  );
+  // Subscribe to data changes
+  opcNode->enableMonitoring(QOpcUa::NodeAttribute::Value, QOpcUaMonitoringParameters(100));
+
+  return true;
+}
+
+//-----------------------------------------------------------------------------
 // qSlicerScadaOpcUaLogic methods
 
 //----------------------------------------------------------------------------
@@ -1326,6 +1596,12 @@ void qSlicerScadaOpcUaLogic::clientConnected()
 //  QObject::connect(d->OpcUaScadaModeNode.data(), SIGNAL(enableMonitoringFinished(QOpcUa::NodeAttribute, QOpcUa::UaStatusCode)),
 //    this, SLOT(onScadaModeEnableMonitoringFinished(QOpcUa::NodeAttribute, QOpcUa::UaStatusCode)));
 
+  bool resMessagesModes = d->connectMessagesNodes();
+  if (!resMessagesModes)
+  {
+    qWarning() << Q_FUNC_INFO << "Can't connect messages nodes";
+  }
+
   bool resStatusModes = d->connectStatusNodes();
   if (!resStatusModes)
   {
@@ -1348,6 +1624,12 @@ void qSlicerScadaOpcUaLogic::clientConnected()
   if (!resStatusModes)
   {
     qWarning() << Q_FUNC_INFO << "Can't connect automatic movement nodes";
+  }
+
+  resStatusModes = d->connectServiceMovementNodes();
+  if (!resStatusModes)
+  {
+    qWarning() << Q_FUNC_INFO << "Can't connect service movement nodes";
   }
 
   d->ClientConnectedFlag = true;

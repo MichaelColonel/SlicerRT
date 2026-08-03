@@ -35,6 +35,7 @@ class vtkMRMLTableNode;
 class VTK_SLICER_IMAGEPOSITIONING_MODULE_MRML_EXPORT vtkMRMLScadaOpcUaNode : public vtkMRMLNode
 {
 public:
+  static constexpr size_t MESSAGES_BUFFER_SIZE = 65;
   static vtkMRMLScadaOpcUaNode *New();
   vtkTypeMacro(vtkMRMLScadaOpcUaNode,vtkMRMLNode);
   void PrintSelf(ostream& os, vtkIndent indent) override;
@@ -59,6 +60,22 @@ public:
 
   /// Handles events registered in the observer manager
   void ProcessMRMLEvents(vtkObject *caller, unsigned long eventID, void *callData) override;
+
+
+  vtkGetMacro(ErrorMessages64, uint64_t);
+  vtkSetMacro(ErrorMessages64, uint64_t);
+  vtkGetMacro(ErrorMessage65, bool);
+  vtkSetMacro(ErrorMessage65, bool);
+
+  vtkGetMacro(ServiceMessages64, uint64_t);
+  vtkSetMacro(ServiceMessages64, uint64_t);
+  vtkGetMacro(ServiceMessage65, bool);
+  vtkSetMacro(ServiceMessage65, bool);
+
+  vtkGetMacro(MiscMessages64, uint64_t);
+  vtkSetMacro(MiscMessages64, uint64_t);
+  vtkGetMacro(MiscMessage65, bool);
+  vtkSetMacro(MiscMessage65, bool);
 
   vtkGetMacro(Mode, uint8_t);
   vtkSetMacro(Mode, uint8_t);
@@ -147,6 +164,12 @@ public:
   vtkGetVector2Macro(MM_Buttons_R2_Set_New_Z, bool);
   vtkSetVector2Macro(MM_Buttons_R2_Set_New_Z, bool);
 
+  vtkGetVector2Macro(SM_Buttons_R1_BreakTest, bool);
+  vtkSetVector2Macro(SM_Buttons_R1_BreakTest, bool);
+
+  vtkGetVector2Macro(SM_Buttons_R2_BreakTest, bool);
+  vtkSetVector2Macro(SM_Buttons_R2_BreakTest, bool);
+
   vtkGetMacro(SysTime, uint64_t);
   vtkSetMacro(SysTime, uint64_t);
 
@@ -162,9 +185,14 @@ protected:
 private:
   uint64_t SysTime{ 0 };
   uint64_t LocalTime{ 0 };
-  std::array< bool, 65 > ErrorMessages;
-  std::array< bool, 65 > ServMessages;
-  std::array< bool, 65 > Messages;
+
+  uint64_t ErrorMessages64; // Error messages 0...63
+  bool ErrorMessage65; // Error message 64
+  uint64_t ServiceMessages64; // Service messages 0...63
+  bool ServiceMessage65; // Service message 65
+  uint64_t MiscMessages64; // Miscellaneous messages 0...63
+  bool MiscMessage65; // Miscellaneous message 64
+
   uint8_t Mode;
   uint16_t Status_RTK;
   uint16_t Status_R1_deka;
@@ -197,6 +225,18 @@ private:
   bool MM_Buttons_R2_ToHome[2]{ false, false }; // [0] == isEnabled, [1] == isPressed
   bool MM_Buttons_R2_Set_New_Z[2]{ false, false }; // [0] == isEnabled, [1] == isPressed
 
+  bool SM_Buttons_R1_BreakTest[2]{ false, false }; // [0] == isEnabled, [1] == isPressed
+  bool SM_Buttons_R1_MasterReferenceTest[2]{ false, false }; // [0] == isEnabled, [1] == isPressed
+  bool SM_Buttons_R1_HomeTest[2]{ false, false }; // [0] == isEnabled, [1] == isPressed
+  bool SM_Buttons_R1_IsoTest[2]{ false, false }; // [0] == isEnabled, [1] == isPressed
+  bool SM_Buttons_R1_ServicePosition[2]{ false, false }; // [0] == isEnabled, [1] == isPressed
+  bool SM_Buttons_R2_BreakTest[2]{ false, false }; // [0] == isEnabled, [1] == isPressed
+  bool SM_Buttons_R2_MasterReferenceTest[2]{ false, false }; // [0] == isEnabled, [1] == isPressed
+  bool SM_Buttons_R2_HomeTest[2]{ false, false }; // [0] == isEnabled, [1] == isPressed
+  bool SM_Buttons_R2_IsoTest[2]{ false, false }; // [0] == isEnabled, [1] == isPressed
+  bool SM_Buttons_R2_ServicePosition[2]{ false, false }; // [0] == isEnabled, [1] == isPressed
+  bool SM_Buttons_Restart[2]{ false, false }; // [0] == isEnabled, [1] == isPressed
+  
   struct Button {
     bool IsPressed{ false };
     bool IsEnable{ false };

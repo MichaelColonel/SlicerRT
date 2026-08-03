@@ -1121,7 +1121,7 @@ void vtkSlicerChannel26Cabin3RobotsTransformLogic::UpdateTableFlangeToTableRobot
   using CoordPos = vtkSlicerChannel26Cabin3RobotsGeometryCommon;
   using CoordSys = CoordinateSystemIdentifier;
   vtkNew<vtkTransform> tableFlangeToPatientTransform;
-  if (!this->GetTransformBetween( CoordSys::TableFlange, CoordSys::Patient, 
+  if (!this->GetTransformBetween(CoordSys::TableFlange, CoordSys::Patient, 
     tableFlangeToPatientTransform, false))
   {
     vtkWarningMacro("UpdateTableFlangeToTableRobotFlangeTransform: Can't get TableFlange->Patient transform");
@@ -1185,7 +1185,7 @@ void vtkSlicerChannel26Cabin3RobotsTransformLogic::UpdateTableRobotFlangeToTable
   using CoordPos = vtkSlicerChannel26Cabin3RobotsGeometryCommon;
   using CoordSys = CoordinateSystemIdentifier;
   vtkNew<vtkTransform> tableRobotFlangeToPatientTransform;
-  if (!this->GetTransformBetween( CoordSys::TableRobotFlange, CoordSys::Patient, 
+  if (!this->GetTransformBetween(CoordSys::TableRobotFlange, CoordSys::Patient, 
     tableRobotFlangeToPatientTransform, false))
   {
     vtkWarningMacro("UpdateTableRobotFlangeToTableRobotWristTransform: Can't get TableRobotFlange->Patient transform");
@@ -1253,7 +1253,7 @@ void vtkSlicerChannel26Cabin3RobotsTransformLogic::UpdateTableRobotWristToTableR
   using CoordPos = vtkSlicerChannel26Cabin3RobotsGeometryCommon;
   using CoordSys = CoordinateSystemIdentifier;
   vtkNew<vtkTransform> tableRobotWristToPatientTransform;
-  if (!this->GetTransformBetween( CoordSys::TableRobotWrist, CoordSys::Patient, 
+  if (!this->GetTransformBetween(CoordSys::TableRobotWrist, CoordSys::Patient, 
     tableRobotWristToPatientTransform, false))
   {
     vtkWarningMacro("UpdateTableRobotWristToTableRobotElbowWristTransform: Can't get TableRobotWrist->Patient transform");
@@ -1363,7 +1363,7 @@ void vtkSlicerChannel26Cabin3RobotsTransformLogic::UpdateTableRobotElbowWristToT
     // Apply transform (rotation around Y axis on A5 angle, and around X axis on A4 angle in RAS origin)
     vtkNew<vtkTransform> WristToElbowTransform;
     WristToElbowTransform->RotateY(a[4]);
-    WristToElbowTransform->RotateX(-90. + a[3]);
+    WristToElbowTransform->RotateX(270. - a[3]);
     // Transform robot elbow wrist in RAS (Patient) origin so, it's begin in RAS origin
     WristToElbowTransform->Concatenate(tableRobotElbowWristToPatientTransform);
     // Apply Wrist->Flange (TableTop) rotation transform
@@ -1445,7 +1445,7 @@ void vtkSlicerChannel26Cabin3RobotsTransformLogic::UpdateTableRobotElbowShoulder
     // Apply transform (rotation around Y axis on A5 angle, and around X axis on A4 angle in RAS origin)
     vtkNew<vtkTransform> WristToElbowTransform;
     WristToElbowTransform->RotateY(a[4]);
-    WristToElbowTransform->RotateX(a[3]);
+    WristToElbowTransform->RotateX(-1. * a[3]);
     // Translate elbow in RAS (Patient) origin, so it's end in RAS origin
     WristToElbowTransform->Concatenate(ElbowTranslateTransform);
     // Apply Wrist->Flange (TableTop) rotation transform
@@ -1461,7 +1461,7 @@ void vtkSlicerChannel26Cabin3RobotsTransformLogic::UpdateTableRobotElbowShoulder
     vtkNew<vtkTransform> A6A5A4RotationTransform;
     A6A5A4RotationTransform->RotateZ(a[5]);
     A6A5A4RotationTransform->RotateY(a[4]);
-    A6A5A4RotationTransform->RotateX(a[3]);
+    A6A5A4RotationTransform->RotateX(-1. * a[3]);
 
     // Transform shoulder in RAS (Patient) origin so, it's begin in RAS origin
     // Transform to RAS origin and model vertical orientation
@@ -1547,7 +1547,7 @@ void vtkSlicerChannel26Cabin3RobotsTransformLogic::UpdateTableRobotShoulderToTab
     // Apply transform (rotation around Y axis on A5 angle, and around X axis on A4 angle in RAS origin)
     vtkNew<vtkTransform> WristToElbowTransform;
     WristToElbowTransform->RotateY(a[4]);
-    WristToElbowTransform->RotateX(a[3]);
+    WristToElbowTransform->RotateX(-1. * a[3]);
     // Translate elbow in RAS (Patient) origin, so it's end in RAS origin
     WristToElbowTransform->Concatenate(ElbowTranslateTransform);
     // Apply Wrist->Flange (TableTop) rotation transform
@@ -1563,7 +1563,7 @@ void vtkSlicerChannel26Cabin3RobotsTransformLogic::UpdateTableRobotShoulderToTab
     vtkNew<vtkTransform> A6A5A4RotationTransform;
     A6A5A4RotationTransform->RotateZ(a[5]);
     A6A5A4RotationTransform->RotateY(a[4]);
-    A6A5A4RotationTransform->RotateX(a[3]);
+    A6A5A4RotationTransform->RotateX(-1. * a[3]);
 
     // Shoulder->BaseRotation rotation around Y (A2 angle)
     vtkNew<vtkTransform> ShoulderToBaseRotationTransform;
@@ -1666,7 +1666,7 @@ void vtkSlicerChannel26Cabin3RobotsTransformLogic::UpdateTableRobotBaseRotationT
     // Apply transform (rotation around Y axis on A5 angle, and around X axis on A4 angle in RAS origin)
     vtkNew<vtkTransform> WristToElbowTransform;
     WristToElbowTransform->RotateY(a[4]);
-    WristToElbowTransform->RotateX(a[3]);
+    WristToElbowTransform->RotateX(-1. * a[3]);
     // Translate elbow in RAS (Patient) origin, so it's end in RAS origin
     WristToElbowTransform->Concatenate(ElbowTranslateTransform);
     // Apply Wrist->Flange (TableTop) rotation transform
@@ -1682,7 +1682,7 @@ void vtkSlicerChannel26Cabin3RobotsTransformLogic::UpdateTableRobotBaseRotationT
     vtkNew<vtkTransform> A6A5A4RotationTransform;
     A6A5A4RotationTransform->RotateZ(a[5]);
     A6A5A4RotationTransform->RotateY(a[4]);
-    A6A5A4RotationTransform->RotateX(a[3]);
+    A6A5A4RotationTransform->RotateX(-1. * a[3]);
 
     // Shoulder->BaseRotation rotation around Y (A2 angle)
     vtkNew<vtkTransform> ShoulderToBaseRotationTransform;
@@ -1802,7 +1802,7 @@ void vtkSlicerChannel26Cabin3RobotsTransformLogic::UpdateTableRobotBaseRotationD
     // Apply transform (rotation around Y axis on A5 angle, and around X axis on A4 angle in RAS origin)
     vtkNew<vtkTransform> WristToElbowTransform;
     WristToElbowTransform->RotateY(a[4]);
-    WristToElbowTransform->RotateX(a[3]);
+    WristToElbowTransform->RotateX(-1. * a[3]);
     // Translate elbow in RAS (Patient) origin, so it's end in RAS origin
     WristToElbowTransform->Concatenate(ElbowTranslateTransform);
     // Apply Wrist->Flange (TableTop) rotation transform
@@ -1818,7 +1818,7 @@ void vtkSlicerChannel26Cabin3RobotsTransformLogic::UpdateTableRobotBaseRotationD
     vtkNew<vtkTransform> A6A5A4RotationTransform;
     A6A5A4RotationTransform->RotateZ(a[5]);
     A6A5A4RotationTransform->RotateY(a[4]);
-    A6A5A4RotationTransform->RotateX(a[3]);
+    A6A5A4RotationTransform->RotateX(-1. * a[3]);
 
     // Shoulder->BaseRotation rotation around Y (A2 angle)
     vtkNew<vtkTransform> ShoulderToBaseRotationTransform;
@@ -1839,8 +1839,10 @@ void vtkSlicerChannel26Cabin3RobotsTransformLogic::UpdateTableRobotBaseRotationD
     // BaseRotation->BaseFixed rotation around Z (A1 angle)
     vtkNew<vtkTransform> BaseRotationToBaseFixedTransform;
     BaseRotationToBaseFixedTransform->RotateZ(a[0]);
+    // correct vertical offset of base rotation disk and fake floor
     BaseRotationToBaseFixedTransform->Translate(0.,
-      0., -1000.);
+      0., -1 * CoordPos::TABLE_TOP_ROBOT_DISK_BASEMENT_HEIGHT);
+
     // BaseFixed model -> move to BaseRotation rotation origin A2 along X
     vtkNew<vtkTransform> BaseFixedOriginToBaseRotationOriginTransform;
     BaseFixedOriginToBaseRotationOriginTransform->Translate(-1. * CoordPos::TABLE_ROBOT_BASE_ROTATION_SHOULDER_OFFSET_X,
@@ -1897,7 +1899,7 @@ void vtkSlicerChannel26Cabin3RobotsTransformLogic::UpdateTableRobotBaseFixedToFi
     return;
   }
 
-//  using CoordPos = vtkSlicerChannel26Cabin3RobotsGeometryCommon;
+  using CoordPos = vtkSlicerChannel26Cabin3RobotsGeometryCommon;
   double BaseFixedToFixedReferenceTranslate[3] = {};
   parameterNode->GetTableBaseFixedToFixedReferenceTranslation(BaseFixedToFixedReferenceTranslate);
   // Default: FixedReferenceToFixedBasedOffset.data()
@@ -1905,7 +1907,7 @@ void vtkSlicerChannel26Cabin3RobotsTransformLogic::UpdateTableRobotBaseFixedToFi
   // Translate the FixedReference model origin (isocenter position)
   // to BaseFixed model origin (0,0,0 position in robot model file)
   vtkNew<vtkTransform> BaseFixedTranslateTransform;
-  BaseFixedTranslateTransform->Translate(0., 0., 0.);//CoordPos::TABLE_ROBOT_BASE_MOUNTING_OFFSET_Y); // -30. mm offset
+  BaseFixedTranslateTransform->Translate(0., 0., CoordPos::TABLE_ROBOT_BASE_MOUNTING_OFFSET_Y); // 30. mm offset
   BaseFixedTranslateTransform->Translate(BaseFixedToFixedReferenceTranslate);
 
   using CoordSys = CoordinateSystemIdentifier;
@@ -1949,7 +1951,7 @@ void vtkSlicerChannel26Cabin3RobotsTransformLogic::UpdateTableRobotBaseFixedToFi
     vtkNew<vtkTransform> A6A5A4RotationTransform;
     A6A5A4RotationTransform->RotateZ(a[5]);
     A6A5A4RotationTransform->RotateY(a[4]);
-    A6A5A4RotationTransform->RotateX(a[3]);
+    A6A5A4RotationTransform->RotateX(-1. * a[3]);
 
     // Translate BaseFixed disk end (top) to RAS (Patient) origin so, it's end (top) in RAS origin
     BaseFixedTranslateTransform->Concatenate(baseFixedToPatientTransform);
@@ -2041,7 +2043,7 @@ void vtkSlicerChannel26Cabin3RobotsTransformLogic::UpdateCarmRobotBaseFixedToFix
     vtkNew<vtkTransform> A6A5A4RotationTransform;
     A6A5A4RotationTransform->RotateZ(a[5]);
     A6A5A4RotationTransform->RotateY(a[4]);
-    A6A5A4RotationTransform->RotateX(a[3]);
+    A6A5A4RotationTransform->RotateX(-1. * a[3]);
 
     // Translate BaseFixed disk end (top) to RAS (Patient) origin so, it's end (top) in RAS origin
     BaseFixedTranslateTransform->Concatenate(baseFixedToPatientTransform);
@@ -2259,7 +2261,7 @@ void vtkSlicerChannel26Cabin3RobotsTransformLogic::UpdateCarmRobotElbowWristToCa
 
     // Wrist->Elbow rotation around X (A4 angle)
     vtkNew<vtkTransform> a4Transform;
-    a4Transform->RotateX(a[3]);
+    a4Transform->RotateX(-1. * a[3]);
 
     // Elbow->Shoulder translation from point of rotation on Shoulder->Elbow offset (115 mm) along Y-axis
     vtkNew<vtkTransform> elbowToShoulderTransform;

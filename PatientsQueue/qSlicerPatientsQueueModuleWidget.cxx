@@ -35,8 +35,11 @@
 #include <qSlicerApplication.h>
 
 // DCMTK includes
-#include "dcmtk/config/osconfig.h"    /* make sure OS specific configuration is included first */
-#include "dcmtk/dcmnet/scu.h"
+#include <dcmtk/config/osconfig.h>    /* make sure OS specific configuration is included first */
+#include <dcmtk/dcmnet/scu.h>
+#include <dcmtk/dcmdata/dcfilefo.h>
+#include <dcmtk/dcmdata/dcdeftag.h>
+#include <dcmtk/dcmdata/dcdatset.h>
 
 // CTK includes
 #include <ctkDICOMEcho.h>
@@ -116,7 +119,8 @@ public:
   const int PWL_LAYOUT_ID = 1021;
 
   QScopedPointer< qSlicerPatientsQueueWorklistWidget > WorklistWidget;
-  
+  std::unique_ptr< DcmDataset > WorklistQueryDataset;
+
   int PreviousLayoutId{ -1 };
   bool ModuleWindowInitialized{ false };
 };
@@ -127,6 +131,71 @@ public:
 //-----------------------------------------------------------------------------
 qSlicerPatientsQueueModuleWidgetPrivate::qSlicerPatientsQueueModuleWidgetPrivate()
 {
+  this->WorklistQueryDataset.reset(new DcmDataset);
+/*
+(0008,0005) CS [ISO_IR 192]                             #  10, 1 SpecificCharacterSet
+(0008,0050) SH (no value available)                     #   0, 0 AccessionNumber
+(0010,0010) PN (no value available)                     #   0, 0 PatientName
+(0010,0020) LO (no value available)                     #   0, 0 PatientID
+(0010,0021) LO (no value available)                     #   0, 0 IssuerOfPatientID
+(0010,0030) DA (no value available)                     #   0, 0 PatientBirthDate
+(0010,0040) CS (no value available)                     #   0, 0 PatientSex
+(0020,000d) UI (no value available)                     #   0, 0 StudyInstanceUID
+(0032,1060) LO (no value available)                     #   0, 0 RequestedProcedureDescription
+(0040,0100) SQ (Sequence with explicit length #=1)      #  80, 1 ScheduledProcedureStepSequence
+  (fffe,e000) na (Item with explicit length #=9)          #  72, 1 Item
+    (0008,0060) CS (no value available)                     #   0, 0 Modality
+    (0040,0001) AE (no value available)                     #   0, 0 ScheduledStationAETitle
+    (0040,0002) DA (no value available)                     #   0, 0 ScheduledProcedureStepStartDate
+    (0040,0003) TM (no value available)                     #   0, 0 ScheduledProcedureStepStartTime
+    (0040,0007) LO (no value available)                     #   0, 0 ScheduledProcedureStepDescription
+    (0040,0009) SH (no value available)                     #   0, 0 ScheduledProcedureStepID
+    (0040,0010) SH (no value available)                     #   0, 0 ScheduledStationName
+    (0040,0011) SH (no value available)                     #   0, 0 ScheduledProcedureStepLocation
+    (0040,0020) CS (no value available)                     #   0, 0 ScheduledProcedureStepStatus
+  (fffe,e00d) na (ItemDelimitationItem for re-encoding)   #   0, 0 ItemDelimitationItem
+(fffe,e0dd) na (SequenceDelimitationItem for re-encod.) #   0, 0 SequenceDelimitationItem
+(0040,1001) SH (no value available)                     #   0, 0 RequestedProcedureID
+*/
+  // Clear the query
+  this->WorklistQueryDataset->clear();
+
+  // Insert all keys that we like to receive values for
+  
+  // Make clear we define our search values in UTF-8
+  this->WorklistQueryDataset->putAndInsertOFStringArray(DCM_SpecificCharacterSet, "ISO_IR 192");
+  // Fill empty tags
+  this->WorklistQueryDataset->insertEmptyElement(DCM_AccessionNumber);
+  this->WorklistQueryDataset->insertEmptyElement(DCM_PatientID);
+  this->WorklistQueryDataset->insertEmptyElement(DCM_PatientName);
+  this->WorklistQueryDataset->insertEmptyElement(DCM_IssuerOfPatientID);
+  this->WorklistQueryDataset->insertEmptyElement(DCM_PatientBirthDate);
+  this->WorklistQueryDataset->insertEmptyElement(DCM_PatientSex);
+  this->WorklistQueryDataset->insertEmptyElement(DCM_StudyInstanceUID);
+  this->WorklistQueryDataset->insertEmptyElement(DCM_RequestedProcedureDescription);
+
+  DcmItem* spsSequenceItem = nullptr;
+  if (this->WorklistQueryDataset->findOrCreateSequenceItem(DCM_ScheduledProcedureStepSequence, spsSequenceItem).good())
+  {
+    // SPS Sequence dataset
+    spsSequenceItem->insertEmptyElement(DCM_Modality);
+    spsSequenceItem->insertEmptyElement(DCM_ScheduledStationAETitle);
+    spsSequenceItem->insertEmptyElement(DCM_ScheduledProcedureStepStartDate);
+    spsSequenceItem->insertEmptyElement(DCM_ScheduledProcedureStepStartTime);
+    spsSequenceItem->insertEmptyElement(DCM_ScheduledProcedureStepDescription);
+    spsSequenceItem->insertEmptyElement(DCM_ScheduledProcedureStepID);
+    spsSequenceItem->insertEmptyElement(DCM_ScheduledStationName);
+    spsSequenceItem->insertEmptyElement(DCM_ScheduledProcedureStepLocation);
+    spsSequenceItem->insertEmptyElement(DCM_ScheduledProcedureStepStatus);
+  }
+  this->WorklistQueryDataset->insertEmptyElement(DCM_RequestedProcedureID);
+//  this->WorklistQueryDataset->putAndInsertString(DCM_QueryRetrieveLevel, "STUDY");
+
+  DcmFileFormat fileformat(this->WorklistQueryDataset.get(), OFTrue);
+  if (fileformat.saveFile("/tmp/mwl_query.dcm", EXS_LittleEndianExplicit).good())
+  {
+    qDebug() << Q_FUNC_INFO << ": Save is good";
+  }
 }
 
 //-----------------------------------------------------------------------------
