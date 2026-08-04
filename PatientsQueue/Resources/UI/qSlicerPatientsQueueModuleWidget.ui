@@ -96,6 +96,13 @@
      </property>
      <layout class="QVBoxLayout" name="verticalLayout_3">
       <item>
+       <widget class="QPushButton" name="PushButton_WorklistQuery">
+        <property name="text">
+         <string>Worklist query</string>
+        </property>
+       </widget>
+      </item>
+      <item>
        <widget class="QPushButton" name="PushButton_Worklist1">
         <property name="text">
          <string>Queue table...</string>

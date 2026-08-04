@@ -36,6 +36,7 @@
 
 // DCMTK includes
 #include <dcmtk/config/osconfig.h>    /* make sure OS specific configuration is included first */
+#include <dcmtk/dcmnet/assoc.h>
 #include <dcmtk/dcmnet/scu.h>
 #include <dcmtk/dcmdata/dcfilefo.h>
 #include <dcmtk/dcmdata/dcdeftag.h>
@@ -43,6 +44,8 @@
 
 // CTK includes
 #include <ctkDICOMEcho.h>
+#include <ctkDICOMQuery.h>
+#include <ctkDICOMDatabase.h>
 
 #include "qSlicerPatientsQueueWorklistWidget.h"
 
@@ -263,6 +266,8 @@ void qSlicerPatientsQueueModuleWidget::setup()
     this, SLOT(onSetCustomLayoutClicked()));
   QObject::connect(d->PushButton_CheckConnection, SIGNAL(clicked()),
     this, SLOT(onCheckConnectionClicked()));
+  QObject::connect(d->PushButton_WorklistQuery, SIGNAL(clicked()),
+    this, SLOT(onWorklistQueryClicked()));
 }
 
 void qSlicerPatientsQueueModuleWidget::onSetCustomLayoutClicked()
@@ -287,6 +292,89 @@ void qSlicerPatientsQueueModuleWidget::onSetCustomLayoutClicked()
     }
   }
   slicerApplication->processEvents();
+}
+
+
+void qSlicerPatientsQueueModuleWidget::onWorklistQueryClicked()
+{
+  Q_D(qSlicerPatientsQueueModuleWidget);
+
+  QString hostStr = d->LineEdit_WorklistServerHost->text();
+  int hostPort = d->SpinBox_WorklistServerPort->value();
+  QString aeTitleStr = d->LineEdit_WorklistServerAETitle->text();
+
+  if (hostStr.isEmpty())
+  {
+    return;
+  }
+  
+  OFString host(hostStr.toStdString().c_str());
+  OFString peerAET(aeTitleStr.toStdString().c_str());
+
+  // Setup SCU
+  DcmSCU scu;
+  scu.setPeerHostName(host);
+  scu.setPeerPort(hostPort);
+  
+  OFString verificationSOP = UID_FINDModalityWorklistInformationModel;
+  OFList<OFString> ts;
+  ts.push_back(UID_LittleEndianExplicitTransferSyntax);
+  ts.push_back(UID_BigEndianExplicitTransferSyntax);
+  ts.push_back(UID_LittleEndianImplicitTransferSyntax);
+  OFCondition result1 = scu.addPresentationContext(verificationSOP, ts);
+  if (result1.bad())
+  {
+    qWarning() << Q_FUNC_INFO << "Error while setting up a presentation context: " << result1.text() << "\n";
+    return;
+  }
+
+  if (peerAET != "")
+  {
+    scu.setPeerAETitle(peerAET);
+  }
+
+  OFCondition result = scu.initNetwork();
+  if (result.bad())
+  {
+    qWarning() << Q_FUNC_INFO << "Error setting up SCU: " << result.text() << "\n";
+    return;
+  }
+
+  // Negotiate association
+  result = scu.negotiateAssociation();
+  if (result.bad())
+  {
+    qWarning() << Q_FUNC_INFO << "Error negotiating association: " << result.text() << "\n";
+    return;
+  }
+  
+  // Issue FIND request and let scu find presentation context itself (1)
+  OFList< QRResponse* > findResponses;
+  result = scu.sendFINDRequest(1, d->WorklistQueryDataset.get(), &findResponses);
+  if (result.bad())
+  {
+    qWarning() << Q_FUNC_INFO << "Error issuing C-FIND request or received rejecting response: " << result.text() << "\n";
+    return;
+  }
+  else
+  {
+    qDebug() << Q_FUNC_INFO  << "Successfully sentC-FIND request to host " << hostStr << " on port " << hostPort \
+      << " found responses " << findResponses.size() << '\n';
+    for (QRResponse* retresp : findResponses)
+    {
+      if (retresp->m_dataset)
+      {
+        qDebug() << Q_FUNC_INFO << "Dataset is valid!";
+      }
+    }
+  }
+
+  result = scu.releaseAssociation();
+  if (result.bad())
+  {
+    qWarning() << Q_FUNC_INFO << "Error releasing association with peer: " << result.text() << "\n";
+    return;
+  }
 }
 
 void qSlicerPatientsQueueModuleWidget::onCheckConnectionClicked()

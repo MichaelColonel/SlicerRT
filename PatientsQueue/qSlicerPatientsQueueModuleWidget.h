@@ -40,6 +40,7 @@ public:
 public slots:
   void onSetCustomLayoutClicked();
   void onCheckConnectionClicked();
+  void onWorklistQueryClicked();
 
 protected:
   QScopedPointer<qSlicerPatientsQueueModuleWidgetPrivate> d_ptr;
