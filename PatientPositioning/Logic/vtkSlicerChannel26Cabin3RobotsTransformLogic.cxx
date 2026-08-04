@@ -1899,7 +1899,7 @@ void vtkSlicerChannel26Cabin3RobotsTransformLogic::UpdateTableRobotBaseFixedToFi
     return;
   }
 
-  using CoordPos = vtkSlicerChannel26Cabin3RobotsGeometryCommon;
+//  using CoordPos = vtkSlicerChannel26Cabin3RobotsGeometryCommon;
   double BaseFixedToFixedReferenceTranslate[3] = {};
   parameterNode->GetTableBaseFixedToFixedReferenceTranslation(BaseFixedToFixedReferenceTranslate);
   // Default: FixedReferenceToFixedBasedOffset.data()
@@ -1907,7 +1907,7 @@ void vtkSlicerChannel26Cabin3RobotsTransformLogic::UpdateTableRobotBaseFixedToFi
   // Translate the FixedReference model origin (isocenter position)
   // to BaseFixed model origin (0,0,0 position in robot model file)
   vtkNew<vtkTransform> BaseFixedTranslateTransform;
-  BaseFixedTranslateTransform->Translate(0., 0., CoordPos::TABLE_ROBOT_BASE_MOUNTING_OFFSET_Y); // 30. mm offset
+//  BaseFixedTranslateTransform->Translate(0., 0., -1. * CoordPos::TABLE_ROBOT_BASE_MOUNTING_OFFSET_Y); // 30. mm offset
   BaseFixedTranslateTransform->Translate(BaseFixedToFixedReferenceTranslate);
 
   using CoordSys = CoordinateSystemIdentifier;

@@ -145,7 +145,8 @@ protected:
   double TableBaseFixedToFixedReferenceTranslation[3] = {
     CoordPos::D_NORTH_WALL_ISOCENTER - CoordPos::D_NORTH_WALL_TABLE_TOP_ROBOT_BASE,
     CoordPos::D_EAST_WALL_ISOCENTER - CoordPos::D_EAST_WALL_TABLE_TOP_ROBOT_BASE,
-    -1. * CoordPos::D_BASEMENT_ISOCENTER + CoordPos::TABLE_ROBOT_BASE_MOUNTING_OFFSET_Y };
+//    -1. * (CoordPos::D_BASEMENT_ISOCENTER + CoordPos::TABLE_ROBOT_BASE_MOUNTING_OFFSET_Y) };
+    -1. * CoordPos::D_BASEMENT_ISOCENTER };
   /// Translate C-Arm BaseFixed to Table BaseFixed offset (robots)
   /// X offset = CarmBaseFixed - TableBaseFixed (along X-axis) (minus beam axis)
   /// Y offset = CarmBaseFixed basement height (along Z-axis)
