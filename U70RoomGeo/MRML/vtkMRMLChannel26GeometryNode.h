@@ -28,6 +28,7 @@
 #include <vtkSmartPointer.h>
 #include <vtkStdString.h>
 
+class vtkMRMLScalarVolumeNode;
 class vtkMRMLLinearTransformNode;
 
 class VTK_SLICER_U70ROOMGEO_MODULE_MRML_EXPORT vtkMRMLChannel26GeometryNode : public vtkMRMLNode
@@ -50,7 +51,7 @@ public:
   void Copy(vtkMRMLNode *node) override;
 
   /// Copy node content (excludes basic data, such a name and node reference)
-  vtkMRMLCopyContentMacro(vtkMRMLCabin26AGeometryNode);
+  vtkMRMLCopyContentMacro(vtkMRMLChannel26GeometryNode);
 
   /// Get unique node XML tag name
   const char* GetNodeTagName() override { return "Channel26Geometry"; };
@@ -59,29 +60,6 @@ public:
   void ProcessMRMLEvents(vtkObject *caller, unsigned long eventID, void *callData) override;
 
 public:
-  vtkMRMLLinearTransformNode* GetBaseFixedToFixedReferenceTransformNode();
-  void SetAndObserveBaseFixedToFixedReferenceTransformNode(vtkMRMLLinearTransformNode* node);
-
-  vtkMRMLLinearTransformNode* GetBaseRotationToBaseFixedTransformNode();
-  void SetAndObserveBaseRotationToBaseFixedTransformNode(vtkMRMLLinearTransformNode* node);
-
-  vtkMRMLLinearTransformNode* GetShoulderToBaseRotationTransformNode();
-  void SetAndObserveShoulderToBaseRotationTransformNode(vtkMRMLLinearTransformNode* node);
-
-  vtkMRMLLinearTransformNode* GetElbowToShoulderTransformNode();
-  void SetAndObserveElbowToShoulderTransformNode(vtkMRMLLinearTransformNode* node);
-
-  vtkMRMLLinearTransformNode* GetWristToElbowTransformNode();
-  void SetAndObserveWristToElbowTransformNode(vtkMRMLLinearTransformNode* node);
-
-  vtkMRMLLinearTransformNode* GetTableTopToWristTransformNode();
-  void SetAndObserveTableTopToWristTransformNode(vtkMRMLLinearTransformNode* node);
-
-  vtkMRMLLinearTransformNode* GetPatientToTableTopTransformNode(); 
-  void SetAndObservePatientToTableTopTransformNode(vtkMRMLLinearTransformNode* node);
-
-  vtkGetMacro(CollisionDetectionEnabled, bool);
-  vtkSetMacro(CollisionDetectionEnabled, bool);
 
   vtkGetMacro(TableTopLongitudinalAngle, double);
   vtkSetMacro(TableTopLongitudinalAngle, double);
@@ -121,8 +99,6 @@ protected:
 
   using CoordPos = vtkSlicerChannel26Cabin3RobotsGeometryCommon;
 
-  bool CollisionDetectionEnabled{ true };
-
   /// IEC Table top longitudinal angle
   double TableTopLongitudinalAngle{ 0. };
   /// IEC Table top lateral angle
@@ -132,7 +108,6 @@ protected:
   /// Translate Patient to TableTop
   double PatientToTableTopTranslation[3] = { 0., 0., 0. };
   /// Translate TableRobotBaseFixed begin from FixedReference origin
-///  double TableBaseFixedToFixedReferenceTranslation[3] = { -1900., -430., -2150. };
   double TableBaseFixedToFixedReferenceTranslation[3] = {
     CoordPos::D_NORTH_WALL_ISOCENTER - CoordPos::D_NORTH_WALL_TABLE_TOP_ROBOT_BASE,
     CoordPos::D_EAST_WALL_ISOCENTER - CoordPos::D_EAST_WALL_TABLE_TOP_ROBOT_BASE,
@@ -141,14 +116,12 @@ protected:
   /// X offset = CarmBaseFixed - TableBaseFixed (along X-axis) (minus beam axis)
   /// Y offset = CarmBaseFixed basement height (along Z-axis)
   /// Z offset = CarmBaseFixed + TableBaseFixed (along Y-axis)
-///  double CarmBaseFixedToTableBaseFixedOffset[3] = { -1950 + 1900, 1500, -1340 - 430 };
   double CarmBaseFixedToTableBaseFixedOffset[3] = {
     CoordPos::D_NORTH_WALL_TABLE_TOP_ROBOT_BASE - CoordPos::D_NORTH_WALL_CARM_XRAY_ROBOT_BASE,
     CoordPos::D_BASEMENT_CARM_ROBOT_BASE,
     CoordPos::D_EAST_WALL_CARM_XRAY_ROBOT_BASE - CoordPos::D_EAST_WALL_TABLE_TOP_ROBOT_BASE };
   /// Setup table top robot angles
   double TableRobotAngles[6] = { 0., 0., 0., 0., 0., 90. }; // A1=0, A2=-90, A3=90, A4=0, A5=-90, A6=0
-//  double TableRobotAngles[6] = { 40.52, 90-39.32, 55.44-90., 0.08, 90.-106.29, 90.-40.6 }; // A1=40.52, A2=-39.32, A3=55.44, A4=0.08, A5=-106.29, A6=-40.6
   /// Setup x-ray c-arm robot angles
   double CarmRobotAngles[6] = { 0., 0., 0., 0., 0., 0. };
   /// table top plane correction angles

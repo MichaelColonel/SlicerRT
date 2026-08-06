@@ -35,12 +35,31 @@ public:
   qSlicerU70RoomGeoModuleWidget(QWidget* parent = 0);
   virtual ~qSlicerU70RoomGeoModuleWidget();
 
+  void enter() override;
+
 public slots:
+  /// Set the current MRML scene to the widget
+  virtual void setMRMLScene(vtkMRMLScene*);
+  void setParameterNode(vtkMRMLNode*);
+  /// Process loaded scene
+  void onSceneImportedEvent();
+  /// Process when scene is closing
+  void onSceneClosedEvent();
+
+  /// Update widget GUI from parameter node
+  void updateWidgetFromMRML();
+
+  /// Load and unload treatment room machine models and logic 
+  void onLoadTreatmentRoomButtonClicked();
+  void onUnloadTreatmentRoomButtonClicked();
 
 protected:
   QScopedPointer<qSlicerU70RoomGeoModuleWidgetPrivate> d_ptr;
-
+  /// Initialize the module
   void setup() override;
+
+  /// Run when the module is opened
+  void onEnter();
 
 private:
   Q_DECLARE_PRIVATE(qSlicerU70RoomGeoModuleWidget);

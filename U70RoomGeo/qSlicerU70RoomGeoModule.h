@@ -36,7 +36,7 @@ public:
   explicit qSlicerU70RoomGeoModule(QObject* parent = nullptr);
   ~qSlicerU70RoomGeoModule() override;
 
-  qSlicerGetTitleMacro(tr("U70RoomGeo"));
+  qSlicerGetTitleMacro(QTMODULE_TITLE);
 
   QString helpText() const override;
   QString acknowledgementText() const override;

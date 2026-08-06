@@ -55,7 +55,7 @@ public:
 
   // Table top robot KUKA KR 300 R2700-2
   // Table top robot base fixed size (no in documentation)
-  static constexpr double TABLE_ROBOT_BASE_MOUNTING_OFFSET_Y = -30.; // no in documentation
+  static constexpr double TABLE_ROBOT_BASE_MOUNTING_OFFSET_Y = 30.; // no in documentation
   static constexpr double TABLE_ROBOT_BASE_FIXED_SIZE = 225.6; // no in documentation
   // Table top robot base rotation shoulder disk center offset X
   static constexpr double TABLE_ROBOT_BASE_ROTATION_SHOULDER_OFFSET_X = 330.;
@@ -86,6 +86,7 @@ public:
 
   // C-arm x-ray robot KUKA KR 210 R3100-2
   // C-arm x-ray robot base fixed size (no in documentation)
+  static constexpr double CARM_ROBOT_BASE_MOUNTING_OFFSET_Y = 30.; // no in documentation
   static constexpr double CARM_ROBOT_BASE_FIXED_SIZE = 140.; // no in documentation
   // C-arm x-ray robot base rotation shoulder disk center offset X
   static constexpr double CARM_ROBOT_BASE_ROTATION_SHOULDER_OFFSET_X = 330.;

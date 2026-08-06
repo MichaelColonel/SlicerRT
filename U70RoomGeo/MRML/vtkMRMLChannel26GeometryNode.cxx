@@ -17,32 +17,12 @@
 
 // MRML includes
 #include <vtkMRMLScene.h>
-#include <vtkMRMLScalarVolumeNode.h>
-#include <vtkMRMLLinearTransformNode.h>
-
-// Beams includes
-#include <vtkMRMLRTBeamNode.h>
-
-// Segmentations includes
-#include <vtkMRMLSegmentationNode.h>
 
 // VTK includes
 #include <vtkObjectFactory.h>
 #include <vtkSmartPointer.h>
 
 #include "vtkMRMLChannel26GeometryNode.h"
-
-namespace {
-
-const char* BASEFIXED_TO_FIXEDREFERENCE_TRANSFORM_NODE_REFERENCE_ROLE = "baseFixedToFixedReferenceTransformRef";
-const char* BASEROTATION_TO_BASEFIXED_TRANSFORM_NODE_REFERENCE_ROLE = "baseRotationToBaseFixedTransformRef";
-const char* SHOULDER_TO_BASEROTATION_TRANSFORM_NODE_REFERENCE_ROLE = "shoulderToBaseRotationTransformRef";
-const char* ELBOW_TO_SHOULDER_TRANSFORM_NODE_REFERENCE_ROLE = "elbowToShoulderTransformRef";
-const char* WRIST_TO_ELBOW_TRANSFORM_NODE_REFERENCE_ROLE = "wristToElbowTransformRef";
-const char* TABLETOP_TO_WRIST_TRANSFORM_NODE_REFERENCE_ROLE = "tableTopToWristTransformRef";
-const char* PATIENT_TO_TABLETOP_TRANSFORM_NODE_REFERENCE_ROLE = "patientToTableTopTransformRef";
-
-}
 
 //------------------------------------------------------------------------------
 vtkMRMLNodeNewMacro(vtkMRMLChannel26GeometryNode);
@@ -73,8 +53,6 @@ void vtkMRMLChannel26GeometryNode::WriteXML(ostream& of, int nIndent)
   vtkMRMLWriteXMLFloatMacro(tableTopLateralAngle, TableTopLateralAngle);
   vtkMRMLWriteXMLFloatMacro(tableTopLongitudinalAngle, TableTopLongitudinalAngle);
   vtkMRMLWriteXMLFloatMacro(tableTopVerticalAngle, TableTopVerticalAngle);
-  vtkMRMLWriteXMLVectorMacro(anglesABC, AnglesABC, double, 3);
-  vtkMRMLWriteXMLBooleanMacro(collisionDetectionEnabled, CollisionDetectionEnabled);
   vtkMRMLWriteXMLBooleanMacro(patientHeadFeetRotation, PatientHeadFeetRotation);
 
   // add new parameters here
@@ -98,8 +76,6 @@ void vtkMRMLChannel26GeometryNode::ReadXMLAttributes(const char** atts)
   vtkMRMLReadXMLFloatMacro(tableTopLateralAngle, TableTopLateralAngle);
   vtkMRMLReadXMLFloatMacro(tableTopLongitudinalAngle, TableTopLongitudinalAngle);
   vtkMRMLReadXMLFloatMacro(tableTopVerticalAngle, TableTopVerticalAngle);
-  vtkMRMLReadXMLVectorMacro(anglesABC, AnglesABC, double, 3);
-  vtkMRMLReadXMLBooleanMacro(collisionDetectionEnabled, CollisionDetectionEnabled);
   vtkMRMLReadXMLBooleanMacro(patientHeadFeetRotation, PatientHeadFeetRotation);
 
   // add new parameters here
@@ -137,8 +113,6 @@ void vtkMRMLChannel26GeometryNode::Copy(vtkMRMLNode *anode)
   vtkMRMLCopyFloatMacro(TableTopLateralAngle);
   vtkMRMLCopyFloatMacro(TableTopLongitudinalAngle);
   vtkMRMLCopyFloatMacro(TableTopVerticalAngle);
-  vtkMRMLCopyBooleanMacro(CollisionDetectionEnabled);
-  vtkMRMLCopyVectorMacro(AnglesABC, double, 3);
   vtkMRMLCopyBooleanMacro(PatientHeadFeetRotation);
 
   // add new parameters here
@@ -171,8 +145,6 @@ void vtkMRMLChannel26GeometryNode::CopyContent(vtkMRMLNode *anode, bool deepCopy
   vtkMRMLCopyFloatMacro(TableTopLateralAngle);
   vtkMRMLCopyFloatMacro(TableTopLongitudinalAngle);
   vtkMRMLCopyFloatMacro(TableTopVerticalAngle);
-  vtkMRMLCopyVectorMacro(AnglesABC, double, 3);
-  vtkMRMLCopyBooleanMacro(CollisionDetectionEnabled);
   vtkMRMLCopyBooleanMacro(PatientHeadFeetRotation);
 
   // add new parameters here
@@ -195,8 +167,6 @@ void vtkMRMLChannel26GeometryNode::PrintSelf(ostream& os, vtkIndent indent)
   vtkMRMLPrintFloatMacro(TableTopLateralAngle);
   vtkMRMLPrintFloatMacro(TableTopLongitudinalAngle);
   vtkMRMLPrintFloatMacro(TableTopVerticalAngle);
-  vtkMRMLPrintVectorMacro(AnglesABC, double, 3);
-  vtkMRMLPrintBooleanMacro(CollisionDetectionEnabled);
   vtkMRMLPrintBooleanMacro(PatientHeadFeetRotation);
 
   // add new parameters here
@@ -218,126 +188,4 @@ void vtkMRMLChannel26GeometryNode::ProcessMRMLEvents(vtkObject *caller, unsigned
   {
     return;
   }
-
-  // Update the geomtry if beam geometry or transform was changed
-  switch (eventID)
-  {
-  case vtkMRMLRTBeamNode::BeamGeometryModified:
-  case vtkMRMLRTBeamNode::BeamTransformModified:
-    break;
-  default:
-    break;
-  }
-}
-
-vtkMRMLLinearTransformNode* vtkMRMLChannel26GeometryNode::GetBaseFixedToFixedReferenceTransformNode()
-{
-  return vtkMRMLLinearTransformNode::SafeDownCast(this->GetNodeReference(BASEFIXED_TO_FIXEDREFERENCE_TRANSFORM_NODE_REFERENCE_ROLE));
-}
-
-void vtkMRMLChannel26GeometryNode::SetAndObserveBaseFixedToFixedReferenceTransformNode(vtkMRMLLinearTransformNode* node)
-{
-  if (node && this->Scene != node->GetScene())
-  {
-    vtkErrorMacro("Cannot set reference: the referenced and referencing node are not in the same scene");
-    return;
-  }
-
-  this->SetNodeReferenceID(BASEFIXED_TO_FIXEDREFERENCE_TRANSFORM_NODE_REFERENCE_ROLE, (node ? node->GetID() : nullptr));
-}
-
-vtkMRMLLinearTransformNode* vtkMRMLChannel26GeometryNode::GetBaseRotationToBaseFixedTransformNode()
-{
-  return vtkMRMLLinearTransformNode::SafeDownCast(this->GetNodeReference(BASEROTATION_TO_BASEFIXED_TRANSFORM_NODE_REFERENCE_ROLE));
-}
-
-void vtkMRMLChannel26GeometryNode::SetAndObserveBaseRotationToBaseFixedTransformNode(vtkMRMLLinearTransformNode* node)
-{
-  if (node && this->Scene != node->GetScene())
-  {
-    vtkErrorMacro("Cannot set reference: the referenced and referencing node are not in the same scene");
-    return;
-  }
-
-  this->SetNodeReferenceID(BASEROTATION_TO_BASEFIXED_TRANSFORM_NODE_REFERENCE_ROLE, (node ? node->GetID() : nullptr));
-}
-
-vtkMRMLLinearTransformNode* vtkMRMLChannel26GeometryNode::GetShoulderToBaseRotationTransformNode()
-{
-  return vtkMRMLLinearTransformNode::SafeDownCast(this->GetNodeReference(SHOULDER_TO_BASEROTATION_TRANSFORM_NODE_REFERENCE_ROLE));
-}
-
-void vtkMRMLChannel26GeometryNode::SetAndObserveShoulderToBaseRotationTransformNode(vtkMRMLLinearTransformNode* node)
-{
-  if (node && this->Scene != node->GetScene())
-  {
-    vtkErrorMacro("Cannot set reference: the referenced and referencing node are not in the same scene");
-    return;
-  }
-
-  this->SetNodeReferenceID(SHOULDER_TO_BASEROTATION_TRANSFORM_NODE_REFERENCE_ROLE, (node ? node->GetID() : nullptr));
-}
-
-vtkMRMLLinearTransformNode* vtkMRMLChannel26GeometryNode::GetElbowToShoulderTransformNode()
-{
-  return vtkMRMLLinearTransformNode::SafeDownCast(this->GetNodeReference(ELBOW_TO_SHOULDER_TRANSFORM_NODE_REFERENCE_ROLE));
-}
-
-void vtkMRMLChannel26GeometryNode::SetAndObserveElbowToShoulderTransformNode(vtkMRMLLinearTransformNode* node)
-{
-  if (node && this->Scene != node->GetScene())
-  {
-    vtkErrorMacro("Cannot set reference: the referenced and referencing node are not in the same scene");
-    return;
-  }
-
-  this->SetNodeReferenceID(ELBOW_TO_SHOULDER_TRANSFORM_NODE_REFERENCE_ROLE, (node ? node->GetID() : nullptr));
-}
-
-vtkMRMLLinearTransformNode* vtkMRMLChannel26GeometryNode::GetWristToElbowTransformNode()
-{
-  return vtkMRMLLinearTransformNode::SafeDownCast(this->GetNodeReference(WRIST_TO_ELBOW_TRANSFORM_NODE_REFERENCE_ROLE));
-}
-
-void vtkMRMLChannel26GeometryNode::SetAndObserveWristToElbowTransformNode(vtkMRMLLinearTransformNode* node)
-{
-  if (node && this->Scene != node->GetScene())
-  {
-    vtkErrorMacro("Cannot set reference: the referenced and referencing node are not in the same scene");
-    return;
-  }
-
-  this->SetNodeReferenceID(WRIST_TO_ELBOW_TRANSFORM_NODE_REFERENCE_ROLE, (node ? node->GetID() : nullptr));
-}
-
-vtkMRMLLinearTransformNode* vtkMRMLChannel26GeometryNode::GetTableTopToWristTransformNode()
-{
-  return vtkMRMLLinearTransformNode::SafeDownCast(this->GetNodeReference(TABLETOP_TO_WRIST_TRANSFORM_NODE_REFERENCE_ROLE));
-}
-
-void vtkMRMLChannel26GeometryNode::SetAndObserveTableTopToWristTransformNode(vtkMRMLLinearTransformNode* node)
-{
-  if (node && this->Scene != node->GetScene())
-  {
-    vtkErrorMacro("Cannot set reference: the referenced and referencing node are not in the same scene");
-    return;
-  }
-
-  this->SetNodeReferenceID(TABLETOP_TO_WRIST_TRANSFORM_NODE_REFERENCE_ROLE, (node ? node->GetID() : nullptr));
-}
-
-vtkMRMLLinearTransformNode* vtkMRMLChannel26GeometryNode::GetPatientToTableTopTransformNode()
-{
-  return vtkMRMLLinearTransformNode::SafeDownCast(this->GetNodeReference(PATIENT_TO_TABLETOP_TRANSFORM_NODE_REFERENCE_ROLE));
-}
-
-void vtkMRMLChannel26GeometryNode::SetAndObservePatientToTableTopTransformNode(vtkMRMLLinearTransformNode* node)
-{
-  if (node && this->Scene != node->GetScene())
-  {
-    vtkErrorMacro("Cannot set reference: the referenced and referencing node are not in the same scene");
-    return;
-  }
-
-  this->SetNodeReferenceID(PATIENT_TO_TABLETOP_TRANSFORM_NODE_REFERENCE_ROLE, (node ? node->GetID() : nullptr));
 }

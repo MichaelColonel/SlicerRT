@@ -8,8 +8,6 @@ set(${KIT}_INCLUDE_DIRECTORIES
   ${SlicerRtCommon_INCLUDE_DIRS}
   ${Slicer_Base_INCLUDE_DIRS}
   ${MRMLCore_INCLUDE_DIRS}
-  ${vtkSlicerSegmentationsModuleMRML_INCLUDE_DIRS}
-  ${vtkSlicerBeamsModuleMRML_INCLUDE_DIRS}
   ${vtkSlicer${MODULE_NAME}ModuleLogic_INCLUDE_DIRS}
   )
 
@@ -17,8 +15,8 @@ set(${KIT}_INCLUDE_DIRECTORIES
 # Sources
 
 set(${KIT}_SRCS
-#  vtkMRML${MODULE_NAME}Node.cxx
-#  vtkMRML${MODULE_NAME}Node.h
+  vtkMRML${MODULE_NAME}Node.cxx
+  vtkMRML${MODULE_NAME}Node.h
   vtkMRMLChannel26GeometryNode.cxx
   vtkMRMLChannel26GeometryNode.h
   )

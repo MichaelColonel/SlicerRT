@@ -51,20 +51,20 @@ qSlicerU70RoomGeoModule::~qSlicerU70RoomGeoModule() {}
 //-----------------------------------------------------------------------------
 QString qSlicerU70RoomGeoModule::helpText() const
 {
-  return "This is a loadable module that can be bundled in an extension";
+  return tr("Geometry of the treatment rooms: Channel-26 (Cabin-1 and Cabin-2), Channe-26A (Cabin-3).");
 }
 
 //-----------------------------------------------------------------------------
 QString qSlicerU70RoomGeoModule::acknowledgementText() const
 {
-  return "This work was partially funded by NIH grant NXNNXXNNNNNN-NNXN";
+  return tr("This work was partially funded by NIH grant NXNNXXNNNNNN-NNXN");
 }
 
 //-----------------------------------------------------------------------------
 QStringList qSlicerU70RoomGeoModule::contributors() const
 {
   QStringList moduleContributors;
-  moduleContributors << QString("John Doe (AnyWare Corp.)");
+  moduleContributors << QString(tr("Mikhail Polkovnikov"));
   return moduleContributors;
 }
 
@@ -77,7 +77,7 @@ QIcon qSlicerU70RoomGeoModule::icon() const
 //-----------------------------------------------------------------------------
 QStringList qSlicerU70RoomGeoModule::categories() const
 {
-  return QStringList() << "Luch U-70";
+  return QStringList() << tr("Luch U-70");
 }
 
 //-----------------------------------------------------------------------------
