@@ -46,8 +46,12 @@ protected:
   QScopedPointer<qSlicerPatientsQueueModuleWidgetPrivate> d_ptr;
 
   void setup() override;
+  void enter() override;
+  void exit() override;
 
 private:
+  void onEnter();
+
   Q_DECLARE_PRIVATE(qSlicerPatientsQueueModuleWidget);
   Q_DISABLE_COPY(qSlicerPatientsQueueModuleWidget);
 };

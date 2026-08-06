@@ -112,9 +112,6 @@
         </property>
        </widget>
       </item>
-      <item>
-       <widget class="qSlicerPatientsQueueFooBarWidget" name="FooBar" native="true"/>
-      </item>
      </layout>
     </widget>
    </item>
@@ -144,12 +141,6 @@
    <class>qSlicerWidget</class>
    <extends>QWidget</extends>
    <header>qSlicerWidget.h</header>
-   <container>1</container>
-  </customwidget>
-  <customwidget>
-   <class>qSlicerPatientsQueueFooBarWidget</class>
-   <extends>QWidget</extends>
-   <header>qSlicerPatientsQueueFooBarWidget.h</header>
    <container>1</container>
   </customwidget>
  </customwidgets>

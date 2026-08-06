@@ -270,6 +270,28 @@ void qSlicerPatientsQueueModuleWidget::setup()
     this, SLOT(onWorklistQueryClicked()));
 }
 
+//-----------------------------------------------------------------------------
+void qSlicerPatientsQueueModuleWidget::enter()
+{
+  Q_D(qSlicerPatientsQueueModuleWidget);
+  this->Superclass::enter();
+
+  this->onEnter();
+}
+
+//-----------------------------------------------------------------------------
+void qSlicerPatientsQueueModuleWidget::exit()
+{
+  Q_D(qSlicerPatientsQueueModuleWidget);
+  this->Superclass::exit();
+
+  {
+    QSignalBlocker block(d->PushButton_Worklist1);
+    d->PushButton_Worklist1->setChecked(false);
+  }
+  QTimer::singleShot(50, this, SLOT(onSetCustomLayoutClicked()));  
+}
+
 void qSlicerPatientsQueueModuleWidget::onSetCustomLayoutClicked()
 {
   Q_D(qSlicerPatientsQueueModuleWidget);
@@ -460,4 +482,14 @@ void qSlicerPatientsQueueModuleWidget::onCheckConnectionClicked()
   int res = QMessageBox::information(this, tr("Check connection (ECHO)"), tr("Connection to peer was successful!"));
   Q_UNUSED(res);
 */
+}
+
+void qSlicerPatientsQueueModuleWidget::onEnter()
+{
+  Q_D(qSlicerPatientsQueueModuleWidget);
+  {
+    QSignalBlocker block(d->PushButton_Worklist1);
+    d->PushButton_Worklist1->setChecked(true);
+  }
+  QTimer::singleShot(500, this, SLOT(onSetCustomLayoutClicked()));
 }

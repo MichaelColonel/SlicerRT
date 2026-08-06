@@ -8,19 +8,15 @@ set(${KIT}_INCLUDE_DIRECTORIES
   )
 
 set(${KIT}_SRCS
-  qSlicer${MODULE_NAME}FooBarWidget.cxx
-  qSlicer${MODULE_NAME}FooBarWidget.h
   qSlicer${MODULE_NAME}WorklistWidget.cxx
   qSlicer${MODULE_NAME}WorklistWidget.h
   )
 
 set(${KIT}_MOC_SRCS
-  qSlicer${MODULE_NAME}FooBarWidget.h
   qSlicer${MODULE_NAME}WorklistWidget.h
   )
 
 set(${KIT}_UI_SRCS
-  ../Resources/UI/qSlicer${MODULE_NAME}FooBarWidget.ui
   ../Resources/UI/qSlicer${MODULE_NAME}WorklistWidget.ui
   )
 
