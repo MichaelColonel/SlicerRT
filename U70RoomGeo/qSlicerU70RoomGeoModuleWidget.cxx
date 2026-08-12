@@ -20,9 +20,17 @@
 #include <QFileDialog>
 #include <QMessageBox>
 
+// CTK includes
+#include <ctkMessageBox.h>
+
 // Slicer includes
 #include "qSlicerU70RoomGeoModuleWidget.h"
 #include "ui_qSlicerU70RoomGeoModuleWidget.h"
+
+#include <qSlicerLayoutManager.h>
+#include <qSlicerApplication.h>
+#include <qSlicerSubjectHierarchyFolderPlugin.h>
+#include <qSlicerSubjectHierarchyPluginHandler.h>
 
 // MRML includes
 #include <vtkMRMLScene.h>
@@ -30,6 +38,7 @@
 
 // U70RoomGeo logic and nodes
 #include <vtkMRMLU70RoomGeoNode.h>
+#include <vtkMRMLChannel26GeometryNode.h>
 #include <vtkSlicerU70RoomGeoLogic.h>
 
 //-----------------------------------------------------------------------------
@@ -47,6 +56,7 @@ public:
   vtkSlicerChannel26Cabin3RobotsTransformLogic* channel26RobotsLogic() const;
 
   QString getTreatmentRoomGeometryFile() const;
+  qMRMLLayoutManager* getLayoutManager() const;
 
   /// U70 treatment room geometry MRML node containing shown parameters
   vtkSmartPointer<vtkMRMLU70RoomGeoNode> ParameterNode;
@@ -90,11 +100,21 @@ QString qSlicerU70RoomGeoModuleWidgetPrivate::getTreatmentRoomGeometryFile() con
   {
     return "Channel26Cabin2Geometry";
   }
-  else if (rButton && rButton == this->RadioButton_Cabin2)
+  else if (rButton && rButton == this->RadioButton_Cabin3)
   {
     return "Channel26Cabin3Geometry";
   }
   return QString();
+}
+
+//-----------------------------------------------------------------------------
+qMRMLLayoutManager* qSlicerU70RoomGeoModuleWidgetPrivate::getLayoutManager() const
+{
+  Q_Q(const qSlicerU70RoomGeoModuleWidget);
+
+  // Get 3D view node
+  qSlicerApplication* slicerApplication = qSlicerApplication::application();
+  return slicerApplication->layoutManager();
 }
 
 //-----------------------------------------------------------------------------
@@ -142,6 +162,7 @@ void qSlicerU70RoomGeoModuleWidget::onLoadTreatmentRoomButtonClicked()
   using SysCoord = vtkSlicerChannel26Cabin3RobotsTransformLogic::CoordinateSystemIdentifier;
   // Get treatment machine descriptor file path
   QString treatmentMachineType = d->getTreatmentRoomGeometryFile();
+
   QString descriptorFilePath;
   if (!treatmentMachineType.compare("FromFile"))
   {
@@ -160,20 +181,9 @@ void qSlicerU70RoomGeoModuleWidget::onLoadTreatmentRoomButtonClicked()
   d->ParameterNode->SetTreatmentMachineDescriptorFilePath(descFilePath.c_str());
 
   // Set treatment machine dependent properties  //TODO: Use degrees of freedom from JSON
-  if (!treatmentMachineType.compare("Channel26Cabin3Geometry"))
+  if (!treatmentMachineType.isEmpty())
   {
-    qDebug() << Q_FUNC_INFO << "Channel-26 Cabin-3";
     d->ParameterNode->SetTreatmentMachineType("Channel26Cabin3Geometry");
-  }
-  else if (!treatmentMachineType.compare("Channel26Cabin2Geometry"))
-  {
-    qDebug() << Q_FUNC_INFO << "Channel-26 Cabin-2";
-    d->ParameterNode->SetTreatmentMachineType("Channel26Cabin2Geometry");
-  }
-  else if (!treatmentMachineType.compare("Channel26Cabin1Geometry"))
-  {
-    qDebug() << Q_FUNC_INFO << "Channel-26 Cabin-1";
-    d->ParameterNode->SetTreatmentMachineType("Channel26Cabin1Geometry");
   }
 
   // Check if there is a machine already loaded and ask user what to do if so
@@ -215,7 +225,7 @@ void qSlicerU70RoomGeoModuleWidget::onLoadTreatmentRoomButtonClicked()
 
   if (machineFolderItemIDs.size() > 0)
   {
-    ctkMessageBox* existingMachineMsgBox = new ctkMessageBox(this);
+    QScopedPointer< ctkMessageBox > existingMachineMsgBox(new ctkMessageBox(this));
     existingMachineMsgBox->setWindowTitle(tr("Other machines loaded"));
     existingMachineMsgBox->setText(tr("There is another treatment machine loaded in the scene. Would you like to hide or delete it?"));
 
@@ -329,39 +339,12 @@ void qSlicerU70RoomGeoModuleWidget::onLoadTreatmentRoomButtonClicked()
   // Update channel-26 geometry node
   channel26GeometryNode->Modified();
 
-  // Cabin-3 FixedReference beam
-//  vtkMRMLRTChannel26Cabin3BeamNode* cabin3BeamNode = d->logic()->CreateCabin3BeamPlanAndNode(d->ParameterNode);
-//  d->MRMLNodeComboBox_FixedReferenceBeam->setCurrentNode(cabin3BeamNode);
-
   /// Setup Markups fixed beam axis and fixed isocenter
-//  vtkMRMLMarkupsLineNode* beamAxisLineNode = d->logic()->CreateCabin3BeamAxisLineNode(d->ParameterNode);
-//  vtkMRMLMarkupsFiducialNode* fixedIsocenterNode = d->logic()->CreateCabin3IsocenterFiducialNode(d->ParameterNode);
-//  Q_UNUSED(beamAxisLineNode);
-//  Q_UNUSED(fixedIsocenterNode);
-  
-  // C-arm x-ray beam and DRR computation node
-//  vtkMRMLRTCarmBeamNode* xrayNode = d->logic()->CreateCarmXrayPlanAndNode(d->ParameterNode);
-//  d->MRMLNodeComboBox_CarmXrayBeam->setCurrentNode(xrayNode);
-//  vtkMRMLDrrImageComputationNode* drrNode = d->logic()->CreateCarmXrayDrrNode(d->ParameterNode);
-//  drrNode->SetAndObserveBeamNode(xrayNode);
-//  d->ParameterNode->SetAndObserveDrrComputationNode(drrNode);
+  vtkMRMLMarkupsLineNode* beamAxisLineNode = d->logic()->CreateBeamAxisLineNode(d->ParameterNode);
+  vtkMRMLMarkupsFiducialNode* fixedIsocenterNode = d->logic()->CreateIsocenterFiducialNode(d->ParameterNode);
+  Q_UNUSED(beamAxisLineNode);
+  Q_UNUSED(fixedIsocenterNode);
 
-  // set DRR node to children widgets
-//  d->CarmXrayBeamWidget->setDrrImageComputationNode(drrNode);
-//  d->CollapsibleButton_CarmRtImageDrrRegistration->setEnabled(drrNode ? true : false);
-/*
-  // Hide controls that do not have corresponding parts loaded
-  bool imagingPanelsLoaded = (std::find(loadedParts.begin(), loadedParts.end(), vtkSlicerRoomsEyeViewModuleLogic::ImagingPanelLeft) != loadedParts.end() ||
-      std::find(loadedParts.begin(), loadedParts.end(), vtkSlicerRoomsEyeViewModuleLogic::ImagingPanelRight) != loadedParts.end());
-  d->labelImagingPanel->setVisible(imagingPanelsLoaded);
-  d->ImagingPanelMovementSlider->setVisible(imagingPanelsLoaded);
-
-  // Set orientation marker
-  //TODO: Add new option 'Treatment room' to orientation marker choices and merged model with actual colors (surface scalars?)
-  //vtkMRMLViewNode* viewNode = threeDView->mrmlViewNode();
-  //viewNode->SetOrientationMarkerHumanModelNodeID(this->mrmlScene()->GetFirstNodeByName("EBRTOrientationMarkerModel")->GetID());
-*/
-//  d->ParameterNode->Modified();
   QApplication::restoreOverrideCursor();
 }
 
@@ -435,7 +418,7 @@ void qSlicerU70RoomGeoModuleWidget::onSceneClosedEvent()
 //-----------------------------------------------------------------------------
 void qSlicerU70RoomGeoModuleWidget::updateWidgetFromMRML()
 {
-  Q_D(qSlicerRoomsEyeViewModuleWidget);
+  Q_D(qSlicerU70RoomGeoModuleWidget);
 
   if (d->ParameterNode && this->mrmlScene())
   {

@@ -853,7 +853,7 @@ vtkMRMLMarkupsLineNode* vtkSlicerU70RoomGeoLogic::CreateBeamAxisLineNode(vtkMRML
   vtkMRMLScene* scene = this->GetMRMLScene();
   if (!scene)
   {
-    vtkErrorMacro("CreateCabin3BeamAxisLineNode: Invalid MRML scene");
+    vtkErrorMacro("CreateBeamAxisLineNode: Invalid MRML scene");
     return nullptr;
   }
 
@@ -871,11 +871,11 @@ vtkMRMLMarkupsLineNode* vtkSlicerU70RoomGeoLogic::CreateBeamAxisLineNode(vtkMRML
   if (parameterNode)
   {
     // add points to line node
-    vtkVector3d p0( -4000., 0., 0.); // Begin
-    vtkVector3d p1( 4000., 0., 0.); // End
+    vtkVector3d p0(-4000., 0., 0.); // Begin
+    vtkVector3d p1(4000., 0., 0.); // End
 
-    lineMarkupsNode->AddControlPoint( p0, "Cabin3BeamAxisBegin");
-    lineMarkupsNode->AddControlPoint( p1, "Cabin3BeamAxisEnd");
+    lineMarkupsNode->AddControlPoint(p0, "Begin");
+    lineMarkupsNode->AddControlPoint(p1, "End");
 
     vtkMRMLTransformNode* transformNode = this->GetChannel26RobotsTransformLogic()->GetFixedReferenceTransform();
 
@@ -896,7 +896,7 @@ vtkMRMLMarkupsFiducialNode* vtkSlicerU70RoomGeoLogic::CreateIsocenterFiducialNod
   vtkMRMLScene* scene = this->GetMRMLScene();
   if (!scene)
   {
-    vtkErrorMacro("CreateCabin3IsocenterFiducialNode: Invalid MRML scene");
+    vtkErrorMacro("CreateIsocenterFiducialNode: Invalid MRML scene");
     return nullptr;
   }
 
@@ -908,11 +908,11 @@ vtkMRMLMarkupsFiducialNode* vtkSlicerU70RoomGeoLogic::CreateIsocenterFiducialNod
 
   vtkMRMLMarkupsFiducialNode* pointMarkupsNode = vtkMRMLMarkupsFiducialNode::SafeDownCast(scene->AddNewNodeByClass("vtkMRMLMarkupsFiducialNode"));
   pointMarkupsNode->SetName(FIXEDISOCENTER_MARKUPS_FIDUCIAL_NODE_NAME);
-  std::string singletonTag = std::string("C26C3_") + FIXEDISOCENTER_MARKUPS_FIDUCIAL_NODE_NAME;
+//  std::string singletonTag = std::string("C26C3_") + FIXEDISOCENTER_MARKUPS_FIDUCIAL_NODE_NAME;
   if (parameterNode)
   {
-    vtkVector3d pFixedIsocenter( 0., 0., 0.); // Isocenter in origin of FixedReference frame
-    pointMarkupsNode->AddControlPoint( pFixedIsocenter, "FixedIsocenter");
+    vtkVector3d pFixedIsocenter(0., 0., 0.); // Isocenter in origin of FixedReference frame
+    pointMarkupsNode->AddControlPoint(pFixedIsocenter, "FixedIsocenter");
 
     vtkMRMLTransformNode* transformNode = this->GetChannel26RobotsTransformLogic()->GetFixedReferenceTransform();
 
