@@ -23,12 +23,17 @@
 #include "vtkSlicerChannel26Cabin3RobotsTransformLogic.h"
 #include "vtkSlicerChannel26Cabin3RobotsGeometryCommon.h"
 
-#include "vtkMRMLRTBeamNode.h"
-#include "vtkMRMLRTPlanNode.h"
+//#include "vtkMRMLRTBeamNode.h"
+//#include "vtkMRMLRTPlanNode.h"
 
 // MRML includes
 #include <vtkMRMLScene.h>
 #include <vtkMRMLLinearTransformNode.h>
+
+#include <vtkMRMLMarkupsLineNode.h>
+#include <vtkMRMLMarkupsPlaneNode.h>
+#include <vtkMRMLMarkupsDisplayNode.h>
+#include <vtkMRMLMarkupsFiducialNode.h>
 
 // Cabin26A geometry MRML node
 #include <vtkMRMLChannel26GeometryNode.h>
@@ -42,9 +47,11 @@
 // STD includes
 #include <array>
 
-namespace {
 
-}
+const char* vtkSlicerChannel26Cabin3RobotsTransformLogic::FIXEDBEAMAXIS_MARKUPS_LINE_NODE_NAME = "FixedBeamAxis";
+const char* vtkSlicerChannel26Cabin3RobotsTransformLogic::FIXEDISOCENTER_MARKUPS_FIDUCIAL_NODE_NAME = "FixedIsocenter";
+const char* vtkSlicerChannel26Cabin3RobotsTransformLogic::TABLETOP_MARKUPS_PLANE_NODE_NAME = "TableTopMarkupsPlane";
+const char* vtkSlicerChannel26Cabin3RobotsTransformLogic::TABLETOP_MARKUPS_FIDUCIAL_NODE_NAME = "TableTopMarkupsFiducial";
 
 //----------------------------------------------------------------------------
 vtkStandardNewMacro(vtkSlicerChannel26Cabin3RobotsTransformLogic);
@@ -2656,6 +2663,357 @@ bool vtkSlicerChannel26Cabin3RobotsTransformLogic::GetTransformForPointBetweenFr
   fromFrameToRasTransform->TransformPoint(fromFramePoint, toFramePoint);
 ///  rasToToFrameTransform->TransformPoint(pointInRas, toFramePoint);
   return true;
+}
+
+
+//----------------------------------------------------------------------------
+vtkMRMLMarkupsPlaneNode* vtkSlicerChannel26Cabin3RobotsTransformLogic::CreateTableTopPlaneNode(vtkMRMLChannel26GeometryNode* parameterNode)
+{
+  vtkNew<vtkMRMLMarkupsPlaneNode> tableTopPlaneNode;
+  this->GetMRMLScene()->AddNode(tableTopPlaneNode);
+  tableTopPlaneNode->SetName(TABLETOP_MARKUPS_PLANE_NODE_NAME);
+//  tableTopPlaneNode->SetHideFromEditors(1);
+//  std::string singletonTag = std::string("C26C3_") + TABLETOP_MARKUPS_PLANE_NODE_NAME;
+//  tableTopPlaneNode->SetSingletonTag(singletonTag.c_str());
+//  tableTopPlaneNode->LockedOn();
+
+  // Transform IHEP stand models (IEC Patient) to RAS
+  vtkNew<vtkMatrix4x4> patientToRasMatrix;
+  vtkNew<vtkTransform> patientToRasTransform;
+  patientToRasTransform->Identity();
+  patientToRasTransform->RotateX(-90.);
+  if (!parameterNode->GetPatientHeadFeetRotation())
+  {
+    patientToRasTransform->RotateZ(180.);
+  }
+  patientToRasTransform->GetMatrix(patientToRasMatrix);
+
+
+  vtkMRMLScene* scene = this->GetMRMLScene();
+  if (!scene)
+  {
+    vtkErrorMacro("CreateTableTopStandPlaneNode: Invalid MRML scene");
+    return nullptr;
+  }
+
+  using CoordPos = vtkSlicerChannel26Cabin3RobotsGeometryCommon;
+  if (parameterNode)
+  {
+    double tableTopCenter[4] = { CoordPos::TableTopCenterFixedReference[0],
+      CoordPos::TableTopCenterFixedReference[1], CoordPos::TableTopCenterFixedReference[2], 1. };
+    double tableTopCenterRAS[4] = { };
+    double tableTopUp[4] = { CoordPos::TableTopUpFixedReference[0],
+      CoordPos::TableTopUpFixedReference[1], CoordPos::TableTopUpFixedReference[2], 1. };
+    double tableTopUpRAS[4] = { };
+    double tableTopLeft[4] = { CoordPos::TableTopLeftFixedReference[0],
+      CoordPos::TableTopLeftFixedReference[1], CoordPos::TableTopLeftFixedReference[2], 1. };
+    double tableTopLeftRAS[4] = { };
+    patientToRasMatrix->MultiplyPoint(tableTopCenter, tableTopCenterRAS);
+    patientToRasMatrix->MultiplyPoint(tableTopUp, tableTopUpRAS);
+    patientToRasMatrix->MultiplyPoint(tableTopLeft, tableTopLeftRAS);
+
+    tableTopPlaneNode->SetOrigin(tableTopCenterRAS);
+    tableTopPlaneNode->SetPlaneBounds(-0.5 * CoordPos::TABLE_TOP_WIDTH, 0.5 * CoordPos::TABLE_TOP_WIDTH,
+      -0.5 * CoordPos::TABLE_TOP_LENGTH, 0.5 * CoordPos::TABLE_TOP_LENGTH);
+    tableTopPlaneNode->SetSize(CoordPos::TABLE_TOP_WIDTH, CoordPos::TABLE_TOP_LENGTH);
+    tableTopPlaneNode->SetNormal(0., -1., 0.);
+    tableTopPlaneNode->SetSizeMode(vtkMRMLMarkupsPlaneNode::SizeModeAuto);
+    tableTopPlaneNode->SetPlaneType(vtkMRMLMarkupsPlaneNode::PlaneType3Points);
+
+    vtkMRMLMarkupsDisplayNode* tableTopPlaneDisplayNode = vtkMRMLMarkupsDisplayNode::SafeDownCast(tableTopPlaneNode->GetDisplayNode());
+    if (tableTopPlaneDisplayNode)
+    {
+      tableTopPlaneDisplayNode->SetScaleHandleVisibility(false);
+    }
+    vtkMRMLTransformNode* transformNode = this->GetTableTopPlaneCorrectionTransform();
+
+    // add transform to fiducial node
+    if (transformNode)
+    {
+      tableTopPlaneNode->SetAndObserveTransformNodeID(transformNode->GetID());
+    }
+  }
+
+  return tableTopPlaneNode;
+}
+
+//----------------------------------------------------------------------------
+vtkMRMLMarkupsFiducialNode* vtkSlicerChannel26Cabin3RobotsTransformLogic::CreateTableTopFiducialNode(vtkMRMLChannel26GeometryNode* parameterNode)
+{
+  vtkNew<vtkMRMLMarkupsFiducialNode> tableTopFiducialNode;
+  this->GetMRMLScene()->AddNode(tableTopFiducialNode);
+  tableTopFiducialNode->SetName(TABLETOP_MARKUPS_FIDUCIAL_NODE_NAME);
+//  tableTopFiducialNode->SetHideFromEditors(1);
+//  std::string singletonTag = std::string("C26C3_") + TABLETOP_MARKUPS_FIDUCIAL_NODE_NAME;
+//  tableTopFiducialNode->SetSingletonTag(singletonTag.c_str());
+//  tableTopFiducialNode->LockedOn();
+
+  // Transform IHEP stand models (IEC Patient) to RAS
+  vtkNew<vtkMatrix4x4> patientToRasMatrix;
+  vtkNew<vtkTransform> patientToRasTransform;
+  patientToRasTransform->Identity();
+  patientToRasTransform->RotateX(-90.);
+  if (!parameterNode->GetPatientHeadFeetRotation())
+  {
+    patientToRasTransform->RotateZ(180.);
+  }
+  patientToRasTransform->GetMatrix(patientToRasMatrix);
+
+
+  vtkMRMLScene* scene = this->GetMRMLScene();
+  if (!scene)
+  {
+    vtkErrorMacro("CreateTableTopFiducialNode: Invalid MRML scene");
+    return nullptr;
+  }
+
+  if (parameterNode)
+  {
+    using CoordPos = vtkSlicerChannel26Cabin3RobotsGeometryCommon;
+    for (int i = 0; i < CoordPos::TABLE_TOP_NUMBER_OF_MARKERS; ++i)
+    {
+      // add point to fiducial node (initial position)
+      vtkVector3d p( -1. * CoordPos::TableTopHole1FixedReference[0],
+        CoordPos::TableTopHole1FixedReference[2],
+        CoordPos::TableTopHole1FixedReference[1] + i * CoordPos::TABLE_TOP_MARKERS_STEP);
+      vtkVector3d pm( -1. * CoordPos::TableTopMirrorHole1FixedReference[0],
+        CoordPos::TableTopMirrorHole1FixedReference[2],
+        CoordPos::TableTopMirrorHole1FixedReference[1] + i * CoordPos::TABLE_TOP_MARKERS_STEP);
+      std::string name;
+      if (!(i % 2))
+      {
+        name = std::to_string(i / 2 + 1);
+      }
+      else
+      {
+        name = std::string(1, 'A' + (i - 1) / 2);
+      }
+
+      tableTopFiducialNode->AddControlPoint(p, name.c_str());
+      tableTopFiducialNode->AddControlPoint(pm, name.c_str());
+    }
+
+    vtkMRMLTransformNode* transformNode = this->GetTableTopPlaneCorrectionTransform();
+
+    // add transform to fiducial node
+    if (transformNode)
+    {
+      tableTopFiducialNode->SetAndObserveTransformNodeID(transformNode->GetID());
+    }
+  }
+
+  return tableTopFiducialNode;
+}
+
+//----------------------------------------------------------------------------
+void vtkSlicerChannel26Cabin3RobotsTransformLogic::UpdateTableTopPlaneNode(vtkMRMLChannel26GeometryNode* parameterNode)
+{
+  vtkMRMLScene* scene = this->GetMRMLScene(); 
+  if (!scene)
+  {
+    vtkErrorMacro("UpdateTableTopPlaneNode: Invalid MRML scene");
+    return;
+  }
+
+  if (!parameterNode)
+  {
+    vtkErrorMacro("UpdateTableTopPlaneNode: Invalid parameter node");
+    return;
+  }
+
+  // Transform IHEP stand models (IEC Patient) to RAS
+  vtkNew<vtkMatrix4x4> patientToRasMatrix;
+  vtkNew<vtkTransform> patientToRasTransform;
+  patientToRasTransform->Identity();
+  patientToRasTransform->RotateX(-90.);
+  if (!parameterNode->GetPatientHeadFeetRotation())
+  {
+    patientToRasTransform->RotateZ(180.);
+  }
+  patientToRasTransform->GetMatrix(patientToRasMatrix);
+
+  if (scene->GetFirstNodeByName(TABLETOP_MARKUPS_PLANE_NODE_NAME))
+  {
+    vtkMRMLMarkupsPlaneNode* tableTopPlaneNode = vtkMRMLMarkupsPlaneNode::SafeDownCast(
+      scene->GetFirstNodeByName(TABLETOP_MARKUPS_PLANE_NODE_NAME));
+    if (tableTopPlaneNode && tableTopPlaneNode->GetNumberOfControlPoints() == 0)
+    {
+      using CoordPos = vtkSlicerChannel26Cabin3RobotsGeometryCommon;
+      double tableTopCenter[4] = { CoordPos::TableTopCenterFixedReference[0],
+        CoordPos::TableTopCenterFixedReference[1], CoordPos::TableTopCenterFixedReference[2], 1. };
+      double tableTopCenterRAS[4] = { };
+      double tableTopUp[4] = { CoordPos::TableTopUpFixedReference[0],
+        CoordPos::TableTopUpFixedReference[1], CoordPos::TableTopUpFixedReference[2], 1. };
+      double tableTopUpRAS[4] = { };
+      double tableTopLeft[4] = { CoordPos::TableTopLeftFixedReference[0],
+        CoordPos::TableTopLeftFixedReference[1], CoordPos::TableTopLeftFixedReference[2], 1. };
+      double tableTopLeftRAS[4] = { };
+
+      patientToRasMatrix->MultiplyPoint(tableTopCenter, tableTopCenterRAS);
+      patientToRasMatrix->MultiplyPoint(tableTopUp, tableTopUpRAS);
+      patientToRasMatrix->MultiplyPoint(tableTopLeft, tableTopLeftRAS);
+
+      vtkVector3d plane1(tableTopLeftRAS[0], tableTopLeftRAS[1], tableTopLeftRAS[2]); // Mirror
+      vtkVector3d plane2(tableTopUpRAS[0], tableTopUpRAS[1], tableTopUpRAS[2]); // Middle
+
+      tableTopPlaneNode->SetOrigin(tableTopCenterRAS);
+      tableTopPlaneNode->AddControlPoint(plane1, "MirrorPlane");
+      tableTopPlaneNode->AddControlPoint(plane2, "MiddlePlane");
+    }
+
+    // Update markups plane transform node if it's changed    
+    vtkMRMLTransformNode* markupsPlaneTransformNode = this->GetTableTopPlaneCorrectionTransform();
+
+    if (markupsPlaneTransformNode)
+    {
+      tableTopPlaneNode->SetAndObserveTransformNodeID(markupsPlaneTransformNode->GetID());
+    }
+  }
+  else
+  {
+    this->CreateTableTopPlaneNode(parameterNode);
+  }
+}
+
+//----------------------------------------------------------------------------
+void vtkSlicerChannel26Cabin3RobotsTransformLogic::UpdateTableTopFiducialNode(vtkMRMLChannel26GeometryNode* parameterNode)
+{
+  vtkMRMLScene* scene = this->GetMRMLScene(); 
+  if (!scene)
+  {
+    vtkErrorMacro("UpdateTableTopFiducialNode: Invalid MRML scene");
+    return;
+  }
+
+  if (!parameterNode)
+  {
+    vtkErrorMacro("UpdateTableTopFiducialNode: Invalid parameter node");
+    return;
+  }
+
+  if (scene->GetFirstNodeByName(TABLETOP_MARKUPS_FIDUCIAL_NODE_NAME))
+  {
+    vtkMRMLMarkupsFiducialNode* tableTopFiducialNode = vtkMRMLMarkupsFiducialNode::SafeDownCast(
+      scene->GetFirstNodeByName(TABLETOP_MARKUPS_FIDUCIAL_NODE_NAME));
+    if (tableTopFiducialNode && tableTopFiducialNode->GetNumberOfControlPoints() == 0)
+    {
+      using CoordPos = vtkSlicerChannel26Cabin3RobotsGeometryCommon;
+      for (int i = 0; i < CoordPos::TABLE_TOP_NUMBER_OF_MARKERS; ++i)
+      {
+        // add point to fiducial node (initial position)
+        vtkVector3d p(-1. * CoordPos::TableTopHole1FixedReference[0],
+          CoordPos::TableTopHole1FixedReference[2],
+          CoordPos::TableTopHole1FixedReference[1] + i * CoordPos::TABLE_TOP_MARKERS_STEP);
+        vtkVector3d pm(-1. * CoordPos::TableTopMirrorHole1FixedReference[0],
+          CoordPos::TableTopMirrorHole1FixedReference[2],
+          CoordPos::TableTopMirrorHole1FixedReference[1] + i * CoordPos::TABLE_TOP_MARKERS_STEP);
+        std::string name;
+        if (!(i % 2))
+        {
+          name = std::to_string(i / 2 + 1);
+        }
+        else
+        {
+          name = std::string(1, 'A' + (i - 1) / 2);
+        }
+        tableTopFiducialNode->AddControlPoint(p, name.c_str());
+        tableTopFiducialNode->AddControlPoint(pm, name.c_str());
+      }
+
+      vtkMRMLTransformNode* transformNode = this->GetTableTopPlaneCorrectionTransform();
+
+      // Update markups fiducial transform node if it's changed
+      if (transformNode)
+      {
+        tableTopFiducialNode->SetAndObserveTransformNodeID(transformNode->GetID());
+      }
+    }
+  }
+  else
+  {
+    this->CreateTableTopFiducialNode(parameterNode);
+  }
+}
+
+//----------------------------------------------------------------------------
+vtkMRMLMarkupsLineNode* vtkSlicerChannel26Cabin3RobotsTransformLogic::CreateBeamAxisLineNode(vtkMRMLChannel26GeometryNode* parameterNode)
+{
+  vtkMRMLScene* scene = this->GetMRMLScene();
+  if (!scene)
+  {
+    vtkErrorMacro("CreateBeamAxisLineNode: Invalid MRML scene");
+    return nullptr;
+  }
+
+  // line markups node
+  if (scene->GetFirstNodeByName(FIXEDBEAMAXIS_MARKUPS_LINE_NODE_NAME))
+  {
+    return vtkMRMLMarkupsLineNode::SafeDownCast(scene->GetFirstNodeByName(FIXEDBEAMAXIS_MARKUPS_LINE_NODE_NAME));
+  }
+    
+  vtkMRMLMarkupsLineNode* lineMarkupsNode = vtkMRMLMarkupsLineNode::SafeDownCast(scene->AddNewNodeByClass("vtkMRMLMarkupsLineNode"));
+  lineMarkupsNode->SetName(FIXEDBEAMAXIS_MARKUPS_LINE_NODE_NAME);
+//  std::string singletonTag = std::string("C26C3_") + FIXEDBEAMAXIS_MARKUPS_LINE_NODE_NAME;
+  lineMarkupsNode->LockedOn();
+
+  if (parameterNode)
+  {
+    // add points to line node
+    vtkVector3d p0(-4000., 0., 0.); // Begin
+    vtkVector3d p1(4000., 0., 0.); // End
+
+    lineMarkupsNode->AddControlPoint(p0, "Begin");
+    lineMarkupsNode->AddControlPoint(p1, "End");
+
+    vtkMRMLTransformNode* transformNode = this->GetFixedReferenceTransform();
+
+    // add transform to fiducial node
+    if (transformNode)
+    {
+      lineMarkupsNode->SetAndObserveTransformNodeID(transformNode->GetID());
+    }
+//    parameterNode->SetAndObserveBeamAxisLineNode(lineMarkupsNode);
+  }
+
+  return lineMarkupsNode;
+}
+
+//----------------------------------------------------------------------------
+vtkMRMLMarkupsFiducialNode* vtkSlicerChannel26Cabin3RobotsTransformLogic::CreateIsocenterFiducialNode(vtkMRMLChannel26GeometryNode* parameterNode)
+{
+  vtkMRMLScene* scene = this->GetMRMLScene();
+  if (!scene)
+  {
+    vtkErrorMacro("CreateIsocenterFiducialNode: Invalid MRML scene");
+    return nullptr;
+  }
+
+  // Fixed isocenter fiducial markups node
+  if (scene->GetFirstNodeByName(FIXEDISOCENTER_MARKUPS_FIDUCIAL_NODE_NAME))
+  {
+    return vtkMRMLMarkupsFiducialNode::SafeDownCast(scene->GetFirstNodeByName(FIXEDISOCENTER_MARKUPS_FIDUCIAL_NODE_NAME));
+  }
+
+  vtkMRMLMarkupsFiducialNode* pointMarkupsNode = vtkMRMLMarkupsFiducialNode::SafeDownCast(scene->AddNewNodeByClass("vtkMRMLMarkupsFiducialNode"));
+  pointMarkupsNode->SetName(FIXEDISOCENTER_MARKUPS_FIDUCIAL_NODE_NAME);
+//  std::string singletonTag = std::string("C26C3_") + FIXEDISOCENTER_MARKUPS_FIDUCIAL_NODE_NAME;
+  if (parameterNode)
+  {
+    vtkVector3d pFixedIsocenter(0., 0., 0.); // Isocenter in origin of FixedReference frame
+    pointMarkupsNode->AddControlPoint(pFixedIsocenter, "FixedIsocenter");
+
+    vtkMRMLTransformNode* transformNode = this->GetFixedReferenceTransform();
+
+    // add transform to fiducial node
+    if (transformNode)
+    {
+      pointMarkupsNode->SetAndObserveTransformNodeID(transformNode->GetID());
+    }
+
+//    parameterNode->SetAndObserveIsocenterFiducialNode(pointMarkupsNode);
+  }
+
+  return pointMarkupsNode;
 }
 
 //-----------------------------------------------------------------------------

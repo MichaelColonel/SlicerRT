@@ -189,6 +189,38 @@ public:
     INIT_TABLE_ROBOT_FLANGE_ORIGIN_OFFSET_RAS[2] - TABLE_ROBOT_WRIST_SIZE
   };
 
+  static constexpr std::array< double, 3 > TableTopUpLeftFixedReference{
+    -1. * TABLE_TOP_WIDTH / 2., TABLE_TOP_LENGTH / 2., 0. }; // table top point A, LPS coordinate system
+  static constexpr std::array< double, 3 > TableTopUpRightFixedReference{
+    TABLE_TOP_WIDTH / 2., TABLE_TOP_LENGTH / 2., 0. }; // table top point B, LPS coordinate system
+  static constexpr std::array< double, 3 > TableTopDownRightFixedReference{
+    TABLE_TOP_WIDTH / 2., -1. * TABLE_TOP_LENGTH / 2., 0. }; // table top point C, LPS coordinate system
+  static constexpr std::array< double, 3 > TableTopDownLeftFixedReference{
+    -1. * TABLE_TOP_WIDTH / 2., -1. * TABLE_TOP_LENGTH / 2., 0. }; // table top point D, LPS coordinate system
+
+  static constexpr std::array< double, 3 > TableTopHole1FixedReference{
+    -1. * TABLE_TOP_WIDTH / 2., -1037., 0. }; // table top hole "1", LPS coordinate system
+  static constexpr std::array< double, 3 > TableTopMirrorHole1FixedReference{
+    TABLE_TOP_WIDTH / 2., -1037., 0. }; // table top mirror hole "1", LPS coordinate system
+
+  static constexpr std::array< double, 3 > TableTopCenterFixedReference{
+    TableTopUpLeftFixedReference[0] + (TableTopUpRightFixedReference[0] - TableTopUpLeftFixedReference[0]) / 2.,
+    TableTopDownRightFixedReference[1] + (TableTopUpRightFixedReference[1] - TableTopDownRightFixedReference[1]) / 2., 
+    TableTopDownRightFixedReference[2] + (TableTopUpRightFixedReference[2] - TableTopDownRightFixedReference[2]) / 2.
+  }; // table top center, LPS coordinate system
+
+  static constexpr std::array< double, 3 > TableTopUpFixedReference{
+    TableTopUpLeftFixedReference[0] + (TableTopUpRightFixedReference[0] - TableTopUpLeftFixedReference[0]) / 2.,
+    TableTopUpLeftFixedReference[1] + (TableTopUpRightFixedReference[1] - TableTopUpLeftFixedReference[1]) / 2., 
+    TableTopUpLeftFixedReference[2] + (TableTopUpRightFixedReference[2] - TableTopUpLeftFixedReference[2]) / 2.
+  }; // table top middle up, LPS coordinate system
+
+  static constexpr std::array< double, 3 > TableTopLeftFixedReference{
+    TableTopUpLeftFixedReference[0] + (TableTopDownLeftFixedReference[0] - TableTopUpLeftFixedReference[0]) / 2.,
+    TableTopUpLeftFixedReference[1] + (TableTopDownLeftFixedReference[1] - TableTopUpLeftFixedReference[1]) / 2., 
+    TableTopUpLeftFixedReference[2] + (TableTopDownLeftFixedReference[2] - TableTopUpLeftFixedReference[2]) / 2.
+  }; // table top mirror left, LPS coordinate system
+
   //----------------------------------------------------------------------------
   // Utility functions
   //----------------------------------------------------------------------------

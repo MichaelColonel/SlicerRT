@@ -38,6 +38,11 @@ class vtkMRMLRTBeamNode;
 class vtkMRMLLinearTransformNode;
 class vtkMRMLChannel26GeometryNode;
 
+class vtkMRMLSegmentationNode;
+class vtkMRMLMarkupsPlaneNode;
+class vtkMRMLMarkupsLineNode;
+class vtkMRMLMarkupsFiducialNode;
+
 // FixedReference -> TableRobotBaseFixed -> TableRobotBaseRotation -> TableRobotShoulder
 // TableRobotShoulder -> TableRobotElbowShoulder -> TableRobotElbowWrist -> TableRobotWrist
 // TableRobotWrist -> TableRobotFlange -> TableFlange -> TableTop -> Patient
@@ -50,6 +55,12 @@ class vtkMRMLChannel26GeometryNode;
 class VTK_SLICER_U70ROOMGEO_MODULE_LOGIC_EXPORT vtkSlicerChannel26Cabin3RobotsTransformLogic : public vtkMRMLAbstractLogic
 {
 public:
+  static const char* FIXEDBEAMAXIS_MARKUPS_LINE_NODE_NAME; //  Beam axis line in fixed reference frame
+  static const char* FIXEDISOCENTER_MARKUPS_FIDUCIAL_NODE_NAME; //  isocenter point in fixed reference frame
+
+  static const char* TABLETOP_MARKUPS_PLANE_NODE_NAME;
+  static const char* TABLETOP_MARKUPS_FIDUCIAL_NODE_NAME;
+
   enum CoordinateSystemIdentifier : int
   {
     RAS = 0,
@@ -257,6 +268,21 @@ public:
 
   /// Get part type as string
   const char* GetTreatmentMachinePartTypeAsString(CoordinateSystemIdentifier type);
+
+  /// Create TableTop plane markups node for visualization
+  vtkMRMLMarkupsPlaneNode* CreateTableTopPlaneNode(vtkMRMLChannel26GeometryNode* parameterNode);
+  /// Create TableTop fiducial markups node for visualization of fix holes
+  vtkMRMLMarkupsFiducialNode* CreateTableTopFiducialNode(vtkMRMLChannel26GeometryNode* parameterNode);
+  /// Update TableTop markups plane node using parameter node data and geometry hierarchy
+  void UpdateTableTopPlaneNode(vtkMRMLChannel26GeometryNode* parameterNode);
+  /// Update TableTop markups fiducial node using parameter node data and geometry hierarchy
+  void UpdateTableTopFiducialNode(vtkMRMLChannel26GeometryNode* parameterNode);
+  /// Creates a treatment room beam axis line node (axis in FixedReference frame)
+  /// \return a valid markups line node pointer or nullptr otherwise
+  vtkMRMLMarkupsLineNode* CreateBeamAxisLineNode(vtkMRMLChannel26GeometryNode* parameterNode);
+  /// Creates a treatment room isocenter fiducial node (point in FixedReference frame)
+  /// \return a valid markups fiducial node pointer or nullptr otherwise
+  vtkMRMLMarkupsFiducialNode* CreateIsocenterFiducialNode(vtkMRMLChannel26GeometryNode* parameterNode);
 
   void UpdateFrameToRasHierarchy(vtkMRMLChannel26GeometryNode* parameterNode, CoordinateSystemIdentifier type);
   void UpdateTransformsHierarchy(vtkMRMLChannel26GeometryNode* parameterNode, CoordinateSystemIdentifier type);

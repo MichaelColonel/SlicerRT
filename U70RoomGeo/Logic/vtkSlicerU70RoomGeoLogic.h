@@ -38,11 +38,6 @@
 class vtkMRMLU70RoomGeoNode;
 class vtkMRMLChannel26GeometryNode;
 
-class vtkMRMLSegmentationNode;
-class vtkMRMLMarkupsPlaneNode;
-class vtkMRMLMarkupsLineNode;
-class vtkMRMLMarkupsFiducialNode;
-
 class vtkMatrix4x4;
 class vtkVector3d;
 
@@ -51,12 +46,6 @@ class VTK_SLICER_U70ROOMGEO_MODULE_LOGIC_EXPORT vtkSlicerU70RoomGeoLogic : publi
 public:
   static const char* TREATMENT_MACHINE_DESCRIPTOR_FILE_PATH_ATTRIBUTE_NAME;
   static unsigned long MAX_TRIANGLE_NUMBER_PRODUCT_FOR_COLLISIONS;
-
-  static const char* FIXEDBEAMAXIS_MARKUPS_LINE_NODE_NAME; //  Beam axis line in fixed reference frame
-  static const char* FIXEDISOCENTER_MARKUPS_FIDUCIAL_NODE_NAME; //  isocenter point in fixed reference frame
-
-  static const char* TABLETOP_MARKUPS_PLANE_NODE_NAME;
-  static const char* TABLETOP_MARKUPS_FIDUCIAL_NODE_NAME;
 
   static vtkSlicerU70RoomGeoLogic* New();
   vtkTypeMacro(vtkSlicerU70RoomGeoLogic, vtkSlicerModuleLogic);
@@ -80,21 +69,6 @@ public:
 
   /// Get Cabin26RobotsTransformLogic
   vtkSlicerChannel26Cabin3RobotsTransformLogic* GetChannel26RobotsTransformLogic() const;
-
-  /// Create TableTop plane markups node for visualization
-  vtkMRMLMarkupsPlaneNode* CreateTableTopPlaneNode(vtkMRMLChannel26GeometryNode* parameterNode);
-  /// Create TableTop fiducial markups node for visualization of fix holes
-  vtkMRMLMarkupsFiducialNode* CreateTableTopFiducialNode(vtkMRMLChannel26GeometryNode* parameterNode);
-  /// Update TableTop markups plane node using parameter node data and geometry hierarchy
-  void UpdateTableTopPlaneNode(vtkMRMLChannel26GeometryNode* parameterNode);
-  /// Update TableTop markups fiducial node using parameter node data and geometry hierarchy
-  void UpdateTableTopFiducialNode(vtkMRMLChannel26GeometryNode* parameterNode);
-  /// Creates a Cabin-3 beam axis line node (axis in FixedReference frame)
-  /// \return a valid markups line node pointer or nullptr otherwise
-  vtkMRMLMarkupsLineNode* CreateBeamAxisLineNode(vtkMRMLU70RoomGeoNode* parameterNode);
-  /// Creates a Cabin-3 isocenter fiducial node (point in FixedReference frame)
-  /// \return a valid markups fiducial node pointer or nullptr otherwise
-  vtkMRMLMarkupsFiducialNode* CreateIsocenterFiducialNode(vtkMRMLU70RoomGeoNode* parameterNode);
 
   /// Get treatment machine properties from descriptor file
   /// Get part type as string

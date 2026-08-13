@@ -334,16 +334,16 @@ void qSlicerU70RoomGeoModuleWidget::onLoadTreatmentRoomButtonClicked()
     channel26Logic->ResetToInitialPositions();
     channel26Logic->UpdateTransformsHierarchy(channel26GeometryNode, SysCoord::Patient);
 
+    /// Setup Markups fixed beam axis and fixed isocenter
+    vtkMRMLMarkupsLineNode* beamAxisLineNode = d->channel26RobotsLogic()->CreateBeamAxisLineNode(channel26GeometryNode);
+    vtkMRMLMarkupsFiducialNode* fixedIsocenterNode = d->channel26RobotsLogic()->CreateIsocenterFiducialNode(channel26GeometryNode);
+    Q_UNUSED(beamAxisLineNode);
+    Q_UNUSED(fixedIsocenterNode);
+
     d->getLayoutManager()->resumeRender();
   }
   // Update channel-26 geometry node
   channel26GeometryNode->Modified();
-
-  /// Setup Markups fixed beam axis and fixed isocenter
-  vtkMRMLMarkupsLineNode* beamAxisLineNode = d->logic()->CreateBeamAxisLineNode(d->ParameterNode);
-  vtkMRMLMarkupsFiducialNode* fixedIsocenterNode = d->logic()->CreateIsocenterFiducialNode(d->ParameterNode);
-  Q_UNUSED(beamAxisLineNode);
-  Q_UNUSED(fixedIsocenterNode);
 
   QApplication::restoreOverrideCursor();
 }
