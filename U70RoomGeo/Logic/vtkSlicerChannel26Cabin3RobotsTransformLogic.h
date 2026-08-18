@@ -286,6 +286,10 @@ public:
 
   void UpdateFrameToRasHierarchy(vtkMRMLChannel26GeometryNode* parameterNode, CoordinateSystemIdentifier type);
   void UpdateTransformsHierarchy(vtkMRMLChannel26GeometryNode* parameterNode, CoordinateSystemIdentifier type);
+  /// Remove all created transforms when unload the treatment room geometry
+  void RemoveAllTransforms();
+  /// Remove all created markups when unload the treatment room geometry
+  void RemoveAllMarkups();
 
 protected:
   vtkSlicerChannel26Cabin3RobotsTransformLogic();

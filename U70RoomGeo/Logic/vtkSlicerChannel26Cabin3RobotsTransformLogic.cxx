@@ -268,7 +268,7 @@ void vtkSlicerChannel26Cabin3RobotsTransformLogic::BuildRobotsTransformHierarchy
       vtkSmartPointer<vtkMRMLLinearTransformNode> transformNode = vtkSmartPointer<vtkMRMLLinearTransformNode>::New();
       transformNode->SetName(transformNodeName.c_str());
 //      transformNode->SetHideFromEditors(1);
-      std::string singletonTag = std::string("C26C3_") + transformNodeName;
+//      std::string singletonTag = std::string("C26C3_") + transformNodeName;
 //      transformNode->SetSingletonTag(singletonTag.c_str());
       this->GetMRMLScene()->AddNode(transformNode);
     }
@@ -2675,7 +2675,7 @@ vtkMRMLMarkupsPlaneNode* vtkSlicerChannel26Cabin3RobotsTransformLogic::CreateTab
 //  tableTopPlaneNode->SetHideFromEditors(1);
 //  std::string singletonTag = std::string("C26C3_") + TABLETOP_MARKUPS_PLANE_NODE_NAME;
 //  tableTopPlaneNode->SetSingletonTag(singletonTag.c_str());
-//  tableTopPlaneNode->LockedOn();
+  tableTopPlaneNode->LockedOn();
 
   // Transform IHEP stand models (IEC Patient) to RAS
   vtkNew<vtkMatrix4x4> patientToRasMatrix;
@@ -2746,7 +2746,7 @@ vtkMRMLMarkupsFiducialNode* vtkSlicerChannel26Cabin3RobotsTransformLogic::Create
 //  tableTopFiducialNode->SetHideFromEditors(1);
 //  std::string singletonTag = std::string("C26C3_") + TABLETOP_MARKUPS_FIDUCIAL_NODE_NAME;
 //  tableTopFiducialNode->SetSingletonTag(singletonTag.c_str());
-//  tableTopFiducialNode->LockedOn();
+  tableTopFiducialNode->LockedOn();
 
   // Transform IHEP stand models (IEC Patient) to RAS
   vtkNew<vtkMatrix4x4> patientToRasMatrix;
@@ -2996,6 +2996,7 @@ vtkMRMLMarkupsFiducialNode* vtkSlicerChannel26Cabin3RobotsTransformLogic::Create
 
   vtkMRMLMarkupsFiducialNode* pointMarkupsNode = vtkMRMLMarkupsFiducialNode::SafeDownCast(scene->AddNewNodeByClass("vtkMRMLMarkupsFiducialNode"));
   pointMarkupsNode->SetName(FIXEDISOCENTER_MARKUPS_FIDUCIAL_NODE_NAME);
+  pointMarkupsNode->LockedOn();
 //  std::string singletonTag = std::string("C26C3_") + FIXEDISOCENTER_MARKUPS_FIDUCIAL_NODE_NAME;
   if (parameterNode)
   {
@@ -3014,6 +3015,137 @@ vtkMRMLMarkupsFiducialNode* vtkSlicerChannel26Cabin3RobotsTransformLogic::Create
   }
 
   return pointMarkupsNode;
+}
+
+
+//----------------------------------------------------------------------------
+void vtkSlicerChannel26Cabin3RobotsTransformLogic::RemoveAllMarkups()
+{
+  vtkMRMLScene* scene = this->GetMRMLScene(); 
+  if (!scene)
+  {
+    vtkErrorMacro("RemoveAllMarkups: Invalid MRML scene");
+    return;
+  }
+
+  std::list<std::string> markupsNames;
+  markupsNames.push_back(vtkSlicerChannel26Cabin3RobotsTransformLogic::TABLETOP_MARKUPS_PLANE_NODE_NAME);
+  markupsNames.push_back(vtkSlicerChannel26Cabin3RobotsTransformLogic::TABLETOP_MARKUPS_FIDUCIAL_NODE_NAME);
+  markupsNames.push_back(vtkSlicerChannel26Cabin3RobotsTransformLogic::FIXEDBEAMAXIS_MARKUPS_LINE_NODE_NAME);
+  markupsNames.push_back(vtkSlicerChannel26Cabin3RobotsTransformLogic::FIXEDISOCENTER_MARKUPS_FIDUCIAL_NODE_NAME);
+
+  for (auto markupName : markupsNames)
+  {
+    // model
+    vtkMRMLMarkupsNode* markupsNode = vtkMRMLMarkupsNode::SafeDownCast(scene->GetFirstNodeByName(markupName.c_str()));
+    if (!markupsNode)
+    {
+      vtkErrorMacro("RemoveAllMarkups: Unable to access markups: " << markupName.c_str());
+      continue;
+    }
+    scene->RemoveNode(markupsNode);
+  }
+}
+
+//----------------------------------------------------------------------------
+void vtkSlicerChannel26Cabin3RobotsTransformLogic::RemoveAllTransforms()
+{
+  vtkMRMLScene* scene = this->GetMRMLScene(); 
+  if (!scene)
+  {
+    vtkErrorMacro("RemoveAllTransforms: Invalid MRML scene");
+    return;
+  }
+
+  std::list< vtkMRMLTransformNode* > transformNodes;
+  transformNodes.push_back(GetFrameToRasTransform(CoordinateSystemIdentifier::FixedReference));
+  transformNodes.push_back(GetFrameToRasTransform(CoordinateSystemIdentifier::TableTop));
+  transformNodes.push_back(GetFrameToRasTransform(CoordinateSystemIdentifier::TableTopPlaneCorrection));
+  transformNodes.push_back(GetFrameToRasTransform(CoordinateSystemIdentifier::TableFlange));
+  transformNodes.push_back(GetFrameToRasTransform(CoordinateSystemIdentifier::TableRobotFlange));
+  transformNodes.push_back(GetFrameToRasTransform(CoordinateSystemIdentifier::TableRobotWrist));
+  transformNodes.push_back(GetFrameToRasTransform(CoordinateSystemIdentifier::TableRobotElbowWrist));
+  transformNodes.push_back(GetFrameToRasTransform(CoordinateSystemIdentifier::TableRobotElbowShoulder));
+  transformNodes.push_back(GetFrameToRasTransform(CoordinateSystemIdentifier::TableRobotShoulder));
+  transformNodes.push_back(GetFrameToRasTransform(CoordinateSystemIdentifier::TableRobotBaseRotation));
+  transformNodes.push_back(GetFrameToRasTransform(CoordinateSystemIdentifier::TableRobotBaseRotationDisk));
+  transformNodes.push_back(GetFrameToRasTransform(CoordinateSystemIdentifier::TableRobotBaseFixed));
+  transformNodes.push_back(GetFrameToRasTransform(CoordinateSystemIdentifier::CarmRobotBaseFixed));
+  transformNodes.push_back(GetFrameToRasTransform(CoordinateSystemIdentifier::CarmRobotBaseRotation));
+  transformNodes.push_back(GetFrameToRasTransform(CoordinateSystemIdentifier::CarmRobotShoulder));
+  transformNodes.push_back(GetFrameToRasTransform(CoordinateSystemIdentifier::CarmRobotElbowShoulder));
+  transformNodes.push_back(GetFrameToRasTransform(CoordinateSystemIdentifier::CarmRobotElbowWrist));
+  transformNodes.push_back(GetFrameToRasTransform(CoordinateSystemIdentifier::CarmRobotWrist));
+  transformNodes.push_back(GetFrameToRasTransform(CoordinateSystemIdentifier::CarmRobotFlange));
+  transformNodes.push_back(GetFrameToRasTransform(CoordinateSystemIdentifier::Carm));
+  transformNodes.push_back(GetFrameToRasTransform(CoordinateSystemIdentifier::CarmXrayBeam));
+  transformNodes.push_back(GetFrameToRasTransform(CoordinateSystemIdentifier::CarmXrayDetector));
+
+  using CoordSys = CoordinateSystemIdentifier;
+  // Update IEC Patient to RAS transform based on the isocenter defined in the beam's parent plan
+  vtkMRMLLinearTransformNode* iecPatientToRasTransformNode = this->GetTransformNodeBetween(CoordSys::RAS, CoordSys::Patient);
+
+  // Table top
+  vtkMRMLLinearTransformNode* patientToTableTopTransformNode = this->GetTransformNodeBetween(CoordSys::Patient, CoordSys::TableTop);
+
+  // Table top plane correction
+  vtkMRMLLinearTransformNode* planeCorrToTableTopTransformNode = this->GetTransformNodeBetween(CoordSys::TableTopPlaneCorrection, CoordSys::TableTop);
+  vtkMRMLLinearTransformNode* tableTopToTableFlangeTransformNode = this->GetTransformNodeBetween(CoordSys::TableTop, CoordSys::TableFlange);
+
+  // Table robot
+  vtkMRMLLinearTransformNode* tableFlangeToTableRobotFlangeTransformNode = this->GetTransformNodeBetween(CoordSys::TableFlange, CoordSys::TableRobotFlange);
+  vtkMRMLLinearTransformNode* tableRobotFlangeToTableRobotWristTransformNode = this->GetTransformNodeBetween(CoordSys::TableRobotFlange, CoordSys::TableRobotWrist);
+  vtkMRMLLinearTransformNode* tableRobotWristToTableRobotElbowWristTransformNode = this->GetTransformNodeBetween(CoordSys::TableRobotWrist, CoordSys::TableRobotElbowWrist);
+  vtkMRMLLinearTransformNode* tableRobotElbowWristToTableRobotElbowShoulderTransformNode = this->GetTransformNodeBetween(CoordSys::TableRobotElbowWrist, CoordSys::TableRobotElbowShoulder);
+  vtkMRMLLinearTransformNode* tableRobotElbowShoulderToTableRobotShoulderTransformNode = this->GetTransformNodeBetween(CoordSys::TableRobotElbowShoulder, CoordSys::TableRobotShoulder);
+  vtkMRMLLinearTransformNode* tableRobotShoulderToTableRobotBaseRotationTransformNode = this->GetTransformNodeBetween(CoordSys::TableRobotShoulder, CoordSys::TableRobotBaseRotation);
+  vtkMRMLLinearTransformNode* tableRobotBaseRotationToTableRobotBaseFixedTransformNode = this->GetTransformNodeBetween(CoordSys::TableRobotBaseRotation, CoordSys::TableRobotBaseFixed);
+  vtkMRMLLinearTransformNode* tableRobotBaseRotationDiskToTableRobotBaseFixedTransformNode = this->GetTransformNodeBetween(CoordSys::TableRobotBaseRotationDisk, CoordSys::TableRobotBaseFixed);
+  vtkMRMLLinearTransformNode* tableRobotBaseFixedToFixedReferenceTransformNode = this->GetTransformNodeBetween(CoordSys::TableRobotBaseFixed, CoordSys::FixedReference);
+
+  // C-arm robot
+  vtkMRMLLinearTransformNode* carmRobotBaseFixedToFixedReferenceTransformNode = this->GetTransformNodeBetween(CoordSys::CarmRobotBaseFixed, CoordSys::FixedReference);
+  vtkMRMLLinearTransformNode* carmRobotBaseRotationToCarmRobotBaseFixedTransformNode = this->GetTransformNodeBetween(CoordSys::CarmRobotBaseRotation, CoordSys::CarmRobotBaseFixed);
+  vtkMRMLLinearTransformNode* carmRobotShoulderToCarmRobotBaseRotationTransformNode = this->GetTransformNodeBetween(CoordSys::CarmRobotShoulder, CoordSys::CarmRobotBaseRotation);
+  vtkMRMLLinearTransformNode* carmRobotElbowShoulderToCarmRobotShoulderTransformNode = this->GetTransformNodeBetween(CoordSys::CarmRobotElbowShoulder, CoordSys::CarmRobotShoulder);
+  vtkMRMLLinearTransformNode* carmRobotElbowWristToCarmRobotElbowShoulderTransformNode = this->GetTransformNodeBetween(CoordSys::CarmRobotElbowWrist, CoordSys::CarmRobotElbowShoulder);
+  vtkMRMLLinearTransformNode* carmRobotWristToCarmRobotElbowWristTransformNode = this->GetTransformNodeBetween(CoordSys::CarmRobotWrist, CoordSys::CarmRobotElbowWrist);
+  vtkMRMLLinearTransformNode* carmRobotFlangeToCarmRobotWristTransformNode = this->GetTransformNodeBetween(CoordSys::CarmRobotFlange, CoordSys::CarmRobotWrist);
+  vtkMRMLLinearTransformNode* carmToCarmRobotFlangeTransformNode = this->GetTransformNodeBetween(CoordSys::Carm, CoordSys::CarmRobotFlange);
+  vtkMRMLLinearTransformNode* carmXrayBeamToCarmTransformNode = this->GetTransformNodeBetween(CoordSys::CarmXrayBeam, CoordSys::Carm);
+  vtkMRMLLinearTransformNode* carmXrayDetectorToCarmTransformNode = this->GetTransformNodeBetween(CoordSys::CarmXrayDetector, CoordSys::Carm);
+
+  scene->RemoveNode(iecPatientToRasTransformNode);
+  scene->RemoveNode(patientToTableTopTransformNode);
+  scene->RemoveNode(planeCorrToTableTopTransformNode);
+  scene->RemoveNode(tableTopToTableFlangeTransformNode);
+  scene->RemoveNode(tableFlangeToTableRobotFlangeTransformNode);
+  scene->RemoveNode(tableRobotFlangeToTableRobotWristTransformNode);
+  scene->RemoveNode(tableRobotWristToTableRobotElbowWristTransformNode);
+  scene->RemoveNode(tableRobotElbowWristToTableRobotElbowShoulderTransformNode);
+  scene->RemoveNode(tableRobotElbowShoulderToTableRobotShoulderTransformNode);
+  scene->RemoveNode(tableRobotShoulderToTableRobotBaseRotationTransformNode);
+  scene->RemoveNode(tableRobotBaseRotationToTableRobotBaseFixedTransformNode);
+  scene->RemoveNode(tableRobotBaseRotationDiskToTableRobotBaseFixedTransformNode);
+  scene->RemoveNode(tableRobotBaseFixedToFixedReferenceTransformNode);
+  scene->RemoveNode(carmRobotBaseFixedToFixedReferenceTransformNode);
+  scene->RemoveNode(carmRobotBaseRotationToCarmRobotBaseFixedTransformNode);
+  scene->RemoveNode(carmRobotShoulderToCarmRobotBaseRotationTransformNode);
+  scene->RemoveNode(carmRobotElbowShoulderToCarmRobotShoulderTransformNode);
+  scene->RemoveNode(carmRobotElbowWristToCarmRobotElbowShoulderTransformNode);
+  scene->RemoveNode(carmRobotWristToCarmRobotElbowWristTransformNode);
+  scene->RemoveNode(carmRobotFlangeToCarmRobotWristTransformNode);
+  scene->RemoveNode(carmToCarmRobotFlangeTransformNode);
+  scene->RemoveNode(carmXrayBeamToCarmTransformNode);
+  scene->RemoveNode(carmXrayDetectorToCarmTransformNode);
+
+  for (vtkMRMLTransformNode* transformNode : transformNodes)
+  {
+    if (transformNode)
+    {
+      scene->RemoveNode(transformNode);
+    }
+  }
 }
 
 //-----------------------------------------------------------------------------

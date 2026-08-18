@@ -32,14 +32,26 @@
 #include <qSlicerSubjectHierarchyFolderPlugin.h>
 #include <qSlicerSubjectHierarchyPluginHandler.h>
 
+#include <qMRMLSliceWidget.h>
+#include <qMRMLThreeDWidget.h>
+#include <qMRMLThreeDView.h>
+
 // MRML includes
 #include <vtkMRMLScene.h>
 #include <vtkMRMLSubjectHierarchyNode.h>
+#include <vtkMRMLCameraNode.h>
+#include <vtkMRMLViewNode.h>
+#include <vtkMRMLLinearTransformNode.h>
 
 // U70RoomGeo logic and nodes
 #include <vtkMRMLU70RoomGeoNode.h>
 #include <vtkMRMLChannel26GeometryNode.h>
 #include <vtkSlicerU70RoomGeoLogic.h>
+
+// VTK includes
+#include <vtkCamera.h>
+#include <vtkMatrix4x4.h>
+#include <vtkTransform.h>
 
 //-----------------------------------------------------------------------------
 /// \ingroup SlicerRt_QtModules_U70RoomGeo
@@ -54,6 +66,9 @@ public:
 
   vtkSmartPointer<vtkSlicerU70RoomGeoLogic> logic() const;
   vtkSlicerChannel26Cabin3RobotsTransformLogic* channel26RobotsLogic() const;
+
+  qMRMLThreeDView* get3DView() const;
+  vtkMRMLCameraNode* get3DViewCameraNode() const;
 
   QString getTreatmentRoomGeometryFile() const;
   qMRMLLayoutManager* getLayoutManager() const;
@@ -108,10 +123,65 @@ QString qSlicerU70RoomGeoModuleWidgetPrivate::getTreatmentRoomGeometryFile() con
 }
 
 //-----------------------------------------------------------------------------
+qMRMLThreeDView* qSlicerU70RoomGeoModuleWidgetPrivate::get3DView() const
+{
+  qSlicerApplication* slicerApplication = qSlicerApplication::application();
+  qSlicerLayoutManager* layoutManager = slicerApplication->layoutManager();
+  if (!layoutManager->threeDViewCount())
+  {
+    return nullptr;
+  }
+
+  // Some extensions (for example ones adding virtual reality or hologram
+  // display support) introduce their own kind of 3D-like view; Slicer's standard 3D
+  // view recognizes those as views of its own type as well, and quietly creates an
+  // additional, normally hidden, view for them.
+  // To make sure the correct view is the one selected, this first asks the layout
+  // manager which 3D view is currently active, and if that is not available, falls
+  // back to the first view that went through the normal layout setup - the hidden
+  // views added by other extensions never go through that setup, so this reliably
+  // picks the right one.
+  vtkMRMLViewNode* activeViewNode = layoutManager->activeMRMLThreeDViewNode();
+  if (activeViewNode)
+  {
+    qMRMLThreeDWidget* widget = layoutManager->threeDWidget(QString(activeViewNode->GetLayoutName()));
+    if (widget)
+    {
+      return widget->threeDView();
+    }
+  }
+  for (int i = 0; i < layoutManager->threeDViewCount(); ++i)
+  {
+    qMRMLThreeDWidget* widget = layoutManager->threeDWidget(i);
+    if (widget && widget->threeDView()->mrmlViewNode() && widget->threeDView()->mrmlViewNode()->IsMappedInLayout())
+    {
+      return widget->threeDView();
+    }
+  }
+  return nullptr;
+}
+
+//-----------------------------------------------------------------------------
+vtkMRMLCameraNode* qSlicerU70RoomGeoModuleWidgetPrivate::get3DViewCameraNode() const
+{
+  qMRMLThreeDView* threeDView = this->get3DView();
+  if (!threeDView)
+  {
+    return nullptr;
+  }
+
+  vtkMRMLCameraNode* cameraNode = threeDView->cameraNode();
+  if (!cameraNode)
+  {
+    qCritical() << Q_FUNC_INFO << "Failed to find camera for view "
+                << (threeDView->mrmlViewNode() ? threeDView->mrmlViewNode()->GetID() : "(null)");
+  }
+  return cameraNode;
+}
+
+//-----------------------------------------------------------------------------
 qMRMLLayoutManager* qSlicerU70RoomGeoModuleWidgetPrivate::getLayoutManager() const
 {
-  Q_Q(const qSlicerU70RoomGeoModuleWidget);
-
   // Get 3D view node
   qSlicerApplication* slicerApplication = qSlicerApplication::application();
   return slicerApplication->layoutManager();
@@ -140,6 +210,49 @@ void qSlicerU70RoomGeoModuleWidget::setup()
   // buttons
   QObject::connect(d->PushButton_LoadModels, SIGNAL(clicked()), this, SLOT(onLoadTreatmentRoomButtonClicked()));
   QObject::connect(d->PushButton_UnloadModels, SIGNAL(clicked()), this, SLOT(onUnloadTreatmentRoomButtonClicked()));
+
+  // Widgets
+  // Table robot angles
+  QObject::connect(d->SliderWidget_TableRobotA6, SIGNAL(valueChanged(double)), 
+    this, SLOT(onTableRobotA6Changed(double)));
+  QObject::connect(d->SliderWidget_TableRobotA5, SIGNAL(valueChanged(double)), 
+    this, SLOT(onTableRobotA5Changed(double)));
+  QObject::connect(d->SliderWidget_TableRobotA4, SIGNAL(valueChanged(double)), 
+    this, SLOT(onTableRobotA4Changed(double)));
+  QObject::connect(d->SliderWidget_TableRobotA3, SIGNAL(valueChanged(double)), 
+    this, SLOT(onTableRobotA3Changed(double)));
+  QObject::connect(d->SliderWidget_TableRobotA2, SIGNAL(valueChanged(double)), 
+    this, SLOT(onTableRobotA2Changed(double)));
+  QObject::connect(d->SliderWidget_TableRobotA1, SIGNAL(valueChanged(double)), 
+    this, SLOT(onTableRobotA1Changed(double)));
+  // C-arm robot angles
+  QObject::connect(d->SliderWidget_CarmRobotA1, SIGNAL(valueChanged(double)), 
+    this, SLOT(onCarmRobotA1Changed(double)));
+  QObject::connect(d->SliderWidget_CarmRobotA2, SIGNAL(valueChanged(double)), 
+    this, SLOT(onCarmRobotA2Changed(double)));
+  QObject::connect(d->SliderWidget_CarmRobotA3, SIGNAL(valueChanged(double)), 
+    this, SLOT(onCarmRobotA3Changed(double)));
+  QObject::connect(d->SliderWidget_CarmRobotA4, SIGNAL(valueChanged(double)), 
+    this, SLOT(onCarmRobotA4Changed(double)));
+  QObject::connect(d->SliderWidget_CarmRobotA5, SIGNAL(valueChanged(double)), 
+    this, SLOT(onCarmRobotA5Changed(double)));
+  QObject::connect(d->SliderWidget_CarmRobotA6, SIGNAL(valueChanged(double)), 
+    this, SLOT(onCarmRobotA6Changed(double)));
+
+  QObject::connect(d->CoordinatesWidget_PatientTableTopTranslation, SIGNAL(coordinatesChanged(double*)),
+    this, SLOT(onPatientTableTopTranslationChanged(double*)));
+
+
+  // Models, markups, camera checkboxes
+  QObject::connect(d->CheckBox_ShowModels, SIGNAL(toggled(bool)),
+    this, SLOT(onShowModelsToggled(bool)));
+  QObject::connect(d->CheckBox_ShowMarkups, SIGNAL(toggled(bool)),
+    this, SLOT(onShowMarkupsToggled(bool)));
+  QObject::connect(d->CheckBox_FixedReferenceCamera, SIGNAL(toggled(bool)),
+    this, SLOT(onFixedReferenceCameraToggled(bool)));
+ // Patient head/feet orientation rotation checkboxes
+  QObject::connect(d->CheckBox_RotatePatientHeadFeet, SIGNAL(toggled(bool)), 
+    this, SLOT(onRotatePatientHeadFeetToggled(bool)));
 }
 
 //-----------------------------------------------------------------------------
@@ -340,10 +453,14 @@ void qSlicerU70RoomGeoModuleWidget::onLoadTreatmentRoomButtonClicked()
     Q_UNUSED(beamAxisLineNode);
     Q_UNUSED(fixedIsocenterNode);
 
+    // Update channel-26 geometry node
+    channel26GeometryNode->Modified();
+
+    d->logic()->ShowMarkupsNodes(d->ParameterNode, false);
+    d->logic()->ShowModelsNodes(d->ParameterNode, false);
+    
     d->getLayoutManager()->resumeRender();
   }
-  // Update channel-26 geometry node
-  channel26GeometryNode->Modified();
 
   QApplication::restoreOverrideCursor();
 }
@@ -352,6 +469,76 @@ void qSlicerU70RoomGeoModuleWidget::onLoadTreatmentRoomButtonClicked()
 void qSlicerU70RoomGeoModuleWidget::onUnloadTreatmentRoomButtonClicked()
 {
   Q_D(qSlicerU70RoomGeoModuleWidget);
+
+  if (!this->mrmlScene())
+  {
+    qCritical() << Q_FUNC_INFO << ": Invalid scene";
+    return;
+  }
+
+  if (!d->ParameterNode)
+  {
+    return;
+  }
+
+  QString treatmentMachineType = d->getTreatmentRoomGeometryFile();
+  QString relativeFilePath = QString("%1/%2.json").arg(treatmentMachineType).arg(treatmentMachineType);
+  QString descriptorFilePath = QDir(d->logic()->GetModuleShareDirectory().c_str()).filePath(relativeFilePath);
+
+  // Check if there is a machine already loaded and ask user what to do if so
+  vtkMRMLSubjectHierarchyNode* shNode = this->mrmlScene()->GetSubjectHierarchyNode();
+  std::vector<vtkIdType> allItemIDs;
+  shNode->GetItemChildren(shNode->GetSceneItemID(), allItemIDs, true);
+  std::vector<vtkIdType> machineFolderItemIDs;
+  std::vector<vtkIdType>::iterator itemIt;
+  for (itemIt=allItemIDs.begin(); itemIt!=allItemIDs.end(); ++itemIt)
+  {
+    std::string machineDescriptorFilePath = shNode->GetItemAttribute(*itemIt,
+      vtkSlicerU70RoomGeoLogic::TREATMENT_MACHINE_DESCRIPTOR_FILE_PATH_ATTRIBUTE_NAME);
+    if (!machineDescriptorFilePath.compare(descriptorFilePath.toUtf8().constData()))
+    {
+      machineFolderItemIDs.push_back(*itemIt);
+    }
+  }
+
+  // Ask user what do to if a machine is already loaded
+  if (machineFolderItemIDs.size() > 0)
+  {
+    ctkMessageBox* existingMachineMsgBox = new ctkMessageBox(this);
+    existingMachineMsgBox->setWindowTitle(tr("Other machines loaded"));
+    existingMachineMsgBox->setText(tr("There is another treatment machine loaded in the scene. Would you like to hide or delete it?"));
+
+    existingMachineMsgBox->addButton(tr("Hide"), QMessageBox::AcceptRole);
+    existingMachineMsgBox->addButton(tr("Delete"), QMessageBox::DestructiveRole);
+    existingMachineMsgBox->addButton(tr("No action"), QMessageBox::RejectRole);
+
+    existingMachineMsgBox->setDontShowAgainVisible(true);
+    existingMachineMsgBox->setDontShowAgainSettingsKey("SlicerRT/DontAskOnMultipleTreatmentMachines");
+    existingMachineMsgBox->setIcon(QMessageBox::Question);
+    existingMachineMsgBox->exec();
+    int resultCode = existingMachineMsgBox->buttonRole(existingMachineMsgBox->clickedButton());
+    if (resultCode == QMessageBox::AcceptRole)
+    {
+      qSlicerSubjectHierarchyFolderPlugin* folderPlugin = qobject_cast<qSlicerSubjectHierarchyFolderPlugin*>(
+        qSlicerSubjectHierarchyPluginHandler::instance()->pluginByName("Folder") );
+      for (itemIt=machineFolderItemIDs.begin(); itemIt!=machineFolderItemIDs.end(); ++itemIt)
+      {
+        folderPlugin->setDisplayVisibility(*itemIt, false);
+      }
+    }
+    else if (resultCode == QMessageBox::DestructiveRole)
+    {
+      for (itemIt=machineFolderItemIDs.begin(); itemIt!=machineFolderItemIDs.end(); ++itemIt)
+      {
+        shNode->RemoveItem(*itemIt);
+      }
+      d->channel26RobotsLogic()->RemoveAllMarkups();
+      d->channel26RobotsLogic()->RemoveAllTransforms();
+      // Disable treatment machine geometry controls
+      d->PushButton_UnloadModels->setEnabled(false);
+      d->PushButton_LoadModels->setEnabled(true);
+    }
+  }
 }
 
 //-----------------------------------------------------------------------------
@@ -388,8 +575,8 @@ void qSlicerU70RoomGeoModuleWidget::setParameterNode(vtkMRMLNode* node)
   vtkMRMLU70RoomGeoNode* parameterNode = vtkMRMLU70RoomGeoNode::SafeDownCast(node);
 
   // Each time the node is modified, the UI widgets are updated
-  qvtkReconnect( d->ParameterNode, parameterNode, vtkCommand::ModifiedEvent, 
-    this, SLOT( updateWidgetFromMRML() ) );
+  qvtkReconnect(d->ParameterNode, parameterNode, vtkCommand::ModifiedEvent,
+    this, SLOT(updateWidgetFromMRML()));
 
   d->ParameterNode = parameterNode;
 
@@ -472,4 +659,503 @@ void qSlicerU70RoomGeoModuleWidget::onEnter()
   this->updateWidgetFromMRML();
   
   d->ModuleWindowInitialized = true;
+}
+
+//-----------------------------------------------------------------------------
+void qSlicerU70RoomGeoModuleWidget::onShowMarkupsToggled(bool toggled)
+{
+  Q_D(qSlicerU70RoomGeoModuleWidget);
+
+  if (!d->ParameterNode || !d->ModuleWindowInitialized)
+  {
+    qCritical() << Q_FUNC_INFO << ": Parameter node is invalid!";
+    return;
+  }
+  d->logic()->ShowMarkupsNodes(d->ParameterNode, toggled);
+}
+
+//-----------------------------------------------------------------------------
+void qSlicerU70RoomGeoModuleWidget::onShowModelsToggled(bool toggled)
+{
+  Q_D(qSlicerU70RoomGeoModuleWidget);
+
+  if (!d->ParameterNode || !d->ModuleWindowInitialized)
+  {
+    qCritical() << Q_FUNC_INFO << ": Parameter node is invalid!";
+    return;
+  }
+  d->logic()->ShowModelsNodes(d->ParameterNode, toggled);
+}
+
+//-----------------------------------------------------------------------------
+void qSlicerU70RoomGeoModuleWidget::onFixedReferenceCameraToggled(bool toggled)
+{
+  Q_D(qSlicerU70RoomGeoModuleWidget);
+
+  vtkMRMLCameraNode* cameraNode = d->get3DViewCameraNode();
+
+  // Get FixedReference->RAS transform node
+  vtkSlicerChannel26Cabin3RobotsTransformLogic* robotsLogic = d->logic()->GetChannel26RobotsTransformLogic();
+  vtkMRMLLinearTransformNode* fixedReferenceToRasTransformNode = nullptr;
+  if (robotsLogic)
+  {
+    fixedReferenceToRasTransformNode = robotsLogic->GetFixedReferenceTransform();
+  }
+
+  vtkNew<vtkMatrix4x4> fixedReferenceToRasTransformMatrix;
+  fixedReferenceToRasTransformMatrix->Identity();
+  if (toggled && fixedReferenceToRasTransformNode)
+  {
+    // Get FixedReference -> RAS transform matrix
+    fixedReferenceToRasTransformNode->GetMatrixTransformToParent(fixedReferenceToRasTransformMatrix);
+    // Apply FixedReference -> RAS transform matrix to the camera node
+    cameraNode->SetAppliedTransform(fixedReferenceToRasTransformMatrix);
+    // Observe FixedReference -> RAS transform node by the camera node
+    cameraNode->SetAndObserveTransformNodeID(fixedReferenceToRasTransformNode->GetID());
+    return;
+  }
+  cameraNode->SetAndObserveTransformNodeID(nullptr);
+}
+
+//-----------------------------------------------------------------------------
+void qSlicerU70RoomGeoModuleWidget::onPatientTableTopTranslationChanged(double* position)
+{
+  Q_D(qSlicerU70RoomGeoModuleWidget);
+
+  if (!d->ParameterNode || !d->ModuleWindowInitialized)
+  {
+    qCritical() << Q_FUNC_INFO << ": Parameter node is invalid!";
+    return;
+  }
+  vtkMRMLChannel26GeometryNode* channel26GeometryNode = d->ParameterNode->GetChannel26GeometryNode();
+
+  // Transform RAS translation to LPS
+  double positionTmp[3] = { -1. * position[0], -1. * position[1], position[2] };
+
+  d->getLayoutManager()->pauseRender();
+  channel26GeometryNode->DisableModifiedEventOn();
+  channel26GeometryNode->SetPatientToTableTopTranslation(positionTmp);
+
+  vtkSlicerChannel26Cabin3RobotsTransformLogic* channel26Logic = d->channel26RobotsLogic();
+  if (channel26Logic && channel26GeometryNode)
+  {
+    using SysCoord = vtkSlicerChannel26Cabin3RobotsTransformLogic::CoordinateSystemIdentifier;
+    channel26Logic->UpdateTransformsHierarchy(channel26GeometryNode, SysCoord::Patient);
+  }
+  channel26GeometryNode->DisableModifiedEventOff();
+  channel26GeometryNode->Modified();
+  d->getLayoutManager()->resumeRender();
+//  d->ParameterNode->Modified();
+}
+
+//-----------------------------------------------------------------------------
+void qSlicerU70RoomGeoModuleWidget::onTableRobotA6Changed(double a6)
+{
+  Q_D(qSlicerU70RoomGeoModuleWidget);
+
+  if (!d->ParameterNode || !d->ModuleWindowInitialized)
+  {
+    qCritical() << Q_FUNC_INFO << ": Parameter node is invalid!";
+    return;
+  }
+  vtkMRMLChannel26GeometryNode* channel26GeometryNode = d->ParameterNode->GetChannel26GeometryNode();
+
+  d->getLayoutManager()->pauseRender();
+  double a[6] = {};
+  channel26GeometryNode->GetTableRobotAngles(a);
+  channel26GeometryNode->DisableModifiedEventOn();
+  a[5] = 90. + a6;
+  channel26GeometryNode->SetTableRobotAngles(a);
+  channel26GeometryNode->DisableModifiedEventOff();
+
+  // Update Channel-26 transforms
+  vtkSlicerChannel26Cabin3RobotsTransformLogic* channel26Logic = d->channel26RobotsLogic();
+  if (channel26Logic && channel26GeometryNode)
+  {
+    using SysCoord = vtkSlicerChannel26Cabin3RobotsTransformLogic::CoordinateSystemIdentifier;
+    channel26Logic->UpdateTransformsHierarchy(channel26GeometryNode, SysCoord::TableRobotFlange);
+  }
+  channel26GeometryNode->Modified();
+//  this->checkForCollisions();
+  d->getLayoutManager()->resumeRender();
+//  d->ParameterNode->Modified();
+}
+
+//-----------------------------------------------------------------------------
+void qSlicerU70RoomGeoModuleWidget::onTableRobotA5Changed(double a5)
+{
+  Q_D(qSlicerU70RoomGeoModuleWidget);
+
+  if (!d->ParameterNode || !d->ModuleWindowInitialized)
+  {
+    qCritical() << Q_FUNC_INFO << ": Parameter node is invalid!";
+    return;
+  }
+  vtkMRMLChannel26GeometryNode* channel26GeometryNode = d->ParameterNode->GetChannel26GeometryNode();
+
+  d->getLayoutManager()->pauseRender();
+  double a[6] = {};
+  channel26GeometryNode->GetTableRobotAngles(a);
+  channel26GeometryNode->DisableModifiedEventOn();
+  a[4] = 90 + a5; // - a5;
+  channel26GeometryNode->SetTableRobotAngles(a);
+  channel26GeometryNode->DisableModifiedEventOff();
+
+  // Update Channel-26 transforms
+  vtkSlicerChannel26Cabin3RobotsTransformLogic* channel26Logic = d->channel26RobotsLogic();
+  if (channel26Logic && channel26GeometryNode)
+  {
+    using SysCoord = vtkSlicerChannel26Cabin3RobotsTransformLogic::CoordinateSystemIdentifier;
+    channel26Logic->UpdateTransformsHierarchy(channel26GeometryNode, SysCoord::TableRobotWrist);
+  }
+  channel26GeometryNode->Modified();
+//  this->checkForCollisions();
+  d->getLayoutManager()->resumeRender();
+//  d->ParameterNode->Modified();
+}
+
+//-----------------------------------------------------------------------------
+void qSlicerU70RoomGeoModuleWidget::onTableRobotA4Changed(double a4)
+{
+  Q_D(qSlicerU70RoomGeoModuleWidget);
+
+  if (!d->ParameterNode || !d->ModuleWindowInitialized)
+  {
+    qCritical() << Q_FUNC_INFO << ": Parameter node is invalid!";
+    return;
+  }
+  vtkMRMLChannel26GeometryNode* channel26GeometryNode = d->ParameterNode->GetChannel26GeometryNode();
+
+  d->getLayoutManager()->pauseRender();
+  double a[6] = {};
+  channel26GeometryNode->GetTableRobotAngles(a);
+  channel26GeometryNode->DisableModifiedEventOn();
+  a[3] = a4;
+  channel26GeometryNode->SetTableRobotAngles(a);
+  channel26GeometryNode->DisableModifiedEventOff();
+
+  // Update Channel-26 transforms
+  vtkSlicerChannel26Cabin3RobotsTransformLogic* channel26Logic = d->channel26RobotsLogic();
+  if (channel26Logic && channel26GeometryNode)
+  {
+    using SysCoord = vtkSlicerChannel26Cabin3RobotsTransformLogic::CoordinateSystemIdentifier;
+    channel26Logic->UpdateTransformsHierarchy(channel26GeometryNode, SysCoord::TableRobotElbowWrist);
+  }
+  channel26GeometryNode->Modified();
+//  this->checkForCollisions();
+  d->getLayoutManager()->resumeRender();
+//  d->ParameterNode->Modified();
+}
+
+//-----------------------------------------------------------------------------
+void qSlicerU70RoomGeoModuleWidget::onTableRobotA3Changed(double a3)
+{
+  Q_D(qSlicerU70RoomGeoModuleWidget);
+
+  if (!d->ParameterNode || !d->ModuleWindowInitialized)
+  {
+    qCritical() << Q_FUNC_INFO << ": Parameter node is invalid!";
+    return;
+  }
+  vtkMRMLChannel26GeometryNode* channel26GeometryNode = d->ParameterNode->GetChannel26GeometryNode();
+
+  d->getLayoutManager()->pauseRender();
+  double a[6] = {};
+  channel26GeometryNode->GetTableRobotAngles(a);
+  channel26GeometryNode->DisableModifiedEventOn();
+  a[2] = a3 - 90.;
+  channel26GeometryNode->SetTableRobotAngles(a);
+  channel26GeometryNode->DisableModifiedEventOff();
+
+  // Update Channel-26 transforms
+  vtkSlicerChannel26Cabin3RobotsTransformLogic* channel26Logic = d->channel26RobotsLogic();
+  if (channel26Logic && channel26GeometryNode)
+  {
+    using SysCoord = vtkSlicerChannel26Cabin3RobotsTransformLogic::CoordinateSystemIdentifier;
+    channel26Logic->UpdateTransformsHierarchy(channel26GeometryNode, SysCoord::TableRobotElbowShoulder);
+  }
+  channel26GeometryNode->Modified();
+//  this->checkForCollisions();
+  d->getLayoutManager()->resumeRender();
+//  d->ParameterNode->Modified();
+}
+
+//-----------------------------------------------------------------------------
+void qSlicerU70RoomGeoModuleWidget::onTableRobotA2Changed(double a2)
+{
+  Q_D(qSlicerU70RoomGeoModuleWidget);
+
+  if (!d->ParameterNode || !d->ModuleWindowInitialized)
+  {
+    qCritical() << Q_FUNC_INFO << ": Parameter node is invalid!";
+    return;
+  }
+  vtkMRMLChannel26GeometryNode* channel26GeometryNode = d->ParameterNode->GetChannel26GeometryNode();
+
+  d->getLayoutManager()->pauseRender();
+  double a[6] = {};
+  channel26GeometryNode->GetTableRobotAngles(a);
+  channel26GeometryNode->DisableModifiedEventOn();
+  a[1] = 90. + a2;
+  channel26GeometryNode->SetTableRobotAngles(a);
+  channel26GeometryNode->DisableModifiedEventOff();
+
+  // Update Channel-26 transforms
+  vtkSlicerChannel26Cabin3RobotsTransformLogic* channel26Logic = d->channel26RobotsLogic();
+  if (channel26Logic && channel26GeometryNode)
+  {
+    using SysCoord = vtkSlicerChannel26Cabin3RobotsTransformLogic::CoordinateSystemIdentifier;
+    channel26Logic->UpdateTransformsHierarchy(channel26GeometryNode, SysCoord::TableRobotShoulder);
+  }
+  channel26GeometryNode->Modified();
+//  this->checkForCollisions();
+  d->getLayoutManager()->resumeRender();
+//  d->ParameterNode->Modified();
+}
+
+//-----------------------------------------------------------------------------
+void qSlicerU70RoomGeoModuleWidget::onTableRobotA1Changed(double a1)
+{
+  Q_D(qSlicerU70RoomGeoModuleWidget);
+
+  if (!d->ParameterNode || !d->ModuleWindowInitialized)
+  {
+    qCritical() << Q_FUNC_INFO << ": Parameter node is invalid!";
+    return;
+  }
+  vtkMRMLChannel26GeometryNode* channel26GeometryNode = d->ParameterNode->GetChannel26GeometryNode();
+
+  d->getLayoutManager()->pauseRender();
+  double a[6] = {};
+  channel26GeometryNode->GetTableRobotAngles(a);
+  channel26GeometryNode->DisableModifiedEventOn();
+  a[0] = a1;
+  channel26GeometryNode->SetTableRobotAngles(a);
+  channel26GeometryNode->DisableModifiedEventOff();
+
+  // Update Channel-26 transforms
+  vtkSlicerChannel26Cabin3RobotsTransformLogic* channel26Logic = d->channel26RobotsLogic();
+  if (channel26Logic && channel26GeometryNode)
+  {
+    using SysCoord = vtkSlicerChannel26Cabin3RobotsTransformLogic::CoordinateSystemIdentifier;
+    channel26Logic->UpdateTransformsHierarchy(channel26GeometryNode, SysCoord::TableRobotBaseRotation);
+  }
+  channel26GeometryNode->Modified();
+//  this->checkForCollisions();
+  d->getLayoutManager()->resumeRender();
+//  d->ParameterNode->Modified();
+}
+
+//-----------------------------------------------------------------------------
+void qSlicerU70RoomGeoModuleWidget::onCarmRobotA1Changed(double a1)
+{
+  Q_D(qSlicerU70RoomGeoModuleWidget);
+
+  if (!d->ParameterNode || !d->ModuleWindowInitialized)
+  {
+    qCritical() << Q_FUNC_INFO << ": Parameter node is invalid!";
+    return;
+  }
+  vtkMRMLChannel26GeometryNode* channel26GeometryNode = d->ParameterNode->GetChannel26GeometryNode();
+
+  d->getLayoutManager()->pauseRender();
+  double a[6] = {};
+  channel26GeometryNode->GetCarmRobotAngles(a);
+  channel26GeometryNode->DisableModifiedEventOn();
+  a[0] = a1;
+  channel26GeometryNode->SetCarmRobotAngles(a);
+  channel26GeometryNode->DisableModifiedEventOff();
+
+  // Update Channel-26 transforms
+  vtkSlicerChannel26Cabin3RobotsTransformLogic* channel26Logic = d->channel26RobotsLogic();
+  if (channel26Logic && channel26GeometryNode)
+  {
+    using SysCoord = vtkSlicerChannel26Cabin3RobotsTransformLogic::CoordinateSystemIdentifier;
+    channel26Logic->UpdateTransformsHierarchy(channel26GeometryNode, SysCoord::CarmRobotBaseRotation);
+  }
+  channel26GeometryNode->Modified();
+//  this->checkForCollisions();
+  d->getLayoutManager()->resumeRender();
+//  d->ParameterNode->Modified();
+}
+
+//-----------------------------------------------------------------------------
+void qSlicerU70RoomGeoModuleWidget::onCarmRobotA2Changed(double a2)
+{
+  Q_D(qSlicerU70RoomGeoModuleWidget);
+
+  if (!d->ParameterNode || !d->ModuleWindowInitialized)
+  {
+    qCritical() << Q_FUNC_INFO << ": Parameter node is invalid!";
+    return;
+  }
+  vtkMRMLChannel26GeometryNode* channel26GeometryNode = d->ParameterNode->GetChannel26GeometryNode();
+
+  d->getLayoutManager()->pauseRender();
+  double a[6] = {};
+  channel26GeometryNode->GetCarmRobotAngles(a);
+  channel26GeometryNode->DisableModifiedEventOn();
+  a[1] = 90. + a2;
+  channel26GeometryNode->SetCarmRobotAngles(a);
+  channel26GeometryNode->DisableModifiedEventOff();
+
+  // Update Channel-26 transforms
+  vtkSlicerChannel26Cabin3RobotsTransformLogic* channel26Logic = d->channel26RobotsLogic();
+  if (channel26Logic && channel26GeometryNode)
+  {
+    using SysCoord = vtkSlicerChannel26Cabin3RobotsTransformLogic::CoordinateSystemIdentifier;
+    channel26Logic->UpdateTransformsHierarchy(channel26GeometryNode, SysCoord::CarmRobotShoulder);
+  }
+  channel26GeometryNode->Modified();
+//  this->checkForCollisions();
+  d->getLayoutManager()->resumeRender();
+//  d->ParameterNode->Modified();
+}
+
+//-----------------------------------------------------------------------------
+void qSlicerU70RoomGeoModuleWidget::onCarmRobotA3Changed(double a3)
+{
+  Q_D(qSlicerU70RoomGeoModuleWidget);
+
+  if (!d->ParameterNode || !d->ModuleWindowInitialized)
+  {
+    qCritical() << Q_FUNC_INFO << ": Parameter node is invalid!";
+    return;
+  }
+  vtkMRMLChannel26GeometryNode* channel26GeometryNode = d->ParameterNode->GetChannel26GeometryNode();
+
+  d->getLayoutManager()->pauseRender();
+  double a[6] = {};
+  channel26GeometryNode->GetCarmRobotAngles(a);
+  channel26GeometryNode->DisableModifiedEventOn();
+  a[2] = 90. - a3;
+  channel26GeometryNode->SetCarmRobotAngles(a);
+  channel26GeometryNode->DisableModifiedEventOff();
+
+  // Update Channel-26 transforms
+  vtkSlicerChannel26Cabin3RobotsTransformLogic* channel26Logic = d->channel26RobotsLogic();
+  if (channel26Logic && channel26GeometryNode)
+  {
+    using SysCoord = vtkSlicerChannel26Cabin3RobotsTransformLogic::CoordinateSystemIdentifier;
+    channel26Logic->UpdateTransformsHierarchy(channel26GeometryNode, SysCoord::CarmRobotElbowShoulder);
+  }
+  channel26GeometryNode->Modified();
+//  this->checkForCollisions();
+  d->getLayoutManager()->resumeRender();
+//  d->ParameterNode->Modified();
+}
+
+//-----------------------------------------------------------------------------
+void qSlicerU70RoomGeoModuleWidget::onCarmRobotA4Changed(double a4)
+{
+  Q_D(qSlicerU70RoomGeoModuleWidget);
+
+  if (!d->ParameterNode || !d->ModuleWindowInitialized)
+  {
+    qCritical() << Q_FUNC_INFO << ": Parameter node is invalid!";
+    return;
+  }
+  vtkMRMLChannel26GeometryNode* channel26GeometryNode = d->ParameterNode->GetChannel26GeometryNode();
+
+  d->getLayoutManager()->pauseRender();
+  double a[6] = {};
+  channel26GeometryNode->GetCarmRobotAngles(a);
+  channel26GeometryNode->DisableModifiedEventOn();
+  a[3] = a4;
+  channel26GeometryNode->SetCarmRobotAngles(a);
+  channel26GeometryNode->DisableModifiedEventOff();
+
+  // Update Channel-26 transforms
+  vtkSlicerChannel26Cabin3RobotsTransformLogic* channel26Logic = d->channel26RobotsLogic();
+  if (channel26Logic && channel26GeometryNode)
+  {
+    using SysCoord = vtkSlicerChannel26Cabin3RobotsTransformLogic::CoordinateSystemIdentifier;
+    channel26Logic->UpdateTransformsHierarchy(channel26GeometryNode, SysCoord::CarmRobotElbowWrist);
+  }
+  channel26GeometryNode->Modified();
+//  this->checkForCollisions();
+  d->getLayoutManager()->resumeRender();
+//  d->ParameterNode->Modified();
+}
+
+//-----------------------------------------------------------------------------
+void qSlicerU70RoomGeoModuleWidget::onCarmRobotA5Changed(double a5)
+{
+  Q_D(qSlicerU70RoomGeoModuleWidget);
+
+  if (!d->ParameterNode || !d->ModuleWindowInitialized)
+  {
+    qCritical() << Q_FUNC_INFO << ": Parameter node is invalid!";
+    return;
+  }
+  vtkMRMLChannel26GeometryNode* channel26GeometryNode = d->ParameterNode->GetChannel26GeometryNode();
+
+  d->getLayoutManager()->pauseRender();
+  double a[6] = {};
+  channel26GeometryNode->GetCarmRobotAngles(a);
+  channel26GeometryNode->DisableModifiedEventOn();
+  a[4] = a5;
+  channel26GeometryNode->SetCarmRobotAngles(a);
+  channel26GeometryNode->DisableModifiedEventOff();
+
+  // Update Channel-26 transforms
+  vtkSlicerChannel26Cabin3RobotsTransformLogic* channel26Logic = d->channel26RobotsLogic();
+  if (channel26Logic && channel26GeometryNode)
+  {
+    using SysCoord = vtkSlicerChannel26Cabin3RobotsTransformLogic::CoordinateSystemIdentifier;
+    channel26Logic->UpdateTransformsHierarchy(channel26GeometryNode, SysCoord::CarmRobotWrist);
+  }
+  channel26GeometryNode->Modified();
+//  this->checkForCollisions();
+  d->getLayoutManager()->resumeRender();
+//  d->ParameterNode->Modified();
+}
+
+//-----------------------------------------------------------------------------
+void qSlicerU70RoomGeoModuleWidget::onCarmRobotA6Changed(double a6)
+{
+  Q_D(qSlicerU70RoomGeoModuleWidget);
+
+  if (!d->ParameterNode || !d->ModuleWindowInitialized)
+  {
+    qCritical() << Q_FUNC_INFO << ": Parameter node is invalid!";
+    return;
+  }
+  vtkMRMLChannel26GeometryNode* channel26GeometryNode = d->ParameterNode->GetChannel26GeometryNode();
+
+  d->getLayoutManager()->pauseRender();
+  double a[6] = {};
+  channel26GeometryNode->GetCarmRobotAngles(a);
+  channel26GeometryNode->DisableModifiedEventOn();
+  a[5] = a6;
+  channel26GeometryNode->SetCarmRobotAngles(a);
+  channel26GeometryNode->DisableModifiedEventOff();
+
+  // Update Channel-26 transforms
+  vtkSlicerChannel26Cabin3RobotsTransformLogic* channel26Logic = d->channel26RobotsLogic();
+  if (channel26Logic && channel26GeometryNode)
+  {
+    using SysCoord = vtkSlicerChannel26Cabin3RobotsTransformLogic::CoordinateSystemIdentifier;
+    channel26Logic->UpdateTransformsHierarchy(channel26GeometryNode, SysCoord::CarmRobotFlange);
+  }
+  channel26GeometryNode->Modified();
+//  this->checkForCollisions();
+  d->getLayoutManager()->resumeRender();
+//  d->ParameterNode->Modified();
+}
+
+//-----------------------------------------------------------------------------
+void qSlicerU70RoomGeoModuleWidget::onRotatePatientHeadFeetToggled(bool toggled)
+{
+  Q_D(qSlicerU70RoomGeoModuleWidget);
+
+  if (!d->ParameterNode || !d->ModuleWindowInitialized)
+  {
+    qCritical() << Q_FUNC_INFO << ": Parameter node is invalid!";
+    return;
+  }
+  vtkMRMLChannel26GeometryNode* channel26GeometryNode = d->ParameterNode->GetChannel26GeometryNode();
+  d->getLayoutManager()->pauseRender();
+  channel26GeometryNode->SetPatientHeadFeetRotation(toggled);
+  d->getLayoutManager()->resumeRender();
 }

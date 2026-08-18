@@ -332,7 +332,8 @@ vtkMRMLModelNode* vtkSlicerU70RoomGeoLogic::vtkInternal::EnsureTreatmentMachineP
     }
     else if (!optional)
     {
-      vtkErrorWithObjectMacro(this->External, "EnsureTreatmentMachinePartModelNode: Failed to load " << partName << " model from file " << partModelFilePath);
+      vtkErrorWithObjectMacro(this->External, "EnsureTreatmentMachinePartModelNode: Failed to load "
+        << partName << " model from file " << partModelFilePath);
       return nullptr;
     }
   }
@@ -652,7 +653,22 @@ vtkSlicerU70RoomGeoLogic::SetupTreatmentMachineModels(vtkMRMLU70RoomGeoNode* par
   {
     return std::vector<CoordSys>();
   }
-  
+
+  vtkMRMLSubjectHierarchyNode* shNode = scene->GetSubjectHierarchyNode();
+  if (!shNode)
+  {
+    vtkErrorMacro("SetupTreatmentMachineModels: Failed to access subject hierarchy node");
+    return std::vector<CoordSys>();
+  }
+
+  std::string descriptorFilePath(parameterNode->GetTreatmentMachineDescriptorFilePath());
+  std::string machineType = this->Internal->GetTreatmentMachineFileNameWithoutExtension(parameterNode);
+
+  // Create subject hierarchy folder so that the treatment machine can be shown/hidden easily
+  std::string subjectHierarchyFolderName = machineType + std::string("_Transforms");
+  vtkIdType rootFolderItem = shNode->CreateFolderItem(shNode->GetSceneItemID(), subjectHierarchyFolderName);
+  shNode->SetItemAttribute(rootFolderItem, TREATMENT_MACHINE_DESCRIPTOR_FILE_PATH_ATTRIBUTE_NAME, descriptorFilePath);
+
   std::vector<CoordSys> loadedParts;
   std::map<CoordSys, unsigned int> loadedPartsNumTriangles;
   std::vector<CoordSys> parts = this->Internal->GetTreatmentMachineParts();
@@ -812,6 +828,8 @@ vtkSlicerU70RoomGeoLogic::SetupTreatmentMachineModels(vtkMRMLU70RoomGeoNode* par
     }
     if (partFrameToRasTransformNode)
     {
+      vtkIdType partItemID = shNode->GetItemByDataNode(partFrameToRasTransformNode);
+      shNode->SetItemParent(partItemID, rootFolderItem);
       partModel->SetAndObserveTransformNodeID(partFrameToRasTransformNode->GetID());
     }
   }

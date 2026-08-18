@@ -53,6 +53,25 @@ public slots:
   void onLoadTreatmentRoomButtonClicked();
   void onUnloadTreatmentRoomButtonClicked();
 
+  void onShowModelsToggled(bool toggled);
+  void onShowMarkupsToggled(bool toggled);
+  void onFixedReferenceCameraToggled(bool toggled);
+  void onRotatePatientHeadFeetToggled(bool toggled);
+
+  void onPatientTableTopTranslationChanged(double* position);
+  void onTableRobotA6Changed(double a6);
+  void onTableRobotA5Changed(double a5);
+  void onTableRobotA4Changed(double a4);
+  void onTableRobotA3Changed(double a3);
+  void onTableRobotA2Changed(double a2);
+  void onTableRobotA1Changed(double a1);
+  void onCarmRobotA1Changed(double a1);
+  void onCarmRobotA2Changed(double a2);
+  void onCarmRobotA3Changed(double a3);
+  void onCarmRobotA4Changed(double a4);
+  void onCarmRobotA5Changed(double a5);
+  void onCarmRobotA6Changed(double a6);
+
 protected:
   QScopedPointer<qSlicerU70RoomGeoModuleWidgetPrivate> d_ptr;
   /// Initialize the module
