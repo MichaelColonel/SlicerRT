@@ -36,7 +36,7 @@ public:
   explicit qSlicerU70RoomOpcUaModule(QObject* parent = nullptr);
   ~qSlicerU70RoomOpcUaModule() override;
 
-  qSlicerGetTitleMacro(tr("U70RoomOpcUa"));
+  qSlicerGetTitleMacro(QTMODULE_TITLE);
 
   QString helpText() const override;
   QString acknowledgementText() const override;

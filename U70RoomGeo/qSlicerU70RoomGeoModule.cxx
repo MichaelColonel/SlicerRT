@@ -77,7 +77,7 @@ QIcon qSlicerU70RoomGeoModule::icon() const
 //-----------------------------------------------------------------------------
 QStringList qSlicerU70RoomGeoModule::categories() const
 {
-  return QStringList() << tr("Luch U-70");
+  return QStringList() << tr("Lutch U-70");
 }
 
 //-----------------------------------------------------------------------------

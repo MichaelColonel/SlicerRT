@@ -1,6 +1,6 @@
 #-----------------------------------------------------------------------------
 set(MODULE_NAME U70RoomGeo)
-set(MODULE_TITLE "U-70 Treatment Room Geometry")
+set(MODULE_TITLE "Treatment Room Geometry")
 
 string(TOUPPER ${MODULE_NAME} MODULE_NAME_UPPER)
 

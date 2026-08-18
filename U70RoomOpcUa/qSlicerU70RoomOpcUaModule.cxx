@@ -64,7 +64,7 @@ QString qSlicerU70RoomOpcUaModule::acknowledgementText() const
 QStringList qSlicerU70RoomOpcUaModule::contributors() const
 {
   QStringList moduleContributors;
-  moduleContributors << QString("John Doe (AnyWare Corp.)");
+  moduleContributors << QString(tr("Mikhail Polkovnikov"));
   return moduleContributors;
 }
 
@@ -77,7 +77,7 @@ QIcon qSlicerU70RoomOpcUaModule::icon() const
 //-----------------------------------------------------------------------------
 QStringList qSlicerU70RoomOpcUaModule::categories() const
 {
-  return QStringList() << "Examples";
+  return QStringList() << tr("Lutch U-70");
 }
 
 //-----------------------------------------------------------------------------
