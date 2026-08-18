@@ -21,7 +21,7 @@
 #ifndef __qSlicerScadaOpcUaLogic_h
 #define __qSlicerScadaOpcUaLogic_h
 
-#include "qSlicerU70RoomOpcUaWidgetsExport.h"
+#include "qSlicerU70RoomOpcUaModuleWidgetsExport.h"
 
 // SlicerQt includes
 #include "qSlicerObject.h"

@@ -62,7 +62,7 @@ class QOpcUaClient;
 class TreeItem;
 
 // FooBar Widgets includes
-#include "qSlicerU70RoomOpcUaWidgetsExport.h"
+#include "qSlicerU70RoomOpcUaModuleWidgetsExport.h"
 
 class Q_SLICER_MODULE_U70ROOMOPCUA_WIDGETS_EXPORT OpcUaModel : public QAbstractItemModel
 {
