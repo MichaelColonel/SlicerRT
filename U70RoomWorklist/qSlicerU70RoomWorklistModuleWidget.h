@@ -36,13 +36,20 @@ public:
   virtual ~qSlicerU70RoomWorklistModuleWidget();
 
 public slots:
+  void onSetCustomLayoutClicked();
+  void onCheckConnectionClicked();
+  void onWorklistQueryClicked();
 
 protected:
   QScopedPointer<qSlicerU70RoomWorklistModuleWidgetPrivate> d_ptr;
 
   void setup() override;
+  void enter() override;
+  void exit() override;
 
 private:
+  void onEnter();
+
   Q_DECLARE_PRIVATE(qSlicerU70RoomWorklistModuleWidget);
   Q_DISABLE_COPY(qSlicerU70RoomWorklistModuleWidget);
 };

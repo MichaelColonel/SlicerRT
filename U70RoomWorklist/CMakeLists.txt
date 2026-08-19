@@ -1,6 +1,7 @@
 
 #-----------------------------------------------------------------------------
 set(MODULE_NAME U70RoomWorklist)
+set(MODULE_TITLE "Patients Queue and Worklist")
 
 string(TOUPPER ${MODULE_NAME} MODULE_NAME_UPPER)
 
@@ -28,6 +29,7 @@ set(MODULE_SRCS
 
 set(MODULE_UI_SRCS
   Resources/UI/qSlicer${MODULE_NAME}ModuleWidget.ui
+  Resources/UI/qSlicerPatientQueueWidget.ui
   )
 
 set(MODULE_TARGET_LIBRARIES
@@ -42,6 +44,7 @@ set(MODULE_RESOURCES
 #-----------------------------------------------------------------------------
 slicerMacroBuildLoadableModule(
   NAME ${MODULE_NAME}
+  TITLE ${MODULE_TITLE}
   EXPORT_DIRECTIVE ${MODULE_EXPORT_DIRECTIVE}
   INCLUDE_DIRECTORIES ${MODULE_INCLUDE_DIRECTORIES}
   SRCS ${MODULE_SRCS}

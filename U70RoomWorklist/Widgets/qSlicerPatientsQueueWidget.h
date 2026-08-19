@@ -18,33 +18,42 @@
 
 ==============================================================================*/
 
-#ifndef __qSlicerU70RoomWorklistFooBarWidget_h
-#define __qSlicerU70RoomWorklistFooBarWidget_h
+#ifndef __qSlicerPatientsQueueWidget_h
+#define __qSlicerPatientsQueueWidget_h
 
 // Qt includes
 #include <QWidget>
 
-// FooBar Widgets includes
+// CTK includes
+#include <ctkPimpl.h>
+#include <ctkVTKObject.h>
+
+// U70RoomWorklist Widgets includes
 #include "qSlicerU70RoomWorklistModuleWidgetsExport.h"
 
-class qSlicerU70RoomWorklistFooBarWidgetPrivate;
+class qSlicerPatientsQueueWidgetPrivate;
 
-class Q_SLICER_MODULE_U70ROOMWORKLIST_WIDGETS_EXPORT qSlicerU70RoomWorklistFooBarWidget : public QWidget
+class Q_SLICER_MODULE_U70ROOMWORKLIST_WIDGETS_EXPORT qSlicerPatientsQueueWidget
+  : public QWidget
 {
   Q_OBJECT
+  QVTK_OBJECT
+
 public:
   typedef QWidget Superclass;
-  qSlicerU70RoomWorklistFooBarWidget(QWidget* parent = 0);
-  ~qSlicerU70RoomWorklistFooBarWidget() override;
+  qSlicerPatientsQueueWidget(QWidget *parent=0);
+  ~qSlicerPatientsQueueWidget() override;
 
-protected slots:
+public slots:
+  /// Update widget GUI from parameters node
+  void updateWidgetFromMRML();
 
 protected:
-  QScopedPointer<qSlicerU70RoomWorklistFooBarWidgetPrivate> d_ptr;
+  QScopedPointer<qSlicerPatientsQueueWidgetPrivate> d_ptr;
 
 private:
-  Q_DECLARE_PRIVATE(qSlicerU70RoomWorklistFooBarWidget);
-  Q_DISABLE_COPY(qSlicerU70RoomWorklistFooBarWidget);
+  Q_DECLARE_PRIVATE(qSlicerPatientsQueueWidget);
+  Q_DISABLE_COPY(qSlicerPatientsQueueWidget);
 };
 
 #endif

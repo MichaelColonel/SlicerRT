@@ -36,7 +36,7 @@ public:
   explicit qSlicerU70RoomWorklistModule(QObject* parent = nullptr);
   ~qSlicerU70RoomWorklistModule() override;
 
-  qSlicerGetTitleMacro(tr("U70RoomWorklist"));
+  qSlicerGetTitleMacro(QTMODULE_TITLE);
 
   QString helpText() const override;
   QString acknowledgementText() const override;
