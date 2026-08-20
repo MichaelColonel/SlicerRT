@@ -18,7 +18,10 @@
 
 ==============================================================================*/
 
-// FooBar Widgets includes
+// Qt includes
+#include <QWeakPointer>
+
+// ScadaOpcUaRobotsControl Widgets includes
 #include "qSlicerScadaOpcUaRobotsControlWidget.h"
 #include "ui_qSlicerScadaOpcUaRobotsControlWidget.h"
 
@@ -37,7 +40,7 @@ public:
   qSlicerScadaOpcUaRobotsControlWidgetPrivate(qSlicerScadaOpcUaRobotsControlWidget& object);
   virtual void setupUi(qSlicerScadaOpcUaRobotsControlWidget*);
 
-  qSlicerScadaOpcUaLogic* opcUaLogic{ nullptr };
+  QWeakPointer< qSlicerScadaOpcUaLogic > opcUaLogic;
   vtkWeakPointer< vtkMRMLScadaOpcUaNode > ParameterNode;
 };
 
@@ -84,12 +87,14 @@ void qSlicerScadaOpcUaRobotsControlWidget::setParameterNode(vtkMRMLNode* node)
   this->updateWidgetFromMRML();
 }
 
-void qSlicerScadaOpcUaRobotsControlWidget::setScadaOpcUaLogic(qSlicerScadaOpcUaLogic* logic)
+void qSlicerScadaOpcUaRobotsControlWidget::setScadaOpcUaLogic(const QSharedPointer< qSlicerScadaOpcUaLogic >& sharedLogic)
 {
   Q_D(qSlicerScadaOpcUaRobotsControlWidget);
+  d->opcUaLogic = sharedLogic;
 }
 
 void qSlicerScadaOpcUaRobotsControlWidget::updateWidgetFromMRML()
 {
   Q_D(qSlicerScadaOpcUaRobotsControlWidget);
+  qDebug() << Q_FUNC_INFO << "Update ScadaOpcUaRobotsControl buttons";
 }

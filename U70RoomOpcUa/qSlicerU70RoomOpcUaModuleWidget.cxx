@@ -55,64 +55,6 @@ public:
   qSlicerU70RoomOpcUaModuleWidgetPrivate(qSlicerU70RoomOpcUaModuleWidget& object);
   vtkSlicerU70RoomOpcUaLogic* logic() const;
 
-  const char* GENERIC_LAYOUT_DESCRIPTION = \
-    "<layout type=\"vertical\" split=\"true\" >"\
-    "  <item splitSize=\"500\"> "\
-    "    <layout type=\"horizontal\">"\
-    "    <item>" \
-    "     <view class=\"vtkMRMLViewNode\" singletontag=\"1\">" \
-    "       <property name=\"viewlabel\" action=\"default\">1</property>" \
-    "     </view>" \
-    "    </item>" \
-    "     <item>" \
-    "       <view class=\"vtkMRMLSliceNode\" singletontag=\"XrayDetectorSlice\">" \
-    "         <property name=\"orientation\" action=\"default\">Axial</property>" \
-    "         <property name=\"viewlabel\" action=\"default\">C</property>" \
-    "         <property name=\"viewcolor\" action=\"default\">#C3B1E1</property>" \
-    "         <property name=\"viewgroup\" action=\"default\">101</property>" \
-    "       </view>" \
-    "     </item>" \
-    "    </layout>" \
-    "  </item>" \
-    "  <item splitSize=\"350\">" \
-    "    <layout type=\"horizontal\">" \
-    "      <item>" \
-    "         <view class=\"vtkMRMLSliceNode\" singletontag=\"Red\">" \
-    "           <property name=\"orientation\" action=\"default\">Axial</property>" \
-    "           <property name=\"viewlabel\" action=\"default\">R</property>" \
-    "           <property name=\"viewcolor\" action=\"default\">#F34A33</property>" \
-    "        </view>" \
-    "      </item>" \
-    "      <item>" \
-    "         <view class=\"vtkMRMLSliceNode\" singletontag=\"Green\">" \
-    "           <property name=\"orientation\" action=\"default\">Coronal</property>" \
-    "           <property name=\"viewlabel\" action=\"default\">G</property>" \
-    "           <property name=\"viewcolor\" action=\"default\">#6EB04B</property>" \
-    "        </view>" \
-    "      </item>" \
-    "      <item>" \
-    "         <view class=\"vtkMRMLSliceNode\" singletontag=\"Yellow\">" \
-    "           <property name=\"orientation\" action=\"default\">Sagittal</property>" \
-    "           <property name=\"viewlabel\" action=\"default\">Y</property>" \
-    "           <property name=\"viewcolor\" action=\"default\">#EDD54C</property>" \
-    "        </view>" \
-    "      </item>" \
-    "    </layout>" \
-    "  </item>" \
-    "  <item splitSize=\"0\">" \
-    "    <layout type=\"horizontal\">" \
-    "      <item>" \
-    "        <view class=\"vtkMRMLViewNode\" singletontag=\"XrayDetectorSlice\">" \
-    "           <property name=\"viewlabel\" action=\"default\">F</property>" \
-    "           <property name=\"viewcolor\" action=\"default\">#C3B1E1</property>" \
-    "           <property name=\"viewgroup\" action=\"default\">100</property>" \
-    "        </view>" \
-    "       </item>" \
-    "    </layout>" \
-    "  </item>" \
-    "</layout>";
-  const int GENERIC_LAYOUT_ID = 1020;
-
   const char* SCADA_OPCUA_ROBOTS_CONTROL_LAYOUT_DESCRIPTION = \
     "<layout type=\"vertical\">" \
     " <item>" \
@@ -121,17 +63,15 @@ public:
     "</layout>";
   const int SCADA_OPCUA_ROBOTS_CONTROL_LAYOUT_ID = 1021;
 
-  const QString SCADA_PATPOS_NODE_ID = "ns=1;s=Модуль Позиционирования";
-  const QString SCADA_TEST_READ_NODE_ID = SCADA_PATPOS_NODE_ID + ".SysTimeScada";
-
   int PreviousLayoutId{ -1 };
   bool ModuleWindowInitialized{ false };
 
-  QScopedPointer< qSlicerScadaOpcUaLogic > ScadaOpcUaLogic;
-  QScopedPointer< qSlicerScadaOpcUaRobotsControlWidget > ScadaOpcUaRobotsControlWidget;
   vtkSmartPointer< vtkMRMLScadaOpcUaNode > ScadaOpcUaNode;
+  QSharedPointer< qSlicerScadaOpcUaLogic > ScadaOpcUaLogic;
+
+  QScopedPointer< qSlicerScadaOpcUaRobotsControlWidget > ScadaOpcUaRobotsControlWidget;
   QScopedPointer< OpcUaModel > ScadaOpcUaModel;
-  QScopedPointer<QOpcUaProvider> ScadaOpcUaProvider;
+  QScopedPointer< QOpcUaProvider > ScadaOpcUaProvider;
 };
 
 //-----------------------------------------------------------------------------
@@ -177,9 +117,11 @@ void qSlicerU70RoomOpcUaModuleWidget::setup()
   d->ScadaOpcUaModel.reset(new OpcUaModel(this));
   d->ScadaOpcUaProvider.reset(new QOpcUaProvider(this));
 
+  d->ScadaOpcUaRobotsControlWidget->setScadaOpcUaLogic(d->ScadaOpcUaLogic);
+
   d->OpcUaServerUrlLineEdit->setText("opc.tcp://192.168.26.128:62544");
   d->OpcUaPluginComboBox->addItems(d->ScadaOpcUaProvider->availableBackends());
-  
+
 //  d->OpcUaTreeView->setModel(d->ScadaOpcUaModel.get());
 //  d->OpcUaTreeView->header()->setSectionResizeMode(QHeaderView::ResizeToContents);
 //  d->OpcUaTreeView->setTextElideMode(Qt::ElideRight);
@@ -193,24 +135,14 @@ void qSlicerU70RoomOpcUaModuleWidget::setup()
   // Save previous layout
   d->PreviousLayoutId = layoutManager->layout();
 
-  vtkMRMLLayoutNode* layoutNode = layoutManager->layoutLogic()->GetLayoutNode();
-  if (layoutNode)
-  {
-    if (!layoutNode->SetLayoutDescription(d->GENERIC_LAYOUT_ID, d->GENERIC_LAYOUT_DESCRIPTION))
-    {
-      layoutNode->AddLayoutDescription(d->GENERIC_LAYOUT_ID, d->GENERIC_LAYOUT_DESCRIPTION);
-    }
-  }
-
-
+  // Register new layout widget
   qSlicerSingletonViewFactory* viewFactory = new qSlicerSingletonViewFactory();
   viewFactory->setWidget(d->ScadaOpcUaRobotsControlWidget.get());
   viewFactory->setTagName("ScadaOpcUaRobotsControl");
-
   layoutManager->registerViewFactory(viewFactory);
-  // Save previous layout
-  d->PreviousLayoutId = layoutManager->layout();
 
+  // Create new layout
+  vtkMRMLLayoutNode* layoutNode = layoutManager->layoutLogic()->GetLayoutNode();
   if (layoutNode)
   {
     if (!layoutNode->SetLayoutDescription(d->SCADA_OPCUA_ROBOTS_CONTROL_LAYOUT_ID, d->SCADA_OPCUA_ROBOTS_CONTROL_LAYOUT_DESCRIPTION))
@@ -284,7 +216,7 @@ void qSlicerU70RoomOpcUaModuleWidget::setMRMLScene(vtkMRMLScene* scene)
       if (newNode)
       {
         d->ScadaOpcUaNode = vtkSmartPointer<vtkMRMLScadaOpcUaNode>::Take(newNode);
-//        d->ScadaOpcUaLogic->setParameterNode(d->ScadaOpcUaNode);
+        d->ScadaOpcUaLogic->setParameterNode(d->ScadaOpcUaNode);
       }
     }
     else

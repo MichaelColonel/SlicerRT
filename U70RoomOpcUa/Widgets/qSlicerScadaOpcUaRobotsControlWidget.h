@@ -23,6 +23,7 @@
 
 // Qt includes
 #include <QWidget>
+#include <QSharedPointer>
 
 // CTK includes
 #include <ctkPimpl.h>
@@ -51,7 +52,7 @@ public slots:
   /// Set PatientPositioning MRML node (Parameter node)
   void setParameterNode(vtkMRMLNode* node);
   /// Set PatientPositioning logic
-  void setScadaOpcUaLogic(qSlicerScadaOpcUaLogic* logic);
+  void setScadaOpcUaLogic(const QSharedPointer< qSlicerScadaOpcUaLogic >& opcUaLogic);
   /// Update widget GUI from RT Image parameters node
   void updateWidgetFromMRML();
   /// Display table top angles

@@ -167,8 +167,44 @@ public:
   vtkGetVector2Macro(SM_Buttons_R1_BreakTest, bool);
   vtkSetVector2Macro(SM_Buttons_R1_BreakTest, bool);
 
+  vtkGetVector2Macro(SM_Buttons_R1_MasterReferenceTest, bool);
+  vtkSetVector2Macro(SM_Buttons_R1_MasterReferenceTest, bool);
+
+  vtkGetVector2Macro(SM_Buttons_R1_HomeTest, bool);
+  vtkSetVector2Macro(SM_Buttons_R1_HomeTest, bool);
+
+  vtkGetVector2Macro(SM_Buttons_R1_IsoTest, bool);
+  vtkSetVector2Macro(SM_Buttons_R1_IsoTest, bool);
+
+  vtkGetVector2Macro(SM_Buttons_R1_ServicePosition, bool);
+  vtkSetVector2Macro(SM_Buttons_R1_ServicePosition, bool);
+
   vtkGetVector2Macro(SM_Buttons_R2_BreakTest, bool);
   vtkSetVector2Macro(SM_Buttons_R2_BreakTest, bool);
+
+  vtkGetVector2Macro(SM_Buttons_R2_MasterReferenceTest, bool);
+  vtkSetVector2Macro(SM_Buttons_R2_MasterReferenceTest, bool);
+
+  vtkGetVector2Macro(SM_Buttons_R2_HomeTest, bool);
+  vtkSetVector2Macro(SM_Buttons_R2_HomeTest, bool);
+
+  vtkGetVector2Macro(SM_Buttons_R2_IsoTest, bool);
+  vtkSetVector2Macro(SM_Buttons_R2_IsoTest, bool);
+
+  vtkGetVector2Macro(SM_Buttons_R2_ServicePosition, bool);
+  vtkSetVector2Macro(SM_Buttons_R2_ServicePosition, bool);
+
+  vtkGetVector2Macro(SM_Buttons_Restart, bool);
+  vtkSetVector2Macro(SM_Buttons_Restart, bool);
+
+  vtkGetVector2Macro(Buttons_ResetErrors, bool);
+  vtkSetVector2Macro(Buttons_ResetErrors, bool);
+
+  vtkGetVector6Macro(AXIS_coord_R1, int32_t);
+  vtkSetVector6Macro(AXIS_coord_R1, int32_t);
+
+  vtkGetVector6Macro(AXIS_coord_R2, int32_t);
+  vtkSetVector6Macro(AXIS_coord_R2, int32_t);
 
   vtkGetMacro(SysTime, uint64_t);
   vtkSetMacro(SysTime, uint64_t);
@@ -236,6 +272,7 @@ private:
   bool SM_Buttons_R2_IsoTest[2]{ false, false }; // [0] == isEnabled, [1] == isPressed
   bool SM_Buttons_R2_ServicePosition[2]{ false, false }; // [0] == isEnabled, [1] == isPressed
   bool SM_Buttons_Restart[2]{ false, false }; // [0] == isEnabled, [1] == isPressed
+  bool Buttons_ResetErrors[2]{ false, false }; // [0] == isEnabled, [1] == isPressed
   
   struct Button {
     bool IsPressed{ false };
@@ -296,8 +333,8 @@ private:
   int32_t KUKA_X_coordinate_to_TCS_R1;
   int32_t KUKA_Y_coordinate_to_TCS_R1;
   int32_t KUKA_Z_coordinate_to_TCS_R1;
-  std::array< int32_t, 6 > AXIS_coord_R1;
-  std::array< int32_t, 6 > AXIS_coord_R2;
+  int32_t AXIS_coord_R1[6];
+  int32_t AXIS_coord_R2[6];
 };
 
 #endif
