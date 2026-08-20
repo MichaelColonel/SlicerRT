@@ -141,7 +141,7 @@ if (SLICERRT_ENABLE_EXPERIMENTAL_MODULES)
 
   # Luch U-70 modules
   add_subdirectory(U70RoomGeo)
-#  add_subdirectory(U70RoomOpcUa)
+  add_subdirectory(U70RoomOpcUa)
   add_subdirectory(U70RoomWorklist)
 endif()
 
