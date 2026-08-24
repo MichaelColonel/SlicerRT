@@ -47,6 +47,7 @@
 #include <ctkDICOMDatabase.h>
 
 #include "qSlicerPatientsQueueWidget.h"
+#include "qSlicerPatientsQueueTableModel.h"
 
 //-----------------------------------------------------------------------------
 class qSlicerU70RoomWorklistModuleWidgetPrivate : public Ui_qSlicerU70RoomWorklistModuleWidget
@@ -295,7 +296,9 @@ void qSlicerU70RoomWorklistModuleWidget::onWorklistQueryClicked()
     qWarning() << Q_FUNC_INFO << "Error negotiating association: " << result.text() << "\n";
     return;
   }
-  
+
+  QList< ModalityWork > mwl; // modality worklist
+
   // Issue FIND request and let scu find presentation context itself (1)
   OFList< QRResponse* > findResponses;
   result = scu.sendFINDRequest(1, d->WorklistQueryDataset.get(), &findResponses);
@@ -306,17 +309,29 @@ void qSlicerU70RoomWorklistModuleWidget::onWorklistQueryClicked()
   }
   else
   {
-    qDebug() << Q_FUNC_INFO  << "Successfully sentC-FIND request to host " << hostStr << " on port " << hostPort \
+//    qDebug() << Q_FUNC_INFO  << "Successfully sentC-FIND request to host " << hostStr << " on port " << hostPort \
       << " found responses " << findResponses.size() << '\n';
     for (QRResponse* retresp : findResponses)
     {
       if (retresp->m_dataset)
       {
-        qDebug() << Q_FUNC_INFO << "Dataset is valid!";
+        ModalityWork mw;
+        if (mw.addWorkFromDicomResponse(retresp))
+        {
+          mwl.push_back(mw);
+        }
       }
     }
   }
 
+  for (const ModalityWork& mw : mwl)
+  {
+    qDebug() << Q_FUNC_INFO << "Patient's name:" << mw.PatientName << ", birthdate:" << mw.PatientBirthDate.toString("dd.MM.yyyy");
+    for (const ModalityWork::ScheduledProcedureStep& sps : mw.spsSequence)
+    {
+      qDebug() << Q_FUNC_INFO << "Modality:" << sps.Modality << ", date & time:" << sps.StartDateTime.toString("dd.MM.yyyy HH:mm:ss");
+    }
+  }
   result = scu.releaseAssociation();
   if (result.bad())
   {

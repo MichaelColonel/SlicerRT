@@ -22,17 +22,10 @@
      <layout class="QGridLayout" name="gridLayout_2">
       <item row="0" column="0">
        <layout class="QGridLayout" name="gridLayout">
-        <item row="2" column="0">
-         <widget class="QLabel" name="label_3">
+        <item row="0" column="1">
+         <widget class="QLineEdit" name="LineEdit_WorklistServerHost">
           <property name="text">
-           <string>AE Title:</string>
-          </property>
-         </widget>
-        </item>
-        <item row="1" column="0">
-         <widget class="QLabel" name="label_2">
-          <property name="text">
-           <string>Port:</string>
+           <string>localhost</string>
           </property>
          </widget>
         </item>
@@ -40,13 +33,6 @@
          <widget class="QLabel" name="label">
           <property name="text">
            <string>Host / Peer:</string>
-          </property>
-         </widget>
-        </item>
-        <item row="0" column="1">
-         <widget class="QLineEdit" name="LineEdit_WorklistServerHost">
-          <property name="text">
-           <string>localhost</string>
           </property>
          </widget>
         </item>
@@ -64,6 +50,20 @@
           </property>
           <property name="value">
            <number>1234</number>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="0">
+         <widget class="QLabel" name="label_2">
+          <property name="text">
+           <string>Port:</string>
+          </property>
+         </widget>
+        </item>
+        <item row="2" column="0">
+         <widget class="QLabel" name="label_3">
+          <property name="text">
+           <string>AE Title:</string>
           </property>
          </widget>
         </item>
@@ -90,6 +90,117 @@
     </widget>
    </item>
    <item>
+    <widget class="ctkCollapsibleButton" name="CollapsibleButton_QueryFilters">
+     <property name="text">
+      <string>Query filters</string>
+     </property>
+     <property name="collapsed">
+      <bool>true</bool>
+     </property>
+     <layout class="QGridLayout" name="gridLayout_4">
+      <item row="0" column="0">
+       <layout class="QGridLayout" name="gridLayout_3">
+        <item row="0" column="1">
+         <widget class="QDateEdit" name="DateEdit_Exact">
+          <property name="enabled">
+           <bool>false</bool>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="0">
+         <widget class="QLabel" name="label_4">
+          <property name="text">
+           <string>Exact date:</string>
+          </property>
+         </widget>
+        </item>
+        <item row="2" column="0">
+         <widget class="QLabel" name="label_6">
+          <property name="text">
+           <string>To date:</string>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="2">
+         <widget class="ctkCheckBox" name="CheckBox_ExactDate">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="3">
+         <widget class="QTimeEdit" name="TimeEdit_Exact">
+          <property name="enabled">
+           <bool>false</bool>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="0">
+         <widget class="QLabel" name="label_5">
+          <property name="text">
+           <string>From date:</string>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="4">
+         <widget class="ctkCheckBox" name="CheckBox_ExactTime">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="1">
+         <widget class="QDateEdit" name="DateEdit_From">
+          <property name="enabled">
+           <bool>false</bool>
+          </property>
+         </widget>
+        </item>
+        <item row="2" column="1">
+         <widget class="QDateEdit" name="DateEdit_To">
+          <property name="enabled">
+           <bool>false</bool>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="3">
+         <widget class="QTimeEdit" name="TimeEdit_From">
+          <property name="enabled">
+           <bool>false</bool>
+          </property>
+         </widget>
+        </item>
+        <item row="2" column="3">
+         <widget class="QTimeEdit" name="TimeEdit_To">
+          <property name="enabled">
+           <bool>false</bool>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="2">
+         <widget class="ctkCheckBox" name="CheckBox_FromDate"/>
+        </item>
+        <item row="1" column="4">
+         <widget class="ctkCheckBox" name="CheckBox_FromTime"/>
+        </item>
+        <item row="2" column="2">
+         <widget class="ctkCheckBox" name="CheckBox_ToDate"/>
+        </item>
+        <item row="2" column="4">
+         <widget class="ctkCheckBox" name="CheckBox_ToTime"/>
+        </item>
+       </layout>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item>
     <widget class="ctkCollapsibleButton" name="CTKCollapsibleButton_Query">
      <property name="text">
       <string>Query</string>
@@ -98,7 +209,7 @@
       <item>
        <widget class="QPushButton" name="PushButton_WorklistQuery">
         <property name="text">
-         <string>Worklist query</string>
+         <string>MWL Query</string>
         </property>
        </widget>
       </item>
@@ -132,6 +243,11 @@
  </widget>
  <customwidgets>
   <customwidget>
+   <class>ctkCheckBox</class>
+   <extends>QCheckBox</extends>
+   <header>ctkCheckBox.h</header>
+  </customwidget>
+  <customwidget>
    <class>ctkCollapsibleButton</class>
    <extends>QWidget</extends>
    <header>ctkCollapsibleButton.h</header>
@@ -147,5 +263,102 @@
  <resources>
   <include location="../../../../Slicer/Base/QTGUI/Resources/qSlicerBaseQTGUI.qrc"/>
  </resources>
- <connections/>
+ <connections>
+  <connection>
+   <sender>CheckBox_ExactDate</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>DateEdit_Exact</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>218</x>
+     <y>214</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>159</x>
+     <y>214</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>CheckBox_ExactTime</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>TimeEdit_Exact</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>333</x>
+     <y>214</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>276</x>
+     <y>214</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>CheckBox_FromDate</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>DateEdit_From</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>218</x>
+     <y>244</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>159</x>
+     <y>244</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>CheckBox_FromTime</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>TimeEdit_From</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>333</x>
+     <y>244</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>276</x>
+     <y>244</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>CheckBox_ToDate</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>DateEdit_To</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>218</x>
+     <y>274</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>159</x>
+     <y>274</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>CheckBox_ToTime</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>TimeEdit_To</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>333</x>
+     <y>274</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>276</x>
+     <y>274</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
 </ui>

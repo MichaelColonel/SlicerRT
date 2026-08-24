@@ -36,6 +36,15 @@ class VTK_SLICER_U70ROOMOPCUA_MODULE_MRML_EXPORT vtkMRMLScadaOpcUaNode : public 
 {
 public:
   static constexpr size_t MESSAGES_BUFFER_SIZE = 65;
+  enum ModeType : int {
+    UNKNOWN = 0,
+    AUTOMATIC = 1,
+    MANUAL = 2,
+    SERVICE = 3,
+    KUKA_CONTROLLERS = 77,
+    ModeType_Last
+  };
+
   static vtkMRMLScadaOpcUaNode *New();
   vtkTypeMacro(vtkMRMLScadaOpcUaNode,vtkMRMLNode);
   void PrintSelf(ostream& os, vtkIndent indent) override;
@@ -77,8 +86,8 @@ public:
   vtkGetMacro(MiscMessage65, bool);
   vtkSetMacro(MiscMessage65, bool);
 
-  vtkGetMacro(Mode, uint8_t);
-  vtkSetMacro(Mode, uint8_t);
+  vtkGetMacro(Mode, ModeType);
+  vtkSetMacro(Mode, ModeType);
 
   vtkGetMacro(Status_RTK, uint16_t);
   vtkSetMacro(Status_RTK, uint16_t);
@@ -218,6 +227,10 @@ protected:
   vtkMRMLScadaOpcUaNode(const vtkMRMLScadaOpcUaNode&);
   void operator=(const vtkMRMLScadaOpcUaNode&);
 
+  static const char* GetModeAsString(int id);
+  static int GetModeFromString(const char* name);
+  void SetMode(int id);
+
 private:
   uint64_t SysTime{ 0 };
   uint64_t LocalTime{ 0 };
@@ -229,7 +242,8 @@ private:
   uint64_t MiscMessages64; // Miscellaneous messages 0...63
   bool MiscMessage65; // Miscellaneous message 64
 
-  uint8_t Mode;
+  ModeType Mode{ vtkMRMLScadaOpcUaNode::UNKNOWN };
+
   uint16_t Status_RTK;
   uint16_t Status_R1_deka;
   uint16_t Status_R2_C_Duga;

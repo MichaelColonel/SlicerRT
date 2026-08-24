@@ -54,6 +54,7 @@ void vtkMRMLScadaOpcUaNode::WriteXML(ostream& of, int nIndent)
   // add new parameters here
   vtkMRMLWriteXMLIntMacro(sysTime, SysTime);
   vtkMRMLWriteXMLIntMacro(localTime, LocalTime);
+  vtkMRMLWriteXMLEnumMacro(mode, Mode);
   vtkMRMLWriteXMLEndMacro(); 
 }
 
@@ -68,6 +69,7 @@ void vtkMRMLScadaOpcUaNode::ReadXMLAttributes(const char** atts)
   // add new parameters here
   vtkMRMLReadXMLIntMacro(sysTime, SysTime);
   vtkMRMLReadXMLIntMacro(localTime, LocalTime);
+  vtkMRMLReadXMLEnumMacro(mode, Mode);
   vtkMRMLReadXMLEndMacro();
 
   this->EndModify(disabledModify);
@@ -95,6 +97,7 @@ void vtkMRMLScadaOpcUaNode::Copy(vtkMRMLNode *anode)
   // add new parameters here
   vtkMRMLCopyIntMacro(SysTime);
   vtkMRMLCopyIntMacro(LocalTime);
+  vtkMRMLCopyEnumMacro(Mode);
   vtkMRMLCopyEndMacro(); 
 
   this->EndModify(disabledModify);
@@ -118,6 +121,7 @@ void vtkMRMLScadaOpcUaNode::CopyContent(vtkMRMLNode *anode, bool deepCopy/*=true
   // add new parameters here
   vtkMRMLCopyIntMacro(SysTime);
   vtkMRMLCopyIntMacro(LocalTime);
+  vtkMRMLCopyEnumMacro(Mode);
   vtkMRMLCopyEndMacro();
 }
 
@@ -130,6 +134,7 @@ void vtkMRMLScadaOpcUaNode::PrintSelf(ostream& os, vtkIndent indent)
   // add new parameters here
   vtkMRMLPrintIntMacro(SysTime);
   vtkMRMLPrintIntMacro(LocalTime);
+  vtkMRMLPrintEnumMacro(Mode);
   vtkMRMLPrintEndMacro(); 
 }
 
@@ -153,4 +158,53 @@ void vtkMRMLScadaOpcUaNode::ProcessMRMLEvents(vtkObject *caller, unsigned long e
   default:
     break;
   }
+}
+
+
+//---------------------------------------------------------------------------
+void vtkMRMLScadaOpcUaNode::SetMode(int id)
+{
+  switch (id)
+  {
+    case 0: this->SetMode(vtkMRMLScadaOpcUaNode::UNKNOWN); break;
+    case 1: this->SetMode(vtkMRMLScadaOpcUaNode::AUTOMATIC); break;
+    case 2: this->SetMode(vtkMRMLScadaOpcUaNode::MANUAL); break;
+    case 3: this->SetMode(vtkMRMLScadaOpcUaNode::SERVICE); break;
+    case 77: this->SetMode(vtkMRMLScadaOpcUaNode::KUKA_CONTROLLERS); break;
+    default: this->SetMode(vtkMRMLScadaOpcUaNode::UNKNOWN); break;
+  }
+}
+
+//---------------------------------------------------------------------------
+const char* vtkMRMLScadaOpcUaNode::GetModeAsString(int id)
+{
+  switch (id)
+  {
+    case vtkMRMLScadaOpcUaNode::UNKNOWN: return "UNKNOWN";
+    case vtkMRMLScadaOpcUaNode::AUTOMATIC: return "AUTOMATIC";
+    case vtkMRMLScadaOpcUaNode::MANUAL: return "MANUAL";
+    case vtkMRMLScadaOpcUaNode::SERVICE: return "SERVICE";
+    case vtkMRMLScadaOpcUaNode::KUKA_CONTROLLERS: return "KUKA_CONTROLLERS";
+    default: return "UNKNOWN";
+  }
+}
+
+//---------------------------------------------------------------------------
+int vtkMRMLScadaOpcUaNode::GetModeFromString(const char* name)
+{
+  if (name == nullptr)
+  {
+    // invalid name
+    return -1;
+  }
+  for (int i = 0; i < vtkMRMLScadaOpcUaNode::ModeType_Last; i++)
+  {
+    if (std::strcmp(name, vtkMRMLScadaOpcUaNode::GetModeAsString(i)) == 0)
+    {
+      // found a matching name
+      return i;
+    }
+  }
+  // unknown name
+  return -1;
 }

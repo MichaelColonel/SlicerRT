@@ -96,5 +96,37 @@ void qSlicerScadaOpcUaRobotsControlWidget::setScadaOpcUaLogic(const QSharedPoint
 void qSlicerScadaOpcUaRobotsControlWidget::updateWidgetFromMRML()
 {
   Q_D(qSlicerScadaOpcUaRobotsControlWidget);
+  if (!d->ParameterNode)
+  {
+    return;
+  }
+  bool modeAuto = false;
+  bool modeManual = false;
+  bool modeService = false;
+  bool modeKukaControllers = false;
+  bool misc = false;
+
+  switch (d->ParameterNode->GetMode())
+  {
+  case vtkMRMLScadaOpcUaNode::AUTOMATIC:
+    modeAuto = true;
+    misc = true;
+    break;
+  case vtkMRMLScadaOpcUaNode::MANUAL:
+    modeManual = true;
+    break;
+  case vtkMRMLScadaOpcUaNode::SERVICE:
+    modeService = true;
+    break;
+  case vtkMRMLScadaOpcUaNode::UNKNOWN:
+  default:
+    break;
+  }
+  d->CollapsibleButton_AutomaticMovement->setEnabled(modeAuto);
+  d->CollapsibleButton_ManualMovement->setEnabled(modeManual);
+  d->CollapsibleButton_ServiceMovement->setEnabled(modeService);
+  d->CollapsibleButton_KukaControllersMovement->setEnabled(modeKukaControllers);
+  d->CollapsibleGroupBox_MiscControl->setEnabled(misc);
+  
   qDebug() << Q_FUNC_INFO << "Update ScadaOpcUaRobotsControl buttons";
 }

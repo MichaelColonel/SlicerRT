@@ -10,10 +10,16 @@ set(${KIT}_INCLUDE_DIRECTORIES
 set(${KIT}_SRCS
   qSlicerPatientsQueueWidget.cxx
   qSlicerPatientsQueueWidget.h
+  qSlicerPatientsQueueTableModel.cxx
+  qSlicerPatientsQueueTableModel.h
+  qSlicerPatientSPSTableModel.cxx
+  qSlicerPatientSPSTableModel.h
   )
 
 set(${KIT}_MOC_SRCS
   qSlicerPatientsQueueWidget.h
+  qSlicerPatientsQueueTableModel.h
+  qSlicerPatientsSPSTableModel.h
   )
 
 set(${KIT}_UI_SRCS

@@ -537,7 +537,19 @@ bool qSlicerScadaOpcUaLogicPrivate::connectStatusNodes()
         uint8_t statusMode = value.toUInt(&ok);
         if (ok && mrmlNode)
         {
-          mrmlNode->SetMode(statusMode);
+          switch (statusMode)
+          {
+          case vtkMRMLScadaOpcUaNode::UNKNOWN:
+          case vtkMRMLScadaOpcUaNode::AUTOMATIC:
+          case vtkMRMLScadaOpcUaNode::MANUAL:
+          case vtkMRMLScadaOpcUaNode::SERVICE:
+          case vtkMRMLScadaOpcUaNode::KUKA_CONTROLLERS:
+            mrmlNode->SetMode(static_cast< vtkMRMLScadaOpcUaNode::ModeType >(statusMode));
+            break;
+          default:
+            mrmlNode->SetMode(vtkMRMLScadaOpcUaNode::UNKNOWN);
+            break;
+          }
           qDebug() << Q_FUNC_INFO << "PatPos module status mode: " << statusMode;
         }
       }
