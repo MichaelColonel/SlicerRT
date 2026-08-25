@@ -18,8 +18,8 @@
 
 ==============================================================================*/
 
-#ifndef __qSlicerPatientsSPSTableModel_h
-#define __qSlicerPatientsSPSTableModel_h
+#ifndef __qSlicerPatientSPSTableModel_h
+#define __qSlicerPatientSPSTableModel_h
 
 // Qt includes
 #include <QAbstractTableModel>
@@ -38,13 +38,13 @@
 #include "qSlicerU70RoomWorklistModuleWidgetsExport.h"
 #include "qSlicerPatientsQueueTableModel.h"
 
-class Q_SLICER_MODULE_U70ROOMWORKLIST_WIDGETS_EXPORT qSlicerPatientsSPSTableModel
+class Q_SLICER_MODULE_U70ROOMWORKLIST_WIDGETS_EXPORT qSlicerPatientSPSTableModel
   : public QAbstractTableModel
 {
   Q_OBJECT
 public:
   static constexpr int NOF_HEADERS = 9;
-  qSlicerPatientsSPSTableModel(QObject *parent = nullptr);
+  qSlicerPatientSPSTableModel(QObject *parent = nullptr);
   void setScheduledProcedureStepList(const ModalityWork& mwAndSpsList);
   int rowCount(const QModelIndex &parent = QModelIndex()) const override;
   int columnCount(const QModelIndex &parent = QModelIndex()) const override;

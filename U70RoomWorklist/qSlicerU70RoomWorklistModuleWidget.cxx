@@ -52,8 +52,14 @@
 //-----------------------------------------------------------------------------
 class qSlicerU70RoomWorklistModuleWidgetPrivate : public Ui_qSlicerU70RoomWorklistModuleWidget
 {
+  Q_DECLARE_PUBLIC(qSlicerU70RoomWorklistModuleWidget)
+protected:
+  qSlicerU70RoomWorklistModuleWidget* const q_ptr;
+
 public:
-  qSlicerU70RoomWorklistModuleWidgetPrivate();
+  qSlicerU70RoomWorklistModuleWidgetPrivate(qSlicerU70RoomWorklistModuleWidget& object);
+  virtual void setupUi(qSlicerU70RoomWorklistModuleWidget*);
+  bool updateQueryDataset();
 
   const char* PWL_LAYOUT_DESCRIPTION = \
     "<layout type=\"vertical\">" \
@@ -70,38 +76,29 @@ public:
   bool ModuleWindowInitialized{ false };
 };
 
+
 //-----------------------------------------------------------------------------
 // qSlicerU70RoomWorklistModuleWidgetPrivate methods
 
-//-----------------------------------------------------------------------------
-qSlicerU70RoomWorklistModuleWidgetPrivate::qSlicerU70RoomWorklistModuleWidgetPrivate()
+
+// --------------------------------------------------------------------------
+qSlicerU70RoomWorklistModuleWidgetPrivate::qSlicerU70RoomWorklistModuleWidgetPrivate(
+  qSlicerU70RoomWorklistModuleWidget& object)
+  : q_ptr(&object)
 {
   this->WorklistQueryDataset.reset(new DcmDataset);
-/*
-(0008,0005) CS [ISO_IR 192]                             #  10, 1 SpecificCharacterSet
-(0008,0050) SH (no value available)                     #   0, 0 AccessionNumber
-(0010,0010) PN (no value available)                     #   0, 0 PatientName
-(0010,0020) LO (no value available)                     #   0, 0 PatientID
-(0010,0021) LO (no value available)                     #   0, 0 IssuerOfPatientID
-(0010,0030) DA (no value available)                     #   0, 0 PatientBirthDate
-(0010,0040) CS (no value available)                     #   0, 0 PatientSex
-(0020,000d) UI (no value available)                     #   0, 0 StudyInstanceUID
-(0032,1060) LO (no value available)                     #   0, 0 RequestedProcedureDescription
-(0040,0100) SQ (Sequence with explicit length #=1)      #  80, 1 ScheduledProcedureStepSequence
-  (fffe,e000) na (Item with explicit length #=9)          #  72, 1 Item
-    (0008,0060) CS (no value available)                     #   0, 0 Modality
-    (0040,0001) AE (no value available)                     #   0, 0 ScheduledStationAETitle
-    (0040,0002) DA (no value available)                     #   0, 0 ScheduledProcedureStepStartDate
-    (0040,0003) TM (no value available)                     #   0, 0 ScheduledProcedureStepStartTime
-    (0040,0007) LO (no value available)                     #   0, 0 ScheduledProcedureStepDescription
-    (0040,0009) SH (no value available)                     #   0, 0 ScheduledProcedureStepID
-    (0040,0010) SH (no value available)                     #   0, 0 ScheduledStationName
-    (0040,0011) SH (no value available)                     #   0, 0 ScheduledProcedureStepLocation
-    (0040,0020) CS (no value available)                     #   0, 0 ScheduledProcedureStepStatus
-  (fffe,e00d) na (ItemDelimitationItem for re-encoding)   #   0, 0 ItemDelimitationItem
-(fffe,e0dd) na (SequenceDelimitationItem for re-encod.) #   0, 0 SequenceDelimitationItem
-(0040,1001) SH (no value available)                     #   0, 0 RequestedProcedureID
-*/
+}
+
+// --------------------------------------------------------------------------
+void qSlicerU70RoomWorklistModuleWidgetPrivate::setupUi(
+  qSlicerU70RoomWorklistModuleWidget* widget)
+{
+  this->Ui_qSlicerU70RoomWorklistModuleWidget::setupUi(widget);
+}
+
+// --------------------------------------------------------------------------
+bool qSlicerU70RoomWorklistModuleWidgetPrivate::updateQueryDataset()
+{
   // Clear the query
   this->WorklistQueryDataset->clear();
 
@@ -120,13 +117,42 @@ qSlicerU70RoomWorklistModuleWidgetPrivate::qSlicerU70RoomWorklistModuleWidgetPri
   this->WorklistQueryDataset->insertEmptyElement(DCM_RequestedProcedureDescription);
 
   DcmItem* spsSequenceItem = nullptr;
+  bool res = false;
   if (this->WorklistQueryDataset->findOrCreateSequenceItem(DCM_ScheduledProcedureStepSequence, spsSequenceItem).good())
   {
     // SPS Sequence dataset
     spsSequenceItem->insertEmptyElement(DCM_Modality);
     spsSequenceItem->insertEmptyElement(DCM_ScheduledStationAETitle);
-    spsSequenceItem->insertEmptyElement(DCM_ScheduledProcedureStepStartDate);
-    spsSequenceItem->insertEmptyElement(DCM_ScheduledProcedureStepStartTime);
+    if (this->CheckBox_ExactDate->isChecked())
+    {
+      QDate date = this->DateEdit_Exact->date();
+      QString dateStr = date.toString("yyyyMMdd");
+      QByteArray dataStr = dateStr.toLatin1();
+      OFCondition cond = spsSequenceItem->putAndInsertString(DCM_ScheduledProcedureStepStartDate, dataStr.constData(), dateStr.size(), OFTrue);
+      if (cond.good())
+      {
+        res = true;
+      }
+    }
+    else
+    {
+      spsSequenceItem->insertEmptyElement(DCM_ScheduledProcedureStepStartDate);
+    }
+    if (this->CheckBox_ExactTime->isChecked())
+    {
+      QTime time = this->TimeEdit_Exact->time();
+      QString timeStr = time.toString("HHmmss");
+      QByteArray dataStr = timeStr.toLatin1();
+      OFCondition cond = spsSequenceItem->putAndInsertString(DCM_ScheduledProcedureStepStartTime, dataStr.constData(), timeStr.size(), OFTrue);
+      if (cond.good())
+      {
+        res = true;
+      }
+    }
+    else
+    {
+      spsSequenceItem->insertEmptyElement(DCM_ScheduledProcedureStepStartTime);
+    }
     spsSequenceItem->insertEmptyElement(DCM_ScheduledProcedureStepDescription);
     spsSequenceItem->insertEmptyElement(DCM_ScheduledProcedureStepID);
     spsSequenceItem->insertEmptyElement(DCM_ScheduledStationName);
@@ -136,24 +162,24 @@ qSlicerU70RoomWorklistModuleWidgetPrivate::qSlicerU70RoomWorklistModuleWidgetPri
   this->WorklistQueryDataset->insertEmptyElement(DCM_RequestedProcedureID);
 //  this->WorklistQueryDataset->putAndInsertString(DCM_QueryRetrieveLevel, "STUDY");
 
-  DcmFileFormat fileformat(this->WorklistQueryDataset.get(), OFTrue);
-  if (fileformat.saveFile("/tmp/mwl_query.dcm", EXS_LittleEndianExplicit).good())
-  {
-    qDebug() << Q_FUNC_INFO << ": Save is good";
-  }
+//  DcmFileFormat fileformat(this->WorklistQueryDataset.get(), OFTrue);
+//  if (fileformat.saveFile("/tmp/mwl_query.dcm", EXS_LittleEndianExplicit).good())
+//  {
+//    qDebug() << Q_FUNC_INFO << ": Save is good";
+//  }
+  return res;
 }
 
 //-----------------------------------------------------------------------------
 // qSlicerU70RoomWorklistModuleWidget methods
 
 //-----------------------------------------------------------------------------
-qSlicerU70RoomWorklistModuleWidget::qSlicerU70RoomWorklistModuleWidget(QWidget* _parent)
-  : Superclass(_parent)
-  , d_ptr(new qSlicerU70RoomWorklistModuleWidgetPrivate)
+qSlicerU70RoomWorklistModuleWidget::qSlicerU70RoomWorklistModuleWidget(QWidget* parentWidget)
+  : Superclass( parentWidget )
+  , d_ptr( new qSlicerU70RoomWorklistModuleWidgetPrivate(*this) )
 {
   Q_D(qSlicerU70RoomWorklistModuleWidget);
-
-  d->PatientsQueueWidget.reset(new qSlicerPatientsQueueWidget(this));
+  d->setupUi(this);
 }
 
 //-----------------------------------------------------------------------------
@@ -163,8 +189,9 @@ qSlicerU70RoomWorklistModuleWidget::~qSlicerU70RoomWorklistModuleWidget() {}
 void qSlicerU70RoomWorklistModuleWidget::setup()
 {
   Q_D(qSlicerU70RoomWorklistModuleWidget);
-  d->setupUi(this);
   this->Superclass::setup();
+
+  d->PatientsQueueWidget.reset(new qSlicerPatientsQueueWidget(this));
 
   // Get layout manager
   qSlicerApplication* slicerApplication = qSlicerApplication::application();
@@ -175,6 +202,8 @@ void qSlicerU70RoomWorklistModuleWidget::setup()
   viewFactory->setTagName("PatientsQueueWorklist");
 
   layoutManager->registerViewFactory(viewFactory);
+//  layoutManager->pauseRender();
+
   // Save previous layout
   d->PreviousLayoutId = layoutManager->layout();
 
@@ -186,6 +215,15 @@ void qSlicerU70RoomWorklistModuleWidget::setup()
       layoutNode->AddLayoutDescription(d->PWL_LAYOUT_ID, d->PWL_LAYOUT_DESCRIPTION);
     }
   }
+
+//  {
+//    QSignalBlocker block(d->PushButton_Worklist1);
+//    d->PushButton_Worklist1->setChecked(true);
+//  }
+//  layoutManager->setLayout(d->PWL_LAYOUT_ID);
+//  layoutManager->resumeRender();
+
+//  slicerApplication->processEvents();
 
   // Buttons
   QObject::connect(d->PushButton_Worklist1, SIGNAL(clicked()),
@@ -216,7 +254,7 @@ void qSlicerU70RoomWorklistModuleWidget::exit()
     QSignalBlocker block(d->PushButton_Worklist1);
     d->PushButton_Worklist1->setChecked(false);
   }
-  QTimer::singleShot(50, this, SLOT(onSetCustomLayoutClicked()));  
+  QTimer::singleShot(50, this, SLOT(onSetCustomLayoutClicked()));
 }
 
 void qSlicerU70RoomWorklistModuleWidget::onSetCustomLayoutClicked()
@@ -225,6 +263,8 @@ void qSlicerU70RoomWorklistModuleWidget::onSetCustomLayoutClicked()
   // Get layout manager
   qSlicerApplication* slicerApplication = qSlicerApplication::application();
   qSlicerLayoutManager* layoutManager = slicerApplication->layoutManager();
+
+//  layoutManager->pauseRender();
 
   if (d->PushButton_Worklist1->isChecked())
   {
@@ -241,6 +281,8 @@ void qSlicerU70RoomWorklistModuleWidget::onSetCustomLayoutClicked()
     }
   }
   slicerApplication->processEvents();
+
+//  layoutManager->resumeRender();
 }
 
 
@@ -297,6 +339,11 @@ void qSlicerU70RoomWorklistModuleWidget::onWorklistQueryClicked()
     return;
   }
 
+  if (d->updateQueryDataset())
+  {
+    qDebug() << Q_FUNC_INFO << "Query dataset is updated";
+  }
+
   QList< ModalityWork > mwl; // modality worklist
 
   // Issue FIND request and let scu find presentation context itself (1)
@@ -309,8 +356,8 @@ void qSlicerU70RoomWorklistModuleWidget::onWorklistQueryClicked()
   }
   else
   {
-//    qDebug() << Q_FUNC_INFO  << "Successfully sentC-FIND request to host " << hostStr << " on port " << hostPort \
-      << " found responses " << findResponses.size() << '\n';
+//    qDebug() << Q_FUNC_INFO  << "Successfully sent C-FIND request to host " << hostStr << " on port " << hostPort
+//      << " found responses " << findResponses.size() << '\n';
     for (QRResponse* retresp : findResponses)
     {
       if (retresp->m_dataset)
@@ -326,10 +373,10 @@ void qSlicerU70RoomWorklistModuleWidget::onWorklistQueryClicked()
 
   for (const ModalityWork& mw : mwl)
   {
-    qDebug() << Q_FUNC_INFO << "Patient's name:" << mw.PatientName << ", birthdate:" << mw.PatientBirthDate.toString("dd.MM.yyyy");
+//    qDebug() << Q_FUNC_INFO << "Patient's name:" << mw.PatientName << ", birthdate:" << mw.PatientBirthDate.toString("dd.MM.yyyy");
     for (const ModalityWork::ScheduledProcedureStep& sps : mw.spsSequence)
     {
-      qDebug() << Q_FUNC_INFO << "Modality:" << sps.Modality << ", date & time:" << sps.StartDateTime.toString("dd.MM.yyyy HH:mm:ss");
+//      qDebug() << Q_FUNC_INFO << "Modality:" << sps.Modality << ", date & time:" << sps.StartDateTime.toString("dd.MM.yyyy HH:mm:ss");
     }
   }
   result = scu.releaseAssociation();
@@ -369,9 +416,18 @@ void qSlicerU70RoomWorklistModuleWidget::onCheckConnectionClicked()
 void qSlicerU70RoomWorklistModuleWidget::onEnter()
 {
   Q_D(qSlicerU70RoomWorklistModuleWidget);
+
+  // Get layout manager
+  qSlicerApplication* slicerApplication = qSlicerApplication::application();
+  qSlicerLayoutManager* layoutManager = slicerApplication->layoutManager();
+
+  layoutManager->pauseRender();
   {
     QSignalBlocker block(d->PushButton_Worklist1);
     d->PushButton_Worklist1->setChecked(true);
   }
-  QTimer::singleShot(50, this, SLOT(onSetCustomLayoutClicked()));
+  layoutManager->setLayout(d->PWL_LAYOUT_ID);
+  layoutManager->resumeRender();
+
+  slicerApplication->processEvents();
 }

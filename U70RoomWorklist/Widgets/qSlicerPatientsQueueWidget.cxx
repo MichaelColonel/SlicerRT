@@ -25,6 +25,9 @@
 #include "qSlicerPatientsQueueWidget.h"
 #include "ui_qSlicerPatientsQueueWidget.h"
 
+#include "qSlicerPatientsQueueTableModel.h"
+#include "qSlicerPatientSPSTableModel.h"
+
 #include <qSlicerLayoutManager.h>
 #include <qSlicerApplication.h>
 #include <qMRMLSliceWidget.h>
@@ -52,12 +55,17 @@ protected:
 public:
   qSlicerPatientsQueueWidgetPrivate(qSlicerPatientsQueueWidget& object);
   virtual void setupUi(qSlicerPatientsQueueWidget*);
+
+  QScopedPointer< qSlicerPatientsQueueTableModel > PatientsQueueTableModel;
+  QScopedPointer< qSlicerPatientSPSTableModel > PatientSPSTableModel;
 };
 
 // --------------------------------------------------------------------------
 qSlicerPatientsQueueWidgetPrivate::qSlicerPatientsQueueWidgetPrivate(
   qSlicerPatientsQueueWidget& object)
   : q_ptr(&object)
+  , PatientsQueueTableModel(new qSlicerPatientsQueueTableModel(&object))
+  , PatientSPSTableModel(new qSlicerPatientSPSTableModel(&object))
 {
 }
 
@@ -78,6 +86,9 @@ qSlicerPatientsQueueWidget::qSlicerPatientsQueueWidget(QWidget* parentWidget)
 {
   Q_D(qSlicerPatientsQueueWidget);
   d->setupUi(this);
+  d->TableView_PatientsQueue->setModel(d->PatientsQueueTableModel.data());
+  d->TableView_PatientSPS->setModel(d->PatientSPSTableModel.data());
+
 }
 
 //-----------------------------------------------------------------------------

@@ -24,22 +24,22 @@
 // U70RoomWorklist Widgets includes
 #include "qSlicerPatientSPSTableModel.h"
 
-qSlicerPatientsSPSTableModel::qSlicerPatientsSPSTableModel(QObject *parent) : QAbstractTableModel(parent)
+qSlicerPatientSPSTableModel::qSlicerPatientSPSTableModel(QObject *parent) : QAbstractTableModel(parent)
 {
 
 }
 
-int qSlicerPatientsSPSTableModel::rowCount(const QModelIndex &) const
+int qSlicerPatientSPSTableModel::rowCount(const QModelIndex &) const
 {
   return this->modalityWorkAndScheduledProcedureStepList.spsSequence.size();
 }
 
-int qSlicerPatientsSPSTableModel::columnCount(const QModelIndex &) const
+int qSlicerPatientSPSTableModel::columnCount(const QModelIndex &) const
 {
   return NOF_HEADERS;
 }
 
-QVariant qSlicerPatientsSPSTableModel::data(const QModelIndex& index, int role) const
+QVariant qSlicerPatientSPSTableModel::data(const QModelIndex& index, int role) const
 {
   if (!index.isValid())
   {
@@ -136,7 +136,7 @@ QVariant qSlicerPatientsSPSTableModel::data(const QModelIndex& index, int role) 
   return QVariant();
 }
 
-QVariant qSlicerPatientsSPSTableModel::headerData(int section, Qt::Orientation orientation, int role) const
+QVariant qSlicerPatientSPSTableModel::headerData(int section, Qt::Orientation orientation, int role) const
 {
   if (role == Qt::DisplayRole && orientation == Qt::Horizontal)
   {
@@ -145,7 +145,7 @@ QVariant qSlicerPatientsSPSTableModel::headerData(int section, Qt::Orientation o
   return QVariant();
 }
 
-QString qSlicerPatientsSPSTableModel::headerAt(int offset) const
+QString qSlicerPatientSPSTableModel::headerAt(int offset) const
 {
   if (offset >= 0 && offset < tableHeadersList.size())
   {
@@ -154,7 +154,7 @@ QString qSlicerPatientsSPSTableModel::headerAt(int offset) const
   return QString();
 }
 
-void qSlicerPatientsSPSTableModel::setScheduledProcedureStepList(const ModalityWork& mwl)
+void qSlicerPatientSPSTableModel::setScheduledProcedureStepList(const ModalityWork& mwl)
 {
   this->beginResetModel();
   this->modalityWorkAndScheduledProcedureStepList = mwl;
