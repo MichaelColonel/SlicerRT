@@ -240,78 +240,36 @@ QVariant qSlicerPatientsQueueTableModel::data(const QModelIndex& index, int role
     {
       return QVariant();
     }
-/*    double time = -1.;
-    BeamProfileArray prof{ 0., 0., -1., -1.};
-    int i = 0;
-    for (auto iter = this->beamProfileMap.begin(); iter != this->beamProfileMap.end(); ++iter, ++i)
-    {
-      if (i == index.row())
-      {
-        time = iter->first;
-        prof = iter->second;
-      }
-    }
-*/
+    const ModalityWork& mw = this->modalityWorkList.at(index.row());
+
     QVariant res;
-/*
     switch (index.column())
     {
     case 0:
-      res = QString::number(time);
+      res = mw.PatientID;
       break;
     case 1:
-      {
-        if (prof[2] < 0)
-        {
-          res = tr("No beam");
-        }
-        else
-        {
-          res = QObject::tr("%1").arg(-1. * prof[0], 5, 'f', 1, QChar(' ')); // position X
-        }
-      }
+      res = mw.PatientName;
       break;
     case 2:
-      {
-        if (prof[2] < 0)
-        {
-          res = tr("No beam");
-        }
-        else
-        {
-          res = QObject::tr("%1").arg(prof[1], 5, 'f', 1, QChar(' ')); // position Y
-        }
-      }
+      res = mw.PatientBirthDate.toString("dd.MM.yyyy");
       break;
     case 3:
-      {
-        if (prof[2] < 0)
-        {
-          res = tr("No beam");
-        }
-        else
-        {
-          res = QObject::tr("%1").arg(6. * prof[2], 5, 'f', 1, QChar(' ')); // Diameter Dx (== 6sigma)
-        }
-      }
+      res = mw.AccessionNumber;
       break;
     case 4:
-      {
-        if (prof[2] < 0)
-        {
-          res = tr("No beam");
-        }
-        else
-        {
-          res = QObject::tr("%1").arg(6. * prof[3], 5, 'f', 1, QChar(' ')); // Diameter Dy (== 6sigma)
-        }
-      }
+      res = mw.RequestedProcedureID;
+      break;
+    case 5:
+      res = mw.RequestedProcedureDescription;
+      break;
+    case 6:
+      res = mw.StudyInstanceUID;
       break;
     default:
       res = QVariant();
       break;
     }
-*/
     return res;
   }
   return QVariant();
@@ -340,4 +298,9 @@ void qSlicerPatientsQueueTableModel::setModalityWorkList(const QList< ModalityWo
   this->beginResetModel();
   this->modalityWorkList = mwl;
   this->endResetModel();
+}
+
+const QList< ModalityWork >& qSlicerPatientsQueueTableModel::getModalityWorkList() const
+{
+  return this->modalityWorkList;
 }

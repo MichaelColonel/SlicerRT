@@ -30,6 +30,7 @@
 
 // U70RoomWorklist Widgets includes
 #include "qSlicerU70RoomWorklistModuleWidgetsExport.h"
+#include "qSlicerPatientsQueueTableModel.h"
 
 class qSlicerPatientsQueueWidgetPrivate;
 
@@ -43,11 +44,14 @@ public:
   typedef QWidget Superclass;
   qSlicerPatientsQueueWidget(QWidget *parent=0);
   ~qSlicerPatientsQueueWidget() override;
+  void setModalityWorkList(const QList< ModalityWork >& mwl);
+  void reset();
 
 public slots:
   /// Update widget GUI from parameters node
   void updateWidgetFromMRML();
-
+  void onPatientsQueueModelIndexClicked(const QModelIndex& index);
+  void onScheduledProcedureStepModelIndexClicked(const QModelIndex& index);
 protected:
   QScopedPointer<qSlicerPatientsQueueWidgetPrivate> d_ptr;
 

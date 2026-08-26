@@ -202,7 +202,6 @@ void qSlicerU70RoomWorklistModuleWidget::setup()
   viewFactory->setTagName("PatientsQueueWorklist");
 
   layoutManager->registerViewFactory(viewFactory);
-//  layoutManager->pauseRender();
 
   // Save previous layout
   d->PreviousLayoutId = layoutManager->layout();
@@ -210,20 +209,11 @@ void qSlicerU70RoomWorklistModuleWidget::setup()
   vtkMRMLLayoutNode* layoutNode = layoutManager->layoutLogic()->GetLayoutNode();
   if (layoutNode)
   {
-    if (!layoutNode->SetLayoutDescription(d->PWL_LAYOUT_ID, d->PWL_LAYOUT_DESCRIPTION))
+//    if (!layoutNode->SetLayoutDescription(d->PWL_LAYOUT_ID, d->PWL_LAYOUT_DESCRIPTION))
     {
       layoutNode->AddLayoutDescription(d->PWL_LAYOUT_ID, d->PWL_LAYOUT_DESCRIPTION);
     }
   }
-
-//  {
-//    QSignalBlocker block(d->PushButton_Worklist1);
-//    d->PushButton_Worklist1->setChecked(true);
-//  }
-//  layoutManager->setLayout(d->PWL_LAYOUT_ID);
-//  layoutManager->resumeRender();
-
-//  slicerApplication->processEvents();
 
   // Buttons
   QObject::connect(d->PushButton_Worklist1, SIGNAL(clicked()),
@@ -264,8 +254,7 @@ void qSlicerU70RoomWorklistModuleWidget::onSetCustomLayoutClicked()
   qSlicerApplication* slicerApplication = qSlicerApplication::application();
   qSlicerLayoutManager* layoutManager = slicerApplication->layoutManager();
 
-//  layoutManager->pauseRender();
-
+  layoutManager->pauseRender();
   if (d->PushButton_Worklist1->isChecked())
   {
     if (layoutManager)
@@ -280,9 +269,11 @@ void qSlicerU70RoomWorklistModuleWidget::onSetCustomLayoutClicked()
       layoutManager->setLayout(d->PreviousLayoutId);
     }
   }
-  slicerApplication->processEvents();
+  vtkMRMLLayoutNode* layoutNode = layoutManager->layoutLogic()->GetLayoutNode();
+  layoutNode->Modified();
+  layoutManager->resumeRender();
 
-//  layoutManager->resumeRender();
+  slicerApplication->processEvents();
 }
 
 
@@ -293,6 +284,8 @@ void qSlicerU70RoomWorklistModuleWidget::onWorklistQueryClicked()
   QString hostStr = d->LineEdit_WorklistServerHost->text();
   int hostPort = d->SpinBox_WorklistServerPort->value();
   QString aeTitleStr = d->LineEdit_WorklistServerAETitle->text();
+
+  d->PatientsQueueWidget->reset(); // reset patient queue and SPS views
 
   if (hostStr.isEmpty())
   {
@@ -344,8 +337,6 @@ void qSlicerU70RoomWorklistModuleWidget::onWorklistQueryClicked()
     qDebug() << Q_FUNC_INFO << "Query dataset is updated";
   }
 
-  QList< ModalityWork > mwl; // modality worklist
-
   // Issue FIND request and let scu find presentation context itself (1)
   OFList< QRResponse* > findResponses;
   result = scu.sendFINDRequest(1, d->WorklistQueryDataset.get(), &findResponses);
@@ -356,6 +347,7 @@ void qSlicerU70RoomWorklistModuleWidget::onWorklistQueryClicked()
   }
   else
   {
+    QList< ModalityWork > mwl; // modality worklist
 //    qDebug() << Q_FUNC_INFO  << "Successfully sent C-FIND request to host " << hostStr << " on port " << hostPort
 //      << " found responses " << findResponses.size() << '\n';
     for (QRResponse* retresp : findResponses)
@@ -369,16 +361,9 @@ void qSlicerU70RoomWorklistModuleWidget::onWorklistQueryClicked()
         }
       }
     }
+    d->PatientsQueueWidget->setModalityWorkList(mwl);
   }
 
-  for (const ModalityWork& mw : mwl)
-  {
-//    qDebug() << Q_FUNC_INFO << "Patient's name:" << mw.PatientName << ", birthdate:" << mw.PatientBirthDate.toString("dd.MM.yyyy");
-    for (const ModalityWork::ScheduledProcedureStep& sps : mw.spsSequence)
-    {
-//      qDebug() << Q_FUNC_INFO << "Modality:" << sps.Modality << ", date & time:" << sps.StartDateTime.toString("dd.MM.yyyy HH:mm:ss");
-    }
-  }
   result = scu.releaseAssociation();
   if (result.bad())
   {
@@ -427,6 +412,8 @@ void qSlicerU70RoomWorklistModuleWidget::onEnter()
     d->PushButton_Worklist1->setChecked(true);
   }
   layoutManager->setLayout(d->PWL_LAYOUT_ID);
+  vtkMRMLLayoutNode* layoutNode = layoutManager->layoutLogic()->GetLayoutNode();
+  layoutNode->Modified();
   layoutManager->resumeRender();
 
   slicerApplication->processEvents();

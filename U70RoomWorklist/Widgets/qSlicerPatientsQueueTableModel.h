@@ -73,11 +73,13 @@ class Q_SLICER_MODULE_U70ROOMWORKLIST_WIDGETS_EXPORT qSlicerPatientsQueueTableMo
 public:
   static constexpr int NOF_HEADERS = 7;
   qSlicerPatientsQueueTableModel(QObject *parent = nullptr);
-  void setModalityWorkList(const QList< ModalityWork >& mwl);
   int rowCount(const QModelIndex &parent = QModelIndex()) const override;
   int columnCount(const QModelIndex &parent = QModelIndex()) const override;
   QVariant data(const QModelIndex& index, int role = Qt::DisplayRole) const override;
   QVariant headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const override;
+
+  void setModalityWorkList(const QList< ModalityWork >& mwl);
+  const QList< ModalityWork >& getModalityWorkList() const;
 protected:
   QString headerAt(int offset) const;
   QList< ModalityWork > modalityWorkList;

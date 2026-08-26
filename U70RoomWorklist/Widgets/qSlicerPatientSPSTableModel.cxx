@@ -41,6 +41,8 @@ int qSlicerPatientSPSTableModel::columnCount(const QModelIndex &) const
 
 QVariant qSlicerPatientSPSTableModel::data(const QModelIndex& index, int role) const
 {
+  const ModalityWork& modalityWork = this->modalityWorkAndScheduledProcedureStepList;
+
   if (!index.isValid())
   {
     return QVariant();
@@ -51,7 +53,7 @@ QVariant qSlicerPatientSPSTableModel::data(const QModelIndex& index, int role) c
   }
   if (role == Qt::DisplayRole)
   {
-    if (index.row() >= this->modalityWorkAndScheduledProcedureStepList.spsSequence.size())
+    if (index.row() >= modalityWork.spsSequence.size())
     {
       return QVariant();
     }
@@ -59,78 +61,44 @@ QVariant qSlicerPatientSPSTableModel::data(const QModelIndex& index, int role) c
     {
       return QVariant();
     }
-/*    double time = -1.;
-    BeamProfileArray prof{ 0., 0., -1., -1.};
-    int i = 0;
-    for (auto iter = this->beamProfileMap.begin(); iter != this->beamProfileMap.end(); ++iter, ++i)
-    {
-      if (i == index.row())
-      {
-        time = iter->first;
-        prof = iter->second;
-      }
-    }
-*/
+
+    const ModalityWork::ScheduledProcedureStep& sps = modalityWork.spsSequence.at(index.row());
+
     QVariant res;
-/*
+
     switch (index.column())
     {
     case 0:
-      res = QString::number(time);
+      res = modalityWork.RequestedProcedureID;
       break;
     case 1:
-      {
-        if (prof[2] < 0)
-        {
-          res = tr("No beam");
-        }
-        else
-        {
-          res = QObject::tr("%1").arg(-1. * prof[0], 5, 'f', 1, QChar(' ')); // position X
-        }
-      }
+      res = sps.Modality;
       break;
     case 2:
-      {
-        if (prof[2] < 0)
-        {
-          res = tr("No beam");
-        }
-        else
-        {
-          res = QObject::tr("%1").arg(prof[1], 5, 'f', 1, QChar(' ')); // position Y
-        }
-      }
+      res = sps.StationAeTitle;
       break;
     case 3:
-      {
-        if (prof[2] < 0)
-        {
-          res = tr("No beam");
-        }
-        else
-        {
-          res = QObject::tr("%1").arg(6. * prof[2], 5, 'f', 1, QChar(' ')); // Diameter Dx (== 6sigma)
-        }
-      }
+      res = sps.StationName;
       break;
     case 4:
-      {
-        if (prof[2] < 0)
-        {
-          res = tr("No beam");
-        }
-        else
-        {
-          res = QObject::tr("%1").arg(6. * prof[3], 5, 'f', 1, QChar(' ')); // Diameter Dy (== 6sigma)
-        }
-      }
+      res = sps.StartDateTime.toString("dd.MM.yyyy hh:mm:ss");
+      break;
+    case 5:
+      res = sps.ID;
+      break;
+    case 6:
+      res = sps.Description;
+      break;
+    case 7:
+      res = sps.Location;
+      break;
+    case 8:
+      res = sps.Status;
       break;
     default:
       res = QVariant();
       break;
     }
-*/
     return res;
   }
   return QVariant();
