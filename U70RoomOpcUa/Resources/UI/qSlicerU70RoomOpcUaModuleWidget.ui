@@ -6,127 +6,100 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>401</width>
-    <height>867</height>
+    <width>457</width>
+    <height>880</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>Treatment room OPC-UA robots control</string>
   </property>
   <layout class="QGridLayout" name="gridLayout_2">
-   <item row="0" column="0">
-    <widget class="ctkCollapsibleGroupBox" name="CollapsibleGroupBox_RoomType">
-     <property name="title">
-      <string>Treatment room</string>
+   <item row="10" column="0">
+    <spacer name="verticalSpacer">
+     <property name="orientation">
+      <enum>Qt::Vertical</enum>
      </property>
-     <property name="collapsed">
-      <bool>false</bool>
+     <property name="sizeHint" stdset="0">
+      <size>
+       <width>0</width>
+       <height>0</height>
+      </size>
      </property>
-     <layout class="QGridLayout" name="gridLayout">
-      <item row="0" column="0">
-       <widget class="QRadioButton" name="RadioButton_Room1">
-        <property name="enabled">
-         <bool>false</bool>
-        </property>
-        <property name="text">
-         <string>Room-1</string>
-        </property>
-        <attribute name="buttonGroup">
-         <string notr="true">ButtonGroup_Room</string>
-        </attribute>
-       </widget>
-      </item>
-      <item row="0" column="1">
-       <widget class="QRadioButton" name="RadioButton_Room2">
-        <property name="enabled">
-         <bool>false</bool>
-        </property>
-        <property name="text">
-         <string>Room-2</string>
-        </property>
-        <attribute name="buttonGroup">
-         <string notr="true">ButtonGroup_Room</string>
-        </attribute>
-       </widget>
-      </item>
-      <item row="0" column="2">
-       <widget class="QRadioButton" name="RadioButton_Room3">
-        <property name="text">
-         <string>Room-3</string>
-        </property>
-        <property name="checked">
-         <bool>true</bool>
-        </property>
-        <attribute name="buttonGroup">
-         <string notr="true">ButtonGroup_Room</string>
-        </attribute>
-       </widget>
-      </item>
-     </layout>
-    </widget>
+    </spacer>
    </item>
-   <item row="3" column="0">
-    <widget class="QGroupBox" name="groupBox_2">
-     <property name="title">
-      <string>Status</string>
+   <item row="1" column="0">
+    <widget class="ctkCollapsibleButton" name="CollapsibleButton">
+     <property name="text">
+      <string>OPC UA connection to Siemens PLC server</string>
      </property>
-     <layout class="QGridLayout" name="gridLayout_9">
+     <layout class="QGridLayout" name="gridLayout_5">
       <item row="0" column="0">
-       <layout class="QGridLayout" name="gridLayout_8">
-        <item row="0" column="0">
-         <widget class="QLabel" name="label_5">
+       <layout class="QGridLayout" name="gridLayout_4">
+        <item row="2" column="1">
+         <widget class="QComboBox" name="ComboBox_Servers"/>
+        </item>
+        <item row="0" column="2">
+         <widget class="QPushButton" name="PushButton_FindServers">
           <property name="text">
-           <string>RTK:</string>
+           <string>Find servers</string>
+          </property>
+         </widget>
+        </item>
+        <item row="2" column="2">
+         <widget class="QPushButton" name="PushButton_GetEndpoints">
+          <property name="text">
+           <string>Get endpoints</string>
           </property>
          </widget>
         </item>
         <item row="1" column="0">
+         <widget class="QLabel" name="label_5">
+          <property name="text">
+           <string>Backend:</string>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="0">
          <widget class="QLabel" name="label_4">
           <property name="text">
-           <string>Table top robot (R1):</string>
-          </property>
-         </widget>
-        </item>
-        <item row="2" column="0">
-         <widget class="QLabel" name="label_3">
-          <property name="text">
-           <string>C-arm robot (R2):</string>
-          </property>
-         </widget>
-        </item>
-        <item row="0" column="1">
-         <widget class="QSpinBox" name="SpinBox_StatusRtk">
-          <property name="readOnly">
-           <bool>true</bool>
-          </property>
-          <property name="buttonSymbols">
-           <enum>QAbstractSpinBox::NoButtons</enum>
-          </property>
-          <property name="maximum">
-           <number>65535</number>
+           <string>Host:</string>
           </property>
          </widget>
         </item>
         <item row="1" column="1">
-         <widget class="QSpinBox" name="SpinBox_StatusR1">
-          <property name="readOnly">
-           <bool>true</bool>
-          </property>
-          <property name="buttonSymbols">
-           <enum>QAbstractSpinBox::NoButtons</enum>
-          </property>
-          <property name="maximum">
-           <number>65535</number>
+         <widget class="QComboBox" name="ComboBox_OpcUaPlugin"/>
+        </item>
+        <item row="2" column="0">
+         <widget class="QLabel" name="label_6">
+          <property name="text">
+           <string>Server:</string>
           </property>
          </widget>
         </item>
-        <item row="2" column="1">
-         <widget class="QSpinBox" name="SpinBox_StatusR2">
-          <property name="buttonSymbols">
-           <enum>QAbstractSpinBox::NoButtons</enum>
+        <item row="0" column="1">
+         <widget class="QLineEdit" name="LineEdit_OpcUaServerUrl">
+          <property name="text">
+           <string>opc.tcp://172.31.1.1:4840</string>
           </property>
-          <property name="maximum">
-           <number>65535</number>
+         </widget>
+        </item>
+        <item row="3" column="0">
+         <widget class="QLabel" name="label_7">
+          <property name="text">
+           <string>Endpoint:</string>
+          </property>
+         </widget>
+        </item>
+        <item row="3" column="1">
+         <widget class="QComboBox" name="ComboBox_Endpoints"/>
+        </item>
+        <item row="3" column="2">
+         <widget class="QPushButton" name="PushButton_Connect">
+          <property name="enabled">
+           <bool>true</bool>
+          </property>
+          <property name="text">
+           <string>&amp;Connect</string>
           </property>
          </widget>
         </item>
@@ -135,7 +108,7 @@
      </layout>
     </widget>
    </item>
-   <item row="2" column="0">
+   <item row="4" column="0">
     <widget class="QGroupBox" name="groupBox">
      <property name="title">
       <string>Mode</string>
@@ -160,23 +133,7 @@
          </widget>
         </item>
         <item>
-         <widget class="QPushButton" name="PushButton_ModeAuto">
-          <property name="enabled">
-           <bool>false</bool>
-          </property>
-          <property name="text">
-           <string>Auto</string>
-          </property>
-          <property name="checkable">
-           <bool>true</bool>
-          </property>
-          <attribute name="buttonGroup">
-           <string notr="true">buttonGroup</string>
-          </attribute>
-         </widget>
-        </item>
-        <item>
-         <widget class="QPushButton" name="PushButton_ModeManual">
+         <widget class="QPushButton" name="PushButton_ModeAutoAndManual">
           <property name="enabled">
            <bool>false</bool>
           </property>
@@ -222,241 +179,132 @@
      </layout>
     </widget>
    </item>
-   <item row="5" column="0">
-    <widget class="ctkCollapsibleButton" name="CollapsibleButton_CoordToASUTP">
-     <property name="text">
-      <string>Coordinates to ASUTP</string>
-     </property>
-     <property name="collapsed">
-      <bool>true</bool>
-     </property>
-     <layout class="QGridLayout" name="gridLayout_18">
-      <item row="1" column="0">
-       <layout class="QGridLayout" name="gridLayout_16">
-        <item row="2" column="1">
-         <widget class="ctkSliderWidget" name="SliderWidget_TableTopAngleB">
-          <property name="decimals">
-           <number>0</number>
-          </property>
-          <property name="minimum">
-           <double>-100000.000000000000000</double>
-          </property>
-          <property name="maximum">
-           <double>100000.000000000000000</double>
-          </property>
-         </widget>
-        </item>
-        <item row="1" column="1">
-         <widget class="ctkSliderWidget" name="SliderWidget_TableTopAngleA">
-          <property name="decimals">
-           <number>0</number>
-          </property>
-          <property name="minimum">
-           <double>-100000.000000000000000</double>
-          </property>
-          <property name="maximum">
-           <double>100000.000000000000000</double>
-          </property>
-         </widget>
-        </item>
-        <item row="0" column="1">
-         <widget class="ctkSliderWidget" name="SliderWidget_CarmCorrectionZ">
-          <property name="decimals">
-           <number>0</number>
-          </property>
-          <property name="minimum">
-           <double>-100000.000000000000000</double>
-          </property>
-          <property name="maximum">
-           <double>100000.000000000000000</double>
-          </property>
-         </widget>
-        </item>
-        <item row="1" column="0">
-         <widget class="QLabel" name="label_15">
-          <property name="text">
-           <string>Angle-A</string>
-          </property>
-         </widget>
-        </item>
-        <item row="0" column="0">
-         <widget class="QLabel" name="label_12">
-          <property name="text">
-           <string>C-arm along Z correction:</string>
-          </property>
-         </widget>
-        </item>
-        <item row="3" column="1">
-         <widget class="ctkSliderWidget" name="SliderWidget_TableTopAngleC">
-          <property name="decimals">
-           <number>0</number>
-          </property>
-          <property name="minimum">
-           <double>-100000.000000000000000</double>
-          </property>
-          <property name="maximum">
-           <double>100000.000000000000000</double>
-          </property>
-         </widget>
-        </item>
-        <item row="3" column="0">
-         <widget class="QLabel" name="label_13">
-          <property name="text">
-           <string>Angle-C</string>
-          </property>
-         </widget>
-        </item>
-        <item row="2" column="0">
-         <widget class="QLabel" name="label_14">
-          <property name="text">
-           <string>Angle-B</string>
-          </property>
-         </widget>
-        </item>
-        <item row="0" column="2">
-         <widget class="QPushButton" name="pushButton_2">
-          <property name="text">
-           <string>Set</string>
-          </property>
-         </widget>
-        </item>
-        <item row="1" column="2">
-         <widget class="QPushButton" name="pushButton_3">
-          <property name="text">
-           <string>Set</string>
-          </property>
-         </widget>
-        </item>
-        <item row="2" column="2">
-         <widget class="QPushButton" name="pushButton_4">
-          <property name="text">
-           <string>Set</string>
-          </property>
-         </widget>
-        </item>
-        <item row="3" column="2">
-         <widget class="QPushButton" name="pushButton_5">
-          <property name="text">
-           <string>Set</string>
-          </property>
-         </widget>
-        </item>
-       </layout>
-      </item>
-      <item row="0" column="0">
-       <widget class="ctkCollapsibleGroupBox" name="CollapsibleGroupBox_2">
-        <property name="title">
-         <string>Isocenter in TableTop frame</string>
-        </property>
-        <layout class="QGridLayout" name="gridLayout_19">
-         <item row="0" column="0">
-          <widget class="ctkCoordinatesWidget" name="CoordinatesWidget_IsocenterInTableTop">
-           <property name="dimension">
-            <number>3</number>
-           </property>
-           <property name="decimals">
-            <number>6</number>
-           </property>
-          </widget>
-         </item>
-         <item row="0" column="1">
-          <widget class="QPushButton" name="pushButton">
-           <property name="text">
-            <string>Set</string>
-           </property>
-          </widget>
-         </item>
-        </layout>
-       </widget>
-      </item>
-     </layout>
-    </widget>
-   </item>
-   <item row="10" column="0">
-    <spacer name="verticalSpacer">
-     <property name="orientation">
-      <enum>Qt::Vertical</enum>
-     </property>
-     <property name="sizeHint" stdset="0">
-      <size>
-       <width>0</width>
-       <height>0</height>
-      </size>
-     </property>
-    </spacer>
-   </item>
-   <item row="1" column="0">
-    <layout class="QHBoxLayout" name="horizontalLayout">
-     <item>
-      <widget class="QComboBox" name="OpcUaPluginComboBox"/>
-     </item>
-     <item>
-      <widget class="QLineEdit" name="OpcUaServerUrlLineEdit">
-       <property name="text">
-        <string>opc:tcp://192.168.26.128:62544</string>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QPushButton" name="PushButton_ScadaConnect">
-       <property name="text">
-        <string>Connect</string>
-       </property>
-      </widget>
-     </item>
-    </layout>
-   </item>
    <item row="6" column="0">
     <layout class="QGridLayout" name="gridLayout_3">
-     <item row="1" column="0">
-      <widget class="QLabel" name="label_2">
-       <property name="text">
-        <string>Event message:</string>
-       </property>
-      </widget>
-     </item>
      <item row="1" column="2">
-      <widget class="QPushButton" name="PushButton_SetEventMessage">
-       <property name="text">
-        <string>Set</string>
+      <widget class="QLineEdit" name="LineEdit_ServiceMessages">
+       <property name="readOnly">
+        <bool>true</bool>
        </property>
       </widget>
      </item>
      <item row="0" column="0">
-      <widget class="QLabel" name="label">
+      <widget class="QLabel" name="label_16">
        <property name="text">
-        <string>Error message:</string>
+        <string>Error:</string>
+       </property>
+      </widget>
+     </item>
+     <item row="1" column="1">
+      <widget class="QLabel" name="Label_MessagesIndicatorService">
+       <property name="text">
+        <string/>
+       </property>
+       <property name="pixmap">
+        <pixmap resource="../../../../../cpp/Qt5/OpcUaScada_5.15.2/OpcUaScada.qrc">:/indicators/icons/gray.svg</pixmap>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="2">
+      <widget class="QLineEdit" name="LineEdit_ErrorMessages">
+       <property name="readOnly">
+        <bool>true</bool>
        </property>
       </widget>
      </item>
      <item row="0" column="1">
-      <widget class="QLineEdit" name="LineEdit_ErrorMessage"/>
-     </item>
-     <item row="1" column="1">
-      <widget class="QLineEdit" name="LineEdit_EventMessage"/>
-     </item>
-     <item row="0" column="2">
-      <widget class="QPushButton" name="PushButton_SetErrorMessage">
+      <widget class="QLabel" name="Label_MessagesIndicatorError">
        <property name="text">
-        <string>Set</string>
+        <string/>
+       </property>
+       <property name="pixmap">
+        <pixmap resource="../../../../../cpp/Qt5/OpcUaScada_5.15.2/OpcUaScada.qrc">:/indicators/icons/gray.svg</pixmap>
        </property>
       </widget>
      </item>
-     <item row="2" column="0" colspan="3">
-      <widget class="QLabel" name="Label_ScadaSystemTime">
+     <item row="1" column="0">
+      <widget class="QLabel" name="label_17">
        <property name="text">
-        <string>SCADA System Time:</string>
+        <string>Service:</string>
        </property>
       </widget>
      </item>
-     <item row="3" column="0" colspan="3">
-      <widget class="QPushButton" name="PushButton_SetLocalTime">
+     <item row="2" column="0">
+      <widget class="QLabel" name="label_18">
        <property name="text">
-        <string>Set local time</string>
+        <string>Misc.:</string>
+       </property>
+      </widget>
+     </item>
+     <item row="2" column="1">
+      <widget class="QLabel" name="Label_MessagesIndicatorMisc">
+       <property name="text">
+        <string/>
+       </property>
+       <property name="pixmap">
+        <pixmap resource="../../../../../cpp/Qt5/OpcUaScada_5.15.2/OpcUaScada.qrc">:/indicators/icons/gray.svg</pixmap>
+       </property>
+      </widget>
+     </item>
+     <item row="2" column="2">
+      <widget class="QLineEdit" name="LineEdit_MiscMessages">
+       <property name="readOnly">
+        <bool>true</bool>
        </property>
       </widget>
      </item>
     </layout>
+   </item>
+   <item row="0" column="0">
+    <widget class="ctkCollapsibleGroupBox" name="CollapsibleGroupBox_RoomType">
+     <property name="title">
+      <string>Treatment room</string>
+     </property>
+     <property name="collapsed">
+      <bool>false</bool>
+     </property>
+     <layout class="QGridLayout" name="gridLayout">
+      <item row="0" column="2">
+       <widget class="QRadioButton" name="RadioButton_Room3">
+        <property name="text">
+         <string>Room-3</string>
+        </property>
+        <property name="checked">
+         <bool>true</bool>
+        </property>
+        <attribute name="buttonGroup">
+         <string notr="true">ButtonGroup_Room</string>
+        </attribute>
+       </widget>
+      </item>
+      <item row="0" column="1">
+       <widget class="QRadioButton" name="RadioButton_Room2">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
+        <property name="text">
+         <string>Room-2</string>
+        </property>
+        <attribute name="buttonGroup">
+         <string notr="true">ButtonGroup_Room</string>
+        </attribute>
+       </widget>
+      </item>
+      <item row="0" column="0">
+       <widget class="QRadioButton" name="RadioButton_Room1">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
+        <property name="text">
+         <string>Room-1</string>
+        </property>
+        <attribute name="buttonGroup">
+         <string notr="true">ButtonGroup_Room</string>
+        </attribute>
+       </widget>
+      </item>
+     </layout>
+    </widget>
    </item>
    <item row="9" column="0">
     <widget class="QPushButton" name="PushButton_CustomLayout">
@@ -487,23 +335,16 @@
    <container>1</container>
   </customwidget>
   <customwidget>
-   <class>ctkCoordinatesWidget</class>
-   <extends>QWidget</extends>
-   <header>ctkCoordinatesWidget.h</header>
-  </customwidget>
-  <customwidget>
-   <class>ctkSliderWidget</class>
-   <extends>QWidget</extends>
-   <header>ctkSliderWidget.h</header>
-  </customwidget>
-  <customwidget>
    <class>qSlicerWidget</class>
    <extends>QWidget</extends>
    <header>qSlicerWidget.h</header>
    <container>1</container>
   </customwidget>
  </customwidgets>
- <resources/>
+ <resources>
+  <include location="../../../../../cpp/Qt5/OpcUaScada_5.15.2/OpcUaScada.qrc"/>
+  <include location="OpcUaScada.qrc"/>
+ </resources>
  <connections/>
  <buttongroups>
   <buttongroup name="buttonGroup"/>

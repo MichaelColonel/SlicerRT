@@ -67,7 +67,7 @@ public:
     "  <PatientsQueueWorklist></PatientsQueueWorklist>" \
     " </item>" \
     "</layout>";
-  const int PWL_LAYOUT_ID = 1021;
+  const int PWL_LAYOUT_ID = 1022;
 
   QScopedPointer< qSlicerPatientsQueueWidget > PatientsQueueWidget;
   std::unique_ptr< DcmDataset > WorklistQueryDataset;

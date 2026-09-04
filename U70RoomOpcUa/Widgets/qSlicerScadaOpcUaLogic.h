@@ -37,6 +37,8 @@
 #include <QOpcUaClient>
 #include <QOpcUaNode>
 
+class QOpcUaProvider;
+
 class vtkMRMLScene;
 class vtkMRMLNode;
 class qSlicerScadaOpcUaLogicPrivate;
@@ -58,38 +60,36 @@ public:
   void setMRMLScene(vtkMRMLScene* scene) override;
   bool getClientConnectedFlag() const;
   QOpcUaClient* getClientConnected() const;
-  bool setPatientPositioningLocalTime(const QDateTime&);
-  bool setPatientPositioningErrorMessage(const QString&);
-  bool setPatientPositioningEventMessage(const QString&);
-  bool checkButtonAmR1LoadToIsoIsEnabled(bool& state);
-  bool setButtonAmR1LoadToIsoPressed(bool state);
-  bool setButtonAmR1ToNewCoordsPressed(bool state);
-  bool setButtonAmR1ToLoadPressed(bool state);
-  bool setButtonAmR1ToHomePressed(bool state);
-  bool setButtonAmR2ToIsoPressed(bool state);
-  bool setButtonAmR2ToSecondPlanePressed(bool state);
-  bool setButtonAmR2MakeXrayPressed(bool state);
-  bool setButtonAmR2ToHomePressed(bool state);
-  bool setButtonAmR2SetNewZPressed(bool state);
 
 public slots:
   /// Set ScadaOpcUa MRML node (Parameter node)
   void setParameterNode(vtkMRMLNode* node);
 
-  bool connectToServer(const QString& client, const QString& serverEndpoint);
-  bool disconnectFromServer();
+  void connectToServer();
+  void findServers();
+  void findServersComplete(const QVector<QOpcUaApplicationDescription> &servers, QOpcUa::UaStatusCode statusCode);
+  void getEndpoints();
+  void getEndpointsComplete(const QVector<QOpcUaEndpointDescription> &endpoints, QOpcUa::UaStatusCode statusCode);
   void clientConnected();
   void clientDisconnected();
+  void namespacesArrayUpdated(const QStringList &namespaceArray);
   void clientError(QOpcUaClient::ClientError);
   void clientState(QOpcUaClient::ClientState);
-  // Scada local time
-/*
-  void onScadaLocalTimeAttributeRead(QOpcUa::NodeAttributes attr);
-  void onScadaLocalTimeAttributeChanged(QOpcUa::NodeAttribute attr,
-    const QVariant &value);
-  void onScadaLocalTimeEnableMonitoringFinished(QOpcUa::NodeAttribute attr,
-    QOpcUa::UaStatusCode status);
-*/
+
+  void setServerUrl(const QString& url);
+  void setOpcUaPlugin(const QString& plugin);
+
+  void ErrorMessagesRead(QOpcUa::NodeAttributes attr);
+  void ErrorMessagesChanged(QOpcUa::NodeAttribute attr, const QVariant &value);
+
+  void ServiceMessagesRead(QOpcUa::NodeAttributes attr);
+  void ServiceMessagesChanged(QOpcUa::NodeAttribute attr, const QVariant &value);
+
+  void MiscMessagesRead(QOpcUa::NodeAttributes attr);
+  void MiscMessagesChanged(QOpcUa::NodeAttribute attr, const QVariant &value);
+
+  void ServerInterfacesRead(QOpcUa::NodeAttributes attr);
+
 protected slots:
   /// Called when a node is added to the scene
   void onNodeAdded(vtkObject* scene, vtkObject* nodeObject);
@@ -99,12 +99,14 @@ protected slots:
 
 signals:
   void opcUaClientConnected(bool);
+  void opcUaErrorState(QOpcUaErrorState *errorState);
 
 private slots:
 
 protected:
   virtual void updateLogicFromMRML();
   QScopedPointer<qSlicerScadaOpcUaLogicPrivate> d_ptr;
+  void createClient();
 
 private:
   Q_DECLARE_PRIVATE(qSlicerScadaOpcUaLogic);

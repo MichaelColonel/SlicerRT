@@ -56,16 +56,33 @@ public slots:
   /// Update the entire widget based on the current parameter node
   void updateWidgetFromMRML();
 
-  /// connect to SCADA OPC UA server
-  void onConnectClicked();
+  /// connect to Siemens PLC OPC UA server
+  void connectToServer();
+  void findServers();
+  void findServersComplete(const QVector<QOpcUaApplicationDescription> &servers, QOpcUa::UaStatusCode statusCode);
+  void getEndpoints();
+  void getEndpointsComplete(const QVector<QOpcUaEndpointDescription> &endpoints, QOpcUa::UaStatusCode statusCode);
   void clientConnected();
   void clientDisconnected();
+  void namespacesArrayUpdated(const QStringList &namespaceArray);
   void clientError(QOpcUaClient::ClientError);
   void clientState(QOpcUaClient::ClientState);
-  void onScadaLogicConnected(bool);
-  void onSetLocalTimeClicked();
-  void onSetErrorMessageClicked();
-  void onSetEventMessageClicked();
+  void showErrorDialog(QOpcUaErrorState *errorState);
+
+  void ErrorMessagesRead(QOpcUa::NodeAttributes attr);
+  void ErrorMessagesChanged(QOpcUa::NodeAttribute attr, const QVariant &value);
+
+  void ServiceMessagesRead(QOpcUa::NodeAttributes attr);
+  void ServiceMessagesChanged(QOpcUa::NodeAttribute attr, const QVariant &value);
+
+  void MiscMessagesRead(QOpcUa::NodeAttributes attr);
+  void MiscMessagesChanged(QOpcUa::NodeAttribute attr, const QVariant &value);
+
+  void ServerInterfacesRead(QOpcUa::NodeAttributes attr);
+
+  void onGetErrorMessagesClicked();
+  void onGetServiceMessagesClicked();
+  void onGetMiscMessagesClicked();
   
 protected:
   QScopedPointer<qSlicerU70RoomOpcUaModuleWidgetPrivate> d_ptr;

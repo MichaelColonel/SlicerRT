@@ -9,21 +9,21 @@ set(${KIT}_INCLUDE_DIRECTORIES
   )
 
 set(${KIT}_SRCS
-  qSlicerScadaOpcUaLogic.cxx
-  qSlicerScadaOpcUaLogic.h
+#  qSlicerScadaOpcUaLogic.cxx
+#  qSlicerScadaOpcUaLogic.h
   qSlicerScadaOpcUaRobotsControlWidget.cxx
   qSlicerScadaOpcUaRobotsControlWidget.h
-  opcuamodel.cpp
-  opcuamodel.h
-  treeitem.cpp
-  treeitem.h
+#  opcuamodel.cpp
+#  opcuamodel.h
+#  treeitem.cpp
+#  treeitem.h
   )
 
 set(${KIT}_MOC_SRCS
-  qSlicerScadaOpcUaLogic.h
+#  qSlicerScadaOpcUaLogic.h
   qSlicerScadaOpcUaRobotsControlWidget.h
-  opcuamodel.h
-  treeitem.h
+#  opcuamodel.h
+#  treeitem.h
   )
 
 set(${KIT}_UI_SRCS

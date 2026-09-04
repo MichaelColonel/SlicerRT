@@ -1,5 +1,11 @@
 <!DOCTYPE RCC><RCC version="1.0">
   <qresource>
     <file>Icons/U70RoomOpcUa.png</file>
+    <file>Icons/gray.png</file>
+    <file>Icons/gray.svg</file>
+    <file>Icons/green.png</file>
+    <file>Icons/green.svg</file>
+    <file>Icons/red.png</file>
+    <file>Icons/red.svg</file>
   </qresource>
 </RCC>

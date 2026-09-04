@@ -17,6 +17,13 @@
 
 // Qt includes
 #include <QDebug>
+#include <QTextStream>
+#include <QMessageBox>
+
+#include <QOpcUaProvider>
+#include <QOpcUaAuthenticationInformation>
+#include <QOpcUaErrorState>
+#include <QOpcUaExtensionObject>
 
 // Slicer includes
 #include "qSlicerU70RoomOpcUaModuleWidget.h"
@@ -32,46 +39,81 @@
 #include <qSlicerLayoutManager.h>
 #include <qSlicerApplication.h>
 
-// Qt includes
-#include <QOpcUaProvider>
+// STD includes
+#include <bitset>
 
 // vtkSlicer and qSlicer logic includes
 #include <vtkSlicerU70RoomOpcUaLogic.h>
-#include "qSlicerScadaOpcUaLogic.h"
+//#include "qSlicerScadaOpcUaLogic.h"
 #include "qSlicerScadaOpcUaRobotsControlWidget.h"
 
+// SlicerRT ScadaOpcUa MRML includes
+#include <vtkMRMLScadaOpcUaNode.h>
+
 // Local widgets includes
-#include "opcuamodel.h"
+//#include "opcuamodel.h"
 
 class QAbstractButton;
+
+namespace {
+
+const QString SCADA_ERRORMESSAGES_NODE_ID = "ns=4;i=13";
+const QString SCADA_SERVICEMESSAGES_NODE_ID = "ns=4;i=78";
+const QString SCADA_MESSAGES_NODE_ID = "ns=4;i=143";
+constexpr size_t MESSAGES_SIZE = 64;
+
+QString stringFromBitset(const std::bitset<MESSAGES_SIZE> &bits)
+{
+  QString msg;
+  QTextStream bitsToHex(&msg);
+  bitsToHex.setIntegerBase(16);
+  bitsToHex << "0x" << qSetPadChar('0') << qSetFieldWidth(8) << static_cast< quint64 >(bits.to_ullong());
+  return msg;
+}
+
+}
 
 //-----------------------------------------------------------------------------
 class qSlicerU70RoomOpcUaModuleWidgetPrivate: public Ui_qSlicerU70RoomOpcUaModuleWidget
 {
-  Q_DECLARE_PUBLIC(qSlicerU70RoomOpcUaModuleWidget);
+  Q_DECLARE_PUBLIC(qSlicerU70RoomOpcUaModuleWidget)
 protected:
   qSlicerU70RoomOpcUaModuleWidget* const q_ptr;
 public:
   qSlicerU70RoomOpcUaModuleWidgetPrivate(qSlicerU70RoomOpcUaModuleWidget& object);
   vtkSlicerU70RoomOpcUaLogic* logic() const;
+  void createClient();
+  void updateUiState();
 
-  const char* SCADA_OPCUA_ROBOTS_CONTROL_LAYOUT_DESCRIPTION = \
+  const char* SIEMENS_PLC_OPCUA_LAYOUT_DESCRIPTION = \
     "<layout type=\"vertical\">" \
     " <item>" \
-    "  <ScadaOpcUaRobotsControl></ScadaOpcUaRobotsControl>" \
+    "  <SiemensPlcOpcUa></SiemensPlcOpcUa>" \
     " </item>" \
     "</layout>";
-  const int SCADA_OPCUA_ROBOTS_CONTROL_LAYOUT_ID = 1021;
+  const int SIEMENS_PLC_OPCUA_LAYOUT_ID = 1021;
 
   int PreviousLayoutId{ -1 };
   bool ModuleWindowInitialized{ false };
 
   vtkSmartPointer< vtkMRMLScadaOpcUaNode > ScadaOpcUaNode;
-  QSharedPointer< qSlicerScadaOpcUaLogic > ScadaOpcUaLogic;
+//  QSharedPointer< qSlicerScadaOpcUaLogic > ScadaOpcUaLogic;
 
-  QScopedPointer< qSlicerScadaOpcUaRobotsControlWidget > ScadaOpcUaRobotsControlWidget;
-  QScopedPointer< OpcUaModel > ScadaOpcUaModel;
-  QScopedPointer< QOpcUaProvider > ScadaOpcUaProvider;
+  QScopedPointer< qSlicerScadaOpcUaRobotsControlWidget > OpcUaRobotsControlWidget;
+
+  QScopedPointer< QOpcUaProvider > OpcUaProvider;
+  QOpcUaClient* OpcUaClient{ nullptr };
+  bool ClientConnectedFlag{ false };
+  QVector<QOpcUaEndpointDescription> OpcUaEndpointList;
+  QOpcUaApplicationIdentity OpcUaAppIdentity;
+  QOpcUaEndpointDescription OpcUaEndpoint; // current endpoint used to connect
+
+  // Messages
+  QScopedPointer<QOpcUaNode> OpcUaScadaErrorMessagesNode;
+  QScopedPointer<QOpcUaNode> OpcUaScadaServiceMessagesNode;
+  QScopedPointer<QOpcUaNode> OpcUaScadaMiscMessagesNode;
+  QScopedPointer<QOpcUaNode> OpcUaScadaServerInterfacesNode;
+  QScopedPointer<QOpcUaNode> SiemensPlcTimeNode;
 };
 
 //-----------------------------------------------------------------------------
@@ -88,6 +130,58 @@ vtkSlicerU70RoomOpcUaLogic* qSlicerU70RoomOpcUaModuleWidgetPrivate::logic() cons
 qSlicerU70RoomOpcUaModuleWidgetPrivate::qSlicerU70RoomOpcUaModuleWidgetPrivate(qSlicerU70RoomOpcUaModuleWidget& object)
   : q_ptr(&object)
 {
+}
+
+//-----------------------------------------------------------------------------
+void qSlicerU70RoomOpcUaModuleWidgetPrivate::createClient()
+{
+  Q_Q(qSlicerU70RoomOpcUaModuleWidget);
+  if (!this->OpcUaClient)
+  {
+    this->OpcUaClient = this->OpcUaProvider->createClient(this->ComboBox_OpcUaPlugin->currentText());
+    if (!this->OpcUaClient)
+    {
+      const QString message(QObject::tr("Connecting to the given sever failed. See the log for details."));
+      QMessageBox::critical(q, QObject::tr("Failed to connect to server"), message);
+      return;
+    }
+
+    QObject::connect(this->OpcUaClient, &QOpcUaClient::connectError, q, &qSlicerU70RoomOpcUaModuleWidget::showErrorDialog);
+    OpcUaClient->setApplicationIdentity(OpcUaAppIdentity);
+
+    if (OpcUaClient->supportedUserTokenTypes().contains(QOpcUaUserTokenPolicy::TokenType::Certificate))
+    {
+      QOpcUaAuthenticationInformation authInfo;
+      authInfo.setCertificateAuthentication();
+      OpcUaClient->setAuthenticationInformation(authInfo);
+    }
+
+    QObject::connect(this->OpcUaClient, &QOpcUaClient::connected, q, &qSlicerU70RoomOpcUaModuleWidget::clientConnected);
+    QObject::connect(this->OpcUaClient, &QOpcUaClient::disconnected, q, &qSlicerU70RoomOpcUaModuleWidget::clientDisconnected);
+    QObject::connect(this->OpcUaClient, &QOpcUaClient::errorChanged, q, &qSlicerU70RoomOpcUaModuleWidget::clientError);
+    QObject::connect(this->OpcUaClient, &QOpcUaClient::stateChanged, q, &qSlicerU70RoomOpcUaModuleWidget::clientState);
+    QObject::connect(this->OpcUaClient, &QOpcUaClient::endpointsRequestFinished, q, &qSlicerU70RoomOpcUaModuleWidget::getEndpointsComplete);
+    QObject::connect(this->OpcUaClient, &QOpcUaClient::findServersFinished, q, &qSlicerU70RoomOpcUaModuleWidget::findServersComplete);
+  }
+}
+
+//-----------------------------------------------------------------------------
+void qSlicerU70RoomOpcUaModuleWidgetPrivate::updateUiState()
+{
+  Q_Q(qSlicerU70RoomOpcUaModuleWidget);
+
+  this->PushButton_Connect->setText(this->ClientConnectedFlag ? QObject::tr("&Disconnect") : QObject::tr("&Connect"));
+  this->ComboBox_OpcUaPlugin->setDisabled(this->ClientConnectedFlag);
+  this->LineEdit_OpcUaServerUrl->setDisabled(this->ClientConnectedFlag);
+  if (!this->ClientConnectedFlag)
+  {
+    this->Label_MessagesIndicatorError->setPixmap(QPixmap(":/Icons/gray.png"));
+    this->Label_MessagesIndicatorService->setPixmap(QPixmap(":/Icons/gray.png"));
+    this->Label_MessagesIndicatorMisc->setPixmap(QPixmap(":/Icons/gray.png"));
+    this->LineEdit_ErrorMessages->setText("");
+    this->LineEdit_ServiceMessages->setText("");
+    this->LineEdit_MiscMessages->setText("");
+  }
 }
 
 //-----------------------------------------------------------------------------
@@ -112,62 +206,58 @@ void qSlicerU70RoomOpcUaModuleWidget::setup()
   d->setupUi(this);
   this->Superclass::setup();
 
-  d->ScadaOpcUaLogic.reset(new qSlicerScadaOpcUaLogic(this));
-  d->ScadaOpcUaRobotsControlWidget.reset(new qSlicerScadaOpcUaRobotsControlWidget(this));
-  d->ScadaOpcUaModel.reset(new OpcUaModel(this));
-  d->ScadaOpcUaProvider.reset(new QOpcUaProvider(this));
+//  d->ScadaOpcUaLogic.reset(new qSlicerScadaOpcUaLogic(this));
+  d->OpcUaRobotsControlWidget.reset(new qSlicerScadaOpcUaRobotsControlWidget(this));
+//  d->ScadaOpcUaModel.reset(new OpcUaModel(this));
+  d->OpcUaProvider.reset(new QOpcUaProvider(this));
 
-  d->ScadaOpcUaRobotsControlWidget->setScadaOpcUaLogic(d->ScadaOpcUaLogic);
+  d->LineEdit_OpcUaServerUrl->setText("opc.tcp://172.31.1.1:4840");
+  d->ComboBox_OpcUaPlugin->addItems(d->OpcUaProvider->availableBackends());
 
-  d->OpcUaServerUrlLineEdit->setText("opc.tcp://192.168.26.128:62544");
-  d->OpcUaPluginComboBox->addItems(d->ScadaOpcUaProvider->availableBackends());
+//  d->ScadaOpcUaRobotsControlWidget->setScadaOpcUaLogic(d->ScadaOpcUaLogic);
 
-//  d->OpcUaTreeView->setModel(d->ScadaOpcUaModel.get());
-//  d->OpcUaTreeView->header()->setSectionResizeMode(QHeaderView::ResizeToContents);
-//  d->OpcUaTreeView->setTextElideMode(Qt::ElideRight);
-//  d->OpcUaTreeView->setAlternatingRowColors(true);
-//  d->OpcUaTreeView->setSelectionBehavior(QAbstractItemView::SelectItems);
+  if (d->ComboBox_OpcUaPlugin->count() == 0)
+  {
+    d->ComboBox_OpcUaPlugin->setDisabled(true);
+    d->PushButton_Connect->setDisabled(true);
+    QMessageBox::critical(this, tr("No OPCUA plugins available"), tr("The list of available OPCUA plugins is empty. No connection possible."));
+  }
+
+  QObject::connect(d->PushButton_Connect, &QPushButton::clicked, this, &qSlicerU70RoomOpcUaModuleWidget::connectToServer);
+  QObject::connect(d->PushButton_FindServers, &QPushButton::clicked, this, &qSlicerU70RoomOpcUaModuleWidget::findServers);
+  QObject::connect(d->PushButton_GetEndpoints, &QPushButton::clicked, this, &qSlicerU70RoomOpcUaModuleWidget::getEndpoints);
+  QObject::connect(d->LineEdit_OpcUaServerUrl, &QLineEdit::returnPressed, d->PushButton_FindServers,
+    [d]() { d->PushButton_FindServers->animateClick(); });
 
   // Get layout manager
   qSlicerApplication* slicerApplication = qSlicerApplication::application();
   qSlicerLayoutManager* layoutManager = slicerApplication->layoutManager();
 
+  qSlicerSingletonViewFactory* viewFactory = new qSlicerSingletonViewFactory();
+  viewFactory->setWidget(d->OpcUaRobotsControlWidget.get());
+  viewFactory->setTagName("SiemensPlcOpcUa");
+
+  layoutManager->registerViewFactory(viewFactory);
+
   // Save previous layout
   d->PreviousLayoutId = layoutManager->layout();
 
-  // Register new layout widget
-  qSlicerSingletonViewFactory* viewFactory = new qSlicerSingletonViewFactory();
-  viewFactory->setWidget(d->ScadaOpcUaRobotsControlWidget.get());
-  viewFactory->setTagName("ScadaOpcUaRobotsControl");
-  layoutManager->registerViewFactory(viewFactory);
-
-  // Create new layout
   vtkMRMLLayoutNode* layoutNode = layoutManager->layoutLogic()->GetLayoutNode();
   if (layoutNode)
   {
-    if (!layoutNode->SetLayoutDescription(d->SCADA_OPCUA_ROBOTS_CONTROL_LAYOUT_ID, d->SCADA_OPCUA_ROBOTS_CONTROL_LAYOUT_DESCRIPTION))
+//    if (!layoutNode->SetLayoutDescription(d->SIEMENS_PLC_OPCUA_LAYOUT_ID, d->SIEMENS_PLC_OPCUA_LAYOUT_DESCRIPTION))
     {
-      layoutNode->AddLayoutDescription(d->SCADA_OPCUA_ROBOTS_CONTROL_LAYOUT_ID, d->SCADA_OPCUA_ROBOTS_CONTROL_LAYOUT_DESCRIPTION);
+      layoutNode->AddLayoutDescription(d->SIEMENS_PLC_OPCUA_LAYOUT_ID, d->SIEMENS_PLC_OPCUA_LAYOUT_DESCRIPTION);
     }
   }
   
   // Nodes
-
-  // Buttons
-  QObject::connect(d->PushButton_CustomLayout, SIGNAL(clicked()),
-    this, SLOT(onSetCustomLayoutClicked()));
-  QObject::connect(d->PushButton_ScadaConnect, SIGNAL(clicked()),
-    this, SLOT(onConnectClicked()));
-  QObject::connect(d->PushButton_SetLocalTime, SIGNAL(clicked()),
-    this, SLOT(onSetLocalTimeClicked()));
-  QObject::connect(d->PushButton_SetErrorMessage, SIGNAL(clicked()),
-    this, SLOT(onSetErrorMessageClicked()));
-  QObject::connect(d->PushButton_SetEventMessage, SIGNAL(clicked()),
-    this, SLOT(onSetEventMessageClicked()));
+  // Widgets
+  QObject::connect(d->PushButton_CustomLayout, &QPushButton::clicked, this, &qSlicerU70RoomOpcUaModuleWidget::onSetCustomLayoutClicked);
 
   // qLogic
-  QObject::connect(d->ScadaOpcUaLogic.data(), SIGNAL(opcUaClientConnected(bool)),
-    this, SLOT(onScadaLogicConnected(bool)));
+//  QObject::connect(d->ScadaOpcUaLogic.data(), SIGNAL(opcUaClientConnected(bool)),
+//    this, SLOT(onScadaLogicConnected(bool)));
     
   // Handle scene change event if occurs
 //  qvtkConnect(d->logic(), vtkCommand::ModifiedEvent, this, SLOT(onScadaOpcUaLogicModified()));
@@ -180,11 +270,12 @@ void qSlicerU70RoomOpcUaModuleWidget::onSetCustomLayoutClicked()
   qSlicerApplication* slicerApplication = qSlicerApplication::application();
   qSlicerLayoutManager* layoutManager = slicerApplication->layoutManager();
 
+  layoutManager->pauseRender();
   if (d->PushButton_CustomLayout->isChecked())
   {
     if (layoutManager)
     {
-      layoutManager->setLayout(d->SCADA_OPCUA_ROBOTS_CONTROL_LAYOUT_ID);
+      layoutManager->setLayout(d->SIEMENS_PLC_OPCUA_LAYOUT_ID);
     }
   }
   else
@@ -194,6 +285,10 @@ void qSlicerU70RoomOpcUaModuleWidget::onSetCustomLayoutClicked()
       layoutManager->setLayout(d->PreviousLayoutId);
     }
   }
+  vtkMRMLLayoutNode* layoutNode = layoutManager->layoutLogic()->GetLayoutNode();
+  layoutNode->Modified();
+  layoutManager->resumeRender();
+
   slicerApplication->processEvents();
 }
 
@@ -216,7 +311,7 @@ void qSlicerU70RoomOpcUaModuleWidget::setMRMLScene(vtkMRMLScene* scene)
       if (newNode)
       {
         d->ScadaOpcUaNode = vtkSmartPointer<vtkMRMLScadaOpcUaNode>::Take(newNode);
-        d->ScadaOpcUaLogic->setParameterNode(d->ScadaOpcUaNode);
+//        d->ScadaOpcUaLogic->setParameterNode(d->ScadaOpcUaNode);
       }
     }
     else
@@ -225,7 +320,7 @@ void qSlicerU70RoomOpcUaModuleWidget::setMRMLScene(vtkMRMLScene* scene)
       std::string nodeName = this->mrmlScene()->GenerateUniqueName("ScadaOpcUa");
       d->ScadaOpcUaNode->SetName(nodeName.c_str());
       this->mrmlScene()->AddNode(d->ScadaOpcUaNode);
-      d->ScadaOpcUaLogic->setParameterNode(d->ScadaOpcUaNode);
+//      d->ScadaOpcUaLogic->setParameterNode(d->ScadaOpcUaNode);
       // Each time the node is modified, the UI widgets are updated
       qvtkReconnect(d->ScadaOpcUaNode, vtkCommand::ModifiedEvent, 
         this, SLOT(updateWidgetFromMRML()));
@@ -287,6 +382,22 @@ void qSlicerU70RoomOpcUaModuleWidget::onEnter()
 
   d->ModuleWindowInitialized = true;
 
+  // Get layout manager
+  qSlicerApplication* slicerApplication = qSlicerApplication::application();
+  qSlicerLayoutManager* layoutManager = slicerApplication->layoutManager();
+
+  layoutManager->pauseRender();
+  {
+    QSignalBlocker block(d->PushButton_CustomLayout);
+    d->PushButton_CustomLayout->setChecked(true);
+  }
+  layoutManager->setLayout(d->SIEMENS_PLC_OPCUA_LAYOUT_ID);
+  vtkMRMLLayoutNode* layoutNode = layoutManager->layoutLogic()->GetLayoutNode();
+  layoutNode->Modified();
+  layoutManager->resumeRender();
+
+  slicerApplication->processEvents();
+
   this->updateWidgetFromMRML();
 }
 
@@ -304,100 +415,512 @@ void qSlicerU70RoomOpcUaModuleWidget::updateWidgetFromMRML()
     qCritical() << Q_FUNC_INFO << "Scada node is invalid";
     return;
   }
-  
-  d->Label_ScadaSystemTime->setText(tr("SCADA System Time: %1").arg(d->ScadaOpcUaNode->GetSysTime()));
 }
 
 //-----------------------------------------------------------------------------
-void qSlicerU70RoomOpcUaModuleWidget::onConnectClicked()
+void qSlicerU70RoomOpcUaModuleWidget::findServers()
 {
   Q_D(qSlicerU70RoomOpcUaModuleWidget);
-  
-  if (!d->ScadaOpcUaLogic)
+
+  QStringList localeIds;
+  QStringList serverUris;
+  QUrl url(d->LineEdit_OpcUaServerUrl->text());
+
+  d->updateUiState();
+
+  d->createClient();
+  // set default port if missing
+  if (url.port() == -1)
   {
+    url.setPort(62544);
+  }
+
+  if (d->OpcUaClient)
+  {
+    d->OpcUaClient->findServers(url, localeIds, serverUris);
+    qDebug() << "Discovering servers on " << url.toString();
+  }
+}
+
+//-----------------------------------------------------------------------------
+void qSlicerU70RoomOpcUaModuleWidget::findServersComplete(const QVector<QOpcUaApplicationDescription> &servers, QOpcUa::UaStatusCode statusCode)
+{
+  Q_D(qSlicerU70RoomOpcUaModuleWidget);
+
+  if (isSuccessStatus(statusCode))
+  {
+    d->ComboBox_Servers->clear();
+    for (QOpcUaApplicationDescription server : servers)
+    {
+      QVector<QString> urls = server.discoveryUrls();
+      for (const auto &url : qAsConst(urls))
+      {
+        d->ComboBox_Servers->addItem(url);
+      }
+    }
+  }
+  d->updateUiState();
+}
+
+//-----------------------------------------------------------------------------
+void qSlicerU70RoomOpcUaModuleWidget::getEndpoints()
+{
+  Q_D(qSlicerU70RoomOpcUaModuleWidget);
+
+  d->ComboBox_Endpoints->clear();
+  d->updateUiState();
+
+  if (d->ComboBox_Servers->currentIndex() >= 0)
+  {
+
+    const QString serverUrl = d->ComboBox_Servers->currentText();
+    d->createClient();
+    d->OpcUaClient->requestEndpoints(serverUrl);
+  }
+}
+
+//-----------------------------------------------------------------------------
+void qSlicerU70RoomOpcUaModuleWidget::getEndpointsComplete(const QVector<QOpcUaEndpointDescription> &endpoints, QOpcUa::UaStatusCode statusCode)
+{
+  Q_D(qSlicerU70RoomOpcUaModuleWidget);
+
+  int index = 0;
+  const char *modes[] = { "Invalid", "None", "Sign", "SignAndEncrypt" };
+
+  if (isSuccessStatus(statusCode))
+  {
+    d->OpcUaEndpointList = endpoints;
+    for (const auto& endpoint : endpoints)
+    {
+      if (endpoint.securityMode() > sizeof(modes))
+      {
+        qWarning() << "Invalid security mode";
+        continue;
+      }
+      const QString EndpointName = QString("%1 (%2)").arg(endpoint.securityPolicy(), modes[endpoint.securityMode()]);
+      d->ComboBox_Endpoints->addItem(EndpointName, index++);
+    }
+  }
+  d->updateUiState();
+}
+
+//-----------------------------------------------------------------------------
+void qSlicerU70RoomOpcUaModuleWidget::connectToServer()
+{
+  Q_D(qSlicerU70RoomOpcUaModuleWidget);
+
+  if (d->ClientConnectedFlag)
+  {
+    d->OpcUaClient->disconnectFromEndpoint();
     return;
   }
-  
-  if (d->ScadaOpcUaLogic->getClientConnectedFlag())
+
+  if (d->ComboBox_Endpoints->currentIndex() >= 0)
   {
-    d->ScadaOpcUaLogic->disconnectFromServer();
-    return;
+    d->OpcUaEndpoint = d->OpcUaEndpointList[d->ComboBox_Endpoints->currentIndex()];
+    d->createClient();
+    d->OpcUaClient->connectToEndpoint(d->OpcUaEndpoint);
   }
-  d->ScadaOpcUaLogic->connectToServer(d->OpcUaPluginComboBox->currentText(), d->OpcUaServerUrlLineEdit->text());
 }
 
 //-----------------------------------------------------------------------------
 void qSlicerU70RoomOpcUaModuleWidget::clientConnected()
 {
   Q_D(qSlicerU70RoomOpcUaModuleWidget);
-  d->PushButton_ScadaConnect->setText(tr("Disconnect"));
 
-//  d->ScadaOpcUaModel->setOpcUaClient(d->ScadaOpcUaLogic->getClientConnected());
-//  d->OpcUaTreeView->header()->setSectionResizeMode(1 /* Value column*/, QHeaderView::Interactive);
+  d->ClientConnectedFlag = true;
+  d->updateUiState();
+  QObject::connect(d->OpcUaClient, &QOpcUaClient::namespaceArrayUpdated, this, &qSlicerU70RoomOpcUaModuleWidget::namespacesArrayUpdated);
+  d->OpcUaClient->updateNamespaceArray();
 }
 
 //-----------------------------------------------------------------------------
 void qSlicerU70RoomOpcUaModuleWidget::clientDisconnected()
 {
   Q_D(qSlicerU70RoomOpcUaModuleWidget);
-  d->PushButton_ScadaConnect->setText(tr("Connect"));
-  d->ScadaOpcUaModel->setOpcUaClient(nullptr);
+
+  d->ClientConnectedFlag = false;
+  d->OpcUaClient->deleteLater();
+  d->OpcUaClient = nullptr;
+  d->OpcUaScadaErrorMessagesNode.reset(nullptr);
+  d->OpcUaScadaServiceMessagesNode.reset(nullptr);
+  d->OpcUaScadaMiscMessagesNode.reset(nullptr);
+  d->SiemensPlcTimeNode.reset(nullptr);
+  d->OpcUaScadaServerInterfacesNode.reset(nullptr);
+  d->updateUiState();
 }
 
 //-----------------------------------------------------------------------------
-void qSlicerU70RoomOpcUaModuleWidget::clientError(QOpcUaClient::ClientError)
+void qSlicerU70RoomOpcUaModuleWidget::namespacesArrayUpdated(const QStringList &namespaceArray)
 {
+  Q_D(qSlicerU70RoomOpcUaModuleWidget);
+
+  if (namespaceArray.isEmpty())
+  {
+    qWarning() << "Failed to retrieve the namespaces array";
+    return;
+  }
+
+  QObject::disconnect(d->OpcUaClient, &QOpcUaClient::namespaceArrayUpdated, this, &qSlicerU70RoomOpcUaModuleWidget::namespacesArrayUpdated);
+
+  // Error messages
+  d->OpcUaScadaErrorMessagesNode.reset(d->OpcUaClient->node(SCADA_ERRORMESSAGES_NODE_ID));
+  // Connect signal handlers for subscribed values
+  QObject::connect(d->OpcUaScadaErrorMessagesNode.data(), &QOpcUaNode::dataChangeOccurred, this, &qSlicerU70RoomOpcUaModuleWidget::ErrorMessagesChanged);
+  // Subscribe to data changes
+  d->OpcUaScadaErrorMessagesNode->enableMonitoring(QOpcUa::NodeAttribute::Value, QOpcUaMonitoringParameters(1000));
+  // Connect the handler for async reading
+  QObject::connect(d->OpcUaScadaErrorMessagesNode.data(), &QOpcUaNode::attributeRead, this, &qSlicerU70RoomOpcUaModuleWidget::ErrorMessagesRead);
+
+  // Service messages
+  d->OpcUaScadaServiceMessagesNode.reset(d->OpcUaClient->node(SCADA_SERVICEMESSAGES_NODE_ID));
+  // Connect signal handlers for subscribed values
+  QObject::connect(d->OpcUaScadaServiceMessagesNode.data(), &QOpcUaNode::dataChangeOccurred, this, &qSlicerU70RoomOpcUaModuleWidget::ServiceMessagesChanged);
+  // Subscribe to data changes
+  d->OpcUaScadaServiceMessagesNode->enableMonitoring(QOpcUa::NodeAttribute::Value, QOpcUaMonitoringParameters(1000));
+  // Connect the handler for async reading
+  QObject::connect(d->OpcUaScadaServiceMessagesNode.data(), &QOpcUaNode::attributeRead, this, &qSlicerU70RoomOpcUaModuleWidget::ServiceMessagesRead);
+
+  // Misc messages
+  d->OpcUaScadaMiscMessagesNode.reset(d->OpcUaClient->node(SCADA_MESSAGES_NODE_ID));
+  // Connect signal handlers for subscribed values
+  QObject::connect(d->OpcUaScadaMiscMessagesNode.data(), &QOpcUaNode::dataChangeOccurred, this, &qSlicerU70RoomOpcUaModuleWidget::MiscMessagesChanged);
+  // Subscribe to data changes
+  d->OpcUaScadaMiscMessagesNode->enableMonitoring(QOpcUa::NodeAttribute::Value, QOpcUaMonitoringParameters(1000));
+  // Connect the handler for async reading
+  QObject::connect(d->OpcUaScadaMiscMessagesNode.data(), &QOpcUaNode::attributeRead, this, &qSlicerU70RoomOpcUaModuleWidget::MiscMessagesRead);
+
+  d->OpcUaScadaServerInterfacesNode.reset(d->OpcUaClient->node("ns=3;s=ServerInterfaces"));
+  QObject::connect(d->OpcUaScadaServerInterfacesNode.data(), &QOpcUaNode::attributeRead, this, &qSlicerU70RoomOpcUaModuleWidget::ServerInterfacesRead);
 }
 
 //-----------------------------------------------------------------------------
-void qSlicerU70RoomOpcUaModuleWidget::clientState(QOpcUaClient::ClientState)
-{
-}
-
-void qSlicerU70RoomOpcUaModuleWidget::onScadaLogicConnected(bool connected)
+void qSlicerU70RoomOpcUaModuleWidget::showErrorDialog(QOpcUaErrorState *errorState)
 {
   Q_D(qSlicerU70RoomOpcUaModuleWidget);
-  if (!d->ScadaOpcUaLogic)
+  const QString statuscode = QOpcUa::statusToString(errorState->errorCode());
+
+  QString msg = errorState->isClientSideError() ? tr("The client reported: ") : tr("The server reported: ");
+
+  switch (errorState->connectionStep())
   {
-    return;
-  }
-  if (connected)
-  {
-    d->PushButton_ScadaConnect->setText(tr("Disconnect"));
-  }
-  else
-  {
-    d->PushButton_ScadaConnect->setText(tr("Connect"));
-    return;
+  case QOpcUaErrorState::ConnectionStep::Unknown:
+    break;
+  case QOpcUaErrorState::ConnectionStep::CertificateValidation:
+    {
+      msg += tr("Server certificate validation failed with error 0x%1 (%2).\nClick 'Abort' to abort the connect, or 'Ignore' to continue connecting.")
+        .arg(static_cast<ulong>(errorState->errorCode()), 8, 16, QLatin1Char('0')).arg(statuscode);
+      qDebug() << Q_FUNC_INFO << msg;
+    }
+    break;
+  case QOpcUaErrorState::ConnectionStep::OpenSecureChannel:
+    msg += tr("OpenSecureChannel failed with error 0x%1 (%2).").arg(errorState->errorCode(), 8, 16, QLatin1Char('0')).arg(statuscode);
+    QMessageBox::warning(this, tr("Connection Error"), msg);
+    break;
+  case QOpcUaErrorState::ConnectionStep::CreateSession:
+    msg += tr("CreateSession failed with error 0x%1 (%2).").arg(errorState->errorCode(), 8, 16, QLatin1Char('0')).arg(statuscode);
+    QMessageBox::warning(this, tr("Connection Error"), msg);
+    break;
+  case QOpcUaErrorState::ConnectionStep::ActivateSession:
+    msg += tr("ActivateSession failed with error 0x%1 (%2).").arg(errorState->errorCode(), 8, 16, QLatin1Char('0')).arg(statuscode);
+    QMessageBox::warning(this, tr("Connection Error"), msg);
+    break;
+  default:
+    break;
   }
 }
 
-void qSlicerU70RoomOpcUaModuleWidget::onSetLocalTimeClicked()
+//-----------------------------------------------------------------------------
+void qSlicerU70RoomOpcUaModuleWidget::clientError(QOpcUaClient::ClientError error)
 {
   Q_D(qSlicerU70RoomOpcUaModuleWidget);
-  if (!d->ScadaOpcUaLogic)
-  {
-    return;
-  }
-  d->ScadaOpcUaLogic->setPatientPositioningLocalTime(QDateTime::currentDateTimeUtc());
+  qDebug() << "Client error changed" << error;
 }
 
-void qSlicerU70RoomOpcUaModuleWidget::onSetErrorMessageClicked()
+//-----------------------------------------------------------------------------
+void qSlicerU70RoomOpcUaModuleWidget::clientState(QOpcUaClient::ClientState state)
 {
   Q_D(qSlicerU70RoomOpcUaModuleWidget);
-  if (!d->ScadaOpcUaLogic)
+  qDebug() << "Client state changed" << state;
+  switch (state)
   {
-    return;
+  case QOpcUaClient::ClientState::Closing:
+      d->SiemensPlcTimeNode->disableMonitoring(QOpcUa::NodeAttribute::Value);
+      // Error messages
+      d->OpcUaScadaErrorMessagesNode->disableMonitoring(QOpcUa::NodeAttribute::Value);
+      QObject::disconnect(d->OpcUaScadaErrorMessagesNode.data(), &QOpcUaNode::dataChangeOccurred, this, &qSlicerU70RoomOpcUaModuleWidget::ErrorMessagesChanged);
+      QObject::disconnect(d->OpcUaScadaErrorMessagesNode.data(), &QOpcUaNode::attributeRead, this, &qSlicerU70RoomOpcUaModuleWidget::ErrorMessagesRead);
+
+      // Service messages
+      d->OpcUaScadaServiceMessagesNode->disableMonitoring(QOpcUa::NodeAttribute::Value);
+      QObject::disconnect(d->OpcUaScadaServiceMessagesNode.data(), &QOpcUaNode::dataChangeOccurred, this, &qSlicerU70RoomOpcUaModuleWidget::ServiceMessagesChanged);
+      QObject::disconnect(d->OpcUaScadaServiceMessagesNode.data(), &QOpcUaNode::attributeRead, this, &qSlicerU70RoomOpcUaModuleWidget::ServiceMessagesRead);
+
+      // Connect signal handlers for subscribed values
+      d->OpcUaScadaMiscMessagesNode->disableMonitoring(QOpcUa::NodeAttribute::Value);
+      QObject::disconnect(d->OpcUaScadaMiscMessagesNode.data(), &QOpcUaNode::dataChangeOccurred, this, &qSlicerU70RoomOpcUaModuleWidget::MiscMessagesChanged);
+      QObject::disconnect(d->OpcUaScadaMiscMessagesNode.data(), &QOpcUaNode::attributeRead, this, &qSlicerU70RoomOpcUaModuleWidget::MiscMessagesRead);
+      break;
+  case QOpcUaClient::ClientState::Disconnected:
+    QMessageBox::information(this, tr("OPC UA"), tr("Client disconnected"));
+    break;
+  default:
+    break;
   }
-  d->ScadaOpcUaLogic->setPatientPositioningErrorMessage(d->LineEdit_ErrorMessage->text());
 }
 
-void qSlicerU70RoomOpcUaModuleWidget::onSetEventMessageClicked()
+//-----------------------------------------------------------------------------
+void qSlicerU70RoomOpcUaModuleWidget::ErrorMessagesChanged(QOpcUa::NodeAttribute attr, const QVariant &value)
 {
   Q_D(qSlicerU70RoomOpcUaModuleWidget);
-  if (!d->ScadaOpcUaLogic)
+  Q_UNUSED(attr);
+
+  QString errorMsg;
+  std::bitset< MESSAGES_SIZE > first64Flags;
+  QList<QVariant> errorFlags = value.toList(); // Get the attribute from the cache
+  qDebug() << Q_FUNC_INFO << "Error messages changed:" << errorFlags.size();
+  if (errorFlags.size() == MESSAGES_SIZE)
   {
+    int i = 0;
+    for (const QVariant& error : errorFlags)
+    {
+      bool value = error.toBool();
+      first64Flags.set(i, value);
+      ++i;
+    }
+    errorMsg = stringFromBitset(first64Flags);
+    d->LineEdit_ErrorMessages->setText(errorMsg);
+    d->Label_MessagesIndicatorError->setPixmap(first64Flags.any() ? QPixmap(":/Icons/red.png") : QPixmap(":/Icons/green.png"));
     return;
   }
-  d->ScadaOpcUaLogic->setPatientPositioningEventMessage(d->LineEdit_EventMessage->text());
+  d->Label_MessagesIndicatorError->setPixmap(QPixmap(":/Icons/gray.png"));
+  return;
+}
+
+//-----------------------------------------------------------------------------
+void qSlicerU70RoomOpcUaModuleWidget::ErrorMessagesRead(QOpcUa::NodeAttributes attr)
+{
+  Q_D(qSlicerU70RoomOpcUaModuleWidget);
+  if (attr & QOpcUa::NodeAttribute::Value)
+  { // Make sure the value attribute has been read
+    qDebug() << Q_FUNC_INFO << "Error messages read";
+    if (d->OpcUaScadaErrorMessagesNode && d->OpcUaScadaErrorMessagesNode->attributeError(QOpcUa::NodeAttribute::Value) == QOpcUa::UaStatusCode::Good)
+    { // Make sure there was no error
+      QString errorMsg;
+      std::bitset< MESSAGES_SIZE > first64Flags;
+      QList<QVariant> errorFlags = d->OpcUaScadaErrorMessagesNode->attribute(QOpcUa::NodeAttribute::Value).toList(); // Get the attribute from the cache
+      qDebug() << Q_FUNC_INFO << "Error messages read:" << errorFlags.size();
+      if (errorFlags.size() == MESSAGES_SIZE)
+      {
+        int i = 0;
+        for (const QVariant& errorFlag : errorFlags)
+        {
+          bool value = errorFlag.toBool();
+          first64Flags.set(i, value);
+          ++i;
+        }
+        errorMsg = stringFromBitset(first64Flags);//QString::fromStdString(first64Flags.to_string());
+        d->LineEdit_ErrorMessages->setText(errorMsg);
+        d->Label_MessagesIndicatorError->setPixmap(first64Flags.any() ? QPixmap(":/Icons/red.png") : QPixmap(":/Icons/green.png"));
+        return;
+      }
+    }
+  }
+  d->Label_MessagesIndicatorError->setPixmap(QPixmap(":/Icons/gray.png"));
+  return;
+}
+
+//-----------------------------------------------------------------------------
+void qSlicerU70RoomOpcUaModuleWidget::onGetErrorMessagesClicked()
+{
+  Q_D(qSlicerU70RoomOpcUaModuleWidget);
+  if (d->OpcUaScadaErrorMessagesNode)
+  {
+    qDebug() << Q_FUNC_INFO << "Get error clicked";
+    d->OpcUaScadaErrorMessagesNode->readAttributes(QOpcUa::NodeAttribute::Value);
+  }
+}
+
+//-----------------------------------------------------------------------------
+void qSlicerU70RoomOpcUaModuleWidget::ServiceMessagesChanged(QOpcUa::NodeAttribute attr, const QVariant &value)
+{
+  Q_D(qSlicerU70RoomOpcUaModuleWidget);
+  Q_UNUSED(attr);
+
+  QString serviceMsg;
+  std::bitset< MESSAGES_SIZE > first64Flags;
+  QList<QVariant> serviceFlags = value.toList(); // Get the attribute from the cache
+  qDebug() << Q_FUNC_INFO << "Service messages changed:" << serviceFlags.size();
+  if (serviceFlags.size() == MESSAGES_SIZE)
+  {
+    int i = 0;
+    for (const QVariant& serviceFlag : serviceFlags)
+    {
+      bool value = serviceFlag.toBool();
+      first64Flags.set(i, value);
+      ++i;
+    }
+    serviceMsg = stringFromBitset(first64Flags);//QString::fromStdString(first64Flags.to_string());
+    d->LineEdit_ServiceMessages->setText(serviceMsg);
+    d->Label_MessagesIndicatorService->setPixmap(first64Flags.any() ? QPixmap(":/Icons/red.png") : QPixmap(":/Icons/green.png"));
+    return;
+  }
+  d->Label_MessagesIndicatorService->setPixmap(QPixmap(":/Icons/gray.png"));
+  return;
+}
+
+//-----------------------------------------------------------------------------
+void qSlicerU70RoomOpcUaModuleWidget::ServiceMessagesRead(QOpcUa::NodeAttributes attr)
+{
+  Q_D(qSlicerU70RoomOpcUaModuleWidget);
+  if (attr & QOpcUa::NodeAttribute::Value)
+  { // Make sure the value attribute has been read
+    qDebug() << Q_FUNC_INFO << "Service messages read";
+    if (d->OpcUaScadaServiceMessagesNode && d->OpcUaScadaServiceMessagesNode->attributeError(QOpcUa::NodeAttribute::Value) == QOpcUa::UaStatusCode::Good)
+    { // Make sure there was no error
+      QString serviceMsg;
+      std::bitset< MESSAGES_SIZE > first64Flags;
+      QList<QVariant> serviceFlags = d->OpcUaScadaServiceMessagesNode->attribute(QOpcUa::NodeAttribute::Value).toList(); // Get the attribute from the cache
+      qDebug() << Q_FUNC_INFO << "Service messages read:" << serviceFlags.size();
+      if (serviceFlags.size() == MESSAGES_SIZE)
+      {
+        int i = 0;
+        for (const QVariant& serviceFlag : serviceFlags)
+        {
+          bool value = serviceFlag.toBool();
+          first64Flags.set(i, value);
+          ++i;
+        }
+        serviceMsg = stringFromBitset(first64Flags);//QString::fromStdString(first64Flags.to_string());
+        d->LineEdit_ServiceMessages->setText(serviceMsg);
+        d->Label_MessagesIndicatorService->setPixmap(first64Flags.any() ? QPixmap(":/Icons/red.png") : QPixmap(":/Icons/green.png"));
+        return;
+      }
+    }
+  }
+  d->Label_MessagesIndicatorService->setPixmap(QPixmap(":/Icons/gray.png"));
+  return;
+}
+
+//-----------------------------------------------------------------------------
+void qSlicerU70RoomOpcUaModuleWidget::onGetServiceMessagesClicked()
+{
+  Q_D(qSlicerU70RoomOpcUaModuleWidget);
+  if (d->OpcUaScadaServiceMessagesNode)
+  {
+    qDebug() << Q_FUNC_INFO << "Get Service messages";
+    d->OpcUaScadaServiceMessagesNode->readAttributes(QOpcUa::NodeAttribute::Value);
+  }
+}
+
+//-----------------------------------------------------------------------------
+void qSlicerU70RoomOpcUaModuleWidget::MiscMessagesChanged(QOpcUa::NodeAttribute attr, const QVariant &value)
+{
+  Q_D(qSlicerU70RoomOpcUaModuleWidget);
+  Q_UNUSED(attr);
+
+  QString miscMsg;
+  std::bitset< MESSAGES_SIZE > first64Flags;
+  QList<QVariant> miscFlags = value.toList(); // Get the attribute from the cache
+  qDebug() << Q_FUNC_INFO << "Misc messages changed:" << miscFlags.size();
+  if (miscFlags.size() == MESSAGES_SIZE)
+  {
+    int i = 0;
+    for (const QVariant& miscFlag : miscFlags)
+    {
+      bool value = miscFlag.toBool();
+      first64Flags.set(i, value);
+      ++i;
+    }
+    miscMsg = stringFromBitset(first64Flags);//QString::fromStdString(first64Flags.to_string());
+    d->LineEdit_MiscMessages->setText(miscMsg);
+    d->Label_MessagesIndicatorMisc->setPixmap(first64Flags.any() ? QPixmap(":/Icons/red.png") : QPixmap(":/Icons/green.png"));
+    return;
+  }
+  d->Label_MessagesIndicatorMisc->setPixmap(QPixmap(":/Icons/gray.png"));
+  return;
+}
+
+//-----------------------------------------------------------------------------
+void qSlicerU70RoomOpcUaModuleWidget::MiscMessagesRead(QOpcUa::NodeAttributes attr)
+{
+  Q_D(qSlicerU70RoomOpcUaModuleWidget);
+
+  if (attr & QOpcUa::NodeAttribute::Value)
+  { // Make sure the value attribute has been read
+    qDebug() << Q_FUNC_INFO << "Misc messages read";
+    if (d->OpcUaScadaMiscMessagesNode && d->OpcUaScadaMiscMessagesNode->attributeError(QOpcUa::NodeAttribute::Value) == QOpcUa::UaStatusCode::Good)
+    { // Make sure there was no error
+      QString miscMsg;
+      std::bitset< MESSAGES_SIZE > first64Flags;
+      QList<QVariant> miscFlags = d->OpcUaScadaMiscMessagesNode->attribute(QOpcUa::NodeAttribute::Value).toList(); // Get the attribute from the cache
+      qDebug() << Q_FUNC_INFO << "Misc messages read:" << miscFlags.size();
+      if (miscFlags.size() == MESSAGES_SIZE)
+      {
+        int i = 0;
+        for (const QVariant& miscFlag : miscFlags)
+        {
+          bool value = miscFlag.toBool();
+          first64Flags.set(i, value);
+          ++i;
+        }
+        miscMsg = stringFromBitset(first64Flags);//QString::fromStdString(first64Flags.to_string());
+        d->LineEdit_MiscMessages->setText(miscMsg);
+        d->Label_MessagesIndicatorMisc->setPixmap(first64Flags.any() ? QPixmap(":/Icons/red.png") : QPixmap(":/Icons/green.png"));
+        return;
+      }
+    }
+  }
+  d->Label_MessagesIndicatorMisc->setPixmap(QPixmap(":/Icons/gray.png"));
+  return;
+}
+
+//-----------------------------------------------------------------------------
+void qSlicerU70RoomOpcUaModuleWidget::ServerInterfacesRead(QOpcUa::NodeAttributes attr)
+{
+  Q_D(qSlicerU70RoomOpcUaModuleWidget);
+
+  if (attr & QOpcUa::NodeAttribute::Value)
+  { // Make sure the value attribute has been read
+    qDebug() << Q_FUNC_INFO << "Misc messages read";
+    if (d->OpcUaScadaServerInterfacesNode && d->OpcUaScadaServerInterfacesNode->attributeError(QOpcUa::NodeAttribute::Value) == QOpcUa::UaStatusCode::Good)
+    { // Make sure there was no error
+      QVariant value = d->OpcUaScadaServerInterfacesNode->attribute(QOpcUa::NodeAttribute::Value); // Get the attribute from the cache
+      if (value.canConvert<QOpcUaExtensionObject>())
+      {
+        QOpcUaExtensionObject extObj = value.value<QOpcUaExtensionObject>();
+        qDebug() << Q_FUNC_INFO << "Encoding Type ID:" << extObj.encodingTypeId();
+
+        // Extract the raw binary body data payload
+        QByteArray binaryData = extObj.encodedBody();
+
+        // Decode the data according to your structure alignment/schema
+        if (!binaryData.isEmpty())
+        {
+          // Safe decoding using QDataStream mapped to the byte payload
+          QDataStream stream(&binaryData, QIODevice::ReadOnly);
+          quint64 err, serv, misc;
+          bool errLast, servLast, miscLast;
+          stream.setByteOrder(QDataStream::LittleEndian); // OPC UA Binary standard
+          stream >> err >> errLast >> serv >> servLast >> misc >> miscLast;
+        }
+      }
+      else
+      {
+        qDebug() << Q_FUNC_INFO << "Node value is not an ExtensionObject. Found metaType ID:" << value.userType();
+      }
+    }
+  }
+}
+
+//-----------------------------------------------------------------------------
+void qSlicerU70RoomOpcUaModuleWidget::onGetMiscMessagesClicked()
+{
+  Q_D(qSlicerU70RoomOpcUaModuleWidget);
+    
+  if (d->OpcUaScadaMiscMessagesNode)
+  {
+    qDebug() << Q_FUNC_INFO << "Get misc messages";
+    d->OpcUaScadaMiscMessagesNode->readAttributes(QOpcUa::NodeAttribute::Value);
+  }
 }
