@@ -102,7 +102,7 @@ public:
   QScopedPointer< qSlicerScadaOpcUaRobotsControlWidget > OpcUaRobotsControlWidget;
 
   QScopedPointer< QOpcUaProvider > OpcUaProvider;
-  QOpcUaClient* OpcUaClient{ nullptr };
+  QScopedPointer< QOpcUaClient > OpcUaClient;
   bool ClientConnectedFlag{ false };
   QVector<QOpcUaEndpointDescription> OpcUaEndpointList;
   QOpcUaApplicationIdentity OpcUaAppIdentity;
@@ -138,7 +138,7 @@ void qSlicerU70RoomOpcUaModuleWidgetPrivate::createClient()
   Q_Q(qSlicerU70RoomOpcUaModuleWidget);
   if (!this->OpcUaClient)
   {
-    this->OpcUaClient = this->OpcUaProvider->createClient(this->ComboBox_OpcUaPlugin->currentText());
+    this->OpcUaClient.reset(this->OpcUaProvider->createClient(this->ComboBox_OpcUaPlugin->currentText()));
     if (!this->OpcUaClient)
     {
       const QString message(QObject::tr("Connecting to the given sever failed. See the log for details."));
@@ -146,7 +146,7 @@ void qSlicerU70RoomOpcUaModuleWidgetPrivate::createClient()
       return;
     }
 
-    QObject::connect(this->OpcUaClient, &QOpcUaClient::connectError, q, &qSlicerU70RoomOpcUaModuleWidget::showErrorDialog);
+    QObject::connect(this->OpcUaClient.data(), &QOpcUaClient::connectError, q, &qSlicerU70RoomOpcUaModuleWidget::showErrorDialog);
     OpcUaClient->setApplicationIdentity(OpcUaAppIdentity);
 
     if (OpcUaClient->supportedUserTokenTypes().contains(QOpcUaUserTokenPolicy::TokenType::Certificate))
@@ -156,12 +156,12 @@ void qSlicerU70RoomOpcUaModuleWidgetPrivate::createClient()
       OpcUaClient->setAuthenticationInformation(authInfo);
     }
 
-    QObject::connect(this->OpcUaClient, &QOpcUaClient::connected, q, &qSlicerU70RoomOpcUaModuleWidget::clientConnected);
-    QObject::connect(this->OpcUaClient, &QOpcUaClient::disconnected, q, &qSlicerU70RoomOpcUaModuleWidget::clientDisconnected);
-    QObject::connect(this->OpcUaClient, &QOpcUaClient::errorChanged, q, &qSlicerU70RoomOpcUaModuleWidget::clientError);
-    QObject::connect(this->OpcUaClient, &QOpcUaClient::stateChanged, q, &qSlicerU70RoomOpcUaModuleWidget::clientState);
-    QObject::connect(this->OpcUaClient, &QOpcUaClient::endpointsRequestFinished, q, &qSlicerU70RoomOpcUaModuleWidget::getEndpointsComplete);
-    QObject::connect(this->OpcUaClient, &QOpcUaClient::findServersFinished, q, &qSlicerU70RoomOpcUaModuleWidget::findServersComplete);
+    QObject::connect(this->OpcUaClient.data(), &QOpcUaClient::connected, q, &qSlicerU70RoomOpcUaModuleWidget::clientConnected);
+    QObject::connect(this->OpcUaClient.data(), &QOpcUaClient::disconnected, q, &qSlicerU70RoomOpcUaModuleWidget::clientDisconnected);
+    QObject::connect(this->OpcUaClient.data(), &QOpcUaClient::errorChanged, q, &qSlicerU70RoomOpcUaModuleWidget::clientError);
+    QObject::connect(this->OpcUaClient.data(), &QOpcUaClient::stateChanged, q, &qSlicerU70RoomOpcUaModuleWidget::clientState);
+    QObject::connect(this->OpcUaClient.data(), &QOpcUaClient::endpointsRequestFinished, q, &qSlicerU70RoomOpcUaModuleWidget::getEndpointsComplete);
+    QObject::connect(this->OpcUaClient.data(), &QOpcUaClient::findServersFinished, q, &qSlicerU70RoomOpcUaModuleWidget::findServersComplete);
   }
 }
 
@@ -253,6 +253,7 @@ void qSlicerU70RoomOpcUaModuleWidget::setup()
   
   // Nodes
   // Widgets
+  QObject::connect(d->PushButton_GetServerInterfaces, &QPushButton::clicked, this, &qSlicerU70RoomOpcUaModuleWidget::onGetServerInterfacesClicked);
   QObject::connect(d->PushButton_CustomLayout, &QPushButton::clicked, this, &qSlicerU70RoomOpcUaModuleWidget::onSetCustomLayoutClicked);
 
   // qLogic
@@ -530,7 +531,7 @@ void qSlicerU70RoomOpcUaModuleWidget::clientConnected()
 
   d->ClientConnectedFlag = true;
   d->updateUiState();
-  QObject::connect(d->OpcUaClient, &QOpcUaClient::namespaceArrayUpdated, this, &qSlicerU70RoomOpcUaModuleWidget::namespacesArrayUpdated);
+  QObject::connect(d->OpcUaClient.data(), &QOpcUaClient::namespaceArrayUpdated, this, &qSlicerU70RoomOpcUaModuleWidget::namespacesArrayUpdated);
   d->OpcUaClient->updateNamespaceArray();
 }
 
@@ -541,7 +542,7 @@ void qSlicerU70RoomOpcUaModuleWidget::clientDisconnected()
 
   d->ClientConnectedFlag = false;
   d->OpcUaClient->deleteLater();
-  d->OpcUaClient = nullptr;
+  d->OpcUaClient.take();
   d->OpcUaScadaErrorMessagesNode.reset(nullptr);
   d->OpcUaScadaServiceMessagesNode.reset(nullptr);
   d->OpcUaScadaMiscMessagesNode.reset(nullptr);
@@ -561,7 +562,7 @@ void qSlicerU70RoomOpcUaModuleWidget::namespacesArrayUpdated(const QStringList &
     return;
   }
 
-  QObject::disconnect(d->OpcUaClient, &QOpcUaClient::namespaceArrayUpdated, this, &qSlicerU70RoomOpcUaModuleWidget::namespacesArrayUpdated);
+  QObject::disconnect(d->OpcUaClient.data(), &QOpcUaClient::namespaceArrayUpdated, this, &qSlicerU70RoomOpcUaModuleWidget::namespacesArrayUpdated);
 
   // Error messages
   d->OpcUaScadaErrorMessagesNode.reset(d->OpcUaClient->node(SCADA_ERRORMESSAGES_NODE_ID));
@@ -882,7 +883,7 @@ void qSlicerU70RoomOpcUaModuleWidget::ServerInterfacesRead(QOpcUa::NodeAttribute
 
   if (attr & QOpcUa::NodeAttribute::Value)
   { // Make sure the value attribute has been read
-    qDebug() << Q_FUNC_INFO << "Misc messages read";
+    qDebug() << Q_FUNC_INFO << "Server interfaces read";
     if (d->OpcUaScadaServerInterfacesNode && d->OpcUaScadaServerInterfacesNode->attributeError(QOpcUa::NodeAttribute::Value) == QOpcUa::UaStatusCode::Good)
     { // Make sure there was no error
       QVariant value = d->OpcUaScadaServerInterfacesNode->attribute(QOpcUa::NodeAttribute::Value); // Get the attribute from the cache
@@ -910,6 +911,17 @@ void qSlicerU70RoomOpcUaModuleWidget::ServerInterfacesRead(QOpcUa::NodeAttribute
         qDebug() << Q_FUNC_INFO << "Node value is not an ExtensionObject. Found metaType ID:" << value.userType();
       }
     }
+  }
+}
+
+//-----------------------------------------------------------------------------
+void qSlicerU70RoomOpcUaModuleWidget::onGetServerInterfacesClicked()
+{
+  Q_D(qSlicerU70RoomOpcUaModuleWidget);
+  if (d->OpcUaScadaServerInterfacesNode)
+  {
+    qDebug() << Q_FUNC_INFO << "Get Siemens PLC OPC UA ServerInterfaces node value";
+    d->OpcUaScadaServerInterfacesNode->readAttributes(QOpcUa::NodeAttribute::Value);
   }
 }
 

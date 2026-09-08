@@ -83,6 +83,7 @@ public slots:
   void onGetErrorMessagesClicked();
   void onGetServiceMessagesClicked();
   void onGetMiscMessagesClicked();
+  void onGetServerInterfacesClicked();
   
 protected:
   QScopedPointer<qSlicerU70RoomOpcUaModuleWidgetPrivate> d_ptr;

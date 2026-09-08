@@ -201,7 +201,7 @@
         <string/>
        </property>
        <property name="pixmap">
-        <pixmap resource="../../../../../cpp/Qt5/OpcUaScada_5.15.2/OpcUaScada.qrc">:/indicators/icons/gray.svg</pixmap>
+        <pixmap resource="../qSlicerU70RoomOpcUaModule.qrc">:/Icons/gray.png</pixmap>
        </property>
       </widget>
      </item>
@@ -218,7 +218,7 @@
         <string/>
        </property>
        <property name="pixmap">
-        <pixmap resource="../../../../../cpp/Qt5/OpcUaScada_5.15.2/OpcUaScada.qrc">:/indicators/icons/gray.svg</pixmap>
+        <pixmap resource="../qSlicerU70RoomOpcUaModule.qrc">:/Icons/gray.png</pixmap>
        </property>
       </widget>
      </item>
@@ -242,7 +242,7 @@
         <string/>
        </property>
        <property name="pixmap">
-        <pixmap resource="../../../../../cpp/Qt5/OpcUaScada_5.15.2/OpcUaScada.qrc">:/indicators/icons/gray.svg</pixmap>
+        <pixmap resource="../qSlicerU70RoomOpcUaModule.qrc">:/Icons/gray.png</pixmap>
        </property>
       </widget>
      </item>
@@ -319,6 +319,13 @@
      </property>
     </widget>
    </item>
+   <item row="7" column="0">
+    <widget class="QPushButton" name="PushButton_GetServerInterfaces">
+     <property name="text">
+      <string>Get server interfaces...</string>
+     </property>
+    </widget>
+   </item>
   </layout>
  </widget>
  <customwidgets>
@@ -342,12 +349,11 @@
   </customwidget>
  </customwidgets>
  <resources>
-  <include location="../../../../../cpp/Qt5/OpcUaScada_5.15.2/OpcUaScada.qrc"/>
-  <include location="OpcUaScada.qrc"/>
+  <include location="../qSlicerU70RoomOpcUaModule.qrc"/>
  </resources>
  <connections/>
  <buttongroups>
-  <buttongroup name="buttonGroup"/>
   <buttongroup name="ButtonGroup_Room"/>
+  <buttongroup name="buttonGroup"/>
  </buttongroups>
 </ui>
