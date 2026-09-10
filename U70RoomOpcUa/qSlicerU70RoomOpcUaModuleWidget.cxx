@@ -46,6 +46,7 @@
 #include <vtkSlicerU70RoomOpcUaLogic.h>
 //#include "qSlicerScadaOpcUaLogic.h"
 #include "qSlicerScadaOpcUaRobotsControlWidget.h"
+#include "qSlicerOpcUaRobotsMessagesListModel.h"
 
 // SlicerRT ScadaOpcUa MRML includes
 #include <vtkMRMLScadaOpcUaNode.h>
@@ -61,15 +62,6 @@ const QString SCADA_ERRORMESSAGES_NODE_ID = "ns=4;i=13";
 const QString SCADA_SERVICEMESSAGES_NODE_ID = "ns=4;i=78";
 const QString SCADA_MESSAGES_NODE_ID = "ns=4;i=143";
 constexpr size_t MESSAGES_SIZE = 64;
-
-QString stringFromBitset(const std::bitset<MESSAGES_SIZE> &bits)
-{
-  QString msg;
-  QTextStream bitsToHex(&msg);
-  bitsToHex.setIntegerBase(16);
-  bitsToHex << "0x" << qSetPadChar('0') << qSetFieldWidth(8) << static_cast< quint64 >(bits.to_ullong());
-  return msg;
-}
 
 }
 
@@ -114,6 +106,8 @@ public:
   QScopedPointer<QOpcUaNode> OpcUaScadaMiscMessagesNode;
   QScopedPointer<QOpcUaNode> OpcUaScadaServerInterfacesNode;
   QScopedPointer<QOpcUaNode> SiemensPlcTimeNode;
+  
+  QScopedPointer<qSlicerOpcUaRobotsMessagesListModel> SiemensPlcMessagesModel;
 };
 
 //-----------------------------------------------------------------------------
@@ -175,12 +169,7 @@ void qSlicerU70RoomOpcUaModuleWidgetPrivate::updateUiState()
   this->LineEdit_OpcUaServerUrl->setDisabled(this->ClientConnectedFlag);
   if (!this->ClientConnectedFlag)
   {
-    this->Label_MessagesIndicatorError->setPixmap(QPixmap(":/Icons/gray.png"));
-    this->Label_MessagesIndicatorService->setPixmap(QPixmap(":/Icons/gray.png"));
-    this->Label_MessagesIndicatorMisc->setPixmap(QPixmap(":/Icons/gray.png"));
-    this->LineEdit_ErrorMessages->setText("");
-    this->LineEdit_ServiceMessages->setText("");
-    this->LineEdit_MiscMessages->setText("");
+    this->SiemensPlcMessagesModel->clear();
   }
 }
 
@@ -209,12 +198,15 @@ void qSlicerU70RoomOpcUaModuleWidget::setup()
 //  d->ScadaOpcUaLogic.reset(new qSlicerScadaOpcUaLogic(this));
   d->OpcUaRobotsControlWidget.reset(new qSlicerScadaOpcUaRobotsControlWidget(this));
 //  d->ScadaOpcUaModel.reset(new OpcUaModel(this));
+  d->SiemensPlcMessagesModel.reset(new qSlicerOpcUaRobotsMessagesListModel(this));
   d->OpcUaProvider.reset(new QOpcUaProvider(this));
 
   d->LineEdit_OpcUaServerUrl->setText("opc.tcp://172.31.1.1:4840");
   d->ComboBox_OpcUaPlugin->addItems(d->OpcUaProvider->availableBackends());
 
 //  d->ScadaOpcUaRobotsControlWidget->setScadaOpcUaLogic(d->ScadaOpcUaLogic);
+
+  d->ListView_SiemensPlcMessages->setModel(d->SiemensPlcMessagesModel.data());
 
   if (d->ComboBox_OpcUaPlugin->count() == 0)
   {
@@ -679,7 +671,6 @@ void qSlicerU70RoomOpcUaModuleWidget::ErrorMessagesChanged(QOpcUa::NodeAttribute
   QString errorMsg;
   std::bitset< MESSAGES_SIZE > first64Flags;
   QList<QVariant> errorFlags = value.toList(); // Get the attribute from the cache
-  qDebug() << Q_FUNC_INFO << "Error messages changed:" << errorFlags.size();
   if (errorFlags.size() == MESSAGES_SIZE)
   {
     int i = 0;
@@ -689,12 +680,9 @@ void qSlicerU70RoomOpcUaModuleWidget::ErrorMessagesChanged(QOpcUa::NodeAttribute
       first64Flags.set(i, value);
       ++i;
     }
-    errorMsg = stringFromBitset(first64Flags);
-    d->LineEdit_ErrorMessages->setText(errorMsg);
-    d->Label_MessagesIndicatorError->setPixmap(first64Flags.any() ? QPixmap(":/Icons/red.png") : QPixmap(":/Icons/green.png"));
+    d->SiemensPlcMessagesModel->updateErrorBits(first64Flags.to_ullong());
     return;
   }
-  d->Label_MessagesIndicatorError->setPixmap(QPixmap(":/Icons/gray.png"));
   return;
 }
 
@@ -704,13 +692,11 @@ void qSlicerU70RoomOpcUaModuleWidget::ErrorMessagesRead(QOpcUa::NodeAttributes a
   Q_D(qSlicerU70RoomOpcUaModuleWidget);
   if (attr & QOpcUa::NodeAttribute::Value)
   { // Make sure the value attribute has been read
-    qDebug() << Q_FUNC_INFO << "Error messages read";
     if (d->OpcUaScadaErrorMessagesNode && d->OpcUaScadaErrorMessagesNode->attributeError(QOpcUa::NodeAttribute::Value) == QOpcUa::UaStatusCode::Good)
     { // Make sure there was no error
       QString errorMsg;
       std::bitset< MESSAGES_SIZE > first64Flags;
       QList<QVariant> errorFlags = d->OpcUaScadaErrorMessagesNode->attribute(QOpcUa::NodeAttribute::Value).toList(); // Get the attribute from the cache
-      qDebug() << Q_FUNC_INFO << "Error messages read:" << errorFlags.size();
       if (errorFlags.size() == MESSAGES_SIZE)
       {
         int i = 0;
@@ -720,14 +706,11 @@ void qSlicerU70RoomOpcUaModuleWidget::ErrorMessagesRead(QOpcUa::NodeAttributes a
           first64Flags.set(i, value);
           ++i;
         }
-        errorMsg = stringFromBitset(first64Flags);//QString::fromStdString(first64Flags.to_string());
-        d->LineEdit_ErrorMessages->setText(errorMsg);
-        d->Label_MessagesIndicatorError->setPixmap(first64Flags.any() ? QPixmap(":/Icons/red.png") : QPixmap(":/Icons/green.png"));
+        d->SiemensPlcMessagesModel->updateErrorBits(first64Flags.to_ullong());
         return;
       }
     }
   }
-  d->Label_MessagesIndicatorError->setPixmap(QPixmap(":/Icons/gray.png"));
   return;
 }
 
@@ -737,7 +720,6 @@ void qSlicerU70RoomOpcUaModuleWidget::onGetErrorMessagesClicked()
   Q_D(qSlicerU70RoomOpcUaModuleWidget);
   if (d->OpcUaScadaErrorMessagesNode)
   {
-    qDebug() << Q_FUNC_INFO << "Get error clicked";
     d->OpcUaScadaErrorMessagesNode->readAttributes(QOpcUa::NodeAttribute::Value);
   }
 }
@@ -751,7 +733,6 @@ void qSlicerU70RoomOpcUaModuleWidget::ServiceMessagesChanged(QOpcUa::NodeAttribu
   QString serviceMsg;
   std::bitset< MESSAGES_SIZE > first64Flags;
   QList<QVariant> serviceFlags = value.toList(); // Get the attribute from the cache
-  qDebug() << Q_FUNC_INFO << "Service messages changed:" << serviceFlags.size();
   if (serviceFlags.size() == MESSAGES_SIZE)
   {
     int i = 0;
@@ -761,12 +742,10 @@ void qSlicerU70RoomOpcUaModuleWidget::ServiceMessagesChanged(QOpcUa::NodeAttribu
       first64Flags.set(i, value);
       ++i;
     }
-    serviceMsg = stringFromBitset(first64Flags);//QString::fromStdString(first64Flags.to_string());
-    d->LineEdit_ServiceMessages->setText(serviceMsg);
-    d->Label_MessagesIndicatorService->setPixmap(first64Flags.any() ? QPixmap(":/Icons/red.png") : QPixmap(":/Icons/green.png"));
+    d->SiemensPlcMessagesModel->updateServiceBits(first64Flags.to_ullong());
     return;
   }
-  d->Label_MessagesIndicatorService->setPixmap(QPixmap(":/Icons/gray.png"));
+
   return;
 }
 
@@ -776,13 +755,11 @@ void qSlicerU70RoomOpcUaModuleWidget::ServiceMessagesRead(QOpcUa::NodeAttributes
   Q_D(qSlicerU70RoomOpcUaModuleWidget);
   if (attr & QOpcUa::NodeAttribute::Value)
   { // Make sure the value attribute has been read
-    qDebug() << Q_FUNC_INFO << "Service messages read";
     if (d->OpcUaScadaServiceMessagesNode && d->OpcUaScadaServiceMessagesNode->attributeError(QOpcUa::NodeAttribute::Value) == QOpcUa::UaStatusCode::Good)
     { // Make sure there was no error
       QString serviceMsg;
       std::bitset< MESSAGES_SIZE > first64Flags;
       QList<QVariant> serviceFlags = d->OpcUaScadaServiceMessagesNode->attribute(QOpcUa::NodeAttribute::Value).toList(); // Get the attribute from the cache
-      qDebug() << Q_FUNC_INFO << "Service messages read:" << serviceFlags.size();
       if (serviceFlags.size() == MESSAGES_SIZE)
       {
         int i = 0;
@@ -792,14 +769,11 @@ void qSlicerU70RoomOpcUaModuleWidget::ServiceMessagesRead(QOpcUa::NodeAttributes
           first64Flags.set(i, value);
           ++i;
         }
-        serviceMsg = stringFromBitset(first64Flags);//QString::fromStdString(first64Flags.to_string());
-        d->LineEdit_ServiceMessages->setText(serviceMsg);
-        d->Label_MessagesIndicatorService->setPixmap(first64Flags.any() ? QPixmap(":/Icons/red.png") : QPixmap(":/Icons/green.png"));
+        d->SiemensPlcMessagesModel->updateServiceBits(first64Flags.to_ullong());
         return;
       }
     }
   }
-  d->Label_MessagesIndicatorService->setPixmap(QPixmap(":/Icons/gray.png"));
   return;
 }
 
@@ -809,7 +783,6 @@ void qSlicerU70RoomOpcUaModuleWidget::onGetServiceMessagesClicked()
   Q_D(qSlicerU70RoomOpcUaModuleWidget);
   if (d->OpcUaScadaServiceMessagesNode)
   {
-    qDebug() << Q_FUNC_INFO << "Get Service messages";
     d->OpcUaScadaServiceMessagesNode->readAttributes(QOpcUa::NodeAttribute::Value);
   }
 }
@@ -823,7 +796,6 @@ void qSlicerU70RoomOpcUaModuleWidget::MiscMessagesChanged(QOpcUa::NodeAttribute 
   QString miscMsg;
   std::bitset< MESSAGES_SIZE > first64Flags;
   QList<QVariant> miscFlags = value.toList(); // Get the attribute from the cache
-  qDebug() << Q_FUNC_INFO << "Misc messages changed:" << miscFlags.size();
   if (miscFlags.size() == MESSAGES_SIZE)
   {
     int i = 0;
@@ -833,12 +805,9 @@ void qSlicerU70RoomOpcUaModuleWidget::MiscMessagesChanged(QOpcUa::NodeAttribute 
       first64Flags.set(i, value);
       ++i;
     }
-    miscMsg = stringFromBitset(first64Flags);//QString::fromStdString(first64Flags.to_string());
-    d->LineEdit_MiscMessages->setText(miscMsg);
-    d->Label_MessagesIndicatorMisc->setPixmap(first64Flags.any() ? QPixmap(":/Icons/red.png") : QPixmap(":/Icons/green.png"));
+    d->SiemensPlcMessagesModel->updateMiscBits(first64Flags.to_ullong());
     return;
   }
-  d->Label_MessagesIndicatorMisc->setPixmap(QPixmap(":/Icons/gray.png"));
   return;
 }
 
@@ -849,13 +818,11 @@ void qSlicerU70RoomOpcUaModuleWidget::MiscMessagesRead(QOpcUa::NodeAttributes at
 
   if (attr & QOpcUa::NodeAttribute::Value)
   { // Make sure the value attribute has been read
-    qDebug() << Q_FUNC_INFO << "Misc messages read";
     if (d->OpcUaScadaMiscMessagesNode && d->OpcUaScadaMiscMessagesNode->attributeError(QOpcUa::NodeAttribute::Value) == QOpcUa::UaStatusCode::Good)
     { // Make sure there was no error
       QString miscMsg;
       std::bitset< MESSAGES_SIZE > first64Flags;
       QList<QVariant> miscFlags = d->OpcUaScadaMiscMessagesNode->attribute(QOpcUa::NodeAttribute::Value).toList(); // Get the attribute from the cache
-      qDebug() << Q_FUNC_INFO << "Misc messages read:" << miscFlags.size();
       if (miscFlags.size() == MESSAGES_SIZE)
       {
         int i = 0;
@@ -865,14 +832,11 @@ void qSlicerU70RoomOpcUaModuleWidget::MiscMessagesRead(QOpcUa::NodeAttributes at
           first64Flags.set(i, value);
           ++i;
         }
-        miscMsg = stringFromBitset(first64Flags);//QString::fromStdString(first64Flags.to_string());
-        d->LineEdit_MiscMessages->setText(miscMsg);
-        d->Label_MessagesIndicatorMisc->setPixmap(first64Flags.any() ? QPixmap(":/Icons/red.png") : QPixmap(":/Icons/green.png"));
+        d->SiemensPlcMessagesModel->updateMiscBits(first64Flags.to_ullong());
         return;
       }
     }
   }
-  d->Label_MessagesIndicatorMisc->setPixmap(QPixmap(":/Icons/gray.png"));
   return;
 }
 
@@ -884,8 +848,9 @@ void qSlicerU70RoomOpcUaModuleWidget::ServerInterfacesRead(QOpcUa::NodeAttribute
   if (attr & QOpcUa::NodeAttribute::Value)
   { // Make sure the value attribute has been read
     qDebug() << Q_FUNC_INFO << "Server interfaces read";
-    if (d->OpcUaScadaServerInterfacesNode && d->OpcUaScadaServerInterfacesNode->attributeError(QOpcUa::NodeAttribute::Value) == QOpcUa::UaStatusCode::Good)
+    if (d->OpcUaScadaServerInterfacesNode/* && d->OpcUaScadaServerInterfacesNode->attributeError(QOpcUa::NodeAttribute::Value) == QOpcUa::UaStatusCode::Good*/)
     { // Make sure there was no error
+      qDebug() << Q_FUNC_INFO << "Value is good";
       QVariant value = d->OpcUaScadaServerInterfacesNode->attribute(QOpcUa::NodeAttribute::Value); // Get the attribute from the cache
       if (value.canConvert<QOpcUaExtensionObject>())
       {

@@ -13,6 +13,8 @@ set(${KIT}_SRCS
 #  qSlicerScadaOpcUaLogic.h
   qSlicerScadaOpcUaRobotsControlWidget.cxx
   qSlicerScadaOpcUaRobotsControlWidget.h
+  qSlicerOpcUaRobotsMessagesListModel.cxx
+  qSlicerOpcUaRobotsMessagesListModel.h
 #  opcuamodel.cpp
 #  opcuamodel.h
 #  treeitem.cpp
@@ -22,6 +24,7 @@ set(${KIT}_SRCS
 set(${KIT}_MOC_SRCS
 #  qSlicerScadaOpcUaLogic.h
   qSlicerScadaOpcUaRobotsControlWidget.h
+  qSlicerOpcUaRobotsMessagesListModel.h
 #  opcuamodel.h
 #  treeitem.h
   )
