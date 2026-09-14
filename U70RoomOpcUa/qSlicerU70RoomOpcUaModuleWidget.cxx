@@ -136,8 +136,16 @@ void qSlicerU70RoomOpcUaModuleWidgetPrivate::createClient()
       OpcUaClient->setAuthenticationInformation(authInfo);
     }
 
-    QObject::connect(this->OpcUaClient.data(), &QOpcUaClient::connected, q, &qSlicerU70RoomOpcUaModuleWidget::clientConnected);
-    QObject::connect(this->OpcUaClient.data(), &QOpcUaClient::disconnected, q, &qSlicerU70RoomOpcUaModuleWidget::clientDisconnected);
+    QObject::connect(this->OpcUaClient.data(), &QOpcUaClient::connected,
+      q, &qSlicerU70RoomOpcUaModuleWidget::clientConnected);
+//    QObject::connect(this->OpcUaClient.data(), &QOpcUaClient::connected,
+//      this->SiemensPlcOpcUaControlWidget.data(), &qSlicerSiemensPlcOpcUaWidget::onOpcUaClientConnected);
+
+    QObject::connect(this->OpcUaClient.data(), &QOpcUaClient::disconnected,
+      q, &qSlicerU70RoomOpcUaModuleWidget::clientDisconnected);
+    QObject::connect(this->OpcUaClient.data(), &QOpcUaClient::disconnected,
+      this->SiemensPlcOpcUaControlWidget.data(), &qSlicerSiemensPlcOpcUaWidget::onOpcUaClientDisconnected);
+
     QObject::connect(this->OpcUaClient.data(), &QOpcUaClient::errorChanged, q, &qSlicerU70RoomOpcUaModuleWidget::clientError);
     QObject::connect(this->OpcUaClient.data(), &QOpcUaClient::stateChanged, q, &qSlicerU70RoomOpcUaModuleWidget::clientState);
     QObject::connect(this->OpcUaClient.data(), &QOpcUaClient::endpointsRequestFinished, q, &qSlicerU70RoomOpcUaModuleWidget::getEndpointsComplete);
@@ -518,7 +526,6 @@ void qSlicerU70RoomOpcUaModuleWidget::clientDisconnected()
   Q_D(qSlicerU70RoomOpcUaModuleWidget);
 
   d->ClientConnectedFlag = false;
-//  d->OpcUaClient->deleteLater();
   d->OpcUaClient.clear();
   d->updateUiState();
 }
@@ -536,8 +543,10 @@ void qSlicerU70RoomOpcUaModuleWidget::namespacesArrayUpdated(const QStringList &
 
   // set client for Siemens PLC widget
   d->SiemensPlcOpcUaControlWidget->setSiemensPlcOpcUaClient(d->OpcUaClient);
+  d->SiemensPlcOpcUaControlWidget->onOpcUaClientConnected();
 
-  QObject::disconnect(d->OpcUaClient.data(), &QOpcUaClient::namespaceArrayUpdated, this, &qSlicerU70RoomOpcUaModuleWidget::namespacesArrayUpdated);
+  QObject::disconnect(d->OpcUaClient.data(), &QOpcUaClient::namespaceArrayUpdated,
+    this, &qSlicerU70RoomOpcUaModuleWidget::namespacesArrayUpdated);
 }
 
 //-----------------------------------------------------------------------------
