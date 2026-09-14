@@ -44,7 +44,7 @@ public:
   void enter() override;
 
 public slots:
-  void onSetCustomLayoutClicked();
+  void onShowSiemensPlcControlsClicked();
   /// Set the current MRML scene to the widget
   void setMRMLScene(vtkMRMLScene*) override;
   void onScadaOpcUaLogicModified();
@@ -68,22 +68,6 @@ public slots:
   void clientError(QOpcUaClient::ClientError);
   void clientState(QOpcUaClient::ClientState);
   void showErrorDialog(QOpcUaErrorState *errorState);
-
-  void ErrorMessagesRead(QOpcUa::NodeAttributes attr);
-  void ErrorMessagesChanged(QOpcUa::NodeAttribute attr, const QVariant &value);
-
-  void ServiceMessagesRead(QOpcUa::NodeAttributes attr);
-  void ServiceMessagesChanged(QOpcUa::NodeAttribute attr, const QVariant &value);
-
-  void MiscMessagesRead(QOpcUa::NodeAttributes attr);
-  void MiscMessagesChanged(QOpcUa::NodeAttribute attr, const QVariant &value);
-
-  void ServerInterfacesRead(QOpcUa::NodeAttributes attr);
-
-  void onGetErrorMessagesClicked();
-  void onGetServiceMessagesClicked();
-  void onGetMiscMessagesClicked();
-  void onGetServerInterfacesClicked();
   
 protected:
   QScopedPointer<qSlicerU70RoomOpcUaModuleWidgetPrivate> d_ptr;

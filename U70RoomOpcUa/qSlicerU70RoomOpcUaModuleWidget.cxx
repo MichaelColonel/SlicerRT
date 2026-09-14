@@ -45,25 +45,17 @@
 // vtkSlicer and qSlicer logic includes
 #include <vtkSlicerU70RoomOpcUaLogic.h>
 //#include "qSlicerScadaOpcUaLogic.h"
-#include "qSlicerScadaOpcUaRobotsControlWidget.h"
+#include "qSlicerSiemensPlcOpcUaWidget.h"
 #include "qSlicerOpcUaRobotsMessagesListModel.h"
 
-// SlicerRT ScadaOpcUa MRML includes
-#include <vtkMRMLScadaOpcUaNode.h>
+// SlicerRT U70RoomOpcUa MRML includes
+#include <vtkMRMLSiemensPlcOpcUaNode.h>
 
 // Local widgets includes
 //#include "opcuamodel.h"
 
 class QAbstractButton;
 
-namespace {
-
-const QString SCADA_ERRORMESSAGES_NODE_ID = "ns=4;i=13";
-const QString SCADA_SERVICEMESSAGES_NODE_ID = "ns=4;i=78";
-const QString SCADA_MESSAGES_NODE_ID = "ns=4;i=143";
-constexpr size_t MESSAGES_SIZE = 64;
-
-}
 
 //-----------------------------------------------------------------------------
 class qSlicerU70RoomOpcUaModuleWidgetPrivate: public Ui_qSlicerU70RoomOpcUaModuleWidget
@@ -88,24 +80,17 @@ public:
   int PreviousLayoutId{ -1 };
   bool ModuleWindowInitialized{ false };
 
-  vtkSmartPointer< vtkMRMLScadaOpcUaNode > ScadaOpcUaNode;
+  vtkSmartPointer< vtkMRMLSiemensPlcOpcUaNode > SiemensPlcOpcUaNode;
 //  QSharedPointer< qSlicerScadaOpcUaLogic > ScadaOpcUaLogic;
 
-  QScopedPointer< qSlicerScadaOpcUaRobotsControlWidget > OpcUaRobotsControlWidget;
+  QScopedPointer< qSlicerSiemensPlcOpcUaWidget > SiemensPlcOpcUaControlWidget;
 
   QScopedPointer< QOpcUaProvider > OpcUaProvider;
-  QScopedPointer< QOpcUaClient > OpcUaClient;
+  QSharedPointer< QOpcUaClient > OpcUaClient;
   bool ClientConnectedFlag{ false };
   QVector<QOpcUaEndpointDescription> OpcUaEndpointList;
   QOpcUaApplicationIdentity OpcUaAppIdentity;
   QOpcUaEndpointDescription OpcUaEndpoint; // current endpoint used to connect
-
-  // Messages
-  QScopedPointer<QOpcUaNode> OpcUaScadaErrorMessagesNode;
-  QScopedPointer<QOpcUaNode> OpcUaScadaServiceMessagesNode;
-  QScopedPointer<QOpcUaNode> OpcUaScadaMiscMessagesNode;
-  QScopedPointer<QOpcUaNode> OpcUaScadaServerInterfacesNode;
-  QScopedPointer<QOpcUaNode> SiemensPlcTimeNode;
   
   QScopedPointer<qSlicerOpcUaRobotsMessagesListModel> SiemensPlcMessagesModel;
 };
@@ -132,7 +117,8 @@ void qSlicerU70RoomOpcUaModuleWidgetPrivate::createClient()
   Q_Q(qSlicerU70RoomOpcUaModuleWidget);
   if (!this->OpcUaClient)
   {
-    this->OpcUaClient.reset(this->OpcUaProvider->createClient(this->ComboBox_OpcUaPlugin->currentText()));
+    QOpcUaClient* newClient = this->OpcUaProvider->createClient(this->ComboBox_OpcUaPlugin->currentText());
+    this->OpcUaClient = QSharedPointer< QOpcUaClient >(newClient, &QOpcUaClient::deleteLater);
     if (!this->OpcUaClient)
     {
       const QString message(QObject::tr("Connecting to the given sever failed. See the log for details."));
@@ -196,7 +182,7 @@ void qSlicerU70RoomOpcUaModuleWidget::setup()
   this->Superclass::setup();
 
 //  d->ScadaOpcUaLogic.reset(new qSlicerScadaOpcUaLogic(this));
-  d->OpcUaRobotsControlWidget.reset(new qSlicerScadaOpcUaRobotsControlWidget(this));
+  d->SiemensPlcOpcUaControlWidget.reset(new qSlicerSiemensPlcOpcUaWidget(this));
 //  d->ScadaOpcUaModel.reset(new OpcUaModel(this));
   d->SiemensPlcMessagesModel.reset(new qSlicerOpcUaRobotsMessagesListModel(this));
   d->OpcUaProvider.reset(new QOpcUaProvider(this));
@@ -204,7 +190,7 @@ void qSlicerU70RoomOpcUaModuleWidget::setup()
   d->LineEdit_OpcUaServerUrl->setText("opc.tcp://172.31.1.1:4840");
   d->ComboBox_OpcUaPlugin->addItems(d->OpcUaProvider->availableBackends());
 
-//  d->ScadaOpcUaRobotsControlWidget->setScadaOpcUaLogic(d->ScadaOpcUaLogic);
+//  d->SiemensPlcOpcUaControlWidget->setScadaOpcUaLogic(d->ScadaOpcUaLogic);
 
   d->ListView_SiemensPlcMessages->setModel(d->SiemensPlcMessagesModel.data());
 
@@ -226,7 +212,7 @@ void qSlicerU70RoomOpcUaModuleWidget::setup()
   qSlicerLayoutManager* layoutManager = slicerApplication->layoutManager();
 
   qSlicerSingletonViewFactory* viewFactory = new qSlicerSingletonViewFactory();
-  viewFactory->setWidget(d->OpcUaRobotsControlWidget.get());
+  viewFactory->setWidget(d->SiemensPlcOpcUaControlWidget.get());
   viewFactory->setTagName("SiemensPlcOpcUa");
 
   layoutManager->registerViewFactory(viewFactory);
@@ -245,8 +231,7 @@ void qSlicerU70RoomOpcUaModuleWidget::setup()
   
   // Nodes
   // Widgets
-  QObject::connect(d->PushButton_GetServerInterfaces, &QPushButton::clicked, this, &qSlicerU70RoomOpcUaModuleWidget::onGetServerInterfacesClicked);
-  QObject::connect(d->PushButton_CustomLayout, &QPushButton::clicked, this, &qSlicerU70RoomOpcUaModuleWidget::onSetCustomLayoutClicked);
+  QObject::connect(d->PushButton_ShowSiemensPlcControls, &QPushButton::clicked, this, &qSlicerU70RoomOpcUaModuleWidget::onShowSiemensPlcControlsClicked);
 
   // qLogic
 //  QObject::connect(d->ScadaOpcUaLogic.data(), SIGNAL(opcUaClientConnected(bool)),
@@ -256,7 +241,7 @@ void qSlicerU70RoomOpcUaModuleWidget::setup()
 //  qvtkConnect(d->logic(), vtkCommand::ModifiedEvent, this, SLOT(onScadaOpcUaLogicModified()));
 }
 
-void qSlicerU70RoomOpcUaModuleWidget::onSetCustomLayoutClicked()
+void qSlicerU70RoomOpcUaModuleWidget::onShowSiemensPlcControlsClicked()
 {
   Q_D(qSlicerU70RoomOpcUaModuleWidget);
   // Get layout manager
@@ -264,7 +249,7 @@ void qSlicerU70RoomOpcUaModuleWidget::onSetCustomLayoutClicked()
   qSlicerLayoutManager* layoutManager = slicerApplication->layoutManager();
 
   layoutManager->pauseRender();
-  if (d->PushButton_CustomLayout->isChecked())
+  if (d->PushButton_ShowSiemensPlcControls->isChecked())
   {
     if (layoutManager)
     {
@@ -298,24 +283,24 @@ void qSlicerU70RoomOpcUaModuleWidget::setMRMLScene(vtkMRMLScene* scene)
   // Find parameters node or create it if there is none in the scene
   if (scene)
   {
-    if (vtkMRMLNode* node = scene->GetFirstNodeByClass("vtkMRMLScadaOpcUaNode"))
+    if (vtkMRMLNode* node = scene->GetFirstNodeByClass("vtkMRMLSiemensPlcOpcUaNode"))
     {
-      vtkMRMLScadaOpcUaNode* newNode = vtkMRMLScadaOpcUaNode::SafeDownCast(node);
+      vtkMRMLSiemensPlcOpcUaNode* newNode = vtkMRMLSiemensPlcOpcUaNode::SafeDownCast(node);
       if (newNode)
       {
-        d->ScadaOpcUaNode = vtkSmartPointer<vtkMRMLScadaOpcUaNode>::Take(newNode);
-//        d->ScadaOpcUaLogic->setParameterNode(d->ScadaOpcUaNode);
+        d->SiemensPlcOpcUaNode = vtkSmartPointer<vtkMRMLSiemensPlcOpcUaNode>::Take(newNode);
+        d->SiemensPlcOpcUaControlWidget->setParameterNode(d->SiemensPlcOpcUaNode);
       }
     }
     else
     {
-      d->ScadaOpcUaNode = vtkSmartPointer<vtkMRMLScadaOpcUaNode>::New();
-      std::string nodeName = this->mrmlScene()->GenerateUniqueName("ScadaOpcUa");
-      d->ScadaOpcUaNode->SetName(nodeName.c_str());
-      this->mrmlScene()->AddNode(d->ScadaOpcUaNode);
-//      d->ScadaOpcUaLogic->setParameterNode(d->ScadaOpcUaNode);
+      d->SiemensPlcOpcUaNode = vtkSmartPointer<vtkMRMLSiemensPlcOpcUaNode>::New();
+      std::string nodeName = this->mrmlScene()->GenerateUniqueName("SiemensPlcOpcUa");
+      d->SiemensPlcOpcUaNode->SetName(nodeName.c_str());
+      this->mrmlScene()->AddNode(d->SiemensPlcOpcUaNode);
+      d->SiemensPlcOpcUaControlWidget->setParameterNode(d->SiemensPlcOpcUaNode);
       // Each time the node is modified, the UI widgets are updated
-      qvtkReconnect(d->ScadaOpcUaNode, vtkCommand::ModifiedEvent, 
+      qvtkReconnect(d->SiemensPlcOpcUaNode, vtkCommand::ModifiedEvent, 
         this, SLOT(updateWidgetFromMRML()));
     }
   }
@@ -381,8 +366,8 @@ void qSlicerU70RoomOpcUaModuleWidget::onEnter()
 
   layoutManager->pauseRender();
   {
-    QSignalBlocker block(d->PushButton_CustomLayout);
-    d->PushButton_CustomLayout->setChecked(true);
+    QSignalBlocker block(d->PushButton_ShowSiemensPlcControls);
+    d->PushButton_ShowSiemensPlcControls->setChecked(true);
   }
   layoutManager->setLayout(d->SIEMENS_PLC_OPCUA_LAYOUT_ID);
   vtkMRMLLayoutNode* layoutNode = layoutManager->layoutLogic()->GetLayoutNode();
@@ -403,7 +388,7 @@ void qSlicerU70RoomOpcUaModuleWidget::updateWidgetFromMRML()
   {
     return;
   }
-  if (!d->ScadaOpcUaNode)
+  if (!d->SiemensPlcOpcUaNode)
   {
     qCritical() << Q_FUNC_INFO << "Scada node is invalid";
     return;
@@ -533,13 +518,8 @@ void qSlicerU70RoomOpcUaModuleWidget::clientDisconnected()
   Q_D(qSlicerU70RoomOpcUaModuleWidget);
 
   d->ClientConnectedFlag = false;
-  d->OpcUaClient->deleteLater();
-  d->OpcUaClient.take();
-  d->OpcUaScadaErrorMessagesNode.reset(nullptr);
-  d->OpcUaScadaServiceMessagesNode.reset(nullptr);
-  d->OpcUaScadaMiscMessagesNode.reset(nullptr);
-  d->SiemensPlcTimeNode.reset(nullptr);
-  d->OpcUaScadaServerInterfacesNode.reset(nullptr);
+//  d->OpcUaClient->deleteLater();
+  d->OpcUaClient.clear();
   d->updateUiState();
 }
 
@@ -554,37 +534,10 @@ void qSlicerU70RoomOpcUaModuleWidget::namespacesArrayUpdated(const QStringList &
     return;
   }
 
+  // set client for Siemens PLC widget
+  d->SiemensPlcOpcUaControlWidget->setSiemensPlcOpcUaClient(d->OpcUaClient);
+
   QObject::disconnect(d->OpcUaClient.data(), &QOpcUaClient::namespaceArrayUpdated, this, &qSlicerU70RoomOpcUaModuleWidget::namespacesArrayUpdated);
-
-  // Error messages
-  d->OpcUaScadaErrorMessagesNode.reset(d->OpcUaClient->node(SCADA_ERRORMESSAGES_NODE_ID));
-  // Connect signal handlers for subscribed values
-  QObject::connect(d->OpcUaScadaErrorMessagesNode.data(), &QOpcUaNode::dataChangeOccurred, this, &qSlicerU70RoomOpcUaModuleWidget::ErrorMessagesChanged);
-  // Subscribe to data changes
-  d->OpcUaScadaErrorMessagesNode->enableMonitoring(QOpcUa::NodeAttribute::Value, QOpcUaMonitoringParameters(1000));
-  // Connect the handler for async reading
-  QObject::connect(d->OpcUaScadaErrorMessagesNode.data(), &QOpcUaNode::attributeRead, this, &qSlicerU70RoomOpcUaModuleWidget::ErrorMessagesRead);
-
-  // Service messages
-  d->OpcUaScadaServiceMessagesNode.reset(d->OpcUaClient->node(SCADA_SERVICEMESSAGES_NODE_ID));
-  // Connect signal handlers for subscribed values
-  QObject::connect(d->OpcUaScadaServiceMessagesNode.data(), &QOpcUaNode::dataChangeOccurred, this, &qSlicerU70RoomOpcUaModuleWidget::ServiceMessagesChanged);
-  // Subscribe to data changes
-  d->OpcUaScadaServiceMessagesNode->enableMonitoring(QOpcUa::NodeAttribute::Value, QOpcUaMonitoringParameters(1000));
-  // Connect the handler for async reading
-  QObject::connect(d->OpcUaScadaServiceMessagesNode.data(), &QOpcUaNode::attributeRead, this, &qSlicerU70RoomOpcUaModuleWidget::ServiceMessagesRead);
-
-  // Misc messages
-  d->OpcUaScadaMiscMessagesNode.reset(d->OpcUaClient->node(SCADA_MESSAGES_NODE_ID));
-  // Connect signal handlers for subscribed values
-  QObject::connect(d->OpcUaScadaMiscMessagesNode.data(), &QOpcUaNode::dataChangeOccurred, this, &qSlicerU70RoomOpcUaModuleWidget::MiscMessagesChanged);
-  // Subscribe to data changes
-  d->OpcUaScadaMiscMessagesNode->enableMonitoring(QOpcUa::NodeAttribute::Value, QOpcUaMonitoringParameters(1000));
-  // Connect the handler for async reading
-  QObject::connect(d->OpcUaScadaMiscMessagesNode.data(), &QOpcUaNode::attributeRead, this, &qSlicerU70RoomOpcUaModuleWidget::MiscMessagesRead);
-
-  d->OpcUaScadaServerInterfacesNode.reset(d->OpcUaClient->node("ns=3;s=ServerInterfaces"));
-  QObject::connect(d->OpcUaScadaServerInterfacesNode.data(), &QOpcUaNode::attributeRead, this, &qSlicerU70RoomOpcUaModuleWidget::ServerInterfacesRead);
 }
 
 //-----------------------------------------------------------------------------
@@ -638,266 +591,11 @@ void qSlicerU70RoomOpcUaModuleWidget::clientState(QOpcUaClient::ClientState stat
   switch (state)
   {
   case QOpcUaClient::ClientState::Closing:
-      d->SiemensPlcTimeNode->disableMonitoring(QOpcUa::NodeAttribute::Value);
-      // Error messages
-      d->OpcUaScadaErrorMessagesNode->disableMonitoring(QOpcUa::NodeAttribute::Value);
-      QObject::disconnect(d->OpcUaScadaErrorMessagesNode.data(), &QOpcUaNode::dataChangeOccurred, this, &qSlicerU70RoomOpcUaModuleWidget::ErrorMessagesChanged);
-      QObject::disconnect(d->OpcUaScadaErrorMessagesNode.data(), &QOpcUaNode::attributeRead, this, &qSlicerU70RoomOpcUaModuleWidget::ErrorMessagesRead);
-
-      // Service messages
-      d->OpcUaScadaServiceMessagesNode->disableMonitoring(QOpcUa::NodeAttribute::Value);
-      QObject::disconnect(d->OpcUaScadaServiceMessagesNode.data(), &QOpcUaNode::dataChangeOccurred, this, &qSlicerU70RoomOpcUaModuleWidget::ServiceMessagesChanged);
-      QObject::disconnect(d->OpcUaScadaServiceMessagesNode.data(), &QOpcUaNode::attributeRead, this, &qSlicerU70RoomOpcUaModuleWidget::ServiceMessagesRead);
-
-      // Connect signal handlers for subscribed values
-      d->OpcUaScadaMiscMessagesNode->disableMonitoring(QOpcUa::NodeAttribute::Value);
-      QObject::disconnect(d->OpcUaScadaMiscMessagesNode.data(), &QOpcUaNode::dataChangeOccurred, this, &qSlicerU70RoomOpcUaModuleWidget::MiscMessagesChanged);
-      QObject::disconnect(d->OpcUaScadaMiscMessagesNode.data(), &QOpcUaNode::attributeRead, this, &qSlicerU70RoomOpcUaModuleWidget::MiscMessagesRead);
       break;
   case QOpcUaClient::ClientState::Disconnected:
     QMessageBox::information(this, tr("OPC UA"), tr("Client disconnected"));
     break;
   default:
     break;
-  }
-}
-
-//-----------------------------------------------------------------------------
-void qSlicerU70RoomOpcUaModuleWidget::ErrorMessagesChanged(QOpcUa::NodeAttribute attr, const QVariant &value)
-{
-  Q_D(qSlicerU70RoomOpcUaModuleWidget);
-  Q_UNUSED(attr);
-
-  QString errorMsg;
-  std::bitset< MESSAGES_SIZE > first64Flags;
-  QList<QVariant> errorFlags = value.toList(); // Get the attribute from the cache
-  if (errorFlags.size() == MESSAGES_SIZE)
-  {
-    int i = 0;
-    for (const QVariant& error : errorFlags)
-    {
-      bool value = error.toBool();
-      first64Flags.set(i, value);
-      ++i;
-    }
-    d->SiemensPlcMessagesModel->updateErrorBits(first64Flags.to_ullong());
-    return;
-  }
-  return;
-}
-
-//-----------------------------------------------------------------------------
-void qSlicerU70RoomOpcUaModuleWidget::ErrorMessagesRead(QOpcUa::NodeAttributes attr)
-{
-  Q_D(qSlicerU70RoomOpcUaModuleWidget);
-  if (attr & QOpcUa::NodeAttribute::Value)
-  { // Make sure the value attribute has been read
-    if (d->OpcUaScadaErrorMessagesNode && d->OpcUaScadaErrorMessagesNode->attributeError(QOpcUa::NodeAttribute::Value) == QOpcUa::UaStatusCode::Good)
-    { // Make sure there was no error
-      QString errorMsg;
-      std::bitset< MESSAGES_SIZE > first64Flags;
-      QList<QVariant> errorFlags = d->OpcUaScadaErrorMessagesNode->attribute(QOpcUa::NodeAttribute::Value).toList(); // Get the attribute from the cache
-      if (errorFlags.size() == MESSAGES_SIZE)
-      {
-        int i = 0;
-        for (const QVariant& errorFlag : errorFlags)
-        {
-          bool value = errorFlag.toBool();
-          first64Flags.set(i, value);
-          ++i;
-        }
-        d->SiemensPlcMessagesModel->updateErrorBits(first64Flags.to_ullong());
-        return;
-      }
-    }
-  }
-  return;
-}
-
-//-----------------------------------------------------------------------------
-void qSlicerU70RoomOpcUaModuleWidget::onGetErrorMessagesClicked()
-{
-  Q_D(qSlicerU70RoomOpcUaModuleWidget);
-  if (d->OpcUaScadaErrorMessagesNode)
-  {
-    d->OpcUaScadaErrorMessagesNode->readAttributes(QOpcUa::NodeAttribute::Value);
-  }
-}
-
-//-----------------------------------------------------------------------------
-void qSlicerU70RoomOpcUaModuleWidget::ServiceMessagesChanged(QOpcUa::NodeAttribute attr, const QVariant &value)
-{
-  Q_D(qSlicerU70RoomOpcUaModuleWidget);
-  Q_UNUSED(attr);
-
-  QString serviceMsg;
-  std::bitset< MESSAGES_SIZE > first64Flags;
-  QList<QVariant> serviceFlags = value.toList(); // Get the attribute from the cache
-  if (serviceFlags.size() == MESSAGES_SIZE)
-  {
-    int i = 0;
-    for (const QVariant& serviceFlag : serviceFlags)
-    {
-      bool value = serviceFlag.toBool();
-      first64Flags.set(i, value);
-      ++i;
-    }
-    d->SiemensPlcMessagesModel->updateServiceBits(first64Flags.to_ullong());
-    return;
-  }
-
-  return;
-}
-
-//-----------------------------------------------------------------------------
-void qSlicerU70RoomOpcUaModuleWidget::ServiceMessagesRead(QOpcUa::NodeAttributes attr)
-{
-  Q_D(qSlicerU70RoomOpcUaModuleWidget);
-  if (attr & QOpcUa::NodeAttribute::Value)
-  { // Make sure the value attribute has been read
-    if (d->OpcUaScadaServiceMessagesNode && d->OpcUaScadaServiceMessagesNode->attributeError(QOpcUa::NodeAttribute::Value) == QOpcUa::UaStatusCode::Good)
-    { // Make sure there was no error
-      QString serviceMsg;
-      std::bitset< MESSAGES_SIZE > first64Flags;
-      QList<QVariant> serviceFlags = d->OpcUaScadaServiceMessagesNode->attribute(QOpcUa::NodeAttribute::Value).toList(); // Get the attribute from the cache
-      if (serviceFlags.size() == MESSAGES_SIZE)
-      {
-        int i = 0;
-        for (const QVariant& serviceFlag : serviceFlags)
-        {
-          bool value = serviceFlag.toBool();
-          first64Flags.set(i, value);
-          ++i;
-        }
-        d->SiemensPlcMessagesModel->updateServiceBits(first64Flags.to_ullong());
-        return;
-      }
-    }
-  }
-  return;
-}
-
-//-----------------------------------------------------------------------------
-void qSlicerU70RoomOpcUaModuleWidget::onGetServiceMessagesClicked()
-{
-  Q_D(qSlicerU70RoomOpcUaModuleWidget);
-  if (d->OpcUaScadaServiceMessagesNode)
-  {
-    d->OpcUaScadaServiceMessagesNode->readAttributes(QOpcUa::NodeAttribute::Value);
-  }
-}
-
-//-----------------------------------------------------------------------------
-void qSlicerU70RoomOpcUaModuleWidget::MiscMessagesChanged(QOpcUa::NodeAttribute attr, const QVariant &value)
-{
-  Q_D(qSlicerU70RoomOpcUaModuleWidget);
-  Q_UNUSED(attr);
-
-  QString miscMsg;
-  std::bitset< MESSAGES_SIZE > first64Flags;
-  QList<QVariant> miscFlags = value.toList(); // Get the attribute from the cache
-  if (miscFlags.size() == MESSAGES_SIZE)
-  {
-    int i = 0;
-    for (const QVariant& miscFlag : miscFlags)
-    {
-      bool value = miscFlag.toBool();
-      first64Flags.set(i, value);
-      ++i;
-    }
-    d->SiemensPlcMessagesModel->updateMiscBits(first64Flags.to_ullong());
-    return;
-  }
-  return;
-}
-
-//-----------------------------------------------------------------------------
-void qSlicerU70RoomOpcUaModuleWidget::MiscMessagesRead(QOpcUa::NodeAttributes attr)
-{
-  Q_D(qSlicerU70RoomOpcUaModuleWidget);
-
-  if (attr & QOpcUa::NodeAttribute::Value)
-  { // Make sure the value attribute has been read
-    if (d->OpcUaScadaMiscMessagesNode && d->OpcUaScadaMiscMessagesNode->attributeError(QOpcUa::NodeAttribute::Value) == QOpcUa::UaStatusCode::Good)
-    { // Make sure there was no error
-      QString miscMsg;
-      std::bitset< MESSAGES_SIZE > first64Flags;
-      QList<QVariant> miscFlags = d->OpcUaScadaMiscMessagesNode->attribute(QOpcUa::NodeAttribute::Value).toList(); // Get the attribute from the cache
-      if (miscFlags.size() == MESSAGES_SIZE)
-      {
-        int i = 0;
-        for (const QVariant& miscFlag : miscFlags)
-        {
-          bool value = miscFlag.toBool();
-          first64Flags.set(i, value);
-          ++i;
-        }
-        d->SiemensPlcMessagesModel->updateMiscBits(first64Flags.to_ullong());
-        return;
-      }
-    }
-  }
-  return;
-}
-
-//-----------------------------------------------------------------------------
-void qSlicerU70RoomOpcUaModuleWidget::ServerInterfacesRead(QOpcUa::NodeAttributes attr)
-{
-  Q_D(qSlicerU70RoomOpcUaModuleWidget);
-
-  if (attr & QOpcUa::NodeAttribute::Value)
-  { // Make sure the value attribute has been read
-    qDebug() << Q_FUNC_INFO << "Server interfaces read";
-    if (d->OpcUaScadaServerInterfacesNode/* && d->OpcUaScadaServerInterfacesNode->attributeError(QOpcUa::NodeAttribute::Value) == QOpcUa::UaStatusCode::Good*/)
-    { // Make sure there was no error
-      qDebug() << Q_FUNC_INFO << "Value is good";
-      QVariant value = d->OpcUaScadaServerInterfacesNode->attribute(QOpcUa::NodeAttribute::Value); // Get the attribute from the cache
-      if (value.canConvert<QOpcUaExtensionObject>())
-      {
-        QOpcUaExtensionObject extObj = value.value<QOpcUaExtensionObject>();
-        qDebug() << Q_FUNC_INFO << "Encoding Type ID:" << extObj.encodingTypeId();
-
-        // Extract the raw binary body data payload
-        QByteArray binaryData = extObj.encodedBody();
-
-        // Decode the data according to your structure alignment/schema
-        if (!binaryData.isEmpty())
-        {
-          // Safe decoding using QDataStream mapped to the byte payload
-          QDataStream stream(&binaryData, QIODevice::ReadOnly);
-          quint64 err, serv, misc;
-          bool errLast, servLast, miscLast;
-          stream.setByteOrder(QDataStream::LittleEndian); // OPC UA Binary standard
-          stream >> err >> errLast >> serv >> servLast >> misc >> miscLast;
-        }
-      }
-      else
-      {
-        qDebug() << Q_FUNC_INFO << "Node value is not an ExtensionObject. Found metaType ID:" << value.userType();
-      }
-    }
-  }
-}
-
-//-----------------------------------------------------------------------------
-void qSlicerU70RoomOpcUaModuleWidget::onGetServerInterfacesClicked()
-{
-  Q_D(qSlicerU70RoomOpcUaModuleWidget);
-  if (d->OpcUaScadaServerInterfacesNode)
-  {
-    qDebug() << Q_FUNC_INFO << "Get Siemens PLC OPC UA ServerInterfaces node value";
-    d->OpcUaScadaServerInterfacesNode->readAttributes(QOpcUa::NodeAttribute::Value);
-  }
-}
-
-//-----------------------------------------------------------------------------
-void qSlicerU70RoomOpcUaModuleWidget::onGetMiscMessagesClicked()
-{
-  Q_D(qSlicerU70RoomOpcUaModuleWidget);
-    
-  if (d->OpcUaScadaMiscMessagesNode)
-  {
-    qDebug() << Q_FUNC_INFO << "Get misc messages";
-    d->OpcUaScadaMiscMessagesNode->readAttributes(QOpcUa::NodeAttribute::Value);
   }
 }

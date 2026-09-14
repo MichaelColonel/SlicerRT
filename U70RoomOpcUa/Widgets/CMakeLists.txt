@@ -11,6 +11,8 @@ set(${KIT}_INCLUDE_DIRECTORIES
 set(${KIT}_SRCS
 #  qSlicerScadaOpcUaLogic.cxx
 #  qSlicerScadaOpcUaLogic.h
+  qSlicerSiemensPlcOpcUaWidget.cxx
+  qSlicerSiemensPlcOpcUaWidget.h
   qSlicerScadaOpcUaRobotsControlWidget.cxx
   qSlicerScadaOpcUaRobotsControlWidget.h
   qSlicerOpcUaRobotsMessagesListModel.cxx
@@ -31,6 +33,7 @@ set(${KIT}_MOC_SRCS
 
 set(${KIT}_UI_SRCS
   ../Resources/UI/qSlicerScadaOpcUaRobotsControlWidget.ui
+  ../Resources/UI/qSlicerSiemensPlcOpcUaWidget.ui
   )
 
 set(${KIT}_RESOURCES

@@ -14,6 +14,8 @@ set(${KIT}_INCLUDE_DIRECTORIES
 # Sources
 
 set(${KIT}_SRCS
+  vtkMRMLSiemensPlcOpcUaNode.cxx
+  vtkMRMLSiemensPlcOpcUaNode.h
   vtkMRMLScadaOpcUaNode.cxx
   vtkMRMLScadaOpcUaNode.h
   )
