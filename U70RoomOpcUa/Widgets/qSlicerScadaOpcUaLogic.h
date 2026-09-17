@@ -36,6 +36,9 @@
 // Qt OPC UA includes
 #include <QOpcUaClient>
 #include <QOpcUaNode>
+#include <QOpcUaAuthenticationInformation>
+#include <QOpcUaErrorState>
+#include <QOpcUaExtensionObject>
 
 class QOpcUaProvider;
 

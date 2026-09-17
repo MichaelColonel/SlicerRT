@@ -25,7 +25,7 @@
 #include "qSlicerScadaOpcUaRobotsControlWidget.h"
 #include "ui_qSlicerScadaOpcUaRobotsControlWidget.h"
 
-#include <qSlicerScadaOpcUaLogic.h>
+//#include <qSlicerScadaOpcUaLogic.h>
 
 #include <vtkMRMLScadaOpcUaNode.h>
 
@@ -40,7 +40,7 @@ public:
   qSlicerScadaOpcUaRobotsControlWidgetPrivate(qSlicerScadaOpcUaRobotsControlWidget& object);
   virtual void setupUi(qSlicerScadaOpcUaRobotsControlWidget*);
 
-  QWeakPointer< qSlicerScadaOpcUaLogic > opcUaLogic;
+//  QWeakPointer< qSlicerScadaOpcUaLogic > opcUaLogic;
   vtkWeakPointer< vtkMRMLScadaOpcUaNode > ParameterNode;
 };
 
@@ -87,11 +87,11 @@ void qSlicerScadaOpcUaRobotsControlWidget::setParameterNode(vtkMRMLNode* node)
   this->updateWidgetFromMRML();
 }
 
-void qSlicerScadaOpcUaRobotsControlWidget::setScadaOpcUaLogic(const QSharedPointer< qSlicerScadaOpcUaLogic >& sharedLogic)
-{
-  Q_D(qSlicerScadaOpcUaRobotsControlWidget);
-  d->opcUaLogic = sharedLogic;
-}
+//void qSlicerScadaOpcUaRobotsControlWidget::setScadaOpcUaLogic(const QSharedPointer< qSlicerScadaOpcUaLogic >& sharedLogic)
+//{
+//  Q_D(qSlicerScadaOpcUaRobotsControlWidget);
+//  d->opcUaLogic = sharedLogic;
+//}
 
 void qSlicerScadaOpcUaRobotsControlWidget::updateWidgetFromMRML()
 {
@@ -128,5 +128,5 @@ void qSlicerScadaOpcUaRobotsControlWidget::updateWidgetFromMRML()
   d->CollapsibleButton_KukaControllersMovement->setEnabled(modeKukaControllers);
   d->CollapsibleGroupBox_MiscControl->setEnabled(misc);
   
-  qDebug() << Q_FUNC_INFO << "Update ScadaOpcUaRobotsControl buttons";
+//  qDebug() << Q_FUNC_INFO << "Update ScadaOpcUaRobotsControl buttons";
 }
