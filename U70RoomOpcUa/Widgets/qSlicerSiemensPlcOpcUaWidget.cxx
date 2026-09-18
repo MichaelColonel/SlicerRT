@@ -28,8 +28,15 @@
 
 #include <vtkMRMLSiemensPlcOpcUaNode.h>
 
+#include <bitset>
+
 namespace {
 
+// Three temp node IDs
+const QString ASU_ERROR_MESSAGES_NODE_ID = "ns=4;i=13";
+const QString ASU_SERVICE_MESSAGES_NODE_ID = "ns=4;i=78";
+const QString ASU_MESSAGES_NODE_ID = "ns=4;i=143";
+  
 const QString PARENT_NODE_DISPLAYED_NAME = "ServerInterfaces";
 
 const QString RTK_PLC_NODE_NAME = PARENT_NODE_DISPLAYED_NAME + ".RTK_PLC";
@@ -306,6 +313,7 @@ public:
   qSlicerSiemensPlcOpcUaWidgetPrivate(qSlicerSiemensPlcOpcUaWidget& object);
   virtual void setupUi(qSlicerSiemensPlcOpcUaWidget*);
   bool ParseServerParentNode();
+  bool ConnectMessagesNodes();
 
   QWeakPointer< QOpcUaClient > OpcUaClient;
   vtkWeakPointer< vtkMRMLSiemensPlcOpcUaNode > ParameterNode;
@@ -316,13 +324,18 @@ public:
   QScopedPointer<QOpcUaNode> MiscMessagesNode;
 
   // Parse parent node
-  const QString SIEMENS_PLC_SERVER_INTERFACES_NODE_ID = "ns=3;s=ServerInterfacesns=3;s=ServerInterfaces";
+  const QString SIEMENS_PLC_SERVER_INTERFACES_NODE_ID = "ns=3;s=ServerInterfaces";
   QScopedPointer<QOpcUaNode> ServerInterfacesNode;
   // Monitored node
   const QString SIEMENS_PLC_CURRENT_TIME_NODE_ID = "ns=0;i=2258";
   QScopedPointer<QOpcUaNode> CurrentTimeNode; // Siemens PLC monitored node to prevent session timeout ending
 
-  QMap< QString, QString > NodeIdNameMap;
+  QMap< QString, QString > NodeNameIdMap;
+  QStringList MessagesNodesNameList = {
+    ASU_ERROR_MESSAGES_NODE_NAME,
+    ASU_SERVICE_MESSAGES_NODE_NAME,
+    ASU_MESSAGES_NODE_NAME
+  };
 };
 
 // --------------------------------------------------------------------------
@@ -342,8 +355,216 @@ bool qSlicerSiemensPlcOpcUaWidgetPrivate::ParseServerParentNode()
   return true;
 }
 
+bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectMessagesNodes()
+{
+  QSharedPointer< QOpcUaClient > opcUaClient = this->OpcUaClient.toStrongRef();
+
+  if (!opcUaClient || !this->ParameterNode)
+  {
+    return false;
+  }
+
+  vtkMRMLSiemensPlcOpcUaNode* mrmlNode = this->ParameterNode.GetPointer();
+  // write values
+  // Error messages
+  this->ErrorMessagesNode.reset(opcUaClient->node(ASU_ERROR_MESSAGES_NODE_ID));
+  // Service messages
+  this->ServiceMessagesNode.reset(opcUaClient->node(ASU_SERVICE_MESSAGES_NODE_ID));
+  // Miscellaneous messages
+  this->MiscMessagesNode.reset(opcUaClient->node(ASU_MESSAGES_NODE_ID));
+
+  // Connect signal handlers for subscribed values
+  // Error messages
+  if (!this->ErrorMessagesNode)
+  {
+    return false;
+  }
+  QOpcUaNode* errMessagesNode = this->ErrorMessagesNode.get();
+  QObject::connect(errMessagesNode,
+    &QOpcUaNode::dataChangeOccurred, [mrmlNode](QOpcUa::NodeAttribute attr, QVariant value)
+    {
+      if (attr == QOpcUa::NodeAttribute::Value && value.canConvert<QVariantList>())
+      {
+        std::bitset< vtkMRMLSiemensPlcOpcUaNode::MESSAGES_SIZE > errors;
+        QVariantList errList = value.toList(); // Get the attribute from the cache
+        if (errList.size() == vtkMRMLSiemensPlcOpcUaNode::MESSAGES_SIZE)
+        {
+          int i = 0;
+          for (const QVariant& errFlag : errList)
+          {
+            bool value = errFlag.toBool();
+            errors.set(i, value);
+            ++i;
+          }
+          uint64_t errValue = errors.to_ullong();
+          mrmlNode->SetErrorMessages(errValue);
+          qDebug() << Q_FUNC_INFO << "Error messages value:" << errValue;
+        }
+      }
+    }
+  );
+  QObject::connect(errMessagesNode,
+    &QOpcUaNode::attributeRead, [errMessagesNode, mrmlNode](QOpcUa::NodeAttributes attr)
+    {
+      if (attr & QOpcUa::NodeAttribute::Value)
+      {
+        if (errMessagesNode && errMessagesNode->attributeError(QOpcUa::NodeAttribute::Value) == QOpcUa::UaStatusCode::Good)
+        {
+          QVariant value = errMessagesNode->attribute(QOpcUa::NodeAttribute::Value);
+          if (value.canConvert<QVariantList>())
+          {
+            std::bitset< vtkMRMLSiemensPlcOpcUaNode::MESSAGES_SIZE > errors;
+            QVariantList errList = value.toList(); // Get the attribute from the cache
+            if (errList.size() == vtkMRMLSiemensPlcOpcUaNode::MESSAGES_SIZE)
+            {
+              int i = 0;
+              for (const QVariant& errFlag : errList)
+              {
+                bool value = errFlag.toBool();
+                errors.set(i, value);
+                ++i;
+              }
+              uint64_t errValue = errors.to_ullong();
+              mrmlNode->SetErrorMessages(errValue);
+              qDebug() << Q_FUNC_INFO << "Error messages value:" << errValue;
+            }
+          }
+        }
+      }
+    }
+  );
+  // Subscribe to data changes
+  errMessagesNode->enableMonitoring(QOpcUa::NodeAttribute::Value, QOpcUaMonitoringParameters(1000));
+
+  // Service messages
+  if (!this->ServiceMessagesNode)
+  {
+    return false;
+  }
+  QOpcUaNode* servMessagesNode = this->ServiceMessagesNode.get();
+  QObject::connect(servMessagesNode,
+    &QOpcUaNode::dataChangeOccurred, [mrmlNode](QOpcUa::NodeAttribute attr, QVariant value)
+    {
+      if (attr == QOpcUa::NodeAttribute::Value && value.canConvert<QVariantList>())
+      {
+        std::bitset< vtkMRMLSiemensPlcOpcUaNode::MESSAGES_SIZE > servFlags;
+        QVariantList servList = value.toList(); // Get the attribute from the cache
+        if (servList.size() == vtkMRMLSiemensPlcOpcUaNode::MESSAGES_SIZE)
+        {
+          int i = 0;
+          for (const QVariant& servFlag : servList)
+          {
+            bool value = servFlag.toBool();
+            servFlags.set(i, value);
+            ++i;
+          }
+          uint64_t servValue = servFlags.to_ullong();
+          mrmlNode->SetServiceMessages(servValue);
+          qDebug() << Q_FUNC_INFO << "Service messages value:" << servValue;
+        }
+      }
+    }
+  );
+  QObject::connect(servMessagesNode,
+    &QOpcUaNode::attributeRead, [servMessagesNode, mrmlNode](QOpcUa::NodeAttributes attr)
+    {
+      if (attr & QOpcUa::NodeAttribute::Value)
+      {
+        if (servMessagesNode && servMessagesNode->attributeError(QOpcUa::NodeAttribute::Value) == QOpcUa::UaStatusCode::Good)
+        {
+          QVariant value = servMessagesNode->attribute(QOpcUa::NodeAttribute::Value);
+          if (value.canConvert<QVariantList>())
+          {
+            std::bitset< vtkMRMLSiemensPlcOpcUaNode::MESSAGES_SIZE > servFlags;
+            QVariantList servList = value.toList(); // Get the attribute from the cache
+            if (servList.size() == vtkMRMLSiemensPlcOpcUaNode::MESSAGES_SIZE)
+            {
+              int i = 0;
+              for (const QVariant& servFlag : servList)
+              {
+                bool value = servFlag.toBool();
+                servFlags.set(i, value);
+                ++i;
+              }
+              uint64_t servValue = servFlags.to_ullong();
+              mrmlNode->SetServiceMessages(servValue);
+              qDebug() << Q_FUNC_INFO << "Service messages value:" << servValue;
+            }
+          }
+        }
+      }
+    }
+  );
+  // Subscribe to data changes
+  servMessagesNode->enableMonitoring(QOpcUa::NodeAttribute::Value, QOpcUaMonitoringParameters(1000));
+
+  // Misc messages
+  if (!this->MiscMessagesNode)
+  {
+    return false;
+  }
+  QOpcUaNode* miscMessagesNode = this->MiscMessagesNode.get();
+  QObject::connect(miscMessagesNode,
+    &QOpcUaNode::dataChangeOccurred, [mrmlNode](QOpcUa::NodeAttribute attr, QVariant value)
+    {
+      if (attr == QOpcUa::NodeAttribute::Value && value.canConvert<QVariantList>())
+      {
+        std::bitset< vtkMRMLSiemensPlcOpcUaNode::MESSAGES_SIZE > miscFlags;
+        QVariantList miscList = value.toList(); // Get the attribute from the cache
+        if (miscList.size() == vtkMRMLSiemensPlcOpcUaNode::MESSAGES_SIZE)
+        {
+          int i = 0;
+          for (const QVariant& miscFlag : miscList)
+          {
+            bool value = miscFlag.toBool();
+            miscFlags.set(i, value);
+            ++i;
+          }
+          uint64_t miscValue = miscFlags.to_ullong();
+          mrmlNode->SetMiscMessages(miscValue);
+          qDebug() << Q_FUNC_INFO << "Miscellaneous messages value:" << miscValue;
+        }
+      }
+    }
+  );
+  QObject::connect(miscMessagesNode,
+    &QOpcUaNode::attributeRead, [miscMessagesNode, mrmlNode](QOpcUa::NodeAttributes attr)
+    {
+      if (attr & QOpcUa::NodeAttribute::Value)
+      {
+        if (miscMessagesNode && miscMessagesNode->attributeError(QOpcUa::NodeAttribute::Value) == QOpcUa::UaStatusCode::Good)
+        {
+          QVariant value = miscMessagesNode->attribute(QOpcUa::NodeAttribute::Value);
+          if (value.canConvert<QVariantList>())
+          {
+            std::bitset< vtkMRMLSiemensPlcOpcUaNode::MESSAGES_SIZE > miscFlags;
+            QVariantList miscList = value.toList(); // Get the attribute from the cache
+            if (miscList.size() == vtkMRMLSiemensPlcOpcUaNode::MESSAGES_SIZE)
+            {
+              int i = 0;
+              for (const QVariant& miscFlag : miscList)
+              {
+                bool value = miscFlag.toBool();
+                miscFlags.set(i, value);
+                ++i;
+              }
+              uint64_t miscValue = miscFlags.to_ullong();
+              mrmlNode->SetMiscMessages(miscValue);
+              qDebug() << Q_FUNC_INFO << "Miscellaneous messages value:" << miscValue;
+            }
+          }
+        }
+      }
+    }
+  );
+  // Subscribe to data changes
+  miscMessagesNode->enableMonitoring(QOpcUa::NodeAttribute::Value, QOpcUaMonitoringParameters(1000));
+  return true;
+}
+
+
 //-----------------------------------------------------------------------------
-// qSlicerScadaOpcUaRobotsControlWidget methods
+// qSlicerSiemensPlcOpcUaWidget methods
 
 //-----------------------------------------------------------------------------
 qSlicerSiemensPlcOpcUaWidget::qSlicerSiemensPlcOpcUaWidget(QWidget* parentWidget)
@@ -417,6 +638,10 @@ void qSlicerSiemensPlcOpcUaWidget::onOpcUaClientConnected()
   d->CurrentTimeNode.reset(sharedClient->node(d->SIEMENS_PLC_CURRENT_TIME_NODE_ID));
   // Subscribe to data changes
   d->CurrentTimeNode->enableMonitoring(QOpcUa::NodeAttribute::Value, QOpcUaMonitoringParameters(1000));
+  if (d->ConnectMessagesNodes())
+  {
+    qDebug() << Q_FUNC_INFO << "Messages connected";
+  }
 }
 
 void qSlicerSiemensPlcOpcUaWidget::onOpcUaClientDisconnected()

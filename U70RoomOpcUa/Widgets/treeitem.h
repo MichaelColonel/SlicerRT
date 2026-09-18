@@ -100,9 +100,9 @@ private:
 
   bool mAttributesReady = false;
   bool mBrowseStarted = false;
-  QList<TreeItem *> mChildItems;
-  QSet<QString> mChildNodeIds;
-  TreeItem *mParentItem = nullptr;
+  QList< TreeItem* > mChildItems;
+  QSet< QString > mChildNodeIds;
+  TreeItem* mParentItem = nullptr;
 
 private:
   QString mNodeBrowseName;
