@@ -29,7 +29,7 @@
 #include <ctkPimpl.h>
 #include <ctkVTKObject.h>
 
-// ScadaOpcUaRobotsControl Widgets includes
+// U70RoomOpcUaModuke Widgets includes
 #include "qSlicerU70RoomOpcUaModuleWidgetsExport.h"
 
 class qSlicerSiemensPlcOpcUaWidgetPrivate;

@@ -21,10 +21,15 @@
 // Qt includes
 #include <QWeakPointer>
 #include <QOpcUaClient>
+#include <QSharedPointer>
+#include <QOpcUaNode>
 
 // SiemensPlcOpcUa Widgets includes
 #include "qSlicerSiemensPlcOpcUaWidget.h"
 #include "ui_qSlicerSiemensPlcOpcUaWidget.h"
+
+#include "OpcUaModel.h"
+#include "OpcUaTreeItem.h"
 
 #include <vtkMRMLSiemensPlcOpcUaNode.h>
 
@@ -302,6 +307,47 @@ const QString BUTTONS_SM_R2_SERVICEPOS3_ENABLED_NODE_NAME = BUTTONS_SM_R2_SERVIC
 */
 }
 
+
+class NodeData {
+public:
+  NodeData() = default;
+  NodeData(QOpcUaNode* node, const QString& id, const QString& name, const QString& desc)
+    : nodePtr(node)
+    , nodeId(id)
+    , nodeName(name)
+    , nodeDescription(desc)
+  {
+  }
+  NodeData(const NodeData& obj)
+    : nodePtr(obj.getNode())
+    , nodeId(obj.getNodeId())
+    , nodeName(obj.getNodeName())
+    , nodeDescription(obj.getNodeDescription())
+  {
+  }
+  NodeData& operator=(const NodeData& obj)
+  {
+    this->nodePtr = obj.getNodePtr();
+    this->nodeId = obj.getNodeId();
+    this->nodeName = obj.getNodeName();
+    this->nodeDescription = obj.getNodeDescription();
+    return *this;
+  }
+  virtual ~NodeData() {}
+  QSharedPointer< QOpcUaNode > getNodePtr() const { return nodePtr; }
+  void setNode(QOpcUaNode* node) { this->nodePtr.reset(node); }
+  QOpcUaNode* getNode() { return nodePtr.data(); }
+  QOpcUaNode* getNode() const { return nodePtr.data(); }
+  QString getNodeId() const { return nodeId; }
+  QString getNodeName() const { return nodeName; }
+  QString getNodeDescription() const { return nodeDescription; }
+protected:
+  QSharedPointer< QOpcUaNode > nodePtr;
+  QString nodeId;
+  QString nodeName;
+  QString nodeDescription;
+};
+
 //-----------------------------------------------------------------------------
 class qSlicerSiemensPlcOpcUaWidgetPrivate : public Ui_qSlicerSiemensPlcOpcUaWidget
 {
@@ -315,6 +361,7 @@ public:
   bool ParseServerParentNode();
   bool ConnectMessagesNodes();
 
+  QScopedPointer< OpcUaModel > SiemensPlcOpcUaModel;
   QWeakPointer< QOpcUaClient > OpcUaClient;
   vtkWeakPointer< vtkMRMLSiemensPlcOpcUaNode > ParameterNode;
 
@@ -334,24 +381,91 @@ public:
   QStringList MessagesNodesNameList = {
     ASU_ERROR_MESSAGES_NODE_NAME,
     ASU_SERVICE_MESSAGES_NODE_NAME,
-    ASU_MESSAGES_NODE_NAME
+    ASU_MESSAGES_NODE_NAME,
+    ASU_MODE_NODE_NAME,
+    BUTTONS_AM_R1_LOADTOISO_PRESSED_NODE_NAME,
+    BUTTONS_AM_R1_LOADTOISO_ENABLED_NODE_NAME,
+    BUTTONS_AM_R1_TOLOAD_PRESSED_NODE_NAME,
+    BUTTONS_AM_R1_TOLOAD_ENABLED_NODE_NAME
   };
+  QMap< QString, NodeData > NodeNameDataMap; // key - node unique full name, value - node data
 };
 
 // --------------------------------------------------------------------------
 qSlicerSiemensPlcOpcUaWidgetPrivate::qSlicerSiemensPlcOpcUaWidgetPrivate(qSlicerSiemensPlcOpcUaWidget& object)
   : q_ptr(&object)
+  , SiemensPlcOpcUaModel(new OpcUaModel(&object))
 {
 }
 
 // --------------------------------------------------------------------------
 void qSlicerSiemensPlcOpcUaWidgetPrivate::setupUi(qSlicerSiemensPlcOpcUaWidget* widget)
 {
+  Q_Q(qSlicerSiemensPlcOpcUaWidget);
+
   this->Ui_qSlicerSiemensPlcOpcUaWidget::setupUi(widget);
+
+  this->TreeView_OpcUaModel->setModel(SiemensPlcOpcUaModel.data());
+  this->TreeView_OpcUaModel->header()->setSectionResizeMode(QHeaderView::ResizeToContents);
+
 }
 
 bool qSlicerSiemensPlcOpcUaWidgetPrivate::ParseServerParentNode()
 {
+  if (this->ServerInterfacesNode)
+  {
+    return false;
+  }
+  QString serverNodeDispName = this->ServerInterfacesNode->attribute(QOpcUa::NodeAttribute::DisplayName).toString();;
+
+  QSharedPointer< QOpcUaClient > opcUaClient = this->OpcUaClient.toStrongRef();
+  if (!opcUaClient)
+  {
+    return false;
+  }
+  OpcUaTreeItem* parentItem = nullptr;
+  OpcUaTreeItem* rootItem = SiemensPlcOpcUaModel->getRootItem();
+  if (rootItem)
+  {
+    parentItem = OpcUaTreeItem::findParentItemByName(rootItem, serverNodeDispName);
+  }
+  else
+  {
+    return false;
+  }
+  this->NodeNameDataMap.clear();
+  if (parentItem)
+  {
+    QList< OpcUaTreeItem* > items = OpcUaTreeItem::findLeafValueItems(parentItem);
+    for (OpcUaTreeItem* item : items)
+    {
+      QStringList parentNames = OpcUaTreeItem::findParentNamesForItem(item, parentItem);
+
+      if (parentNames.size())
+      {
+        QString hierNames;
+
+        for (auto iter = parentNames.rbegin(); iter != parentNames.rend(); ++iter)
+        {
+          if (iter != parentNames.rend() - 1)
+          {
+            hierNames += *iter + QString(".");
+          }
+          else
+          {
+            hierNames += *iter;
+          }
+        }
+        QOpcUaNode* itemNode = opcUaClient->node(item->getNodeId());
+        if (itemNode)
+        {
+          qDebug() << Q_FUNC_INFO << "QOpcUaNode node is created for ID:" << item->getNodeId();
+        }
+        NodeData data(itemNode, item->getNodeId(), hierNames, item->getNodeDescription());
+        this->NodeNameDataMap[hierNames] = data;
+      }
+    }
+  }
   return true;
 }
 
@@ -608,6 +722,7 @@ void qSlicerSiemensPlcOpcUaWidget::updateWidgetFromMRML()
   {
     return;
   }
+
   switch (d->ParameterNode->GetMode())
   {
   case vtkMRMLSiemensPlcOpcUaNode::AUTOMATIC_MANUAL:
@@ -633,6 +748,10 @@ void qSlicerSiemensPlcOpcUaWidget::onOpcUaClientConnected()
   {
     return;
   }
+
+  d->SiemensPlcOpcUaModel->setOpcUaClient(sharedClient.data());
+  d->TreeView_OpcUaModel->header()->setSectionResizeMode(1 /* Value column*/, QHeaderView::Interactive);
+
   d->ServerInterfacesNode.reset(sharedClient->node(d->SIEMENS_PLC_SERVER_INTERFACES_NODE_ID));
 
   d->CurrentTimeNode.reset(sharedClient->node(d->SIEMENS_PLC_CURRENT_TIME_NODE_ID));

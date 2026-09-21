@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>457</width>
-    <height>880</height>
+    <width>319</width>
+    <height>857</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -40,7 +40,7 @@
           <rect>
            <x>0</x>
            <y>0</y>
-           <width>413</width>
+           <width>275</width>
            <height>210</height>
           </rect>
          </property>
@@ -66,8 +66,24 @@
      </property>
      <layout class="QGridLayout" name="gridLayout_7">
       <item row="0" column="0">
-       <layout class="QVBoxLayout" name="verticalLayout">
-        <item>
+       <layout class="QGridLayout" name="gridLayout_8">
+        <item row="2" column="0">
+         <widget class="QPushButton" name="PushButton_ModeService">
+          <property name="enabled">
+           <bool>false</bool>
+          </property>
+          <property name="text">
+           <string>Service</string>
+          </property>
+          <property name="checkable">
+           <bool>false</bool>
+          </property>
+          <attribute name="buttonGroup">
+           <string notr="true">buttonGroup</string>
+          </attribute>
+         </widget>
+        </item>
+        <item row="0" column="0">
          <widget class="QPushButton" name="PushButton_ModeUnknown">
           <property name="enabled">
            <bool>false</bool>
@@ -86,7 +102,17 @@
           </attribute>
          </widget>
         </item>
-        <item>
+        <item row="3" column="0">
+         <widget class="QPushButton" name="PushButton_ModeKukaControllers">
+          <property name="enabled">
+           <bool>false</bool>
+          </property>
+          <property name="text">
+           <string>KUKA Controllers</string>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="0">
          <widget class="QPushButton" name="PushButton_ModeAutoAndManual">
           <property name="enabled">
            <bool>false</bool>
@@ -102,29 +128,67 @@
           </attribute>
          </widget>
         </item>
-        <item>
-         <widget class="QPushButton" name="PushButton_ModeService">
-          <property name="enabled">
-           <bool>false</bool>
+        <item row="0" column="1">
+         <widget class="QLabel" name="Label_ModeUnknown">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
           </property>
           <property name="text">
-           <string>Service</string>
+           <string/>
           </property>
-          <property name="checkable">
-           <bool>false</bool>
+          <property name="pixmap">
+           <pixmap resource="../qSlicerU70RoomOpcUaModule.qrc">:/Icons/gray.png</pixmap>
           </property>
-          <attribute name="buttonGroup">
-           <string notr="true">buttonGroup</string>
-          </attribute>
          </widget>
         </item>
-        <item>
-         <widget class="QPushButton" name="PushButton_ModeKukaControllers">
-          <property name="enabled">
-           <bool>false</bool>
+        <item row="1" column="1">
+         <widget class="QLabel" name="Label_ModeAutomaticManual">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
           </property>
           <property name="text">
-           <string>KUKA Controllers</string>
+           <string/>
+          </property>
+          <property name="pixmap">
+           <pixmap resource="../qSlicerU70RoomOpcUaModule.qrc">:/Icons/gray.png</pixmap>
+          </property>
+         </widget>
+        </item>
+        <item row="2" column="1">
+         <widget class="QLabel" name="Label_ModeService">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="text">
+           <string/>
+          </property>
+          <property name="pixmap">
+           <pixmap resource="../qSlicerU70RoomOpcUaModule.qrc">:/Icons/gray.png</pixmap>
+          </property>
+         </widget>
+        </item>
+        <item row="3" column="1">
+         <widget class="QLabel" name="Label_ModeKukaControllers">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="text">
+           <string/>
+          </property>
+          <property name="pixmap">
+           <pixmap resource="../qSlicerU70RoomOpcUaModule.qrc">:/Icons/gray.png</pixmap>
           </property>
          </widget>
         </item>
