@@ -358,7 +358,7 @@ protected:
 public:
   qSlicerSiemensPlcOpcUaWidgetPrivate(qSlicerSiemensPlcOpcUaWidget& object);
   virtual void setupUi(qSlicerSiemensPlcOpcUaWidget*);
-  bool ParseServerParentNode();
+  bool ParseServerParentNode(const QString& nodeDisplayName);
   bool ConnectMessagesNodes();
 
   QScopedPointer< OpcUaModel > SiemensPlcOpcUaModel;
@@ -410,13 +410,16 @@ void qSlicerSiemensPlcOpcUaWidgetPrivate::setupUi(qSlicerSiemensPlcOpcUaWidget* 
 
 }
 
-bool qSlicerSiemensPlcOpcUaWidgetPrivate::ParseServerParentNode()
+bool qSlicerSiemensPlcOpcUaWidgetPrivate::ParseServerParentNode(const QString& serverNodeDispName)
 {
-  if (this->ServerInterfacesNode)
+  if (!this->ServerInterfacesNode)
   {
     return false;
   }
-  QString serverNodeDispName = this->ServerInterfacesNode->attribute(QOpcUa::NodeAttribute::DisplayName).toString();;
+  if (serverNodeDispName.isEmpty())
+  {
+    return false;
+  }
 
   QSharedPointer< QOpcUaClient > opcUaClient = this->OpcUaClient.toStrongRef();
   if (!opcUaClient)
@@ -752,17 +755,78 @@ void qSlicerSiemensPlcOpcUaWidget::onOpcUaClientConnected()
   d->SiemensPlcOpcUaModel->setOpcUaClient(sharedClient.data());
   d->TreeView_OpcUaModel->header()->setSectionResizeMode(1 /* Value column*/, QHeaderView::Interactive);
 
-  d->ServerInterfacesNode.reset(sharedClient->node(d->SIEMENS_PLC_SERVER_INTERFACES_NODE_ID));
-
   d->CurrentTimeNode.reset(sharedClient->node(d->SIEMENS_PLC_CURRENT_TIME_NODE_ID));
-  // Subscribe to data changes
-  d->CurrentTimeNode->enableMonitoring(QOpcUa::NodeAttribute::Value, QOpcUaMonitoringParameters(1000));
-  if (d->ConnectMessagesNodes())
+  if (d->CurrentTimeNode)
   {
-    qDebug() << Q_FUNC_INFO << "Messages connected";
+    qDebug() << Q_FUNC_INFO << "Current time node is OK";
+    // Subscribe to data changes
+    d->CurrentTimeNode->enableMonitoring(QOpcUa::NodeAttribute::Value, QOpcUaMonitoringParameters(1000));
+  }
+}
+
+void qSlicerSiemensPlcOpcUaWidget::onParseServerInterfacesClicked()
+{
+  Q_D(qSlicerSiemensPlcOpcUaWidget);
+  
+  QSharedPointer< QOpcUaClient > sharedClient = d->OpcUaClient.toStrongRef();
+  if (!sharedClient)
+  {
+    return;
+  }
+
+  d->ServerInterfacesNode.reset(sharedClient->node(d->SIEMENS_PLC_SERVER_INTERFACES_NODE_ID));
+  if (d->ServerInterfacesNode)
+  {
+    qDebug() << Q_FUNC_INFO << "ServerInterfaces node is OK";
+    QObject::connect(d->ServerInterfacesNode.data(), &QOpcUaNode::attributeRead, this, &qSlicerSiemensPlcOpcUaWidget::onServerInterfacesRead);
+    d->ServerInterfacesNode->readAttributes(QOpcUa::NodeAttribute::DisplayName);
   }
 }
 
 void qSlicerSiemensPlcOpcUaWidget::onOpcUaClientDisconnected()
 {
+}
+
+void qSlicerSiemensPlcOpcUaWidget::onOpcUaModeChanged(vtkMRMLSiemensPlcOpcUaNode::ModeType mode)
+{
+  qDebug() << Q_FUNC_INFO << ": Set new mode:" << mode;
+}
+
+void qSlicerSiemensPlcOpcUaWidget::onAutoManualR1LoadToIsoPressed()
+{
+}
+
+void qSlicerSiemensPlcOpcUaWidget::onAutoManualR1LoadToIsoReleased()
+{
+}
+
+void qSlicerSiemensPlcOpcUaWidget::onAutoManualR1ToLoadPressed()
+{
+}
+
+void qSlicerSiemensPlcOpcUaWidget::onAutoManualR1ToLoadReleased()
+{
+}
+
+void qSlicerSiemensPlcOpcUaWidget::onServerInterfacesRead(QOpcUa::NodeAttributes attr)
+{
+  Q_D(qSlicerSiemensPlcOpcUaWidget);
+  
+  if (attr & QOpcUa::NodeAttribute::DisplayName)
+  { // Make sure the value attribute has been read
+    QString nodeDisplayName = d->ServerInterfacesNode->attribute(QOpcUa::NodeAttribute::DisplayName).value<QOpcUaLocalizedText>().text();
+    bool res = d->ParseServerParentNode(nodeDisplayName);
+    if (res)
+    {
+      for (auto& nodeData : d->NodeNameDataMap)
+      {
+        if (nodeData.getNode())
+        {
+          qDebug() << Q_FUNC_INFO << "Node ID:" << nodeData.getNodeId() \
+            << ", Name:" << nodeData.getNodeName() \
+            << ", Description:" << nodeData.getNodeDescription() << Qt::endl;
+        }
+      }
+    }
+  }
 }

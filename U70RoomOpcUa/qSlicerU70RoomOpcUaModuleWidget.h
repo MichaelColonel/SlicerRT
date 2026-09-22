@@ -27,6 +27,9 @@
 #include <QOpcUaClient>
 #include <QOpcUaNode>
 
+// MRML includes
+#include "vtkMRMLSiemensPlcOpcUaNode.h"
+
 class qSlicerU70RoomOpcUaModuleWidgetPrivate;
 class vtkMRMLNode;
 
@@ -68,7 +71,10 @@ public slots:
   void clientError(QOpcUaClient::ClientError);
   void clientState(QOpcUaClient::ClientState);
   void showErrorDialog(QOpcUaErrorState *errorState);
-  
+
+signals:
+  void siemensPlcOpcUaModeChanged(vtkMRMLSiemensPlcOpcUaNode::ModeType);
+
 protected:
   QScopedPointer<qSlicerU70RoomOpcUaModuleWidgetPrivate> d_ptr;
 

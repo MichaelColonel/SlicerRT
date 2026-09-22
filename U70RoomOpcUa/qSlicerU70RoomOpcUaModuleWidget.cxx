@@ -239,7 +239,22 @@ void qSlicerU70RoomOpcUaModuleWidget::setup()
   
   // Nodes
   // Widgets
-  QObject::connect(d->PushButton_ShowSiemensPlcControls, &QPushButton::clicked, this, &qSlicerU70RoomOpcUaModuleWidget::onShowSiemensPlcControlsClicked);
+  QObject::connect(d->PushButton_ShowSiemensPlcControls, SIGNAL(clicked()),
+    this, SLOT(onShowSiemensPlcControlsClicked()));
+  QObject::connect(d->PushButton_GetServerInterfaces, SIGNAL(clicked()),
+    d->SiemensPlcOpcUaControlWidget.data(), SLOT(onParseServerInterfacesClicked()));
+
+  QObject::connect(d->PushButton_ModeUnknown, &QPushButton::clicked,
+    [this](){ emit this->siemensPlcOpcUaModeChanged(vtkMRMLSiemensPlcOpcUaNode::UNKNOWN); });
+  QObject::connect(d->PushButton_ModeAutoAndManual, &QPushButton::clicked,
+    [this](){ emit this->siemensPlcOpcUaModeChanged(vtkMRMLSiemensPlcOpcUaNode::AUTOMATIC_MANUAL); });
+  QObject::connect(d->PushButton_ModeService, &QPushButton::clicked,
+    [this](){ emit this->siemensPlcOpcUaModeChanged(vtkMRMLSiemensPlcOpcUaNode::SERVICE); });
+  QObject::connect(d->PushButton_ModeKukaControllers, &QPushButton::clicked,
+    [this](){ emit this->siemensPlcOpcUaModeChanged(vtkMRMLSiemensPlcOpcUaNode::KUKA_CONTROLLERS); });
+
+  QObject::connect(this, SIGNAL(siemensPlcOpcUaModeChanged(vtkMRMLSiemensPlcOpcUaNode::ModeType)),
+    d->SiemensPlcOpcUaControlWidget.data(), SLOT(onOpcUaModeChanged(vtkMRMLSiemensPlcOpcUaNode::ModeType)));
 
   // qLogic
 //  QObject::connect(d->ScadaOpcUaLogic.data(), SIGNAL(opcUaClientConnected(bool)),
@@ -542,6 +557,8 @@ void qSlicerU70RoomOpcUaModuleWidget::namespacesArrayUpdated(const QStringList &
   }
 
   // set client for Siemens PLC widget
+  d->PushButton_GetServerInterfaces->setEnabled(true);
+  
   d->SiemensPlcOpcUaControlWidget->setSiemensPlcOpcUaClient(d->OpcUaClient);
   d->SiemensPlcOpcUaControlWidget->onOpcUaClientConnected();
 

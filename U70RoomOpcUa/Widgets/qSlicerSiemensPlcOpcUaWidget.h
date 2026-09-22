@@ -24,6 +24,7 @@
 // Qt includes
 #include <QWidget>
 #include <QSharedPointer>
+#include <QOpcUaNode>
 
 // CTK includes
 #include <ctkPimpl.h>
@@ -31,6 +32,8 @@
 
 // U70RoomOpcUaModuke Widgets includes
 #include "qSlicerU70RoomOpcUaModuleWidgetsExport.h"
+
+#include <vtkMRMLSiemensPlcOpcUaNode.h>
 
 class qSlicerSiemensPlcOpcUaWidgetPrivate;
 class QOpcUaClient;
@@ -56,8 +59,19 @@ public slots:
   /// Update widget GUI from RT Image parameters node
   void updateWidgetFromMRML();
   /// Display table top angles
+  void onParseServerInterfacesClicked();
   void onOpcUaClientConnected();
   void onOpcUaClientDisconnected();
+
+  // Siemens PLC OPC UA slots (values, buttons, etc)
+  void onOpcUaModeChanged(vtkMRMLSiemensPlcOpcUaNode::ModeType mode);
+  void onAutoManualR1LoadToIsoPressed();
+  void onAutoManualR1LoadToIsoReleased();
+
+  void onAutoManualR1ToLoadPressed();
+  void onAutoManualR1ToLoadReleased();
+
+  void onServerInterfacesRead(QOpcUa::NodeAttributes attr);
 
 protected:
   QScopedPointer<qSlicerSiemensPlcOpcUaWidgetPrivate> d_ptr;
