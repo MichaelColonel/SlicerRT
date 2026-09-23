@@ -9,6 +9,7 @@ set(${KIT}_INCLUDE_DIRECTORIES
   ${Slicer_Base_INCLUDE_DIRS}
   ${MRMLCore_INCLUDE_DIRS}
   ${vtkSlicer${MODULE_NAME}ModuleLogic_INCLUDE_DIRS}
+  ${vtkSlicerU70RoomOpcUaModuleMRML_INCLUDE_DIRS}
   )
 
 # --------------------------------------------------------------------------
@@ -33,6 +34,7 @@ SET (${KIT}_INCLUDE_DIRS
 set(${KIT}_TARGET_LIBRARIES
   vtkSlicerRtCommon
   MRMLCore
+  vtkSlicerU70RoomOpcUaModuleMRML
   )
 
 SlicerMacroBuildModuleMRML(

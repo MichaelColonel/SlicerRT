@@ -34,6 +34,9 @@
 #include "vtkMRMLU70RoomGeoNode.h"
 #include "vtkMRMLChannel26GeometryNode.h"
 
+// U70RoomOpcUa MRML includes
+#include "vtkMRMLSiemensPlcOpcUaNode.h"
+
 //------------------------------------------------------------------------------
 namespace
 {
@@ -41,6 +44,7 @@ namespace
 const char* FIXED_BEAM_AXIS_REFERENCE_ROLE = "fixedBeamAxisRef";
 const char* FIXED_ISOCENTER_REFERENCE_ROLE = "fixedIsocenterRef";
 const char* CHANNEL26_GEOMETRY_REFERENCE_ROLE = "channel26GeometryRef";
+const char* CHANNEL26_PLC_OPCUA_REFERENCE_ROLE = "channel26PlcOpcUaRef";
 const char* PATIENT_BODY_SEGMENTATION_REFERENCE_ROLE = "patientBodySegmentationRef";
 
 } // namespace
@@ -184,6 +188,13 @@ void vtkMRMLU70RoomGeoNode::ProcessMRMLEvents(vtkObject *caller, unsigned long e
   {
     return;
   }
+  if (eventID == vtkCommand::ModifiedEvent)
+  {
+    if (caller == this->GetChannel26PlcOpcUaNode())
+    {
+      vtkWarningMacro("ProcessMRMLEvents: Siemens PLC OPC UA node updated!");
+    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -202,6 +213,24 @@ void vtkMRMLU70RoomGeoNode::SetAndObserveChannel26GeometryNode(vtkMRMLChannel26G
   }
 
   this->SetNodeReferenceID(CHANNEL26_GEOMETRY_REFERENCE_ROLE, (node ? node->GetID() : nullptr));
+}
+
+//----------------------------------------------------------------------------
+vtkMRMLSiemensPlcOpcUaNode* vtkMRMLU70RoomGeoNode::GetChannel26PlcOpcUaNode()
+{
+  return vtkMRMLSiemensPlcOpcUaNode::SafeDownCast( this->GetNodeReference(CHANNEL26_PLC_OPCUA_REFERENCE_ROLE) );
+}
+
+//----------------------------------------------------------------------------
+void vtkMRMLU70RoomGeoNode::SetAndObserveChannel26PlcOpcUaNode(vtkMRMLSiemensPlcOpcUaNode* node)
+{
+  if (node && this->Scene != node->GetScene())
+  {
+    vtkErrorMacro("SetAndObserveChannel26PlcOpcUaNode: Cannot set reference, the referenced and referencing node are not in the same scene");
+    return;
+  }
+
+  this->SetNodeReferenceID(CHANNEL26_PLC_OPCUA_REFERENCE_ROLE, (node ? node->GetID() : nullptr));
 }
 
 //----------------------------------------------------------------------------

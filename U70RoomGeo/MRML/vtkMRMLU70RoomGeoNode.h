@@ -36,6 +36,8 @@ class vtkMRMLRTBeamNode;
 class vtkMRMLChannel26GeometryNode;
 class vtkMRMLDrrImageComputationNode;
 
+class vtkMRMLSiemensPlcOpcUaNode;
+
 class vtkTransform;
 
 class VTK_SLICER_U70ROOMGEO_MODULE_MRML_EXPORT vtkMRMLU70RoomGeoNode : public vtkMRMLNode
@@ -78,6 +80,11 @@ public:
   vtkMRMLChannel26GeometryNode* GetChannel26GeometryNode();
   /// Set and observe Channel-26 geometry node
   void SetAndObserveChannel26GeometryNode(vtkMRMLChannel26GeometryNode* node);
+
+  /// Get observed Channel-26 SIEMENS PLC OPC UA node
+  vtkMRMLSiemensPlcOpcUaNode* GetChannel26PlcOpcUaNode();
+  /// Set and observe Channel-26 geometry node
+  void SetAndObserveChannel26PlcOpcUaNode(vtkMRMLSiemensPlcOpcUaNode* node);
 
   /// Get observed beam axis (line node)
   vtkMRMLMarkupsLineNode* GetBeamAxisLineNode();

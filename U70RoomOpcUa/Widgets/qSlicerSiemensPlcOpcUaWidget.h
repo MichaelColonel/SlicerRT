@@ -65,11 +65,15 @@ public slots:
 
   // Siemens PLC OPC UA slots (values, buttons, etc)
   void onOpcUaModeChanged(vtkMRMLSiemensPlcOpcUaNode::ModeType mode);
+  // AutomaticManual R1 LoadToIso button
   void onAutoManualR1LoadToIsoPressed();
   void onAutoManualR1LoadToIsoReleased();
-
+  // AutomaticManual R1 ToLoad button
   void onAutoManualR1ToLoadPressed();
   void onAutoManualR1ToLoadReleased();
+  // Reset errors button
+  void onResetErrorsPressed();
+  void onResetErrorsReleased();
 
   void onServerInterfacesRead(QOpcUa::NodeAttributes attr);
 
