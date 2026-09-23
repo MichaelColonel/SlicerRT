@@ -16,8 +16,8 @@ set(${KIT}_INCLUDE_DIRECTORIES
 set(${KIT}_SRCS
   vtkMRMLSiemensPlcOpcUaNode.cxx
   vtkMRMLSiemensPlcOpcUaNode.h
-  vtkMRMLScadaOpcUaNode.cxx
-  vtkMRMLScadaOpcUaNode.h
+#  vtkMRMLScadaOpcUaNode.cxx
+#  vtkMRMLScadaOpcUaNode.h
   )
 
 SET (${KIT}_INCLUDE_DIRS

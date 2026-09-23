@@ -36,7 +36,8 @@ void OpcUaModel::setOpcUaClient(QOpcUaClient *client)
   mOpcUaClient = client;
   if (mOpcUaClient)
   {
-    mRootItem.reset(new OpcUaTreeItem(client->node("ns=0;i=84"), this /* model */, nullptr /* parent */));
+ //   mRootItem.reset(new OpcUaTreeItem(client->node("ns=0;i=84"), this /* model */, nullptr /* parent */));
+    mRootItem.reset(new OpcUaTreeItem(client->node(OpcUaTreeItem::SIEMENS_PLC_SERVER_INTERFACES_NODE_ID), this /* model */, nullptr /* parent */));
   }
   else
   {
@@ -57,13 +58,13 @@ QVariant OpcUaModel::data(const QModelIndex &index, int role) const
     return QVariant();
   }
 
-  auto item = static_cast<OpcUaTreeItem *>(index.internalPointer());
+  auto item = static_cast< OpcUaTreeItem* >(index.internalPointer());
 
   if (role == Qt::DisplayRole)
   {
     return item->data(index.column());
   }
-  else if (role ==  Qt::DecorationRole && index.column() == 0)
+  else if (role == Qt::DecorationRole && index.column() == 0)
   {
     return item->icon(index.column());
   }

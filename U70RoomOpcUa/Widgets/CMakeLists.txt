@@ -13,8 +13,8 @@ set(${KIT}_SRCS
 #  qSlicerScadaOpcUaLogic.h
   qSlicerSiemensPlcOpcUaWidget.cxx
   qSlicerSiemensPlcOpcUaWidget.h
-  qSlicerScadaOpcUaRobotsControlWidget.cxx
-  qSlicerScadaOpcUaRobotsControlWidget.h
+#  qSlicerScadaOpcUaRobotsControlWidget.cxx
+#  qSlicerScadaOpcUaRobotsControlWidget.h
   qSlicerOpcUaRobotsMessagesListModel.cxx
   qSlicerOpcUaRobotsMessagesListModel.h
   OpcUaModel.cxx
@@ -29,7 +29,8 @@ set(${KIT}_SRCS
 
 set(${KIT}_MOC_SRCS
 #  qSlicerScadaOpcUaLogic.h
-  qSlicerScadaOpcUaRobotsControlWidget.h
+#  qSlicerScadaOpcUaRobotsControlWidget.h
+  qSlicerSiemensPlcOpcUaWidget.h
   qSlicerOpcUaRobotsMessagesListModel.h
   OpcUaTreeItem.h
   OpcUaModel.h

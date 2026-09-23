@@ -456,9 +456,9 @@ OpcUaTreeItem* OpcUaTreeItem::findParentItemByName(OpcUaTreeItem* parentItem, co
   return nullptr;
 }
 
-QList< OpcUaTreeItem* > OpcUaTreeItem::findLeafValueItems(OpcUaTreeItem* item)
+QList< QPointer< OpcUaTreeItem > > OpcUaTreeItem::findLeafValueItems(OpcUaTreeItem* item)
 {
-  QList< OpcUaTreeItem* > finalLeaves;
+  QList< QPointer< OpcUaTreeItem > > finalLeaves;
   if (!item)
   {
     return finalLeaves;
@@ -467,7 +467,7 @@ QList< OpcUaTreeItem* > OpcUaTreeItem::findLeafValueItems(OpcUaTreeItem* item)
   {
 //    if (item->getNodeClass() == QOpcUa::NodeClass::Variable)
 //    {
-    finalLeaves.append(item);
+    finalLeaves.append(QPointer(item));
 //    }
   }
   else

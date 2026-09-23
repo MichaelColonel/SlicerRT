@@ -37,6 +37,7 @@ class Q_SLICER_MODULE_U70ROOMOPCUA_WIDGETS_EXPORT OpcUaTreeItem : public QObject
 {
   Q_OBJECT
 public:
+  static constexpr const char* SIEMENS_PLC_SERVER_INTERFACES_NODE_ID = "ns=3;s=ServerInterfaces";
   explicit OpcUaTreeItem(OpcUaModel *model);
   OpcUaTreeItem(QOpcUaNode *node, OpcUaModel *model, OpcUaTreeItem *parent);
   OpcUaTreeItem(QOpcUaNode *node, OpcUaModel *model, const QOpcUaReferenceDescription &browsingData, OpcUaTreeItem *parent);
@@ -58,12 +59,12 @@ public:
   QString getNodeDescription() const { return mNodeDescription; }
   QOpcUa::NodeClass getNodeClass() const { return mNodeClass; }
   const QList< QPointer< OpcUaTreeItem > >& getChildrenItems() const { return this->mChildItems; }
-  const QSet<QString>& getChildrenNodesId() const { return this->mChildNodeIds; }
+  const QSet< QString >& getChildrenNodesId() const { return this->mChildNodeIds; }
   int currentChildCount() const { return mChildItems.size(); }
 
   static OpcUaTreeItem* findParentItemByName(OpcUaTreeItem* parentItem, const QString& displayedName);
   static QMap< QString, QString > findAllChildrenForItem(OpcUaTreeItem* parentItem);
-  static QList< OpcUaTreeItem* > findLeafValueItems(OpcUaTreeItem* rootItem);
+  static QList< QPointer< OpcUaTreeItem > > findLeafValueItems(OpcUaTreeItem* rootItem);
   static QStringList findAllItemsWithoutChildren(OpcUaTreeItem* parentItem);
   static QStringList findParentNamesForItem(OpcUaTreeItem* currentItem, OpcUaTreeItem* parentItem);
 
