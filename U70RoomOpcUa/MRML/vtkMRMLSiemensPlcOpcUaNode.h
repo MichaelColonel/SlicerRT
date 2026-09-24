@@ -248,9 +248,9 @@ protected:
 
 private:
 
-  uint64_t ErrorMessages; // Error messages 0...63
-  uint64_t ServiceMessages; // Service messages 0...63
-  uint64_t MiscMessages; // Miscellaneous messages 0...63
+  uint64_t ErrorMessages{ 0 }; // Error messages 0...63
+  uint64_t ServiceMessages{ 0 }; // Service messages 0...63
+  uint64_t MiscMessages{ 0 }; // Miscellaneous messages 0...63
 
   ModeType Mode{ vtkMRMLSiemensPlcOpcUaNode::UNKNOWN };
 

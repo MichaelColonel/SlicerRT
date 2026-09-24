@@ -46,6 +46,7 @@ class Q_SLICER_MODULE_U70ROOMOPCUA_WIDGETS_EXPORT qSlicerOpcUaRobotsMessagesList
 {
   Q_OBJECT
 public:
+  static constexpr size_t MESSAGES_SIZE = 64;
   struct ListItem
   {
     QIcon icon;
@@ -54,64 +55,16 @@ public:
 
   explicit qSlicerOpcUaRobotsMessagesListModel(QObject *parent = nullptr) : QAbstractListModel(parent) {}
 
-  int rowCount(const QModelIndex &parent = QModelIndex()) const override
-  {
-    if (parent.isValid())
-    {
-      return 0;
-    }
-    return messages.size();
-  }
-
-  QVariant data(const QModelIndex &index, int role) const override
-  {
-    if (!index.isValid() || index.row() >= messages.size())
-    {
-      return QVariant();
-    }
-    
-    const ListItem &item = messages.at(index.row());
-    QVariant res;
-    switch (role)
-    {
-    case Qt::DecorationRole:
-      res = item.icon;   // QIcon works directly with Image in QML
-      break;
-    case Qt::DisplayRole:
-      res = item.text;
-      break;
-    default:
-      break;
-    }
-    return res;
-  }
-
-  QHash<int, QByteArray> roleNames() const override
-  {
-    return {
-      { Qt::DecorationRole, "iconSource" },
-      { Qt::DisplayRole, "labelText"  }
-    };
-  }
-
+  int rowCount(const QModelIndex &parent = QModelIndex()) const override;
+  QVariant data(const QModelIndex &index, int role) const override;
+  QHash<int, QByteArray> roleNames() const override;
   // Public API to fill/modify the model
-  void addItem(const QIcon &icon, const QString &text)
-  {
-    beginInsertRows(QModelIndex(), messages.size(), messages.size());
-    messages.append({icon, text});
-    endInsertRows();
-  }
+  void addItem(const QIcon &icon, const QString &text);
   void updateErrorBits(quint64 errorMessages);
   void updateServiceBits(quint64 serviceMessages);
   void updateMiscBits(quint64 miscMessages);
   void updateMessagesBits(quint64 errorMessages, quint64 serviceMessages, quint64 miscMessages);
-
-  void clear()
-  {
-    beginResetModel();
-    messages.clear();
-    endResetModel();
-  }
+  void clear();
 
 private:
   void updateItemsList();

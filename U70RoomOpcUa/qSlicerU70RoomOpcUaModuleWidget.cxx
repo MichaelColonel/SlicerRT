@@ -413,9 +413,13 @@ void qSlicerU70RoomOpcUaModuleWidget::updateWidgetFromMRML()
   }
   if (!d->SiemensPlcOpcUaNode)
   {
-    qCritical() << Q_FUNC_INFO << "Scada node is invalid";
+    qCritical() << Q_FUNC_INFO << "Siemens PLC node is invalid";
     return;
   }
+  uint64_t errBits = d->SiemensPlcOpcUaNode->GetErrorMessages();
+  uint64_t servBits = d->SiemensPlcOpcUaNode->GetServiceMessages();
+  uint64_t miscBits = d->SiemensPlcOpcUaNode->GetMiscMessages();
+  d->SiemensPlcMessagesModel->updateMessagesBits(errBits, servBits, miscBits);
 }
 
 //-----------------------------------------------------------------------------

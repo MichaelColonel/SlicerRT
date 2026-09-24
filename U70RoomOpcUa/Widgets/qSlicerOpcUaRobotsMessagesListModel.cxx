@@ -22,6 +22,53 @@
 
 #include <bitset>
 
+int qSlicerOpcUaRobotsMessagesListModel::rowCount(const QModelIndex &parent) const
+{
+  if (parent.isValid())
+   {
+    return 0;
+  }
+  return messages.size();
+}
+
+QVariant qSlicerOpcUaRobotsMessagesListModel::data(const QModelIndex &index, int role) const
+{
+  if (!index.isValid() || index.row() >= messages.size())
+  {
+    return QVariant();
+  }
+    
+  const ListItem &item = messages.at(index.row());
+  QVariant res;
+  switch (role)
+  {
+  case Qt::DecorationRole:
+    res = item.icon;   // QIcon works directly with Image in QML
+    break;
+  case Qt::DisplayRole:
+    res = item.text;
+    break;
+  default:
+    break;
+  }
+  return res;
+}
+
+QHash< int, QByteArray > qSlicerOpcUaRobotsMessagesListModel::roleNames() const
+{
+  return {
+    { Qt::DecorationRole, "iconSource" },
+    { Qt::DisplayRole, "labelText"  }
+  };
+}
+
+void qSlicerOpcUaRobotsMessagesListModel::addItem(const QIcon &icon, const QString &text)
+{
+  beginInsertRows(QModelIndex(), messages.size(), messages.size());
+  messages.append({ icon, text });
+  endInsertRows();
+}
+
 void qSlicerOpcUaRobotsMessagesListModel::updateErrorBits(quint64 errorMsg)
 {
   errorMessages = errorMsg;
@@ -53,10 +100,10 @@ void qSlicerOpcUaRobotsMessagesListModel::updateItemsList()
 {
   beginResetModel();
   messages.clear();
-  std::bitset< 64 > errr(errorMessages);
-  std::bitset< 64 > serv(serviceMessages);
-  std::bitset< 64 > misc(miscMessages);
-  for (size_t i = 0; i < 64; ++i)
+  std::bitset< MESSAGES_SIZE > errr(errorMessages);
+  std::bitset< MESSAGES_SIZE > serv(serviceMessages);
+  std::bitset< MESSAGES_SIZE > misc(miscMessages);
+  for (size_t i = 0; i < MESSAGES_SIZE; ++i)
   {
     if (errr.test(i))
     {
@@ -66,7 +113,7 @@ void qSlicerOpcUaRobotsMessagesListModel::updateItemsList()
      messages.push_back(errMsgItem);
     }
   }
-  for (size_t i = 0; i < 64; ++i)
+  for (size_t i = 0; i < MESSAGES_SIZE; ++i)
   {
     if (serv.test(i))
     {
@@ -76,7 +123,7 @@ void qSlicerOpcUaRobotsMessagesListModel::updateItemsList()
      messages.push_back(servMsgItem);
     }
   }
-  for (size_t i = 0; i < 64; ++i)
+  for (size_t i = 0; i < MESSAGES_SIZE; ++i)
   {
     if (misc.test(i))
     {
@@ -86,5 +133,12 @@ void qSlicerOpcUaRobotsMessagesListModel::updateItemsList()
      messages.push_back(miscMsgItem);
     }
   }
+  endResetModel();
+}
+
+void qSlicerOpcUaRobotsMessagesListModel::clear()
+{
+  beginResetModel();
+  messages.clear();
   endResetModel();
 }

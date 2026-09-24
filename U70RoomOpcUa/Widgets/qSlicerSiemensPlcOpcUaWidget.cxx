@@ -92,58 +92,62 @@ const QString BUTTONS_AM_R1R2_EMEVAC_PRESSED_NODE_NAME = BUTTONS_AM_R1R2_EMEVAC_
 const QString BUTTONS_AM_R1R2_EMEVAC_ENABLED_NODE_NAME = BUTTONS_AM_R1R2_EMEVAC_NODE_NAME + IS_ENABLED;
 
 const QString BUTTONS_AM_APPLYTABLEPOSITION_NODE_NAME = BUTTONS_AM_NODE_NAME + ".ApplyDekaPosition";
-const QString BUTTONS_AM_APPLYTABLEPOSITION_NODE_NAME_PRESSED_NODE_NAME = BUTTONS_AM_APPLYTABLEPOSITION_NODE_NAME + IS_PRESSED;
-const QString BUTTONS_AM_APPLYTABLEPOSITION_NODE_NAME_ENABLED_NODE_NAME = BUTTONS_AM_APPLYTABLEPOSITION_NODE_NAME + IS_ENABLED;
+const QString BUTTONS_AM_APPLYTABLEPOSITION_PRESSED_NODE_NAME = BUTTONS_AM_APPLYTABLEPOSITION_NODE_NAME + IS_PRESSED;
+const QString BUTTONS_AM_APPLYTABLEPOSITION_ENABLED_NODE_NAME = BUTTONS_AM_APPLYTABLEPOSITION_NODE_NAME + IS_ENABLED;
 
 const QString BUTTONS_SM_NODE_NAME = BUTTONS_NODE_NAME + ".SM";
 
-const QString BUTTONS_SM_R1_BREAKTEST_NODE_NAME = BUTTONS_AM_NODE_NAME + ".BrakeTestR1";
+const QString BUTTONS_SM_R1_BREAKTEST_NODE_NAME = BUTTONS_SM_NODE_NAME + ".BrakeTestR1";
 const QString BUTTONS_SM_R1_BREAKTEST_PRESSED_NODE_NAME = BUTTONS_SM_R1_BREAKTEST_NODE_NAME + IS_PRESSED;
 const QString BUTTONS_SM_R1_BREAKTEST_ENABLED_NODE_NAME = BUTTONS_SM_R1_BREAKTEST_NODE_NAME + IS_ENABLED;
 
-const QString BUTTONS_SM_R1_MASREFTEST_NODE_NAME = BUTTONS_AM_NODE_NAME + ".MasterRefTestR1";
+const QString BUTTONS_SM_R1_MASREFTEST_NODE_NAME = BUTTONS_SM_NODE_NAME + ".MasterRefTestR1";
 const QString BUTTONS_SM_R1_MASREFTEST_PRESSED_NODE_NAME = BUTTONS_SM_R1_MASREFTEST_NODE_NAME + IS_PRESSED;
 const QString BUTTONS_SM_R1_MASREFTEST_ENABLED_NODE_NAME = BUTTONS_SM_R1_MASREFTEST_NODE_NAME + IS_ENABLED;
 
-const QString BUTTONS_SM_R1_LOAD_NODE_NAME = BUTTONS_AM_NODE_NAME + ".LoadR1";
+const QString BUTTONS_SM_R1_LOAD_NODE_NAME = BUTTONS_SM_NODE_NAME + ".LoadR1";
 const QString BUTTONS_SM_R1_LOAD_PRESSED_NODE_NAME = BUTTONS_SM_R1_LOAD_NODE_NAME + IS_PRESSED;
 const QString BUTTONS_SM_R1_LOAD_ENABLED_NODE_NAME = BUTTONS_SM_R1_LOAD_NODE_NAME + IS_ENABLED;
 
-const QString BUTTONS_SM_R1_SERVICEPOS1_NODE_NAME = BUTTONS_AM_NODE_NAME + ".ServicePos1_R1";
+const QString BUTTONS_SM_R1_SERVICEPOS1_NODE_NAME = BUTTONS_SM_NODE_NAME + ".ServicePos1_R1";
 const QString BUTTONS_SM_R1_SERVICEPOS1_PRESSED_NODE_NAME = BUTTONS_SM_R1_SERVICEPOS1_NODE_NAME + IS_PRESSED;
 const QString BUTTONS_SM_R1_SERVICEPOS1_ENABLED_NODE_NAME = BUTTONS_SM_R1_SERVICEPOS1_NODE_NAME + IS_ENABLED;
 
-const QString BUTTONS_SM_R1_SERVICEPOS2_NODE_NAME = BUTTONS_AM_NODE_NAME + ".ServicePos2_R1";
+const QString BUTTONS_SM_R1_SERVICEPOS2_NODE_NAME = BUTTONS_SM_NODE_NAME + ".ServicePos2_R1";
 const QString BUTTONS_SM_R1_SERVICEPOS2_PRESSED_NODE_NAME = BUTTONS_SM_R1_SERVICEPOS2_NODE_NAME + IS_PRESSED;
 const QString BUTTONS_SM_R1_SERVICEPOS2_ENABLED_NODE_NAME = BUTTONS_SM_R1_SERVICEPOS2_NODE_NAME + IS_ENABLED;
 
-const QString BUTTONS_SM_R1_SERVICEPOS3_NODE_NAME = BUTTONS_AM_NODE_NAME + ".ServicePos3_R1";
+const QString BUTTONS_SM_R1_SERVICEPOS3_NODE_NAME = BUTTONS_SM_NODE_NAME + ".ServicePos3_R1";
 const QString BUTTONS_SM_R1_SERVICEPOS3_PRESSED_NODE_NAME = BUTTONS_SM_R1_SERVICEPOS3_NODE_NAME + IS_PRESSED;
 const QString BUTTONS_SM_R1_SERVICEPOS3_ENABLED_NODE_NAME = BUTTONS_SM_R1_SERVICEPOS3_NODE_NAME + IS_ENABLED;
 
-const QString BUTTONS_SM_R2_BREAKTEST_NODE_NAME = BUTTONS_AM_NODE_NAME + ".BrakeTestR2";
+const QString BUTTONS_SM_R2_BREAKTEST_NODE_NAME = BUTTONS_SM_NODE_NAME + ".BrakeTestR2";
 const QString BUTTONS_SM_R2_BREAKTEST_PRESSED_NODE_NAME = BUTTONS_SM_R2_BREAKTEST_NODE_NAME + IS_PRESSED;
 const QString BUTTONS_SM_R2_BREAKTEST_ENABLED_NODE_NAME = BUTTONS_SM_R2_BREAKTEST_NODE_NAME + IS_ENABLED;
 
-const QString BUTTONS_SM_R2_MASREFTEST_NODE_NAME = BUTTONS_AM_NODE_NAME + ".MasterRefTestR2";
+const QString BUTTONS_SM_R2_MASREFTEST_NODE_NAME = BUTTONS_SM_NODE_NAME + ".MasterRefTestR2";
 const QString BUTTONS_SM_R2_MASREFTEST_PRESSED_NODE_NAME = BUTTONS_SM_R2_MASREFTEST_NODE_NAME + IS_PRESSED;
 const QString BUTTONS_SM_R2_MASREFTEST_ENABLED_NODE_NAME = BUTTONS_SM_R2_MASREFTEST_NODE_NAME + IS_ENABLED;
 
-const QString BUTTONS_SM_R2_HOME_NODE_NAME = BUTTONS_AM_NODE_NAME + ".HomeR2";
+const QString BUTTONS_SM_R2_HOME_NODE_NAME = BUTTONS_SM_NODE_NAME + ".HomeR2";
 const QString BUTTONS_SM_R2_HOME_PRESSED_NODE_NAME = BUTTONS_SM_R2_HOME_NODE_NAME + IS_PRESSED;
 const QString BUTTONS_SM_R2_HOME_ENABLED_NODE_NAME = BUTTONS_SM_R2_HOME_NODE_NAME + IS_ENABLED;
 
-const QString BUTTONS_SM_R2_SERVICEPOS1_NODE_NAME = BUTTONS_AM_NODE_NAME + ".ServicePos1_R2";
+const QString BUTTONS_SM_R2_SERVICEPOS1_NODE_NAME = BUTTONS_SM_NODE_NAME + ".ServicePos1_R2";
 const QString BUTTONS_SM_R2_SERVICEPOS1_PRESSED_NODE_NAME = BUTTONS_SM_R2_SERVICEPOS1_NODE_NAME + IS_PRESSED;
 const QString BUTTONS_SM_R2_SERVICEPOS1_ENABLED_NODE_NAME = BUTTONS_SM_R2_SERVICEPOS1_NODE_NAME + IS_ENABLED;
 
-const QString BUTTONS_SM_R2_SERVICEPOS2_NODE_NAME = BUTTONS_AM_NODE_NAME + ".ServicePos2_R2";
+const QString BUTTONS_SM_R2_SERVICEPOS2_NODE_NAME = BUTTONS_SM_NODE_NAME + ".ServicePos2_R2";
 const QString BUTTONS_SM_R2_SERVICEPOS2_PRESSED_NODE_NAME = BUTTONS_SM_R2_SERVICEPOS2_NODE_NAME + IS_PRESSED;
 const QString BUTTONS_SM_R2_SERVICEPOS2_ENABLED_NODE_NAME = BUTTONS_SM_R2_SERVICEPOS2_NODE_NAME + IS_ENABLED;
 
-const QString BUTTONS_SM_R2_SERVICEPOS3_NODE_NAME = BUTTONS_AM_NODE_NAME + ".ServicePos3_R2";
+const QString BUTTONS_SM_R2_SERVICEPOS3_NODE_NAME = BUTTONS_SM_NODE_NAME + ".ServicePos3_R2";
 const QString BUTTONS_SM_R2_SERVICEPOS3_PRESSED_NODE_NAME = BUTTONS_SM_R2_SERVICEPOS3_NODE_NAME + IS_PRESSED;
 const QString BUTTONS_SM_R2_SERVICEPOS3_ENABLED_NODE_NAME = BUTTONS_SM_R2_SERVICEPOS3_NODE_NAME + IS_ENABLED;
+
+const QString BUTTONS_SM_RESTARTSM_NODE_NAME = BUTTONS_SM_NODE_NAME + ".RestartSM";
+const QString BUTTONS_SM_RESTARTSM_PRESSED_NODE_NAME = BUTTONS_SM_RESTARTSM_NODE_NAME + IS_PRESSED;
+const QString BUTTONS_SM_RESTARTSM_ENABLED_NODE_NAME = BUTTONS_SM_RESTARTSM_NODE_NAME + IS_ENABLED;
 
 const QString BUTTONS_RESET_ERRORS_NODE_NAME = BUTTONS_AM_NODE_NAME + ".ResetErrors";
 const QString BUTTONS_RESET_ERRORS_PRESSED_NODE_NAME = BUTTONS_RESET_ERRORS_NODE_NAME + IS_PRESSED;
@@ -151,7 +155,7 @@ const QString BUTTONS_RESET_ERRORS_ENABLED_NODE_NAME = BUTTONS_RESET_ERRORS_NODE
 
 }
 
-
+//-----------------------------------------------------------------------------
 class NodeData {
 public:
   NodeData() = default;
@@ -223,17 +227,6 @@ public:
   const QString SIEMENS_PLC_CURRENT_TIME_NODE_ID = "ns=0;i=2258";
   QScopedPointer<QOpcUaNode> CurrentTimeNode; // Siemens PLC monitored node to prevent session timeout ending
 
-  QMap< QString, QString > NodeNameIdMap;
-  QStringList MessagesNodesNameList = {
-    ASU_ERROR_MESSAGES_NODE_NAME,
-    ASU_SERVICE_MESSAGES_NODE_NAME,
-    ASU_MESSAGES_NODE_NAME,
-    ASU_MODE_NODE_NAME,
-    BUTTONS_AM_R1_LOADTOISO_PRESSED_NODE_NAME,
-    BUTTONS_AM_R1_LOADTOISO_ENABLED_NODE_NAME,
-    BUTTONS_AM_R1_TOLOAD_PRESSED_NODE_NAME,
-    BUTTONS_AM_R1_TOLOAD_ENABLED_NODE_NAME
-  };
   QMap< QString, NodeData > NodeNameDataMap; // key - node unique full name, value - node data
 };
 
@@ -256,6 +249,7 @@ void qSlicerSiemensPlcOpcUaWidgetPrivate::setupUi(qSlicerSiemensPlcOpcUaWidget* 
 
 }
 
+//-----------------------------------------------------------------------------
 bool qSlicerSiemensPlcOpcUaWidgetPrivate::ParseServerParentNode(const QString& serverNodeDispName)
 {
   if (!this->ServerInterfacesNode)
@@ -318,6 +312,7 @@ bool qSlicerSiemensPlcOpcUaWidgetPrivate::ParseServerParentNode(const QString& s
   return true;
 }
 
+//-----------------------------------------------------------------------------
 QOpcUaNode* qSlicerSiemensPlcOpcUaWidgetPrivate::FindNodeFromFullDisplayName(const QString& nodeDisplayName)
 {
   if (this->NodeNameDataMap.size())
@@ -335,6 +330,7 @@ QOpcUaNode* qSlicerSiemensPlcOpcUaWidgetPrivate::FindNodeFromFullDisplayName(con
   return nullptr;
 }
 
+//-----------------------------------------------------------------------------
 bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectMessagesNodes()
 {
   QSharedPointer< QOpcUaClient > opcUaClient = this->OpcUaClient.toStrongRef();
@@ -539,6 +535,7 @@ bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectMessagesNodes()
   return true;
 }
 
+//-----------------------------------------------------------------------------
 bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectAutoManualR1ToLoadNodes()
 {
   QSharedPointer< QOpcUaClient > opcUaClient = this->OpcUaClient.toStrongRef();
@@ -630,6 +627,7 @@ bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectAutoManualR1ToLoadNodes()
   return true;
 }
 
+//-----------------------------------------------------------------------------
 bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectAutoManualR1LoadToIsoNodes()
 {
   QSharedPointer< QOpcUaClient > opcUaClient = this->OpcUaClient.toStrongRef();
@@ -721,7 +719,7 @@ bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectAutoManualR1LoadToIsoNodes()
   return true;
 }
 
-
+//-----------------------------------------------------------------------------
 bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectResetErrorsNodes()
 {
   QSharedPointer< QOpcUaClient > opcUaClient = this->OpcUaClient.toStrongRef();
@@ -813,6 +811,7 @@ bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectResetErrorsNodes()
   return true;
 }
 
+//-----------------------------------------------------------------------------
 bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectModeAndStatusNodes()
 {
   QSharedPointer< QOpcUaClient > opcUaClient = this->OpcUaClient.toStrongRef();
@@ -1038,6 +1037,7 @@ qSlicerSiemensPlcOpcUaWidget::~qSlicerSiemensPlcOpcUaWidget()
 {
 }
 
+//-----------------------------------------------------------------------------
 void qSlicerSiemensPlcOpcUaWidget::setParameterNode(vtkMRMLNode* node)
 {
   Q_D(qSlicerSiemensPlcOpcUaWidget);
@@ -1052,6 +1052,7 @@ void qSlicerSiemensPlcOpcUaWidget::setParameterNode(vtkMRMLNode* node)
   this->updateWidgetFromMRML();
 }
 
+//-----------------------------------------------------------------------------
 void qSlicerSiemensPlcOpcUaWidget::setSiemensPlcOpcUaClient(const QSharedPointer< QOpcUaClient >& sharedClient)
 {
   Q_D(qSlicerSiemensPlcOpcUaWidget);
@@ -1059,6 +1060,7 @@ void qSlicerSiemensPlcOpcUaWidget::setSiemensPlcOpcUaClient(const QSharedPointer
   d->OpcUaClient = sharedClient;
 }
 
+//-----------------------------------------------------------------------------
 void qSlicerSiemensPlcOpcUaWidget::updateWidgetFromMRML()
 {
   Q_D(qSlicerSiemensPlcOpcUaWidget);
@@ -1115,6 +1117,7 @@ void qSlicerSiemensPlcOpcUaWidget::updateWidgetFromMRML()
   qDebug() << Q_FUNC_INFO << "Update SiemensPlcOpcUa buttons";
 }
 
+//-----------------------------------------------------------------------------
 void qSlicerSiemensPlcOpcUaWidget::onOpcUaClientConnected()
 {
   Q_D(qSlicerSiemensPlcOpcUaWidget);
@@ -1137,6 +1140,7 @@ void qSlicerSiemensPlcOpcUaWidget::onOpcUaClientConnected()
   }
 }
 
+//-----------------------------------------------------------------------------
 void qSlicerSiemensPlcOpcUaWidget::onParseServerInterfacesClicked()
 {
   Q_D(qSlicerSiemensPlcOpcUaWidget);
@@ -1174,10 +1178,12 @@ void qSlicerSiemensPlcOpcUaWidget::onParseServerInterfacesClicked()
   }
 }
 
+//-----------------------------------------------------------------------------
 void qSlicerSiemensPlcOpcUaWidget::onOpcUaClientDisconnected()
 {
 }
 
+//-----------------------------------------------------------------------------
 void qSlicerSiemensPlcOpcUaWidget::onOpcUaModeChanged(vtkMRMLSiemensPlcOpcUaNode::ModeType mode)
 {
   Q_D(qSlicerSiemensPlcOpcUaWidget);
@@ -1190,6 +1196,7 @@ void qSlicerSiemensPlcOpcUaWidget::onOpcUaModeChanged(vtkMRMLSiemensPlcOpcUaNode
   }
 }
 
+//-----------------------------------------------------------------------------
 void qSlicerSiemensPlcOpcUaWidget::onAutoManualR1LoadToIsoPressed()
 {
   Q_D(qSlicerSiemensPlcOpcUaWidget);
@@ -1202,6 +1209,7 @@ void qSlicerSiemensPlcOpcUaWidget::onAutoManualR1LoadToIsoPressed()
   }
 }
 
+//-----------------------------------------------------------------------------
 void qSlicerSiemensPlcOpcUaWidget::onAutoManualR1LoadToIsoReleased()
 {
   Q_D(qSlicerSiemensPlcOpcUaWidget);
@@ -1214,6 +1222,7 @@ void qSlicerSiemensPlcOpcUaWidget::onAutoManualR1LoadToIsoReleased()
   }
 }
 
+//-----------------------------------------------------------------------------
 void qSlicerSiemensPlcOpcUaWidget::onAutoManualR1ToLoadPressed()
 {
   Q_D(qSlicerSiemensPlcOpcUaWidget);
@@ -1226,6 +1235,7 @@ void qSlicerSiemensPlcOpcUaWidget::onAutoManualR1ToLoadPressed()
   }
 }
 
+//-----------------------------------------------------------------------------
 void qSlicerSiemensPlcOpcUaWidget::onAutoManualR1ToLoadReleased()
 {
   Q_D(qSlicerSiemensPlcOpcUaWidget);
@@ -1238,6 +1248,7 @@ void qSlicerSiemensPlcOpcUaWidget::onAutoManualR1ToLoadReleased()
   }
 }
 
+//-----------------------------------------------------------------------------
 void qSlicerSiemensPlcOpcUaWidget::onResetErrorsPressed()
 {
   Q_D(qSlicerSiemensPlcOpcUaWidget);
@@ -1250,6 +1261,7 @@ void qSlicerSiemensPlcOpcUaWidget::onResetErrorsPressed()
   }
 }
 
+//-----------------------------------------------------------------------------
 void qSlicerSiemensPlcOpcUaWidget::onResetErrorsReleased()
 {
   Q_D(qSlicerSiemensPlcOpcUaWidget);
@@ -1259,6 +1271,500 @@ void qSlicerSiemensPlcOpcUaWidget::onResetErrorsReleased()
   {
     qDebug() << Q_FUNC_INFO << ": Reset errors pressed";
     resetErrorsPressedNode->writeAttribute(QOpcUa::NodeAttribute::Value, QVariant(false), QOpcUa::Types::Boolean);
+  }
+}
+
+//-----------------------------------------------------------------------------
+void qSlicerSiemensPlcOpcUaWidget::onAutoManualR1ToNewCoordsPressed()
+{
+  Q_D(qSlicerSiemensPlcOpcUaWidget);
+  // AutomaticManual R1 NewCoords button pressed node
+  QOpcUaNode* amR1NewCoordsPressedNode = d->FindNodeFromFullDisplayName(BUTTONS_AM_R1_NEWCOORDS_PRESSED_NODE_NAME);
+  if (amR1NewCoordsPressedNode)
+  {
+    qDebug() << Q_FUNC_INFO << ": R1 NewCoord pressed";
+    amR1NewCoordsPressedNode->writeAttribute(QOpcUa::NodeAttribute::Value, QVariant(true), QOpcUa::Types::Boolean);
+  }
+}
+
+//-----------------------------------------------------------------------------
+void qSlicerSiemensPlcOpcUaWidget::onAutoManualR1ToNewCoordsReleased()
+{
+  Q_D(qSlicerSiemensPlcOpcUaWidget);
+  // AutomaticManual R1 NewCoords button pressed node
+  QOpcUaNode* amR1NewCoordsPressedNode = d->FindNodeFromFullDisplayName(BUTTONS_AM_R1_NEWCOORDS_PRESSED_NODE_NAME);
+  if (amR1NewCoordsPressedNode)
+  {
+    qDebug() << Q_FUNC_INFO << ": R1 NewCoord released";
+    amR1NewCoordsPressedNode->writeAttribute(QOpcUa::NodeAttribute::Value, QVariant(false), QOpcUa::Types::Boolean);
+  }
+}
+
+//-----------------------------------------------------------------------------
+void qSlicerSiemensPlcOpcUaWidget::onAutoManualR2ToHomePressed()
+{
+  Q_D(qSlicerSiemensPlcOpcUaWidget);
+  // AutomaticManual R2 ToHome button pressed node
+  QOpcUaNode* amR2ToHomePressedNode = d->FindNodeFromFullDisplayName(BUTTONS_AM_R2_TOHOME_PRESSED_NODE_NAME);
+  if (amR2ToHomePressedNode)
+  {
+    qDebug() << Q_FUNC_INFO << ": R2 ToHome button pressed";
+    amR2ToHomePressedNode->writeAttribute(QOpcUa::NodeAttribute::Value, QVariant(true), QOpcUa::Types::Boolean);
+  }
+}
+
+//-----------------------------------------------------------------------------
+void qSlicerSiemensPlcOpcUaWidget::onAutoManualR2ToHomeReleased()
+{
+  Q_D(qSlicerSiemensPlcOpcUaWidget);
+  // AutomaticManual R2 ToHome button pressed node
+  QOpcUaNode* amR2ToHomePressedNode = d->FindNodeFromFullDisplayName(BUTTONS_AM_R2_TOHOME_PRESSED_NODE_NAME);
+  if (amR2ToHomePressedNode)
+  {
+    qDebug() << Q_FUNC_INFO << ": R2 ToHome button released";
+    amR2ToHomePressedNode->writeAttribute(QOpcUa::NodeAttribute::Value, QVariant(false), QOpcUa::Types::Boolean);
+  }
+}
+
+//-----------------------------------------------------------------------------
+void qSlicerSiemensPlcOpcUaWidget::onAutoManualR2ToPlane1Pressed()
+{
+  Q_D(qSlicerSiemensPlcOpcUaWidget);
+  // AutomaticManual R2 ToPlane1 button pressed node
+  QOpcUaNode* amR2ToPlane1PressedNode = d->FindNodeFromFullDisplayName(BUTTONS_AM_R2_TOPLANE1_PRESSED_NODE_NAME);
+  if (amR2ToPlane1PressedNode)
+  {
+    qDebug() << Q_FUNC_INFO << ": R2 ToPlane1 button pressed";
+    amR2ToPlane1PressedNode->writeAttribute(QOpcUa::NodeAttribute::Value, QVariant(true), QOpcUa::Types::Boolean);
+  }
+}
+
+//-----------------------------------------------------------------------------
+void qSlicerSiemensPlcOpcUaWidget::onAutoManualR2ToPlane1Released()
+{
+  Q_D(qSlicerSiemensPlcOpcUaWidget);
+  // AutomaticManual R2 ToPlane1 button pressed node
+  QOpcUaNode* amR2ToPlane1PressedNode = d->FindNodeFromFullDisplayName(BUTTONS_AM_R2_TOPLANE1_PRESSED_NODE_NAME);
+  if (amR2ToPlane1PressedNode)
+  {
+    qDebug() << Q_FUNC_INFO << ": R2 ToPlane1 button released";
+    amR2ToPlane1PressedNode->writeAttribute(QOpcUa::NodeAttribute::Value, QVariant(false), QOpcUa::Types::Boolean);
+  }
+}
+
+//-----------------------------------------------------------------------------
+void qSlicerSiemensPlcOpcUaWidget::onAutoManualR2ToPlane2Pressed()
+{
+  Q_D(qSlicerSiemensPlcOpcUaWidget);
+  // AutomaticManual R2 ToPlane2 button pressed node
+  QOpcUaNode* amR2ToPlane2PressedNode = d->FindNodeFromFullDisplayName(BUTTONS_AM_R2_TOPLANE2_PRESSED_NODE_NAME);
+  if (amR2ToPlane2PressedNode)
+  {
+    qDebug() << Q_FUNC_INFO << ": R2 ToPlane2 button pressed";
+    amR2ToPlane2PressedNode->writeAttribute(QOpcUa::NodeAttribute::Value, QVariant(true), QOpcUa::Types::Boolean);
+  }
+}
+
+//-----------------------------------------------------------------------------
+void qSlicerSiemensPlcOpcUaWidget::onAutoManualR2ToPlane2Released()
+{
+  Q_D(qSlicerSiemensPlcOpcUaWidget);
+  // AutomaticManual R2 ToPlane2 button pressed node
+  QOpcUaNode* amR2ToPlane2PressedNode = d->FindNodeFromFullDisplayName(BUTTONS_AM_R2_TOPLANE2_PRESSED_NODE_NAME);
+  if (amR2ToPlane2PressedNode)
+  {
+    qDebug() << Q_FUNC_INFO << ": R2 ToPlane2 button released";
+    amR2ToPlane2PressedNode->writeAttribute(QOpcUa::NodeAttribute::Value, QVariant(false), QOpcUa::Types::Boolean);
+  }
+}
+
+//-----------------------------------------------------------------------------
+void qSlicerSiemensPlcOpcUaWidget::onAutoManualR1R2EmerEvacPressed()
+{
+  Q_D(qSlicerSiemensPlcOpcUaWidget);
+  // AutomaticManual R1R2 Emergency Evacuation button pressed node
+  QOpcUaNode* amR1R2EmEvacPressedNode = d->FindNodeFromFullDisplayName(BUTTONS_AM_R1R2_EMEVAC_PRESSED_NODE_NAME);
+  if (amR1R2EmEvacPressedNode)
+  {
+    qDebug() << Q_FUNC_INFO << ": R1R2 Emergency Evacuation button pressed";
+    amR1R2EmEvacPressedNode->writeAttribute(QOpcUa::NodeAttribute::Value, QVariant(true), QOpcUa::Types::Boolean);
+  }
+}
+
+//-----------------------------------------------------------------------------
+void qSlicerSiemensPlcOpcUaWidget::onAutoManualR1R2EmerEvacReleased()
+{
+  Q_D(qSlicerSiemensPlcOpcUaWidget);
+  // AutomaticManual R1R2 Emergency Evacuation button pressed node
+  QOpcUaNode* amR1R2EmEvacPressedNode = d->FindNodeFromFullDisplayName(BUTTONS_AM_R1R2_EMEVAC_PRESSED_NODE_NAME);
+  if (amR1R2EmEvacPressedNode)
+  {
+    qDebug() << Q_FUNC_INFO << ": R1R2 Emergency Evacuation button released";
+    amR1R2EmEvacPressedNode->writeAttribute(QOpcUa::NodeAttribute::Value, QVariant(false), QOpcUa::Types::Boolean);
+  }
+}
+
+//-----------------------------------------------------------------------------
+void qSlicerSiemensPlcOpcUaWidget::onAutoManualApplyTablePositionPressed()
+{
+  Q_D(qSlicerSiemensPlcOpcUaWidget);
+  // AutomaticManual ApplyTableTopPosition button pressed node
+  QOpcUaNode* amApplyTableTopPosPressedNode = d->FindNodeFromFullDisplayName(BUTTONS_AM_APPLYTABLEPOSITION_PRESSED_NODE_NAME);
+  if (amApplyTableTopPosPressedNode)
+  {
+    qDebug() << Q_FUNC_INFO << ": ApplyTableTopPosition button pressed";
+    amApplyTableTopPosPressedNode->writeAttribute(QOpcUa::NodeAttribute::Value, QVariant(true), QOpcUa::Types::Boolean);
+  }
+}
+
+//-----------------------------------------------------------------------------
+void qSlicerSiemensPlcOpcUaWidget::onAutoManualApplyTablePositionReleased()
+{
+  Q_D(qSlicerSiemensPlcOpcUaWidget);
+  // AutomaticManual ApplyTableTopPosition button pressed node
+  QOpcUaNode* amApplyTableTopPosPressedNode = d->FindNodeFromFullDisplayName(BUTTONS_AM_APPLYTABLEPOSITION_PRESSED_NODE_NAME);
+  if (amApplyTableTopPosPressedNode)
+  {
+    qDebug() << Q_FUNC_INFO << ": ApplyTableTopPosition button pressed";
+    amApplyTableTopPosPressedNode->writeAttribute(QOpcUa::NodeAttribute::Value, QVariant(false), QOpcUa::Types::Boolean);
+  }
+}
+
+//-----------------------------------------------------------------------------
+void qSlicerSiemensPlcOpcUaWidget::onServiceR1BreakTestPressed()
+{
+  Q_D(qSlicerSiemensPlcOpcUaWidget);
+  // Service R1 BreakTest button pressed node
+  QOpcUaNode* smR1BeakTestPressedNode = d->FindNodeFromFullDisplayName(BUTTONS_SM_R1_BREAKTEST_PRESSED_NODE_NAME);
+  if (smR1BeakTestPressedNode)
+  {
+    qDebug() << Q_FUNC_INFO << ": R1 BreakTest button pressed";
+    smR1BeakTestPressedNode->writeAttribute(QOpcUa::NodeAttribute::Value, QVariant(true), QOpcUa::Types::Boolean);
+  }
+}
+
+//-----------------------------------------------------------------------------
+void qSlicerSiemensPlcOpcUaWidget::onServiceR1BreakTestReleased()
+{
+  Q_D(qSlicerSiemensPlcOpcUaWidget);
+  // Service R1 BreakTest button pressed node
+  QOpcUaNode* smR1BeakTestPressedNode = d->FindNodeFromFullDisplayName(BUTTONS_SM_R1_BREAKTEST_PRESSED_NODE_NAME);
+  if (smR1BeakTestPressedNode)
+  {
+    qDebug() << Q_FUNC_INFO << ": R1 BreakTest button released";
+    smR1BeakTestPressedNode->writeAttribute(QOpcUa::NodeAttribute::Value, QVariant(false), QOpcUa::Types::Boolean);
+  }
+}
+
+//-----------------------------------------------------------------------------
+void qSlicerSiemensPlcOpcUaWidget::onServiceR1MasterReferenceTestPressed()
+{
+  Q_D(qSlicerSiemensPlcOpcUaWidget);
+  // Service R1 MasterReferenceTest button pressed node
+  QOpcUaNode* smR1MasRefTestPressedNode = d->FindNodeFromFullDisplayName(BUTTONS_SM_R1_MASREFTEST_PRESSED_NODE_NAME);
+  if (smR1MasRefTestPressedNode)
+  {
+    qDebug() << Q_FUNC_INFO << ": R1 MasterReferenceTest button pressed";
+    smR1MasRefTestPressedNode->writeAttribute(QOpcUa::NodeAttribute::Value, QVariant(true), QOpcUa::Types::Boolean);
+  }
+}
+
+//-----------------------------------------------------------------------------
+void qSlicerSiemensPlcOpcUaWidget::onServiceR1MasterReferenceTestReleased()
+{
+  Q_D(qSlicerSiemensPlcOpcUaWidget);
+  // Service R1 MasterReferenceTest button pressed node
+  QOpcUaNode* smR1MasRefTestPressedNode = d->FindNodeFromFullDisplayName(BUTTONS_SM_R1_MASREFTEST_PRESSED_NODE_NAME);
+  if (smR1MasRefTestPressedNode)
+  {
+    qDebug() << Q_FUNC_INFO << ": R1 MasterReferenceTest button released";
+    smR1MasRefTestPressedNode->writeAttribute(QOpcUa::NodeAttribute::Value, QVariant(false), QOpcUa::Types::Boolean);
+  }
+}
+
+//-----------------------------------------------------------------------------
+void qSlicerSiemensPlcOpcUaWidget::onServiceR1LoadPressed()
+{
+  Q_D(qSlicerSiemensPlcOpcUaWidget);
+  // Service R1 Load button pressed node
+  QOpcUaNode* smR1LoadPressedNode = d->FindNodeFromFullDisplayName(BUTTONS_SM_R1_LOAD_PRESSED_NODE_NAME);
+  if (smR1LoadPressedNode)
+  {
+    qDebug() << Q_FUNC_INFO << ": R1 Load button pressed";
+    smR1LoadPressedNode->writeAttribute(QOpcUa::NodeAttribute::Value, QVariant(true), QOpcUa::Types::Boolean);
+  }
+}
+
+//-----------------------------------------------------------------------------
+void qSlicerSiemensPlcOpcUaWidget::onServiceR1LoadReleased()
+{
+  Q_D(qSlicerSiemensPlcOpcUaWidget);
+  // Service R1 Load button pressed node
+  QOpcUaNode* smR1LoadPressedNode = d->FindNodeFromFullDisplayName(BUTTONS_SM_R1_LOAD_PRESSED_NODE_NAME);
+  if (smR1LoadPressedNode)
+  {
+    qDebug() << Q_FUNC_INFO << ": R1 Load button released";
+    smR1LoadPressedNode->writeAttribute(QOpcUa::NodeAttribute::Value, QVariant(false), QOpcUa::Types::Boolean);
+  }
+}
+
+//-----------------------------------------------------------------------------
+void qSlicerSiemensPlcOpcUaWidget::onServiceR1ServicePos1Pressed()
+{
+  Q_D(qSlicerSiemensPlcOpcUaWidget);
+  // Service R1 ServicePosition1 button pressed node
+  QOpcUaNode* smR1ServicePos1PressedNode = d->FindNodeFromFullDisplayName(BUTTONS_SM_R1_SERVICEPOS1_PRESSED_NODE_NAME);
+  if (smR1ServicePos1PressedNode)
+  {
+    qDebug() << Q_FUNC_INFO << ": R1 ServicePosition1 button pressed";
+    smR1ServicePos1PressedNode->writeAttribute(QOpcUa::NodeAttribute::Value, QVariant(true), QOpcUa::Types::Boolean);
+  }
+}
+
+//-----------------------------------------------------------------------------
+void qSlicerSiemensPlcOpcUaWidget::onServiceR1ServicePos1Released()
+{
+  Q_D(qSlicerSiemensPlcOpcUaWidget);
+  // Service R1 ServicePosition1 button pressed node
+  QOpcUaNode* smR1ServicePos1PressedNode = d->FindNodeFromFullDisplayName(BUTTONS_SM_R1_SERVICEPOS1_PRESSED_NODE_NAME);
+  if (smR1ServicePos1PressedNode)
+  {
+    qDebug() << Q_FUNC_INFO << ": R1 ServicePosition1 button released";
+    smR1ServicePos1PressedNode->writeAttribute(QOpcUa::NodeAttribute::Value, QVariant(false), QOpcUa::Types::Boolean);
+  }
+}
+
+//-----------------------------------------------------------------------------
+void qSlicerSiemensPlcOpcUaWidget::onServiceR1ServicePos2Pressed()
+{
+  Q_D(qSlicerSiemensPlcOpcUaWidget);
+  // Service R1 ServicePosition2 button pressed node
+  QOpcUaNode* smR1ServicePos2PressedNode = d->FindNodeFromFullDisplayName(BUTTONS_SM_R1_SERVICEPOS2_PRESSED_NODE_NAME);
+  if (smR1ServicePos2PressedNode)
+  {
+    qDebug() << Q_FUNC_INFO << ": R1 ServicePosition2 button pressed";
+    smR1ServicePos2PressedNode->writeAttribute(QOpcUa::NodeAttribute::Value, QVariant(true), QOpcUa::Types::Boolean);
+  }
+}
+
+//-----------------------------------------------------------------------------
+void qSlicerSiemensPlcOpcUaWidget::onServiceR1ServicePos2Released()
+{
+  Q_D(qSlicerSiemensPlcOpcUaWidget);
+  // Service R1 ServicePosition2 button pressed node
+  QOpcUaNode* smR1ServicePos2PressedNode = d->FindNodeFromFullDisplayName(BUTTONS_SM_R1_SERVICEPOS2_PRESSED_NODE_NAME);
+  if (smR1ServicePos2PressedNode)
+  {
+    qDebug() << Q_FUNC_INFO << ": R1 ServicePosition2 button released";
+    smR1ServicePos2PressedNode->writeAttribute(QOpcUa::NodeAttribute::Value, QVariant(false), QOpcUa::Types::Boolean);
+  }
+}
+
+//-----------------------------------------------------------------------------
+void qSlicerSiemensPlcOpcUaWidget::onServiceR1ServicePos3Pressed()
+{
+  Q_D(qSlicerSiemensPlcOpcUaWidget);
+  // Service R1 ServicePosition3 button pressed node
+  QOpcUaNode* smR1ServicePos3PressedNode = d->FindNodeFromFullDisplayName(BUTTONS_SM_R1_SERVICEPOS3_PRESSED_NODE_NAME);
+  if (smR1ServicePos3PressedNode)
+  {
+    qDebug() << Q_FUNC_INFO << ": R1 ServicePosition3 button pressed";
+    smR1ServicePos3PressedNode->writeAttribute(QOpcUa::NodeAttribute::Value, QVariant(true), QOpcUa::Types::Boolean);
+  }
+}
+
+//-----------------------------------------------------------------------------
+void qSlicerSiemensPlcOpcUaWidget::onServiceR1ServicePos3Released()
+{
+  Q_D(qSlicerSiemensPlcOpcUaWidget);
+  // Service R1 ServicePosition3 button pressed node
+  QOpcUaNode* smR1ServicePos3PressedNode = d->FindNodeFromFullDisplayName(BUTTONS_SM_R1_SERVICEPOS3_PRESSED_NODE_NAME);
+  if (smR1ServicePos3PressedNode)
+  {
+    qDebug() << Q_FUNC_INFO << ": R1 ServicePosition3 button released";
+    smR1ServicePos3PressedNode->writeAttribute(QOpcUa::NodeAttribute::Value, QVariant(false), QOpcUa::Types::Boolean);
+  }
+}
+
+//-----------------------------------------------------------------------------
+void qSlicerSiemensPlcOpcUaWidget::onServiceR2BreakTestPressed()
+{
+  Q_D(qSlicerSiemensPlcOpcUaWidget);
+  // Service R2 BreakTest button pressed node
+  QOpcUaNode* smR2BeakTestPressedNode = d->FindNodeFromFullDisplayName(BUTTONS_SM_R2_BREAKTEST_PRESSED_NODE_NAME);
+  if (smR2BeakTestPressedNode)
+  {
+    qDebug() << Q_FUNC_INFO << ": R2 BreakTest button pressed";
+    smR2BeakTestPressedNode->writeAttribute(QOpcUa::NodeAttribute::Value, QVariant(true), QOpcUa::Types::Boolean);
+  }
+}
+
+//-----------------------------------------------------------------------------
+void qSlicerSiemensPlcOpcUaWidget::onServiceR2BreakTestReleased()
+{
+  Q_D(qSlicerSiemensPlcOpcUaWidget);
+  // Service R2 BreakTest button pressed node
+  QOpcUaNode* smR2BeakTestPressedNode = d->FindNodeFromFullDisplayName(BUTTONS_SM_R2_BREAKTEST_PRESSED_NODE_NAME);
+  if (smR2BeakTestPressedNode)
+  {
+    qDebug() << Q_FUNC_INFO << ": R2 BreakTest button released";
+    smR2BeakTestPressedNode->writeAttribute(QOpcUa::NodeAttribute::Value, QVariant(false), QOpcUa::Types::Boolean);
+  }
+}
+
+//-----------------------------------------------------------------------------
+void qSlicerSiemensPlcOpcUaWidget::onServiceR2MasterReferenceTestPressed()
+{
+  Q_D(qSlicerSiemensPlcOpcUaWidget);
+  // Service R2 MasterReferenceTest button pressed node
+  QOpcUaNode* smR2MasRefTestPressedNode = d->FindNodeFromFullDisplayName(BUTTONS_SM_R2_MASREFTEST_PRESSED_NODE_NAME);
+  if (smR2MasRefTestPressedNode)
+  {
+    qDebug() << Q_FUNC_INFO << ": R1 MasterReferenceTest button pressed";
+    smR2MasRefTestPressedNode->writeAttribute(QOpcUa::NodeAttribute::Value, QVariant(true), QOpcUa::Types::Boolean);
+  }
+}
+
+//-----------------------------------------------------------------------------
+void qSlicerSiemensPlcOpcUaWidget::onServiceR2MasterReferenceTestReleased()
+{
+  Q_D(qSlicerSiemensPlcOpcUaWidget);
+  // Service R2 MasterReferenceTest button pressed node
+  QOpcUaNode* smR2MasRefTestPressedNode = d->FindNodeFromFullDisplayName(BUTTONS_SM_R2_MASREFTEST_PRESSED_NODE_NAME);
+  if (smR2MasRefTestPressedNode)
+  {
+    qDebug() << Q_FUNC_INFO << ": R2 MasterReferenceTest button released";
+    smR2MasRefTestPressedNode->writeAttribute(QOpcUa::NodeAttribute::Value, QVariant(false), QOpcUa::Types::Boolean);
+  }
+}
+
+//-----------------------------------------------------------------------------
+void qSlicerSiemensPlcOpcUaWidget::onServiceR2HomePressed()
+{
+  Q_D(qSlicerSiemensPlcOpcUaWidget);
+  // Service R2 Home button pressed node
+  QOpcUaNode* smR2HomePressedNode = d->FindNodeFromFullDisplayName(BUTTONS_SM_R2_HOME_PRESSED_NODE_NAME);
+  if (smR2HomePressedNode)
+  {
+    qDebug() << Q_FUNC_INFO << ": R2 Home button pressed";
+    smR2HomePressedNode->writeAttribute(QOpcUa::NodeAttribute::Value, QVariant(true), QOpcUa::Types::Boolean);
+  }
+}
+
+//-----------------------------------------------------------------------------
+void qSlicerSiemensPlcOpcUaWidget::onServiceR2HomeReleased()
+{
+  Q_D(qSlicerSiemensPlcOpcUaWidget);
+  // Service R1 Load button pressed node
+  QOpcUaNode* smR2HomePressedNode = d->FindNodeFromFullDisplayName(BUTTONS_SM_R2_HOME_PRESSED_NODE_NAME);
+  if (smR2HomePressedNode)
+  {
+    qDebug() << Q_FUNC_INFO << ": R2 Home button released";
+    smR2HomePressedNode->writeAttribute(QOpcUa::NodeAttribute::Value, QVariant(false), QOpcUa::Types::Boolean);
+  }
+}
+
+//-----------------------------------------------------------------------------
+void qSlicerSiemensPlcOpcUaWidget::onServiceR2ServicePos1Pressed()
+{
+  Q_D(qSlicerSiemensPlcOpcUaWidget);
+  // Service R2 ServicePosition1 button pressed node
+  QOpcUaNode* smR2ServicePos1PressedNode = d->FindNodeFromFullDisplayName(BUTTONS_SM_R2_SERVICEPOS1_PRESSED_NODE_NAME);
+  if (smR2ServicePos1PressedNode)
+  {
+    qDebug() << Q_FUNC_INFO << ": R2 ServicePosition1 button pressed";
+    smR2ServicePos1PressedNode->writeAttribute(QOpcUa::NodeAttribute::Value, QVariant(true), QOpcUa::Types::Boolean);
+  }
+}
+
+//-----------------------------------------------------------------------------
+void qSlicerSiemensPlcOpcUaWidget::onServiceR2ServicePos1Released()
+{
+  Q_D(qSlicerSiemensPlcOpcUaWidget);
+  // Service R2 ServicePosition1 button pressed node
+  QOpcUaNode* smR2ServicePos1PressedNode = d->FindNodeFromFullDisplayName(BUTTONS_SM_R2_SERVICEPOS1_PRESSED_NODE_NAME);
+  if (smR2ServicePos1PressedNode)
+  {
+    qDebug() << Q_FUNC_INFO << ": R2 ServicePosition1 button released";
+    smR2ServicePos1PressedNode->writeAttribute(QOpcUa::NodeAttribute::Value, QVariant(false), QOpcUa::Types::Boolean);
+  }
+}
+
+//-----------------------------------------------------------------------------
+void qSlicerSiemensPlcOpcUaWidget::onServiceR2ServicePos2Pressed()
+{
+  Q_D(qSlicerSiemensPlcOpcUaWidget);
+  // Service R2 ServicePosition2 button pressed node
+  QOpcUaNode* smR2ServicePos2PressedNode = d->FindNodeFromFullDisplayName(BUTTONS_SM_R2_SERVICEPOS2_PRESSED_NODE_NAME);
+  if (smR2ServicePos2PressedNode)
+  {
+    qDebug() << Q_FUNC_INFO << ": R2 ServicePosition2 button pressed";
+    smR2ServicePos2PressedNode->writeAttribute(QOpcUa::NodeAttribute::Value, QVariant(true), QOpcUa::Types::Boolean);
+  }
+}
+
+//-----------------------------------------------------------------------------
+void qSlicerSiemensPlcOpcUaWidget::onServiceR2ServicePos2Released()
+{
+  Q_D(qSlicerSiemensPlcOpcUaWidget);
+  // Service R2 ServicePosition2 button pressed node
+  QOpcUaNode* smR2ServicePos2PressedNode = d->FindNodeFromFullDisplayName(BUTTONS_SM_R2_SERVICEPOS2_PRESSED_NODE_NAME);
+  if (smR2ServicePos2PressedNode)
+  {
+    qDebug() << Q_FUNC_INFO << ": R2 ServicePosition2 button released";
+    smR2ServicePos2PressedNode->writeAttribute(QOpcUa::NodeAttribute::Value, QVariant(false), QOpcUa::Types::Boolean);
+  }
+}
+
+//-----------------------------------------------------------------------------
+void qSlicerSiemensPlcOpcUaWidget::onServiceR2ServicePos3Pressed()
+{
+  Q_D(qSlicerSiemensPlcOpcUaWidget);
+  // Service R2 ServicePosition3 button pressed node
+  QOpcUaNode* smR2ServicePos3PressedNode = d->FindNodeFromFullDisplayName(BUTTONS_SM_R2_SERVICEPOS3_PRESSED_NODE_NAME);
+  if (smR2ServicePos3PressedNode)
+  {
+    qDebug() << Q_FUNC_INFO << ": R2 ServicePosition3 button pressed";
+    smR2ServicePos3PressedNode->writeAttribute(QOpcUa::NodeAttribute::Value, QVariant(true), QOpcUa::Types::Boolean);
+  }
+}
+
+//-----------------------------------------------------------------------------
+void qSlicerSiemensPlcOpcUaWidget::onServiceR2ServicePos3Released()
+{
+  Q_D(qSlicerSiemensPlcOpcUaWidget);
+  // Service R2 ServicePosition3 button pressed node
+  QOpcUaNode* smR2ServicePos3PressedNode = d->FindNodeFromFullDisplayName(BUTTONS_SM_R2_SERVICEPOS3_PRESSED_NODE_NAME);
+  if (smR2ServicePos3PressedNode)
+  {
+    qDebug() << Q_FUNC_INFO << ": R2 ServicePosition3 button released";
+    smR2ServicePos3PressedNode->writeAttribute(QOpcUa::NodeAttribute::Value, QVariant(false), QOpcUa::Types::Boolean);
+  }
+}
+
+//-----------------------------------------------------------------------------
+void qSlicerSiemensPlcOpcUaWidget::onServiceRestartSmPressed()
+{
+  Q_D(qSlicerSiemensPlcOpcUaWidget);
+  // Service RestartServiceMode button pressed node
+  QOpcUaNode* smRestartSmPressedNode = d->FindNodeFromFullDisplayName(BUTTONS_SM_RESTARTSM_PRESSED_NODE_NAME);
+  if (smRestartSmPressedNode)
+  {
+    qDebug() << Q_FUNC_INFO << ": RestartServiceMode button pressed";
+    smRestartSmPressedNode->writeAttribute(QOpcUa::NodeAttribute::Value, QVariant(true), QOpcUa::Types::Boolean);
+  }
+}
+
+//-----------------------------------------------------------------------------
+void qSlicerSiemensPlcOpcUaWidget::onServiceRestartSmReleased()
+{
+  Q_D(qSlicerSiemensPlcOpcUaWidget);
+  // Service RestartServiceMode button pressed node
+  QOpcUaNode* smRestartSmPressedNode = d->FindNodeFromFullDisplayName(BUTTONS_SM_RESTARTSM_PRESSED_NODE_NAME);
+  if (smRestartSmPressedNode)
+  {
+    qDebug() << Q_FUNC_INFO << ": RestartServiceMode button released";
+    smRestartSmPressedNode->writeAttribute(QOpcUa::NodeAttribute::Value, QVariant(false), QOpcUa::Types::Boolean);
   }
 }
 
