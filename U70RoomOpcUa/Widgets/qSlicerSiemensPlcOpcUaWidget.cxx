@@ -149,9 +149,27 @@ const QString BUTTONS_SM_RESTARTSM_NODE_NAME = BUTTONS_SM_NODE_NAME + ".RestartS
 const QString BUTTONS_SM_RESTARTSM_PRESSED_NODE_NAME = BUTTONS_SM_RESTARTSM_NODE_NAME + IS_PRESSED;
 const QString BUTTONS_SM_RESTARTSM_ENABLED_NODE_NAME = BUTTONS_SM_RESTARTSM_NODE_NAME + IS_ENABLED;
 
-const QString BUTTONS_RESET_ERRORS_NODE_NAME = BUTTONS_AM_NODE_NAME + ".ResetErrors";
-const QString BUTTONS_RESET_ERRORS_PRESSED_NODE_NAME = BUTTONS_RESET_ERRORS_NODE_NAME + IS_PRESSED;
-const QString BUTTONS_RESET_ERRORS_ENABLED_NODE_NAME = BUTTONS_RESET_ERRORS_NODE_NAME + IS_ENABLED;
+const QString BUTTONS_KCM_NODE_NAME = BUTTONS_NODE_NAME + ".KCM";
+
+const QString BUTTONS_KCM_ALLOWT1_NODE_NAME = BUTTONS_KCM_NODE_NAME + ".AllowT1";
+const QString BUTTONS_KCM_ALLOWT1_PRESSED_NODE_NAME = BUTTONS_KCM_ALLOWT1_NODE_NAME + IS_PRESSED;
+const QString BUTTONS_KCM_ALLOWT1_ENABLED_NODE_NAME = BUTTONS_KCM_ALLOWT1_NODE_NAME + IS_ENABLED;
+
+const QString BUTTONS_KCM_ALLOWXRAY_NODE_NAME = BUTTONS_KCM_NODE_NAME + ".AllowXRay";
+const QString BUTTONS_KCM_ALLOWXRAY_PRESSED_NODE_NAME = BUTTONS_KCM_ALLOWXRAY_NODE_NAME + IS_PRESSED;
+const QString BUTTONS_KCM_ALLOWXRAY_ENABLED_NODE_NAME = BUTTONS_KCM_ALLOWXRAY_NODE_NAME + IS_ENABLED;
+
+const QString BUTTONS_KCM_ALLOWBEAM_NODE_NAME = BUTTONS_KCM_NODE_NAME + ".AllowBeam";
+const QString BUTTONS_KCM_ALLOWBEAM_PRESSED_NODE_NAME = BUTTONS_KCM_ALLOWBEAM_NODE_NAME + IS_PRESSED;
+const QString BUTTONS_KCM_ALLOWBEAM_ENABLED_NODE_NAME = BUTTONS_KCM_ALLOWBEAM_NODE_NAME + IS_ENABLED;
+
+const QString BUTTONS_RESETERRORS_NODE_NAME = BUTTONS_NODE_NAME + ".ResetErrors";
+const QString BUTTONS_RESETERRORS_PRESSED_NODE_NAME = BUTTONS_RESETERRORS_NODE_NAME + IS_PRESSED;
+const QString BUTTONS_RESETERRORS_ENABLED_NODE_NAME = BUTTONS_RESETERRORS_NODE_NAME + IS_ENABLED;
+
+const QString BUTTONS_MAKEXRAY_NODE_NAME = BUTTONS_NODE_NAME + ".MakeXRay";
+const QString BUTTONS_MAKEXRAY_PRESSED_NODE_NAME = BUTTONS_MAKEXRAY_NODE_NAME + IS_PRESSED;
+const QString BUTTONS_MAKEXRAY_ENABLED_NODE_NAME = BUTTONS_MAKEXRAY_NODE_NAME + IS_ENABLED;
 
 }
 
@@ -214,7 +232,11 @@ public:
 
   bool ConnectAutoManualR1ToLoadNodes();
   bool ConnectAutoManualR1LoadToIsoNodes();
+  bool ConnectAutoManualR1ToNewCoordsNodes();
+  bool ConnectAutoManualR2ToHomeNodes();
+
   bool ConnectResetErrorsNodes();
+  bool ConnectMakeXrayNodes();
 
   QScopedPointer< OpcUaModel > SiemensPlcOpcUaModel;
   QWeakPointer< QOpcUaClient > OpcUaClient;
@@ -572,9 +594,13 @@ bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectAutoManualR1ToLoadNodes()
   QObject::connect(amR1ToLoadEnabledNode,
     &QOpcUaNode::attributeRead, [amR1ToLoadEnabledNode, mrmlNode](QOpcUa::NodeAttributes attr)
     {
+      if (!amR1ToLoadEnabledNode || !mrmlNode)
+      {
+        return;
+      }
       if (attr & QOpcUa::NodeAttribute::Value)
       {
-        if (amR1ToLoadEnabledNode && amR1ToLoadEnabledNode->attributeError(QOpcUa::NodeAttribute::Value) == QOpcUa::UaStatusCode::Good)
+        if (amR1ToLoadEnabledNode->attributeError(QOpcUa::NodeAttribute::Value) == QOpcUa::UaStatusCode::Good)
         {
           bool enabledValue = amR1ToLoadEnabledNode->attribute(QOpcUa::NodeAttribute::Value).toBool();
           bool amR1ToLoadCurrentState[2] = { false, false };
@@ -609,9 +635,13 @@ bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectAutoManualR1ToLoadNodes()
   QObject::connect(amR1ToLoadPressedNode,
     &QOpcUaNode::attributeRead, [amR1ToLoadPressedNode, mrmlNode](QOpcUa::NodeAttributes attr)
     {
+      if (!amR1ToLoadPressedNode || !mrmlNode)
+      {
+        return;
+      }
       if (attr & QOpcUa::NodeAttribute::Value)
       {
-        if (amR1ToLoadPressedNode && amR1ToLoadPressedNode->attributeError(QOpcUa::NodeAttribute::Value) == QOpcUa::UaStatusCode::Good)
+        if (amR1ToLoadPressedNode->attributeError(QOpcUa::NodeAttribute::Value) == QOpcUa::UaStatusCode::Good)
         {
           bool pressedValue = amR1ToLoadPressedNode->attribute(QOpcUa::NodeAttribute::Value).toBool();
           bool amR1ToLoadCurrentState[2] = { false, false };
@@ -664,9 +694,13 @@ bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectAutoManualR1LoadToIsoNodes()
   QObject::connect(amR1LoadToIsoEnabledNode,
     &QOpcUaNode::attributeRead, [amR1LoadToIsoEnabledNode, mrmlNode](QOpcUa::NodeAttributes attr)
     {
+      if (!amR1LoadToIsoEnabledNode || !mrmlNode)
+      {
+        return;
+      }
       if (attr & QOpcUa::NodeAttribute::Value)
       {
-        if (amR1LoadToIsoEnabledNode && amR1LoadToIsoEnabledNode->attributeError(QOpcUa::NodeAttribute::Value) == QOpcUa::UaStatusCode::Good)
+        if (amR1LoadToIsoEnabledNode->attributeError(QOpcUa::NodeAttribute::Value) == QOpcUa::UaStatusCode::Good)
         {
           bool enabledValue = amR1LoadToIsoEnabledNode->attribute(QOpcUa::NodeAttribute::Value).toBool();
           bool amR1LoadToIsoCurrentState[2] = { false, false };
@@ -701,9 +735,13 @@ bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectAutoManualR1LoadToIsoNodes()
   QObject::connect(amR1LoadToIsoPressedNode,
     &QOpcUaNode::attributeRead, [amR1LoadToIsoPressedNode, mrmlNode](QOpcUa::NodeAttributes attr)
     {
+      if (!amR1LoadToIsoPressedNode || !mrmlNode)
+      {
+        return;
+      }
       if (attr & QOpcUa::NodeAttribute::Value)
       {
-        if (amR1LoadToIsoPressedNode && amR1LoadToIsoPressedNode->attributeError(QOpcUa::NodeAttribute::Value) == QOpcUa::UaStatusCode::Good)
+        if (amR1LoadToIsoPressedNode->attributeError(QOpcUa::NodeAttribute::Value) == QOpcUa::UaStatusCode::Good)
         {
           bool pressedValue = amR1LoadToIsoPressedNode->attribute(QOpcUa::NodeAttribute::Value).toBool();
           bool amR1LoadToIsoCurrentState[2] = { false, false };
@@ -731,9 +769,9 @@ bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectResetErrorsNodes()
 
   vtkMRMLSiemensPlcOpcUaNode* mrmlNode = this->ParameterNode.GetPointer();
   // ResetErrors button enabled node
-  QOpcUaNode* reEnabledNode = this->FindNodeFromFullDisplayName(BUTTONS_RESET_ERRORS_ENABLED_NODE_NAME);
+  QOpcUaNode* reEnabledNode = this->FindNodeFromFullDisplayName(BUTTONS_RESETERRORS_ENABLED_NODE_NAME);
   // ResetErrors button pressed node
-  QOpcUaNode* rePressedNode = this->FindNodeFromFullDisplayName(BUTTONS_RESET_ERRORS_PRESSED_NODE_NAME);
+  QOpcUaNode* rePressedNode = this->FindNodeFromFullDisplayName(BUTTONS_RESETERRORS_PRESSED_NODE_NAME);
 
   // ResetErrors button enabled node
   if (!reEnabledNode)
@@ -756,9 +794,13 @@ bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectResetErrorsNodes()
   QObject::connect(reEnabledNode,
     &QOpcUaNode::attributeRead, [reEnabledNode, mrmlNode](QOpcUa::NodeAttributes attr)
     {
+      if (!reEnabledNode || !mrmlNode)
+      {
+        return;
+      }
       if (attr & QOpcUa::NodeAttribute::Value)
       {
-        if (reEnabledNode && reEnabledNode->attributeError(QOpcUa::NodeAttribute::Value) == QOpcUa::UaStatusCode::Good)
+        if (reEnabledNode->attributeError(QOpcUa::NodeAttribute::Value) == QOpcUa::UaStatusCode::Good)
         {
           bool enabledValue = reEnabledNode->attribute(QOpcUa::NodeAttribute::Value).toBool();
           bool resetErrorsCurrentState[2] = { false, false };
@@ -793,9 +835,13 @@ bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectResetErrorsNodes()
   QObject::connect(rePressedNode,
     &QOpcUaNode::attributeRead, [rePressedNode, mrmlNode](QOpcUa::NodeAttributes attr)
     {
+      if (!rePressedNode || !mrmlNode)
+      {
+        return;
+      }
       if (attr & QOpcUa::NodeAttribute::Value)
       {
-        if (rePressedNode && rePressedNode->attributeError(QOpcUa::NodeAttribute::Value) == QOpcUa::UaStatusCode::Good)
+        if (rePressedNode->attributeError(QOpcUa::NodeAttribute::Value) == QOpcUa::UaStatusCode::Good)
         {
           bool pressedValue = rePressedNode->attribute(QOpcUa::NodeAttribute::Value).toBool();
           bool resetErrorsCurrentState[2] = { false, false };
@@ -808,6 +854,306 @@ bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectResetErrorsNodes()
   );
   // Subscribe to data changes
   rePressedNode->enableMonitoring(QOpcUa::NodeAttribute::Value, QOpcUaMonitoringParameters(1000));
+  return true;
+}
+
+//-----------------------------------------------------------------------------
+bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectMakeXrayNodes()
+{
+  QSharedPointer< QOpcUaClient > opcUaClient = this->OpcUaClient.toStrongRef();
+
+  if (!opcUaClient || !this->ParameterNode)
+  {
+    return false;
+  }
+
+  vtkMRMLSiemensPlcOpcUaNode* mrmlNode = this->ParameterNode.GetPointer();
+  // MakeXRay button enabled node
+  QOpcUaNode* mxEnabledNode = this->FindNodeFromFullDisplayName(BUTTONS_MAKEXRAY_ENABLED_NODE_NAME);
+  // MakeXRay button pressed node
+  QOpcUaNode* mxPressedNode = this->FindNodeFromFullDisplayName(BUTTONS_MAKEXRAY_PRESSED_NODE_NAME);
+
+  // MakeXRay button enabled node
+  if (!mxEnabledNode)
+  {
+    return false;
+  }
+  QObject::connect(mxEnabledNode,
+    &QOpcUaNode::dataChangeOccurred, [mrmlNode](QOpcUa::NodeAttribute attr, QVariant value)
+    {
+      if (attr == QOpcUa::NodeAttribute::Value && value.canConvert< bool >())
+      {
+        bool enabledValue = value.toBool();
+        bool makeXrayCurrentState[2] = { false, false };
+        mrmlNode->GetMakeXray(makeXrayCurrentState);
+        makeXrayCurrentState[0] = enabledValue;
+        mrmlNode->SetMakeXray(makeXrayCurrentState);
+      }
+    }
+  );
+  QObject::connect(mxEnabledNode,
+    &QOpcUaNode::attributeRead, [mxEnabledNode, mrmlNode](QOpcUa::NodeAttributes attr)
+    {
+      if (!mxEnabledNode || !mrmlNode)
+      {
+        return;
+      }
+      if (attr & QOpcUa::NodeAttribute::Value)
+      {
+        if (mxEnabledNode->attributeError(QOpcUa::NodeAttribute::Value) == QOpcUa::UaStatusCode::Good)
+        {
+          bool enabledValue = mxEnabledNode->attribute(QOpcUa::NodeAttribute::Value).toBool();
+          bool makeXrayCurrentState[2] = { false, false };
+          mrmlNode->GetMakeXray(makeXrayCurrentState);
+          makeXrayCurrentState[0] = enabledValue;
+          mrmlNode->SetMakeXray(makeXrayCurrentState);
+        }
+      }
+    }
+  );
+  // Subscribe to data changes
+  mxEnabledNode->enableMonitoring(QOpcUa::NodeAttribute::Value, QOpcUaMonitoringParameters(1000));
+
+  // MakeXRay button pressed node
+  if (!mxPressedNode)
+  {
+    return false;
+  }
+  QObject::connect(mxPressedNode,
+    &QOpcUaNode::dataChangeOccurred, [mrmlNode](QOpcUa::NodeAttribute attr, QVariant value)
+    {
+      if (attr == QOpcUa::NodeAttribute::Value && value.canConvert< bool >())
+      {
+        bool pressedValue = value.toBool();
+        bool makeXrayCurrentState[2] = { false, false };
+        mrmlNode->GetMakeXray(makeXrayCurrentState);
+        makeXrayCurrentState[1] = pressedValue;
+        mrmlNode->SetMakeXray(makeXrayCurrentState);
+      }
+    }
+  );
+  QObject::connect(mxPressedNode,
+    &QOpcUaNode::attributeRead, [mxPressedNode, mrmlNode](QOpcUa::NodeAttributes attr)
+    {
+      if (!mxPressedNode || !mrmlNode)
+      {
+        return;
+      }
+      if (attr & QOpcUa::NodeAttribute::Value)
+      {
+        if (mxPressedNode->attributeError(QOpcUa::NodeAttribute::Value) == QOpcUa::UaStatusCode::Good)
+        {
+          bool pressedValue = mxPressedNode->attribute(QOpcUa::NodeAttribute::Value).toBool();
+          bool makeXrayCurrentState[2] = { false, false };
+          mrmlNode->GetMakeXray(makeXrayCurrentState);
+          makeXrayCurrentState[1] = pressedValue;
+          mrmlNode->SetMakeXray(makeXrayCurrentState);
+        }
+      }
+    }
+  );
+  // Subscribe to data changes
+  mxPressedNode->enableMonitoring(QOpcUa::NodeAttribute::Value, QOpcUaMonitoringParameters(1000));
+  return true;
+}
+
+//-----------------------------------------------------------------------------
+bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectAutoManualR1ToNewCoordsNodes()
+{
+  QSharedPointer< QOpcUaClient > opcUaClient = this->OpcUaClient.toStrongRef();
+
+  if (!opcUaClient || !this->ParameterNode)
+  {
+    return false;
+  }
+
+  vtkMRMLSiemensPlcOpcUaNode* mrmlNode = this->ParameterNode.GetPointer();
+  // AutoManual R1 ToNewCoords button enabled node
+  QOpcUaNode* amR1ToNewCoordsEnabledNode = this->FindNodeFromFullDisplayName(BUTTONS_AM_R1_NEWCOORDS_ENABLED_NODE_NAME);
+  // AutoManual R1 ToNewCoords button pressed node
+  QOpcUaNode* amR1ToNewCoordsPressedNode = this->FindNodeFromFullDisplayName(BUTTONS_AM_R1_NEWCOORDS_PRESSED_NODE_NAME);
+
+  // AutoManual R1 ToNewCoords button enabled node
+  if (!amR1ToNewCoordsEnabledNode)
+  {
+    return false;
+  }
+  QObject::connect(amR1ToNewCoordsEnabledNode,
+    &QOpcUaNode::dataChangeOccurred, [mrmlNode](QOpcUa::NodeAttribute attr, QVariant value)
+    {
+      if (attr == QOpcUa::NodeAttribute::Value && value.canConvert< bool >())
+      {
+        bool enabledValue = value.toBool();
+        bool amR1ToNewCoordsCurrentState[2] = { false, false };
+        mrmlNode->GetAutoManualR1ToNewCoords(amR1ToNewCoordsCurrentState);
+        amR1ToNewCoordsCurrentState[0] = enabledValue;
+        mrmlNode->SetAutoManualR1ToNewCoords(amR1ToNewCoordsCurrentState);
+      }
+    }
+  );
+  QObject::connect(amR1ToNewCoordsEnabledNode,
+    &QOpcUaNode::attributeRead, [amR1ToNewCoordsEnabledNode, mrmlNode](QOpcUa::NodeAttributes attr)
+    {
+      if (!amR1ToNewCoordsEnabledNode || !mrmlNode)
+      {
+        return;
+      }
+      if (attr & QOpcUa::NodeAttribute::Value)
+      {
+        if (amR1ToNewCoordsEnabledNode->attributeError(QOpcUa::NodeAttribute::Value) == QOpcUa::UaStatusCode::Good)
+        {
+          bool enabledValue = amR1ToNewCoordsEnabledNode->attribute(QOpcUa::NodeAttribute::Value).toBool();
+          bool amR1ToNewCoordsCurrentState[2] = { false, false };
+          mrmlNode->GetAutoManualR1ToNewCoords(amR1ToNewCoordsCurrentState);
+          amR1ToNewCoordsCurrentState[0] = enabledValue;
+          mrmlNode->SetAutoManualR1ToNewCoords(amR1ToNewCoordsCurrentState);
+        }
+      }
+    }
+  );
+  // Subscribe to data changes
+  amR1ToNewCoordsEnabledNode->enableMonitoring(QOpcUa::NodeAttribute::Value, QOpcUaMonitoringParameters(1000));
+
+  // AutoManual R1 ToNewCoords button pressed node
+  if (!amR1ToNewCoordsPressedNode)
+  {
+    return false;
+  }
+  QObject::connect(amR1ToNewCoordsPressedNode,
+    &QOpcUaNode::dataChangeOccurred, [mrmlNode](QOpcUa::NodeAttribute attr, QVariant value)
+    {
+      if (attr == QOpcUa::NodeAttribute::Value && value.canConvert< bool >())
+      {
+        bool pressedValue = value.toBool();
+        bool amR1ToNewCoordsCurrentState[2] = { false, false };
+        mrmlNode->GetAutoManualR1ToNewCoords(amR1ToNewCoordsCurrentState);
+        amR1ToNewCoordsCurrentState[1] = pressedValue;
+        mrmlNode->SetAutoManualR1ToNewCoords(amR1ToNewCoordsCurrentState);
+      }
+    }
+  );
+  QObject::connect(amR1ToNewCoordsPressedNode,
+    &QOpcUaNode::attributeRead, [amR1ToNewCoordsPressedNode, mrmlNode](QOpcUa::NodeAttributes attr)
+    {
+      if (!amR1ToNewCoordsPressedNode || !mrmlNode)
+      {
+        return;
+      }
+      if (attr & QOpcUa::NodeAttribute::Value)
+      {
+        if (amR1ToNewCoordsPressedNode->attributeError(QOpcUa::NodeAttribute::Value) == QOpcUa::UaStatusCode::Good)
+        {
+          bool pressedValue = amR1ToNewCoordsPressedNode->attribute(QOpcUa::NodeAttribute::Value).toBool();
+          bool amR1ToNewCoordsCurrentState[2] = { false, false };
+          mrmlNode->GetAutoManualR1ToNewCoords(amR1ToNewCoordsCurrentState);
+          amR1ToNewCoordsCurrentState[1] = pressedValue;
+          mrmlNode->SetAutoManualR1ToNewCoords(amR1ToNewCoordsCurrentState);
+        }
+      }
+    }
+  );
+  // Subscribe to data changes
+  amR1ToNewCoordsPressedNode->enableMonitoring(QOpcUa::NodeAttribute::Value, QOpcUaMonitoringParameters(1000));
+  return true;
+}
+
+//-----------------------------------------------------------------------------
+bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectAutoManualR2ToHomeNodes()
+{
+  QSharedPointer< QOpcUaClient > opcUaClient = this->OpcUaClient.toStrongRef();
+
+  if (!opcUaClient || !this->ParameterNode)
+  {
+    return false;
+  }
+
+  vtkMRMLSiemensPlcOpcUaNode* mrmlNode = this->ParameterNode.GetPointer();
+  // AutoManual R2 ToHome button enabled node
+  QOpcUaNode* amR2ToHomeEnabledNode = this->FindNodeFromFullDisplayName(BUTTONS_AM_R2_TOHOME_ENABLED_NODE_NAME);
+  // AutoManual R2 ToHome button pressed node
+  QOpcUaNode* amR2ToHomePressedNode = this->FindNodeFromFullDisplayName(BUTTONS_AM_R2_TOHOME_PRESSED_NODE_NAME);
+
+  // AutoManual R2 ToHome button enabled node
+  if (!amR2ToHomeEnabledNode)
+  {
+    return false;
+  }
+  QObject::connect(amR2ToHomeEnabledNode,
+    &QOpcUaNode::dataChangeOccurred, [mrmlNode](QOpcUa::NodeAttribute attr, QVariant value)
+    {
+      if (attr == QOpcUa::NodeAttribute::Value && value.canConvert< bool >())
+      {
+        bool enabledValue = value.toBool();
+        bool amR2ToHomeCurrentState[2] = { false, false };
+        mrmlNode->GetAutoManualR2ToHome(amR2ToHomeCurrentState);
+        amR2ToHomeCurrentState[0] = enabledValue;
+        mrmlNode->SetAutoManualR2ToHome(amR2ToHomeCurrentState);
+      }
+    }
+  );
+  QObject::connect(amR2ToHomeEnabledNode,
+    &QOpcUaNode::attributeRead, [amR2ToHomeEnabledNode, mrmlNode](QOpcUa::NodeAttributes attr)
+    {
+      if (!amR2ToHomeEnabledNode || !mrmlNode)
+      {
+        return;
+      }
+      if (attr & QOpcUa::NodeAttribute::Value)
+      {
+        if (amR2ToHomeEnabledNode->attributeError(QOpcUa::NodeAttribute::Value) == QOpcUa::UaStatusCode::Good)
+        {
+          bool enabledValue = amR2ToHomeEnabledNode->attribute(QOpcUa::NodeAttribute::Value).toBool();
+          bool amR2ToHomeCurrentState[2] = { false, false };
+          mrmlNode->GetAutoManualR2ToHome(amR2ToHomeCurrentState);
+          amR2ToHomeCurrentState[0] = enabledValue;
+          mrmlNode->SetAutoManualR2ToHome(amR2ToHomeCurrentState);
+        }
+      }
+    }
+  );
+  // Subscribe to data changes
+  amR2ToHomeEnabledNode->enableMonitoring(QOpcUa::NodeAttribute::Value, QOpcUaMonitoringParameters(1000));
+
+  // AutoManual R2 ToHome button pressed node
+  if (!amR2ToHomePressedNode)
+  {
+    return false;
+  }
+  QObject::connect(amR2ToHomePressedNode,
+    &QOpcUaNode::dataChangeOccurred, [mrmlNode](QOpcUa::NodeAttribute attr, QVariant value)
+    {
+      if (attr == QOpcUa::NodeAttribute::Value && value.canConvert< bool >())
+      {
+        bool pressedValue = value.toBool();
+        bool amR2ToHomeCurrentState[2] = { false, false };
+        mrmlNode->GetAutoManualR2ToHome(amR2ToHomeCurrentState);
+        amR2ToHomeCurrentState[1] = pressedValue;
+        mrmlNode->SetAutoManualR2ToHome(amR2ToHomeCurrentState);
+      }
+    }
+  );
+  QObject::connect(amR2ToHomePressedNode,
+    &QOpcUaNode::attributeRead, [amR2ToHomePressedNode, mrmlNode](QOpcUa::NodeAttributes attr)
+    {
+      if (!amR2ToHomePressedNode || !mrmlNode)
+      {
+        return;
+      }
+      if (attr & QOpcUa::NodeAttribute::Value)
+      {
+        if (amR2ToHomePressedNode->attributeError(QOpcUa::NodeAttribute::Value) == QOpcUa::UaStatusCode::Good)
+        {
+          bool pressedValue = amR2ToHomePressedNode->attribute(QOpcUa::NodeAttribute::Value).toBool();
+          bool amR2ToHomeCurrentState[2] = { false, false };
+          mrmlNode->GetAutoManualR2ToHome(amR2ToHomeCurrentState);
+          amR2ToHomeCurrentState[1] = pressedValue;
+          mrmlNode->SetAutoManualR2ToHome(amR2ToHomeCurrentState);
+        }
+      }
+    }
+  );
+  // Subscribe to data changes
+  amR2ToHomePressedNode->enableMonitoring(QOpcUa::NodeAttribute::Value, QOpcUaMonitoringParameters(1000));
   return true;
 }
 
@@ -856,6 +1202,10 @@ bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectModeAndStatusNodes()
   QObject::connect(modeNode,
     &QOpcUaNode::attributeRead, [modeNode, mrmlNode](QOpcUa::NodeAttributes attr)
     {
+      if (!modeNode || !mrmlNode)
+      {
+        return;
+      }
       if (attr & QOpcUa::NodeAttribute::Value)
       {
         if (modeNode && modeNode->attributeError(QOpcUa::NodeAttribute::Value) == QOpcUa::UaStatusCode::Good)
@@ -898,9 +1248,13 @@ bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectModeAndStatusNodes()
   QObject::connect(statusRtkNode,
     &QOpcUaNode::attributeRead, [statusRtkNode, mrmlNode](QOpcUa::NodeAttributes attr)
     {
+      if (!statusRtkNode || !mrmlNode)
+      {
+        return;
+      }
       if (attr & QOpcUa::NodeAttribute::Value)
       {
-        if (statusRtkNode && statusRtkNode->attributeError(QOpcUa::NodeAttribute::Value) == QOpcUa::UaStatusCode::Good)
+        if (statusRtkNode->attributeError(QOpcUa::NodeAttribute::Value) == QOpcUa::UaStatusCode::Good)
         {
           QVariant value = statusRtkNode->attribute(QOpcUa::NodeAttribute::Value);
           bool ok = false;
@@ -940,9 +1294,13 @@ bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectModeAndStatusNodes()
   QObject::connect(statusR1Node,
     &QOpcUaNode::attributeRead, [statusR1Node, mrmlNode](QOpcUa::NodeAttributes attr)
     {
+      if (!statusR1Node || !mrmlNode)
+      {
+        return;
+      }
       if (attr & QOpcUa::NodeAttribute::Value)
       {
-        if (statusR1Node && statusR1Node->attributeError(QOpcUa::NodeAttribute::Value) == QOpcUa::UaStatusCode::Good)
+        if (statusR1Node->attributeError(QOpcUa::NodeAttribute::Value) == QOpcUa::UaStatusCode::Good)
         {
           QVariant value = statusR1Node->attribute(QOpcUa::NodeAttribute::Value);
           bool ok = false;
@@ -982,9 +1340,13 @@ bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectModeAndStatusNodes()
   QObject::connect(statusR2Node,
     &QOpcUaNode::attributeRead, [statusR2Node, mrmlNode](QOpcUa::NodeAttributes attr)
     {
+      if (!statusR2Node || !mrmlNode)
+      {
+        return;
+      }
       if (attr & QOpcUa::NodeAttribute::Value)
       {
-        if (statusR2Node && statusR2Node->attributeError(QOpcUa::NodeAttribute::Value) == QOpcUa::UaStatusCode::Good)
+        if (statusR2Node->attributeError(QOpcUa::NodeAttribute::Value) == QOpcUa::UaStatusCode::Good)
         {
           QVariant value = statusR2Node->attribute(QOpcUa::NodeAttribute::Value);
           bool ok = false;
@@ -1025,11 +1387,39 @@ qSlicerSiemensPlcOpcUaWidget::qSlicerSiemensPlcOpcUaWidget(QWidget* parentWidget
     this, SLOT(onAutoManualR1LoadToIsoPressed()));
   QObject::connect(d->PushButton_AMR1LoadToIso, SIGNAL(released()),
     this, SLOT(onAutoManualR1LoadToIsoReleased()));
+  // AutoManual R1 ToNewCoords button
+  QObject::connect(d->PushButton_AMR1ToNewCoords, SIGNAL(pressed()),
+    this, SLOT(onAutoManualR1ToNewCoordsPressed()));
+  QObject::connect(d->PushButton_AMR1ToNewCoords, SIGNAL(released()),
+    this, SLOT(onAutoManualR1ToNewCoordsReleased()));
+
+  // AutoManual R2 ToHome button
+  QObject::connect(d->PushButton_AMR2ToHome, SIGNAL(pressed()),
+    this, SLOT(onAutoManualR2ToHomePressed()));
+  QObject::connect(d->PushButton_AMR2ToHome, SIGNAL(released()),
+    this, SLOT(onAutoManualR2ToHomeReleased()));
+  // AutoManual R2 ToPlane1 button
+  QObject::connect(d->PushButton_AMR2ToPlane1, SIGNAL(pressed()),
+    this, SLOT(onAutoManualR2ToPlane1Pressed()));
+  QObject::connect(d->PushButton_AMR2ToPlane1, SIGNAL(released()),
+    this, SLOT(onAutoManualR2ToPlane1Released()));
+  // AutoManual R2 ToPlane2 button
+  QObject::connect(d->PushButton_AMR2ToPlane2, SIGNAL(pressed()),
+    this, SLOT(onAutoManualR2ToPlane2Pressed()));
+  QObject::connect(d->PushButton_AMR2ToPlane2, SIGNAL(released()),
+    this, SLOT(onAutoManualR2ToPlane2Released()));
+
   // Reset Errors button
   QObject::connect(d->PushButton_ResetErrors, SIGNAL(pressed()),
     this, SLOT(onResetErrorsPressed()));
   QObject::connect(d->PushButton_ResetErrors, SIGNAL(released()),
     this, SLOT(onResetErrorsReleased()));
+
+  // MakeXRay button
+  QObject::connect(d->PushButton_MakeXRay, SIGNAL(pressed()),
+    this, SLOT(onMakeXrayPressed()));
+  QObject::connect(d->PushButton_MakeXRay, SIGNAL(released()),
+    this, SLOT(onMakeXrayReleased()));
 }
 
 //-----------------------------------------------------------------------------
@@ -1105,14 +1495,25 @@ void qSlicerSiemensPlcOpcUaWidget::updateWidgetFromMRML()
   default:
     break;
   }
-  bool amR1ToLoadButton[2] = { false, false };
-  d->ParameterNode->GetAutoManualR1ToLoad(amR1ToLoadButton);
+  
+  bool buttonState[2] = { false, false };
+  d->ParameterNode->GetAutoManualR1ToLoad(buttonState);
+  d->PushButton_AMR1ToLoad->setEnabled(buttonState[0]);
 
-  bool amR1LoadToIsoButton[2] = { false, false };
-  d->ParameterNode->GetAutoManualR1LoadToIso(amR1LoadToIsoButton);
+  d->ParameterNode->GetAutoManualR1LoadToIso(buttonState);
+  d->PushButton_AMR1LoadToIso->setEnabled(buttonState[0]);
 
-  d->PushButton_AMR1ToLoad->setEnabled(amR1ToLoadButton[0]);
-  d->PushButton_AMR1LoadToIso->setEnabled(amR1LoadToIsoButton[0]);
+  d->ParameterNode->GetAutoManualR1ToNewCoords(buttonState);
+  d->PushButton_AMR1ToNewCoords->setEnabled(buttonState[0]);
+
+  d->ParameterNode->GetAutoManualR2ToHome(buttonState);
+  d->PushButton_AMR2ToHome->setEnabled(buttonState[0]);
+
+  d->ParameterNode->GetResetErrors(buttonState);
+  d->PushButton_ResetErrors->setEnabled(buttonState[0]);
+
+  d->ParameterNode->GetMakeXray(buttonState);
+  d->PushButton_MakeXRay->setEnabled(buttonState[0]);
 
   qDebug() << Q_FUNC_INFO << "Update SiemensPlcOpcUa buttons";
 }
@@ -1164,17 +1565,29 @@ void qSlicerSiemensPlcOpcUaWidget::onParseServerInterfacesClicked()
   {
     qDebug() << Q_FUNC_INFO << "Messages and Status nodes are OK";
   }
-  bool amR1ToLoad = d->ConnectAutoManualR1ToLoadNodes();
-  bool amR1LoadToIso = d->ConnectAutoManualR1LoadToIsoNodes();
-  bool resetErrors = d->ConnectResetErrorsNodes();
+  bool amR1Buttons = true;
+  amR1Buttons &= d->ConnectAutoManualR1ToLoadNodes();
+  amR1Buttons &= d->ConnectAutoManualR1LoadToIsoNodes();
+  amR1Buttons &= d->ConnectAutoManualR1ToNewCoordsNodes();
 
-  if (amR1ToLoad && amR1LoadToIso)
+  bool amR2Buttons = true;
+  amR2Buttons &= d->ConnectAutoManualR2ToHomeNodes();
+
+  bool resetErrors = d->ConnectResetErrorsNodes();
+  bool makeXray = d->ConnectMakeXrayNodes();
+
+  if (amR1Buttons)
   {
-    qDebug() << Q_FUNC_INFO << "R1 LoadToIso and ToLoad nodes are OK";
+    qDebug() << Q_FUNC_INFO << "AutomaticManual R1 nodes are OK";
   }
+
   if (resetErrors)
   {
     qDebug() << Q_FUNC_INFO << "ResetErrors nodes are OK";
+  }
+  if (makeXray)
+  {
+    qDebug() << Q_FUNC_INFO << "MakeXRay nodes are OK";
   }
 }
 
@@ -1245,32 +1658,6 @@ void qSlicerSiemensPlcOpcUaWidget::onAutoManualR1ToLoadReleased()
   {
     qDebug() << Q_FUNC_INFO << ": R1 ToLoad released";
     amR1ToLoadPressedNode->writeAttribute(QOpcUa::NodeAttribute::Value, QVariant(false), QOpcUa::Types::Boolean);
-  }
-}
-
-//-----------------------------------------------------------------------------
-void qSlicerSiemensPlcOpcUaWidget::onResetErrorsPressed()
-{
-  Q_D(qSlicerSiemensPlcOpcUaWidget);
-  // Reset errors button pressed node
-  QOpcUaNode* resetErrorsPressedNode = d->FindNodeFromFullDisplayName(BUTTONS_RESET_ERRORS_PRESSED_NODE_NAME);
-  if (resetErrorsPressedNode)
-  {
-    qDebug() << Q_FUNC_INFO << ": Reset errors pressed";
-    resetErrorsPressedNode->writeAttribute(QOpcUa::NodeAttribute::Value, QVariant(true), QOpcUa::Types::Boolean);
-  }
-}
-
-//-----------------------------------------------------------------------------
-void qSlicerSiemensPlcOpcUaWidget::onResetErrorsReleased()
-{
-  Q_D(qSlicerSiemensPlcOpcUaWidget);
-  // AutoManual R1 ToLoad button pressed node
-  QOpcUaNode* resetErrorsPressedNode = d->FindNodeFromFullDisplayName(BUTTONS_RESET_ERRORS_PRESSED_NODE_NAME);
-  if (resetErrorsPressedNode)
-  {
-    qDebug() << Q_FUNC_INFO << ": Reset errors pressed";
-    resetErrorsPressedNode->writeAttribute(QOpcUa::NodeAttribute::Value, QVariant(false), QOpcUa::Types::Boolean);
   }
 }
 
@@ -1765,6 +2152,135 @@ void qSlicerSiemensPlcOpcUaWidget::onServiceRestartSmReleased()
   {
     qDebug() << Q_FUNC_INFO << ": RestartServiceMode button released";
     smRestartSmPressedNode->writeAttribute(QOpcUa::NodeAttribute::Value, QVariant(false), QOpcUa::Types::Boolean);
+  }
+}
+
+//-----------------------------------------------------------------------------
+void qSlicerSiemensPlcOpcUaWidget::onKukaAllowT1Pressed()
+{
+  Q_D(qSlicerSiemensPlcOpcUaWidget);
+  // KUKA Controllers AllowT1 button pressed node
+  QOpcUaNode* kcmAllowT1PressedNode = d->FindNodeFromFullDisplayName(BUTTONS_KCM_ALLOWT1_PRESSED_NODE_NAME);
+  if (kcmAllowT1PressedNode)
+  {
+    qDebug() << Q_FUNC_INFO << ": AllowT1 button pressed";
+    kcmAllowT1PressedNode->writeAttribute(QOpcUa::NodeAttribute::Value, QVariant(true), QOpcUa::Types::Boolean);
+  }
+}
+
+//-----------------------------------------------------------------------------
+void qSlicerSiemensPlcOpcUaWidget::onKukaAllowT1Released()
+{
+  Q_D(qSlicerSiemensPlcOpcUaWidget);
+  // KUKA Controllers AllowT1 button pressed node
+  QOpcUaNode* kcmAllowT1PressedNode = d->FindNodeFromFullDisplayName(BUTTONS_KCM_ALLOWT1_PRESSED_NODE_NAME);
+  if (kcmAllowT1PressedNode)
+  {
+    qDebug() << Q_FUNC_INFO << ": AllowT1 button released";
+    kcmAllowT1PressedNode->writeAttribute(QOpcUa::NodeAttribute::Value, QVariant(false), QOpcUa::Types::Boolean);
+  }
+}
+
+//-----------------------------------------------------------------------------
+void qSlicerSiemensPlcOpcUaWidget::onKukaAllowXrayPressed()
+{
+  Q_D(qSlicerSiemensPlcOpcUaWidget);
+  // KUKA Controllers AllowXRay button pressed node
+  QOpcUaNode* kcmAllowXrayPressedNode = d->FindNodeFromFullDisplayName(BUTTONS_KCM_ALLOWXRAY_PRESSED_NODE_NAME);
+  if (kcmAllowXrayPressedNode)
+  {
+    qDebug() << Q_FUNC_INFO << ": AllowXRay button pressed";
+    kcmAllowXrayPressedNode->writeAttribute(QOpcUa::NodeAttribute::Value, QVariant(true), QOpcUa::Types::Boolean);
+  }
+}
+
+//-----------------------------------------------------------------------------
+void qSlicerSiemensPlcOpcUaWidget::onKukaAllowXrayReleased()
+{
+  Q_D(qSlicerSiemensPlcOpcUaWidget);
+  // KUKA Controllers AllowXRay button pressed node
+  QOpcUaNode* kcmAllowXrayPressedNode = d->FindNodeFromFullDisplayName(BUTTONS_KCM_ALLOWXRAY_PRESSED_NODE_NAME);
+  if (kcmAllowXrayPressedNode)
+  {
+    qDebug() << Q_FUNC_INFO << ": AllowXRay button released";
+    kcmAllowXrayPressedNode->writeAttribute(QOpcUa::NodeAttribute::Value, QVariant(false), QOpcUa::Types::Boolean);
+  }
+}
+
+void qSlicerSiemensPlcOpcUaWidget::onKukaAllowBeamPressed()
+{
+  Q_D(qSlicerSiemensPlcOpcUaWidget);
+  // KUKA Controllers AllowBeam button pressed node
+  QOpcUaNode* kcmAllowBeamPressedNode = d->FindNodeFromFullDisplayName(BUTTONS_KCM_ALLOWBEAM_PRESSED_NODE_NAME);
+  if (kcmAllowBeamPressedNode)
+  {
+    qDebug() << Q_FUNC_INFO << ": AllowBeam button pressed";
+    kcmAllowBeamPressedNode->writeAttribute(QOpcUa::NodeAttribute::Value, QVariant(true), QOpcUa::Types::Boolean);
+  }
+}
+
+//-----------------------------------------------------------------------------
+void qSlicerSiemensPlcOpcUaWidget::onKukaAllowBeamReleased()
+{
+  Q_D(qSlicerSiemensPlcOpcUaWidget);
+  // KUKA Controllers AllowXRay button pressed node
+  QOpcUaNode* kcmAllowBeamPressedNode = d->FindNodeFromFullDisplayName(BUTTONS_KCM_ALLOWBEAM_PRESSED_NODE_NAME);
+  if (kcmAllowBeamPressedNode)
+  {
+    qDebug() << Q_FUNC_INFO << ": AllowBeam button released";
+    kcmAllowBeamPressedNode->writeAttribute(QOpcUa::NodeAttribute::Value, QVariant(false), QOpcUa::Types::Boolean);
+  }
+}
+
+//-----------------------------------------------------------------------------
+void qSlicerSiemensPlcOpcUaWidget::onResetErrorsPressed()
+{
+  Q_D(qSlicerSiemensPlcOpcUaWidget);
+  // Reset errors button pressed node
+  QOpcUaNode* resetErrorsPressedNode = d->FindNodeFromFullDisplayName(BUTTONS_RESETERRORS_PRESSED_NODE_NAME);
+  if (resetErrorsPressedNode)
+  {
+    qDebug() << Q_FUNC_INFO << ": ResetErrors pressed";
+    resetErrorsPressedNode->writeAttribute(QOpcUa::NodeAttribute::Value, QVariant(true), QOpcUa::Types::Boolean);
+  }
+}
+
+//-----------------------------------------------------------------------------
+void qSlicerSiemensPlcOpcUaWidget::onResetErrorsReleased()
+{
+  Q_D(qSlicerSiemensPlcOpcUaWidget);
+  // AutoManual R1 ToLoad button pressed node
+  QOpcUaNode* resetErrorsPressedNode = d->FindNodeFromFullDisplayName(BUTTONS_RESETERRORS_PRESSED_NODE_NAME);
+  if (resetErrorsPressedNode)
+  {
+    qDebug() << Q_FUNC_INFO << ": ResetErrors released";
+    resetErrorsPressedNode->writeAttribute(QOpcUa::NodeAttribute::Value, QVariant(false), QOpcUa::Types::Boolean);
+  }
+}
+
+//-----------------------------------------------------------------------------
+void qSlicerSiemensPlcOpcUaWidget::onMakeXrayPressed()
+{
+  Q_D(qSlicerSiemensPlcOpcUaWidget);
+  // MakeXRay button pressed node
+  QOpcUaNode* makeXrayPressedNode = d->FindNodeFromFullDisplayName(BUTTONS_MAKEXRAY_PRESSED_NODE_NAME);
+  if (makeXrayPressedNode)
+  {
+    qDebug() << Q_FUNC_INFO << ": MakeXRay pressed";
+    makeXrayPressedNode->writeAttribute(QOpcUa::NodeAttribute::Value, QVariant(true), QOpcUa::Types::Boolean);
+  }
+}
+
+//-----------------------------------------------------------------------------
+void qSlicerSiemensPlcOpcUaWidget::onMakeXrayReleased()
+{
+  Q_D(qSlicerSiemensPlcOpcUaWidget);
+  // MakeXRay button pressed node
+  QOpcUaNode* makeXrayPressedNode = d->FindNodeFromFullDisplayName(BUTTONS_MAKEXRAY_PRESSED_NODE_NAME);
+  if (makeXrayPressedNode)
+  {
+    qDebug() << Q_FUNC_INFO << ": MakeXRay released";
+    makeXrayPressedNode->writeAttribute(QOpcUa::NodeAttribute::Value, QVariant(false), QOpcUa::Types::Boolean);
   }
 }
 

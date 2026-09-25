@@ -20,7 +20,7 @@
       <bool>true</bool>
      </property>
      <property name="currentIndex">
-      <number>0</number>
+      <number>1</number>
      </property>
      <widget class="QWidget" name="tab_OpcUaModel">
       <attribute name="title">
@@ -67,7 +67,7 @@
                 <string>Misc. control</string>
                </property>
                <property name="collapsed">
-                <bool>true</bool>
+                <bool>false</bool>
                </property>
                <layout class="QGridLayout" name="gridLayout_20">
                 <item row="3" column="0">
@@ -184,7 +184,7 @@
                    </widget>
                   </item>
                   <item>
-                   <widget class="QPushButton" name="PushButton_KCM_MakeXRay">
+                   <widget class="QPushButton" name="PushButton_MakeXRay">
                     <property name="text">
                      <string>Make x-ray image</string>
                     </property>

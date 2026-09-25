@@ -65,6 +65,7 @@ public slots:
 
   // Siemens PLC OPC UA slots (values, buttons, etc)
   void onOpcUaModeChanged(vtkMRMLSiemensPlcOpcUaNode::ModeType mode);
+
   // AutomaticManual R1 LoadToIso button
   void onAutoManualR1LoadToIsoPressed();
   void onAutoManualR1LoadToIsoReleased();
@@ -93,58 +94,59 @@ public slots:
   // Service R1 BreakTest button
   void onServiceR1BreakTestPressed();
   void onServiceR1BreakTestReleased();
-
   // Service R1 MasterReferenceTest button
   void onServiceR1MasterReferenceTestPressed();
   void onServiceR1MasterReferenceTestReleased();
-
   // Service R1 Load button
   void onServiceR1LoadPressed();
   void onServiceR1LoadReleased();
-
   // Service R1 ServicePosition1 button
   void onServiceR1ServicePos1Pressed();
   void onServiceR1ServicePos1Released();
-
   // Service R1 ServicePosition2 button
   void onServiceR1ServicePos2Pressed();
   void onServiceR1ServicePos2Released();
-
   // Service R1 ServicePosition3 button
   void onServiceR1ServicePos3Pressed();
   void onServiceR1ServicePos3Released();
-
   // Service R2 BreakTest button
   void onServiceR2BreakTestPressed();
   void onServiceR2BreakTestReleased();
-
   // Service R2 MasterReferenceTest button
   void onServiceR2MasterReferenceTestPressed();
   void onServiceR2MasterReferenceTestReleased();
-
   // Service R2 Home button
   void onServiceR2HomePressed();
   void onServiceR2HomeReleased();
-
   // Service R2 ServicePosition1 button
   void onServiceR2ServicePos1Pressed();
   void onServiceR2ServicePos1Released();
-
   // Service R2 ServicePosition2 button
   void onServiceR2ServicePos2Pressed();
   void onServiceR2ServicePos2Released();
-
   // Service R2 ServicePosition3 button
   void onServiceR2ServicePos3Pressed();
   void onServiceR2ServicePos3Released();
-
   // Service RestartSM button
   void onServiceRestartSmPressed();
   void onServiceRestartSmReleased();
 
+  // KUKA Controllers Movement
+  void onKukaAllowT1Pressed();
+  void onKukaAllowT1Released();
+  // KUKA Controllers Movement
+  void onKukaAllowXrayPressed();
+  void onKukaAllowXrayReleased();
+  // KUKA Controllers Movement
+  void onKukaAllowBeamPressed();
+  void onKukaAllowBeamReleased();
+
   // Reset errors button
   void onResetErrorsPressed();
   void onResetErrorsReleased();
+  // MakeXray button
+  void onMakeXrayPressed();
+  void onMakeXrayReleased();
 
   void onServerInterfacesRead(QOpcUa::NodeAttributes attr);
 

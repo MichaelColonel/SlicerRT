@@ -27,6 +27,7 @@
 #include <vtkMRMLMarkupsPlaneNode.h>
 #include <vtkMRMLMarkupsDisplayNode.h>
 #include <vtkMRMLMarkupsFiducialNode.h>
+#include <vtkMRMLTransformDisplayNode.h>
 
 #include "vtkMRMLU70RoomGeoNode.h"
 #include "vtkMRMLChannel26GeometryNode.h"
@@ -742,10 +743,12 @@ vtkSlicerU70RoomGeoLogic::SetupTreatmentMachineModels(vtkMRMLU70RoomGeoNode* par
       case CoordSys::TableTop:
         this->Channel26Cabin3RobotsLogic->UpdatePatientToTableTopTransform(channel26GeometryNode);
         partFrameToRasTransformNode = this->Channel26Cabin3RobotsLogic->UpdateTableTopToRasTransform(channel26GeometryNode);
+        this->DisplayBasisVectorsForTransformNode(partFrameToRasTransformNode);
         break;
       case CoordSys::TableFlange:
         this->Channel26Cabin3RobotsLogic->UpdateTableTopToTableFlangeTransform(channel26GeometryNode);
         partFrameToRasTransformNode = this->Channel26Cabin3RobotsLogic->UpdateTableFlangeToRasTransform(channel26GeometryNode);
+        this->DisplayBasisVectorsForTransformNode(partFrameToRasTransformNode);
         break;
       case CoordSys::TableRobotFlange:
         this->Channel26Cabin3RobotsLogic->UpdateTableFlangeToTableRobotFlangeTransform(channel26GeometryNode);
@@ -782,6 +785,7 @@ vtkSlicerU70RoomGeoLogic::SetupTreatmentMachineModels(vtkMRMLU70RoomGeoNode* par
       case CoordSys::FixedReference:
         this->Channel26Cabin3RobotsLogic->UpdateTableRobotBaseFixedToFixedReferenceTransform(channel26GeometryNode);
         partFrameToRasTransformNode = this->Channel26Cabin3RobotsLogic->UpdateFixedReferenceToRasTransform(channel26GeometryNode);
+        this->DisplayBasisVectorsForTransformNode(partFrameToRasTransformNode);
         break;
       case CoordSys::CarmRobotBaseFixed:
         this->Channel26Cabin3RobotsLogic->UpdateCarmRobotBaseFixedToFixedReferenceTransform(channel26GeometryNode);
@@ -1072,4 +1076,26 @@ std::string vtkSlicerU70RoomGeoLogic::GetStateForPartType(std::string partType)
 vtkSlicerChannel26Cabin3RobotsTransformLogic* vtkSlicerU70RoomGeoLogic::GetChannel26RobotsTransformLogic() const
 {
   return this->Channel26Cabin3RobotsLogic;
+}
+
+bool vtkSlicerU70RoomGeoLogic::DisplayBasisVectorsForTransformNode(vtkMRMLLinearTransformNode* transformNode)
+{
+  if (!transformNode)
+  {
+    return false;
+  }
+  
+  transformNode->CreateDefaultDisplayNodes();
+  vtkMRMLTransformDisplayNode* dispNode = vtkMRMLTransformDisplayNode::SafeDownCast(transformNode->GetDisplayNode());
+  if (dispNode)
+  {
+    dispNode->SetEditorVisibility(true);
+    dispNode->SetVisibility3D(true);
+    dispNode->SetVisualizationMode(vtkMRMLTransformDisplayNode::VIS_MODE_GLYPH);
+    dispNode->SetGlyphType(vtkMRMLTransformDisplayNode::GLYPH_TYPE_ARROW);
+    dispNode->SetEditorRotationEnabled(false);
+    dispNode->SetInteractionScalePercent(10.);
+    return true;
+  }
+  return false;
 }

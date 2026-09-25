@@ -37,6 +37,7 @@
 
 class vtkMRMLU70RoomGeoNode;
 class vtkMRMLChannel26GeometryNode;
+class vtkMRMLModelNode;
 
 class vtkMatrix4x4;
 class vtkVector3d;
@@ -88,6 +89,8 @@ public:
   /// Get state for part type in the currently loaded treatment machine description.
   /// Valid states are "Disabled" (not loaded), "Active" (loaded and collisions computed), "Passive" (loaded but no collisions).
   std::string GetStateForPartType(std::string partType);
+
+  bool DisplayBasisVectorsForTransformNode(vtkMRMLLinearTransformNode* transformNode);
 
 protected:
   vtkSlicerU70RoomGeoLogic();
