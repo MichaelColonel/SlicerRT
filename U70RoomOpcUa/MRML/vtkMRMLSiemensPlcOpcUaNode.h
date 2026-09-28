@@ -167,6 +167,9 @@ public:
   vtkGetVector2Macro(ServiceR2Position2, bool);
   vtkSetVector2Macro(ServiceR2Position2, bool);
 
+  vtkGetVector2Macro(ServiceR2Position3, bool);
+  vtkSetVector2Macro(ServiceR2Position3, bool);
+
   vtkGetVector2Macro(ServiceRestart, bool);
   vtkSetVector2Macro(ServiceRestart, bool);
 
@@ -285,6 +288,7 @@ private:
   bool ServiceR2Home[2]{ false, false }; // [0] == isEnabled, [1] == isPressed
   bool ServiceR2Position1[2]{ false, false }; // [0] == isEnabled, [1] == isPressed
   bool ServiceR2Position2[2]{ false, false }; // [0] == isEnabled, [1] == isPressed
+  bool ServiceR2Position3[2]{ false, false }; // [0] == isEnabled, [1] == isPressed
   bool ServiceRestart[2]{ false, false }; // [0] == isEnabled, [1] == isPressed
 
   bool KukaAllowT1[2]{ false, false }; // [0] == isEnabled, [1] == isPressed

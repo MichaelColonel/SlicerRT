@@ -48,6 +48,9 @@
 #include <vtkMRMLChannel26GeometryNode.h>
 #include <vtkSlicerU70RoomGeoLogic.h>
 
+// U70RoomOpcUa logic and nodes
+#include <vtkMRMLSiemensPlcOpcUaNode.h>
+
 // VTK includes
 #include <vtkCamera.h>
 #include <vtkMatrix4x4.h>
@@ -588,6 +591,12 @@ void qSlicerU70RoomGeoModuleWidget::setParameterNode(vtkMRMLNode* node)
   // (then in the meantime the comboboxes selected the first one from the scene and we have to set that)
   if (d->ParameterNode)
   {
+    vtkMRMLSiemensPlcOpcUaNode* opcUaNode = vtkMRMLSiemensPlcOpcUaNode::SafeDownCast(this->mrmlScene()->GetFirstNodeByClass("vtkMRMLSiemensPlcOpcUaNode"));
+    if (opcUaNode)
+    {
+      qDebug() << Q_FUNC_INFO << "OPC UA node is OK";
+      d->ParameterNode->SetAndObserveChannel26PlcOpcUaNode(opcUaNode);
+    }
   }
   this->updateWidgetFromMRML();
 }

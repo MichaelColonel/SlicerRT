@@ -188,8 +188,10 @@ void vtkMRMLU70RoomGeoNode::ProcessMRMLEvents(vtkObject *caller, unsigned long e
   {
     return;
   }
+  vtkWarningMacro("ProcessMRMLEvents: Up!");
   if (eventID == vtkCommand::ModifiedEvent)
   {
+    vtkWarningMacro("ProcessMRMLEvents: Modified");
     if (caller == this->GetChannel26PlcOpcUaNode())
     {
       vtkWarningMacro("ProcessMRMLEvents: Siemens PLC OPC UA node updated!");

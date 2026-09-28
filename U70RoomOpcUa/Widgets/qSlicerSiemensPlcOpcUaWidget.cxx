@@ -234,6 +234,24 @@ public:
   bool ConnectAutoManualR1LoadToIsoNodes();
   bool ConnectAutoManualR1ToNewCoordsNodes();
   bool ConnectAutoManualR2ToHomeNodes();
+  bool ConnectAutoManualR2ToPlane1Nodes();
+  bool ConnectAutoManualR2ToPlane2Nodes();
+  bool ConnectAutoManualR1R2EmergencyEvacuationNodes();
+  bool ConnectAutoManualApplyTablePositionNodes();
+
+  bool ConnectServiceR1BreakTestNodes();
+  bool ConnectServiceR1MasterRefTestNodes();
+  bool ConnectServiceR1LoadNodes();
+  bool ConnectServiceR1ServicePos1Nodes();
+  bool ConnectServiceR1ServicePos2Nodes();
+  bool ConnectServiceR1ServicePos3Nodes();
+
+  bool ConnectServiceR2BreakTestNodes();
+  bool ConnectServiceR2MasterRefTestNodes();
+  bool ConnectServiceR2HomeNodes();
+  bool ConnectServiceR2ServicePos1Nodes();
+  bool ConnectServiceR2ServicePos2Nodes();
+  bool ConnectServiceR2ServicePos3Nodes();
 
   bool ConnectResetErrorsNodes();
   bool ConnectMakeXrayNodes();
@@ -758,6 +776,1306 @@ bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectAutoManualR1LoadToIsoNodes()
 }
 
 //-----------------------------------------------------------------------------
+bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectAutoManualR1R2EmergencyEvacuationNodes()
+{
+  QSharedPointer< QOpcUaClient > opcUaClient = this->OpcUaClient.toStrongRef();
+
+  if (!opcUaClient || !this->ParameterNode)
+  {
+    return false;
+  }
+
+  vtkMRMLSiemensPlcOpcUaNode* mrmlNode = this->ParameterNode.GetPointer();
+  // AutoManual R1R2 EmergencyEvacuation button enabled node
+  QOpcUaNode* amR1R2EmEvacEnabledNode = this->FindNodeFromFullDisplayName(BUTTONS_AM_R1R2_EMEVAC_PRESSED_NODE_NAME);
+  // AutoManual R1R2 EmergencyEvacuation button pressed node
+  QOpcUaNode* amR1LoadToIsoPressedNode = this->FindNodeFromFullDisplayName(BUTTONS_AM_R1R2_EMEVAC_PRESSED_NODE_NAME);
+
+  // AutoManual R1R2 EmergencyEvacuation button enabled node
+  if (!amR1R2EmEvacEnabledNode)
+  {
+    return false;
+  }
+  QObject::connect(amR1R2EmEvacEnabledNode,
+    &QOpcUaNode::dataChangeOccurred, [mrmlNode](QOpcUa::NodeAttribute attr, QVariant value)
+    {
+      if (attr == QOpcUa::NodeAttribute::Value && value.canConvert< bool >())
+      {
+        bool enabledValue = value.toBool();
+        bool amR1R2EmEvacCurrentState[2] = { false, false };
+        mrmlNode->GetAutoManualEmergencyEvac(amR1R2EmEvacCurrentState);
+        amR1R2EmEvacCurrentState[0] = enabledValue;
+        mrmlNode->SetAutoManualEmergencyEvac(amR1R2EmEvacCurrentState);
+      }
+    }
+  );
+  QObject::connect(amR1R2EmEvacEnabledNode,
+    &QOpcUaNode::attributeRead, [amR1R2EmEvacEnabledNode, mrmlNode](QOpcUa::NodeAttributes attr)
+    {
+      if (!amR1R2EmEvacEnabledNode || !mrmlNode)
+      {
+        return;
+      }
+      if (attr & QOpcUa::NodeAttribute::Value)
+      {
+        if (amR1R2EmEvacEnabledNode->attributeError(QOpcUa::NodeAttribute::Value) == QOpcUa::UaStatusCode::Good)
+        {
+          bool enabledValue = amR1R2EmEvacEnabledNode->attribute(QOpcUa::NodeAttribute::Value).toBool();
+          bool amR1R2EmEvacCurrentState[2] = { false, false };
+          mrmlNode->GetAutoManualEmergencyEvac(amR1R2EmEvacCurrentState);
+          amR1R2EmEvacCurrentState[0] = enabledValue;
+          mrmlNode->SetAutoManualEmergencyEvac(amR1R2EmEvacCurrentState);
+        }
+      }
+    }
+  );
+  // Subscribe to data changes
+  amR1R2EmEvacEnabledNode->enableMonitoring(QOpcUa::NodeAttribute::Value, QOpcUaMonitoringParameters(1000));
+
+  // AutoManual R1R2 EmergencyEvacuation button pressed node
+  if (!amR1LoadToIsoPressedNode)
+  {
+    return false;
+  }
+  QObject::connect(amR1LoadToIsoPressedNode,
+    &QOpcUaNode::dataChangeOccurred, [mrmlNode](QOpcUa::NodeAttribute attr, QVariant value)
+    {
+      if (attr == QOpcUa::NodeAttribute::Value && value.canConvert< bool >())
+      {
+        bool pressedValue = value.toBool();
+        bool amR1R2EmEvacCurrentState[2] = { false, false };
+        mrmlNode->GetAutoManualEmergencyEvac(amR1R2EmEvacCurrentState);
+        amR1R2EmEvacCurrentState[1] = pressedValue;
+        mrmlNode->SetAutoManualEmergencyEvac(amR1R2EmEvacCurrentState);
+      }
+    }
+  );
+  QObject::connect(amR1LoadToIsoPressedNode,
+    &QOpcUaNode::attributeRead, [amR1LoadToIsoPressedNode, mrmlNode](QOpcUa::NodeAttributes attr)
+    {
+      if (!amR1LoadToIsoPressedNode || !mrmlNode)
+      {
+        return;
+      }
+      if (attr & QOpcUa::NodeAttribute::Value)
+      {
+        if (amR1LoadToIsoPressedNode->attributeError(QOpcUa::NodeAttribute::Value) == QOpcUa::UaStatusCode::Good)
+        {
+          bool pressedValue = amR1LoadToIsoPressedNode->attribute(QOpcUa::NodeAttribute::Value).toBool();
+          bool amR1R2EmEvacCurrentState[2] = { false, false };
+          mrmlNode->GetAutoManualEmergencyEvac(amR1R2EmEvacCurrentState);
+          amR1R2EmEvacCurrentState[1] = pressedValue;
+          mrmlNode->SetAutoManualEmergencyEvac(amR1R2EmEvacCurrentState);
+        }
+      }
+    }
+  );
+  // Subscribe to data changes
+  amR1LoadToIsoPressedNode->enableMonitoring(QOpcUa::NodeAttribute::Value, QOpcUaMonitoringParameters(1000));
+  return true;
+}
+
+//-----------------------------------------------------------------------------
+bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectServiceR1BreakTestNodes()
+{
+  QSharedPointer< QOpcUaClient > opcUaClient = this->OpcUaClient.toStrongRef();
+
+  if (!opcUaClient || !this->ParameterNode)
+  {
+    return false;
+  }
+
+  vtkMRMLSiemensPlcOpcUaNode* mrmlNode = this->ParameterNode.GetPointer();
+  // Service R1 BreakTest button enabled node
+  QOpcUaNode* smR1BreakTestEnabledNode = this->FindNodeFromFullDisplayName(BUTTONS_SM_R1_BREAKTEST_ENABLED_NODE_NAME);
+  // Service R1 BreakTest button pressed node
+  QOpcUaNode* smR1BreakTestPressedNode = this->FindNodeFromFullDisplayName(BUTTONS_SM_R1_BREAKTEST_PRESSED_NODE_NAME);
+
+  // Service R1 BreakTest button enabled node
+  if (!smR1BreakTestEnabledNode)
+  {
+    return false;
+  }
+  QObject::connect(smR1BreakTestEnabledNode,
+    &QOpcUaNode::dataChangeOccurred, [mrmlNode](QOpcUa::NodeAttribute attr, QVariant value)
+    {
+      if (attr == QOpcUa::NodeAttribute::Value && value.canConvert< bool >())
+      {
+        bool enabledValue = value.toBool();
+        bool smR1BreakTestCurrentState[2] = { false, false };
+        mrmlNode->GetServiceR1BreakTest(smR1BreakTestCurrentState);
+        smR1BreakTestCurrentState[0] = enabledValue;
+        mrmlNode->SetServiceR1BreakTest(smR1BreakTestCurrentState);
+      }
+    }
+  );
+  QObject::connect(smR1BreakTestEnabledNode,
+    &QOpcUaNode::attributeRead, [smR1BreakTestEnabledNode, mrmlNode](QOpcUa::NodeAttributes attr)
+    {
+      if (!smR1BreakTestEnabledNode || !mrmlNode)
+      {
+        return;
+      }
+      if (attr & QOpcUa::NodeAttribute::Value)
+      {
+        if (smR1BreakTestEnabledNode->attributeError(QOpcUa::NodeAttribute::Value) == QOpcUa::UaStatusCode::Good)
+        {
+          bool enabledValue = smR1BreakTestEnabledNode->attribute(QOpcUa::NodeAttribute::Value).toBool();
+          bool smR1BreakTestCurrentState[2] = { false, false };
+          mrmlNode->GetServiceR1BreakTest(smR1BreakTestCurrentState);
+          smR1BreakTestCurrentState[0] = enabledValue;
+          mrmlNode->SetServiceR1BreakTest(smR1BreakTestCurrentState);
+        }
+      }
+    }
+  );
+  // Subscribe to data changes
+  smR1BreakTestEnabledNode->enableMonitoring(QOpcUa::NodeAttribute::Value, QOpcUaMonitoringParameters(1000));
+
+  //  Service R1 BreakTest button pressed node
+  if (!smR1BreakTestPressedNode)
+  {
+    return false;
+  }
+  QObject::connect(smR1BreakTestPressedNode,
+    &QOpcUaNode::dataChangeOccurred, [mrmlNode](QOpcUa::NodeAttribute attr, QVariant value)
+    {
+      if (attr == QOpcUa::NodeAttribute::Value && value.canConvert< bool >())
+      {
+        bool pressedValue = value.toBool();
+        bool smR1BreakTestCurrentState[2] = { false, false };
+        mrmlNode->GetServiceR1BreakTest(smR1BreakTestCurrentState);
+        smR1BreakTestCurrentState[1] = pressedValue;
+        mrmlNode->SetServiceR1BreakTest(smR1BreakTestCurrentState);
+      }
+    }
+  );
+  QObject::connect(smR1BreakTestPressedNode,
+    &QOpcUaNode::attributeRead, [smR1BreakTestPressedNode, mrmlNode](QOpcUa::NodeAttributes attr)
+    {
+      if (!smR1BreakTestPressedNode || !mrmlNode)
+      {
+        return;
+      }
+      if (attr & QOpcUa::NodeAttribute::Value)
+      {
+        if (smR1BreakTestPressedNode->attributeError(QOpcUa::NodeAttribute::Value) == QOpcUa::UaStatusCode::Good)
+        {
+          bool pressedValue = smR1BreakTestPressedNode->attribute(QOpcUa::NodeAttribute::Value).toBool();
+          bool smR1BreakTestCurrentState[2] = { false, false };
+          mrmlNode->GetServiceR1BreakTest(smR1BreakTestCurrentState);
+          smR1BreakTestCurrentState[1] = pressedValue;
+          mrmlNode->SetServiceR1BreakTest(smR1BreakTestCurrentState);
+        }
+      }
+    }
+  );
+  // Subscribe to data changes
+  smR1BreakTestPressedNode->enableMonitoring(QOpcUa::NodeAttribute::Value, QOpcUaMonitoringParameters(1000));
+  return true;
+}
+
+//-----------------------------------------------------------------------------
+bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectServiceR1MasterRefTestNodes()
+{
+  QSharedPointer< QOpcUaClient > opcUaClient = this->OpcUaClient.toStrongRef();
+
+  if (!opcUaClient || !this->ParameterNode)
+  {
+    return false;
+  }
+
+  vtkMRMLSiemensPlcOpcUaNode* mrmlNode = this->ParameterNode.GetPointer();
+  // Service R1 MasterReferenceTest button enabled node
+  QOpcUaNode* smR1MasRefTestEnabledNode = this->FindNodeFromFullDisplayName(BUTTONS_SM_R1_MASREFTEST_ENABLED_NODE_NAME);
+  // Service R1 MasterReferenceTest button pressed node
+  QOpcUaNode* smR1MasRefTestPressedNode = this->FindNodeFromFullDisplayName(BUTTONS_SM_R1_MASREFTEST_PRESSED_NODE_NAME);
+
+  // Service R1 MasterReferenceTest button enabled node
+  if (!smR1MasRefTestEnabledNode)
+  {
+    return false;
+  }
+  QObject::connect(smR1MasRefTestEnabledNode,
+    &QOpcUaNode::dataChangeOccurred, [mrmlNode](QOpcUa::NodeAttribute attr, QVariant value)
+    {
+      if (attr == QOpcUa::NodeAttribute::Value && value.canConvert< bool >())
+      {
+        bool enabledValue = value.toBool();
+        bool smR1MasterRefTestCurrentState[2] = { false, false };
+        mrmlNode->GetServiceR1MasterReferenceTest(smR1MasterRefTestCurrentState);
+        smR1MasterRefTestCurrentState[0] = enabledValue;
+        mrmlNode->GetServiceR1MasterReferenceTest(smR1MasterRefTestCurrentState);
+      }
+    }
+  );
+  QObject::connect(smR1MasRefTestEnabledNode,
+    &QOpcUaNode::attributeRead, [smR1MasRefTestEnabledNode, mrmlNode](QOpcUa::NodeAttributes attr)
+    {
+      if (!smR1MasRefTestEnabledNode || !mrmlNode)
+      {
+        return;
+      }
+      if (attr & QOpcUa::NodeAttribute::Value)
+      {
+        if (smR1MasRefTestEnabledNode->attributeError(QOpcUa::NodeAttribute::Value) == QOpcUa::UaStatusCode::Good)
+        {
+          bool enabledValue = smR1MasRefTestEnabledNode->attribute(QOpcUa::NodeAttribute::Value).toBool();
+          bool smR1MasterRefTestCurrentState[2] = { false, false };
+          mrmlNode->GetServiceR1MasterReferenceTest(smR1MasterRefTestCurrentState);
+          smR1MasterRefTestCurrentState[0] = enabledValue;
+          mrmlNode->GetServiceR1MasterReferenceTest(smR1MasterRefTestCurrentState);
+        }
+      }
+    }
+  );
+  // Subscribe to data changes
+  smR1MasRefTestEnabledNode->enableMonitoring(QOpcUa::NodeAttribute::Value, QOpcUaMonitoringParameters(1000));
+
+  //  Service R1 MasterReferenceTest button pressed node
+  if (!smR1MasRefTestPressedNode)
+  {
+    return false;
+  }
+  QObject::connect(smR1MasRefTestPressedNode,
+    &QOpcUaNode::dataChangeOccurred, [mrmlNode](QOpcUa::NodeAttribute attr, QVariant value)
+    {
+      if (attr == QOpcUa::NodeAttribute::Value && value.canConvert< bool >())
+      {
+        bool pressedValue = value.toBool();
+        bool smR1MasterRefTestCurrentState[2] = { false, false };
+        mrmlNode->GetServiceR1MasterReferenceTest(smR1MasterRefTestCurrentState);
+        smR1MasterRefTestCurrentState[1] = pressedValue;
+        mrmlNode->GetServiceR1MasterReferenceTest(smR1MasterRefTestCurrentState);
+      }
+    }
+  );
+  QObject::connect(smR1MasRefTestPressedNode,
+    &QOpcUaNode::attributeRead, [smR1MasRefTestPressedNode, mrmlNode](QOpcUa::NodeAttributes attr)
+    {
+      if (!smR1MasRefTestPressedNode || !mrmlNode)
+      {
+        return;
+      }
+      if (attr & QOpcUa::NodeAttribute::Value)
+      {
+        if (smR1MasRefTestPressedNode->attributeError(QOpcUa::NodeAttribute::Value) == QOpcUa::UaStatusCode::Good)
+        {
+          bool pressedValue = smR1MasRefTestPressedNode->attribute(QOpcUa::NodeAttribute::Value).toBool();
+          bool smR1MasterRefTestCurrentState[2] = { false, false };
+          mrmlNode->GetServiceR1MasterReferenceTest(smR1MasterRefTestCurrentState);
+          smR1MasterRefTestCurrentState[1] = pressedValue;
+          mrmlNode->GetServiceR1MasterReferenceTest(smR1MasterRefTestCurrentState);
+        }
+      }
+    }
+  );
+  // Subscribe to data changes
+  smR1MasRefTestPressedNode->enableMonitoring(QOpcUa::NodeAttribute::Value, QOpcUaMonitoringParameters(1000));
+  return true;
+}
+
+//-----------------------------------------------------------------------------
+bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectServiceR1LoadNodes()
+{
+  QSharedPointer< QOpcUaClient > opcUaClient = this->OpcUaClient.toStrongRef();
+
+  if (!opcUaClient || !this->ParameterNode)
+  {
+    return false;
+  }
+
+  vtkMRMLSiemensPlcOpcUaNode* mrmlNode = this->ParameterNode.GetPointer();
+  // Service R1 Load button enabled node
+  QOpcUaNode* smR1LoadEnabledNode = this->FindNodeFromFullDisplayName(BUTTONS_SM_R1_LOAD_ENABLED_NODE_NAME);
+  // Service R1 Load button pressed node
+  QOpcUaNode* smR1LoadPressedNode = this->FindNodeFromFullDisplayName(BUTTONS_SM_R1_LOAD_PRESSED_NODE_NAME);
+
+  // Service R1 Load button enabled node
+  if (!smR1LoadEnabledNode)
+  {
+    return false;
+  }
+  QObject::connect(smR1LoadEnabledNode,
+    &QOpcUaNode::dataChangeOccurred, [mrmlNode](QOpcUa::NodeAttribute attr, QVariant value)
+    {
+      if (attr == QOpcUa::NodeAttribute::Value && value.canConvert< bool >())
+      {
+        bool enabledValue = value.toBool();
+        bool smR1LoadCurrentState[2] = { false, false };
+        mrmlNode->GetServiceR1Load(smR1LoadCurrentState);
+        smR1LoadCurrentState[0] = enabledValue;
+        mrmlNode->GetServiceR1Load(smR1LoadCurrentState);
+      }
+    }
+  );
+  QObject::connect(smR1LoadEnabledNode,
+    &QOpcUaNode::attributeRead, [smR1LoadEnabledNode, mrmlNode](QOpcUa::NodeAttributes attr)
+    {
+      if (!smR1LoadEnabledNode || !mrmlNode)
+      {
+        return;
+      }
+      if (attr & QOpcUa::NodeAttribute::Value)
+      {
+        if (smR1LoadEnabledNode->attributeError(QOpcUa::NodeAttribute::Value) == QOpcUa::UaStatusCode::Good)
+        {
+          bool enabledValue = smR1LoadEnabledNode->attribute(QOpcUa::NodeAttribute::Value).toBool();
+          bool smR1LoadCurrentState[2] = { false, false };
+          mrmlNode->GetServiceR1Load(smR1LoadCurrentState);
+          smR1LoadCurrentState[0] = enabledValue;
+          mrmlNode->GetServiceR1Load(smR1LoadCurrentState);
+        }
+      }
+    }
+  );
+  // Subscribe to data changes
+  smR1LoadEnabledNode->enableMonitoring(QOpcUa::NodeAttribute::Value, QOpcUaMonitoringParameters(1000));
+
+  //  Service R1 Load button pressed node
+  if (!smR1LoadPressedNode)
+  {
+    return false;
+  }
+  QObject::connect(smR1LoadPressedNode,
+    &QOpcUaNode::dataChangeOccurred, [mrmlNode](QOpcUa::NodeAttribute attr, QVariant value)
+    {
+      if (attr == QOpcUa::NodeAttribute::Value && value.canConvert< bool >())
+      {
+        bool pressedValue = value.toBool();
+        bool smR1LoadCurrentState[2] = { false, false };
+        mrmlNode->GetServiceR1Load(smR1LoadCurrentState);
+        smR1LoadCurrentState[1] = pressedValue;
+        mrmlNode->GetServiceR1Load(smR1LoadCurrentState);
+      }
+    }
+  );
+  QObject::connect(smR1LoadPressedNode,
+    &QOpcUaNode::attributeRead, [smR1LoadPressedNode, mrmlNode](QOpcUa::NodeAttributes attr)
+    {
+      if (!smR1LoadPressedNode || !mrmlNode)
+      {
+        return;
+      }
+      if (attr & QOpcUa::NodeAttribute::Value)
+      {
+        if (smR1LoadPressedNode->attributeError(QOpcUa::NodeAttribute::Value) == QOpcUa::UaStatusCode::Good)
+        {
+          bool pressedValue = smR1LoadPressedNode->attribute(QOpcUa::NodeAttribute::Value).toBool();
+          bool smR1LoadCurrentState[2] = { false, false };
+          mrmlNode->GetServiceR1Load(smR1LoadCurrentState);
+          smR1LoadCurrentState[1] = pressedValue;
+          mrmlNode->GetServiceR1Load(smR1LoadCurrentState);
+        }
+      }
+    }
+  );
+  // Subscribe to data changes
+  smR1LoadPressedNode->enableMonitoring(QOpcUa::NodeAttribute::Value, QOpcUaMonitoringParameters(1000));
+  return true;
+}
+
+//-----------------------------------------------------------------------------
+bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectServiceR1ServicePos1Nodes()
+{
+  QSharedPointer< QOpcUaClient > opcUaClient = this->OpcUaClient.toStrongRef();
+
+  if (!opcUaClient || !this->ParameterNode)
+  {
+    return false;
+  }
+
+  vtkMRMLSiemensPlcOpcUaNode* mrmlNode = this->ParameterNode.GetPointer();
+  // Service R1 ServicePosition1 button enabled node
+  QOpcUaNode* smR1ServPos1EnabledNode = this->FindNodeFromFullDisplayName(BUTTONS_SM_R1_SERVICEPOS1_ENABLED_NODE_NAME);
+  // Service R1 ServicePosition1 button pressed node
+  QOpcUaNode* smR1ServPos1PressedNode = this->FindNodeFromFullDisplayName(BUTTONS_SM_R1_SERVICEPOS1_PRESSED_NODE_NAME);
+
+  // Service R1 ServicePosition1 button enabled node
+  if (!smR1ServPos1EnabledNode)
+  {
+    return false;
+  }
+  QObject::connect(smR1ServPos1EnabledNode,
+    &QOpcUaNode::dataChangeOccurred, [mrmlNode](QOpcUa::NodeAttribute attr, QVariant value)
+    {
+      if (attr == QOpcUa::NodeAttribute::Value && value.canConvert< bool >())
+      {
+        bool enabledValue = value.toBool();
+        bool smR1ServicePos1CurrentState[2] = { false, false };
+        mrmlNode->GetServiceR1Position1(smR1ServicePos1CurrentState);
+        smR1ServicePos1CurrentState[0] = enabledValue;
+        mrmlNode->GetServiceR1Position1(smR1ServicePos1CurrentState);
+      }
+    }
+  );
+  QObject::connect(smR1ServPos1EnabledNode,
+    &QOpcUaNode::attributeRead, [smR1ServPos1EnabledNode, mrmlNode](QOpcUa::NodeAttributes attr)
+    {
+      if (!smR1ServPos1EnabledNode || !mrmlNode)
+      {
+        return;
+      }
+      if (attr & QOpcUa::NodeAttribute::Value)
+      {
+        if (smR1ServPos1EnabledNode->attributeError(QOpcUa::NodeAttribute::Value) == QOpcUa::UaStatusCode::Good)
+        {
+          bool enabledValue = smR1ServPos1EnabledNode->attribute(QOpcUa::NodeAttribute::Value).toBool();
+          bool smR1ServicePos1CurrentState[2] = { false, false };
+          mrmlNode->GetServiceR1Position1(smR1ServicePos1CurrentState);
+          smR1ServicePos1CurrentState[0] = enabledValue;
+          mrmlNode->GetServiceR1Position1(smR1ServicePos1CurrentState);
+        }
+      }
+    }
+  );
+  // Subscribe to data changes
+  smR1ServPos1EnabledNode->enableMonitoring(QOpcUa::NodeAttribute::Value, QOpcUaMonitoringParameters(1000));
+
+  //  Service R1 ServicePosition1 button pressed node
+  if (!smR1ServPos1PressedNode)
+  {
+    return false;
+  }
+  QObject::connect(smR1ServPos1PressedNode,
+    &QOpcUaNode::dataChangeOccurred, [mrmlNode](QOpcUa::NodeAttribute attr, QVariant value)
+    {
+      if (attr == QOpcUa::NodeAttribute::Value && value.canConvert< bool >())
+      {
+        bool pressedValue = value.toBool();
+        bool smR1ServicePos1CurrentState[2] = { false, false };
+        mrmlNode->GetServiceR1Position1(smR1ServicePos1CurrentState);
+        smR1ServicePos1CurrentState[1] = pressedValue;
+        mrmlNode->GetServiceR1Position1(smR1ServicePos1CurrentState);
+      }
+    }
+  );
+  QObject::connect(smR1ServPos1PressedNode,
+    &QOpcUaNode::attributeRead, [smR1ServPos1PressedNode, mrmlNode](QOpcUa::NodeAttributes attr)
+    {
+      if (!smR1ServPos1PressedNode || !mrmlNode)
+      {
+        return;
+      }
+      if (attr & QOpcUa::NodeAttribute::Value)
+      {
+        if (smR1ServPos1PressedNode->attributeError(QOpcUa::NodeAttribute::Value) == QOpcUa::UaStatusCode::Good)
+        {
+          bool pressedValue = smR1ServPos1PressedNode->attribute(QOpcUa::NodeAttribute::Value).toBool();
+          bool smR1ServicePos1CurrentState[2] = { false, false };
+          mrmlNode->GetServiceR1Position1(smR1ServicePos1CurrentState);
+          smR1ServicePos1CurrentState[1] = pressedValue;
+          mrmlNode->GetServiceR1Position1(smR1ServicePos1CurrentState);
+        }
+      }
+    }
+  );
+  // Subscribe to data changes
+  smR1ServPos1PressedNode->enableMonitoring(QOpcUa::NodeAttribute::Value, QOpcUaMonitoringParameters(1000));
+  return true;
+}
+
+//-----------------------------------------------------------------------------
+bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectServiceR1ServicePos2Nodes()
+{
+  QSharedPointer< QOpcUaClient > opcUaClient = this->OpcUaClient.toStrongRef();
+
+  if (!opcUaClient || !this->ParameterNode)
+  {
+    return false;
+  }
+
+  vtkMRMLSiemensPlcOpcUaNode* mrmlNode = this->ParameterNode.GetPointer();
+  // Service R1 ServicePosition2 button enabled node
+  QOpcUaNode* smR1ServPos2EnabledNode = this->FindNodeFromFullDisplayName(BUTTONS_SM_R1_SERVICEPOS2_ENABLED_NODE_NAME);
+  // Service R1 ServicePosition2 button pressed node
+  QOpcUaNode* smR1ServPos2PressedNode = this->FindNodeFromFullDisplayName(BUTTONS_SM_R1_SERVICEPOS2_PRESSED_NODE_NAME);
+
+  // Service R1 ServicePosition2 button enabled node
+  if (!smR1ServPos2EnabledNode)
+  {
+    return false;
+  }
+  QObject::connect(smR1ServPos2EnabledNode,
+    &QOpcUaNode::dataChangeOccurred, [mrmlNode](QOpcUa::NodeAttribute attr, QVariant value)
+    {
+      if (attr == QOpcUa::NodeAttribute::Value && value.canConvert< bool >())
+      {
+        bool enabledValue = value.toBool();
+        bool smR1ServicePos2CurrentState[2] = { false, false };
+        mrmlNode->GetServiceR1Position2(smR1ServicePos2CurrentState);
+        smR1ServicePos2CurrentState[0] = enabledValue;
+        mrmlNode->GetServiceR1Position2(smR1ServicePos2CurrentState);
+      }
+    }
+  );
+  QObject::connect(smR1ServPos2EnabledNode,
+    &QOpcUaNode::attributeRead, [smR1ServPos2EnabledNode, mrmlNode](QOpcUa::NodeAttributes attr)
+    {
+      if (!smR1ServPos2EnabledNode || !mrmlNode)
+      {
+        return;
+      }
+      if (attr & QOpcUa::NodeAttribute::Value)
+      {
+        if (smR1ServPos2EnabledNode->attributeError(QOpcUa::NodeAttribute::Value) == QOpcUa::UaStatusCode::Good)
+        {
+          bool enabledValue = smR1ServPos2EnabledNode->attribute(QOpcUa::NodeAttribute::Value).toBool();
+          bool smR1ServicePos2CurrentState[2] = { false, false };
+          mrmlNode->GetServiceR1Position2(smR1ServicePos2CurrentState);
+          smR1ServicePos2CurrentState[0] = enabledValue;
+          mrmlNode->GetServiceR1Position2(smR1ServicePos2CurrentState);
+        }
+      }
+    }
+  );
+  // Subscribe to data changes
+  smR1ServPos2EnabledNode->enableMonitoring(QOpcUa::NodeAttribute::Value, QOpcUaMonitoringParameters(1000));
+
+  //  Service R1 ServicePosition2 button pressed node
+  if (!smR1ServPos2PressedNode)
+  {
+    return false;
+  }
+  QObject::connect(smR1ServPos2PressedNode,
+    &QOpcUaNode::dataChangeOccurred, [mrmlNode](QOpcUa::NodeAttribute attr, QVariant value)
+    {
+      if (attr == QOpcUa::NodeAttribute::Value && value.canConvert< bool >())
+      {
+        bool pressedValue = value.toBool();
+        bool smR1ServicePos2CurrentState[2] = { false, false };
+        mrmlNode->GetServiceR1Position2(smR1ServicePos2CurrentState);
+        smR1ServicePos2CurrentState[1] = pressedValue;
+        mrmlNode->GetServiceR1Position2(smR1ServicePos2CurrentState);
+      }
+    }
+  );
+  QObject::connect(smR1ServPos2PressedNode,
+    &QOpcUaNode::attributeRead, [smR1ServPos2PressedNode, mrmlNode](QOpcUa::NodeAttributes attr)
+    {
+      if (!smR1ServPos2PressedNode || !mrmlNode)
+      {
+        return;
+      }
+      if (attr & QOpcUa::NodeAttribute::Value)
+      {
+        if (smR1ServPos2PressedNode->attributeError(QOpcUa::NodeAttribute::Value) == QOpcUa::UaStatusCode::Good)
+        {
+          bool pressedValue = smR1ServPos2PressedNode->attribute(QOpcUa::NodeAttribute::Value).toBool();
+          bool smR1ServicePos2CurrentState[2] = { false, false };
+          mrmlNode->GetServiceR1Position2(smR1ServicePos2CurrentState);
+          smR1ServicePos2CurrentState[1] = pressedValue;
+          mrmlNode->GetServiceR1Position2(smR1ServicePos2CurrentState);
+        }
+      }
+    }
+  );
+  // Subscribe to data changes
+  smR1ServPos2PressedNode->enableMonitoring(QOpcUa::NodeAttribute::Value, QOpcUaMonitoringParameters(1000));
+  return true;
+}
+
+//-----------------------------------------------------------------------------
+bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectServiceR1ServicePos3Nodes()
+{
+  QSharedPointer< QOpcUaClient > opcUaClient = this->OpcUaClient.toStrongRef();
+
+  if (!opcUaClient || !this->ParameterNode)
+  {
+    return false;
+  }
+
+  vtkMRMLSiemensPlcOpcUaNode* mrmlNode = this->ParameterNode.GetPointer();
+  // Service R1 ServicePosition3 button enabled node
+  QOpcUaNode* smR1ServPos3EnabledNode = this->FindNodeFromFullDisplayName(BUTTONS_SM_R1_SERVICEPOS3_ENABLED_NODE_NAME);
+  // Service R1 ServicePosition3 button pressed node
+  QOpcUaNode* smR1ServPos3PressedNode = this->FindNodeFromFullDisplayName(BUTTONS_SM_R1_SERVICEPOS3_PRESSED_NODE_NAME);
+
+  // Service R1 ServicePosition3 button enabled node
+  if (!smR1ServPos3EnabledNode)
+  {
+    return false;
+  }
+  QObject::connect(smR1ServPos3EnabledNode,
+    &QOpcUaNode::dataChangeOccurred, [mrmlNode](QOpcUa::NodeAttribute attr, QVariant value)
+    {
+      if (attr == QOpcUa::NodeAttribute::Value && value.canConvert< bool >())
+      {
+        bool enabledValue = value.toBool();
+        bool smR1ServicePos3CurrentState[2] = { false, false };
+        mrmlNode->GetServiceR1Position3(smR1ServicePos3CurrentState);
+        smR1ServicePos3CurrentState[0] = enabledValue;
+        mrmlNode->GetServiceR1Position3(smR1ServicePos3CurrentState);
+      }
+    }
+  );
+  QObject::connect(smR1ServPos3EnabledNode,
+    &QOpcUaNode::attributeRead, [smR1ServPos3EnabledNode, mrmlNode](QOpcUa::NodeAttributes attr)
+    {
+      if (!smR1ServPos3EnabledNode || !mrmlNode)
+      {
+        return;
+      }
+      if (attr & QOpcUa::NodeAttribute::Value)
+      {
+        if (smR1ServPos3EnabledNode->attributeError(QOpcUa::NodeAttribute::Value) == QOpcUa::UaStatusCode::Good)
+        {
+          bool enabledValue = smR1ServPos3EnabledNode->attribute(QOpcUa::NodeAttribute::Value).toBool();
+          bool smR1ServicePos3CurrentState[2] = { false, false };
+          mrmlNode->GetServiceR1Position3(smR1ServicePos3CurrentState);
+          smR1ServicePos3CurrentState[0] = enabledValue;
+          mrmlNode->GetServiceR1Position3(smR1ServicePos3CurrentState);
+        }
+      }
+    }
+  );
+  // Subscribe to data changes
+  smR1ServPos3EnabledNode->enableMonitoring(QOpcUa::NodeAttribute::Value, QOpcUaMonitoringParameters(1000));
+
+  //  Service R1 ServicePosition3 button pressed node
+  if (!smR1ServPos3PressedNode)
+  {
+    return false;
+  }
+  QObject::connect(smR1ServPos3PressedNode,
+    &QOpcUaNode::dataChangeOccurred, [mrmlNode](QOpcUa::NodeAttribute attr, QVariant value)
+    {
+      if (attr == QOpcUa::NodeAttribute::Value && value.canConvert< bool >())
+      {
+        bool pressedValue = value.toBool();
+        bool smR1ServicePos3CurrentState[2] = { false, false };
+        mrmlNode->GetServiceR1Position3(smR1ServicePos3CurrentState);
+        smR1ServicePos3CurrentState[1] = pressedValue;
+        mrmlNode->GetServiceR1Position3(smR1ServicePos3CurrentState);
+      }
+    }
+  );
+  QObject::connect(smR1ServPos3PressedNode,
+    &QOpcUaNode::attributeRead, [smR1ServPos3PressedNode, mrmlNode](QOpcUa::NodeAttributes attr)
+    {
+      if (!smR1ServPos3PressedNode || !mrmlNode)
+      {
+        return;
+      }
+      if (attr & QOpcUa::NodeAttribute::Value)
+      {
+        if (smR1ServPos3PressedNode->attributeError(QOpcUa::NodeAttribute::Value) == QOpcUa::UaStatusCode::Good)
+        {
+          bool pressedValue = smR1ServPos3PressedNode->attribute(QOpcUa::NodeAttribute::Value).toBool();
+          bool smR1ServicePos3CurrentState[2] = { false, false };
+          mrmlNode->GetServiceR1Position3(smR1ServicePos3CurrentState);
+          smR1ServicePos3CurrentState[1] = pressedValue;
+          mrmlNode->GetServiceR1Position3(smR1ServicePos3CurrentState);
+        }
+      }
+    }
+  );
+  // Subscribe to data changes
+  smR1ServPos3PressedNode->enableMonitoring(QOpcUa::NodeAttribute::Value, QOpcUaMonitoringParameters(1000));
+  return true;
+}
+
+//-----------------------------------------------------------------------------
+bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectServiceR2BreakTestNodes()
+{
+  QSharedPointer< QOpcUaClient > opcUaClient = this->OpcUaClient.toStrongRef();
+
+  if (!opcUaClient || !this->ParameterNode)
+  {
+    return false;
+  }
+
+  vtkMRMLSiemensPlcOpcUaNode* mrmlNode = this->ParameterNode.GetPointer();
+  // Service R2 BreakTest button enabled node
+  QOpcUaNode* smR2BreakTestEnabledNode = this->FindNodeFromFullDisplayName(BUTTONS_SM_R2_BREAKTEST_ENABLED_NODE_NAME);
+  // Service R2 BreakTest button pressed node
+  QOpcUaNode* smR2BreakTestPressedNode = this->FindNodeFromFullDisplayName(BUTTONS_SM_R2_BREAKTEST_PRESSED_NODE_NAME);
+
+  // Service R2 BreakTest button enabled node
+  if (!smR2BreakTestEnabledNode)
+  {
+    return false;
+  }
+  QObject::connect(smR2BreakTestEnabledNode,
+    &QOpcUaNode::dataChangeOccurred, [mrmlNode](QOpcUa::NodeAttribute attr, QVariant value)
+    {
+      if (attr == QOpcUa::NodeAttribute::Value && value.canConvert< bool >())
+      {
+        bool enabledValue = value.toBool();
+        bool smR2BreakTestCurrentState[2] = { false, false };
+        mrmlNode->GetServiceR2BreakTest(smR2BreakTestCurrentState);
+        smR2BreakTestCurrentState[0] = enabledValue;
+        mrmlNode->SetServiceR2BreakTest(smR2BreakTestCurrentState);
+      }
+    }
+  );
+  QObject::connect(smR2BreakTestEnabledNode,
+    &QOpcUaNode::attributeRead, [smR2BreakTestEnabledNode, mrmlNode](QOpcUa::NodeAttributes attr)
+    {
+      if (!smR2BreakTestEnabledNode || !mrmlNode)
+      {
+        return;
+      }
+      if (attr & QOpcUa::NodeAttribute::Value)
+      {
+        if (smR2BreakTestEnabledNode->attributeError(QOpcUa::NodeAttribute::Value) == QOpcUa::UaStatusCode::Good)
+        {
+          bool enabledValue = smR2BreakTestEnabledNode->attribute(QOpcUa::NodeAttribute::Value).toBool();
+          bool smR2BreakTestCurrentState[2] = { false, false };
+          mrmlNode->GetServiceR2BreakTest(smR2BreakTestCurrentState);
+          smR2BreakTestCurrentState[0] = enabledValue;
+          mrmlNode->SetServiceR2BreakTest(smR2BreakTestCurrentState);
+        }
+      }
+    }
+  );
+  // Subscribe to data changes
+  smR2BreakTestEnabledNode->enableMonitoring(QOpcUa::NodeAttribute::Value, QOpcUaMonitoringParameters(1000));
+
+  //  Service R2 BreakTest button pressed node
+  if (!smR2BreakTestPressedNode)
+  {
+    return false;
+  }
+  QObject::connect(smR2BreakTestPressedNode,
+    &QOpcUaNode::dataChangeOccurred, [mrmlNode](QOpcUa::NodeAttribute attr, QVariant value)
+    {
+      if (attr == QOpcUa::NodeAttribute::Value && value.canConvert< bool >())
+      {
+        bool pressedValue = value.toBool();
+        bool smR2BreakTestCurrentState[2] = { false, false };
+        mrmlNode->GetServiceR2BreakTest(smR2BreakTestCurrentState);
+        smR2BreakTestCurrentState[1] = pressedValue;
+        mrmlNode->SetServiceR2BreakTest(smR2BreakTestCurrentState);
+      }
+    }
+  );
+  QObject::connect(smR2BreakTestPressedNode,
+    &QOpcUaNode::attributeRead, [smR2BreakTestPressedNode, mrmlNode](QOpcUa::NodeAttributes attr)
+    {
+      if (!smR2BreakTestPressedNode || !mrmlNode)
+      {
+        return;
+      }
+      if (attr & QOpcUa::NodeAttribute::Value)
+      {
+        if (smR2BreakTestPressedNode->attributeError(QOpcUa::NodeAttribute::Value) == QOpcUa::UaStatusCode::Good)
+        {
+          bool pressedValue = smR2BreakTestPressedNode->attribute(QOpcUa::NodeAttribute::Value).toBool();
+          bool smR2BreakTestCurrentState[2] = { false, false };
+          mrmlNode->GetServiceR2BreakTest(smR2BreakTestCurrentState);
+          smR2BreakTestCurrentState[1] = pressedValue;
+          mrmlNode->SetServiceR2BreakTest(smR2BreakTestCurrentState);
+        }
+      }
+    }
+  );
+  // Subscribe to data changes
+  smR2BreakTestPressedNode->enableMonitoring(QOpcUa::NodeAttribute::Value, QOpcUaMonitoringParameters(1000));
+  return true;
+}
+
+//-----------------------------------------------------------------------------
+bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectServiceR2MasterRefTestNodes()
+{
+  QSharedPointer< QOpcUaClient > opcUaClient = this->OpcUaClient.toStrongRef();
+
+  if (!opcUaClient || !this->ParameterNode)
+  {
+    return false;
+  }
+
+  vtkMRMLSiemensPlcOpcUaNode* mrmlNode = this->ParameterNode.GetPointer();
+  // Service R2 MasterReferenceTest button enabled node
+  QOpcUaNode* smR2MasRefTestEnabledNode = this->FindNodeFromFullDisplayName(BUTTONS_SM_R2_MASREFTEST_ENABLED_NODE_NAME);
+  // Service R2 MasterReferenceTest button pressed node
+  QOpcUaNode* smR2MasRefTestPressedNode = this->FindNodeFromFullDisplayName(BUTTONS_SM_R2_MASREFTEST_PRESSED_NODE_NAME);
+
+  // Service R2 MasterReferenceTest button enabled node
+  if (!smR2MasRefTestEnabledNode)
+  {
+    return false;
+  }
+  QObject::connect(smR2MasRefTestEnabledNode,
+    &QOpcUaNode::dataChangeOccurred, [mrmlNode](QOpcUa::NodeAttribute attr, QVariant value)
+    {
+      if (attr == QOpcUa::NodeAttribute::Value && value.canConvert< bool >())
+      {
+        bool enabledValue = value.toBool();
+        bool smR2MasterRefTestCurrentState[2] = { false, false };
+        mrmlNode->GetServiceR2MasterReferenceTest(smR2MasterRefTestCurrentState);
+        smR2MasterRefTestCurrentState[0] = enabledValue;
+        mrmlNode->GetServiceR2MasterReferenceTest(smR2MasterRefTestCurrentState);
+      }
+    }
+  );
+  QObject::connect(smR2MasRefTestEnabledNode,
+    &QOpcUaNode::attributeRead, [smR2MasRefTestEnabledNode, mrmlNode](QOpcUa::NodeAttributes attr)
+    {
+      if (!smR2MasRefTestEnabledNode || !mrmlNode)
+      {
+        return;
+      }
+      if (attr & QOpcUa::NodeAttribute::Value)
+      {
+        if (smR2MasRefTestEnabledNode->attributeError(QOpcUa::NodeAttribute::Value) == QOpcUa::UaStatusCode::Good)
+        {
+          bool enabledValue = smR2MasRefTestEnabledNode->attribute(QOpcUa::NodeAttribute::Value).toBool();
+          bool smR2MasterRefTestCurrentState[2] = { false, false };
+          mrmlNode->GetServiceR2MasterReferenceTest(smR2MasterRefTestCurrentState);
+          smR2MasterRefTestCurrentState[0] = enabledValue;
+          mrmlNode->GetServiceR2MasterReferenceTest(smR2MasterRefTestCurrentState);
+        }
+      }
+    }
+  );
+  // Subscribe to data changes
+  smR2MasRefTestEnabledNode->enableMonitoring(QOpcUa::NodeAttribute::Value, QOpcUaMonitoringParameters(1000));
+
+  //  Service R2 MasterReferenceTest button pressed node
+  if (!smR2MasRefTestPressedNode)
+  {
+    return false;
+  }
+  QObject::connect(smR2MasRefTestPressedNode,
+    &QOpcUaNode::dataChangeOccurred, [mrmlNode](QOpcUa::NodeAttribute attr, QVariant value)
+    {
+      if (attr == QOpcUa::NodeAttribute::Value && value.canConvert< bool >())
+      {
+        bool pressedValue = value.toBool();
+        bool smR2MasterRefTestCurrentState[2] = { false, false };
+        mrmlNode->GetServiceR2MasterReferenceTest(smR2MasterRefTestCurrentState);
+        smR2MasterRefTestCurrentState[1] = pressedValue;
+        mrmlNode->GetServiceR2MasterReferenceTest(smR2MasterRefTestCurrentState);
+      }
+    }
+  );
+  QObject::connect(smR2MasRefTestPressedNode,
+    &QOpcUaNode::attributeRead, [smR2MasRefTestPressedNode, mrmlNode](QOpcUa::NodeAttributes attr)
+    {
+      if (!smR2MasRefTestPressedNode || !mrmlNode)
+      {
+        return;
+      }
+      if (attr & QOpcUa::NodeAttribute::Value)
+      {
+        if (smR2MasRefTestPressedNode->attributeError(QOpcUa::NodeAttribute::Value) == QOpcUa::UaStatusCode::Good)
+        {
+          bool pressedValue = smR2MasRefTestPressedNode->attribute(QOpcUa::NodeAttribute::Value).toBool();
+          bool smR2MasterRefTestCurrentState[2] = { false, false };
+          mrmlNode->GetServiceR2MasterReferenceTest(smR2MasterRefTestCurrentState);
+          smR2MasterRefTestCurrentState[1] = pressedValue;
+          mrmlNode->GetServiceR2MasterReferenceTest(smR2MasterRefTestCurrentState);
+        }
+      }
+    }
+  );
+  // Subscribe to data changes
+  smR2MasRefTestPressedNode->enableMonitoring(QOpcUa::NodeAttribute::Value, QOpcUaMonitoringParameters(1000));
+  return true;
+}
+
+//-----------------------------------------------------------------------------
+bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectServiceR2HomeNodes()
+{
+  QSharedPointer< QOpcUaClient > opcUaClient = this->OpcUaClient.toStrongRef();
+
+  if (!opcUaClient || !this->ParameterNode)
+  {
+    return false;
+  }
+
+  vtkMRMLSiemensPlcOpcUaNode* mrmlNode = this->ParameterNode.GetPointer();
+  // Service R2 Home button enabled node
+  QOpcUaNode* smR2HomeEnabledNode = this->FindNodeFromFullDisplayName(BUTTONS_SM_R2_HOME_ENABLED_NODE_NAME);
+  // Service R2 Home button pressed node
+  QOpcUaNode* smR2HomePressedNode = this->FindNodeFromFullDisplayName(BUTTONS_SM_R2_HOME_PRESSED_NODE_NAME);
+
+  // Service R1 Load button enabled node
+  if (!smR2HomeEnabledNode)
+  {
+    return false;
+  }
+  QObject::connect(smR2HomeEnabledNode,
+    &QOpcUaNode::dataChangeOccurred, [mrmlNode](QOpcUa::NodeAttribute attr, QVariant value)
+    {
+      if (attr == QOpcUa::NodeAttribute::Value && value.canConvert< bool >())
+      {
+        bool enabledValue = value.toBool();
+        bool smR2HomeCurrentState[2] = { false, false };
+        mrmlNode->GetServiceR2Home(smR2HomeCurrentState);
+        smR2HomeCurrentState[0] = enabledValue;
+        mrmlNode->GetServiceR2Home(smR2HomeCurrentState);
+      }
+    }
+  );
+  QObject::connect(smR2HomeEnabledNode,
+    &QOpcUaNode::attributeRead, [smR2HomeEnabledNode, mrmlNode](QOpcUa::NodeAttributes attr)
+    {
+      if (!smR2HomeEnabledNode || !mrmlNode)
+      {
+        return;
+      }
+      if (attr & QOpcUa::NodeAttribute::Value)
+      {
+        if (smR2HomeEnabledNode->attributeError(QOpcUa::NodeAttribute::Value) == QOpcUa::UaStatusCode::Good)
+        {
+          bool enabledValue = smR2HomeEnabledNode->attribute(QOpcUa::NodeAttribute::Value).toBool();
+          bool smR2HomeCurrentState[2] = { false, false };
+          mrmlNode->GetServiceR2Home(smR2HomeCurrentState);
+          smR2HomeCurrentState[0] = enabledValue;
+          mrmlNode->GetServiceR2Home(smR2HomeCurrentState);
+        }
+      }
+    }
+  );
+  // Subscribe to data changes
+  smR2HomeEnabledNode->enableMonitoring(QOpcUa::NodeAttribute::Value, QOpcUaMonitoringParameters(1000));
+
+  //  Service R2 Home button pressed node
+  if (!smR2HomePressedNode)
+  {
+    return false;
+  }
+  QObject::connect(smR2HomePressedNode,
+    &QOpcUaNode::dataChangeOccurred, [mrmlNode](QOpcUa::NodeAttribute attr, QVariant value)
+    {
+      if (attr == QOpcUa::NodeAttribute::Value && value.canConvert< bool >())
+      {
+        bool pressedValue = value.toBool();
+        bool smR2HomeCurrentState[2] = { false, false };
+        mrmlNode->GetServiceR2Home(smR2HomeCurrentState);
+        smR2HomeCurrentState[1] = pressedValue;
+        mrmlNode->GetServiceR2Home(smR2HomeCurrentState);
+      }
+    }
+  );
+  QObject::connect(smR2HomePressedNode,
+    &QOpcUaNode::attributeRead, [smR2HomePressedNode, mrmlNode](QOpcUa::NodeAttributes attr)
+    {
+      if (!smR2HomePressedNode || !mrmlNode)
+      {
+        return;
+      }
+      if (attr & QOpcUa::NodeAttribute::Value)
+      {
+        if (smR2HomePressedNode->attributeError(QOpcUa::NodeAttribute::Value) == QOpcUa::UaStatusCode::Good)
+        {
+          bool pressedValue = smR2HomePressedNode->attribute(QOpcUa::NodeAttribute::Value).toBool();
+          bool smR2HomeCurrentState[2] = { false, false };
+          mrmlNode->GetServiceR2Home(smR2HomeCurrentState);
+          smR2HomeCurrentState[1] = pressedValue;
+          mrmlNode->GetServiceR2Home(smR2HomeCurrentState);
+        }
+      }
+    }
+  );
+  // Subscribe to data changes
+  smR2HomePressedNode->enableMonitoring(QOpcUa::NodeAttribute::Value, QOpcUaMonitoringParameters(1000));
+  return true;
+}
+
+//-----------------------------------------------------------------------------
+bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectServiceR2ServicePos1Nodes()
+{
+  QSharedPointer< QOpcUaClient > opcUaClient = this->OpcUaClient.toStrongRef();
+
+  if (!opcUaClient || !this->ParameterNode)
+  {
+    return false;
+  }
+
+  vtkMRMLSiemensPlcOpcUaNode* mrmlNode = this->ParameterNode.GetPointer();
+  // Service R2 ServicePosition1 button enabled node
+  QOpcUaNode* smR2ServPos1EnabledNode = this->FindNodeFromFullDisplayName(BUTTONS_SM_R2_SERVICEPOS1_ENABLED_NODE_NAME);
+  // Service R2 ServicePosition1 button pressed node
+  QOpcUaNode* smR2ServPos1PressedNode = this->FindNodeFromFullDisplayName(BUTTONS_SM_R2_SERVICEPOS1_PRESSED_NODE_NAME);
+
+  // Service R2 ServicePosition1 button enabled node
+  if (!smR2ServPos1EnabledNode)
+  {
+    return false;
+  }
+  QObject::connect(smR2ServPos1EnabledNode,
+    &QOpcUaNode::dataChangeOccurred, [mrmlNode](QOpcUa::NodeAttribute attr, QVariant value)
+    {
+      if (attr == QOpcUa::NodeAttribute::Value && value.canConvert< bool >())
+      {
+        bool enabledValue = value.toBool();
+        bool smR2ServicePos1CurrentState[2] = { false, false };
+        mrmlNode->GetServiceR2Position1(smR2ServicePos1CurrentState);
+        smR2ServicePos1CurrentState[0] = enabledValue;
+        mrmlNode->GetServiceR2Position1(smR2ServicePos1CurrentState);
+      }
+    }
+  );
+  QObject::connect(smR2ServPos1EnabledNode,
+    &QOpcUaNode::attributeRead, [smR2ServPos1EnabledNode, mrmlNode](QOpcUa::NodeAttributes attr)
+    {
+      if (!smR2ServPos1EnabledNode || !mrmlNode)
+      {
+        return;
+      }
+      if (attr & QOpcUa::NodeAttribute::Value)
+      {
+        if (smR2ServPos1EnabledNode->attributeError(QOpcUa::NodeAttribute::Value) == QOpcUa::UaStatusCode::Good)
+        {
+          bool enabledValue = smR2ServPos1EnabledNode->attribute(QOpcUa::NodeAttribute::Value).toBool();
+          bool smR2ServicePos1CurrentState[2] = { false, false };
+          mrmlNode->GetServiceR2Position1(smR2ServicePos1CurrentState);
+          smR2ServicePos1CurrentState[0] = enabledValue;
+          mrmlNode->GetServiceR2Position1(smR2ServicePos1CurrentState);
+        }
+      }
+    }
+  );
+  // Subscribe to data changes
+  smR2ServPos1EnabledNode->enableMonitoring(QOpcUa::NodeAttribute::Value, QOpcUaMonitoringParameters(1000));
+
+  //  Service R2 ServicePosition1 button pressed node
+  if (!smR2ServPos1PressedNode)
+  {
+    return false;
+  }
+  QObject::connect(smR2ServPos1PressedNode,
+    &QOpcUaNode::dataChangeOccurred, [mrmlNode](QOpcUa::NodeAttribute attr, QVariant value)
+    {
+      if (attr == QOpcUa::NodeAttribute::Value && value.canConvert< bool >())
+      {
+        bool pressedValue = value.toBool();
+        bool smR2ServicePos1CurrentState[2] = { false, false };
+        mrmlNode->GetServiceR2Position1(smR2ServicePos1CurrentState);
+        smR2ServicePos1CurrentState[1] = pressedValue;
+        mrmlNode->GetServiceR2Position1(smR2ServicePos1CurrentState);
+      }
+    }
+  );
+  QObject::connect(smR2ServPos1PressedNode,
+    &QOpcUaNode::attributeRead, [smR2ServPos1PressedNode, mrmlNode](QOpcUa::NodeAttributes attr)
+    {
+      if (!smR2ServPos1PressedNode || !mrmlNode)
+      {
+        return;
+      }
+      if (attr & QOpcUa::NodeAttribute::Value)
+      {
+        if (smR2ServPos1PressedNode->attributeError(QOpcUa::NodeAttribute::Value) == QOpcUa::UaStatusCode::Good)
+        {
+          bool pressedValue = smR2ServPos1PressedNode->attribute(QOpcUa::NodeAttribute::Value).toBool();
+          bool smR2ServicePos1CurrentState[2] = { false, false };
+          mrmlNode->GetServiceR2Position1(smR2ServicePos1CurrentState);
+          smR2ServicePos1CurrentState[1] = pressedValue;
+          mrmlNode->GetServiceR2Position1(smR2ServicePos1CurrentState);
+        }
+      }
+    }
+  );
+  // Subscribe to data changes
+  smR2ServPos1PressedNode->enableMonitoring(QOpcUa::NodeAttribute::Value, QOpcUaMonitoringParameters(1000));
+  return true;
+}
+
+//-----------------------------------------------------------------------------
+bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectServiceR2ServicePos2Nodes()
+{
+  QSharedPointer< QOpcUaClient > opcUaClient = this->OpcUaClient.toStrongRef();
+
+  if (!opcUaClient || !this->ParameterNode)
+  {
+    return false;
+  }
+
+  vtkMRMLSiemensPlcOpcUaNode* mrmlNode = this->ParameterNode.GetPointer();
+  // Service R2 ServicePosition2 button enabled node
+  QOpcUaNode* smR2ServPos2EnabledNode = this->FindNodeFromFullDisplayName(BUTTONS_SM_R2_SERVICEPOS2_ENABLED_NODE_NAME);
+  // Service R2 ServicePosition2 button pressed node
+  QOpcUaNode* smR2ServPos2PressedNode = this->FindNodeFromFullDisplayName(BUTTONS_SM_R2_SERVICEPOS2_PRESSED_NODE_NAME);
+
+  // Service R2 ServicePosition2 button enabled node
+  if (!smR2ServPos2EnabledNode)
+  {
+    return false;
+  }
+  QObject::connect(smR2ServPos2EnabledNode,
+    &QOpcUaNode::dataChangeOccurred, [mrmlNode](QOpcUa::NodeAttribute attr, QVariant value)
+    {
+      if (attr == QOpcUa::NodeAttribute::Value && value.canConvert< bool >())
+      {
+        bool enabledValue = value.toBool();
+        bool smR2ServicePos2CurrentState[2] = { false, false };
+        mrmlNode->GetServiceR2Position2(smR2ServicePos2CurrentState);
+        smR2ServicePos2CurrentState[0] = enabledValue;
+        mrmlNode->GetServiceR2Position2(smR2ServicePos2CurrentState);
+      }
+    }
+  );
+  QObject::connect(smR2ServPos2EnabledNode,
+    &QOpcUaNode::attributeRead, [smR2ServPos2EnabledNode, mrmlNode](QOpcUa::NodeAttributes attr)
+    {
+      if (!smR2ServPos2EnabledNode || !mrmlNode)
+      {
+        return;
+      }
+      if (attr & QOpcUa::NodeAttribute::Value)
+      {
+        if (smR2ServPos2EnabledNode->attributeError(QOpcUa::NodeAttribute::Value) == QOpcUa::UaStatusCode::Good)
+        {
+          bool enabledValue = smR2ServPos2EnabledNode->attribute(QOpcUa::NodeAttribute::Value).toBool();
+          bool smR2ServicePos2CurrentState[2] = { false, false };
+          mrmlNode->GetServiceR2Position2(smR2ServicePos2CurrentState);
+          smR2ServicePos2CurrentState[0] = enabledValue;
+          mrmlNode->GetServiceR2Position2(smR2ServicePos2CurrentState);
+        }
+      }
+    }
+  );
+  // Subscribe to data changes
+  smR2ServPos2EnabledNode->enableMonitoring(QOpcUa::NodeAttribute::Value, QOpcUaMonitoringParameters(1000));
+
+  //  Service R2 ServicePosition2 button pressed node
+  if (!smR2ServPos2PressedNode)
+  {
+    return false;
+  }
+  QObject::connect(smR2ServPos2PressedNode,
+    &QOpcUaNode::dataChangeOccurred, [mrmlNode](QOpcUa::NodeAttribute attr, QVariant value)
+    {
+      if (attr == QOpcUa::NodeAttribute::Value && value.canConvert< bool >())
+      {
+        bool pressedValue = value.toBool();
+        bool smR2ServicePos2CurrentState[2] = { false, false };
+        mrmlNode->GetServiceR2Position2(smR2ServicePos2CurrentState);
+        smR2ServicePos2CurrentState[1] = pressedValue;
+        mrmlNode->GetServiceR2Position2(smR2ServicePos2CurrentState);
+      }
+    }
+  );
+  QObject::connect(smR2ServPos2PressedNode,
+    &QOpcUaNode::attributeRead, [smR2ServPos2PressedNode, mrmlNode](QOpcUa::NodeAttributes attr)
+    {
+      if (!smR2ServPos2PressedNode || !mrmlNode)
+      {
+        return;
+      }
+      if (attr & QOpcUa::NodeAttribute::Value)
+      {
+        if (smR2ServPos2PressedNode->attributeError(QOpcUa::NodeAttribute::Value) == QOpcUa::UaStatusCode::Good)
+        {
+          bool pressedValue = smR2ServPos2PressedNode->attribute(QOpcUa::NodeAttribute::Value).toBool();
+          bool smR2ServicePos2CurrentState[2] = { false, false };
+          mrmlNode->GetServiceR2Position2(smR2ServicePos2CurrentState);
+          smR2ServicePos2CurrentState[1] = pressedValue;
+          mrmlNode->GetServiceR2Position2(smR2ServicePos2CurrentState);
+        }
+      }
+    }
+  );
+  // Subscribe to data changes
+  smR2ServPos2PressedNode->enableMonitoring(QOpcUa::NodeAttribute::Value, QOpcUaMonitoringParameters(1000));
+  return true;
+}
+
+//-----------------------------------------------------------------------------
+bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectServiceR2ServicePos3Nodes()
+{
+  QSharedPointer< QOpcUaClient > opcUaClient = this->OpcUaClient.toStrongRef();
+
+  if (!opcUaClient || !this->ParameterNode)
+  {
+    return false;
+  }
+
+  vtkMRMLSiemensPlcOpcUaNode* mrmlNode = this->ParameterNode.GetPointer();
+  // Service R2 ServicePosition3 button enabled node
+  QOpcUaNode* smR2ServPos3EnabledNode = this->FindNodeFromFullDisplayName(BUTTONS_SM_R2_SERVICEPOS3_ENABLED_NODE_NAME);
+  // Service R2 ServicePosition3 button pressed node
+  QOpcUaNode* smR2ServPos3PressedNode = this->FindNodeFromFullDisplayName(BUTTONS_SM_R2_SERVICEPOS3_PRESSED_NODE_NAME);
+
+  // Service R2 ServicePosition3 button enabled node
+  if (!smR2ServPos3EnabledNode)
+  {
+    return false;
+  }
+  QObject::connect(smR2ServPos3EnabledNode,
+    &QOpcUaNode::dataChangeOccurred, [mrmlNode](QOpcUa::NodeAttribute attr, QVariant value)
+    {
+      if (attr == QOpcUa::NodeAttribute::Value && value.canConvert< bool >())
+      {
+        bool enabledValue = value.toBool();
+        bool smR2ServicePos3CurrentState[2] = { false, false };
+        mrmlNode->GetServiceR2Position3(smR2ServicePos3CurrentState);
+        smR2ServicePos3CurrentState[0] = enabledValue;
+        mrmlNode->GetServiceR2Position3(smR2ServicePos3CurrentState);
+      }
+    }
+  );
+  QObject::connect(smR2ServPos3EnabledNode,
+    &QOpcUaNode::attributeRead, [smR2ServPos3EnabledNode, mrmlNode](QOpcUa::NodeAttributes attr)
+    {
+      if (!smR2ServPos3EnabledNode || !mrmlNode)
+      {
+        return;
+      }
+      if (attr & QOpcUa::NodeAttribute::Value)
+      {
+        if (smR2ServPos3EnabledNode->attributeError(QOpcUa::NodeAttribute::Value) == QOpcUa::UaStatusCode::Good)
+        {
+          bool enabledValue = smR2ServPos3EnabledNode->attribute(QOpcUa::NodeAttribute::Value).toBool();
+          bool smR2ServicePos3CurrentState[2] = { false, false };
+          mrmlNode->GetServiceR2Position3(smR2ServicePos3CurrentState);
+          smR2ServicePos3CurrentState[0] = enabledValue;
+          mrmlNode->GetServiceR2Position3(smR2ServicePos3CurrentState);
+        }
+      }
+    }
+  );
+  // Subscribe to data changes
+  smR2ServPos3EnabledNode->enableMonitoring(QOpcUa::NodeAttribute::Value, QOpcUaMonitoringParameters(1000));
+
+  //  Service R2 ServicePosition3 button pressed node
+  if (!smR2ServPos3PressedNode)
+  {
+    return false;
+  }
+  QObject::connect(smR2ServPos3PressedNode,
+    &QOpcUaNode::dataChangeOccurred, [mrmlNode](QOpcUa::NodeAttribute attr, QVariant value)
+    {
+      if (attr == QOpcUa::NodeAttribute::Value && value.canConvert< bool >())
+      {
+        bool pressedValue = value.toBool();
+        bool smR2ServicePos3CurrentState[2] = { false, false };
+        mrmlNode->GetServiceR2Position3(smR2ServicePos3CurrentState);
+        smR2ServicePos3CurrentState[1] = pressedValue;
+        mrmlNode->GetServiceR2Position3(smR2ServicePos3CurrentState);
+      }
+    }
+  );
+  QObject::connect(smR2ServPos3PressedNode,
+    &QOpcUaNode::attributeRead, [smR2ServPos3PressedNode, mrmlNode](QOpcUa::NodeAttributes attr)
+    {
+      if (!smR2ServPos3PressedNode || !mrmlNode)
+      {
+        return;
+      }
+      if (attr & QOpcUa::NodeAttribute::Value)
+      {
+        if (smR2ServPos3PressedNode->attributeError(QOpcUa::NodeAttribute::Value) == QOpcUa::UaStatusCode::Good)
+        {
+          bool pressedValue = smR2ServPos3PressedNode->attribute(QOpcUa::NodeAttribute::Value).toBool();
+          bool smR2ServicePos3CurrentState[2] = { false, false };
+          mrmlNode->GetServiceR2Position3(smR2ServicePos3CurrentState);
+          smR2ServicePos3CurrentState[1] = pressedValue;
+          mrmlNode->GetServiceR2Position3(smR2ServicePos3CurrentState);
+        }
+      }
+    }
+  );
+  // Subscribe to data changes
+  smR2ServPos3PressedNode->enableMonitoring(QOpcUa::NodeAttribute::Value, QOpcUaMonitoringParameters(1000));
+  return true;
+}
+
+//-----------------------------------------------------------------------------
 bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectResetErrorsNodes()
 {
   QSharedPointer< QOpcUaClient > opcUaClient = this->OpcUaClient.toStrongRef();
@@ -1154,6 +2472,306 @@ bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectAutoManualR2ToHomeNodes()
   );
   // Subscribe to data changes
   amR2ToHomePressedNode->enableMonitoring(QOpcUa::NodeAttribute::Value, QOpcUaMonitoringParameters(1000));
+  return true;
+}
+
+//-----------------------------------------------------------------------------
+bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectAutoManualR2ToPlane1Nodes()
+{
+  QSharedPointer< QOpcUaClient > opcUaClient = this->OpcUaClient.toStrongRef();
+
+  if (!opcUaClient || !this->ParameterNode)
+  {
+    return false;
+  }
+
+  vtkMRMLSiemensPlcOpcUaNode* mrmlNode = this->ParameterNode.GetPointer();
+  // AutoManual R2 ToPlane1 button enabled node
+  QOpcUaNode* amR2ToPlane1EnabledNode = this->FindNodeFromFullDisplayName(BUTTONS_AM_R2_TOPLANE1_ENABLED_NODE_NAME);
+  // AutoManual R2 ToPlane1 button pressed node
+  QOpcUaNode* amR2ToPlane1PressedNode = this->FindNodeFromFullDisplayName(BUTTONS_AM_R2_TOPLANE1_PRESSED_NODE_NAME);
+
+  // AutoManual R2 ToPlane1 button enabled node
+  if (!amR2ToPlane1EnabledNode)
+  {
+    return false;
+  }
+  QObject::connect(amR2ToPlane1EnabledNode,
+    &QOpcUaNode::dataChangeOccurred, [mrmlNode](QOpcUa::NodeAttribute attr, QVariant value)
+    {
+      if (attr == QOpcUa::NodeAttribute::Value && value.canConvert< bool >())
+      {
+        bool enabledValue = value.toBool();
+        bool amR2ToPlane1CurrentState[2] = { false, false };
+        mrmlNode->GetAutoManualR2ToPlane1(amR2ToPlane1CurrentState);
+        amR2ToPlane1CurrentState[0] = enabledValue;
+        mrmlNode->SetAutoManualR2ToPlane1(amR2ToPlane1CurrentState);
+      }
+    }
+  );
+  QObject::connect(amR2ToPlane1EnabledNode,
+    &QOpcUaNode::attributeRead, [amR2ToPlane1EnabledNode, mrmlNode](QOpcUa::NodeAttributes attr)
+    {
+      if (!amR2ToPlane1EnabledNode || !mrmlNode)
+      {
+        return;
+      }
+      if (attr & QOpcUa::NodeAttribute::Value)
+      {
+        if (amR2ToPlane1EnabledNode->attributeError(QOpcUa::NodeAttribute::Value) == QOpcUa::UaStatusCode::Good)
+        {
+          bool enabledValue = amR2ToPlane1EnabledNode->attribute(QOpcUa::NodeAttribute::Value).toBool();
+          bool amR2ToPlane1CurrentState[2] = { false, false };
+          mrmlNode->GetAutoManualR2ToPlane1(amR2ToPlane1CurrentState);
+          amR2ToPlane1CurrentState[0] = enabledValue;
+          mrmlNode->SetAutoManualR2ToPlane1(amR2ToPlane1CurrentState);
+        }
+      }
+    }
+  );
+  // Subscribe to data changes
+  amR2ToPlane1EnabledNode->enableMonitoring(QOpcUa::NodeAttribute::Value, QOpcUaMonitoringParameters(1000));
+
+  // AutoManual R2 ToPlane1 button pressed node
+  if (!amR2ToPlane1PressedNode)
+  {
+    return false;
+  }
+  QObject::connect(amR2ToPlane1PressedNode,
+    &QOpcUaNode::dataChangeOccurred, [mrmlNode](QOpcUa::NodeAttribute attr, QVariant value)
+    {
+      if (attr == QOpcUa::NodeAttribute::Value && value.canConvert< bool >())
+      {
+        bool pressedValue = value.toBool();
+        bool amR2ToPlane1CurrentState[2] = { false, false };
+        mrmlNode->GetAutoManualR2ToPlane1(amR2ToPlane1CurrentState);
+        amR2ToPlane1CurrentState[1] = pressedValue;
+        mrmlNode->SetAutoManualR2ToPlane1(amR2ToPlane1CurrentState);
+      }
+    }
+  );
+  QObject::connect(amR2ToPlane1PressedNode,
+    &QOpcUaNode::attributeRead, [amR2ToPlane1PressedNode, mrmlNode](QOpcUa::NodeAttributes attr)
+    {
+      if (!amR2ToPlane1PressedNode || !mrmlNode)
+      {
+        return;
+      }
+      if (attr & QOpcUa::NodeAttribute::Value)
+      {
+        if (amR2ToPlane1PressedNode->attributeError(QOpcUa::NodeAttribute::Value) == QOpcUa::UaStatusCode::Good)
+        {
+          bool pressedValue = amR2ToPlane1PressedNode->attribute(QOpcUa::NodeAttribute::Value).toBool();
+          bool amR2ToPlane1CurrentState[2] = { false, false };
+          mrmlNode->GetAutoManualR2ToPlane1(amR2ToPlane1CurrentState);
+          amR2ToPlane1CurrentState[1] = pressedValue;
+          mrmlNode->SetAutoManualR2ToPlane1(amR2ToPlane1CurrentState);
+        }
+      }
+    }
+  );
+  // Subscribe to data changes
+  amR2ToPlane1PressedNode->enableMonitoring(QOpcUa::NodeAttribute::Value, QOpcUaMonitoringParameters(1000));
+  return true;
+}
+
+//-----------------------------------------------------------------------------
+bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectAutoManualR2ToPlane2Nodes()
+{
+  QSharedPointer< QOpcUaClient > opcUaClient = this->OpcUaClient.toStrongRef();
+
+  if (!opcUaClient || !this->ParameterNode)
+  {
+    return false;
+  }
+
+  vtkMRMLSiemensPlcOpcUaNode* mrmlNode = this->ParameterNode.GetPointer();
+  // AutoManual R2 ToPlane2 button enabled node
+  QOpcUaNode* amR2ToPlane2EnabledNode = this->FindNodeFromFullDisplayName(BUTTONS_AM_R2_TOPLANE2_ENABLED_NODE_NAME);
+  // AutoManual R2 ToPlane2 button pressed node
+  QOpcUaNode* amR2ToPlane2PressedNode = this->FindNodeFromFullDisplayName(BUTTONS_AM_R2_TOPLANE2_PRESSED_NODE_NAME);
+
+  // AutoManual R2 ToPlane2 button enabled node
+  if (!amR2ToPlane2EnabledNode)
+  {
+    return false;
+  }
+  QObject::connect(amR2ToPlane2EnabledNode,
+    &QOpcUaNode::dataChangeOccurred, [mrmlNode](QOpcUa::NodeAttribute attr, QVariant value)
+    {
+      if (attr == QOpcUa::NodeAttribute::Value && value.canConvert< bool >())
+      {
+        bool enabledValue = value.toBool();
+        bool amR2ToPlane2CurrentState[2] = { false, false };
+        mrmlNode->GetAutoManualR2ToPlane2(amR2ToPlane2CurrentState);
+        amR2ToPlane2CurrentState[0] = enabledValue;
+        mrmlNode->SetAutoManualR2ToPlane2(amR2ToPlane2CurrentState);
+      }
+    }
+  );
+  QObject::connect(amR2ToPlane2EnabledNode,
+    &QOpcUaNode::attributeRead, [amR2ToPlane2EnabledNode, mrmlNode](QOpcUa::NodeAttributes attr)
+    {
+      if (!amR2ToPlane2EnabledNode || !mrmlNode)
+      {
+        return;
+      }
+      if (attr & QOpcUa::NodeAttribute::Value)
+      {
+        if (amR2ToPlane2EnabledNode->attributeError(QOpcUa::NodeAttribute::Value) == QOpcUa::UaStatusCode::Good)
+        {
+          bool enabledValue = amR2ToPlane2EnabledNode->attribute(QOpcUa::NodeAttribute::Value).toBool();
+          bool amR2ToPlane2CurrentState[2] = { false, false };
+          mrmlNode->GetAutoManualR2ToPlane2(amR2ToPlane2CurrentState);
+          amR2ToPlane2CurrentState[0] = enabledValue;
+          mrmlNode->SetAutoManualR2ToPlane2(amR2ToPlane2CurrentState);
+        }
+      }
+    }
+  );
+  // Subscribe to data changes
+  amR2ToPlane2EnabledNode->enableMonitoring(QOpcUa::NodeAttribute::Value, QOpcUaMonitoringParameters(1000));
+
+  // AutoManual R2 ToPlane2 button pressed node
+  if (!amR2ToPlane2PressedNode)
+  {
+    return false;
+  }
+  QObject::connect(amR2ToPlane2PressedNode,
+    &QOpcUaNode::dataChangeOccurred, [mrmlNode](QOpcUa::NodeAttribute attr, QVariant value)
+    {
+      if (attr == QOpcUa::NodeAttribute::Value && value.canConvert< bool >())
+      {
+        bool pressedValue = value.toBool();
+        bool amR2ToPlane2CurrentState[2] = { false, false };
+        mrmlNode->GetAutoManualR2ToPlane2(amR2ToPlane2CurrentState);
+        amR2ToPlane2CurrentState[1] = pressedValue;
+        mrmlNode->SetAutoManualR2ToPlane2(amR2ToPlane2CurrentState);
+      }
+    }
+  );
+  QObject::connect(amR2ToPlane2PressedNode,
+    &QOpcUaNode::attributeRead, [amR2ToPlane2PressedNode, mrmlNode](QOpcUa::NodeAttributes attr)
+    {
+      if (!amR2ToPlane2PressedNode || !mrmlNode)
+      {
+        return;
+      }
+      if (attr & QOpcUa::NodeAttribute::Value)
+      {
+        if (amR2ToPlane2PressedNode->attributeError(QOpcUa::NodeAttribute::Value) == QOpcUa::UaStatusCode::Good)
+        {
+          bool pressedValue = amR2ToPlane2PressedNode->attribute(QOpcUa::NodeAttribute::Value).toBool();
+          bool amR2ToPlane2CurrentState[2] = { false, false };
+          mrmlNode->GetAutoManualR2ToPlane2(amR2ToPlane2CurrentState);
+          amR2ToPlane2CurrentState[1] = pressedValue;
+          mrmlNode->SetAutoManualR2ToPlane2(amR2ToPlane2CurrentState);
+        }
+      }
+    }
+  );
+  // Subscribe to data changes
+  amR2ToPlane2PressedNode->enableMonitoring(QOpcUa::NodeAttribute::Value, QOpcUaMonitoringParameters(1000));
+  return true;
+}
+
+//-----------------------------------------------------------------------------
+bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectAutoManualApplyTablePositionNodes()
+{
+  QSharedPointer< QOpcUaClient > opcUaClient = this->OpcUaClient.toStrongRef();
+
+  if (!opcUaClient || !this->ParameterNode)
+  {
+    return false;
+  }
+
+  vtkMRMLSiemensPlcOpcUaNode* mrmlNode = this->ParameterNode.GetPointer();
+  // AutoManual ApplyTablePosition button enabled node
+  QOpcUaNode* amApplyTablePositionEnabledNode = this->FindNodeFromFullDisplayName(BUTTONS_AM_APPLYTABLEPOSITION_ENABLED_NODE_NAME);
+  // AutoManual ApplyTablePosition button pressed node
+  QOpcUaNode* amApplyTablePositionPressedNode = this->FindNodeFromFullDisplayName(BUTTONS_AM_APPLYTABLEPOSITION_PRESSED_NODE_NAME);
+
+  // AutoManual ApplyTablePosition button enabled node
+  if (!amApplyTablePositionEnabledNode)
+  {
+    return false;
+  }
+  QObject::connect(amApplyTablePositionEnabledNode,
+    &QOpcUaNode::dataChangeOccurred, [mrmlNode](QOpcUa::NodeAttribute attr, QVariant value)
+    {
+      if (attr == QOpcUa::NodeAttribute::Value && value.canConvert< bool >())
+      {
+        bool enabledValue = value.toBool();
+        bool amApplyTablePositionCurrentState[2] = { false, false };
+        mrmlNode->GetAutoManualApplyTableTopPosition(amApplyTablePositionCurrentState);
+        amApplyTablePositionCurrentState[0] = enabledValue;
+        mrmlNode->SetAutoManualApplyTableTopPosition(amApplyTablePositionCurrentState);
+      }
+    }
+  );
+  QObject::connect(amApplyTablePositionEnabledNode,
+    &QOpcUaNode::attributeRead, [amApplyTablePositionEnabledNode, mrmlNode](QOpcUa::NodeAttributes attr)
+    {
+      if (!amApplyTablePositionEnabledNode || !mrmlNode)
+      {
+        return;
+      }
+      if (attr & QOpcUa::NodeAttribute::Value)
+      {
+        if (amApplyTablePositionEnabledNode->attributeError(QOpcUa::NodeAttribute::Value) == QOpcUa::UaStatusCode::Good)
+        {
+          bool enabledValue = amApplyTablePositionEnabledNode->attribute(QOpcUa::NodeAttribute::Value).toBool();
+          bool amApplyTablePositionCurrentState[2] = { false, false };
+          mrmlNode->GetAutoManualApplyTableTopPosition(amApplyTablePositionCurrentState);
+          amApplyTablePositionCurrentState[0] = enabledValue;
+          mrmlNode->SetAutoManualApplyTableTopPosition(amApplyTablePositionCurrentState);
+        }
+      }
+    }
+  );
+  // Subscribe to data changes
+  amApplyTablePositionEnabledNode->enableMonitoring(QOpcUa::NodeAttribute::Value, QOpcUaMonitoringParameters(1000));
+
+  // AutoManual ApplyTablePosition button pressed node
+  if (!amApplyTablePositionPressedNode)
+  {
+    return false;
+  }
+  QObject::connect(amApplyTablePositionPressedNode,
+    &QOpcUaNode::dataChangeOccurred, [mrmlNode](QOpcUa::NodeAttribute attr, QVariant value)
+    {
+      if (attr == QOpcUa::NodeAttribute::Value && value.canConvert< bool >())
+      {
+        bool pressedValue = value.toBool();
+        bool amApplyTablePositionCurrentState[2] = { false, false };
+        mrmlNode->GetAutoManualApplyTableTopPosition(amApplyTablePositionCurrentState);
+        amApplyTablePositionCurrentState[1] = pressedValue;
+        mrmlNode->SetAutoManualApplyTableTopPosition(amApplyTablePositionCurrentState);
+      }
+    }
+  );
+  QObject::connect(amApplyTablePositionPressedNode,
+    &QOpcUaNode::attributeRead, [amApplyTablePositionPressedNode, mrmlNode](QOpcUa::NodeAttributes attr)
+    {
+      if (!amApplyTablePositionPressedNode || !mrmlNode)
+      {
+        return;
+      }
+      if (attr & QOpcUa::NodeAttribute::Value)
+      {
+        if (amApplyTablePositionPressedNode->attributeError(QOpcUa::NodeAttribute::Value) == QOpcUa::UaStatusCode::Good)
+        {
+          bool pressedValue = amApplyTablePositionPressedNode->attribute(QOpcUa::NodeAttribute::Value).toBool();
+          bool amApplyTablePositionCurrentState[2] = { false, false };
+          mrmlNode->GetAutoManualApplyTableTopPosition(amApplyTablePositionCurrentState);
+          amApplyTablePositionCurrentState[1] = pressedValue;
+          mrmlNode->SetAutoManualApplyTableTopPosition(amApplyTablePositionCurrentState);
+        }
+      }
+    }
+  );
+  // Subscribe to data changes
+  amApplyTablePositionPressedNode->enableMonitoring(QOpcUa::NodeAttribute::Value, QOpcUaMonitoringParameters(1000));
   return true;
 }
 
