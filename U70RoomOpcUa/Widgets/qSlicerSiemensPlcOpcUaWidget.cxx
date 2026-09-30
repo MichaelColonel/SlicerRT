@@ -253,6 +253,10 @@ public:
   bool ConnectServiceR2ServicePos2Nodes();
   bool ConnectServiceR2ServicePos3Nodes();
 
+  bool ConnectKukaAllowT1Nodes();
+  bool ConnectKukaAllowXrayNodes();
+  bool ConnectKukaAllowBeamNodes();
+
   bool ConnectResetErrorsNodes();
   bool ConnectMakeXrayNodes();
 
@@ -286,7 +290,6 @@ void qSlicerSiemensPlcOpcUaWidgetPrivate::setupUi(qSlicerSiemensPlcOpcUaWidget* 
 
   this->TreeView_OpcUaModel->setModel(SiemensPlcOpcUaModel.data());
   this->TreeView_OpcUaModel->header()->setSectionResizeMode(QHeaderView::ResizeToContents);
-
 }
 
 //-----------------------------------------------------------------------------
@@ -2773,6 +2776,306 @@ bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectAutoManualApplyTablePositionNod
   // Subscribe to data changes
   amApplyTablePositionPressedNode->enableMonitoring(QOpcUa::NodeAttribute::Value, QOpcUaMonitoringParameters(1000));
   return true;
+}
+
+//-----------------------------------------------------------------------------
+bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectKukaAllowT1Nodes()
+{
+  QSharedPointer< QOpcUaClient > opcUaClient = this->OpcUaClient.toStrongRef();
+
+  if (!opcUaClient || !this->ParameterNode)
+  {
+    return false;
+  }
+
+  vtkMRMLSiemensPlcOpcUaNode* mrmlNode = this->ParameterNode.GetPointer();
+  // KukaMovement AllowT1 button enabled node
+  QOpcUaNode* kcmAllowT1EnabledNode = this->FindNodeFromFullDisplayName(BUTTONS_KCM_ALLOWT1_ENABLED_NODE_NAME);
+  // KukaMovement AllowT1 button pressed node
+  QOpcUaNode* kcmAllowT1PressedNode = this->FindNodeFromFullDisplayName(BUTTONS_KCM_ALLOWT1_PRESSED_NODE_NAME);
+
+  // KukaMovement AllowT1 button enabled node
+  if (!kcmAllowT1EnabledNode)
+  {
+    return false;
+  }
+  QObject::connect(kcmAllowT1EnabledNode,
+                    &QOpcUaNode::dataChangeOccurred, [mrmlNode](QOpcUa::NodeAttribute attr, QVariant value)
+                    {
+                      if (attr == QOpcUa::NodeAttribute::Value && value.canConvert< bool >())
+                      {
+                        bool enabledValue = value.toBool();
+                        bool kcmAllowT1CurrentState[2] = { false, false };
+                        mrmlNode->GetKukaAllowT1(kcmAllowT1CurrentState);
+                        kcmAllowT1CurrentState[0] = enabledValue;
+                        mrmlNode->SetKukaAllowT1(kcmAllowT1CurrentState);
+                      }
+                    }
+                  );
+  QObject::connect(kcmAllowT1EnabledNode,
+                    &QOpcUaNode::attributeRead, [kcmAllowT1EnabledNode, mrmlNode](QOpcUa::NodeAttributes attr)
+                    {
+                      if (!kcmAllowT1EnabledNode || !mrmlNode)
+                      {
+                        return;
+                      }
+                      if (attr & QOpcUa::NodeAttribute::Value)
+                      {
+                        if (kcmAllowT1EnabledNode->attributeError(QOpcUa::NodeAttribute::Value) == QOpcUa::UaStatusCode::Good)
+                        {
+                          bool enabledValue = kcmAllowT1EnabledNode->attribute(QOpcUa::NodeAttribute::Value).toBool();
+                          bool kcmAllowT1CurrentState[2] = { false, false };
+                          mrmlNode->GetKukaAllowT1(kcmAllowT1CurrentState);
+                          kcmAllowT1CurrentState[0] = enabledValue;
+                          mrmlNode->SetKukaAllowT1(kcmAllowT1CurrentState);
+                        }
+                      }
+                    }
+                  );
+  // Subscribe to data changes
+  kcmAllowT1EnabledNode->enableMonitoring(QOpcUa::NodeAttribute::Value, QOpcUaMonitoringParameters(1000));
+
+  // KukaMovement AllowT1 button pressed node
+  if (!kcmAllowT1PressedNode)
+  {
+    return false;
+  }
+  QObject::connect(kcmAllowT1PressedNode,
+                    &QOpcUaNode::dataChangeOccurred, [mrmlNode](QOpcUa::NodeAttribute attr, QVariant value)
+                    {
+                      if (attr == QOpcUa::NodeAttribute::Value && value.canConvert< bool >())
+                      {
+                        bool pressedValue = value.toBool();
+                        bool kcmAllowT1CurrentState[2] = { false, false };
+                        mrmlNode->GetKukaAllowT1(kcmAllowT1CurrentState);
+                        kcmAllowT1CurrentState[1] = pressedValue;
+                        mrmlNode->SetKukaAllowT1(kcmAllowT1CurrentState);
+                      }
+                    }
+                  );
+  QObject::connect(kcmAllowT1PressedNode,
+                    &QOpcUaNode::attributeRead, [kcmAllowT1PressedNode, mrmlNode](QOpcUa::NodeAttributes attr)
+                    {
+                      if (!kcmAllowT1PressedNode || !mrmlNode)
+                      {
+                        return;
+                      }
+                      if (attr & QOpcUa::NodeAttribute::Value)
+                      {
+                        if (kcmAllowT1PressedNode->attributeError(QOpcUa::NodeAttribute::Value) == QOpcUa::UaStatusCode::Good)
+                        {
+                          bool pressedValue = kcmAllowT1PressedNode->attribute(QOpcUa::NodeAttribute::Value).toBool();
+                          bool kcmAllowT1CurrentState[2] = { false, false };
+                          mrmlNode->GetKukaAllowT1(kcmAllowT1CurrentState);
+                          kcmAllowT1CurrentState[1] = pressedValue;
+                          mrmlNode->SetKukaAllowT1(kcmAllowT1CurrentState);
+                        }
+                      }
+                    }
+                  );
+  // Subscribe to data changes
+  kcmAllowT1PressedNode->enableMonitoring(QOpcUa::NodeAttribute::Value, QOpcUaMonitoringParameters(1000));
+  return true;
+}
+
+//-----------------------------------------------------------------------------
+bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectKukaAllowXrayNodes()
+{
+    QSharedPointer< QOpcUaClient > opcUaClient = this->OpcUaClient.toStrongRef();
+
+    if (!opcUaClient || !this->ParameterNode)
+    {
+        return false;
+    }
+
+    vtkMRMLSiemensPlcOpcUaNode* mrmlNode = this->ParameterNode.GetPointer();
+    // KukaMovement AllowXRay button enabled node
+    QOpcUaNode* kcmAllowXrayEnabledNode = this->FindNodeFromFullDisplayName(BUTTONS_KCM_ALLOWXRAY_ENABLED_NODE_NAME);
+    // KukaMovement AllowXRay button pressed node
+    QOpcUaNode* kcmAllowXrayPressedNode = this->FindNodeFromFullDisplayName(BUTTONS_KCM_ALLOWXRAY_PRESSED_NODE_NAME);
+
+    // KukaMovement AllowXRay button enabled node
+    if (!kcmAllowXrayEnabledNode)
+    {
+        return false;
+    }
+    QObject::connect(kcmAllowXrayEnabledNode,
+                     &QOpcUaNode::dataChangeOccurred, [mrmlNode](QOpcUa::NodeAttribute attr, QVariant value)
+                     {
+                         if (attr == QOpcUa::NodeAttribute::Value && value.canConvert< bool >())
+                         {
+                             bool enabledValue = value.toBool();
+                             bool kcmAllowXrayCurrentState[2] = { false, false };
+                             mrmlNode->GetKukaAllowXray(kcmAllowXrayCurrentState);
+                             kcmAllowXrayCurrentState[0] = enabledValue;
+                             mrmlNode->SetKukaAllowXray(kcmAllowXrayCurrentState);
+                         }
+                     }
+                     );
+    QObject::connect(kcmAllowXrayEnabledNode,
+                     &QOpcUaNode::attributeRead, [kcmAllowXrayEnabledNode, mrmlNode](QOpcUa::NodeAttributes attr)
+                     {
+                         if (!kcmAllowXrayEnabledNode || !mrmlNode)
+                         {
+                             return;
+                         }
+                         if (attr & QOpcUa::NodeAttribute::Value)
+                         {
+                             if (kcmAllowXrayEnabledNode->attributeError(QOpcUa::NodeAttribute::Value) == QOpcUa::UaStatusCode::Good)
+                             {
+                                 bool enabledValue = kcmAllowXrayEnabledNode->attribute(QOpcUa::NodeAttribute::Value).toBool();
+                                 bool kcmAllowXrayCurrentState[2] = { false, false };
+                                 mrmlNode->GetKukaAllowXray(kcmAllowXrayCurrentState);
+                                 kcmAllowXrayCurrentState[0] = enabledValue;
+                                 mrmlNode->SetKukaAllowXray(kcmAllowXrayCurrentState);
+                             }
+                         }
+                     }
+                     );
+    // Subscribe to data changes
+    kcmAllowXrayEnabledNode->enableMonitoring(QOpcUa::NodeAttribute::Value, QOpcUaMonitoringParameters(1000));
+
+    // KukaMovement AllowXRay button pressed node
+    if (!kcmAllowXrayPressedNode)
+    {
+        return false;
+    }
+    QObject::connect(kcmAllowXrayPressedNode,
+                     &QOpcUaNode::dataChangeOccurred, [mrmlNode](QOpcUa::NodeAttribute attr, QVariant value)
+                     {
+                         if (attr == QOpcUa::NodeAttribute::Value && value.canConvert< bool >())
+                         {
+                             bool pressedValue = value.toBool();
+                             bool kcmAllowXrayCurrentState[2] = { false, false };
+                             mrmlNode->GetKukaAllowXray(kcmAllowXrayCurrentState);
+                             kcmAllowXrayCurrentState[1] = pressedValue;
+                             mrmlNode->SetKukaAllowXray(kcmAllowXrayCurrentState);
+                         }
+                     }
+                     );
+    QObject::connect(kcmAllowXrayPressedNode,
+                     &QOpcUaNode::attributeRead, [kcmAllowXrayPressedNode, mrmlNode](QOpcUa::NodeAttributes attr)
+                     {
+                         if (!kcmAllowXrayPressedNode || !mrmlNode)
+                         {
+                             return;
+                         }
+                         if (attr & QOpcUa::NodeAttribute::Value)
+                         {
+                             if (kcmAllowXrayPressedNode->attributeError(QOpcUa::NodeAttribute::Value) == QOpcUa::UaStatusCode::Good)
+                             {
+                                 bool pressedValue = kcmAllowXrayPressedNode->attribute(QOpcUa::NodeAttribute::Value).toBool();
+                                 bool kcmAllowXrayCurrentState[2] = { false, false };
+                                 mrmlNode->GetKukaAllowXray(kcmAllowXrayCurrentState);
+                                 kcmAllowXrayCurrentState[1] = pressedValue;
+                                 mrmlNode->SetKukaAllowXray(kcmAllowXrayCurrentState);
+                             }
+                         }
+                     }
+                     );
+    // Subscribe to data changes
+    kcmAllowXrayPressedNode->enableMonitoring(QOpcUa::NodeAttribute::Value, QOpcUaMonitoringParameters(1000));
+    return true;
+}
+
+//-----------------------------------------------------------------------------
+bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectKukaAllowBeamNodes()
+{
+    QSharedPointer< QOpcUaClient > opcUaClient = this->OpcUaClient.toStrongRef();
+
+    if (!opcUaClient || !this->ParameterNode)
+    {
+        return false;
+    }
+
+    vtkMRMLSiemensPlcOpcUaNode* mrmlNode = this->ParameterNode.GetPointer();
+    // KukaMovement AllowBeam button enabled node
+    QOpcUaNode* kcmAllowBeamEnabledNode = this->FindNodeFromFullDisplayName(BUTTONS_KCM_ALLOWBEAM_ENABLED_NODE_NAME);
+    // KukaMovement AllowBeam button pressed node
+    QOpcUaNode* kcmAllowBeamPressedNode = this->FindNodeFromFullDisplayName(BUTTONS_KCM_ALLOWBEAM_PRESSED_NODE_NAME);
+
+    // KukaMovement AllowBeam button enabled node
+    if (!kcmAllowBeamEnabledNode)
+    {
+        return false;
+    }
+    QObject::connect(kcmAllowBeamEnabledNode,
+                     &QOpcUaNode::dataChangeOccurred, [mrmlNode](QOpcUa::NodeAttribute attr, QVariant value)
+                     {
+                         if (attr == QOpcUa::NodeAttribute::Value && value.canConvert< bool >())
+                         {
+                             bool enabledValue = value.toBool();
+                             bool kcmAllowBeamCurrentState[2] = { false, false };
+                             mrmlNode->GetKukaAllowBeam(kcmAllowBeamCurrentState);
+                             kcmAllowBeamCurrentState[0] = enabledValue;
+                             mrmlNode->SetKukaAllowBeam(kcmAllowBeamCurrentState);
+                         }
+                     }
+                     );
+    QObject::connect(kcmAllowBeamEnabledNode,
+                     &QOpcUaNode::attributeRead, [kcmAllowBeamEnabledNode, mrmlNode](QOpcUa::NodeAttributes attr)
+                     {
+                         if (!kcmAllowBeamEnabledNode || !mrmlNode)
+                         {
+                             return;
+                         }
+                         if (attr & QOpcUa::NodeAttribute::Value)
+                         {
+                             if (kcmAllowBeamEnabledNode->attributeError(QOpcUa::NodeAttribute::Value) == QOpcUa::UaStatusCode::Good)
+                             {
+                                 bool enabledValue = kcmAllowBeamEnabledNode->attribute(QOpcUa::NodeAttribute::Value).toBool();
+                                 bool kcmAllowBeamCurrentState[2] = { false, false };
+                                 mrmlNode->GetKukaAllowBeam(kcmAllowBeamCurrentState);
+                                 kcmAllowBeamCurrentState[0] = enabledValue;
+                                 mrmlNode->SetKukaAllowBeam(kcmAllowBeamCurrentState);
+                             }
+                         }
+                     }
+                     );
+    // Subscribe to data changes
+    kcmAllowBeamEnabledNode->enableMonitoring(QOpcUa::NodeAttribute::Value, QOpcUaMonitoringParameters(1000));
+
+    // KukaMovement AllowBeam button pressed node
+    if (!kcmAllowBeamPressedNode)
+    {
+        return false;
+    }
+    QObject::connect(kcmAllowBeamPressedNode,
+                     &QOpcUaNode::dataChangeOccurred, [mrmlNode](QOpcUa::NodeAttribute attr, QVariant value)
+                     {
+                         if (attr == QOpcUa::NodeAttribute::Value && value.canConvert< bool >())
+                         {
+                             bool pressedValue = value.toBool();
+                             bool kcmAllowBeamCurrentState[2] = { false, false };
+                             mrmlNode->GetKukaAllowBeam(kcmAllowBeamCurrentState);
+                             kcmAllowBeamCurrentState[1] = pressedValue;
+                             mrmlNode->SetKukaAllowBeam(kcmAllowBeamCurrentState);
+                         }
+                     }
+                     );
+    QObject::connect(kcmAllowBeamPressedNode,
+                     &QOpcUaNode::attributeRead, [kcmAllowBeamPressedNode, mrmlNode](QOpcUa::NodeAttributes attr)
+                     {
+                         if (!kcmAllowBeamPressedNode || !mrmlNode)
+                         {
+                             return;
+                         }
+                         if (attr & QOpcUa::NodeAttribute::Value)
+                         {
+                             if (kcmAllowBeamPressedNode->attributeError(QOpcUa::NodeAttribute::Value) == QOpcUa::UaStatusCode::Good)
+                             {
+                                 bool pressedValue = kcmAllowBeamPressedNode->attribute(QOpcUa::NodeAttribute::Value).toBool();
+                                 bool kcmAllowBeamCurrentState[2] = { false, false };
+                                 mrmlNode->GetKukaAllowBeam(kcmAllowBeamCurrentState);
+                                 kcmAllowBeamCurrentState[1] = pressedValue;
+                                 mrmlNode->SetKukaAllowBeam(kcmAllowBeamCurrentState);
+                             }
+                         }
+                     }
+                     );
+    // Subscribe to data changes
+    kcmAllowBeamPressedNode->enableMonitoring(QOpcUa::NodeAttribute::Value, QOpcUaMonitoringParameters(1000));
+    return true;
 }
 
 //-----------------------------------------------------------------------------

@@ -127,7 +127,7 @@ void vtkMRMLU70RoomWorklistNode::CopyContent(vtkMRMLNode *anode, bool deepCopy/*
 //----------------------------------------------------------------------------
 void vtkMRMLU70RoomWorklistNode::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkMRMLU70RoomWorklistNode::PrintSelf(os,indent);
+  Superclass::PrintSelf(os,indent);
 
   vtkMRMLPrintBeginMacro(os, indent);
   // add new parameters here

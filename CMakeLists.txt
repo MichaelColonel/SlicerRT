@@ -144,6 +144,7 @@ if (SLICERRT_ENABLE_EXPERIMENTAL_MODULES)
   add_subdirectory(U70RoomOpcUa)
   add_subdirectory(U70RoomWorklist)
   add_subdirectory(U70ImageRegistration)
+  add_subdirectory(U70RoomBeams)
 endif()
 
 if(BUILD_TESTING)
@@ -152,7 +153,6 @@ endif()
 
 if (SLICERRT_DOCUMENTATION)
   add_subdirectory(Docs)
-  add_subdirectory(U70RoomBeams)
 endif()
 
 #-----------------------------------------------------------------------------
