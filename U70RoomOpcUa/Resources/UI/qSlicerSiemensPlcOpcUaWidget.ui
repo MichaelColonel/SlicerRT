@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>775</width>
-    <height>850</height>
+    <width>761</width>
+    <height>898</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -20,7 +20,7 @@
       <bool>true</bool>
      </property>
      <property name="currentIndex">
-      <number>1</number>
+      <number>2</number>
      </property>
      <widget class="QWidget" name="tab_OpcUaModel">
       <attribute name="title">
@@ -54,8 +54,8 @@
            <rect>
             <x>0</x>
             <y>0</y>
-            <width>733</width>
-            <height>783</height>
+            <width>705</width>
+            <height>990</height>
            </rect>
           </property>
           <layout class="QGridLayout" name="gridLayout_31">
@@ -221,21 +221,21 @@
                 <item row="0" column="0">
                  <layout class="QVBoxLayout" name="verticalLayout_4">
                   <item>
-                   <widget class="QPushButton" name="PushButton_KCM_AllowT1">
+                   <widget class="QPushButton" name="PushButton_KCMAllowT1">
                     <property name="text">
                      <string>Allow T1 mode</string>
                     </property>
                    </widget>
                   </item>
                   <item>
-                   <widget class="QPushButton" name="PushButton_KCM_AllowXRay">
+                   <widget class="QPushButton" name="PushButton_KCMAllowXRay">
                     <property name="text">
                      <string>Allow x-ray exposure</string>
                     </property>
                    </widget>
                   </item>
                   <item>
-                   <widget class="QPushButton" name="PushButton_KCM_AllowBeam">
+                   <widget class="QPushButton" name="PushButton_KCMAllowBeam">
                     <property name="text">
                      <string>Allow beam</string>
                     </property>
@@ -356,7 +356,7 @@
                 <string>Service Movement</string>
                </property>
                <property name="collapsed">
-                <bool>true</bool>
+                <bool>false</bool>
                </property>
                <layout class="QGridLayout" name="gridLayout_16">
                 <item row="1" column="0">
@@ -541,8 +541,8 @@
            <rect>
             <x>0</x>
             <y>0</y>
-            <width>733</width>
-            <height>783</height>
+            <width>719</width>
+            <height>831</height>
            </rect>
           </property>
           <layout class="QGridLayout" name="gridLayout_32">
@@ -912,6 +912,13 @@
                      </property>
                     </widget>
                    </item>
+                   <item row="0" column="2">
+                    <widget class="QPushButton" name="PushButton_SetR1TscAngles">
+                     <property name="text">
+                      <string>Set</string>
+                     </property>
+                    </widget>
+                   </item>
                   </layout>
                  </widget>
                 </item>
@@ -921,6 +928,13 @@
                    <string>Coordinates (mm)</string>
                   </property>
                   <layout class="QGridLayout" name="gridLayout_23">
+                   <item row="0" column="0">
+                    <widget class="QLabel" name="label">
+                     <property name="text">
+                      <string>X, Y, Z:</string>
+                     </property>
+                    </widget>
+                   </item>
                    <item row="0" column="1">
                     <widget class="ctkCoordinatesWidget" name="CoordinatesWidget_R1TscCoords">
                      <property name="dimension">
@@ -937,10 +951,10 @@
                      </property>
                     </widget>
                    </item>
-                   <item row="0" column="0">
-                    <widget class="QLabel" name="label">
+                   <item row="0" column="2">
+                    <widget class="QPushButton" name="PushButton_SetR1TscCoords">
                      <property name="text">
-                      <string>X, Y, Z:</string>
+                      <string>Set</string>
                      </property>
                     </widget>
                    </item>
@@ -975,6 +989,13 @@
                    <string>Coordinates (mm)</string>
                   </property>
                   <layout class="QGridLayout" name="gridLayout_29">
+                   <item row="0" column="1">
+                    <widget class="ctkCoordinatesWidget" name="CoordinatesWidget_R2TscCoords">
+                     <property name="decimals">
+                      <number>6</number>
+                     </property>
+                    </widget>
+                   </item>
                    <item row="0" column="0">
                     <widget class="QLabel" name="label_3">
                      <property name="text">
@@ -982,10 +1003,10 @@
                      </property>
                     </widget>
                    </item>
-                   <item row="0" column="1">
-                    <widget class="ctkCoordinatesWidget" name="CoordinatesWidget_R2TscCoords">
-                     <property name="decimals">
-                      <number>6</number>
+                   <item row="0" column="2">
+                    <widget class="QPushButton" name="PushButton_SetR2TscCoords">
+                     <property name="text">
+                      <string>Set</string>
                      </property>
                     </widget>
                    </item>
@@ -998,13 +1019,6 @@
                    <string>Angles (deg)</string>
                   </property>
                   <layout class="QGridLayout" name="gridLayout_30">
-                   <item row="0" column="0">
-                    <widget class="QLabel" name="label_4">
-                     <property name="text">
-                      <string>A, B, C:</string>
-                     </property>
-                    </widget>
-                   </item>
                    <item row="0" column="1">
                     <widget class="ctkCoordinatesWidget" name="CoordinatesWidget_R2TscAngles">
                      <property name="decimals">
@@ -1015,6 +1029,20 @@
                      </property>
                      <property name="maximum">
                       <double>360.000000000000000</double>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="0" column="0">
+                    <widget class="QLabel" name="label_4">
+                     <property name="text">
+                      <string>A, B, C:</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="0" column="2">
+                    <widget class="QPushButton" name="PushButton_SetR2TscAngles">
+                     <property name="text">
+                      <string>Set</string>
                      </property>
                     </widget>
                    </item>

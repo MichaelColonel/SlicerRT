@@ -46,6 +46,11 @@
 #include <ctkDICOMQuery.h>
 #include <ctkDICOMDatabase.h>
 
+// MRML includes
+#include "vtkMRMLU70RoomWorklistNode.h"
+// Logic includes
+#include "vtkSlicerU70RoomWorklistLogic.h"
+
 #include "qSlicerPatientsQueueWidget.h"
 #include "qSlicerPatientsQueueTableModel.h"
 
@@ -59,6 +64,7 @@ protected:
 public:
   qSlicerU70RoomWorklistModuleWidgetPrivate(qSlicerU70RoomWorklistModuleWidget& object);
   virtual void setupUi(qSlicerU70RoomWorklistModuleWidget*);
+  vtkSlicerU70RoomWorklistLogic* logic() const;
   bool updateQueryDataset();
 
   const char* PWL_LAYOUT_DESCRIPTION = \
@@ -72,6 +78,8 @@ public:
   QScopedPointer< qSlicerPatientsQueueWidget > PatientsQueueWidget;
   std::unique_ptr< DcmDataset > WorklistQueryDataset;
 
+  vtkSmartPointer< vtkMRMLU70RoomWorklistNode > WorklistNode;
+
   int PreviousLayoutId{ -1 };
   bool ModuleWindowInitialized{ false };
 };
@@ -80,13 +88,19 @@ public:
 //-----------------------------------------------------------------------------
 // qSlicerU70RoomWorklistModuleWidgetPrivate methods
 
-
 // --------------------------------------------------------------------------
 qSlicerU70RoomWorklistModuleWidgetPrivate::qSlicerU70RoomWorklistModuleWidgetPrivate(
   qSlicerU70RoomWorklistModuleWidget& object)
   : q_ptr(&object)
 {
   this->WorklistQueryDataset.reset(new DcmDataset);
+}
+
+//-----------------------------------------------------------------------------
+vtkSlicerU70RoomWorklistLogic* qSlicerU70RoomWorklistModuleWidgetPrivate::logic() const
+{
+  Q_Q(const qSlicerU70RoomWorklistModuleWidget);
+  return vtkSlicerU70RoomWorklistLogic::SafeDownCast(q->logic());
 }
 
 // --------------------------------------------------------------------------
@@ -398,6 +412,44 @@ void qSlicerU70RoomWorklistModuleWidget::onCheckConnectionClicked()
   }
 }
 
+
+//-----------------------------------------------------------------------------
+void qSlicerU70RoomWorklistModuleWidget::setMRMLScene(vtkMRMLScene* scene)
+{
+  Q_D(qSlicerU70RoomWorklistModuleWidget);
+
+  this->Superclass::setMRMLScene(scene);
+
+  qvtkReconnect(d->logic(), scene, vtkMRMLScene::EndImportEvent, this, SLOT(onSceneImportedEvent()));
+  qvtkReconnect(d->logic(), scene, vtkMRMLScene::EndCloseEvent, this, SLOT(onSceneClosedEvent()));
+
+  // Find parameters node or create it if there is none in the scene
+  if (scene)
+  {
+    if (vtkMRMLNode* node = scene->GetFirstNodeByClass("vtkMRMLU70RoomWorklistNode"))
+    {
+      vtkMRMLU70RoomWorklistNode* newNode = vtkMRMLU70RoomWorklistNode::SafeDownCast(node);
+      if (newNode)
+      {
+        d->WorklistNode = vtkSmartPointer<vtkMRMLU70RoomWorklistNode>::Take(newNode);
+        d->PatientsQueueWidget->setParameterNode(d->WorklistNode);
+      }
+    }
+    else
+    {
+      d->WorklistNode = vtkSmartPointer<vtkMRMLU70RoomWorklistNode>::New();
+      std::string nodeName = this->mrmlScene()->GenerateUniqueName("U70PatientWorklist");
+      d->WorklistNode->SetName(nodeName.c_str());
+      this->mrmlScene()->AddNode(d->WorklistNode);
+      d->PatientsQueueWidget->setParameterNode(d->WorklistNode);
+      // Each time the node is modified, the UI widgets are updated
+      qvtkReconnect(d->WorklistNode, vtkCommand::ModifiedEvent, 
+        this, SLOT(updateWidgetFromMRML()));
+    }
+  }
+  this->updateWidgetFromMRML();
+}
+
 void qSlicerU70RoomWorklistModuleWidget::onEnter()
 {
   Q_D(qSlicerU70RoomWorklistModuleWidget);
@@ -417,4 +469,20 @@ void qSlicerU70RoomWorklistModuleWidget::onEnter()
   layoutManager->resumeRender();
 
   slicerApplication->processEvents();
+}
+
+//-----------------------------------------------------------------------------
+void qSlicerU70RoomWorklistModuleWidget::updateWidgetFromMRML()
+{
+  Q_D(qSlicerU70RoomWorklistModuleWidget);
+
+  if (!this->mrmlScene())
+  {
+    return;
+  }
+  if (!d->WorklistNode)
+  {
+    qCritical() << Q_FUNC_INFO << "Worklist node is invalid";
+    return;
+  }
 }

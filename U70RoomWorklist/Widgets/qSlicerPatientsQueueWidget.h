@@ -33,6 +33,7 @@
 #include "qSlicerPatientsQueueTableModel.h"
 
 class qSlicerPatientsQueueWidgetPrivate;
+class vtkMRMLNode;
 
 class Q_SLICER_MODULE_U70ROOMWORKLIST_WIDGETS_EXPORT qSlicerPatientsQueueWidget
   : public QWidget
@@ -47,11 +48,15 @@ public:
   void setModalityWorkList(const QList< ModalityWork >& mwl);
   void reset();
 
+  /// Set U70RoomWorklistNode MRML node (Parameter node)
+  void setParameterNode(vtkMRMLNode* node);
+
 public slots:
   /// Update widget GUI from parameters node
   void updateWidgetFromMRML();
   void onPatientsQueueModelIndexClicked(const QModelIndex& index);
   void onScheduledProcedureStepModelIndexClicked(const QModelIndex& index);
+
 protected:
   QScopedPointer<qSlicerPatientsQueueWidgetPrivate> d_ptr;
 

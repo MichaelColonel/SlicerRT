@@ -41,6 +41,9 @@
 #include <vtkMRMLLayoutNode.h>
 #include <vtkMRMLSliceNode.h>
 
+// U70RoomWorklist MRML includes
+#include "vtkMRMLU70RoomWorklistNode.h"
+
 // VTK includes
 #include <vtkVector.h>
 #include <vtkTransform.h>
@@ -58,6 +61,9 @@ public:
 
   QScopedPointer< qSlicerPatientsQueueTableModel > PatientsQueueTableModel;
   QScopedPointer< qSlicerPatientSPSTableModel > PatientSPSTableModel;
+
+  vtkWeakPointer< vtkMRMLU70RoomWorklistNode > ParameterNode;
+
 };
 
 // --------------------------------------------------------------------------
@@ -98,6 +104,21 @@ qSlicerPatientsQueueWidget::qSlicerPatientsQueueWidget(QWidget* parentWidget)
 //-----------------------------------------------------------------------------
 qSlicerPatientsQueueWidget::~qSlicerPatientsQueueWidget()
 {
+}
+
+//-----------------------------------------------------------------------------
+void qSlicerPatientsQueueWidget::setParameterNode(vtkMRMLNode* node)
+{
+  Q_D(qSlicerPatientsQueueWidget);
+
+  vtkMRMLU70RoomWorklistNode* parameterNode = vtkMRMLU70RoomWorklistNode::SafeDownCast(node);
+  // Each time the node is modified, the UI widgets are updated
+  qvtkReconnect(d->ParameterNode, parameterNode, vtkCommand::ModifiedEvent, 
+    this, SLOT(updateWidgetFromMRML()));
+
+  d->ParameterNode = parameterNode;
+
+  this->updateWidgetFromMRML();
 }
 
 //-----------------------------------------------------------------------------

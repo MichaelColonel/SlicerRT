@@ -171,6 +171,34 @@ const QString BUTTONS_MAKEXRAY_NODE_NAME = BUTTONS_NODE_NAME + ".MakeXRay";
 const QString BUTTONS_MAKEXRAY_PRESSED_NODE_NAME = BUTTONS_MAKEXRAY_NODE_NAME + IS_PRESSED;
 const QString BUTTONS_MAKEXRAY_ENABLED_NODE_NAME = BUTTONS_MAKEXRAY_NODE_NAME + IS_ENABLED;
 
+const QString KUKA_R1_COORD_X_TO_TCS_NODE_NAME = RTK_PLC_NODE_NAME + ".KUKA_X_coordinate_to_TCS_R1";
+const QString KUKA_R1_COORD_Y_TO_TCS_NODE_NAME = RTK_PLC_NODE_NAME + ".KUKA_Y_coordinate_to_TCS_R1";
+const QString KUKA_R1_COORD_Z_TO_TCS_NODE_NAME = RTK_PLC_NODE_NAME + ".KUKA_Z_coordinate_to_TCS_R1";
+const QString KUKA_R1_ANGLE_A_TO_TCS_NODE_NAME = RTK_PLC_NODE_NAME + ".KUKA_A_corner_to_TCS_R1";
+const QString KUKA_R1_ANGLE_B_TO_TCS_NODE_NAME = RTK_PLC_NODE_NAME + ".KUKA_B_corner_to_TCS_R1";
+const QString KUKA_R1_ANGLE_C_TO_TCS_NODE_NAME = RTK_PLC_NODE_NAME + ".KUKA_C_corner_to_TCS_R1";
+
+const QString KUKA_R1_AXIS_A1_NODE_NAME = RTK_PLC_NODE_NAME + ".AXIS_cord_A1_R1";
+const QString KUKA_R1_AXIS_A2_NODE_NAME = RTK_PLC_NODE_NAME + ".AXIS_cord_A2_R1";
+const QString KUKA_R1_AXIS_A3_NODE_NAME = RTK_PLC_NODE_NAME + ".AXIS_cord_A3_R1";
+const QString KUKA_R1_AXIS_A4_NODE_NAME = RTK_PLC_NODE_NAME + ".AXIS_cord_A4_R1";
+const QString KUKA_R1_AXIS_A5_NODE_NAME = RTK_PLC_NODE_NAME + ".AXIS_cord_A5_R1";
+const QString KUKA_R1_AXIS_A6_NODE_NAME = RTK_PLC_NODE_NAME + ".AXIS_cord_A6_R1";
+
+const QString KUKA_R2_COORD_X_TO_TCS_NODE_NAME = RTK_PLC_NODE_NAME + ".KUKA_X_coordinate_to_TCS_R2";
+const QString KUKA_R2_COORD_Y_TO_TCS_NODE_NAME = RTK_PLC_NODE_NAME + ".KUKA_Y_coordinate_to_TCS_R2";
+const QString KUKA_R2_COORD_Z_TO_TCS_NODE_NAME = RTK_PLC_NODE_NAME + ".KUKA_Z_coordinate_to_TCS_R2";
+const QString KUKA_R2_ANGLE_A_TO_TCS_NODE_NAME = RTK_PLC_NODE_NAME + ".KUKA_A_corner_to_TCS_R2";
+const QString KUKA_R2_ANGLE_B_TO_TCS_NODE_NAME = RTK_PLC_NODE_NAME + ".KUKA_B_corner_to_TCS_R2";
+const QString KUKA_R2_ANGLE_C_TO_TCS_NODE_NAME = RTK_PLC_NODE_NAME + ".KUKA_C_corner_to_TCS_R2";
+
+const QString KUKA_R2_AXIS_A1_NODE_NAME = RTK_PLC_NODE_NAME + ".AXIS_cord_A1_R2";
+const QString KUKA_R2_AXIS_A2_NODE_NAME = RTK_PLC_NODE_NAME + ".AXIS_cord_A2_R2";
+const QString KUKA_R2_AXIS_A3_NODE_NAME = RTK_PLC_NODE_NAME + ".AXIS_cord_A3_R2";
+const QString KUKA_R2_AXIS_A4_NODE_NAME = RTK_PLC_NODE_NAME + ".AXIS_cord_A4_R2";
+const QString KUKA_R2_AXIS_A5_NODE_NAME = RTK_PLC_NODE_NAME + ".AXIS_cord_A5_R2";
+const QString KUKA_R2_AXIS_A6_NODE_NAME = RTK_PLC_NODE_NAME + ".AXIS_cord_A6_R2";
+
 }
 
 //-----------------------------------------------------------------------------
@@ -256,6 +284,34 @@ public:
   bool ConnectKukaAllowT1Nodes();
   bool ConnectKukaAllowXrayNodes();
   bool ConnectKukaAllowBeamNodes();
+
+  bool ConnectKukaR1CoordToTcsXNodes();
+  bool ConnectKukaR1CoordToTcsYNodes();
+  bool ConnectKukaR1CoordToTcsZNodes();
+  bool ConnectKukaR1AngleToTcsANodes();
+  bool ConnectKukaR1AngleToTcsBNodes();
+  bool ConnectKukaR1AngleToTcsCNodes();
+
+  bool ConnectKukaR2CoordToTcsXNodes();
+  bool ConnectKukaR2CoordToTcsYNodes();
+  bool ConnectKukaR2CoordToTcsZNodes();
+  bool ConnectKukaR2AngleToTcsANodes();
+  bool ConnectKukaR2AngleToTcsBNodes();
+  bool ConnectKukaR2AngleToTcsCNodes();
+
+  bool ConnectR1AxisA1CoordNodes();
+  bool ConnectR1AxisA2CoordNodes();
+  bool ConnectR1AxisA3CoordNodes();
+  bool ConnectR1AxisA4CoordNodes();
+  bool ConnectR1AxisA5CoordNodes();
+  bool ConnectR1AxisA6CoordNodes();
+
+  bool ConnectR2AxisA1CoordNodes();
+  bool ConnectR2AxisA2CoordNodes();
+  bool ConnectR2AxisA3CoordNodes();
+  bool ConnectR2AxisA4CoordNodes();
+  bool ConnectR2AxisA5CoordNodes();
+  bool ConnectR2AxisA6CoordNodes();
 
   bool ConnectResetErrorsNodes();
   bool ConnectMakeXrayNodes();
@@ -3288,6 +3344,76 @@ bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectModeAndStatusNodes()
 }
 
 //-----------------------------------------------------------------------------
+bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectKukaR1CoordToTcsXNodes()
+{
+  QSharedPointer< QOpcUaClient > opcUaClient = this->OpcUaClient.toStrongRef();
+
+  if (!opcUaClient || !this->ParameterNode)
+  {
+    return false;
+  }
+
+  vtkMRMLSiemensPlcOpcUaNode* mrmlNode = this->ParameterNode.GetPointer();
+
+  // Mode node
+  QOpcUaNode* r1CoordXToTcsNode = this->FindNodeFromFullDisplayName(KUKA_R1_COORD_X_TO_TCS_NODE_NAME);
+
+  // Connect signal handlers for subscribed values
+  // Mode node
+  if (!r1CoordXToTcsNode)
+  {
+    return false;
+  }
+  QObject::connect(r1CoordXToTcsNode,
+    &QOpcUaNode::dataChangeOccurred, [mrmlNode](QOpcUa::NodeAttribute attr, QVariant value)
+    {
+      if (attr == QOpcUa::NodeAttribute::Value && value.canConvert< int >())
+      {
+        bool ok = false;
+        int coordValue = value.toInt(&ok);
+        if (ok)
+        {
+          int32_t r1coordsToTcs[3] = {};
+          mrmlNode->GetKukaCoordsToTcsR1(r1coordsToTcs);
+          r1coordsToTcs[0] = coordValue;
+          mrmlNode->SetKukaCoordsToTcsR1(r1coordsToTcs);
+          qDebug() << Q_FUNC_INFO << "R1 coord X to TCS changed:" << coordValue;
+        }
+      }
+    }
+  );
+  QObject::connect(r1CoordXToTcsNode,
+    &QOpcUaNode::attributeRead, [r1CoordXToTcsNode, mrmlNode](QOpcUa::NodeAttributes attr)
+    {
+      if (!r1CoordXToTcsNode || !mrmlNode)
+      {
+        return;
+      }
+      if (attr & QOpcUa::NodeAttribute::Value)
+      {
+        if (r1CoordXToTcsNode && r1CoordXToTcsNode->attributeError(QOpcUa::NodeAttribute::Value) == QOpcUa::UaStatusCode::Good)
+        {
+          QVariant value = r1CoordXToTcsNode->attribute(QOpcUa::NodeAttribute::Value);
+          bool ok = false;
+          int coordValue = value.toInt(&ok); // Get the attribute from the cache
+          if (ok)
+          {
+            int32_t r1coordsToTcs[3] = {};
+            mrmlNode->GetKukaCoordsToTcsR1(r1coordsToTcs);
+            r1coordsToTcs[0] = coordValue;
+            mrmlNode->SetKukaCoordsToTcsR1(r1coordsToTcs);
+          }
+        }
+      }
+    }
+  );
+  // Subscribe to data changes
+  r1CoordXToTcsNode->enableMonitoring(QOpcUa::NodeAttribute::Value, QOpcUaMonitoringParameters(1000));
+
+  return true;
+}
+
+//-----------------------------------------------------------------------------
 // qSlicerSiemensPlcOpcUaWidget methods
 
 //-----------------------------------------------------------------------------
@@ -3329,6 +3455,84 @@ qSlicerSiemensPlcOpcUaWidget::qSlicerSiemensPlcOpcUaWidget(QWidget* parentWidget
     this, SLOT(onAutoManualR2ToPlane2Pressed()));
   QObject::connect(d->PushButton_AMR2ToPlane2, SIGNAL(released()),
     this, SLOT(onAutoManualR2ToPlane2Released()));
+
+  // Service R1 BreakTest button
+  QObject::connect(d->PushButton_SR1BrakeTest, SIGNAL(pressed()),
+    this, SLOT(onServiceR1BreakTestPressed()));
+  QObject::connect(d->PushButton_SR1BrakeTest, SIGNAL(released()),
+    this, SLOT(onServiceR1BreakTestReleased()));
+  // Service R1 MasterReferenceTest button
+  QObject::connect(d->PushButton_SR1MasterRefTest, SIGNAL(pressed()),
+    this, SLOT(onServiceR1MasterReferenceTestPressed()));
+  QObject::connect(d->PushButton_SR1MasterRefTest, SIGNAL(released()),
+    this, SLOT(onServiceR1MasterReferenceTestReleased()));
+  // Service R1 ToLoad button
+  QObject::connect(d->PushButton_SR1ToLoad, SIGNAL(pressed()),
+    this, SLOT(onServiceR1LoadPressed()));
+  QObject::connect(d->PushButton_SR1ToLoad, SIGNAL(released()),
+    this, SLOT(onServiceR1LoadReleased()));
+  // Service R1 ToServicePos1 button
+  QObject::connect(d->PushButton_SMR1ServicePos1, SIGNAL(pressed()),
+    this, SLOT(onServiceR1ServicePos1Pressed()));
+  QObject::connect(d->PushButton_SMR1ServicePos1, SIGNAL(released()),
+    this, SLOT(onServiceR1ServicePos1Released()));
+  // Service R1 ToServicePos2 button
+  QObject::connect(d->PushButton_SMR1ServicePos2, SIGNAL(pressed()),
+    this, SLOT(onServiceR1ServicePos2Pressed()));
+  QObject::connect(d->PushButton_SMR1ServicePos2, SIGNAL(released()),
+    this, SLOT(onServiceR1ServicePos2Released()));
+  // Service R1 ToServicePos3 button
+  QObject::connect(d->PushButton_SMR1ServicePos3, SIGNAL(pressed()),
+    this, SLOT(onServiceR1ServicePos3Pressed()));
+  QObject::connect(d->PushButton_SMR1ServicePos3, SIGNAL(released()),
+    this, SLOT(onServiceR1ServicePos3Released()));
+
+  // Service R2 BreakTest button
+  QObject::connect(d->PushButton_SR2BrakeTest, SIGNAL(pressed()),
+    this, SLOT(onServiceR2BreakTestPressed()));
+  QObject::connect(d->PushButton_SR2BrakeTest, SIGNAL(released()),
+    this, SLOT(onServiceR2BreakTestReleased()));
+  // Service R2 MasterReferenceTest button
+  QObject::connect(d->PushButton_SR2MasterRefTest, SIGNAL(pressed()),
+    this, SLOT(onServiceR2MasterReferenceTestPressed()));
+  QObject::connect(d->PushButton_SR2MasterRefTest, SIGNAL(released()),
+    this, SLOT(onServiceR2MasterReferenceTestReleased()));
+  // Service R2 ToHome button
+  QObject::connect(d->PushButton_SR2ToHome, SIGNAL(pressed()),
+    this, SLOT(onServiceR2HomePressed()));
+  QObject::connect(d->PushButton_SR2ToHome, SIGNAL(released()),
+    this, SLOT(onServiceR2HomeReleased()));
+  // Service R2 ToServicePos1 button
+  QObject::connect(d->PushButton_SMR2ServicePos1, SIGNAL(pressed()),
+    this, SLOT(onServiceR2ServicePos1Pressed()));
+  QObject::connect(d->PushButton_SMR2ServicePos1, SIGNAL(released()),
+    this, SLOT(onServiceR2ServicePos1Released()));
+  // Service R2 ToServicePos2 button
+  QObject::connect(d->PushButton_SMR2ServicePos2, SIGNAL(pressed()),
+    this, SLOT(onServiceR2ServicePos2Pressed()));
+  QObject::connect(d->PushButton_SMR2ServicePos2, SIGNAL(released()),
+    this, SLOT(onServiceR2ServicePos2Released()));
+  // Service R2 ToServicePos3 button
+  QObject::connect(d->PushButton_SMR2ServicePos3, SIGNAL(pressed()),
+    this, SLOT(onServiceR2ServicePos3Pressed()));
+  QObject::connect(d->PushButton_SMR2ServicePos3, SIGNAL(released()),
+    this, SLOT(onServiceR2ServicePos3Released()));
+
+  // KUKA controllers movement AllowT1 button
+  QObject::connect(d->PushButton_KCMAllowT1, SIGNAL(pressed()),
+    this, SLOT(onKukaAllowT1Pressed()));
+  QObject::connect(d->PushButton_KCMAllowT1, SIGNAL(released()),
+    this, SLOT(onKukaAllowT1Released()));
+  // KUKA controllers movement AllowXRay button
+  QObject::connect(d->PushButton_KCMAllowXRay, SIGNAL(pressed()),
+    this, SLOT(onKukaAllowXrayPressed()));
+  QObject::connect(d->PushButton_KCMAllowXRay, SIGNAL(released()),
+    this, SLOT(onKukaAllowXrayReleased()));
+  // KUKA controllers movement AllowBeam button
+  QObject::connect(d->PushButton_KCMAllowBeam, SIGNAL(pressed()),
+    this, SLOT(onKukaAllowBeamPressed()));
+  QObject::connect(d->PushButton_KCMAllowBeam, SIGNAL(released()),
+    this, SLOT(onKukaAllowBeamReleased()));
 
   // Reset Errors button
   QObject::connect(d->PushButton_ResetErrors, SIGNAL(pressed()),

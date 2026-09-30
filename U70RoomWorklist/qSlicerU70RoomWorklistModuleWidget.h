@@ -36,9 +36,13 @@ public:
   virtual ~qSlicerU70RoomWorklistModuleWidget();
 
 public slots:
+  /// Set the current MRML scene to the widget
+  void setMRMLScene(vtkMRMLScene*) override;
   void onSetCustomLayoutClicked();
   void onCheckConnectionClicked();
   void onWorklistQueryClicked();
+  /// Update the entire widget based on the current parameter node
+  void updateWidgetFromMRML();
 
 protected:
   QScopedPointer<qSlicerU70RoomWorklistModuleWidgetPrivate> d_ptr;
