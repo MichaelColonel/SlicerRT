@@ -224,8 +224,8 @@ public:
   vtkGetVector3Macro(KukaCoordsToTcsR1, int32_t);
   vtkSetVector3Macro(KukaCoordsToTcsR1, int32_t);
 
-  vtkGetVector3Macro(KukaAngleToTcsR1, int32_t);
-  vtkSetVector3Macro(KukaAngleToTcsR1, int32_t);
+  vtkGetVector3Macro(KukaAnglesToTcsR1, int32_t);
+  vtkSetVector3Macro(KukaAnglesToTcsR1, int32_t);
 
   vtkGetVector6Macro(AxisCoordsR1, int32_t);
   vtkSetVector6Macro(AxisCoordsR1, int32_t);
@@ -233,8 +233,8 @@ public:
   vtkGetVector3Macro(KukaCoordsToTcsR2, int32_t);
   vtkSetVector3Macro(KukaCoordsToTcsR2, int32_t);
 
-  vtkGetVector3Macro(KukaAngleToTcsR2, int32_t);
-  vtkSetVector3Macro(KukaAngleToTcsR2, int32_t);
+  vtkGetVector3Macro(KukaAnglesToTcsR2, int32_t);
+  vtkSetVector3Macro(KukaAnglesToTcsR2, int32_t);
 
   vtkGetVector6Macro(AxisCoordsR2, int32_t);
   vtkSetVector6Macro(AxisCoordsR2, int32_t);
@@ -312,11 +312,11 @@ private:
 
   // Table top robot
   int32_t KukaCoordsToTcsR1[3]; // X,Y,Z
-  int32_t KukaAngleToTcsR1[3]; // A,B,C
+  int32_t KukaAnglesToTcsR1[3]; // A,B,C
   int32_t AxisCoordsR1[6]; // A1, A2, A3, A4, A5, A6
   // C-arm robot
   int32_t KukaCoordsToTcsR2[3]; // X,Y,Z
-  int32_t KukaAngleToTcsR2[3]; // A,B,C
+  int32_t KukaAnglesToTcsR2[3]; // A,B,C
   int32_t AxisCoordsR2[6]; // A1, A2, A3, A4, A5, A6
   
 };

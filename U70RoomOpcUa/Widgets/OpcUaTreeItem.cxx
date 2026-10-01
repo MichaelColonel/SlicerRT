@@ -463,7 +463,12 @@ QList< QPointer< OpcUaTreeItem > > OpcUaTreeItem::findLeafValueItems(OpcUaTreeIt
   {
     return finalLeaves;
   }
-  if (!item->currentChildCount())
+
+  bool messagesNodesFlag = (item->getNodeDisplayName() == "ErrorMes") || \
+    (item->getNodeDisplayName() == "ServMes") || \
+    (item->getNodeDisplayName() == "Messages");
+
+  if (!item->currentChildCount() || messagesNodesFlag)
   {
 //    if (item->getNodeClass() == QOpcUa::NodeClass::Variable)
 //    {

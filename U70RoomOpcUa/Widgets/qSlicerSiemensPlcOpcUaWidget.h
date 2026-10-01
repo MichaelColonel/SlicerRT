@@ -149,6 +149,7 @@ public slots:
   void onMakeXrayReleased();
 
   void onServerInterfacesRead(QOpcUa::NodeAttributes attr);
+  void onReadStatusAndMessagesClicked();
 
 protected:
   QScopedPointer<qSlicerSiemensPlcOpcUaWidgetPrivate> d_ptr;

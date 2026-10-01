@@ -57,6 +57,11 @@ const QString ASU_COORDS_R1_A_NODE_NAME = ASU_COORDS_NODE_NAME + ".AngleA_R1";
 const QString ASU_COORDS_R1_B_NODE_NAME = ASU_COORDS_NODE_NAME + ".AngleB_R1";
 const QString ASU_COORDS_R1_C_NODE_NAME = ASU_COORDS_NODE_NAME + ".AngleC_R1";
 
+const QString ASU_ROBOTS_READY_XRAY1_NODE_NAME = ASU_NODE_NAME + ".RobotsReadyForXray1";
+const QString ASU_ROBOTS_READY_XRAY2_NODE_NAME = ASU_NODE_NAME + ".RobotsReadyForXray2";
+const QString ASU_ROBOTS_READY_BEAM_NODE_NAME = ASU_NODE_NAME + ".RobotsReadyForBeam";
+const QString ASU_PATIENT_ON_TABLE_NODE_NAME = ASU_NODE_NAME + ".HUMAN_ON_DEKA";
+
 const QString IS_PRESSED = ".isPressed";
 const QString IS_ENABLED = ".isEnable";
 
@@ -280,6 +285,7 @@ public:
   bool ConnectServiceR2ServicePos1Nodes();
   bool ConnectServiceR2ServicePos2Nodes();
   bool ConnectServiceR2ServicePos3Nodes();
+  bool ConnectServiceRestartNodes();
 
   bool ConnectKukaAllowT1Nodes();
   bool ConnectKukaAllowXrayNodes();
@@ -315,6 +321,8 @@ public:
 
   bool ConnectResetErrorsNodes();
   bool ConnectMakeXrayNodes();
+
+  bool ConnectPatientOnTableTopNode();
 
   QScopedPointer< OpcUaModel > SiemensPlcOpcUaModel;
   QWeakPointer< QOpcUaClient > OpcUaClient;
@@ -399,10 +407,10 @@ bool qSlicerSiemensPlcOpcUaWidgetPrivate::ParseServerParentNode(const QString& s
           }
         }
         QOpcUaNode* itemNode = opcUaClient->node(item->getNodeId());
-        if (itemNode)
-        {
-          qDebug() << Q_FUNC_INFO << "QOpcUaNode node is created for ID:" << item->getNodeId();
-        }
+//        if (itemNode)
+//        {
+//          qDebug() << Q_FUNC_INFO << "QOpcUaNode node is created for ID:" << item->getNodeId();
+//        }
         NodeData data(itemNode, item->getNodeId(), hierNames, item->getNodeDescription());
         this->NodeNameDataMap[hierNames] = data;
       }
@@ -414,7 +422,7 @@ bool qSlicerSiemensPlcOpcUaWidgetPrivate::ParseServerParentNode(const QString& s
 //-----------------------------------------------------------------------------
 QOpcUaNode* qSlicerSiemensPlcOpcUaWidgetPrivate::FindNodeFromFullDisplayName(const QString& nodeDisplayName)
 {
-  if (this->NodeNameDataMap.size())
+  if (!this->NodeNameDataMap.size())
   {
     return nullptr;
   }
@@ -434,10 +442,12 @@ bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectMessagesNodes()
 {
   QSharedPointer< QOpcUaClient > opcUaClient = this->OpcUaClient.toStrongRef();
 
+  qDebug() << Q_FUNC_INFO << "One";
   if (!opcUaClient || !this->ParameterNode)
   {
     return false;
   }
+  qDebug() << Q_FUNC_INFO << "TWO";
 
   vtkMRMLSiemensPlcOpcUaNode* mrmlNode = this->ParameterNode.GetPointer();
   // write values
@@ -454,6 +464,7 @@ bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectMessagesNodes()
   {
     return false;
   }
+  qDebug() << Q_FUNC_INFO << "Three";
   QObject::connect(errMessagesNode,
     &QOpcUaNode::dataChangeOccurred, [mrmlNode](QOpcUa::NodeAttribute attr, QVariant value)
     {
@@ -515,6 +526,7 @@ bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectMessagesNodes()
   {
     return false;
   }
+    qDebug() << Q_FUNC_INFO << "Four";
   QObject::connect(servMessagesNode,
     &QOpcUaNode::dataChangeOccurred, [mrmlNode](QOpcUa::NodeAttribute attr, QVariant value)
     {
@@ -576,6 +588,7 @@ bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectMessagesNodes()
   {
     return false;
   }
+    qDebug() << Q_FUNC_INFO << "Five";
   QObject::connect(miscMessagesNode,
     &QOpcUaNode::dataChangeOccurred, [mrmlNode](QOpcUa::NodeAttribute attr, QVariant value)
     {
@@ -631,6 +644,7 @@ bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectMessagesNodes()
   );
   // Subscribe to data changes
   miscMessagesNode->enableMonitoring(QOpcUa::NodeAttribute::Value, QOpcUaMonitoringParameters(1000));
+    qDebug() << Q_FUNC_INFO << "OK";
   return true;
 }
 
@@ -1664,7 +1678,7 @@ bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectServiceR2MasterRefTestNodes()
         bool smR2MasterRefTestCurrentState[2] = { false, false };
         mrmlNode->GetServiceR2MasterReferenceTest(smR2MasterRefTestCurrentState);
         smR2MasterRefTestCurrentState[0] = enabledValue;
-        mrmlNode->GetServiceR2MasterReferenceTest(smR2MasterRefTestCurrentState);
+        mrmlNode->SetServiceR2MasterReferenceTest(smR2MasterRefTestCurrentState);
       }
     }
   );
@@ -1683,7 +1697,7 @@ bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectServiceR2MasterRefTestNodes()
           bool smR2MasterRefTestCurrentState[2] = { false, false };
           mrmlNode->GetServiceR2MasterReferenceTest(smR2MasterRefTestCurrentState);
           smR2MasterRefTestCurrentState[0] = enabledValue;
-          mrmlNode->GetServiceR2MasterReferenceTest(smR2MasterRefTestCurrentState);
+          mrmlNode->SetServiceR2MasterReferenceTest(smR2MasterRefTestCurrentState);
         }
       }
     }
@@ -1705,7 +1719,7 @@ bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectServiceR2MasterRefTestNodes()
         bool smR2MasterRefTestCurrentState[2] = { false, false };
         mrmlNode->GetServiceR2MasterReferenceTest(smR2MasterRefTestCurrentState);
         smR2MasterRefTestCurrentState[1] = pressedValue;
-        mrmlNode->GetServiceR2MasterReferenceTest(smR2MasterRefTestCurrentState);
+        mrmlNode->SetServiceR2MasterReferenceTest(smR2MasterRefTestCurrentState);
       }
     }
   );
@@ -1724,7 +1738,7 @@ bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectServiceR2MasterRefTestNodes()
           bool smR2MasterRefTestCurrentState[2] = { false, false };
           mrmlNode->GetServiceR2MasterReferenceTest(smR2MasterRefTestCurrentState);
           smR2MasterRefTestCurrentState[1] = pressedValue;
-          mrmlNode->GetServiceR2MasterReferenceTest(smR2MasterRefTestCurrentState);
+          mrmlNode->SetServiceR2MasterReferenceTest(smR2MasterRefTestCurrentState);
         }
       }
     }
@@ -1764,7 +1778,7 @@ bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectServiceR2HomeNodes()
         bool smR2HomeCurrentState[2] = { false, false };
         mrmlNode->GetServiceR2Home(smR2HomeCurrentState);
         smR2HomeCurrentState[0] = enabledValue;
-        mrmlNode->GetServiceR2Home(smR2HomeCurrentState);
+        mrmlNode->SetServiceR2Home(smR2HomeCurrentState);
       }
     }
   );
@@ -1783,7 +1797,7 @@ bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectServiceR2HomeNodes()
           bool smR2HomeCurrentState[2] = { false, false };
           mrmlNode->GetServiceR2Home(smR2HomeCurrentState);
           smR2HomeCurrentState[0] = enabledValue;
-          mrmlNode->GetServiceR2Home(smR2HomeCurrentState);
+          mrmlNode->SetServiceR2Home(smR2HomeCurrentState);
         }
       }
     }
@@ -1805,7 +1819,7 @@ bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectServiceR2HomeNodes()
         bool smR2HomeCurrentState[2] = { false, false };
         mrmlNode->GetServiceR2Home(smR2HomeCurrentState);
         smR2HomeCurrentState[1] = pressedValue;
-        mrmlNode->GetServiceR2Home(smR2HomeCurrentState);
+        mrmlNode->SetServiceR2Home(smR2HomeCurrentState);
       }
     }
   );
@@ -1824,7 +1838,7 @@ bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectServiceR2HomeNodes()
           bool smR2HomeCurrentState[2] = { false, false };
           mrmlNode->GetServiceR2Home(smR2HomeCurrentState);
           smR2HomeCurrentState[1] = pressedValue;
-          mrmlNode->GetServiceR2Home(smR2HomeCurrentState);
+          mrmlNode->SetServiceR2Home(smR2HomeCurrentState);
         }
       }
     }
@@ -1864,7 +1878,7 @@ bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectServiceR2ServicePos1Nodes()
         bool smR2ServicePos1CurrentState[2] = { false, false };
         mrmlNode->GetServiceR2Position1(smR2ServicePos1CurrentState);
         smR2ServicePos1CurrentState[0] = enabledValue;
-        mrmlNode->GetServiceR2Position1(smR2ServicePos1CurrentState);
+        mrmlNode->SetServiceR2Position1(smR2ServicePos1CurrentState);
       }
     }
   );
@@ -1883,7 +1897,7 @@ bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectServiceR2ServicePos1Nodes()
           bool smR2ServicePos1CurrentState[2] = { false, false };
           mrmlNode->GetServiceR2Position1(smR2ServicePos1CurrentState);
           smR2ServicePos1CurrentState[0] = enabledValue;
-          mrmlNode->GetServiceR2Position1(smR2ServicePos1CurrentState);
+          mrmlNode->SetServiceR2Position1(smR2ServicePos1CurrentState);
         }
       }
     }
@@ -1905,7 +1919,7 @@ bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectServiceR2ServicePos1Nodes()
         bool smR2ServicePos1CurrentState[2] = { false, false };
         mrmlNode->GetServiceR2Position1(smR2ServicePos1CurrentState);
         smR2ServicePos1CurrentState[1] = pressedValue;
-        mrmlNode->GetServiceR2Position1(smR2ServicePos1CurrentState);
+        mrmlNode->SetServiceR2Position1(smR2ServicePos1CurrentState);
       }
     }
   );
@@ -1924,7 +1938,7 @@ bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectServiceR2ServicePos1Nodes()
           bool smR2ServicePos1CurrentState[2] = { false, false };
           mrmlNode->GetServiceR2Position1(smR2ServicePos1CurrentState);
           smR2ServicePos1CurrentState[1] = pressedValue;
-          mrmlNode->GetServiceR2Position1(smR2ServicePos1CurrentState);
+          mrmlNode->SetServiceR2Position1(smR2ServicePos1CurrentState);
         }
       }
     }
@@ -1964,7 +1978,7 @@ bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectServiceR2ServicePos2Nodes()
         bool smR2ServicePos2CurrentState[2] = { false, false };
         mrmlNode->GetServiceR2Position2(smR2ServicePos2CurrentState);
         smR2ServicePos2CurrentState[0] = enabledValue;
-        mrmlNode->GetServiceR2Position2(smR2ServicePos2CurrentState);
+        mrmlNode->SetServiceR2Position2(smR2ServicePos2CurrentState);
       }
     }
   );
@@ -1983,7 +1997,7 @@ bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectServiceR2ServicePos2Nodes()
           bool smR2ServicePos2CurrentState[2] = { false, false };
           mrmlNode->GetServiceR2Position2(smR2ServicePos2CurrentState);
           smR2ServicePos2CurrentState[0] = enabledValue;
-          mrmlNode->GetServiceR2Position2(smR2ServicePos2CurrentState);
+          mrmlNode->SetServiceR2Position2(smR2ServicePos2CurrentState);
         }
       }
     }
@@ -2005,7 +2019,7 @@ bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectServiceR2ServicePos2Nodes()
         bool smR2ServicePos2CurrentState[2] = { false, false };
         mrmlNode->GetServiceR2Position2(smR2ServicePos2CurrentState);
         smR2ServicePos2CurrentState[1] = pressedValue;
-        mrmlNode->GetServiceR2Position2(smR2ServicePos2CurrentState);
+        mrmlNode->SetServiceR2Position2(smR2ServicePos2CurrentState);
       }
     }
   );
@@ -2024,7 +2038,7 @@ bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectServiceR2ServicePos2Nodes()
           bool smR2ServicePos2CurrentState[2] = { false, false };
           mrmlNode->GetServiceR2Position2(smR2ServicePos2CurrentState);
           smR2ServicePos2CurrentState[1] = pressedValue;
-          mrmlNode->GetServiceR2Position2(smR2ServicePos2CurrentState);
+          mrmlNode->SetServiceR2Position2(smR2ServicePos2CurrentState);
         }
       }
     }
@@ -2064,7 +2078,7 @@ bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectServiceR2ServicePos3Nodes()
         bool smR2ServicePos3CurrentState[2] = { false, false };
         mrmlNode->GetServiceR2Position3(smR2ServicePos3CurrentState);
         smR2ServicePos3CurrentState[0] = enabledValue;
-        mrmlNode->GetServiceR2Position3(smR2ServicePos3CurrentState);
+        mrmlNode->SetServiceR2Position3(smR2ServicePos3CurrentState);
       }
     }
   );
@@ -2083,7 +2097,7 @@ bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectServiceR2ServicePos3Nodes()
           bool smR2ServicePos3CurrentState[2] = { false, false };
           mrmlNode->GetServiceR2Position3(smR2ServicePos3CurrentState);
           smR2ServicePos3CurrentState[0] = enabledValue;
-          mrmlNode->GetServiceR2Position3(smR2ServicePos3CurrentState);
+          mrmlNode->SetServiceR2Position3(smR2ServicePos3CurrentState);
         }
       }
     }
@@ -2105,7 +2119,7 @@ bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectServiceR2ServicePos3Nodes()
         bool smR2ServicePos3CurrentState[2] = { false, false };
         mrmlNode->GetServiceR2Position3(smR2ServicePos3CurrentState);
         smR2ServicePos3CurrentState[1] = pressedValue;
-        mrmlNode->GetServiceR2Position3(smR2ServicePos3CurrentState);
+        mrmlNode->SetServiceR2Position3(smR2ServicePos3CurrentState);
       }
     }
   );
@@ -2124,13 +2138,113 @@ bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectServiceR2ServicePos3Nodes()
           bool smR2ServicePos3CurrentState[2] = { false, false };
           mrmlNode->GetServiceR2Position3(smR2ServicePos3CurrentState);
           smR2ServicePos3CurrentState[1] = pressedValue;
-          mrmlNode->GetServiceR2Position3(smR2ServicePos3CurrentState);
+          mrmlNode->SetServiceR2Position3(smR2ServicePos3CurrentState);
         }
       }
     }
   );
   // Subscribe to data changes
   smR2ServPos3PressedNode->enableMonitoring(QOpcUa::NodeAttribute::Value, QOpcUaMonitoringParameters(1000));
+  return true;
+}
+
+//-----------------------------------------------------------------------------
+bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectServiceRestartNodes()
+{
+  QSharedPointer< QOpcUaClient > opcUaClient = this->OpcUaClient.toStrongRef();
+
+  if (!opcUaClient || !this->ParameterNode)
+  {
+    return false;
+  }
+
+  vtkMRMLSiemensPlcOpcUaNode* mrmlNode = this->ParameterNode.GetPointer();
+  // Service RestartSM button enabled node
+  QOpcUaNode* smRestartEnabledNode = this->FindNodeFromFullDisplayName(BUTTONS_SM_RESTARTSM_ENABLED_NODE_NAME);
+  // Service RestartSM button pressed node
+  QOpcUaNode* smRestartPressedNode = this->FindNodeFromFullDisplayName(BUTTONS_SM_RESTARTSM_PRESSED_NODE_NAME);
+
+  // Service RestartSM button enabled node
+  if (!smRestartEnabledNode)
+  {
+    return false;
+  }
+  QObject::connect(smRestartEnabledNode,
+    &QOpcUaNode::dataChangeOccurred, [mrmlNode](QOpcUa::NodeAttribute attr, QVariant value)
+    {
+      if (attr == QOpcUa::NodeAttribute::Value && value.canConvert< bool >())
+      {
+        bool enabledValue = value.toBool();
+        bool smRestartCurrentState[2] = { false, false };
+        mrmlNode->GetServiceRestart(smRestartCurrentState);
+        smRestartCurrentState[0] = enabledValue;
+        mrmlNode->SetServiceRestart(smRestartCurrentState);
+      }
+    }
+  );
+  QObject::connect(smRestartEnabledNode,
+    &QOpcUaNode::attributeRead, [smRestartEnabledNode, mrmlNode](QOpcUa::NodeAttributes attr)
+    {
+      if (!smRestartEnabledNode || !mrmlNode)
+      {
+        return;
+      }
+      if (attr & QOpcUa::NodeAttribute::Value)
+      {
+        if (smRestartEnabledNode->attributeError(QOpcUa::NodeAttribute::Value) == QOpcUa::UaStatusCode::Good)
+        {
+          bool enabledValue = smRestartEnabledNode->attribute(QOpcUa::NodeAttribute::Value).toBool();
+          bool smRestartCurrentState[2] = { false, false };
+          mrmlNode->GetServiceRestart(smRestartCurrentState);
+          smRestartCurrentState[0] = enabledValue;
+          mrmlNode->SetServiceRestart(smRestartCurrentState);
+        }
+      }
+    }
+  );
+  // Subscribe to data changes
+  smRestartEnabledNode->enableMonitoring(QOpcUa::NodeAttribute::Value, QOpcUaMonitoringParameters(1000));
+
+  //  Service RestartSM button pressed node
+  if (!smRestartPressedNode)
+  {
+    return false;
+  }
+  QObject::connect(smRestartPressedNode,
+    &QOpcUaNode::dataChangeOccurred, [mrmlNode](QOpcUa::NodeAttribute attr, QVariant value)
+    {
+      if (attr == QOpcUa::NodeAttribute::Value && value.canConvert< bool >())
+      {
+        bool pressedValue = value.toBool();
+        bool smRestartCurrentState[2] = { false, false };
+        mrmlNode->GetServiceRestart(smRestartCurrentState);
+        smRestartCurrentState[1] = pressedValue;
+        mrmlNode->SetServiceRestart(smRestartCurrentState);
+      }
+    }
+  );
+  QObject::connect(smRestartPressedNode,
+    &QOpcUaNode::attributeRead, [smRestartPressedNode, mrmlNode](QOpcUa::NodeAttributes attr)
+    {
+      if (!smRestartPressedNode || !mrmlNode)
+      {
+        return;
+      }
+      if (attr & QOpcUa::NodeAttribute::Value)
+      {
+        if (smRestartPressedNode->attributeError(QOpcUa::NodeAttribute::Value) == QOpcUa::UaStatusCode::Good)
+        {
+          bool pressedValue = smRestartPressedNode->attribute(QOpcUa::NodeAttribute::Value).toBool();
+          bool smRestartCurrentState[2] = { false, false };
+          mrmlNode->GetServiceRestart(smRestartCurrentState);
+          smRestartCurrentState[1] = pressedValue;
+          mrmlNode->SetServiceRestart(smRestartCurrentState);
+        }
+      }
+    }
+  );
+  // Subscribe to data changes
+  smRestartPressedNode->enableMonitoring(QOpcUa::NodeAttribute::Value, QOpcUaMonitoringParameters(1000));
   return true;
 }
 
@@ -3414,6 +3528,1541 @@ bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectKukaR1CoordToTcsXNodes()
 }
 
 //-----------------------------------------------------------------------------
+bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectKukaR1CoordToTcsYNodes()
+{
+  QSharedPointer< QOpcUaClient > opcUaClient = this->OpcUaClient.toStrongRef();
+
+  if (!opcUaClient || !this->ParameterNode)
+  {
+    return false;
+  }
+
+  vtkMRMLSiemensPlcOpcUaNode* mrmlNode = this->ParameterNode.GetPointer();
+
+  // Mode node
+  QOpcUaNode* r1CoordYToTcsNode = this->FindNodeFromFullDisplayName(KUKA_R1_COORD_Y_TO_TCS_NODE_NAME);
+
+  // Connect signal handlers for subscribed values
+  // Mode node
+  if (!r1CoordYToTcsNode)
+  {
+    return false;
+  }
+  QObject::connect(r1CoordYToTcsNode,
+    &QOpcUaNode::dataChangeOccurred, [mrmlNode](QOpcUa::NodeAttribute attr, QVariant value)
+    {
+      if (attr == QOpcUa::NodeAttribute::Value && value.canConvert< int >())
+      {
+        bool ok = false;
+        int coordValue = value.toInt(&ok);
+        if (ok)
+        {
+          int32_t r1coordsToTcs[3] = {};
+          mrmlNode->GetKukaCoordsToTcsR1(r1coordsToTcs);
+          r1coordsToTcs[1] = coordValue;
+          mrmlNode->SetKukaCoordsToTcsR1(r1coordsToTcs);
+          qDebug() << Q_FUNC_INFO << "R1 coord Y to TCS changed:" << coordValue;
+        }
+      }
+    }
+  );
+  QObject::connect(r1CoordYToTcsNode,
+    &QOpcUaNode::attributeRead, [r1CoordYToTcsNode, mrmlNode](QOpcUa::NodeAttributes attr)
+    {
+      if (!r1CoordYToTcsNode || !mrmlNode)
+      {
+        return;
+      }
+      if (attr & QOpcUa::NodeAttribute::Value)
+      {
+        if (r1CoordYToTcsNode && r1CoordYToTcsNode->attributeError(QOpcUa::NodeAttribute::Value) == QOpcUa::UaStatusCode::Good)
+        {
+          QVariant value = r1CoordYToTcsNode->attribute(QOpcUa::NodeAttribute::Value);
+          bool ok = false;
+          int coordValue = value.toInt(&ok); // Get the attribute from the cache
+          if (ok)
+          {
+            int32_t r1coordsToTcs[3] = {};
+            mrmlNode->GetKukaCoordsToTcsR1(r1coordsToTcs);
+            r1coordsToTcs[1] = coordValue;
+            mrmlNode->SetKukaCoordsToTcsR1(r1coordsToTcs);
+          }
+        }
+      }
+    }
+  );
+  // Subscribe to data changes
+  r1CoordYToTcsNode->enableMonitoring(QOpcUa::NodeAttribute::Value, QOpcUaMonitoringParameters(1000));
+
+  return true;
+}
+
+//-----------------------------------------------------------------------------
+bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectKukaR1CoordToTcsZNodes()
+{
+  QSharedPointer< QOpcUaClient > opcUaClient = this->OpcUaClient.toStrongRef();
+
+  if (!opcUaClient || !this->ParameterNode)
+  {
+    return false;
+  }
+
+  vtkMRMLSiemensPlcOpcUaNode* mrmlNode = this->ParameterNode.GetPointer();
+
+  // Mode node
+  QOpcUaNode* r1CoordZToTcsNode = this->FindNodeFromFullDisplayName(KUKA_R1_COORD_Z_TO_TCS_NODE_NAME);
+
+  // Connect signal handlers for subscribed values
+  // Mode node
+  if (!r1CoordZToTcsNode)
+  {
+    return false;
+  }
+  QObject::connect(r1CoordZToTcsNode,
+    &QOpcUaNode::dataChangeOccurred, [mrmlNode](QOpcUa::NodeAttribute attr, QVariant value)
+    {
+      if (attr == QOpcUa::NodeAttribute::Value && value.canConvert< int >())
+      {
+        bool ok = false;
+        int coordValue = value.toInt(&ok);
+        if (ok)
+        {
+          int32_t r1coordsToTcs[3] = {};
+          mrmlNode->GetKukaCoordsToTcsR1(r1coordsToTcs);
+          r1coordsToTcs[2] = coordValue;
+          mrmlNode->SetKukaCoordsToTcsR1(r1coordsToTcs);
+          qDebug() << Q_FUNC_INFO << "R1 coord Z to TCS changed:" << coordValue;
+        }
+      }
+    }
+  );
+  QObject::connect(r1CoordZToTcsNode,
+    &QOpcUaNode::attributeRead, [r1CoordZToTcsNode, mrmlNode](QOpcUa::NodeAttributes attr)
+    {
+      if (!r1CoordZToTcsNode || !mrmlNode)
+      {
+        return;
+      }
+      if (attr & QOpcUa::NodeAttribute::Value)
+      {
+        if (r1CoordZToTcsNode && r1CoordZToTcsNode->attributeError(QOpcUa::NodeAttribute::Value) == QOpcUa::UaStatusCode::Good)
+        {
+          QVariant value = r1CoordZToTcsNode->attribute(QOpcUa::NodeAttribute::Value);
+          bool ok = false;
+          int coordValue = value.toInt(&ok); // Get the attribute from the cache
+          if (ok)
+          {
+            int32_t r1coordsToTcs[3] = {};
+            mrmlNode->GetKukaCoordsToTcsR1(r1coordsToTcs);
+            r1coordsToTcs[2] = coordValue;
+            mrmlNode->SetKukaCoordsToTcsR1(r1coordsToTcs);
+          }
+        }
+      }
+    }
+  );
+  // Subscribe to data changes
+  r1CoordZToTcsNode->enableMonitoring(QOpcUa::NodeAttribute::Value, QOpcUaMonitoringParameters(1000));
+
+  return true;
+}
+
+//-----------------------------------------------------------------------------
+bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectKukaR1AngleToTcsANodes()
+{
+  QSharedPointer< QOpcUaClient > opcUaClient = this->OpcUaClient.toStrongRef();
+
+  if (!opcUaClient || !this->ParameterNode)
+  {
+    return false;
+  }
+
+  vtkMRMLSiemensPlcOpcUaNode* mrmlNode = this->ParameterNode.GetPointer();
+
+  // Mode node
+  QOpcUaNode* r1AngleAToTcsNode = this->FindNodeFromFullDisplayName(KUKA_R1_ANGLE_A_TO_TCS_NODE_NAME);
+
+  // Connect signal handlers for subscribed values
+  // Mode node
+  if (!r1AngleAToTcsNode)
+  {
+    return false;
+  }
+  QObject::connect(r1AngleAToTcsNode,
+    &QOpcUaNode::dataChangeOccurred, [mrmlNode](QOpcUa::NodeAttribute attr, QVariant value)
+    {
+      if (attr == QOpcUa::NodeAttribute::Value && value.canConvert< int >())
+      {
+        bool ok = false;
+        int angleValue = value.toInt(&ok);
+        if (ok)
+        {
+          int32_t r1anglesToTcs[3] = {};
+          mrmlNode->GetKukaAnglesToTcsR1(r1anglesToTcs);
+          r1anglesToTcs[0] = angleValue;
+          mrmlNode->SetKukaAnglesToTcsR1(r1anglesToTcs);
+          qDebug() << Q_FUNC_INFO << "R1 angle A to TCS changed:" << angleValue;
+        }
+      }
+    }
+  );
+  QObject::connect(r1AngleAToTcsNode,
+    &QOpcUaNode::attributeRead, [r1AngleAToTcsNode, mrmlNode](QOpcUa::NodeAttributes attr)
+    {
+      if (!r1AngleAToTcsNode || !mrmlNode)
+      {
+        return;
+      }
+      if (attr & QOpcUa::NodeAttribute::Value)
+      {
+        if (r1AngleAToTcsNode && r1AngleAToTcsNode->attributeError(QOpcUa::NodeAttribute::Value) == QOpcUa::UaStatusCode::Good)
+        {
+          QVariant value = r1AngleAToTcsNode->attribute(QOpcUa::NodeAttribute::Value);
+          bool ok = false;
+          int angleValue = value.toInt(&ok); // Get the attribute from the cache
+          if (ok)
+          {
+            int32_t r1anglesToTcs[3] = {};
+            mrmlNode->GetKukaAnglesToTcsR1(r1anglesToTcs);
+            r1anglesToTcs[0] = angleValue;
+            mrmlNode->GetKukaAnglesToTcsR1(r1anglesToTcs);
+          }
+        }
+      }
+    }
+  );
+  // Subscribe to data changes
+  r1AngleAToTcsNode->enableMonitoring(QOpcUa::NodeAttribute::Value, QOpcUaMonitoringParameters(1000));
+
+  return true;
+}
+
+
+//-----------------------------------------------------------------------------
+bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectKukaR2CoordToTcsXNodes()
+{
+  QSharedPointer< QOpcUaClient > opcUaClient = this->OpcUaClient.toStrongRef();
+
+  if (!opcUaClient || !this->ParameterNode)
+  {
+    return false;
+  }
+
+  vtkMRMLSiemensPlcOpcUaNode* mrmlNode = this->ParameterNode.GetPointer();
+
+  // Mode node
+  QOpcUaNode* r2CoordXToTcsNode = this->FindNodeFromFullDisplayName(KUKA_R2_COORD_X_TO_TCS_NODE_NAME);
+
+  // Connect signal handlers for subscribed values
+  // Mode node
+  if (!r2CoordXToTcsNode)
+  {
+    return false;
+  }
+  QObject::connect(r2CoordXToTcsNode,
+    &QOpcUaNode::dataChangeOccurred, [mrmlNode](QOpcUa::NodeAttribute attr, QVariant value)
+    {
+      if (attr == QOpcUa::NodeAttribute::Value && value.canConvert< int >())
+      {
+        bool ok = false;
+        int coordValue = value.toInt(&ok);
+        if (ok)
+        {
+          int32_t r2coordsToTcs[3] = {};
+          mrmlNode->GetKukaCoordsToTcsR2(r2coordsToTcs);
+          r2coordsToTcs[0] = coordValue;
+          mrmlNode->SetKukaCoordsToTcsR2(r2coordsToTcs);
+          qDebug() << Q_FUNC_INFO << "R2 coord X to TCS changed:" << coordValue;
+        }
+      }
+    }
+  );
+  QObject::connect(r2CoordXToTcsNode,
+    &QOpcUaNode::attributeRead, [r2CoordXToTcsNode, mrmlNode](QOpcUa::NodeAttributes attr)
+    {
+      if (!r2CoordXToTcsNode || !mrmlNode)
+      {
+        return;
+      }
+      if (attr & QOpcUa::NodeAttribute::Value)
+      {
+        if (r2CoordXToTcsNode && r2CoordXToTcsNode->attributeError(QOpcUa::NodeAttribute::Value) == QOpcUa::UaStatusCode::Good)
+        {
+          QVariant value = r2CoordXToTcsNode->attribute(QOpcUa::NodeAttribute::Value);
+          bool ok = false;
+          int coordValue = value.toInt(&ok); // Get the attribute from the cache
+          if (ok)
+          {
+            int32_t r2coordsToTcs[3] = {};
+            mrmlNode->GetKukaCoordsToTcsR2(r2coordsToTcs);
+            r2coordsToTcs[0] = coordValue;
+            mrmlNode->SetKukaCoordsToTcsR2(r2coordsToTcs);
+          }
+        }
+      }
+    }
+  );
+  // Subscribe to data changes
+  r2CoordXToTcsNode->enableMonitoring(QOpcUa::NodeAttribute::Value, QOpcUaMonitoringParameters(1000));
+
+  return true;
+}
+
+//-----------------------------------------------------------------------------
+bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectKukaR2CoordToTcsYNodes()
+{
+  QSharedPointer< QOpcUaClient > opcUaClient = this->OpcUaClient.toStrongRef();
+
+  if (!opcUaClient || !this->ParameterNode)
+  {
+    return false;
+  }
+
+  vtkMRMLSiemensPlcOpcUaNode* mrmlNode = this->ParameterNode.GetPointer();
+
+  // Mode node
+  QOpcUaNode* r2CoordYToTcsNode = this->FindNodeFromFullDisplayName(KUKA_R2_COORD_Y_TO_TCS_NODE_NAME);
+
+  // Connect signal handlers for subscribed values
+  // Mode node
+  if (!r2CoordYToTcsNode)
+  {
+    return false;
+  }
+  QObject::connect(r2CoordYToTcsNode,
+    &QOpcUaNode::dataChangeOccurred, [mrmlNode](QOpcUa::NodeAttribute attr, QVariant value)
+    {
+      if (attr == QOpcUa::NodeAttribute::Value && value.canConvert< int >())
+      {
+        bool ok = false;
+        int coordValue = value.toInt(&ok);
+        if (ok)
+        {
+          int32_t r2coordsToTcs[3] = {};
+          mrmlNode->GetKukaCoordsToTcsR2(r2coordsToTcs);
+          r2coordsToTcs[1] = coordValue;
+          mrmlNode->SetKukaCoordsToTcsR2(r2coordsToTcs);
+          qDebug() << Q_FUNC_INFO << "R2 coord Y to TCS changed:" << coordValue;
+        }
+      }
+    }
+  );
+  QObject::connect(r2CoordYToTcsNode,
+    &QOpcUaNode::attributeRead, [r2CoordYToTcsNode, mrmlNode](QOpcUa::NodeAttributes attr)
+    {
+      if (!r2CoordYToTcsNode || !mrmlNode)
+      {
+        return;
+      }
+      if (attr & QOpcUa::NodeAttribute::Value)
+      {
+        if (r2CoordYToTcsNode && r2CoordYToTcsNode->attributeError(QOpcUa::NodeAttribute::Value) == QOpcUa::UaStatusCode::Good)
+        {
+          QVariant value = r2CoordYToTcsNode->attribute(QOpcUa::NodeAttribute::Value);
+          bool ok = false;
+          int coordValue = value.toInt(&ok); // Get the attribute from the cache
+          if (ok)
+          {
+            int32_t r2coordsToTcs[3] = {};
+            mrmlNode->GetKukaCoordsToTcsR2(r2coordsToTcs);
+            r2coordsToTcs[1] = coordValue;
+            mrmlNode->SetKukaCoordsToTcsR2(r2coordsToTcs);
+          }
+        }
+      }
+    }
+  );
+  // Subscribe to data changes
+  r2CoordYToTcsNode->enableMonitoring(QOpcUa::NodeAttribute::Value, QOpcUaMonitoringParameters(1000));
+
+  return true;
+}
+
+//-----------------------------------------------------------------------------
+bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectKukaR2CoordToTcsZNodes()
+{
+  QSharedPointer< QOpcUaClient > opcUaClient = this->OpcUaClient.toStrongRef();
+
+  if (!opcUaClient || !this->ParameterNode)
+  {
+    return false;
+  }
+
+  vtkMRMLSiemensPlcOpcUaNode* mrmlNode = this->ParameterNode.GetPointer();
+
+  // Mode node
+  QOpcUaNode* r2CoordZToTcsNode = this->FindNodeFromFullDisplayName(KUKA_R2_COORD_Z_TO_TCS_NODE_NAME);
+
+  // Connect signal handlers for subscribed values
+  // Mode node
+  if (!r2CoordZToTcsNode)
+  {
+    return false;
+  }
+  QObject::connect(r2CoordZToTcsNode,
+    &QOpcUaNode::dataChangeOccurred, [mrmlNode](QOpcUa::NodeAttribute attr, QVariant value)
+    {
+      if (attr == QOpcUa::NodeAttribute::Value && value.canConvert< int >())
+      {
+        bool ok = false;
+        int coordValue = value.toInt(&ok);
+        if (ok)
+        {
+          int32_t r2coordsToTcs[3] = {};
+          mrmlNode->GetKukaCoordsToTcsR2(r2coordsToTcs);
+          r2coordsToTcs[2] = coordValue;
+          mrmlNode->SetKukaCoordsToTcsR2(r2coordsToTcs);
+          qDebug() << Q_FUNC_INFO << "R2 coord Z to TCS changed:" << coordValue;
+        }
+      }
+    }
+  );
+  QObject::connect(r2CoordZToTcsNode,
+    &QOpcUaNode::attributeRead, [r2CoordZToTcsNode, mrmlNode](QOpcUa::NodeAttributes attr)
+    {
+      if (!r2CoordZToTcsNode || !mrmlNode)
+      {
+        return;
+      }
+      if (attr & QOpcUa::NodeAttribute::Value)
+      {
+        if (r2CoordZToTcsNode && r2CoordZToTcsNode->attributeError(QOpcUa::NodeAttribute::Value) == QOpcUa::UaStatusCode::Good)
+        {
+          QVariant value = r2CoordZToTcsNode->attribute(QOpcUa::NodeAttribute::Value);
+          bool ok = false;
+          int coordValue = value.toInt(&ok); // Get the attribute from the cache
+          if (ok)
+          {
+            int32_t r2coordsToTcs[3] = {};
+            mrmlNode->GetKukaCoordsToTcsR2(r2coordsToTcs);
+            r2coordsToTcs[2] = coordValue;
+            mrmlNode->SetKukaCoordsToTcsR2(r2coordsToTcs);
+          }
+        }
+      }
+    }
+  );
+  // Subscribe to data changes
+  r2CoordZToTcsNode->enableMonitoring(QOpcUa::NodeAttribute::Value, QOpcUaMonitoringParameters(1000));
+
+  return true;
+}
+
+//-----------------------------------------------------------------------------
+bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectKukaR2AngleToTcsANodes()
+{
+  QSharedPointer< QOpcUaClient > opcUaClient = this->OpcUaClient.toStrongRef();
+
+  if (!opcUaClient || !this->ParameterNode)
+  {
+    return false;
+  }
+
+  vtkMRMLSiemensPlcOpcUaNode* mrmlNode = this->ParameterNode.GetPointer();
+
+  // Mode node
+  QOpcUaNode* r2AngleAToTcsNode = this->FindNodeFromFullDisplayName(KUKA_R2_ANGLE_A_TO_TCS_NODE_NAME);
+
+  // Connect signal handlers for subscribed values
+  // Mode node
+  if (!r2AngleAToTcsNode)
+  {
+    return false;
+  }
+  QObject::connect(r2AngleAToTcsNode,
+    &QOpcUaNode::dataChangeOccurred, [mrmlNode](QOpcUa::NodeAttribute attr, QVariant value)
+    {
+      if (attr == QOpcUa::NodeAttribute::Value && value.canConvert< int >())
+      {
+        bool ok = false;
+        int angleValue = value.toInt(&ok);
+        if (ok)
+        {
+          int32_t r2anglesToTcs[3] = {};
+          mrmlNode->GetKukaAnglesToTcsR2(r2anglesToTcs);
+          r2anglesToTcs[0] = angleValue;
+          mrmlNode->SetKukaAnglesToTcsR2(r2anglesToTcs);
+          qDebug() << Q_FUNC_INFO << "R2 angle A to TCS changed:" << angleValue;
+        }
+      }
+    }
+  );
+  QObject::connect(r2AngleAToTcsNode,
+    &QOpcUaNode::attributeRead, [r2AngleAToTcsNode, mrmlNode](QOpcUa::NodeAttributes attr)
+    {
+      if (!r2AngleAToTcsNode || !mrmlNode)
+      {
+        return;
+      }
+      if (attr & QOpcUa::NodeAttribute::Value)
+      {
+        if (r2AngleAToTcsNode && r2AngleAToTcsNode->attributeError(QOpcUa::NodeAttribute::Value) == QOpcUa::UaStatusCode::Good)
+        {
+          QVariant value = r2AngleAToTcsNode->attribute(QOpcUa::NodeAttribute::Value);
+          bool ok = false;
+          int angleValue = value.toInt(&ok); // Get the attribute from the cache
+          if (ok)
+          {
+            int32_t r2anglesToTcs[3] = {};
+            mrmlNode->GetKukaAnglesToTcsR2(r2anglesToTcs);
+            r2anglesToTcs[0] = angleValue;
+            mrmlNode->SetKukaAnglesToTcsR2(r2anglesToTcs);
+          }
+        }
+      }
+    }
+  );
+  // Subscribe to data changes
+  r2AngleAToTcsNode->enableMonitoring(QOpcUa::NodeAttribute::Value, QOpcUaMonitoringParameters(1000));
+
+  return true;
+}
+
+//-----------------------------------------------------------------------------
+bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectKukaR2AngleToTcsBNodes()
+{
+  QSharedPointer< QOpcUaClient > opcUaClient = this->OpcUaClient.toStrongRef();
+
+  if (!opcUaClient || !this->ParameterNode)
+  {
+    return false;
+  }
+
+  vtkMRMLSiemensPlcOpcUaNode* mrmlNode = this->ParameterNode.GetPointer();
+
+  // Mode node
+  QOpcUaNode* r2AngleBToTcsNode = this->FindNodeFromFullDisplayName(KUKA_R2_ANGLE_B_TO_TCS_NODE_NAME);
+
+  // Connect signal handlers for subscribed values
+  // Mode node
+  if (!r2AngleBToTcsNode)
+  {
+    return false;
+  }
+  QObject::connect(r2AngleBToTcsNode,
+    &QOpcUaNode::dataChangeOccurred, [mrmlNode](QOpcUa::NodeAttribute attr, QVariant value)
+    {
+      if (attr == QOpcUa::NodeAttribute::Value && value.canConvert< int >())
+      {
+        bool ok = false;
+        int angleValue = value.toInt(&ok);
+        if (ok)
+        {
+          int32_t r2anglesToTcs[3] = {};
+          mrmlNode->GetKukaAnglesToTcsR2(r2anglesToTcs);
+          r2anglesToTcs[1] = angleValue;
+          mrmlNode->SetKukaAnglesToTcsR2(r2anglesToTcs);
+          qDebug() << Q_FUNC_INFO << "R2 angle B to TCS changed:" << angleValue;
+        }
+      }
+    }
+  );
+  QObject::connect(r2AngleBToTcsNode,
+    &QOpcUaNode::attributeRead, [r2AngleBToTcsNode, mrmlNode](QOpcUa::NodeAttributes attr)
+    {
+      if (!r2AngleBToTcsNode || !mrmlNode)
+      {
+        return;
+      }
+      if (attr & QOpcUa::NodeAttribute::Value)
+      {
+        if (r2AngleBToTcsNode && r2AngleBToTcsNode->attributeError(QOpcUa::NodeAttribute::Value) == QOpcUa::UaStatusCode::Good)
+        {
+          QVariant value = r2AngleBToTcsNode->attribute(QOpcUa::NodeAttribute::Value);
+          bool ok = false;
+          int angleValue = value.toInt(&ok); // Get the attribute from the cache
+          if (ok)
+          {
+            int32_t r2anglesToTcs[3] = {};
+            mrmlNode->GetKukaAnglesToTcsR2(r2anglesToTcs);
+            r2anglesToTcs[1] = angleValue;
+            mrmlNode->SetKukaAnglesToTcsR2(r2anglesToTcs);
+          }
+        }
+      }
+    }
+  );
+  // Subscribe to data changes
+  r2AngleBToTcsNode->enableMonitoring(QOpcUa::NodeAttribute::Value, QOpcUaMonitoringParameters(1000));
+
+  return true;
+}
+
+//-----------------------------------------------------------------------------
+bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectKukaR2AngleToTcsCNodes()
+{
+  QSharedPointer< QOpcUaClient > opcUaClient = this->OpcUaClient.toStrongRef();
+
+  if (!opcUaClient || !this->ParameterNode)
+  {
+    return false;
+  }
+
+  vtkMRMLSiemensPlcOpcUaNode* mrmlNode = this->ParameterNode.GetPointer();
+
+  // Mode node
+  QOpcUaNode* r2AngleCToTcsNode = this->FindNodeFromFullDisplayName(KUKA_R2_ANGLE_C_TO_TCS_NODE_NAME);
+
+  // Connect signal handlers for subscribed values
+  // Mode node
+  if (!r2AngleCToTcsNode)
+  {
+    return false;
+  }
+  QObject::connect(r2AngleCToTcsNode,
+    &QOpcUaNode::dataChangeOccurred, [mrmlNode](QOpcUa::NodeAttribute attr, QVariant value)
+    {
+      if (attr == QOpcUa::NodeAttribute::Value && value.canConvert< int >())
+      {
+        bool ok = false;
+        int angleValue = value.toInt(&ok);
+        if (ok)
+        {
+          int32_t r2anglesToTcs[3] = {};
+          mrmlNode->GetKukaAnglesToTcsR2(r2anglesToTcs);
+          r2anglesToTcs[2] = angleValue;
+          mrmlNode->SetKukaAnglesToTcsR2(r2anglesToTcs);
+          qDebug() << Q_FUNC_INFO << "R2 angle C to TCS changed:" << angleValue;
+        }
+      }
+    }
+  );
+  QObject::connect(r2AngleCToTcsNode,
+    &QOpcUaNode::attributeRead, [r2AngleCToTcsNode, mrmlNode](QOpcUa::NodeAttributes attr)
+    {
+      if (!r2AngleCToTcsNode || !mrmlNode)
+      {
+        return;
+      }
+      if (attr & QOpcUa::NodeAttribute::Value)
+      {
+        if (r2AngleCToTcsNode && r2AngleCToTcsNode->attributeError(QOpcUa::NodeAttribute::Value) == QOpcUa::UaStatusCode::Good)
+        {
+          QVariant value = r2AngleCToTcsNode->attribute(QOpcUa::NodeAttribute::Value);
+          bool ok = false;
+          int angleValue = value.toInt(&ok); // Get the attribute from the cache
+          if (ok)
+          {
+            int32_t r2anglesToTcs[3] = {};
+            mrmlNode->GetKukaAnglesToTcsR2(r2anglesToTcs);
+            r2anglesToTcs[2] = angleValue;
+            mrmlNode->SetKukaAnglesToTcsR2(r2anglesToTcs);
+          }
+        }
+      }
+    }
+  );
+  // Subscribe to data changes
+  r2AngleCToTcsNode->enableMonitoring(QOpcUa::NodeAttribute::Value, QOpcUaMonitoringParameters(1000));
+
+  return true;
+}
+
+//-----------------------------------------------------------------------------
+bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectR1AxisA1CoordNodes()
+{
+  QSharedPointer< QOpcUaClient > opcUaClient = this->OpcUaClient.toStrongRef();
+
+  if (!opcUaClient || !this->ParameterNode)
+  {
+    return false;
+  }
+
+  vtkMRMLSiemensPlcOpcUaNode* mrmlNode = this->ParameterNode.GetPointer();
+
+  // Mode node
+  QOpcUaNode* r1AxisA1Node = this->FindNodeFromFullDisplayName(KUKA_R1_AXIS_A1_NODE_NAME);
+
+  // Connect signal handlers for subscribed values
+  // KUKA Axis A1 node
+  if (!r1AxisA1Node)
+  {
+    return false;
+  }
+  QObject::connect(r1AxisA1Node,
+    &QOpcUaNode::dataChangeOccurred, [mrmlNode](QOpcUa::NodeAttribute attr, QVariant value)
+    {
+      if (attr == QOpcUa::NodeAttribute::Value && value.canConvert< int >())
+      {
+        bool ok = false;
+        int angleValue = value.toInt(&ok);
+        if (ok)
+        {
+          int32_t r1AxisCoords[6] = {};
+          mrmlNode->GetAxisCoordsR1(r1AxisCoords);
+          r1AxisCoords[0] = angleValue;
+          mrmlNode->SetAxisCoordsR1(r1AxisCoords);
+          qDebug() << Q_FUNC_INFO << "R1 Axis A1 angle changed:" << angleValue;
+        }
+      }
+    }
+  );
+  QObject::connect(r1AxisA1Node,
+    &QOpcUaNode::attributeRead, [r1AxisA1Node, mrmlNode](QOpcUa::NodeAttributes attr)
+    {
+      if (!r1AxisA1Node || !mrmlNode)
+      {
+        return;
+      }
+      if (attr & QOpcUa::NodeAttribute::Value)
+      {
+        if (r1AxisA1Node && r1AxisA1Node->attributeError(QOpcUa::NodeAttribute::Value) == QOpcUa::UaStatusCode::Good)
+        {
+          QVariant value = r1AxisA1Node->attribute(QOpcUa::NodeAttribute::Value);
+          bool ok = false;
+          int angleValue = value.toInt(&ok); // Get the attribute from the cache
+          if (ok)
+          {
+            int32_t r1AxisCoords[6] = {};
+            mrmlNode->GetAxisCoordsR1(r1AxisCoords);
+            r1AxisCoords[0] = angleValue;
+            mrmlNode->SetAxisCoordsR1(r1AxisCoords);
+            qDebug() << Q_FUNC_INFO << "R1 Axis A1 angle read:" << angleValue;
+          }
+        }
+      }
+    }
+  );
+  // Subscribe to data changes
+  r1AxisA1Node->enableMonitoring(QOpcUa::NodeAttribute::Value, QOpcUaMonitoringParameters(1000));
+
+  return true;
+}
+
+//-----------------------------------------------------------------------------
+bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectR1AxisA2CoordNodes()
+{
+  QSharedPointer< QOpcUaClient > opcUaClient = this->OpcUaClient.toStrongRef();
+
+  if (!opcUaClient || !this->ParameterNode)
+  {
+    return false;
+  }
+
+  vtkMRMLSiemensPlcOpcUaNode* mrmlNode = this->ParameterNode.GetPointer();
+
+  // Mode node
+  QOpcUaNode* r1AxisA2Node = this->FindNodeFromFullDisplayName(KUKA_R1_AXIS_A2_NODE_NAME);
+
+  // Connect signal handlers for subscribed values
+  // KUKA Axis A2 node
+  if (!r1AxisA2Node)
+  {
+    return false;
+  }
+  QObject::connect(r1AxisA2Node,
+    &QOpcUaNode::dataChangeOccurred, [mrmlNode](QOpcUa::NodeAttribute attr, QVariant value)
+    {
+      if (attr == QOpcUa::NodeAttribute::Value && value.canConvert< int >())
+      {
+        bool ok = false;
+        int angleValue = value.toInt(&ok);
+        if (ok)
+        {
+          int32_t r1AxisCoords[6] = {};
+          mrmlNode->GetAxisCoordsR1(r1AxisCoords);
+          r1AxisCoords[1] = angleValue;
+          mrmlNode->SetAxisCoordsR1(r1AxisCoords);
+          qDebug() << Q_FUNC_INFO << "R1 Axis A2 angle changed:" << angleValue;
+        }
+      }
+    }
+  );
+  QObject::connect(r1AxisA2Node,
+    &QOpcUaNode::attributeRead, [r1AxisA2Node, mrmlNode](QOpcUa::NodeAttributes attr)
+    {
+      if (!r1AxisA2Node || !mrmlNode)
+      {
+        return;
+      }
+      if (attr & QOpcUa::NodeAttribute::Value)
+      {
+        if (r1AxisA2Node && r1AxisA2Node->attributeError(QOpcUa::NodeAttribute::Value) == QOpcUa::UaStatusCode::Good)
+        {
+          QVariant value = r1AxisA2Node->attribute(QOpcUa::NodeAttribute::Value);
+          bool ok = false;
+          int angleValue = value.toInt(&ok); // Get the attribute from the cache
+          if (ok)
+          {
+            int32_t r1AxisCoords[6] = {};
+            mrmlNode->GetAxisCoordsR1(r1AxisCoords);
+            r1AxisCoords[1] = angleValue;
+            mrmlNode->SetAxisCoordsR1(r1AxisCoords);
+            qDebug() << Q_FUNC_INFO << "R1 Axis A2 angle read:" << angleValue;
+          }
+        }
+      }
+    }
+  );
+  // Subscribe to data changes
+  r1AxisA2Node->enableMonitoring(QOpcUa::NodeAttribute::Value, QOpcUaMonitoringParameters(1000));
+
+  return true;
+}
+
+//-----------------------------------------------------------------------------
+bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectR1AxisA3CoordNodes()
+{
+  QSharedPointer< QOpcUaClient > opcUaClient = this->OpcUaClient.toStrongRef();
+
+  if (!opcUaClient || !this->ParameterNode)
+  {
+    return false;
+  }
+
+  vtkMRMLSiemensPlcOpcUaNode* mrmlNode = this->ParameterNode.GetPointer();
+
+  // Mode node
+  QOpcUaNode* r1AxisA3Node = this->FindNodeFromFullDisplayName(KUKA_R1_AXIS_A3_NODE_NAME);
+
+  // Connect signal handlers for subscribed values
+  // KUKA Axis A3 node
+  if (!r1AxisA3Node)
+  {
+    return false;
+  }
+  QObject::connect(r1AxisA3Node,
+    &QOpcUaNode::dataChangeOccurred, [mrmlNode](QOpcUa::NodeAttribute attr, QVariant value)
+    {
+      if (attr == QOpcUa::NodeAttribute::Value && value.canConvert< int >())
+      {
+        bool ok = false;
+        int angleValue = value.toInt(&ok);
+        if (ok)
+        {
+          int32_t r1AxisCoords[6] = {};
+          mrmlNode->GetAxisCoordsR1(r1AxisCoords);
+          r1AxisCoords[2] = angleValue;
+          mrmlNode->SetAxisCoordsR1(r1AxisCoords);
+          qDebug() << Q_FUNC_INFO << "R1 Axis A3 angle changed:" << angleValue;
+        }
+      }
+    }
+  );
+  QObject::connect(r1AxisA3Node,
+    &QOpcUaNode::attributeRead, [r1AxisA3Node, mrmlNode](QOpcUa::NodeAttributes attr)
+    {
+      if (!r1AxisA3Node || !mrmlNode)
+      {
+        return;
+      }
+      if (attr & QOpcUa::NodeAttribute::Value)
+      {
+        if (r1AxisA3Node && r1AxisA3Node->attributeError(QOpcUa::NodeAttribute::Value) == QOpcUa::UaStatusCode::Good)
+        {
+          QVariant value = r1AxisA3Node->attribute(QOpcUa::NodeAttribute::Value);
+          bool ok = false;
+          int angleValue = value.toInt(&ok); // Get the attribute from the cache
+          if (ok)
+          {
+            int32_t r1AxisCoords[6] = {};
+            mrmlNode->GetAxisCoordsR1(r1AxisCoords);
+            r1AxisCoords[2] = angleValue;
+            mrmlNode->SetAxisCoordsR1(r1AxisCoords);
+            qDebug() << Q_FUNC_INFO << "R1 Axis A3 angle read:" << angleValue;
+          }
+        }
+      }
+    }
+  );
+  // Subscribe to data changes
+  r1AxisA3Node->enableMonitoring(QOpcUa::NodeAttribute::Value, QOpcUaMonitoringParameters(1000));
+
+  return true;
+}
+
+//-----------------------------------------------------------------------------
+bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectR1AxisA4CoordNodes()
+{
+  QSharedPointer< QOpcUaClient > opcUaClient = this->OpcUaClient.toStrongRef();
+
+  if (!opcUaClient || !this->ParameterNode)
+  {
+    return false;
+  }
+
+  vtkMRMLSiemensPlcOpcUaNode* mrmlNode = this->ParameterNode.GetPointer();
+
+  // Mode node
+  QOpcUaNode* r1AxisA4Node = this->FindNodeFromFullDisplayName(KUKA_R1_AXIS_A4_NODE_NAME);
+
+  // Connect signal handlers for subscribed values
+  // KUKA Axis A4 node
+  if (!r1AxisA4Node)
+  {
+    return false;
+  }
+  QObject::connect(r1AxisA4Node,
+    &QOpcUaNode::dataChangeOccurred, [mrmlNode](QOpcUa::NodeAttribute attr, QVariant value)
+    {
+      if (attr == QOpcUa::NodeAttribute::Value && value.canConvert< int >())
+      {
+        bool ok = false;
+        int angleValue = value.toInt(&ok);
+        if (ok)
+        {
+          int32_t r1AxisCoords[6] = {};
+          mrmlNode->GetAxisCoordsR1(r1AxisCoords);
+          r1AxisCoords[3] = angleValue;
+          mrmlNode->SetAxisCoordsR1(r1AxisCoords);
+          qDebug() << Q_FUNC_INFO << "R1 Axis A4 angle changed:" << angleValue;
+        }
+      }
+    }
+  );
+  QObject::connect(r1AxisA4Node,
+    &QOpcUaNode::attributeRead, [r1AxisA4Node, mrmlNode](QOpcUa::NodeAttributes attr)
+    {
+      if (!r1AxisA4Node || !mrmlNode)
+      {
+        return;
+      }
+      if (attr & QOpcUa::NodeAttribute::Value)
+      {
+        if (r1AxisA4Node && r1AxisA4Node->attributeError(QOpcUa::NodeAttribute::Value) == QOpcUa::UaStatusCode::Good)
+        {
+          QVariant value = r1AxisA4Node->attribute(QOpcUa::NodeAttribute::Value);
+          bool ok = false;
+          int angleValue = value.toInt(&ok); // Get the attribute from the cache
+          if (ok)
+          {
+            int32_t r1AxisCoords[6] = {};
+            mrmlNode->GetAxisCoordsR1(r1AxisCoords);
+            r1AxisCoords[3] = angleValue;
+            mrmlNode->SetAxisCoordsR1(r1AxisCoords);
+            qDebug() << Q_FUNC_INFO << "R1 Axis A4 angle read:" << angleValue;
+          }
+        }
+      }
+    }
+  );
+  // Subscribe to data changes
+  r1AxisA4Node->enableMonitoring(QOpcUa::NodeAttribute::Value, QOpcUaMonitoringParameters(1000));
+
+  return true;
+}
+
+//-----------------------------------------------------------------------------
+bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectR1AxisA5CoordNodes()
+{
+  QSharedPointer< QOpcUaClient > opcUaClient = this->OpcUaClient.toStrongRef();
+
+  if (!opcUaClient || !this->ParameterNode)
+  {
+    return false;
+  }
+
+  vtkMRMLSiemensPlcOpcUaNode* mrmlNode = this->ParameterNode.GetPointer();
+
+  // Mode node
+  QOpcUaNode* r1AxisA5Node = this->FindNodeFromFullDisplayName(KUKA_R1_AXIS_A5_NODE_NAME);
+
+  // Connect signal handlers for subscribed values
+  // KUKA Axis A5 node
+  if (!r1AxisA5Node)
+  {
+    return false;
+  }
+  QObject::connect(r1AxisA5Node,
+    &QOpcUaNode::dataChangeOccurred, [mrmlNode](QOpcUa::NodeAttribute attr, QVariant value)
+    {
+      if (attr == QOpcUa::NodeAttribute::Value && value.canConvert< int >())
+      {
+        bool ok = false;
+        int angleValue = value.toInt(&ok);
+        if (ok)
+        {
+          int32_t r1AxisCoords[6] = {};
+          mrmlNode->GetAxisCoordsR1(r1AxisCoords);
+          r1AxisCoords[4] = angleValue;
+          mrmlNode->SetAxisCoordsR1(r1AxisCoords);
+          qDebug() << Q_FUNC_INFO << "R1 Axis A5 angle changed:" << angleValue;
+        }
+      }
+    }
+  );
+  QObject::connect(r1AxisA5Node,
+    &QOpcUaNode::attributeRead, [r1AxisA5Node, mrmlNode](QOpcUa::NodeAttributes attr)
+    {
+      if (!r1AxisA5Node || !mrmlNode)
+      {
+        return;
+      }
+      if (attr & QOpcUa::NodeAttribute::Value)
+      {
+        if (r1AxisA5Node && r1AxisA5Node->attributeError(QOpcUa::NodeAttribute::Value) == QOpcUa::UaStatusCode::Good)
+        {
+          QVariant value = r1AxisA5Node->attribute(QOpcUa::NodeAttribute::Value);
+          bool ok = false;
+          int angleValue = value.toInt(&ok); // Get the attribute from the cache
+          if (ok)
+          {
+            int32_t r1AxisCoords[6] = {};
+            mrmlNode->GetAxisCoordsR1(r1AxisCoords);
+            r1AxisCoords[4] = angleValue;
+            mrmlNode->SetAxisCoordsR1(r1AxisCoords);
+            qDebug() << Q_FUNC_INFO << "R1 Axis A5 angle read:" << angleValue;
+          }
+        }
+      }
+    }
+  );
+  // Subscribe to data changes
+  r1AxisA5Node->enableMonitoring(QOpcUa::NodeAttribute::Value, QOpcUaMonitoringParameters(1000));
+
+  return true;
+}
+
+//-----------------------------------------------------------------------------
+bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectR1AxisA6CoordNodes()
+{
+  QSharedPointer< QOpcUaClient > opcUaClient = this->OpcUaClient.toStrongRef();
+
+  if (!opcUaClient || !this->ParameterNode)
+  {
+    return false;
+  }
+
+  vtkMRMLSiemensPlcOpcUaNode* mrmlNode = this->ParameterNode.GetPointer();
+
+  // Mode node
+  QOpcUaNode* r1AxisA6Node = this->FindNodeFromFullDisplayName(KUKA_R1_AXIS_A6_NODE_NAME);
+
+  // Connect signal handlers for subscribed values
+  // KUKA Axis A6 node
+  if (!r1AxisA6Node)
+  {
+    return false;
+  }
+  QObject::connect(r1AxisA6Node,
+    &QOpcUaNode::dataChangeOccurred, [mrmlNode](QOpcUa::NodeAttribute attr, QVariant value)
+    {
+      if (attr == QOpcUa::NodeAttribute::Value && value.canConvert< int >())
+      {
+        bool ok = false;
+        int angleValue = value.toInt(&ok);
+        if (ok)
+        {
+          int32_t r1AxisCoords[6] = {};
+          mrmlNode->GetAxisCoordsR1(r1AxisCoords);
+          r1AxisCoords[5] = angleValue;
+          mrmlNode->SetAxisCoordsR1(r1AxisCoords);
+          qDebug() << Q_FUNC_INFO << "R1 Axis A6 angle changed:" << angleValue;
+        }
+      }
+    }
+  );
+  QObject::connect(r1AxisA6Node,
+    &QOpcUaNode::attributeRead, [r1AxisA6Node, mrmlNode](QOpcUa::NodeAttributes attr)
+    {
+      if (!r1AxisA6Node || !mrmlNode)
+      {
+        return;
+      }
+      if (attr & QOpcUa::NodeAttribute::Value)
+      {
+        if (r1AxisA6Node && r1AxisA6Node->attributeError(QOpcUa::NodeAttribute::Value) == QOpcUa::UaStatusCode::Good)
+        {
+          QVariant value = r1AxisA6Node->attribute(QOpcUa::NodeAttribute::Value);
+          bool ok = false;
+          int angleValue = value.toInt(&ok); // Get the attribute from the cache
+          if (ok)
+          {
+            int32_t r1AxisCoords[6] = {};
+            mrmlNode->GetAxisCoordsR1(r1AxisCoords);
+            r1AxisCoords[5] = angleValue;
+            mrmlNode->SetAxisCoordsR1(r1AxisCoords);
+            qDebug() << Q_FUNC_INFO << "R1 Axis A6 angle read:" << angleValue;
+          }
+        }
+      }
+    }
+  );
+  // Subscribe to data changes
+  r1AxisA6Node->enableMonitoring(QOpcUa::NodeAttribute::Value, QOpcUaMonitoringParameters(1000));
+
+  return true;
+}
+
+//-----------------------------------------------------------------------------
+bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectR2AxisA1CoordNodes()
+{
+  QSharedPointer< QOpcUaClient > opcUaClient = this->OpcUaClient.toStrongRef();
+
+  if (!opcUaClient || !this->ParameterNode)
+  {
+    return false;
+  }
+
+  vtkMRMLSiemensPlcOpcUaNode* mrmlNode = this->ParameterNode.GetPointer();
+
+  // KUKA R2 Axis A1 node
+  QOpcUaNode* r2AxisA1Node = this->FindNodeFromFullDisplayName(KUKA_R2_AXIS_A1_NODE_NAME);
+
+  // Connect signal handlers for subscribed values
+  if (!r2AxisA1Node)
+  {
+    return false;
+  }
+  QObject::connect(r2AxisA1Node,
+    &QOpcUaNode::dataChangeOccurred, [mrmlNode](QOpcUa::NodeAttribute attr, QVariant value)
+    {
+      if (attr == QOpcUa::NodeAttribute::Value && value.canConvert< int >())
+      {
+        bool ok = false;
+        int angleValue = value.toInt(&ok);
+        if (ok)
+        {
+          int32_t r2AxisCoords[6] = {};
+          mrmlNode->GetAxisCoordsR2(r2AxisCoords);
+          r2AxisCoords[0] = angleValue;
+          mrmlNode->SetAxisCoordsR2(r2AxisCoords);
+          qDebug() << Q_FUNC_INFO << "R2 Axis A1 angle changed:" << angleValue;
+        }
+      }
+    }
+  );
+  QObject::connect(r2AxisA1Node,
+    &QOpcUaNode::attributeRead, [r2AxisA1Node, mrmlNode](QOpcUa::NodeAttributes attr)
+    {
+      if (!r2AxisA1Node || !mrmlNode)
+      {
+        return;
+      }
+      if (attr & QOpcUa::NodeAttribute::Value)
+      {
+        if (r2AxisA1Node && r2AxisA1Node->attributeError(QOpcUa::NodeAttribute::Value) == QOpcUa::UaStatusCode::Good)
+        {
+          QVariant value = r2AxisA1Node->attribute(QOpcUa::NodeAttribute::Value);
+          bool ok = false;
+          int angleValue = value.toInt(&ok); // Get the attribute from the cache
+          if (ok)
+          {
+            int32_t r2AxisCoords[6] = {};
+            mrmlNode->GetAxisCoordsR2(r2AxisCoords);
+            r2AxisCoords[0] = angleValue;
+            mrmlNode->SetAxisCoordsR2(r2AxisCoords);
+            qDebug() << Q_FUNC_INFO << "R2 Axis A1 angle read:" << angleValue;
+          }
+        }
+      }
+    }
+  );
+  // Subscribe to data changes
+  r2AxisA1Node->enableMonitoring(QOpcUa::NodeAttribute::Value, QOpcUaMonitoringParameters(1000));
+
+  return true;
+}
+
+//-----------------------------------------------------------------------------
+bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectR2AxisA2CoordNodes()
+{
+  QSharedPointer< QOpcUaClient > opcUaClient = this->OpcUaClient.toStrongRef();
+
+  if (!opcUaClient || !this->ParameterNode)
+  {
+    return false;
+  }
+
+  vtkMRMLSiemensPlcOpcUaNode* mrmlNode = this->ParameterNode.GetPointer();
+
+  // KUKA R2 Axis A2 node
+  QOpcUaNode* r2AxisA2Node = this->FindNodeFromFullDisplayName(KUKA_R2_AXIS_A2_NODE_NAME);
+
+  // Connect signal handlers for subscribed values
+  if (!r2AxisA2Node)
+  {
+    return false;
+  }
+  QObject::connect(r2AxisA2Node,
+    &QOpcUaNode::dataChangeOccurred, [mrmlNode](QOpcUa::NodeAttribute attr, QVariant value)
+    {
+      if (attr == QOpcUa::NodeAttribute::Value && value.canConvert< int >())
+      {
+        bool ok = false;
+        int angleValue = value.toInt(&ok);
+        if (ok)
+        {
+          int32_t r2AxisCoords[6] = {};
+          mrmlNode->GetAxisCoordsR2(r2AxisCoords);
+          r2AxisCoords[1] = angleValue;
+          mrmlNode->SetAxisCoordsR2(r2AxisCoords);
+          qDebug() << Q_FUNC_INFO << "R2 Axis A2 angle changed:" << angleValue;
+        }
+      }
+    }
+  );
+  QObject::connect(r2AxisA2Node,
+    &QOpcUaNode::attributeRead, [r2AxisA2Node, mrmlNode](QOpcUa::NodeAttributes attr)
+    {
+      if (!r2AxisA2Node || !mrmlNode)
+      {
+        return;
+      }
+      if (attr & QOpcUa::NodeAttribute::Value)
+      {
+        if (r2AxisA2Node && r2AxisA2Node->attributeError(QOpcUa::NodeAttribute::Value) == QOpcUa::UaStatusCode::Good)
+        {
+          QVariant value = r2AxisA2Node->attribute(QOpcUa::NodeAttribute::Value);
+          bool ok = false;
+          int angleValue = value.toInt(&ok); // Get the attribute from the cache
+          if (ok)
+          {
+            int32_t r2AxisCoords[6] = {};
+            mrmlNode->GetAxisCoordsR2(r2AxisCoords);
+            r2AxisCoords[1] = angleValue;
+            mrmlNode->SetAxisCoordsR2(r2AxisCoords);
+            qDebug() << Q_FUNC_INFO << "R2 Axis A2 angle read:" << angleValue;
+          }
+        }
+      }
+    }
+  );
+  // Subscribe to data changes
+  r2AxisA2Node->enableMonitoring(QOpcUa::NodeAttribute::Value, QOpcUaMonitoringParameters(1000));
+
+  return true;
+}
+
+//-----------------------------------------------------------------------------
+bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectR2AxisA3CoordNodes()
+{
+  QSharedPointer< QOpcUaClient > opcUaClient = this->OpcUaClient.toStrongRef();
+
+  if (!opcUaClient || !this->ParameterNode)
+  {
+    return false;
+  }
+
+  vtkMRMLSiemensPlcOpcUaNode* mrmlNode = this->ParameterNode.GetPointer();
+
+  // Mode node
+  QOpcUaNode* r2AxisA3Node = this->FindNodeFromFullDisplayName(KUKA_R2_AXIS_A3_NODE_NAME);
+
+  // Connect signal handlers for subscribed values
+  // KUKA R2 Axis A3 node
+  if (!r2AxisA3Node)
+  {
+    return false;
+  }
+  QObject::connect(r2AxisA3Node,
+    &QOpcUaNode::dataChangeOccurred, [mrmlNode](QOpcUa::NodeAttribute attr, QVariant value)
+    {
+      if (attr == QOpcUa::NodeAttribute::Value && value.canConvert< int >())
+      {
+        bool ok = false;
+        int angleValue = value.toInt(&ok);
+        if (ok)
+        {
+          int32_t r2AxisCoords[6] = {};
+          mrmlNode->GetAxisCoordsR2(r2AxisCoords);
+          r2AxisCoords[2] = angleValue;
+          mrmlNode->SetAxisCoordsR2(r2AxisCoords);
+          qDebug() << Q_FUNC_INFO << "R2 Axis A3 angle changed:" << angleValue;
+        }
+      }
+    }
+  );
+  QObject::connect(r2AxisA3Node,
+    &QOpcUaNode::attributeRead, [r2AxisA3Node, mrmlNode](QOpcUa::NodeAttributes attr)
+    {
+      if (!r2AxisA3Node || !mrmlNode)
+      {
+        return;
+      }
+      if (attr & QOpcUa::NodeAttribute::Value)
+      {
+        if (r2AxisA3Node && r2AxisA3Node->attributeError(QOpcUa::NodeAttribute::Value) == QOpcUa::UaStatusCode::Good)
+        {
+          QVariant value = r2AxisA3Node->attribute(QOpcUa::NodeAttribute::Value);
+          bool ok = false;
+          int angleValue = value.toInt(&ok); // Get the attribute from the cache
+          if (ok)
+          {
+            int32_t r2AxisCoords[6] = {};
+            mrmlNode->GetAxisCoordsR2(r2AxisCoords);
+            r2AxisCoords[2] = angleValue;
+            mrmlNode->SetAxisCoordsR2(r2AxisCoords);
+            qDebug() << Q_FUNC_INFO << "R2 Axis A3 angle read:" << angleValue;
+          }
+        }
+      }
+    }
+  );
+  // Subscribe to data changes
+  r2AxisA3Node->enableMonitoring(QOpcUa::NodeAttribute::Value, QOpcUaMonitoringParameters(1000));
+
+  return true;
+}
+
+//-----------------------------------------------------------------------------
+bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectR2AxisA4CoordNodes()
+{
+  QSharedPointer< QOpcUaClient > opcUaClient = this->OpcUaClient.toStrongRef();
+
+  if (!opcUaClient || !this->ParameterNode)
+  {
+    return false;
+  }
+
+  vtkMRMLSiemensPlcOpcUaNode* mrmlNode = this->ParameterNode.GetPointer();
+
+  // KUKA R2 Axis A4 node
+  QOpcUaNode* r2AxisA4Node = this->FindNodeFromFullDisplayName(KUKA_R2_AXIS_A4_NODE_NAME);
+
+  // Connect signal handlers for subscribed values
+  if (!r2AxisA4Node)
+  {
+    return false;
+  }
+  QObject::connect(r2AxisA4Node,
+    &QOpcUaNode::dataChangeOccurred, [mrmlNode](QOpcUa::NodeAttribute attr, QVariant value)
+    {
+      if (attr == QOpcUa::NodeAttribute::Value && value.canConvert< int >())
+      {
+        bool ok = false;
+        int angleValue = value.toInt(&ok);
+        if (ok)
+        {
+          int32_t r2AxisCoords[6] = {};
+          mrmlNode->GetAxisCoordsR2(r2AxisCoords);
+          r2AxisCoords[3] = angleValue;
+          mrmlNode->SetAxisCoordsR2(r2AxisCoords);
+          qDebug() << Q_FUNC_INFO << "R2 Axis A4 angle changed:" << angleValue;
+        }
+      }
+    }
+  );
+  QObject::connect(r2AxisA4Node,
+    &QOpcUaNode::attributeRead, [r2AxisA4Node, mrmlNode](QOpcUa::NodeAttributes attr)
+    {
+      if (!r2AxisA4Node || !mrmlNode)
+      {
+        return;
+      }
+      if (attr & QOpcUa::NodeAttribute::Value)
+      {
+        if (r2AxisA4Node && r2AxisA4Node->attributeError(QOpcUa::NodeAttribute::Value) == QOpcUa::UaStatusCode::Good)
+        {
+          QVariant value = r2AxisA4Node->attribute(QOpcUa::NodeAttribute::Value);
+          bool ok = false;
+          int angleValue = value.toInt(&ok); // Get the attribute from the cache
+          if (ok)
+          {
+            int32_t r2AxisCoords[6] = {};
+            mrmlNode->GetAxisCoordsR2(r2AxisCoords);
+            r2AxisCoords[3] = angleValue;
+            mrmlNode->SetAxisCoordsR2(r2AxisCoords);
+            qDebug() << Q_FUNC_INFO << "R2 Axis A4 angle read:" << angleValue;
+          }
+        }
+      }
+    }
+  );
+  // Subscribe to data changes
+  r2AxisA4Node->enableMonitoring(QOpcUa::NodeAttribute::Value, QOpcUaMonitoringParameters(1000));
+
+  return true;
+}
+
+//-----------------------------------------------------------------------------
+bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectR2AxisA5CoordNodes()
+{
+  QSharedPointer< QOpcUaClient > opcUaClient = this->OpcUaClient.toStrongRef();
+
+  if (!opcUaClient || !this->ParameterNode)
+  {
+    return false;
+  }
+
+  vtkMRMLSiemensPlcOpcUaNode* mrmlNode = this->ParameterNode.GetPointer();
+
+  // KUKA R2 Axis A5 node
+  QOpcUaNode* r2AxisA5Node = this->FindNodeFromFullDisplayName(KUKA_R2_AXIS_A5_NODE_NAME);
+
+  // Connect signal handlers for subscribed values
+  if (!r2AxisA5Node)
+  {
+    return false;
+  }
+  QObject::connect(r2AxisA5Node,
+    &QOpcUaNode::dataChangeOccurred, [mrmlNode](QOpcUa::NodeAttribute attr, QVariant value)
+    {
+      if (attr == QOpcUa::NodeAttribute::Value && value.canConvert< int >())
+      {
+        bool ok = false;
+        int angleValue = value.toInt(&ok);
+        if (ok)
+        {
+          int32_t r2AxisCoords[6] = {};
+          mrmlNode->GetAxisCoordsR2(r2AxisCoords);
+          r2AxisCoords[4] = angleValue;
+          mrmlNode->SetAxisCoordsR2(r2AxisCoords);
+          qDebug() << Q_FUNC_INFO << "R2 Axis A5 angle changed:" << angleValue;
+        }
+      }
+    }
+  );
+  QObject::connect(r2AxisA5Node,
+    &QOpcUaNode::attributeRead, [r2AxisA5Node, mrmlNode](QOpcUa::NodeAttributes attr)
+    {
+      if (!r2AxisA5Node || !mrmlNode)
+      {
+        return;
+      }
+      if (attr & QOpcUa::NodeAttribute::Value)
+      {
+        if (r2AxisA5Node && r2AxisA5Node->attributeError(QOpcUa::NodeAttribute::Value) == QOpcUa::UaStatusCode::Good)
+        {
+          QVariant value = r2AxisA5Node->attribute(QOpcUa::NodeAttribute::Value);
+          bool ok = false;
+          int angleValue = value.toInt(&ok); // Get the attribute from the cache
+          if (ok)
+          {
+            int32_t r2AxisCoords[6] = {};
+            mrmlNode->GetAxisCoordsR2(r2AxisCoords);
+            r2AxisCoords[4] = angleValue;
+            mrmlNode->SetAxisCoordsR2(r2AxisCoords);
+            qDebug() << Q_FUNC_INFO << "R2 Axis A5 angle read:" << angleValue;
+          }
+        }
+      }
+    }
+  );
+  // Subscribe to data changes
+  r2AxisA5Node->enableMonitoring(QOpcUa::NodeAttribute::Value, QOpcUaMonitoringParameters(1000));
+
+  return true;
+}
+
+//-----------------------------------------------------------------------------
+bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectR2AxisA6CoordNodes()
+{
+  QSharedPointer< QOpcUaClient > opcUaClient = this->OpcUaClient.toStrongRef();
+
+  if (!opcUaClient || !this->ParameterNode)
+  {
+    return false;
+  }
+
+  vtkMRMLSiemensPlcOpcUaNode* mrmlNode = this->ParameterNode.GetPointer();
+
+  // KUKA R2 Axis A6 node
+  QOpcUaNode* r2AxisA6Node = this->FindNodeFromFullDisplayName(KUKA_R2_AXIS_A6_NODE_NAME);
+
+  // Connect signal handlers for subscribed values
+  if (!r2AxisA6Node)
+  {
+    return false;
+  }
+  QObject::connect(r2AxisA6Node,
+    &QOpcUaNode::dataChangeOccurred, [mrmlNode](QOpcUa::NodeAttribute attr, QVariant value)
+    {
+      if (attr == QOpcUa::NodeAttribute::Value && value.canConvert< int >())
+      {
+        bool ok = false;
+        int angleValue = value.toInt(&ok);
+        if (ok)
+        {
+          int32_t r2AxisCoords[6] = {};
+          mrmlNode->GetAxisCoordsR1(r2AxisCoords);
+          r2AxisCoords[5] = angleValue;
+          mrmlNode->SetAxisCoordsR2(r2AxisCoords);
+          qDebug() << Q_FUNC_INFO << "R2 Axis A6 angle changed:" << angleValue;
+        }
+      }
+    }
+  );
+  QObject::connect(r2AxisA6Node,
+    &QOpcUaNode::attributeRead, [r2AxisA6Node, mrmlNode](QOpcUa::NodeAttributes attr)
+    {
+      if (!r2AxisA6Node || !mrmlNode)
+      {
+        return;
+      }
+      if (attr & QOpcUa::NodeAttribute::Value)
+      {
+        if (r2AxisA6Node && r2AxisA6Node->attributeError(QOpcUa::NodeAttribute::Value) == QOpcUa::UaStatusCode::Good)
+        {
+          QVariant value = r2AxisA6Node->attribute(QOpcUa::NodeAttribute::Value);
+          bool ok = false;
+          int angleValue = value.toInt(&ok); // Get the attribute from the cache
+          if (ok)
+          {
+            int32_t r2AxisCoords[6] = {};
+            mrmlNode->GetAxisCoordsR1(r2AxisCoords);
+            r2AxisCoords[5] = angleValue;
+            mrmlNode->SetAxisCoordsR2(r2AxisCoords);
+            qDebug() << Q_FUNC_INFO << "R1 Axis A6 angle read:" << angleValue;
+          }
+        }
+      }
+    }
+  );
+  // Subscribe to data changes
+  r2AxisA6Node->enableMonitoring(QOpcUa::NodeAttribute::Value, QOpcUaMonitoringParameters(1000));
+
+  return true;
+}
+
+
+//-----------------------------------------------------------------------------
+bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectPatientOnTableTopNode()
+{
+  QSharedPointer< QOpcUaClient > opcUaClient = this->OpcUaClient.toStrongRef();
+
+  if (!opcUaClient || !this->ParameterNode)
+  {
+    return false;
+  }
+
+  vtkMRMLSiemensPlcOpcUaNode* mrmlNode = this->ParameterNode.GetPointer();
+
+  // Patient on the TableTop flag node
+  QOpcUaNode* patTableTopNode = this->FindNodeFromFullDisplayName(ASU_PATIENT_ON_TABLE_NODE_NAME);
+
+  // Connect signal handlers for subscribed values
+  if (!patTableTopNode)
+  {
+    return false;
+  }
+  QObject::connect(patTableTopNode,
+    &QOpcUaNode::dataChangeOccurred, [mrmlNode](QOpcUa::NodeAttribute attr, QVariant value)
+    {
+      if (attr == QOpcUa::NodeAttribute::Value && value.canConvert< bool >())
+      {
+        bool flagValue = value.toBool();
+        mrmlNode->SetPatientOnTableTop(flagValue);
+        qDebug() << Q_FUNC_INFO << "Patient on the TableTop flag changed:" << flagValue;
+      }
+    }
+  );
+  QObject::connect(patTableTopNode,
+    &QOpcUaNode::attributeRead, [patTableTopNode, mrmlNode](QOpcUa::NodeAttributes attr)
+    {
+      if (!patTableTopNode || !mrmlNode)
+      {
+        return;
+      }
+      if (attr & QOpcUa::NodeAttribute::Value)
+      {
+        if (patTableTopNode && patTableTopNode->attributeError(QOpcUa::NodeAttribute::Value) == QOpcUa::UaStatusCode::Good)
+        {
+          QVariant value = patTableTopNode->attribute(QOpcUa::NodeAttribute::Value);
+          bool flagValue = value.toBool(); // Get the attribute from the cache
+          mrmlNode->SetPatientOnTableTop(flagValue);
+          qDebug() << Q_FUNC_INFO << "Patient on the TableTop flag read:" << flagValue;
+        }
+      }
+    }
+  );
+  // Subscribe to data changes
+  patTableTopNode->enableMonitoring(QOpcUa::NodeAttribute::Value, QOpcUaMonitoringParameters(1000));
+
+  return true;
+}
+
+//-----------------------------------------------------------------------------
 // qSlicerSiemensPlcOpcUaWidget methods
 
 //-----------------------------------------------------------------------------
@@ -3455,6 +5104,16 @@ qSlicerSiemensPlcOpcUaWidget::qSlicerSiemensPlcOpcUaWidget(QWidget* parentWidget
     this, SLOT(onAutoManualR2ToPlane2Pressed()));
   QObject::connect(d->PushButton_AMR2ToPlane2, SIGNAL(released()),
     this, SLOT(onAutoManualR2ToPlane2Released()));
+  // AutoManual R1R2 EmerEvac button
+  QObject::connect(d->PushButton_AMR1R2EmerEvac, SIGNAL(pressed()),
+    this, SLOT(onAutoManualR1R2EmerEvacPressed()));
+  QObject::connect(d->PushButton_AMR1R2EmerEvac, SIGNAL(released()),
+    this, SLOT(onAutoManualR1R2EmerEvacReleased()));
+  // AutoManual ApplyTableTopPosition
+  QObject::connect(d->PushButton_AMApplyTableTopPosition, SIGNAL(pressed()),
+    this, SLOT(onAutoManualApplyTablePositionPressed()));
+  QObject::connect(d->PushButton_AMApplyTableTopPosition, SIGNAL(released()),
+    this, SLOT(onAutoManualApplyTablePositionReleased()));
 
   // Service R1 BreakTest button
   QObject::connect(d->PushButton_SR1BrakeTest, SIGNAL(pressed()),
@@ -3517,6 +5176,11 @@ qSlicerSiemensPlcOpcUaWidget::qSlicerSiemensPlcOpcUaWidget(QWidget* parentWidget
     this, SLOT(onServiceR2ServicePos3Pressed()));
   QObject::connect(d->PushButton_SMR2ServicePos3, SIGNAL(released()),
     this, SLOT(onServiceR2ServicePos3Released()));
+  // Service RestartSM button
+  QObject::connect(d->PushButton_SMRestart, SIGNAL(pressed()),
+    this, SLOT(onServiceRestartSmPressed()));
+  QObject::connect(d->PushButton_SMRestart, SIGNAL(released()),
+    this, SLOT(onServiceRestartSmReleased()));
 
   // KUKA controllers movement AllowT1 button
   QObject::connect(d->PushButton_KCMAllowT1, SIGNAL(pressed()),
@@ -3545,6 +5209,9 @@ qSlicerSiemensPlcOpcUaWidget::qSlicerSiemensPlcOpcUaWidget(QWidget* parentWidget
     this, SLOT(onMakeXrayPressed()));
   QObject::connect(d->PushButton_MakeXRay, SIGNAL(released()),
     this, SLOT(onMakeXrayReleased()));
+
+  QObject::connect(d->PushButton_ReadStatusAndMessages, SIGNAL(clicked()),
+    this, SLOT(onReadStatusAndMessagesClicked()));
 }
 
 //-----------------------------------------------------------------------------
@@ -3622,6 +5289,7 @@ void qSlicerSiemensPlcOpcUaWidget::updateWidgetFromMRML()
   }
   
   bool buttonState[2] = { false, false };
+  // AM
   d->ParameterNode->GetAutoManualR1ToLoad(buttonState);
   d->PushButton_AMR1ToLoad->setEnabled(buttonState[0]);
 
@@ -3634,6 +5302,69 @@ void qSlicerSiemensPlcOpcUaWidget::updateWidgetFromMRML()
   d->ParameterNode->GetAutoManualR2ToHome(buttonState);
   d->PushButton_AMR2ToHome->setEnabled(buttonState[0]);
 
+  d->ParameterNode->GetAutoManualR2ToPlane1(buttonState);
+  d->PushButton_AMR2ToPlane1->setEnabled(buttonState[0]);
+
+  d->ParameterNode->GetAutoManualR2ToPlane2(buttonState);
+  d->PushButton_AMR2ToPlane2->setEnabled(buttonState[0]);
+
+  d->ParameterNode->GetAutoManualEmergencyEvac(buttonState);
+  d->PushButton_AMR1R2EmerEvac->setEnabled(buttonState[0]);
+
+  d->ParameterNode->GetAutoManualApplyTableTopPosition(buttonState);
+  d->PushButton_AMApplyTableTopPosition->setEnabled(buttonState[0]);
+
+  // SM
+  d->ParameterNode->GetServiceR1BreakTest(buttonState);
+  d->PushButton_SR1BrakeTest->setEnabled(buttonState[0]);
+
+  d->ParameterNode->GetServiceR1MasterReferenceTest(buttonState);
+  d->PushButton_SR1MasterRefTest->setEnabled(buttonState[0]);
+
+  d->ParameterNode->GetServiceR1Load(buttonState);
+  d->PushButton_SR1ToLoad->setEnabled(buttonState[0]);
+
+  d->ParameterNode->GetServiceR1Position1(buttonState);
+  d->PushButton_SMR1ServicePos1->setEnabled(buttonState[0]);
+
+  d->ParameterNode->GetServiceR1Position2(buttonState);
+  d->PushButton_SMR1ServicePos2->setEnabled(buttonState[0]);
+
+  d->ParameterNode->GetServiceR1Position3(buttonState);
+  d->PushButton_SMR1ServicePos3->setEnabled(buttonState[0]);
+
+  d->ParameterNode->GetServiceR2BreakTest(buttonState);
+  d->PushButton_SR2BrakeTest->setEnabled(buttonState[0]);
+
+  d->ParameterNode->GetServiceR2MasterReferenceTest(buttonState);
+  d->PushButton_SR2MasterRefTest->setEnabled(buttonState[0]);
+
+  d->ParameterNode->GetServiceR2Home(buttonState);
+  d->PushButton_SR2ToHome->setEnabled(buttonState[0]);
+
+  d->ParameterNode->GetServiceR2Position1(buttonState);
+  d->PushButton_SMR2ServicePos1->setEnabled(buttonState[0]);
+
+  d->ParameterNode->GetServiceR2Position2(buttonState);
+  d->PushButton_SMR2ServicePos2->setEnabled(buttonState[0]);
+
+  d->ParameterNode->GetServiceR2Position3(buttonState);
+  d->PushButton_SMR2ServicePos3->setEnabled(buttonState[0]);
+
+  d->ParameterNode->GetServiceRestart(buttonState);
+  d->PushButton_SMRestart->setEnabled(buttonState[0]);
+
+  // KCM
+  d->ParameterNode->GetKukaAllowT1(buttonState);
+  d->PushButton_KCMAllowT1->setEnabled(buttonState[0]);
+
+  d->ParameterNode->GetKukaAllowXray(buttonState);
+  d->PushButton_KCMAllowXRay->setEnabled(buttonState[0]);
+
+  d->ParameterNode->GetKukaAllowBeam(buttonState);
+  d->PushButton_KCMAllowBeam->setEnabled(buttonState[0]);
+
+  // Misc.
   d->ParameterNode->GetResetErrors(buttonState);
   d->PushButton_ResetErrors->setEnabled(buttonState[0]);
 
@@ -3684,6 +5415,7 @@ void qSlicerSiemensPlcOpcUaWidget::onParseServerInterfacesClicked()
     QObject::connect(d->ServerInterfacesNode.data(), &QOpcUaNode::attributeRead, this, &qSlicerSiemensPlcOpcUaWidget::onServerInterfacesRead);
     d->ServerInterfacesNode->readAttributes(QOpcUa::NodeAttribute::DisplayName);
   }
+/*
   bool resMsg = d->ConnectMessagesNodes();
   bool resStatus = d->ConnectModeAndStatusNodes();
   if (resMsg && resStatus)
@@ -3697,6 +5429,32 @@ void qSlicerSiemensPlcOpcUaWidget::onParseServerInterfacesClicked()
 
   bool amR2Buttons = true;
   amR2Buttons &= d->ConnectAutoManualR2ToHomeNodes();
+  amR2Buttons &= d->ConnectAutoManualR2ToPlane1Nodes();
+  amR2Buttons &= d->ConnectAutoManualR2ToPlane2Nodes();
+  amR2Buttons &= d->ConnectAutoManualR1R2EmergencyEvacuationNodes();
+  amR2Buttons &= d->ConnectAutoManualApplyTablePositionNodes();
+
+  bool smR1Buttons = true;
+  smR1Buttons &= d->ConnectServiceR1BreakTestNodes();
+  smR1Buttons &= d->ConnectServiceR1MasterRefTestNodes();
+  smR1Buttons &= d->ConnectServiceR1LoadNodes();
+  smR1Buttons &= d->ConnectServiceR1ServicePos1Nodes();
+  smR1Buttons &= d->ConnectServiceR1ServicePos2Nodes();
+  smR1Buttons &= d->ConnectServiceR1ServicePos3Nodes();
+
+  bool smR2Buttons = true;
+  smR2Buttons &= d->ConnectServiceR2BreakTestNodes();
+  smR2Buttons &= d->ConnectServiceR2MasterRefTestNodes();
+  smR2Buttons &= d->ConnectServiceR2HomeNodes();
+  smR2Buttons &= d->ConnectServiceR2ServicePos1Nodes();
+  smR2Buttons &= d->ConnectServiceR2ServicePos2Nodes();
+  smR2Buttons &= d->ConnectServiceR2ServicePos3Nodes();
+  smR2Buttons &= d->ConnectServiceRestartNodes();
+
+  bool kukaButtons = true;
+  kukaButtons &= d->ConnectKukaAllowT1Nodes();
+  kukaButtons &= d->ConnectKukaAllowXrayNodes();
+  kukaButtons &= d->ConnectKukaAllowBeamNodes();
 
   bool resetErrors = d->ConnectResetErrorsNodes();
   bool makeXray = d->ConnectMakeXrayNodes();
@@ -3704,6 +5462,26 @@ void qSlicerSiemensPlcOpcUaWidget::onParseServerInterfacesClicked()
   if (amR1Buttons)
   {
     qDebug() << Q_FUNC_INFO << "AutomaticManual R1 nodes are OK";
+  }
+
+  if (amR2Buttons)
+  {
+    qDebug() << Q_FUNC_INFO << "AutomaticManual R2 nodes are OK";
+  }
+
+  if (smR1Buttons)
+  {
+    qDebug() << Q_FUNC_INFO << "Service R1 nodes are OK";
+  }
+
+  if (smR2Buttons)
+  {
+    qDebug() << Q_FUNC_INFO << "Service R2 nodes are OK";
+  }
+
+  if (kukaButtons)
+  {
+    qDebug() << Q_FUNC_INFO << "KUKA controllers nodes are OK";
   }
 
   if (resetErrors)
@@ -3714,6 +5492,7 @@ void qSlicerSiemensPlcOpcUaWidget::onParseServerInterfacesClicked()
   {
     qDebug() << Q_FUNC_INFO << "MakeXRay nodes are OK";
   }
+*/
 }
 
 //-----------------------------------------------------------------------------
@@ -4429,5 +6208,114 @@ void qSlicerSiemensPlcOpcUaWidget::onServerInterfacesRead(QOpcUa::NodeAttributes
         }
       }
     }
+  bool resMsg = d->ConnectMessagesNodes();
+  bool resStatus = d->ConnectModeAndStatusNodes();
+  if (resMsg && resStatus)
+  {
+    qDebug() << Q_FUNC_INFO << "Messages and Status nodes are OK";
+  }
+  bool amR1Buttons = true;
+  amR1Buttons &= d->ConnectAutoManualR1ToLoadNodes();
+  amR1Buttons &= d->ConnectAutoManualR1LoadToIsoNodes();
+  amR1Buttons &= d->ConnectAutoManualR1ToNewCoordsNodes();
+
+  bool amR2Buttons = true;
+  amR2Buttons &= d->ConnectAutoManualR2ToHomeNodes();
+  amR2Buttons &= d->ConnectAutoManualR2ToPlane1Nodes();
+  amR2Buttons &= d->ConnectAutoManualR2ToPlane2Nodes();
+  amR2Buttons &= d->ConnectAutoManualR1R2EmergencyEvacuationNodes();
+  amR2Buttons &= d->ConnectAutoManualApplyTablePositionNodes();
+
+  bool smR1Buttons = true;
+  smR1Buttons &= d->ConnectServiceR1BreakTestNodes();
+  smR1Buttons &= d->ConnectServiceR1MasterRefTestNodes();
+  smR1Buttons &= d->ConnectServiceR1LoadNodes();
+  smR1Buttons &= d->ConnectServiceR1ServicePos1Nodes();
+  smR1Buttons &= d->ConnectServiceR1ServicePos2Nodes();
+  smR1Buttons &= d->ConnectServiceR1ServicePos3Nodes();
+
+  bool smR2Buttons = true;
+  smR2Buttons &= d->ConnectServiceR2BreakTestNodes();
+  smR2Buttons &= d->ConnectServiceR2MasterRefTestNodes();
+  smR2Buttons &= d->ConnectServiceR2HomeNodes();
+  smR2Buttons &= d->ConnectServiceR2ServicePos1Nodes();
+  smR2Buttons &= d->ConnectServiceR2ServicePos2Nodes();
+  smR2Buttons &= d->ConnectServiceR2ServicePos3Nodes();
+  smR2Buttons &= d->ConnectServiceRestartNodes();
+
+  bool kukaButtons = true;
+  kukaButtons &= d->ConnectKukaAllowT1Nodes();
+  kukaButtons &= d->ConnectKukaAllowXrayNodes();
+  kukaButtons &= d->ConnectKukaAllowBeamNodes();
+
+  bool resetErrors = d->ConnectResetErrorsNodes();
+  bool makeXray = d->ConnectMakeXrayNodes();
+
+  if (amR1Buttons)
+  {
+    qDebug() << Q_FUNC_INFO << "AutomaticManual R1 nodes are OK";
+  }
+
+  if (amR2Buttons)
+  {
+    qDebug() << Q_FUNC_INFO << "AutomaticManual R2 nodes are OK";
+  }
+
+  if (smR1Buttons)
+  {
+    qDebug() << Q_FUNC_INFO << "Service R1 nodes are OK";
+  }
+
+  if (smR2Buttons)
+  {
+    qDebug() << Q_FUNC_INFO << "Service R2 nodes are OK";
+  }
+
+  if (kukaButtons)
+  {
+    qDebug() << Q_FUNC_INFO << "KUKA controllers nodes are OK";
+  }
+
+  if (resetErrors)
+  {
+    qDebug() << Q_FUNC_INFO << "ResetErrors nodes are OK";
+  }
+  if (makeXray)
+  {
+    qDebug() << Q_FUNC_INFO << "MakeXRay nodes are OK";
+  }
+  }
+}
+
+void qSlicerSiemensPlcOpcUaWidget::onReadStatusAndMessagesClicked()
+{
+  Q_D(qSlicerSiemensPlcOpcUaWidget);
+  // Error messages
+  QOpcUaNode* errMessagesNode = d->FindNodeFromFullDisplayName(ASU_ERROR_MESSAGES_NODE_NAME);
+  // Service messages
+  QOpcUaNode* servMessagesNode = d->FindNodeFromFullDisplayName(ASU_SERVICE_MESSAGES_NODE_NAME);
+  // Miscellaneous messages
+  QOpcUaNode* miscMessagesNode = d->FindNodeFromFullDisplayName(ASU_MESSAGES_NODE_NAME);
+  // Mode
+  QOpcUaNode* modeNode = d->FindNodeFromFullDisplayName(ASU_MODE_NODE_NAME);
+  if (errMessagesNode)
+  {
+    errMessagesNode->readAttributes(QOpcUa::NodeAttribute::Value);
+    qDebug() << Q_FUNC_INFO << "read errors";
+  }
+  if (servMessagesNode)
+  {
+    servMessagesNode->readAttributes(QOpcUa::NodeAttribute::Value);
+    qDebug() << Q_FUNC_INFO << "read service messages";
+  }
+  if (miscMessagesNode)
+  {
+    miscMessagesNode->readAttributes(QOpcUa::NodeAttribute::Value);
+    qDebug() << Q_FUNC_INFO << "read misc. messages";
+  }
+  if (modeNode)
+  {
+    modeNode->readAttributes(QOpcUa::NodeAttribute::Value);
+    qDebug() << Q_FUNC_INFO << "read mode";
   }
 }
