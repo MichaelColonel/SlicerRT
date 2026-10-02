@@ -232,9 +232,9 @@ void qSlicerU70RoomOpcUaModuleWidget::setup()
   if (layoutNode)
   {
 //    if (!layoutNode->SetLayoutDescription(d->SIEMENS_PLC_OPCUA_LAYOUT_ID, d->SIEMENS_PLC_OPCUA_LAYOUT_DESCRIPTION))
-    {
-      layoutNode->AddLayoutDescription(d->SIEMENS_PLC_OPCUA_LAYOUT_ID, d->SIEMENS_PLC_OPCUA_LAYOUT_DESCRIPTION);
-    }
+//    {
+    layoutNode->AddLayoutDescription(d->SIEMENS_PLC_OPCUA_LAYOUT_ID, d->SIEMENS_PLC_OPCUA_LAYOUT_DESCRIPTION);
+//    }
   }
   
   // Nodes
@@ -420,6 +420,40 @@ void qSlicerU70RoomOpcUaModuleWidget::updateWidgetFromMRML()
   uint64_t servBits = d->SiemensPlcOpcUaNode->GetServiceMessages();
   uint64_t miscBits = d->SiemensPlcOpcUaNode->GetMiscMessages();
   d->SiemensPlcMessagesModel->updateMessagesBits(errBits, servBits, miscBits);
+
+  switch (d->SiemensPlcOpcUaNode->GetMode())
+  {
+  case vtkMRMLSiemensPlcOpcUaNode::UNKNOWN:
+    d->Label_ModeUnknown->setPixmap(QPixmap(":/Icons/green.png"));
+    d->Label_ModeAutomaticManual->setPixmap(QPixmap(":/Icons/gray.png"));
+    d->Label_ModeService->setPixmap(QPixmap(":/Icons/gray.png"));
+    d->Label_ModeKukaControllers->setPixmap(QPixmap(":/Icons/gray.png"));
+    break;
+  case vtkMRMLSiemensPlcOpcUaNode::AUTOMATIC_MANUAL:
+      d->Label_ModeUnknown->setPixmap(QPixmap(":/Icons/gray.png"));
+      d->Label_ModeAutomaticManual->setPixmap(QPixmap(":/Icons/green.png"));
+      d->Label_ModeService->setPixmap(QPixmap(":/Icons/gray.png"));
+      d->Label_ModeKukaControllers->setPixmap(QPixmap(":/Icons/gray.png"));
+      break;
+  case vtkMRMLSiemensPlcOpcUaNode::SERVICE:
+      d->Label_ModeUnknown->setPixmap(QPixmap(":/Icons/gray.png"));
+      d->Label_ModeAutomaticManual->setPixmap(QPixmap(":/Icons/gray.png"));
+      d->Label_ModeService->setPixmap(QPixmap(":/Icons/green.png"));
+      d->Label_ModeKukaControllers->setPixmap(QPixmap(":/Icons/gray.png"));
+      break;
+  case vtkMRMLSiemensPlcOpcUaNode::KUKA_CONTROLLERS:
+      d->Label_ModeUnknown->setPixmap(QPixmap(":/Icons/gray.png"));
+      d->Label_ModeAutomaticManual->setPixmap(QPixmap(":/Icons/gray.png"));
+      d->Label_ModeService->setPixmap(QPixmap(":/Icons/gray.png"));
+      d->Label_ModeKukaControllers->setPixmap(QPixmap(":/Icons/green.png"));
+      break;
+  default:
+      d->Label_ModeUnknown->setPixmap(QPixmap(":/Icons/gray.png"));
+      d->Label_ModeAutomaticManual->setPixmap(QPixmap(":/Icons/gray.png"));
+      d->Label_ModeService->setPixmap(QPixmap(":/Icons/gray.png"));
+      d->Label_ModeKukaControllers->setPixmap(QPixmap(":/Icons/gray.png"));
+      break;
+  }
 }
 
 //-----------------------------------------------------------------------------
@@ -562,7 +596,11 @@ void qSlicerU70RoomOpcUaModuleWidget::namespacesArrayUpdated(const QStringList &
 
   // set client for Siemens PLC widget
   d->PushButton_GetServerInterfaces->setEnabled(true);
-  
+  d->PushButton_ModeAutoAndManual->setEnabled(true);
+  d->PushButton_ModeService->setEnabled(true);
+  d->PushButton_ModeKukaControllers->setEnabled(true);
+  d->PushButton_ModeUnknown->setEnabled(true);
+
   d->SiemensPlcOpcUaControlWidget->setSiemensPlcOpcUaClient(d->OpcUaClient);
   d->SiemensPlcOpcUaControlWidget->onOpcUaClientConnected();
 
