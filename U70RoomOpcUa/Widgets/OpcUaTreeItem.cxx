@@ -464,9 +464,12 @@ QList< QPointer< OpcUaTreeItem > > OpcUaTreeItem::findLeafValueItems(OpcUaTreeIt
     return finalLeaves;
   }
 
-  bool messagesNodesFlag = (item->getNodeDisplayName() == "ErrorMes") || \
-    (item->getNodeDisplayName() == "ServMes") || \
-    (item->getNodeDisplayName() == "Messages");
+  // Since messages are list of flags, we get the item of the messages, rather than
+  // all the children (items of the list ) items of the parent message item
+  bool messagesNodesFlag = \
+    (item->getNodeDisplayName() == QString(ERROR_MESSAGES_NODE)) || \
+    (item->getNodeDisplayName() == QString(SERVICE_MESSAGES_NODE)) || \
+    (item->getNodeDisplayName() == QString(MISC_MESSAGES_NODE));
 
   if (!item->currentChildCount() || messagesNodesFlag)
   {

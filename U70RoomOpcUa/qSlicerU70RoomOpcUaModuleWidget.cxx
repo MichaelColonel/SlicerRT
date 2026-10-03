@@ -164,6 +164,17 @@ void qSlicerU70RoomOpcUaModuleWidgetPrivate::updateUiState()
   if (!this->ClientConnectedFlag)
   {
     this->SiemensPlcMessagesModel->clear();
+
+    this->Label_ModeUnknown->setPixmap(QPixmap(":/Icons/gray.png"));
+    this->Label_ModeAutomaticManual->setPixmap(QPixmap(":/Icons/gray.png"));
+    this->Label_ModeService->setPixmap(QPixmap(":/Icons/gray.png"));
+    this->Label_ModeKukaControllers->setPixmap(QPixmap(":/Icons/gray.png"));
+
+    this->PushButton_GetServerInterfaces->setEnabled(false);
+    this->PushButton_ModeAutoAndManual->setEnabled(false);
+    this->PushButton_ModeService->setEnabled(false);
+    this->PushButton_ModeKukaControllers->setEnabled(false);
+    this->PushButton_ModeUnknown->setEnabled(false);
   }
 }
 
@@ -370,14 +381,14 @@ void qSlicerU70RoomOpcUaModuleWidget::onEnter()
 
   if (!this->mrmlScene())
   {
-    qCritical() << Q_FUNC_INFO << ": Invalid scene!";
+    qCritical() << Q_FUNC_INFO << tr(": Invalid scene!");
     return;
   }
 
   // First check the logic if it has a parameter node
   if (!d->logic())
   {
-    qCritical() << Q_FUNC_INFO << ": Invalid logic!";
+    qCritical() << Q_FUNC_INFO << tr(": Invalid logic!");
     return;
   }
 
@@ -413,9 +424,26 @@ void qSlicerU70RoomOpcUaModuleWidget::updateWidgetFromMRML()
   }
   if (!d->SiemensPlcOpcUaNode)
   {
-    qCritical() << Q_FUNC_INFO << "Siemens PLC node is invalid";
+    qCritical() << Q_FUNC_INFO << tr("Siemens PLC node is invalid");
     return;
   }
+  if (!d->ClientConnectedFlag)
+  {
+    d->SiemensPlcMessagesModel->clear();
+    d->Label_ModeUnknown->setPixmap(QPixmap(":/Icons/gray.png"));
+    d->Label_ModeAutomaticManual->setPixmap(QPixmap(":/Icons/gray.png"));
+    d->Label_ModeService->setPixmap(QPixmap(":/Icons/gray.png"));
+    d->Label_ModeKukaControllers->setPixmap(QPixmap(":/Icons/gray.png"));
+
+    d->PushButton_GetServerInterfaces->setEnabled(false);
+    d->PushButton_ModeAutoAndManual->setEnabled(false);
+    d->PushButton_ModeService->setEnabled(false);
+    d->PushButton_ModeKukaControllers->setEnabled(false);
+    d->PushButton_ModeUnknown->setEnabled(false);
+
+    return;
+  }
+
   uint64_t errBits = d->SiemensPlcOpcUaNode->GetErrorMessages();
   uint64_t servBits = d->SiemensPlcOpcUaNode->GetServiceMessages();
   uint64_t miscBits = d->SiemensPlcOpcUaNode->GetMiscMessages();
@@ -430,29 +458,29 @@ void qSlicerU70RoomOpcUaModuleWidget::updateWidgetFromMRML()
     d->Label_ModeKukaControllers->setPixmap(QPixmap(":/Icons/gray.png"));
     break;
   case vtkMRMLSiemensPlcOpcUaNode::AUTOMATIC_MANUAL:
-      d->Label_ModeUnknown->setPixmap(QPixmap(":/Icons/gray.png"));
-      d->Label_ModeAutomaticManual->setPixmap(QPixmap(":/Icons/green.png"));
-      d->Label_ModeService->setPixmap(QPixmap(":/Icons/gray.png"));
-      d->Label_ModeKukaControllers->setPixmap(QPixmap(":/Icons/gray.png"));
-      break;
+    d->Label_ModeUnknown->setPixmap(QPixmap(":/Icons/gray.png"));
+    d->Label_ModeAutomaticManual->setPixmap(QPixmap(":/Icons/green.png"));
+    d->Label_ModeService->setPixmap(QPixmap(":/Icons/gray.png"));
+    d->Label_ModeKukaControllers->setPixmap(QPixmap(":/Icons/gray.png"));
+    break;
   case vtkMRMLSiemensPlcOpcUaNode::SERVICE:
-      d->Label_ModeUnknown->setPixmap(QPixmap(":/Icons/gray.png"));
-      d->Label_ModeAutomaticManual->setPixmap(QPixmap(":/Icons/gray.png"));
-      d->Label_ModeService->setPixmap(QPixmap(":/Icons/green.png"));
-      d->Label_ModeKukaControllers->setPixmap(QPixmap(":/Icons/gray.png"));
-      break;
+    d->Label_ModeUnknown->setPixmap(QPixmap(":/Icons/gray.png"));
+    d->Label_ModeAutomaticManual->setPixmap(QPixmap(":/Icons/gray.png"));
+    d->Label_ModeService->setPixmap(QPixmap(":/Icons/green.png"));
+    d->Label_ModeKukaControllers->setPixmap(QPixmap(":/Icons/gray.png"));
+    break;
   case vtkMRMLSiemensPlcOpcUaNode::KUKA_CONTROLLERS:
-      d->Label_ModeUnknown->setPixmap(QPixmap(":/Icons/gray.png"));
-      d->Label_ModeAutomaticManual->setPixmap(QPixmap(":/Icons/gray.png"));
-      d->Label_ModeService->setPixmap(QPixmap(":/Icons/gray.png"));
-      d->Label_ModeKukaControllers->setPixmap(QPixmap(":/Icons/green.png"));
-      break;
+    d->Label_ModeUnknown->setPixmap(QPixmap(":/Icons/gray.png"));
+    d->Label_ModeAutomaticManual->setPixmap(QPixmap(":/Icons/gray.png"));
+    d->Label_ModeService->setPixmap(QPixmap(":/Icons/gray.png"));
+    d->Label_ModeKukaControllers->setPixmap(QPixmap(":/Icons/green.png"));
+    break;
   default:
-      d->Label_ModeUnknown->setPixmap(QPixmap(":/Icons/gray.png"));
-      d->Label_ModeAutomaticManual->setPixmap(QPixmap(":/Icons/gray.png"));
-      d->Label_ModeService->setPixmap(QPixmap(":/Icons/gray.png"));
-      d->Label_ModeKukaControllers->setPixmap(QPixmap(":/Icons/gray.png"));
-      break;
+    d->Label_ModeUnknown->setPixmap(QPixmap(":/Icons/gray.png"));
+    d->Label_ModeAutomaticManual->setPixmap(QPixmap(":/Icons/gray.png"));
+    d->Label_ModeService->setPixmap(QPixmap(":/Icons/gray.png"));
+    d->Label_ModeKukaControllers->setPixmap(QPixmap(":/Icons/gray.png"));
+    break;
   }
 }
 
@@ -477,7 +505,7 @@ void qSlicerU70RoomOpcUaModuleWidget::findServers()
   if (d->OpcUaClient)
   {
     d->OpcUaClient->findServers(url, localeIds, serverUris);
-    qDebug() << "Discovering servers on " << url.toString();
+    qDebug() << Q_FUNC_INFO << tr("Discovering servers on") << url.toString();
   }
 }
 
@@ -533,7 +561,7 @@ void qSlicerU70RoomOpcUaModuleWidget::getEndpointsComplete(const QVector<QOpcUaE
     {
       if (endpoint.securityMode() > sizeof(modes))
       {
-        qWarning() << "Invalid security mode";
+        qWarning() << Q_FUNC_INFO << tr("Invalid security mode");
         continue;
       }
       const QString EndpointName = QString("%1 (%2)").arg(endpoint.securityPolicy(), modes[endpoint.securityMode()]);

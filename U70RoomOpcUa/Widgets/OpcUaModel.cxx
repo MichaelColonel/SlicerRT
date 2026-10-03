@@ -24,6 +24,12 @@
 #include <QOpcUaNode>
 #include <QIcon>
 
+namespace
+{
+
+QStringList nodes{ "RTK_PLC", "ASU", "Buttoms", "AM_MM", "SM", "KCM" };
+
+}
 OpcUaModel::OpcUaModel(QObject *parent)
   :
   QAbstractItemModel(parent)
@@ -34,10 +40,11 @@ void OpcUaModel::setOpcUaClient(QOpcUaClient *client)
 {
   this->beginResetModel();
   mOpcUaClient = client;
+
   if (mOpcUaClient)
   {
- //   mRootItem.reset(new OpcUaTreeItem(client->node("ns=0;i=84"), this /* model */, nullptr /* parent */));
-    mRootItem.reset(new OpcUaTreeItem(client->node(OpcUaTreeItem::SIEMENS_PLC_SERVER_INTERFACES_NODE_ID), this /* model */, nullptr /* parent */));
+    mRootItem.reset(new OpcUaTreeItem(client->node("ns=0;i=84"), this /* model */, nullptr /* parent */));
+ //   mRootItem.reset(new OpcUaTreeItem(client->node(OpcUaTreeItem::SIEMENS_PLC_SERVER_INTERFACES_NODE_ID), this /* model */, nullptr /* parent */));
   }
   else
   {
