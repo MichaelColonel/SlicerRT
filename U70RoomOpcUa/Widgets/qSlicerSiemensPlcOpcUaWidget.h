@@ -148,6 +148,19 @@ public slots:
   void onMakeXrayPressed();
   void onMakeXrayReleased();
 
+  void onCoordFromAsuXClicked();
+  void onCoordFromAsuYClicked();
+  void onCoordFromAsuZClicked();
+  void onCoordFromAsuXrayZClicked();
+  void onCoordFromAsuAClicked();
+  void onCoordFromAsuBClicked();
+  void onCoordFromAsuCClicked();
+
+  void onSetR1TscCoordsClicked();
+  void onSetR1TscAnglesClicked();
+  void onSetR2TscCoordsClicked();
+  void onSetR2TscAnglesClicked();
+
   void onServerInterfacesRead(QOpcUa::NodeAttributes attr);
   void onReadStatusAndMessagesClicked();
 

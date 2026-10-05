@@ -267,12 +267,8 @@ void qSlicerU70RoomOpcUaModuleWidget::setup()
   QObject::connect(this, SIGNAL(siemensPlcOpcUaModeChanged(vtkMRMLSiemensPlcOpcUaNode::ModeType)),
     d->SiemensPlcOpcUaControlWidget.data(), SLOT(onOpcUaModeChanged(vtkMRMLSiemensPlcOpcUaNode::ModeType)));
 
-  // qLogic
-//  QObject::connect(d->ScadaOpcUaLogic.data(), SIGNAL(opcUaClientConnected(bool)),
-//    this, SLOT(onScadaLogicConnected(bool)));
-    
   // Handle scene change event if occurs
-//  qvtkConnect(d->logic(), vtkCommand::ModifiedEvent, this, SLOT(onScadaOpcUaLogicModified()));
+  qvtkConnect(d->logic(), vtkCommand::ModifiedEvent, this, SLOT(onOpcUaLogicModified()));
 }
 
 void qSlicerU70RoomOpcUaModuleWidget::onShowSiemensPlcControlsClicked()
@@ -353,16 +349,12 @@ void qSlicerU70RoomOpcUaModuleWidget::onSceneImportedEvent()
 void qSlicerU70RoomOpcUaModuleWidget::onSceneClosedEvent()
 {
   Q_D(qSlicerU70RoomOpcUaModuleWidget);
-
-  qDebug() << Q_FUNC_INFO << "Scene is closed";
 }
 
 //-----------------------------------------------------------------------------
-void qSlicerU70RoomOpcUaModuleWidget::onScadaOpcUaLogicModified()
+void qSlicerU70RoomOpcUaModuleWidget::onOpcUaLogicModified()
 {
   Q_D(qSlicerU70RoomOpcUaModuleWidget);
-
-  qDebug() << Q_FUNC_INFO << "Logic modified";
 }
 
 //-----------------------------------------------------------------------------
@@ -618,7 +610,7 @@ void qSlicerU70RoomOpcUaModuleWidget::namespacesArrayUpdated(const QStringList &
 
   if (namespaceArray.isEmpty())
   {
-    qWarning() << "Failed to retrieve the namespaces array";
+    qWarning() << Q_FUNC_INFO << tr("Failed to retrieve the namespaces array");
     return;
   }
 
@@ -676,14 +668,12 @@ void qSlicerU70RoomOpcUaModuleWidget::showErrorDialog(QOpcUaErrorState *errorSta
 void qSlicerU70RoomOpcUaModuleWidget::clientError(QOpcUaClient::ClientError error)
 {
   Q_D(qSlicerU70RoomOpcUaModuleWidget);
-  qDebug() << "Client error changed" << error;
 }
 
 //-----------------------------------------------------------------------------
 void qSlicerU70RoomOpcUaModuleWidget::clientState(QOpcUaClient::ClientState state)
 {
   Q_D(qSlicerU70RoomOpcUaModuleWidget);
-  qDebug() << "Client state changed" << state;
   switch (state)
   {
   case QOpcUaClient::ClientState::Closing:

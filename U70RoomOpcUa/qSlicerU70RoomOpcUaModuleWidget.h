@@ -50,7 +50,7 @@ public slots:
   void onShowSiemensPlcControlsClicked();
   /// Set the current MRML scene to the widget
   void setMRMLScene(vtkMRMLScene*) override;
-  void onScadaOpcUaLogicModified();
+  void onOpcUaLogicModified();
 
   /// Process loaded scene
   void onSceneImportedEvent();
