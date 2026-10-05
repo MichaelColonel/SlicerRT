@@ -106,7 +106,7 @@ const QString BUTTONS_SM_R1_BREAKTEST_NODE_NAME = BUTTONS_SM_NODE_NAME + ".Brake
 const QString BUTTONS_SM_R1_BREAKTEST_PRESSED_NODE_NAME = BUTTONS_SM_R1_BREAKTEST_NODE_NAME + IS_PRESSED;
 const QString BUTTONS_SM_R1_BREAKTEST_ENABLED_NODE_NAME = BUTTONS_SM_R1_BREAKTEST_NODE_NAME + IS_ENABLED;
 
-const QString BUTTONS_SM_R1_MASREFTEST_NODE_NAME = BUTTONS_SM_NODE_NAME + ".MasterRefTestR1";
+const QString BUTTONS_SM_R1_MASREFTEST_NODE_NAME = BUTTONS_SM_NODE_NAME + ".MasRefTestR1";
 const QString BUTTONS_SM_R1_MASREFTEST_PRESSED_NODE_NAME = BUTTONS_SM_R1_MASREFTEST_NODE_NAME + IS_PRESSED;
 const QString BUTTONS_SM_R1_MASREFTEST_ENABLED_NODE_NAME = BUTTONS_SM_R1_MASREFTEST_NODE_NAME + IS_ENABLED;
 
@@ -130,7 +130,7 @@ const QString BUTTONS_SM_R2_BREAKTEST_NODE_NAME = BUTTONS_SM_NODE_NAME + ".Brake
 const QString BUTTONS_SM_R2_BREAKTEST_PRESSED_NODE_NAME = BUTTONS_SM_R2_BREAKTEST_NODE_NAME + IS_PRESSED;
 const QString BUTTONS_SM_R2_BREAKTEST_ENABLED_NODE_NAME = BUTTONS_SM_R2_BREAKTEST_NODE_NAME + IS_ENABLED;
 
-const QString BUTTONS_SM_R2_MASREFTEST_NODE_NAME = BUTTONS_SM_NODE_NAME + ".MasterRefTestR2";
+const QString BUTTONS_SM_R2_MASREFTEST_NODE_NAME = BUTTONS_SM_NODE_NAME + ".MasRefTestR2";
 const QString BUTTONS_SM_R2_MASREFTEST_PRESSED_NODE_NAME = BUTTONS_SM_R2_MASREFTEST_NODE_NAME + IS_PRESSED;
 const QString BUTTONS_SM_R2_MASREFTEST_ENABLED_NODE_NAME = BUTTONS_SM_R2_MASREFTEST_NODE_NAME + IS_ENABLED;
 
@@ -2779,6 +2779,7 @@ bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectAutoManualR2ToPlane1Nodes()
     return false;
   }
 
+  qDebug() << Q_FUNC_INFO << "1";
   vtkMRMLSiemensPlcOpcUaNode* mrmlNode = this->ParameterNode.GetPointer();
   // AutoManual R2 ToPlane1 button enabled node
   QOpcUaNode* amR2ToPlane1EnabledNode = this->FindNodeFromFullDisplayName(BUTTONS_AM_R2_TOPLANE1_ENABLED_NODE_NAME);
@@ -2804,6 +2805,7 @@ bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectAutoManualR2ToPlane1Nodes()
       }
     }
   );
+  qDebug() << Q_FUNC_INFO << "2";
   QObject::connect(amR2ToPlane1EnabledNode,
     &QOpcUaNode::attributeRead, [amR2ToPlane1EnabledNode, mrmlNode](QOpcUa::NodeAttributes attr)
     {
@@ -2825,9 +2827,10 @@ bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectAutoManualR2ToPlane1Nodes()
       }
     }
   );
+  qDebug() << Q_FUNC_INFO << "3";
   // Subscribe to data changes
   amR2ToPlane1EnabledNode->enableMonitoring(QOpcUa::NodeAttribute::Value, QOpcUaMonitoringParameters(1000));
-
+  qDebug() << Q_FUNC_INFO << "4";
   // AutoManual R2 ToPlane1 button pressed node
   if (!amR2ToPlane1PressedNode)
   {
@@ -2847,6 +2850,7 @@ bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectAutoManualR2ToPlane1Nodes()
       }
     }
   );
+  qDebug() << Q_FUNC_INFO << "5";
   QObject::connect(amR2ToPlane1PressedNode,
     &QOpcUaNode::attributeRead, [amR2ToPlane1PressedNode, mrmlNode](QOpcUa::NodeAttributes attr)
     {
@@ -2868,8 +2872,10 @@ bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectAutoManualR2ToPlane1Nodes()
       }
     }
   );
+  qDebug() << Q_FUNC_INFO << "6";
   // Subscribe to data changes
   amR2ToPlane1PressedNode->enableMonitoring(QOpcUa::NodeAttribute::Value, QOpcUaMonitoringParameters(1000));
+  qDebug() << Q_FUNC_INFO << "7";
   return true;
 }
 
@@ -6342,7 +6348,8 @@ void qSlicerSiemensPlcOpcUaWidget::onParseServerInterfacesClicked()
   if (d->ServerInterfacesNode)
   {
     qDebug() << Q_FUNC_INFO << "ServerInterfaces node is OK";
-    QObject::connect(d->ServerInterfacesNode.data(), &QOpcUaNode::attributeRead, this, &qSlicerSiemensPlcOpcUaWidget::onServerInterfacesRead);
+    QObject::connect(d->ServerInterfacesNode.data(), &QOpcUaNode::attributeRead,
+      this, &qSlicerSiemensPlcOpcUaWidget::onServerInterfacesRead, Qt::UniqueConnection);
     d->ServerInterfacesNode->readAttributes(QOpcUa::NodeAttribute::DisplayName);
   }
 /*
@@ -7155,7 +7162,15 @@ void qSlicerSiemensPlcOpcUaWidget::onServerInterfacesRead(QOpcUa::NodeAttributes
     }
 
     bool moveButtons = d->ConnectAutoManualMovementNodes();
+    if (moveButtons)
+    {
+      qDebug() << Q_FUNC_INFO << "AutoManual move buttons nodes are OK";
+    }
     moveButtons &= d->ConnectServiceMovementNodes();
+    if (moveButtons)
+    {
+      qDebug() << Q_FUNC_INFO << "AutoManual & Service move buttons nodes are OK";
+    }
     moveButtons &= d->ConnectKukaMovementNodes();
     if (moveButtons)
     {
@@ -7190,6 +7205,7 @@ void qSlicerSiemensPlcOpcUaWidget::onServerInterfacesRead(QOpcUa::NodeAttributes
       qDebug() << Q_FUNC_INFO << "R2 axis and coords nodes are OK";
     }
   }
+  d->ParameterNode->Modified();
 }
 
 //-----------------------------------------------------------------------------

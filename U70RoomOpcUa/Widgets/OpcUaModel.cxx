@@ -43,8 +43,8 @@ void OpcUaModel::setOpcUaClient(QOpcUaClient *client)
 
   if (mOpcUaClient)
   {
-    mRootItem.reset(new OpcUaTreeItem(client->node("ns=0;i=84"), this /* model */, nullptr /* parent */));
- //   mRootItem.reset(new OpcUaTreeItem(client->node(OpcUaTreeItem::SIEMENS_PLC_SERVER_INTERFACES_NODE_ID), this /* model */, nullptr /* parent */));
+//    mRootItem.reset(new OpcUaTreeItem(client->node("ns=0;i=84"), this /* model */, nullptr /* parent */));
+    mRootItem.reset(new OpcUaTreeItem(client->node(OpcUaTreeItem::SIEMENS_PLC_SERVER_INTERFACES_NODE_ID), this /* model */, nullptr /* parent */));
   }
   else
   {
