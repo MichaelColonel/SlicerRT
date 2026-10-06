@@ -37,9 +37,11 @@
 
 namespace {
 
-const QString PARENT_NODE_DISPLAYED_NAME = "ServerInterfaces";
+constexpr const char* PARENT_NODE_DISPLAYED_NAME = "ServerInterfaces";
+constexpr const char* SIEMENS_PLC_CURRENT_TIME_NODE_ID = "ns=0;i=2258";
 
-const QString RTK_PLC_NODE_NAME = PARENT_NODE_DISPLAYED_NAME + ".RTK_PLC";
+const QString SIEMENS_PLC_SERVER_INTERFACES_NODE_ID = "ns=3;s=" + QString(PARENT_NODE_DISPLAYED_NAME);
+const QString RTK_PLC_NODE_NAME = QString(PARENT_NODE_DISPLAYED_NAME) + ".RTK_PLC";
 const QString ASU_NODE_NAME = RTK_PLC_NODE_NAME + ".ASU";
 const QString ASU_ERROR_MESSAGES_NODE_NAME = ASU_NODE_NAME + ".ErrorMes";
 const QString ASU_SERVICE_MESSAGES_NODE_NAME = ASU_NODE_NAME + ".ServMes";
@@ -344,10 +346,8 @@ public:
   vtkWeakPointer< vtkMRMLSiemensPlcOpcUaNode > ParameterNode;
 
   // Parse parent node
-  const QString SIEMENS_PLC_SERVER_INTERFACES_NODE_ID = "ns=3;s=ServerInterfaces";
   QScopedPointer<QOpcUaNode> ServerInterfacesNode;
   // Monitored node
-  const QString SIEMENS_PLC_CURRENT_TIME_NODE_ID = "ns=0;i=2258";
   QScopedPointer<QOpcUaNode> CurrentTimeNode; // Siemens PLC monitored node to prevent session timeout ending
 
   QMap< QString, NodeData > NodeNameDataMap; // key - node unique full name, value - node data
@@ -6323,7 +6323,7 @@ void qSlicerSiemensPlcOpcUaWidget::onOpcUaClientConnected()
   d->SiemensPlcOpcUaModel->setOpcUaClient(sharedClient.data());
   d->TreeView_OpcUaModel->header()->setSectionResizeMode(1 /* Value column*/, QHeaderView::Interactive);
 
-  d->CurrentTimeNode.reset(sharedClient->node(d->SIEMENS_PLC_CURRENT_TIME_NODE_ID));
+  d->CurrentTimeNode.reset(sharedClient->node(SIEMENS_PLC_CURRENT_TIME_NODE_ID));
   if (d->CurrentTimeNode)
   {
     qDebug() << Q_FUNC_INFO << "Current time node is OK";
