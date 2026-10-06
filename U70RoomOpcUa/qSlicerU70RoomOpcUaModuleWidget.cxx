@@ -298,6 +298,8 @@ void qSlicerU70RoomOpcUaModuleWidget::onShowSiemensPlcControlsClicked()
   layoutManager->resumeRender();
 
   slicerApplication->processEvents();
+
+  d->SiemensPlcOpcUaNode->Modified();
 }
 
 //-----------------------------------------------------------------------------
@@ -620,7 +622,7 @@ void qSlicerU70RoomOpcUaModuleWidget::namespacesArrayUpdated(const QStringList &
   d->PushButton_ModeService->setEnabled(true);
   d->PushButton_ModeKukaControllers->setEnabled(true);
   d->PushButton_ModeUnknown->setEnabled(true);
-
+  
   d->SiemensPlcOpcUaControlWidget->setSiemensPlcOpcUaClient(d->OpcUaClient);
   d->SiemensPlcOpcUaControlWidget->onOpcUaClientConnected();
 

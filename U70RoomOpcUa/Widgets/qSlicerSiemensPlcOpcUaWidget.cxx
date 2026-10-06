@@ -40,16 +40,20 @@ namespace {
 constexpr const char* PARENT_NODE_DISPLAYED_NAME = "ServerInterfaces";
 constexpr const char* SIEMENS_PLC_CURRENT_TIME_NODE_ID = "ns=0;i=2258";
 
-const QString SIEMENS_PLC_SERVER_INTERFACES_NODE_ID = "ns=3;s=" + QString(PARENT_NODE_DISPLAYED_NAME);
+const QString SIEMENS_PLC_SERVER_INTERFACES_NODE_ID = QString("ns=3;s=") + PARENT_NODE_DISPLAYED_NAME;
 const QString RTK_PLC_NODE_NAME = QString(PARENT_NODE_DISPLAYED_NAME) + ".RTK_PLC";
 const QString ASU_NODE_NAME = RTK_PLC_NODE_NAME + ".ASU";
-const QString ASU_ERROR_MESSAGES_NODE_NAME = ASU_NODE_NAME + ".ErrorMes";
-const QString ASU_SERVICE_MESSAGES_NODE_NAME = ASU_NODE_NAME + ".ServMes";
-const QString ASU_MESSAGES_NODE_NAME = ASU_NODE_NAME + ".Messages";
+
+const QString ASU_ERROR_MESSAGES_NODE_NAME = ASU_NODE_NAME + QString(QChar('.')) + OpcUaTreeItem::ERROR_MESSAGES_NODE;
+const QString ASU_SERVICE_MESSAGES_NODE_NAME = ASU_NODE_NAME + QString(QChar('.')) + OpcUaTreeItem::SERVICE_MESSAGES_NODE;
+const QString ASU_MESSAGES_NODE_NAME = ASU_NODE_NAME + QString(QChar('.')) + OpcUaTreeItem::MISC_MESSAGES_NODE;
+
 const QString ASU_MODE_NODE_NAME = ASU_NODE_NAME + ".Mode";
+
 const QString ASU_STATUS_RTK_NODE_NAME = ASU_NODE_NAME + ".Status_RTK";
 const QString ASU_STATUS_R1_TABLE_NODE_NAME = ASU_NODE_NAME + ".Status_R1_deka";
 const QString ASU_STATUS_R2_CARM_NODE_NAME = ASU_NODE_NAME + ".Status_R2_C_Duga";
+
 const QString ASU_COORDS_NODE_NAME = ASU_NODE_NAME + ".CoordFromASU";
 const QString ASU_COORDS_X_NODE_NAME = ASU_COORDS_NODE_NAME + ".X";
 const QString ASU_COORDS_Y_NODE_NAME = ASU_COORDS_NODE_NAME + ".Y";
@@ -63,6 +67,8 @@ const QString ASU_ROBOTS_READY_XRAY1_NODE_NAME = ASU_NODE_NAME + ".RobotsReadyFo
 const QString ASU_ROBOTS_READY_XRAY2_NODE_NAME = ASU_NODE_NAME + ".RobotsReadyForXray2";
 const QString ASU_ROBOTS_READY_BEAM_NODE_NAME = ASU_NODE_NAME + ".RobotsReadyForBeam";
 const QString ASU_PATIENT_ON_TABLE_NODE_NAME = ASU_NODE_NAME + ".HUMAN_ON_DEKA";
+const QString ASU_TABLE_POSITION_NODE_NAME = ASU_NODE_NAME + ".DekaPosition";
+const QString ASU_EMEVAC_SIGNAL_NODE_NAME = ASU_NODE_NAME + ".EmEvacuationSignal";
 
 const QString IS_PRESSED = ".isPressed";
 const QString IS_ENABLED = ".isEnable";
@@ -340,16 +346,17 @@ public:
   bool ConnectMakeXrayNodes();
 
   bool ConnectPatientOnTableTopNode();
+  bool ConnectTablePositionNode();
+  bool ConnectEmergencyEvacuationSignalNode();
 
   QScopedPointer< OpcUaModel > SiemensPlcOpcUaModel;
   QWeakPointer< QOpcUaClient > OpcUaClient;
   vtkWeakPointer< vtkMRMLSiemensPlcOpcUaNode > ParameterNode;
 
   // Parse parent node
-  QScopedPointer<QOpcUaNode> ServerInterfacesNode;
+  QScopedPointer< QOpcUaNode > ServerInterfacesNode;
   // Monitored node
-  QScopedPointer<QOpcUaNode> CurrentTimeNode; // Siemens PLC monitored node to prevent session timeout ending
-
+  QScopedPointer< QOpcUaNode > CurrentTimeNode; // Siemens PLC monitored node to prevent session timeout ending
   QMap< QString, NodeData > NodeNameDataMap; // key - node unique full name, value - node data
 };
 
@@ -463,7 +470,6 @@ bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectMessagesNodes()
   }
 
   vtkMRMLSiemensPlcOpcUaNode* mrmlNode = this->ParameterNode.GetPointer();
-  // write values
   // Error messages
   QOpcUaNode* errMessagesNode = this->FindNodeFromFullDisplayName(ASU_ERROR_MESSAGES_NODE_NAME);
   // Service messages
@@ -890,7 +896,7 @@ bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectAutoManualR1R2EmergencyEvacuati
 
   vtkMRMLSiemensPlcOpcUaNode* mrmlNode = this->ParameterNode.GetPointer();
   // AutoManual R1R2 EmergencyEvacuation button enabled node
-  QOpcUaNode* amR1R2EmEvacEnabledNode = this->FindNodeFromFullDisplayName(BUTTONS_AM_R1R2_EMEVAC_PRESSED_NODE_NAME);
+  QOpcUaNode* amR1R2EmEvacEnabledNode = this->FindNodeFromFullDisplayName(BUTTONS_AM_R1R2_EMEVAC_ENABLED_NODE_NAME);
   // AutoManual R1R2 EmergencyEvacuation button pressed node
   QOpcUaNode* amR1R2EmEvacPressedNode = this->FindNodeFromFullDisplayName(BUTTONS_AM_R1R2_EMEVAC_PRESSED_NODE_NAME);
 
@@ -2337,19 +2343,22 @@ bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectServiceRestartNodes()
 //-----------------------------------------------------------------------------
 bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectServiceMovementNodes()
 {
-  bool res = this->ConnectServiceR1BreakTestNodes();
+  bool res = true;
+
   res &= this->ConnectServiceR1BreakTestNodes();
   res &= this->ConnectServiceR1MasterRefTestNodes();
   res &= this->ConnectServiceR1LoadNodes();
   res &= this->ConnectServiceR1ServicePos1Nodes();
   res &= this->ConnectServiceR1ServicePos2Nodes();
   res &= this->ConnectServiceR1ServicePos3Nodes();
+
   res &= this->ConnectServiceR2BreakTestNodes();
   res &= this->ConnectServiceR2MasterRefTestNodes();
   res &= this->ConnectServiceR2HomeNodes();
   res &= this->ConnectServiceR2ServicePos1Nodes();
   res &= this->ConnectServiceR2ServicePos2Nodes();
   res &= this->ConnectServiceR2ServicePos3Nodes();
+
   return res;
 }
 
@@ -2778,8 +2787,6 @@ bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectAutoManualR2ToPlane1Nodes()
   {
     return false;
   }
-
-  qDebug() << Q_FUNC_INFO << "1";
   vtkMRMLSiemensPlcOpcUaNode* mrmlNode = this->ParameterNode.GetPointer();
   // AutoManual R2 ToPlane1 button enabled node
   QOpcUaNode* amR2ToPlane1EnabledNode = this->FindNodeFromFullDisplayName(BUTTONS_AM_R2_TOPLANE1_ENABLED_NODE_NAME);
@@ -2805,7 +2812,6 @@ bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectAutoManualR2ToPlane1Nodes()
       }
     }
   );
-  qDebug() << Q_FUNC_INFO << "2";
   QObject::connect(amR2ToPlane1EnabledNode,
     &QOpcUaNode::attributeRead, [amR2ToPlane1EnabledNode, mrmlNode](QOpcUa::NodeAttributes attr)
     {
@@ -2827,10 +2833,9 @@ bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectAutoManualR2ToPlane1Nodes()
       }
     }
   );
-  qDebug() << Q_FUNC_INFO << "3";
   // Subscribe to data changes
   amR2ToPlane1EnabledNode->enableMonitoring(QOpcUa::NodeAttribute::Value, QOpcUaMonitoringParameters(1000));
-  qDebug() << Q_FUNC_INFO << "4";
+
   // AutoManual R2 ToPlane1 button pressed node
   if (!amR2ToPlane1PressedNode)
   {
@@ -2850,7 +2855,6 @@ bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectAutoManualR2ToPlane1Nodes()
       }
     }
   );
-  qDebug() << Q_FUNC_INFO << "5";
   QObject::connect(amR2ToPlane1PressedNode,
     &QOpcUaNode::attributeRead, [amR2ToPlane1PressedNode, mrmlNode](QOpcUa::NodeAttributes attr)
     {
@@ -2872,10 +2876,8 @@ bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectAutoManualR2ToPlane1Nodes()
       }
     }
   );
-  qDebug() << Q_FUNC_INFO << "6";
   // Subscribe to data changes
   amR2ToPlane1PressedNode->enableMonitoring(QOpcUa::NodeAttribute::Value, QOpcUaMonitoringParameters(1000));
-  qDebug() << Q_FUNC_INFO << "7";
   return true;
 }
 
@@ -2987,13 +2989,16 @@ bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectAutoManualR2ToPlane2Nodes()
 bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectAutoManualMovementNodes()
 {
   bool res = this->ConnectAutoManualR1ToLoadNodes();
+
   res &= this->ConnectAutoManualR1LoadToIsoNodes();
   res &= this->ConnectAutoManualR1ToNewCoordsNodes();
   res &= this->ConnectAutoManualR2ToHomeNodes();
+
   res &= this->ConnectAutoManualR2ToPlane1Nodes();
   res &= this->ConnectAutoManualR2ToPlane2Nodes();
   res &= this->ConnectAutoManualR1R2EmergencyEvacuationNodes();
   res &= this->ConnectAutoManualApplyTablePositionNodes();
+
   return res;
 }
 
@@ -5419,6 +5424,126 @@ bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectPatientOnTableTopNode()
 }
 
 //-----------------------------------------------------------------------------
+bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectTablePositionNode()
+{
+  QSharedPointer< QOpcUaClient > opcUaClient = this->OpcUaClient.toStrongRef();
+
+  if (!opcUaClient || !this->ParameterNode)
+  {
+    return false;
+  }
+
+  vtkMRMLSiemensPlcOpcUaNode* mrmlNode = this->ParameterNode.GetPointer();
+
+  // TableTop position (orientation) node
+  QOpcUaNode* tablePosNode = this->FindNodeFromFullDisplayName(ASU_TABLE_POSITION_NODE_NAME);
+
+  // Connect signal handlers for subscribed values
+  if (!tablePosNode)
+  {
+    return false;
+  }
+  QObject::connect(tablePosNode,
+    &QOpcUaNode::dataChangeOccurred, [mrmlNode](QOpcUa::NodeAttribute attr, QVariant value)
+    {
+      if (attr == QOpcUa::NodeAttribute::Value && value.canConvert< bool >())
+      {
+        bool ok = false;
+        int tablePos = value.toInt(&ok); // Get the attribute from the cache
+        if (ok)
+        {
+          mrmlNode->SetTableTopPosition(tablePos);
+          qDebug() << Q_FUNC_INFO << "TableTop position value changed:" << tablePos;
+        }
+      }
+    }
+  );
+  QObject::connect(tablePosNode,
+    &QOpcUaNode::attributeRead, [tablePosNode, mrmlNode](QOpcUa::NodeAttributes attr)
+    {
+      if (!tablePosNode || !mrmlNode)
+      {
+        return;
+      }
+      if (attr & QOpcUa::NodeAttribute::Value)
+      {
+        if (tablePosNode->attributeError(QOpcUa::NodeAttribute::Value) == QOpcUa::UaStatusCode::Good)
+        {
+          QVariant value = tablePosNode->attribute(QOpcUa::NodeAttribute::Value);
+          bool ok = false;
+          int tablePos = value.toInt(&ok); // Get the attribute from the cache
+          if (ok)
+          {
+            mrmlNode->SetTableTopPosition(tablePos);
+            qDebug() << Q_FUNC_INFO << "TableTop position value read:" << tablePos;
+          }
+        }
+      }
+    }
+  );
+  // Subscribe to data changes
+  tablePosNode->enableMonitoring(QOpcUa::NodeAttribute::Value, QOpcUaMonitoringParameters(1000));
+
+  return true;
+}
+
+//-----------------------------------------------------------------------------
+bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectEmergencyEvacuationSignalNode()
+{
+  QSharedPointer< QOpcUaClient > opcUaClient = this->OpcUaClient.toStrongRef();
+
+  if (!opcUaClient || !this->ParameterNode)
+  {
+    return false;
+  }
+
+  vtkMRMLSiemensPlcOpcUaNode* mrmlNode = this->ParameterNode.GetPointer();
+
+  // Emergency Evacuation signal flag node
+  QOpcUaNode* emEvacSignalNode = this->FindNodeFromFullDisplayName(ASU_EMEVAC_SIGNAL_NODE_NAME);
+
+  // Connect signal handlers for subscribed values
+  if (!emEvacSignalNode)
+  {
+    return false;
+  }
+  QObject::connect(emEvacSignalNode,
+    &QOpcUaNode::dataChangeOccurred, [mrmlNode](QOpcUa::NodeAttribute attr, QVariant value)
+    {
+      if (attr == QOpcUa::NodeAttribute::Value && value.canConvert< bool >())
+      {
+        bool flagValue = value.toBool();
+        mrmlNode->SetEmergencyEvacSignal(flagValue);
+        qDebug() << Q_FUNC_INFO << "Emergency Evacuation signal flag changed:" << flagValue;
+      }
+    }
+  );
+  QObject::connect(emEvacSignalNode,
+    &QOpcUaNode::attributeRead, [emEvacSignalNode, mrmlNode](QOpcUa::NodeAttributes attr)
+    {
+      if (!emEvacSignalNode || !mrmlNode)
+      {
+        return;
+      }
+      if (attr & QOpcUa::NodeAttribute::Value)
+      {
+        if (emEvacSignalNode->attributeError(QOpcUa::NodeAttribute::Value) == QOpcUa::UaStatusCode::Good)
+        {
+          QVariant value = emEvacSignalNode->attribute(QOpcUa::NodeAttribute::Value);
+          bool flagValue = value.toBool(); // Get the attribute from the cache
+          mrmlNode->SetEmergencyEvacSignal(flagValue);
+          qDebug() << Q_FUNC_INFO << "Emergency Evacuation signal flag read:" << flagValue;
+        }
+      }
+    }
+  );
+  // Subscribe to data changes
+  emEvacSignalNode->enableMonitoring(QOpcUa::NodeAttribute::Value, QOpcUaMonitoringParameters(1000));
+
+  return true;
+}
+
+//-----------------------------------------------------------------------------
 void qSlicerSiemensPlcOpcUaWidgetPrivate::ExpandAllAsync(QTreeView *view, QAbstractItemModel* model, const QModelIndex &parentIndex)
 {
   if (parentIndex.isValid())
@@ -6142,6 +6267,10 @@ qSlicerSiemensPlcOpcUaWidget::qSlicerSiemensPlcOpcUaWidget(QWidget* parentWidget
   QObject::connect(d->PushButton_SetR2TscAngles, SIGNAL(clicked()),
     this, SLOT(onSetR2TscAnglesClicked()));
 
+  QObject::connect(d->ButtonGroup_TableTopPosition, SIGNAL(buttonClicked(QAbstractButton*)),
+    this, SLOT(onTablePositionChanged(QAbstractButton*)));
+
+  // Read nodes manually 
   QObject::connect(d->PushButton_ReadStatusAndMessages, SIGNAL(clicked()),
     this, SLOT(onReadStatusAndMessagesClicked()));
 }
@@ -6185,44 +6314,7 @@ void qSlicerSiemensPlcOpcUaWidget::updateWidgetFromMRML()
   d->CollapsibleButton_AutomaticManualMovement->setEnabled(true);
   d->CollapsibleButton_ServiceMovement->setEnabled(true);
   d->CollapsibleButton_KukaControllersMovement->setEnabled(true);
-/*
-  switch (d->ParameterNode->GetMode())
-  {
-  case vtkMRMLSiemensPlcOpcUaNode::AUTOMATIC_MANUAL:
-    d->CollapsibleButton_AutomaticManualMovement->setEnabled(true);
-    d->CollapsibleButton_AutomaticManualMovement->setCollapsed(false);
-    d->CollapsibleButton_ServiceMovement->setEnabled(false);
-    d->CollapsibleButton_ServiceMovement->setCollapsed(true);
-    d->CollapsibleButton_KukaControllersMovement->setEnabled(false);
-    d->CollapsibleButton_KukaControllersMovement->setCollapsed(true);
-    break;
-  case vtkMRMLSiemensPlcOpcUaNode::SERVICE:
-    d->CollapsibleButton_AutomaticManualMovement->setEnabled(false);
-    d->CollapsibleButton_AutomaticManualMovement->setCollapsed(true);
-    d->CollapsibleButton_ServiceMovement->setEnabled(true);
-    d->CollapsibleButton_ServiceMovement->setCollapsed(false);
-    d->CollapsibleButton_KukaControllersMovement->setEnabled(false);
-    d->CollapsibleButton_KukaControllersMovement->setCollapsed(true);
-    break;
-  case vtkMRMLSiemensPlcOpcUaNode::KUKA_CONTROLLERS:
-    d->CollapsibleButton_AutomaticManualMovement->setEnabled(false);
-    d->CollapsibleButton_AutomaticManualMovement->setCollapsed(true);
-    d->CollapsibleButton_ServiceMovement->setEnabled(false);
-    d->CollapsibleButton_ServiceMovement->setCollapsed(true);
-    d->CollapsibleButton_KukaControllersMovement->setEnabled(true);
-    d->CollapsibleButton_KukaControllersMovement->setCollapsed(false);
-    break;
-  case vtkMRMLSiemensPlcOpcUaNode::UNKNOWN:
-    d->CollapsibleButton_AutomaticManualMovement->setEnabled(false);
-    d->CollapsibleButton_AutomaticManualMovement->setCollapsed(true);
-    d->CollapsibleButton_ServiceMovement->setEnabled(false);
-    d->CollapsibleButton_ServiceMovement->setCollapsed(true);
-    d->CollapsibleButton_KukaControllersMovement->setEnabled(false);
-    d->CollapsibleButton_KukaControllersMovement->setCollapsed(true);
-  default:
-    break;
-  }
-*/
+
   bool buttonState[2] = { false, false };
   // AM
   d->ParameterNode->GetAutoManualR1ToLoad(buttonState);
@@ -6306,6 +6398,38 @@ void qSlicerSiemensPlcOpcUaWidget::updateWidgetFromMRML()
   d->ParameterNode->GetMakeXray(buttonState);
   d->PushButton_MakeXRay->setEnabled(buttonState[0]);
 
+  {
+    QSignalBlocker block(d->CheckBox_HUMAN_ON_DEKA);
+    bool flag = d->ParameterNode->GetPatientOnTableTop();
+    d->CheckBox_HUMAN_ON_DEKA->setChecked(flag);
+  }
+
+  {
+    QSignalBlocker block0(d->RadioButton_PositionNotDefined);
+    QSignalBlocker block1(d->RadioButton_Position1);
+    QSignalBlocker block2(d->RadioButton_Position2);
+    QSignalBlocker block3(d->RadioButton_Position3);
+    uint8_t position = d->ParameterNode->GetTableTopPosition();
+    switch (position)
+    {
+    case 0:
+      qDebug() << Q_FUNC_INFO << "undef";
+      d->RadioButton_PositionNotDefined->setChecked(true);
+      break;
+    case 1:
+      d->RadioButton_Position1->setChecked(true);
+      break;
+    case 2:
+      d->RadioButton_Position2->setChecked(true);
+      break;
+    case 3:
+      d->RadioButton_Position3->setChecked(true);
+      break;
+    default:
+      break;
+    }
+  }
+
   qDebug() << Q_FUNC_INFO << "Update SiemensPlcOpcUa buttons";
 }
 
@@ -6345,96 +6469,27 @@ void qSlicerSiemensPlcOpcUaWidget::onParseServerInterfacesClicked()
   }
 
   d->ServerInterfacesNode.reset(sharedClient->node(OpcUaTreeItem::SIEMENS_PLC_SERVER_INTERFACES_NODE_ID));
-  if (d->ServerInterfacesNode)
+  if (!d->ServerInterfacesNode)
   {
-    qDebug() << Q_FUNC_INFO << "ServerInterfaces node is OK";
-    QObject::connect(d->ServerInterfacesNode.data(), &QOpcUaNode::attributeRead,
-      this, &qSlicerSiemensPlcOpcUaWidget::onServerInterfacesRead, Qt::UniqueConnection);
-    d->ServerInterfacesNode->readAttributes(QOpcUa::NodeAttribute::DisplayName);
-  }
-/*
-  bool resMsg = d->ConnectMessagesNodes();
-  bool resStatus = d->ConnectModeAndStatusNodes();
-  if (resMsg && resStatus)
-  {
-    qDebug() << Q_FUNC_INFO << "Messages and Status nodes are OK";
-  }
-  bool amR1Buttons = true;
-  amR1Buttons &= d->ConnectAutoManualR1ToLoadNodes();
-  amR1Buttons &= d->ConnectAutoManualR1LoadToIsoNodes();
-  amR1Buttons &= d->ConnectAutoManualR1ToNewCoordsNodes();
-
-  bool amR2Buttons = true;
-  amR2Buttons &= d->ConnectAutoManualR2ToHomeNodes();
-  amR2Buttons &= d->ConnectAutoManualR2ToPlane1Nodes();
-  amR2Buttons &= d->ConnectAutoManualR2ToPlane2Nodes();
-  amR2Buttons &= d->ConnectAutoManualR1R2EmergencyEvacuationNodes();
-  amR2Buttons &= d->ConnectAutoManualApplyTablePositionNodes();
-
-  bool smR1Buttons = true;
-  smR1Buttons &= d->ConnectServiceR1BreakTestNodes();
-  smR1Buttons &= d->ConnectServiceR1MasterRefTestNodes();
-  smR1Buttons &= d->ConnectServiceR1LoadNodes();
-  smR1Buttons &= d->ConnectServiceR1ServicePos1Nodes();
-  smR1Buttons &= d->ConnectServiceR1ServicePos2Nodes();
-  smR1Buttons &= d->ConnectServiceR1ServicePos3Nodes();
-
-  bool smR2Buttons = true;
-  smR2Buttons &= d->ConnectServiceR2BreakTestNodes();
-  smR2Buttons &= d->ConnectServiceR2MasterRefTestNodes();
-  smR2Buttons &= d->ConnectServiceR2HomeNodes();
-  smR2Buttons &= d->ConnectServiceR2ServicePos1Nodes();
-  smR2Buttons &= d->ConnectServiceR2ServicePos2Nodes();
-  smR2Buttons &= d->ConnectServiceR2ServicePos3Nodes();
-  smR2Buttons &= d->ConnectServiceRestartNodes();
-
-  bool kukaButtons = true;
-  kukaButtons &= d->ConnectKukaAllowT1Nodes();
-  kukaButtons &= d->ConnectKukaAllowXrayNodes();
-  kukaButtons &= d->ConnectKukaAllowBeamNodes();
-
-  bool resetErrors = d->ConnectResetErrorsNodes();
-  bool makeXray = d->ConnectMakeXrayNodes();
-
-  if (amR1Buttons)
-  {
-    qDebug() << Q_FUNC_INFO << "AutomaticManual R1 nodes are OK";
+    return;
   }
 
-  if (amR2Buttons)
-  {
-    qDebug() << Q_FUNC_INFO << "AutomaticManual R2 nodes are OK";
-  }
+  QObject::connect(d->ServerInterfacesNode.data(), &QOpcUaNode::attributeRead,
+    this, &qSlicerSiemensPlcOpcUaWidget::onServerInterfacesRead);
 
-  if (smR1Buttons)
-  {
-    qDebug() << Q_FUNC_INFO << "Service R1 nodes are OK";
-  }
-
-  if (smR2Buttons)
-  {
-    qDebug() << Q_FUNC_INFO << "Service R2 nodes are OK";
-  }
-
-  if (kukaButtons)
-  {
-    qDebug() << Q_FUNC_INFO << "KUKA controllers nodes are OK";
-  }
-
-  if (resetErrors)
-  {
-    qDebug() << Q_FUNC_INFO << "ResetErrors nodes are OK";
-  }
-  if (makeXray)
-  {
-    qDebug() << Q_FUNC_INFO << "MakeXRay nodes are OK";
-  }
-*/
+  d->ServerInterfacesNode->readAttributes(QOpcUa::NodeAttribute::DisplayName);
 }
 
 //-----------------------------------------------------------------------------
 void qSlicerSiemensPlcOpcUaWidget::onOpcUaClientDisconnected()
 {
+  Q_D(qSlicerSiemensPlcOpcUaWidget);
+
+  d->PushButton_ReadStatusAndMessages->setEnabled(false);
+  if (d->CurrentTimeNode)
+  {
+    d->CurrentTimeNode->disableMonitoring(QOpcUa::NodeAttribute::Value);
+  }
 }
 
 //-----------------------------------------------------------------------------
@@ -7166,11 +7221,13 @@ void qSlicerSiemensPlcOpcUaWidget::onServerInterfacesRead(QOpcUa::NodeAttributes
     {
       qDebug() << Q_FUNC_INFO << "AutoManual move buttons nodes are OK";
     }
+
     moveButtons &= d->ConnectServiceMovementNodes();
     if (moveButtons)
     {
       qDebug() << Q_FUNC_INFO << "AutoManual & Service move buttons nodes are OK";
     }
+
     moveButtons &= d->ConnectKukaMovementNodes();
     if (moveButtons)
     {
@@ -7179,11 +7236,13 @@ void qSlicerSiemensPlcOpcUaWidget::onServerInterfacesRead(QOpcUa::NodeAttributes
 
     bool readynessFlags = d->ConnectFlagNodes();
     readynessFlags &= d->ConnectPatientOnTableTopNode();
+    readynessFlags &= d->ConnectTablePositionNode();
+    readynessFlags &= d->ConnectEmergencyEvacuationSignalNode();
     if (readynessFlags)
     {
       qDebug() << Q_FUNC_INFO << "Readyness flags nodes are OK";
     }
-    
+
     bool resetErrors = d->ConnectResetErrorsNodes();
     bool makeXray = d->ConnectMakeXrayNodes();
     if (resetErrors && makeXray)
@@ -7489,5 +7548,32 @@ void qSlicerSiemensPlcOpcUaWidget::onCoordFromAsuCClicked()
   {
     qDebug() << Q_FUNC_INFO << ": Set CoordFromASU C:" << c;
     angleCNode->writeAttribute(QOpcUa::NodeAttribute::Value, QVariant(c), QOpcUa::Types::Int32);
+  }
+}
+
+//-----------------------------------------------------------------------------
+void qSlicerSiemensPlcOpcUaWidget::onTablePositionChanged(QAbstractButton* aButton)
+{
+  Q_D(qSlicerSiemensPlcOpcUaWidget);
+  QRadioButton* rbutton = qobject_cast< QRadioButton* >(aButton);
+  if (rbutton == d->RadioButton_PositionNotDefined)
+  {
+    qDebug() << Q_FUNC_INFO << "undef";
+  }
+  else if (rbutton == d->RadioButton_Position1)
+  {
+    qDebug() << Q_FUNC_INFO << "1";
+  }
+  else if (rbutton == d->RadioButton_Position2)
+  {
+    qDebug() << Q_FUNC_INFO << "2";
+  }
+  else if (rbutton == d->RadioButton_Position3)
+  {
+    qDebug() << Q_FUNC_INFO << "3";
+  }
+  else
+  {
+    qDebug() << Q_FUNC_INFO << "wrong";
   }
 }

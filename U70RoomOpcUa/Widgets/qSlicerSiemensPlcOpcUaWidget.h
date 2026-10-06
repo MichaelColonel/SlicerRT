@@ -37,6 +37,7 @@
 
 class qSlicerSiemensPlcOpcUaWidgetPrivate;
 class QOpcUaClient;
+class QAbstractButton;
 
 class vtkMRMLNode;
 
@@ -65,6 +66,7 @@ public slots:
 
   // Siemens PLC OPC UA slots (values, buttons, etc)
   void onOpcUaModeChanged(vtkMRMLSiemensPlcOpcUaNode::ModeType mode);
+  void onTablePositionChanged(QAbstractButton*);
 
   // AutomaticManual R1 LoadToIso button
   void onAutoManualR1LoadToIsoPressed();

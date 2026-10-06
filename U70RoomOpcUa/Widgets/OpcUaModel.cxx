@@ -24,12 +24,6 @@
 #include <QOpcUaNode>
 #include <QIcon>
 
-namespace
-{
-
-QStringList nodes{ "RTK_PLC", "ASU", "Buttoms", "AM_MM", "SM", "KCM" };
-
-}
 OpcUaModel::OpcUaModel(QObject *parent)
   :
   QAbstractItemModel(parent)
@@ -90,40 +84,40 @@ QVariant OpcUaModel::headerData(int section, Qt::Orientation orientation, int ro
   {
     if (section == 0)
     {
-      return QString("BrowseName");
+      return QString(tr("BrowseName"));
     }
     else if (section == 1)
     {
-      return QString("Value");
+      return QString(tr("Value"));
     }
     else if (section == 2)
     {
-      return QString("NodeClass");
+      return QString(tr("NodeClass"));
     }
     else if (section == 3)
     {
-      return QString("DataType");
+      return QString(tr("DataType"));
     }
     else if (section == 4)
     {
-      return QString("NodeId");
+      return QString(tr("NodeId"));
     }
     else if (section == 5)
     {
-      return QString("DisplayName");
+      return QString(tr("DisplayName"));
     }
     else if (section == 6)
     {
-      return QString("Description");
+      return QString(tr("Description"));
     }
     else
     {
-      return QString("Column %1").arg(section);
+      return QString(tr("Column %1")).arg(section);
     }
   }
   else
   {
-    return QString("Row %1").arg(section);
+    return QString(tr("Row %1")).arg(section);
   }
 }
 

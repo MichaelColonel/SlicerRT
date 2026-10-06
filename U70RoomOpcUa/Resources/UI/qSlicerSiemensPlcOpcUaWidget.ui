@@ -20,7 +20,7 @@
       <bool>true</bool>
      </property>
      <property name="currentIndex">
-      <number>1</number>
+      <number>0</number>
      </property>
      <widget class="QWidget" name="tab_OpcUaModel">
       <attribute name="title">
@@ -522,6 +522,9 @@
               <widget class="ctkCollapsibleButton" name="CollapsibleButton_CoordsFromAsu">
                <property name="text">
                 <string>Coordinates from ASU</string>
+               </property>
+               <property name="collapsed">
+                <bool>true</bool>
                </property>
                <layout class="QGridLayout" name="gridLayout_35">
                 <item row="0" column="0">
@@ -1309,6 +1312,9 @@
    </item>
    <item row="1" column="0">
     <widget class="QPushButton" name="PushButton_ReadStatusAndMessages">
+     <property name="enabled">
+      <bool>false</bool>
+     </property>
      <property name="text">
       <string>Read status and messages</string>
      </property>

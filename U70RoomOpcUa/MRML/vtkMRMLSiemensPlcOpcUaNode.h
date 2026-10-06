@@ -221,6 +221,9 @@ public:
   vtkGetMacro(TableTopPosition, uint8_t);
   vtkSetMacro(TableTopPosition, uint8_t);
 
+  vtkGetMacro(EmergencyEvacSignal, bool);
+  vtkSetMacro(EmergencyEvacSignal, bool);
+
   vtkGetVector3Macro(KukaCoordsToTcsR1, int32_t);
   vtkSetVector3Macro(KukaCoordsToTcsR1, int32_t);
 
@@ -309,6 +312,7 @@ private:
   bool DoorLockSensor;
   bool DoorLockSensor2;
   uint8_t TableTopPosition;
+  bool EmergencyEvacSignal;
 
   // Table top robot
   int32_t KukaCoordsToTcsR1[3]; // X,Y,Z

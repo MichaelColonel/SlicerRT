@@ -42,14 +42,6 @@ public:
   static constexpr const char* SERVICE_MESSAGES_NODE = "ServMes";
   static constexpr const char* MISC_MESSAGES_NODE = "Messages";
 
-  static constexpr const char* NODES_LIST_FOR_EXPAND[] = {
-    "RTK_PLC",
-    "ASU",
-    "Buttoms",
-    "AM_MM",
-    "SM",
-    "KCM"
-  };
   explicit OpcUaTreeItem(OpcUaModel *model);
   OpcUaTreeItem(QOpcUaNode *node, OpcUaModel *model, OpcUaTreeItem *parent);
   OpcUaTreeItem(QOpcUaNode *node, OpcUaModel *model, const QOpcUaReferenceDescription &browsingData, OpcUaTreeItem *parent);

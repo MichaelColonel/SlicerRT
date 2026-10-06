@@ -35,6 +35,10 @@
 #include <QMetaEnum>
 #include <QPixmap>
 
+#include <vtkMRMLSiemensPlcOpcUaNode.h>
+
+#include <bitset>
+
 namespace {
 
 constexpr int numberOfDisplayColumns = 7; // NodeId, Value, NodeClass, DataType, BrowseName, DisplayName, Description
@@ -65,7 +69,7 @@ OpcUaTreeItem::OpcUaTreeItem(QOpcUaNode *node, OpcUaModel *model, OpcUaTreeItem 
     | QOpcUa::NodeAttribute::BrowseName
     | QOpcUa::NodeAttribute::DisplayName))
   {
-    qWarning() << "Reading attributes" << mOpcNode->nodeId() << "failed";
+    qWarning() << tr("Reading attributes") << mOpcNode->nodeId() << tr("failed");
   }
 }
 
@@ -88,7 +92,7 @@ OpcUaTreeItem *OpcUaTreeItem::child(int row)
 {
   if (row >= mChildItems.size())
   {
-    qCritical() << "TreeItem in row" << row << "does not exist.";
+    qCritical() << tr("TreeItem in row") << row << tr("does not exist.");
   }
   return mChildItems[row];
 }
@@ -240,7 +244,7 @@ void OpcUaTreeItem::startBrowsing()
   }
   if (!mOpcNode->browseChildren())
   {
-    qWarning() << "Browsing node" << mOpcNode->nodeId() << "failed";
+    qWarning() << tr("Browsing node") << mOpcNode->nodeId() << tr("failed");
   }
   else
   {
@@ -274,7 +278,7 @@ void OpcUaTreeItem::browseFinished(const QVector<QOpcUaReferenceDescription> &ch
 {
   if (statusCode != QOpcUa::Good)
   {
-    qWarning() << "Browsing node" << mOpcNode->nodeId() << "finally failed:" << statusCode;
+    qWarning() << tr("Browsing node") << mOpcNode->nodeId() << tr("finally failed:") << statusCode;
     return;
   }
 
@@ -289,7 +293,7 @@ void OpcUaTreeItem::browseFinished(const QVector<QOpcUaReferenceDescription> &ch
     auto node = mModel->opcUaClient()->node(item.targetNodeId());
     if (!node)
     {
-      qWarning() << "Failed to instantiate node:" << item.targetNodeId().nodeId();
+      qWarning() << tr("Failed to instantiate node:") << item.targetNodeId().nodeId();
       continue;
     }
 
@@ -305,15 +309,31 @@ QString OpcUaTreeItem::variantToString(const QVariant &value, const QString &typ
 {
   if (value.type() == QVariant::List)
   {
-    const auto list = value.toList();
     QString concat;
-    for (int i = 0, size = list.size(); i < size; ++i)
+    const auto list = value.toList();
+    if (list.size() == vtkMRMLSiemensPlcOpcUaNode::MESSAGES_SIZE)
     {
-      if (i)
+      int i = 0;
+      std::bitset< vtkMRMLSiemensPlcOpcUaNode::MESSAGES_SIZE > errors;
+      for (const QVariant& flag : list)
       {
-        concat.append(QLatin1Char('\n'));
+        bool value = flag.toBool();
+        errors.set(i, value);
+        ++i;
       }
-      concat.append(variantToString(list.at(i), typeNodeId));
+      concat = QString::number(errors.to_ullong());
+    }
+    else
+    {
+      QString concat;
+      for (int i = 0, size = list.size(); i < size; ++i)
+      {
+        if (i)
+        {
+          concat.append(QLatin1Char('\n'));
+        }
+        concat.append(variantToString(list.at(i), typeNodeId));
+      }
     }
     return concat;
   }
