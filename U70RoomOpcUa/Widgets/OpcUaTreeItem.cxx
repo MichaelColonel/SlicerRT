@@ -325,7 +325,6 @@ QString OpcUaTreeItem::variantToString(const QVariant &value, const QString &typ
     }
     else
     {
-      QString concat;
       for (int i = 0, size = list.size(); i < size; ++i)
       {
         if (i)
