@@ -486,3 +486,17 @@ void qSlicerU70RoomWorklistModuleWidget::updateWidgetFromMRML()
     return;
   }
 }
+
+//-----------------------------------------------------------------------------
+void qSlicerU70RoomWorklistModuleWidget::onSceneImportedEvent()
+{
+  Q_D(qSlicerU70RoomWorklistModuleWidget);
+
+  this->onEnter();
+}
+
+//-----------------------------------------------------------------------------
+void qSlicerU70RoomWorklistModuleWidget::onSceneClosedEvent()
+{
+  Q_D(qSlicerU70RoomWorklistModuleWidget);
+}

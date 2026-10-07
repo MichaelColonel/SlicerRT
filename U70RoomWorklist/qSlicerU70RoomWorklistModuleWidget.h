@@ -43,6 +43,10 @@ public slots:
   void onWorklistQueryClicked();
   /// Update the entire widget based on the current parameter node
   void updateWidgetFromMRML();
+  /// Process loaded scene
+  void onSceneImportedEvent();
+  /// Process closing scene
+  void onSceneClosedEvent();
 
 protected:
   QScopedPointer<qSlicerU70RoomWorklistModuleWidgetPrivate> d_ptr;

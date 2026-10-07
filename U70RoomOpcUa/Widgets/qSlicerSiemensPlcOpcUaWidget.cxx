@@ -486,6 +486,7 @@ bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectMessagesNodes()
   QObject::connect(errMessagesNode,
     &QOpcUaNode::dataChangeOccurred, [mrmlNode](QOpcUa::NodeAttribute attr, QVariant value)
     {
+      qDebug() << Q_FUNC_INFO << "Error messages value changed";
       if (attr == QOpcUa::NodeAttribute::Value && value.canConvert<QVariantList>())
       {
         std::bitset< vtkMRMLSiemensPlcOpcUaNode::MESSAGES_SIZE > errors;
@@ -517,6 +518,7 @@ bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectMessagesNodes()
       {
         if (errMessagesNode->attributeError(QOpcUa::NodeAttribute::Value) == QOpcUa::UaStatusCode::Good)
         {
+          qDebug() << Q_FUNC_INFO << "Error messages value read";
           QVariant value = errMessagesNode->attribute(QOpcUa::NodeAttribute::Value);
           if (value.canConvert<QVariantList>())
           {
@@ -551,6 +553,7 @@ bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectMessagesNodes()
   QObject::connect(servMessagesNode,
     &QOpcUaNode::dataChangeOccurred, [mrmlNode](QOpcUa::NodeAttribute attr, QVariant value)
     {
+      qDebug() << Q_FUNC_INFO << "Service messages value changed";
       if (attr == QOpcUa::NodeAttribute::Value && value.canConvert<QVariantList>())
       {
         std::bitset< vtkMRMLSiemensPlcOpcUaNode::MESSAGES_SIZE > servFlags;
@@ -582,6 +585,7 @@ bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectMessagesNodes()
       {
         if (servMessagesNode->attributeError(QOpcUa::NodeAttribute::Value) == QOpcUa::UaStatusCode::Good)
         {
+          qDebug() << Q_FUNC_INFO << "Error messages value read";
           QVariant value = servMessagesNode->attribute(QOpcUa::NodeAttribute::Value);
           if (value.canConvert<QVariantList>())
           {
@@ -616,6 +620,7 @@ bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectMessagesNodes()
   QObject::connect(miscMessagesNode,
     &QOpcUaNode::dataChangeOccurred, [mrmlNode](QOpcUa::NodeAttribute attr, QVariant value)
     {
+      qDebug() << Q_FUNC_INFO << "Miscellaneous messages value changed";
       if (attr == QOpcUa::NodeAttribute::Value && value.canConvert<QVariantList>())
       {
         std::bitset< vtkMRMLSiemensPlcOpcUaNode::MESSAGES_SIZE > miscFlags;
@@ -647,6 +652,7 @@ bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectMessagesNodes()
       {
         if (miscMessagesNode->attributeError(QOpcUa::NodeAttribute::Value) == QOpcUa::UaStatusCode::Good)
         {
+          qDebug() << Q_FUNC_INFO << "Miscellaneous messages value read";
           QVariant value = miscMessagesNode->attribute(QOpcUa::NodeAttribute::Value);
           if (value.canConvert<QVariantList>())
           {
@@ -7264,6 +7270,7 @@ void qSlicerSiemensPlcOpcUaWidget::onServerInterfacesRead(QOpcUa::NodeAttributes
       qDebug() << Q_FUNC_INFO << "R2 axis and coords nodes are OK";
     }
   }
+  d->PushButton_ReadStatusAndMessages->setEnabled(true);
   d->ParameterNode->Modified();
 }
 
@@ -7281,17 +7288,17 @@ void qSlicerSiemensPlcOpcUaWidget::onReadStatusAndMessagesClicked()
   QOpcUaNode* modeNode = d->FindNodeFromFullDisplayName(ASU_MODE_NODE_NAME);
   if (errMessagesNode)
   {
-    errMessagesNode->readAttributes(QOpcUa::NodeAttribute::Value);
+    errMessagesNode->readAttributeRange(QOpcUa::NodeAttribute::Value, QStringLiteral("0:63"));
     qDebug() << Q_FUNC_INFO << "read errors";
   }
   if (servMessagesNode)
   {
-    servMessagesNode->readAttributes(QOpcUa::NodeAttribute::Value);
+    servMessagesNode->readAttributeRange(QOpcUa::NodeAttribute::Value, QStringLiteral("0:63"));
     qDebug() << Q_FUNC_INFO << "read service messages";
   }
   if (miscMessagesNode)
   {
-    miscMessagesNode->readAttributes(QOpcUa::NodeAttribute::Value);
+    miscMessagesNode->readAttributeRange(QOpcUa::NodeAttribute::Value, QStringLiteral("0:63"));
     qDebug() << Q_FUNC_INFO << "read misc. messages";
   }
   if (modeNode)
