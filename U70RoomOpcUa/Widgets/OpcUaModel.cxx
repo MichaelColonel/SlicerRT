@@ -30,15 +30,14 @@ OpcUaModel::OpcUaModel(QObject *parent)
 {
 }
 
-void OpcUaModel::setOpcUaClient(QOpcUaClient *client)
+void OpcUaModel::setOpcUaClient(QOpcUaClient *client, const QString& rootNodeId)
 {
   this->beginResetModel();
   mOpcUaClient = client;
 
   if (mOpcUaClient)
   {
-//    mRootItem.reset(new OpcUaTreeItem(client->node("ns=0;i=84"), this /* model */, nullptr /* parent */));
-    mRootItem.reset(new OpcUaTreeItem(client->node(OpcUaTreeItem::SIEMENS_PLC_SERVER_INTERFACES_NODE_ID), this /* model */, nullptr /* parent */));
+    mRootItem.reset(new OpcUaTreeItem(client->node(rootNodeId), this /* model */, nullptr /* parent */));
   }
   else
   {

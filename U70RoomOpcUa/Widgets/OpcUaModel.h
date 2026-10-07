@@ -28,11 +28,11 @@
 #include <QScopedPointer>
 #include <QPointer>
 
-class QOpcUaClient;
-class OpcUaTreeItem;
-
 // U70RoomOpcUaModule Widgets includes
 #include "qSlicerU70RoomOpcUaModuleWidgetsExport.h"
+
+class QOpcUaClient;
+class OpcUaTreeItem;
 
 class Q_SLICER_MODULE_U70ROOMOPCUA_WIDGETS_EXPORT OpcUaModel : public QAbstractItemModel
 {
@@ -40,7 +40,7 @@ class Q_SLICER_MODULE_U70ROOMOPCUA_WIDGETS_EXPORT OpcUaModel : public QAbstractI
 public:
   OpcUaModel(QObject *parent = nullptr);
 
-  void setOpcUaClient(QOpcUaClient *);
+  void setOpcUaClient(QOpcUaClient *, const QString& rootNodeId = QLatin1String("ns=0;i=84"));
   QOpcUaClient* opcUaClient() const;
 
   QVariant data(const QModelIndex &index, int role) const override;

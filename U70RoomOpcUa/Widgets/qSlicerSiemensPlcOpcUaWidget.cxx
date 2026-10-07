@@ -40,13 +40,13 @@ namespace {
 constexpr const char* PARENT_NODE_DISPLAYED_NAME = "ServerInterfaces";
 constexpr const char* SIEMENS_PLC_CURRENT_TIME_NODE_ID = "ns=0;i=2258";
 
-const QString SIEMENS_PLC_SERVER_INTERFACES_NODE_ID = QString("ns=3;s=") + PARENT_NODE_DISPLAYED_NAME;
-const QString RTK_PLC_NODE_NAME = QString(PARENT_NODE_DISPLAYED_NAME) + ".RTK_PLC";
+const QString SIEMENS_PLC_SERVER_INTERFACES_NODE_ID = QLatin1String("ns=3;s=") + PARENT_NODE_DISPLAYED_NAME;
+const QString RTK_PLC_NODE_NAME = QLatin1String(PARENT_NODE_DISPLAYED_NAME) + ".RTK_PLC";
 const QString ASU_NODE_NAME = RTK_PLC_NODE_NAME + ".ASU";
 
-const QString ASU_ERROR_MESSAGES_NODE_NAME = ASU_NODE_NAME + QString(QChar('.')) + OpcUaTreeItem::ERROR_MESSAGES_NODE;
-const QString ASU_SERVICE_MESSAGES_NODE_NAME = ASU_NODE_NAME + QString(QChar('.')) + OpcUaTreeItem::SERVICE_MESSAGES_NODE;
-const QString ASU_MESSAGES_NODE_NAME = ASU_NODE_NAME + QString(QChar('.')) + OpcUaTreeItem::MISC_MESSAGES_NODE;
+const QString ASU_ERROR_MESSAGES_NODE_NAME = ASU_NODE_NAME + QString(QChar('.')) + QLatin1String(OpcUaTreeItem::ERROR_MESSAGES_NODE);
+const QString ASU_SERVICE_MESSAGES_NODE_NAME = ASU_NODE_NAME + QString(QChar('.')) + QLatin1String(OpcUaTreeItem::SERVICE_MESSAGES_NODE);
+const QString ASU_MESSAGES_NODE_NAME = ASU_NODE_NAME + QString(QChar('.')) + QLatin1String(OpcUaTreeItem::MISC_MESSAGES_NODE);
 
 const QString ASU_MODE_NODE_NAME = ASU_NODE_NAME + ".Mode";
 
@@ -6444,10 +6444,10 @@ void qSlicerSiemensPlcOpcUaWidget::onOpcUaClientConnected()
     return;
   }
 
-  d->SiemensPlcOpcUaModel->setOpcUaClient(sharedClient.data());
+  d->SiemensPlcOpcUaModel->setOpcUaClient(sharedClient.data(), OpcUaTreeItem::SIEMENS_PLC_SERVER_INTERFACES_NODE_ID);
   d->TreeView_OpcUaModel->header()->setSectionResizeMode(1 /* Value column*/, QHeaderView::Interactive);
 
-  d->CurrentTimeNode.reset(sharedClient->node(SIEMENS_PLC_CURRENT_TIME_NODE_ID));
+  d->CurrentTimeNode.reset(sharedClient->node(QLatin1String(SIEMENS_PLC_CURRENT_TIME_NODE_ID)));
   if (d->CurrentTimeNode)
   {
     qDebug() << Q_FUNC_INFO << "Current time node is OK";
