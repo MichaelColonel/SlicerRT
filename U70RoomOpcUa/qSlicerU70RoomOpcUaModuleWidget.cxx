@@ -670,6 +670,7 @@ void qSlicerU70RoomOpcUaModuleWidget::showErrorDialog(QOpcUaErrorState *errorSta
 void qSlicerU70RoomOpcUaModuleWidget::clientError(QOpcUaClient::ClientError error)
 {
   Q_D(qSlicerU70RoomOpcUaModuleWidget);
+  Q_UNUSED(error);
 }
 
 //-----------------------------------------------------------------------------

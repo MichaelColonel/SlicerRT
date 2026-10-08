@@ -23,6 +23,7 @@
 #include <QOpcUaClient>
 #include <QSharedPointer>
 #include <QOpcUaNode>
+#include <QOpcUaReadItem>
 
 // SiemensPlcOpcUa Widgets includes
 #include "qSlicerSiemensPlcOpcUaWidget.h"
@@ -6307,6 +6308,8 @@ void qSlicerSiemensPlcOpcUaWidget::setSiemensPlcOpcUaClient(const QSharedPointer
   Q_D(qSlicerSiemensPlcOpcUaWidget);
 
   d->OpcUaClient = sharedClient;
+  QObject::connect(sharedClient.data(), SIGNAL(readNodeAttributesFinished(const QList< QOpcUaReadResult >&, QOpcUa::UaStatusCode)),
+    this, SLOT(onReadNodeFinished(const QList< QOpcUaReadResult >&, QOpcUa::UaStatusCode)), Qt::UniqueConnection);
 }
 
 //-----------------------------------------------------------------------------
@@ -7286,21 +7289,40 @@ void qSlicerSiemensPlcOpcUaWidget::onReadStatusAndMessagesClicked()
   QOpcUaNode* miscMessagesNode = d->FindNodeFromFullDisplayName(ASU_MESSAGES_NODE_NAME);
   // Mode
   QOpcUaNode* modeNode = d->FindNodeFromFullDisplayName(ASU_MODE_NODE_NAME);
+
+  QVector< QOpcUaReadItem > msgNodes;
   if (errMessagesNode)
   {
-    errMessagesNode->readAttributeRange(QOpcUa::NodeAttribute::Value, QStringLiteral("0:63"));
+    QString id = errMessagesNode->nodeId();
+    QOpcUaReadItem item(id);
+    msgNodes.push_back(item);
+//    errMessagesNode->readAttributeRange(QOpcUa::NodeAttribute::Value, QStringLiteral("0:63"));
     qDebug() << Q_FUNC_INFO << "read errors";
   }
   if (servMessagesNode)
   {
-    servMessagesNode->readAttributeRange(QOpcUa::NodeAttribute::Value, QStringLiteral("0:63"));
+    QString id = servMessagesNode->nodeId();
+    QOpcUaReadItem item(id);
+    msgNodes.push_back(item);
+//    servMessagesNode->readAttributeRange(QOpcUa::NodeAttribute::Value, QStringLiteral("0:63"));
     qDebug() << Q_FUNC_INFO << "read service messages";
   }
   if (miscMessagesNode)
   {
-    miscMessagesNode->readAttributeRange(QOpcUa::NodeAttribute::Value, QStringLiteral("0:63"));
+    QString id = servMessagesNode->nodeId();
+    QOpcUaReadItem item(id);
+    msgNodes.push_back(item);
+//    miscMessagesNode->readAttributeRange(QOpcUa::NodeAttribute::Value, QStringLiteral("0:63"));
     qDebug() << Q_FUNC_INFO << "read misc. messages";
   }
+
+  QSharedPointer< QOpcUaClient > sharedClient = d->OpcUaClient.toStrongRef();
+  if (!sharedClient)
+  {
+    return;
+  }
+  sharedClient->readNodeAttributes(msgNodes);
+
   if (modeNode)
   {
     modeNode->readAttributes(QOpcUa::NodeAttribute::Value);
@@ -7582,5 +7604,57 @@ void qSlicerSiemensPlcOpcUaWidget::onTablePositionChanged(QAbstractButton* aButt
   else
   {
     qDebug() << Q_FUNC_INFO << "wrong";
+  }
+}
+
+//-----------------------------------------------------------------------------
+void qSlicerSiemensPlcOpcUaWidget::onReadNodeFinished(const QList< QOpcUaReadResult >& results,
+  QOpcUa::UaStatusCode serviceResult)
+{
+  Q_D(qSlicerSiemensPlcOpcUaWidget);
+
+  // Error messages
+  QOpcUaNode* errMessagesNode = d->FindNodeFromFullDisplayName(ASU_ERROR_MESSAGES_NODE_NAME);
+  // Service messages
+  QOpcUaNode* servMessagesNode = d->FindNodeFromFullDisplayName(ASU_SERVICE_MESSAGES_NODE_NAME);
+  // Miscellaneous messages
+  QOpcUaNode* miscMessagesNode = d->FindNodeFromFullDisplayName(ASU_MESSAGES_NODE_NAME);
+
+  if (serviceResult != QOpcUa::UaStatusCode::Good)
+  {
+    return;
+  }
+  for (const QOpcUaReadResult& result : results)
+  {
+    if (result.statusCode() != QOpcUa::UaStatusCode::Good)
+    {
+      continue;
+    }
+    if (result.attribute() == QOpcUa::NodeAttribute::Value && result.value().canConvert< QVariantList >())
+    {
+      QVariantList msgList = result.value().toList();
+      if (msgList.size() == vtkMRMLSiemensPlcOpcUaNode::MESSAGES_SIZE)
+      {
+        std::bitset< vtkMRMLSiemensPlcOpcUaNode::MESSAGES_SIZE > msgFlags;
+        for (int i = 0; i < msgList.size(); ++i)
+        {
+          const QVariant& msgFlag = msgList.at(i);
+          msgFlags.set(i, msgFlag.toBool());
+        }
+        uint64_t msgValue = msgFlags.to_ullong();
+        if (errMessagesNode && (result.nodeId() == errMessagesNode->nodeId()))
+        {
+          d->ParameterNode->SetErrorMessages(msgValue);
+        }
+        else if (servMessagesNode && (result.nodeId() == servMessagesNode->nodeId()))
+        {
+          d->ParameterNode->SetServiceMessages(msgValue);
+        }
+        else if (miscMessagesNode && (result.nodeId() == miscMessagesNode->nodeId()))
+        {
+          d->ParameterNode->SetMiscMessages(msgValue);
+        }
+      }
+    }
   }
 }
