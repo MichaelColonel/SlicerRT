@@ -6451,9 +6451,6 @@ void qSlicerSiemensPlcOpcUaWidget::onOpcUaClientConnected()
     return;
   }
 
-  QObject::connect(sharedClient.data(), SIGNAL(readNodeAttributesFinished(const QList< QOpcUaReadResult >&, QOpcUa::UaStatusCode)),
-    this, SLOT(onReadNodeFinished(const QList< QOpcUaReadResult >&, QOpcUa::UaStatusCode)));
-
   d->SiemensPlcOpcUaModel->setOpcUaClient(sharedClient.data(), OpcUaTreeItem::SIEMENS_PLC_SERVER_INTERFACES_NODE_ID);
   d->TreeView_OpcUaModel->header()->setSectionResizeMode(1 /* Value column*/, QHeaderView::Interactive);
 
@@ -6494,15 +6491,6 @@ void qSlicerSiemensPlcOpcUaWidget::onParseServerInterfacesClicked()
 void qSlicerSiemensPlcOpcUaWidget::onOpcUaClientDisconnected()
 {
   Q_D(qSlicerSiemensPlcOpcUaWidget);
-
-  QSharedPointer< QOpcUaClient > sharedClient = d->OpcUaClient.toStrongRef();
-  if (!sharedClient)
-  {
-    return;
-  }
-
-  QObject::disconnect(sharedClient.data(), SIGNAL(readNodeAttributesFinished(const QList< QOpcUaReadResult >&, QOpcUa::UaStatusCode)),
-    this, SLOT(onReadNodeFinished(const QList< QOpcUaReadResult >&, QOpcUa::UaStatusCode)));
 
   d->PushButton_ReadStatusAndMessages->setEnabled(false);
   if (d->CurrentTimeNode)
@@ -7300,56 +7288,33 @@ void qSlicerSiemensPlcOpcUaWidget::onReadStatusAndMessagesClicked()
   // Mode
   QOpcUaNode* modeNode = d->FindNodeFromFullDisplayName(ASU_MODE_NODE_NAME);
 
-//  QVector< QOpcUaReadItem > msgNodes;
   if (errMessagesNode)
   {
- //   QString id = errMessagesNode->nodeId();
- //   QOpcUaReadItem item(id, QOpcUa::NodeAttribute::Value, "0:63");
- //   msgNodes.push_back(item);
     errMessagesNode->readAttributes(QOpcUa::NodeAttribute::Value);
-//    qDebug() << Q_FUNC_INFO << "read errors" << id;
   }
   if (servMessagesNode)
   {
-//    QString id = servMessagesNode->nodeId();
-  //  QOpcUaReadItem item(id, QOpcUa::NodeAttribute::Value, "0:63");
-    //msgNodes.push_back(item);
     servMessagesNode->readAttributes(QOpcUa::NodeAttribute::Value);
-//    qDebug() << Q_FUNC_INFO << "read service messages" << id;
   }
   if (miscMessagesNode)
   {
-//    QString id = miscMessagesNode->nodeId();
-  //  QOpcUaReadItem item(id, QOpcUa::NodeAttribute::Value, "0:63");
-    //msgNodes.push_back(item);
     miscMessagesNode->readAttributes(QOpcUa::NodeAttribute::Value);
-//    qDebug() << Q_FUNC_INFO << "read misc. messages" << id;
   }
-
-//  QSharedPointer< QOpcUaClient > sharedClient = d->OpcUaClient.toStrongRef();
- // if (!sharedClient)
-  //{
-    //return;
-  //}
-  //sharedClient->readNodeAttributes(msgNodes);
 
   if (modeNode)
   {
     modeNode->readAttributes(QOpcUa::NodeAttribute::Value);
-    qDebug() << Q_FUNC_INFO << "read mode";
   }
   
   QOpcUaNode* amR1LoadToIsoEnabledNode = d->FindNodeFromFullDisplayName(BUTTONS_AM_R1_LOADTOISO_ENABLED_NODE_NAME);
   if (amR1LoadToIsoEnabledNode)
   {
     amR1LoadToIsoEnabledNode->readAttributes(QOpcUa::NodeAttribute::Value);
-    qDebug() << Q_FUNC_INFO << "read AutoManual R1 Load->Iso button enabled";
   }
   QOpcUaNode* amR1ToLoadEnabledNode = d->FindNodeFromFullDisplayName(BUTTONS_AM_R1_TOLOAD_ENABLED_NODE_NAME);
   if (amR1ToLoadEnabledNode)
   {
     amR1ToLoadEnabledNode->readAttributes(QOpcUa::NodeAttribute::Value);
-    qDebug() << Q_FUNC_INFO << "read AutoManual R1 ToLoad button enabled";
   }
 }
 
@@ -7614,63 +7579,5 @@ void qSlicerSiemensPlcOpcUaWidget::onTablePositionChanged(QAbstractButton* aButt
   else
   {
     qDebug() << Q_FUNC_INFO << "wrong";
-  }
-}
-
-//-----------------------------------------------------------------------------
-void qSlicerSiemensPlcOpcUaWidget::onReadNodeFinished(const QList< QOpcUaReadResult >& results,
-  QOpcUa::UaStatusCode serviceResult)
-{
-  Q_D(qSlicerSiemensPlcOpcUaWidget);
-
-  // Error messages
-  QOpcUaNode* errMessagesNode = d->FindNodeFromFullDisplayName(ASU_ERROR_MESSAGES_NODE_NAME);
-  // Service messages
-  QOpcUaNode* servMessagesNode = d->FindNodeFromFullDisplayName(ASU_SERVICE_MESSAGES_NODE_NAME);
-  // Miscellaneous messages
-  QOpcUaNode* miscMessagesNode = d->FindNodeFromFullDisplayName(ASU_MESSAGES_NODE_NAME);
-
-  qDebug() << Q_FUNC_INFO << "1";
-  if (serviceResult != QOpcUa::UaStatusCode::Good)
-  {
-    qDebug() << Q_FUNC_INFO << "NO";
-    return;
-  }
-  for (const QOpcUaReadResult& result : results)
-  {
-    if (result.statusCode() != QOpcUa::UaStatusCode::Good)
-    {
-      continue;
-    }
-    if (result.attribute() == QOpcUa::NodeAttribute::Value && result.value().canConvert< QVariantList >())
-    {
-      qDebug() << Q_FUNC_INFO << "List is valid";
-      QVariantList msgList = result.value().toList();
-      if (msgList.size() == vtkMRMLSiemensPlcOpcUaNode::MESSAGES_SIZE)
-      {
-        std::bitset< vtkMRMLSiemensPlcOpcUaNode::MESSAGES_SIZE > msgFlags;
-        for (int i = 0; i < msgList.size(); ++i)
-        {
-          const QVariant& msgFlag = msgList.at(i);
-          msgFlags.set(i, msgFlag.toBool());
-        }
-        uint64_t msgValue = msgFlags.to_ullong();
-        if (errMessagesNode && (result.nodeId() == errMessagesNode->nodeId()))
-        {
-          qDebug() << Q_FUNC_INFO << "3";
-          d->ParameterNode->SetErrorMessages(msgValue);
-        }
-        else if (servMessagesNode && (result.nodeId() == servMessagesNode->nodeId()))
-        {
-          qDebug() << Q_FUNC_INFO << "4";
-          d->ParameterNode->SetServiceMessages(msgValue);
-        }
-        else if (miscMessagesNode && (result.nodeId() == miscMessagesNode->nodeId()))
-        {
-          qDebug() << Q_FUNC_INFO << "5";
-          d->ParameterNode->SetMiscMessages(msgValue);
-        }
-      }
-    }
   }
 }

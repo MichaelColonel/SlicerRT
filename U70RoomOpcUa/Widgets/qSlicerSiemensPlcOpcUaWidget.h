@@ -165,8 +165,6 @@ public slots:
   void onSetR2TscAnglesClicked();
 
   void onServerInterfacesRead(QOpcUa::NodeAttributes attr);
-  void onReadNodeFinished(const QList< QOpcUaReadResult >& results,
-    QOpcUa::UaStatusCode serviceResult);
 
   void onReadStatusAndMessagesClicked();
 
