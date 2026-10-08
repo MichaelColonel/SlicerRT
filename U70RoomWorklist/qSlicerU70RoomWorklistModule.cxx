@@ -51,20 +51,20 @@ qSlicerU70RoomWorklistModule::~qSlicerU70RoomWorklistModule() {}
 //-----------------------------------------------------------------------------
 QString qSlicerU70RoomWorklistModule::helpText() const
 {
-  return "This is a loadable module that can be bundled in an extension";
+  return tr("Patient's WORKLIST queue: Channel-26 (Cabin-1 and Cabin-2), Channel-26A (Cabin-3).");
 }
 
 //-----------------------------------------------------------------------------
 QString qSlicerU70RoomWorklistModule::acknowledgementText() const
 {
-  return "This work was partially funded by NIH grant NXNNXXNNNNNN-NNXN";
+  return tr("This work was partially funded by NIH grant NXNNXXNNNNNN-NNXN");
 }
 
 //-----------------------------------------------------------------------------
 QStringList qSlicerU70RoomWorklistModule::contributors() const
 {
   QStringList moduleContributors;
-  moduleContributors << QString(tr("Mikhail Polkovnikov"));
+  moduleContributors << tr("Mikhail Polkovnikov");
   return moduleContributors;
 }
 
@@ -84,6 +84,12 @@ QStringList qSlicerU70RoomWorklistModule::categories() const
 QStringList qSlicerU70RoomWorklistModule::dependencies() const
 {
   return QStringList();
+}
+
+//-----------------------------------------------------------------------------
+QString qSlicerU70RoomWorklistModule::title() const
+{
+  return tr("Patients Queue and Worklist");
 }
 
 //-----------------------------------------------------------------------------

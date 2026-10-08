@@ -511,7 +511,7 @@ bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectMessagesNodes()
   QObject::connect(errMessagesNode,
     &QOpcUaNode::attributeRead, [errMessagesNode, mrmlNode](QOpcUa::NodeAttributes attr)
     {
-      if (!errMessagesNode || mrmlNode)
+      if (!errMessagesNode || !mrmlNode)
       {
         return;
       }
@@ -578,7 +578,7 @@ bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectMessagesNodes()
   QObject::connect(servMessagesNode,
     &QOpcUaNode::attributeRead, [servMessagesNode, mrmlNode](QOpcUa::NodeAttributes attr)
     {
-      if (!servMessagesNode || mrmlNode)
+      if (!servMessagesNode || !mrmlNode)
       {
         return;
       }
@@ -645,7 +645,7 @@ bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectMessagesNodes()
   QObject::connect(miscMessagesNode,
     &QOpcUaNode::attributeRead, [miscMessagesNode, mrmlNode](QOpcUa::NodeAttributes attr)
     {
-      if (!miscMessagesNode || mrmlNode)
+      if (!miscMessagesNode || !mrmlNode)
       {
         return;
       }
@@ -6308,8 +6308,6 @@ void qSlicerSiemensPlcOpcUaWidget::setSiemensPlcOpcUaClient(const QSharedPointer
   Q_D(qSlicerSiemensPlcOpcUaWidget);
 
   d->OpcUaClient = sharedClient;
-  QObject::connect(sharedClient.data(), SIGNAL(readNodeAttributesFinished(const QList< QOpcUaReadResult >&, QOpcUa::UaStatusCode)),
-    this, SLOT(onReadNodeFinished(const QList< QOpcUaReadResult >&, QOpcUa::UaStatusCode)), Qt::UniqueConnection);
 }
 
 //-----------------------------------------------------------------------------
@@ -6453,6 +6451,9 @@ void qSlicerSiemensPlcOpcUaWidget::onOpcUaClientConnected()
     return;
   }
 
+  QObject::connect(sharedClient.data(), SIGNAL(readNodeAttributesFinished(const QList< QOpcUaReadResult >&, QOpcUa::UaStatusCode)),
+    this, SLOT(onReadNodeFinished(const QList< QOpcUaReadResult >&, QOpcUa::UaStatusCode)));
+
   d->SiemensPlcOpcUaModel->setOpcUaClient(sharedClient.data(), OpcUaTreeItem::SIEMENS_PLC_SERVER_INTERFACES_NODE_ID);
   d->TreeView_OpcUaModel->header()->setSectionResizeMode(1 /* Value column*/, QHeaderView::Interactive);
 
@@ -6493,6 +6494,15 @@ void qSlicerSiemensPlcOpcUaWidget::onParseServerInterfacesClicked()
 void qSlicerSiemensPlcOpcUaWidget::onOpcUaClientDisconnected()
 {
   Q_D(qSlicerSiemensPlcOpcUaWidget);
+
+  QSharedPointer< QOpcUaClient > sharedClient = d->OpcUaClient.toStrongRef();
+  if (!sharedClient)
+  {
+    return;
+  }
+
+  QObject::disconnect(sharedClient.data(), SIGNAL(readNodeAttributesFinished(const QList< QOpcUaReadResult >&, QOpcUa::UaStatusCode)),
+    this, SLOT(onReadNodeFinished(const QList< QOpcUaReadResult >&, QOpcUa::UaStatusCode)));
 
   d->PushButton_ReadStatusAndMessages->setEnabled(false);
   if (d->CurrentTimeNode)
@@ -7290,38 +7300,38 @@ void qSlicerSiemensPlcOpcUaWidget::onReadStatusAndMessagesClicked()
   // Mode
   QOpcUaNode* modeNode = d->FindNodeFromFullDisplayName(ASU_MODE_NODE_NAME);
 
-  QVector< QOpcUaReadItem > msgNodes;
+//  QVector< QOpcUaReadItem > msgNodes;
   if (errMessagesNode)
   {
-    QString id = errMessagesNode->nodeId();
-    QOpcUaReadItem item(id);
-    msgNodes.push_back(item);
-//    errMessagesNode->readAttributeRange(QOpcUa::NodeAttribute::Value, QStringLiteral("0:63"));
-    qDebug() << Q_FUNC_INFO << "read errors";
+ //   QString id = errMessagesNode->nodeId();
+ //   QOpcUaReadItem item(id, QOpcUa::NodeAttribute::Value, "0:63");
+ //   msgNodes.push_back(item);
+    errMessagesNode->readAttributes(QOpcUa::NodeAttribute::Value);
+//    qDebug() << Q_FUNC_INFO << "read errors" << id;
   }
   if (servMessagesNode)
   {
-    QString id = servMessagesNode->nodeId();
-    QOpcUaReadItem item(id);
-    msgNodes.push_back(item);
-//    servMessagesNode->readAttributeRange(QOpcUa::NodeAttribute::Value, QStringLiteral("0:63"));
-    qDebug() << Q_FUNC_INFO << "read service messages";
+//    QString id = servMessagesNode->nodeId();
+  //  QOpcUaReadItem item(id, QOpcUa::NodeAttribute::Value, "0:63");
+    //msgNodes.push_back(item);
+    servMessagesNode->readAttributes(QOpcUa::NodeAttribute::Value);
+//    qDebug() << Q_FUNC_INFO << "read service messages" << id;
   }
   if (miscMessagesNode)
   {
-    QString id = servMessagesNode->nodeId();
-    QOpcUaReadItem item(id);
-    msgNodes.push_back(item);
-//    miscMessagesNode->readAttributeRange(QOpcUa::NodeAttribute::Value, QStringLiteral("0:63"));
-    qDebug() << Q_FUNC_INFO << "read misc. messages";
+//    QString id = miscMessagesNode->nodeId();
+  //  QOpcUaReadItem item(id, QOpcUa::NodeAttribute::Value, "0:63");
+    //msgNodes.push_back(item);
+    miscMessagesNode->readAttributes(QOpcUa::NodeAttribute::Value);
+//    qDebug() << Q_FUNC_INFO << "read misc. messages" << id;
   }
 
-  QSharedPointer< QOpcUaClient > sharedClient = d->OpcUaClient.toStrongRef();
-  if (!sharedClient)
-  {
-    return;
-  }
-  sharedClient->readNodeAttributes(msgNodes);
+//  QSharedPointer< QOpcUaClient > sharedClient = d->OpcUaClient.toStrongRef();
+ // if (!sharedClient)
+  //{
+    //return;
+  //}
+  //sharedClient->readNodeAttributes(msgNodes);
 
   if (modeNode)
   {
@@ -7620,8 +7630,10 @@ void qSlicerSiemensPlcOpcUaWidget::onReadNodeFinished(const QList< QOpcUaReadRes
   // Miscellaneous messages
   QOpcUaNode* miscMessagesNode = d->FindNodeFromFullDisplayName(ASU_MESSAGES_NODE_NAME);
 
+  qDebug() << Q_FUNC_INFO << "1";
   if (serviceResult != QOpcUa::UaStatusCode::Good)
   {
+    qDebug() << Q_FUNC_INFO << "NO";
     return;
   }
   for (const QOpcUaReadResult& result : results)
@@ -7632,6 +7644,7 @@ void qSlicerSiemensPlcOpcUaWidget::onReadNodeFinished(const QList< QOpcUaReadRes
     }
     if (result.attribute() == QOpcUa::NodeAttribute::Value && result.value().canConvert< QVariantList >())
     {
+      qDebug() << Q_FUNC_INFO << "List is valid";
       QVariantList msgList = result.value().toList();
       if (msgList.size() == vtkMRMLSiemensPlcOpcUaNode::MESSAGES_SIZE)
       {
@@ -7644,14 +7657,17 @@ void qSlicerSiemensPlcOpcUaWidget::onReadNodeFinished(const QList< QOpcUaReadRes
         uint64_t msgValue = msgFlags.to_ullong();
         if (errMessagesNode && (result.nodeId() == errMessagesNode->nodeId()))
         {
+          qDebug() << Q_FUNC_INFO << "3";
           d->ParameterNode->SetErrorMessages(msgValue);
         }
         else if (servMessagesNode && (result.nodeId() == servMessagesNode->nodeId()))
         {
+          qDebug() << Q_FUNC_INFO << "4";
           d->ParameterNode->SetServiceMessages(msgValue);
         }
         else if (miscMessagesNode && (result.nodeId() == miscMessagesNode->nodeId()))
         {
+          qDebug() << Q_FUNC_INFO << "5";
           d->ParameterNode->SetMiscMessages(msgValue);
         }
       }

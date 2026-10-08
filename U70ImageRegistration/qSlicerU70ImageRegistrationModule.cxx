@@ -51,20 +51,20 @@ qSlicerU70ImageRegistrationModule::~qSlicerU70ImageRegistrationModule() {}
 //-----------------------------------------------------------------------------
 QString qSlicerU70ImageRegistrationModule::helpText() const
 {
-  return "This is a loadable module that can be bundled in an extension";
+  return tr("X-ray image registration for patient positioning.");
 }
 
 //-----------------------------------------------------------------------------
 QString qSlicerU70ImageRegistrationModule::acknowledgementText() const
 {
-  return "This work was partially funded by NIH grant NXNNXXNNNNNN-NNXN";
+  return tr("This work was partially funded by NIH grant NXNNXXNNNNNN-NNXN");
 }
 
 //-----------------------------------------------------------------------------
 QStringList qSlicerU70ImageRegistrationModule::contributors() const
 {
   QStringList moduleContributors;
-  moduleContributors << QString("John Doe (AnyWare Corp.)");
+  moduleContributors << tr("Mikhail Polkovnikov");
   return moduleContributors;
 }
 
@@ -77,13 +77,19 @@ QIcon qSlicerU70ImageRegistrationModule::icon() const
 //-----------------------------------------------------------------------------
 QStringList qSlicerU70ImageRegistrationModule::categories() const
 {
-  return QStringList() << "Examples";
+  return QStringList() << tr("Lutch U-70");
 }
 
 //-----------------------------------------------------------------------------
 QStringList qSlicerU70ImageRegistrationModule::dependencies() const
 {
   return QStringList();
+}
+
+//-----------------------------------------------------------------------------
+QString qSlicerU70ImageRegistrationModule::title() const
+{
+  return tr("Registration of X-ray Images");
 }
 
 //-----------------------------------------------------------------------------

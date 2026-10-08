@@ -36,7 +36,8 @@ public:
   explicit qSlicerU70RoomBeamsModule(QObject* parent = nullptr);
   ~qSlicerU70RoomBeamsModule() override;
 
-  qSlicerGetTitleMacro(tr("U70RoomBeams"));
+//  qSlicerGetTitleMacro(QTMODULE_TITLE);
+  QString title() const override;
 
   QString helpText() const override;
   QString acknowledgementText() const override;

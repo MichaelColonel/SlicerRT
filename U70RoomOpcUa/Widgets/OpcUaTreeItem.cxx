@@ -45,6 +45,8 @@ constexpr int numberOfDisplayColumns = 7; // NodeId, Value, NodeClass, DataType,
 
 }
 
+int OpcUaTreeItem::nodesLoading = 0;
+
 OpcUaTreeItem::OpcUaTreeItem(OpcUaModel *model)
   :
     QObject(nullptr)
@@ -62,6 +64,7 @@ OpcUaTreeItem::OpcUaTreeItem(QOpcUaNode *node, OpcUaModel *model, OpcUaTreeItem 
   QObject::connect(mOpcNode.get(), &QOpcUaNode::attributeRead, this, &OpcUaTreeItem::handleAttributes);
   QObject::connect(mOpcNode.get(), &QOpcUaNode::browseFinished, this, &OpcUaTreeItem::browseFinished);
 
+  nodesLoading++;
   if (!mOpcNode->readAttributes(QOpcUa::NodeAttribute::Value
     | QOpcUa::NodeAttribute::NodeClass
     | QOpcUa::NodeAttribute::Description
@@ -281,6 +284,9 @@ void OpcUaTreeItem::browseFinished(const QVector<QOpcUaReferenceDescription> &ch
     qWarning() << tr("Browsing node") << mOpcNode->nodeId() << tr("finally failed:") << statusCode;
     return;
   }
+
+  nodesLoading--;
+  qDebug() << Q_FUNC_INFO << "nodes loading:" << nodesLoading;
 
   auto index = mModel->createIndex(row(), 0, this);
 

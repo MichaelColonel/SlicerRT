@@ -36,7 +36,8 @@ public:
   explicit qSlicerU70ImageRegistrationModule(QObject* parent = nullptr);
   ~qSlicerU70ImageRegistrationModule() override;
 
-  qSlicerGetTitleMacro(tr("U70ImageRegistration"));
+//  qSlicerGetTitleMacro(QTMODULE_TITLE);
+  QString title() const override;
 
   QString helpText() const override;
   QString acknowledgementText() const override;

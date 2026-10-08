@@ -51,7 +51,7 @@ qSlicerU70RoomGeoModule::~qSlicerU70RoomGeoModule() {}
 //-----------------------------------------------------------------------------
 QString qSlicerU70RoomGeoModule::helpText() const
 {
-  return tr("Geometry of the treatment rooms: Channel-26 (Cabin-1 and Cabin-2), Channe-26A (Cabin-3).");
+  return tr("Geometry of the treatment rooms: Channel-26 (Room-1 and Room-2), Channel-26A (Room-3).");
 }
 
 //-----------------------------------------------------------------------------
@@ -64,7 +64,7 @@ QString qSlicerU70RoomGeoModule::acknowledgementText() const
 QStringList qSlicerU70RoomGeoModule::contributors() const
 {
   QStringList moduleContributors;
-  moduleContributors << QString(tr("Mikhail Polkovnikov"));
+  moduleContributors << tr("Mikhail Polkovnikov");
   return moduleContributors;
 }
 
@@ -84,6 +84,12 @@ QStringList qSlicerU70RoomGeoModule::categories() const
 QStringList qSlicerU70RoomGeoModule::dependencies() const
 {
   return QStringList();
+}
+
+//-----------------------------------------------------------------------------
+QString qSlicerU70RoomGeoModule::title() const
+{
+  return tr("Treatment Room Geometry");
 }
 
 //-----------------------------------------------------------------------------

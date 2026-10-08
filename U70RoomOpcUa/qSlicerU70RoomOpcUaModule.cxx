@@ -51,20 +51,20 @@ qSlicerU70RoomOpcUaModule::~qSlicerU70RoomOpcUaModule() {}
 //-----------------------------------------------------------------------------
 QString qSlicerU70RoomOpcUaModule::helpText() const
 {
-  return "This is a loadable module that can be bundled in an extension";
+  return tr("Siemens PLC OPC UA server: Channel-26 (Room-1 and Room-2), Channel-26A (Room-3).");
 }
 
 //-----------------------------------------------------------------------------
 QString qSlicerU70RoomOpcUaModule::acknowledgementText() const
 {
-  return "This work was partially funded by NIH grant NXNNXXNNNNNN-NNXN";
+  return tr("This work was partially funded by NIH grant NXNNXXNNNNNN-NNXN");
 }
 
 //-----------------------------------------------------------------------------
 QStringList qSlicerU70RoomOpcUaModule::contributors() const
 {
   QStringList moduleContributors;
-  moduleContributors << QString(tr("Mikhail Polkovnikov"));
+  moduleContributors << tr("Mikhail Polkovnikov");
   return moduleContributors;
 }
 
@@ -84,6 +84,12 @@ QStringList qSlicerU70RoomOpcUaModule::categories() const
 QStringList qSlicerU70RoomOpcUaModule::dependencies() const
 {
   return QStringList();
+}
+
+//-----------------------------------------------------------------------------
+QString qSlicerU70RoomOpcUaModule::title() const
+{
+  return tr("OPC-UA Server for Robots");
 }
 
 //-----------------------------------------------------------------------------

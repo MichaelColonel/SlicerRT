@@ -1,7 +1,7 @@
 
 #-----------------------------------------------------------------------------
 set(MODULE_NAME U70RoomOpcUa)
-set(MODULE_TITLE "Robots OPC-UA Protocol")
+set(MODULE_TITLE "OPC-UA Server for Robots")
 
 string(TOUPPER ${MODULE_NAME} MODULE_NAME_UPPER)
 

@@ -54,15 +54,15 @@ protected:
   QString headerAt(int offset) const;
   ModalityWork modalityWorkAndScheduledProcedureStepList;
   const QStringList tableHeadersList{
-    "Requested\nProcedure\nID",
-    "Modality",
-    "Scheduled\nStation\nAE Title",
-    "Scheduled\nStation\nName",
-    "SPS Start\nDate & Time",
-    "SPS ID",
-    "SPS Description",
-    "SPS Location",
-    "SPS Status"
+    QT_TR_NOOP("Requested\nProcedure\nID"),
+    QT_TR_NOOP("Modality"),
+    QT_TR_NOOP("Scheduled\nStation\nAE Title"),
+    QT_TR_NOOP("Scheduled\nStation\nName"),
+    QT_TR_NOOP("SPS Start\nDate & Time"),
+    QT_TR_NOOP("SPS ID"),
+    QT_TR_NOOP("SPS Description"),
+    QT_TR_NOOP("SPS Location"),
+    QT_TR_NOOP("SPS Status")
   };
 };
 

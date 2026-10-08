@@ -39,7 +39,7 @@ public:
   explicit qSlicerImagePositioningModule(QObject *parent=nullptr);
   ~qSlicerImagePositioningModule() override;
 
-  qSlicerGetTitleMacro(tr("ImagePositioning"));
+  qSlicerGetTitleMacro(QTMODULE_TITME);
 
   QString helpText()const override;
   QString acknowledgementText()const override;

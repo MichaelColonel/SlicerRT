@@ -125,6 +125,11 @@ void qSlicerPatientsQueueWidget::setParameterNode(vtkMRMLNode* node)
 void qSlicerPatientsQueueWidget::updateWidgetFromMRML()
 {
   Q_D(qSlicerPatientsQueueWidget);
+  if (d->ParameterNode)
+  {
+    qDebug() << Q_FUNC_INFO << "Node is OK";
+  }
+  qDebug() << Q_FUNC_INFO << "Update children widgets";
 }
 
 //-----------------------------------------------------------------------------

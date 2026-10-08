@@ -51,20 +51,20 @@ qSlicerU70RoomBeamsModule::~qSlicerU70RoomBeamsModule() {}
 //-----------------------------------------------------------------------------
 QString qSlicerU70RoomBeamsModule::helpText() const
 {
-  return "This is a loadable module that can be bundled in an extension";
+  return tr("Custom beams for Lutch U-70 treatment rooms.");
 }
 
 //-----------------------------------------------------------------------------
 QString qSlicerU70RoomBeamsModule::acknowledgementText() const
 {
-  return "This work was partially funded by NIH grant NXNNXXNNNNNN-NNXN";
+  return tr("This work was partially funded by NIH grant NXNNXXNNNNNN-NNXN");
 }
 
 //-----------------------------------------------------------------------------
 QStringList qSlicerU70RoomBeamsModule::contributors() const
 {
   QStringList moduleContributors;
-  moduleContributors << QString("John Doe (AnyWare Corp.)");
+  moduleContributors << tr("Mikhail Polkovnikov");
   return moduleContributors;
 }
 
@@ -77,13 +77,19 @@ QIcon qSlicerU70RoomBeamsModule::icon() const
 //-----------------------------------------------------------------------------
 QStringList qSlicerU70RoomBeamsModule::categories() const
 {
-  return QStringList() << "Examples";
+  return QStringList() << tr("Lutch U-70");
 }
 
 //-----------------------------------------------------------------------------
 QStringList qSlicerU70RoomBeamsModule::dependencies() const
 {
   return QStringList();
+}
+
+//-----------------------------------------------------------------------------
+QString qSlicerU70RoomBeamsModule::title() const
+{
+  return tr("Beams for Treatment Rooms");
 }
 
 //-----------------------------------------------------------------------------
