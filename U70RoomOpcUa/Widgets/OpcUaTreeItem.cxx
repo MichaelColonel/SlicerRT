@@ -64,7 +64,6 @@ OpcUaTreeItem::OpcUaTreeItem(QOpcUaNode *node, OpcUaModel *model, OpcUaTreeItem 
   QObject::connect(mOpcNode.get(), &QOpcUaNode::attributeRead, this, &OpcUaTreeItem::handleAttributes);
   QObject::connect(mOpcNode.get(), &QOpcUaNode::browseFinished, this, &OpcUaTreeItem::browseFinished);
 
-  nodesLoading++;
   if (!mOpcNode->readAttributes(QOpcUa::NodeAttribute::Value
     | QOpcUa::NodeAttribute::NodeClass
     | QOpcUa::NodeAttribute::Description
@@ -252,6 +251,8 @@ void OpcUaTreeItem::startBrowsing()
   else
   {
     mBrowseStarted = true;
+
+    qDebug() << Q_FUNC_INFO << "Start browsing, nodes:" << ++nodesLoading;
   }
 }
 
@@ -285,8 +286,7 @@ void OpcUaTreeItem::browseFinished(const QVector<QOpcUaReferenceDescription> &ch
     return;
   }
 
-  nodesLoading--;
-  qDebug() << Q_FUNC_INFO << "nodes loading:" << nodesLoading;
+  qDebug() << Q_FUNC_INFO << "Browse is finished, nodes:" << --nodesLoading;
 
   auto index = mModel->createIndex(row(), 0, this);
 
