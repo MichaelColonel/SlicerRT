@@ -59,6 +59,21 @@ void vtkMRMLSiemensPlcOpcUaNode::WriteXML(ostream& of, int nIndent)
   vtkMRMLWriteXMLIntMacro(stateRtk, StateRtk);
   vtkMRMLWriteXMLIntMacro(stateR1, StateR1);
   vtkMRMLWriteXMLIntMacro(stateR2, StateR2);
+  vtkMRMLWriteXMLIntMacro(coordsX, CoordsX);
+  vtkMRMLWriteXMLIntMacro(coordsY, CoordsY);
+  vtkMRMLWriteXMLIntMacro(coordsZ, CoordsZ);
+  vtkMRMLWriteXMLIntMacro(coordsXrayCorrectionZ, CoordsXrayCorrectionZ);
+  vtkMRMLWriteXMLIntMacro(coordsA, CoordsA);
+  vtkMRMLWriteXMLIntMacro(coordsB, CoordsB);
+  vtkMRMLWriteXMLIntMacro(coordsC, CoordsC);
+  vtkMRMLWriteXMLVectorMacro(autoManualR1LoadToIso, AutoManualR1LoadToIso, bool, 2);
+  vtkMRMLWriteXMLVectorMacro(autoManualR1ToNewCoords, AutoManualR1ToNewCoords, bool, 2);
+  vtkMRMLWriteXMLVectorMacro(autoManualR1ToLoad, AutoManualR1ToLoad, bool, 2);
+  vtkMRMLWriteXMLVectorMacro(autoManualR2ToPlane1, AutoManualR2ToPlane1, bool, 2);
+  vtkMRMLWriteXMLVectorMacro(autoManualR2ToPlane2, AutoManualR2ToPlane2, bool, 2);
+  vtkMRMLWriteXMLVectorMacro(autoManualR2ToHome, AutoManualR2ToHome, bool, 2);
+  vtkMRMLWriteXMLVectorMacro(autoManualEmergencyEvac, AutoManualEmergencyEvac, bool, 2);
+  vtkMRMLWriteXMLVectorMacro(autoManualApplyTableTopPosition, AutoManualApplyTableTopPosition, bool, 2);
   vtkMRMLWriteXMLEndMacro(); 
 }
 
@@ -78,6 +93,21 @@ void vtkMRMLSiemensPlcOpcUaNode::ReadXMLAttributes(const char** atts)
   vtkMRMLReadXMLIntMacro(stateRtk, StateRtk);
   vtkMRMLReadXMLIntMacro(stateR1, StateR1);
   vtkMRMLReadXMLIntMacro(stateR2, StateR2);
+  vtkMRMLReadXMLIntMacro(coordsX, CoordsX);
+  vtkMRMLReadXMLIntMacro(coordsY, CoordsY);
+  vtkMRMLReadXMLIntMacro(coordsZ, CoordsZ);
+  vtkMRMLReadXMLIntMacro(coordsXrayCorrectionZ, CoordsXrayCorrectionZ);
+  vtkMRMLReadXMLIntMacro(coordsA, CoordsA);
+  vtkMRMLReadXMLIntMacro(coordsB, CoordsB);
+  vtkMRMLReadXMLIntMacro(coordsC, CoordsC);
+  vtkMRMLReadXMLVectorMacro(autoManualR1LoadToIso, AutoManualR1LoadToIso, bool, 2);
+  vtkMRMLReadXMLVectorMacro(autoManualR1ToNewCoords, AutoManualR1ToNewCoords, bool, 2);
+  vtkMRMLReadXMLVectorMacro(autoManualR1ToLoad, AutoManualR1ToLoad, bool, 2);
+  vtkMRMLReadXMLVectorMacro(autoManualR2ToPlane1, AutoManualR2ToPlane1, bool, 2);
+  vtkMRMLReadXMLVectorMacro(autoManualR2ToPlane2, AutoManualR2ToPlane2, bool, 2);
+  vtkMRMLReadXMLVectorMacro(autoManualR2ToHome, AutoManualR2ToHome, bool, 2);
+  vtkMRMLReadXMLVectorMacro(autoManualEmergencyEvac, AutoManualEmergencyEvac, bool, 2);
+  vtkMRMLReadXMLVectorMacro(autoManualApplyTableTopPosition, AutoManualApplyTableTopPosition, bool, 2);
   vtkMRMLReadXMLEndMacro();
 
   this->EndModify(disabledModify);
@@ -110,6 +140,21 @@ void vtkMRMLSiemensPlcOpcUaNode::Copy(vtkMRMLNode *anode)
   vtkMRMLCopyIntMacro(StateRtk);
   vtkMRMLCopyIntMacro(StateR1);
   vtkMRMLCopyIntMacro(StateR2);
+  vtkMRMLCopyIntMacro(CoordsX);
+  vtkMRMLCopyIntMacro(CoordsY);
+  vtkMRMLCopyIntMacro(CoordsZ);
+  vtkMRMLCopyIntMacro(CoordsXrayCorrectionZ);
+  vtkMRMLCopyIntMacro(CoordsA);
+  vtkMRMLCopyIntMacro(CoordsB);
+  vtkMRMLCopyIntMacro(CoordsC);
+  vtkMRMLCopyVectorMacro(AutoManualR1LoadToIso, bool, 2);
+  vtkMRMLCopyVectorMacro(AutoManualR1ToNewCoords, bool, 2);
+  vtkMRMLCopyVectorMacro(AutoManualR1ToLoad, bool, 2);
+  vtkMRMLCopyVectorMacro(AutoManualR2ToPlane1, bool, 2);
+  vtkMRMLCopyVectorMacro(AutoManualR2ToPlane2, bool, 2);
+  vtkMRMLCopyVectorMacro(AutoManualR2ToHome, bool, 2);
+  vtkMRMLCopyVectorMacro(AutoManualEmergencyEvac, bool, 2);
+  vtkMRMLCopyVectorMacro(AutoManualApplyTableTopPosition, bool, 2);
   vtkMRMLCopyEndMacro(); 
 
   this->EndModify(disabledModify);
@@ -138,6 +183,21 @@ void vtkMRMLSiemensPlcOpcUaNode::CopyContent(vtkMRMLNode *anode, bool deepCopy/*
   vtkMRMLCopyIntMacro(StateRtk);
   vtkMRMLCopyIntMacro(StateR1);
   vtkMRMLCopyIntMacro(StateR2);
+  vtkMRMLCopyIntMacro(CoordsX);
+  vtkMRMLCopyIntMacro(CoordsY);
+  vtkMRMLCopyIntMacro(CoordsZ);
+  vtkMRMLCopyIntMacro(CoordsXrayCorrectionZ);
+  vtkMRMLCopyIntMacro(CoordsA);
+  vtkMRMLCopyIntMacro(CoordsB);
+  vtkMRMLCopyIntMacro(CoordsC);
+  vtkMRMLCopyVectorMacro(AutoManualR1LoadToIso, bool, 2);
+  vtkMRMLCopyVectorMacro(AutoManualR1ToNewCoords, bool, 2);
+  vtkMRMLCopyVectorMacro(AutoManualR1ToLoad, bool, 2);
+  vtkMRMLCopyVectorMacro(AutoManualR2ToPlane1, bool, 2);
+  vtkMRMLCopyVectorMacro(AutoManualR2ToPlane2, bool, 2);
+  vtkMRMLCopyVectorMacro(AutoManualR2ToHome, bool, 2);
+  vtkMRMLCopyVectorMacro(AutoManualEmergencyEvac, bool, 2);
+  vtkMRMLCopyVectorMacro(AutoManualApplyTableTopPosition, bool, 2);
   vtkMRMLCopyEndMacro();
 }
 
@@ -155,6 +215,21 @@ void vtkMRMLSiemensPlcOpcUaNode::PrintSelf(ostream& os, vtkIndent indent)
   vtkMRMLPrintIntMacro(StateRtk);
   vtkMRMLPrintIntMacro(StateR1);
   vtkMRMLPrintIntMacro(StateR2);
+  vtkMRMLPrintIntMacro(CoordsX);
+  vtkMRMLPrintIntMacro(CoordsY);
+  vtkMRMLPrintIntMacro(CoordsZ);
+  vtkMRMLPrintIntMacro(CoordsXrayCorrectionZ);
+  vtkMRMLPrintIntMacro(CoordsA);
+  vtkMRMLPrintIntMacro(CoordsB);
+  vtkMRMLPrintIntMacro(CoordsC);
+  vtkMRMLPrintVectorMacro(AutoManualR1LoadToIso, bool, 2);
+  vtkMRMLPrintVectorMacro(AutoManualR1ToNewCoords, bool, 2);
+  vtkMRMLPrintVectorMacro(AutoManualR1ToLoad, bool, 2);
+  vtkMRMLPrintVectorMacro(AutoManualR2ToPlane1, bool, 2);
+  vtkMRMLPrintVectorMacro(AutoManualR2ToPlane2, bool, 2);
+  vtkMRMLPrintVectorMacro(AutoManualR2ToHome, bool, 2);
+  vtkMRMLPrintVectorMacro(AutoManualEmergencyEvac, bool, 2);
+  vtkMRMLPrintVectorMacro(AutoManualApplyTableTopPosition, bool, 2);
   vtkMRMLPrintEndMacro(); 
 }
 
@@ -225,4 +300,26 @@ int vtkMRMLSiemensPlcOpcUaNode::GetModeFromString(const char* name)
   }
   // unknown name
   return -1;
+}
+
+//---------------------------------------------------------------------------
+void vtkMRMLSiemensPlcOpcUaNode::GetAxisCoordsR1(double angles[6])
+{
+  angles[0] = double(this->AxisCoordsR1[0]) / 1000.;
+  angles[1] = double(this->AxisCoordsR1[1]) / 1000.;
+  angles[2] = double(this->AxisCoordsR1[2]) / 1000.;
+  angles[3] = double(this->AxisCoordsR1[3]) / 1000.;
+  angles[4] = double(this->AxisCoordsR1[4]) / 1000.;
+  angles[5] = double(this->AxisCoordsR1[5]) / 1000.;
+}
+
+//---------------------------------------------------------------------------
+void vtkMRMLSiemensPlcOpcUaNode::GetAxisCoordsR2(double angles[6])
+{
+  angles[0] = double(this->AxisCoordsR2[0]) / 1000.;
+  angles[1] = double(this->AxisCoordsR2[1]) / 1000.;
+  angles[2] = double(this->AxisCoordsR2[2]) / 1000.;
+  angles[3] = double(this->AxisCoordsR2[3]) / 1000.;
+  angles[4] = double(this->AxisCoordsR2[4]) / 1000.;
+  angles[5] = double(this->AxisCoordsR2[5]) / 1000.;
 }

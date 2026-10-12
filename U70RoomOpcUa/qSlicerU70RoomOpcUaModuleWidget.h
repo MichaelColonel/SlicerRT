@@ -71,6 +71,7 @@ public slots:
   void clientError(QOpcUaClient::ClientError);
   void clientState(QOpcUaClient::ClientState);
   void showErrorDialog(QOpcUaErrorState *errorState);
+  void onTestClicked();
 
 signals:
   void siemensPlcOpcUaModeChanged(vtkMRMLSiemensPlcOpcUaNode::ModeType);

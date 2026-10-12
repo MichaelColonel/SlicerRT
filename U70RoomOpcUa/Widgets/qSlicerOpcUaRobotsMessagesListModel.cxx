@@ -109,7 +109,7 @@ void qSlicerOpcUaRobotsMessagesListModel::updateItemsList()
     {
      ListItem errMsgItem;
      errMsgItem.icon = QPixmap(":/Icons/red.png");
-     errMsgItem.text = QObject::tr("Error %1").arg(i);
+     errMsgItem.text = QObject::tr("[%1] %2").arg(i).arg(ERROR_MESSAGES[i]);
      messages.push_back(errMsgItem);
     }
   }
@@ -118,8 +118,8 @@ void qSlicerOpcUaRobotsMessagesListModel::updateItemsList()
     if (serv.test(i))
     {
      ListItem servMsgItem;
-     servMsgItem.icon = QPixmap(":/Icons/green.png");
-     servMsgItem.text = QObject::tr("Service %1").arg(i);
+     servMsgItem.icon = QPixmap(":/Icons/yellow.png");
+     servMsgItem.text = QObject::tr("[%1] %2").arg(i).arg(SERVICE_MESSAGES[i]);
      messages.push_back(servMsgItem);
     }
   }
@@ -128,8 +128,8 @@ void qSlicerOpcUaRobotsMessagesListModel::updateItemsList()
     if (misc.test(i))
     {
      ListItem miscMsgItem;
-     miscMsgItem.icon = QPixmap(":/Icons/gray.png");
-     miscMsgItem.text = QObject::tr("Misc. %1").arg(i);
+     miscMsgItem.icon = QPixmap(":/Icons/blue.png");
+     miscMsgItem.text = QObject::tr("[%1] %2").arg(i).arg(MESSAGES[i]);
      messages.push_back(miscMsgItem);
     }
   }

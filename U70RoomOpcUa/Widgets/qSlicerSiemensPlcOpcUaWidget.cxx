@@ -19,11 +19,12 @@
 ==============================================================================*/
 
 // Qt includes
-#include <QWeakPointer>
 #include <QOpcUaClient>
+#include <QWeakPointer>
 #include <QSharedPointer>
+#include <QScopedPointer>
 #include <QOpcUaNode>
-#include <QOpcUaReadItem>
+#include <QProgressDialog>
 
 // SiemensPlcOpcUa Widgets includes
 #include "qSlicerSiemensPlcOpcUaWidget.h"
@@ -31,6 +32,7 @@
 
 #include "OpcUaModel.h"
 #include "OpcUaTreeItem.h"
+#include "qSlicerOpcUaRobotsMessagesListModel.h"
 
 #include <vtkMRMLSiemensPlcOpcUaNode.h>
 
@@ -39,7 +41,7 @@
 namespace {
 
 constexpr const char* PARENT_NODE_DISPLAYED_NAME = "ServerInterfaces";
-constexpr const char* SIEMENS_PLC_CURRENT_TIME_NODE_ID = "ns=0;i=2258";
+//constexpr const char* SIEMENS_PLC_CURRENT_TIME_NODE_ID = "ns=0;i=2258";
 
 const QString SIEMENS_PLC_SERVER_INTERFACES_NODE_ID = QLatin1String("ns=3;s=") + PARENT_NODE_DISPLAYED_NAME;
 const QString RTK_PLC_NODE_NAME = QLatin1String(PARENT_NODE_DISPLAYED_NAME) + ".RTK_PLC";
@@ -351,6 +353,11 @@ public:
   bool ConnectEmergencyEvacuationSignalNode();
 
   QScopedPointer< OpcUaModel > SiemensPlcOpcUaModel;
+
+  QScopedPointer< qSlicerOpcUaRobotsMessagesListModel > SiemensPlcErrorListModel;
+  QScopedPointer< qSlicerOpcUaRobotsMessagesListModel > SiemensPlcServiceListModel;
+  QScopedPointer< qSlicerOpcUaRobotsMessagesListModel > SiemensPlcMessagesListModel;
+
   QWeakPointer< QOpcUaClient > OpcUaClient;
   vtkWeakPointer< vtkMRMLSiemensPlcOpcUaNode > ParameterNode;
 
@@ -359,12 +366,80 @@ public:
   // Monitored node
   QScopedPointer< QOpcUaNode > CurrentTimeNode; // Siemens PLC monitored node to prevent session timeout ending
   QMap< QString, NodeData > NodeNameDataMap; // key - node unique full name, value - node data
+  const QStringList ReadValueFullNodeNames = {
+    ASU_ERROR_MESSAGES_NODE_NAME,
+    ASU_SERVICE_MESSAGES_NODE_NAME,
+    ASU_MESSAGES_NODE_NAME,
+    ASU_MODE_NODE_NAME,
+    BUTTONS_AM_R1_LOADTOISO_ENABLED_NODE_NAME,
+    BUTTONS_AM_R1_TOLOAD_ENABLED_NODE_NAME,
+    BUTTONS_AM_R1_NEWCOORDS_ENABLED_NODE_NAME,
+    BUTTONS_AM_R2_TOHOME_ENABLED_NODE_NAME,
+    BUTTONS_AM_R2_TOPLANE1_ENABLED_NODE_NAME,
+    BUTTONS_AM_R2_TOPLANE2_ENABLED_NODE_NAME,
+    BUTTONS_AM_R1R2_EMEVAC_ENABLED_NODE_NAME,
+    BUTTONS_AM_APPLYTABLEPOSITION_ENABLED_NODE_NAME,
+    BUTTONS_SM_R1_BREAKTEST_ENABLED_NODE_NAME,
+    BUTTONS_SM_R1_MASREFTEST_ENABLED_NODE_NAME,
+    BUTTONS_SM_R1_LOAD_ENABLED_NODE_NAME,
+    BUTTONS_SM_R1_SERVICEPOS1_ENABLED_NODE_NAME,
+    BUTTONS_SM_R1_SERVICEPOS2_ENABLED_NODE_NAME,
+    BUTTONS_SM_R1_SERVICEPOS3_ENABLED_NODE_NAME,
+    BUTTONS_SM_R2_BREAKTEST_ENABLED_NODE_NAME,
+    BUTTONS_SM_R2_MASREFTEST_ENABLED_NODE_NAME,
+    BUTTONS_SM_R2_HOME_ENABLED_NODE_NAME,
+    BUTTONS_SM_R2_SERVICEPOS1_ENABLED_NODE_NAME,
+    BUTTONS_SM_R2_SERVICEPOS2_ENABLED_NODE_NAME,
+    BUTTONS_SM_R2_SERVICEPOS3_ENABLED_NODE_NAME,
+    BUTTONS_SM_RESTARTSM_ENABLED_NODE_NAME,
+    BUTTONS_KCM_ALLOWT1_ENABLED_NODE_NAME,
+    BUTTONS_KCM_ALLOWXRAY_ENABLED_NODE_NAME,
+    BUTTONS_KCM_ALLOWBEAM_ENABLED_NODE_NAME,
+    ASU_ROBOTS_READY_XRAY1_NODE_NAME,
+    ASU_ROBOTS_READY_XRAY2_NODE_NAME,
+    ASU_TABLE_POSITION_NODE_NAME,
+    ASU_EMEVAC_SIGNAL_NODE_NAME,
+    ASU_COORDS_X_NODE_NAME,
+    ASU_COORDS_Y_NODE_NAME,
+    ASU_COORDS_Z_NODE_NAME,
+    ASU_COORDS_XRAY_Z_NODE_NAME,
+    ASU_COORDS_R1_A_NODE_NAME,
+    ASU_COORDS_R1_B_NODE_NAME,
+    ASU_COORDS_R1_C_NODE_NAME,
+    KUKA_R1_COORD_X_TO_TCS_NODE_NAME,
+    KUKA_R1_COORD_Y_TO_TCS_NODE_NAME,
+    KUKA_R1_COORD_Z_TO_TCS_NODE_NAME,
+    KUKA_R1_ANGLE_A_TO_TCS_NODE_NAME,
+    KUKA_R1_ANGLE_B_TO_TCS_NODE_NAME,
+    KUKA_R1_ANGLE_C_TO_TCS_NODE_NAME,
+    KUKA_R1_AXIS_A1_NODE_NAME,
+    KUKA_R1_AXIS_A2_NODE_NAME,
+    KUKA_R1_AXIS_A3_NODE_NAME,
+    KUKA_R1_AXIS_A4_NODE_NAME,
+    KUKA_R1_AXIS_A5_NODE_NAME,
+    KUKA_R1_AXIS_A6_NODE_NAME,
+    KUKA_R2_COORD_X_TO_TCS_NODE_NAME,
+    KUKA_R2_COORD_Y_TO_TCS_NODE_NAME,
+    KUKA_R2_COORD_Z_TO_TCS_NODE_NAME,
+    KUKA_R2_ANGLE_A_TO_TCS_NODE_NAME,
+    KUKA_R2_ANGLE_B_TO_TCS_NODE_NAME,
+    KUKA_R2_ANGLE_C_TO_TCS_NODE_NAME,
+    KUKA_R2_AXIS_A1_NODE_NAME,
+    KUKA_R2_AXIS_A2_NODE_NAME,
+    KUKA_R2_AXIS_A3_NODE_NAME,
+    KUKA_R2_AXIS_A4_NODE_NAME,
+    KUKA_R2_AXIS_A5_NODE_NAME,
+    KUKA_R2_AXIS_A6_NODE_NAME
+  };
 };
 
 // --------------------------------------------------------------------------
 qSlicerSiemensPlcOpcUaWidgetPrivate::qSlicerSiemensPlcOpcUaWidgetPrivate(qSlicerSiemensPlcOpcUaWidget& object)
   : q_ptr(&object)
   , SiemensPlcOpcUaModel(new OpcUaModel(&object))
+  , SiemensPlcErrorListModel(new qSlicerOpcUaRobotsMessagesListModel(&object))
+  , SiemensPlcServiceListModel(new qSlicerOpcUaRobotsMessagesListModel(&object))
+  , SiemensPlcMessagesListModel(new qSlicerOpcUaRobotsMessagesListModel(&object))
 {
 }
 
@@ -376,6 +451,10 @@ void qSlicerSiemensPlcOpcUaWidgetPrivate::setupUi(qSlicerSiemensPlcOpcUaWidget* 
   this->Ui_qSlicerSiemensPlcOpcUaWidget::setupUi(widget);
 
   this->TreeView_OpcUaModel->setModel(SiemensPlcOpcUaModel.data());
+  this->ListView_ErrorMessages->setModel(SiemensPlcErrorListModel.data());
+  this->ListView_ServiceMessages->setModel(SiemensPlcServiceListModel.data());
+  this->ListView_MiscMessages->setModel(SiemensPlcMessagesListModel.data());
+  
   this->TreeView_OpcUaModel->header()->setSectionResizeMode(QHeaderView::ResizeToContents);
 }
 
@@ -487,7 +566,6 @@ bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectMessagesNodes()
   QObject::connect(errMessagesNode,
     &QOpcUaNode::dataChangeOccurred, [mrmlNode](QOpcUa::NodeAttribute attr, QVariant value)
     {
-      qDebug() << Q_FUNC_INFO << "Error messages value changed";
       if (attr == QOpcUa::NodeAttribute::Value && value.canConvert<QVariantList>())
       {
         std::bitset< vtkMRMLSiemensPlcOpcUaNode::MESSAGES_SIZE > errors;
@@ -506,6 +584,15 @@ bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectMessagesNodes()
           qDebug() << Q_FUNC_INFO << "Error messages value changed:" << errValue;
         }
       }
+      else if (attr == QOpcUa::NodeAttribute::Description && value.canConvert<QVariantList>())
+      {
+        QVariantList descriptionList = value.toList(); // Get the attribute from the cache
+        for (const QVariant& descrValue : descriptionList)
+        {
+          QString descr = descrValue.value<QOpcUaLocalizedText>().text();
+          qDebug() << Q_FUNC_INFO << "Error description:" << descr;
+        }
+      }
     }
   );
   QObject::connect(errMessagesNode,
@@ -519,7 +606,6 @@ bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectMessagesNodes()
       {
         if (errMessagesNode->attributeError(QOpcUa::NodeAttribute::Value) == QOpcUa::UaStatusCode::Good)
         {
-          qDebug() << Q_FUNC_INFO << "Error messages value read";
           QVariant value = errMessagesNode->attribute(QOpcUa::NodeAttribute::Value);
           if (value.canConvert<QVariantList>())
           {
@@ -541,6 +627,24 @@ bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectMessagesNodes()
           }
         }
       }
+      else if (attr & QOpcUa::NodeAttribute::Description)
+      {
+        qDebug() << Q_FUNC_INFO << "Error description read:";
+        if (errMessagesNode->attributeError(QOpcUa::NodeAttribute::Description) == QOpcUa::UaStatusCode::Good)
+        {
+          qDebug() << Q_FUNC_INFO << "Error description read 1:";
+          QVariant value = errMessagesNode->attribute(QOpcUa::NodeAttribute::Description);
+          if (value.canConvert<QVariantList>())
+          {
+            QVariantList descriptionList = value.toList(); // Get the attribute from the cache
+            for (const QVariant& descrValue : descriptionList)
+            {
+              QString descr = descrValue.value<QOpcUaLocalizedText>().text();
+              qDebug() << Q_FUNC_INFO << "Error description read:" << descr;
+            }
+          }
+        }
+      }
     }
   );
   // Subscribe to data changes
@@ -554,7 +658,6 @@ bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectMessagesNodes()
   QObject::connect(servMessagesNode,
     &QOpcUaNode::dataChangeOccurred, [mrmlNode](QOpcUa::NodeAttribute attr, QVariant value)
     {
-      qDebug() << Q_FUNC_INFO << "Service messages value changed";
       if (attr == QOpcUa::NodeAttribute::Value && value.canConvert<QVariantList>())
       {
         std::bitset< vtkMRMLSiemensPlcOpcUaNode::MESSAGES_SIZE > servFlags;
@@ -586,7 +689,6 @@ bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectMessagesNodes()
       {
         if (servMessagesNode->attributeError(QOpcUa::NodeAttribute::Value) == QOpcUa::UaStatusCode::Good)
         {
-          qDebug() << Q_FUNC_INFO << "Error messages value read";
           QVariant value = servMessagesNode->attribute(QOpcUa::NodeAttribute::Value);
           if (value.canConvert<QVariantList>())
           {
@@ -608,6 +710,24 @@ bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectMessagesNodes()
           }
         }
       }
+      else if (attr & QOpcUa::NodeAttribute::Description)
+      {
+        qDebug() << Q_FUNC_INFO << "Service description read:";
+        if (servMessagesNode->attributeError(QOpcUa::NodeAttribute::Description) == QOpcUa::UaStatusCode::Good)
+        {
+          qDebug() << Q_FUNC_INFO << "Service description read 1:";
+          QVariant value = servMessagesNode->attribute(QOpcUa::NodeAttribute::Description);
+          if (value.canConvert<QVariantList>())
+          {
+            QVariantList descriptionList = value.toList(); // Get the attribute from the cache
+            for (const QVariant& descrValue : descriptionList)
+            {
+              QString descr = descrValue.value<QOpcUaLocalizedText>().text();
+              qDebug() << Q_FUNC_INFO << "Service description read:" << descr;
+            }
+          }
+        }
+      }
     }
   );
   // Subscribe to data changes
@@ -621,7 +741,6 @@ bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectMessagesNodes()
   QObject::connect(miscMessagesNode,
     &QOpcUaNode::dataChangeOccurred, [mrmlNode](QOpcUa::NodeAttribute attr, QVariant value)
     {
-      qDebug() << Q_FUNC_INFO << "Miscellaneous messages value changed";
       if (attr == QOpcUa::NodeAttribute::Value && value.canConvert<QVariantList>())
       {
         std::bitset< vtkMRMLSiemensPlcOpcUaNode::MESSAGES_SIZE > miscFlags;
@@ -653,7 +772,6 @@ bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectMessagesNodes()
       {
         if (miscMessagesNode->attributeError(QOpcUa::NodeAttribute::Value) == QOpcUa::UaStatusCode::Good)
         {
-          qDebug() << Q_FUNC_INFO << "Miscellaneous messages value read";
           QVariant value = miscMessagesNode->attribute(QOpcUa::NodeAttribute::Value);
           if (value.canConvert<QVariantList>())
           {
@@ -671,6 +789,24 @@ bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectMessagesNodes()
               uint64_t miscValue = miscFlags.to_ullong();
               mrmlNode->SetMiscMessages(miscValue);
               qDebug() << Q_FUNC_INFO << "Miscellaneous messages value read:" << miscValue;
+            }
+          }
+        }
+      }
+      else if (attr & QOpcUa::NodeAttribute::Description)
+      {
+        qDebug() << Q_FUNC_INFO << "Miscellaneous description read:";
+        if (miscMessagesNode->attributeError(QOpcUa::NodeAttribute::Description) == QOpcUa::UaStatusCode::Good)
+        {
+          qDebug() << Q_FUNC_INFO << "Miscellaneous description 1:";
+          QVariant value = miscMessagesNode->attribute(QOpcUa::NodeAttribute::Description);
+          if (value.canConvert<QVariantList>())
+          {
+            QVariantList descriptionList = value.toList(); // Get the attribute from the cache
+            for (const QVariant& descrValue : descriptionList)
+            {
+              QString descr = descrValue.value<QOpcUaLocalizedText>().text();
+              qDebug() << Q_FUNC_INFO << "Miscellaneous description read:" << descr;
             }
           }
         }
@@ -6322,6 +6458,13 @@ void qSlicerSiemensPlcOpcUaWidget::updateWidgetFromMRML()
   d->CollapsibleButton_ServiceMovement->setEnabled(true);
   d->CollapsibleButton_KukaControllersMovement->setEnabled(true);
 
+  uint64_t errBits = d->ParameterNode->GetErrorMessages();
+  uint64_t servBits = d->ParameterNode->GetServiceMessages();
+  uint64_t miscBits = d->ParameterNode->GetMiscMessages();
+  d->SiemensPlcErrorListModel->updateMessagesBits(errBits, 0, 0);
+  d->SiemensPlcServiceListModel->updateMessagesBits(0, servBits, 0);
+  d->SiemensPlcMessagesListModel->updateMessagesBits(0, 0, miscBits);
+
   bool buttonState[2] = { false, false };
   // AM
   d->ParameterNode->GetAutoManualR1ToLoad(buttonState);
@@ -6412,6 +6555,54 @@ void qSlicerSiemensPlcOpcUaWidget::updateWidgetFromMRML()
   }
 
   {
+    QSignalBlocker block(d->CheckBox_HUMAN_ON_DEKA);
+    bool flag = d->ParameterNode->GetPatientOnTableTop();
+    d->CheckBox_HUMAN_ON_DEKA->setChecked(flag);
+  }
+
+  {
+    QSignalBlocker block0(d->CheckBox_RobotsReadyForXray1);
+    bool flag = d->ParameterNode->GetRobotsReadyForXray1();
+    d->CheckBox_RobotsReadyForXray1->setChecked(flag);
+
+    QSignalBlocker block1(d->CheckBox_RobotsReadyForXray2);
+    flag = d->ParameterNode->GetRobotsReadyForXray2();
+    d->CheckBox_RobotsReadyForXray2->setChecked(flag);
+
+    QSignalBlocker block2(d->CheckBox_RobotsReadyForBeam);
+    flag = d->ParameterNode->GetRobotsReadyForBeam();
+    d->CheckBox_RobotsReadyForBeam->setChecked(flag);
+  }
+
+  {
+    QSignalBlocker block0(d->CheckBox_DoorLockSensor1);
+    bool flag = d->ParameterNode->GetDoorLockSensor1();
+    d->CheckBox_DoorLockSensor1->setChecked(flag);
+
+    QSignalBlocker block1(d->CheckBox_DoorLockSensor2);
+    flag = d->ParameterNode->GetDoorLockSensor2();
+    d->CheckBox_DoorLockSensor2->setChecked(flag);
+
+    QSignalBlocker block2(d->CheckBox_EmergencyEvacuationFlag);
+    flag = d->ParameterNode->GetEmergencyEvacSignal();
+    d->CheckBox_EmergencyEvacuationFlag->setChecked(flag);
+  }
+
+  {
+    QSignalBlocker block0(d->CheckBox_RobotsReadyForXray1);
+    bool flag = d->ParameterNode->GetRobotsReadyForXray1();
+    d->CheckBox_RobotsReadyForXray1->setChecked(flag);
+
+    QSignalBlocker block1(d->CheckBox_RobotsReadyForXray2);
+    flag = d->ParameterNode->GetRobotsReadyForXray2();
+    d->CheckBox_RobotsReadyForXray2->setChecked(flag);
+
+    QSignalBlocker block2(d->CheckBox_RobotsReadyForBeam);
+    flag = d->ParameterNode->GetRobotsReadyForBeam();
+    d->CheckBox_RobotsReadyForBeam->setChecked(flag);
+  }
+
+  {
     QSignalBlocker block0(d->RadioButton_PositionNotDefined);
     QSignalBlocker block1(d->RadioButton_Position1);
     QSignalBlocker block2(d->RadioButton_Position2);
@@ -6420,7 +6611,6 @@ void qSlicerSiemensPlcOpcUaWidget::updateWidgetFromMRML()
     switch (position)
     {
     case 0:
-      qDebug() << Q_FUNC_INFO << "undef";
       d->RadioButton_PositionNotDefined->setChecked(true);
       break;
     case 1:
@@ -6436,8 +6626,6 @@ void qSlicerSiemensPlcOpcUaWidget::updateWidgetFromMRML()
       break;
     }
   }
-
-  qDebug() << Q_FUNC_INFO << "Update SiemensPlcOpcUa buttons";
 }
 
 //-----------------------------------------------------------------------------
@@ -6452,16 +6640,21 @@ void qSlicerSiemensPlcOpcUaWidget::onOpcUaClientConnected()
   }
 
   d->SiemensPlcOpcUaModel->setOpcUaClient(sharedClient.data(), OpcUaTreeItem::SIEMENS_PLC_SERVER_INTERFACES_NODE_ID);
+//  d->SiemensPlcOpcUaModel->setOpcUaClient(sharedClient.data(), QOpcUa::namespace0Id(QOpcUa::NodeIds::Namespace0::RootFolder));
+//  d->TreeView_OpcUaModel->header()->setSectionResizeMode(0 /* BrowseName column*/, QHeaderView::Interactive);
   d->TreeView_OpcUaModel->header()->setSectionResizeMode(1 /* Value column*/, QHeaderView::Interactive);
+//  d->TreeView_OpcUaModel->header()->setSectionResizeMode(2 /* NodeClass column*/, QHeaderView::Interactive);
+//  d->TreeView_OpcUaModel->header()->setSectionResizeMode(3 /* DataType column*/, QHeaderView::Interactive);
+//  d->TreeView_OpcUaModel->header()->setSectionResizeMode(4 /* NodeID column*/, QHeaderView::Interactive);
+//  d->TreeView_OpcUaModel->header()->setSectionResizeMode(5 /* DisplayName column*/, QHeaderView::Interactive);
+//  d->TreeView_OpcUaModel->header()->setSectionResizeMode(6 /* Description column*/, QHeaderView::Interactive);
 
-  d->CurrentTimeNode.reset(sharedClient->node(QLatin1String(SIEMENS_PLC_CURRENT_TIME_NODE_ID)));
+  d->CurrentTimeNode.reset(sharedClient->node(QOpcUa::namespace0Id(QOpcUa::NodeIds::Namespace0::Server_ServerStatus_CurrentTime)));
   if (d->CurrentTimeNode)
   {
-    qDebug() << Q_FUNC_INFO << "Current time node is OK";
     // Subscribe to data changes
     d->CurrentTimeNode->enableMonitoring(QOpcUa::NodeAttribute::Value, QOpcUaMonitoringParameters(1000));
   }
-  
 }
 
 //-----------------------------------------------------------------------------
@@ -7279,43 +7472,29 @@ void qSlicerSiemensPlcOpcUaWidget::onServerInterfacesRead(QOpcUa::NodeAttributes
 void qSlicerSiemensPlcOpcUaWidget::onReadStatusAndMessagesClicked()
 {
   Q_D(qSlicerSiemensPlcOpcUaWidget);
-  // Error messages
-  QOpcUaNode* errMessagesNode = d->FindNodeFromFullDisplayName(ASU_ERROR_MESSAGES_NODE_NAME);
-  // Service messages
-  QOpcUaNode* servMessagesNode = d->FindNodeFromFullDisplayName(ASU_SERVICE_MESSAGES_NODE_NAME);
-  // Miscellaneous messages
-  QOpcUaNode* miscMessagesNode = d->FindNodeFromFullDisplayName(ASU_MESSAGES_NODE_NAME);
-  // Mode
-  QOpcUaNode* modeNode = d->FindNodeFromFullDisplayName(ASU_MODE_NODE_NAME);
+  int size = d->ReadValueFullNodeNames.size();
 
-  if (errMessagesNode)
+  QScopedPointer< QProgressDialog > progDia(new QProgressDialog(
+    tr("Read OPC UA nodes value"),
+    tr("Cancel reading"),
+    0, size - 1, this));
+  progDia->show();
+  int i = 0;
+  for (const QString& nodeName : d->ReadValueFullNodeNames)
   {
-    errMessagesNode->readAttributes(QOpcUa::NodeAttribute::Value);
+    QOpcUaNode* readValueNode = d->FindNodeFromFullDisplayName(nodeName);
+    if (readValueNode)
+    {
+      readValueNode->readAttributes(QOpcUa::NodeAttribute::Value);
+      progDia->setValue(i++);
+    }
+    if (progDia->wasCanceled())
+    {
+      break;
+    }
   }
-  if (servMessagesNode)
-  {
-    servMessagesNode->readAttributes(QOpcUa::NodeAttribute::Value);
-  }
-  if (miscMessagesNode)
-  {
-    miscMessagesNode->readAttributes(QOpcUa::NodeAttribute::Value);
-  }
-
-  if (modeNode)
-  {
-    modeNode->readAttributes(QOpcUa::NodeAttribute::Value);
-  }
-  
-  QOpcUaNode* amR1LoadToIsoEnabledNode = d->FindNodeFromFullDisplayName(BUTTONS_AM_R1_LOADTOISO_ENABLED_NODE_NAME);
-  if (amR1LoadToIsoEnabledNode)
-  {
-    amR1LoadToIsoEnabledNode->readAttributes(QOpcUa::NodeAttribute::Value);
-  }
-  QOpcUaNode* amR1ToLoadEnabledNode = d->FindNodeFromFullDisplayName(BUTTONS_AM_R1_TOLOAD_ENABLED_NODE_NAME);
-  if (amR1ToLoadEnabledNode)
-  {
-    amR1ToLoadEnabledNode->readAttributes(QOpcUa::NodeAttribute::Value);
-  }
+  progDia->setValue(size - 1);
+  d->ParameterNode->Modified();
 }
 
 //-----------------------------------------------------------------------------

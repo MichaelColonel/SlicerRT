@@ -195,6 +195,29 @@ void vtkMRMLU70RoomGeoNode::ProcessMRMLEvents(vtkObject *caller, unsigned long e
     if (caller == this->GetChannel26PlcOpcUaNode())
     {
       vtkWarningMacro("ProcessMRMLEvents: Siemens PLC OPC UA node updated!");
+      vtkMRMLSiemensPlcOpcUaNode* node = this->GetChannel26PlcOpcUaNode();
+      double anglesR1[6] = {};
+      double anglesR2[6] = {};
+      node->GetAxisCoordsR1(anglesR1);
+      node->GetAxisCoordsR2(anglesR2);
+      vtkWarningMacro("ProcessMRMLEvents: R1 angles: " << anglesR1[0] << ' ' \
+        << anglesR1[1] << ' ' \
+        << anglesR1[2] << ' ' \
+        << anglesR1[3] << ' ' \
+        << anglesR1[4] << ' ' \
+        << anglesR1[5]);
+      vtkWarningMacro("ProcessMRMLEvents: R2 angles: " << anglesR2[0] << ' ' \
+        << anglesR2[1] << ' ' \
+        << anglesR2[2] << ' ' \
+        << anglesR2[3] << ' ' \
+        << anglesR2[4] << ' ' \
+        << anglesR2[5]);
+      if (this->GetChannel26GeometryNode())
+      {
+        this->GetChannel26GeometryNode()->SetTableRobotAngles(anglesR1);
+        this->GetChannel26GeometryNode()->SetCarmRobotAngles(anglesR2);
+        this->GetChannel26GeometryNode()->Modified();
+      }
     }
   }
 }
@@ -232,6 +255,9 @@ void vtkMRMLU70RoomGeoNode::SetAndObserveChannel26PlcOpcUaNode(vtkMRMLSiemensPlc
     return;
   }
 
+  vtkNew<vtkIntArray> nodeEvents;
+  nodeEvents->InsertNextValue(vtkCommand::ModifiedEvent);
+  this->AddNodeReferenceRole(CHANNEL26_PLC_OPCUA_REFERENCE_ROLE, nullptr, nodeEvents);
   this->SetNodeReferenceID(CHANNEL26_PLC_OPCUA_REFERENCE_ROLE, (node ? node->GetID() : nullptr));
 }
 

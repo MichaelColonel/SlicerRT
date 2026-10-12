@@ -44,18 +44,13 @@
 
 // vtkSlicer and qSlicer logic includes
 #include <vtkSlicerU70RoomOpcUaLogic.h>
-//#include "qSlicerScadaOpcUaLogic.h"
 #include "qSlicerSiemensPlcOpcUaWidget.h"
 #include "qSlicerOpcUaRobotsMessagesListModel.h"
 
 // SlicerRT U70RoomOpcUa MRML includes
 #include <vtkMRMLSiemensPlcOpcUaNode.h>
 
-// Local widgets includes
-//#include "opcuamodel.h"
-
 class QAbstractButton;
-
 
 //-----------------------------------------------------------------------------
 class qSlicerU70RoomOpcUaModuleWidgetPrivate: public Ui_qSlicerU70RoomOpcUaModuleWidget
@@ -92,7 +87,7 @@ public:
   QOpcUaApplicationIdentity OpcUaAppIdentity;
   QOpcUaEndpointDescription OpcUaEndpoint; // current endpoint used to connect
   
-  QScopedPointer<qSlicerOpcUaRobotsMessagesListModel> SiemensPlcMessagesModel;
+  QScopedPointer< qSlicerOpcUaRobotsMessagesListModel > SiemensPlcMessagesModel;
 };
 
 //-----------------------------------------------------------------------------
@@ -212,6 +207,7 @@ void qSlicerU70RoomOpcUaModuleWidget::setup()
 //  d->SiemensPlcOpcUaControlWidget->setScadaOpcUaLogic(d->ScadaOpcUaLogic);
 
   d->ListView_SiemensPlcMessages->setModel(d->SiemensPlcMessagesModel.data());
+  d->ListView_SiemensPlcMessages->hide();
 
   if (d->ComboBox_OpcUaPlugin->count() == 0)
   {
@@ -254,6 +250,7 @@ void qSlicerU70RoomOpcUaModuleWidget::setup()
     this, SLOT(onShowSiemensPlcControlsClicked()));
   QObject::connect(d->PushButton_GetServerInterfaces, SIGNAL(clicked()),
     d->SiemensPlcOpcUaControlWidget.data(), SLOT(onParseServerInterfacesClicked()));
+  QObject::connect(d->PushButton_Test, SIGNAL(clicked()), this, SLOT(onTestClicked()));
 
   QObject::connect(d->PushButton_ModeUnknown, &QPushButton::clicked,
     [this](){ emit this->siemensPlcOpcUaModeChanged(vtkMRMLSiemensPlcOpcUaNode::UNKNOWN); });
@@ -441,6 +438,10 @@ void qSlicerU70RoomOpcUaModuleWidget::updateWidgetFromMRML()
   uint64_t errBits = d->SiemensPlcOpcUaNode->GetErrorMessages();
   uint64_t servBits = d->SiemensPlcOpcUaNode->GetServiceMessages();
   uint64_t miscBits = d->SiemensPlcOpcUaNode->GetMiscMessages();
+  d->Label_ErrorsFlag->setPixmap(errBits ? QPixmap(":/Icons/red.png") : QPixmap(":/Icons/gray.png"));
+  d->Label_ServiceFlags->setPixmap(servBits ? QPixmap(":/Icons/yellow.png") : QPixmap(":/Icons/gray.png"));
+  d->Label_MessagesFlags->setPixmap(miscBits ? QPixmap(":/Icons/blue.png") : QPixmap(":/Icons/gray.png"));
+  
   d->SiemensPlcMessagesModel->updateMessagesBits(errBits, servBits, miscBits);
 
   switch (d->SiemensPlcOpcUaNode->GetMode())
@@ -521,6 +522,7 @@ void qSlicerU70RoomOpcUaModuleWidget::findServersComplete(const QVector<QOpcUaAp
     }
   }
   d->updateUiState();
+  emit d->PushButton_GetEndpoints->clicked();
 }
 
 //-----------------------------------------------------------------------------
@@ -533,7 +535,6 @@ void qSlicerU70RoomOpcUaModuleWidget::getEndpoints()
 
   if (d->ComboBox_Servers->currentIndex() >= 0)
   {
-
     const QString serverUrl = d->ComboBox_Servers->currentText();
     d->createClient();
     d->OpcUaClient->requestEndpoints(serverUrl);
@@ -563,6 +564,7 @@ void qSlicerU70RoomOpcUaModuleWidget::getEndpointsComplete(const QVector<QOpcUaE
     }
   }
   d->updateUiState();
+  emit d->PushButton_Connect->clicked();
 }
 
 //-----------------------------------------------------------------------------
@@ -603,6 +605,7 @@ void qSlicerU70RoomOpcUaModuleWidget::clientDisconnected()
   d->ClientConnectedFlag = false;
   d->OpcUaClient.clear();
   d->updateUiState();
+  d->SiemensPlcOpcUaNode->SetMode(vtkMRMLSiemensPlcOpcUaNode::ModeType_Last);
 }
 
 //-----------------------------------------------------------------------------
@@ -687,4 +690,13 @@ void qSlicerU70RoomOpcUaModuleWidget::clientState(QOpcUaClient::ClientState stat
   default:
     break;
   }
+}
+
+//-----------------------------------------------------------------------------
+void qSlicerU70RoomOpcUaModuleWidget::onTestClicked()
+{
+  Q_D(qSlicerU70RoomOpcUaModuleWidget);
+  int32_t r1Angles[6] = {11, 222, 333, 4444, 55555, 666666 };
+  d->SiemensPlcOpcUaNode->SetAxisCoordsR1(r1Angles);
+  d->SiemensPlcOpcUaNode->Modified();
 }

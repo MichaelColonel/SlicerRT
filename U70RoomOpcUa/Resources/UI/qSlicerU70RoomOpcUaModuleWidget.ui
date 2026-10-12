@@ -31,30 +31,84 @@
      </property>
      <layout class="QGridLayout" name="gridLayout_3">
       <item row="0" column="0">
-       <widget class="QScrollArea" name="ScrollArea_Messages">
-        <property name="widgetResizable">
-         <bool>true</bool>
-        </property>
-        <widget class="QWidget" name="scrollAreaWidgetContents">
-         <property name="geometry">
-          <rect>
-           <x>0</x>
-           <y>0</y>
-           <width>275</width>
-           <height>210</height>
-          </rect>
-         </property>
-         <layout class="QGridLayout" name="gridLayout_6">
-          <item row="0" column="0">
-           <widget class="QListView" name="ListView_SiemensPlcMessages">
-            <property name="selectionMode">
-             <enum>QAbstractItemView::NoSelection</enum>
-            </property>
-           </widget>
-          </item>
-         </layout>
-        </widget>
-       </widget>
+       <layout class="QGridLayout" name="gridLayout_9">
+        <item row="0" column="0">
+         <widget class="QLabel" name="label_2">
+          <property name="text">
+           <string>Errors</string>
+          </property>
+          <property name="alignment">
+           <set>Qt::AlignCenter</set>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="2">
+         <widget class="QLabel" name="label">
+          <property name="text">
+           <string>Misc.</string>
+          </property>
+          <property name="alignment">
+           <set>Qt::AlignCenter</set>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="1">
+         <widget class="QLabel" name="label_3">
+          <property name="text">
+           <string>Service</string>
+          </property>
+          <property name="alignment">
+           <set>Qt::AlignCenter</set>
+          </property>
+         </widget>
+        </item>
+        <item row="2" column="0" colspan="4">
+         <widget class="QListView" name="ListView_SiemensPlcMessages">
+          <property name="selectionMode">
+           <enum>QAbstractItemView::NoSelection</enum>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="0">
+         <widget class="QLabel" name="Label_ErrorsFlag">
+          <property name="text">
+           <string/>
+          </property>
+          <property name="pixmap">
+           <pixmap resource="../qSlicerU70RoomOpcUaModule.qrc">:/Icons/gray.svg</pixmap>
+          </property>
+          <property name="alignment">
+           <set>Qt::AlignCenter</set>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="1">
+         <widget class="QLabel" name="Label_ServiceFlags">
+          <property name="text">
+           <string/>
+          </property>
+          <property name="pixmap">
+           <pixmap resource="../qSlicerU70RoomOpcUaModule.qrc">:/Icons/gray.svg</pixmap>
+          </property>
+          <property name="alignment">
+           <set>Qt::AlignCenter</set>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="2">
+         <widget class="QLabel" name="Label_MessagesFlags">
+          <property name="pixmap">
+           <pixmap resource="../qSlicerU70RoomOpcUaModule.qrc">:/Icons/gray.svg</pixmap>
+          </property>
+          <property name="alignment">
+           <set>Qt::AlignCenter</set>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="3">
+         <widget class="ctkExpandButton" name="ExpandButton_MessagesList"/>
+        </item>
+       </layout>
       </item>
      </layout>
     </widget>
@@ -72,6 +126,12 @@
           <property name="enabled">
            <bool>false</bool>
           </property>
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
           <property name="text">
            <string>Service</string>
           </property>
@@ -87,6 +147,12 @@
          <widget class="QPushButton" name="PushButton_ModeUnknown">
           <property name="enabled">
            <bool>false</bool>
+          </property>
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
           </property>
           <property name="text">
            <string>Unknown</string>
@@ -107,6 +173,12 @@
           <property name="enabled">
            <bool>false</bool>
           </property>
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
           <property name="text">
            <string>KUKA Controllers</string>
           </property>
@@ -116,6 +188,12 @@
          <widget class="QPushButton" name="PushButton_ModeAutoAndManual">
           <property name="enabled">
            <bool>false</bool>
+          </property>
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
           </property>
           <property name="text">
            <string>Automatic and Manual</string>
@@ -140,7 +218,7 @@
            <string/>
           </property>
           <property name="pixmap">
-           <pixmap>:/Icons/gray.png</pixmap>
+           <pixmap resource="../qSlicerU70RoomOpcUaModule.qrc">:/Icons/gray.png</pixmap>
           </property>
          </widget>
         </item>
@@ -156,7 +234,7 @@
            <string/>
           </property>
           <property name="pixmap">
-           <pixmap>:/Icons/gray.png</pixmap>
+           <pixmap resource="../qSlicerU70RoomOpcUaModule.qrc">:/Icons/gray.png</pixmap>
           </property>
          </widget>
         </item>
@@ -172,7 +250,7 @@
            <string/>
           </property>
           <property name="pixmap">
-           <pixmap>:/Icons/gray.png</pixmap>
+           <pixmap resource="../qSlicerU70RoomOpcUaModule.qrc">:/Icons/gray.png</pixmap>
           </property>
          </widget>
         </item>
@@ -188,7 +266,7 @@
            <string/>
           </property>
           <property name="pixmap">
-           <pixmap>:/Icons/gray.png</pixmap>
+           <pixmap resource="../qSlicerU70RoomOpcUaModule.qrc">:/Icons/gray.png</pixmap>
           </property>
          </widget>
         </item>
@@ -235,7 +313,7 @@
       <item row="0" column="1">
        <widget class="QRadioButton" name="RadioButton_Room2">
         <property name="enabled">
-         <bool>false</bool>
+         <bool>true</bool>
         </property>
         <property name="text">
          <string>Room-2</string>
@@ -248,7 +326,7 @@
       <item row="0" column="0">
        <widget class="QRadioButton" name="RadioButton_Room1">
         <property name="enabled">
-         <bool>false</bool>
+         <bool>true</bool>
         </property>
         <property name="text">
          <string>Room-1</string>
@@ -352,6 +430,13 @@
         </item>
        </layout>
       </item>
+      <item row="1" column="0">
+       <widget class="QPushButton" name="PushButton_Test">
+        <property name="text">
+         <string>Test</string>
+        </property>
+       </widget>
+      </item>
      </layout>
     </widget>
    </item>
@@ -371,6 +456,11 @@
    <container>1</container>
   </customwidget>
   <customwidget>
+   <class>ctkExpandButton</class>
+   <extends>QToolButton</extends>
+   <header>ctkExpandButton.h</header>
+  </customwidget>
+  <customwidget>
    <class>qSlicerWidget</class>
    <extends>QWidget</extends>
    <header>qSlicerWidget.h</header>
@@ -380,9 +470,26 @@
  <resources>
   <include location="../qSlicerU70RoomOpcUaModule.qrc"/>
  </resources>
- <connections/>
+ <connections>
+  <connection>
+   <sender>ExpandButton_MessagesList</sender>
+   <signal>clicked(bool)</signal>
+   <receiver>ListView_SiemensPlcMessages</receiver>
+   <slot>setVisible(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>291</x>
+     <y>562</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>150</x>
+     <y>687</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
  <buttongroups>
-  <buttongroup name="ButtonGroup_Room"/>
   <buttongroup name="buttonGroup"/>
+  <buttongroup name="ButtonGroup_Room"/>
  </buttongroups>
 </ui>

@@ -212,8 +212,8 @@ public:
   vtkGetMacro(MlcIsOperational, bool);
   vtkSetMacro(MlcIsOperational, bool);
 
-  vtkGetMacro(DoorLockSensor, bool);
-  vtkSetMacro(DoorLockSensor, bool);
+  vtkGetMacro(DoorLockSensor1, bool);
+  vtkSetMacro(DoorLockSensor1, bool);
 
   vtkGetMacro(DoorLockSensor2, bool);
   vtkSetMacro(DoorLockSensor2, bool);
@@ -242,6 +242,8 @@ public:
   vtkGetVector6Macro(AxisCoordsR2, int32_t);
   vtkSetVector6Macro(AxisCoordsR2, int32_t);
 
+  void GetAxisCoordsR1(double angles[6]);
+  void GetAxisCoordsR2(double angles[6]);
 protected:
   vtkMRMLSiemensPlcOpcUaNode();
   ~vtkMRMLSiemensPlcOpcUaNode() override;
@@ -258,7 +260,7 @@ private:
   uint64_t ServiceMessages{ 0 }; // Service messages 0...63
   uint64_t MiscMessages{ 0 }; // Miscellaneous messages 0...63
 
-  ModeType Mode{ vtkMRMLSiemensPlcOpcUaNode::UNKNOWN };
+  ModeType Mode{ vtkMRMLSiemensPlcOpcUaNode::ModeType_Last };
 
   uint16_t StateRtk;
   uint16_t StateR1;
@@ -309,7 +311,7 @@ private:
   int32_t MlcSensorValue;
   bool MlcIsSafe;
   bool MlcIsOperational;
-  bool DoorLockSensor;
+  bool DoorLockSensor1;
   bool DoorLockSensor2;
   uint8_t TableTopPosition;
   bool EmergencyEvacSignal;
