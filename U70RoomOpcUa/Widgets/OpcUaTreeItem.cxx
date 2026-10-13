@@ -45,8 +45,6 @@ constexpr int numberOfDisplayColumns = 7; // NodeId, Value, NodeClass, DataType,
 
 }
 
-int OpcUaTreeItem::NODES_LOADING_COUNTER = 0;
-
 OpcUaTreeItem::OpcUaTreeItem(OpcUaModel *model)
   :
     QObject(nullptr)
@@ -250,8 +248,8 @@ void OpcUaTreeItem::startBrowsing()
   }
   else
   {
+    mModel->browseStarted();
     mBrowseStarted = true;
-    NODES_LOADING_COUNTER++;
   }
 }
 
@@ -279,13 +277,19 @@ void OpcUaTreeItem::handleAttributes(QOpcUa::NodeAttributes attr)
 
 void OpcUaTreeItem::browseFinished(const QVector<QOpcUaReferenceDescription> &children, QOpcUa::UaStatusCode statusCode)
 {
+//  struct GuaranteedFinish {
+//    GuaranteedFinish(OpcUaModel* model) : m(model) {}
+//    ~GuaranteedFinish() { m->browseFinished(); }
+//    OpcUaModel* m{ nullptr };
+//  } dummyGuard(mModel);
+
+  mModel->browseFinished();
+
   if (statusCode != QOpcUa::Good)
   {
     qWarning() << tr("Browsing node") << mOpcNode->nodeId() << tr("finally failed:") << statusCode;
     return;
   }
-
-  NODES_LOADING_COUNTER--;
 
   auto index = mModel->createIndex(row(), 0, this);
 

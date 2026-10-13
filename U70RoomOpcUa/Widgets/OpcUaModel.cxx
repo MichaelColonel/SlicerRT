@@ -46,6 +46,18 @@ void OpcUaModel::setOpcUaClient(QOpcUaClient *client, const QString& rootNodeId)
   this->endResetModel();
 }
 
+void OpcUaModel::browseStarted()
+{
+  this->mBrowsesStarted++;
+  emit browseProgressChanged(this->mBrowsesFinished, this->mBrowsesStarted);
+}
+
+void OpcUaModel::browseFinished()
+{
+    this->mBrowsesFinished++;
+    emit browseProgressChanged(this->mBrowsesFinished, this->mBrowsesStarted);
+}
+
 QOpcUaClient* OpcUaModel::opcUaClient() const
 {
   return mOpcUaClient;
@@ -209,4 +221,11 @@ int OpcUaModel::columnCount(const QModelIndex& parent) const
   {
     return 0;
   }
+}
+
+void OpcUaModel::clear()
+{
+  QAbstractItemModel::clear();
+  this->mBrowsesStarted = 0;
+  this->mBrowsesFinished = 0;
 }

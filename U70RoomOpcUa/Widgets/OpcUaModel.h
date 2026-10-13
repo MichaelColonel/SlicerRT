@@ -39,10 +39,11 @@ class Q_SLICER_MODULE_U70ROOMOPCUA_WIDGETS_EXPORT OpcUaModel : public QAbstractI
   Q_OBJECT
 public:
   OpcUaModel(QObject *parent = nullptr);
-
+  void browseStarted();
+  void browseFinished();
   void setOpcUaClient(QOpcUaClient *, const QString& rootNodeId = QLatin1String("ns=0;i=84"));
   QOpcUaClient* opcUaClient() const;
-
+  void clear();
   QVariant data(const QModelIndex &index, int role) const override;
   QVariant headerData(int section, Qt::Orientation orientation, int role) const override;
   QModelIndex index(int row, int column, const QModelIndex &parent = QModelIndex()) const override;
@@ -51,9 +52,13 @@ public:
   int columnCount(const QModelIndex &parent = QModelIndex()) const override;
   OpcUaTreeItem* getRootItem() const { return this->mRootItem.data(); }
 
+signals:
+  void browseProgressChanged(int finished, int started);
 private:
   QPointer< QOpcUaClient > mOpcUaClient;
   QScopedPointer< OpcUaTreeItem > mRootItem;
+  int mBrowsesStarted{ 0 };
+  int mBrowsesFinished{ 0 };
 
   friend class OpcUaTreeItem;
 };

@@ -6254,6 +6254,14 @@ qSlicerSiemensPlcOpcUaWidget::qSlicerSiemensPlcOpcUaWidget(QWidget* parentWidget
     }
   );
 
+  QProgressDialog* progressDialog = d->ProgressDialog.data();
+  QObject::connect(model, &OpcUaModel::browseProgressChanged, this,
+    [this, progressDialog](int finished, int started)
+    {
+      qDebug() << Q_FUNC_INFO << tr("Parsing tree of nodes: %1 of %2 are parsed").arg(started).arg(finished);
+    }
+  );
+
   // Set coords from ASU buttons
   QObject::connect(d->PushButton_SetCoordX, SIGNAL(clicked()),
     this, SLOT(onCoordFromAsuXClicked()));

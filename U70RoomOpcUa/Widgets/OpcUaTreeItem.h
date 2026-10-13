@@ -41,7 +41,6 @@ public:
   static constexpr const char* ERROR_MESSAGES_NODE = "ErrorMes";
   static constexpr const char* SERVICE_MESSAGES_NODE = "ServMes";
   static constexpr const char* MISC_MESSAGES_NODE = "Messages";
-  static int NODES_LOADING_COUNTER;
 
   explicit OpcUaTreeItem(OpcUaModel *model);
   OpcUaTreeItem(QOpcUaNode *node, OpcUaModel *model, OpcUaTreeItem *parent);
