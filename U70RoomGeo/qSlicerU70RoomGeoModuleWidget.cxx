@@ -618,7 +618,7 @@ void qSlicerU70RoomGeoModuleWidget::updateWidgetFromMRML()
 
   if (d->ParameterNode && this->mrmlScene())
   {
-    qDebug() << Q_FUNC_INFO << "Parameter node and scene are OK!";
+    qDebug() << Q_FUNC_INFO << "Parameter node and scene are OK to update the widget!";
   }
 }
 

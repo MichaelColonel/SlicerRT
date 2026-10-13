@@ -244,6 +244,8 @@ public:
 
   void GetAxisCoordsR1(double angles[6]);
   void GetAxisCoordsR2(double angles[6]);
+  void SetAxisCoordsR1(double angles[6]);
+  void SetAxisCoordsR2(double angles[6]);
 protected:
   vtkMRMLSiemensPlcOpcUaNode();
   ~vtkMRMLSiemensPlcOpcUaNode() override;
@@ -262,16 +264,16 @@ private:
 
   ModeType Mode{ vtkMRMLSiemensPlcOpcUaNode::ModeType_Last };
 
-  uint16_t StateRtk;
-  uint16_t StateR1;
-  uint16_t StateR2;
-  int32_t CoordsX;
-  int32_t CoordsY;
-  int32_t CoordsZ;
-  int32_t CoordsXrayCorrectionZ;
-  int32_t CoordsA;
-  int32_t CoordsB;
-  int32_t CoordsC;
+  uint16_t StateRtk{ 0 };
+  uint16_t StateR1{ 0 };
+  uint16_t StateR2{ 0 };
+  int32_t CoordsX{ 0 };
+  int32_t CoordsY{ 0 };
+  int32_t CoordsZ{ 0 };
+  int32_t CoordsXrayCorrectionZ{ 0 };
+  int32_t CoordsA{ 0 };
+  int32_t CoordsB{ 0 };
+  int32_t CoordsC{ 0 };
 
   bool AutoManualR1LoadToIso[2]{ false, false }; // [0] == isEnabled, [1] == isPressed
   bool AutoManualR1ToNewCoords[2]{ false, false }; // [0] == isEnabled, [1] == isPressed
@@ -303,27 +305,27 @@ private:
   bool ResetErrors[2]{ false, false }; // [0] == isEnabled, [1] == isPressed
   bool MakeXray[2]{ false, false }; // [0] == isEnabled, [1] == isPressed
 
-  bool RobotsReadyForXray1;
-  bool RobotsReadyForXray2;
-  bool RobotsReadyForBeam;
-  bool PatientOnTableTop;
-  uint8_t MlcState;
-  int32_t MlcSensorValue;
-  bool MlcIsSafe;
-  bool MlcIsOperational;
-  bool DoorLockSensor1;
-  bool DoorLockSensor2;
-  uint8_t TableTopPosition;
-  bool EmergencyEvacSignal;
+  bool RobotsReadyForXray1{ false };
+  bool RobotsReadyForXray2{ false };
+  bool RobotsReadyForBeam{ false };
+  bool PatientOnTableTop{ false };
+  uint8_t MlcState{ 0 };
+  int32_t MlcSensorValue{ 0 };
+  bool MlcIsSafe{ false };
+  bool MlcIsOperational{ false };
+  bool DoorLockSensor1{ false };
+  bool DoorLockSensor2{ false };
+  uint8_t TableTopPosition{ 0 };
+  bool EmergencyEvacSignal{ false };
 
   // Table top robot
-  int32_t KukaCoordsToTcsR1[3]; // X,Y,Z
-  int32_t KukaAnglesToTcsR1[3]; // A,B,C
-  int32_t AxisCoordsR1[6]; // A1, A2, A3, A4, A5, A6
+  int32_t KukaCoordsToTcsR1[3] = { 0, 0, 0 }; // X,Y,Z
+  int32_t KukaAnglesToTcsR1[3] = { 0, 0, 0 }; // A,B,C
+  int32_t AxisCoordsR1[6] = { 0, 0, 0, 0, 0, 90000 }; // A1, A2, A3, A4, A5, A6
   // C-arm robot
-  int32_t KukaCoordsToTcsR2[3]; // X,Y,Z
-  int32_t KukaAnglesToTcsR2[3]; // A,B,C
-  int32_t AxisCoordsR2[6]; // A1, A2, A3, A4, A5, A6
+  int32_t KukaCoordsToTcsR2[3] = { 0, 0, 0 }; // X,Y,Z
+  int32_t KukaAnglesToTcsR2[3] = { 0, 0, 0 }; // A,B,C
+  int32_t AxisCoordsR2[6] = { 0, 0, 0, 0, 0, 0 }; // A1, A2, A3, A4, A5, A6
   
 };
 

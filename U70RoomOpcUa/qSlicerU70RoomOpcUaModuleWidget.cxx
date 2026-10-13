@@ -696,7 +696,7 @@ void qSlicerU70RoomOpcUaModuleWidget::clientState(QOpcUaClient::ClientState stat
 void qSlicerU70RoomOpcUaModuleWidget::onTestClicked()
 {
   Q_D(qSlicerU70RoomOpcUaModuleWidget);
-  int32_t r1Angles[6] = {11, 222, 333, 4444, 55555, 666666 };
+  double r1Angles[6] = {0., 0., 0., 0., 0., 90. };
   d->SiemensPlcOpcUaNode->SetAxisCoordsR1(r1Angles);
   d->SiemensPlcOpcUaNode->Modified();
 }

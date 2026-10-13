@@ -323,3 +323,25 @@ void vtkMRMLSiemensPlcOpcUaNode::GetAxisCoordsR2(double angles[6])
   angles[4] = double(this->AxisCoordsR2[4]) / 1000.;
   angles[5] = double(this->AxisCoordsR2[5]) / 1000.;
 }
+
+//---------------------------------------------------------------------------
+void vtkMRMLSiemensPlcOpcUaNode::SetAxisCoordsR1(double angles[6])
+{
+  this->AxisCoordsR1[0] = static_cast< int32_t >(angles[0] * 1000.);
+  this->AxisCoordsR1[1] = static_cast< int32_t >(angles[1] * 1000.);
+  this->AxisCoordsR1[2] = static_cast< int32_t >(angles[2] * 1000.);
+  this->AxisCoordsR1[3] = static_cast< int32_t >(angles[3] * 1000.);
+  this->AxisCoordsR1[4] = static_cast< int32_t >(angles[4] * 1000.);
+  this->AxisCoordsR1[5] = static_cast< int32_t >(angles[5] * 1000.);
+}
+
+//---------------------------------------------------------------------------
+void vtkMRMLSiemensPlcOpcUaNode::SetAxisCoordsR2(double angles[6])
+{
+  this->AxisCoordsR2[0] = static_cast< int32_t >(angles[0] * 1000.);
+  this->AxisCoordsR2[1] = static_cast< int32_t >(angles[1] * 1000.);
+  this->AxisCoordsR2[2] = static_cast< int32_t >(angles[2] * 1000.);
+  this->AxisCoordsR2[3] = static_cast< int32_t >(angles[3] * 1000.);
+  this->AxisCoordsR2[4] = static_cast< int32_t >(angles[4] * 1000.);
+  this->AxisCoordsR2[5] = static_cast< int32_t >(angles[5] * 1000.);
+}
