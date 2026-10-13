@@ -7,5 +7,9 @@
     <file>Icons/green.svg</file>
     <file>Icons/red.png</file>
     <file>Icons/red.svg</file>
+    <file>Icons/yellow.png</file>
+    <file>Icons/yellow.svg</file>
+    <file>Icons/blue.png</file>
+    <file>Icons/blue.svg</file>
   </qresource>
 </RCC>

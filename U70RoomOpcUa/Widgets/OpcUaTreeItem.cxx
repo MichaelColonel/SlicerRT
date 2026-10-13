@@ -45,7 +45,7 @@ constexpr int numberOfDisplayColumns = 7; // NodeId, Value, NodeClass, DataType,
 
 }
 
-//int OpcUaTreeItem::nodesLoading = 0;
+int OpcUaTreeItem::NODES_LOADING_COUNTER = 0;
 
 OpcUaTreeItem::OpcUaTreeItem(OpcUaModel *model)
   :
@@ -251,7 +251,7 @@ void OpcUaTreeItem::startBrowsing()
   else
   {
     mBrowseStarted = true;
-//    qDebug() << Q_FUNC_INFO << "Start browsing, nodes:" << ++nodesLoading;
+    NODES_LOADING_COUNTER++;
   }
 }
 
@@ -285,7 +285,7 @@ void OpcUaTreeItem::browseFinished(const QVector<QOpcUaReferenceDescription> &ch
     return;
   }
 
-//  qDebug() << Q_FUNC_INFO << "Browse is finished, nodes:" << --nodesLoading;
+  NODES_LOADING_COUNTER--;
 
   auto index = mModel->createIndex(row(), 0, this);
 

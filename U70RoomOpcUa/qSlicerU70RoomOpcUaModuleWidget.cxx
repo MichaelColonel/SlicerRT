@@ -164,6 +164,9 @@ void qSlicerU70RoomOpcUaModuleWidgetPrivate::updateUiState()
     this->Label_ModeAutomaticManual->setPixmap(QPixmap(":/Icons/gray.png"));
     this->Label_ModeService->setPixmap(QPixmap(":/Icons/gray.png"));
     this->Label_ModeKukaControllers->setPixmap(QPixmap(":/Icons/gray.png"));
+    this->Label_ErrorsFlag->setPixmap(QPixmap(":/Icons/gray.png"));
+    this->Label_ServiceFlags->setPixmap(QPixmap(":/Icons/gray.png"));
+    this->Label_MessagesFlags->setPixmap(QPixmap(":/Icons/gray.png"));
 
     this->PushButton_GetServerInterfaces->setEnabled(false);
     this->PushButton_ModeAutoAndManual->setEnabled(false);

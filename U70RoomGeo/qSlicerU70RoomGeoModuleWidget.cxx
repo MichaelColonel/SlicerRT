@@ -619,6 +619,14 @@ void qSlicerU70RoomGeoModuleWidget::updateWidgetFromMRML()
   if (d->ParameterNode && this->mrmlScene())
   {
     qDebug() << Q_FUNC_INFO << "Parameter node and scene are OK to update the widget!";
+    if (d->ParameterNode->GetChannel26GeometryNode())
+    {
+      double a[6] = {};
+      d->ParameterNode->GetChannel26GeometryNode()->GetTableRobotAngles(a);
+      qDebug() << Q_FUNC_INFO << "TableTop robot R1 angles:" << a[0] << ' ' << a[1] << ' ' << a[2] << ' ' << a[3] << ' ' << a[4] << ' ' << a[5];
+      d->ParameterNode->GetChannel26GeometryNode()->GetCarmRobotAngles(a);
+      qDebug() << Q_FUNC_INFO << "C-Arm robot R2 angles:" << a[0] << ' ' << a[1] << ' ' << a[2] << ' ' << a[3] << ' ' << a[4] << ' ' << a[5];
+    }
   }
 }
 
@@ -788,6 +796,7 @@ void qSlicerU70RoomGeoModuleWidget::onTableRobotA6Changed(double a6)
 //  this->checkForCollisions();
   d->getLayoutManager()->resumeRender();
 //  d->ParameterNode->Modified();
+  qDebug() << Q_FUNC_INFO << "Robot angles:" << a[0] << ' ' << a[1] << ' ' << a[2] << ' ' << a[3] << ' ' << a[4] << ' ' << a[5];
 }
 
 //-----------------------------------------------------------------------------
@@ -821,6 +830,7 @@ void qSlicerU70RoomGeoModuleWidget::onTableRobotA5Changed(double a5)
 //  this->checkForCollisions();
   d->getLayoutManager()->resumeRender();
 //  d->ParameterNode->Modified();
+  qDebug() << Q_FUNC_INFO << "Robot angles:" << a[0] << ' ' << a[1] << ' ' << a[2] << ' ' << a[3] << ' ' << a[4] << ' ' << a[5];
 }
 
 //-----------------------------------------------------------------------------
@@ -854,6 +864,7 @@ void qSlicerU70RoomGeoModuleWidget::onTableRobotA4Changed(double a4)
 //  this->checkForCollisions();
   d->getLayoutManager()->resumeRender();
 //  d->ParameterNode->Modified();
+  qDebug() << Q_FUNC_INFO << "Robot angles:" << a[0] << ' ' << a[1] << ' ' << a[2] << ' ' << a[3] << ' ' << a[4] << ' ' << a[5];
 }
 
 //-----------------------------------------------------------------------------
@@ -887,6 +898,7 @@ void qSlicerU70RoomGeoModuleWidget::onTableRobotA3Changed(double a3)
 //  this->checkForCollisions();
   d->getLayoutManager()->resumeRender();
 //  d->ParameterNode->Modified();
+  qDebug() << Q_FUNC_INFO << "Robot angles:" << a[0] << ' ' << a[1] << ' ' << a[2] << ' ' << a[3] << ' ' << a[4] << ' ' << a[5];
 }
 
 //-----------------------------------------------------------------------------
@@ -920,6 +932,7 @@ void qSlicerU70RoomGeoModuleWidget::onTableRobotA2Changed(double a2)
 //  this->checkForCollisions();
   d->getLayoutManager()->resumeRender();
 //  d->ParameterNode->Modified();
+  qDebug() << Q_FUNC_INFO << "Robot angles:" << a[0] << ' ' << a[1] << ' ' << a[2] << ' ' << a[3] << ' ' << a[4] << ' ' << a[5];
 }
 
 //-----------------------------------------------------------------------------
@@ -953,6 +966,7 @@ void qSlicerU70RoomGeoModuleWidget::onTableRobotA1Changed(double a1)
 //  this->checkForCollisions();
   d->getLayoutManager()->resumeRender();
 //  d->ParameterNode->Modified();
+  qDebug() << Q_FUNC_INFO << "Robot angles:" << a[0] << ' ' << a[1] << ' ' << a[2] << ' ' << a[3] << ' ' << a[4] << ' ' << a[5];
 }
 
 //-----------------------------------------------------------------------------
@@ -986,6 +1000,7 @@ void qSlicerU70RoomGeoModuleWidget::onCarmRobotA1Changed(double a1)
 //  this->checkForCollisions();
   d->getLayoutManager()->resumeRender();
 //  d->ParameterNode->Modified();
+  qDebug() << Q_FUNC_INFO << "Robot angles:" << a[0] << ' ' << a[1] << ' ' << a[2] << ' ' << a[3] << ' ' << a[4] << ' ' << a[5];
 }
 
 //-----------------------------------------------------------------------------
@@ -1019,6 +1034,7 @@ void qSlicerU70RoomGeoModuleWidget::onCarmRobotA2Changed(double a2)
 //  this->checkForCollisions();
   d->getLayoutManager()->resumeRender();
 //  d->ParameterNode->Modified();
+  qDebug() << Q_FUNC_INFO << "Robot angles:" << a[0] << ' ' << a[1] << ' ' << a[2] << ' ' << a[3] << ' ' << a[4] << ' ' << a[5];
 }
 
 //-----------------------------------------------------------------------------
@@ -1052,6 +1068,7 @@ void qSlicerU70RoomGeoModuleWidget::onCarmRobotA3Changed(double a3)
 //  this->checkForCollisions();
   d->getLayoutManager()->resumeRender();
 //  d->ParameterNode->Modified();
+  qDebug() << Q_FUNC_INFO << "Robot angles:" << a[0] << ' ' << a[1] << ' ' << a[2] << ' ' << a[3] << ' ' << a[4] << ' ' << a[5];
 }
 
 //-----------------------------------------------------------------------------
@@ -1085,6 +1102,7 @@ void qSlicerU70RoomGeoModuleWidget::onCarmRobotA4Changed(double a4)
 //  this->checkForCollisions();
   d->getLayoutManager()->resumeRender();
 //  d->ParameterNode->Modified();
+  qDebug() << Q_FUNC_INFO << "Robot angles:" << a[0] << ' ' << a[1] << ' ' << a[2] << ' ' << a[3] << ' ' << a[4] << ' ' << a[5];
 }
 
 //-----------------------------------------------------------------------------
@@ -1118,6 +1136,7 @@ void qSlicerU70RoomGeoModuleWidget::onCarmRobotA5Changed(double a5)
 //  this->checkForCollisions();
   d->getLayoutManager()->resumeRender();
 //  d->ParameterNode->Modified();
+  qDebug() << Q_FUNC_INFO << "Robot angles:" << a[0] << ' ' << a[1] << ' ' << a[2] << ' ' << a[3] << ' ' << a[4] << ' ' << a[5];
 }
 
 //-----------------------------------------------------------------------------
@@ -1151,6 +1170,7 @@ void qSlicerU70RoomGeoModuleWidget::onCarmRobotA6Changed(double a6)
 //  this->checkForCollisions();
   d->getLayoutManager()->resumeRender();
 //  d->ParameterNode->Modified();
+  qDebug() << Q_FUNC_INFO << "Robot angles:" << a[0] << ' ' << a[1] << ' ' << a[2] << ' ' << a[3] << ' ' << a[4] << ' ' << a[5];
 }
 
 //-----------------------------------------------------------------------------

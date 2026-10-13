@@ -26,6 +26,11 @@
 #include <QOpcUaNode>
 #include <QProgressDialog>
 
+// Slicer includes
+#include <qSlicerSingletonViewFactory.h>
+#include <qSlicerLayoutManager.h>
+#include <qSlicerApplication.h>
+
 // SiemensPlcOpcUa Widgets includes
 #include "qSlicerSiemensPlcOpcUaWidget.h"
 #include "ui_qSlicerSiemensPlcOpcUaWidget.h"
@@ -358,14 +363,15 @@ public:
   QScopedPointer< qSlicerOpcUaRobotsMessagesListModel > SiemensPlcServiceListModel;
   QScopedPointer< qSlicerOpcUaRobotsMessagesListModel > SiemensPlcMessagesListModel;
 
-  QWeakPointer< QOpcUaClient > OpcUaClient;
-  vtkWeakPointer< vtkMRMLSiemensPlcOpcUaNode > ParameterNode;
+  QWeakPointer< QOpcUaClient > OpcUaClient; // client
+  vtkWeakPointer< vtkMRMLSiemensPlcOpcUaNode > ParameterNode; // MRML OPC UA parameters node
 
   // Parse parent node
   QScopedPointer< QOpcUaNode > ServerInterfacesNode;
   // Monitored node
   QScopedPointer< QOpcUaNode > CurrentTimeNode; // Siemens PLC monitored node to prevent session timeout ending
   QMap< QString, NodeData > NodeNameDataMap; // key - node unique full name, value - node data
+
   const QStringList ReadValueFullNodeNames = {
     ASU_ERROR_MESSAGES_NODE_NAME,
     ASU_SERVICE_MESSAGES_NODE_NAME,
@@ -431,6 +437,7 @@ public:
     KUKA_R2_AXIS_A5_NODE_NAME,
     KUKA_R2_AXIS_A6_NODE_NAME
   };
+  QScopedPointer< QProgressDialog > ProgressDialog;
 };
 
 // --------------------------------------------------------------------------
@@ -440,6 +447,7 @@ qSlicerSiemensPlcOpcUaWidgetPrivate::qSlicerSiemensPlcOpcUaWidgetPrivate(qSlicer
   , SiemensPlcErrorListModel(new qSlicerOpcUaRobotsMessagesListModel(&object))
   , SiemensPlcServiceListModel(new qSlicerOpcUaRobotsMessagesListModel(&object))
   , SiemensPlcMessagesListModel(new qSlicerOpcUaRobotsMessagesListModel(&object))
+  , ProgressDialog(new QProgressDialog(&object))
 {
 }
 
@@ -509,10 +517,7 @@ bool qSlicerSiemensPlcOpcUaWidgetPrivate::ParseServerParentNode(const QString& s
           }
         }
         QOpcUaNode* itemNode = opcUaClient->node(item->getNodeId());
-//        if (itemNode)
-//        {
-//          qDebug() << Q_FUNC_INFO << "QOpcUaNode node is created for ID:" << item->getNodeId();
-//        }
+
         NodeData data(itemNode, item->getNodeId(), hierNames, item->getNodeDescription());
         this->NodeNameDataMap[hierNames] = data;
       }
@@ -557,6 +562,8 @@ bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectMessagesNodes()
   // Miscellaneous messages
   QOpcUaNode* miscMessagesNode = this->FindNodeFromFullDisplayName(ASU_MESSAGES_NODE_NAME);
 
+  QProgressDialog* progressDialog = this->ProgressDialog.data();
+
   // Connect signal handlers for subscribed values
   // Error messages
   if (!errMessagesNode)
@@ -564,7 +571,7 @@ bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectMessagesNodes()
     return false;
   }
   QObject::connect(errMessagesNode,
-    &QOpcUaNode::dataChangeOccurred, [mrmlNode](QOpcUa::NodeAttribute attr, QVariant value)
+    &QOpcUaNode::dataChangeOccurred, [mrmlNode, progressDialog](QOpcUa::NodeAttribute attr, QVariant value)
     {
       if (attr == QOpcUa::NodeAttribute::Value && value.canConvert<QVariantList>())
       {
@@ -596,7 +603,7 @@ bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectMessagesNodes()
     }
   );
   QObject::connect(errMessagesNode,
-    &QOpcUaNode::attributeRead, [errMessagesNode, mrmlNode](QOpcUa::NodeAttributes attr)
+    &QOpcUaNode::attributeRead, [errMessagesNode, mrmlNode, progressDialog](QOpcUa::NodeAttributes attr)
     {
       if (!errMessagesNode || !mrmlNode)
       {
@@ -656,7 +663,7 @@ bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectMessagesNodes()
     return false;
   }
   QObject::connect(servMessagesNode,
-    &QOpcUaNode::dataChangeOccurred, [mrmlNode](QOpcUa::NodeAttribute attr, QVariant value)
+    &QOpcUaNode::dataChangeOccurred, [mrmlNode, progressDialog](QOpcUa::NodeAttribute attr, QVariant value)
     {
       if (attr == QOpcUa::NodeAttribute::Value && value.canConvert<QVariantList>())
       {
@@ -679,7 +686,7 @@ bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectMessagesNodes()
     }
   );
   QObject::connect(servMessagesNode,
-    &QOpcUaNode::attributeRead, [servMessagesNode, mrmlNode](QOpcUa::NodeAttributes attr)
+    &QOpcUaNode::attributeRead, [servMessagesNode, mrmlNode, progressDialog](QOpcUa::NodeAttributes attr)
     {
       if (!servMessagesNode || !mrmlNode)
       {
@@ -739,7 +746,7 @@ bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectMessagesNodes()
     return false;
   }
   QObject::connect(miscMessagesNode,
-    &QOpcUaNode::dataChangeOccurred, [mrmlNode](QOpcUa::NodeAttribute attr, QVariant value)
+    &QOpcUaNode::dataChangeOccurred, [mrmlNode, progressDialog](QOpcUa::NodeAttribute attr, QVariant value)
     {
       if (attr == QOpcUa::NodeAttribute::Value && value.canConvert<QVariantList>())
       {
@@ -762,7 +769,7 @@ bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectMessagesNodes()
     }
   );
   QObject::connect(miscMessagesNode,
-    &QOpcUaNode::attributeRead, [miscMessagesNode, mrmlNode](QOpcUa::NodeAttributes attr)
+    &QOpcUaNode::attributeRead, [miscMessagesNode, mrmlNode, progressDialog](QOpcUa::NodeAttributes attr)
     {
       if (!miscMessagesNode || !mrmlNode)
       {
@@ -6690,6 +6697,10 @@ void qSlicerSiemensPlcOpcUaWidget::onOpcUaClientDisconnected()
   {
     d->CurrentTimeNode->disableMonitoring(QOpcUa::NodeAttribute::Value);
   }
+  d->SiemensPlcErrorListModel->clear();
+  d->SiemensPlcServiceListModel->clear();
+  d->SiemensPlcMessagesListModel->clear();
+  
 }
 
 //-----------------------------------------------------------------------------
@@ -7474,11 +7485,13 @@ void qSlicerSiemensPlcOpcUaWidget::onReadStatusAndMessagesClicked()
   Q_D(qSlicerSiemensPlcOpcUaWidget);
   int size = d->ReadValueFullNodeNames.size();
 
-  QScopedPointer< QProgressDialog > progDia(new QProgressDialog(
+  QScopedPointer< QProgressDialog > progressDialog(new QProgressDialog(
     tr("Read OPC UA nodes value"),
     tr("Cancel reading"),
     0, size - 1, this));
-  progDia->show();
+  progressDialog->setWindowModality(Qt::WindowModal);
+  progressDialog->setMinimumDuration(0);
+  progressDialog->setValue(0);
   int i = 0;
   for (const QString& nodeName : d->ReadValueFullNodeNames)
   {
@@ -7486,14 +7499,15 @@ void qSlicerSiemensPlcOpcUaWidget::onReadStatusAndMessagesClicked()
     if (readValueNode)
     {
       readValueNode->readAttributes(QOpcUa::NodeAttribute::Value);
-      progDia->setValue(i++);
+      progressDialog->setValue(i++);
     }
-    if (progDia->wasCanceled())
+    if (progressDialog->wasCanceled())
     {
       break;
     }
+    qSlicerApplication::application()->processEvents();
   }
-  progDia->setValue(size - 1);
+  progressDialog->setValue(size - 1);
   d->ParameterNode->Modified();
 }
 
