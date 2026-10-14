@@ -25,6 +25,7 @@
 #include <QScopedPointer>
 #include <QOpcUaNode>
 #include <QProgressDialog>
+#include <QTimer>
 
 // Slicer includes
 #include <qSlicerSingletonViewFactory.h>
@@ -377,7 +378,10 @@ public:
     ASU_SERVICE_MESSAGES_NODE_NAME,
     ASU_MESSAGES_NODE_NAME,
     ASU_MODE_NODE_NAME,
-    BUTTONS_AM_R1_LOADTOISO_ENABLED_NODE_NAME,
+    ASU_STATUS_RTK_NODE_NAME,
+    ASU_STATUS_R1_TABLE_NODE_NAME,
+    ASU_STATUS_R2_CARM_NODE_NAME,
+/*    BUTTONS_AM_R1_LOADTOISO_ENABLED_NODE_NAME,
     BUTTONS_AM_R1_TOLOAD_ENABLED_NODE_NAME,
     BUTTONS_AM_R1_NEWCOORDS_ENABLED_NODE_NAME,
     BUTTONS_AM_R2_TOHOME_ENABLED_NODE_NAME,
@@ -405,31 +409,32 @@ public:
     ASU_ROBOTS_READY_XRAY2_NODE_NAME,
     ASU_TABLE_POSITION_NODE_NAME,
     ASU_EMEVAC_SIGNAL_NODE_NAME,
-    ASU_COORDS_X_NODE_NAME,
-    ASU_COORDS_Y_NODE_NAME,
-    ASU_COORDS_Z_NODE_NAME,
-    ASU_COORDS_XRAY_Z_NODE_NAME,
-    ASU_COORDS_R1_A_NODE_NAME,
-    ASU_COORDS_R1_B_NODE_NAME,
-    ASU_COORDS_R1_C_NODE_NAME,
-    KUKA_R1_COORD_X_TO_TCS_NODE_NAME,
-    KUKA_R1_COORD_Y_TO_TCS_NODE_NAME,
-    KUKA_R1_COORD_Z_TO_TCS_NODE_NAME,
-    KUKA_R1_ANGLE_A_TO_TCS_NODE_NAME,
-    KUKA_R1_ANGLE_B_TO_TCS_NODE_NAME,
-    KUKA_R1_ANGLE_C_TO_TCS_NODE_NAME,
+*/
+//    ASU_COORDS_X_NODE_NAME,
+//    ASU_COORDS_Y_NODE_NAME,
+//    ASU_COORDS_Z_NODE_NAME,
+//    ASU_COORDS_XRAY_Z_NODE_NAME,
+//    ASU_COORDS_R1_A_NODE_NAME,
+//    ASU_COORDS_R1_B_NODE_NAME,
+//    ASU_COORDS_R1_C_NODE_NAME,
+//    KUKA_R1_COORD_X_TO_TCS_NODE_NAME,
+//    KUKA_R1_COORD_Y_TO_TCS_NODE_NAME,
+//    KUKA_R1_COORD_Z_TO_TCS_NODE_NAME,
+//    KUKA_R1_ANGLE_A_TO_TCS_NODE_NAME,
+//    KUKA_R1_ANGLE_B_TO_TCS_NODE_NAME,
+//    KUKA_R1_ANGLE_C_TO_TCS_NODE_NAME,
     KUKA_R1_AXIS_A1_NODE_NAME,
     KUKA_R1_AXIS_A2_NODE_NAME,
     KUKA_R1_AXIS_A3_NODE_NAME,
     KUKA_R1_AXIS_A4_NODE_NAME,
     KUKA_R1_AXIS_A5_NODE_NAME,
     KUKA_R1_AXIS_A6_NODE_NAME,
-    KUKA_R2_COORD_X_TO_TCS_NODE_NAME,
-    KUKA_R2_COORD_Y_TO_TCS_NODE_NAME,
-    KUKA_R2_COORD_Z_TO_TCS_NODE_NAME,
-    KUKA_R2_ANGLE_A_TO_TCS_NODE_NAME,
-    KUKA_R2_ANGLE_B_TO_TCS_NODE_NAME,
-    KUKA_R2_ANGLE_C_TO_TCS_NODE_NAME,
+//    KUKA_R2_COORD_X_TO_TCS_NODE_NAME,
+//    KUKA_R2_COORD_Y_TO_TCS_NODE_NAME,
+//    KUKA_R2_COORD_Z_TO_TCS_NODE_NAME,
+//    KUKA_R2_ANGLE_A_TO_TCS_NODE_NAME,
+//    KUKA_R2_ANGLE_B_TO_TCS_NODE_NAME,
+//    KUKA_R2_ANGLE_C_TO_TCS_NODE_NAME,
     KUKA_R2_AXIS_A1_NODE_NAME,
     KUKA_R2_AXIS_A2_NODE_NAME,
     KUKA_R2_AXIS_A3_NODE_NAME,
@@ -438,6 +443,7 @@ public:
     KUKA_R2_AXIS_A6_NODE_NAME
   };
   QScopedPointer< QProgressDialog > ProgressDialog;
+  QScopedPointer< QTimer > ProgressTimer;
 };
 
 // --------------------------------------------------------------------------
@@ -448,6 +454,7 @@ qSlicerSiemensPlcOpcUaWidgetPrivate::qSlicerSiemensPlcOpcUaWidgetPrivate(qSlicer
   , SiemensPlcServiceListModel(new qSlicerOpcUaRobotsMessagesListModel(&object))
   , SiemensPlcMessagesListModel(new qSlicerOpcUaRobotsMessagesListModel(&object))
   , ProgressDialog(new QProgressDialog(&object))
+  , ProgressTimer(new QTimer(&object))
 {
 }
 
@@ -457,6 +464,15 @@ void qSlicerSiemensPlcOpcUaWidgetPrivate::setupUi(qSlicerSiemensPlcOpcUaWidget* 
   Q_Q(qSlicerSiemensPlcOpcUaWidget);
 
   this->Ui_qSlicerSiemensPlcOpcUaWidget::setupUi(widget);
+
+  this->ProgressDialog->setWindowModality(Qt::NonModal);
+  this->ProgressDialog->setMinimumDuration(500);
+  this->ProgressDialog->setAutoReset(false);
+  this->ProgressDialog->setAutoClose(false);
+  this->ProgressDialog->close();
+
+  this->ProgressTimer->setSingleShot(true);
+  this->ProgressTimer->setInterval(300);
 
   this->TreeView_OpcUaModel->setModel(SiemensPlcOpcUaModel.data());
   this->ListView_ErrorMessages->setModel(SiemensPlcErrorListModel.data());
@@ -6241,6 +6257,9 @@ qSlicerSiemensPlcOpcUaWidget::qSlicerSiemensPlcOpcUaWidget(QWidget* parentWidget
 
   OpcUaModel* model = d->SiemensPlcOpcUaModel.data();
   QTreeView* view = d->TreeView_OpcUaModel;
+
+  QObject::connect(d->ProgressTimer.data(), SIGNAL(timeout()), d->ProgressDialog.data(), SLOT(reset()));
+
   QObject::connect(model, &QAbstractItemModel::rowsInserted, this,
     [this, model, view](const QModelIndex& parent, int first, int last)
     {
@@ -6255,10 +6274,22 @@ qSlicerSiemensPlcOpcUaWidget::qSlicerSiemensPlcOpcUaWidget(QWidget* parentWidget
   );
 
   QProgressDialog* progressDialog = d->ProgressDialog.data();
+  QTimer* progressTimer = d->ProgressTimer.data();
+
   QObject::connect(model, &OpcUaModel::browseProgressChanged, this,
-    [this, progressDialog](int finished, int started)
+    [this, progressDialog, progressTimer](int finished, int started)
     {
       qDebug() << Q_FUNC_INFO << tr("Parsing tree of nodes: %1 of %2 are parsed").arg(started).arg(finished);
+      progressDialog->setMaximum(started);
+      progressDialog->setValue(finished);
+      if (finished >= started)
+      {
+        progressTimer->start();
+      }
+      else
+      {
+        progressTimer->stop();
+      }
     }
   );
 
@@ -6617,6 +6648,24 @@ void qSlicerSiemensPlcOpcUaWidget::updateWidgetFromMRML()
     d->CheckBox_RobotsReadyForBeam->setChecked(flag);
   }
 
+  double r1angles[6] = {};
+  double r2angles[6] = {};
+  d->ParameterNode->GetAxisCoordsR1(r1angles);
+  d->ParameterNode->GetAxisCoordsR2(r2angles);
+
+  d->SliderWidget_R1A1->setValue(r1angles[0]);
+  d->SliderWidget_R1A2->setValue(r1angles[1]);
+  d->SliderWidget_R1A3->setValue(r1angles[2]);
+  d->SliderWidget_R1A4->setValue(r1angles[3]);
+  d->SliderWidget_R1A5->setValue(r1angles[4]);
+  d->SliderWidget_R1A6->setValue(r1angles[5]);
+  d->SliderWidget_R2A1->setValue(r2angles[0]);
+  d->SliderWidget_R2A2->setValue(r2angles[1]);
+  d->SliderWidget_R2A3->setValue(r2angles[2]);
+  d->SliderWidget_R2A4->setValue(r2angles[3]);
+  d->SliderWidget_R2A5->setValue(r2angles[4]);
+  d->SliderWidget_R2A6->setValue(r2angles[5]);
+
   {
     QSignalBlocker block0(d->RadioButton_PositionNotDefined);
     QSignalBlocker block1(d->RadioButton_Position1);
@@ -6705,6 +6754,7 @@ void qSlicerSiemensPlcOpcUaWidget::onOpcUaClientDisconnected()
   {
     d->CurrentTimeNode->disableMonitoring(QOpcUa::NodeAttribute::Value);
   }
+  d->SiemensPlcOpcUaModel->clear();
   d->SiemensPlcErrorListModel->clear();
   d->SiemensPlcServiceListModel->clear();
   d->SiemensPlcMessagesListModel->clear();
@@ -7422,11 +7472,11 @@ void qSlicerSiemensPlcOpcUaWidget::onServerInterfacesRead(QOpcUa::NodeAttributes
         }
       }
     }
-    bool coords = d->ConnectCoordFromAsuNodes();
-    if (coords)
-    {
-      qDebug() << Q_FUNC_INFO << "Coords from ASU nodes are OK";
-    }
+//    bool coords = d->ConnectCoordFromAsuNodes();
+//    if (coords)
+//    {
+//      qDebug() << Q_FUNC_INFO << "Coords from ASU nodes are OK";
+//    }
 
     bool resMsg = d->ConnectMessagesNodes();
     bool resStatus = d->ConnectModeAndStatusNodes();
@@ -7434,7 +7484,7 @@ void qSlicerSiemensPlcOpcUaWidget::onServerInterfacesRead(QOpcUa::NodeAttributes
     {
       qDebug() << Q_FUNC_INFO << "Messages and Status nodes are OK";
     }
-
+/*
     bool moveButtons = d->ConnectAutoManualMovementNodes();
     if (moveButtons)
     {
@@ -7468,15 +7518,15 @@ void qSlicerSiemensPlcOpcUaWidget::onServerInterfacesRead(QOpcUa::NodeAttributes
     {
       qDebug() << Q_FUNC_INFO << "Reset errors and Make X-Ray nodes are OK";
     }
-
-    bool r1AxisCoords = d->ConnectKukaR1TcsNodes();
+*/
+    bool r1AxisCoords = true;//d->ConnectKukaR1TcsNodes();
     r1AxisCoords &= d->ConnectKukaR1AxisNodes();
     if (r1AxisCoords)
     {
       qDebug() << Q_FUNC_INFO << "R1 axis and coords nodes are OK";
     }
 
-    bool r2AxisCoords = d->ConnectKukaR2TcsNodes();
+    bool r2AxisCoords = true;//d->ConnectKukaR2TcsNodes();
     r2AxisCoords &= d->ConnectKukaR2AxisNodes();
     if (r2AxisCoords)
     {
@@ -7491,31 +7541,14 @@ void qSlicerSiemensPlcOpcUaWidget::onServerInterfacesRead(QOpcUa::NodeAttributes
 void qSlicerSiemensPlcOpcUaWidget::onReadStatusAndMessagesClicked()
 {
   Q_D(qSlicerSiemensPlcOpcUaWidget);
-  int size = d->ReadValueFullNodeNames.size();
-
-  QScopedPointer< QProgressDialog > progressDialog(new QProgressDialog(
-    tr("Read OPC UA nodes value"),
-    tr("Cancel reading"),
-    0, size - 1, this));
-  progressDialog->setWindowModality(Qt::WindowModal);
-  progressDialog->setMinimumDuration(0);
-  progressDialog->setValue(0);
-  int i = 0;
   for (const QString& nodeName : d->ReadValueFullNodeNames)
   {
     QOpcUaNode* readValueNode = d->FindNodeFromFullDisplayName(nodeName);
     if (readValueNode)
     {
       readValueNode->readAttributes(QOpcUa::NodeAttribute::Value);
-      progressDialog->setValue(i++);
     }
-    if (progressDialog->wasCanceled())
-    {
-      break;
-    }
-    qSlicerApplication::application()->processEvents();
   }
-  progressDialog->setValue(size - 1);
   d->ParameterNode->Modified();
 }
 

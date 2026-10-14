@@ -524,7 +524,7 @@
                 <string>Coordinates from ASU</string>
                </property>
                <property name="collapsed">
-                <bool>false</bool>
+                <bool>true</bool>
                </property>
                <layout class="QGridLayout" name="gridLayout_35">
                 <item row="0" column="0">
@@ -759,7 +759,7 @@
                 <string>C-Arm robot (R2) axis coordinates</string>
                </property>
                <property name="collapsed">
-                <bool>true</bool>
+                <bool>false</bool>
                </property>
                <layout class="QGridLayout" name="gridLayout_28">
                 <item row="0" column="0">
@@ -938,7 +938,7 @@
                 <string>Table top robot (R1) axis coordinates</string>
                </property>
                <property name="collapsed">
-                <bool>true</bool>
+                <bool>false</bool>
                </property>
                <layout class="QGridLayout" name="gridLayout_27">
                 <item row="0" column="0">
@@ -1117,7 +1117,7 @@
                 <string>Table top robot (R1) Tool-Space Control (TSC)</string>
                </property>
                <property name="collapsed">
-                <bool>false</bool>
+                <bool>true</bool>
                </property>
                <layout class="QGridLayout" name="gridLayout_13">
                 <item row="1" column="0">
@@ -1220,7 +1220,7 @@
                 <string>C-Arm robot (R2) Tool-Space Control (TSC)</string>
                </property>
                <property name="collapsed">
-                <bool>false</bool>
+                <bool>true</bool>
                </property>
                <layout class="QGridLayout" name="gridLayout_15">
                 <item row="0" column="0">

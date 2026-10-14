@@ -225,7 +225,6 @@ int OpcUaModel::columnCount(const QModelIndex& parent) const
 
 void OpcUaModel::clear()
 {
-  QAbstractItemModel::clear();
   this->mBrowsesStarted = 0;
   this->mBrowsesFinished = 0;
 }

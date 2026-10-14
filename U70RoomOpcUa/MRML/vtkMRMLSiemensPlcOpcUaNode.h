@@ -321,11 +321,11 @@ private:
   // Table top robot
   int32_t KukaCoordsToTcsR1[3] = { 0, 0, 0 }; // X,Y,Z
   int32_t KukaAnglesToTcsR1[3] = { 0, 0, 0 }; // A,B,C
-  int32_t AxisCoordsR1[6] = { 0, 0, 0, 0, 0, 90000 }; // A1, A2, A3, A4, A5, A6
+  int32_t AxisCoordsR1[6] = { 49574, -42833, 58799, -13, -105948, -49576 }; // A1, A2, A3, A4, A5, A6
   // C-arm robot
   int32_t KukaCoordsToTcsR2[3] = { 0, 0, 0 }; // X,Y,Z
   int32_t KukaAnglesToTcsR2[3] = { 0, 0, 0 }; // A,B,C
-  int32_t AxisCoordsR2[6] = { 0, 0, 0, 0, 0, 0 }; // A1, A2, A3, A4, A5, A6
+  int32_t AxisCoordsR2[6] = { 9290, -86214, 78306, 46547, 74437, -165527 }; // A1, A2, A3, A4, A5, A6
   
 };
 

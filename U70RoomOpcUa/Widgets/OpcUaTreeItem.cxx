@@ -277,13 +277,13 @@ void OpcUaTreeItem::handleAttributes(QOpcUa::NodeAttributes attr)
 
 void OpcUaTreeItem::browseFinished(const QVector<QOpcUaReferenceDescription> &children, QOpcUa::UaStatusCode statusCode)
 {
-//  struct GuaranteedFinish {
-//    GuaranteedFinish(OpcUaModel* model) : m(model) {}
-//    ~GuaranteedFinish() { m->browseFinished(); }
-//    OpcUaModel* m{ nullptr };
-//  } dummyGuard(mModel);
+  struct GuaranteedFinish {
+    GuaranteedFinish(OpcUaModel* model) : m(model) {}
+    ~GuaranteedFinish() { m->browseFinished(); }
+    OpcUaModel* m{ nullptr };
+  } dummyGuard(mModel);
 
-  mModel->browseFinished();
+//  mModel->browseFinished();
 
   if (statusCode != QOpcUa::Good)
   {

@@ -193,32 +193,32 @@ void vtkMRMLU70RoomGeoNode::ProcessMRMLEvents(vtkObject *caller, unsigned long e
   }
   if (eventID == vtkCommand::ModifiedEvent)
   {
-    if (caller == this->GetChannel26PlcOpcUaNode())
+    vtkMRMLSiemensPlcOpcUaNode* opcUaNode = this->GetChannel26PlcOpcUaNode();
+    if (caller == opcUaNode)
     {
-      vtkMRMLSiemensPlcOpcUaNode* node = this->GetChannel26PlcOpcUaNode();
       double anglesR1[6] = {};
       double anglesR2[6] = {};
-      node->GetAxisCoordsR1(anglesR1);
-      node->GetAxisCoordsR2(anglesR2);
-      vtkWarningMacro("ProcessMRMLEvents: R1 angles: " << anglesR1[0] << ' ' \
-        << anglesR1[1] << ' ' \
-        << anglesR1[2] << ' ' \
-        << anglesR1[3] << ' ' \
-        << anglesR1[4] << ' ' \
-        << anglesR1[5]);
-      vtkWarningMacro("ProcessMRMLEvents: R2 angles: " << anglesR2[0] << ' ' \
-        << anglesR2[1] << ' ' \
-        << anglesR2[2] << ' ' \
-        << anglesR2[3] << ' ' \
-        << anglesR2[4] << ' ' \
-        << anglesR2[5]);
-      if (this->GetChannel26GeometryNode())
+      opcUaNode->GetAxisCoordsR1(anglesR1);
+      opcUaNode->GetAxisCoordsR2(anglesR2);
+      anglesR1[1] += 90.;
+      anglesR1[2] -= 90.;
+      anglesR1[4] += 90.;
+      anglesR1[5] += 90.;
+
+      anglesR2[1] += 90.;
+      anglesR2[2] -= 90.;
+      anglesR2[4] += 90.;
+      anglesR2[5] += 90.;
+
+      vtkErrorMacro("ProcessMRMLEvents: R1" << anglesR1[0] << ' ' << anglesR1[1] << ' ' << anglesR1[2] << ' ' << anglesR1[3] << ' ' << anglesR1[4] << ' ' << anglesR1[5]);
+      vtkMRMLChannel26GeometryNode* chan26GeoNode = this->GetChannel26GeometryNode();
+      if (chan26GeoNode)
       {
-        MRMLNodeModifyBlocker blocker(this->GetChannel26GeometryNode());
-        this->GetChannel26GeometryNode()->SetTableRobotAngles(anglesR1);
-        this->GetChannel26GeometryNode()->SetCarmRobotAngles(anglesR2);
+        MRMLNodeModifyBlocker blocker(chan26GeoNode);
+        chan26GeoNode->SetTableRobotAngles(anglesR1);
+        chan26GeoNode->SetCarmRobotAngles(anglesR2);
       }
-      this->GetChannel26GeometryNode()->Modified();
+      chan26GeoNode->Modified();
     }
     this->Modified();
   }
