@@ -93,6 +93,9 @@ public slots:
   // AutomaticManual ApplyTablePosition button
   void onAutoManualApplyTablePositionPressed();
   void onAutoManualApplyTablePositionReleased();
+  // AutomaticManual ApplyNewCoords button
+  void onAutoManualApplyNewCoordsPressed();
+  void onAutoManualApplyNewCoordsReleased();
 
   // Service R1 BreakTest button
   void onServiceR1BreakTestPressed();

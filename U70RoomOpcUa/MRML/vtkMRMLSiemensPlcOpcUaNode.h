@@ -132,9 +132,6 @@ public:
   vtkGetMacro(CoordsZ, int32_t);
   vtkSetMacro(CoordsZ, int32_t);
 
-  vtkGetMacro(CoordsXrayCorrectionZ, int32_t);
-  vtkSetMacro(CoordsXrayCorrectionZ, int32_t);
-
   vtkGetMacro(CoordsA, int32_t);
   vtkSetMacro(CoordsA, int32_t);
 
@@ -165,9 +162,12 @@ public:
   vtkGetVector2Macro(AutoManualEmergencyEvac, bool);
   vtkSetVector2Macro(AutoManualEmergencyEvac, bool);
 
-  vtkGetVector2Macro(AutoManualApplyTableTopPosition, bool);
-  vtkSetVector2Macro(AutoManualApplyTableTopPosition, bool);
+  vtkGetVector2Macro(AutoManualApplyTabletopPosition, bool);
+  vtkSetVector2Macro(AutoManualApplyTabletopPosition, bool);
 
+  vtkGetVector2Macro(AutoManualApplyNewCoords, bool);
+  vtkSetVector2Macro(AutoManualApplyNewCoords, bool);
+  
   vtkGetVector2Macro(ServiceR1BreakTest, bool);
   vtkSetVector2Macro(ServiceR1BreakTest, bool);
 
@@ -304,7 +304,6 @@ private:
   int32_t CoordsX{ 0 };
   int32_t CoordsY{ 0 };
   int32_t CoordsZ{ 0 };
-  int32_t CoordsXrayCorrectionZ{ 0 };
   int32_t CoordsA{ 0 };
   int32_t CoordsB{ 0 };
   int32_t CoordsC{ 0 };
@@ -316,7 +315,8 @@ private:
   bool AutoManualR2ToPlane2[2]{ false, false }; // [0] == isEnabled, [1] == isPressed
   bool AutoManualR2ToHome[2]{ false, false }; // [0] == isEnabled, [1] == isPressed
   bool AutoManualEmergencyEvac[2]{ false, false }; // [0] == isEnabled, [1] == isPressed
-  bool AutoManualApplyTableTopPosition[2]{ false, false }; // [0] == isEnabled, [1] == isPressed
+  bool AutoManualApplyTabletopPosition[2]{ false, false }; // [0] == isEnabled, [1] == isPressed
+  bool AutoManualApplyNewCoords[2]{ false, false }; // [0] == isEnabled, [1] == isPressed
 
   bool ServiceR1BreakTest[2]{ false, false }; // [0] == isEnabled, [1] == isPressed
   bool ServiceR1MasterReferenceTest[2]{ false, false }; // [0] == isEnabled, [1] == isPressed
@@ -355,11 +355,11 @@ private:
   // Table top robot
   int32_t KukaCoordsToTcsR1[3] = { 0, 0, 0 }; // X,Y,Z
   int32_t KukaAnglesToTcsR1[3] = { 0, 0, 0 }; // A,B,C
-  int32_t AxisCoordsR1[6] = { 49574, -42833, 58799, -13, -105948, -49576 }; // A1, A2, A3, A4, A5, A6
+  int32_t AxisCoordsR1[6] = { -150580, -137740, 87920, -3780, -92170, -175870 }; // A1, A2, A3, A4, A5, A6
   // C-arm robot
   int32_t KukaCoordsToTcsR2[3] = { 0, 0, 0 }; // X,Y,Z
   int32_t KukaAnglesToTcsR2[3] = { 0, 0, 0 }; // A,B,C
-  int32_t AxisCoordsR2[6] = { 9290, -86214, 78306, 46547, 74437, -165527 }; // A1, A2, A3, A4, A5, A6
+  int32_t AxisCoordsR2[6] = { 178770, -122030, 142060, 122360, 33380, -130770 }; // A1, A2, A3, A4, A5, A6
   
 };
 

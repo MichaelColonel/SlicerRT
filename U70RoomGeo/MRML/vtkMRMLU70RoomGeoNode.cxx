@@ -200,15 +200,6 @@ void vtkMRMLU70RoomGeoNode::ProcessMRMLEvents(vtkObject *caller, unsigned long e
       double anglesR2[6] = {};
       opcUaNode->GetAxisCoordsR1(anglesR1);
       opcUaNode->GetAxisCoordsR2(anglesR2);
-      anglesR1[1] += 90.;
-      anglesR1[2] -= 90.;
-      anglesR1[4] += 90.;
-      anglesR1[5] += 90.;
-
-      anglesR2[1] += 90.;
-      anglesR2[2] -= 90.;
-      anglesR2[4] += 90.;
-      anglesR2[5] += 90.;
 
       vtkErrorMacro("ProcessMRMLEvents: R1" << anglesR1[0] << ' ' << anglesR1[1] << ' ' << anglesR1[2] << ' ' << anglesR1[3] << ' ' << anglesR1[4] << ' ' << anglesR1[5]);
       vtkMRMLChannel26GeometryNode* chan26GeoNode = this->GetChannel26GeometryNode();
@@ -319,10 +310,10 @@ void vtkMRMLU70RoomGeoNode::SetU70RoomGeo(int id)
 {
   switch (id)
   {
-    case 0: this->SetU70RoomGeo(vtkMRMLU70RoomGeoNode::CABIN1); break;
-    case 1: this->SetU70RoomGeo(vtkMRMLU70RoomGeoNode::CABIN2); break;
+    case 0: this->SetU70RoomGeo(vtkMRMLU70RoomGeoNode::ROOM1); break;
+    case 1: this->SetU70RoomGeo(vtkMRMLU70RoomGeoNode::ROOM2); break;
     case 2:
-    default: this->SetU70RoomGeo(vtkMRMLU70RoomGeoNode::CABIN3); break;
+    default: this->SetU70RoomGeo(vtkMRMLU70RoomGeoNode::ROOM3); break;
   }
 }
 
@@ -331,10 +322,10 @@ const char* vtkMRMLU70RoomGeoNode::GetU70RoomGeoAsString(int id)
 {
   switch (id)
   {
-    case vtkMRMLU70RoomGeoNode::CABIN1: return "CABIN1";
-    case vtkMRMLU70RoomGeoNode::CABIN2: return "CABIN2";
-    case vtkMRMLU70RoomGeoNode::CABIN3:
-    default: return "CABIN3";
+    case vtkMRMLU70RoomGeoNode::ROOM1: return "ROOM1";
+    case vtkMRMLU70RoomGeoNode::ROOM2: return "ROOM2";
+    case vtkMRMLU70RoomGeoNode::ROOM3:
+    default: return "ROOM3";
   }
 }
 

@@ -633,15 +633,15 @@ void qSlicerU70RoomGeoModuleWidget::updateWidgetFromMRML()
         QSignalBlocker block1(d->SliderWidget_TableRobotA1);
         d->SliderWidget_TableRobotA1->setValue(a[0]);
         QSignalBlocker block2(d->SliderWidget_TableRobotA2);
-        d->SliderWidget_TableRobotA2->setValue(a[1] - 90.);
+        d->SliderWidget_TableRobotA2->setValue(a[1]/* - 90. */);
         QSignalBlocker block3(d->SliderWidget_TableRobotA3);
-        d->SliderWidget_TableRobotA3->setValue(a[2] + 90.);
+        d->SliderWidget_TableRobotA3->setValue(a[2]/* + 90. */);
         QSignalBlocker block4(d->SliderWidget_TableRobotA4);
         d->SliderWidget_TableRobotA4->setValue(a[3]);
         QSignalBlocker block5(d->SliderWidget_TableRobotA5);
-        d->SliderWidget_TableRobotA5->setValue(a[4] - 90.);
+        d->SliderWidget_TableRobotA5->setValue(a[4]/* - 90. */);
         QSignalBlocker block6(d->SliderWidget_TableRobotA6);
-        d->SliderWidget_TableRobotA6->setValue(a[5] - 90.);
+        d->SliderWidget_TableRobotA6->setValue(a[5]/* - 90. */);
       }
 
       {
@@ -649,15 +649,15 @@ void qSlicerU70RoomGeoModuleWidget::updateWidgetFromMRML()
         QSignalBlocker block1(d->SliderWidget_CarmRobotA1);
         d->SliderWidget_CarmRobotA1->setValue(a[0]);
         QSignalBlocker block2(d->SliderWidget_CarmRobotA2);
-        d->SliderWidget_CarmRobotA2->setValue(a[1] - 90.);
+        d->SliderWidget_CarmRobotA2->setValue(a[1]/* - 90. */);
         QSignalBlocker block3(d->SliderWidget_CarmRobotA3);
-        d->SliderWidget_CarmRobotA3->setValue(a[2] + 90.);
+        d->SliderWidget_CarmRobotA3->setValue(a[2]/* + 90. */);
         QSignalBlocker block4(d->SliderWidget_CarmRobotA4);
         d->SliderWidget_CarmRobotA4->setValue(a[3]);
         QSignalBlocker block5(d->SliderWidget_CarmRobotA5);
-        d->SliderWidget_CarmRobotA5->setValue(a[4] - 90.);
+        d->SliderWidget_CarmRobotA5->setValue(a[4]/* - 90. */);
         QSignalBlocker block6(d->SliderWidget_CarmRobotA6);
-        d->SliderWidget_CarmRobotA6->setValue(a[5] - 90.);
+        d->SliderWidget_CarmRobotA6->setValue(a[5]/* - 90. */);
       }
       // Update Channel-26 transforms
       d->getLayoutManager()->pauseRender();
@@ -858,7 +858,7 @@ void qSlicerU70RoomGeoModuleWidget::onTableRobotA2Changed(double a2)
   double a[6] = {};
   channel26GeometryNode->GetTableRobotAngles(a);
   channel26GeometryNode->DisableModifiedEventOn();
-  a[1] = a2 + 90.;
+  a[1] = a2;//a2 + 90.;
   channel26GeometryNode->SetTableRobotAngles(a);
   channel26GeometryNode->DisableModifiedEventOff();
 
@@ -892,7 +892,7 @@ void qSlicerU70RoomGeoModuleWidget::onTableRobotA3Changed(double a3)
   double a[6] = {};
   channel26GeometryNode->GetTableRobotAngles(a);
   channel26GeometryNode->DisableModifiedEventOn();
-  a[2] = a3 - 90.;
+  a[2] = a3;//a3 - 90.;
   channel26GeometryNode->SetTableRobotAngles(a);
   channel26GeometryNode->DisableModifiedEventOff();
 
@@ -960,7 +960,7 @@ void qSlicerU70RoomGeoModuleWidget::onTableRobotA5Changed(double a5)
   double a[6] = {};
   channel26GeometryNode->GetTableRobotAngles(a);
   channel26GeometryNode->DisableModifiedEventOn();
-  a[4] = a5 + 90.; // - a5;
+  a[4] = a5;//a5 + 90.;
   channel26GeometryNode->SetTableRobotAngles(a);
   channel26GeometryNode->DisableModifiedEventOff();
 
@@ -994,7 +994,7 @@ void qSlicerU70RoomGeoModuleWidget::onTableRobotA6Changed(double a6)
   double a[6] = {};
   channel26GeometryNode->GetTableRobotAngles(a);
   channel26GeometryNode->DisableModifiedEventOn();
-  a[5] = a6 + 90.;
+  a[5] = a6;//a6 + 90.;
   channel26GeometryNode->SetTableRobotAngles(a);
   channel26GeometryNode->DisableModifiedEventOff();
 
@@ -1062,7 +1062,7 @@ void qSlicerU70RoomGeoModuleWidget::onCarmRobotA2Changed(double a2)
   double a[6] = {};
   channel26GeometryNode->GetCarmRobotAngles(a);
   channel26GeometryNode->DisableModifiedEventOn();
-  a[1] = a2 + 90.;
+  a[1] = a2;//a2 + 90.;
   channel26GeometryNode->SetCarmRobotAngles(a);
   channel26GeometryNode->DisableModifiedEventOff();
 
@@ -1097,7 +1097,7 @@ void qSlicerU70RoomGeoModuleWidget::onCarmRobotA3Changed(double a3)
   channel26GeometryNode->GetCarmRobotAngles(a);
   channel26GeometryNode->DisableModifiedEventOn();
 //  a[2] = 90. - a3;
-  a[2] = a3 - 90.;
+  a[2] = a3;//a3 - 90.;
   channel26GeometryNode->SetCarmRobotAngles(a);
   channel26GeometryNode->DisableModifiedEventOff();
 
@@ -1165,7 +1165,7 @@ void qSlicerU70RoomGeoModuleWidget::onCarmRobotA5Changed(double a5)
   double a[6] = {};
   channel26GeometryNode->GetCarmRobotAngles(a);
   channel26GeometryNode->DisableModifiedEventOn();
-  a[4] = a5 + 90.;
+  a[4] = a5;//a5 + 90.;
   channel26GeometryNode->SetCarmRobotAngles(a);
   channel26GeometryNode->DisableModifiedEventOff();
 
@@ -1199,7 +1199,7 @@ void qSlicerU70RoomGeoModuleWidget::onCarmRobotA6Changed(double a6)
   double a[6] = {};
   channel26GeometryNode->GetCarmRobotAngles(a);
   channel26GeometryNode->DisableModifiedEventOn();
-  a[5] = a6 + 90.;
+  a[5] = a6;//a6 + 90.;
   channel26GeometryNode->SetCarmRobotAngles(a);
   channel26GeometryNode->DisableModifiedEventOff();
 

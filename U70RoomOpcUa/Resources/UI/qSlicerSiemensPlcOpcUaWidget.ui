@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>580</width>
-    <height>833</height>
+    <width>583</width>
+    <height>900</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -20,7 +20,7 @@
       <bool>true</bool>
      </property>
      <property name="currentIndex">
-      <number>0</number>
+      <number>1</number>
      </property>
      <widget class="QWidget" name="tab_OpcUaModel">
       <attribute name="title">
@@ -54,8 +54,8 @@
            <rect>
             <x>0</x>
             <y>0</y>
-            <width>538</width>
-            <height>737</height>
+            <width>541</width>
+            <height>804</height>
            </rect>
           </property>
           <layout class="QGridLayout" name="gridLayout_31">
@@ -67,7 +67,7 @@
                 <string>Misc. control</string>
                </property>
                <property name="collapsed">
-                <bool>true</bool>
+                <bool>false</bool>
                </property>
                <layout class="QGridLayout" name="gridLayout_20">
                 <item row="3" column="0">
@@ -509,7 +509,14 @@
                   <item>
                    <widget class="QPushButton" name="PushButton_AMApplyTableTopPosition">
                     <property name="text">
-                     <string>Apply table top position</string>
+                     <string>Apply tabletop position</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item>
+                   <widget class="QPushButton" name="PushButton_AMApplyNewCoords">
+                    <property name="text">
+                     <string>Apply new coordinates</string>
                     </property>
                    </widget>
                   </item>
@@ -746,8 +753,8 @@
            <rect>
             <x>0</x>
             <y>0</y>
-            <width>538</width>
-            <height>737</height>
+            <width>541</width>
+            <height>804</height>
            </rect>
           </property>
           <layout class="QGridLayout" name="gridLayout_32">
@@ -1117,7 +1124,7 @@
                 <string>Table top robot (R1) Tool-Space Control (TSC)</string>
                </property>
                <property name="collapsed">
-                <bool>true</bool>
+                <bool>false</bool>
                </property>
                <layout class="QGridLayout" name="gridLayout_13">
                 <item row="1" column="0">

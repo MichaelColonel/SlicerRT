@@ -731,12 +731,12 @@ vtkSlicerU70RoomGeoLogic::SetupTreatmentMachineModels(vtkMRMLU70RoomGeoNode* par
       case CoordSys::TableTop:
         this->Channel26Cabin3RobotsLogic->UpdatePatientToTableTopTransform(channel26GeometryNode);
         partFrameToRasTransformNode = this->Channel26Cabin3RobotsLogic->UpdateTableTopToRasTransform(channel26GeometryNode);
-        this->DisplayBasisVectorsForTransformNode(partFrameToRasTransformNode);
+//        this->DisplayBasisVectorsForTransformNode(partFrameToRasTransformNode);
         break;
       case CoordSys::TableFlange:
         this->Channel26Cabin3RobotsLogic->UpdateTableTopToTableFlangeTransform(channel26GeometryNode);
         partFrameToRasTransformNode = this->Channel26Cabin3RobotsLogic->UpdateTableFlangeToRasTransform(channel26GeometryNode);
-        this->DisplayBasisVectorsForTransformNode(partFrameToRasTransformNode);
+//        this->DisplayBasisVectorsForTransformNode(partFrameToRasTransformNode);
         break;
       case CoordSys::TableRobotFlange:
         this->Channel26Cabin3RobotsLogic->UpdateTableFlangeToTableRobotFlangeTransform(channel26GeometryNode);
@@ -773,7 +773,7 @@ vtkSlicerU70RoomGeoLogic::SetupTreatmentMachineModels(vtkMRMLU70RoomGeoNode* par
       case CoordSys::FixedReference:
         this->Channel26Cabin3RobotsLogic->UpdateTableRobotBaseFixedToFixedReferenceTransform(channel26GeometryNode);
         partFrameToRasTransformNode = this->Channel26Cabin3RobotsLogic->UpdateFixedReferenceToRasTransform(channel26GeometryNode);
-        this->DisplayBasisVectorsForTransformNode(partFrameToRasTransformNode);
+//        this->DisplayBasisVectorsForTransformNode(partFrameToRasTransformNode);
         break;
       case CoordSys::CarmRobotBaseFixed:
         this->Channel26Cabin3RobotsLogic->UpdateCarmRobotBaseFixedToFixedReferenceTransform(channel26GeometryNode);

@@ -81,9 +81,11 @@ public:
 
   vtkGetVector6Macro(TableRobotAngles, double);
   vtkSetVector6Macro(TableRobotAngles, double);
+  void GetTableRobotAnglesModel(double[6]);
 
   vtkGetVector6Macro(CarmRobotAngles, double);
   vtkSetVector6Macro(CarmRobotAngles, double);
+  void GetCarmRobotAnglesModel(double[6]);
 
   vtkGetVector3Macro(AnglesABC, double);
   vtkSetVector3Macro(AnglesABC, double);
@@ -121,9 +123,11 @@ protected:
     CoordPos::D_BASEMENT_CARM_ROBOT_BASE,
     CoordPos::D_EAST_WALL_CARM_XRAY_ROBOT_BASE - CoordPos::D_EAST_WALL_TABLE_TOP_ROBOT_BASE };
   /// Setup table top robot angles
-  double TableRobotAngles[6] = { 0., 0., 0., 0., 0., 90. }; // A1=0, A2=-90, A3=90, A4=0, A5=-90, A6=0
+  double TableRobotAngles[6] = { -150.58, -137.74, 87.92, -3.78, -92.17, -175.87 }; // A1=0, A2=-90, A3=90, A4=0, A5=-90, A6=0
+//  double TableRobotAngles[6] = { 0., 0., 0., 0., 0., 90. }; // A1=0, A2=-90, A3=90, A4=0, A5=-90, A6=0
   /// Setup x-ray c-arm robot angles
-  double CarmRobotAngles[6] = { 0., 0., 0., 0., 0., 0. };
+  double CarmRobotAngles[6] = { 178.77, -122.03, 142.06, 122.36, 33.38, -130.77 };
+//  double CarmRobotAngles[6] = { 0., 0., 0., 0., 0., 0. };
   /// table top plane correction angles
   double AnglesABC[3] = { 0., 0., 0. };
   /// Head first or feet first rotation

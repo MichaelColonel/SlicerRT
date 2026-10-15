@@ -46,31 +46,52 @@
 
 namespace {
 
-constexpr const char* PARENT_NODE_DISPLAYED_NAME = "ServerInterfaces";
+constexpr const char* const PARENT_NODE_DISPLAYED_NAME = "ServerInterfaces";
 //constexpr const char* SIEMENS_PLC_CURRENT_TIME_NODE_ID = "ns=0;i=2258";
 
+constexpr const char* const KUKAX = "KUKA_X";
+constexpr const char* const KUKAY = "KUKA_Y";
+constexpr const char* const KUKAZ = "KUKA_Z";
+constexpr const char* const KUKAA = "KUKA_A";
+constexpr const char* const KUKAB = "KUKA_B";
+constexpr const char* const KUKAC = "KUKA_C";
+
+constexpr const char* const AXISCOORDA1 = "AXIS_cord_A1";
+constexpr const char* const AXISCOORDA2 = "AXIS_cord_A2";
+constexpr const char* const AXISCOORDA3 = "AXIS_cord_A3";
+constexpr const char* const AXISCOORDA4 = "AXIS_cord_A4";
+constexpr const char* const AXISCOORDA5 = "AXIS_cord_A5";
+constexpr const char* const AXISCOORDA6 = "AXIS_cord_A6";
+
+constexpr const char* const ASU = "ASU";
+constexpr const char* const RTK_PLC = "RTK_PLC";
+
 const QString SIEMENS_PLC_SERVER_INTERFACES_NODE_ID = QLatin1String("ns=3;s=") + PARENT_NODE_DISPLAYED_NAME;
-const QString RTK_PLC_NODE_NAME = QLatin1String(PARENT_NODE_DISPLAYED_NAME) + ".RTK_PLC";
-const QString ASU_NODE_NAME = RTK_PLC_NODE_NAME + ".ASU";
+const QString RTK_PLC_NODE_NAME = QLatin1String(PARENT_NODE_DISPLAYED_NAME) + QString(QChar('.')) + QLatin1String(RTK_PLC);
+const QString ASU_NODE_NAME = RTK_PLC_NODE_NAME + QString(QChar('.')) + QLatin1String(ASU);
 
 const QString ASU_ERROR_MESSAGES_NODE_NAME = ASU_NODE_NAME + QString(QChar('.')) + QLatin1String(OpcUaTreeItem::ERROR_MESSAGES_NODE);
 const QString ASU_SERVICE_MESSAGES_NODE_NAME = ASU_NODE_NAME + QString(QChar('.')) + QLatin1String(OpcUaTreeItem::SERVICE_MESSAGES_NODE);
 const QString ASU_MESSAGES_NODE_NAME = ASU_NODE_NAME + QString(QChar('.')) + QLatin1String(OpcUaTreeItem::MISC_MESSAGES_NODE);
 
-const QString ASU_MODE_NODE_NAME = ASU_NODE_NAME + ".Mode";
+constexpr const char* const MODE = "Mode";
+constexpr const char* const STATUS_RTK = "Status_RTK";
+constexpr const char* const STATUS_R1 = "Status_R1_deka";
+constexpr const char* const STATUS_R2 = "Status_R2_C_Duga";
 
-const QString ASU_STATUS_RTK_NODE_NAME = ASU_NODE_NAME + ".Status_RTK";
-const QString ASU_STATUS_R1_TABLE_NODE_NAME = ASU_NODE_NAME + ".Status_R1_deka";
-const QString ASU_STATUS_R2_CARM_NODE_NAME = ASU_NODE_NAME + ".Status_R2_C_Duga";
+const QString ASU_MODE_NODE_NAME = ASU_NODE_NAME + QString(QChar('.')) + QLatin1String(MODE);
+const QString ASU_STATUS_RTK_NODE_NAME = ASU_NODE_NAME + QString(QChar('.')) + QLatin1String(STATUS_RTK);
+const QString ASU_STATUS_R1_TABLE_NODE_NAME = ASU_NODE_NAME + QString(QChar('.')) + QLatin1String(STATUS_R1);
+const QString ASU_STATUS_R2_CARM_NODE_NAME = ASU_NODE_NAME + QString(QChar('.')) + QLatin1String(STATUS_R2);
 
-const QString ASU_COORDS_NODE_NAME = ASU_NODE_NAME + ".CoordFromASU";
-const QString ASU_COORDS_X_NODE_NAME = ASU_COORDS_NODE_NAME + ".X";
-const QString ASU_COORDS_Y_NODE_NAME = ASU_COORDS_NODE_NAME + ".Y";
-const QString ASU_COORDS_Z_NODE_NAME = ASU_COORDS_NODE_NAME + ".Z";
-const QString ASU_COORDS_XRAY_Z_NODE_NAME = ASU_COORDS_NODE_NAME + ".XRAY_Z_correction";
-const QString ASU_COORDS_R1_A_NODE_NAME = ASU_COORDS_NODE_NAME + ".AngleA_R1";
-const QString ASU_COORDS_R1_B_NODE_NAME = ASU_COORDS_NODE_NAME + ".AngleB_R1";
-const QString ASU_COORDS_R1_C_NODE_NAME = ASU_COORDS_NODE_NAME + ".AngleC_R1";
+constexpr const char* const SETCOORDS = "SetCoords";
+const QString ASU_COORDS_NODE_NAME = ASU_NODE_NAME + QString(QChar('.')) + QLatin1String(SETCOORDS);
+const QString ASU_COORDS_X_NODE_NAME = ASU_COORDS_NODE_NAME + QString(QChar('.')) + QLatin1String(KUKAX);
+const QString ASU_COORDS_Y_NODE_NAME = ASU_COORDS_NODE_NAME + QString(QChar('.')) + QLatin1String(KUKAY);
+const QString ASU_COORDS_Z_NODE_NAME = ASU_COORDS_NODE_NAME + QString(QChar('.')) + QLatin1String(KUKAZ);
+const QString ASU_COORDS_A_NODE_NAME = ASU_COORDS_NODE_NAME + QString(QChar('.')) + QLatin1String(KUKAA);
+const QString ASU_COORDS_B_NODE_NAME = ASU_COORDS_NODE_NAME + QString(QChar('.')) + QLatin1String(KUKAB);
+const QString ASU_COORDS_C_NODE_NAME = ASU_COORDS_NODE_NAME + QString(QChar('.')) + QLatin1String(KUKAC);
 
 const QString ASU_ROBOTS_READY_XRAY1_NODE_NAME = ASU_NODE_NAME + ".RobotsReadyForXray1";
 const QString ASU_ROBOTS_READY_XRAY2_NODE_NAME = ASU_NODE_NAME + ".RobotsReadyForXray2";
@@ -79,11 +100,17 @@ const QString ASU_PATIENT_ON_TABLE_NODE_NAME = ASU_NODE_NAME + ".HUMAN_ON_DEKA";
 const QString ASU_TABLE_POSITION_NODE_NAME = ASU_NODE_NAME + ".DekaPosition";
 const QString ASU_EMEVAC_SIGNAL_NODE_NAME = ASU_NODE_NAME + ".EmEvacuationSignal";
 
+constexpr const char* const PRESSED = "isPressed";
+constexpr const char* const ENABLED = "isEnable";
+
+constexpr const char* const BUTTONS = "Buttons";
+constexpr const char* const AM_MM = "AM_MM";
+
 const QString IS_PRESSED = ".isPressed";
 const QString IS_ENABLED = ".isEnable";
 
-const QString BUTTONS_NODE_NAME = ASU_NODE_NAME + ".Buttons";
-const QString BUTTONS_AM_NODE_NAME = BUTTONS_NODE_NAME + ".AM_MM";
+const QString BUTTONS_NODE_NAME = ASU_NODE_NAME + QString(QChar('.')) + QLatin1String(BUTTONS);
+const QString BUTTONS_AM_NODE_NAME = BUTTONS_NODE_NAME + QString(QChar('.')) + QLatin1String(AM_MM);
 
 const QString BUTTONS_AM_R1_LOADTOISO_NODE_NAME = BUTTONS_AM_NODE_NAME + ".R1_LoadToIso";
 const QString BUTTONS_AM_R1_LOADTOISO_PRESSED_NODE_NAME = BUTTONS_AM_R1_LOADTOISO_NODE_NAME + IS_PRESSED;
@@ -117,7 +144,12 @@ const QString BUTTONS_AM_APPLYTABLEPOSITION_NODE_NAME = BUTTONS_AM_NODE_NAME + "
 const QString BUTTONS_AM_APPLYTABLEPOSITION_PRESSED_NODE_NAME = BUTTONS_AM_APPLYTABLEPOSITION_NODE_NAME + IS_PRESSED;
 const QString BUTTONS_AM_APPLYTABLEPOSITION_ENABLED_NODE_NAME = BUTTONS_AM_APPLYTABLEPOSITION_NODE_NAME + IS_ENABLED;
 
-const QString BUTTONS_SM_NODE_NAME = BUTTONS_NODE_NAME + ".SM";
+const QString BUTTONS_AM_APPLYNEWCOORDS_NODE_NAME = BUTTONS_AM_NODE_NAME + ".ApplyNewCoords";
+const QString BUTTONS_AM_APPLYNEWCOORDS_PRESSED_NODE_NAME = BUTTONS_AM_APPLYNEWCOORDS_NODE_NAME + IS_PRESSED;
+const QString BUTTONS_AM_APPLYNEWCOORDS_ENABLED_NODE_NAME = BUTTONS_AM_APPLYNEWCOORDS_NODE_NAME + IS_ENABLED;
+
+constexpr const char* const SM = "SM";
+const QString BUTTONS_SM_NODE_NAME = BUTTONS_NODE_NAME + QString(QChar('.')) + QLatin1String(SM);
 
 const QString BUTTONS_SM_R1_BREAKTEST_NODE_NAME = BUTTONS_SM_NODE_NAME + ".BrakeTestR1";
 const QString BUTTONS_SM_R1_BREAKTEST_PRESSED_NODE_NAME = BUTTONS_SM_R1_BREAKTEST_NODE_NAME + IS_PRESSED;
@@ -171,7 +203,8 @@ const QString BUTTONS_SM_RESTARTSM_NODE_NAME = BUTTONS_SM_NODE_NAME + ".RestartS
 const QString BUTTONS_SM_RESTARTSM_PRESSED_NODE_NAME = BUTTONS_SM_RESTARTSM_NODE_NAME + IS_PRESSED;
 const QString BUTTONS_SM_RESTARTSM_ENABLED_NODE_NAME = BUTTONS_SM_RESTARTSM_NODE_NAME + IS_ENABLED;
 
-const QString BUTTONS_KCM_NODE_NAME = BUTTONS_NODE_NAME + ".KCM";
+constexpr const char* const KCM = "KCM";
+const QString BUTTONS_KCM_NODE_NAME = BUTTONS_NODE_NAME + QString(QChar('.')) + QLatin1String(KCM);
 
 const QString BUTTONS_KCM_ALLOWT1_NODE_NAME = BUTTONS_KCM_NODE_NAME + ".AllowT1";
 const QString BUTTONS_KCM_ALLOWT1_PRESSED_NODE_NAME = BUTTONS_KCM_ALLOWT1_NODE_NAME + IS_PRESSED;
@@ -193,33 +226,49 @@ const QString BUTTONS_MAKEXRAY_NODE_NAME = BUTTONS_NODE_NAME + ".MakeXRay";
 const QString BUTTONS_MAKEXRAY_PRESSED_NODE_NAME = BUTTONS_MAKEXRAY_NODE_NAME + IS_PRESSED;
 const QString BUTTONS_MAKEXRAY_ENABLED_NODE_NAME = BUTTONS_MAKEXRAY_NODE_NAME + IS_ENABLED;
 
-const QString KUKA_R1_COORD_X_TO_TCS_NODE_NAME = RTK_PLC_NODE_NAME + ".KUKA_X_coordinate_to_TCS_R1";
-const QString KUKA_R1_COORD_Y_TO_TCS_NODE_NAME = RTK_PLC_NODE_NAME + ".KUKA_Y_coordinate_to_TCS_R1";
-const QString KUKA_R1_COORD_Z_TO_TCS_NODE_NAME = RTK_PLC_NODE_NAME + ".KUKA_Z_coordinate_to_TCS_R1";
-const QString KUKA_R1_ANGLE_A_TO_TCS_NODE_NAME = RTK_PLC_NODE_NAME + ".KUKA_A_corner_to_TCS_R1";
-const QString KUKA_R1_ANGLE_B_TO_TCS_NODE_NAME = RTK_PLC_NODE_NAME + ".KUKA_B_corner_to_TCS_R1";
-const QString KUKA_R1_ANGLE_C_TO_TCS_NODE_NAME = RTK_PLC_NODE_NAME + ".KUKA_C_corner_to_TCS_R1";
+const QString KUKA_REFLTARGETCOORDS_R1_NODE_NAME = RTK_PLC_NODE_NAME + ".ReflTargetCoords_R1";
+const QString KUKA_REFLTARGETCOORDS_R1_X_NODE_NAME = KUKA_REFLTARGETCOORDS_R1_NODE_NAME + QString(QChar('.')) + QLatin1String(KUKAX);
+const QString KUKA_REFLTARGETCOORDS_R1_Y_NODE_NAME = KUKA_REFLTARGETCOORDS_R1_NODE_NAME + QString(QChar('.')) + QLatin1String(KUKAY);
+const QString KUKA_REFLTARGETCOORDS_R1_Z_NODE_NAME = KUKA_REFLTARGETCOORDS_R1_NODE_NAME + QString(QChar('.')) + QLatin1String(KUKAX);
+const QString KUKA_REFLTARGETCOORDS_R1_A_NODE_NAME = KUKA_REFLTARGETCOORDS_R1_NODE_NAME + QString(QChar('.')) + QLatin1String(KUKAA);
+const QString KUKA_REFLTARGETCOORDS_R1_B_NODE_NAME = KUKA_REFLTARGETCOORDS_R1_NODE_NAME + QString(QChar('.')) + QLatin1String(KUKAB);
+const QString KUKA_REFLTARGETCOORDS_R1_C_NODE_NAME = KUKA_REFLTARGETCOORDS_R1_NODE_NAME + QString(QChar('.')) + QLatin1String(KUKAC);
 
-const QString KUKA_R1_AXIS_A1_NODE_NAME = RTK_PLC_NODE_NAME + ".AXIS_cord_A1_R1";
-const QString KUKA_R1_AXIS_A2_NODE_NAME = RTK_PLC_NODE_NAME + ".AXIS_cord_A2_R1";
-const QString KUKA_R1_AXIS_A3_NODE_NAME = RTK_PLC_NODE_NAME + ".AXIS_cord_A3_R1";
-const QString KUKA_R1_AXIS_A4_NODE_NAME = RTK_PLC_NODE_NAME + ".AXIS_cord_A4_R1";
-const QString KUKA_R1_AXIS_A5_NODE_NAME = RTK_PLC_NODE_NAME + ".AXIS_cord_A5_R1";
-const QString KUKA_R1_AXIS_A6_NODE_NAME = RTK_PLC_NODE_NAME + ".AXIS_cord_A6_R1";
+const QString KUKA_REFLTARGETCOORDS_R2_NODE_NAME = RTK_PLC_NODE_NAME + ".ReflTargetCoords_R2";
+const QString KUKA_REFLTARGETCOORDS_R2_X_NODE_NAME = KUKA_REFLTARGETCOORDS_R2_NODE_NAME + QString(QChar('.')) + QLatin1String(KUKAX);
+const QString KUKA_REFLTARGETCOORDS_R2_Y_NODE_NAME = KUKA_REFLTARGETCOORDS_R2_NODE_NAME + QString(QChar('.')) + QLatin1String(KUKAY);
+const QString KUKA_REFLTARGETCOORDS_R2_Z_NODE_NAME = KUKA_REFLTARGETCOORDS_R2_NODE_NAME + QString(QChar('.')) + QLatin1String(KUKAX);
+const QString KUKA_REFLTARGETCOORDS_R2_A_NODE_NAME = KUKA_REFLTARGETCOORDS_R2_NODE_NAME + QString(QChar('.')) + QLatin1String(KUKAA);
+const QString KUKA_REFLTARGETCOORDS_R2_B_NODE_NAME = KUKA_REFLTARGETCOORDS_R2_NODE_NAME + QString(QChar('.')) + QLatin1String(KUKAB);
+const QString KUKA_REFLTARGETCOORDS_R2_C_NODE_NAME = KUKA_REFLTARGETCOORDS_R2_NODE_NAME + QString(QChar('.')) + QLatin1String(KUKAC);
 
-const QString KUKA_R2_COORD_X_TO_TCS_NODE_NAME = RTK_PLC_NODE_NAME + ".KUKA_X_coordinate_to_TCS_R2";
-const QString KUKA_R2_COORD_Y_TO_TCS_NODE_NAME = RTK_PLC_NODE_NAME + ".KUKA_Y_coordinate_to_TCS_R2";
-const QString KUKA_R2_COORD_Z_TO_TCS_NODE_NAME = RTK_PLC_NODE_NAME + ".KUKA_Z_coordinate_to_TCS_R2";
-const QString KUKA_R2_ANGLE_A_TO_TCS_NODE_NAME = RTK_PLC_NODE_NAME + ".KUKA_A_corner_to_TCS_R2";
-const QString KUKA_R2_ANGLE_B_TO_TCS_NODE_NAME = RTK_PLC_NODE_NAME + ".KUKA_B_corner_to_TCS_R2";
-const QString KUKA_R2_ANGLE_C_TO_TCS_NODE_NAME = RTK_PLC_NODE_NAME + ".KUKA_C_corner_to_TCS_R2";
+const QString KUKA_CURRENTCOORDS_R1_NODE_NAME = RTK_PLC_NODE_NAME + ".CurrentCoords_R1";
+const QString KUKA_CURRENTCOORDS_R1_X_NODE_NAME = KUKA_CURRENTCOORDS_R1_NODE_NAME + QString(QChar('.')) + QLatin1String(KUKAX);
+const QString KUKA_CURRENTCOORDS_R1_Y_NODE_NAME = KUKA_CURRENTCOORDS_R1_NODE_NAME + QString(QChar('.')) + QLatin1String(KUKAY);
+const QString KUKA_CURRENTCOORDS_R1_Z_NODE_NAME = KUKA_CURRENTCOORDS_R1_NODE_NAME + QString(QChar('.')) + QLatin1String(KUKAX);
+const QString KUKA_CURRENTCOORDS_R1_A_NODE_NAME = KUKA_CURRENTCOORDS_R1_NODE_NAME + QString(QChar('.')) + QLatin1String(KUKAA);
+const QString KUKA_CURRENTCOORDS_R1_B_NODE_NAME = KUKA_CURRENTCOORDS_R1_NODE_NAME + QString(QChar('.')) + QLatin1String(KUKAB);
+const QString KUKA_CURRENTCOORDS_R1_C_NODE_NAME = KUKA_CURRENTCOORDS_R1_NODE_NAME + QString(QChar('.')) + QLatin1String(KUKAC);
+const QString KUKA_CURRENTCOORDS_R1_A1_NODE_NAME = KUKA_CURRENTCOORDS_R1_NODE_NAME + QString(QChar('.')) + QLatin1String(AXISCOORDA1);
+const QString KUKA_CURRENTCOORDS_R1_A2_NODE_NAME = KUKA_CURRENTCOORDS_R1_NODE_NAME + QString(QChar('.')) + QLatin1String(AXISCOORDA2);
+const QString KUKA_CURRENTCOORDS_R1_A3_NODE_NAME = KUKA_CURRENTCOORDS_R1_NODE_NAME + QString(QChar('.')) + QLatin1String(AXISCOORDA3);
+const QString KUKA_CURRENTCOORDS_R1_A4_NODE_NAME = KUKA_CURRENTCOORDS_R1_NODE_NAME + QString(QChar('.')) + QLatin1String(AXISCOORDA4);
+const QString KUKA_CURRENTCOORDS_R1_A5_NODE_NAME = KUKA_CURRENTCOORDS_R1_NODE_NAME + QString(QChar('.')) + QLatin1String(AXISCOORDA5);
+const QString KUKA_CURRENTCOORDS_R1_A6_NODE_NAME = KUKA_CURRENTCOORDS_R1_NODE_NAME + QString(QChar('.')) + QLatin1String(AXISCOORDA6);
 
-const QString KUKA_R2_AXIS_A1_NODE_NAME = RTK_PLC_NODE_NAME + ".AXIS_cord_A1_R2";
-const QString KUKA_R2_AXIS_A2_NODE_NAME = RTK_PLC_NODE_NAME + ".AXIS_cord_A2_R2";
-const QString KUKA_R2_AXIS_A3_NODE_NAME = RTK_PLC_NODE_NAME + ".AXIS_cord_A3_R2";
-const QString KUKA_R2_AXIS_A4_NODE_NAME = RTK_PLC_NODE_NAME + ".AXIS_cord_A4_R2";
-const QString KUKA_R2_AXIS_A5_NODE_NAME = RTK_PLC_NODE_NAME + ".AXIS_cord_A5_R2";
-const QString KUKA_R2_AXIS_A6_NODE_NAME = RTK_PLC_NODE_NAME + ".AXIS_cord_A6_R2";
+const QString KUKA_CURRENTCOORDS_R2_NODE_NAME = RTK_PLC_NODE_NAME + ".CurrentCoords_R2";
+const QString KUKA_CURRENTCOORDS_R2_X_NODE_NAME = KUKA_CURRENTCOORDS_R2_NODE_NAME + QString(QChar('.')) + QLatin1String(KUKAX);
+const QString KUKA_CURRENTCOORDS_R2_Y_NODE_NAME = KUKA_CURRENTCOORDS_R2_NODE_NAME + QString(QChar('.')) + QLatin1String(KUKAY);
+const QString KUKA_CURRENTCOORDS_R2_Z_NODE_NAME = KUKA_CURRENTCOORDS_R2_NODE_NAME + QString(QChar('.')) + QLatin1String(KUKAX);
+const QString KUKA_CURRENTCOORDS_R2_A_NODE_NAME = KUKA_CURRENTCOORDS_R2_NODE_NAME + QString(QChar('.')) + QLatin1String(KUKAA);
+const QString KUKA_CURRENTCOORDS_R2_B_NODE_NAME = KUKA_CURRENTCOORDS_R2_NODE_NAME + QString(QChar('.')) + QLatin1String(KUKAB);
+const QString KUKA_CURRENTCOORDS_R2_C_NODE_NAME = KUKA_CURRENTCOORDS_R2_NODE_NAME + QString(QChar('.')) + QLatin1String(KUKAC);
+const QString KUKA_CURRENTCOORDS_R2_A1_NODE_NAME = KUKA_CURRENTCOORDS_R2_NODE_NAME + QString(QChar('.')) + QLatin1String(AXISCOORDA1);
+const QString KUKA_CURRENTCOORDS_R2_A2_NODE_NAME = KUKA_CURRENTCOORDS_R2_NODE_NAME + QString(QChar('.')) + QLatin1String(AXISCOORDA2);
+const QString KUKA_CURRENTCOORDS_R2_A3_NODE_NAME = KUKA_CURRENTCOORDS_R2_NODE_NAME + QString(QChar('.')) + QLatin1String(AXISCOORDA3);
+const QString KUKA_CURRENTCOORDS_R2_A4_NODE_NAME = KUKA_CURRENTCOORDS_R2_NODE_NAME + QString(QChar('.')) + QLatin1String(AXISCOORDA4);
+const QString KUKA_CURRENTCOORDS_R2_A5_NODE_NAME = KUKA_CURRENTCOORDS_R2_NODE_NAME + QString(QChar('.')) + QLatin1String(AXISCOORDA5);
+const QString KUKA_CURRENTCOORDS_R2_A6_NODE_NAME = KUKA_CURRENTCOORDS_R2_NODE_NAME + QString(QChar('.')) + QLatin1String(AXISCOORDA6);
 
 }
 
@@ -281,15 +330,22 @@ public:
 
   bool ConnectMessagesNodes();
   bool ConnectModeAndStatusNodes();
-  bool ConnectCoordFromAsuCoordsNodes();
-  bool ConnectCoordFromAsuAnglesNodes();
+  bool ConnectSetCoordsXyzNodes();
+  bool ConnectSetCoordsAbcNodes();
 
-  bool ConnectCoordFromAsuNodes();
+  bool ConnectSetCoordsNodes();
   bool ConnectAutoManualMovementNodes();
   bool ConnectServiceMovementNodes();
   bool ConnectKukaMovementNodes();
+
   bool ConnectFlagNodes();
   bool ConnectMlcNodes();
+
+  bool ConnectCurrentCoordsR1Nodes();
+  bool ConnectCurrentCoordsR2Nodes();
+  bool ConnectReflTargetCoordsR1Nodes();
+  bool ConnectReflTargetCoordsR2Nodes();
+
   bool ConnectKukaR1TcsNodes();
   bool ConnectKukaR1AxisNodes();
   bool ConnectKukaR2TcsNodes();
@@ -322,7 +378,7 @@ public:
   bool ConnectKukaAllowT1Nodes();
   bool ConnectKukaAllowXrayNodes();
   bool ConnectKukaAllowBeamNodes();
-
+/*
   bool ConnectKukaR1CoordToTcsXNodes();
   bool ConnectKukaR1CoordToTcsYNodes();
   bool ConnectKukaR1CoordToTcsZNodes();
@@ -336,7 +392,7 @@ public:
   bool ConnectKukaR2AngleToTcsANodes();
   bool ConnectKukaR2AngleToTcsBNodes();
   bool ConnectKukaR2AngleToTcsCNodes();
-
+*/
   bool ConnectR1AxisA1CoordNodes();
   bool ConnectR1AxisA2CoordNodes();
   bool ConnectR1AxisA3CoordNodes();
@@ -381,7 +437,7 @@ public:
     ASU_STATUS_RTK_NODE_NAME,
     ASU_STATUS_R1_TABLE_NODE_NAME,
     ASU_STATUS_R2_CARM_NODE_NAME,
-/*    BUTTONS_AM_R1_LOADTOISO_ENABLED_NODE_NAME,
+    BUTTONS_AM_R1_LOADTOISO_ENABLED_NODE_NAME,
     BUTTONS_AM_R1_TOLOAD_ENABLED_NODE_NAME,
     BUTTONS_AM_R1_NEWCOORDS_ENABLED_NODE_NAME,
     BUTTONS_AM_R2_TOHOME_ENABLED_NODE_NAME,
@@ -409,38 +465,6 @@ public:
     ASU_ROBOTS_READY_XRAY2_NODE_NAME,
     ASU_TABLE_POSITION_NODE_NAME,
     ASU_EMEVAC_SIGNAL_NODE_NAME,
-*/
-//    ASU_COORDS_X_NODE_NAME,
-//    ASU_COORDS_Y_NODE_NAME,
-//    ASU_COORDS_Z_NODE_NAME,
-//    ASU_COORDS_XRAY_Z_NODE_NAME,
-//    ASU_COORDS_R1_A_NODE_NAME,
-//    ASU_COORDS_R1_B_NODE_NAME,
-//    ASU_COORDS_R1_C_NODE_NAME,
-//    KUKA_R1_COORD_X_TO_TCS_NODE_NAME,
-//    KUKA_R1_COORD_Y_TO_TCS_NODE_NAME,
-//    KUKA_R1_COORD_Z_TO_TCS_NODE_NAME,
-//    KUKA_R1_ANGLE_A_TO_TCS_NODE_NAME,
-//    KUKA_R1_ANGLE_B_TO_TCS_NODE_NAME,
-//    KUKA_R1_ANGLE_C_TO_TCS_NODE_NAME,
-    KUKA_R1_AXIS_A1_NODE_NAME,
-    KUKA_R1_AXIS_A2_NODE_NAME,
-    KUKA_R1_AXIS_A3_NODE_NAME,
-    KUKA_R1_AXIS_A4_NODE_NAME,
-    KUKA_R1_AXIS_A5_NODE_NAME,
-    KUKA_R1_AXIS_A6_NODE_NAME,
-//    KUKA_R2_COORD_X_TO_TCS_NODE_NAME,
-//    KUKA_R2_COORD_Y_TO_TCS_NODE_NAME,
-//    KUKA_R2_COORD_Z_TO_TCS_NODE_NAME,
-//    KUKA_R2_ANGLE_A_TO_TCS_NODE_NAME,
-//    KUKA_R2_ANGLE_B_TO_TCS_NODE_NAME,
-//    KUKA_R2_ANGLE_C_TO_TCS_NODE_NAME,
-    KUKA_R2_AXIS_A1_NODE_NAME,
-    KUKA_R2_AXIS_A2_NODE_NAME,
-    KUKA_R2_AXIS_A3_NODE_NAME,
-    KUKA_R2_AXIS_A4_NODE_NAME,
-    KUKA_R2_AXIS_A5_NODE_NAME,
-    KUKA_R2_AXIS_A6_NODE_NAME
   };
   QScopedPointer< QProgressDialog > ProgressDialog;
   QScopedPointer< QTimer > ProgressTimer;
@@ -3197,9 +3221,9 @@ bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectAutoManualApplyTablePositionNod
       {
         bool enabledValue = value.toBool();
         bool amApplyTablePositionCurrentState[2] = { false, false };
-        mrmlNode->GetAutoManualApplyTableTopPosition(amApplyTablePositionCurrentState);
+        mrmlNode->GetAutoManualApplyTabletopPosition(amApplyTablePositionCurrentState);
         amApplyTablePositionCurrentState[0] = enabledValue;
-        mrmlNode->SetAutoManualApplyTableTopPosition(amApplyTablePositionCurrentState);
+        mrmlNode->SetAutoManualApplyTabletopPosition(amApplyTablePositionCurrentState);
         qDebug() << Q_FUNC_INFO << "AutoManual ApplyTablePosition button enabled changed:" << enabledValue;
       }
     }
@@ -3217,9 +3241,9 @@ bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectAutoManualApplyTablePositionNod
         {
           bool enabledValue = amApplyTablePositionEnabledNode->attribute(QOpcUa::NodeAttribute::Value).toBool();
           bool amApplyTablePositionCurrentState[2] = { false, false };
-          mrmlNode->GetAutoManualApplyTableTopPosition(amApplyTablePositionCurrentState);
+          mrmlNode->GetAutoManualApplyTabletopPosition(amApplyTablePositionCurrentState);
           amApplyTablePositionCurrentState[0] = enabledValue;
-          mrmlNode->SetAutoManualApplyTableTopPosition(amApplyTablePositionCurrentState);
+          mrmlNode->SetAutoManualApplyTabletopPosition(amApplyTablePositionCurrentState);
           qDebug() << Q_FUNC_INFO << "AutoManual ApplyTablePosition button enabled read:" << enabledValue;
         }
       }
@@ -3240,9 +3264,9 @@ bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectAutoManualApplyTablePositionNod
       {
         bool pressedValue = value.toBool();
         bool amApplyTablePositionCurrentState[2] = { false, false };
-        mrmlNode->GetAutoManualApplyTableTopPosition(amApplyTablePositionCurrentState);
+        mrmlNode->GetAutoManualApplyTabletopPosition(amApplyTablePositionCurrentState);
         amApplyTablePositionCurrentState[1] = pressedValue;
-        mrmlNode->SetAutoManualApplyTableTopPosition(amApplyTablePositionCurrentState);
+        mrmlNode->SetAutoManualApplyTabletopPosition(amApplyTablePositionCurrentState);
         qDebug() << Q_FUNC_INFO << "AutoManual ApplyTablePosition button pressed changed:" << pressedValue;
       }
     }
@@ -3260,9 +3284,9 @@ bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectAutoManualApplyTablePositionNod
         {
           bool pressedValue = amApplyTablePositionPressedNode->attribute(QOpcUa::NodeAttribute::Value).toBool();
           bool amApplyTablePositionCurrentState[2] = { false, false };
-          mrmlNode->GetAutoManualApplyTableTopPosition(amApplyTablePositionCurrentState);
+          mrmlNode->GetAutoManualApplyTabletopPosition(amApplyTablePositionCurrentState);
           amApplyTablePositionCurrentState[1] = pressedValue;
-          mrmlNode->SetAutoManualApplyTableTopPosition(amApplyTablePositionCurrentState);
+          mrmlNode->SetAutoManualApplyTabletopPosition(amApplyTablePositionCurrentState);
           qDebug() << Q_FUNC_INFO << "AutoManual ApplyTablePosition button pressed read:" << pressedValue;
         }
       }
@@ -3626,6 +3650,7 @@ bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectModeAndStatusNodes()
   QObject::connect(modeNode,
     &QOpcUaNode::dataChangeOccurred, [mrmlNode](QOpcUa::NodeAttribute attr, QVariant value)
     {
+      qDebug() << Q_FUNC_INFO << "Mode value changed";
       if (attr == QOpcUa::NodeAttribute::Value && value.canConvert< int >())
       {
         bool ok = false;
@@ -3641,6 +3666,7 @@ bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectModeAndStatusNodes()
   QObject::connect(modeNode,
     &QOpcUaNode::attributeRead, [modeNode, mrmlNode](QOpcUa::NodeAttributes attr)
     {
+      qDebug() << Q_FUNC_INFO << "Mode value read";
       if (!modeNode || !mrmlNode)
       {
         return;
@@ -3804,7 +3830,7 @@ bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectModeAndStatusNodes()
 
   return true;
 }
-
+/*
 //-----------------------------------------------------------------------------
 bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectKukaR1CoordToTcsXNodes()
 {
@@ -4669,7 +4695,7 @@ bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectKukaR2TcsNodes()
   res &= ConnectKukaR2AngleToTcsCNodes();
   return res;
 }
-
+*/
 //-----------------------------------------------------------------------------
 bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectR1AxisA1CoordNodes()
 {
@@ -4683,7 +4709,7 @@ bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectR1AxisA1CoordNodes()
   vtkMRMLSiemensPlcOpcUaNode* mrmlNode = this->ParameterNode.GetPointer();
 
   // KUKA R1 Axis A1 node
-  QOpcUaNode* r1AxisA1Node = this->FindNodeFromFullDisplayName(KUKA_R1_AXIS_A1_NODE_NAME);
+  QOpcUaNode* r1AxisA1Node = this->FindNodeFromFullDisplayName(KUKA_CURRENTCOORDS_R1_A1_NODE_NAME);
 
   // Connect signal handlers for subscribed values
   if (!r1AxisA1Node)
@@ -4753,7 +4779,7 @@ bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectR1AxisA2CoordNodes()
   vtkMRMLSiemensPlcOpcUaNode* mrmlNode = this->ParameterNode.GetPointer();
 
   // KUKA R1 Axis A2 node
-  QOpcUaNode* r1AxisA2Node = this->FindNodeFromFullDisplayName(KUKA_R1_AXIS_A2_NODE_NAME);
+  QOpcUaNode* r1AxisA2Node = this->FindNodeFromFullDisplayName(KUKA_CURRENTCOORDS_R1_A2_NODE_NAME);
 
   // Connect signal handlers for subscribed values
   if (!r1AxisA2Node)
@@ -4823,7 +4849,7 @@ bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectR1AxisA3CoordNodes()
   vtkMRMLSiemensPlcOpcUaNode* mrmlNode = this->ParameterNode.GetPointer();
 
   // KUKA R1 Axis A3 node
-  QOpcUaNode* r1AxisA3Node = this->FindNodeFromFullDisplayName(KUKA_R1_AXIS_A3_NODE_NAME);
+  QOpcUaNode* r1AxisA3Node = this->FindNodeFromFullDisplayName(KUKA_CURRENTCOORDS_R1_A3_NODE_NAME);
 
   // Connect signal handlers for subscribed values
   if (!r1AxisA3Node)
@@ -4893,7 +4919,7 @@ bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectR1AxisA4CoordNodes()
   vtkMRMLSiemensPlcOpcUaNode* mrmlNode = this->ParameterNode.GetPointer();
 
   // KUKA R1 Axis A4 node
-  QOpcUaNode* r1AxisA4Node = this->FindNodeFromFullDisplayName(KUKA_R1_AXIS_A4_NODE_NAME);
+  QOpcUaNode* r1AxisA4Node = this->FindNodeFromFullDisplayName(KUKA_CURRENTCOORDS_R1_A4_NODE_NAME);
 
   // Connect signal handlers for subscribed values
   if (!r1AxisA4Node)
@@ -4963,7 +4989,7 @@ bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectR1AxisA5CoordNodes()
   vtkMRMLSiemensPlcOpcUaNode* mrmlNode = this->ParameterNode.GetPointer();
 
   // KUKA R1 Axis A5 node
-  QOpcUaNode* r1AxisA5Node = this->FindNodeFromFullDisplayName(KUKA_R1_AXIS_A5_NODE_NAME);
+  QOpcUaNode* r1AxisA5Node = this->FindNodeFromFullDisplayName(KUKA_CURRENTCOORDS_R1_A5_NODE_NAME);
 
   // Connect signal handlers for subscribed values
   if (!r1AxisA5Node)
@@ -5033,7 +5059,7 @@ bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectR1AxisA6CoordNodes()
   vtkMRMLSiemensPlcOpcUaNode* mrmlNode = this->ParameterNode.GetPointer();
 
   // KUKA R1 Axis A6 node
-  QOpcUaNode* r1AxisA6Node = this->FindNodeFromFullDisplayName(KUKA_R1_AXIS_A6_NODE_NAME);
+  QOpcUaNode* r1AxisA6Node = this->FindNodeFromFullDisplayName(KUKA_CURRENTCOORDS_R1_A6_NODE_NAME);
 
   // Connect signal handlers for subscribed values
   if (!r1AxisA6Node)
@@ -5115,7 +5141,7 @@ bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectR2AxisA1CoordNodes()
   vtkMRMLSiemensPlcOpcUaNode* mrmlNode = this->ParameterNode.GetPointer();
 
   // KUKA R2 Axis A1 node
-  QOpcUaNode* r2AxisA1Node = this->FindNodeFromFullDisplayName(KUKA_R2_AXIS_A1_NODE_NAME);
+  QOpcUaNode* r2AxisA1Node = this->FindNodeFromFullDisplayName(KUKA_CURRENTCOORDS_R2_A1_NODE_NAME);
 
   // Connect signal handlers for subscribed values
   if (!r2AxisA1Node)
@@ -5185,7 +5211,7 @@ bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectR2AxisA2CoordNodes()
   vtkMRMLSiemensPlcOpcUaNode* mrmlNode = this->ParameterNode.GetPointer();
 
   // KUKA R2 Axis A2 node
-  QOpcUaNode* r2AxisA2Node = this->FindNodeFromFullDisplayName(KUKA_R2_AXIS_A2_NODE_NAME);
+  QOpcUaNode* r2AxisA2Node = this->FindNodeFromFullDisplayName(KUKA_CURRENTCOORDS_R2_A2_NODE_NAME);
 
   // Connect signal handlers for subscribed values
   if (!r2AxisA2Node)
@@ -5255,7 +5281,7 @@ bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectR2AxisA3CoordNodes()
   vtkMRMLSiemensPlcOpcUaNode* mrmlNode = this->ParameterNode.GetPointer();
 
   // KUKA R2 Axis A3 node
-  QOpcUaNode* r2AxisA3Node = this->FindNodeFromFullDisplayName(KUKA_R2_AXIS_A3_NODE_NAME);
+  QOpcUaNode* r2AxisA3Node = this->FindNodeFromFullDisplayName(KUKA_CURRENTCOORDS_R2_A3_NODE_NAME);
 
   // Connect signal handlers for subscribed values
   if (!r2AxisA3Node)
@@ -5325,7 +5351,7 @@ bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectR2AxisA4CoordNodes()
   vtkMRMLSiemensPlcOpcUaNode* mrmlNode = this->ParameterNode.GetPointer();
 
   // KUKA R2 Axis A4 node
-  QOpcUaNode* r2AxisA4Node = this->FindNodeFromFullDisplayName(KUKA_R2_AXIS_A4_NODE_NAME);
+  QOpcUaNode* r2AxisA4Node = this->FindNodeFromFullDisplayName(KUKA_CURRENTCOORDS_R2_A4_NODE_NAME);
 
   // Connect signal handlers for subscribed values
   if (!r2AxisA4Node)
@@ -5395,7 +5421,7 @@ bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectR2AxisA5CoordNodes()
   vtkMRMLSiemensPlcOpcUaNode* mrmlNode = this->ParameterNode.GetPointer();
 
   // KUKA R2 Axis A5 node
-  QOpcUaNode* r2AxisA5Node = this->FindNodeFromFullDisplayName(KUKA_R2_AXIS_A5_NODE_NAME);
+  QOpcUaNode* r2AxisA5Node = this->FindNodeFromFullDisplayName(KUKA_CURRENTCOORDS_R2_A5_NODE_NAME);
 
   // Connect signal handlers for subscribed values
   if (!r2AxisA5Node)
@@ -5465,7 +5491,7 @@ bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectR2AxisA6CoordNodes()
   vtkMRMLSiemensPlcOpcUaNode* mrmlNode = this->ParameterNode.GetPointer();
 
   // KUKA R2 Axis A6 node
-  QOpcUaNode* r2AxisA6Node = this->FindNodeFromFullDisplayName(KUKA_R2_AXIS_A6_NODE_NAME);
+  QOpcUaNode* r2AxisA6Node = this->FindNodeFromFullDisplayName(KUKA_CURRENTCOORDS_R2_A6_NODE_NAME);
 
   // Connect signal handlers for subscribed values
   if (!r2AxisA6Node)
@@ -5863,7 +5889,7 @@ bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectFlagNodes()
 }
 
 //-----------------------------------------------------------------------------
-bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectCoordFromAsuCoordsNodes()
+bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectSetCoordsXyzNodes()
 {
   QSharedPointer< QOpcUaClient > opcUaClient = this->OpcUaClient.toStrongRef();
 
@@ -5880,8 +5906,6 @@ bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectCoordFromAsuCoordsNodes()
   QOpcUaNode* coordYNode = this->FindNodeFromFullDisplayName(ASU_COORDS_Y_NODE_NAME);
   // Coord Z node
   QOpcUaNode* coordZNode = this->FindNodeFromFullDisplayName(ASU_COORDS_Z_NODE_NAME);
-  // X-Ray correction coord Z node
-  QOpcUaNode* coordXrayZNode = this->FindNodeFromFullDisplayName(ASU_COORDS_XRAY_Z_NODE_NAME);
 
   // Connect signal handlers for subscribed values
   // Coord X node
@@ -5899,7 +5923,7 @@ bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectCoordFromAsuCoordsNodes()
         if (ok)
         {
           mrmlNode->SetCoordsX(coordValue);
-          qDebug() << Q_FUNC_INFO << "Coord from ASU X node value changed:" << coordValue;
+          qDebug() << Q_FUNC_INFO << "SetCoords X node value changed:" << coordValue;
         }
       }
     }
@@ -5921,7 +5945,7 @@ bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectCoordFromAsuCoordsNodes()
           if (ok)
           {
             mrmlNode->SetCoordsX(coordValue);
-            qDebug() << Q_FUNC_INFO << "Coord from ASU X node value read:" << coordValue;
+            qDebug() << Q_FUNC_INFO << "SetCoords X node value read:" << coordValue;
           }
         }
       }
@@ -5946,7 +5970,7 @@ bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectCoordFromAsuCoordsNodes()
         if (ok)
         {
           mrmlNode->SetCoordsY(coordValue);
-          qDebug() << Q_FUNC_INFO << "Coord from ASU Y node value changed:" << coordValue;
+          qDebug() << Q_FUNC_INFO << "SetCoords Y node value changed:" << coordValue;
         }
       }
     }
@@ -5968,7 +5992,7 @@ bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectCoordFromAsuCoordsNodes()
           if (ok)
           {
             mrmlNode->SetCoordsY(coordValue);
-            qDebug() << Q_FUNC_INFO << "Coord from ASU Y node value read:" << coordValue;
+            qDebug() << Q_FUNC_INFO << "SetCoords Y node value read:" << coordValue;
           }
         }
       }
@@ -5993,7 +6017,7 @@ bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectCoordFromAsuCoordsNodes()
         if (ok)
         {
           mrmlNode->SetCoordsZ(coordValue);
-          qDebug() << Q_FUNC_INFO << "Coord from ASU Z node value changed:" << coordValue;
+          qDebug() << Q_FUNC_INFO << "SetCoords Z node value changed:" << coordValue;
         }
       }
     }
@@ -6015,7 +6039,7 @@ bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectCoordFromAsuCoordsNodes()
           if (ok)
           {
             mrmlNode->SetCoordsZ(coordValue);
-            qDebug() << Q_FUNC_INFO << "Coord from ASU Z node value read:" << coordValue;
+            qDebug() << Q_FUNC_INFO << "SetCoords Z node value read:" << coordValue;
           }
         }
       }
@@ -6024,58 +6048,11 @@ bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectCoordFromAsuCoordsNodes()
   // Subscribe to data changes
   coordZNode->enableMonitoring(QOpcUa::NodeAttribute::Value, QOpcUaMonitoringParameters(1000));
 
-  // Connect signal handlers for subscribed values
-  // X-Ray correction coord Z node
-  if (!coordXrayZNode)
-  {
-    return false;
-  }
-  QObject::connect(coordXrayZNode,
-    &QOpcUaNode::dataChangeOccurred, [mrmlNode](QOpcUa::NodeAttribute attr, QVariant value)
-    {
-      if (attr == QOpcUa::NodeAttribute::Value && value.canConvert< int >())
-      {
-        bool ok = false;
-        int32_t coordValue = value.toInt(&ok);
-        if (ok)
-        {
-          mrmlNode->SetCoordsXrayCorrectionZ(coordValue);
-          qDebug() << Q_FUNC_INFO << "Coord from ASU X-Ray correction Z node value changed:" << coordValue;
-        }
-      }
-    }
-  );
-  QObject::connect(coordXrayZNode,
-    &QOpcUaNode::attributeRead, [coordXrayZNode, mrmlNode](QOpcUa::NodeAttributes attr)
-    {
-      if (!coordXrayZNode || !mrmlNode)
-      {
-        return;
-      }
-      if (attr & QOpcUa::NodeAttribute::Value)
-      {
-        if (coordXrayZNode->attributeError(QOpcUa::NodeAttribute::Value) == QOpcUa::UaStatusCode::Good)
-        {
-          QVariant value = coordXrayZNode->attribute(QOpcUa::NodeAttribute::Value);
-          bool ok = false;
-          int32_t coordValue = value.toInt(&ok);
-          if (ok)
-          {
-            mrmlNode->SetCoordsXrayCorrectionZ(coordValue);
-            qDebug() << Q_FUNC_INFO << "Coord from ASU X-Ray correction Z node value read:" << coordValue;
-          }
-        }
-      }
-    }
-  );
-  // Subscribe to data changes
-  coordXrayZNode->enableMonitoring(QOpcUa::NodeAttribute::Value, QOpcUaMonitoringParameters(1000));
-
   return true;
 }
 
 //-----------------------------------------------------------------------------
-bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectCoordFromAsuAnglesNodes()
+bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectSetCoordsAbcNodes()
 {
   QSharedPointer< QOpcUaClient > opcUaClient = this->OpcUaClient.toStrongRef();
 
@@ -6087,11 +6064,11 @@ bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectCoordFromAsuAnglesNodes()
   vtkMRMLSiemensPlcOpcUaNode* mrmlNode = this->ParameterNode.GetPointer();
 
   // Angle A node
-  QOpcUaNode* r1AngleANode = this->FindNodeFromFullDisplayName(ASU_COORDS_R1_A_NODE_NAME);
+  QOpcUaNode* r1AngleANode = this->FindNodeFromFullDisplayName(ASU_COORDS_A_NODE_NAME);
   // Angle B node
-  QOpcUaNode* r1AngleBNode = this->FindNodeFromFullDisplayName(ASU_COORDS_R1_B_NODE_NAME);
+  QOpcUaNode* r1AngleBNode = this->FindNodeFromFullDisplayName(ASU_COORDS_B_NODE_NAME);
   // Angle C node
-  QOpcUaNode* r1AngleCNode = this->FindNodeFromFullDisplayName(ASU_COORDS_R1_C_NODE_NAME);
+  QOpcUaNode* r1AngleCNode = this->FindNodeFromFullDisplayName(ASU_COORDS_C_NODE_NAME);
 
   // Connect signal handlers for subscribed values
   // Angle A node
@@ -6109,7 +6086,7 @@ bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectCoordFromAsuAnglesNodes()
         if (ok)
         {
           mrmlNode->SetCoordsA(angleValue);
-          qDebug() << Q_FUNC_INFO << "Angle from ASU A node value changed:" << angleValue;
+          qDebug() << Q_FUNC_INFO << "SetCoords A node value changed:" << angleValue;
         }
       }
     }
@@ -6131,7 +6108,7 @@ bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectCoordFromAsuAnglesNodes()
           if (ok)
           {
             mrmlNode->SetCoordsA(angleValue);
-            qDebug() << Q_FUNC_INFO << "Angle from ASU A node value read:" << angleValue;
+            qDebug() << Q_FUNC_INFO << "SetCoords A node value read:" << angleValue;
           }
         }
       }
@@ -6156,7 +6133,7 @@ bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectCoordFromAsuAnglesNodes()
         if (ok)
         {
           mrmlNode->SetCoordsB(angleValue);
-          qDebug() << Q_FUNC_INFO << "Angle from ASU B node value changed:" << angleValue;
+          qDebug() << Q_FUNC_INFO << "SetCoords B node value changed:" << angleValue;
         }
       }
     }
@@ -6178,7 +6155,7 @@ bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectCoordFromAsuAnglesNodes()
           if (ok)
           {
             mrmlNode->SetCoordsB(angleValue);
-            qDebug() << Q_FUNC_INFO << "Angle from ASU B node value read:" << angleValue;
+            qDebug() << Q_FUNC_INFO << "SetCoords B node value read:" << angleValue;
           }
         }
       }
@@ -6203,7 +6180,7 @@ bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectCoordFromAsuAnglesNodes()
         if (ok)
         {
           mrmlNode->SetCoordsC(angleValue);
-          qDebug() << Q_FUNC_INFO << "Angle from ASU C node value changed:" << angleValue;
+          qDebug() << Q_FUNC_INFO << "SetCoords C node value changed:" << angleValue;
         }
       }
     }
@@ -6225,7 +6202,7 @@ bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectCoordFromAsuAnglesNodes()
           if (ok)
           {
             mrmlNode->SetCoordsC(angleValue);
-            qDebug() << Q_FUNC_INFO << "Angle from ASU C node value read:" << angleValue;
+            qDebug() << Q_FUNC_INFO << "SetCoords C node value read:" << angleValue;
           }
         }
       }
@@ -6238,10 +6215,10 @@ bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectCoordFromAsuAnglesNodes()
 }
 
 //-----------------------------------------------------------------------------
-bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectCoordFromAsuNodes()
+bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectSetCoordsNodes()
 {
-  bool res = this->ConnectCoordFromAsuCoordsNodes();
-  res &= this->ConnectCoordFromAsuAnglesNodes();
+  bool res = this->ConnectSetCoordsXyzNodes();
+  res &= this->ConnectSetCoordsAbcNodes();
   return res;
 }
 
@@ -6280,7 +6257,8 @@ qSlicerSiemensPlcOpcUaWidget::qSlicerSiemensPlcOpcUaWidget(QWidget* parentWidget
   QObject::connect(opcUaModel, &OpcUaModel::browseProgressChanged, this,
     [this, progressDialog, progressTimer](int finished, int started)
     {
-      progressDialog->setLabelText(tr("Loading tree of nodes, %1 of %2 are loaded. Please, wait!").arg(started).arg(finished));
+      progressDialog->setLabelText(tr("Loading tree of nodes. Please, wait!"));
+      qDebug() << Q_FUNC_INFO << ": Progress:" << finished << " of " << started;
       progressDialog->setMaximum(started);
       progressDialog->setValue(finished);
       if (finished >= started)
@@ -6351,6 +6329,10 @@ qSlicerSiemensPlcOpcUaWidget::qSlicerSiemensPlcOpcUaWidget(QWidget* parentWidget
     this, SLOT(onAutoManualApplyTablePositionPressed()));
   QObject::connect(d->PushButton_AMApplyTableTopPosition, SIGNAL(released()),
     this, SLOT(onAutoManualApplyTablePositionReleased()));
+  QObject::connect(d->PushButton_AMApplyNewCoords, SIGNAL(pressed()),
+    this, SLOT(onAutoManualApplyNewCoordsPressed()));
+  QObject::connect(d->PushButton_AMApplyNewCoords, SIGNAL(released()),
+    this, SLOT(onAutoManualApplyNewCoordsReleased()));
 
   // Service R1 BreakTest button
   QObject::connect(d->PushButton_SR1BrakeTest, SIGNAL(pressed()),
@@ -6535,7 +6517,7 @@ void qSlicerSiemensPlcOpcUaWidget::updateWidgetFromMRML()
   d->ParameterNode->GetAutoManualEmergencyEvac(buttonState);
   d->PushButton_AMR1R2EmerEvac->setEnabled(buttonState[0]);
 
-  d->ParameterNode->GetAutoManualApplyTableTopPosition(buttonState);
+  d->ParameterNode->GetAutoManualApplyTabletopPosition(buttonState);
   d->PushButton_AMApplyTableTopPosition->setEnabled(buttonState[0]);
 
   // SM
@@ -6980,6 +6962,32 @@ void qSlicerSiemensPlcOpcUaWidget::onAutoManualApplyTablePositionReleased()
   {
     qDebug() << Q_FUNC_INFO << ": ApplyTableTopPosition button pressed";
     amApplyTableTopPosPressedNode->writeAttribute(QOpcUa::NodeAttribute::Value, QVariant(false), QOpcUa::Types::Boolean);
+  }
+}
+
+//-----------------------------------------------------------------------------
+void qSlicerSiemensPlcOpcUaWidget::onAutoManualApplyNewCoordsPressed()
+{
+  Q_D(qSlicerSiemensPlcOpcUaWidget);
+  // AutomaticManual ApplyNewCoords button pressed node
+  QOpcUaNode* amApplyNewCoordsPressedNode = d->FindNodeFromFullDisplayName(BUTTONS_AM_APPLYNEWCOORDS_PRESSED_NODE_NAME);
+  if (amApplyNewCoordsPressedNode)
+  {
+    qDebug() << Q_FUNC_INFO << ": ApplyNewCoords button pressed";
+    amApplyNewCoordsPressedNode->writeAttribute(QOpcUa::NodeAttribute::Value, QVariant(true), QOpcUa::Types::Boolean);
+  }
+}
+
+//-----------------------------------------------------------------------------
+void qSlicerSiemensPlcOpcUaWidget::onAutoManualApplyNewCoordsReleased()
+{
+  Q_D(qSlicerSiemensPlcOpcUaWidget);
+  // AutomaticManual ApplyNewCoords button pressed node
+  QOpcUaNode* amApplyNewCoordsPressedNode = d->FindNodeFromFullDisplayName(BUTTONS_AM_APPLYNEWCOORDS_PRESSED_NODE_NAME);
+  if (amApplyNewCoordsPressedNode)
+  {
+    qDebug() << Q_FUNC_INFO << ": ApplyNewCoords button pressed";
+    amApplyNewCoordsPressedNode->writeAttribute(QOpcUa::NodeAttribute::Value, QVariant(false), QOpcUa::Types::Boolean);
   }
 }
 
@@ -7473,11 +7481,11 @@ void qSlicerSiemensPlcOpcUaWidget::onServerInterfacesRead(QOpcUa::NodeAttributes
         }
       }
     }
-//    bool coords = d->ConnectCoordFromAsuNodes();
-//    if (coords)
-//    {
-//      qDebug() << Q_FUNC_INFO << "Coords from ASU nodes are OK";
-//    }
+    bool coords = d->ConnectSetCoordsNodes();
+    if (coords)
+    {
+      qDebug() << Q_FUNC_INFO << "SetCoords nodes are OK";
+    }
 
     bool resMsg = d->ConnectMessagesNodes();
     bool resStatus = d->ConnectModeAndStatusNodes();
@@ -7485,7 +7493,7 @@ void qSlicerSiemensPlcOpcUaWidget::onServerInterfacesRead(QOpcUa::NodeAttributes
     {
       qDebug() << Q_FUNC_INFO << "Messages and Status nodes are OK";
     }
-/*
+
     bool moveButtons = d->ConnectAutoManualMovementNodes();
     if (moveButtons)
     {
@@ -7519,7 +7527,7 @@ void qSlicerSiemensPlcOpcUaWidget::onServerInterfacesRead(QOpcUa::NodeAttributes
     {
       qDebug() << Q_FUNC_INFO << "Reset errors and Make X-Ray nodes are OK";
     }
-*/
+
     bool r1AxisCoords = true;//d->ConnectKukaR1TcsNodes();
     r1AxisCoords &= d->ConnectKukaR1AxisNodes();
     if (r1AxisCoords)
@@ -7557,6 +7565,7 @@ void qSlicerSiemensPlcOpcUaWidget::onReadStatusAndMessagesClicked()
 void qSlicerSiemensPlcOpcUaWidget::onSetR1TscCoordsClicked()
 {
   Q_D(qSlicerSiemensPlcOpcUaWidget);
+/*
   // R1 TSC coord X node
   QOpcUaNode* R1TscCoordXNode = d->FindNodeFromFullDisplayName(KUKA_R1_COORD_X_TO_TCS_NODE_NAME);
   const double* coords = d->CoordinatesWidget_R1TscCoords->coordinates();
@@ -7584,6 +7593,7 @@ void qSlicerSiemensPlcOpcUaWidget::onSetR1TscCoordsClicked()
     qDebug() << Q_FUNC_INFO << ": Set R1 TSC coord Z:" << z;
     R1TscCoordZNode->writeAttribute(QOpcUa::NodeAttribute::Value, QVariant(z), QOpcUa::Types::Int32);
   }
+*/
 }
 
 //-----------------------------------------------------------------------------
@@ -7591,6 +7601,7 @@ void qSlicerSiemensPlcOpcUaWidget::onSetR1TscAnglesClicked()
 {
   Q_D(qSlicerSiemensPlcOpcUaWidget);
   // R1 TSC angle A node
+/*
   QOpcUaNode* R1TscAngleANode = d->FindNodeFromFullDisplayName(KUKA_R1_ANGLE_A_TO_TCS_NODE_NAME);
   const double* coords = d->CoordinatesWidget_R1TscAngles->coordinates();
   int32_t a = static_cast< int32_t >(coords[0] * 1000.);
@@ -7617,6 +7628,7 @@ void qSlicerSiemensPlcOpcUaWidget::onSetR1TscAnglesClicked()
     qDebug() << Q_FUNC_INFO << ": Set R1 TSC angle C:" << c;
     R1TscAngleBNode->writeAttribute(QOpcUa::NodeAttribute::Value, QVariant(c), QOpcUa::Types::Int32);
   }
+*/
 }
 
 //-----------------------------------------------------------------------------
@@ -7624,6 +7636,7 @@ void qSlicerSiemensPlcOpcUaWidget::onSetR2TscCoordsClicked()
 {
   Q_D(qSlicerSiemensPlcOpcUaWidget);
   // R2 TSC coord X node
+/*
   QOpcUaNode* R2TscCoordXNode = d->FindNodeFromFullDisplayName(KUKA_R2_COORD_X_TO_TCS_NODE_NAME);
   const double* coords = d->CoordinatesWidget_R2TscCoords->coordinates();
   int32_t x = static_cast< int32_t >(coords[0]);
@@ -7650,6 +7663,7 @@ void qSlicerSiemensPlcOpcUaWidget::onSetR2TscCoordsClicked()
     qDebug() << Q_FUNC_INFO << ": Set R1 TSC coord Z:" << z;
     R2TscCoordZNode->writeAttribute(QOpcUa::NodeAttribute::Value, QVariant(z), QOpcUa::Types::Int32);
   }
+*/
 }
 
 //-----------------------------------------------------------------------------
@@ -7657,6 +7671,7 @@ void qSlicerSiemensPlcOpcUaWidget::onSetR2TscAnglesClicked()
 {
   Q_D(qSlicerSiemensPlcOpcUaWidget);
   // R2 TSC angle A node
+/*
   QOpcUaNode* R2TscAngleANode = d->FindNodeFromFullDisplayName(KUKA_R2_ANGLE_A_TO_TCS_NODE_NAME);
   const double* coords = d->CoordinatesWidget_R1TscAngles->coordinates();
   int32_t a = static_cast< int32_t >(coords[0] * 1000.);
@@ -7683,6 +7698,7 @@ void qSlicerSiemensPlcOpcUaWidget::onSetR2TscAnglesClicked()
     qDebug() << Q_FUNC_INFO << ": Set R1 TSC angle C:" << c;
     R2TscAngleCNode->writeAttribute(QOpcUa::NodeAttribute::Value, QVariant(c), QOpcUa::Types::Int32);
   }
+*/
 }
 
 //-----------------------------------------------------------------------------
@@ -7735,6 +7751,7 @@ void qSlicerSiemensPlcOpcUaWidget::onCoordFromAsuXrayZClicked()
 {
   Q_D(qSlicerSiemensPlcOpcUaWidget);
   // Coord from ASU Z node
+/*
   QOpcUaNode* coordZNode = d->FindNodeFromFullDisplayName(ASU_COORDS_XRAY_Z_NODE_NAME);
   double coord = d->DoubleSpinBox_XrayCorrectionCoordZ->value();
   int32_t z = static_cast< int32_t >(coord * 1000.);
@@ -7743,6 +7760,7 @@ void qSlicerSiemensPlcOpcUaWidget::onCoordFromAsuXrayZClicked()
     qDebug() << Q_FUNC_INFO << ": Set CoordFromASU X-ray Z correction:" << z;
     coordZNode->writeAttribute(QOpcUa::NodeAttribute::Value, QVariant(z), QOpcUa::Types::Int32);
   }
+*/
 }
 
 //-----------------------------------------------------------------------------
@@ -7750,7 +7768,7 @@ void qSlicerSiemensPlcOpcUaWidget::onCoordFromAsuAClicked()
 {
   Q_D(qSlicerSiemensPlcOpcUaWidget);
   // Coord from ASU A node
-  QOpcUaNode* angleANode = d->FindNodeFromFullDisplayName(ASU_COORDS_R1_A_NODE_NAME);
+  QOpcUaNode* angleANode = d->FindNodeFromFullDisplayName(ASU_COORDS_A_NODE_NAME);
   double angle = d->DoubleSpinBox_AngleA->value();
   int32_t a = static_cast< int32_t >(angle * 1000.);
   if (angleANode)
@@ -7765,7 +7783,7 @@ void qSlicerSiemensPlcOpcUaWidget::onCoordFromAsuBClicked()
 {
   Q_D(qSlicerSiemensPlcOpcUaWidget);
   // Coord from ASU B node
-  QOpcUaNode* angleBNode = d->FindNodeFromFullDisplayName(ASU_COORDS_R1_B_NODE_NAME);
+  QOpcUaNode* angleBNode = d->FindNodeFromFullDisplayName(ASU_COORDS_B_NODE_NAME);
   double angle = d->DoubleSpinBox_AngleB->value();
   int32_t b = static_cast< int32_t >(angle * 1000.);
   if (angleBNode)
@@ -7780,7 +7798,7 @@ void qSlicerSiemensPlcOpcUaWidget::onCoordFromAsuCClicked()
 {
   Q_D(qSlicerSiemensPlcOpcUaWidget);
   // Coord from ASU C node
-  QOpcUaNode* angleCNode = d->FindNodeFromFullDisplayName(ASU_COORDS_R1_C_NODE_NAME);
+  QOpcUaNode* angleCNode = d->FindNodeFromFullDisplayName(ASU_COORDS_C_NODE_NAME);
   double angle = d->DoubleSpinBox_AngleC->value();
   int32_t c = static_cast< int32_t >(angle * 1000.);
   if (angleCNode)

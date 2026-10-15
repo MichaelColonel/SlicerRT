@@ -44,9 +44,9 @@ class VTK_SLICER_U70ROOMGEO_MODULE_MRML_EXPORT vtkMRMLU70RoomGeoNode : public vt
 {
 public:
   enum U70RoomGeoType : int {
-    CABIN1,
-    CABIN2,
-    CABIN3,
+    ROOM1,
+    ROOM2,
+    ROOM3,
     U70RoomGeoType_Last
   };
 

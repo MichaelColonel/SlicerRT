@@ -62,7 +62,6 @@ void vtkMRMLSiemensPlcOpcUaNode::WriteXML(ostream& of, int nIndent)
   vtkMRMLWriteXMLIntMacro(coordsX, CoordsX);
   vtkMRMLWriteXMLIntMacro(coordsY, CoordsY);
   vtkMRMLWriteXMLIntMacro(coordsZ, CoordsZ);
-  vtkMRMLWriteXMLIntMacro(coordsXrayCorrectionZ, CoordsXrayCorrectionZ);
   vtkMRMLWriteXMLIntMacro(coordsA, CoordsA);
   vtkMRMLWriteXMLIntMacro(coordsB, CoordsB);
   vtkMRMLWriteXMLIntMacro(coordsC, CoordsC);
@@ -73,7 +72,8 @@ void vtkMRMLSiemensPlcOpcUaNode::WriteXML(ostream& of, int nIndent)
   vtkMRMLWriteXMLVectorMacro(autoManualR2ToPlane2, AutoManualR2ToPlane2, bool, 2);
   vtkMRMLWriteXMLVectorMacro(autoManualR2ToHome, AutoManualR2ToHome, bool, 2);
   vtkMRMLWriteXMLVectorMacro(autoManualEmergencyEvac, AutoManualEmergencyEvac, bool, 2);
-  vtkMRMLWriteXMLVectorMacro(autoManualApplyTableTopPosition, AutoManualApplyTableTopPosition, bool, 2);
+  vtkMRMLWriteXMLVectorMacro(autoManualApplyTabletopPosition, AutoManualApplyTabletopPosition, bool, 2);
+  vtkMRMLWriteXMLVectorMacro(autoManualApplyNewCoords, AutoManualApplyNewCoords, bool, 2);
   vtkMRMLWriteXMLEndMacro(); 
 }
 
@@ -96,7 +96,6 @@ void vtkMRMLSiemensPlcOpcUaNode::ReadXMLAttributes(const char** atts)
   vtkMRMLReadXMLIntMacro(coordsX, CoordsX);
   vtkMRMLReadXMLIntMacro(coordsY, CoordsY);
   vtkMRMLReadXMLIntMacro(coordsZ, CoordsZ);
-  vtkMRMLReadXMLIntMacro(coordsXrayCorrectionZ, CoordsXrayCorrectionZ);
   vtkMRMLReadXMLIntMacro(coordsA, CoordsA);
   vtkMRMLReadXMLIntMacro(coordsB, CoordsB);
   vtkMRMLReadXMLIntMacro(coordsC, CoordsC);
@@ -107,7 +106,8 @@ void vtkMRMLSiemensPlcOpcUaNode::ReadXMLAttributes(const char** atts)
   vtkMRMLReadXMLVectorMacro(autoManualR2ToPlane2, AutoManualR2ToPlane2, bool, 2);
   vtkMRMLReadXMLVectorMacro(autoManualR2ToHome, AutoManualR2ToHome, bool, 2);
   vtkMRMLReadXMLVectorMacro(autoManualEmergencyEvac, AutoManualEmergencyEvac, bool, 2);
-  vtkMRMLReadXMLVectorMacro(autoManualApplyTableTopPosition, AutoManualApplyTableTopPosition, bool, 2);
+  vtkMRMLReadXMLVectorMacro(autoManualApplyTabletopPosition, AutoManualApplyTabletopPosition, bool, 2);
+  vtkMRMLReadXMLVectorMacro(autoManualApplyNewCoords, AutoManualApplyNewCoords, bool, 2);
   vtkMRMLReadXMLEndMacro();
 
   this->EndModify(disabledModify);
@@ -143,7 +143,6 @@ void vtkMRMLSiemensPlcOpcUaNode::Copy(vtkMRMLNode *anode)
   vtkMRMLCopyIntMacro(CoordsX);
   vtkMRMLCopyIntMacro(CoordsY);
   vtkMRMLCopyIntMacro(CoordsZ);
-  vtkMRMLCopyIntMacro(CoordsXrayCorrectionZ);
   vtkMRMLCopyIntMacro(CoordsA);
   vtkMRMLCopyIntMacro(CoordsB);
   vtkMRMLCopyIntMacro(CoordsC);
@@ -154,7 +153,8 @@ void vtkMRMLSiemensPlcOpcUaNode::Copy(vtkMRMLNode *anode)
   vtkMRMLCopyVectorMacro(AutoManualR2ToPlane2, bool, 2);
   vtkMRMLCopyVectorMacro(AutoManualR2ToHome, bool, 2);
   vtkMRMLCopyVectorMacro(AutoManualEmergencyEvac, bool, 2);
-  vtkMRMLCopyVectorMacro(AutoManualApplyTableTopPosition, bool, 2);
+  vtkMRMLCopyVectorMacro(AutoManualApplyTabletopPosition, bool, 2);
+  vtkMRMLCopyVectorMacro(AutoManualApplyNewCoords, bool, 2);
   vtkMRMLCopyEndMacro(); 
 
   this->EndModify(disabledModify);
@@ -186,7 +186,6 @@ void vtkMRMLSiemensPlcOpcUaNode::CopyContent(vtkMRMLNode *anode, bool deepCopy/*
   vtkMRMLCopyIntMacro(CoordsX);
   vtkMRMLCopyIntMacro(CoordsY);
   vtkMRMLCopyIntMacro(CoordsZ);
-  vtkMRMLCopyIntMacro(CoordsXrayCorrectionZ);
   vtkMRMLCopyIntMacro(CoordsA);
   vtkMRMLCopyIntMacro(CoordsB);
   vtkMRMLCopyIntMacro(CoordsC);
@@ -197,7 +196,8 @@ void vtkMRMLSiemensPlcOpcUaNode::CopyContent(vtkMRMLNode *anode, bool deepCopy/*
   vtkMRMLCopyVectorMacro(AutoManualR2ToPlane2, bool, 2);
   vtkMRMLCopyVectorMacro(AutoManualR2ToHome, bool, 2);
   vtkMRMLCopyVectorMacro(AutoManualEmergencyEvac, bool, 2);
-  vtkMRMLCopyVectorMacro(AutoManualApplyTableTopPosition, bool, 2);
+  vtkMRMLCopyVectorMacro(AutoManualApplyTabletopPosition, bool, 2);
+  vtkMRMLCopyVectorMacro(AutoManualApplyNewCoords, bool, 2);
   vtkMRMLCopyEndMacro();
 }
 
@@ -218,7 +218,6 @@ void vtkMRMLSiemensPlcOpcUaNode::PrintSelf(ostream& os, vtkIndent indent)
   vtkMRMLPrintIntMacro(CoordsX);
   vtkMRMLPrintIntMacro(CoordsY);
   vtkMRMLPrintIntMacro(CoordsZ);
-  vtkMRMLPrintIntMacro(CoordsXrayCorrectionZ);
   vtkMRMLPrintIntMacro(CoordsA);
   vtkMRMLPrintIntMacro(CoordsB);
   vtkMRMLPrintIntMacro(CoordsC);
@@ -229,7 +228,8 @@ void vtkMRMLSiemensPlcOpcUaNode::PrintSelf(ostream& os, vtkIndent indent)
   vtkMRMLPrintVectorMacro(AutoManualR2ToPlane2, bool, 2);
   vtkMRMLPrintVectorMacro(AutoManualR2ToHome, bool, 2);
   vtkMRMLPrintVectorMacro(AutoManualEmergencyEvac, bool, 2);
-  vtkMRMLPrintVectorMacro(AutoManualApplyTableTopPosition, bool, 2);
+  vtkMRMLPrintVectorMacro(AutoManualApplyTabletopPosition, bool, 2);
+  vtkMRMLPrintVectorMacro(AutoManualApplyNewCoords, bool, 2);
   vtkMRMLPrintEndMacro(); 
 }
 

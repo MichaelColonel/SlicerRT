@@ -253,7 +253,6 @@ void qSlicerU70RoomOpcUaModuleWidget::setup()
     this, SLOT(onShowSiemensPlcControlsClicked()));
   QObject::connect(d->PushButton_GetServerInterfaces, SIGNAL(clicked()),
     d->SiemensPlcOpcUaControlWidget.data(), SLOT(onParseServerInterfacesClicked()));
-  QObject::connect(d->PushButton_Test, SIGNAL(clicked()), this, SLOT(onTestClicked()));
 
   QObject::connect(d->PushButton_ModeUnknown, &QPushButton::clicked,
     [this](){ emit this->siemensPlcOpcUaModeChanged(vtkMRMLSiemensPlcOpcUaNode::UNKNOWN); });
@@ -387,7 +386,7 @@ void qSlicerU70RoomOpcUaModuleWidget::onEnter()
   }
 
   d->ModuleWindowInitialized = true;
-
+/*
   // Get layout manager
   qSlicerApplication* slicerApplication = qSlicerApplication::application();
   qSlicerLayoutManager* layoutManager = slicerApplication->layoutManager();
@@ -403,7 +402,7 @@ void qSlicerU70RoomOpcUaModuleWidget::onEnter()
   layoutManager->resumeRender();
 
   slicerApplication->processEvents();
-
+*/
   this->updateWidgetFromMRML();
 }
 
@@ -693,13 +692,4 @@ void qSlicerU70RoomOpcUaModuleWidget::clientState(QOpcUaClient::ClientState stat
   default:
     break;
   }
-}
-
-//-----------------------------------------------------------------------------
-void qSlicerU70RoomOpcUaModuleWidget::onTestClicked()
-{
-  Q_D(qSlicerU70RoomOpcUaModuleWidget);
-  double r1Angles[6] = {0., 0., 0., 0., 0., 90. };
-  d->SiemensPlcOpcUaNode->SetAxisCoordsR1(r1Angles);
-  d->SiemensPlcOpcUaNode->Modified();
 }

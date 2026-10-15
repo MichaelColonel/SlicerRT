@@ -189,3 +189,25 @@ void vtkMRMLChannel26GeometryNode::ProcessMRMLEvents(vtkObject *caller, unsigned
     return;
   }
 }
+
+//----------------------------------------------------------------------------
+void vtkMRMLChannel26GeometryNode::GetTableRobotAnglesModel(double a[6])
+{
+  a[0] = this->TableRobotAngles[0];
+  a[1] = this->TableRobotAngles[1] + 90.;
+  a[2] = this->TableRobotAngles[2] - 90.;
+  a[3] = this->TableRobotAngles[3];
+  a[4] = this->TableRobotAngles[4] + 90.;
+  a[5] = this->TableRobotAngles[5] + 90.;
+}
+
+//----------------------------------------------------------------------------
+void vtkMRMLChannel26GeometryNode::GetCarmRobotAnglesModel(double a[6])
+{
+  a[0] = this->CarmRobotAngles[0];
+  a[1] = this->CarmRobotAngles[1] + 90.;
+  a[2] = this->CarmRobotAngles[2] - 90.;
+  a[3] = this->CarmRobotAngles[3];
+  a[4] = this->CarmRobotAngles[4];
+  a[5] = this->CarmRobotAngles[5] + 90.;
+}

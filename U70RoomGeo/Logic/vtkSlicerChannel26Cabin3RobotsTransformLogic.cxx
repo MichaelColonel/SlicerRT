@@ -1217,7 +1217,7 @@ void vtkSlicerChannel26Cabin3RobotsTransformLogic::UpdateTableRobotFlangeToTable
 
     vtkNew<vtkTransform> tableFlangeToTableRobotFlangeTransform;
     double a[6] = {};
-    parameterNode->GetTableRobotAngles(a);
+    parameterNode->GetTableRobotAnglesModel(a);
     double patientToTableTopTranslation[3] = {};
     parameterNode->GetPatientToTableTopTranslation(patientToTableTopTranslation);
 
@@ -1283,7 +1283,7 @@ void vtkSlicerChannel26Cabin3RobotsTransformLogic::UpdateTableRobotWristToTableR
   {
     vtkNew<vtkTransform> tableRobotWristToTableRobotElbowWristTransform;
     double a[6] = {};
-    parameterNode->GetTableRobotAngles(a);
+    parameterNode->GetTableRobotAnglesModel(a);
     double patientToTableTopTranslation[3] = {};
     parameterNode->GetPatientToTableTopTranslation(patientToTableTopTranslation);
 
@@ -1359,7 +1359,7 @@ void vtkSlicerChannel26Cabin3RobotsTransformLogic::UpdateTableRobotElbowWristToT
   {
     vtkNew<vtkTransform> tableRobotWristToTableRobotElbowWristTransform;
     double a[6] = {};
-    parameterNode->GetTableRobotAngles(a);
+    parameterNode->GetTableRobotAnglesModel(a);
     double patientToTableTopTranslation[3] = {};
     parameterNode->GetPatientToTableTopTranslation(patientToTableTopTranslation);
 
@@ -1435,7 +1435,7 @@ void vtkSlicerChannel26Cabin3RobotsTransformLogic::UpdateTableRobotElbowShoulder
   if (elbowToShoulderTransformNode)
   {
     double a[6] = {};
-    parameterNode->GetTableRobotAngles(a);
+    parameterNode->GetTableRobotAnglesModel(a);
     double patientToTableTopTranslation[3] = {};
     parameterNode->GetPatientToTableTopTranslation(patientToTableTopTranslation);
 
@@ -1538,7 +1538,7 @@ void vtkSlicerChannel26Cabin3RobotsTransformLogic::UpdateTableRobotShoulderToTab
   if (shoulderToBaseRotationTransformNode)
   {
     double a[6] = {};
-    parameterNode->GetTableRobotAngles(a);
+    parameterNode->GetTableRobotAnglesModel(a);
     double patientToTableTopTranslation[3] = {};
     parameterNode->GetPatientToTableTopTranslation(patientToTableTopTranslation);
 
@@ -1657,7 +1657,7 @@ void vtkSlicerChannel26Cabin3RobotsTransformLogic::UpdateTableRobotBaseRotationT
   if (baseRotatioToBaseFixedTransformNode)
   {
     double a[6] = {};
-    parameterNode->GetTableRobotAngles(a);
+    parameterNode->GetTableRobotAnglesModel(a);
     double patientToTableTopTranslation[3] = {};
     parameterNode->GetPatientToTableTopTranslation(patientToTableTopTranslation);
 
@@ -1793,7 +1793,7 @@ void vtkSlicerChannel26Cabin3RobotsTransformLogic::UpdateTableRobotBaseRotationD
   if (baseRotatioToBaseFixedTransformNode)
   {
     double a[6] = {};
-    parameterNode->GetTableRobotAngles(a);
+    parameterNode->GetTableRobotAnglesModel(a);
     double patientToTableTopTranslation[3] = {};
     parameterNode->GetPatientToTableTopTranslation(patientToTableTopTranslation);
 
@@ -1938,7 +1938,7 @@ void vtkSlicerChannel26Cabin3RobotsTransformLogic::UpdateTableRobotBaseFixedToFi
   if (tableRobotBaseFixedToFixedReferenceTransformNode)
   {
     double a[6] = {};
-    parameterNode->GetTableRobotAngles(a);
+    parameterNode->GetTableRobotAnglesModel(a);
     double patientToTableTopTranslation[3] = {};
     parameterNode->GetPatientToTableTopTranslation(patientToTableTopTranslation);
 
@@ -2030,7 +2030,7 @@ void vtkSlicerChannel26Cabin3RobotsTransformLogic::UpdateCarmRobotBaseFixedToFix
   if (baseFixedToFixedReferenceTransformNode)
   {
     double a[6] = {};
-    parameterNode->GetTableRobotAngles(a);
+    parameterNode->GetTableRobotAnglesModel(a);
     double patientToTableTopTranslation[3] = {};
     parameterNode->GetPatientToTableTopTranslation(patientToTableTopTranslation);
 
@@ -2108,7 +2108,7 @@ void vtkSlicerChannel26Cabin3RobotsTransformLogic::UpdateCarmRobotBaseRotationTo
   if (carmRobotBaseRotationToCarmRobotBaseFixedTransformNode)
   {
     double a[6] = {};
-    parameterNode->GetCarmRobotAngles(a);
+    parameterNode->GetCarmRobotAnglesModel(a);
 
     // BaseRotation->BaseFixed rotation around Y (A1 angle)
     vtkNew<vtkTransform> baseRotationToBaseFixedTransform;
@@ -2160,7 +2160,7 @@ void vtkSlicerChannel26Cabin3RobotsTransformLogic::UpdateCarmRobotShoulderToCarm
   if (carmRobotShoulderToCArmRobotBaseRotationTransformNode)
   {
     double a[6] = {};
-    parameterNode->GetCarmRobotAngles(a);
+    parameterNode->GetCarmRobotAnglesModel(a);
 
     // Shoulder->BaseRotation rotation around Z (A2 angle)
     vtkNew<vtkTransform> shoulderToBaseRotationTransform;
@@ -2211,7 +2211,7 @@ void vtkSlicerChannel26Cabin3RobotsTransformLogic::UpdateCarmRobotElbowShoulderT
   if (carmElbowToCArmShoulderTransformNode)
   {
     double a[6] = {};
-    parameterNode->GetCarmRobotAngles(a);
+    parameterNode->GetCarmRobotAnglesModel(a);
 
     // Elbow->Shoulder rotation around Z (A3 angle)
     vtkNew<vtkTransform> elbowToShoulderTransform;
@@ -2264,7 +2264,7 @@ void vtkSlicerChannel26Cabin3RobotsTransformLogic::UpdateCarmRobotElbowWristToCa
   if (carmElbowToCArmShoulderTransformNode)
   {
     double a[6] = {};
-    parameterNode->GetCarmRobotAngles(a);
+    parameterNode->GetCarmRobotAnglesModel(a);
 
     // Wrist->Elbow rotation around X (A4 angle)
     vtkNew<vtkTransform> a4Transform;
@@ -2320,7 +2320,7 @@ void vtkSlicerChannel26Cabin3RobotsTransformLogic::UpdateCarmRobotWristToCarmRob
   if (carmWristToCArmElbowTransformNode)
   {
     double a[6] = {};
-    parameterNode->GetCarmRobotAngles(a);
+    parameterNode->GetCarmRobotAnglesModel(a);
 
     // Wrist->Elbow rotation around Z (A5 angle)
     vtkNew<vtkTransform> wristToElbowTransform;
@@ -2367,7 +2367,7 @@ void vtkSlicerChannel26Cabin3RobotsTransformLogic::UpdateCarmRobotFlangeToCarmRo
   if (carmFlangeToCarmWristTransformNode)
   {
     double a[6] = {};
-    parameterNode->GetCarmRobotAngles(a);
+    parameterNode->GetCarmRobotAnglesModel(a);
 
     // Flange->Wrist rotation around X (A6 angle)
     vtkNew<vtkTransform> flangeToWristTransform;
