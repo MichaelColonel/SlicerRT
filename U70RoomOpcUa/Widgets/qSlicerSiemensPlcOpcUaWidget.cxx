@@ -465,6 +465,7 @@ void qSlicerSiemensPlcOpcUaWidgetPrivate::setupUi(qSlicerSiemensPlcOpcUaWidget* 
 
   this->Ui_qSlicerSiemensPlcOpcUaWidget::setupUi(widget);
 
+  this->ProgressDialog->setWindowTitle(QObject::tr("Siemens PLC OPC UA"));
   this->ProgressDialog->setWindowModality(Qt::NonModal);
   this->ProgressDialog->setMinimumDuration(500);
   this->ProgressDialog->setAutoReset(false);
@@ -6255,20 +6256,20 @@ qSlicerSiemensPlcOpcUaWidget::qSlicerSiemensPlcOpcUaWidget(QWidget* parentWidget
   Q_D(qSlicerSiemensPlcOpcUaWidget);
   d->setupUi(this);
 
-  OpcUaModel* model = d->SiemensPlcOpcUaModel.data();
-  QTreeView* view = d->TreeView_OpcUaModel;
+  OpcUaModel* opcUaModel = d->SiemensPlcOpcUaModel.data();
+  QTreeView* opcUaTreeView = d->TreeView_OpcUaModel;
 
   QObject::connect(d->ProgressTimer.data(), SIGNAL(timeout()), d->ProgressDialog.data(), SLOT(reset()));
 
-  QObject::connect(model, &QAbstractItemModel::rowsInserted, this,
-    [this, model, view](const QModelIndex& parent, int first, int last)
+  QObject::connect(opcUaModel, &QAbstractItemModel::rowsInserted, this,
+    [this, opcUaModel, opcUaTreeView](const QModelIndex& parent, int first, int last)
     {
-      view->expand(parent);
+      opcUaTreeView->expand(parent);
       for (int row = first; row <= last; ++row)
       {
-        QModelIndex childIndex = model->index(row, 0, parent);
-        view->expand(childIndex);
-        model->rowCount(childIndex);
+        QModelIndex childIndex = opcUaModel->index(row, 0, parent);
+        opcUaTreeView->expand(childIndex);
+        opcUaModel->rowCount(childIndex);
       }
     }
   );
@@ -6276,10 +6277,10 @@ qSlicerSiemensPlcOpcUaWidget::qSlicerSiemensPlcOpcUaWidget(QWidget* parentWidget
   QProgressDialog* progressDialog = d->ProgressDialog.data();
   QTimer* progressTimer = d->ProgressTimer.data();
 
-  QObject::connect(model, &OpcUaModel::browseProgressChanged, this,
+  QObject::connect(opcUaModel, &OpcUaModel::browseProgressChanged, this,
     [this, progressDialog, progressTimer](int finished, int started)
     {
-      qDebug() << Q_FUNC_INFO << tr("Parsing tree of nodes: %1 of %2 are parsed").arg(started).arg(finished);
+      progressDialog->setLabelText(tr("Loading tree of nodes, %1 of %2 are loaded. Please, wait!").arg(started).arg(finished));
       progressDialog->setMaximum(started);
       progressDialog->setValue(finished);
       if (finished >= started)
