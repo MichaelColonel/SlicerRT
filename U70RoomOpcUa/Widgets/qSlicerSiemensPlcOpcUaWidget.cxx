@@ -66,39 +66,47 @@ constexpr const char* const AXISCOORDA6 = "AXIS_cord_A6";
 constexpr const char* const ASU = "ASU";
 constexpr const char* const RTK_PLC = "RTK_PLC";
 
+const QString DOT = QString(QChar('.'));
 const QString SIEMENS_PLC_SERVER_INTERFACES_NODE_ID = QLatin1String("ns=3;s=") + PARENT_NODE_DISPLAYED_NAME;
-const QString RTK_PLC_NODE_NAME = QLatin1String(PARENT_NODE_DISPLAYED_NAME) + QString(QChar('.')) + QLatin1String(RTK_PLC);
-const QString ASU_NODE_NAME = RTK_PLC_NODE_NAME + QString(QChar('.')) + QLatin1String(ASU);
+const QString RTK_PLC_NODE_NAME = QLatin1String(PARENT_NODE_DISPLAYED_NAME) + DOT + QLatin1String(RTK_PLC);
+const QString ASU_NODE_NAME = RTK_PLC_NODE_NAME + DOT + QLatin1String(ASU);
 
-const QString ASU_ERROR_MESSAGES_NODE_NAME = ASU_NODE_NAME + QString(QChar('.')) + QLatin1String(OpcUaTreeItem::ERROR_MESSAGES_NODE);
-const QString ASU_SERVICE_MESSAGES_NODE_NAME = ASU_NODE_NAME + QString(QChar('.')) + QLatin1String(OpcUaTreeItem::SERVICE_MESSAGES_NODE);
-const QString ASU_MESSAGES_NODE_NAME = ASU_NODE_NAME + QString(QChar('.')) + QLatin1String(OpcUaTreeItem::MISC_MESSAGES_NODE);
+const QString ASU_ERROR_MESSAGES_NODE_NAME = ASU_NODE_NAME + DOT + QLatin1String(OpcUaTreeItem::ERROR_MESSAGES_NODE);
+const QString ASU_SERVICE_MESSAGES_NODE_NAME = ASU_NODE_NAME + DOT + QLatin1String(OpcUaTreeItem::SERVICE_MESSAGES_NODE);
+const QString ASU_MESSAGES_NODE_NAME = ASU_NODE_NAME + DOT + QLatin1String(OpcUaTreeItem::MISC_MESSAGES_NODE);
 
 constexpr const char* const MODE = "Mode";
 constexpr const char* const STATUS_RTK = "Status_RTK";
 constexpr const char* const STATUS_R1 = "Status_R1_deka";
 constexpr const char* const STATUS_R2 = "Status_R2_C_Duga";
 
-const QString ASU_MODE_NODE_NAME = ASU_NODE_NAME + QString(QChar('.')) + QLatin1String(MODE);
-const QString ASU_STATUS_RTK_NODE_NAME = ASU_NODE_NAME + QString(QChar('.')) + QLatin1String(STATUS_RTK);
-const QString ASU_STATUS_R1_TABLE_NODE_NAME = ASU_NODE_NAME + QString(QChar('.')) + QLatin1String(STATUS_R1);
-const QString ASU_STATUS_R2_CARM_NODE_NAME = ASU_NODE_NAME + QString(QChar('.')) + QLatin1String(STATUS_R2);
+const QString ASU_MODE_NODE_NAME = ASU_NODE_NAME + DOT + QLatin1String(MODE);
+const QString ASU_STATUS_RTK_NODE_NAME = ASU_NODE_NAME + DOT + QLatin1String(STATUS_RTK);
+const QString ASU_STATUS_R1_TABLE_NODE_NAME = ASU_NODE_NAME + DOT + QLatin1String(STATUS_R1);
+const QString ASU_STATUS_R2_CARM_NODE_NAME = ASU_NODE_NAME + DOT + QLatin1String(STATUS_R2);
 
 constexpr const char* const SETCOORDS = "SetCoords";
-const QString ASU_COORDS_NODE_NAME = ASU_NODE_NAME + QString(QChar('.')) + QLatin1String(SETCOORDS);
-const QString ASU_COORDS_X_NODE_NAME = ASU_COORDS_NODE_NAME + QString(QChar('.')) + QLatin1String(KUKAX);
-const QString ASU_COORDS_Y_NODE_NAME = ASU_COORDS_NODE_NAME + QString(QChar('.')) + QLatin1String(KUKAY);
-const QString ASU_COORDS_Z_NODE_NAME = ASU_COORDS_NODE_NAME + QString(QChar('.')) + QLatin1String(KUKAZ);
-const QString ASU_COORDS_A_NODE_NAME = ASU_COORDS_NODE_NAME + QString(QChar('.')) + QLatin1String(KUKAA);
-const QString ASU_COORDS_B_NODE_NAME = ASU_COORDS_NODE_NAME + QString(QChar('.')) + QLatin1String(KUKAB);
-const QString ASU_COORDS_C_NODE_NAME = ASU_COORDS_NODE_NAME + QString(QChar('.')) + QLatin1String(KUKAC);
+const QString ASU_COORDS_NODE_NAME = ASU_NODE_NAME + DOT + QLatin1String(SETCOORDS);
+const QString ASU_COORDS_X_NODE_NAME = ASU_COORDS_NODE_NAME + DOT + QLatin1String(KUKAX);
+const QString ASU_COORDS_Y_NODE_NAME = ASU_COORDS_NODE_NAME + DOT + QLatin1String(KUKAY);
+const QString ASU_COORDS_Z_NODE_NAME = ASU_COORDS_NODE_NAME + DOT + QLatin1String(KUKAZ);
+const QString ASU_COORDS_A_NODE_NAME = ASU_COORDS_NODE_NAME + DOT + QLatin1String(KUKAA);
+const QString ASU_COORDS_B_NODE_NAME = ASU_COORDS_NODE_NAME + DOT + QLatin1String(KUKAB);
+const QString ASU_COORDS_C_NODE_NAME = ASU_COORDS_NODE_NAME + DOT + QLatin1String(KUKAC);
 
-const QString ASU_ROBOTS_READY_XRAY1_NODE_NAME = ASU_NODE_NAME + ".RobotsReadyForXray1";
-const QString ASU_ROBOTS_READY_XRAY2_NODE_NAME = ASU_NODE_NAME + ".RobotsReadyForXray2";
-const QString ASU_ROBOTS_READY_BEAM_NODE_NAME = ASU_NODE_NAME + ".RobotsReadyForBeam";
-const QString ASU_PATIENT_ON_TABLE_NODE_NAME = ASU_NODE_NAME + ".HUMAN_ON_DEKA";
-const QString ASU_TABLE_POSITION_NODE_NAME = ASU_NODE_NAME + ".DekaPosition";
-const QString ASU_EMEVAC_SIGNAL_NODE_NAME = ASU_NODE_NAME + ".EmEvacuationSignal";
+constexpr const char* const READYXRAY1 = "RobotsReadyForXray1";
+constexpr const char* const READYXRAY2 = "RobotsReadyForXray2";
+constexpr const char* const READYBEAM = "RobotsReadyForBeam";
+constexpr const char* const TABLEPATIENT = "HUMAN_ON_DEKA";
+constexpr const char* const TABLEPOSITION = "DekaPosition";
+constexpr const char* const EMEVACFLAG = "EmEvacuationSignal";
+
+const QString ASU_ROBOTS_READY_XRAY1_NODE_NAME = ASU_NODE_NAME + DOT + QLatin1String(READYXRAY1);
+const QString ASU_ROBOTS_READY_XRAY2_NODE_NAME = ASU_NODE_NAME + DOT + QLatin1String(READYXRAY2);
+const QString ASU_ROBOTS_READY_BEAM_NODE_NAME = ASU_NODE_NAME + DOT + QLatin1String(READYBEAM);
+const QString ASU_PATIENT_ON_TABLE_NODE_NAME = ASU_NODE_NAME + DOT + QLatin1String(TABLEPATIENT);
+const QString ASU_TABLE_POSITION_NODE_NAME = ASU_NODE_NAME + DOT + QLatin1String(TABLEPOSITION);
+const QString ASU_EMEVAC_SIGNAL_NODE_NAME = ASU_NODE_NAME + DOT + QLatin1String(EMEVACFLAG);
 
 constexpr const char* const PRESSED = "isPressed";
 constexpr const char* const ENABLED = "isEnable";
@@ -109,8 +117,8 @@ constexpr const char* const AM_MM = "AM_MM";
 const QString IS_PRESSED = ".isPressed";
 const QString IS_ENABLED = ".isEnable";
 
-const QString BUTTONS_NODE_NAME = ASU_NODE_NAME + QString(QChar('.')) + QLatin1String(BUTTONS);
-const QString BUTTONS_AM_NODE_NAME = BUTTONS_NODE_NAME + QString(QChar('.')) + QLatin1String(AM_MM);
+const QString BUTTONS_NODE_NAME = ASU_NODE_NAME + DOT + QLatin1String(BUTTONS);
+const QString BUTTONS_AM_NODE_NAME = BUTTONS_NODE_NAME + DOT + QLatin1String(AM_MM);
 
 const QString BUTTONS_AM_R1_LOADTOISO_NODE_NAME = BUTTONS_AM_NODE_NAME + ".R1_LoadToIso";
 const QString BUTTONS_AM_R1_LOADTOISO_PRESSED_NODE_NAME = BUTTONS_AM_R1_LOADTOISO_NODE_NAME + IS_PRESSED;
@@ -149,7 +157,7 @@ const QString BUTTONS_AM_APPLYNEWCOORDS_PRESSED_NODE_NAME = BUTTONS_AM_APPLYNEWC
 const QString BUTTONS_AM_APPLYNEWCOORDS_ENABLED_NODE_NAME = BUTTONS_AM_APPLYNEWCOORDS_NODE_NAME + IS_ENABLED;
 
 constexpr const char* const SM = "SM";
-const QString BUTTONS_SM_NODE_NAME = BUTTONS_NODE_NAME + QString(QChar('.')) + QLatin1String(SM);
+const QString BUTTONS_SM_NODE_NAME = BUTTONS_NODE_NAME + DOT + QLatin1String(SM);
 
 const QString BUTTONS_SM_R1_BREAKTEST_NODE_NAME = BUTTONS_SM_NODE_NAME + ".BrakeTestR1";
 const QString BUTTONS_SM_R1_BREAKTEST_PRESSED_NODE_NAME = BUTTONS_SM_R1_BREAKTEST_NODE_NAME + IS_PRESSED;
@@ -204,7 +212,7 @@ const QString BUTTONS_SM_RESTARTSM_PRESSED_NODE_NAME = BUTTONS_SM_RESTARTSM_NODE
 const QString BUTTONS_SM_RESTARTSM_ENABLED_NODE_NAME = BUTTONS_SM_RESTARTSM_NODE_NAME + IS_ENABLED;
 
 constexpr const char* const KCM = "KCM";
-const QString BUTTONS_KCM_NODE_NAME = BUTTONS_NODE_NAME + QString(QChar('.')) + QLatin1String(KCM);
+const QString BUTTONS_KCM_NODE_NAME = BUTTONS_NODE_NAME + DOT + QLatin1String(KCM);
 
 const QString BUTTONS_KCM_ALLOWT1_NODE_NAME = BUTTONS_KCM_NODE_NAME + ".AllowT1";
 const QString BUTTONS_KCM_ALLOWT1_PRESSED_NODE_NAME = BUTTONS_KCM_ALLOWT1_NODE_NAME + IS_PRESSED;
@@ -227,48 +235,48 @@ const QString BUTTONS_MAKEXRAY_PRESSED_NODE_NAME = BUTTONS_MAKEXRAY_NODE_NAME + 
 const QString BUTTONS_MAKEXRAY_ENABLED_NODE_NAME = BUTTONS_MAKEXRAY_NODE_NAME + IS_ENABLED;
 
 const QString KUKA_REFLTARGETCOORDS_R1_NODE_NAME = RTK_PLC_NODE_NAME + ".ReflTargetCoords_R1";
-const QString KUKA_REFLTARGETCOORDS_R1_X_NODE_NAME = KUKA_REFLTARGETCOORDS_R1_NODE_NAME + QString(QChar('.')) + QLatin1String(KUKAX);
-const QString KUKA_REFLTARGETCOORDS_R1_Y_NODE_NAME = KUKA_REFLTARGETCOORDS_R1_NODE_NAME + QString(QChar('.')) + QLatin1String(KUKAY);
-const QString KUKA_REFLTARGETCOORDS_R1_Z_NODE_NAME = KUKA_REFLTARGETCOORDS_R1_NODE_NAME + QString(QChar('.')) + QLatin1String(KUKAX);
-const QString KUKA_REFLTARGETCOORDS_R1_A_NODE_NAME = KUKA_REFLTARGETCOORDS_R1_NODE_NAME + QString(QChar('.')) + QLatin1String(KUKAA);
-const QString KUKA_REFLTARGETCOORDS_R1_B_NODE_NAME = KUKA_REFLTARGETCOORDS_R1_NODE_NAME + QString(QChar('.')) + QLatin1String(KUKAB);
-const QString KUKA_REFLTARGETCOORDS_R1_C_NODE_NAME = KUKA_REFLTARGETCOORDS_R1_NODE_NAME + QString(QChar('.')) + QLatin1String(KUKAC);
+const QString KUKA_REFLTARGETCOORDS_R1_X_NODE_NAME = KUKA_REFLTARGETCOORDS_R1_NODE_NAME + DOT + QLatin1String(KUKAX);
+const QString KUKA_REFLTARGETCOORDS_R1_Y_NODE_NAME = KUKA_REFLTARGETCOORDS_R1_NODE_NAME + DOT + QLatin1String(KUKAY);
+const QString KUKA_REFLTARGETCOORDS_R1_Z_NODE_NAME = KUKA_REFLTARGETCOORDS_R1_NODE_NAME + DOT + QLatin1String(KUKAX);
+const QString KUKA_REFLTARGETCOORDS_R1_A_NODE_NAME = KUKA_REFLTARGETCOORDS_R1_NODE_NAME + DOT + QLatin1String(KUKAA);
+const QString KUKA_REFLTARGETCOORDS_R1_B_NODE_NAME = KUKA_REFLTARGETCOORDS_R1_NODE_NAME + DOT + QLatin1String(KUKAB);
+const QString KUKA_REFLTARGETCOORDS_R1_C_NODE_NAME = KUKA_REFLTARGETCOORDS_R1_NODE_NAME + DOT + QLatin1String(KUKAC);
 
 const QString KUKA_REFLTARGETCOORDS_R2_NODE_NAME = RTK_PLC_NODE_NAME + ".ReflTargetCoords_R2";
-const QString KUKA_REFLTARGETCOORDS_R2_X_NODE_NAME = KUKA_REFLTARGETCOORDS_R2_NODE_NAME + QString(QChar('.')) + QLatin1String(KUKAX);
-const QString KUKA_REFLTARGETCOORDS_R2_Y_NODE_NAME = KUKA_REFLTARGETCOORDS_R2_NODE_NAME + QString(QChar('.')) + QLatin1String(KUKAY);
-const QString KUKA_REFLTARGETCOORDS_R2_Z_NODE_NAME = KUKA_REFLTARGETCOORDS_R2_NODE_NAME + QString(QChar('.')) + QLatin1String(KUKAX);
-const QString KUKA_REFLTARGETCOORDS_R2_A_NODE_NAME = KUKA_REFLTARGETCOORDS_R2_NODE_NAME + QString(QChar('.')) + QLatin1String(KUKAA);
-const QString KUKA_REFLTARGETCOORDS_R2_B_NODE_NAME = KUKA_REFLTARGETCOORDS_R2_NODE_NAME + QString(QChar('.')) + QLatin1String(KUKAB);
-const QString KUKA_REFLTARGETCOORDS_R2_C_NODE_NAME = KUKA_REFLTARGETCOORDS_R2_NODE_NAME + QString(QChar('.')) + QLatin1String(KUKAC);
+const QString KUKA_REFLTARGETCOORDS_R2_X_NODE_NAME = KUKA_REFLTARGETCOORDS_R2_NODE_NAME + DOT + QLatin1String(KUKAX);
+const QString KUKA_REFLTARGETCOORDS_R2_Y_NODE_NAME = KUKA_REFLTARGETCOORDS_R2_NODE_NAME + DOT + QLatin1String(KUKAY);
+const QString KUKA_REFLTARGETCOORDS_R2_Z_NODE_NAME = KUKA_REFLTARGETCOORDS_R2_NODE_NAME + DOT + QLatin1String(KUKAX);
+const QString KUKA_REFLTARGETCOORDS_R2_A_NODE_NAME = KUKA_REFLTARGETCOORDS_R2_NODE_NAME + DOT + QLatin1String(KUKAA);
+const QString KUKA_REFLTARGETCOORDS_R2_B_NODE_NAME = KUKA_REFLTARGETCOORDS_R2_NODE_NAME + DOT + QLatin1String(KUKAB);
+const QString KUKA_REFLTARGETCOORDS_R2_C_NODE_NAME = KUKA_REFLTARGETCOORDS_R2_NODE_NAME + DOT + QLatin1String(KUKAC);
 
 const QString KUKA_CURRENTCOORDS_R1_NODE_NAME = RTK_PLC_NODE_NAME + ".CurrentCoords_R1";
-const QString KUKA_CURRENTCOORDS_R1_X_NODE_NAME = KUKA_CURRENTCOORDS_R1_NODE_NAME + QString(QChar('.')) + QLatin1String(KUKAX);
-const QString KUKA_CURRENTCOORDS_R1_Y_NODE_NAME = KUKA_CURRENTCOORDS_R1_NODE_NAME + QString(QChar('.')) + QLatin1String(KUKAY);
-const QString KUKA_CURRENTCOORDS_R1_Z_NODE_NAME = KUKA_CURRENTCOORDS_R1_NODE_NAME + QString(QChar('.')) + QLatin1String(KUKAX);
-const QString KUKA_CURRENTCOORDS_R1_A_NODE_NAME = KUKA_CURRENTCOORDS_R1_NODE_NAME + QString(QChar('.')) + QLatin1String(KUKAA);
-const QString KUKA_CURRENTCOORDS_R1_B_NODE_NAME = KUKA_CURRENTCOORDS_R1_NODE_NAME + QString(QChar('.')) + QLatin1String(KUKAB);
-const QString KUKA_CURRENTCOORDS_R1_C_NODE_NAME = KUKA_CURRENTCOORDS_R1_NODE_NAME + QString(QChar('.')) + QLatin1String(KUKAC);
-const QString KUKA_CURRENTCOORDS_R1_A1_NODE_NAME = KUKA_CURRENTCOORDS_R1_NODE_NAME + QString(QChar('.')) + QLatin1String(AXISCOORDA1);
-const QString KUKA_CURRENTCOORDS_R1_A2_NODE_NAME = KUKA_CURRENTCOORDS_R1_NODE_NAME + QString(QChar('.')) + QLatin1String(AXISCOORDA2);
-const QString KUKA_CURRENTCOORDS_R1_A3_NODE_NAME = KUKA_CURRENTCOORDS_R1_NODE_NAME + QString(QChar('.')) + QLatin1String(AXISCOORDA3);
-const QString KUKA_CURRENTCOORDS_R1_A4_NODE_NAME = KUKA_CURRENTCOORDS_R1_NODE_NAME + QString(QChar('.')) + QLatin1String(AXISCOORDA4);
-const QString KUKA_CURRENTCOORDS_R1_A5_NODE_NAME = KUKA_CURRENTCOORDS_R1_NODE_NAME + QString(QChar('.')) + QLatin1String(AXISCOORDA5);
-const QString KUKA_CURRENTCOORDS_R1_A6_NODE_NAME = KUKA_CURRENTCOORDS_R1_NODE_NAME + QString(QChar('.')) + QLatin1String(AXISCOORDA6);
+const QString KUKA_CURRENTCOORDS_R1_X_NODE_NAME = KUKA_CURRENTCOORDS_R1_NODE_NAME + DOT + QLatin1String(KUKAX);
+const QString KUKA_CURRENTCOORDS_R1_Y_NODE_NAME = KUKA_CURRENTCOORDS_R1_NODE_NAME + DOT + QLatin1String(KUKAY);
+const QString KUKA_CURRENTCOORDS_R1_Z_NODE_NAME = KUKA_CURRENTCOORDS_R1_NODE_NAME + DOT + QLatin1String(KUKAX);
+const QString KUKA_CURRENTCOORDS_R1_A_NODE_NAME = KUKA_CURRENTCOORDS_R1_NODE_NAME + DOT + QLatin1String(KUKAA);
+const QString KUKA_CURRENTCOORDS_R1_B_NODE_NAME = KUKA_CURRENTCOORDS_R1_NODE_NAME + DOT + QLatin1String(KUKAB);
+const QString KUKA_CURRENTCOORDS_R1_C_NODE_NAME = KUKA_CURRENTCOORDS_R1_NODE_NAME + DOT + QLatin1String(KUKAC);
+const QString KUKA_CURRENTCOORDS_R1_A1_NODE_NAME = KUKA_CURRENTCOORDS_R1_NODE_NAME + DOT + QLatin1String(AXISCOORDA1);
+const QString KUKA_CURRENTCOORDS_R1_A2_NODE_NAME = KUKA_CURRENTCOORDS_R1_NODE_NAME + DOT + QLatin1String(AXISCOORDA2);
+const QString KUKA_CURRENTCOORDS_R1_A3_NODE_NAME = KUKA_CURRENTCOORDS_R1_NODE_NAME + DOT + QLatin1String(AXISCOORDA3);
+const QString KUKA_CURRENTCOORDS_R1_A4_NODE_NAME = KUKA_CURRENTCOORDS_R1_NODE_NAME + DOT + QLatin1String(AXISCOORDA4);
+const QString KUKA_CURRENTCOORDS_R1_A5_NODE_NAME = KUKA_CURRENTCOORDS_R1_NODE_NAME + DOT + QLatin1String(AXISCOORDA5);
+const QString KUKA_CURRENTCOORDS_R1_A6_NODE_NAME = KUKA_CURRENTCOORDS_R1_NODE_NAME + DOT + QLatin1String(AXISCOORDA6);
 
 const QString KUKA_CURRENTCOORDS_R2_NODE_NAME = RTK_PLC_NODE_NAME + ".CurrentCoords_R2";
-const QString KUKA_CURRENTCOORDS_R2_X_NODE_NAME = KUKA_CURRENTCOORDS_R2_NODE_NAME + QString(QChar('.')) + QLatin1String(KUKAX);
-const QString KUKA_CURRENTCOORDS_R2_Y_NODE_NAME = KUKA_CURRENTCOORDS_R2_NODE_NAME + QString(QChar('.')) + QLatin1String(KUKAY);
-const QString KUKA_CURRENTCOORDS_R2_Z_NODE_NAME = KUKA_CURRENTCOORDS_R2_NODE_NAME + QString(QChar('.')) + QLatin1String(KUKAX);
-const QString KUKA_CURRENTCOORDS_R2_A_NODE_NAME = KUKA_CURRENTCOORDS_R2_NODE_NAME + QString(QChar('.')) + QLatin1String(KUKAA);
-const QString KUKA_CURRENTCOORDS_R2_B_NODE_NAME = KUKA_CURRENTCOORDS_R2_NODE_NAME + QString(QChar('.')) + QLatin1String(KUKAB);
-const QString KUKA_CURRENTCOORDS_R2_C_NODE_NAME = KUKA_CURRENTCOORDS_R2_NODE_NAME + QString(QChar('.')) + QLatin1String(KUKAC);
-const QString KUKA_CURRENTCOORDS_R2_A1_NODE_NAME = KUKA_CURRENTCOORDS_R2_NODE_NAME + QString(QChar('.')) + QLatin1String(AXISCOORDA1);
-const QString KUKA_CURRENTCOORDS_R2_A2_NODE_NAME = KUKA_CURRENTCOORDS_R2_NODE_NAME + QString(QChar('.')) + QLatin1String(AXISCOORDA2);
-const QString KUKA_CURRENTCOORDS_R2_A3_NODE_NAME = KUKA_CURRENTCOORDS_R2_NODE_NAME + QString(QChar('.')) + QLatin1String(AXISCOORDA3);
-const QString KUKA_CURRENTCOORDS_R2_A4_NODE_NAME = KUKA_CURRENTCOORDS_R2_NODE_NAME + QString(QChar('.')) + QLatin1String(AXISCOORDA4);
-const QString KUKA_CURRENTCOORDS_R2_A5_NODE_NAME = KUKA_CURRENTCOORDS_R2_NODE_NAME + QString(QChar('.')) + QLatin1String(AXISCOORDA5);
-const QString KUKA_CURRENTCOORDS_R2_A6_NODE_NAME = KUKA_CURRENTCOORDS_R2_NODE_NAME + QString(QChar('.')) + QLatin1String(AXISCOORDA6);
+const QString KUKA_CURRENTCOORDS_R2_X_NODE_NAME = KUKA_CURRENTCOORDS_R2_NODE_NAME + DOT + QLatin1String(KUKAX);
+const QString KUKA_CURRENTCOORDS_R2_Y_NODE_NAME = KUKA_CURRENTCOORDS_R2_NODE_NAME + DOT + QLatin1String(KUKAY);
+const QString KUKA_CURRENTCOORDS_R2_Z_NODE_NAME = KUKA_CURRENTCOORDS_R2_NODE_NAME + DOT + QLatin1String(KUKAX);
+const QString KUKA_CURRENTCOORDS_R2_A_NODE_NAME = KUKA_CURRENTCOORDS_R2_NODE_NAME + DOT + QLatin1String(KUKAA);
+const QString KUKA_CURRENTCOORDS_R2_B_NODE_NAME = KUKA_CURRENTCOORDS_R2_NODE_NAME + DOT + QLatin1String(KUKAB);
+const QString KUKA_CURRENTCOORDS_R2_C_NODE_NAME = KUKA_CURRENTCOORDS_R2_NODE_NAME + DOT + QLatin1String(KUKAC);
+const QString KUKA_CURRENTCOORDS_R2_A1_NODE_NAME = KUKA_CURRENTCOORDS_R2_NODE_NAME + DOT + QLatin1String(AXISCOORDA1);
+const QString KUKA_CURRENTCOORDS_R2_A2_NODE_NAME = KUKA_CURRENTCOORDS_R2_NODE_NAME + DOT + QLatin1String(AXISCOORDA2);
+const QString KUKA_CURRENTCOORDS_R2_A3_NODE_NAME = KUKA_CURRENTCOORDS_R2_NODE_NAME + DOT + QLatin1String(AXISCOORDA3);
+const QString KUKA_CURRENTCOORDS_R2_A4_NODE_NAME = KUKA_CURRENTCOORDS_R2_NODE_NAME + DOT + QLatin1String(AXISCOORDA4);
+const QString KUKA_CURRENTCOORDS_R2_A5_NODE_NAME = KUKA_CURRENTCOORDS_R2_NODE_NAME + DOT + QLatin1String(AXISCOORDA5);
+const QString KUKA_CURRENTCOORDS_R2_A6_NODE_NAME = KUKA_CURRENTCOORDS_R2_NODE_NAME + DOT + QLatin1String(AXISCOORDA6);
 
 }
 
@@ -359,6 +367,7 @@ public:
   bool ConnectAutoManualR2ToPlane2Nodes();
   bool ConnectAutoManualR1R2EmergencyEvacuationNodes();
   bool ConnectAutoManualApplyTablePositionNodes();
+  bool ConnectAutoManualApplyNewCoordsNodes();
 
   bool ConnectServiceR1BreakTestNodes();
   bool ConnectServiceR1MasterRefTestNodes();
@@ -632,18 +641,9 @@ bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectMessagesNodes()
           qDebug() << Q_FUNC_INFO << "Error messages value changed:" << errValue;
         }
       }
-      else if (attr == QOpcUa::NodeAttribute::Description && value.canConvert<QVariantList>())
-      {
-        QVariantList descriptionList = value.toList(); // Get the attribute from the cache
-        for (const QVariant& descrValue : descriptionList)
-        {
-          QString descr = descrValue.value<QOpcUaLocalizedText>().text();
-          qDebug() << Q_FUNC_INFO << "Error description:" << descr;
-        }
-      }
     }
   );
-  QObject::connect(errMessagesNode,
+/*  QObject::connect(errMessagesNode,
     &QOpcUaNode::attributeRead, [errMessagesNode, mrmlNode, progressDialog](QOpcUa::NodeAttributes attr)
     {
       if (!errMessagesNode || !mrmlNode)
@@ -675,26 +675,9 @@ bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectMessagesNodes()
           }
         }
       }
-      else if (attr & QOpcUa::NodeAttribute::Description)
-      {
-        qDebug() << Q_FUNC_INFO << "Error description read:";
-        if (errMessagesNode->attributeError(QOpcUa::NodeAttribute::Description) == QOpcUa::UaStatusCode::Good)
-        {
-          qDebug() << Q_FUNC_INFO << "Error description read 1:";
-          QVariant value = errMessagesNode->attribute(QOpcUa::NodeAttribute::Description);
-          if (value.canConvert<QVariantList>())
-          {
-            QVariantList descriptionList = value.toList(); // Get the attribute from the cache
-            for (const QVariant& descrValue : descriptionList)
-            {
-              QString descr = descrValue.value<QOpcUaLocalizedText>().text();
-              qDebug() << Q_FUNC_INFO << "Error description read:" << descr;
-            }
-          }
-        }
-      }
     }
   );
+*/
   // Subscribe to data changes
   errMessagesNode->enableMonitoring(QOpcUa::NodeAttribute::Value, QOpcUaMonitoringParameters(1000));
 
@@ -726,7 +709,7 @@ bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectMessagesNodes()
       }
     }
   );
-  QObject::connect(servMessagesNode,
+/*  QObject::connect(servMessagesNode,
     &QOpcUaNode::attributeRead, [servMessagesNode, mrmlNode, progressDialog](QOpcUa::NodeAttributes attr)
     {
       if (!servMessagesNode || !mrmlNode)
@@ -758,26 +741,9 @@ bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectMessagesNodes()
           }
         }
       }
-      else if (attr & QOpcUa::NodeAttribute::Description)
-      {
-        qDebug() << Q_FUNC_INFO << "Service description read:";
-        if (servMessagesNode->attributeError(QOpcUa::NodeAttribute::Description) == QOpcUa::UaStatusCode::Good)
-        {
-          qDebug() << Q_FUNC_INFO << "Service description read 1:";
-          QVariant value = servMessagesNode->attribute(QOpcUa::NodeAttribute::Description);
-          if (value.canConvert<QVariantList>())
-          {
-            QVariantList descriptionList = value.toList(); // Get the attribute from the cache
-            for (const QVariant& descrValue : descriptionList)
-            {
-              QString descr = descrValue.value<QOpcUaLocalizedText>().text();
-              qDebug() << Q_FUNC_INFO << "Service description read:" << descr;
-            }
-          }
-        }
-      }
     }
   );
+*/
   // Subscribe to data changes
   servMessagesNode->enableMonitoring(QOpcUa::NodeAttribute::Value, QOpcUaMonitoringParameters(1000));
 
@@ -809,7 +775,7 @@ bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectMessagesNodes()
       }
     }
   );
-  QObject::connect(miscMessagesNode,
+/*  QObject::connect(miscMessagesNode,
     &QOpcUaNode::attributeRead, [miscMessagesNode, mrmlNode, progressDialog](QOpcUa::NodeAttributes attr)
     {
       if (!miscMessagesNode || !mrmlNode)
@@ -841,26 +807,9 @@ bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectMessagesNodes()
           }
         }
       }
-      else if (attr & QOpcUa::NodeAttribute::Description)
-      {
-        qDebug() << Q_FUNC_INFO << "Miscellaneous description read:";
-        if (miscMessagesNode->attributeError(QOpcUa::NodeAttribute::Description) == QOpcUa::UaStatusCode::Good)
-        {
-          qDebug() << Q_FUNC_INFO << "Miscellaneous description 1:";
-          QVariant value = miscMessagesNode->attribute(QOpcUa::NodeAttribute::Description);
-          if (value.canConvert<QVariantList>())
-          {
-            QVariantList descriptionList = value.toList(); // Get the attribute from the cache
-            for (const QVariant& descrValue : descriptionList)
-            {
-              QString descr = descrValue.value<QOpcUaLocalizedText>().text();
-              qDebug() << Q_FUNC_INFO << "Miscellaneous description read:" << descr;
-            }
-          }
-        }
-      }
     }
   );
+*/
   // Subscribe to data changes
   miscMessagesNode->enableMonitoring(QOpcUa::NodeAttribute::Value, QOpcUaMonitoringParameters(1000));
 
@@ -3189,6 +3138,7 @@ bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectAutoManualMovementNodes()
   res &= this->ConnectAutoManualR2ToPlane2Nodes();
   res &= this->ConnectAutoManualR1R2EmergencyEvacuationNodes();
   res &= this->ConnectAutoManualApplyTablePositionNodes();
+  res &= this->ConnectAutoManualApplyNewCoordsNodes();
 
   return res;
 }
@@ -3228,7 +3178,7 @@ bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectAutoManualApplyTablePositionNod
       }
     }
   );
-  QObject::connect(amApplyTablePositionEnabledNode,
+/*  QObject::connect(amApplyTablePositionEnabledNode,
     &QOpcUaNode::attributeRead, [amApplyTablePositionEnabledNode, mrmlNode](QOpcUa::NodeAttributes attr)
     {
       if (!amApplyTablePositionEnabledNode || !mrmlNode)
@@ -3249,6 +3199,7 @@ bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectAutoManualApplyTablePositionNod
       }
     }
   );
+*/
   // Subscribe to data changes
   amApplyTablePositionEnabledNode->enableMonitoring(QOpcUa::NodeAttribute::Value, QOpcUaMonitoringParameters(1000));
 
@@ -3271,7 +3222,7 @@ bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectAutoManualApplyTablePositionNod
       }
     }
   );
-  QObject::connect(amApplyTablePositionPressedNode,
+/*  QObject::connect(amApplyTablePositionPressedNode,
     &QOpcUaNode::attributeRead, [amApplyTablePositionPressedNode, mrmlNode](QOpcUa::NodeAttributes attr)
     {
       if (!amApplyTablePositionPressedNode || !mrmlNode)
@@ -3292,8 +3243,115 @@ bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectAutoManualApplyTablePositionNod
       }
     }
   );
+*/
   // Subscribe to data changes
   amApplyTablePositionPressedNode->enableMonitoring(QOpcUa::NodeAttribute::Value, QOpcUaMonitoringParameters(1000));
+  return true;
+}
+
+//-----------------------------------------------------------------------------
+bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectAutoManualApplyNewCoordsNodes()
+{
+  QSharedPointer< QOpcUaClient > opcUaClient = this->OpcUaClient.toStrongRef();
+
+  if (!opcUaClient || !this->ParameterNode)
+  {
+    return false;
+  }
+
+  vtkMRMLSiemensPlcOpcUaNode* mrmlNode = this->ParameterNode.GetPointer();
+  // AutoManual ApplyNewCoords button enabled node
+  QOpcUaNode* amApplyNewCoordsEnabledNode = this->FindNodeFromFullDisplayName(BUTTONS_AM_APPLYNEWCOORDS_ENABLED_NODE_NAME);
+  // AutoManual ApplyNewCoords button pressed node
+  QOpcUaNode* amAApplyNewCoordsPressedNode = this->FindNodeFromFullDisplayName(BUTTONS_AM_APPLYNEWCOORDS_PRESSED_NODE_NAME);
+
+  // AutoManual ApplyNewCoords button enabled node
+  if (!amApplyNewCoordsEnabledNode)
+  {
+    return false;
+  }
+  QObject::connect(amApplyNewCoordsEnabledNode,
+    &QOpcUaNode::dataChangeOccurred, [mrmlNode](QOpcUa::NodeAttribute attr, QVariant value)
+    {
+      if (attr == QOpcUa::NodeAttribute::Value && value.canConvert< bool >())
+      {
+        bool enabledValue = value.toBool();
+        bool amApplyNewCoordsCurrentState[2] = { false, false };
+        mrmlNode->GetAutoManualApplyNewCoords(amApplyNewCoordsCurrentState);
+        amApplyNewCoordsCurrentState[0] = enabledValue;
+        mrmlNode->GetAutoManualApplyNewCoords(amApplyNewCoordsCurrentState);
+        qDebug() << Q_FUNC_INFO << "AutoManual ApplyNewCoords button enabled changed:" << enabledValue;
+      }
+    }
+  );
+/*  QObject::connect(amApplyTablePositionEnabledNode,
+    &QOpcUaNode::attributeRead, [amApplyTablePositionEnabledNode, mrmlNode](QOpcUa::NodeAttributes attr)
+    {
+      if (!amApplyTablePositionEnabledNode || !mrmlNode)
+      {
+        return;
+      }
+      if (attr & QOpcUa::NodeAttribute::Value)
+      {
+        if (amApplyTablePositionEnabledNode->attributeError(QOpcUa::NodeAttribute::Value) == QOpcUa::UaStatusCode::Good)
+        {
+          bool enabledValue = amApplyTablePositionEnabledNode->attribute(QOpcUa::NodeAttribute::Value).toBool();
+          bool amApplyTablePositionCurrentState[2] = { false, false };
+          mrmlNode->GetAutoManualApplyTabletopPosition(amApplyTablePositionCurrentState);
+          amApplyTablePositionCurrentState[0] = enabledValue;
+          mrmlNode->SetAutoManualApplyTabletopPosition(amApplyTablePositionCurrentState);
+          qDebug() << Q_FUNC_INFO << "AutoManual ApplyTablePosition button enabled read:" << enabledValue;
+        }
+      }
+    }
+  );
+*/
+  // Subscribe to data changes
+  amApplyNewCoordsEnabledNode->enableMonitoring(QOpcUa::NodeAttribute::Value, QOpcUaMonitoringParameters(1000));
+
+  // AutoManual ApplyNewCoords button pressed node
+  if (!amAApplyNewCoordsPressedNode)
+  {
+    return false;
+  }
+  QObject::connect(amAApplyNewCoordsPressedNode,
+    &QOpcUaNode::dataChangeOccurred, [mrmlNode](QOpcUa::NodeAttribute attr, QVariant value)
+    {
+      if (attr == QOpcUa::NodeAttribute::Value && value.canConvert< bool >())
+      {
+        bool pressedValue = value.toBool();
+        bool amApplyNewCoordsCurrentState[2] = { false, false };
+        mrmlNode->GetAutoManualApplyNewCoords(amApplyNewCoordsCurrentState);
+        amApplyNewCoordsCurrentState[1] = pressedValue;
+        mrmlNode->GetAutoManualApplyNewCoords(amApplyNewCoordsCurrentState);
+        qDebug() << Q_FUNC_INFO << "AutoManual ApplyNewCoords button pressed changed:" << pressedValue;
+      }
+    }
+  );
+/*  QObject::connect(amApplyTablePositionPressedNode,
+    &QOpcUaNode::attributeRead, [amApplyTablePositionPressedNode, mrmlNode](QOpcUa::NodeAttributes attr)
+    {
+      if (!amApplyTablePositionPressedNode || !mrmlNode)
+      {
+        return;
+      }
+      if (attr & QOpcUa::NodeAttribute::Value)
+      {
+        if (amApplyTablePositionPressedNode->attributeError(QOpcUa::NodeAttribute::Value) == QOpcUa::UaStatusCode::Good)
+        {
+          bool pressedValue = amApplyTablePositionPressedNode->attribute(QOpcUa::NodeAttribute::Value).toBool();
+          bool amApplyTablePositionCurrentState[2] = { false, false };
+          mrmlNode->GetAutoManualApplyTabletopPosition(amApplyTablePositionCurrentState);
+          amApplyTablePositionCurrentState[1] = pressedValue;
+          mrmlNode->SetAutoManualApplyTabletopPosition(amApplyTablePositionCurrentState);
+          qDebug() << Q_FUNC_INFO << "AutoManual ApplyTablePosition button pressed read:" << pressedValue;
+        }
+      }
+    }
+  );
+*/
+  // Subscribe to data changes
+  amAApplyNewCoordsPressedNode->enableMonitoring(QOpcUa::NodeAttribute::Value, QOpcUaMonitoringParameters(1000));
   return true;
 }
 
