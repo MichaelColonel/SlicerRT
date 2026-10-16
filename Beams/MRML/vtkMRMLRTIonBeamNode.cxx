@@ -425,6 +425,15 @@ void vtkMRMLRTIonBeamNode::CreateBeamPolyData(vtkPolyData* beamModelPolyData/*=n
 
   vtkMRMLTableNode* mlcTableNode = this->GetMultiLeafCollimatorTableNode();
 
+  if (mlcTableNode && !scanSpotTableNode)
+  {
+    vtkWarningMacro("CreateBeamPolyData: MLC table node is present");
+  }
+  else if (!mlcTableNode && scanSpotTableNode)
+  {
+    vtkWarningMacro("CreateBeamPolyData: Valid scan spot table node is present");
+  }
+
   vtkIdType nofLeafPairs = 0;
   if (mlcTableNode)
   {

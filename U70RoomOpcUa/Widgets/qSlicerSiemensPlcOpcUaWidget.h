@@ -58,9 +58,9 @@ public slots:
   void setParameterNode(vtkMRMLNode* node);
   /// Set SiemensPlcOpcUa client
   void setSiemensPlcOpcUaClient(const QSharedPointer< QOpcUaClient >& opcUaClient);
-  /// Update widget GUI from RT Image parameters node
+  /// Update widget GUI from SiemensPlcOpcUa parameters node
   void updateWidgetFromMRML();
-  /// Display table top angles
+
   void onParseServerInterfacesClicked();
   void onOpcUaClientConnected();
   void onOpcUaClientDisconnected();
@@ -154,18 +154,13 @@ public slots:
   void onMakeXrayPressed();
   void onMakeXrayReleased();
 
-  void onCoordFromAsuXClicked();
-  void onCoordFromAsuYClicked();
-  void onCoordFromAsuZClicked();
-  void onCoordFromAsuXrayZClicked();
-  void onCoordFromAsuAClicked();
-  void onCoordFromAsuBClicked();
-  void onCoordFromAsuCClicked();
-
-  void onSetR1TscCoordsClicked();
-  void onSetR1TscAnglesClicked();
-  void onSetR2TscCoordsClicked();
-  void onSetR2TscAnglesClicked();
+  void onSetCoordXClicked();
+  void onSetCoordYClicked();
+  void onSetCoordZClicked();
+  void onSetCoordAClicked();
+  void onSetCoordBClicked();
+  void onSetCoordCClicked();
+  void onSetCoordsClicked();
 
   void onServerInterfacesRead(QOpcUa::NodeAttributes attr);
 

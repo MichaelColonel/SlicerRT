@@ -1205,6 +1205,9 @@ bool vtkSlicerDicomRtImportExportModuleLogic::vtkInternal::LoadDynamicBeamSequen
     }
   }
 
+  bool mlcFlag = false;
+  bool scanspotFlag = false;
+  std::string mlcBoundaryPositionString;
   for (unsigned int controlPointIndex = 0; controlPointIndex < nofControlPoints; ++controlPointIndex)
   {
     // Create the beam node for each control point
@@ -1305,7 +1308,7 @@ bool vtkSlicerDicomRtImportExportModuleLogic::vtkInternal::LoadDynamicBeamSequen
     const char* mlcName = rtReader->GetBeamControlPointMultiLeafCollimatorPositions(dicomBeamNumber, controlPointIndex, boundaries, positions);
     if (mlcName)
     {
-      std::string mlcBoundaryPositionString = std::string(mlcName) + "_BoundaryAndPosition" + ": " + beamName;
+      mlcBoundaryPositionString = std::string(mlcName) + "_BoundaryAndPosition" + ": " + beamName;
       mlcTableNode = this->CreateMultiLeafCollimatorTableNode(
         mlcBoundaryPositionString.c_str(), boundaries, positions, mlcTableSequenceNode->GetSequenceScene());
 
@@ -1318,6 +1321,7 @@ bool vtkSlicerDicomRtImportExportModuleLogic::vtkInternal::LoadDynamicBeamSequen
       nameStream << " : CP" << controlPointIndex;
 
       mlcTableNode->SetName(nameStream.str().c_str());
+      vtkWarningWithObjectMacro(this->External, "LoadDynamicBeamSequence: MLC data OK");
     }
     else
     {
@@ -1345,6 +1349,7 @@ bool vtkSlicerDicomRtImportExportModuleLogic::vtkInternal::LoadDynamicBeamSequen
         nameStream << " : CP" << controlPointIndex;
 
         scanSpotTableNode->SetName(nameStream.str().c_str());
+        vtkWarningWithObjectMacro(this->External, "LoadDynamicBeamSequence: ScanSpot data OK");
       }
       else
       {
@@ -1390,12 +1395,17 @@ bool vtkSlicerDicomRtImportExportModuleLogic::vtkInternal::LoadDynamicBeamSequen
     if (mlcTableNode && !scanSpotTableNode)
     {
       mlcTableSequenceNode->SetDataNodeAtValue(mlcTableNode, std::to_string(controlPointIndex));
+      mlcFlag = true;
+      scanspotFlag = false;
     }
     // Add scan spot table data to table sequence node (different from MLC table sequence)
-    if (scanSpotTableNode && !mlcTableNode)
+    else if (scanSpotTableNode && !mlcTableNode)
     {
       mlcTableSequenceNode->SetDataNodeAtValue(scanSpotTableNode, std::to_string(controlPointIndex));
+      mlcFlag = false;
+      scanspotFlag = true;
     }
+
     if (rangeShifterNode)
     {
       rsSequenceNode->SetDataNodeAtValue(rangeShifterNode, std::to_string(controlPointIndex));
@@ -1403,12 +1413,16 @@ bool vtkSlicerDicomRtImportExportModuleLogic::vtkInternal::LoadDynamicBeamSequen
   } // end of a control point
 
   // if IonRTBeam, then set table sequence node name as scan spot
-  if (rtReader->GetLoadRTIonPlanSuccessful())
+  if (rtReader->GetLoadRTIonPlanSuccessful() && mlcFlag && !scanspotFlag)
+  {
+    mlcTableSequenceNode->SetName(mlcBoundaryPositionString.c_str());
+  }
+  // if IonRTBeam, then set table sequence node name as scan spot
+  else if (rtReader->GetLoadRTIonPlanSuccessful() && scanspotFlag && !mlcFlag)
   {
     std::string nodeName = std::string("ScanSpot_PositionMap_MetersetWeights") + ": " + beamName;
     mlcTableSequenceNode->SetName(nodeName.c_str());
   }
-
   // Synchronize beam sequence, beam transform sequence, table sequence nodes
   beamSequenceBrowserNode->SetAndObserveMasterSequenceNodeID(beamSequenceNode->GetID());
   beamSequenceBrowserNode->AddSynchronizedSequenceNode(transformSequenceNode);
@@ -1473,8 +1487,16 @@ bool vtkSlicerDicomRtImportExportModuleLogic::vtkInternal::LoadDynamicBeamSequen
 
     if (proxyScanSpotTableNode)
     {
-      proxyBeamNode->SetAndObserveMultiLeafCollimatorTableNode(nullptr);
-      proxyIonBeamNode->SetAndObserveScanSpotTableNode(proxyScanSpotTableNode);
+      if (scanspotFlag && !mlcFlag)
+      {
+        proxyIonBeamNode->SetAndObserveMultiLeafCollimatorTableNode(nullptr);
+        proxyIonBeamNode->SetAndObserveScanSpotTableNode(proxyScanSpotTableNode);
+      }
+      else if (mlcFlag && !scanspotFlag)
+      {
+        proxyIonBeamNode->SetAndObserveMultiLeafCollimatorTableNode(proxyMlcTableNode);
+        proxyIonBeamNode->SetAndObserveScanSpotTableNode(nullptr);
+      }
       scanSpotShId = shNode->GetItemByDataNode(proxyScanSpotTableNode);
     }
 

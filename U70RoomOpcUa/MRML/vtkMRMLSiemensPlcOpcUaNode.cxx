@@ -74,6 +74,8 @@ void vtkMRMLSiemensPlcOpcUaNode::WriteXML(ostream& of, int nIndent)
   vtkMRMLWriteXMLVectorMacro(autoManualEmergencyEvac, AutoManualEmergencyEvac, bool, 2);
   vtkMRMLWriteXMLVectorMacro(autoManualApplyTabletopPosition, AutoManualApplyTabletopPosition, bool, 2);
   vtkMRMLWriteXMLVectorMacro(autoManualApplyNewCoords, AutoManualApplyNewCoords, bool, 2);
+  vtkMRMLWriteXMLVectorMacro(axisCoordsR1, AxisCoordsR1, int32_t, 6);
+  vtkMRMLWriteXMLVectorMacro(axisCoordsR2, AxisCoordsR2, int32_t, 6);
   vtkMRMLWriteXMLEndMacro(); 
 }
 
@@ -108,6 +110,8 @@ void vtkMRMLSiemensPlcOpcUaNode::ReadXMLAttributes(const char** atts)
   vtkMRMLReadXMLVectorMacro(autoManualEmergencyEvac, AutoManualEmergencyEvac, bool, 2);
   vtkMRMLReadXMLVectorMacro(autoManualApplyTabletopPosition, AutoManualApplyTabletopPosition, bool, 2);
   vtkMRMLReadXMLVectorMacro(autoManualApplyNewCoords, AutoManualApplyNewCoords, bool, 2);
+  vtkMRMLReadXMLVectorMacro(axisCoordsR1, AxisCoordsR1, int32_t, 6);
+  vtkMRMLReadXMLVectorMacro(axisCoordsR2, AxisCoordsR2, int32_t, 6);
   vtkMRMLReadXMLEndMacro();
 
   this->EndModify(disabledModify);
@@ -155,6 +159,8 @@ void vtkMRMLSiemensPlcOpcUaNode::Copy(vtkMRMLNode *anode)
   vtkMRMLCopyVectorMacro(AutoManualEmergencyEvac, bool, 2);
   vtkMRMLCopyVectorMacro(AutoManualApplyTabletopPosition, bool, 2);
   vtkMRMLCopyVectorMacro(AutoManualApplyNewCoords, bool, 2);
+  vtkMRMLCopyVectorMacro(AxisCoordsR1, int32_t, 6);
+  vtkMRMLCopyVectorMacro(AxisCoordsR2, int32_t, 6);
   vtkMRMLCopyEndMacro(); 
 
   this->EndModify(disabledModify);
@@ -198,6 +204,8 @@ void vtkMRMLSiemensPlcOpcUaNode::CopyContent(vtkMRMLNode *anode, bool deepCopy/*
   vtkMRMLCopyVectorMacro(AutoManualEmergencyEvac, bool, 2);
   vtkMRMLCopyVectorMacro(AutoManualApplyTabletopPosition, bool, 2);
   vtkMRMLCopyVectorMacro(AutoManualApplyNewCoords, bool, 2);
+  vtkMRMLCopyVectorMacro(AxisCoordsR1, int32_t, 6);
+  vtkMRMLCopyVectorMacro(AxisCoordsR2, int32_t, 6);
   vtkMRMLCopyEndMacro();
 }
 
@@ -230,6 +238,8 @@ void vtkMRMLSiemensPlcOpcUaNode::PrintSelf(ostream& os, vtkIndent indent)
   vtkMRMLPrintVectorMacro(AutoManualEmergencyEvac, bool, 2);
   vtkMRMLPrintVectorMacro(AutoManualApplyTabletopPosition, bool, 2);
   vtkMRMLPrintVectorMacro(AutoManualApplyNewCoords, bool, 2);
+  vtkMRMLPrintVectorMacro(AxisCoordsR1, int32_t, 6);
+  vtkMRMLPrintVectorMacro(AxisCoordsR2, int32_t, 6);
   vtkMRMLPrintEndMacro(); 
 }
 

@@ -29,8 +29,12 @@
 #include <vtkMRMLMarkupsFiducialNode.h>
 #include <vtkMRMLTransformDisplayNode.h>
 
+// U70RoomGeo MRML includes
 #include "vtkMRMLU70RoomGeoNode.h"
 #include "vtkMRMLChannel26GeometryNode.h"
+
+// U70RoomOpcUa MRML includes
+#include "vtkMRMLSiemensPlcOpcUaNode.h"
 
 // U70RoomGeo Logic includes
 #include "vtkSlicerU70RoomGeoLogic.h"
@@ -427,7 +431,6 @@ void vtkSlicerU70RoomGeoLogic::ProcessMRMLNodesEvents(vtkObject* caller, unsigne
   {
     if (event == vtkCommand::ModifiedEvent)
     {
-      vtkErrorMacro("ProcessMRMLNodesEvents: vtkMRMLU70RoomGeoNode IS UPDATED");
     }
   }
   if (caller->IsA("vtkMRMLChannel26GeometryNode"))
@@ -534,6 +537,14 @@ void vtkSlicerU70RoomGeoLogic::OnMRMLSceneNodeAdded(vtkMRMLNode* node)
   {
     vtkNew<vtkIntArray> events;
     events->InsertNextValue(vtkCommand::ModifiedEvent);
+    vtkObserveMRMLNodeEventsMacro(node, events);
+  }
+  if (node->IsA("vtkMRMLSiemensPlcOpcUaNode"))
+  {
+    // Observe custom OPC UA node events
+    vtkSmartPointer<vtkIntArray> events = vtkSmartPointer<vtkIntArray>::New();
+    events->InsertNextValue(vtkMRMLSiemensPlcOpcUaNode::TableRobotAxisCoordsModified);
+    events->InsertNextValue(vtkMRMLSiemensPlcOpcUaNode::CarmRobotAxisCoordsModified);
     vtkObserveMRMLNodeEventsMacro(node, events);
   }
 }
