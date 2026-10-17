@@ -1487,15 +1487,15 @@ bool vtkSlicerDicomRtImportExportModuleLogic::vtkInternal::LoadDynamicBeamSequen
 
     if (proxyScanSpotTableNode)
     {
-      if (scanspotFlag && !mlcFlag)
+      if (scanspotFlag)
       {
-        proxyIonBeamNode->SetAndObserveMultiLeafCollimatorTableNode(nullptr);
+//        proxyIonBeamNode->SetAndObserveMultiLeafCollimatorTableNode(nullptr);
         proxyIonBeamNode->SetAndObserveScanSpotTableNode(proxyScanSpotTableNode);
       }
-      else if (mlcFlag && !scanspotFlag)
+      else if (mlcFlag)
       {
         proxyIonBeamNode->SetAndObserveMultiLeafCollimatorTableNode(proxyMlcTableNode);
-        proxyIonBeamNode->SetAndObserveScanSpotTableNode(nullptr);
+//        proxyIonBeamNode->SetAndObserveScanSpotTableNode(nullptr);
       }
       scanSpotShId = shNode->GetItemByDataNode(proxyScanSpotTableNode);
     }
