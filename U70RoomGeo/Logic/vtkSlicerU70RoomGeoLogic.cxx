@@ -528,7 +528,7 @@ void vtkSlicerU70RoomGeoLogic::ProcessMRMLNodesEvents(vtkObject* caller, unsigne
             chan26GeoNode->SetCarmRobotAngles(robotAngles);
           }
           vtkErrorMacro("ProcessMRMLNodesEvents: Update C-arm robot model geometry");
-          this->Channel26Cabin3RobotsLogic->UpdateTransformsHierarchy(chan26GeoNode, SysCoord::FixedReference);
+          this->Channel26Cabin3RobotsLogic->UpdateTransformsHierarchy(chan26GeoNode, SysCoord::TableTop);
           roomGeoNode->Modified();
         }
       }

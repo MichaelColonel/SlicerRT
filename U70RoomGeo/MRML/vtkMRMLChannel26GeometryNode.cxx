@@ -209,5 +209,5 @@ void vtkMRMLChannel26GeometryNode::GetCarmRobotAnglesModel(double a[6])
   a[2] = this->CarmRobotAngles[2] - 90.;
   a[3] = this->CarmRobotAngles[3];
   a[4] = this->CarmRobotAngles[4];
-  a[5] = this->CarmRobotAngles[5] + 90.;
+  a[5] = this->CarmRobotAngles[5];// + 90.;
 }

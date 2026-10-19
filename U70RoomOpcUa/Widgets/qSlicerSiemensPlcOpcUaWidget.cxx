@@ -79,11 +79,13 @@ constexpr const char* const MODE = "Mode";
 constexpr const char* const STATUS_RTK = "Status_RTK";
 constexpr const char* const STATUS_R1 = "Status_R1_deka";
 constexpr const char* const STATUS_R2 = "Status_R2_C_Duga";
+constexpr const char* const RTK_HOMERETURN_HOLDPRESSED = "RTK_ComingHome_PressBtn";
 
 const QString ASU_MODE_NODE_NAME = ASU_NODE_NAME + DOT + QLatin1String(MODE);
 const QString ASU_STATUS_RTK_NODE_NAME = ASU_NODE_NAME + DOT + QLatin1String(STATUS_RTK);
 const QString ASU_STATUS_R1_TABLE_NODE_NAME = ASU_NODE_NAME + DOT + QLatin1String(STATUS_R1);
 const QString ASU_STATUS_R2_CARM_NODE_NAME = ASU_NODE_NAME + DOT + QLatin1String(STATUS_R2);
+const QString ASU_RTK_COMINGHOME_NODE_NAME = ASU_NODE_NAME + DOT + QLatin1String(RTK_HOMERETURN_HOLDPRESSED);
 
 constexpr const char* const SETCOORDS = "SetCoords";
 const QString ASU_COORDS_NODE_NAME = ASU_NODE_NAME + DOT + QLatin1String(SETCOORDS);
@@ -4384,10 +4386,10 @@ bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectCurrentCoordsR1Nodes()
 {
   bool res = this->ConnectCurrentCoordA1R1Node();
   res &= this->ConnectCurrentCoordA2R1Node();
-  res &= this->ConnectCurrentCoordA2R1Node();
-  res &= this->ConnectCurrentCoordA2R1Node();
-  res &= this->ConnectCurrentCoordA2R1Node();
-  res &= this->ConnectCurrentCoordA2R1Node();
+  res &= this->ConnectCurrentCoordA3R1Node();
+  res &= this->ConnectCurrentCoordA4R1Node();
+  res &= this->ConnectCurrentCoordA5R1Node();
+  res &= this->ConnectCurrentCoordA6R1Node();
   return res;
 }
 
@@ -4864,10 +4866,10 @@ bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectCurrentCoordsR2Nodes()
 {
   bool res = this->ConnectCurrentCoordA1R2Node();
   res &= this->ConnectCurrentCoordA2R2Node();
-  res &= this->ConnectCurrentCoordA2R2Node();
-  res &= this->ConnectCurrentCoordA2R2Node();
-  res &= this->ConnectCurrentCoordA2R2Node();
-  res &= this->ConnectCurrentCoordA2R2Node();
+  res &= this->ConnectCurrentCoordA3R2Node();
+  res &= this->ConnectCurrentCoordA4R2Node();
+  res &= this->ConnectCurrentCoordA5R2Node();
+  res &= this->ConnectCurrentCoordA6R2Node();
   return res;
 }
 
@@ -6840,6 +6842,7 @@ void qSlicerSiemensPlcOpcUaWidget::onServerInterfacesRead(QOpcUa::NodeAttributes
     {
       qDebug() << Q_FUNC_INFO << "R2 current coords nodes are OK";
     }
+
   }
   d->PushButton_ReadStatusAndMessages->setEnabled(true);
   d->ParameterNode->Modified();
