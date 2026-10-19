@@ -44,7 +44,7 @@ namespace
 const char* FIXED_BEAM_AXIS_REFERENCE_ROLE = "fixedBeamAxisRef";
 const char* FIXED_ISOCENTER_REFERENCE_ROLE = "fixedIsocenterRef";
 const char* CHANNEL26_GEOMETRY_REFERENCE_ROLE = "channel26GeometryRef";
-const char* CHANNEL26_PLC_OPCUA_REFERENCE_ROLE = "channel26PlcOpcUaRef";
+//const char* CHANNEL26_PLC_OPCUA_REFERENCE_ROLE = "channel26PlcOpcUaRef";
 const char* PATIENT_BODY_SEGMENTATION_REFERENCE_ROLE = "patientBodySegmentationRef";
 
 } // namespace
@@ -58,9 +58,9 @@ vtkMRMLU70RoomGeoNode::vtkMRMLU70RoomGeoNode()
   TreatmentMachineDescriptorFilePath(nullptr),
   TreatmentMachineType(nullptr)
 {
-  vtkNew<vtkIntArray> nodeEvents;
-  nodeEvents->InsertNextValue(vtkCommand::ModifiedEvent);
-  this->AddNodeReferenceRole(CHANNEL26_PLC_OPCUA_REFERENCE_ROLE, nullptr, nodeEvents);
+//  vtkNew<vtkIntArray> nodeEvents;
+//  nodeEvents->InsertNextValue(vtkCommand::ModifiedEvent);
+//  this->AddNodeReferenceRole(CHANNEL26_PLC_OPCUA_REFERENCE_ROLE, nullptr, nodeEvents);
 }
 
 //----------------------------------------------------------------------------
@@ -191,6 +191,7 @@ void vtkMRMLU70RoomGeoNode::ProcessMRMLEvents(vtkObject *caller, unsigned long e
   {
     return;
   }
+/*
   if (eventID == vtkCommand::ModifiedEvent)
   {
     vtkMRMLSiemensPlcOpcUaNode* opcUaNode = this->GetChannel26PlcOpcUaNode();
@@ -213,6 +214,7 @@ void vtkMRMLU70RoomGeoNode::ProcessMRMLEvents(vtkObject *caller, unsigned long e
     }
     this->Modified();
   }
+*/
 }
 
 //----------------------------------------------------------------------------
@@ -234,22 +236,22 @@ void vtkMRMLU70RoomGeoNode::SetAndObserveChannel26GeometryNode(vtkMRMLChannel26G
 }
 
 //----------------------------------------------------------------------------
-vtkMRMLSiemensPlcOpcUaNode* vtkMRMLU70RoomGeoNode::GetChannel26PlcOpcUaNode()
-{
-  return vtkMRMLSiemensPlcOpcUaNode::SafeDownCast( this->GetNodeReference(CHANNEL26_PLC_OPCUA_REFERENCE_ROLE) );
-}
+//vtkMRMLSiemensPlcOpcUaNode* vtkMRMLU70RoomGeoNode::GetChannel26PlcOpcUaNode()
+//{
+//  return vtkMRMLSiemensPlcOpcUaNode::SafeDownCast( this->GetNodeReference(CHANNEL26_PLC_OPCUA_REFERENCE_ROLE) );
+//}
 
 //----------------------------------------------------------------------------
-void vtkMRMLU70RoomGeoNode::SetAndObserveChannel26PlcOpcUaNode(vtkMRMLSiemensPlcOpcUaNode* node)
-{
-  if (node && this->Scene != node->GetScene())
-  {
-    vtkErrorMacro("SetAndObserveChannel26PlcOpcUaNode: Cannot set reference, the referenced and referencing node are not in the same scene");
-    return;
-  }
+//void vtkMRMLU70RoomGeoNode::SetAndObserveChannel26PlcOpcUaNode(vtkMRMLSiemensPlcOpcUaNode* node)
+//{
+//  if (node && this->Scene != node->GetScene())
+//  {
+//    vtkErrorMacro("SetAndObserveChannel26PlcOpcUaNode: Cannot set reference, the referenced and referencing node are not in the same scene");
+//    return;
+//  }
 
-  this->SetNodeReferenceID(CHANNEL26_PLC_OPCUA_REFERENCE_ROLE, (node ? node->GetID() : nullptr));
-}
+//  this->SetNodeReferenceID(CHANNEL26_PLC_OPCUA_REFERENCE_ROLE, (node ? node->GetID() : nullptr));
+//}
 
 //----------------------------------------------------------------------------
 vtkMRMLMarkupsLineNode* vtkMRMLU70RoomGeoNode::GetBeamAxisLineNode()

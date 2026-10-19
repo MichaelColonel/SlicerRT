@@ -389,6 +389,8 @@ void vtkSlicerU70RoomGeoLogic::SetMRMLSceneInternal(vtkMRMLScene * newScene)
   if (this->Channel26Cabin3RobotsLogic)
   {
     this->Channel26Cabin3RobotsLogic->SetMRMLScene(newScene);
+    this->BuildRobotsTransformHierarchy();
+    this->Channel26Cabin3RobotsLogic->ResetToInitialPositions();
   }
 }
 
@@ -408,6 +410,46 @@ void vtkSlicerU70RoomGeoLogic::RegisterNodes()
   if (!scene->IsNodeClassRegistered("vtkMRMLChannel26GeometryNode"))
   {
     scene->RegisterNodeClass(vtkSmartPointer<vtkMRMLChannel26GeometryNode>::New());
+  }
+
+
+  // Select or create parameter node
+  vtkMRMLU70RoomGeoNode* roomGeoNode = nullptr; 
+  // Try to find one in the scene
+  if (vtkMRMLNode* node = scene->GetFirstNodeByClass("vtkMRMLU70RoomGeoNode"))
+  {
+    roomGeoNode = vtkMRMLU70RoomGeoNode::SafeDownCast(node);
+  }
+  else
+  {
+    roomGeoNode = vtkMRMLU70RoomGeoNode::SafeDownCast(
+      scene->AddNewNodeByClass("vtkMRMLU70RoomGeoNode", "U70RoomGeo"));
+  }
+  if (roomGeoNode)
+  {
+    roomGeoNode->SetHideFromEditors(0);
+    vtkErrorMacro("RegisterNodes: U70RoomGeo node is OK");
+  }
+
+  vtkMRMLChannel26GeometryNode* channel26GeometryNode = nullptr; 
+  if (vtkMRMLNode* node = scene->GetFirstNodeByClass("vtkMRMLChannel26GeometryNode"))
+  {
+    channel26GeometryNode = vtkMRMLChannel26GeometryNode::SafeDownCast(node);
+  }
+  else
+  {
+    channel26GeometryNode = vtkMRMLChannel26GeometryNode::SafeDownCast(
+      scene->AddNewNodeByClass("vtkMRMLChannel26GeometryNode", "Channel26Geometry"));
+  }
+  if (channel26GeometryNode)
+  {
+    channel26GeometryNode->SetHideFromEditors(0);
+    vtkErrorMacro("RegisterNodes: Channel26Geometry node is OK");
+  }
+  if (roomGeoNode && channel26GeometryNode)
+  {
+    roomGeoNode->SetAndObserveChannel26GeometryNode(channel26GeometryNode);
+    vtkErrorMacro("RegisterNodes: Nodes is OK");
   }
 }
 
@@ -431,6 +473,65 @@ void vtkSlicerU70RoomGeoLogic::ProcessMRMLNodesEvents(vtkObject* caller, unsigne
   {
     if (event == vtkCommand::ModifiedEvent)
     {
+    }
+  }
+  if (caller->IsA("vtkMRMLSiemensPlcOpcUaNode"))
+  {
+    using SysCoord = vtkSlicerChannel26Cabin3RobotsTransformLogic::CoordinateSystemIdentifier;
+    vtkMRMLSiemensPlcOpcUaNode* opcUaNode = vtkMRMLSiemensPlcOpcUaNode::SafeDownCast(caller);
+    if (!opcUaNode)
+    {
+      vtkErrorMacro("ProcessMRMLNodesEvents: OPC UA node is invalid");
+      return;
+    }
+    
+    // Iterate through all treatment room geometries nodes
+    std::vector<vtkMRMLNode*> roomGeoNodes;
+    mrmlScene->GetNodesByClass("vtkMRMLU70RoomGeoNode", roomGeoNodes);
+    for (std::vector<vtkMRMLNode*>::iterator roomGeoIterator = roomGeoNodes.begin();
+      roomGeoIterator != roomGeoNodes.end(); ++roomGeoIterator)
+    {
+      // if caller node and referenced table node is the same
+      // update beam polydata
+      vtkMRMLU70RoomGeoNode* roomGeoNode = vtkMRMLU70RoomGeoNode::SafeDownCast(*roomGeoIterator);
+      if (!roomGeoNode)
+      {
+        vtkErrorMacro("ProcessMRMLNodesEvents: U70RoomGeo node is invalid");
+        continue;
+      }
+      vtkMRMLChannel26GeometryNode* chan26GeoNode = roomGeoNode->GetChannel26GeometryNode();
+      if (!chan26GeoNode)
+      {
+        vtkErrorMacro("ProcessMRMLNodesEvents: Channel26Geometry node is invalid");
+        continue;
+      }
+      if (roomGeoNode->GetU70RoomGeo() == vtkMRMLU70RoomGeoNode::ROOM3)
+      {
+        double robotAngles[6] = {};
+        if (event == vtkMRMLSiemensPlcOpcUaNode::TableRobotAxisCoordsModified)
+        {
+          opcUaNode->GetCurrentAxisCoordsR1(robotAngles);
+          {
+            MRMLNodeModifyBlocker blocker(chan26GeoNode);
+            chan26GeoNode->SetTableRobotAngles(robotAngles);
+            vtkErrorMacro("ProcessMRMLNodesEvents: angles" << robotAngles[0] << ' ' << robotAngles[1] << ' ' << robotAngles[2] << ' ' << robotAngles[3] << ' ' << robotAngles[4] << ' ' << robotAngles[5]);
+          }
+          vtkErrorMacro("ProcessMRMLNodesEvents: Update Tabletop robot model geometry");
+          this->Channel26Cabin3RobotsLogic->UpdateTransformsHierarchy(chan26GeoNode, SysCoord::TableTop);
+          roomGeoNode->Modified();
+        }
+        else if (event == vtkMRMLSiemensPlcOpcUaNode::CarmRobotAxisCoordsModified)
+        {
+          opcUaNode->GetCurrentAxisCoordsR2(robotAngles);
+          {
+            MRMLNodeModifyBlocker blocker(chan26GeoNode);
+            chan26GeoNode->SetCarmRobotAngles(robotAngles);
+          }
+          vtkErrorMacro("ProcessMRMLNodesEvents: Update C-arm robot model geometry");
+          this->Channel26Cabin3RobotsLogic->UpdateTransformsHierarchy(chan26GeoNode, SysCoord::FixedReference);
+          roomGeoNode->Modified();
+        }
+      }
     }
   }
   if (caller->IsA("vtkMRMLChannel26GeometryNode"))

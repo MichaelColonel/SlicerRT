@@ -266,28 +266,28 @@ public:
   vtkGetMacro(EmergencyEvacSignal, bool);
   vtkSetMacro(EmergencyEvacSignal, bool);
 
-  vtkGetVector3Macro(KukaCoordsToTcsR1, int32_t);
-  vtkSetVector3Macro(KukaCoordsToTcsR1, int32_t);
+  vtkGetVector6Macro(ReflectionCoordsR1, int32_t);
+  vtkSetVector6Macro(ReflectionCoordsR1, int32_t);
 
-  vtkGetVector3Macro(KukaAnglesToTcsR1, int32_t);
-  vtkSetVector3Macro(KukaAnglesToTcsR1, int32_t);
+  vtkGetVector6Macro(ReflectionCoordsR2, int32_t);
+  vtkSetVector6Macro(ReflectionCoordsR2, int32_t);
 
-  vtkGetVector6Macro(AxisCoordsR1, int32_t);
-  vtkSetVector6Macro(AxisCoordsR1, int32_t);
+  vtkGetVector6Macro(CurrentCoordsR1, int32_t);
+  vtkSetVector6Macro(CurrentCoordsR1, int32_t);
 
-  vtkGetVector3Macro(KukaCoordsToTcsR2, int32_t);
-  vtkSetVector3Macro(KukaCoordsToTcsR2, int32_t);
+  vtkGetVector6Macro(CurrentCoordsR2, int32_t);
+  vtkSetVector6Macro(CurrentCoordsR2, int32_t);
 
-  vtkGetVector3Macro(KukaAnglesToTcsR2, int32_t);
-  vtkSetVector3Macro(KukaAnglesToTcsR2, int32_t);
+  vtkGetVector6Macro(CurrentAxisCoordsR1, int32_t);
+  vtkSetVector6Macro(CurrentAxisCoordsR1, int32_t);
 
-  vtkGetVector6Macro(AxisCoordsR2, int32_t);
-  vtkSetVector6Macro(AxisCoordsR2, int32_t);
+  vtkGetVector6Macro(CurrentAxisCoordsR2, int32_t);
+  vtkSetVector6Macro(CurrentAxisCoordsR2, int32_t);
 
-  void GetAxisCoordsR1(double angles[6]);
-  void GetAxisCoordsR2(double angles[6]);
-  void SetAxisCoordsR1(double angles[6]);
-  void SetAxisCoordsR2(double angles[6]);
+  void GetCurrentAxisCoordsR1(double angles[6]);
+  void GetCurrentAxisCoordsR2(double angles[6]);
+  void SetCurrentAxisCoordsR1(double angles[6]);
+  void SetCurrentAxisCoordsR2(double angles[6]);
 protected:
   vtkMRMLSiemensPlcOpcUaNode();
   ~vtkMRMLSiemensPlcOpcUaNode() override;
@@ -360,15 +360,19 @@ private:
   uint8_t TableTopPosition{ 0 };
   bool EmergencyEvacSignal{ false };
 
-  // Table top robot
-  int32_t KukaCoordsToTcsR1[3] = { 0, 0, 0 }; // X,Y,Z
-  int32_t KukaAnglesToTcsR1[3] = { 0, 0, 0 }; // A,B,C
-  int32_t AxisCoordsR1[6] = { -150580, -137740, 87920, -3780, -92170, -175870 }; // A1, A2, A3, A4, A5, A6
-  // C-arm robot
-  int32_t KukaCoordsToTcsR2[3] = { 0, 0, 0 }; // X,Y,Z
-  int32_t KukaAnglesToTcsR2[3] = { 0, 0, 0 }; // A,B,C
-  int32_t AxisCoordsR2[6] = { 178770, -122030, 142060, 122360, 33380, -130770 }; // A1, A2, A3, A4, A5, A6
-  
+  // Tabletop reflection coords (X,Y,Z,A,B,C)
+  int32_t ReflectionCoordsR1[6] = { 0,0,0,0,0,0 }; // X,Y,Z,A,B,C
+  // C-arm reflection coords (X,Y,Z,A,B,C)
+  int32_t ReflectionCoordsR2[6] = { 0,0,0,0,0,0 }; // X,Y,Z,A,B,C
+  // Tabletop current coords (X,Y,Z,A,B,C)
+  int32_t CurrentCoordsR1[6] = { 0,0,0,0,0,0 }; // X,Y,Z,A,B,C
+  // C-arm current coords (X,Y,Z,A,B,C)
+  int32_t CurrentCoordsR2[6] = { 0,0,0,0,0,0 }; // X,Y,Z,A,B,C
+
+  // Tabletop current axis coords (A1,A2,A3,A4,A5,A6)
+  int32_t CurrentAxisCoordsR1[6] = { -150580, -137740, 87920, -3780, -92170, -175870 }; // A1,A2,A3,A4,A5,A6
+  // C-arm current axis coords (A1,A2,A3,A4,A5,A6)
+  int32_t CurrentAxisCoordsR2[6] = { 178770, -122030, 142060, 122360, 33380, -130770 }; // A1,A2,A3,A4,A5,A6
 };
 
 #endif

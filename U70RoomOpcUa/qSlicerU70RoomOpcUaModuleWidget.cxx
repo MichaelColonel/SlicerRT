@@ -121,7 +121,8 @@ void qSlicerU70RoomOpcUaModuleWidgetPrivate::createClient()
       return;
     }
 
-    QObject::connect(this->OpcUaClient.data(), &QOpcUaClient::connectError, q, &qSlicerU70RoomOpcUaModuleWidget::showErrorDialog);
+    QObject::connect(this->OpcUaClient.data(), &QOpcUaClient::connectError,
+      q, &qSlicerU70RoomOpcUaModuleWidget::showOpcUaErrorDialog);
     OpcUaClient->setApplicationIdentity(OpcUaAppIdentity);
 
     if (OpcUaClient->supportedUserTokenTypes().contains(QOpcUaUserTokenPolicy::TokenType::Certificate))
@@ -247,7 +248,9 @@ void qSlicerU70RoomOpcUaModuleWidget::setup()
 //    }
   }
   
-  // Nodes
+  // Test Widgets
+  QObject::connect(d->PushButton_Test1, SIGNAL(clicked()), this, SLOT(onTest1Clicked()));
+  QObject::connect(d->PushButton_Test2, SIGNAL(clicked()), this, SLOT(onTest2Clicked()));
   // Widgets
   QObject::connect(d->PushButton_ShowSiemensPlcControls, SIGNAL(clicked()),
     this, SLOT(onShowSiemensPlcControlsClicked()));
@@ -636,7 +639,7 @@ void qSlicerU70RoomOpcUaModuleWidget::namespacesArrayUpdated(const QStringList &
 }
 
 //-----------------------------------------------------------------------------
-void qSlicerU70RoomOpcUaModuleWidget::showErrorDialog(QOpcUaErrorState *errorState)
+void qSlicerU70RoomOpcUaModuleWidget::showOpcUaErrorDialog(QOpcUaErrorState *errorState)
 {
   Q_D(qSlicerU70RoomOpcUaModuleWidget);
   const QString statuscode = QOpcUa::statusToString(errorState->errorCode());
@@ -692,4 +695,39 @@ void qSlicerU70RoomOpcUaModuleWidget::clientState(QOpcUaClient::ClientState stat
   default:
     break;
   }
+}
+
+//-----------------------------------------------------------------------------
+void qSlicerU70RoomOpcUaModuleWidget::onTest1Clicked()
+{
+  Q_D(qSlicerU70RoomOpcUaModuleWidget);
+  if (!d->SiemensPlcOpcUaNode)
+  {
+    qCritical() << Q_FUNC_INFO << tr("Siemens PLC node is invalid");
+    return;
+  }
+
+  int32_t TableRobotAngles[6] = { 150580, -137740, 87920, -3780, -92170, -175870 };
+  {
+    MRMLNodeModifyBlocker blocker(d->SiemensPlcOpcUaNode.GetPointer());
+    d->SiemensPlcOpcUaNode->SetCurrentAxisCoordsR1(TableRobotAngles);
+  }
+  d->SiemensPlcOpcUaNode->InvokeCustomModifiedEvent(vtkMRMLSiemensPlcOpcUaNode::TableRobotAxisCoordsModified);
+}
+
+//-----------------------------------------------------------------------------
+void qSlicerU70RoomOpcUaModuleWidget::onTest2Clicked()
+{
+  Q_D(qSlicerU70RoomOpcUaModuleWidget);
+  if (!d->SiemensPlcOpcUaNode)
+  {
+    qCritical() << Q_FUNC_INFO << tr("Siemens PLC node is invalid");
+    return;
+  }
+  int32_t CarmRobotAngles[6] = { -770, -122030, 142060, 122360, 33380, -130770 };
+  {
+    MRMLNodeModifyBlocker blocker(d->SiemensPlcOpcUaNode.GetPointer());
+    d->SiemensPlcOpcUaNode->SetCurrentAxisCoordsR2(CarmRobotAngles);
+  }
+  d->SiemensPlcOpcUaNode->InvokeCustomModifiedEvent(vtkMRMLSiemensPlcOpcUaNode::CarmRobotAxisCoordsModified);
 }

@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>356</width>
-    <height>618</height>
+    <width>375</width>
+    <height>679</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -23,12 +23,12 @@
       <item>
        <layout class="QHBoxLayout" name="horizontalLayout">
         <item>
-         <widget class="QRadioButton" name="RadioButton_Cabin1">
+         <widget class="QRadioButton" name="RadioButton_Room1">
           <property name="enabled">
-           <bool>false</bool>
+           <bool>true</bool>
           </property>
           <property name="text">
-           <string>Cabin-1</string>
+           <string>Room-1</string>
           </property>
           <attribute name="buttonGroup">
            <string notr="true">ButtonGroup_TreatmentRoomType</string>
@@ -36,12 +36,12 @@
          </widget>
         </item>
         <item>
-         <widget class="QRadioButton" name="RadioButton_Cabin2">
+         <widget class="QRadioButton" name="RadioButton_Room2">
           <property name="enabled">
-           <bool>false</bool>
+           <bool>true</bool>
           </property>
           <property name="text">
-           <string>Cabin-2</string>
+           <string>Room-2</string>
           </property>
           <attribute name="buttonGroup">
            <string notr="true">ButtonGroup_TreatmentRoomType</string>
@@ -49,9 +49,9 @@
          </widget>
         </item>
         <item>
-         <widget class="QRadioButton" name="RadioButton_Cabin3">
+         <widget class="QRadioButton" name="RadioButton_Room3">
           <property name="text">
-           <string>Cabin-3</string>
+           <string>Room-3</string>
           </property>
           <property name="checked">
            <bool>true</bool>
@@ -395,10 +395,10 @@
       <bool>true</bool>
      </property>
      <property name="text">
-      <string>Patient on TableTop control</string>
+      <string>Patient on Tabletop control</string>
      </property>
      <property name="collapsed">
-      <bool>true</bool>
+      <bool>false</bool>
      </property>
      <layout class="QGridLayout" name="gridLayout_7">
       <item row="0" column="0">
@@ -453,7 +453,7 @@
       <string>Vizualization</string>
      </property>
      <property name="collapsed">
-      <bool>true</bool>
+      <bool>false</bool>
      </property>
      <layout class="QGridLayout" name="gridLayout_10">
       <item row="0" column="0">
@@ -518,7 +518,7 @@
       <string>Beam's eye view</string>
      </property>
      <property name="collapsed">
-      <bool>true</bool>
+      <bool>false</bool>
      </property>
      <layout class="QGridLayout" name="gridLayout_9">
       <item row="2" column="0">
@@ -529,7 +529,7 @@
            <string>X+</string>
           </property>
           <property name="icon">
-           <iconset resource="../../../../../../../../tmp/PatientPositioning/Resources/qSlicerPatientPositioningModule.qrc">
+           <iconset>
             <normaloff>:/Icons/go-up.png</normaloff>:/Icons/go-up.png</iconset>
           </property>
          </widget>
@@ -540,7 +540,7 @@
            <string>X-</string>
           </property>
           <property name="icon">
-           <iconset resource="../../../../../../../../tmp/PatientPositioning/Resources/qSlicerPatientPositioningModule.qrc">
+           <iconset>
             <normaloff>:/Icons/go-previous.png</normaloff>:/Icons/go-previous.png</iconset>
           </property>
          </widget>
@@ -564,7 +564,7 @@
            <string>Y-</string>
           </property>
           <property name="icon">
-           <iconset resource="../../../../../../../../tmp/PatientPositioning/Resources/qSlicerPatientPositioningModule.qrc">
+           <iconset>
             <normaloff>:/Icons/go-down.png</normaloff>:/Icons/go-down.png</iconset>
           </property>
          </widget>
@@ -585,7 +585,7 @@
            <string>Y+</string>
           </property>
           <property name="icon">
-           <iconset resource="../../../../../../../../tmp/PatientPositioning/Resources/qSlicerPatientPositioningModule.qrc">
+           <iconset>
             <normaloff>:/Icons/go-up.png</normaloff>:/Icons/go-up.png</iconset>
           </property>
          </widget>
@@ -698,9 +698,7 @@
    <container>1</container>
   </customwidget>
  </customwidgets>
- <resources>
-  <include location="../../../../../../../../tmp/PatientPositioning/Resources/qSlicerPatientPositioningModule.qrc"/>
- </resources>
+ <resources/>
  <connections>
   <connection>
    <sender>qSlicerU70RoomGeoModuleWidget</sender>

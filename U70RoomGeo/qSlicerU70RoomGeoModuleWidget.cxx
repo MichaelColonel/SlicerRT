@@ -110,15 +110,15 @@ vtkSlicerChannel26Cabin3RobotsTransformLogic* qSlicerU70RoomGeoModuleWidgetPriva
 QString qSlicerU70RoomGeoModuleWidgetPrivate::getTreatmentRoomGeometryFile() const
 {
   QRadioButton* rButton = qobject_cast< QRadioButton* >(this->ButtonGroup_TreatmentRoomType->checkedButton());
-  if (rButton && rButton == this->RadioButton_Cabin1)
+  if (rButton && rButton == this->RadioButton_Room1)
   {
     return "Channel26Cabin1Geometry";
   }
-  else if (rButton && rButton == this->RadioButton_Cabin2)
+  else if (rButton && rButton == this->RadioButton_Room2)
   {
     return "Channel26Cabin2Geometry";
   }
-  else if (rButton && rButton == this->RadioButton_Cabin3)
+  else if (rButton && rButton == this->RadioButton_Room3)
   {
     return "Channel26Cabin3Geometry";
   }
@@ -270,11 +270,31 @@ void qSlicerU70RoomGeoModuleWidget::onLoadTreatmentRoomButtonClicked()
     return;
   }
 
+  qCritical() << Q_FUNC_INFO << "1";
   if (!d->ParameterNode)
   {
     return;
   }
+  if (d->ButtonGroup_TreatmentRoomType->checkedButton() == d->RadioButton_Room3)
+  {
+    qCritical() << Q_FUNC_INFO << "1.1";
+    MRMLNodeModifyBlocker blocker(d->ParameterNode);
+    d->ParameterNode->SetU70RoomGeo(vtkMRMLU70RoomGeoNode::ROOM3);
+  }
+  else if (d->ButtonGroup_TreatmentRoomType->checkedButton() == d->RadioButton_Room2)
+  {
+    qCritical() << Q_FUNC_INFO << "1.2";
+    MRMLNodeModifyBlocker blocker(d->ParameterNode);
+    d->ParameterNode->SetU70RoomGeo(vtkMRMLU70RoomGeoNode::ROOM2);
+  }
+  else if (d->ButtonGroup_TreatmentRoomType->checkedButton() == d->RadioButton_Room1)
+  {
+    qCritical() << Q_FUNC_INFO << "1.3";
+    MRMLNodeModifyBlocker blocker(d->ParameterNode);
+    d->ParameterNode->SetU70RoomGeo(vtkMRMLU70RoomGeoNode::ROOM1);
+  }
 
+  qCritical() << Q_FUNC_INFO << "2";
   using SysCoord = vtkSlicerChannel26Cabin3RobotsTransformLogic::CoordinateSystemIdentifier;
   // Get treatment machine descriptor file path
   QString treatmentMachineType = d->getTreatmentRoomGeometryFile();
@@ -301,7 +321,7 @@ void qSlicerU70RoomGeoModuleWidget::onLoadTreatmentRoomButtonClicked()
   {
     d->ParameterNode->SetTreatmentMachineType("Channel26Cabin3Geometry");
   }
-
+  qCritical() << Q_FUNC_INFO << "3";
   // Check if there is a machine already loaded and ask user what to do if so
   vtkMRMLSubjectHierarchyNode* shNode = this->mrmlScene()->GetSubjectHierarchyNode();
   std::vector<vtkIdType> allItemIDs;
@@ -330,12 +350,14 @@ void qSlicerU70RoomGeoModuleWidget::onLoadTreatmentRoomButtonClicked()
     channel26GeometryNode->SetHideFromEditors(0);
     scene->AddNode(channel26GeometryNode);
     d->ParameterNode->SetAndObserveChannel26GeometryNode(channel26GeometryNode.GetPointer());
+    qCritical() << Q_FUNC_INFO << "4";
   }
   else
   {
     vtkMRMLChannel26GeometryNode* channel26GeometryNode = vtkMRMLChannel26GeometryNode::SafeDownCast(
       scene->GetFirstNodeByClass("vtkMRMLChannel26GeometryNode"));
     d->ParameterNode->SetAndObserveChannel26GeometryNode(channel26GeometryNode);
+    qCritical() << Q_FUNC_INFO << "6";
   }
   d->ParameterNode->SetTreatmentMachineDescriptorFilePath(descriptorFilePath.toUtf8().constData());
 
@@ -377,10 +399,12 @@ void qSlicerU70RoomGeoModuleWidget::onLoadTreatmentRoomButtonClicked()
   vtkMRMLChannel26GeometryNode* channel26GeometryNode = d->ParameterNode->GetChannel26GeometryNode();
   if (channel26GeometryNode)
   {
+    qCritical() << Q_FUNC_INFO << "7";
     d->getLayoutManager()->pauseRender();
     loadedParts = d->logic()->LoadTreatmentMachineComponents(d->ParameterNode);
     d->getLayoutManager()->resumeRender();
   }
+  qCritical() << Q_FUNC_INFO << "8";
   // TODO: Unable collision detection later when models will be OK
 /*
   // Warn the user if collision detection is disabled for certain part pairs
@@ -446,6 +470,7 @@ void qSlicerU70RoomGeoModuleWidget::onLoadTreatmentRoomButtonClicked()
   vtkSlicerChannel26Cabin3RobotsTransformLogic* channel26Logic = d->channel26RobotsLogic();
   if (channel26Logic && channel26GeometryNode)
   {
+    qCritical() << Q_FUNC_INFO << "9";
     d->getLayoutManager()->pauseRender();
     channel26Logic->ResetToInitialPositions();
     channel26Logic->UpdateTransformsHierarchy(channel26GeometryNode, SysCoord::Patient);
@@ -464,7 +489,7 @@ void qSlicerU70RoomGeoModuleWidget::onLoadTreatmentRoomButtonClicked()
     
     d->getLayoutManager()->resumeRender();
   }
-
+  qCritical() << Q_FUNC_INFO << "10";
   QApplication::restoreOverrideCursor();
 }
 
@@ -556,10 +581,11 @@ void qSlicerU70RoomGeoModuleWidget::setMRMLScene(vtkMRMLScene* scene)
   // Find parameters node or create it if there is none in the scene
   if (scene)
   {
-    vtkMRMLNode* node = scene->GetFirstNodeByClass("vtkMRMLChannel26GeometryNode");
+    vtkMRMLNode* node = scene->GetFirstNodeByClass("vtkMRMLU70RoomGeoNode");
     if (node)
     {
       this->setParameterNode(node);
+      qCritical() << Q_FUNC_INFO << "Z";
     }
     else
     {
@@ -582,7 +608,7 @@ void qSlicerU70RoomGeoModuleWidget::setParameterNode(vtkMRMLNode* node)
     this, SLOT(updateWidgetFromMRML()));
 
   d->ParameterNode = parameterNode;
-
+  qCritical() << Q_FUNC_INFO << "q";
   // Set parameter node to children (FixedBeamAxis, CarmXrayBeamWidget) widgets
 //  d->FixedBeamAxisWidget->setParameterNode(d->ParameterNode);
 //  d->CarmXrayBeamWidget->setParameterNode(d->ParameterNode);
@@ -591,12 +617,13 @@ void qSlicerU70RoomGeoModuleWidget::setParameterNode(vtkMRMLNode* node)
   // (then in the meantime the comboboxes selected the first one from the scene and we have to set that)
   if (d->ParameterNode)
   {
-    vtkMRMLSiemensPlcOpcUaNode* opcUaNode = vtkMRMLSiemensPlcOpcUaNode::SafeDownCast(this->mrmlScene()->GetFirstNodeByClass("vtkMRMLSiemensPlcOpcUaNode"));
-    if (opcUaNode)
-    {
-      qDebug() << Q_FUNC_INFO << "OPC UA node is OK";
-      d->ParameterNode->SetAndObserveChannel26PlcOpcUaNode(opcUaNode);
-    }
+    qCritical() << Q_FUNC_INFO << "ZZ";
+//    vtkMRMLSiemensPlcOpcUaNode* opcUaNode = vtkMRMLSiemensPlcOpcUaNode::SafeDownCast(this->mrmlScene()->GetFirstNodeByClass("vtkMRMLSiemensPlcOpcUaNode"));
+//    if (opcUaNode)
+//    {
+//      qDebug() << Q_FUNC_INFO << "OPC UA node is OK";
+//      d->ParameterNode->SetAndObserveChannel26PlcOpcUaNode(opcUaNode);
+//    }
   }
   this->updateWidgetFromMRML();
 }

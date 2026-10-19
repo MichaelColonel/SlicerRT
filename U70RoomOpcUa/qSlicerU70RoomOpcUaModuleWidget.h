@@ -70,7 +70,9 @@ public slots:
   void namespacesArrayUpdated(const QStringList &namespaceArray);
   void clientError(QOpcUaClient::ClientError);
   void clientState(QOpcUaClient::ClientState);
-  void showErrorDialog(QOpcUaErrorState *errorState);
+  void showOpcUaErrorDialog(QOpcUaErrorState *errorState);
+  void onTest1Clicked();
+  void onTest2Clicked();
 
 signals:
   void siemensPlcOpcUaModeChanged(vtkMRMLSiemensPlcOpcUaNode::ModeType);

@@ -82,9 +82,9 @@ public:
   void SetAndObserveChannel26GeometryNode(vtkMRMLChannel26GeometryNode* node);
 
   /// Get observed Channel-26 SIEMENS PLC OPC UA node
-  vtkMRMLSiemensPlcOpcUaNode* GetChannel26PlcOpcUaNode();
+//  vtkMRMLSiemensPlcOpcUaNode* GetChannel26PlcOpcUaNode();
   /// Set and observe Channel-26 geometry node
-  void SetAndObserveChannel26PlcOpcUaNode(vtkMRMLSiemensPlcOpcUaNode* node);
+//  void SetAndObserveChannel26PlcOpcUaNode(vtkMRMLSiemensPlcOpcUaNode* node);
 
   /// Get observed beam axis (line node)
   vtkMRMLMarkupsLineNode* GetBeamAxisLineNode();
@@ -139,7 +139,7 @@ protected:
   /// Name of treatment machine used (must match folder name where the models can be found)
   char* TreatmentMachineType;
   /// Type of treatment machine room geometry 
-  U70RoomGeoType U70RoomGeo{ U70RoomGeoType_Last };
+  U70RoomGeoType U70RoomGeo{ vtkMRMLU70RoomGeoNode::ROOM3 };
 };
 
 #endif
