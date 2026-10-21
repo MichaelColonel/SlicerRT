@@ -266,11 +266,11 @@ public:
   vtkGetMacro(EmergencyEvacSignal, bool);
   vtkSetMacro(EmergencyEvacSignal, bool);
 
-  vtkGetVector6Macro(ReflectionCoordsR1, int32_t);
-  vtkSetVector6Macro(ReflectionCoordsR1, int32_t);
+  vtkGetVector6Macro(ConfirmedCoordsR1, int32_t);
+  vtkSetVector6Macro(ConfirmedCoordsR1, int32_t);
 
-  vtkGetVector6Macro(ReflectionCoordsR2, int32_t);
-  vtkSetVector6Macro(ReflectionCoordsR2, int32_t);
+  vtkGetVector6Macro(ConfirmedCoordsR2, int32_t);
+  vtkSetVector6Macro(ConfirmedCoordsR2, int32_t);
 
   vtkGetVector6Macro(CurrentCoordsR1, int32_t);
   vtkSetVector6Macro(CurrentCoordsR1, int32_t);
@@ -288,6 +288,12 @@ public:
   void GetCurrentAxisCoordsR2(double angles[6]);
   void SetCurrentAxisCoordsR1(double angles[6]);
   void SetCurrentAxisCoordsR2(double angles[6]);
+
+  void GetCurrentCoordsR1(double kukaCoords[6]);
+  void GetCurrentCoordsR2(double kukaCoords[6]);
+  void GetConfirmedTargetCoordsR1(double kukaCoords[6]);
+  void GetConfirmedTargetCoordsR2(double kukaCoords[6]);
+
 protected:
   vtkMRMLSiemensPlcOpcUaNode();
   ~vtkMRMLSiemensPlcOpcUaNode() override;
@@ -360,10 +366,10 @@ private:
   uint8_t TableTopPosition{ 0 };
   bool EmergencyEvacSignal{ false };
 
-  // Tabletop reflection coords (X,Y,Z,A,B,C)
-  int32_t ReflectionCoordsR1[6] = { 0,0,0,0,0,0 }; // X,Y,Z,A,B,C
-  // C-arm reflection coords (X,Y,Z,A,B,C)
-  int32_t ReflectionCoordsR2[6] = { 0,0,0,0,0,0 }; // X,Y,Z,A,B,C
+  // Tabletop confirmed coords (X,Y,Z,A,B,C)
+  int32_t ConfirmedCoordsR1[6] = { 0,0,0,0,0,0 }; // X,Y,Z,A,B,C
+  // C-arm confirmed coords (X,Y,Z,A,B,C)
+  int32_t ConfirmedCoordsR2[6] = { 0,0,0,0,0,0 }; // X,Y,Z,A,B,C
   // Tabletop current coords (X,Y,Z,A,B,C)
   int32_t CurrentCoordsR1[6] = { 0,0,0,0,0,0 }; // X,Y,Z,A,B,C
   // C-arm current coords (X,Y,Z,A,B,C)

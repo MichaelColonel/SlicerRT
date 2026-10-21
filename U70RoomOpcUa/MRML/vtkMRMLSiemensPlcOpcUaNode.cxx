@@ -78,8 +78,8 @@ void vtkMRMLSiemensPlcOpcUaNode::WriteXML(ostream& of, int nIndent)
   vtkMRMLWriteXMLVectorMacro(currentAxisCoordsR2, CurrentAxisCoordsR2, int32_t, 6);
   vtkMRMLWriteXMLVectorMacro(currentCoordsR1, CurrentCoordsR1, int32_t, 6);
   vtkMRMLWriteXMLVectorMacro(currentCoordsR2, CurrentCoordsR2, int32_t, 6);
-  vtkMRMLWriteXMLVectorMacro(reflectionCoordsR1, ReflectionCoordsR1, int32_t, 6);
-  vtkMRMLWriteXMLVectorMacro(reflectionCoordsR2, ReflectionCoordsR2, int32_t, 6);
+  vtkMRMLWriteXMLVectorMacro(confirmedCoordsR1, ConfirmedCoordsR1, int32_t, 6);
+  vtkMRMLWriteXMLVectorMacro(confirmedCoordsR2, ConfirmedCoordsR2, int32_t, 6);
   vtkMRMLWriteXMLEndMacro(); 
 }
 
@@ -118,8 +118,8 @@ void vtkMRMLSiemensPlcOpcUaNode::ReadXMLAttributes(const char** atts)
   vtkMRMLReadXMLVectorMacro(currentAxisCoordsR2, CurrentAxisCoordsR2, int32_t, 6);
   vtkMRMLReadXMLVectorMacro(currentCoordsR1, CurrentCoordsR1, int32_t, 6);
   vtkMRMLReadXMLVectorMacro(currentCoordsR2, CurrentCoordsR2, int32_t, 6);
-  vtkMRMLReadXMLVectorMacro(reflectionCoordsR1, ReflectionCoordsR1, int32_t, 6);
-  vtkMRMLReadXMLVectorMacro(reflectionCoordsR2, ReflectionCoordsR2, int32_t, 6);
+  vtkMRMLReadXMLVectorMacro(confirmedCoordsR1, ConfirmedCoordsR1, int32_t, 6);
+  vtkMRMLReadXMLVectorMacro(confirmedCoordsR2, ConfirmedCoordsR2, int32_t, 6);
   vtkMRMLReadXMLEndMacro();
 
   this->EndModify(disabledModify);
@@ -171,8 +171,8 @@ void vtkMRMLSiemensPlcOpcUaNode::Copy(vtkMRMLNode *anode)
   vtkMRMLCopyVectorMacro(CurrentAxisCoordsR2, int32_t, 6);
   vtkMRMLCopyVectorMacro(CurrentCoordsR1, int32_t, 6);
   vtkMRMLCopyVectorMacro(CurrentCoordsR2, int32_t, 6);
-  vtkMRMLCopyVectorMacro(ReflectionCoordsR1, int32_t, 6);
-  vtkMRMLCopyVectorMacro(ReflectionCoordsR2, int32_t, 6);
+  vtkMRMLCopyVectorMacro(ConfirmedCoordsR1, int32_t, 6);
+  vtkMRMLCopyVectorMacro(ConfirmedCoordsR2, int32_t, 6);
   vtkMRMLCopyEndMacro(); 
 
   this->EndModify(disabledModify);
@@ -220,8 +220,8 @@ void vtkMRMLSiemensPlcOpcUaNode::CopyContent(vtkMRMLNode *anode, bool deepCopy/*
   vtkMRMLCopyVectorMacro(CurrentAxisCoordsR2, int32_t, 6);
   vtkMRMLCopyVectorMacro(CurrentCoordsR1, int32_t, 6);
   vtkMRMLCopyVectorMacro(CurrentCoordsR2, int32_t, 6);
-  vtkMRMLCopyVectorMacro(ReflectionCoordsR1, int32_t, 6);
-  vtkMRMLCopyVectorMacro(ReflectionCoordsR2, int32_t, 6);
+  vtkMRMLCopyVectorMacro(ConfirmedCoordsR1, int32_t, 6);
+  vtkMRMLCopyVectorMacro(ConfirmedCoordsR2, int32_t, 6);
   vtkMRMLCopyEndMacro();
 }
 
@@ -258,8 +258,8 @@ void vtkMRMLSiemensPlcOpcUaNode::PrintSelf(ostream& os, vtkIndent indent)
   vtkMRMLPrintVectorMacro(CurrentAxisCoordsR2, int32_t, 6);
   vtkMRMLPrintVectorMacro(CurrentCoordsR1, int32_t, 6);
   vtkMRMLPrintVectorMacro(CurrentCoordsR2, int32_t, 6);
-  vtkMRMLPrintVectorMacro(ReflectionCoordsR1, int32_t, 6);
-  vtkMRMLPrintVectorMacro(ReflectionCoordsR2, int32_t, 6);
+  vtkMRMLPrintVectorMacro(ConfirmedCoordsR1, int32_t, 6);
+  vtkMRMLPrintVectorMacro(ConfirmedCoordsR2, int32_t, 6);
   vtkMRMLPrintEndMacro(); 
 }
 
@@ -374,4 +374,48 @@ void vtkMRMLSiemensPlcOpcUaNode::SetCurrentAxisCoordsR2(double angles[6])
   this->CurrentAxisCoordsR2[3] = static_cast< int32_t >(angles[3] * 1000.);
   this->CurrentAxisCoordsR2[4] = static_cast< int32_t >(angles[4] * 1000.);
   this->CurrentAxisCoordsR2[5] = static_cast< int32_t >(angles[5] * 1000.);
+}
+
+//---------------------------------------------------------------------------
+void vtkMRMLSiemensPlcOpcUaNode::GetConfirmedTargetCoordsR1(double kukaCoords[6])
+{
+  kukaCoords[0] = double(this->ConfirmedCoordsR1[0]) / 1000.;
+  kukaCoords[1] = double(this->ConfirmedCoordsR1[1]) / 1000.;
+  kukaCoords[2] = double(this->ConfirmedCoordsR1[2]) / 1000.;
+  kukaCoords[3] = double(this->ConfirmedCoordsR1[3]) / 1000.;
+  kukaCoords[4] = double(this->ConfirmedCoordsR1[4]) / 1000.;
+  kukaCoords[5] = double(this->ConfirmedCoordsR1[5]) / 1000.;
+}
+
+//---------------------------------------------------------------------------
+void vtkMRMLSiemensPlcOpcUaNode::GetConfirmedTargetCoordsR2(double kukaCoords[6])
+{
+  kukaCoords[0] = double(this->ConfirmedCoordsR2[0]) / 1000.;
+  kukaCoords[1] = double(this->ConfirmedCoordsR2[1]) / 1000.;
+  kukaCoords[2] = double(this->ConfirmedCoordsR2[2]) / 1000.;
+  kukaCoords[3] = double(this->ConfirmedCoordsR2[3]) / 1000.;
+  kukaCoords[4] = double(this->ConfirmedCoordsR2[4]) / 1000.;
+  kukaCoords[5] = double(this->ConfirmedCoordsR2[5]) / 1000.;
+}
+
+//---------------------------------------------------------------------------
+void vtkMRMLSiemensPlcOpcUaNode::GetCurrentCoordsR1(double kukaCoords[6])
+{
+  kukaCoords[0] = double(this->CurrentCoordsR1[0]) / 1000.;
+  kukaCoords[1] = double(this->CurrentCoordsR1[1]) / 1000.;
+  kukaCoords[2] = double(this->CurrentCoordsR1[2]) / 1000.;
+  kukaCoords[3] = double(this->CurrentCoordsR1[3]) / 1000.;
+  kukaCoords[4] = double(this->CurrentCoordsR1[4]) / 1000.;
+  kukaCoords[5] = double(this->CurrentCoordsR1[5]) / 1000.;
+}
+
+//---------------------------------------------------------------------------
+void vtkMRMLSiemensPlcOpcUaNode::GetCurrentCoordsR2(double kukaCoords[6])
+{
+  kukaCoords[0] = double(this->CurrentCoordsR2[0]) / 1000.;
+  kukaCoords[1] = double(this->CurrentCoordsR2[1]) / 1000.;
+  kukaCoords[2] = double(this->CurrentCoordsR2[2]) / 1000.;
+  kukaCoords[3] = double(this->CurrentCoordsR2[3]) / 1000.;
+  kukaCoords[4] = double(this->CurrentCoordsR2[4]) / 1000.;
+  kukaCoords[5] = double(this->CurrentCoordsR2[5]) / 1000.;
 }

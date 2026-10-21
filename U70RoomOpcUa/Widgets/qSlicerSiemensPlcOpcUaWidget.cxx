@@ -236,18 +236,20 @@ const QString BUTTONS_MAKEXRAY_NODE_NAME = BUTTONS_NODE_NAME + ".MakeXRay";
 const QString BUTTONS_MAKEXRAY_PRESSED_NODE_NAME = BUTTONS_MAKEXRAY_NODE_NAME + IS_PRESSED;
 const QString BUTTONS_MAKEXRAY_ENABLED_NODE_NAME = BUTTONS_MAKEXRAY_NODE_NAME + IS_ENABLED;
 
+// Reflection target coordinates R1 (confirmed or accepted coordinates by the R1 Tabletop robot)
 const QString KUKA_REFLTARGETCOORDS_R1_NODE_NAME = RTK_PLC_NODE_NAME + ".ReflTargetCoords_R1";
 const QString KUKA_REFLTARGETCOORDS_R1_X_NODE_NAME = KUKA_REFLTARGETCOORDS_R1_NODE_NAME + DOT + QLatin1String(KUKAX);
 const QString KUKA_REFLTARGETCOORDS_R1_Y_NODE_NAME = KUKA_REFLTARGETCOORDS_R1_NODE_NAME + DOT + QLatin1String(KUKAY);
-const QString KUKA_REFLTARGETCOORDS_R1_Z_NODE_NAME = KUKA_REFLTARGETCOORDS_R1_NODE_NAME + DOT + QLatin1String(KUKAX);
+const QString KUKA_REFLTARGETCOORDS_R1_Z_NODE_NAME = KUKA_REFLTARGETCOORDS_R1_NODE_NAME + DOT + QLatin1String(KUKAZ);
 const QString KUKA_REFLTARGETCOORDS_R1_A_NODE_NAME = KUKA_REFLTARGETCOORDS_R1_NODE_NAME + DOT + QLatin1String(KUKAA);
 const QString KUKA_REFLTARGETCOORDS_R1_B_NODE_NAME = KUKA_REFLTARGETCOORDS_R1_NODE_NAME + DOT + QLatin1String(KUKAB);
 const QString KUKA_REFLTARGETCOORDS_R1_C_NODE_NAME = KUKA_REFLTARGETCOORDS_R1_NODE_NAME + DOT + QLatin1String(KUKAC);
 
+// Reflection target coordinates R2 (confirmed or accepted coordinates by the R2 C-Arm robot)
 const QString KUKA_REFLTARGETCOORDS_R2_NODE_NAME = RTK_PLC_NODE_NAME + ".ReflTargetCoords_R2";
 const QString KUKA_REFLTARGETCOORDS_R2_X_NODE_NAME = KUKA_REFLTARGETCOORDS_R2_NODE_NAME + DOT + QLatin1String(KUKAX);
 const QString KUKA_REFLTARGETCOORDS_R2_Y_NODE_NAME = KUKA_REFLTARGETCOORDS_R2_NODE_NAME + DOT + QLatin1String(KUKAY);
-const QString KUKA_REFLTARGETCOORDS_R2_Z_NODE_NAME = KUKA_REFLTARGETCOORDS_R2_NODE_NAME + DOT + QLatin1String(KUKAX);
+const QString KUKA_REFLTARGETCOORDS_R2_Z_NODE_NAME = KUKA_REFLTARGETCOORDS_R2_NODE_NAME + DOT + QLatin1String(KUKAZ);
 const QString KUKA_REFLTARGETCOORDS_R2_A_NODE_NAME = KUKA_REFLTARGETCOORDS_R2_NODE_NAME + DOT + QLatin1String(KUKAA);
 const QString KUKA_REFLTARGETCOORDS_R2_B_NODE_NAME = KUKA_REFLTARGETCOORDS_R2_NODE_NAME + DOT + QLatin1String(KUKAB);
 const QString KUKA_REFLTARGETCOORDS_R2_C_NODE_NAME = KUKA_REFLTARGETCOORDS_R2_NODE_NAME + DOT + QLatin1String(KUKAC);
@@ -255,7 +257,7 @@ const QString KUKA_REFLTARGETCOORDS_R2_C_NODE_NAME = KUKA_REFLTARGETCOORDS_R2_NO
 const QString KUKA_CURRENTCOORDS_R1_NODE_NAME = RTK_PLC_NODE_NAME + ".CurrentCoords_R1";
 const QString KUKA_CURRENTCOORDS_R1_X_NODE_NAME = KUKA_CURRENTCOORDS_R1_NODE_NAME + DOT + QLatin1String(KUKAX);
 const QString KUKA_CURRENTCOORDS_R1_Y_NODE_NAME = KUKA_CURRENTCOORDS_R1_NODE_NAME + DOT + QLatin1String(KUKAY);
-const QString KUKA_CURRENTCOORDS_R1_Z_NODE_NAME = KUKA_CURRENTCOORDS_R1_NODE_NAME + DOT + QLatin1String(KUKAX);
+const QString KUKA_CURRENTCOORDS_R1_Z_NODE_NAME = KUKA_CURRENTCOORDS_R1_NODE_NAME + DOT + QLatin1String(KUKAZ);
 const QString KUKA_CURRENTCOORDS_R1_A_NODE_NAME = KUKA_CURRENTCOORDS_R1_NODE_NAME + DOT + QLatin1String(KUKAA);
 const QString KUKA_CURRENTCOORDS_R1_B_NODE_NAME = KUKA_CURRENTCOORDS_R1_NODE_NAME + DOT + QLatin1String(KUKAB);
 const QString KUKA_CURRENTCOORDS_R1_C_NODE_NAME = KUKA_CURRENTCOORDS_R1_NODE_NAME + DOT + QLatin1String(KUKAC);
@@ -269,7 +271,7 @@ const QString KUKA_CURRENTCOORDS_R1_A6_NODE_NAME = KUKA_CURRENTCOORDS_R1_NODE_NA
 const QString KUKA_CURRENTCOORDS_R2_NODE_NAME = RTK_PLC_NODE_NAME + ".CurrentCoords_R2";
 const QString KUKA_CURRENTCOORDS_R2_X_NODE_NAME = KUKA_CURRENTCOORDS_R2_NODE_NAME + DOT + QLatin1String(KUKAX);
 const QString KUKA_CURRENTCOORDS_R2_Y_NODE_NAME = KUKA_CURRENTCOORDS_R2_NODE_NAME + DOT + QLatin1String(KUKAY);
-const QString KUKA_CURRENTCOORDS_R2_Z_NODE_NAME = KUKA_CURRENTCOORDS_R2_NODE_NAME + DOT + QLatin1String(KUKAX);
+const QString KUKA_CURRENTCOORDS_R2_Z_NODE_NAME = KUKA_CURRENTCOORDS_R2_NODE_NAME + DOT + QLatin1String(KUKAZ);
 const QString KUKA_CURRENTCOORDS_R2_A_NODE_NAME = KUKA_CURRENTCOORDS_R2_NODE_NAME + DOT + QLatin1String(KUKAA);
 const QString KUKA_CURRENTCOORDS_R2_B_NODE_NAME = KUKA_CURRENTCOORDS_R2_NODE_NAME + DOT + QLatin1String(KUKAB);
 const QString KUKA_CURRENTCOORDS_R2_C_NODE_NAME = KUKA_CURRENTCOORDS_R2_NODE_NAME + DOT + QLatin1String(KUKAC);
@@ -281,6 +283,68 @@ const QString KUKA_CURRENTCOORDS_R2_A5_NODE_NAME = KUKA_CURRENTCOORDS_R2_NODE_NA
 const QString KUKA_CURRENTCOORDS_R2_A6_NODE_NAME = KUKA_CURRENTCOORDS_R2_NODE_NAME + DOT + QLatin1String(AXISCOORDA6);
 
 const QOpcUaMonitoringParameters OpcUaMonitorParameters(100);
+
+const QStringList ReadValueFullNodeNames = {
+    ASU_ERROR_MESSAGES_NODE_NAME,
+    ASU_SERVICE_MESSAGES_NODE_NAME,
+    ASU_MESSAGES_NODE_NAME,
+    ASU_MODE_NODE_NAME,
+    ASU_STATUS_RTK_NODE_NAME,
+    ASU_STATUS_R1_TABLE_NODE_NAME,
+    ASU_STATUS_R2_CARM_NODE_NAME,
+    BUTTONS_AM_R1_LOADTOISO_ENABLED_NODE_NAME,
+    BUTTONS_AM_R1_TOLOAD_ENABLED_NODE_NAME,
+    BUTTONS_AM_R1_NEWCOORDS_ENABLED_NODE_NAME,
+    BUTTONS_AM_R2_TOHOME_ENABLED_NODE_NAME,
+    BUTTONS_AM_R2_TOPLANE1_ENABLED_NODE_NAME,
+    BUTTONS_AM_R2_TOPLANE2_ENABLED_NODE_NAME,
+    BUTTONS_AM_R1R2_EMEVAC_ENABLED_NODE_NAME,
+    BUTTONS_AM_APPLYTABLEPOSITION_ENABLED_NODE_NAME,
+    BUTTONS_SM_R1_BREAKTEST_ENABLED_NODE_NAME,
+    BUTTONS_SM_R1_MASREFTEST_ENABLED_NODE_NAME,
+    BUTTONS_SM_R1_LOAD_ENABLED_NODE_NAME,
+    BUTTONS_SM_R1_SERVICEPOS1_ENABLED_NODE_NAME,
+    BUTTONS_SM_R1_SERVICEPOS2_ENABLED_NODE_NAME,
+    BUTTONS_SM_R1_SERVICEPOS3_ENABLED_NODE_NAME,
+    BUTTONS_SM_R2_BREAKTEST_ENABLED_NODE_NAME,
+    BUTTONS_SM_R2_MASREFTEST_ENABLED_NODE_NAME,
+    BUTTONS_SM_R2_HOME_ENABLED_NODE_NAME,
+    BUTTONS_SM_R2_SERVICEPOS1_ENABLED_NODE_NAME,
+    BUTTONS_SM_R2_SERVICEPOS2_ENABLED_NODE_NAME,
+    BUTTONS_SM_R2_SERVICEPOS3_ENABLED_NODE_NAME,
+    BUTTONS_SM_RESTARTSM_ENABLED_NODE_NAME,
+    BUTTONS_KCM_ALLOWT1_ENABLED_NODE_NAME,
+    BUTTONS_KCM_ALLOWXRAY_ENABLED_NODE_NAME,
+    BUTTONS_KCM_ALLOWBEAM_ENABLED_NODE_NAME,
+    ASU_ROBOTS_READY_XRAY1_NODE_NAME,
+    ASU_ROBOTS_READY_XRAY2_NODE_NAME,
+    ASU_TABLE_POSITION_NODE_NAME,
+    ASU_EMEVAC_SIGNAL_NODE_NAME,
+    KUKA_CURRENTCOORDS_R1_A1_NODE_NAME,
+    KUKA_CURRENTCOORDS_R1_A2_NODE_NAME,
+    KUKA_CURRENTCOORDS_R1_A3_NODE_NAME,
+    KUKA_CURRENTCOORDS_R1_A4_NODE_NAME,
+    KUKA_CURRENTCOORDS_R1_A5_NODE_NAME,
+    KUKA_CURRENTCOORDS_R1_A6_NODE_NAME,
+    KUKA_CURRENTCOORDS_R2_A1_NODE_NAME,
+    KUKA_CURRENTCOORDS_R2_A2_NODE_NAME,
+    KUKA_CURRENTCOORDS_R2_A3_NODE_NAME,
+    KUKA_CURRENTCOORDS_R2_A4_NODE_NAME,
+    KUKA_CURRENTCOORDS_R2_A5_NODE_NAME,
+    KUKA_CURRENTCOORDS_R2_A6_NODE_NAME,
+    KUKA_CURRENTCOORDS_R1_A_NODE_NAME,
+    KUKA_CURRENTCOORDS_R1_B_NODE_NAME,
+    KUKA_CURRENTCOORDS_R1_C_NODE_NAME,
+    KUKA_CURRENTCOORDS_R1_X_NODE_NAME,
+    KUKA_CURRENTCOORDS_R1_Y_NODE_NAME,
+    KUKA_CURRENTCOORDS_R1_Z_NODE_NAME,
+    KUKA_CURRENTCOORDS_R2_A_NODE_NAME,
+    KUKA_CURRENTCOORDS_R2_B_NODE_NAME,
+    KUKA_CURRENTCOORDS_R2_C_NODE_NAME,
+    KUKA_CURRENTCOORDS_R2_X_NODE_NAME,
+    KUKA_CURRENTCOORDS_R2_Y_NODE_NAME,
+    KUKA_CURRENTCOORDS_R2_Z_NODE_NAME
+};
 
 }
 
@@ -450,57 +514,11 @@ public:
   QScopedPointer< QOpcUaNode > CurrentTimeNode; // Siemens PLC monitored node to prevent session timeout ending
   QMap< QString, NodeData > NodeNameDataMap; // key - node unique full name, value - node data
 
-  const QStringList ReadValueFullNodeNames = {
-    ASU_ERROR_MESSAGES_NODE_NAME,
-    ASU_SERVICE_MESSAGES_NODE_NAME,
-    ASU_MESSAGES_NODE_NAME,
-    ASU_MODE_NODE_NAME,
-    ASU_STATUS_RTK_NODE_NAME,
-    ASU_STATUS_R1_TABLE_NODE_NAME,
-    ASU_STATUS_R2_CARM_NODE_NAME,
-    BUTTONS_AM_R1_LOADTOISO_ENABLED_NODE_NAME,
-    BUTTONS_AM_R1_TOLOAD_ENABLED_NODE_NAME,
-    BUTTONS_AM_R1_NEWCOORDS_ENABLED_NODE_NAME,
-    BUTTONS_AM_R2_TOHOME_ENABLED_NODE_NAME,
-    BUTTONS_AM_R2_TOPLANE1_ENABLED_NODE_NAME,
-    BUTTONS_AM_R2_TOPLANE2_ENABLED_NODE_NAME,
-    BUTTONS_AM_R1R2_EMEVAC_ENABLED_NODE_NAME,
-    BUTTONS_AM_APPLYTABLEPOSITION_ENABLED_NODE_NAME,
-    BUTTONS_SM_R1_BREAKTEST_ENABLED_NODE_NAME,
-    BUTTONS_SM_R1_MASREFTEST_ENABLED_NODE_NAME,
-    BUTTONS_SM_R1_LOAD_ENABLED_NODE_NAME,
-    BUTTONS_SM_R1_SERVICEPOS1_ENABLED_NODE_NAME,
-    BUTTONS_SM_R1_SERVICEPOS2_ENABLED_NODE_NAME,
-    BUTTONS_SM_R1_SERVICEPOS3_ENABLED_NODE_NAME,
-    BUTTONS_SM_R2_BREAKTEST_ENABLED_NODE_NAME,
-    BUTTONS_SM_R2_MASREFTEST_ENABLED_NODE_NAME,
-    BUTTONS_SM_R2_HOME_ENABLED_NODE_NAME,
-    BUTTONS_SM_R2_SERVICEPOS1_ENABLED_NODE_NAME,
-    BUTTONS_SM_R2_SERVICEPOS2_ENABLED_NODE_NAME,
-    BUTTONS_SM_R2_SERVICEPOS3_ENABLED_NODE_NAME,
-    BUTTONS_SM_RESTARTSM_ENABLED_NODE_NAME,
-    BUTTONS_KCM_ALLOWT1_ENABLED_NODE_NAME,
-    BUTTONS_KCM_ALLOWXRAY_ENABLED_NODE_NAME,
-    BUTTONS_KCM_ALLOWBEAM_ENABLED_NODE_NAME,
-    ASU_ROBOTS_READY_XRAY1_NODE_NAME,
-    ASU_ROBOTS_READY_XRAY2_NODE_NAME,
-    ASU_TABLE_POSITION_NODE_NAME,
-    ASU_EMEVAC_SIGNAL_NODE_NAME,
-    KUKA_CURRENTCOORDS_R1_A1_NODE_NAME,
-    KUKA_CURRENTCOORDS_R1_A2_NODE_NAME,
-    KUKA_CURRENTCOORDS_R1_A3_NODE_NAME,
-    KUKA_CURRENTCOORDS_R1_A4_NODE_NAME,
-    KUKA_CURRENTCOORDS_R1_A5_NODE_NAME,
-    KUKA_CURRENTCOORDS_R1_A6_NODE_NAME,
-    KUKA_CURRENTCOORDS_R2_A1_NODE_NAME,
-    KUKA_CURRENTCOORDS_R2_A2_NODE_NAME,
-    KUKA_CURRENTCOORDS_R2_A3_NODE_NAME,
-    KUKA_CURRENTCOORDS_R2_A4_NODE_NAME,
-    KUKA_CURRENTCOORDS_R2_A5_NODE_NAME,
-    KUKA_CURRENTCOORDS_R2_A6_NODE_NAME
-  };
   QScopedPointer< QProgressDialog > ProgressDialog;
   QScopedPointer< QTimer > ProgressTimer;
+
+  bool AutoConnectFlag{ false };
+  int NofNodesRead{ 0 };
 };
 
 // --------------------------------------------------------------------------
@@ -4382,6 +4400,930 @@ bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectCurrentCoordA6R1Node()
 }
 
 //-----------------------------------------------------------------------------
+bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectCurrentCoordAR1Node()
+{
+  QSharedPointer< QOpcUaClient > opcUaClient = this->OpcUaClient.toStrongRef();
+
+  if (!opcUaClient || !this->ParameterNode)
+  {
+    return false;
+  }
+
+  vtkMRMLSiemensPlcOpcUaNode* mrmlNode = this->ParameterNode.GetPointer();
+
+  // Current R1 KUKA_A node
+  QOpcUaNode* r1CurrentKukaANode = this->FindNodeFromFullDisplayName(KUKA_CURRENTCOORDS_R1_A_NODE_NAME);
+
+  // Connect signal handlers for subscribed values
+  if (!r1CurrentKukaANode)
+  {
+    return false;
+  }
+  QObject::connect(r1CurrentKukaANode,
+    &QOpcUaNode::dataChangeOccurred, [mrmlNode](QOpcUa::NodeAttribute attr, QVariant value)
+    {
+      if (attr == QOpcUa::NodeAttribute::Value && value.canConvert< int >())
+      {
+        bool ok = false;
+        int KUKA_A = value.toInt(&ok);
+        if (ok)
+        {
+          int32_t r1Coords[6] = {};
+          mrmlNode->GetCurrentCoordsR1(r1Coords);
+          r1Coords[3] = KUKA_A;
+          {
+            MRMLNodeModifyBlocker block(mrmlNode);
+            mrmlNode->SetCurrentCoordsR1(r1Coords);
+          }
+          qDebug() << Q_FUNC_INFO << "Current R1 KUKA_A changed:" << KUKA_A;
+        }
+      }
+    }
+  );
+  QObject::connect(r1CurrentKukaANode,
+    &QOpcUaNode::attributeRead, [r1CurrentKukaANode, mrmlNode](QOpcUa::NodeAttributes attr)
+    {
+      if (!r1CurrentKukaANode || !mrmlNode)
+      {
+        return;
+      }
+      if (attr & QOpcUa::NodeAttribute::Value)
+      {
+        if (r1CurrentKukaANode->attributeError(QOpcUa::NodeAttribute::Value) == QOpcUa::UaStatusCode::Good)
+        {
+          QVariant value = r1CurrentKukaANode->attribute(QOpcUa::NodeAttribute::Value);
+          bool ok = false;
+          int KUKA_A = value.toInt(&ok); // Get the attribute from the cache
+          if (ok)
+          {
+            int32_t r1Coords[6] = {};
+            mrmlNode->GetCurrentCoordsR1(r1Coords);
+            r1Coords[3] = KUKA_A;
+            {
+              MRMLNodeModifyBlocker block(mrmlNode);
+              mrmlNode->SetCurrentCoordsR1(r1Coords);
+            }
+            qDebug() << Q_FUNC_INFO << "Current R1 KUKA_A changed:" << KUKA_A;
+          }
+        }
+      }
+    }
+  );
+
+  // Subscribe to data changes
+  r1CurrentKukaANode->enableMonitoring(QOpcUa::NodeAttribute::Value, OpcUaMonitorParameters);
+
+  return true;
+}
+
+//-----------------------------------------------------------------------------
+bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectCurrentCoordBR1Node()
+{
+  QSharedPointer< QOpcUaClient > opcUaClient = this->OpcUaClient.toStrongRef();
+
+  if (!opcUaClient || !this->ParameterNode)
+  {
+    return false;
+  }
+
+  vtkMRMLSiemensPlcOpcUaNode* mrmlNode = this->ParameterNode.GetPointer();
+
+  // Current R1 KUKA_B node
+  QOpcUaNode* r1CurrentKukaBNode = this->FindNodeFromFullDisplayName(KUKA_CURRENTCOORDS_R1_B_NODE_NAME);
+
+  // Connect signal handlers for subscribed values
+  if (!r1CurrentKukaBNode)
+  {
+    return false;
+  }
+  QObject::connect(r1CurrentKukaBNode,
+    &QOpcUaNode::dataChangeOccurred, [mrmlNode](QOpcUa::NodeAttribute attr, QVariant value)
+    {
+      if (attr == QOpcUa::NodeAttribute::Value && value.canConvert< int >())
+      {
+        bool ok = false;
+        int KUKA_B = value.toInt(&ok);
+        if (ok)
+        {
+          int32_t r1Coords[6] = {};
+          mrmlNode->GetCurrentCoordsR1(r1Coords);
+          r1Coords[4] = KUKA_B;
+          {
+            MRMLNodeModifyBlocker block(mrmlNode);
+            mrmlNode->SetCurrentCoordsR1(r1Coords);
+          }
+          qDebug() << Q_FUNC_INFO << "Current R1 KUKA_B changed:" << KUKA_B;
+        }
+      }
+    }
+  );
+  QObject::connect(r1CurrentKukaBNode,
+    &QOpcUaNode::attributeRead, [r1CurrentKukaBNode, mrmlNode](QOpcUa::NodeAttributes attr)
+    {
+      if (!r1CurrentKukaBNode || !mrmlNode)
+      {
+        return;
+      }
+      if (attr & QOpcUa::NodeAttribute::Value)
+      {
+        if (r1CurrentKukaBNode->attributeError(QOpcUa::NodeAttribute::Value) == QOpcUa::UaStatusCode::Good)
+        {
+          QVariant value = r1CurrentKukaBNode->attribute(QOpcUa::NodeAttribute::Value);
+          bool ok = false;
+          int KUKA_B = value.toInt(&ok); // Get the attribute from the cache
+          if (ok)
+          {
+            int32_t r1Coords[6] = {};
+            mrmlNode->GetCurrentCoordsR1(r1Coords);
+            r1Coords[4] = KUKA_B;
+            {
+              MRMLNodeModifyBlocker block(mrmlNode);
+              mrmlNode->SetCurrentCoordsR1(r1Coords);
+            }
+            qDebug() << Q_FUNC_INFO << "Current R1 KUKA_B changed:" << KUKA_B;
+          }
+        }
+      }
+    }
+  );
+
+  // Subscribe to data changes
+  r1CurrentKukaBNode->enableMonitoring(QOpcUa::NodeAttribute::Value, OpcUaMonitorParameters);
+
+  return true;
+}
+
+//-----------------------------------------------------------------------------
+bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectCurrentCoordCR1Node()
+{
+  QSharedPointer< QOpcUaClient > opcUaClient = this->OpcUaClient.toStrongRef();
+
+  if (!opcUaClient || !this->ParameterNode)
+  {
+    return false;
+  }
+
+  vtkMRMLSiemensPlcOpcUaNode* mrmlNode = this->ParameterNode.GetPointer();
+
+  // Current R1 KUKA_C node
+  QOpcUaNode* r1CurrentKukaCNode = this->FindNodeFromFullDisplayName(KUKA_CURRENTCOORDS_R1_C_NODE_NAME);
+
+  // Connect signal handlers for subscribed values
+  if (!r1CurrentKukaCNode)
+  {
+    return false;
+  }
+  QObject::connect(r1CurrentKukaCNode,
+    &QOpcUaNode::dataChangeOccurred, [mrmlNode](QOpcUa::NodeAttribute attr, QVariant value)
+    {
+      if (attr == QOpcUa::NodeAttribute::Value && value.canConvert< int >())
+      {
+        bool ok = false;
+        int KUKA_C = value.toInt(&ok);
+        if (ok)
+        {
+          int32_t r1Coords[6] = {};
+          mrmlNode->GetCurrentCoordsR1(r1Coords);
+          r1Coords[5] = KUKA_C;
+          {
+            MRMLNodeModifyBlocker block(mrmlNode);
+            mrmlNode->SetCurrentCoordsR1(r1Coords);
+          }
+          qDebug() << Q_FUNC_INFO << "Current R1 KUKA_C changed:" << KUKA_C;
+        }
+      }
+    }
+  );
+  QObject::connect(r1CurrentKukaCNode,
+    &QOpcUaNode::attributeRead, [r1CurrentKukaCNode, mrmlNode](QOpcUa::NodeAttributes attr)
+    {
+      if (!r1CurrentKukaCNode || !mrmlNode)
+      {
+        return;
+      }
+      if (attr & QOpcUa::NodeAttribute::Value)
+      {
+        if (r1CurrentKukaCNode->attributeError(QOpcUa::NodeAttribute::Value) == QOpcUa::UaStatusCode::Good)
+        {
+          QVariant value = r1CurrentKukaCNode->attribute(QOpcUa::NodeAttribute::Value);
+          bool ok = false;
+          int KUKA_C = value.toInt(&ok); // Get the attribute from the cache
+          if (ok)
+          {
+            int32_t r1Coords[6] = {};
+            mrmlNode->GetCurrentCoordsR1(r1Coords);
+            r1Coords[5] = KUKA_C;
+            {
+              MRMLNodeModifyBlocker block(mrmlNode);
+              mrmlNode->SetCurrentCoordsR1(r1Coords);
+            }
+            qDebug() << Q_FUNC_INFO << "Current R1 KUKA_C changed:" << KUKA_C;
+          }
+        }
+      }
+    }
+  );
+
+  // Subscribe to data changes
+  r1CurrentKukaCNode->enableMonitoring(QOpcUa::NodeAttribute::Value, OpcUaMonitorParameters);
+
+  return true;
+}
+
+//-----------------------------------------------------------------------------
+bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectCurrentCoordXR1Node()
+{
+  QSharedPointer< QOpcUaClient > opcUaClient = this->OpcUaClient.toStrongRef();
+
+  if (!opcUaClient || !this->ParameterNode)
+  {
+    return false;
+  }
+
+  vtkMRMLSiemensPlcOpcUaNode* mrmlNode = this->ParameterNode.GetPointer();
+
+  // Current R1 KUKA_X node
+  QOpcUaNode* r1CurrentKukaXNode = this->FindNodeFromFullDisplayName(KUKA_CURRENTCOORDS_R1_X_NODE_NAME);
+
+  // Connect signal handlers for subscribed values
+  if (!r1CurrentKukaXNode)
+  {
+    return false;
+  }
+  QObject::connect(r1CurrentKukaXNode,
+    &QOpcUaNode::dataChangeOccurred, [mrmlNode](QOpcUa::NodeAttribute attr, QVariant value)
+    {
+      if (attr == QOpcUa::NodeAttribute::Value && value.canConvert< int >())
+      {
+        bool ok = false;
+        int KUKA_X = value.toInt(&ok);
+        if (ok)
+        {
+          int32_t r1Coords[6] = {};
+          mrmlNode->GetCurrentCoordsR1(r1Coords);
+          r1Coords[0] = KUKA_X;
+          {
+            MRMLNodeModifyBlocker block(mrmlNode);
+            mrmlNode->SetCurrentCoordsR1(r1Coords);
+          }
+          qDebug() << Q_FUNC_INFO << "Current R1 KUKA_X changed:" << KUKA_X;
+        }
+      }
+    }
+  );
+  QObject::connect(r1CurrentKukaXNode,
+    &QOpcUaNode::attributeRead, [r1CurrentKukaXNode, mrmlNode](QOpcUa::NodeAttributes attr)
+    {
+      if (!r1CurrentKukaXNode || !mrmlNode)
+      {
+        return;
+      }
+      if (attr & QOpcUa::NodeAttribute::Value)
+      {
+        if (r1CurrentKukaXNode->attributeError(QOpcUa::NodeAttribute::Value) == QOpcUa::UaStatusCode::Good)
+        {
+          QVariant value = r1CurrentKukaXNode->attribute(QOpcUa::NodeAttribute::Value);
+          bool ok = false;
+          int KUKA_X = value.toInt(&ok); // Get the attribute from the cache
+          if (ok)
+          {
+            int32_t r1Coords[6] = {};
+            mrmlNode->GetCurrentCoordsR1(r1Coords);
+            r1Coords[0] = KUKA_X;
+            {
+              MRMLNodeModifyBlocker block(mrmlNode);
+              mrmlNode->SetCurrentCoordsR1(r1Coords);
+            }
+            qDebug() << Q_FUNC_INFO << "Current R1 KUKA_X changed:" << KUKA_X;
+          }
+        }
+      }
+    }
+  );
+
+  // Subscribe to data changes
+  r1CurrentKukaXNode->enableMonitoring(QOpcUa::NodeAttribute::Value, OpcUaMonitorParameters);
+
+  return true;
+}
+
+//-----------------------------------------------------------------------------
+bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectCurrentCoordYR1Node()
+{
+  QSharedPointer< QOpcUaClient > opcUaClient = this->OpcUaClient.toStrongRef();
+
+  if (!opcUaClient || !this->ParameterNode)
+  {
+    return false;
+  }
+
+  vtkMRMLSiemensPlcOpcUaNode* mrmlNode = this->ParameterNode.GetPointer();
+
+  // Current R1 KUKA_Y node
+  QOpcUaNode* r1CurrentKukaYNode = this->FindNodeFromFullDisplayName(KUKA_CURRENTCOORDS_R1_Y_NODE_NAME);
+
+  // Connect signal handlers for subscribed values
+  if (!r1CurrentKukaYNode)
+  {
+    return false;
+  }
+  QObject::connect(r1CurrentKukaYNode,
+    &QOpcUaNode::dataChangeOccurred, [mrmlNode](QOpcUa::NodeAttribute attr, QVariant value)
+    {
+      if (attr == QOpcUa::NodeAttribute::Value && value.canConvert< int >())
+      {
+        bool ok = false;
+        int KUKA_Y = value.toInt(&ok);
+        if (ok)
+        {
+          int32_t r1Coords[6] = {};
+          mrmlNode->GetCurrentCoordsR1(r1Coords);
+          r1Coords[1] = KUKA_Y;
+          {
+            MRMLNodeModifyBlocker block(mrmlNode);
+            mrmlNode->SetCurrentCoordsR1(r1Coords);
+          }
+          qDebug() << Q_FUNC_INFO << "Current R1 KUKA_Y changed:" << KUKA_Y;
+        }
+      }
+    }
+  );
+  QObject::connect(r1CurrentKukaYNode,
+    &QOpcUaNode::attributeRead, [r1CurrentKukaYNode, mrmlNode](QOpcUa::NodeAttributes attr)
+    {
+      if (!r1CurrentKukaYNode || !mrmlNode)
+      {
+        return;
+      }
+      if (attr & QOpcUa::NodeAttribute::Value)
+      {
+        if (r1CurrentKukaYNode->attributeError(QOpcUa::NodeAttribute::Value) == QOpcUa::UaStatusCode::Good)
+        {
+          QVariant value = r1CurrentKukaYNode->attribute(QOpcUa::NodeAttribute::Value);
+          bool ok = false;
+          int KUKA_Y = value.toInt(&ok); // Get the attribute from the cache
+          if (ok)
+          {
+            int32_t r1Coords[6] = {};
+            mrmlNode->GetCurrentCoordsR1(r1Coords);
+            r1Coords[1] = KUKA_Y;
+            {
+              MRMLNodeModifyBlocker block(mrmlNode);
+              mrmlNode->SetCurrentCoordsR1(r1Coords);
+            }
+            qDebug() << Q_FUNC_INFO << "Current R1 KUKA_Y changed:" << KUKA_Y;
+          }
+        }
+      }
+    }
+  );
+
+  // Subscribe to data changes
+  r1CurrentKukaYNode->enableMonitoring(QOpcUa::NodeAttribute::Value, OpcUaMonitorParameters);
+
+  return true;
+}
+
+//-----------------------------------------------------------------------------
+bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectCurrentCoordZR1Node()
+{
+  QSharedPointer< QOpcUaClient > opcUaClient = this->OpcUaClient.toStrongRef();
+
+  if (!opcUaClient || !this->ParameterNode)
+  {
+    return false;
+  }
+
+  vtkMRMLSiemensPlcOpcUaNode* mrmlNode = this->ParameterNode.GetPointer();
+
+  // Current R1 KUKA_Z node
+  QOpcUaNode* r1CurrentKukaZNode = this->FindNodeFromFullDisplayName(KUKA_CURRENTCOORDS_R1_Z_NODE_NAME);
+
+  // Connect signal handlers for subscribed values
+  if (!r1CurrentKukaZNode)
+  {
+    return false;
+  }
+  QObject::connect(r1CurrentKukaZNode,
+    &QOpcUaNode::dataChangeOccurred, [mrmlNode](QOpcUa::NodeAttribute attr, QVariant value)
+    {
+      if (attr == QOpcUa::NodeAttribute::Value && value.canConvert< int >())
+      {
+        bool ok = false;
+        int KUKA_Z = value.toInt(&ok);
+        if (ok)
+        {
+          int32_t r1Coords[6] = {};
+          mrmlNode->GetCurrentCoordsR1(r1Coords);
+          r1Coords[2] = KUKA_Z;
+          {
+            MRMLNodeModifyBlocker block(mrmlNode);
+            mrmlNode->SetCurrentCoordsR1(r1Coords);
+          }
+          qDebug() << Q_FUNC_INFO << "Current R1 KUKA_Z changed:" << KUKA_Z;
+        }
+      }
+    }
+  );
+  QObject::connect(r1CurrentKukaZNode,
+    &QOpcUaNode::attributeRead, [r1CurrentKukaZNode, mrmlNode](QOpcUa::NodeAttributes attr)
+    {
+      if (!r1CurrentKukaZNode || !mrmlNode)
+      {
+        return;
+      }
+      if (attr & QOpcUa::NodeAttribute::Value)
+      {
+        if (r1CurrentKukaZNode->attributeError(QOpcUa::NodeAttribute::Value) == QOpcUa::UaStatusCode::Good)
+        {
+          QVariant value = r1CurrentKukaZNode->attribute(QOpcUa::NodeAttribute::Value);
+          bool ok = false;
+          int KUKA_Z = value.toInt(&ok); // Get the attribute from the cache
+          if (ok)
+          {
+            int32_t r1Coords[6] = {};
+            mrmlNode->GetCurrentCoordsR1(r1Coords);
+            r1Coords[2] = KUKA_Z;
+            {
+              MRMLNodeModifyBlocker block(mrmlNode);
+              mrmlNode->SetCurrentCoordsR1(r1Coords);
+            }
+            qDebug() << Q_FUNC_INFO << "Current R1 KUKA_Z changed:" << KUKA_Z;
+          }
+        }
+      }
+    }
+  );
+
+  // Subscribe to data changes
+  r1CurrentKukaZNode->enableMonitoring(QOpcUa::NodeAttribute::Value, OpcUaMonitorParameters);
+
+  return true;
+}
+
+//-----------------------------------------------------------------------------
+bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectCurrentCoordAR2Node()
+{
+  QSharedPointer< QOpcUaClient > opcUaClient = this->OpcUaClient.toStrongRef();
+
+  if (!opcUaClient || !this->ParameterNode)
+  {
+    return false;
+  }
+
+  vtkMRMLSiemensPlcOpcUaNode* mrmlNode = this->ParameterNode.GetPointer();
+
+  // Current R2 KUKA_A node
+  QOpcUaNode* r2CurrentKukaANode = this->FindNodeFromFullDisplayName(KUKA_CURRENTCOORDS_R2_A_NODE_NAME);
+
+  // Connect signal handlers for subscribed values
+  if (!r2CurrentKukaANode)
+  {
+    return false;
+  }
+  QObject::connect(r2CurrentKukaANode,
+    &QOpcUaNode::dataChangeOccurred, [mrmlNode](QOpcUa::NodeAttribute attr, QVariant value)
+    {
+      if (attr == QOpcUa::NodeAttribute::Value && value.canConvert< int >())
+      {
+        bool ok = false;
+        int KUKA_A = value.toInt(&ok);
+        if (ok)
+        {
+          int32_t r2Coords[6] = {};
+          mrmlNode->GetCurrentCoordsR2(r2Coords);
+          r2Coords[3] = KUKA_A;
+          {
+            MRMLNodeModifyBlocker block(mrmlNode);
+            mrmlNode->SetCurrentCoordsR2(r2Coords);
+          }
+          qDebug() << Q_FUNC_INFO << "Current R2 KUKA_A changed:" << KUKA_A;
+        }
+      }
+    }
+  );
+  QObject::connect(r2CurrentKukaANode,
+    &QOpcUaNode::attributeRead, [r2CurrentKukaANode, mrmlNode](QOpcUa::NodeAttributes attr)
+    {
+      if (!r2CurrentKukaANode || !mrmlNode)
+      {
+        return;
+      }
+      if (attr & QOpcUa::NodeAttribute::Value)
+      {
+        if (r2CurrentKukaANode->attributeError(QOpcUa::NodeAttribute::Value) == QOpcUa::UaStatusCode::Good)
+        {
+          QVariant value = r2CurrentKukaANode->attribute(QOpcUa::NodeAttribute::Value);
+          bool ok = false;
+          int KUKA_A = value.toInt(&ok); // Get the attribute from the cache
+          if (ok)
+          {
+            int32_t r2Coords[6] = {};
+            mrmlNode->GetCurrentCoordsR2(r2Coords);
+            r2Coords[3] = KUKA_A;
+            {
+              MRMLNodeModifyBlocker block(mrmlNode);
+              mrmlNode->SetCurrentCoordsR2(r2Coords);
+            }
+            qDebug() << Q_FUNC_INFO << "Current R2 KUKA_A changed:" << KUKA_A;
+          }
+        }
+      }
+    }
+  );
+
+  // Subscribe to data changes
+  r2CurrentKukaANode->enableMonitoring(QOpcUa::NodeAttribute::Value, OpcUaMonitorParameters);
+
+  return true;
+}
+
+//-----------------------------------------------------------------------------
+bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectCurrentCoordBR2Node()
+{
+  QSharedPointer< QOpcUaClient > opcUaClient = this->OpcUaClient.toStrongRef();
+
+  if (!opcUaClient || !this->ParameterNode)
+  {
+    return false;
+  }
+
+  vtkMRMLSiemensPlcOpcUaNode* mrmlNode = this->ParameterNode.GetPointer();
+
+  // Current R2 KUKA_B node
+  QOpcUaNode* r2CurrentKukaBNode = this->FindNodeFromFullDisplayName(KUKA_CURRENTCOORDS_R2_B_NODE_NAME);
+
+  // Connect signal handlers for subscribed values
+  if (!r2CurrentKukaBNode)
+  {
+    return false;
+  }
+  QObject::connect(r2CurrentKukaBNode,
+    &QOpcUaNode::dataChangeOccurred, [mrmlNode](QOpcUa::NodeAttribute attr, QVariant value)
+    {
+      if (attr == QOpcUa::NodeAttribute::Value && value.canConvert< int >())
+      {
+        bool ok = false;
+        int KUKA_B = value.toInt(&ok);
+        if (ok)
+        {
+          int32_t r2Coords[6] = {};
+          mrmlNode->GetCurrentCoordsR2(r2Coords);
+          r2Coords[4] = KUKA_B;
+          {
+            MRMLNodeModifyBlocker block(mrmlNode);
+            mrmlNode->SetCurrentCoordsR2(r2Coords);
+          }
+          qDebug() << Q_FUNC_INFO << "Current R2 KUKA_B changed:" << KUKA_B;
+        }
+      }
+    }
+  );
+  QObject::connect(r2CurrentKukaBNode,
+    &QOpcUaNode::attributeRead, [r2CurrentKukaBNode, mrmlNode](QOpcUa::NodeAttributes attr)
+    {
+      if (!r2CurrentKukaBNode || !mrmlNode)
+      {
+        return;
+      }
+      if (attr & QOpcUa::NodeAttribute::Value)
+      {
+        if (r2CurrentKukaBNode->attributeError(QOpcUa::NodeAttribute::Value) == QOpcUa::UaStatusCode::Good)
+        {
+          QVariant value = r2CurrentKukaBNode->attribute(QOpcUa::NodeAttribute::Value);
+          bool ok = false;
+          int KUKA_B = value.toInt(&ok); // Get the attribute from the cache
+          if (ok)
+          {
+            int32_t r2Coords[6] = {};
+            mrmlNode->GetCurrentCoordsR2(r2Coords);
+            r2Coords[4] = KUKA_B;
+            {
+              MRMLNodeModifyBlocker block(mrmlNode);
+              mrmlNode->SetCurrentCoordsR2(r2Coords);
+            }
+            qDebug() << Q_FUNC_INFO << "Current R2 KUKA_B changed:" << KUKA_B;
+          }
+        }
+      }
+    }
+  );
+
+  // Subscribe to data changes
+  r2CurrentKukaBNode->enableMonitoring(QOpcUa::NodeAttribute::Value, OpcUaMonitorParameters);
+
+  return true;
+}
+
+//-----------------------------------------------------------------------------
+bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectCurrentCoordCR2Node()
+{
+  QSharedPointer< QOpcUaClient > opcUaClient = this->OpcUaClient.toStrongRef();
+
+  if (!opcUaClient || !this->ParameterNode)
+  {
+    return false;
+  }
+
+  vtkMRMLSiemensPlcOpcUaNode* mrmlNode = this->ParameterNode.GetPointer();
+
+  // Current R2 KUKA_C node
+  QOpcUaNode* r2CurrentKukaCNode = this->FindNodeFromFullDisplayName(KUKA_CURRENTCOORDS_R2_C_NODE_NAME);
+
+  // Connect signal handlers for subscribed values
+  if (!r2CurrentKukaCNode)
+  {
+    return false;
+  }
+  QObject::connect(r2CurrentKukaCNode,
+    &QOpcUaNode::dataChangeOccurred, [mrmlNode](QOpcUa::NodeAttribute attr, QVariant value)
+    {
+      if (attr == QOpcUa::NodeAttribute::Value && value.canConvert< int >())
+      {
+        bool ok = false;
+        int KUKA_C = value.toInt(&ok);
+        if (ok)
+        {
+          int32_t r2Coords[6] = {};
+          mrmlNode->GetCurrentCoordsR2(r2Coords);
+          r2Coords[5] = KUKA_C;
+          {
+            MRMLNodeModifyBlocker block(mrmlNode);
+            mrmlNode->SetCurrentCoordsR2(r2Coords);
+          }
+          qDebug() << Q_FUNC_INFO << "Current R2 KUKA_C changed:" << KUKA_C;
+        }
+      }
+    }
+  );
+  QObject::connect(r2CurrentKukaCNode,
+    &QOpcUaNode::attributeRead, [r2CurrentKukaCNode, mrmlNode](QOpcUa::NodeAttributes attr)
+    {
+      if (!r2CurrentKukaCNode || !mrmlNode)
+      {
+        return;
+      }
+      if (attr & QOpcUa::NodeAttribute::Value)
+      {
+        if (r2CurrentKukaCNode->attributeError(QOpcUa::NodeAttribute::Value) == QOpcUa::UaStatusCode::Good)
+        {
+          QVariant value = r2CurrentKukaCNode->attribute(QOpcUa::NodeAttribute::Value);
+          bool ok = false;
+          int KUKA_C = value.toInt(&ok); // Get the attribute from the cache
+          if (ok)
+          {
+            int32_t r2Coords[6] = {};
+            mrmlNode->GetCurrentCoordsR2(r2Coords);
+            r2Coords[5] = KUKA_C;
+            {
+              MRMLNodeModifyBlocker block(mrmlNode);
+              mrmlNode->SetCurrentCoordsR2(r2Coords);
+            }
+            qDebug() << Q_FUNC_INFO << "Current R2 KUKA_C changed:" << KUKA_C;
+          }
+        }
+      }
+    }
+  );
+
+  // Subscribe to data changes
+  r2CurrentKukaCNode->enableMonitoring(QOpcUa::NodeAttribute::Value, OpcUaMonitorParameters);
+
+  return true;
+}
+
+//-----------------------------------------------------------------------------
+bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectCurrentCoordXR2Node()
+{
+  QSharedPointer< QOpcUaClient > opcUaClient = this->OpcUaClient.toStrongRef();
+
+  if (!opcUaClient || !this->ParameterNode)
+  {
+    return false;
+  }
+
+  vtkMRMLSiemensPlcOpcUaNode* mrmlNode = this->ParameterNode.GetPointer();
+
+  // Current R2 KUKA_X node
+  QOpcUaNode* r2CurrentKukaXNode = this->FindNodeFromFullDisplayName(KUKA_CURRENTCOORDS_R2_X_NODE_NAME);
+
+  // Connect signal handlers for subscribed values
+  if (!r2CurrentKukaXNode)
+  {
+    return false;
+  }
+  QObject::connect(r2CurrentKukaXNode,
+    &QOpcUaNode::dataChangeOccurred, [mrmlNode](QOpcUa::NodeAttribute attr, QVariant value)
+    {
+      if (attr == QOpcUa::NodeAttribute::Value && value.canConvert< int >())
+      {
+        bool ok = false;
+        int KUKA_X = value.toInt(&ok);
+        if (ok)
+        {
+          int32_t r2Coords[6] = {};
+          mrmlNode->GetCurrentCoordsR2(r2Coords);
+          r2Coords[0] = KUKA_X;
+          {
+            MRMLNodeModifyBlocker block(mrmlNode);
+            mrmlNode->SetCurrentCoordsR2(r2Coords);
+          }
+          qDebug() << Q_FUNC_INFO << "Current R2 KUKA_X changed:" << KUKA_X;
+        }
+      }
+    }
+  );
+  QObject::connect(r2CurrentKukaXNode,
+    &QOpcUaNode::attributeRead, [r2CurrentKukaXNode, mrmlNode](QOpcUa::NodeAttributes attr)
+    {
+      if (!r2CurrentKukaXNode || !mrmlNode)
+      {
+        return;
+      }
+      if (attr & QOpcUa::NodeAttribute::Value)
+      {
+        if (r2CurrentKukaXNode->attributeError(QOpcUa::NodeAttribute::Value) == QOpcUa::UaStatusCode::Good)
+        {
+          QVariant value = r2CurrentKukaXNode->attribute(QOpcUa::NodeAttribute::Value);
+          bool ok = false;
+          int KUKA_X = value.toInt(&ok); // Get the attribute from the cache
+          if (ok)
+          {
+            int32_t r2Coords[6] = {};
+            mrmlNode->GetCurrentCoordsR2(r2Coords);
+            r2Coords[0] = KUKA_X;
+            {
+              MRMLNodeModifyBlocker block(mrmlNode);
+              mrmlNode->SetCurrentCoordsR2(r2Coords);
+            }
+            qDebug() << Q_FUNC_INFO << "Current R2 KUKA_X changed:" << KUKA_X;
+          }
+        }
+      }
+    }
+  );
+
+  // Subscribe to data changes
+  r2CurrentKukaXNode->enableMonitoring(QOpcUa::NodeAttribute::Value, OpcUaMonitorParameters);
+
+  return true;
+}
+
+//-----------------------------------------------------------------------------
+bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectCurrentCoordYR2Node()
+{
+  QSharedPointer< QOpcUaClient > opcUaClient = this->OpcUaClient.toStrongRef();
+
+  if (!opcUaClient || !this->ParameterNode)
+  {
+    return false;
+  }
+
+  vtkMRMLSiemensPlcOpcUaNode* mrmlNode = this->ParameterNode.GetPointer();
+
+  // Current R2 KUKA_Y node
+  QOpcUaNode* r2CurrentKukaYNode = this->FindNodeFromFullDisplayName(KUKA_CURRENTCOORDS_R2_Y_NODE_NAME);
+
+  // Connect signal handlers for subscribed values
+  if (!r2CurrentKukaYNode)
+  {
+    return false;
+  }
+  QObject::connect(r2CurrentKukaYNode,
+    &QOpcUaNode::dataChangeOccurred, [mrmlNode](QOpcUa::NodeAttribute attr, QVariant value)
+    {
+      if (attr == QOpcUa::NodeAttribute::Value && value.canConvert< int >())
+      {
+        bool ok = false;
+        int KUKA_Y = value.toInt(&ok);
+        if (ok)
+        {
+          int32_t r2Coords[6] = {};
+          mrmlNode->GetCurrentCoordsR2(r2Coords);
+          r2Coords[1] = KUKA_Y;
+          {
+            MRMLNodeModifyBlocker block(mrmlNode);
+            mrmlNode->SetCurrentCoordsR2(r2Coords);
+          }
+          qDebug() << Q_FUNC_INFO << "Current R2 KUKA_Y changed:" << KUKA_Y;
+        }
+      }
+    }
+  );
+  QObject::connect(r2CurrentKukaYNode,
+    &QOpcUaNode::attributeRead, [r2CurrentKukaYNode, mrmlNode](QOpcUa::NodeAttributes attr)
+    {
+      if (!r2CurrentKukaYNode || !mrmlNode)
+      {
+        return;
+      }
+      if (attr & QOpcUa::NodeAttribute::Value)
+      {
+        if (r2CurrentKukaYNode->attributeError(QOpcUa::NodeAttribute::Value) == QOpcUa::UaStatusCode::Good)
+        {
+          QVariant value = r2CurrentKukaYNode->attribute(QOpcUa::NodeAttribute::Value);
+          bool ok = false;
+          int KUKA_Y = value.toInt(&ok); // Get the attribute from the cache
+          if (ok)
+          {
+            int32_t r2Coords[6] = {};
+            mrmlNode->GetCurrentCoordsR2(r2Coords);
+            r2Coords[1] = KUKA_Y;
+            {
+              MRMLNodeModifyBlocker block(mrmlNode);
+              mrmlNode->SetCurrentCoordsR2(r2Coords);
+            }
+            qDebug() << Q_FUNC_INFO << "Current R2 KUKA_Y changed:" << KUKA_Y;
+          }
+        }
+      }
+    }
+  );
+
+  // Subscribe to data changes
+  r2CurrentKukaYNode->enableMonitoring(QOpcUa::NodeAttribute::Value, OpcUaMonitorParameters);
+
+  return true;
+}
+
+//-----------------------------------------------------------------------------
+bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectCurrentCoordZR2Node()
+{
+  QSharedPointer< QOpcUaClient > opcUaClient = this->OpcUaClient.toStrongRef();
+
+  if (!opcUaClient || !this->ParameterNode)
+  {
+    return false;
+  }
+
+  vtkMRMLSiemensPlcOpcUaNode* mrmlNode = this->ParameterNode.GetPointer();
+
+  // Current R2 KUKA_Z node
+  QOpcUaNode* r2CurrentKukaZNode = this->FindNodeFromFullDisplayName(KUKA_CURRENTCOORDS_R2_Z_NODE_NAME);
+
+  // Connect signal handlers for subscribed values
+  if (!r2CurrentKukaZNode)
+  {
+    return false;
+  }
+  QObject::connect(r2CurrentKukaZNode,
+    &QOpcUaNode::dataChangeOccurred, [mrmlNode](QOpcUa::NodeAttribute attr, QVariant value)
+    {
+      if (attr == QOpcUa::NodeAttribute::Value && value.canConvert< int >())
+      {
+        bool ok = false;
+        int KUKA_Z = value.toInt(&ok);
+        if (ok)
+        {
+          int32_t r2Coords[6] = {};
+          mrmlNode->GetCurrentCoordsR2(r2Coords);
+          r2Coords[2] = KUKA_Z;
+          {
+            MRMLNodeModifyBlocker block(mrmlNode);
+            mrmlNode->SetCurrentCoordsR2(r2Coords);
+          }
+          qDebug() << Q_FUNC_INFO << "Current R2 KUKA_Z changed:" << KUKA_Z;
+        }
+      }
+    }
+  );
+  QObject::connect(r2CurrentKukaZNode,
+    &QOpcUaNode::attributeRead, [r2CurrentKukaZNode, mrmlNode](QOpcUa::NodeAttributes attr)
+    {
+      if (!r2CurrentKukaZNode || !mrmlNode)
+      {
+        return;
+      }
+      if (attr & QOpcUa::NodeAttribute::Value)
+      {
+        if (r2CurrentKukaZNode->attributeError(QOpcUa::NodeAttribute::Value) == QOpcUa::UaStatusCode::Good)
+        {
+          QVariant value = r2CurrentKukaZNode->attribute(QOpcUa::NodeAttribute::Value);
+          bool ok = false;
+          int KUKA_Z = value.toInt(&ok); // Get the attribute from the cache
+          if (ok)
+          {
+            int32_t r2Coords[6] = {};
+            mrmlNode->GetCurrentCoordsR2(r2Coords);
+            r2Coords[2] = KUKA_Z;
+            {
+              MRMLNodeModifyBlocker block(mrmlNode);
+              mrmlNode->SetCurrentCoordsR2(r2Coords);
+            }
+            qDebug() << Q_FUNC_INFO << "Current R2 KUKA_Z changed:" << KUKA_Z;
+          }
+        }
+      }
+    }
+  );
+
+  // Subscribe to data changes
+  r2CurrentKukaZNode->enableMonitoring(QOpcUa::NodeAttribute::Value, OpcUaMonitorParameters);
+
+  return true;
+}
+
+//-----------------------------------------------------------------------------
 bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectCurrentCoordsR1Nodes()
 {
   bool res = this->ConnectCurrentCoordA1R1Node();
@@ -4390,7 +5332,952 @@ bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectCurrentCoordsR1Nodes()
   res &= this->ConnectCurrentCoordA4R1Node();
   res &= this->ConnectCurrentCoordA5R1Node();
   res &= this->ConnectCurrentCoordA6R1Node();
+  res &= this->ConnectCurrentCoordXR1Node();
+  res &= this->ConnectCurrentCoordYR1Node();
+  res &= this->ConnectCurrentCoordZR1Node();
+  res &= this->ConnectCurrentCoordAR1Node();
+  res &= this->ConnectCurrentCoordBR1Node();
+  res &= this->ConnectCurrentCoordCR1Node();
+
   return res;
+}
+
+//-----------------------------------------------------------------------------
+bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectReflTargetCoordsR1Nodes()
+{
+  bool res = this->ConnectReflTargetCoordAR1Node();
+  res &= this->ConnectReflTargetCoordBR1Node();
+  res &= this->ConnectReflTargetCoordCR1Node();
+  res &= this->ConnectReflTargetCoordXR1Node();
+  res &= this->ConnectReflTargetCoordYR1Node();
+  res &= this->ConnectReflTargetCoordZR1Node();
+
+  return res;
+}
+
+//-----------------------------------------------------------------------------
+bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectReflTargetCoordAR1Node()
+{
+  QSharedPointer< QOpcUaClient > opcUaClient = this->OpcUaClient.toStrongRef();
+
+  if (!opcUaClient || !this->ParameterNode)
+  {
+    return false;
+  }
+
+  vtkMRMLSiemensPlcOpcUaNode* mrmlNode = this->ParameterNode.GetPointer();
+
+  // Reflective R1 KUKA_A node
+  QOpcUaNode* kukaReflR1ANode = this->FindNodeFromFullDisplayName(KUKA_REFLTARGETCOORDS_R1_A_NODE_NAME);
+
+  // Connect signal handlers for subscribed values
+  if (!kukaReflR1ANode)
+  {
+    return false;
+  }
+  QObject::connect(kukaReflR1ANode,
+    &QOpcUaNode::dataChangeOccurred, [mrmlNode](QOpcUa::NodeAttribute attr, QVariant value)
+    {
+      if (attr == QOpcUa::NodeAttribute::Value && value.canConvert< int >())
+      {
+        bool ok = false;
+        int KUKA_A = value.toInt(&ok);
+        if (ok)
+        {
+          int32_t r1Coords[6] = {};
+          mrmlNode->GetConfirmedCoordsR1(r1Coords);
+          r1Coords[3] = KUKA_A;
+          {
+            MRMLNodeModifyBlocker block(mrmlNode);
+            mrmlNode->SetConfirmedCoordsR1(r1Coords);
+          }
+          qDebug() << Q_FUNC_INFO << "Reflective R1 KUKA_A changed:" << KUKA_A;
+        }
+      }
+    }
+  );
+  QObject::connect(kukaReflR1ANode,
+    &QOpcUaNode::attributeRead, [kukaReflR1ANode, mrmlNode](QOpcUa::NodeAttributes attr)
+    {
+      if (!kukaReflR1ANode || !mrmlNode)
+      {
+        return;
+      }
+      if (attr & QOpcUa::NodeAttribute::Value)
+      {
+        if (kukaReflR1ANode->attributeError(QOpcUa::NodeAttribute::Value) == QOpcUa::UaStatusCode::Good)
+        {
+          QVariant value = kukaReflR1ANode->attribute(QOpcUa::NodeAttribute::Value);
+          bool ok = false;
+          int KUKA_A = value.toInt(&ok); // Get the attribute from the cache
+          if (ok)
+          {
+            int32_t r1Coords[6] = {};
+            mrmlNode->GetConfirmedCoordsR1(r1Coords);
+            r1Coords[3] = KUKA_A;
+            {
+              MRMLNodeModifyBlocker block(mrmlNode);
+              mrmlNode->SetConfirmedCoordsR1(r1Coords);
+            }
+            qDebug() << Q_FUNC_INFO << "Reflective R1 KUKA_A changed:" << KUKA_A;
+          }
+        }
+      }
+    }
+  );
+
+  // Subscribe to data changes
+  kukaReflR1ANode->enableMonitoring(QOpcUa::NodeAttribute::Value, OpcUaMonitorParameters);
+
+  return true;
+}
+
+//-----------------------------------------------------------------------------
+bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectReflTargetCoordBR1Node()
+{
+  QSharedPointer< QOpcUaClient > opcUaClient = this->OpcUaClient.toStrongRef();
+
+  if (!opcUaClient || !this->ParameterNode)
+  {
+    return false;
+  }
+
+  vtkMRMLSiemensPlcOpcUaNode* mrmlNode = this->ParameterNode.GetPointer();
+
+  // Reflective R1 KUKA_B node
+  QOpcUaNode* kukaReflR1BNode = this->FindNodeFromFullDisplayName(KUKA_REFLTARGETCOORDS_R1_B_NODE_NAME);
+
+  // Connect signal handlers for subscribed values
+  if (!kukaReflR1BNode)
+  {
+    return false;
+  }
+  QObject::connect(kukaReflR1BNode,
+    &QOpcUaNode::dataChangeOccurred, [mrmlNode](QOpcUa::NodeAttribute attr, QVariant value)
+    {
+      if (attr == QOpcUa::NodeAttribute::Value && value.canConvert< int >())
+      {
+        bool ok = false;
+        int KUKA_B = value.toInt(&ok);
+        if (ok)
+        {
+          int32_t r1Coords[6] = {};
+          mrmlNode->GetConfirmedCoordsR1(r1Coords);
+          r1Coords[4] = KUKA_B;
+          {
+            MRMLNodeModifyBlocker block(mrmlNode);
+            mrmlNode->SetConfirmedCoordsR1(r1Coords);
+          }
+          qDebug() << Q_FUNC_INFO << "Reflective R1 KUKA_B changed:" << KUKA_B;
+        }
+      }
+    }
+  );
+  QObject::connect(kukaReflR1BNode,
+    &QOpcUaNode::attributeRead, [kukaReflR1BNode, mrmlNode](QOpcUa::NodeAttributes attr)
+    {
+      if (!kukaReflR1BNode || !mrmlNode)
+      {
+        return;
+      }
+      if (attr & QOpcUa::NodeAttribute::Value)
+      {
+        if (kukaReflR1BNode->attributeError(QOpcUa::NodeAttribute::Value) == QOpcUa::UaStatusCode::Good)
+        {
+          QVariant value = kukaReflR1BNode->attribute(QOpcUa::NodeAttribute::Value);
+          bool ok = false;
+          int KUKA_B = value.toInt(&ok); // Get the attribute from the cache
+          if (ok)
+          {
+            int32_t r1Coords[6] = {};
+            mrmlNode->GetConfirmedCoordsR1(r1Coords);
+            r1Coords[4] = KUKA_B;
+            {
+              MRMLNodeModifyBlocker block(mrmlNode);
+              mrmlNode->SetConfirmedCoordsR1(r1Coords);
+            }
+            qDebug() << Q_FUNC_INFO << "Reflective R1 KUKA_B changed:" << KUKA_B;
+          }
+        }
+      }
+    }
+  );
+
+  // Subscribe to data changes
+  kukaReflR1BNode->enableMonitoring(QOpcUa::NodeAttribute::Value, OpcUaMonitorParameters);
+
+  return true;
+}
+
+//-----------------------------------------------------------------------------
+bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectReflTargetCoordCR1Node()
+{
+  QSharedPointer< QOpcUaClient > opcUaClient = this->OpcUaClient.toStrongRef();
+
+  if (!opcUaClient || !this->ParameterNode)
+  {
+    return false;
+  }
+
+  vtkMRMLSiemensPlcOpcUaNode* mrmlNode = this->ParameterNode.GetPointer();
+
+  // Reflective R1 KUKA_C node
+  QOpcUaNode* kukaReflR1CNode = this->FindNodeFromFullDisplayName(KUKA_REFLTARGETCOORDS_R1_C_NODE_NAME);
+
+  // Connect signal handlers for subscribed values
+  if (!kukaReflR1CNode)
+  {
+    return false;
+  }
+  QObject::connect(kukaReflR1CNode,
+    &QOpcUaNode::dataChangeOccurred, [mrmlNode](QOpcUa::NodeAttribute attr, QVariant value)
+    {
+      if (attr == QOpcUa::NodeAttribute::Value && value.canConvert< int >())
+      {
+        bool ok = false;
+        int KUKA_C = value.toInt(&ok);
+        if (ok)
+        {
+          int32_t r1Coords[6] = {};
+          mrmlNode->GetConfirmedCoordsR1(r1Coords);
+          r1Coords[5] = KUKA_C;
+          {
+            MRMLNodeModifyBlocker block(mrmlNode);
+            mrmlNode->SetConfirmedCoordsR1(r1Coords);
+          }
+          qDebug() << Q_FUNC_INFO << "Reflective R1 KUKA_C changed:" << KUKA_C;
+        }
+      }
+    }
+  );
+  QObject::connect(kukaReflR1CNode,
+    &QOpcUaNode::attributeRead, [kukaReflR1CNode, mrmlNode](QOpcUa::NodeAttributes attr)
+    {
+      if (!kukaReflR1CNode || !mrmlNode)
+      {
+        return;
+      }
+      if (attr & QOpcUa::NodeAttribute::Value)
+      {
+        if (kukaReflR1CNode->attributeError(QOpcUa::NodeAttribute::Value) == QOpcUa::UaStatusCode::Good)
+        {
+          QVariant value = kukaReflR1CNode->attribute(QOpcUa::NodeAttribute::Value);
+          bool ok = false;
+          int KUKA_C = value.toInt(&ok); // Get the attribute from the cache
+          if (ok)
+          {
+            int32_t r1Coords[6] = {};
+            mrmlNode->GetConfirmedCoordsR1(r1Coords);
+            r1Coords[5] = KUKA_C;
+            {
+              MRMLNodeModifyBlocker block(mrmlNode);
+              mrmlNode->SetConfirmedCoordsR1(r1Coords);
+            }
+            qDebug() << Q_FUNC_INFO << "Reflective R1 KUKA_C changed:" << KUKA_C;
+          }
+        }
+      }
+    }
+  );
+
+  // Subscribe to data changes
+  kukaReflR1CNode->enableMonitoring(QOpcUa::NodeAttribute::Value, OpcUaMonitorParameters);
+
+  return true;
+}
+
+//-----------------------------------------------------------------------------
+bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectReflTargetCoordXR1Node()
+{
+  QSharedPointer< QOpcUaClient > opcUaClient = this->OpcUaClient.toStrongRef();
+
+  if (!opcUaClient || !this->ParameterNode)
+  {
+    return false;
+  }
+
+  vtkMRMLSiemensPlcOpcUaNode* mrmlNode = this->ParameterNode.GetPointer();
+
+  // Reflective R1 KUKA_X node
+  QOpcUaNode* kukaReflR1XNode = this->FindNodeFromFullDisplayName(KUKA_REFLTARGETCOORDS_R1_X_NODE_NAME);
+
+  // Connect signal handlers for subscribed values
+  if (!kukaReflR1XNode)
+  {
+    return false;
+  }
+  QObject::connect(kukaReflR1XNode,
+    &QOpcUaNode::dataChangeOccurred, [mrmlNode](QOpcUa::NodeAttribute attr, QVariant value)
+    {
+      if (attr == QOpcUa::NodeAttribute::Value && value.canConvert< int >())
+      {
+        bool ok = false;
+        int KUKA_X = value.toInt(&ok);
+        if (ok)
+        {
+          int32_t r1Coords[6] = {};
+          mrmlNode->GetConfirmedCoordsR1(r1Coords);
+          r1Coords[0] = KUKA_X;
+          {
+            MRMLNodeModifyBlocker block(mrmlNode);
+            mrmlNode->SetConfirmedCoordsR1(r1Coords);
+          }
+          qDebug() << Q_FUNC_INFO << "Reflective R1 KUKA_X changed:" << KUKA_X;
+        }
+      }
+    }
+  );
+  QObject::connect(kukaReflR1XNode,
+    &QOpcUaNode::attributeRead, [kukaReflR1XNode, mrmlNode](QOpcUa::NodeAttributes attr)
+    {
+      if (!kukaReflR1XNode || !mrmlNode)
+      {
+        return;
+      }
+      if (attr & QOpcUa::NodeAttribute::Value)
+      {
+        if (kukaReflR1XNode->attributeError(QOpcUa::NodeAttribute::Value) == QOpcUa::UaStatusCode::Good)
+        {
+          QVariant value = kukaReflR1XNode->attribute(QOpcUa::NodeAttribute::Value);
+          bool ok = false;
+          int KUKA_X = value.toInt(&ok); // Get the attribute from the cache
+          if (ok)
+          {
+            int32_t r1Coords[6] = {};
+            mrmlNode->GetConfirmedCoordsR1(r1Coords);
+            r1Coords[0] = KUKA_X;
+            {
+              MRMLNodeModifyBlocker block(mrmlNode);
+              mrmlNode->SetConfirmedCoordsR1(r1Coords);
+            }
+            qDebug() << Q_FUNC_INFO << "Reflective R1 KUKA_X changed:" << KUKA_X;
+          }
+        }
+      }
+    }
+  );
+
+  // Subscribe to data changes
+  kukaReflR1XNode->enableMonitoring(QOpcUa::NodeAttribute::Value, OpcUaMonitorParameters);
+
+  return true;
+}
+
+//-----------------------------------------------------------------------------
+bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectReflTargetCoordYR1Node()
+{
+  QSharedPointer< QOpcUaClient > opcUaClient = this->OpcUaClient.toStrongRef();
+
+  if (!opcUaClient || !this->ParameterNode)
+  {
+    return false;
+  }
+
+  vtkMRMLSiemensPlcOpcUaNode* mrmlNode = this->ParameterNode.GetPointer();
+
+  // Reflective R1 KUKA_Y node
+  QOpcUaNode* kukaReflR1YNode = this->FindNodeFromFullDisplayName(KUKA_REFLTARGETCOORDS_R1_Y_NODE_NAME);
+
+  // Connect signal handlers for subscribed values
+  if (!kukaReflR1YNode)
+  {
+    return false;
+  }
+  QObject::connect(kukaReflR1YNode,
+    &QOpcUaNode::dataChangeOccurred, [mrmlNode](QOpcUa::NodeAttribute attr, QVariant value)
+    {
+      if (attr == QOpcUa::NodeAttribute::Value && value.canConvert< int >())
+      {
+        bool ok = false;
+        int KUKA_Y = value.toInt(&ok);
+        if (ok)
+        {
+          int32_t r1Coords[6] = {};
+          mrmlNode->GetConfirmedCoordsR1(r1Coords);
+          r1Coords[1] = KUKA_Y;
+          {
+            MRMLNodeModifyBlocker block(mrmlNode);
+            mrmlNode->SetConfirmedCoordsR1(r1Coords);
+          }
+          qDebug() << Q_FUNC_INFO << "Reflective R1 KUKA_Y changed:" << KUKA_Y;
+        }
+      }
+    }
+  );
+  QObject::connect(kukaReflR1YNode,
+    &QOpcUaNode::attributeRead, [kukaReflR1YNode, mrmlNode](QOpcUa::NodeAttributes attr)
+    {
+      if (!kukaReflR1YNode || !mrmlNode)
+      {
+        return;
+      }
+      if (attr & QOpcUa::NodeAttribute::Value)
+      {
+        if (kukaReflR1YNode->attributeError(QOpcUa::NodeAttribute::Value) == QOpcUa::UaStatusCode::Good)
+        {
+          QVariant value = kukaReflR1YNode->attribute(QOpcUa::NodeAttribute::Value);
+          bool ok = false;
+          int KUKA_Y = value.toInt(&ok); // Get the attribute from the cache
+          if (ok)
+          {
+            int32_t r1Coords[6] = {};
+            mrmlNode->GetConfirmedCoordsR1(r1Coords);
+            r1Coords[1] = KUKA_Y;
+            {
+              MRMLNodeModifyBlocker block(mrmlNode);
+              mrmlNode->SetConfirmedCoordsR1(r1Coords);
+            }
+            qDebug() << Q_FUNC_INFO << "Reflective R1 KUKA_Y changed:" << KUKA_Y;
+          }
+        }
+      }
+    }
+  );
+
+  // Subscribe to data changes
+  kukaReflR1YNode->enableMonitoring(QOpcUa::NodeAttribute::Value, OpcUaMonitorParameters);
+
+  return true;
+}
+
+//-----------------------------------------------------------------------------
+bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectReflTargetCoordZR1Node()
+{
+  QSharedPointer< QOpcUaClient > opcUaClient = this->OpcUaClient.toStrongRef();
+
+  if (!opcUaClient || !this->ParameterNode)
+  {
+    return false;
+  }
+
+  vtkMRMLSiemensPlcOpcUaNode* mrmlNode = this->ParameterNode.GetPointer();
+
+  // Reflective R1 KUKA_Z node
+  QOpcUaNode* kukaReflR1ZNode = this->FindNodeFromFullDisplayName(KUKA_REFLTARGETCOORDS_R1_Z_NODE_NAME);
+
+  // Connect signal handlers for subscribed values
+  if (!kukaReflR1ZNode)
+  {
+    return false;
+  }
+  QObject::connect(kukaReflR1ZNode,
+    &QOpcUaNode::dataChangeOccurred, [mrmlNode](QOpcUa::NodeAttribute attr, QVariant value)
+    {
+      if (attr == QOpcUa::NodeAttribute::Value && value.canConvert< int >())
+      {
+        bool ok = false;
+        int KUKA_Z = value.toInt(&ok);
+        if (ok)
+        {
+          int32_t r1Coords[6] = {};
+          mrmlNode->GetConfirmedCoordsR1(r1Coords);
+          r1Coords[2] = KUKA_Z;
+          {
+            MRMLNodeModifyBlocker block(mrmlNode);
+            mrmlNode->SetConfirmedCoordsR1(r1Coords);
+          }
+          qDebug() << Q_FUNC_INFO << "Reflective R1 KUKA_Z changed:" << KUKA_Z;
+        }
+      }
+    }
+  );
+  QObject::connect(kukaReflR1ZNode,
+    &QOpcUaNode::attributeRead, [kukaReflR1ZNode, mrmlNode](QOpcUa::NodeAttributes attr)
+    {
+      if (!kukaReflR1ZNode || !mrmlNode)
+      {
+        return;
+      }
+      if (attr & QOpcUa::NodeAttribute::Value)
+      {
+        if (kukaReflR1ZNode->attributeError(QOpcUa::NodeAttribute::Value) == QOpcUa::UaStatusCode::Good)
+        {
+          QVariant value = kukaReflR1ZNode->attribute(QOpcUa::NodeAttribute::Value);
+          bool ok = false;
+          int KUKA_Z = value.toInt(&ok); // Get the attribute from the cache
+          if (ok)
+          {
+            int32_t r1Coords[6] = {};
+            mrmlNode->GetConfirmedCoordsR1(r1Coords);
+            r1Coords[2] = KUKA_Z;
+            {
+              MRMLNodeModifyBlocker block(mrmlNode);
+              mrmlNode->SetConfirmedCoordsR1(r1Coords);
+            }
+            qDebug() << Q_FUNC_INFO << "Reflective R1 KUKA_Z changed:" << KUKA_Z;
+          }
+        }
+      }
+    }
+  );
+
+  // Subscribe to data changes
+  kukaReflR1ZNode->enableMonitoring(QOpcUa::NodeAttribute::Value, OpcUaMonitorParameters);
+
+  return true;
+}
+
+//-----------------------------------------------------------------------------
+bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectReflTargetCoordXR2Node()
+{
+  QSharedPointer< QOpcUaClient > opcUaClient = this->OpcUaClient.toStrongRef();
+
+  if (!opcUaClient || !this->ParameterNode)
+  {
+    return false;
+  }
+
+  vtkMRMLSiemensPlcOpcUaNode* mrmlNode = this->ParameterNode.GetPointer();
+
+  // Reflective R2 KUKA_X node
+  QOpcUaNode* kukaReflR2XNode = this->FindNodeFromFullDisplayName(KUKA_REFLTARGETCOORDS_R2_X_NODE_NAME);
+
+  // Connect signal handlers for subscribed values
+  if (!kukaReflR2XNode)
+  {
+    return false;
+  }
+  QObject::connect(kukaReflR2XNode,
+    &QOpcUaNode::dataChangeOccurred, [mrmlNode](QOpcUa::NodeAttribute attr, QVariant value)
+    {
+      if (attr == QOpcUa::NodeAttribute::Value && value.canConvert< int >())
+      {
+        bool ok = false;
+        int KUKA_X = value.toInt(&ok);
+        if (ok)
+        {
+          int32_t r2Coords[6] = {};
+          mrmlNode->GetConfirmedCoordsR2(r2Coords);
+          r2Coords[0] = KUKA_X;
+          {
+            MRMLNodeModifyBlocker block(mrmlNode);
+            mrmlNode->SetConfirmedCoordsR2(r2Coords);
+          }
+          qDebug() << Q_FUNC_INFO << "Reflective R2 KUKA_X changed:" << KUKA_X;
+        }
+      }
+    }
+  );
+  QObject::connect(kukaReflR2XNode,
+    &QOpcUaNode::attributeRead, [kukaReflR2XNode, mrmlNode](QOpcUa::NodeAttributes attr)
+    {
+      if (!kukaReflR2XNode || !mrmlNode)
+      {
+        return;
+      }
+      if (attr & QOpcUa::NodeAttribute::Value)
+      {
+        if (kukaReflR2XNode->attributeError(QOpcUa::NodeAttribute::Value) == QOpcUa::UaStatusCode::Good)
+        {
+          QVariant value = kukaReflR2XNode->attribute(QOpcUa::NodeAttribute::Value);
+          bool ok = false;
+          int KUKA_X = value.toInt(&ok); // Get the attribute from the cache
+          if (ok)
+          {
+            int32_t r2Coords[6] = {};
+            mrmlNode->GetConfirmedCoordsR2(r2Coords);
+            r2Coords[0] = KUKA_X;
+            {
+              MRMLNodeModifyBlocker block(mrmlNode);
+              mrmlNode->SetConfirmedCoordsR2(r2Coords);
+            }
+            qDebug() << Q_FUNC_INFO << "Reflective R2 KUKA_X changed:" << KUKA_X;
+          }
+        }
+      }
+    }
+  );
+
+  // Subscribe to data changes
+  kukaReflR2XNode->enableMonitoring(QOpcUa::NodeAttribute::Value, OpcUaMonitorParameters);
+
+  return true;
+}
+
+//-----------------------------------------------------------------------------
+bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectReflTargetCoordYR2Node()
+{
+  QSharedPointer< QOpcUaClient > opcUaClient = this->OpcUaClient.toStrongRef();
+
+  if (!opcUaClient || !this->ParameterNode)
+  {
+    return false;
+  }
+
+  vtkMRMLSiemensPlcOpcUaNode* mrmlNode = this->ParameterNode.GetPointer();
+
+  // Reflective R2 KUKA_Y node
+  QOpcUaNode* kukaReflR2YNode = this->FindNodeFromFullDisplayName(KUKA_REFLTARGETCOORDS_R2_Y_NODE_NAME);
+
+  // Connect signal handlers for subscribed values
+  if (!kukaReflR2YNode)
+  {
+    return false;
+  }
+  QObject::connect(kukaReflR2YNode,
+    &QOpcUaNode::dataChangeOccurred, [mrmlNode](QOpcUa::NodeAttribute attr, QVariant value)
+    {
+      if (attr == QOpcUa::NodeAttribute::Value && value.canConvert< int >())
+      {
+        bool ok = false;
+        int KUKA_Y = value.toInt(&ok);
+        if (ok)
+        {
+          int32_t r2Coords[6] = {};
+          mrmlNode->GetConfirmedCoordsR2(r2Coords);
+          r2Coords[1] = KUKA_Y;
+          {
+            MRMLNodeModifyBlocker block(mrmlNode);
+            mrmlNode->SetConfirmedCoordsR2(r2Coords);
+          }
+          qDebug() << Q_FUNC_INFO << "Reflective R2 KUKA_Y changed:" << KUKA_Y;
+        }
+      }
+    }
+  );
+  QObject::connect(kukaReflR2YNode,
+    &QOpcUaNode::attributeRead, [kukaReflR2YNode, mrmlNode](QOpcUa::NodeAttributes attr)
+    {
+      if (!kukaReflR2YNode || !mrmlNode)
+      {
+        return;
+      }
+      if (attr & QOpcUa::NodeAttribute::Value)
+      {
+        if (kukaReflR2YNode->attributeError(QOpcUa::NodeAttribute::Value) == QOpcUa::UaStatusCode::Good)
+        {
+          QVariant value = kukaReflR2YNode->attribute(QOpcUa::NodeAttribute::Value);
+          bool ok = false;
+          int KUKA_Y = value.toInt(&ok); // Get the attribute from the cache
+          if (ok)
+          {
+            int32_t r2Coords[6] = {};
+            mrmlNode->GetConfirmedCoordsR2(r2Coords);
+            r2Coords[1] = KUKA_Y;
+            {
+              MRMLNodeModifyBlocker block(mrmlNode);
+              mrmlNode->SetConfirmedCoordsR2(r2Coords);
+            }
+            qDebug() << Q_FUNC_INFO << "Reflective R2 KUKA_Y changed:" << KUKA_Y;
+          }
+        }
+      }
+    }
+  );
+
+  // Subscribe to data changes
+  kukaReflR2YNode->enableMonitoring(QOpcUa::NodeAttribute::Value, OpcUaMonitorParameters);
+
+  return true;
+}
+
+//-----------------------------------------------------------------------------
+bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectReflTargetCoordZR2Node()
+{
+  QSharedPointer< QOpcUaClient > opcUaClient = this->OpcUaClient.toStrongRef();
+
+  if (!opcUaClient || !this->ParameterNode)
+  {
+    return false;
+  }
+
+  vtkMRMLSiemensPlcOpcUaNode* mrmlNode = this->ParameterNode.GetPointer();
+
+  // Reflective R2 KUKA_Z node
+  QOpcUaNode* kukaReflR2ZNode = this->FindNodeFromFullDisplayName(KUKA_REFLTARGETCOORDS_R2_Z_NODE_NAME);
+
+  // Connect signal handlers for subscribed values
+  if (!kukaReflR2ZNode)
+  {
+    return false;
+  }
+  QObject::connect(kukaReflR2ZNode,
+    &QOpcUaNode::dataChangeOccurred, [mrmlNode](QOpcUa::NodeAttribute attr, QVariant value)
+    {
+      if (attr == QOpcUa::NodeAttribute::Value && value.canConvert< int >())
+      {
+        bool ok = false;
+        int KUKA_Z = value.toInt(&ok);
+        if (ok)
+        {
+          int32_t r2Coords[6] = {};
+          mrmlNode->GetConfirmedCoordsR2(r2Coords);
+          r2Coords[2] = KUKA_Z;
+          {
+            MRMLNodeModifyBlocker block(mrmlNode);
+            mrmlNode->SetConfirmedCoordsR2(r2Coords);
+          }
+          qDebug() << Q_FUNC_INFO << "Reflective R2 KUKA_Z changed:" << KUKA_Z;
+        }
+      }
+    }
+  );
+  QObject::connect(kukaReflR2ZNode,
+    &QOpcUaNode::attributeRead, [kukaReflR2ZNode, mrmlNode](QOpcUa::NodeAttributes attr)
+    {
+      if (!kukaReflR2ZNode || !mrmlNode)
+      {
+        return;
+      }
+      if (attr & QOpcUa::NodeAttribute::Value)
+      {
+        if (kukaReflR2ZNode->attributeError(QOpcUa::NodeAttribute::Value) == QOpcUa::UaStatusCode::Good)
+        {
+          QVariant value = kukaReflR2ZNode->attribute(QOpcUa::NodeAttribute::Value);
+          bool ok = false;
+          int KUKA_Z = value.toInt(&ok); // Get the attribute from the cache
+          if (ok)
+          {
+            int32_t r2Coords[6] = {};
+            mrmlNode->GetConfirmedCoordsR2(r2Coords);
+            r2Coords[2] = KUKA_Z;
+            {
+              MRMLNodeModifyBlocker block(mrmlNode);
+              mrmlNode->SetConfirmedCoordsR2(r2Coords);
+            }
+            qDebug() << Q_FUNC_INFO << "Reflective R2 KUKA_Z changed:" << KUKA_Z;
+          }
+        }
+      }
+    }
+  );
+
+  // Subscribe to data changes
+  kukaReflR2ZNode->enableMonitoring(QOpcUa::NodeAttribute::Value, OpcUaMonitorParameters);
+
+  return true;
+}
+
+
+//-----------------------------------------------------------------------------
+bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectReflTargetCoordAR2Node()
+{
+  QSharedPointer< QOpcUaClient > opcUaClient = this->OpcUaClient.toStrongRef();
+
+  if (!opcUaClient || !this->ParameterNode)
+  {
+    return false;
+  }
+
+  vtkMRMLSiemensPlcOpcUaNode* mrmlNode = this->ParameterNode.GetPointer();
+
+  // Reflective R2 KUKA_A node
+  QOpcUaNode* kukaReflR2ANode = this->FindNodeFromFullDisplayName(KUKA_REFLTARGETCOORDS_R2_A_NODE_NAME);
+
+  // Connect signal handlers for subscribed values
+  if (!kukaReflR2ANode)
+  {
+    return false;
+  }
+  QObject::connect(kukaReflR2ANode,
+    &QOpcUaNode::dataChangeOccurred, [mrmlNode](QOpcUa::NodeAttribute attr, QVariant value)
+    {
+      if (attr == QOpcUa::NodeAttribute::Value && value.canConvert< int >())
+      {
+        bool ok = false;
+        int KUKA_A = value.toInt(&ok);
+        if (ok)
+        {
+          int32_t r2Coords[6] = {};
+          mrmlNode->GetConfirmedCoordsR2(r2Coords);
+          r2Coords[3] = KUKA_A;
+          {
+            MRMLNodeModifyBlocker block(mrmlNode);
+            mrmlNode->SetConfirmedCoordsR2(r2Coords);
+          }
+          qDebug() << Q_FUNC_INFO << "Reflective R2 KUKA_A changed:" << KUKA_A;
+        }
+      }
+    }
+  );
+  QObject::connect(kukaReflR2ANode,
+    &QOpcUaNode::attributeRead, [kukaReflR2ANode, mrmlNode](QOpcUa::NodeAttributes attr)
+    {
+      if (!kukaReflR2ANode || !mrmlNode)
+      {
+        return;
+      }
+      if (attr & QOpcUa::NodeAttribute::Value)
+      {
+        if (kukaReflR2ANode->attributeError(QOpcUa::NodeAttribute::Value) == QOpcUa::UaStatusCode::Good)
+        {
+          QVariant value = kukaReflR2ANode->attribute(QOpcUa::NodeAttribute::Value);
+          bool ok = false;
+          int KUKA_A = value.toInt(&ok); // Get the attribute from the cache
+          if (ok)
+          {
+            int32_t r2Coords[6] = {};
+            mrmlNode->GetConfirmedCoordsR2(r2Coords);
+            r2Coords[3] = KUKA_A;
+            {
+              MRMLNodeModifyBlocker block(mrmlNode);
+              mrmlNode->SetConfirmedCoordsR2(r2Coords);
+            }
+            qDebug() << Q_FUNC_INFO << "Reflective R2 KUKA_A read:" << KUKA_A;
+          }
+        }
+      }
+    }
+  );
+
+  // Subscribe to data changes
+  kukaReflR2ANode->enableMonitoring(QOpcUa::NodeAttribute::Value, OpcUaMonitorParameters);
+
+  return true;
+}
+
+//-----------------------------------------------------------------------------
+bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectReflTargetCoordBR2Node()
+{
+  QSharedPointer< QOpcUaClient > opcUaClient = this->OpcUaClient.toStrongRef();
+
+  if (!opcUaClient || !this->ParameterNode)
+  {
+    return false;
+  }
+
+  vtkMRMLSiemensPlcOpcUaNode* mrmlNode = this->ParameterNode.GetPointer();
+
+  // Reflective R2 KUKA_B node
+  QOpcUaNode* kukaReflR2BNode = this->FindNodeFromFullDisplayName(KUKA_REFLTARGETCOORDS_R2_B_NODE_NAME);
+
+  // Connect signal handlers for subscribed values
+  if (!kukaReflR2BNode)
+  {
+    return false;
+  }
+  QObject::connect(kukaReflR2BNode,
+    &QOpcUaNode::dataChangeOccurred, [mrmlNode](QOpcUa::NodeAttribute attr, QVariant value)
+    {
+      if (attr == QOpcUa::NodeAttribute::Value && value.canConvert< int >())
+      {
+        bool ok = false;
+        int KUKA_B = value.toInt(&ok);
+        if (ok)
+        {
+          int32_t r2Coords[6] = {};
+          mrmlNode->GetConfirmedCoordsR2(r2Coords);
+          r2Coords[4] = KUKA_B;
+          {
+            MRMLNodeModifyBlocker block(mrmlNode);
+            mrmlNode->SetConfirmedCoordsR2(r2Coords);
+          }
+          qDebug() << Q_FUNC_INFO << "Reflective R2 KUKA_B changed:" << KUKA_B;
+        }
+      }
+    }
+  );
+  QObject::connect(kukaReflR2BNode,
+    &QOpcUaNode::attributeRead, [kukaReflR2BNode, mrmlNode](QOpcUa::NodeAttributes attr)
+    {
+      if (!kukaReflR2BNode || !mrmlNode)
+      {
+        return;
+      }
+      if (attr & QOpcUa::NodeAttribute::Value)
+      {
+        if (kukaReflR2BNode->attributeError(QOpcUa::NodeAttribute::Value) == QOpcUa::UaStatusCode::Good)
+        {
+          QVariant value = kukaReflR2BNode->attribute(QOpcUa::NodeAttribute::Value);
+          bool ok = false;
+          int KUKA_B = value.toInt(&ok); // Get the attribute from the cache
+          if (ok)
+          {
+            int32_t r2Coords[6] = {};
+            mrmlNode->GetConfirmedCoordsR2(r2Coords);
+            r2Coords[4] = KUKA_B;
+            {
+              MRMLNodeModifyBlocker block(mrmlNode);
+              mrmlNode->SetConfirmedCoordsR2(r2Coords);
+            }
+            qDebug() << Q_FUNC_INFO << "Reflective R2 KUKA_B changed:" << KUKA_B;
+          }
+        }
+      }
+    }
+  );
+
+  // Subscribe to data changes
+  kukaReflR2BNode->enableMonitoring(QOpcUa::NodeAttribute::Value, OpcUaMonitorParameters);
+
+  return true;
+}
+
+//-----------------------------------------------------------------------------
+bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectReflTargetCoordCR2Node()
+{
+  QSharedPointer< QOpcUaClient > opcUaClient = this->OpcUaClient.toStrongRef();
+
+  if (!opcUaClient || !this->ParameterNode)
+  {
+    return false;
+  }
+
+  vtkMRMLSiemensPlcOpcUaNode* mrmlNode = this->ParameterNode.GetPointer();
+
+  // Reflective R2 KUKA_C node
+  QOpcUaNode* kukaReflR2CNode = this->FindNodeFromFullDisplayName(KUKA_REFLTARGETCOORDS_R2_C_NODE_NAME);
+
+  // Connect signal handlers for subscribed values
+  if (!kukaReflR2CNode)
+  {
+    return false;
+  }
+  QObject::connect(kukaReflR2CNode,
+    &QOpcUaNode::dataChangeOccurred, [mrmlNode](QOpcUa::NodeAttribute attr, QVariant value)
+    {
+      if (attr == QOpcUa::NodeAttribute::Value && value.canConvert< int >())
+      {
+        bool ok = false;
+        int KUKA_C = value.toInt(&ok);
+        if (ok)
+        {
+          int32_t r2Coords[6] = {};
+          mrmlNode->GetConfirmedCoordsR2(r2Coords);
+          r2Coords[5] = KUKA_C;
+          {
+            MRMLNodeModifyBlocker block(mrmlNode);
+            mrmlNode->SetConfirmedCoordsR2(r2Coords);
+          }
+          qDebug() << Q_FUNC_INFO << "Reflective R2 KUKA_C changed:" << KUKA_C;
+        }
+      }
+    }
+  );
+  QObject::connect(kukaReflR2CNode,
+    &QOpcUaNode::attributeRead, [kukaReflR2CNode, mrmlNode](QOpcUa::NodeAttributes attr)
+    {
+      if (!kukaReflR2CNode || !mrmlNode)
+      {
+        return;
+      }
+      if (attr & QOpcUa::NodeAttribute::Value)
+      {
+        if (kukaReflR2CNode->attributeError(QOpcUa::NodeAttribute::Value) == QOpcUa::UaStatusCode::Good)
+        {
+          QVariant value = kukaReflR2CNode->attribute(QOpcUa::NodeAttribute::Value);
+          bool ok = false;
+          int KUKA_C = value.toInt(&ok); // Get the attribute from the cache
+          if (ok)
+          {
+            int32_t r2Coords[6] = {};
+            mrmlNode->GetConfirmedCoordsR2(r2Coords);
+            r2Coords[5] = KUKA_C;
+            {
+              MRMLNodeModifyBlocker block(mrmlNode);
+              mrmlNode->SetConfirmedCoordsR2(r2Coords);
+            }
+            qDebug() << Q_FUNC_INFO << "Reflective R2 KUKA_C changed:" << KUKA_C;
+          }
+        }
+      }
+    }
+  );
+
+  // Subscribe to data changes
+  kukaReflR2CNode->enableMonitoring(QOpcUa::NodeAttribute::Value, OpcUaMonitorParameters);
+
+  return true;
 }
 
 //-----------------------------------------------------------------------------
@@ -4870,6 +6757,25 @@ bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectCurrentCoordsR2Nodes()
   res &= this->ConnectCurrentCoordA4R2Node();
   res &= this->ConnectCurrentCoordA5R2Node();
   res &= this->ConnectCurrentCoordA6R2Node();
+  res &= this->ConnectCurrentCoordXR2Node();
+  res &= this->ConnectCurrentCoordYR2Node();
+  res &= this->ConnectCurrentCoordZR2Node();
+  res &= this->ConnectCurrentCoordAR2Node();
+  res &= this->ConnectCurrentCoordBR2Node();
+  res &= this->ConnectCurrentCoordCR2Node();
+  return res;
+}
+
+//-----------------------------------------------------------------------------
+bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectReflTargetCoordsR2Nodes()
+{
+  bool res = this->ConnectReflTargetCoordAR2Node();
+  res &= this->ConnectReflTargetCoordBR2Node();
+  res &= this->ConnectReflTargetCoordCR2Node();
+  res &= this->ConnectReflTargetCoordXR2Node();
+  res &= this->ConnectReflTargetCoordYR2Node();
+  res &= this->ConnectReflTargetCoordZR2Node();
+  
   return res;
 }
 
@@ -5976,6 +7882,26 @@ void qSlicerSiemensPlcOpcUaWidget::updateWidgetFromMRML()
       break;
     }
   }
+
+  double r1KukaCoords[6] = {};
+  d->ParameterNode->GetCurrentCoordsR1(r1KukaCoords);
+  double* r1KukaAngles = r1KukaCoords + 3;
+  d->CoordinatesWidget_CurrCoordsR1->setCoordinates(r1KukaCoords);
+  d->CoordinatesWidget_CurrAnglesR1->setCoordinates(r1KukaAngles);
+
+  double r2KukaCoords[6] = {};
+  d->ParameterNode->GetCurrentCoordsR2(r2KukaCoords);
+  double* r2KukaAngles = r2KukaCoords + 3;
+  d->CoordinatesWidget_CurrCoordsR2->setCoordinates(r2KukaCoords);
+  d->CoordinatesWidget_CurrAnglesR2->setCoordinates(r2KukaAngles);
+
+  d->ParameterNode->GetConfirmedTargetCoordsR1(r1KukaCoords);
+  d->CoordinatesWidget_ConfirmedTargetCoordsR1->setCoordinates(r1KukaCoords);
+  d->CoordinatesWidget_ConfirmedTargetAnglesR1->setCoordinates(r1KukaAngles);
+
+  d->ParameterNode->GetConfirmedTargetCoordsR2(r2KukaCoords);
+  d->CoordinatesWidget_ConfirmedTargetCoordsR2->setCoordinates(r2KukaCoords);
+  d->CoordinatesWidget_ConfirmedTargetAnglesR2->setCoordinates(r2KukaAngles);
 }
 
 //-----------------------------------------------------------------------------
@@ -6829,18 +8755,18 @@ void qSlicerSiemensPlcOpcUaWidget::onServerInterfacesRead(QOpcUa::NodeAttributes
       qDebug() << Q_FUNC_INFO << "Reset errors and Make X-Ray nodes are OK";
     }
 
-    bool currentCoordsR1 = true;//d->ConnectKukaR1TcsNodes();
-    currentCoordsR1 &= d->ConnectCurrentCoordsR1Nodes();
-    if (currentCoordsR1)
+    bool currentCoords = d->ConnectCurrentCoordsR1Nodes();
+    currentCoords &= d->ConnectCurrentCoordsR2Nodes();
+    if (currentCoords)
     {
-      qDebug() << Q_FUNC_INFO << "R1 current coords nodes are OK";
+      qDebug() << Q_FUNC_INFO << "R1 R2 Current coords nodes are OK";
     }
 
-    bool currentCoordsR2 = true;//d->ConnectKukaR2TcsNodes();
-    currentCoordsR2 &= d->ConnectCurrentCoordsR2Nodes();
-    if (currentCoordsR2)
+    bool reflTargetCoords = d->ConnectReflTargetCoordsR1Nodes();
+    reflTargetCoords &= d->ConnectReflTargetCoordsR2Nodes();
+    if (reflTargetCoords)
     {
-      qDebug() << Q_FUNC_INFO << "R2 current coords nodes are OK";
+      qDebug() << Q_FUNC_INFO << "R1 R2 Reflective target coords nodes are OK";
     }
 
   }

@@ -2112,7 +2112,7 @@ void vtkSlicerChannel26Cabin3RobotsTransformLogic::UpdateCarmRobotBaseRotationTo
 
     // BaseRotation->BaseFixed rotation around Y (A1 angle)
     vtkNew<vtkTransform> baseRotationToBaseFixedTransform;
-    baseRotationToBaseFixedTransform->RotateY(a[0]);
+    baseRotationToBaseFixedTransform->RotateY(-1. * a[0]);
 
     carmRobotBaseFixedToPatientTransform->Concatenate(baseRotationToBaseFixedTransform);
     carmRobotBaseFixedToPatientTransform->Concatenate(patientToCarmRobotBaseFixedTransform);
@@ -2371,7 +2371,7 @@ void vtkSlicerChannel26Cabin3RobotsTransformLogic::UpdateCarmRobotFlangeToCarmRo
 
     // Flange->Wrist rotation around X (A6 angle)
     vtkNew<vtkTransform> flangeToWristTransform;
-    flangeToWristTransform->RotateX(a[5]);
+    flangeToWristTransform->RotateX(-1. * a[5]);
 
     carmWristToPatientTransform->Concatenate(flangeToWristTransform);
     carmWristToPatientTransform->Concatenate(patientToCarmWristTransform);

@@ -53,6 +53,9 @@ public:
   qSlicerSiemensPlcOpcUaWidget(QWidget *parent=0);
   ~qSlicerSiemensPlcOpcUaWidget() override;
 
+signals:
+  void treeOfNodesRead(true);
+
 public slots:
   /// Set SiemensPlcOpcUa MRML node (Parameter node)
   void setParameterNode(vtkMRMLNode* node);

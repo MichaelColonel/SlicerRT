@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>583</width>
+    <width>709</width>
     <height>900</height>
    </rect>
   </property>
@@ -54,7 +54,7 @@
            <rect>
             <x>0</x>
             <y>0</y>
-            <width>541</width>
+            <width>667</width>
             <height>804</height>
            </rect>
           </property>
@@ -531,7 +531,7 @@
                 <string>Set coordinates for KUKA robots</string>
                </property>
                <property name="collapsed">
-                <bool>true</bool>
+                <bool>false</bool>
                </property>
                <layout class="QGridLayout" name="gridLayout_35">
                 <item row="0" column="0">
@@ -826,9 +826,9 @@
        </item>
       </layout>
      </widget>
-     <widget class="QWidget" name="tab_ReflTargetCoords">
+     <widget class="QWidget" name="tab_ConfirmedTargetCoords">
       <attribute name="title">
-       <string>Reflection target coordinates</string>
+       <string>Confirmed target coordinates</string>
       </attribute>
       <layout class="QGridLayout" name="gridLayout_37">
        <item row="0" column="0">
@@ -853,7 +853,7 @@
                 </widget>
                </item>
                <item row="0" column="1">
-                <widget class="ctkCoordinatesWidget" name="CoordinatesWidget_5">
+                <widget class="ctkCoordinatesWidget" name="CoordinatesWidget_ConfirmedTargetCoordsR1">
                  <property name="decimals">
                   <number>6</number>
                  </property>
@@ -879,7 +879,7 @@
                 </widget>
                </item>
                <item row="0" column="1">
-                <widget class="ctkCoordinatesWidget" name="CoordinatesWidget_6">
+                <widget class="ctkCoordinatesWidget" name="CoordinatesWidget_ConfirmedTargetAnglesR1">
                  <property name="decimals">
                   <number>6</number>
                  </property>
@@ -920,7 +920,7 @@
                 </widget>
                </item>
                <item row="0" column="1">
-                <widget class="ctkCoordinatesWidget" name="CoordinatesWidget_7">
+                <widget class="ctkCoordinatesWidget" name="CoordinatesWidget_ConfirmedTargetCoordsR2">
                  <property name="decimals">
                   <number>6</number>
                  </property>
@@ -946,7 +946,7 @@
                 </widget>
                </item>
                <item row="0" column="1">
-                <widget class="ctkCoordinatesWidget" name="CoordinatesWidget">
+                <widget class="ctkCoordinatesWidget" name="CoordinatesWidget_ConfirmedTargetAnglesR2">
                  <property name="decimals">
                   <number>6</number>
                  </property>
@@ -999,8 +999,8 @@
            <rect>
             <x>0</x>
             <y>0</y>
-            <width>527</width>
-            <height>850</height>
+            <width>667</width>
+            <height>804</height>
            </rect>
           </property>
           <layout class="QGridLayout" name="gridLayout_32">
@@ -1019,6 +1019,9 @@
                  <widget class="ctkCollapsibleGroupBox" name="CollapsibleGroupBox_R1Angles">
                   <property name="title">
                    <string>Angles (deg)</string>
+                  </property>
+                  <property name="checkable">
+                   <bool>false</bool>
                   </property>
                   <layout class="QGridLayout" name="gridLayout_14">
                    <item row="0" column="0">
@@ -1054,6 +1057,9 @@
                  <widget class="ctkCollapsibleGroupBox" name="CollapsibleGroupBox_R1Coords">
                   <property name="title">
                    <string>Coordinates (mm)</string>
+                  </property>
+                  <property name="checkable">
+                   <bool>false</bool>
                   </property>
                   <layout class="QGridLayout" name="gridLayout_23">
                    <item row="0" column="1">
@@ -1284,9 +1290,12 @@
                   <property name="title">
                    <string>Angles (deg)</string>
                   </property>
+                  <property name="checkable">
+                   <bool>false</bool>
+                  </property>
                   <layout class="QGridLayout" name="gridLayout_30">
                    <item row="0" column="1">
-                    <widget class="ctkCoordinatesWidget" name="CoordinatesWidget_CurrAnglesR1_2">
+                    <widget class="ctkCoordinatesWidget" name="CoordinatesWidget_CurrAnglesR2">
                      <property name="decimals">
                       <number>6</number>
                      </property>
@@ -1315,6 +1324,9 @@
                  <widget class="ctkCollapsibleGroupBox" name="CollapsibleGroupBox_3">
                   <property name="title">
                    <string>Coordinates (mm)</string>
+                  </property>
+                  <property name="checkable">
+                   <bool>false</bool>
                   </property>
                   <layout class="QGridLayout" name="gridLayout_29">
                    <item row="0" column="1">
