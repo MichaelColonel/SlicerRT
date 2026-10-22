@@ -469,7 +469,6 @@
  </customwidgets>
  <resources>
   <include location="../qSlicerU70RoomOpcUaModule.qrc"/>
-  <include location="../../../../../../.designer/qSlicerU70RoomOpcUaModule.qrc"/>
  </resources>
  <connections>
   <connection>
@@ -485,6 +484,22 @@
     <hint type="destinationlabel">
      <x>150</x>
      <y>687</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>CheckBox_HostAutoConnect</sender>
+   <signal>clicked(bool)</signal>
+   <receiver>PushButton_GetServerInterfaces</receiver>
+   <slot>setHidden(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>159</x>
+     <y>238</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>159</x>
+     <y>801</y>
     </hint>
    </hints>
   </connection>

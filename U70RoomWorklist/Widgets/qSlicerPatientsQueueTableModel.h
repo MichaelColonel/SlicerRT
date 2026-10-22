@@ -83,14 +83,14 @@ public:
 protected:
   QString headerAt(int offset) const;
   QList< ModalityWork > modalityWorkList;
-  const QStringList tableHeadersList{
-    "Patient\nID",
-    "Patient\nName",
-    "Patient\nBirth Date",
-    "Accession\nNumber",
-    "Requested\nProcedure\nID",
-    "Requested\nProcedure\nDescription",
-    "Study\nInstance\nUID"
+  static constexpr const char* const tableHeadersList[NOF_HEADERS] = {
+    QT_TR_NOOP("Patient\nID"),
+    QT_TR_NOOP("Patient\nName"),
+    QT_TR_NOOP("Patient\nBirth Date"),
+    QT_TR_NOOP("Accession\nNumber"),
+    QT_TR_NOOP("Requested\nProcedure\nID"),
+    QT_TR_NOOP("Requested\nProcedure\nDescription"),
+    QT_TR_NOOP("Study\nInstance\nUID")
   };
 };
 

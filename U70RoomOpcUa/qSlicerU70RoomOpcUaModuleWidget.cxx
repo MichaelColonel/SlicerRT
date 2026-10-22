@@ -266,6 +266,17 @@ void qSlicerU70RoomOpcUaModuleWidget::setup()
   QObject::connect(this, SIGNAL(siemensPlcOpcUaModeChanged(vtkMRMLSiemensPlcOpcUaNode::ModeType)),
     d->SiemensPlcOpcUaControlWidget.data(), SLOT(onOpcUaModeChanged(vtkMRMLSiemensPlcOpcUaNode::ModeType)));
 
+  // Parse nodes automatically if auto connection flag is set
+  QObject::connect(d->SiemensPlcOpcUaControlWidget.data(), &qSlicerSiemensPlcOpcUaWidget::nodesTreeLoadingFinished,
+    [d]()
+    {
+      if (d->CheckBox_HostAutoConnect->isChecked())
+      {
+        d->SiemensPlcOpcUaControlWidget->onParseServerInterfacesClicked();
+      }
+    }
+  );
+
   // Handle scene change event if occurs
   qvtkConnect(d->logic(), vtkCommand::ModifiedEvent, this, SLOT(onOpcUaLogicModified()));
 }

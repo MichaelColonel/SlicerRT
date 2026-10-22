@@ -25,7 +25,8 @@
 #include <QWidget>
 #include <QSharedPointer>
 
-#include <QOpcUaReadResult>
+// QtOpcUa includes
+#include <QOpcUaNode>
 
 // CTK includes
 #include <ctkPimpl.h>
@@ -54,7 +55,7 @@ public:
   ~qSlicerSiemensPlcOpcUaWidget() override;
 
 signals:
-  void nodesTreeRead(bool);
+  void nodesTreeLoadingFinished(void);
 
 public slots:
   /// Set SiemensPlcOpcUa MRML node (Parameter node)

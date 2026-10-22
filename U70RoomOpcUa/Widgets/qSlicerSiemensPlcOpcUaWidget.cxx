@@ -7501,6 +7501,7 @@ qSlicerSiemensPlcOpcUaWidget::qSlicerSiemensPlcOpcUaWidget(QWidget* parentWidget
       {
         progressTimer->start();
         progressDialog->close();
+        emit this->nodesTreeLoadingFinished();
       }
       else
       {
@@ -7671,7 +7672,7 @@ qSlicerSiemensPlcOpcUaWidget::qSlicerSiemensPlcOpcUaWidget(QWidget* parentWidget
   QObject::connect(d->ButtonGroup_TabletopPosition, SIGNAL(buttonClicked(QAbstractButton*)),
     this, SLOT(onTabletopPositionChanged(QAbstractButton*)));
 
-  // Read nodes manually 
+  // Read nodes manually
   QObject::connect(d->PushButton_ReadStatusAndMessages, SIGNAL(clicked()),
     this, SLOT(onReadStatusAndMessagesClicked()));
 }
@@ -8734,9 +8735,9 @@ void qSlicerSiemensPlcOpcUaWidget::onServerInterfacesRead(QOpcUa::NodeAttributes
       {
         if (nodeData.getNode())
         {
-//          qDebug() << Q_FUNC_INFO << "Node ID:" << nodeData.getNodeId() \
-            << ", Name:" << nodeData.getNodeName() \
-            << ", Description:" << nodeData.getNodeDescription() << Qt::endl;
+//          qDebug() << Q_FUNC_INFO << "Node ID:" << nodeData.getNodeId()
+//              << ", Name:" << nodeData.getNodeName()
+//              << ", Description:" << nodeData.getNodeDescription() << Qt::endl;
         }
       }
     }

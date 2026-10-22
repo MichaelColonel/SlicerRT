@@ -39,6 +39,10 @@ public:
   static vtkSlicerU70RoomOpcUaLogic* New();
   vtkTypeMacro(vtkSlicerU70RoomOpcUaLogic, vtkSlicerModuleLogic);
   void PrintSelf(ostream& os, vtkIndent indent) override;
+  bool ConnectToServer();
+  bool WriteBool(const std::string& nodeId, bool value);
+  bool WriteByte(const std::string& nodeId, uint8_t value);
+  bool WriteUint32(const std::string& nodeId, uint32_t value);
 
 protected:
   vtkSlicerU70RoomOpcUaLogic();
@@ -54,6 +58,10 @@ protected:
 private:
   vtkSlicerU70RoomOpcUaLogic(const vtkSlicerU70RoomOpcUaLogic&); // Not implemented
   void operator=(const vtkSlicerU70RoomOpcUaLogic&);            // Not implemented
+
+  class vtkInternal;
+  vtkInternal* Internal;
+  friend class vtkInternal; // For access from the callback function
 };
 
 #endif

@@ -53,7 +53,7 @@ public:
 protected:
   QString headerAt(int offset) const;
   ModalityWork modalityWorkAndScheduledProcedureStepList;
-  const QStringList tableHeadersList{
+  static constexpr const char* const tableHeadersList[NOF_HEADERS] = {
     QT_TR_NOOP("Requested\nProcedure\nID"),
     QT_TR_NOOP("Modality"),
     QT_TR_NOOP("Scheduled\nStation\nAE Title"),

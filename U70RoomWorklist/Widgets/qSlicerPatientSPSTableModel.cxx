@@ -115,9 +115,9 @@ QVariant qSlicerPatientSPSTableModel::headerData(int section, Qt::Orientation or
 
 QString qSlicerPatientSPSTableModel::headerAt(int offset) const
 {
-  if (offset >= 0 && offset < tableHeadersList.size())
+  if (offset >= 0 && offset < NOF_HEADERS)
   {
-    return tableHeadersList.at(offset);
+    return QObject::tr(tableHeadersList[offset]);
   }
   return QString();
 }
