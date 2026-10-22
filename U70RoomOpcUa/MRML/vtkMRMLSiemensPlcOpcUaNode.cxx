@@ -419,3 +419,14 @@ void vtkMRMLSiemensPlcOpcUaNode::GetCurrentCoordsR2(double kukaCoords[6])
   kukaCoords[4] = double(this->CurrentCoordsR2[4]) / 1000.;
   kukaCoords[5] = double(this->CurrentCoordsR2[5]) / 1000.;
 }
+
+//---------------------------------------------------------------------------
+void vtkMRMLSiemensPlcOpcUaNode::GetCoordsAndAngles(double coordsAndAngles[6])
+{
+  coordsAndAngles[0] = double(this->CoordsX) / 1000.;
+  coordsAndAngles[1] = double(this->CoordsY) / 1000.;
+  coordsAndAngles[2] = double(this->CoordsZ) / 1000.;
+  coordsAndAngles[3] = double(this->CoordsA) / 1000.;
+  coordsAndAngles[4] = double(this->CoordsB) / 1000.;
+  coordsAndAngles[5] = double(this->CoordsC) / 1000.;
+}

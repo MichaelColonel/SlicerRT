@@ -284,6 +284,8 @@ public:
   vtkGetVector6Macro(CurrentAxisCoordsR2, int32_t);
   vtkSetVector6Macro(CurrentAxisCoordsR2, int32_t);
 
+  void GetCoordsAndAngles(double coordsAndAngles[6]);
+
   void GetCurrentAxisCoordsR1(double angles[6]);
   void GetCurrentAxisCoordsR2(double angles[6]);
   void SetCurrentAxisCoordsR1(double angles[6]);
@@ -376,8 +378,10 @@ private:
   int32_t CurrentCoordsR2[6] = { 0,0,0,0,0,0 }; // X,Y,Z,A,B,C
 
   // Tabletop current axis coords (A1,A2,A3,A4,A5,A6)
+  // { 150580, -137740, 87920, -3780, -92170, -175870 };
   int32_t CurrentAxisCoordsR1[6] = { -150580, -137740, 87920, -3780, -92170, -175870 }; // A1,A2,A3,A4,A5,A6
   // C-arm current axis coords (A1,A2,A3,A4,A5,A6)
+  // { -770, -122030, 142060, 122360, 33380, -130770 };
   int32_t CurrentAxisCoordsR2[6] = { 178770, -122030, 142060, 122360, 33380, -130770 }; // A1,A2,A3,A4,A5,A6
 };
 

@@ -284,68 +284,6 @@ const QString KUKA_CURRENTCOORDS_R2_A6_NODE_NAME = KUKA_CURRENTCOORDS_R2_NODE_NA
 
 const QOpcUaMonitoringParameters OpcUaMonitorParameters(100);
 
-const QStringList ReadValueFullNodeNames = {
-    ASU_ERROR_MESSAGES_NODE_NAME,
-    ASU_SERVICE_MESSAGES_NODE_NAME,
-    ASU_MESSAGES_NODE_NAME,
-    ASU_MODE_NODE_NAME,
-    ASU_STATUS_RTK_NODE_NAME,
-    ASU_STATUS_R1_TABLE_NODE_NAME,
-    ASU_STATUS_R2_CARM_NODE_NAME,
-    BUTTONS_AM_R1_LOADTOISO_ENABLED_NODE_NAME,
-    BUTTONS_AM_R1_TOLOAD_ENABLED_NODE_NAME,
-    BUTTONS_AM_R1_NEWCOORDS_ENABLED_NODE_NAME,
-    BUTTONS_AM_R2_TOHOME_ENABLED_NODE_NAME,
-    BUTTONS_AM_R2_TOPLANE1_ENABLED_NODE_NAME,
-    BUTTONS_AM_R2_TOPLANE2_ENABLED_NODE_NAME,
-    BUTTONS_AM_R1R2_EMEVAC_ENABLED_NODE_NAME,
-    BUTTONS_AM_APPLYTABLEPOSITION_ENABLED_NODE_NAME,
-    BUTTONS_SM_R1_BREAKTEST_ENABLED_NODE_NAME,
-    BUTTONS_SM_R1_MASREFTEST_ENABLED_NODE_NAME,
-    BUTTONS_SM_R1_LOAD_ENABLED_NODE_NAME,
-    BUTTONS_SM_R1_SERVICEPOS1_ENABLED_NODE_NAME,
-    BUTTONS_SM_R1_SERVICEPOS2_ENABLED_NODE_NAME,
-    BUTTONS_SM_R1_SERVICEPOS3_ENABLED_NODE_NAME,
-    BUTTONS_SM_R2_BREAKTEST_ENABLED_NODE_NAME,
-    BUTTONS_SM_R2_MASREFTEST_ENABLED_NODE_NAME,
-    BUTTONS_SM_R2_HOME_ENABLED_NODE_NAME,
-    BUTTONS_SM_R2_SERVICEPOS1_ENABLED_NODE_NAME,
-    BUTTONS_SM_R2_SERVICEPOS2_ENABLED_NODE_NAME,
-    BUTTONS_SM_R2_SERVICEPOS3_ENABLED_NODE_NAME,
-    BUTTONS_SM_RESTARTSM_ENABLED_NODE_NAME,
-    BUTTONS_KCM_ALLOWT1_ENABLED_NODE_NAME,
-    BUTTONS_KCM_ALLOWXRAY_ENABLED_NODE_NAME,
-    BUTTONS_KCM_ALLOWBEAM_ENABLED_NODE_NAME,
-    ASU_ROBOTS_READY_XRAY1_NODE_NAME,
-    ASU_ROBOTS_READY_XRAY2_NODE_NAME,
-    ASU_TABLE_POSITION_NODE_NAME,
-    ASU_EMEVAC_SIGNAL_NODE_NAME,
-    KUKA_CURRENTCOORDS_R1_A1_NODE_NAME,
-    KUKA_CURRENTCOORDS_R1_A2_NODE_NAME,
-    KUKA_CURRENTCOORDS_R1_A3_NODE_NAME,
-    KUKA_CURRENTCOORDS_R1_A4_NODE_NAME,
-    KUKA_CURRENTCOORDS_R1_A5_NODE_NAME,
-    KUKA_CURRENTCOORDS_R1_A6_NODE_NAME,
-    KUKA_CURRENTCOORDS_R2_A1_NODE_NAME,
-    KUKA_CURRENTCOORDS_R2_A2_NODE_NAME,
-    KUKA_CURRENTCOORDS_R2_A3_NODE_NAME,
-    KUKA_CURRENTCOORDS_R2_A4_NODE_NAME,
-    KUKA_CURRENTCOORDS_R2_A5_NODE_NAME,
-    KUKA_CURRENTCOORDS_R2_A6_NODE_NAME,
-    KUKA_CURRENTCOORDS_R1_A_NODE_NAME,
-    KUKA_CURRENTCOORDS_R1_B_NODE_NAME,
-    KUKA_CURRENTCOORDS_R1_C_NODE_NAME,
-    KUKA_CURRENTCOORDS_R1_X_NODE_NAME,
-    KUKA_CURRENTCOORDS_R1_Y_NODE_NAME,
-    KUKA_CURRENTCOORDS_R1_Z_NODE_NAME,
-    KUKA_CURRENTCOORDS_R2_A_NODE_NAME,
-    KUKA_CURRENTCOORDS_R2_B_NODE_NAME,
-    KUKA_CURRENTCOORDS_R2_C_NODE_NAME,
-    KUKA_CURRENTCOORDS_R2_X_NODE_NAME,
-    KUKA_CURRENTCOORDS_R2_Y_NODE_NAME,
-    KUKA_CURRENTCOORDS_R2_Z_NODE_NAME
-};
-
 }
 
 //-----------------------------------------------------------------------------
@@ -517,8 +455,89 @@ public:
   QScopedPointer< QProgressDialog > ProgressDialog;
   QScopedPointer< QTimer > ProgressTimer;
 
-  bool AutoConnectFlag{ false };
-  int NofNodesRead{ 0 };
+  bool AutoConnectServerFlag{ false };
+  int NunmberOfNodesRead{ 0 };
+
+  const QStringList ReadValueFullNodeNames = {
+    ASU_ERROR_MESSAGES_NODE_NAME,
+    ASU_SERVICE_MESSAGES_NODE_NAME,
+    ASU_MESSAGES_NODE_NAME,
+    ASU_MODE_NODE_NAME,
+    ASU_STATUS_RTK_NODE_NAME,
+    ASU_STATUS_R1_TABLE_NODE_NAME,
+    ASU_STATUS_R2_CARM_NODE_NAME,
+    ASU_COORDS_A_NODE_NAME,
+    ASU_COORDS_B_NODE_NAME,
+    ASU_COORDS_C_NODE_NAME,
+    ASU_COORDS_X_NODE_NAME,
+    ASU_COORDS_Y_NODE_NAME,
+    ASU_COORDS_Z_NODE_NAME,
+    BUTTONS_AM_R1_LOADTOISO_ENABLED_NODE_NAME,
+    BUTTONS_AM_R1_TOLOAD_ENABLED_NODE_NAME,
+    BUTTONS_AM_R1_NEWCOORDS_ENABLED_NODE_NAME,
+    BUTTONS_AM_R2_TOHOME_ENABLED_NODE_NAME,
+    BUTTONS_AM_R2_TOPLANE1_ENABLED_NODE_NAME,
+    BUTTONS_AM_R2_TOPLANE2_ENABLED_NODE_NAME,
+    BUTTONS_AM_R1R2_EMEVAC_ENABLED_NODE_NAME,
+    BUTTONS_AM_APPLYTABLEPOSITION_ENABLED_NODE_NAME,
+    BUTTONS_AM_APPLYNEWCOORDS_ENABLED_NODE_NAME,
+    BUTTONS_SM_R1_BREAKTEST_ENABLED_NODE_NAME,
+    BUTTONS_SM_R1_MASREFTEST_ENABLED_NODE_NAME,
+    BUTTONS_SM_R1_LOAD_ENABLED_NODE_NAME,
+    BUTTONS_SM_R1_SERVICEPOS1_ENABLED_NODE_NAME,
+    BUTTONS_SM_R1_SERVICEPOS2_ENABLED_NODE_NAME,
+    BUTTONS_SM_R1_SERVICEPOS3_ENABLED_NODE_NAME,
+    BUTTONS_SM_R2_BREAKTEST_ENABLED_NODE_NAME,
+    BUTTONS_SM_R2_MASREFTEST_ENABLED_NODE_NAME,
+    BUTTONS_SM_R2_HOME_ENABLED_NODE_NAME,
+    BUTTONS_SM_R2_SERVICEPOS1_ENABLED_NODE_NAME,
+    BUTTONS_SM_R2_SERVICEPOS2_ENABLED_NODE_NAME,
+    BUTTONS_SM_R2_SERVICEPOS3_ENABLED_NODE_NAME,
+    BUTTONS_SM_RESTARTSM_ENABLED_NODE_NAME,
+    BUTTONS_KCM_ALLOWT1_ENABLED_NODE_NAME,
+    BUTTONS_KCM_ALLOWXRAY_ENABLED_NODE_NAME,
+    BUTTONS_KCM_ALLOWBEAM_ENABLED_NODE_NAME,
+    ASU_ROBOTS_READY_XRAY1_NODE_NAME,
+    ASU_ROBOTS_READY_XRAY2_NODE_NAME,
+    ASU_TABLE_POSITION_NODE_NAME,
+    ASU_EMEVAC_SIGNAL_NODE_NAME,
+    KUKA_CURRENTCOORDS_R1_A1_NODE_NAME,
+    KUKA_CURRENTCOORDS_R1_A2_NODE_NAME,
+    KUKA_CURRENTCOORDS_R1_A3_NODE_NAME,
+    KUKA_CURRENTCOORDS_R1_A4_NODE_NAME,
+    KUKA_CURRENTCOORDS_R1_A5_NODE_NAME,
+    KUKA_CURRENTCOORDS_R1_A6_NODE_NAME,
+    KUKA_CURRENTCOORDS_R2_A1_NODE_NAME,
+    KUKA_CURRENTCOORDS_R2_A2_NODE_NAME,
+    KUKA_CURRENTCOORDS_R2_A3_NODE_NAME,
+    KUKA_CURRENTCOORDS_R2_A4_NODE_NAME,
+    KUKA_CURRENTCOORDS_R2_A5_NODE_NAME,
+    KUKA_CURRENTCOORDS_R2_A6_NODE_NAME,
+    KUKA_CURRENTCOORDS_R1_A_NODE_NAME,
+    KUKA_CURRENTCOORDS_R1_B_NODE_NAME,
+    KUKA_CURRENTCOORDS_R1_C_NODE_NAME,
+    KUKA_CURRENTCOORDS_R1_X_NODE_NAME,
+    KUKA_CURRENTCOORDS_R1_Y_NODE_NAME,
+    KUKA_CURRENTCOORDS_R1_Z_NODE_NAME,
+    KUKA_CURRENTCOORDS_R2_A_NODE_NAME,
+    KUKA_CURRENTCOORDS_R2_B_NODE_NAME,
+    KUKA_CURRENTCOORDS_R2_C_NODE_NAME,
+    KUKA_CURRENTCOORDS_R2_X_NODE_NAME,
+    KUKA_CURRENTCOORDS_R2_Y_NODE_NAME,
+    KUKA_CURRENTCOORDS_R2_Z_NODE_NAME,
+    KUKA_REFLTARGETCOORDS_R1_X_NODE_NAME,
+    KUKA_REFLTARGETCOORDS_R1_Y_NODE_NAME,
+    KUKA_REFLTARGETCOORDS_R1_Z_NODE_NAME,
+    KUKA_REFLTARGETCOORDS_R1_A_NODE_NAME,
+    KUKA_REFLTARGETCOORDS_R1_B_NODE_NAME,
+    KUKA_REFLTARGETCOORDS_R1_C_NODE_NAME,
+    KUKA_REFLTARGETCOORDS_R2_X_NODE_NAME,
+    KUKA_REFLTARGETCOORDS_R2_Y_NODE_NAME,
+    KUKA_REFLTARGETCOORDS_R2_Z_NODE_NAME,
+    KUKA_REFLTARGETCOORDS_R2_A_NODE_NAME,
+    KUKA_REFLTARGETCOORDS_R2_B_NODE_NAME,
+    KUKA_REFLTARGETCOORDS_R2_C_NODE_NAME
+  };
 };
 
 // --------------------------------------------------------------------------
@@ -6858,7 +6877,7 @@ bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectTablePositionNode()
   QObject::connect(tablePosNode,
     &QOpcUaNode::dataChangeOccurred, [mrmlNode](QOpcUa::NodeAttribute attr, QVariant value)
     {
-      if (attr == QOpcUa::NodeAttribute::Value && value.canConvert< bool >())
+      if (attr == QOpcUa::NodeAttribute::Value && value.canConvert< int >())
       {
         bool ok = false;
         int tablePos = value.toInt(&ok); // Get the attribute from the cache
@@ -7498,13 +7517,15 @@ qSlicerSiemensPlcOpcUaWidget::qSlicerSiemensPlcOpcUaWidget(QWidget* parentWidget
   QObject::connect(d->PushButton_SetCoordZ, SIGNAL(clicked()),
     this, SLOT(onSetCoordZClicked()));
   QObject::connect(d->PushButton_SetAngleA, SIGNAL(clicked()),
-    this, SLOT(onSetCoordAClicked())); 
+    this, SLOT(onSetAngleAClicked())); 
   QObject::connect(d->PushButton_SetAngleB, SIGNAL(clicked()),
-    this, SLOT(onSetCoordBClicked()));
+    this, SLOT(onSetAngleBClicked()));
   QObject::connect(d->PushButton_SetAngleC, SIGNAL(clicked()),
-    this, SLOT(onSetCoordCClicked()));
+    this, SLOT(onSetAngleCClicked()));
   QObject::connect(d->PushButton_SetCoords, SIGNAL(clicked()),
-    this, SLOT(onSetCoordsClicked()));
+    this, SLOT(onSetCoordsAndAnglesClicked()));
+  QObject::connect(d->PushButton_SetTabletopPosition, SIGNAL(clicked()),
+    this, SLOT(onSetTabletopPositionClicked()));
 
   // AutoManual R1 ToLoad button
   QObject::connect(d->PushButton_AMR1ToLoad, SIGNAL(pressed()),
@@ -7647,8 +7668,8 @@ qSlicerSiemensPlcOpcUaWidget::qSlicerSiemensPlcOpcUaWidget(QWidget* parentWidget
   QObject::connect(d->PushButton_MakeXRay, SIGNAL(released()),
     this, SLOT(onMakeXrayReleased()));
 
-  QObject::connect(d->ButtonGroup_TableTopPosition, SIGNAL(buttonClicked(QAbstractButton*)),
-    this, SLOT(onTablePositionChanged(QAbstractButton*)));
+  QObject::connect(d->ButtonGroup_TabletopPosition, SIGNAL(buttonClicked(QAbstractButton*)),
+    this, SLOT(onTabletopPositionChanged(QAbstractButton*)));
 
   // Read nodes manually 
   QObject::connect(d->PushButton_ReadStatusAndMessages, SIGNAL(clicked()),
@@ -7842,22 +7863,6 @@ void qSlicerSiemensPlcOpcUaWidget::updateWidgetFromMRML()
     d->CheckBox_RobotsReadyForBeam->setChecked(flag);
   }
 
-  double r1Angles[6] = {};
-  double r2Angles[6] = {};
-  d->ParameterNode->GetCurrentAxisCoordsR1(r1Angles);
-  d->ParameterNode->GetCurrentAxisCoordsR2(r2Angles);
-  d->SliderWidget_R1A1->setValue(r1Angles[0]);
-  d->SliderWidget_R1A2->setValue(r1Angles[1]);
-  d->SliderWidget_R1A3->setValue(r1Angles[2]);
-  d->SliderWidget_R1A4->setValue(r1Angles[3]);
-  d->SliderWidget_R1A5->setValue(r1Angles[4]);
-  d->SliderWidget_R1A6->setValue(r1Angles[5]);
-  d->SliderWidget_R2A1->setValue(r2Angles[0]);
-  d->SliderWidget_R2A2->setValue(r2Angles[1]);
-  d->SliderWidget_R2A3->setValue(r2Angles[2]);
-  d->SliderWidget_R2A4->setValue(r2Angles[3]);
-  d->SliderWidget_R2A5->setValue(r2Angles[4]);
-  d->SliderWidget_R2A6->setValue(r2Angles[5]);
   {
     QSignalBlocker block0(d->RadioButton_PositionNotDefined);
     QSignalBlocker block1(d->RadioButton_Position1);
@@ -7882,6 +7887,33 @@ void qSlicerSiemensPlcOpcUaWidget::updateWidgetFromMRML()
       break;
     }
   }
+
+  // Coordinate widgets
+  double coordsAndAngles[6] = {}; // X,Y,Z,A,B,C
+  d->ParameterNode->GetCoordsAndAngles(coordsAndAngles);
+  d->DoubleSpinBox_CoordX->setValue(coordsAndAngles[0]);
+  d->DoubleSpinBox_CoordY->setValue(coordsAndAngles[1]);
+  d->DoubleSpinBox_CoordZ->setValue(coordsAndAngles[2]);
+  d->DoubleSpinBox_AngleA->setValue(coordsAndAngles[3]);
+  d->DoubleSpinBox_AngleB->setValue(coordsAndAngles[4]);
+  d->DoubleSpinBox_AngleC->setValue(coordsAndAngles[5]);
+
+  double r1Angles[6] = {};
+  double r2Angles[6] = {};
+  d->ParameterNode->GetCurrentAxisCoordsR1(r1Angles);
+  d->ParameterNode->GetCurrentAxisCoordsR2(r2Angles);
+  d->SliderWidget_R1A1->setValue(r1Angles[0]);
+  d->SliderWidget_R1A2->setValue(r1Angles[1]);
+  d->SliderWidget_R1A3->setValue(r1Angles[2]);
+  d->SliderWidget_R1A4->setValue(r1Angles[3]);
+  d->SliderWidget_R1A5->setValue(r1Angles[4]);
+  d->SliderWidget_R1A6->setValue(r1Angles[5]);
+  d->SliderWidget_R2A1->setValue(r2Angles[0]);
+  d->SliderWidget_R2A2->setValue(r2Angles[1]);
+  d->SliderWidget_R2A3->setValue(r2Angles[2]);
+  d->SliderWidget_R2A4->setValue(r2Angles[3]);
+  d->SliderWidget_R2A5->setValue(r2Angles[4]);
+  d->SliderWidget_R2A6->setValue(r2Angles[5]);
 
   double r1KukaCoords[6] = {};
   d->ParameterNode->GetCurrentCoordsR1(r1KukaCoords);
@@ -8835,7 +8867,7 @@ void qSlicerSiemensPlcOpcUaWidget::onSetCoordZClicked()
 }
 
 //-----------------------------------------------------------------------------
-void qSlicerSiemensPlcOpcUaWidget::onSetCoordAClicked()
+void qSlicerSiemensPlcOpcUaWidget::onSetAngleAClicked()
 {
   Q_D(qSlicerSiemensPlcOpcUaWidget);
   // Coord from ASU A node
@@ -8850,7 +8882,7 @@ void qSlicerSiemensPlcOpcUaWidget::onSetCoordAClicked()
 }
 
 //-----------------------------------------------------------------------------
-void qSlicerSiemensPlcOpcUaWidget::onSetCoordBClicked()
+void qSlicerSiemensPlcOpcUaWidget::onSetAngleBClicked()
 {
   Q_D(qSlicerSiemensPlcOpcUaWidget);
   // Coord from ASU B node
@@ -8865,7 +8897,7 @@ void qSlicerSiemensPlcOpcUaWidget::onSetCoordBClicked()
 }
 
 //-----------------------------------------------------------------------------
-void qSlicerSiemensPlcOpcUaWidget::onSetCoordCClicked()
+void qSlicerSiemensPlcOpcUaWidget::onSetAngleCClicked()
 {
   Q_D(qSlicerSiemensPlcOpcUaWidget);
   // Coord from ASU C node
@@ -8880,18 +8912,54 @@ void qSlicerSiemensPlcOpcUaWidget::onSetCoordCClicked()
 }
 
 //-----------------------------------------------------------------------------
-void qSlicerSiemensPlcOpcUaWidget::onSetCoordsClicked()
+void qSlicerSiemensPlcOpcUaWidget::onSetCoordsAndAnglesClicked()
 {
   this->onSetCoordXClicked();
   this->onSetCoordYClicked();
   this->onSetCoordZClicked();
-  this->onSetCoordAClicked();
-  this->onSetCoordBClicked();
-  this->onSetCoordCClicked();
+  this->onSetAngleAClicked();
+  this->onSetAngleBClicked();
+  this->onSetAngleCClicked();
 }
 
 //-----------------------------------------------------------------------------
-void qSlicerSiemensPlcOpcUaWidget::onTablePositionChanged(QAbstractButton* aButton)
+void qSlicerSiemensPlcOpcUaWidget::onSetTabletopPositionClicked()
+{
+  Q_D(qSlicerSiemensPlcOpcUaWidget);
+  // Table position node
+  QOpcUaNode* tabletopPositionNode = d->FindNodeFromFullDisplayName(ASU_TABLE_POSITION_NODE_NAME);
+  QRadioButton* rbutton = qobject_cast< QRadioButton* >(d->ButtonGroup_TabletopPosition->checkedButton());
+  uint8_t pos = 0;
+  if (rbutton == d->RadioButton_PositionNotDefined)
+  {
+    pos = 0;
+  }
+  else if (rbutton == d->RadioButton_Position1)
+  {
+    pos = 1;
+  }
+  else if (rbutton == d->RadioButton_Position2)
+  {
+    pos = 2;
+  }
+  else if (rbutton == d->RadioButton_Position3)
+  {
+    pos = 3;
+  }
+  else
+  {
+    pos = 0;
+  }
+
+  if (tabletopPositionNode)
+  {
+    qDebug() << Q_FUNC_INFO << ": Tabletop position:" << pos;
+    tabletopPositionNode->writeAttribute(QOpcUa::NodeAttribute::Value, QVariant(pos), QOpcUa::Types::Byte);
+  }
+}
+
+//-----------------------------------------------------------------------------
+void qSlicerSiemensPlcOpcUaWidget::onTabletopPositionChanged(QAbstractButton* aButton)
 {
   Q_D(qSlicerSiemensPlcOpcUaWidget);
   QRadioButton* rbutton = qobject_cast< QRadioButton* >(aButton);

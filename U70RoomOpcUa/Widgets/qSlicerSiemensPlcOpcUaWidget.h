@@ -54,7 +54,7 @@ public:
   ~qSlicerSiemensPlcOpcUaWidget() override;
 
 signals:
-  void treeOfNodesRead(true);
+  void nodesTreeRead(bool);
 
 public slots:
   /// Set SiemensPlcOpcUa MRML node (Parameter node)
@@ -70,7 +70,7 @@ public slots:
 
   // Siemens PLC OPC UA slots (values, buttons, etc)
   void onOpcUaModeChanged(vtkMRMLSiemensPlcOpcUaNode::ModeType mode);
-  void onTablePositionChanged(QAbstractButton*);
+  void onTabletopPositionChanged(QAbstractButton*);
 
   // AutomaticManual R1 LoadToIso button
   void onAutoManualR1LoadToIsoPressed();
@@ -160,10 +160,11 @@ public slots:
   void onSetCoordXClicked();
   void onSetCoordYClicked();
   void onSetCoordZClicked();
-  void onSetCoordAClicked();
-  void onSetCoordBClicked();
-  void onSetCoordCClicked();
-  void onSetCoordsClicked();
+  void onSetAngleAClicked();
+  void onSetAngleBClicked();
+  void onSetAngleCClicked();
+  void onSetCoordsAndAnglesClicked();
+  void onSetTabletopPositionClicked();
 
   void onServerInterfacesRead(QOpcUa::NodeAttributes attr);
 

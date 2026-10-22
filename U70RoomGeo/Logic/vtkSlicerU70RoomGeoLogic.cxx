@@ -514,11 +514,12 @@ void vtkSlicerU70RoomGeoLogic::ProcessMRMLNodesEvents(vtkObject* caller, unsigne
           {
             MRMLNodeModifyBlocker blocker(chan26GeoNode);
             chan26GeoNode->SetTableRobotAngles(robotAngles);
-            vtkErrorMacro("ProcessMRMLNodesEvents: angles" << robotAngles[0] << ' ' << robotAngles[1] << ' ' << robotAngles[2] << ' ' << robotAngles[3] << ' ' << robotAngles[4] << ' ' << robotAngles[5]);
+///            vtkErrorMacro("ProcessMRMLNodesEvents: angles" << robotAngles[0] << ' ' << robotAngles[1] << ' ' << robotAngles[2] << ' ' << robotAngles[3] << ' ' << robotAngles[4] << ' ' << robotAngles[5]);
           }
-          vtkErrorMacro("ProcessMRMLNodesEvents: Update Tabletop robot model geometry");
-          this->Channel26Cabin3RobotsLogic->UpdateTransformsHierarchy(chan26GeoNode, SysCoord::TableTop);
-          roomGeoNode->Modified();
+///          vtkErrorMacro("ProcessMRMLNodesEvents: Update Tabletop robot model geometry");
+///          this->Channel26Cabin3RobotsLogic->UpdateTransformsHierarchy(chan26GeoNode, SysCoord::TableTop);
+          this->Channel26Cabin3RobotsLogic->UpdateFrameToRasHierarchy(chan26GeoNode, CoordSys::TableTop);
+///          roomGeoNode->Modified();
         }
         else if (event == vtkMRMLSiemensPlcOpcUaNode::CarmRobotAxisCoordsModified)
         {
@@ -527,9 +528,10 @@ void vtkSlicerU70RoomGeoLogic::ProcessMRMLNodesEvents(vtkObject* caller, unsigne
             MRMLNodeModifyBlocker blocker(chan26GeoNode);
             chan26GeoNode->SetCarmRobotAngles(robotAngles);
           }
-          vtkErrorMacro("ProcessMRMLNodesEvents: Update C-arm robot model geometry");
-          this->Channel26Cabin3RobotsLogic->UpdateTransformsHierarchy(chan26GeoNode, SysCoord::TableTop);
-          roomGeoNode->Modified();
+///          vtkErrorMacro("ProcessMRMLNodesEvents: Update C-arm robot model geometry");
+///          this->Channel26Cabin3RobotsLogic->UpdateTransformsHierarchy(chan26GeoNode, SysCoord::TableTop);
+          this->Channel26Cabin3RobotsLogic->UpdateFrameToRasHierarchy(chan26GeoNode, CoordSys::TableTop);
+///          roomGeoNode->Modified();
         }
       }
     }
@@ -541,9 +543,10 @@ void vtkSlicerU70RoomGeoLogic::ProcessMRMLNodesEvents(vtkObject* caller, unsigne
     {
       this->Channel26Cabin3RobotsLogic->UpdateFrameToRasHierarchy(channel26Geometry, CoordSys::TableTop);
 
-      this->Channel26Cabin3RobotsLogic->UpdateTableTopPlaneNode(channel26Geometry);
-      this->Channel26Cabin3RobotsLogic->UpdateTableTopFiducialNode(channel26Geometry);
+//      this->Channel26Cabin3RobotsLogic->UpdateTableTopPlaneNode(channel26Geometry);
+//      this->Channel26Cabin3RobotsLogic->UpdateTableTopFiducialNode(channel26Geometry);
 
+/**
       {
         double pos[3] = { 1220., 0., 0. };
         double res[3];
@@ -585,6 +588,7 @@ void vtkSlicerU70RoomGeoLogic::ProcessMRMLNodesEvents(vtkObject* caller, unsigne
           vtkErrorMacro("ProcessMRMLNodesEvents: TableTop->FixedReference = [0., 0., 0.] " << res[0] << ' ' << res[1] << ' ' << res[2]);
         }
       }
+*/
 /*
       {
         double pos[3];
