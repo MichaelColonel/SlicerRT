@@ -428,7 +428,6 @@ void vtkSlicerU70RoomGeoLogic::RegisterNodes()
   if (roomGeoNode)
   {
     roomGeoNode->SetHideFromEditors(0);
-    vtkErrorMacro("RegisterNodes: U70RoomGeo node is OK");
   }
 
   vtkMRMLChannel26GeometryNode* channel26GeometryNode = nullptr; 
@@ -444,12 +443,24 @@ void vtkSlicerU70RoomGeoLogic::RegisterNodes()
   if (channel26GeometryNode)
   {
     channel26GeometryNode->SetHideFromEditors(0);
-    vtkErrorMacro("RegisterNodes: Channel26Geometry node is OK");
   }
   if (roomGeoNode && channel26GeometryNode)
   {
     roomGeoNode->SetAndObserveChannel26GeometryNode(channel26GeometryNode);
-    vtkErrorMacro("RegisterNodes: Nodes is OK");
+    using CoordSys = vtkSlicerChannel26Cabin3RobotsTransformLogic::CoordinateSystemIdentifier;
+    this->Channel26Cabin3RobotsLogic->UpdateTransformsHierarchy(channel26GeometryNode, CoordSys::Patient);
+
+    /// Setup Markups fixed beam axis and fixed isocenter
+    vtkMRMLMarkupsLineNode* beamAxisLineNode = this->Channel26Cabin3RobotsLogic->CreateBeamAxisLineNode(channel26GeometryNode);
+    vtkMRMLMarkupsFiducialNode* fixedIsocenterNode = this->Channel26Cabin3RobotsLogic->CreateIsocenterFiducialNode(channel26GeometryNode);
+    vtkMRMLMarkupsFiducialNode* tabletopIsocenterNode = this->Channel26Cabin3RobotsLogic->CreateTabletopIsocenterFiducialNode(channel26GeometryNode);
+    roomGeoNode->SetAndObserveTabletopIsocenterFiducialNode(tabletopIsocenterNode);
+
+    // Update channel-26 geometry node
+    channel26GeometryNode->Modified();
+
+    this->ShowMarkupsNodes(roomGeoNode, false);
+    this->ShowModelsNodes(roomGeoNode, false);
   }
 }
 
@@ -477,7 +488,6 @@ void vtkSlicerU70RoomGeoLogic::ProcessMRMLNodesEvents(vtkObject* caller, unsigne
   }
   if (caller->IsA("vtkMRMLSiemensPlcOpcUaNode"))
   {
-    using SysCoord = vtkSlicerChannel26Cabin3RobotsTransformLogic::CoordinateSystemIdentifier;
     vtkMRMLSiemensPlcOpcUaNode* opcUaNode = vtkMRMLSiemensPlcOpcUaNode::SafeDownCast(caller);
     if (!opcUaNode)
     {
@@ -520,6 +530,23 @@ void vtkSlicerU70RoomGeoLogic::ProcessMRMLNodesEvents(vtkObject* caller, unsigne
 ///          this->Channel26Cabin3RobotsLogic->UpdateTransformsHierarchy(chan26GeoNode, SysCoord::TableTop);
           this->Channel26Cabin3RobotsLogic->UpdateFrameToRasHierarchy(chan26GeoNode, CoordSys::TableTop);
 ///          roomGeoNode->Modified();
+/*
+          double pos[3] = {};
+          double res[3];
+          pos[0] = 0.;
+          pos[1] = 0.;
+          pos[2] = 0.;
+          if (this->Channel26Cabin3RobotsLogic->GetTransformForPointBetweenFrames(CoordSys::TableRobotBaseFixed,
+            CoordSys::CarmRobotBaseFixed, pos, res))
+          {
+            vtkErrorMacro("ProcessMRMLNodesEvents: TableRobotBaseFixed->CarmRobotBaseFixed = [0., 0., 0.] " << res[0] << ' ' << res[1] << ' ' << res[2]);
+          }
+          if (this->Channel26Cabin3RobotsLogic->GetTransformForPointBetweenFrames(CoordSys::CarmRobotBaseFixed,
+            CoordSys::TableRobotBaseFixed, pos, res))
+          {
+            vtkErrorMacro("ProcessMRMLNodesEvents: CarmRobotBaseFixed->TableRobotBaseFixed = [0., 0., 0.] " << res[0] << ' ' << res[1] << ' ' << res[2]);
+          }
+*/
         }
         else if (event == vtkMRMLSiemensPlcOpcUaNode::CarmRobotAxisCoordsModified)
         {
@@ -543,9 +570,25 @@ void vtkSlicerU70RoomGeoLogic::ProcessMRMLNodesEvents(vtkObject* caller, unsigne
     {
       this->Channel26Cabin3RobotsLogic->UpdateFrameToRasHierarchy(channel26Geometry, CoordSys::TableTop);
 
-//      this->Channel26Cabin3RobotsLogic->UpdateTableTopPlaneNode(channel26Geometry);
-//      this->Channel26Cabin3RobotsLogic->UpdateTableTopFiducialNode(channel26Geometry);
-
+///      this->Channel26Cabin3RobotsLogic->UpdateTableTopPlaneNode(channel26Geometry);
+///      this->Channel26Cabin3RobotsLogic->UpdateTableTopFiducialNode(channel26Geometry);
+/*
+          double pos[3] = {};
+          double res[3];
+          pos[0] = 0.;
+          pos[1] = 0.;
+          pos[2] = 0.;
+          if (this->Channel26Cabin3RobotsLogic->GetTransformForPointBetweenFrames(CoordSys::TableRobotBaseFixed,
+            CoordSys::CarmRobotBaseFixed, pos, res))
+          {
+            vtkErrorMacro("ProcessMRMLNodesEvents: TableRobotBaseFixed->CarmRobotBaseFixed = [0., 0., 0.] " << res[0] << ' ' << res[1] << ' ' << res[2]);
+          }
+          if (this->Channel26Cabin3RobotsLogic->GetTransformForPointBetweenFrames(CoordSys::FixedReference,
+            CoordSys::CarmRobotBaseFixed, pos, res))
+          {
+            vtkErrorMacro("ProcessMRMLNodesEvents: FixedReference->CarmRobotBaseFixed = [0., 0., 0.] " << res[0] << ' ' << res[1] << ' ' << res[2]);
+          }
+*/
 /**
       {
         double pos[3] = { 1220., 0., 0. };
@@ -574,6 +617,7 @@ void vtkSlicerU70RoomGeoLogic::ProcessMRMLNodesEvents(vtkObject* caller, unsigne
         {
           vtkErrorMacro("ProcessMRMLNodesEvents: CarmElbowWrist = [1420., 0., 0.] " << res[0] << ' ' << res[1] << ' ' << res[2]);
         }
+
         pos[0] = 0.;
         pos[1] = 0.;
         pos[2] = 0.;
@@ -963,6 +1007,7 @@ void vtkSlicerU70RoomGeoLogic::ShowMarkupsNodes(vtkMRMLU70RoomGeoNode* parameter
   std::list<std::string> markupsNames;
   markupsNames.push_back(vtkSlicerChannel26Cabin3RobotsTransformLogic::TABLETOP_MARKUPS_PLANE_NODE_NAME);
   markupsNames.push_back(vtkSlicerChannel26Cabin3RobotsTransformLogic::TABLETOP_MARKUPS_FIDUCIAL_NODE_NAME);
+  markupsNames.push_back(vtkSlicerChannel26Cabin3RobotsTransformLogic::TABLETOP_ISOCENTER_MARKUPS_FIDUCIAL_NODE_NAME);
   markupsNames.push_back(vtkSlicerChannel26Cabin3RobotsTransformLogic::FIXEDBEAMAXIS_MARKUPS_LINE_NODE_NAME);
   markupsNames.push_back(vtkSlicerChannel26Cabin3RobotsTransformLogic::FIXEDISOCENTER_MARKUPS_FIDUCIAL_NODE_NAME);
 

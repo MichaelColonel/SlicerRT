@@ -52,6 +52,7 @@ const char* vtkSlicerChannel26Cabin3RobotsTransformLogic::FIXEDBEAMAXIS_MARKUPS_
 const char* vtkSlicerChannel26Cabin3RobotsTransformLogic::FIXEDISOCENTER_MARKUPS_FIDUCIAL_NODE_NAME = "FixedIsocenter";
 const char* vtkSlicerChannel26Cabin3RobotsTransformLogic::TABLETOP_MARKUPS_PLANE_NODE_NAME = "TableTopMarkupsPlane";
 const char* vtkSlicerChannel26Cabin3RobotsTransformLogic::TABLETOP_MARKUPS_FIDUCIAL_NODE_NAME = "TableTopMarkupsFiducial";
+const char* vtkSlicerChannel26Cabin3RobotsTransformLogic::TABLETOP_ISOCENTER_MARKUPS_FIDUCIAL_NODE_NAME = "TabletopIsocenterMarkupsFiducial";
 
 //----------------------------------------------------------------------------
 vtkStandardNewMacro(vtkSlicerChannel26Cabin3RobotsTransformLogic);
@@ -3017,6 +3018,44 @@ vtkMRMLMarkupsFiducialNode* vtkSlicerChannel26Cabin3RobotsTransformLogic::Create
   return pointMarkupsNode;
 }
 
+//----------------------------------------------------------------------------
+vtkMRMLMarkupsFiducialNode* vtkSlicerChannel26Cabin3RobotsTransformLogic::CreateTabletopIsocenterFiducialNode(vtkMRMLChannel26GeometryNode* parameterNode)
+{
+  vtkMRMLScene* scene = this->GetMRMLScene();
+  if (!scene)
+  {
+    vtkErrorMacro("CreateTabletopIsocenterFiducialNode: Invalid MRML scene");
+    return nullptr;
+  }
+
+  // Fixed isocenter fiducial markups node
+  if (scene->GetFirstNodeByName(TABLETOP_ISOCENTER_MARKUPS_FIDUCIAL_NODE_NAME))
+  {
+    return vtkMRMLMarkupsFiducialNode::SafeDownCast(scene->GetFirstNodeByName(TABLETOP_ISOCENTER_MARKUPS_FIDUCIAL_NODE_NAME));
+  }
+
+  vtkMRMLMarkupsFiducialNode* pointMarkupsNode = vtkMRMLMarkupsFiducialNode::SafeDownCast(scene->AddNewNodeByClass("vtkMRMLMarkupsFiducialNode"));
+  pointMarkupsNode->SetName(TABLETOP_ISOCENTER_MARKUPS_FIDUCIAL_NODE_NAME);
+  pointMarkupsNode->LockedOn();
+//  std::string singletonTag = std::string("C26C3_") + FIXEDISOCENTER_MARKUPS_FIDUCIAL_NODE_NAME;
+  if (parameterNode)
+  {
+    vtkVector3d pFixedIsocenter(0., 0., 0.); // Isocenter in origin of FixedReference frame
+    pointMarkupsNode->AddControlPoint(pFixedIsocenter, "TabletopIsocenter");
+
+    vtkMRMLTransformNode* transformNode = this->GetTableTopTransform();
+
+    // add transform to fiducial node
+    if (transformNode)
+    {
+      pointMarkupsNode->SetAndObserveTransformNodeID(transformNode->GetID());
+    }
+
+//    parameterNode->SetAndObserveIsocenterFiducialNode(pointMarkupsNode);
+  }
+
+  return pointMarkupsNode;
+}
 
 //----------------------------------------------------------------------------
 void vtkSlicerChannel26Cabin3RobotsTransformLogic::RemoveAllMarkups()
@@ -3031,6 +3070,7 @@ void vtkSlicerChannel26Cabin3RobotsTransformLogic::RemoveAllMarkups()
   std::list<std::string> markupsNames;
   markupsNames.push_back(vtkSlicerChannel26Cabin3RobotsTransformLogic::TABLETOP_MARKUPS_PLANE_NODE_NAME);
   markupsNames.push_back(vtkSlicerChannel26Cabin3RobotsTransformLogic::TABLETOP_MARKUPS_FIDUCIAL_NODE_NAME);
+  markupsNames.push_back(vtkSlicerChannel26Cabin3RobotsTransformLogic::TABLETOP_ISOCENTER_MARKUPS_FIDUCIAL_NODE_NAME);
   markupsNames.push_back(vtkSlicerChannel26Cabin3RobotsTransformLogic::FIXEDBEAMAXIS_MARKUPS_LINE_NODE_NAME);
   markupsNames.push_back(vtkSlicerChannel26Cabin3RobotsTransformLogic::FIXEDISOCENTER_MARKUPS_FIDUCIAL_NODE_NAME);
 

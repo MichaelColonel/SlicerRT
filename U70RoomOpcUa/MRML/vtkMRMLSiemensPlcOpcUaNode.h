@@ -266,6 +266,9 @@ public:
   vtkGetMacro(EmergencyEvacSignal, bool);
   vtkSetMacro(EmergencyEvacSignal, bool);
 
+  vtkGetMacro(HoldButtonPressedForMovingFlag, bool);
+  vtkSetMacro(HoldButtonPressedForMovingFlag, bool);
+
   vtkGetVector6Macro(ConfirmedCoordsR1, int32_t);
   vtkSetVector6Macro(ConfirmedCoordsR1, int32_t);
 
@@ -367,6 +370,7 @@ private:
   bool DoorLockSensor2{ false };
   uint8_t TableTopPosition{ 0 };
   bool EmergencyEvacSignal{ false };
+  bool HoldButtonPressedForMovingFlag{ false };
 
   // Tabletop confirmed coords (X,Y,Z,A,B,C)
   int32_t ConfirmedCoordsR1[6] = { 0,0,0,0,0,0 }; // X,Y,Z,A,B,C

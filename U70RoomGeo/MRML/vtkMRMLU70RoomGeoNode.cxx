@@ -43,6 +43,7 @@ namespace
 
 const char* FIXED_BEAM_AXIS_REFERENCE_ROLE = "fixedBeamAxisRef";
 const char* FIXED_ISOCENTER_REFERENCE_ROLE = "fixedIsocenterRef";
+const char* TABLETOP_ISOCENTER_REFERENCE_ROLE = "tabletopIsocenterRef";
 const char* CHANNEL26_GEOMETRY_REFERENCE_ROLE = "channel26GeometryRef";
 //const char* CHANNEL26_PLC_OPCUA_REFERENCE_ROLE = "channel26PlcOpcUaRef";
 const char* PATIENT_BODY_SEGMENTATION_REFERENCE_ROLE = "patientBodySegmentationRef";
@@ -287,6 +288,24 @@ void vtkMRMLU70RoomGeoNode::SetAndObserveIsocenterFiducialNode(vtkMRMLMarkupsFid
   }
 
   this->SetNodeReferenceID(FIXED_ISOCENTER_REFERENCE_ROLE, (node ? node->GetID() : nullptr));
+}
+
+//----------------------------------------------------------------------------
+vtkMRMLMarkupsFiducialNode* vtkMRMLU70RoomGeoNode::GetTabletopIsocenterFiducialNode()
+{
+  return vtkMRMLMarkupsFiducialNode::SafeDownCast( this->GetNodeReference(TABLETOP_ISOCENTER_REFERENCE_ROLE) );
+}
+
+//----------------------------------------------------------------------------
+void vtkMRMLU70RoomGeoNode::SetAndObserveTabletopIsocenterFiducialNode(vtkMRMLMarkupsFiducialNode* node)
+{
+  if (node && this->Scene != node->GetScene())
+  {
+    vtkErrorMacro("SetAndObserveTabletopIsocenterFiducialNode: Cannot set reference, the referenced and referencing node are not in the same scene");
+    return;
+  }
+
+  this->SetNodeReferenceID(TABLETOP_ISOCENTER_REFERENCE_ROLE, (node ? node->GetID() : nullptr));
 }
 
 //----------------------------------------------------------------------------

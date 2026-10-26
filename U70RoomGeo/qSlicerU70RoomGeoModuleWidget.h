@@ -48,6 +48,7 @@ public slots:
 
   /// Update widget GUI from parameter node
   void updateWidgetFromMRML();
+  void updateTabletopIsocenterPosition();
 
   /// Load and unload treatment room machine models and logic 
   void onLoadTreatmentRoomButtonClicked();

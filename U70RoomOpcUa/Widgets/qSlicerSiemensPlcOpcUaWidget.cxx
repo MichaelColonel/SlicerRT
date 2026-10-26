@@ -436,6 +436,7 @@ public:
   bool ConnectPatientOnTableTopNode();
   bool ConnectTablePositionNode();
   bool ConnectEmergencyEvacuationSignalNode();
+  bool ConnectHoldButtonPressedForMovingNode();
 
   QScopedPointer< OpcUaModel > SiemensPlcOpcUaModel;
 
@@ -6975,6 +6976,62 @@ bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectEmergencyEvacuationSignalNode()
 }
 
 //-----------------------------------------------------------------------------
+bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectHoldButtonPressedForMovingNode()
+{
+  QSharedPointer< QOpcUaClient > opcUaClient = this->OpcUaClient.toStrongRef();
+
+  if (!opcUaClient || !this->ParameterNode)
+  {
+    return false;
+  }
+
+  vtkMRMLSiemensPlcOpcUaNode* mrmlNode = this->ParameterNode.GetPointer();
+
+  // Hold button pressed for moving HOME flag node
+  QOpcUaNode* holdForHomeComingNode = this->FindNodeFromFullDisplayName(ASU_RTK_COMINGHOME_NODE_NAME);
+
+  // Connect signal handlers for subscribed values
+  if (!holdForHomeComingNode)
+  {
+    return false;
+  }
+  QObject::connect(holdForHomeComingNode,
+    &QOpcUaNode::dataChangeOccurred, [mrmlNode](QOpcUa::NodeAttribute attr, QVariant value)
+    {
+      if (attr == QOpcUa::NodeAttribute::Value && value.canConvert< bool >())
+      {
+        bool flagValue = value.toBool();
+        mrmlNode->SetHoldButtonPressedForMovingFlag(flagValue);
+        qDebug() << Q_FUNC_INFO << "Hold button pressed for moving HOME flag changed:" << flagValue;
+      }
+    }
+  );
+  QObject::connect(holdForHomeComingNode,
+    &QOpcUaNode::attributeRead, [holdForHomeComingNode, mrmlNode](QOpcUa::NodeAttributes attr)
+    {
+      if (!holdForHomeComingNode || !mrmlNode)
+      {
+        return;
+      }
+      if (attr & QOpcUa::NodeAttribute::Value)
+      {
+        if (holdForHomeComingNode->attributeError(QOpcUa::NodeAttribute::Value) == QOpcUa::UaStatusCode::Good)
+        {
+          QVariant value = holdForHomeComingNode->attribute(QOpcUa::NodeAttribute::Value);
+          bool flagValue = value.toBool(); // Get the attribute from the cache
+          mrmlNode->SetHoldButtonPressedForMovingFlag(flagValue);
+          qDebug() << Q_FUNC_INFO << "Hold button pressed for moving HOME flag read:" << flagValue;
+        }
+      }
+    }
+  );
+  // Subscribe to data changes
+  holdForHomeComingNode->enableMonitoring(QOpcUa::NodeAttribute::Value, OpcUaMonitorParameters);
+
+  return true;
+}
+
+//-----------------------------------------------------------------------------
 void qSlicerSiemensPlcOpcUaWidgetPrivate::ExpandAllAsync(QTreeView *view, QAbstractItemModel* model, const QModelIndex &parentIndex)
 {
   if (parentIndex.isValid())
@@ -8776,6 +8833,7 @@ void qSlicerSiemensPlcOpcUaWidget::onServerInterfacesRead(QOpcUa::NodeAttributes
     readynessFlags &= d->ConnectPatientOnTableTopNode();
     readynessFlags &= d->ConnectTablePositionNode();
     readynessFlags &= d->ConnectEmergencyEvacuationSignalNode();
+    readynessFlags &= d->ConnectHoldButtonPressedForMovingNode();
     if (readynessFlags)
     {
       qDebug() << Q_FUNC_INFO << "Readyness flags nodes are OK";

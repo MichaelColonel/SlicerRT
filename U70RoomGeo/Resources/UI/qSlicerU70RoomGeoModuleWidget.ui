@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>374</width>
-    <height>567</height>
+    <width>421</width>
+    <height>834</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -93,7 +93,7 @@
       <bool>true</bool>
      </property>
      <property name="text">
-      <string>Robots control</string>
+      <string>Robots axis coordinates control</string>
      </property>
      <property name="collapsed">
       <bool>false</bool>
@@ -114,14 +114,14 @@
             <item row="0" column="0">
              <widget class="QLabel" name="label_5">
               <property name="text">
-               <string>A1</string>
+               <string>A1:</string>
               </property>
              </widget>
             </item>
             <item row="5" column="0">
              <widget class="QLabel" name="label_6">
               <property name="text">
-               <string>A6</string>
+               <string>A6:</string>
               </property>
              </widget>
             </item>
@@ -135,6 +135,9 @@
               </property>
               <property name="maximum">
                <double>185.000000000000000</double>
+              </property>
+              <property name="suffix">
+               <string> deg</string>
               </property>
              </widget>
             </item>
@@ -152,26 +155,29 @@
               <property name="value">
                <double>-90.000000000000000</double>
               </property>
+              <property name="suffix">
+               <string> deg</string>
+              </property>
              </widget>
             </item>
             <item row="2" column="0">
              <widget class="QLabel" name="label">
               <property name="text">
-               <string>A3</string>
+               <string>A3:</string>
               </property>
              </widget>
             </item>
             <item row="1" column="0">
              <widget class="QLabel" name="label_2">
               <property name="text">
-               <string>A2</string>
+               <string>A2:</string>
               </property>
              </widget>
             </item>
             <item row="4" column="0">
              <widget class="QLabel" name="label_8">
               <property name="text">
-               <string>A5</string>
+               <string>A5:</string>
               </property>
              </widget>
             </item>
@@ -189,12 +195,15 @@
               <property name="value">
                <double>90.000000000000000</double>
               </property>
+              <property name="suffix">
+               <string> deg</string>
+              </property>
              </widget>
             </item>
             <item row="3" column="0">
              <widget class="QLabel" name="label_9">
               <property name="text">
-               <string>A4</string>
+               <string>A4:</string>
               </property>
              </widget>
             </item>
@@ -208,6 +217,9 @@
               </property>
               <property name="maximum">
                <double>350.000000000000000</double>
+              </property>
+              <property name="suffix">
+               <string> deg</string>
               </property>
              </widget>
             </item>
@@ -225,6 +237,9 @@
               <property name="value">
                <double>-90.000000000000000</double>
               </property>
+              <property name="suffix">
+               <string> deg</string>
+              </property>
              </widget>
             </item>
             <item row="5" column="1">
@@ -237,6 +252,9 @@
               </property>
               <property name="maximum">
                <double>350.000000000000000</double>
+              </property>
+              <property name="suffix">
+               <string> deg</string>
               </property>
              </widget>
             </item>
@@ -254,42 +272,42 @@
             <item row="0" column="0">
              <widget class="QLabel" name="label_22">
               <property name="text">
-               <string>A1</string>
+               <string>A1:</string>
               </property>
              </widget>
             </item>
             <item row="4" column="0">
              <widget class="QLabel" name="label_24">
               <property name="text">
-               <string>A5</string>
+               <string>A5:</string>
               </property>
              </widget>
             </item>
             <item row="5" column="0">
              <widget class="QLabel" name="label_25">
               <property name="text">
-               <string>A6</string>
+               <string>A6:</string>
               </property>
              </widget>
             </item>
             <item row="2" column="0">
              <widget class="QLabel" name="label_27">
               <property name="text">
-               <string>A3</string>
+               <string>A3:</string>
               </property>
              </widget>
             </item>
             <item row="1" column="0">
              <widget class="QLabel" name="label_23">
               <property name="text">
-               <string>A2</string>
+               <string>A2:</string>
               </property>
              </widget>
             </item>
             <item row="3" column="0">
              <widget class="QLabel" name="label_26">
               <property name="text">
-               <string>A4</string>
+               <string>A4:</string>
               </property>
              </widget>
             </item>
@@ -303,6 +321,9 @@
               </property>
               <property name="maximum">
                <double>185.000000000000000</double>
+              </property>
+              <property name="suffix">
+               <string> deg</string>
               </property>
              </widget>
             </item>
@@ -320,6 +341,9 @@
               <property name="value">
                <double>-90.000000000000000</double>
               </property>
+              <property name="suffix">
+               <string> deg</string>
+              </property>
              </widget>
             </item>
             <item row="2" column="1">
@@ -336,6 +360,9 @@
               <property name="value">
                <double>90.000000000000000</double>
               </property>
+              <property name="suffix">
+               <string> deg</string>
+              </property>
              </widget>
             </item>
             <item row="3" column="1">
@@ -348,6 +375,9 @@
               </property>
               <property name="maximum">
                <double>350.000000000000000</double>
+              </property>
+              <property name="suffix">
+               <string> deg</string>
               </property>
              </widget>
             </item>
@@ -365,6 +395,9 @@
               <property name="value">
                <double>0.000000000000000</double>
               </property>
+              <property name="suffix">
+               <string> deg</string>
+              </property>
              </widget>
             </item>
             <item row="5" column="1">
@@ -377,6 +410,9 @@
               </property>
               <property name="maximum">
                <double>350.000000000000000</double>
+              </property>
+              <property name="suffix">
+               <string> deg</string>
               </property>
              </widget>
             </item>
@@ -398,7 +434,7 @@
       <string>Patient on Tabletop control</string>
      </property>
      <property name="collapsed">
-      <bool>true</bool>
+      <bool>false</bool>
      </property>
      <layout class="QGridLayout" name="gridLayout_7">
       <item row="0" column="0">
@@ -438,8 +474,75 @@
            <string>Patient and TableTop markups</string>
           </property>
           <property name="collapsed">
-           <bool>true</bool>
+           <bool>false</bool>
           </property>
+          <layout class="QGridLayout" name="gridLayout_3">
+           <item row="0" column="0">
+            <widget class="qSlicerSimpleMarkupsWidget" name="SimpleMarkupsWidget_PointCoordinates">
+             <property name="enterPlaceModeOnNodeChange">
+              <bool>false</bool>
+             </property>
+             <property name="optionsVisible">
+              <bool>false</bool>
+             </property>
+            </widget>
+           </item>
+           <item row="2" column="0">
+            <layout class="QGridLayout" name="gridLayout_2">
+             <item row="0" column="0">
+              <widget class="QLabel" name="label_3">
+               <property name="text">
+                <string>X, Y,  Z (mm):</string>
+               </property>
+              </widget>
+             </item>
+             <item row="0" column="1">
+              <widget class="ctkCoordinatesWidget" name="CoordinatesWidget_IsocenterTranslation">
+               <property name="enabled">
+                <bool>true</bool>
+               </property>
+               <property name="decimals">
+                <number>6</number>
+               </property>
+               <property name="readOnly">
+                <bool>true</bool>
+               </property>
+              </widget>
+             </item>
+            </layout>
+           </item>
+           <item row="1" column="0">
+            <layout class="QGridLayout" name="gridLayout_11">
+             <item row="0" column="1">
+              <widget class="QComboBox" name="ComboBox_FrameReference">
+               <property name="sizePolicy">
+                <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+                 <horstretch>0</horstretch>
+                 <verstretch>0</verstretch>
+                </sizepolicy>
+               </property>
+               <item>
+                <property name="text">
+                 <string>Fixed reference</string>
+                </property>
+               </item>
+               <item>
+                <property name="text">
+                 <string>Table top</string>
+                </property>
+               </item>
+              </widget>
+             </item>
+             <item row="0" column="0">
+              <widget class="QLabel" name="label_11">
+               <property name="text">
+                <string>Frame:</string>
+               </property>
+              </widget>
+             </item>
+            </layout>
+           </item>
+          </layout>
          </widget>
         </item>
        </layout>
@@ -697,6 +800,11 @@
    <header>qSlicerWidget.h</header>
    <container>1</container>
   </customwidget>
+  <customwidget>
+   <class>qSlicerSimpleMarkupsWidget</class>
+   <extends>qSlicerWidget</extends>
+   <header>qSlicerSimpleMarkupsWidget.h</header>
+  </customwidget>
  </customwidgets>
  <resources/>
  <connections>
@@ -713,6 +821,22 @@
     <hint type="destinationlabel">
      <x>215</x>
      <y>279</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>qSlicerU70RoomGeoModuleWidget</sender>
+   <signal>mrmlSceneChanged(vtkMRMLScene*)</signal>
+   <receiver>SimpleMarkupsWidget_PointCoordinates</receiver>
+   <slot>setMRMLScene(vtkMRMLScene*)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>210</x>
+     <y>416</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>210</x>
+     <y>601</y>
     </hint>
    </hints>
   </connection>

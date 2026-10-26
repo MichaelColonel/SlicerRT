@@ -96,6 +96,11 @@ public:
   /// Set and observe isocenter point (fiducial node)
   void SetAndObserveIsocenterFiducialNode(vtkMRMLMarkupsFiducialNode* node);
 
+  /// Get observed isocenter point (fiducial node)
+  vtkMRMLMarkupsFiducialNode* GetTabletopIsocenterFiducialNode();
+  /// Set and observe isocenter point (fiducial node)
+  void SetAndObserveTabletopIsocenterFiducialNode(vtkMRMLMarkupsFiducialNode* node);
+
   /// Get path to the treatment machine descriptor JSON file
   vtkGetStringMacro(TreatmentMachineDescriptorFilePath);
   /// Set path to the treatment machine descriptor JSON file

@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>704</width>
-    <height>883</height>
+    <width>631</width>
+    <height>936</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -54,8 +54,8 @@
            <rect>
             <x>0</x>
             <y>0</y>
-            <width>648</width>
-            <height>1505</height>
+            <width>589</width>
+            <height>840</height>
            </rect>
           </property>
           <layout class="QGridLayout" name="gridLayout_31">
@@ -67,7 +67,7 @@
                 <string>Misc. control</string>
                </property>
                <property name="collapsed">
-                <bool>false</bool>
+                <bool>true</bool>
                </property>
                <layout class="QGridLayout" name="gridLayout_20">
                 <item row="4" column="0">
@@ -94,6 +94,27 @@
                    </widget>
                   </item>
                  </layout>
+                </item>
+                <item row="5" column="0">
+                 <widget class="QCheckBox" name="CheckBox_EmergencyEvacuationFlag">
+                  <property name="text">
+                   <string>EMERGENCY EVACUATION!</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="3" column="0">
+                 <widget class="QCheckBox" name="CheckBox_DoorLockSensor1">
+                  <property name="text">
+                   <string>Door lock sensor #1</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="2" column="0">
+                 <widget class="QCheckBox" name="CheckBox_HUMAN_ON_DEKA">
+                  <property name="text">
+                   <string>Patient on the table</string>
+                  </property>
+                 </widget>
                 </item>
                 <item row="1" column="0">
                  <widget class="QGroupBox" name="GroupBox_RobotsReadiness">
@@ -129,24 +150,10 @@
                   </layout>
                  </widget>
                 </item>
-                <item row="2" column="0">
-                 <widget class="QCheckBox" name="CheckBox_HUMAN_ON_DEKA">
+                <item row="6" column="0">
+                 <widget class="QCheckBox" name="CheckBox_HoldButtonPressedForMoving">
                   <property name="text">
-                   <string>Patient on the table</string>
-                  </property>
-                 </widget>
-                </item>
-                <item row="5" column="0">
-                 <widget class="QCheckBox" name="CheckBox_EmergencyEvacuationFlag">
-                  <property name="text">
-                   <string>EMERGENCY EVACUATION!</string>
-                  </property>
-                 </widget>
-                </item>
-                <item row="3" column="0">
-                 <widget class="QCheckBox" name="CheckBox_DoorLockSensor1">
-                  <property name="text">
-                   <string>Door lock sensor #1</string>
+                   <string>Hold button pressed for moving</string>
                   </property>
                  </widget>
                 </item>
@@ -159,7 +166,7 @@
                 <string>Service Movement</string>
                </property>
                <property name="collapsed">
-                <bool>false</bool>
+                <bool>true</bool>
                </property>
                <layout class="QGridLayout" name="gridLayout_16">
                 <item row="1" column="0">
@@ -314,7 +321,7 @@
                 <string>KUKA Controllers Movement</string>
                </property>
                <property name="collapsed">
-                <bool>false</bool>
+                <bool>true</bool>
                </property>
                <layout class="QGridLayout" name="gridLayout_19">
                 <item row="0" column="0">
@@ -1006,7 +1013,7 @@
            <rect>
             <x>0</x>
             <y>0</y>
-            <width>648</width>
+            <width>575</width>
             <height>850</height>
            </rect>
           </property>

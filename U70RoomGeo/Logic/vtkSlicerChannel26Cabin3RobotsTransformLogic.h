@@ -60,6 +60,7 @@ public:
 
   static const char* TABLETOP_MARKUPS_PLANE_NODE_NAME;
   static const char* TABLETOP_MARKUPS_FIDUCIAL_NODE_NAME;
+  static const char* TABLETOP_ISOCENTER_MARKUPS_FIDUCIAL_NODE_NAME;
 
   enum CoordinateSystemIdentifier : int
   {
@@ -283,6 +284,9 @@ public:
   /// Creates a treatment room isocenter fiducial node (point in FixedReference frame)
   /// \return a valid markups fiducial node pointer or nullptr otherwise
   vtkMRMLMarkupsFiducialNode* CreateIsocenterFiducialNode(vtkMRMLChannel26GeometryNode* parameterNode);
+  /// Creates a Tabletop isocenter fiducial node (point in Tabletop frame)
+  /// \return a valid markups fiducial node pointer or nullptr otherwise
+  vtkMRMLMarkupsFiducialNode* CreateTabletopIsocenterFiducialNode(vtkMRMLChannel26GeometryNode* parameterNode);
 
   void UpdateFrameToRasHierarchy(vtkMRMLChannel26GeometryNode* parameterNode, CoordinateSystemIdentifier type);
   void UpdateTransformsHierarchy(vtkMRMLChannel26GeometryNode* parameterNode, CoordinateSystemIdentifier type);

@@ -80,6 +80,7 @@ void vtkMRMLSiemensPlcOpcUaNode::WriteXML(ostream& of, int nIndent)
   vtkMRMLWriteXMLVectorMacro(currentCoordsR2, CurrentCoordsR2, int32_t, 6);
   vtkMRMLWriteXMLVectorMacro(confirmedCoordsR1, ConfirmedCoordsR1, int32_t, 6);
   vtkMRMLWriteXMLVectorMacro(confirmedCoordsR2, ConfirmedCoordsR2, int32_t, 6);
+  vtkMRMLWriteXMLBooleanMacro(holdButtonPressedForMovingFlag, HoldButtonPressedForMovingFlag);
   vtkMRMLWriteXMLEndMacro(); 
 }
 
@@ -120,6 +121,7 @@ void vtkMRMLSiemensPlcOpcUaNode::ReadXMLAttributes(const char** atts)
   vtkMRMLReadXMLVectorMacro(currentCoordsR2, CurrentCoordsR2, int32_t, 6);
   vtkMRMLReadXMLVectorMacro(confirmedCoordsR1, ConfirmedCoordsR1, int32_t, 6);
   vtkMRMLReadXMLVectorMacro(confirmedCoordsR2, ConfirmedCoordsR2, int32_t, 6);
+  vtkMRMLReadXMLBooleanMacro(holdButtonPressedForMovingFlag, HoldButtonPressedForMovingFlag);
   vtkMRMLReadXMLEndMacro();
 
   this->EndModify(disabledModify);
@@ -173,6 +175,7 @@ void vtkMRMLSiemensPlcOpcUaNode::Copy(vtkMRMLNode *anode)
   vtkMRMLCopyVectorMacro(CurrentCoordsR2, int32_t, 6);
   vtkMRMLCopyVectorMacro(ConfirmedCoordsR1, int32_t, 6);
   vtkMRMLCopyVectorMacro(ConfirmedCoordsR2, int32_t, 6);
+  vtkMRMLCopyBooleanMacro(HoldButtonPressedForMovingFlag);
   vtkMRMLCopyEndMacro(); 
 
   this->EndModify(disabledModify);
@@ -222,6 +225,7 @@ void vtkMRMLSiemensPlcOpcUaNode::CopyContent(vtkMRMLNode *anode, bool deepCopy/*
   vtkMRMLCopyVectorMacro(CurrentCoordsR2, int32_t, 6);
   vtkMRMLCopyVectorMacro(ConfirmedCoordsR1, int32_t, 6);
   vtkMRMLCopyVectorMacro(ConfirmedCoordsR2, int32_t, 6);
+  vtkMRMLCopyBooleanMacro(HoldButtonPressedForMovingFlag);
   vtkMRMLCopyEndMacro();
 }
 
@@ -260,6 +264,7 @@ void vtkMRMLSiemensPlcOpcUaNode::PrintSelf(ostream& os, vtkIndent indent)
   vtkMRMLPrintVectorMacro(CurrentCoordsR2, int32_t, 6);
   vtkMRMLPrintVectorMacro(ConfirmedCoordsR1, int32_t, 6);
   vtkMRMLPrintVectorMacro(ConfirmedCoordsR2, int32_t, 6);
+  vtkMRMLPrintBooleanMacro(HoldButtonPressedForMovingFlag);
   vtkMRMLPrintEndMacro(); 
 }
 

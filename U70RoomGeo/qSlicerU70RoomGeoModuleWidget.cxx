@@ -27,6 +27,8 @@
 #include "qSlicerU70RoomGeoModuleWidget.h"
 #include "ui_qSlicerU70RoomGeoModuleWidget.h"
 
+// qSlicer includes
+#include <qSlicerSimpleMarkupsWidget.h>
 #include <qSlicerLayoutManager.h>
 #include <qSlicerApplication.h>
 #include <qSlicerSubjectHierarchyFolderPlugin.h>
@@ -42,6 +44,7 @@
 #include <vtkMRMLCameraNode.h>
 #include <vtkMRMLViewNode.h>
 #include <vtkMRMLLinearTransformNode.h>
+#include <vtkMRMLMarkupsFiducialNode.h>
 
 // U70RoomGeo logic and nodes
 #include <vtkMRMLU70RoomGeoNode.h>
@@ -270,31 +273,26 @@ void qSlicerU70RoomGeoModuleWidget::onLoadTreatmentRoomButtonClicked()
     return;
   }
 
-  qCritical() << Q_FUNC_INFO << "1";
   if (!d->ParameterNode)
   {
     return;
   }
   if (d->ButtonGroup_TreatmentRoomType->checkedButton() == d->RadioButton_Room3)
   {
-    qCritical() << Q_FUNC_INFO << "1.1";
     MRMLNodeModifyBlocker blocker(d->ParameterNode);
     d->ParameterNode->SetU70RoomGeo(vtkMRMLU70RoomGeoNode::ROOM3);
   }
   else if (d->ButtonGroup_TreatmentRoomType->checkedButton() == d->RadioButton_Room2)
   {
-    qCritical() << Q_FUNC_INFO << "1.2";
     MRMLNodeModifyBlocker blocker(d->ParameterNode);
     d->ParameterNode->SetU70RoomGeo(vtkMRMLU70RoomGeoNode::ROOM2);
   }
   else if (d->ButtonGroup_TreatmentRoomType->checkedButton() == d->RadioButton_Room1)
   {
-    qCritical() << Q_FUNC_INFO << "1.3";
     MRMLNodeModifyBlocker blocker(d->ParameterNode);
     d->ParameterNode->SetU70RoomGeo(vtkMRMLU70RoomGeoNode::ROOM1);
   }
 
-  qCritical() << Q_FUNC_INFO << "2";
   using SysCoord = vtkSlicerChannel26Cabin3RobotsTransformLogic::CoordinateSystemIdentifier;
   // Get treatment machine descriptor file path
   QString treatmentMachineType = d->getTreatmentRoomGeometryFile();
@@ -321,7 +319,6 @@ void qSlicerU70RoomGeoModuleWidget::onLoadTreatmentRoomButtonClicked()
   {
     d->ParameterNode->SetTreatmentMachineType("Channel26Cabin3Geometry");
   }
-  qCritical() << Q_FUNC_INFO << "3";
   // Check if there is a machine already loaded and ask user what to do if so
   vtkMRMLSubjectHierarchyNode* shNode = this->mrmlScene()->GetSubjectHierarchyNode();
   std::vector<vtkIdType> allItemIDs;
@@ -350,14 +347,12 @@ void qSlicerU70RoomGeoModuleWidget::onLoadTreatmentRoomButtonClicked()
     channel26GeometryNode->SetHideFromEditors(0);
     scene->AddNode(channel26GeometryNode);
     d->ParameterNode->SetAndObserveChannel26GeometryNode(channel26GeometryNode.GetPointer());
-    qCritical() << Q_FUNC_INFO << "4";
   }
   else
   {
     vtkMRMLChannel26GeometryNode* channel26GeometryNode = vtkMRMLChannel26GeometryNode::SafeDownCast(
       scene->GetFirstNodeByClass("vtkMRMLChannel26GeometryNode"));
     d->ParameterNode->SetAndObserveChannel26GeometryNode(channel26GeometryNode);
-    qCritical() << Q_FUNC_INFO << "6";
   }
   d->ParameterNode->SetTreatmentMachineDescriptorFilePath(descriptorFilePath.toUtf8().constData());
 
@@ -399,12 +394,10 @@ void qSlicerU70RoomGeoModuleWidget::onLoadTreatmentRoomButtonClicked()
   vtkMRMLChannel26GeometryNode* channel26GeometryNode = d->ParameterNode->GetChannel26GeometryNode();
   if (channel26GeometryNode)
   {
-    qCritical() << Q_FUNC_INFO << "7";
     d->getLayoutManager()->pauseRender();
     loadedParts = d->logic()->LoadTreatmentMachineComponents(d->ParameterNode);
     d->getLayoutManager()->resumeRender();
   }
-  qCritical() << Q_FUNC_INFO << "8";
   // TODO: Unable collision detection later when models will be OK
 /*
   // Warn the user if collision detection is disabled for certain part pairs
@@ -470,7 +463,6 @@ void qSlicerU70RoomGeoModuleWidget::onLoadTreatmentRoomButtonClicked()
   vtkSlicerChannel26Cabin3RobotsTransformLogic* channel26Logic = d->channel26RobotsLogic();
   if (channel26Logic && channel26GeometryNode)
   {
-    qCritical() << Q_FUNC_INFO << "9";
     d->getLayoutManager()->pauseRender();
     channel26Logic->ResetToInitialPositions();
     channel26Logic->UpdateTransformsHierarchy(channel26GeometryNode, SysCoord::Patient);
@@ -478,6 +470,9 @@ void qSlicerU70RoomGeoModuleWidget::onLoadTreatmentRoomButtonClicked()
     /// Setup Markups fixed beam axis and fixed isocenter
     vtkMRMLMarkupsLineNode* beamAxisLineNode = d->channel26RobotsLogic()->CreateBeamAxisLineNode(channel26GeometryNode);
     vtkMRMLMarkupsFiducialNode* fixedIsocenterNode = d->channel26RobotsLogic()->CreateIsocenterFiducialNode(channel26GeometryNode);
+    vtkMRMLMarkupsFiducialNode* tabletopIsocenterNode = d->channel26RobotsLogic()->CreateTabletopIsocenterFiducialNode(channel26GeometryNode);
+    d->ParameterNode->SetAndObserveTabletopIsocenterFiducialNode(tabletopIsocenterNode);
+
     Q_UNUSED(beamAxisLineNode);
     Q_UNUSED(fixedIsocenterNode);
 
@@ -489,7 +484,6 @@ void qSlicerU70RoomGeoModuleWidget::onLoadTreatmentRoomButtonClicked()
     
     d->getLayoutManager()->resumeRender();
   }
-  qCritical() << Q_FUNC_INFO << "10";
   QApplication::restoreOverrideCursor();
 }
 
@@ -585,7 +579,6 @@ void qSlicerU70RoomGeoModuleWidget::setMRMLScene(vtkMRMLScene* scene)
     if (node)
     {
       this->setParameterNode(node);
-      qCritical() << Q_FUNC_INFO << "Z";
     }
     else
     {
@@ -608,7 +601,6 @@ void qSlicerU70RoomGeoModuleWidget::setParameterNode(vtkMRMLNode* node)
     this, SLOT(updateWidgetFromMRML()));
 
   d->ParameterNode = parameterNode;
-  qCritical() << Q_FUNC_INFO << "q";
   // Set parameter node to children (FixedBeamAxis, CarmXrayBeamWidget) widgets
 //  d->FixedBeamAxisWidget->setParameterNode(d->ParameterNode);
 //  d->CarmXrayBeamWidget->setParameterNode(d->ParameterNode);
@@ -617,7 +609,6 @@ void qSlicerU70RoomGeoModuleWidget::setParameterNode(vtkMRMLNode* node)
   // (then in the meantime the comboboxes selected the first one from the scene and we have to set that)
   if (d->ParameterNode)
   {
-    qCritical() << Q_FUNC_INFO << "ZZ";
 //    vtkMRMLSiemensPlcOpcUaNode* opcUaNode = vtkMRMLSiemensPlcOpcUaNode::SafeDownCast(this->mrmlScene()->GetFirstNodeByClass("vtkMRMLSiemensPlcOpcUaNode"));
 //    if (opcUaNode)
 //    {
@@ -645,30 +636,27 @@ void qSlicerU70RoomGeoModuleWidget::updateWidgetFromMRML()
 
   if (d->ParameterNode && this->mrmlScene())
   {
-    qDebug() << Q_FUNC_INFO << "Parameter node and scene are OK to update the widget!";
     auto channel26GeometryNode = d->ParameterNode->GetChannel26GeometryNode();
     if (channel26GeometryNode)
     {
       double a[6] = {};
       d->ParameterNode->GetChannel26GeometryNode()->GetTableRobotAngles(a);
-      qDebug() << Q_FUNC_INFO << "TableTop robot R1 angles:" << a[0] << ' ' << a[1] << ' ' << a[2] << ' ' << a[3] << ' ' << a[4] << ' ' << a[5];
       d->ParameterNode->GetChannel26GeometryNode()->GetCarmRobotAngles(a);
-      qDebug() << Q_FUNC_INFO << "C-Arm robot R2 angles:" << a[0] << ' ' << a[1] << ' ' << a[2] << ' ' << a[3] << ' ' << a[4] << ' ' << a[5];
 
       {
         d->ParameterNode->GetChannel26GeometryNode()->GetTableRobotAngles(a);
         QSignalBlocker block1(d->SliderWidget_TableRobotA1);
         d->SliderWidget_TableRobotA1->setValue(a[0]);
         QSignalBlocker block2(d->SliderWidget_TableRobotA2);
-        d->SliderWidget_TableRobotA2->setValue(a[1]/* - 90. */);
+        d->SliderWidget_TableRobotA2->setValue(a[1]);
         QSignalBlocker block3(d->SliderWidget_TableRobotA3);
-        d->SliderWidget_TableRobotA3->setValue(a[2]/* + 90. */);
+        d->SliderWidget_TableRobotA3->setValue(a[2]);
         QSignalBlocker block4(d->SliderWidget_TableRobotA4);
         d->SliderWidget_TableRobotA4->setValue(a[3]);
         QSignalBlocker block5(d->SliderWidget_TableRobotA5);
-        d->SliderWidget_TableRobotA5->setValue(a[4]/* - 90. */);
+        d->SliderWidget_TableRobotA5->setValue(a[4]);
         QSignalBlocker block6(d->SliderWidget_TableRobotA6);
-        d->SliderWidget_TableRobotA6->setValue(a[5]/* - 90. */);
+        d->SliderWidget_TableRobotA6->setValue(a[5]);
       }
 
       {
@@ -676,15 +664,15 @@ void qSlicerU70RoomGeoModuleWidget::updateWidgetFromMRML()
         QSignalBlocker block1(d->SliderWidget_CarmRobotA1);
         d->SliderWidget_CarmRobotA1->setValue(a[0]);
         QSignalBlocker block2(d->SliderWidget_CarmRobotA2);
-        d->SliderWidget_CarmRobotA2->setValue(a[1]/* - 90. */);
+        d->SliderWidget_CarmRobotA2->setValue(a[1]);
         QSignalBlocker block3(d->SliderWidget_CarmRobotA3);
-        d->SliderWidget_CarmRobotA3->setValue(a[2]/* + 90. */);
+        d->SliderWidget_CarmRobotA3->setValue(a[2]);
         QSignalBlocker block4(d->SliderWidget_CarmRobotA4);
         d->SliderWidget_CarmRobotA4->setValue(a[3]);
         QSignalBlocker block5(d->SliderWidget_CarmRobotA5);
-        d->SliderWidget_CarmRobotA5->setValue(a[4]/* - 90. */);
+        d->SliderWidget_CarmRobotA5->setValue(a[4]);
         QSignalBlocker block6(d->SliderWidget_CarmRobotA6);
-        d->SliderWidget_CarmRobotA6->setValue(a[5]/* - 90. */);
+        d->SliderWidget_CarmRobotA6->setValue(a[5]);
       }
       // Update Channel-26 transforms
       d->getLayoutManager()->pauseRender();
@@ -694,6 +682,7 @@ void qSlicerU70RoomGeoModuleWidget::updateWidgetFromMRML()
         using SysCoord = vtkSlicerChannel26Cabin3RobotsTransformLogic::CoordinateSystemIdentifier;
         channel26Logic->UpdateFrameToRasHierarchy(channel26GeometryNode, SysCoord::TableTop);
         channel26GeometryNode->Modified();
+        updateTabletopIsocenterPosition();
       }
       d->getLayoutManager()->resumeRender();
     }
@@ -833,6 +822,7 @@ void qSlicerU70RoomGeoModuleWidget::onPatientTableTopTranslationChanged(double* 
   channel26GeometryNode->Modified();
   d->getLayoutManager()->resumeRender();
 //  d->ParameterNode->Modified();
+  updateTabletopIsocenterPosition();
 }
 
 //-----------------------------------------------------------------------------
@@ -867,6 +857,7 @@ void qSlicerU70RoomGeoModuleWidget::onTableRobotA1Changed(double a1)
   d->getLayoutManager()->resumeRender();
 //  d->ParameterNode->Modified();
   qDebug() << Q_FUNC_INFO << "Robot angles:" << a[0] << ' ' << a[1] << ' ' << a[2] << ' ' << a[3] << ' ' << a[4] << ' ' << a[5];
+  updateTabletopIsocenterPosition();
 }
 
 //-----------------------------------------------------------------------------
@@ -885,7 +876,7 @@ void qSlicerU70RoomGeoModuleWidget::onTableRobotA2Changed(double a2)
   double a[6] = {};
   channel26GeometryNode->GetTableRobotAngles(a);
   channel26GeometryNode->DisableModifiedEventOn();
-  a[1] = a2;//a2 + 90.;
+  a[1] = a2;
   channel26GeometryNode->SetTableRobotAngles(a);
   channel26GeometryNode->DisableModifiedEventOff();
 
@@ -901,6 +892,7 @@ void qSlicerU70RoomGeoModuleWidget::onTableRobotA2Changed(double a2)
   d->getLayoutManager()->resumeRender();
 //  d->ParameterNode->Modified();
   qDebug() << Q_FUNC_INFO << "Robot angles:" << a[0] << ' ' << a[1] << ' ' << a[2] << ' ' << a[3] << ' ' << a[4] << ' ' << a[5];
+  updateTabletopIsocenterPosition();
 }
 
 //-----------------------------------------------------------------------------
@@ -919,7 +911,7 @@ void qSlicerU70RoomGeoModuleWidget::onTableRobotA3Changed(double a3)
   double a[6] = {};
   channel26GeometryNode->GetTableRobotAngles(a);
   channel26GeometryNode->DisableModifiedEventOn();
-  a[2] = a3;//a3 - 90.;
+  a[2] = a3;
   channel26GeometryNode->SetTableRobotAngles(a);
   channel26GeometryNode->DisableModifiedEventOff();
 
@@ -935,6 +927,7 @@ void qSlicerU70RoomGeoModuleWidget::onTableRobotA3Changed(double a3)
   d->getLayoutManager()->resumeRender();
 //  d->ParameterNode->Modified();
   qDebug() << Q_FUNC_INFO << "Robot angles:" << a[0] << ' ' << a[1] << ' ' << a[2] << ' ' << a[3] << ' ' << a[4] << ' ' << a[5];
+  updateTabletopIsocenterPosition();
 }
 
 //-----------------------------------------------------------------------------
@@ -969,6 +962,7 @@ void qSlicerU70RoomGeoModuleWidget::onTableRobotA4Changed(double a4)
   d->getLayoutManager()->resumeRender();
 //  d->ParameterNode->Modified();
   qDebug() << Q_FUNC_INFO << "Robot angles:" << a[0] << ' ' << a[1] << ' ' << a[2] << ' ' << a[3] << ' ' << a[4] << ' ' << a[5];
+  updateTabletopIsocenterPosition();
 }
 
 //-----------------------------------------------------------------------------
@@ -987,7 +981,7 @@ void qSlicerU70RoomGeoModuleWidget::onTableRobotA5Changed(double a5)
   double a[6] = {};
   channel26GeometryNode->GetTableRobotAngles(a);
   channel26GeometryNode->DisableModifiedEventOn();
-  a[4] = a5;//a5 + 90.;
+  a[4] = a5;
   channel26GeometryNode->SetTableRobotAngles(a);
   channel26GeometryNode->DisableModifiedEventOff();
 
@@ -1003,6 +997,7 @@ void qSlicerU70RoomGeoModuleWidget::onTableRobotA5Changed(double a5)
   d->getLayoutManager()->resumeRender();
 //  d->ParameterNode->Modified();
   qDebug() << Q_FUNC_INFO << "Robot angles:" << a[0] << ' ' << a[1] << ' ' << a[2] << ' ' << a[3] << ' ' << a[4] << ' ' << a[5];
+  updateTabletopIsocenterPosition();
 }
 
 //-----------------------------------------------------------------------------
@@ -1021,7 +1016,7 @@ void qSlicerU70RoomGeoModuleWidget::onTableRobotA6Changed(double a6)
   double a[6] = {};
   channel26GeometryNode->GetTableRobotAngles(a);
   channel26GeometryNode->DisableModifiedEventOn();
-  a[5] = a6;//a6 + 90.;
+  a[5] = a6;
   channel26GeometryNode->SetTableRobotAngles(a);
   channel26GeometryNode->DisableModifiedEventOff();
 
@@ -1037,6 +1032,7 @@ void qSlicerU70RoomGeoModuleWidget::onTableRobotA6Changed(double a6)
   d->getLayoutManager()->resumeRender();
 //  d->ParameterNode->Modified();
   qDebug() << Q_FUNC_INFO << "Robot angles:" << a[0] << ' ' << a[1] << ' ' << a[2] << ' ' << a[3] << ' ' << a[4] << ' ' << a[5];
+  updateTabletopIsocenterPosition();
 }
 
 //-----------------------------------------------------------------------------
@@ -1089,7 +1085,7 @@ void qSlicerU70RoomGeoModuleWidget::onCarmRobotA2Changed(double a2)
   double a[6] = {};
   channel26GeometryNode->GetCarmRobotAngles(a);
   channel26GeometryNode->DisableModifiedEventOn();
-  a[1] = a2;//a2 + 90.;
+  a[1] = a2;
   channel26GeometryNode->SetCarmRobotAngles(a);
   channel26GeometryNode->DisableModifiedEventOff();
 
@@ -1123,8 +1119,7 @@ void qSlicerU70RoomGeoModuleWidget::onCarmRobotA3Changed(double a3)
   double a[6] = {};
   channel26GeometryNode->GetCarmRobotAngles(a);
   channel26GeometryNode->DisableModifiedEventOn();
-//  a[2] = 90. - a3;
-  a[2] = a3;//a3 - 90.;
+  a[2] = a3;
   channel26GeometryNode->SetCarmRobotAngles(a);
   channel26GeometryNode->DisableModifiedEventOff();
 
@@ -1192,7 +1187,7 @@ void qSlicerU70RoomGeoModuleWidget::onCarmRobotA5Changed(double a5)
   double a[6] = {};
   channel26GeometryNode->GetCarmRobotAngles(a);
   channel26GeometryNode->DisableModifiedEventOn();
-  a[4] = a5;//a5 + 90.;
+  a[4] = a5;
   channel26GeometryNode->SetCarmRobotAngles(a);
   channel26GeometryNode->DisableModifiedEventOff();
 
@@ -1226,7 +1221,7 @@ void qSlicerU70RoomGeoModuleWidget::onCarmRobotA6Changed(double a6)
   double a[6] = {};
   channel26GeometryNode->GetCarmRobotAngles(a);
   channel26GeometryNode->DisableModifiedEventOn();
-  a[5] = a6;//a6 + 90.;
+  a[5] = a6;
   channel26GeometryNode->SetCarmRobotAngles(a);
   channel26GeometryNode->DisableModifiedEventOff();
 
@@ -1258,4 +1253,33 @@ void qSlicerU70RoomGeoModuleWidget::onRotatePatientHeadFeetToggled(bool toggled)
   d->getLayoutManager()->pauseRender();
   channel26GeometryNode->SetPatientHeadFeetRotation(toggled);
   d->getLayoutManager()->resumeRender();
+  updateTabletopIsocenterPosition();
+}
+
+//-----------------------------------------------------------------------------
+void qSlicerU70RoomGeoModuleWidget::updateTabletopIsocenterPosition()
+{
+  Q_D(qSlicerU70RoomGeoModuleWidget);
+  vtkMRMLMarkupsFiducialNode* markupsNode = vtkMRMLMarkupsFiducialNode::SafeDownCast(d->SimpleMarkupsWidget_PointCoordinates->currentNode());
+  if (!markupsNode)
+  {
+    qCritical() << Q_FUNC_INFO << ": Invalid markups fiducial node";
+    return;
+  }
+
+  double pointRAS[3] = {};
+  double res[3] = {};
+  markupsNode->GetNthControlPointPosition(0, pointRAS);
+
+  auto robotsLogic = d->channel26RobotsLogic();
+  using CoordSys = vtkSlicerChannel26Cabin3RobotsTransformLogic::CoordinateSystemIdentifier;
+  if (robotsLogic && robotsLogic->GetTransformForPointBetweenFrames(CoordSys::FixedReference,
+    CoordSys::TableTop, pointRAS, res))
+  {
+    double tmp = -1. * res[1];
+    res[1] = res[2];
+    res[2] = tmp;
+    d->CoordinatesWidget_IsocenterTranslation->setCoordinates(res);
+    qDebug() << Q_FUNC_INFO << ": TableTop->FixedReference" << res[0] << ' ' << res[1] << ' ' << res[2];
+  }
 }

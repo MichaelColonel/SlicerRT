@@ -20,6 +20,8 @@ set(MODULE_INCLUDE_DIRECTORIES
   ${CMAKE_CURRENT_SOURCE_DIR}/Widgets
   ${CMAKE_CURRENT_BINARY_DIR}/Widgets
   ${qSlicerSubjectHierarchyModuleWidgets_INCLUDE_DIRS}
+  ${qSlicerMarkupsModuleWidgets_INCLUDE_DIRS}
+  ${vtkSlicerMarkupsModuleMRML_INCLUDE_DIRS}
   ${vtkSlicerU70RoomOpcUaModuleMRML_INCLUDE_DIRS}
   )
 
@@ -38,6 +40,7 @@ set(MODULE_TARGET_LIBRARIES
   vtkSlicer${MODULE_NAME}ModuleLogic
   qSlicer${MODULE_NAME}ModuleWidgets
   qSlicerSubjectHierarchyModuleWidgets
+  qSlicerMarkupsModuleWidgets
   vtkSlicerU70RoomOpcUaModuleMRML
   )
 
