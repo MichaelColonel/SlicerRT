@@ -1999,7 +1999,8 @@ void vtkSlicerChannel26Cabin3RobotsTransformLogic::UpdateCarmRobotBaseFixedToFix
 
   // Translate the BaseRotation so it's empty disk centre in RAS origin
   vtkNew<vtkTransform> BaseFixedTranslateTransform;
-  BaseFixedTranslateTransform->Translate(0., 0., 0.);
+  BaseFixedTranslateTransform->RotateY(0.); // 90. degrees rotation for C-arm robot in Room-1 and Room-2
+
   double TableBaseFixedToFixedReferenceTranslate[3] = {};
   double CarmBaseFixedToTableBaseFixedOffset[3] = {};
   parameterNode->GetTableBaseFixedToFixedReferenceTranslation(TableBaseFixedToFixedReferenceTranslate);
