@@ -473,8 +473,13 @@ void qSlicerU70RoomGeoModuleWidget::onLoadTreatmentRoomButtonClicked()
     vtkMRMLMarkupsFiducialNode* tabletopIsocenterNode = d->channel26RobotsLogic()->CreateTabletopIsocenterFiducialNode(channel26GeometryNode);
     d->ParameterNode->SetAndObserveTabletopIsocenterFiducialNode(tabletopIsocenterNode);
 
+    vtkMRMLMarkupsPlaneNode* tablePlaneNode = d->channel26RobotsLogic()->CreateTableTopPlaneNode(channel26GeometryNode);
+    vtkMRMLMarkupsFiducialNode* tablePlaneFiducialsNode = d->channel26RobotsLogic()->CreateTableTopFiducialNode(channel26GeometryNode);
+
     Q_UNUSED(beamAxisLineNode);
     Q_UNUSED(fixedIsocenterNode);
+    Q_UNUSED(tablePlaneNode);
+    Q_UNUSED(tablePlaneFiducialsNode);
 
     // Update channel-26 geometry node
     channel26GeometryNode->Modified();
