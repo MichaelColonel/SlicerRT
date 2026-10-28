@@ -60,17 +60,17 @@ public slots:
   void updateWidgetFromMRML();
 
   /// connect to Siemens PLC OPC UA server
-  void connectToServer();
-  void findServers();
-  void findServersComplete(const QVector<QOpcUaApplicationDescription> &servers, QOpcUa::UaStatusCode statusCode);
-  void getEndpoints();
-  void getEndpointsComplete(const QVector<QOpcUaEndpointDescription> &endpoints, QOpcUa::UaStatusCode statusCode);
-  void clientConnected();
-  void clientDisconnected();
-  void namespacesArrayUpdated(const QStringList &namespaceArray);
-  void clientError(QOpcUaClient::ClientError);
-  void clientState(QOpcUaClient::ClientState);
-  void showOpcUaErrorDialog(QOpcUaErrorState *errorState);
+  void siemensConnectToServer();
+  void siemensFindServers();
+  void siemensFindServersComplete(const QVector<QOpcUaApplicationDescription> &servers, QOpcUa::UaStatusCode statusCode);
+  void siemensGetEndpoints();
+  void siemensGetEndpointsComplete(const QVector<QOpcUaEndpointDescription> &endpoints, QOpcUa::UaStatusCode statusCode);
+  void siemensClientConnected();
+  void siemensClientDisconnected();
+  void siemensNamespacesArrayUpdated(const QStringList &namespaceArray);
+  void siemensClientError(QOpcUaClient::ClientError);
+  void siemensClientState(QOpcUaClient::ClientState);
+  void siemensShowOpcUaErrorDialog(QOpcUaErrorState *errorState);
 
 signals:
   void siemensPlcOpcUaModeChanged(vtkMRMLSiemensPlcOpcUaNode::ModeType);

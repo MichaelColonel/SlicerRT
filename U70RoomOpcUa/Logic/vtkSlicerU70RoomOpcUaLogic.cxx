@@ -21,6 +21,9 @@
 // MRML includes
 #include <vtkMRMLScene.h>
 
+// U70RoomOpcUa MRML includes
+#include "vtkMRMLScadaOpcUaNode.h"
+
 // VTK includes
 #include <vtkIntArray.h>
 #include <vtkNew.h>
@@ -49,7 +52,7 @@ public:
   QOpcUaNode* node(const QString& id);
 
   vtkSlicerU70RoomOpcUaLogic* External{ nullptr };  
-  QOpcUaClient* Client{ nullptr };
+  QWeakPointer< QOpcUaClient > Client;
   QHash< QString, QOpcUaNode* > Nodes;
 };
 
@@ -67,13 +70,22 @@ vtkSlicerU70RoomOpcUaLogic::vtkInternal::~vtkInternal()
 //---------------------------------------------------------------------------
 QOpcUaNode* vtkSlicerU70RoomOpcUaLogic::vtkInternal::node(const QString& id)
 {
-  if (!this->Client || Client->state() != QOpcUaClient::Connected)
+  QSharedPointer< QOpcUaClient > sharedClient = this->Client.toStrongRef();
+  if (!sharedClient)
   {
+    vtkWarningWithObjectMacro( this->External, "node: Scada OPC UA client is invalid");
     return nullptr;
   }
+
+  if (sharedClient->state() != QOpcUaClient::Connected)
+  {
+    vtkWarningWithObjectMacro( this->External, "node: Scada OPC UA client is created, but isn't connected");
+    return nullptr;
+  }
+
   if (!this->Nodes.contains(id))
   {
-    this->Nodes.insert(id, this->Client->node(id));
+    this->Nodes.insert(id, sharedClient->node(id));
   }
   return this->Nodes.value(id);
 }
@@ -118,6 +130,11 @@ void vtkSlicerU70RoomOpcUaLogic::RegisterNodes()
   {
     return;
   }
+
+  if (!scene->IsNodeClassRegistered("vtkMRMLScadaOpcUaNode"))
+  {
+    scene->RegisterNodeClass(vtkSmartPointer<vtkMRMLScadaOpcUaNode>::New());
+  }
 }
 
 //---------------------------------------------------------------------------
@@ -141,10 +158,16 @@ void vtkSlicerU70RoomOpcUaLogic::OnMRMLSceneNodeRemoved(vtkMRMLNode* vtkNotUsed(
 }
 
 //---------------------------------------------------------------------------
-bool vtkSlicerU70RoomOpcUaLogic::ConnectToServer()
+void vtkSlicerU70RoomOpcUaLogic::ServerConnected(const QSharedPointer< QOpcUaClient >& sharedClient, const QStringList& listOfNodes)
 {
-  return true;
+  this->Internal->Client = sharedClient;
+
+  for (const QString& nodeId : listOfNodes)
+  {
+    this->Internal->node(nodeId);
+  }
 }
+
 //---------------------------------------------------------------------------
 bool vtkSlicerU70RoomOpcUaLogic::WriteBool(const std::string& nodeId, bool value)
 {
@@ -176,4 +199,15 @@ bool vtkSlicerU70RoomOpcUaLogic::WriteUint32(const std::string& nodeId, uint32_t
     return false;
   }
   return node->writeValueAttribute(QVariant(value), QOpcUa::Types::UInt32);
+}
+
+//---------------------------------------------------------------------------
+bool vtkSlicerU70RoomOpcUaLogic::WriteString(const std::string& nodeId, const std::string& textString)
+{
+  QOpcUaNode* node = this->Internal->node(QString::fromStdString(nodeId));
+  if (!node)
+  {
+    return false;
+  }
+  return node->writeValueAttribute(QVariant(QString::fromStdString(textString)), QOpcUa::Types::String);
 }

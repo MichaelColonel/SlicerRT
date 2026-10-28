@@ -24,7 +24,6 @@
 // MRML includes
 #include <vtkMRML.h>
 #include <vtkMRMLNode.h>
-#include <vtkMRMLModelNode.h>
 
 // STD includes
 #include <array>
@@ -35,14 +34,38 @@ class vtkMRMLTableNode;
 class VTK_SLICER_U70ROOMOPCUA_MODULE_MRML_EXPORT vtkMRMLScadaOpcUaNode : public vtkMRMLNode
 {
 public:
-  static constexpr size_t MESSAGES_BUFFER_SIZE = 65;
-  enum ModeType : int {
-    UNKNOWN = 0,
-    AUTOMATIC = 1,
-    MANUAL = 2,
-    SERVICE = 3,
-    KUKA_CONTROLLERS = 77,
-    ModeType_Last
+  enum RemoteControlType : int {
+    RC_UNDEFINED = 1,
+    RC_TEST = 2,
+    RC_PATIENT_POSITIONING = 3,
+    RC_XRAY_POSITIONING = 4,
+    RC_THERAPY_PROCEDURE = 5,
+    RemoteControlType_Last,
+  };
+  enum RemoteStateMachineType : int {
+    RSM_UNPOWERED = 1,
+    RSM_PATIENT_POSITIONING = 2,
+    RSM_XRAY_POSITIONING = 3,
+    RSM_THERAPY_READY = 4,
+    RSM_THERAPY_PROCEDURE = 5,
+    RSM_PAUSE = 6,
+    RSM_ACCIDENT_EMERGENCY = 7,
+    RemoteStateMachineType_Last,
+  };
+  enum StateType : int {
+    ST_UNDEFINED = 0,
+    ST_APPLICATION_IS_RUNNING = 1,
+    ST_LOADING_THERAPY_PLAN = 2,
+    ST_PATIENT_VERIFICATION = 3,
+    ST_PATIENT_IMMOBILIZATION_VERIFICATION = 4,
+    ST_PATIENT_POSITIONING = 5,
+    ST_XRAY_EXPOSURE = 6,
+    ST_XRAY_IMAGE_REGISTRATION = 7,
+    ST_PATIENT_POSITION_CORRECTION = 8,
+    ST_POSITIONING_FINISHED = 9,
+    ST_WAIT_UNTIL_THERAPY_IS_FINISHED = 10,
+    ST_PROCEDURE_COMMENTS_AND_RECORD_FINISH = 11,
+    StateType_Last,
   };
 
   static vtkMRMLScadaOpcUaNode *New();
@@ -71,155 +94,92 @@ public:
   void ProcessMRMLEvents(vtkObject *caller, unsigned long eventID, void *callData) override;
 
 
-  vtkGetMacro(ErrorMessages64, uint64_t);
-  vtkSetMacro(ErrorMessages64, uint64_t);
-  vtkGetMacro(ErrorMessage65, bool);
-  vtkSetMacro(ErrorMessage65, bool);
+  vtkGetMacro(SysTimeScada, uint64_t);
+  vtkSetMacro(SysTimeScada, uint64_t);
+  
+  vtkGetMacro(SysTimeModPos, uint64_t);
+  vtkSetMacro(SysTimeModPos, uint64_t);
 
-  vtkGetMacro(ServiceMessages64, uint64_t);
-  vtkSetMacro(ServiceMessages64, uint64_t);
-  vtkGetMacro(ServiceMessage65, bool);
-  vtkSetMacro(ServiceMessage65, bool);
+  vtkGetMacro(PlanStr, std::string);
+  vtkSetMacro(PlanStr, std::string);
 
-  vtkGetMacro(MiscMessages64, uint64_t);
-  vtkSetMacro(MiscMessages64, uint64_t);
-  vtkGetMacro(MiscMessage65, bool);
-  vtkSetMacro(MiscMessage65, bool);
+  vtkGetMacro(IDP, std::string);
+  vtkSetMacro(IDP, std::string);
 
-  vtkGetMacro(Mode, ModeType);
-  vtkSetMacro(Mode, ModeType);
+  vtkGetMacro(ECP, bool);
+  vtkSetMacro(ECP, bool);
 
-  vtkGetMacro(Status_RTK, uint16_t);
-  vtkSetMacro(Status_RTK, uint16_t);
+  vtkGetMacro(Immob, std::string);
+  vtkSetMacro(Immob, std::string);
 
-  vtkGetMacro(Status_R1_deka, uint16_t);
-  vtkSetMacro(Status_R1_deka, uint16_t);
+  vtkGetMacro(PlanOpen, bool);
+  vtkSetMacro(PlanOpen, bool);
 
-  vtkGetMacro(Status_R2_C_Duga, uint16_t);
-  vtkSetMacro(Status_R2_C_Duga, uint16_t);
+  vtkGetMacro(NPos, int);
+  vtkSetMacro(NPos, int);
 
-  vtkGetMacro(CoordFromASU_X, int32_t);
-  vtkSetMacro(CoordFromASU_X, int32_t);
+  vtkGetMacro(RemoteCtrl, int);
+  vtkSetMacro(RemoteCtrl, int);
 
-  vtkGetMacro(CoordFromASU_Y, int32_t);
-  vtkSetMacro(CoordFromASU_Y, int32_t);
+  vtkGetMacro(RemoteStateMachine, int);
+  vtkSetMacro(RemoteStateMachine, int);
 
-  vtkGetMacro(CoordFromASU_Z, int32_t);
-  vtkSetMacro(CoordFromASU_Z, int32_t);
+  vtkGetMacro(RemoteCmd, bool);
+  vtkSetMacro(RemoteCmd, bool);
 
-  vtkGetMacro(CoordFromASU_XRAY_Z_correction, int32_t);
-  vtkSetMacro(CoordFromASU_XRAY_Z_correction, int32_t);
+  vtkGetMacro(RemotePause, bool);
+  vtkSetMacro(RemotePause, bool);
 
-  vtkGetMacro(CoordFromASU_AngleA_R1, int32_t);
-  vtkSetMacro(CoordFromASU_AngleA_R1, int32_t);
+  vtkGetMacro(RemoteAvr, bool);
+  vtkSetMacro(RemoteAvr, bool);
 
-  vtkGetMacro(CoordFromASU_AngleB_R1, int32_t);
-  vtkSetMacro(CoordFromASU_AngleB_R1, int32_t);
+  vtkGetMacro(DoorLock, bool);
+  vtkSetMacro(DoorLock, bool);
 
-  vtkGetMacro(CoordFromASU_AngleC_R1, int32_t);
-  vtkSetMacro(CoordFromASU_AngleC_R1, int32_t);
+  vtkGetMacro(ReadyEq, bool);
+  vtkSetMacro(ReadyEq, bool);
 
-  vtkGetVector2Macro(AM_Buttons_R1_LoadToIso, bool);
-  vtkSetVector2Macro(AM_Buttons_R1_LoadToIso, bool);
+  vtkGetMacro(ReadyPlan, bool);
+  vtkSetMacro(ReadyPlan, bool);
 
-  vtkGetVector2Macro(AM_Buttons_R1_ToNewCoords, bool);
-  vtkSetVector2Macro(AM_Buttons_R1_ToNewCoords, bool);
+  vtkGetMacro(ReadyProc, bool);
+  vtkSetMacro(ReadyProc, bool);
 
-  vtkGetVector2Macro(AM_Buttons_R1_ToHome, bool);
-  vtkSetVector2Macro(AM_Buttons_R1_ToHome, bool);
+  vtkGetMacro(St, StateType);
+  vtkSetMacro(St, StateType);
 
-  vtkGetVector2Macro(AM_Buttons_R1_ToLoad, bool);
-  vtkSetVector2Macro(AM_Buttons_R1_ToLoad, bool);
+  vtkGetMacro(inQueue, bool);
+  vtkSetMacro(inQueue, bool);
 
-  vtkGetVector2Macro(AM_Buttons_R2_ToIso, bool);
-  vtkSetVector2Macro(AM_Buttons_R2_ToIso, bool);
+  vtkGetMacro(ReadySt, bool);
+  vtkSetMacro(ReadySt, bool);
 
-  vtkGetVector2Macro(AM_Buttons_R2_To2ndPl, bool);
-  vtkSetVector2Macro(AM_Buttons_R2_To2ndPl, bool);
+  vtkGetMacro(Block, bool);
+  vtkSetMacro(Block, bool);
 
-  vtkGetVector2Macro(AM_Buttons_MakeXRay, bool);
-  vtkSetVector2Macro(AM_Buttons_MakeXRay, bool);
+  vtkGetMacro(CurrentLayer, int);
+  vtkSetMacro(CurrentLayer, int);
 
-  vtkGetVector2Macro(AM_Buttons_R2_ToHome, bool);
-  vtkSetVector2Macro(AM_Buttons_R2_ToHome, bool);
+  vtkGetMacro(MaxLayer, int);
+  vtkSetMacro(MaxLayer, int);
 
-  vtkGetVector2Macro(AM_Buttons_R2_Set_New_Z, bool);
-  vtkSetVector2Macro(AM_Buttons_R2_Set_New_Z, bool);
+  vtkGetMacro(ProcLayer, int);
+  vtkSetMacro(ProcLayer, int);
 
-  vtkGetVector2Macro(MM_Buttons_R1_LoadToIso, bool);
-  vtkSetVector2Macro(MM_Buttons_R1_LoadToIso, bool);
+  vtkGetMacro(ProcEnd, bool);
+  vtkSetMacro(ProcEnd, bool);
 
-  vtkGetVector2Macro(MM_Buttons_R1_ToNewCoords, bool);
-  vtkSetVector2Macro(MM_Buttons_R1_ToNewCoords, bool);
+  vtkGetMacro(ProcNote, std::string);
+  vtkSetMacro(ProcNote, std::string);
 
-  vtkGetVector2Macro(MM_Buttons_R1_ToHome, bool);
-  vtkSetVector2Macro(MM_Buttons_R1_ToHome, bool);
+  vtkGetMacro(ProcClose, bool);
+  vtkSetMacro(ProcClose, bool);
 
-  vtkGetVector2Macro(MM_Buttons_R1_ToLoad, bool);
-  vtkSetVector2Macro(MM_Buttons_R1_ToLoad, bool);
+  vtkGetMacro(ErrStr, std::string);
+  vtkSetMacro(ErrStr, std::string);
 
-  vtkGetVector2Macro(MM_Buttons_R2_ToIso, bool);
-  vtkSetVector2Macro(MM_Buttons_R2_ToIso, bool);
-
-  vtkGetVector2Macro(MM_Buttons_R2_To2ndPl, bool);
-  vtkSetVector2Macro(MM_Buttons_R2_To2ndPl, bool);
-
-  vtkGetVector2Macro(MM_Buttons_MakeXRay, bool);
-  vtkSetVector2Macro(MM_Buttons_MakeXRay, bool);
-
-  vtkGetVector2Macro(MM_Buttons_R2_ToHome, bool);
-  vtkSetVector2Macro(MM_Buttons_R2_ToHome, bool);
-
-  vtkGetVector2Macro(MM_Buttons_R2_Set_New_Z, bool);
-  vtkSetVector2Macro(MM_Buttons_R2_Set_New_Z, bool);
-
-  vtkGetVector2Macro(SM_Buttons_R1_BreakTest, bool);
-  vtkSetVector2Macro(SM_Buttons_R1_BreakTest, bool);
-
-  vtkGetVector2Macro(SM_Buttons_R1_MasterReferenceTest, bool);
-  vtkSetVector2Macro(SM_Buttons_R1_MasterReferenceTest, bool);
-
-  vtkGetVector2Macro(SM_Buttons_R1_HomeTest, bool);
-  vtkSetVector2Macro(SM_Buttons_R1_HomeTest, bool);
-
-  vtkGetVector2Macro(SM_Buttons_R1_IsoTest, bool);
-  vtkSetVector2Macro(SM_Buttons_R1_IsoTest, bool);
-
-  vtkGetVector2Macro(SM_Buttons_R1_ServicePosition, bool);
-  vtkSetVector2Macro(SM_Buttons_R1_ServicePosition, bool);
-
-  vtkGetVector2Macro(SM_Buttons_R2_BreakTest, bool);
-  vtkSetVector2Macro(SM_Buttons_R2_BreakTest, bool);
-
-  vtkGetVector2Macro(SM_Buttons_R2_MasterReferenceTest, bool);
-  vtkSetVector2Macro(SM_Buttons_R2_MasterReferenceTest, bool);
-
-  vtkGetVector2Macro(SM_Buttons_R2_HomeTest, bool);
-  vtkSetVector2Macro(SM_Buttons_R2_HomeTest, bool);
-
-  vtkGetVector2Macro(SM_Buttons_R2_IsoTest, bool);
-  vtkSetVector2Macro(SM_Buttons_R2_IsoTest, bool);
-
-  vtkGetVector2Macro(SM_Buttons_R2_ServicePosition, bool);
-  vtkSetVector2Macro(SM_Buttons_R2_ServicePosition, bool);
-
-  vtkGetVector2Macro(SM_Buttons_Restart, bool);
-  vtkSetVector2Macro(SM_Buttons_Restart, bool);
-
-  vtkGetVector2Macro(Buttons_ResetErrors, bool);
-  vtkSetVector2Macro(Buttons_ResetErrors, bool);
-
-  vtkGetVector6Macro(AXIS_coord_R1, int32_t);
-  vtkSetVector6Macro(AXIS_coord_R1, int32_t);
-
-  vtkGetVector6Macro(AXIS_coord_R2, int32_t);
-  vtkSetVector6Macro(AXIS_coord_R2, int32_t);
-
-  vtkGetMacro(SysTime, uint64_t);
-  vtkSetMacro(SysTime, uint64_t);
-
-  vtkGetMacro(LocalTime, uint64_t);
-  vtkSetMacro(LocalTime, uint64_t);
+  vtkGetMacro(EventStr, std::string);
+  vtkSetMacro(EventStr, std::string);
 
 protected:
   vtkMRMLScadaOpcUaNode();
@@ -227,128 +187,40 @@ protected:
   vtkMRMLScadaOpcUaNode(const vtkMRMLScadaOpcUaNode&);
   void operator=(const vtkMRMLScadaOpcUaNode&);
 
-  static const char* GetModeAsString(int id);
-  static int GetModeFromString(const char* name);
-  void SetMode(int id);
+  static const char* GetStAsString(int id);
+  static int GetStFromString(const char* name);
+  void SetSt(int id);
 
 private:
-  uint64_t SysTime{ 0 };
-  uint64_t LocalTime{ 0 };
-
-  uint64_t ErrorMessages64; // Error messages 0...63
-  bool ErrorMessage65; // Error message 64
-  uint64_t ServiceMessages64; // Service messages 0...63
-  bool ServiceMessage65; // Service message 65
-  uint64_t MiscMessages64; // Miscellaneous messages 0...63
-  bool MiscMessage65; // Miscellaneous message 64
-
-  ModeType Mode{ vtkMRMLScadaOpcUaNode::UNKNOWN };
-
-  uint16_t Status_RTK;
-  uint16_t Status_R1_deka;
-  uint16_t Status_R2_C_Duga;
-  int32_t CoordFromASU_X;
-  int32_t CoordFromASU_Y;
-  int32_t CoordFromASU_Z;
-  int32_t CoordFromASU_XRAY_Z_correction;
-  int32_t CoordFromASU_AngleA_R1;
-  int32_t CoordFromASU_AngleB_R1;
-  int32_t CoordFromASU_AngleC_R1;
-
-  bool AM_Buttons_R1_LoadToIso[2]{ false, false }; // [0] == isEnabled, [1] == isPressed
-  bool AM_Buttons_R1_ToNewCoords[2]{ false, false }; // [0] == isEnabled, [1] == isPressed
-  bool AM_Buttons_R1_ToHome[2]{ false, false }; // [0] == isEnabled, [1] == isPressed
-  bool AM_Buttons_R1_ToLoad[2]{ false, false }; // [0] == isEnabled, [1] == isPressed
-  bool AM_Buttons_R2_ToIso[2]{ false, false }; // [0] == isEnabled, [1] == isPressed
-  bool AM_Buttons_R2_To2ndPl[2]{ false, false }; // [0] == isEnabled, [1] == isPressed
-  bool AM_Buttons_MakeXRay[2]{ false, false }; // [0] == isEnabled, [1] == isPressed
-  bool AM_Buttons_R2_ToHome[2]{ false, false }; // [0] == isEnabled, [1] == isPressed
-  bool AM_Buttons_R2_Set_New_Z[2]{ false, false }; // [0] == isEnabled, [1] == isPressed
-
-  bool MM_Buttons_R1_LoadToIso[2]{ false, false }; // [0] == isEnabled, [1] == isPressed
-  bool MM_Buttons_R1_ToNewCoords[2]{ false, false }; // [0] == isEnabled, [1] == isPressed
-  bool MM_Buttons_R1_ToHome[2]{ false, false }; // [0] == isEnabled, [1] == isPressed
-  bool MM_Buttons_R1_ToLoad[2]{ false, false }; // [0] == isEnabled, [1] == isPressed
-  bool MM_Buttons_R2_ToIso[2]{ false, false }; // [0] == isEnabled, [1] == isPressed
-  bool MM_Buttons_R2_To2ndPl[2]{ false, false }; // [0] == isEnabled, [1] == isPressed
-  bool MM_Buttons_MakeXRay[2]{ false, false }; // [0] == isEnabled, [1] == isPressed
-  bool MM_Buttons_R2_ToHome[2]{ false, false }; // [0] == isEnabled, [1] == isPressed
-  bool MM_Buttons_R2_Set_New_Z[2]{ false, false }; // [0] == isEnabled, [1] == isPressed
-
-  bool SM_Buttons_R1_BreakTest[2]{ false, false }; // [0] == isEnabled, [1] == isPressed
-  bool SM_Buttons_R1_MasterReferenceTest[2]{ false, false }; // [0] == isEnabled, [1] == isPressed
-  bool SM_Buttons_R1_HomeTest[2]{ false, false }; // [0] == isEnabled, [1] == isPressed
-  bool SM_Buttons_R1_IsoTest[2]{ false, false }; // [0] == isEnabled, [1] == isPressed
-  bool SM_Buttons_R1_ServicePosition[2]{ false, false }; // [0] == isEnabled, [1] == isPressed
-  bool SM_Buttons_R2_BreakTest[2]{ false, false }; // [0] == isEnabled, [1] == isPressed
-  bool SM_Buttons_R2_MasterReferenceTest[2]{ false, false }; // [0] == isEnabled, [1] == isPressed
-  bool SM_Buttons_R2_HomeTest[2]{ false, false }; // [0] == isEnabled, [1] == isPressed
-  bool SM_Buttons_R2_IsoTest[2]{ false, false }; // [0] == isEnabled, [1] == isPressed
-  bool SM_Buttons_R2_ServicePosition[2]{ false, false }; // [0] == isEnabled, [1] == isPressed
-  bool SM_Buttons_Restart[2]{ false, false }; // [0] == isEnabled, [1] == isPressed
-  bool Buttons_ResetErrors[2]{ false, false }; // [0] == isEnabled, [1] == isPressed
-  
-  struct Button {
-    bool IsPressed{ false };
-    bool IsEnable{ false };
-  };
-  struct AutomaticMovement {
-    Button R1_LoadToIso;
-    Button R1_ToNewCoords;
-    Button R1_ToHome;
-    Button R1_ToLoad;
-    Button R2_ToIso;
-    Button R2_To2ndPl;
-    Button MakeXRay;
-    Button R2_ToHome;
-    Button R2_Set_New_Z;
-  } AM; // Automatic movement
-  struct ManualMovement {
-    Button R1_LoadToIso;
-    Button R1_ToNewCoords;
-    Button R1_ToHome;
-    Button R1_ToLoad;
-    Button R2_ToIso;
-    Button R2_To2ndPl;
-    Button MakeXRay;
-    Button R2_ToHome;
-    Button R2_Set_New_Z;
-  } MM; // Manual movement
-  struct ServiceMovement {
-    Button BreakTestR1;
-    Button MasResTestR1;
-    Button HomeR1;
-    Button IsoR1;
-    Button ServicePosR1;
-    Button BreakTestR2;
-    Button MasResTestR2;
-    Button HomeR2;
-    Button IsoR2;
-    Button ServicePosR2;
-    Button RestartSM;
-  } SM;
-  struct KukaControllersMode {
-    Button AllowT1;
-    Button AllowXRay;
-    Button MakeXRay;
-    Button AllowBeam;
-  } KCM;
-  Button ResetErrors;
-  bool RobotsReadyForXray1;
-  bool RobotsReadyForXray2;
-  bool RobotsReadyForBeam;
-  bool HUMAN_ON_DEKA;
-  struct MlcPosition {
-    uint8_t State;
-    int32_t SensorValue;
-    bool OperationPosition;
-    bool SafePosition;
-  } MLC_POSITION;
-  int32_t KUKA_X_coordinate_to_TCS_R1;
-  int32_t KUKA_Y_coordinate_to_TCS_R1;
-  int32_t KUKA_Z_coordinate_to_TCS_R1;
-  int32_t AXIS_coord_R1[6];
-  int32_t AXIS_coord_R2[6];
+  uint64_t SysTimeScada{ 0 };
+  uint64_t SysTimeModPos{ 0 };
+  std::string PlanStr;
+  std::string IDP;
+  bool ECP{ false };
+  std::string Immob;
+  bool PlanOpen{ false };
+  int NPos{ 0 };
+  int RemoteCtrl{ 0 };
+  int RemoteStateMachine{ 0 };
+  bool RemoteCmd{ false };
+  bool RemotePause{ false };
+  bool RemoteAvr{ false };
+  bool DoorLock{ false };
+  bool ReadyEq{ false };
+  bool ReadyPlan{ false };
+  bool ReadyProc{ false };
+  StateType St{ StateType::ST_UNDEFINED };
+  bool inQueue{ false };
+  bool ReadySt{ false };
+  bool Block{ false };
+  int CurrentLayer{ 0 };
+  int MaxLayer{ 0 };
+  int ProcLayer{ 0 };
+  bool ProcEnd{ false };
+  std::string ProcNote;
+  bool ProcClose{ false };
+  std::string ErrStr;
+  std::string EventStr;
 };
 
 #endif

@@ -49,6 +49,7 @@
 
 // SlicerRT U70RoomOpcUa MRML includes
 #include <vtkMRMLSiemensPlcOpcUaNode.h>
+#include <vtkMRMLScadaOpcUaNode.h>
 
 class QAbstractButton;
 
@@ -61,7 +62,7 @@ protected:
 public:
   qSlicerU70RoomOpcUaModuleWidgetPrivate(qSlicerU70RoomOpcUaModuleWidget& object);
   vtkSlicerU70RoomOpcUaLogic* logic() const;
-  void createClient();
+  void siemensCreateClient();
   void updateUiState();
 
   const char* SIEMENS_PLC_OPCUA_LAYOUT_DESCRIPTION = \
@@ -75,19 +76,28 @@ public:
   int PreviousLayoutId{ -1 };
   bool ModuleWindowInitialized{ false };
 
+  // Siemens PLC
   vtkSmartPointer< vtkMRMLSiemensPlcOpcUaNode > SiemensPlcOpcUaNode;
 //  QSharedPointer< qSlicerScadaOpcUaLogic > ScadaOpcUaLogic;
-
   QScopedPointer< qSlicerSiemensPlcOpcUaWidget > SiemensPlcOpcUaControlWidget;
-
-  QScopedPointer< QOpcUaProvider > OpcUaProvider;
-  QSharedPointer< QOpcUaClient > OpcUaClient;
-  bool ClientConnectedFlag{ false };
-  QVector<QOpcUaEndpointDescription> OpcUaEndpointList;
-  QOpcUaApplicationIdentity OpcUaAppIdentity;
-  QOpcUaEndpointDescription OpcUaEndpoint; // current endpoint used to connect
-  
+  QScopedPointer< QOpcUaProvider > SiemensOpcUaProvider;
+  QSharedPointer< QOpcUaClient > SiemensOpcUaClient;
+  bool SiemensClientConnectedFlag{ false };
+  QVector<QOpcUaEndpointDescription> SiemensOpcUaEndpointList;
+  QOpcUaApplicationIdentity SiemensOpcUaAppIdentity;
+  QOpcUaEndpointDescription SiemensOpcUaEndpoint; // current endpoint used to connect
   QScopedPointer< qSlicerOpcUaRobotsMessagesListModel > SiemensPlcMessagesModel;
+
+  // Scada
+  vtkSmartPointer< vtkMRMLScadaOpcUaNode > ScadaOpcUaNode;
+//  QSharedPointer< qSlicerScadaOpcUaLogic > ScadaOpcUaLogic;
+//  QScopedPointer< qSlicerSiemensPlcOpcUaWidget > SiemensPlcOpcUaControlWidget;
+  QScopedPointer< QOpcUaProvider > ScadaOpcUaProvider;
+  QSharedPointer< QOpcUaClient > ScadaOpcUaClient;
+  bool ScadaClientConnectedFlag{ false };
+  QVector<QOpcUaEndpointDescription> ScadaOpcUaEndpointList;
+  QOpcUaApplicationIdentity ScadaOpcUaAppIdentity;
+  QOpcUaEndpointDescription ScadaOpcUaEndpoint; // current endpoint used to connect
 };
 
 //-----------------------------------------------------------------------------
@@ -107,45 +117,49 @@ qSlicerU70RoomOpcUaModuleWidgetPrivate::qSlicerU70RoomOpcUaModuleWidgetPrivate(q
 }
 
 //-----------------------------------------------------------------------------
-void qSlicerU70RoomOpcUaModuleWidgetPrivate::createClient()
+void qSlicerU70RoomOpcUaModuleWidgetPrivate::siemensCreateClient()
 {
   Q_Q(qSlicerU70RoomOpcUaModuleWidget);
-  if (!this->OpcUaClient)
+  if (!this->SiemensOpcUaClient)
   {
-    QOpcUaClient* newClient = this->OpcUaProvider->createClient(this->ComboBox_OpcUaPlugin->currentText());
-    this->OpcUaClient = QSharedPointer< QOpcUaClient >(newClient, &QOpcUaClient::deleteLater);
-    if (!this->OpcUaClient)
+    QOpcUaClient* newClient = this->SiemensOpcUaProvider->createClient(this->ComboBox_SiemensOpcUaPlugin->currentText());
+    this->SiemensOpcUaClient = QSharedPointer< QOpcUaClient >(newClient, &QOpcUaClient::deleteLater);
+    if (!this->SiemensOpcUaClient)
     {
       const QString message(QObject::tr("Connecting to the given sever failed. See the log for details."));
       QMessageBox::critical(q, QObject::tr("Failed to connect to server"), message);
       return;
     }
 
-    QObject::connect(this->OpcUaClient.data(), &QOpcUaClient::connectError,
-      q, &qSlicerU70RoomOpcUaModuleWidget::showOpcUaErrorDialog);
-    OpcUaClient->setApplicationIdentity(OpcUaAppIdentity);
+    QObject::connect(this->SiemensOpcUaClient.data(), &QOpcUaClient::connectError,
+      q, &qSlicerU70RoomOpcUaModuleWidget::siemensShowOpcUaErrorDialog);
+    this->SiemensOpcUaClient->setApplicationIdentity(SiemensOpcUaAppIdentity);
 
-    if (OpcUaClient->supportedUserTokenTypes().contains(QOpcUaUserTokenPolicy::TokenType::Certificate))
+    if (this->SiemensOpcUaClient->supportedUserTokenTypes().contains(QOpcUaUserTokenPolicy::TokenType::Certificate))
     {
       QOpcUaAuthenticationInformation authInfo;
       authInfo.setCertificateAuthentication();
-      OpcUaClient->setAuthenticationInformation(authInfo);
+      this->SiemensOpcUaClient->setAuthenticationInformation(authInfo);
     }
 
-    QObject::connect(this->OpcUaClient.data(), &QOpcUaClient::connected,
-      q, &qSlicerU70RoomOpcUaModuleWidget::clientConnected);
+    QObject::connect(this->SiemensOpcUaClient.data(), &QOpcUaClient::connected,
+      q, &qSlicerU70RoomOpcUaModuleWidget::siemensClientConnected);
 //    QObject::connect(this->OpcUaClient.data(), &QOpcUaClient::connected,
 //      this->SiemensPlcOpcUaControlWidget.data(), &qSlicerSiemensPlcOpcUaWidget::onOpcUaClientConnected);
 
-    QObject::connect(this->OpcUaClient.data(), &QOpcUaClient::disconnected,
-      q, &qSlicerU70RoomOpcUaModuleWidget::clientDisconnected);
-    QObject::connect(this->OpcUaClient.data(), &QOpcUaClient::disconnected,
+    QObject::connect(this->SiemensOpcUaClient.data(), &QOpcUaClient::disconnected,
+      q, &qSlicerU70RoomOpcUaModuleWidget::siemensClientDisconnected);
+    QObject::connect(this->SiemensOpcUaClient.data(), &QOpcUaClient::disconnected,
       this->SiemensPlcOpcUaControlWidget.data(), &qSlicerSiemensPlcOpcUaWidget::onOpcUaClientDisconnected);
 
-    QObject::connect(this->OpcUaClient.data(), &QOpcUaClient::errorChanged, q, &qSlicerU70RoomOpcUaModuleWidget::clientError);
-    QObject::connect(this->OpcUaClient.data(), &QOpcUaClient::stateChanged, q, &qSlicerU70RoomOpcUaModuleWidget::clientState);
-    QObject::connect(this->OpcUaClient.data(), &QOpcUaClient::endpointsRequestFinished, q, &qSlicerU70RoomOpcUaModuleWidget::getEndpointsComplete);
-    QObject::connect(this->OpcUaClient.data(), &QOpcUaClient::findServersFinished, q, &qSlicerU70RoomOpcUaModuleWidget::findServersComplete);
+    QObject::connect(this->SiemensOpcUaClient.data(), &QOpcUaClient::errorChanged,
+      q, &qSlicerU70RoomOpcUaModuleWidget::siemensClientError);
+    QObject::connect(this->SiemensOpcUaClient.data(), &QOpcUaClient::stateChanged,
+      q, &qSlicerU70RoomOpcUaModuleWidget::siemensClientState);
+    QObject::connect(this->SiemensOpcUaClient.data(), &QOpcUaClient::endpointsRequestFinished,
+      q, &qSlicerU70RoomOpcUaModuleWidget::siemensGetEndpointsComplete);
+    QObject::connect(this->SiemensOpcUaClient.data(), &QOpcUaClient::findServersFinished,
+      q, &qSlicerU70RoomOpcUaModuleWidget::siemensFindServersComplete);
   }
 }
 
@@ -154,10 +168,10 @@ void qSlicerU70RoomOpcUaModuleWidgetPrivate::updateUiState()
 {
   Q_Q(qSlicerU70RoomOpcUaModuleWidget);
 
-  this->PushButton_Connect->setText(this->ClientConnectedFlag ? QObject::tr("&Disconnect") : QObject::tr("&Connect"));
-  this->ComboBox_OpcUaPlugin->setDisabled(this->ClientConnectedFlag);
-  this->LineEdit_OpcUaServerUrl->setDisabled(this->ClientConnectedFlag);
-  if (!this->ClientConnectedFlag)
+  this->PushButton_SiemensConnect->setText(this->SiemensClientConnectedFlag ? QObject::tr("&Disconnect") : QObject::tr("&Connect"));
+  this->ComboBox_SiemensOpcUaPlugin->setDisabled(this->SiemensClientConnectedFlag);
+  this->LineEdit_SiemensOpcUaServerUrl->setDisabled(this->SiemensClientConnectedFlag);
+  if (!this->SiemensClientConnectedFlag)
   {
     this->SiemensPlcMessagesModel->clear();
 
@@ -203,28 +217,33 @@ void qSlicerU70RoomOpcUaModuleWidget::setup()
   d->SiemensPlcOpcUaControlWidget.reset(new qSlicerSiemensPlcOpcUaWidget(this));
 //  d->ScadaOpcUaModel.reset(new OpcUaModel(this));
   d->SiemensPlcMessagesModel.reset(new qSlicerOpcUaRobotsMessagesListModel(this));
-  d->OpcUaProvider.reset(new QOpcUaProvider(this));
+  d->SiemensOpcUaProvider.reset(new QOpcUaProvider(this));
+  d->ScadaOpcUaProvider.reset(new QOpcUaProvider(this));
 
-  d->LineEdit_OpcUaServerUrl->setText("opc.tcp://172.31.1.1:4840");
-  d->ComboBox_OpcUaPlugin->addItems(d->OpcUaProvider->availableBackends());
+  d->LineEdit_SiemensOpcUaServerUrl->setText("opc.tcp://172.31.1.1:4840");
+  d->ComboBox_SiemensOpcUaPlugin->addItems(d->SiemensOpcUaProvider->availableBackends());
+  d->ComboBox_ScadaOpcUaPlugin->addItems(d->ScadaOpcUaProvider->availableBackends());
 
 //  d->SiemensPlcOpcUaControlWidget->setScadaOpcUaLogic(d->ScadaOpcUaLogic);
 
   d->ListView_SiemensPlcMessages->setModel(d->SiemensPlcMessagesModel.data());
   d->ListView_SiemensPlcMessages->hide();
 
-  if (d->ComboBox_OpcUaPlugin->count() == 0)
+  if (d->ComboBox_SiemensOpcUaPlugin->count() == 0)
   {
-    d->ComboBox_OpcUaPlugin->setDisabled(true);
-    d->PushButton_Connect->setDisabled(true);
+    d->ComboBox_SiemensOpcUaPlugin->setDisabled(true);
+    d->PushButton_SiemensConnect->setDisabled(true);
     QMessageBox::critical(this, tr("No OPCUA plugins available"), tr("The list of available OPCUA plugins is empty. No connection possible."));
   }
 
-  QObject::connect(d->PushButton_Connect, &QPushButton::clicked, this, &qSlicerU70RoomOpcUaModuleWidget::connectToServer);
-  QObject::connect(d->PushButton_FindServers, &QPushButton::clicked, this, &qSlicerU70RoomOpcUaModuleWidget::findServers);
-  QObject::connect(d->PushButton_GetEndpoints, &QPushButton::clicked, this, &qSlicerU70RoomOpcUaModuleWidget::getEndpoints);
-  QObject::connect(d->LineEdit_OpcUaServerUrl, &QLineEdit::returnPressed, d->PushButton_FindServers,
-    [d]() { d->PushButton_FindServers->animateClick(); });
+  QObject::connect(d->PushButton_SiemensConnect, &QPushButton::clicked,
+    this, &qSlicerU70RoomOpcUaModuleWidget::siemensConnectToServer);
+  QObject::connect(d->PushButton_SiemensFindServers, &QPushButton::clicked,
+    this, &qSlicerU70RoomOpcUaModuleWidget::siemensFindServers);
+  QObject::connect(d->PushButton_SiemensGetEndpoints, &QPushButton::clicked,
+    this, &qSlicerU70RoomOpcUaModuleWidget::siemensGetEndpoints);
+  QObject::connect(d->LineEdit_SiemensOpcUaServerUrl, &QLineEdit::returnPressed, d->PushButton_SiemensFindServers,
+    [d]() { d->PushButton_SiemensFindServers->animateClick(); });
 
   // Get layout manager
   qSlicerApplication* slicerApplication = qSlicerApplication::application();
@@ -270,7 +289,7 @@ void qSlicerU70RoomOpcUaModuleWidget::setup()
   QObject::connect(d->SiemensPlcOpcUaControlWidget.data(), &qSlicerSiemensPlcOpcUaWidget::nodesTreeLoadingFinished,
     [d]()
     {
-      if (d->CheckBox_HostAutoConnect->isChecked())
+      if (d->CheckBox_SiemensHostAutoConnect->isChecked())
       {
         d->SiemensPlcOpcUaControlWidget->onParseServerInterfacesClicked();
       }
@@ -431,7 +450,7 @@ void qSlicerU70RoomOpcUaModuleWidget::updateWidgetFromMRML()
     qCritical() << Q_FUNC_INFO << tr("Siemens PLC node is invalid");
     return;
   }
-  if (!d->ClientConnectedFlag)
+  if (!d->SiemensClientConnectedFlag)
   {
     d->SiemensPlcMessagesModel->clear();
     d->Label_ModeUnknown->setPixmap(QPixmap(":/Icons/gray.png"));
@@ -493,69 +512,69 @@ void qSlicerU70RoomOpcUaModuleWidget::updateWidgetFromMRML()
 }
 
 //-----------------------------------------------------------------------------
-void qSlicerU70RoomOpcUaModuleWidget::findServers()
+void qSlicerU70RoomOpcUaModuleWidget::siemensFindServers()
 {
   Q_D(qSlicerU70RoomOpcUaModuleWidget);
 
   QStringList localeIds;
   QStringList serverUris;
-  QUrl url(d->LineEdit_OpcUaServerUrl->text());
+  QUrl url(d->LineEdit_SiemensOpcUaServerUrl->text());
 
   d->updateUiState();
 
-  d->createClient();
+  d->siemensCreateClient();
   // set default port if missing
   if (url.port() == -1)
   {
     url.setPort(62544);
   }
 
-  if (d->OpcUaClient)
+  if (d->SiemensOpcUaClient)
   {
-    d->OpcUaClient->findServers(url, localeIds, serverUris);
+    d->SiemensOpcUaClient->findServers(url, localeIds, serverUris);
     qDebug() << Q_FUNC_INFO << tr("Discovering servers on") << url.toString();
   }
 }
 
 //-----------------------------------------------------------------------------
-void qSlicerU70RoomOpcUaModuleWidget::findServersComplete(const QVector<QOpcUaApplicationDescription> &servers, QOpcUa::UaStatusCode statusCode)
+void qSlicerU70RoomOpcUaModuleWidget::siemensFindServersComplete(const QVector<QOpcUaApplicationDescription> &servers, QOpcUa::UaStatusCode statusCode)
 {
   Q_D(qSlicerU70RoomOpcUaModuleWidget);
 
   if (isSuccessStatus(statusCode))
   {
-    d->ComboBox_Servers->clear();
+    d->ComboBox_SiemensServers->clear();
     for (QOpcUaApplicationDescription server : servers)
     {
       QVector<QString> urls = server.discoveryUrls();
       for (const auto &url : qAsConst(urls))
       {
-        d->ComboBox_Servers->addItem(url);
+        d->ComboBox_SiemensServers->addItem(url);
       }
     }
   }
   d->updateUiState();
-  emit d->PushButton_GetEndpoints->clicked();
+  emit d->PushButton_SiemensGetEndpoints->clicked();
 }
 
 //-----------------------------------------------------------------------------
-void qSlicerU70RoomOpcUaModuleWidget::getEndpoints()
+void qSlicerU70RoomOpcUaModuleWidget::siemensGetEndpoints()
 {
   Q_D(qSlicerU70RoomOpcUaModuleWidget);
 
-  d->ComboBox_Endpoints->clear();
+  d->ComboBox_SiemensEndpoints->clear();
   d->updateUiState();
 
-  if (d->ComboBox_Servers->currentIndex() >= 0)
+  if (d->ComboBox_SiemensServers->currentIndex() >= 0)
   {
-    const QString serverUrl = d->ComboBox_Servers->currentText();
-    d->createClient();
-    d->OpcUaClient->requestEndpoints(serverUrl);
+    const QString serverUrl = d->ComboBox_SiemensServers->currentText();
+    d->siemensCreateClient();
+    d->SiemensOpcUaClient->requestEndpoints(serverUrl);
   }
 }
 
 //-----------------------------------------------------------------------------
-void qSlicerU70RoomOpcUaModuleWidget::getEndpointsComplete(const QVector<QOpcUaEndpointDescription> &endpoints, QOpcUa::UaStatusCode statusCode)
+void qSlicerU70RoomOpcUaModuleWidget::siemensGetEndpointsComplete(const QVector<QOpcUaEndpointDescription> &endpoints, QOpcUa::UaStatusCode statusCode)
 {
   Q_D(qSlicerU70RoomOpcUaModuleWidget);
 
@@ -564,7 +583,7 @@ void qSlicerU70RoomOpcUaModuleWidget::getEndpointsComplete(const QVector<QOpcUaE
 
   if (isSuccessStatus(statusCode))
   {
-    d->OpcUaEndpointList = endpoints;
+    d->SiemensOpcUaEndpointList = endpoints;
     for (const auto& endpoint : endpoints)
     {
       if (endpoint.securityMode() > sizeof(modes))
@@ -573,56 +592,57 @@ void qSlicerU70RoomOpcUaModuleWidget::getEndpointsComplete(const QVector<QOpcUaE
         continue;
       }
       const QString EndpointName = QString("%1 (%2)").arg(endpoint.securityPolicy(), modes[endpoint.securityMode()]);
-      d->ComboBox_Endpoints->addItem(EndpointName, index++);
+      d->ComboBox_SiemensEndpoints->addItem(EndpointName, index++);
     }
   }
   d->updateUiState();
-  emit d->PushButton_Connect->clicked();
+  emit d->PushButton_SiemensConnect->clicked();
 }
 
 //-----------------------------------------------------------------------------
-void qSlicerU70RoomOpcUaModuleWidget::connectToServer()
+void qSlicerU70RoomOpcUaModuleWidget::siemensConnectToServer()
 {
   Q_D(qSlicerU70RoomOpcUaModuleWidget);
 
-  if (d->ClientConnectedFlag)
+  if (d->SiemensClientConnectedFlag)
   {
-    d->OpcUaClient->disconnectFromEndpoint();
+    d->SiemensOpcUaClient->disconnectFromEndpoint();
     return;
   }
 
-  if (d->ComboBox_Endpoints->currentIndex() >= 0)
+  if (d->ComboBox_SiemensEndpoints->currentIndex() >= 0)
   {
-    d->OpcUaEndpoint = d->OpcUaEndpointList[d->ComboBox_Endpoints->currentIndex()];
-    d->createClient();
-    d->OpcUaClient->connectToEndpoint(d->OpcUaEndpoint);
+    d->SiemensOpcUaEndpoint = d->SiemensOpcUaEndpointList[d->ComboBox_SiemensEndpoints->currentIndex()];
+    d->siemensCreateClient();
+    d->SiemensOpcUaClient->connectToEndpoint(d->SiemensOpcUaEndpoint);
   }
 }
 
 //-----------------------------------------------------------------------------
-void qSlicerU70RoomOpcUaModuleWidget::clientConnected()
+void qSlicerU70RoomOpcUaModuleWidget::siemensClientConnected()
 {
   Q_D(qSlicerU70RoomOpcUaModuleWidget);
 
-  d->ClientConnectedFlag = true;
+  d->SiemensClientConnectedFlag = true;
   d->updateUiState();
-  QObject::connect(d->OpcUaClient.data(), &QOpcUaClient::namespaceArrayUpdated, this, &qSlicerU70RoomOpcUaModuleWidget::namespacesArrayUpdated);
-  d->OpcUaClient->updateNamespaceArray();
+  QObject::connect(d->SiemensOpcUaClient.data(), &QOpcUaClient::namespaceArrayUpdated,
+    this, &qSlicerU70RoomOpcUaModuleWidget::siemensNamespacesArrayUpdated);
+  d->SiemensOpcUaClient->updateNamespaceArray();
 }
 
 //-----------------------------------------------------------------------------
-void qSlicerU70RoomOpcUaModuleWidget::clientDisconnected()
+void qSlicerU70RoomOpcUaModuleWidget::siemensClientDisconnected()
 {
   Q_D(qSlicerU70RoomOpcUaModuleWidget);
 
-  d->ClientConnectedFlag = false;
-  d->OpcUaClient.clear();
+  d->SiemensClientConnectedFlag = false;
+  d->SiemensOpcUaClient.clear();
   d->updateUiState();
   d->SiemensPlcOpcUaNode->SetMode(vtkMRMLSiemensPlcOpcUaNode::ModeType_Last);
 }
 
 //-----------------------------------------------------------------------------
-void qSlicerU70RoomOpcUaModuleWidget::namespacesArrayUpdated(const QStringList &namespaceArray)
+void qSlicerU70RoomOpcUaModuleWidget::siemensNamespacesArrayUpdated(const QStringList &namespaceArray)
 {
   Q_D(qSlicerU70RoomOpcUaModuleWidget);
 
@@ -639,15 +659,15 @@ void qSlicerU70RoomOpcUaModuleWidget::namespacesArrayUpdated(const QStringList &
   d->PushButton_ModeKukaControllers->setEnabled(true);
   d->PushButton_ModeUnknown->setEnabled(true);
   
-  d->SiemensPlcOpcUaControlWidget->setSiemensPlcOpcUaClient(d->OpcUaClient);
+  d->SiemensPlcOpcUaControlWidget->setSiemensPlcOpcUaClient(d->SiemensOpcUaClient);
   d->SiemensPlcOpcUaControlWidget->onOpcUaClientConnected();
 
-  QObject::disconnect(d->OpcUaClient.data(), &QOpcUaClient::namespaceArrayUpdated,
-    this, &qSlicerU70RoomOpcUaModuleWidget::namespacesArrayUpdated);
+  QObject::disconnect(d->SiemensOpcUaClient.data(), &QOpcUaClient::namespaceArrayUpdated,
+    this, &qSlicerU70RoomOpcUaModuleWidget::siemensNamespacesArrayUpdated);
 }
 
 //-----------------------------------------------------------------------------
-void qSlicerU70RoomOpcUaModuleWidget::showOpcUaErrorDialog(QOpcUaErrorState *errorState)
+void qSlicerU70RoomOpcUaModuleWidget::siemensShowOpcUaErrorDialog(QOpcUaErrorState *errorState)
 {
   Q_D(qSlicerU70RoomOpcUaModuleWidget);
   const QString statuscode = QOpcUa::statusToString(errorState->errorCode());
@@ -683,14 +703,14 @@ void qSlicerU70RoomOpcUaModuleWidget::showOpcUaErrorDialog(QOpcUaErrorState *err
 }
 
 //-----------------------------------------------------------------------------
-void qSlicerU70RoomOpcUaModuleWidget::clientError(QOpcUaClient::ClientError error)
+void qSlicerU70RoomOpcUaModuleWidget::siemensClientError(QOpcUaClient::ClientError error)
 {
   Q_D(qSlicerU70RoomOpcUaModuleWidget);
   Q_UNUSED(error);
 }
 
 //-----------------------------------------------------------------------------
-void qSlicerU70RoomOpcUaModuleWidget::clientState(QOpcUaClient::ClientState state)
+void qSlicerU70RoomOpcUaModuleWidget::siemensClientState(QOpcUaClient::ClientState state)
 {
   Q_D(qSlicerU70RoomOpcUaModuleWidget);
   switch (state)

@@ -52,9 +52,41 @@ void vtkMRMLScadaOpcUaNode::WriteXML(ostream& of, int nIndent)
   // Write all MRML node attributes into output stream
   vtkMRMLWriteXMLBeginMacro(of);
   // add new parameters here
-  vtkMRMLWriteXMLIntMacro(sysTime, SysTime);
-  vtkMRMLWriteXMLIntMacro(localTime, LocalTime);
-  vtkMRMLWriteXMLEnumMacro(mode, Mode);
+  vtkMRMLWriteXMLIntMacro(sysTime, SysTimeScada);
+  vtkMRMLWriteXMLIntMacro(localTime, SysTimeModPos);
+  vtkMRMLWriteXMLStdStringMacro(planStr, PlanStr);
+  vtkMRMLWriteXMLEnumMacro(st, St);
+/*
+  uint64_t SysTimeScada{ 0 };
+  uint64_t SysTimeModPos{ 0 };
+  std::string PlanStr;
+  std::string IDP;
+  bool ECP{ false };
+  std::string Immob;
+  bool PlanOpen{ false };
+  int NPos{ 0 };
+  int RemoteCtrl{ 0 };
+  int RemoteStateMachine{ 0 };
+  bool RemoteCmd{ false };
+  bool RemotePause{ false };
+  bool RemoteAvr{ false };
+  bool DoorLock{ false };
+  bool ReadyEq{ false };
+  bool ReadyPlan{ false };
+  bool ReadyProc{ false };
+  int St{ 0 };
+  bool inQueue{ false };
+  bool ReadySt{ false };
+  bool Block{ false };
+  int CurrentLayer{ 0 };
+  int MaxLayer{ 0 };
+  int ProcLayer{ 0 };
+  bool ProcEnd{ false };
+  std:;string ProcNote;
+  bool ProcClose{ false };
+  std::string ErrStr;
+  std::string EventStr;
+*/
   vtkMRMLWriteXMLEndMacro(); 
 }
 
@@ -67,9 +99,10 @@ void vtkMRMLScadaOpcUaNode::ReadXMLAttributes(const char** atts)
   vtkMRMLReadXMLBeginMacro(atts);
 
   // add new parameters here
-  vtkMRMLReadXMLIntMacro(sysTime, SysTime);
-  vtkMRMLReadXMLIntMacro(localTime, LocalTime);
-  vtkMRMLReadXMLEnumMacro(mode, Mode);
+  vtkMRMLReadXMLIntMacro(sysTime, SysTimeScada);
+  vtkMRMLReadXMLIntMacro(localTime, SysTimeModPos);
+  vtkMRMLReadXMLStdStringMacro(planStr, PlanStr);
+  vtkMRMLReadXMLEnumMacro(st, St);
   vtkMRMLReadXMLEndMacro();
 
   this->EndModify(disabledModify);
@@ -95,9 +128,10 @@ void vtkMRMLScadaOpcUaNode::Copy(vtkMRMLNode *anode)
   this->DisableModifiedEventOn();
   vtkMRMLCopyBeginMacro(node);
   // add new parameters here
-  vtkMRMLCopyIntMacro(SysTime);
-  vtkMRMLCopyIntMacro(LocalTime);
-  vtkMRMLCopyEnumMacro(Mode);
+  vtkMRMLCopyIntMacro(SysTimeScada);
+  vtkMRMLCopyIntMacro(SysTimeModPos);
+  vtkMRMLCopyStdStringMacro(PlanStr);
+  vtkMRMLCopyEnumMacro(St);
   vtkMRMLCopyEndMacro(); 
 
   this->EndModify(disabledModify);
@@ -119,9 +153,10 @@ void vtkMRMLScadaOpcUaNode::CopyContent(vtkMRMLNode *anode, bool deepCopy/*=true
 
   vtkMRMLCopyBeginMacro(node);
   // add new parameters here
-  vtkMRMLCopyIntMacro(SysTime);
-  vtkMRMLCopyIntMacro(LocalTime);
-  vtkMRMLCopyEnumMacro(Mode);
+  vtkMRMLCopyIntMacro(SysTimeScada);
+  vtkMRMLCopyIntMacro(SysTimeModPos);
+  vtkMRMLCopyStdStringMacro(PlanStr);
+  vtkMRMLCopyEnumMacro(St);
   vtkMRMLCopyEndMacro();
 }
 
@@ -132,9 +167,10 @@ void vtkMRMLScadaOpcUaNode::PrintSelf(ostream& os, vtkIndent indent)
 
   vtkMRMLPrintBeginMacro(os, indent);
   // add new parameters here
-  vtkMRMLPrintIntMacro(SysTime);
-  vtkMRMLPrintIntMacro(LocalTime);
-  vtkMRMLPrintEnumMacro(Mode);
+  vtkMRMLPrintIntMacro(SysTimeScada);
+  vtkMRMLPrintIntMacro(SysTimeModPos);
+  vtkMRMLPrintStdStringMacro(PlanStr);
+  vtkMRMLPrintEnumMacro(St);
   vtkMRMLPrintEndMacro(); 
 }
 
@@ -162,44 +198,57 @@ void vtkMRMLScadaOpcUaNode::ProcessMRMLEvents(vtkObject *caller, unsigned long e
 
 
 //---------------------------------------------------------------------------
-void vtkMRMLScadaOpcUaNode::SetMode(int id)
+void vtkMRMLScadaOpcUaNode::SetSt(int id)
 {
   switch (id)
   {
-    case 0: this->SetMode(vtkMRMLScadaOpcUaNode::UNKNOWN); break;
-    case 1: this->SetMode(vtkMRMLScadaOpcUaNode::AUTOMATIC); break;
-    case 2: this->SetMode(vtkMRMLScadaOpcUaNode::MANUAL); break;
-    case 3: this->SetMode(vtkMRMLScadaOpcUaNode::SERVICE); break;
-    case 77: this->SetMode(vtkMRMLScadaOpcUaNode::KUKA_CONTROLLERS); break;
-    default: this->SetMode(vtkMRMLScadaOpcUaNode::UNKNOWN); break;
+    case 1: this->SetSt(vtkMRMLScadaOpcUaNode::ST_APPLICATION_IS_RUNNING); break;
+    case 2: this->SetSt(vtkMRMLScadaOpcUaNode::ST_LOADING_THERAPY_PLAN); break;
+    case 3: this->SetSt(vtkMRMLScadaOpcUaNode::ST_PATIENT_VERIFICATION); break;
+    case 4: this->SetSt(vtkMRMLScadaOpcUaNode::ST_PATIENT_IMMOBILIZATION_VERIFICATION); break;
+    case 5: this->SetSt(vtkMRMLScadaOpcUaNode::ST_PATIENT_POSITIONING); break;
+    case 6: this->SetSt(vtkMRMLScadaOpcUaNode::ST_XRAY_EXPOSURE); break;
+    case 7: this->SetSt(vtkMRMLScadaOpcUaNode::ST_XRAY_IMAGE_REGISTRATION); break;
+    case 8: this->SetSt(vtkMRMLScadaOpcUaNode::ST_PATIENT_POSITION_CORRECTION); break;
+    case 9: this->SetSt(vtkMRMLScadaOpcUaNode::ST_POSITIONING_FINISHED); break;
+    case 10: this->SetSt(vtkMRMLScadaOpcUaNode::ST_WAIT_UNTIL_THERAPY_IS_FINISHED); break;
+    case 11: this->SetSt(vtkMRMLScadaOpcUaNode::ST_PROCEDURE_COMMENTS_AND_RECORD_FINISH); break;
+    default: this->SetSt(vtkMRMLScadaOpcUaNode::ST_UNDEFINED); break;
   }
 }
 
 //---------------------------------------------------------------------------
-const char* vtkMRMLScadaOpcUaNode::GetModeAsString(int id)
+const char* vtkMRMLScadaOpcUaNode::GetStAsString(int id)
 {
   switch (id)
   {
-    case vtkMRMLScadaOpcUaNode::UNKNOWN: return "UNKNOWN";
-    case vtkMRMLScadaOpcUaNode::AUTOMATIC: return "AUTOMATIC";
-    case vtkMRMLScadaOpcUaNode::MANUAL: return "MANUAL";
-    case vtkMRMLScadaOpcUaNode::SERVICE: return "SERVICE";
-    case vtkMRMLScadaOpcUaNode::KUKA_CONTROLLERS: return "KUKA_CONTROLLERS";
-    default: return "UNKNOWN";
+    case vtkMRMLScadaOpcUaNode::ST_UNDEFINED: return "ST_UNDEFINED";
+    case vtkMRMLScadaOpcUaNode::ST_APPLICATION_IS_RUNNING: return "ST_APPLICATION_IS_RUNNING";
+    case vtkMRMLScadaOpcUaNode::ST_LOADING_THERAPY_PLAN: return "ST_LOADING_THERAPY_PLAN";
+    case vtkMRMLScadaOpcUaNode::ST_PATIENT_VERIFICATION: return "ST_PATIENT_VERIFICATION";
+    case vtkMRMLScadaOpcUaNode::ST_PATIENT_IMMOBILIZATION_VERIFICATION: return "ST_PATIENT_IMMOBILIZATION_VERIFICATION";
+    case vtkMRMLScadaOpcUaNode::ST_PATIENT_POSITIONING: return "ST_PATIENT_POSITIONING";
+    case vtkMRMLScadaOpcUaNode::ST_XRAY_EXPOSURE: return "ST_XRAY_EXPOSURE";
+    case vtkMRMLScadaOpcUaNode::ST_XRAY_IMAGE_REGISTRATION: return "ST_XRAY_IMAGE_REGISTRATION";
+    case vtkMRMLScadaOpcUaNode::ST_PATIENT_POSITION_CORRECTION: return "ST_PATIENT_POSITION_CORRECTION";
+    case vtkMRMLScadaOpcUaNode::ST_POSITIONING_FINISHED: return "ST_POSITIONING_FINISHED";
+    case vtkMRMLScadaOpcUaNode::ST_WAIT_UNTIL_THERAPY_IS_FINISHED: return "ST_WAIT_UNTIL_THERAPY_IS_FINISHED";
+    case vtkMRMLScadaOpcUaNode::ST_PROCEDURE_COMMENTS_AND_RECORD_FINISH: return "ST_PROCEDURE_COMMENTS_AND_RECORD_FINISH";
+    default: return "ST_UNDEFINED";
   }
 }
 
 //---------------------------------------------------------------------------
-int vtkMRMLScadaOpcUaNode::GetModeFromString(const char* name)
+int vtkMRMLScadaOpcUaNode::GetStFromString(const char* name)
 {
   if (name == nullptr)
   {
     // invalid name
     return -1;
   }
-  for (int i = 0; i < vtkMRMLScadaOpcUaNode::ModeType_Last; i++)
+  for (int i = 0; i < vtkMRMLScadaOpcUaNode::StateType_Last; i++)
   {
-    if (std::strcmp(name, vtkMRMLScadaOpcUaNode::GetModeAsString(i)) == 0)
+    if (std::strcmp(name, vtkMRMLScadaOpcUaNode::GetStAsString(i)) == 0)
     {
       // found a matching name
       return i;
