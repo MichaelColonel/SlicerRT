@@ -287,6 +287,9 @@ public:
   vtkGetVector6Macro(CurrentAxisCoordsR2, int32_t);
   vtkSetVector6Macro(CurrentAxisCoordsR2, int32_t);
 
+  vtkGetVector4Macro(CoordsAccepted, bool);
+  vtkSetVector4Macro(CoordsAccepted, bool);
+
   void GetCoordsAndAngles(double coordsAndAngles[6]);
 
   void GetCurrentAxisCoordsR1(double angles[6]);
@@ -371,6 +374,7 @@ private:
   uint8_t TableTopPosition{ 0 };
   bool EmergencyEvacSignal{ false };
   bool HoldButtonPressedForMovingFlag{ false };
+  bool CoordsAccepted[4] = { false, false, false, false }; // Accepted_R1, NotAccepted_R1, Accepted_R2, NotAccepted_R2
 
   // Tabletop confirmed coords (X,Y,Z,A,B,C)
   int32_t ConfirmedCoordsR1[6] = { 0,0,0,0,0,0 }; // X,Y,Z,A,B,C

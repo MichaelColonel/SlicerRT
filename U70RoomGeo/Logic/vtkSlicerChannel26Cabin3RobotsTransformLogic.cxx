@@ -3041,10 +3041,10 @@ vtkMRMLMarkupsFiducialNode* vtkSlicerChannel26Cabin3RobotsTransformLogic::Create
 //  std::string singletonTag = std::string("C26C3_") + FIXEDISOCENTER_MARKUPS_FIDUCIAL_NODE_NAME;
   if (parameterNode)
   {
-    vtkVector3d pFixedIsocenter(0., 0., 0.); // Isocenter in origin of FixedReference frame
+    vtkVector3d pFixedIsocenter(0., -338., 0.); // Isocenter in origin of FixedReference frame
     pointMarkupsNode->AddControlPoint(pFixedIsocenter, "TabletopIsocenter");
 
-    vtkMRMLTransformNode* transformNode = this->GetTableTopTransform();
+    vtkMRMLTransformNode* transformNode = this->GetTableTopPlaneCorrectionTransform();
 
     // add transform to fiducial node
     if (transformNode)

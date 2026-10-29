@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>341</width>
+    <width>343</width>
     <height>985</height>
    </rect>
   </property>
@@ -192,7 +192,7 @@
           <string>Flags and indicators</string>
          </property>
          <property name="collapsed">
-          <bool>true</bool>
+          <bool>false</bool>
          </property>
          <layout class="QGridLayout" name="gridLayout_7">
           <item row="1" column="0">
@@ -286,22 +286,28 @@
           </item>
           <item row="0" column="0">
            <layout class="QGridLayout" name="gridLayout_10">
-            <item row="1" column="0">
-             <widget class="QLabel" name="label_8">
+            <item row="3" column="0">
+             <widget class="QLabel" name="label_12">
               <property name="text">
-               <string>Ready for x-ray exposure in plane #1</string>
+               <string>R2 coordinates NOT accepted:</string>
               </property>
              </widget>
             </item>
-            <item row="4" column="0">
-             <widget class="QLabel" name="label_15">
+            <item row="3" column="1">
+             <widget class="QLabel" name="Label_CoordsNotAcceptedR2">
               <property name="text">
-               <string>Patient on the table</string>
+               <string/>
+              </property>
+              <property name="pixmap">
+               <pixmap resource="../qSlicerU70RoomOpcUaModule.qrc">:/Icons/gray.png</pixmap>
+              </property>
+              <property name="alignment">
+               <set>Qt::AlignCenter</set>
               </property>
              </widget>
             </item>
             <item row="2" column="1">
-             <widget class="QLabel" name="label_11">
+             <widget class="QLabel" name="Label_CoordsAcceptedR2">
               <property name="text">
                <string/>
               </property>
@@ -313,22 +319,28 @@
               </property>
              </widget>
             </item>
-            <item row="3" column="0">
-             <widget class="QLabel" name="label_12">
+            <item row="1" column="0">
+             <widget class="QLabel" name="label_8">
               <property name="text">
-               <string>Ready for beam</string>
+               <string>R1 coordinates NOT accepted:</string>
               </property>
              </widget>
             </item>
-            <item row="5" column="0">
-             <widget class="QLabel" name="label_10">
+            <item row="0" column="1">
+             <widget class="QLabel" name="Label_CoordsAcceptedR1">
               <property name="text">
-               <string>EMERGENCY EVACUATION!</string>
+               <string/>
+              </property>
+              <property name="pixmap">
+               <pixmap resource="../qSlicerU70RoomOpcUaModule.qrc">:/Icons/gray.png</pixmap>
+              </property>
+              <property name="alignment">
+               <set>Qt::AlignCenter</set>
               </property>
              </widget>
             </item>
             <item row="1" column="1">
-             <widget class="QLabel" name="label_9">
+             <widget class="QLabel" name="Label_CoordsNotAcceptedR1">
               <property name="text">
                <string/>
               </property>
@@ -337,51 +349,25 @@
               </property>
               <property name="alignment">
                <set>Qt::AlignCenter</set>
-              </property>
-             </widget>
-            </item>
-            <item row="2" column="0">
-             <widget class="QLabel" name="label_14">
-              <property name="text">
-               <string>Ready for x-ray exposure in plane #2</string>
               </property>
              </widget>
             </item>
             <item row="0" column="0">
              <widget class="QLabel" name="label_13">
               <property name="text">
-               <string>Hold button pressed for moving</string>
+               <string>R1 coordinates accepted:</string>
               </property>
              </widget>
             </item>
-            <item row="0" column="1">
-             <widget class="QLabel" name="label_16">
+            <item row="2" column="0">
+             <widget class="QLabel" name="label_14">
               <property name="text">
-               <string/>
-              </property>
-              <property name="pixmap">
-               <pixmap resource="../qSlicerU70RoomOpcUaModule.qrc">:/Icons/gray.png</pixmap>
-              </property>
-              <property name="alignment">
-               <set>Qt::AlignCenter</set>
-              </property>
-             </widget>
-            </item>
-            <item row="3" column="1">
-             <widget class="QLabel" name="label_17">
-              <property name="text">
-               <string/>
-              </property>
-              <property name="pixmap">
-               <pixmap resource="../qSlicerU70RoomOpcUaModule.qrc">:/Icons/gray.png</pixmap>
-              </property>
-              <property name="alignment">
-               <set>Qt::AlignCenter</set>
+               <string>R2 coordinates accepted:</string>
               </property>
              </widget>
             </item>
             <item row="4" column="1">
-             <widget class="QLabel" name="label_18">
+             <widget class="QLabel" name="Label_PatientOnTheTable">
               <property name="text">
                <string/>
               </property>
@@ -394,7 +380,7 @@
              </widget>
             </item>
             <item row="5" column="1">
-             <widget class="QLabel" name="label_19">
+             <widget class="QLabel" name="Label_EmergencyEvacuation">
               <property name="text">
                <string/>
               </property>
@@ -403,6 +389,20 @@
               </property>
               <property name="alignment">
                <set>Qt::AlignCenter</set>
+              </property>
+             </widget>
+            </item>
+            <item row="5" column="0">
+             <widget class="QLabel" name="label_10">
+              <property name="text">
+               <string>EMERGENCY EVACUATION!</string>
+              </property>
+             </widget>
+            </item>
+            <item row="4" column="0">
+             <widget class="QLabel" name="label_15">
+              <property name="text">
+               <string>Patient on the table</string>
               </property>
              </widget>
             </item>
@@ -774,7 +774,7 @@
   </connection>
  </connections>
  <buttongroups>
-  <buttongroup name="buttonGroup"/>
   <buttongroup name="ButtonGroup_TreatmentRoomType"/>
+  <buttongroup name="buttonGroup"/>
  </buttongroups>
 </ui>

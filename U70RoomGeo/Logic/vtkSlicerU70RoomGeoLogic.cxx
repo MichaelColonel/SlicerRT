@@ -526,9 +526,10 @@ void vtkSlicerU70RoomGeoLogic::ProcessMRMLNodesEvents(vtkObject* caller, unsigne
             chan26GeoNode->SetTableRobotAngles(robotAngles);
 ///            vtkErrorMacro("ProcessMRMLNodesEvents: angles" << robotAngles[0] << ' ' << robotAngles[1] << ' ' << robotAngles[2] << ' ' << robotAngles[3] << ' ' << robotAngles[4] << ' ' << robotAngles[5]);
           }
-///          vtkErrorMacro("ProcessMRMLNodesEvents: Update Tabletop robot model geometry");
-///          this->Channel26Cabin3RobotsLogic->UpdateTransformsHierarchy(chan26GeoNode, SysCoord::TableTop);
-          this->Channel26Cabin3RobotsLogic->UpdateFrameToRasHierarchy(chan26GeoNode, CoordSys::TableTop);
+          vtkErrorMacro("ProcessMRMLNodesEvents: Update Tabletop robot model geometry");
+          this->Channel26Cabin3RobotsLogic->UpdateTransformsHierarchy(chan26GeoNode, CoordSys::TableTop);
+///          this->Channel26Cabin3RobotsLogic->UpdateFrameToRasHierarchy(chan26GeoNode, CoordSys::TableTop);
+          chan26GeoNode->Modified();
 ///          roomGeoNode->Modified();
 /*
           double pos[3] = {};
@@ -555,12 +556,14 @@ void vtkSlicerU70RoomGeoLogic::ProcessMRMLNodesEvents(vtkObject* caller, unsigne
             MRMLNodeModifyBlocker blocker(chan26GeoNode);
             chan26GeoNode->SetCarmRobotAngles(robotAngles);
           }
-///          vtkErrorMacro("ProcessMRMLNodesEvents: Update C-arm robot model geometry");
-///          this->Channel26Cabin3RobotsLogic->UpdateTransformsHierarchy(chan26GeoNode, SysCoord::TableTop);
-          this->Channel26Cabin3RobotsLogic->UpdateFrameToRasHierarchy(chan26GeoNode, CoordSys::TableTop);
+          vtkErrorMacro("ProcessMRMLNodesEvents: Update C-arm robot model geometry");
+          this->Channel26Cabin3RobotsLogic->UpdateTransformsHierarchy(chan26GeoNode, CoordSys::TableTop);
+///          this->Channel26Cabin3RobotsLogic->UpdateFrameToRasHierarchy(chan26GeoNode, CoordSys::TableTop);
+          chan26GeoNode->Modified();
 ///          roomGeoNode->Modified();
         }
       }
+      roomGeoNode->Modified();
     }
   }
   if (caller->IsA("vtkMRMLChannel26GeometryNode"))

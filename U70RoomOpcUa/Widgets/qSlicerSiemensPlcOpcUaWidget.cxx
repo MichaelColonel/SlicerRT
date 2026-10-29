@@ -103,6 +103,12 @@ constexpr const char* const TABLEPATIENT = "HUMAN_ON_DEKA";
 constexpr const char* const TABLEPOSITION = "DekaPosition";
 constexpr const char* const EMEVACFLAG = "EmEvacuationSignal";
 
+constexpr const char* const COORDS_ACCEPTED_R1 = "CoordsAccepted_R1";
+constexpr const char* const COORDS_NOTACCEPTED_R1 = "CoordsNotAccepted_R1";
+
+constexpr const char* const COORDS_ACCEPTED_R2 = "CoordsAccepted_R2";
+constexpr const char* const COORDS_NOTACCEPTED_R2 = "CoordsNotAccepted_R2";
+
 const QString ASU_ROBOTS_READY_XRAY1_NODE_NAME = ASU_NODE_NAME + DOT + QLatin1String(READYXRAY1);
 const QString ASU_ROBOTS_READY_XRAY2_NODE_NAME = ASU_NODE_NAME + DOT + QLatin1String(READYXRAY2);
 const QString ASU_ROBOTS_READY_BEAM_NODE_NAME = ASU_NODE_NAME + DOT + QLatin1String(READYBEAM);
@@ -282,6 +288,12 @@ const QString KUKA_CURRENTCOORDS_R2_A4_NODE_NAME = KUKA_CURRENTCOORDS_R2_NODE_NA
 const QString KUKA_CURRENTCOORDS_R2_A5_NODE_NAME = KUKA_CURRENTCOORDS_R2_NODE_NAME + DOT + QLatin1String(AXISCOORDA5);
 const QString KUKA_CURRENTCOORDS_R2_A6_NODE_NAME = KUKA_CURRENTCOORDS_R2_NODE_NAME + DOT + QLatin1String(AXISCOORDA6);
 
+const QString KUKA_COORDSACCEPTED_R1_NODE_NAME = RTK_PLC_NODE_NAME + DOT + QLatin1String(COORDS_ACCEPTED_R1);
+const QString KUKA_COORDSNOTACCEPTED_R1_NODE_NAME = RTK_PLC_NODE_NAME + DOT + QLatin1String(COORDS_NOTACCEPTED_R1);
+
+const QString KUKA_COORDSACCEPTED_R2_NODE_NAME = RTK_PLC_NODE_NAME + DOT + QLatin1String(COORDS_ACCEPTED_R2);
+const QString KUKA_COORDSNOTACCEPTED_R2_NODE_NAME = RTK_PLC_NODE_NAME + DOT + QLatin1String(COORDS_NOTACCEPTED_R2);
+
 const QOpcUaMonitoringParameters OpcUaMonitorParameters(100);
 
 }
@@ -416,6 +428,7 @@ public:
   bool ConnectCurrentCoordA4R1Node();
   bool ConnectCurrentCoordA5R1Node();
   bool ConnectCurrentCoordA6R1Node();
+  bool ConnectAcceptedCoordsFlagsR1Node();
 
   bool ConnectCurrentCoordXR2Node();
   bool ConnectCurrentCoordYR2Node();
@@ -429,6 +442,7 @@ public:
   bool ConnectCurrentCoordA4R2Node();
   bool ConnectCurrentCoordA5R2Node();
   bool ConnectCurrentCoordA6R2Node();
+  bool ConnectAcceptedCoordsFlagsR2Node();
 
   bool ConnectResetErrorsNodes();
   bool ConnectMakeXrayNodes();
@@ -537,7 +551,11 @@ public:
     KUKA_REFLTARGETCOORDS_R2_Z_NODE_NAME,
     KUKA_REFLTARGETCOORDS_R2_A_NODE_NAME,
     KUKA_REFLTARGETCOORDS_R2_B_NODE_NAME,
-    KUKA_REFLTARGETCOORDS_R2_C_NODE_NAME
+    KUKA_REFLTARGETCOORDS_R2_C_NODE_NAME,
+    KUKA_COORDSACCEPTED_R1_NODE_NAME,
+    KUKA_COORDSNOTACCEPTED_R1_NODE_NAME,
+    KUKA_COORDSACCEPTED_R2_NODE_NAME,
+    KUKA_COORDSNOTACCEPTED_R2_NODE_NAME
   };
 };
 
@@ -4420,6 +4438,250 @@ bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectCurrentCoordA6R1Node()
 }
 
 //-----------------------------------------------------------------------------
+bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectAcceptedCoordsFlagsR1Node()
+{
+  QSharedPointer< QOpcUaClient > opcUaClient = this->OpcUaClient.toStrongRef();
+
+  if (!opcUaClient || !this->ParameterNode)
+  {
+    return false;
+  }
+
+  vtkMRMLSiemensPlcOpcUaNode* mrmlNode = this->ParameterNode.GetPointer();
+
+  // KUKA R1 Coords Accepted Node
+  QOpcUaNode* r1CoordsAcceptedNode = this->FindNodeFromFullDisplayName(KUKA_COORDSACCEPTED_R1_NODE_NAME);
+  // KUKA R1 Coords Not Accepted Node
+  QOpcUaNode* r1CoordsNotAcceptedNode = this->FindNodeFromFullDisplayName(KUKA_COORDSNOTACCEPTED_R1_NODE_NAME);
+
+  // Connect signal handlers for subscribed values
+  if (!r1CoordsAcceptedNode)
+  {
+    return false;
+  }
+  QObject::connect(r1CoordsAcceptedNode,
+    &QOpcUaNode::dataChangeOccurred, [mrmlNode](QOpcUa::NodeAttribute attr, QVariant value)
+    {
+      if (attr == QOpcUa::NodeAttribute::Value && value.canConvert< bool >())
+      {
+        bool acceptedFlag = value.toBool();
+        bool acceptedFlags[4] = {};
+        mrmlNode->GetCoordsAccepted(acceptedFlags);
+        acceptedFlags[0] = acceptedFlag;
+        {
+          MRMLNodeModifyBlocker block(mrmlNode);
+          mrmlNode->SetCoordsAccepted(acceptedFlags);
+        }
+        qDebug() << Q_FUNC_INFO << "R1 Coords accepted flag changed:" << acceptedFlag;
+      }
+    }
+  );
+  QObject::connect(r1CoordsAcceptedNode,
+    &QOpcUaNode::attributeRead, [r1CoordsAcceptedNode, mrmlNode](QOpcUa::NodeAttributes attr)
+    {
+      if (!r1CoordsAcceptedNode || !mrmlNode)
+      {
+        return;
+      }
+      if (attr & QOpcUa::NodeAttribute::Value)
+      {
+        if (r1CoordsAcceptedNode->attributeError(QOpcUa::NodeAttribute::Value) == QOpcUa::UaStatusCode::Good)
+        {
+          QVariant value = r1CoordsAcceptedNode->attribute(QOpcUa::NodeAttribute::Value);
+          bool acceptedFlag = value.toBool();
+          bool acceptedFlags[4] = {};
+          mrmlNode->GetCoordsAccepted(acceptedFlags);
+          acceptedFlags[0] = acceptedFlag;
+          {
+            MRMLNodeModifyBlocker block(mrmlNode);
+            mrmlNode->SetCoordsAccepted(acceptedFlags);
+          }
+          qDebug() << Q_FUNC_INFO << "R1 Coords accepted flag read:" << acceptedFlag;
+        }
+      }
+    }
+  );
+
+  // Subscribe to data changes
+  r1CoordsAcceptedNode->enableMonitoring(QOpcUa::NodeAttribute::Value, OpcUaMonitorParameters);
+
+  // Connect signal handlers for subscribed values
+  if (!r1CoordsNotAcceptedNode)
+  {
+    return false;
+  }
+  QObject::connect(r1CoordsNotAcceptedNode,
+    &QOpcUaNode::dataChangeOccurred, [mrmlNode](QOpcUa::NodeAttribute attr, QVariant value)
+    {
+      if (attr == QOpcUa::NodeAttribute::Value && value.canConvert< bool >())
+      {
+        bool acceptedFlag = value.toBool();
+        bool acceptedFlags[4] = {};
+        mrmlNode->GetCoordsAccepted(acceptedFlags);
+        acceptedFlags[1] = acceptedFlag;
+        {
+          MRMLNodeModifyBlocker block(mrmlNode);
+          mrmlNode->SetCoordsAccepted(acceptedFlags);
+        }
+        qDebug() << Q_FUNC_INFO << "R1 Coords NOT accepted flag changed:" << acceptedFlag;
+      }
+    }
+  );
+  QObject::connect(r1CoordsNotAcceptedNode,
+    &QOpcUaNode::attributeRead, [r1CoordsNotAcceptedNode, mrmlNode](QOpcUa::NodeAttributes attr)
+    {
+      if (!r1CoordsNotAcceptedNode || !mrmlNode)
+      {
+        return;
+      }
+      if (attr & QOpcUa::NodeAttribute::Value)
+      {
+        if (r1CoordsNotAcceptedNode->attributeError(QOpcUa::NodeAttribute::Value) == QOpcUa::UaStatusCode::Good)
+        {
+          QVariant value = r1CoordsNotAcceptedNode->attribute(QOpcUa::NodeAttribute::Value);
+          bool acceptedFlag = value.toBool();
+          bool acceptedFlags[4] = {};
+          mrmlNode->GetCoordsAccepted(acceptedFlags);
+          acceptedFlags[1] = acceptedFlag;
+          {
+            MRMLNodeModifyBlocker block(mrmlNode);
+            mrmlNode->SetCoordsAccepted(acceptedFlags);
+          }
+          qDebug() << Q_FUNC_INFO << "R1 Coords NOT accepted flag read:" << acceptedFlag;
+        }
+      }
+    }
+  );
+
+  // Subscribe to data changes
+  r1CoordsNotAcceptedNode->enableMonitoring(QOpcUa::NodeAttribute::Value, OpcUaMonitorParameters);
+
+  return true;
+}
+
+//-----------------------------------------------------------------------------
+bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectAcceptedCoordsFlagsR2Node()
+{
+  QSharedPointer< QOpcUaClient > opcUaClient = this->OpcUaClient.toStrongRef();
+
+  if (!opcUaClient || !this->ParameterNode)
+  {
+    return false;
+  }
+
+  vtkMRMLSiemensPlcOpcUaNode* mrmlNode = this->ParameterNode.GetPointer();
+
+  // KUKA R2 Coords Accepted Node
+  QOpcUaNode* r2CoordsAcceptedNode = this->FindNodeFromFullDisplayName(KUKA_COORDSACCEPTED_R2_NODE_NAME);
+  // KUKA R2 Coords Not Accepted Node
+  QOpcUaNode* r2CoordsNotAcceptedNode = this->FindNodeFromFullDisplayName(KUKA_COORDSNOTACCEPTED_R2_NODE_NAME);
+
+  // Connect signal handlers for subscribed values
+  if (!r2CoordsAcceptedNode)
+  {
+    return false;
+  }
+  QObject::connect(r2CoordsAcceptedNode,
+    &QOpcUaNode::dataChangeOccurred, [mrmlNode](QOpcUa::NodeAttribute attr, QVariant value)
+    {
+      if (attr == QOpcUa::NodeAttribute::Value && value.canConvert< bool >())
+      {
+        bool acceptedFlag = value.toBool();
+        bool acceptedFlags[4] = {};
+        mrmlNode->GetCoordsAccepted(acceptedFlags);
+        acceptedFlags[2] = acceptedFlag;
+        {
+          MRMLNodeModifyBlocker block(mrmlNode);
+          mrmlNode->SetCoordsAccepted(acceptedFlags);
+        }
+        qDebug() << Q_FUNC_INFO << "R2 Coords accepted flag changed:" << acceptedFlag;
+      }
+    }
+  );
+  QObject::connect(r2CoordsAcceptedNode,
+    &QOpcUaNode::attributeRead, [r2CoordsAcceptedNode, mrmlNode](QOpcUa::NodeAttributes attr)
+    {
+      if (!r2CoordsAcceptedNode || !mrmlNode)
+      {
+        return;
+      }
+      if (attr & QOpcUa::NodeAttribute::Value)
+      {
+        if (r2CoordsAcceptedNode->attributeError(QOpcUa::NodeAttribute::Value) == QOpcUa::UaStatusCode::Good)
+        {
+          QVariant value = r2CoordsAcceptedNode->attribute(QOpcUa::NodeAttribute::Value);
+          bool acceptedFlag = value.toBool();
+          bool acceptedFlags[4] = {};
+          mrmlNode->GetCoordsAccepted(acceptedFlags);
+          acceptedFlags[2] = acceptedFlag;
+          {
+            MRMLNodeModifyBlocker block(mrmlNode);
+            mrmlNode->SetCoordsAccepted(acceptedFlags);
+          }
+          qDebug() << Q_FUNC_INFO << "R2 Coords accepted flag read:" << acceptedFlag;
+        }
+      }
+    }
+  );
+
+  // Subscribe to data changes
+  r2CoordsAcceptedNode->enableMonitoring(QOpcUa::NodeAttribute::Value, OpcUaMonitorParameters);
+
+  // Connect signal handlers for subscribed values
+  if (!r2CoordsNotAcceptedNode)
+  {
+    return false;
+  }
+  QObject::connect(r2CoordsNotAcceptedNode,
+    &QOpcUaNode::dataChangeOccurred, [mrmlNode](QOpcUa::NodeAttribute attr, QVariant value)
+    {
+      if (attr == QOpcUa::NodeAttribute::Value && value.canConvert< bool >())
+      {
+        bool acceptedFlag = value.toBool();
+        bool acceptedFlags[4] = {};
+        mrmlNode->GetCoordsAccepted(acceptedFlags);
+        acceptedFlags[3] = acceptedFlag;
+        {
+          MRMLNodeModifyBlocker block(mrmlNode);
+          mrmlNode->SetCoordsAccepted(acceptedFlags);
+        }
+        qDebug() << Q_FUNC_INFO << "R2 Coords NOT accepted flag changed:" << acceptedFlag;
+      }
+    }
+  );
+  QObject::connect(r2CoordsNotAcceptedNode,
+    &QOpcUaNode::attributeRead, [r2CoordsNotAcceptedNode, mrmlNode](QOpcUa::NodeAttributes attr)
+    {
+      if (!r2CoordsNotAcceptedNode || !mrmlNode)
+      {
+        return;
+      }
+      if (attr & QOpcUa::NodeAttribute::Value)
+      {
+        if (r2CoordsNotAcceptedNode->attributeError(QOpcUa::NodeAttribute::Value) == QOpcUa::UaStatusCode::Good)
+        {
+          QVariant value = r2CoordsNotAcceptedNode->attribute(QOpcUa::NodeAttribute::Value);
+          bool acceptedFlag = value.toBool();
+          bool acceptedFlags[4] = {};
+          mrmlNode->GetCoordsAccepted(acceptedFlags);
+          acceptedFlags[3] = acceptedFlag;
+          {
+            MRMLNodeModifyBlocker block(mrmlNode);
+            mrmlNode->SetCoordsAccepted(acceptedFlags);
+          }
+          qDebug() << Q_FUNC_INFO << "R2 Coords NOT accepted flag read:" << acceptedFlag;
+        }
+      }
+    }
+  );
+
+  // Subscribe to data changes
+  r2CoordsNotAcceptedNode->enableMonitoring(QOpcUa::NodeAttribute::Value, OpcUaMonitorParameters);
+
+  return true;
+}
+
+//-----------------------------------------------------------------------------
 bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectCurrentCoordAR1Node()
 {
   QSharedPointer< QOpcUaClient > opcUaClient = this->OpcUaClient.toStrongRef();
@@ -5358,6 +5620,7 @@ bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectCurrentCoordsR1Nodes()
   res &= this->ConnectCurrentCoordAR1Node();
   res &= this->ConnectCurrentCoordBR1Node();
   res &= this->ConnectCurrentCoordCR1Node();
+  res &= this->ConnectAcceptedCoordsFlagsR1Node();
 
   return res;
 }
@@ -6783,6 +7046,8 @@ bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectCurrentCoordsR2Nodes()
   res &= this->ConnectCurrentCoordAR2Node();
   res &= this->ConnectCurrentCoordBR2Node();
   res &= this->ConnectCurrentCoordCR2Node();
+  res &= this->ConnectAcceptedCoordsFlagsR2Node();
+
   return res;
 }
 

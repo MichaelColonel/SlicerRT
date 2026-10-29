@@ -1272,19 +1272,38 @@ void qSlicerU70RoomGeoModuleWidget::updateTabletopIsocenterPosition()
     return;
   }
 
+  int frameIndex = d->ComboBox_FrameReference->currentIndex();
+  
   double pointRAS[3] = {};
   double res[3] = {};
   markupsNode->GetNthControlPointPosition(0, pointRAS);
 
   auto robotsLogic = d->channel26RobotsLogic();
   using CoordSys = vtkSlicerChannel26Cabin3RobotsTransformLogic::CoordinateSystemIdentifier;
-  if (robotsLogic && robotsLogic->GetTransformForPointBetweenFrames(CoordSys::FixedReference,
-    CoordSys::TableTop, pointRAS, res))
+
+  double frameCooors[3] = {};
+  CoordSys frame = CoordSys::TableTop;
+  switch (frameIndex)
   {
-    double tmp = -1. * res[1];
-    res[1] = res[2];
-    res[2] = tmp;
-    d->CoordinatesWidget_IsocenterTranslation->setCoordinates(res);
-    qDebug() << Q_FUNC_INFO << ": TableTop->FixedReference" << res[0] << ' ' << res[1] << ' ' << res[2];
+  case 0:
+    frame = CoordSys::FixedReference;
+    break;
+  case 1:
+  case 2:
+    frame = CoordSys::TableTop;
+    break;
+  default:
+    break;
+  }
+
+  using CoordPos = vtkSlicerChannel26Cabin3RobotsGeometryCommon;
+  if (robotsLogic && robotsLogic->GetTransformForPointBetweenFrames(CoordSys::TableTop,
+    CoordSys::CarmRobotBaseFixed, pointRAS, res))
+  {
+//    double tmp = -1. * res[1];
+//    res[1] = res[2];
+//    res[2] = tmp;
+    d->CoordinatesWidget_FixedIsocenterInFrame->setCoordinates(res);
+    qDebug() << Q_FUNC_INFO << ": TableTop->CarmRobotBaseFixed" << res[0] << ' ' << res[1] << ' ' << res[2];
   }
 }

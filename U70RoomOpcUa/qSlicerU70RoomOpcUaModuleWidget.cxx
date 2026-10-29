@@ -182,6 +182,10 @@ void qSlicerU70RoomOpcUaModuleWidgetPrivate::updateUiState()
     this->Label_ErrorsFlag->setPixmap(QPixmap(":/Icons/gray.png"));
     this->Label_ServiceFlags->setPixmap(QPixmap(":/Icons/gray.png"));
     this->Label_MessagesFlags->setPixmap(QPixmap(":/Icons/gray.png"));
+    this->Label_CoordsAcceptedR1->setPixmap(QPixmap(":/Icons/gray.png"));
+    this->Label_CoordsNotAcceptedR1->setPixmap(QPixmap(":/Icons/gray.png"));
+    this->Label_CoordsAcceptedR2->setPixmap(QPixmap(":/Icons/gray.png"));
+    this->Label_CoordsNotAcceptedR2->setPixmap(QPixmap(":/Icons/gray.png"));
 
     this->PushButton_GetServerInterfaces->setEnabled(false);
     this->PushButton_ModeAutoAndManual->setEnabled(false);
@@ -509,6 +513,12 @@ void qSlicerU70RoomOpcUaModuleWidget::updateWidgetFromMRML()
     d->Label_ModeKukaControllers->setPixmap(QPixmap(":/Icons/gray.png"));
     break;
   }
+  bool coordsAcceptenceFlags[4] = {};
+  d->SiemensPlcOpcUaNode->GetCoordsAccepted(coordsAcceptenceFlags);
+  d->Label_CoordsAcceptedR1->setPixmap(coordsAcceptenceFlags[0] ? QPixmap(":/Icons/green.png") : QPixmap(":/Icons/gray.png"));
+  d->Label_CoordsNotAcceptedR1->setPixmap(coordsAcceptenceFlags[1] ? QPixmap(":/Icons/red.png") : QPixmap(":/Icons/gray.png"));
+  d->Label_CoordsAcceptedR2->setPixmap(coordsAcceptenceFlags[2] ? QPixmap(":/Icons/green.png") : QPixmap(":/Icons/gray.png"));
+  d->Label_CoordsNotAcceptedR2->setPixmap(coordsAcceptenceFlags[3] ? QPixmap(":/Icons/red.png") : QPixmap(":/Icons/gray.png"));
 }
 
 //-----------------------------------------------------------------------------
