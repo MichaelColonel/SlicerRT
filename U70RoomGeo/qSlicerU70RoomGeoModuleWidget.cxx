@@ -244,6 +244,13 @@ void qSlicerU70RoomGeoModuleWidget::setup()
     this, SLOT(onCarmRobotA5Changed(double)));
   QObject::connect(d->SliderWidget_CarmRobotA6, SIGNAL(valueChanged(double)), 
     this, SLOT(onCarmRobotA6Changed(double)));
+  // Tabletop plane connection
+  QObject::connect(d->SliderWidget_TabletopA, SIGNAL(valueChanged(double)), 
+    this, SLOT(onTabletopAChanged(double)));
+  QObject::connect(d->SliderWidget_TabletopB, SIGNAL(valueChanged(double)), 
+    this, SLOT(onTabletopBChanged(double)));
+  QObject::connect(d->SliderWidget_TabletopC, SIGNAL(valueChanged(double)), 
+    this, SLOT(onTabletopCChanged(double)));
 
   QObject::connect(d->CoordinatesWidget_PatientTableTopTranslation, SIGNAL(coordinatesChanged(double*)),
     this, SLOT(onPatientTableTopTranslationChanged(double*)));
@@ -470,16 +477,19 @@ void qSlicerU70RoomGeoModuleWidget::onLoadTreatmentRoomButtonClicked()
     /// Setup Markups fixed beam axis and fixed isocenter
     vtkMRMLMarkupsLineNode* beamAxisLineNode = d->channel26RobotsLogic()->CreateBeamAxisLineNode(channel26GeometryNode);
     vtkMRMLMarkupsFiducialNode* fixedIsocenterNode = d->channel26RobotsLogic()->CreateIsocenterFiducialNode(channel26GeometryNode);
-    vtkMRMLMarkupsFiducialNode* tabletopIsocenterNode = d->channel26RobotsLogic()->CreateTabletopIsocenterFiducialNode(channel26GeometryNode);
-    d->ParameterNode->SetAndObserveTabletopIsocenterFiducialNode(tabletopIsocenterNode);
+//    vtkMRMLMarkupsFiducialNode* tabletopIsocenterNode = d->channel26RobotsLogic()->CreateTabletopIsocenterFiducialNode(channel26GeometryNode);
+//    d->ParameterNode->SetAndObserveTabletopIsocenterFiducialNode(tabletopIsocenterNode);
 
     vtkMRMLMarkupsPlaneNode* tablePlaneNode = d->channel26RobotsLogic()->CreateTableTopPlaneNode(channel26GeometryNode);
     vtkMRMLMarkupsFiducialNode* tablePlaneFiducialsNode = d->channel26RobotsLogic()->CreateTableTopFiducialNode(channel26GeometryNode);
+    vtkMRMLMarkupsFiducialNode* tableIsocenterFiducialsNode = d->channel26RobotsLogic()->CreateTabletopIsocenterFiducialNode(channel26GeometryNode);
+    d->ParameterNode->SetAndObserveTabletopIsocenterFiducialNode(tableIsocenterFiducialsNode);
 
     Q_UNUSED(beamAxisLineNode);
     Q_UNUSED(fixedIsocenterNode);
     Q_UNUSED(tablePlaneNode);
     Q_UNUSED(tablePlaneFiducialsNode);
+    Q_UNUSED(tableIsocenterFiducialsNode);
 
     // Update channel-26 geometry node
     channel26GeometryNode->Modified();
@@ -1274,10 +1284,6 @@ void qSlicerU70RoomGeoModuleWidget::updateTabletopIsocenterPosition()
 
   int frameIndex = d->ComboBox_FrameReference->currentIndex();
   
-  double pointRAS[3] = {};
-  double res[3] = {};
-  markupsNode->GetNthControlPointPosition(0, pointRAS);
-
   auto robotsLogic = d->channel26RobotsLogic();
   using CoordSys = vtkSlicerChannel26Cabin3RobotsTransformLogic::CoordinateSystemIdentifier;
 
@@ -1297,13 +1303,132 @@ void qSlicerU70RoomGeoModuleWidget::updateTabletopIsocenterPosition()
   }
 
   using CoordPos = vtkSlicerChannel26Cabin3RobotsGeometryCommon;
+
+  double pointRAS[3] = {};
+  double res[3] = {};
+  markupsNode->GetNthControlPointPosition(0, pointRAS);
   if (robotsLogic && robotsLogic->GetTransformForPointBetweenFrames(CoordSys::TableTop,
     CoordSys::CarmRobotBaseFixed, pointRAS, res))
   {
+    qDebug() << Q_FUNC_INFO << ": Tabletop Isocenter position orig" << pointRAS[0] << ' ' << pointRAS[1] << ' ' << pointRAS[2];
+    double tmp = -1. * res[1];
+    res[1] = res[2];
+    res[2] = tmp;
+    d->CoordinatesWidget_FixedIsocenterInFrame->setCoordinates(res);
+    qDebug() << Q_FUNC_INFO << ": TableTop->CarmRobotBaseFixed orig: X, Y, Z" << res[0] << ' ' << res[1] << ' ' << res[2];
+  }
+
+  markupsNode->GetNthControlPointPositionWorld(0, pointRAS);
+  if (robotsLogic && robotsLogic->GetTransformForPointBetweenFrames(CoordSys::TableTop,
+    CoordSys::CarmRobotBaseFixed, pointRAS, res))
+  {
+    qDebug() << Q_FUNC_INFO << ": Tabletop Isocenter position treans" << pointRAS[0] << ' ' << pointRAS[1] << ' ' << pointRAS[2];
 //    double tmp = -1. * res[1];
 //    res[1] = res[2];
 //    res[2] = tmp;
     d->CoordinatesWidget_FixedIsocenterInFrame->setCoordinates(res);
-    qDebug() << Q_FUNC_INFO << ": TableTop->CarmRobotBaseFixed" << res[0] << ' ' << res[1] << ' ' << res[2];
+    qDebug() << Q_FUNC_INFO << ": TableTop->CarmRobotBaseFixed trans: X, Y, Z" << res[0] << ' ' << res[1] << ' ' << res[2];
   }
+}
+
+//-----------------------------------------------------------------------------
+void qSlicerU70RoomGeoModuleWidget::onTabletopAChanged(double a)
+{
+  Q_D(qSlicerU70RoomGeoModuleWidget);
+
+  if (!d->ParameterNode || !d->ModuleWindowInitialized)
+  {
+    qCritical() << Q_FUNC_INFO << ": Parameter node is invalid!";
+    return;
+  }
+  double abc[3] = {};
+  vtkMRMLChannel26GeometryNode* channel26GeometryNode = d->ParameterNode->GetChannel26GeometryNode();
+  channel26GeometryNode->GetAnglesABC(abc);
+
+  channel26GeometryNode->DisableModifiedEventOn();
+  abc[0] = a;
+  channel26GeometryNode->SetAnglesABC(abc);
+  channel26GeometryNode->DisableModifiedEventOff();
+
+  d->getLayoutManager()->pauseRender();
+  // Update Channel-26 transforms
+  vtkSlicerChannel26Cabin3RobotsTransformLogic* channel26Logic = d->channel26RobotsLogic();
+  if (channel26Logic && channel26GeometryNode)
+  {
+    using SysCoord = vtkSlicerChannel26Cabin3RobotsTransformLogic::CoordinateSystemIdentifier;
+    channel26Logic->UpdateTableTopPlaneCorrectionToTableTopTransform(channel26GeometryNode);
+    channel26Logic->UpdateTransformsHierarchy(channel26GeometryNode, SysCoord::TableTop);
+  }
+  channel26GeometryNode->Modified();
+  d->getLayoutManager()->resumeRender();
+
+  this->updateTabletopIsocenterPosition();
+}
+
+//-----------------------------------------------------------------------------
+void qSlicerU70RoomGeoModuleWidget::onTabletopBChanged(double b)
+{
+  Q_D(qSlicerU70RoomGeoModuleWidget);
+
+  if (!d->ParameterNode || !d->ModuleWindowInitialized)
+  {
+    qCritical() << Q_FUNC_INFO << ": Parameter node is invalid!";
+    return;
+  }
+  double abc[3] = {};
+  vtkMRMLChannel26GeometryNode* channel26GeometryNode = d->ParameterNode->GetChannel26GeometryNode();
+  channel26GeometryNode->GetAnglesABC(abc);
+
+  channel26GeometryNode->DisableModifiedEventOn();
+  abc[1] = b;
+  channel26GeometryNode->SetAnglesABC(abc);
+  channel26GeometryNode->DisableModifiedEventOff();
+
+  d->getLayoutManager()->pauseRender();
+  // Update Channel-26 transforms
+  vtkSlicerChannel26Cabin3RobotsTransformLogic* channel26Logic = d->channel26RobotsLogic();
+  if (channel26Logic && channel26GeometryNode)
+  {
+    using SysCoord = vtkSlicerChannel26Cabin3RobotsTransformLogic::CoordinateSystemIdentifier;
+    channel26Logic->UpdateTableTopPlaneCorrectionToTableTopTransform(channel26GeometryNode);
+    channel26Logic->UpdateTransformsHierarchy(channel26GeometryNode, SysCoord::TableTop);
+  }
+  channel26GeometryNode->Modified();
+  d->getLayoutManager()->resumeRender();
+
+  this->updateTabletopIsocenterPosition();
+}
+
+//-----------------------------------------------------------------------------
+void qSlicerU70RoomGeoModuleWidget::onTabletopCChanged(double c)
+{
+  Q_D(qSlicerU70RoomGeoModuleWidget);
+
+  if (!d->ParameterNode || !d->ModuleWindowInitialized)
+  {
+    qCritical() << Q_FUNC_INFO << ": Parameter node is invalid!";
+    return;
+  }
+  double abc[3] = {};
+  vtkMRMLChannel26GeometryNode* channel26GeometryNode = d->ParameterNode->GetChannel26GeometryNode();
+  channel26GeometryNode->GetAnglesABC(abc);
+
+  channel26GeometryNode->DisableModifiedEventOn();
+  abc[2] = c;
+  channel26GeometryNode->SetAnglesABC(abc);
+  channel26GeometryNode->DisableModifiedEventOff();
+
+  d->getLayoutManager()->pauseRender();
+  // Update Channel-26 transforms
+  vtkSlicerChannel26Cabin3RobotsTransformLogic* channel26Logic = d->channel26RobotsLogic();
+  if (channel26Logic && channel26GeometryNode)
+  {
+    using SysCoord = vtkSlicerChannel26Cabin3RobotsTransformLogic::CoordinateSystemIdentifier;
+    channel26Logic->UpdateTableTopPlaneCorrectionToTableTopTransform(channel26GeometryNode);
+    channel26Logic->UpdateTransformsHierarchy(channel26GeometryNode, SysCoord::TableTop);
+  }
+  channel26GeometryNode->Modified();
+  d->getLayoutManager()->resumeRender();
+
+  this->updateTabletopIsocenterPosition();
 }

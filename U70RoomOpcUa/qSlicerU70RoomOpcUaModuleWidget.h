@@ -48,6 +48,7 @@ public:
 
 public slots:
   void onShowSiemensPlcControlsClicked();
+  void onShowScadaControlsClicked();
   /// Set the current MRML scene to the widget
   void setMRMLScene(vtkMRMLScene*) override;
   void onOpcUaLogicModified();
@@ -71,6 +72,19 @@ public slots:
   void siemensClientError(QOpcUaClient::ClientError);
   void siemensClientState(QOpcUaClient::ClientState);
   void siemensShowOpcUaErrorDialog(QOpcUaErrorState *errorState);
+
+  /// connect to Scada OPC UA server
+  void scadaConnectToServer();
+  void scadaFindServers();
+  void scadaFindServersComplete(const QVector<QOpcUaApplicationDescription> &servers, QOpcUa::UaStatusCode statusCode);
+  void scadaGetEndpoints();
+  void scadaGetEndpointsComplete(const QVector<QOpcUaEndpointDescription> &endpoints, QOpcUa::UaStatusCode statusCode);
+  void scadaClientConnected();
+  void scadaClientDisconnected();
+  void scadaNamespacesArrayUpdated(const QStringList &namespaceArray);
+  void scadaClientError(QOpcUaClient::ClientError);
+  void scadaClientState(QOpcUaClient::ClientState);
+  void scadaShowOpcUaErrorDialog(QOpcUaErrorState *errorState);
 
 signals:
   void siemensPlcOpcUaModeChanged(vtkMRMLSiemensPlcOpcUaNode::ModeType);

@@ -37,6 +37,7 @@
 #include <QStringList>
 
 class QOpcUaClient;
+class QOpcUaNode;
 
 class VTK_SLICER_U70ROOMOPCUA_MODULE_LOGIC_EXPORT vtkSlicerU70RoomOpcUaLogic : public vtkSlicerModuleLogic
 {
@@ -44,7 +45,7 @@ public:
   static vtkSlicerU70RoomOpcUaLogic* New();
   vtkTypeMacro(vtkSlicerU70RoomOpcUaLogic, vtkSlicerModuleLogic);
   void PrintSelf(ostream& os, vtkIndent indent) override;
-  void ServerConnected(const QSharedPointer< QOpcUaClient >& sharedClient, const QStringList& listOfNodes);
+  void ServerConnected(const QSharedPointer< QOpcUaClient >& sharedClient, const QHash< QString, QOpcUaNode* >& hashNodes);
   bool WriteBool(const std::string& nodeId, bool value);
   bool WriteByte(const std::string& nodeId, uint8_t value);
   bool WriteUint32(const std::string& nodeId, uint32_t value);

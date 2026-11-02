@@ -158,13 +158,16 @@ void vtkSlicerU70RoomOpcUaLogic::OnMRMLSceneNodeRemoved(vtkMRMLNode* vtkNotUsed(
 }
 
 //---------------------------------------------------------------------------
-void vtkSlicerU70RoomOpcUaLogic::ServerConnected(const QSharedPointer< QOpcUaClient >& sharedClient, const QStringList& listOfNodes)
+void vtkSlicerU70RoomOpcUaLogic::ServerConnected(const QSharedPointer< QOpcUaClient >& sharedClient, const QHash< QString, QOpcUaNode* >& hashNodes)
 {
   this->Internal->Client = sharedClient;
+  this->Internal->Nodes = hashNodes;
 
-  for (const QString& nodeId : listOfNodes)
+  QHashIterator< QString, QOpcUaNode* > i(this->Internal->Nodes);
+  while (i.hasNext())
   {
-    this->Internal->node(nodeId);
+    i.next();
+    vtkWarningMacro("ServerConnected: key: " << i.key().toStdString() << ", node id: " << i.value()->nodeId().toStdString());
   }
 }
 

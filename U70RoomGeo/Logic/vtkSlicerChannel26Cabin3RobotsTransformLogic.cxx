@@ -1049,10 +1049,10 @@ void vtkSlicerChannel26Cabin3RobotsTransformLogic::UpdateTableTopPlaneCorrection
     double planeAnglesABC[3] = {};
     parameterNode->GetAnglesABC(planeAnglesABC);
     planeCorrectionToTableTopTransform->Identity();
-    vtkWarningMacro("UpdateTableTopPlaneCorrectionToTableTopTransform:" << planeAnglesABC[0] << ' ' << planeAnglesABC[1] << ' ' << planeAnglesABC[2]);
-    planeCorrectionToTableTopTransform->RotateX(planeAnglesABC[0]);
-    planeCorrectionToTableTopTransform->RotateY(planeAnglesABC[1]);
-    planeCorrectionToTableTopTransform->RotateZ(planeAnglesABC[2]);
+//    vtkWarningMacro("UpdateTableTopPlaneCorrectionToTableTopTransform:" << planeAnglesABC[0] << ' ' << planeAnglesABC[1] << ' ' << planeAnglesABC[2]);
+    planeCorrectionToTableTopTransform->RotateZ(-1. * planeAnglesABC[0]);
+    planeCorrectionToTableTopTransform->RotateX(-1. * planeAnglesABC[1]);
+    planeCorrectionToTableTopTransform->RotateY(planeAnglesABC[2]);
 //    planeCorrectionToTableTopTransform->Translate(patientToTableTopTranslation);
     
 //    planeCorrectionToTableTopTransform->Concatenate(patientToTableTopTransform);
@@ -3022,6 +3022,42 @@ vtkMRMLMarkupsFiducialNode* vtkSlicerChannel26Cabin3RobotsTransformLogic::Create
 //----------------------------------------------------------------------------
 vtkMRMLMarkupsFiducialNode* vtkSlicerChannel26Cabin3RobotsTransformLogic::CreateTabletopIsocenterFiducialNode(vtkMRMLChannel26GeometryNode* parameterNode)
 {
+  vtkNew<vtkMRMLMarkupsFiducialNode> tabletopIsocenterFiducialNode;
+  this->GetMRMLScene()->AddNode(tabletopIsocenterFiducialNode);
+  tabletopIsocenterFiducialNode->SetName(TABLETOP_ISOCENTER_MARKUPS_FIDUCIAL_NODE_NAME);
+//  tableTopFiducialNode->SetHideFromEditors(1);
+//  std::string singletonTag = std::string("C26C3_") + TABLETOP_MARKUPS_FIDUCIAL_NODE_NAME;
+//  tableTopFiducialNode->SetSingletonTag(singletonTag.c_str());
+  tabletopIsocenterFiducialNode->LockedOn();
+
+  vtkMRMLScene* scene = this->GetMRMLScene();
+  if (!scene)
+  {
+    vtkErrorMacro("CreateTabletopIsocenterFiducialNode: Invalid MRML scene");
+    return nullptr;
+  }
+
+  vtkErrorMacro("CreateTabletopIsocenterFiducialNode: 1");
+  if (parameterNode)
+  {
+    vtkErrorMacro("CreateTabletopIsocenterFiducialNode: 2");
+    using CoordPos = vtkSlicerChannel26Cabin3RobotsGeometryCommon;
+    // -338, -158, 158
+    vtkVector3d pFixedIsocenter(0., 158., 0.); // Isocenter in origin of FixedReference frame
+    tabletopIsocenterFiducialNode->AddControlPoint(pFixedIsocenter, "TabletopIsocenter");
+
+    vtkMRMLTransformNode* transformNode = this->GetTableTopPlaneCorrectionTransform();
+
+    // add transform to fiducial node
+    if (transformNode)
+    {
+      vtkErrorMacro("CreateTabletopIsocenterFiducialNode: 3");
+      tabletopIsocenterFiducialNode->SetAndObserveTransformNodeID(transformNode->GetID());
+    }
+  }
+
+  return tabletopIsocenterFiducialNode;
+/*
   vtkMRMLScene* scene = this->GetMRMLScene();
   if (!scene)
   {
@@ -3037,11 +3073,10 @@ vtkMRMLMarkupsFiducialNode* vtkSlicerChannel26Cabin3RobotsTransformLogic::Create
 
   vtkMRMLMarkupsFiducialNode* pointMarkupsNode = vtkMRMLMarkupsFiducialNode::SafeDownCast(scene->AddNewNodeByClass("vtkMRMLMarkupsFiducialNode"));
   pointMarkupsNode->SetName(TABLETOP_ISOCENTER_MARKUPS_FIDUCIAL_NODE_NAME);
-  pointMarkupsNode->LockedOn();
-//  std::string singletonTag = std::string("C26C3_") + FIXEDISOCENTER_MARKUPS_FIDUCIAL_NODE_NAME;
   if (parameterNode)
   {
-    vtkVector3d pFixedIsocenter(0., -338., 0.); // Isocenter in origin of FixedReference frame
+    // 338
+    vtkVector3d pFixedIsocenter(0., -158., 0.); // Isocenter in origin of FixedReference frame
     pointMarkupsNode->AddControlPoint(pFixedIsocenter, "TabletopIsocenter");
 
     vtkMRMLTransformNode* transformNode = this->GetTableTopPlaneCorrectionTransform();
@@ -3049,6 +3084,7 @@ vtkMRMLMarkupsFiducialNode* vtkSlicerChannel26Cabin3RobotsTransformLogic::Create
     // add transform to fiducial node
     if (transformNode)
     {
+      vtkErrorMacro("CreateTabletopIsocenterFiducialNode: GOOD");
       pointMarkupsNode->SetAndObserveTransformNodeID(transformNode->GetID());
     }
 
@@ -3056,6 +3092,52 @@ vtkMRMLMarkupsFiducialNode* vtkSlicerChannel26Cabin3RobotsTransformLogic::Create
   }
 
   return pointMarkupsNode;
+*/
+}
+
+//----------------------------------------------------------------------------
+void vtkSlicerChannel26Cabin3RobotsTransformLogic::UpdateTabletopIsocenterFiducialNode(vtkMRMLChannel26GeometryNode* parameterNode)
+{
+  vtkMRMLScene* scene = this->GetMRMLScene(); 
+  if (!scene)
+  {
+    vtkErrorMacro("UpdateTabletopIsocenterFiducialNode: Invalid MRML scene");
+    return;
+  }
+
+  if (!parameterNode)
+  {
+    vtkErrorMacro("UpdateTabletopIsocenterFiducialNode: Invalid parameter node");
+    return;
+  }
+
+  if (scene->GetFirstNodeByName(TABLETOP_ISOCENTER_MARKUPS_FIDUCIAL_NODE_NAME))
+  {
+    vtkErrorMacro("UpdateTabletopIsocenterFiducialNode: 1.1");
+    vtkMRMLMarkupsFiducialNode* tabletopIsocenterFiducialNode = vtkMRMLMarkupsFiducialNode::SafeDownCast(
+      scene->GetFirstNodeByName(TABLETOP_ISOCENTER_MARKUPS_FIDUCIAL_NODE_NAME));
+    if (tabletopIsocenterFiducialNode && tabletopIsocenterFiducialNode->GetNumberOfControlPoints() == 0)
+    {
+      vtkErrorMacro("UpdateTabletopIsocenterFiducialNode: 1.2");
+      using CoordPos = vtkSlicerChannel26Cabin3RobotsGeometryCommon;
+      // -338, -158, 158
+      vtkVector3d pFixedIsocenter(0., 158., 0.); // Isocenter in origin of FixedReference frame
+      tabletopIsocenterFiducialNode->AddControlPoint(pFixedIsocenter, "TabletopIsocenter");
+
+      vtkMRMLTransformNode* transformNode = this->GetTableTopPlaneCorrectionTransform();
+
+      // add transform to fiducial node
+      if (transformNode)
+      {
+        vtkErrorMacro("UpdateTabletopIsocenterFiducialNode: 1.3");
+        tabletopIsocenterFiducialNode->SetAndObserveTransformNodeID(transformNode->GetID());
+      }
+    }
+  }
+  else
+  {
+    this->CreateTabletopIsocenterFiducialNode(parameterNode);
+  }
 }
 
 //----------------------------------------------------------------------------

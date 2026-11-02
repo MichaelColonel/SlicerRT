@@ -45,6 +45,7 @@
 // vtkSlicer and qSlicer logic includes
 #include <vtkSlicerU70RoomOpcUaLogic.h>
 #include "qSlicerSiemensPlcOpcUaWidget.h"
+#include "qSlicerScadaOpcUaWidget.h"
 #include "qSlicerOpcUaRobotsMessagesListModel.h"
 
 // SlicerRT U70RoomOpcUa MRML includes
@@ -63,6 +64,7 @@ public:
   qSlicerU70RoomOpcUaModuleWidgetPrivate(qSlicerU70RoomOpcUaModuleWidget& object);
   vtkSlicerU70RoomOpcUaLogic* logic() const;
   void siemensCreateClient();
+  void scadaCreateClient();
   void updateUiState();
 
   const char* SIEMENS_PLC_OPCUA_LAYOUT_DESCRIPTION = \
@@ -71,7 +73,15 @@ public:
     "  <SiemensPlcOpcUa></SiemensPlcOpcUa>" \
     " </item>" \
     "</layout>";
-  const int SIEMENS_PLC_OPCUA_LAYOUT_ID = 1021;
+  const int SIEMENS_PLC_OPCUA_LAYOUT_ID = 1051;
+
+  const char* SCADA_OPCUA_LAYOUT_DESCRIPTION = \
+    "<layout type=\"vertical\">" \
+    " <item>" \
+    "  <ScadaOpcUa></ScadaOpcUa>" \
+    " </item>" \
+    "</layout>";
+  const int SCADA_OPCUA_LAYOUT_ID = 5001;
 
   int PreviousLayoutId{ -1 };
   bool ModuleWindowInitialized{ false };
@@ -91,7 +101,7 @@ public:
   // Scada
   vtkSmartPointer< vtkMRMLScadaOpcUaNode > ScadaOpcUaNode;
 //  QSharedPointer< qSlicerScadaOpcUaLogic > ScadaOpcUaLogic;
-//  QScopedPointer< qSlicerSiemensPlcOpcUaWidget > SiemensPlcOpcUaControlWidget;
+  QScopedPointer< qSlicerScadaOpcUaWidget > ScadaOpcUaControlWidget;
   QScopedPointer< QOpcUaProvider > ScadaOpcUaProvider;
   QSharedPointer< QOpcUaClient > ScadaOpcUaClient;
   bool ScadaClientConnectedFlag{ false };
@@ -164,6 +174,53 @@ void qSlicerU70RoomOpcUaModuleWidgetPrivate::siemensCreateClient()
 }
 
 //-----------------------------------------------------------------------------
+void qSlicerU70RoomOpcUaModuleWidgetPrivate::scadaCreateClient()
+{
+  Q_Q(qSlicerU70RoomOpcUaModuleWidget);
+  if (!this->ScadaOpcUaClient)
+  {
+    QOpcUaClient* newClient = this->ScadaOpcUaProvider->createClient(this->ComboBox_ScadaOpcUaPlugin->currentText());
+    this->ScadaOpcUaClient = QSharedPointer< QOpcUaClient >(newClient, &QOpcUaClient::deleteLater);
+    if (!this->ScadaOpcUaClient)
+    {
+      const QString message(QObject::tr("Connecting to the given sever failed. See the log for details."));
+      QMessageBox::critical(q, QObject::tr("Failed to connect to server"), message);
+      return;
+    }
+
+    QObject::connect(this->ScadaOpcUaClient.data(), &QOpcUaClient::connectError,
+      q, &qSlicerU70RoomOpcUaModuleWidget::scadaShowOpcUaErrorDialog);
+    this->ScadaOpcUaClient->setApplicationIdentity(SiemensOpcUaAppIdentity);
+
+    if (this->ScadaOpcUaClient->supportedUserTokenTypes().contains(QOpcUaUserTokenPolicy::TokenType::Certificate))
+    {
+      QOpcUaAuthenticationInformation authInfo;
+      authInfo.setCertificateAuthentication();
+      this->ScadaOpcUaClient->setAuthenticationInformation(authInfo);
+    }
+
+    QObject::connect(this->ScadaOpcUaClient.data(), &QOpcUaClient::connected,
+      q, &qSlicerU70RoomOpcUaModuleWidget::scadaClientConnected);
+//    QObject::connect(this->OpcUaClient.data(), &QOpcUaClient::connected,
+//      this->SiemensPlcOpcUaControlWidget.data(), &qSlicerSiemensPlcOpcUaWidget::onOpcUaClientConnected);
+
+    QObject::connect(this->ScadaOpcUaClient.data(), &QOpcUaClient::disconnected,
+      q, &qSlicerU70RoomOpcUaModuleWidget::scadaClientDisconnected);
+    QObject::connect(this->ScadaOpcUaClient.data(), &QOpcUaClient::disconnected,
+      this->ScadaOpcUaControlWidget.data(), &qSlicerScadaOpcUaWidget::onOpcUaClientDisconnected);
+
+    QObject::connect(this->ScadaOpcUaClient.data(), &QOpcUaClient::errorChanged,
+      q, &qSlicerU70RoomOpcUaModuleWidget::scadaClientError);
+    QObject::connect(this->ScadaOpcUaClient.data(), &QOpcUaClient::stateChanged,
+      q, &qSlicerU70RoomOpcUaModuleWidget::scadaClientState);
+    QObject::connect(this->ScadaOpcUaClient.data(), &QOpcUaClient::endpointsRequestFinished,
+      q, &qSlicerU70RoomOpcUaModuleWidget::scadaGetEndpointsComplete);
+    QObject::connect(this->ScadaOpcUaClient.data(), &QOpcUaClient::findServersFinished,
+      q, &qSlicerU70RoomOpcUaModuleWidget::scadaFindServersComplete);
+  }
+}
+
+//-----------------------------------------------------------------------------
 void qSlicerU70RoomOpcUaModuleWidgetPrivate::updateUiState()
 {
   Q_Q(qSlicerU70RoomOpcUaModuleWidget);
@@ -187,11 +244,18 @@ void qSlicerU70RoomOpcUaModuleWidgetPrivate::updateUiState()
     this->Label_CoordsAcceptedR2->setPixmap(QPixmap(":/Icons/gray.png"));
     this->Label_CoordsNotAcceptedR2->setPixmap(QPixmap(":/Icons/gray.png"));
 
-    this->PushButton_GetServerInterfaces->setEnabled(false);
+    this->PushButton_GetSiemensServerInterfaces->setEnabled(false);
     this->PushButton_ModeAutoAndManual->setEnabled(false);
     this->PushButton_ModeService->setEnabled(false);
     this->PushButton_ModeKukaControllers->setEnabled(false);
     this->PushButton_ModeUnknown->setEnabled(false);
+  }
+
+  this->PushButton_ScadaConnect->setText(this->ScadaClientConnectedFlag ? QObject::tr("&Disconnect") : QObject::tr("&Connect"));
+  this->ComboBox_ScadaOpcUaPlugin->setDisabled(this->ScadaClientConnectedFlag);
+  this->LineEdit_ScadaOpcUaServerUrl->setDisabled(this->ScadaClientConnectedFlag);
+  if (!this->ScadaClientConnectedFlag)
+  {
   }
 }
 
@@ -219,12 +283,14 @@ void qSlicerU70RoomOpcUaModuleWidget::setup()
 
 //  d->ScadaOpcUaLogic.reset(new qSlicerScadaOpcUaLogic(this));
   d->SiemensPlcOpcUaControlWidget.reset(new qSlicerSiemensPlcOpcUaWidget(this));
+  d->ScadaOpcUaControlWidget.reset(new qSlicerScadaOpcUaWidget(this));
 //  d->ScadaOpcUaModel.reset(new OpcUaModel(this));
   d->SiemensPlcMessagesModel.reset(new qSlicerOpcUaRobotsMessagesListModel(this));
   d->SiemensOpcUaProvider.reset(new QOpcUaProvider(this));
   d->ScadaOpcUaProvider.reset(new QOpcUaProvider(this));
 
   d->LineEdit_SiemensOpcUaServerUrl->setText("opc.tcp://172.31.1.1:4840");
+  d->LineEdit_ScadaOpcUaServerUrl->setText("opc.tcp://192.168.26.128:62544");
   d->ComboBox_SiemensOpcUaPlugin->addItems(d->SiemensOpcUaProvider->availableBackends());
   d->ComboBox_ScadaOpcUaPlugin->addItems(d->ScadaOpcUaProvider->availableBackends());
 
@@ -240,6 +306,13 @@ void qSlicerU70RoomOpcUaModuleWidget::setup()
     QMessageBox::critical(this, tr("No OPCUA plugins available"), tr("The list of available OPCUA plugins is empty. No connection possible."));
   }
 
+  if (d->ComboBox_ScadaOpcUaPlugin->count() == 0)
+  {
+    d->ComboBox_ScadaOpcUaPlugin->setDisabled(true);
+    d->PushButton_ScadaConnect->setDisabled(true);
+    QMessageBox::critical(this, tr("No OPCUA plugins available"), tr("The list of available OPCUA plugins is empty. No connection possible."));
+  }
+
   QObject::connect(d->PushButton_SiemensConnect, &QPushButton::clicked,
     this, &qSlicerU70RoomOpcUaModuleWidget::siemensConnectToServer);
   QObject::connect(d->PushButton_SiemensFindServers, &QPushButton::clicked,
@@ -249,15 +322,32 @@ void qSlicerU70RoomOpcUaModuleWidget::setup()
   QObject::connect(d->LineEdit_SiemensOpcUaServerUrl, &QLineEdit::returnPressed, d->PushButton_SiemensFindServers,
     [d]() { d->PushButton_SiemensFindServers->animateClick(); });
 
+  QObject::connect(d->PushButton_ScadaConnect, &QPushButton::clicked,
+    this, &qSlicerU70RoomOpcUaModuleWidget::scadaConnectToServer);
+  QObject::connect(d->PushButton_ScadaFindServers, &QPushButton::clicked,
+    this, &qSlicerU70RoomOpcUaModuleWidget::scadaFindServers);
+  QObject::connect(d->PushButton_ScadaGetEndpoints, &QPushButton::clicked,
+    this, &qSlicerU70RoomOpcUaModuleWidget::scadaGetEndpoints);
+  QObject::connect(d->LineEdit_ScadaOpcUaServerUrl, &QLineEdit::returnPressed, d->PushButton_ScadaFindServers,
+    [d]() { d->PushButton_ScadaFindServers->animateClick(); });
+
   // Get layout manager
   qSlicerApplication* slicerApplication = qSlicerApplication::application();
   qSlicerLayoutManager* layoutManager = slicerApplication->layoutManager();
 
-  qSlicerSingletonViewFactory* viewFactory = new qSlicerSingletonViewFactory();
-  viewFactory->setWidget(d->SiemensPlcOpcUaControlWidget.get());
-  viewFactory->setTagName("SiemensPlcOpcUa");
+  {
+    qSlicerSingletonViewFactory* viewFactory = new qSlicerSingletonViewFactory();
+    viewFactory->setWidget(d->SiemensPlcOpcUaControlWidget.get());
+    viewFactory->setTagName("SiemensPlcOpcUa");
+    layoutManager->registerViewFactory(viewFactory);
+  }
 
-  layoutManager->registerViewFactory(viewFactory);
+  {
+    qSlicerSingletonViewFactory* viewFactory = new qSlicerSingletonViewFactory();
+    viewFactory->setWidget(d->ScadaOpcUaControlWidget.get());
+    viewFactory->setTagName("ScadaOpcUa");
+    layoutManager->registerViewFactory(viewFactory);
+  }
 
   // Save previous layout
   d->PreviousLayoutId = layoutManager->layout();
@@ -268,14 +358,20 @@ void qSlicerU70RoomOpcUaModuleWidget::setup()
 //    if (!layoutNode->SetLayoutDescription(d->SIEMENS_PLC_OPCUA_LAYOUT_ID, d->SIEMENS_PLC_OPCUA_LAYOUT_DESCRIPTION))
 //    {
     layoutNode->AddLayoutDescription(d->SIEMENS_PLC_OPCUA_LAYOUT_ID, d->SIEMENS_PLC_OPCUA_LAYOUT_DESCRIPTION);
+    layoutNode->AddLayoutDescription(d->SCADA_OPCUA_LAYOUT_ID, d->SCADA_OPCUA_LAYOUT_DESCRIPTION);
 //    }
   }
-
+  
   // Widgets
   QObject::connect(d->PushButton_ShowSiemensPlcControls, SIGNAL(clicked()),
     this, SLOT(onShowSiemensPlcControlsClicked()));
-  QObject::connect(d->PushButton_GetServerInterfaces, SIGNAL(clicked()),
+  QObject::connect(d->PushButton_GetSiemensServerInterfaces, SIGNAL(clicked()),
     d->SiemensPlcOpcUaControlWidget.data(), SLOT(onParseServerInterfacesClicked()));
+
+  QObject::connect(d->PushButton_ShowScadaControls, SIGNAL(clicked()),
+    this, SLOT(onShowScadaControlsClicked()));
+  QObject::connect(d->PushButton_GetScadaServerNodes, SIGNAL(clicked()),
+    d->ScadaOpcUaControlWidget.data(), SLOT(onParseServerInterfacesClicked()));
 
   QObject::connect(d->PushButton_ModeUnknown, &QPushButton::clicked,
     [this](){ emit this->siemensPlcOpcUaModeChanged(vtkMRMLSiemensPlcOpcUaNode::UNKNOWN); });
@@ -302,6 +398,7 @@ void qSlicerU70RoomOpcUaModuleWidget::setup()
 
   // Handle scene change event if occurs
   qvtkConnect(d->logic(), vtkCommand::ModifiedEvent, this, SLOT(onOpcUaLogicModified()));
+  d->ScadaOpcUaControlWidget->setOpcUaLogic(d->logic());
 }
 
 void qSlicerU70RoomOpcUaModuleWidget::onShowSiemensPlcControlsClicked()
@@ -335,6 +432,42 @@ void qSlicerU70RoomOpcUaModuleWidget::onShowSiemensPlcControlsClicked()
   d->SiemensPlcOpcUaNode->Modified();
 }
 
+void qSlicerU70RoomOpcUaModuleWidget::onShowScadaControlsClicked()
+{
+  Q_D(qSlicerU70RoomOpcUaModuleWidget);
+  qDebug() << Q_FUNC_INFO << "Show scada controls";
+
+  // Get layout manager
+  qSlicerApplication* slicerApplication = qSlicerApplication::application();
+  qSlicerLayoutManager* layoutManager = slicerApplication->layoutManager();
+
+  layoutManager->pauseRender();
+  if (d->PushButton_ShowScadaControls->isChecked())
+  {
+    if (layoutManager)
+    {
+      layoutManager->setLayout(d->SCADA_OPCUA_LAYOUT_ID);
+    }
+  }
+  else
+  {
+    if (layoutManager)
+    {
+      layoutManager->setLayout(d->PreviousLayoutId);
+    }
+  }
+  vtkMRMLLayoutNode* layoutNode = layoutManager->layoutLogic()->GetLayoutNode();
+  layoutNode->Modified();
+  layoutManager->resumeRender();
+
+  slicerApplication->processEvents();
+
+  if (d->ScadaOpcUaNode)
+  {
+    d->ScadaOpcUaNode->Modified();
+  }
+}
+
 //-----------------------------------------------------------------------------
 void qSlicerU70RoomOpcUaModuleWidget::setMRMLScene(vtkMRMLScene* scene)
 {
@@ -366,6 +499,27 @@ void qSlicerU70RoomOpcUaModuleWidget::setMRMLScene(vtkMRMLScene* scene)
       d->SiemensPlcOpcUaControlWidget->setParameterNode(d->SiemensPlcOpcUaNode);
       // Each time the node is modified, the UI widgets are updated
       qvtkReconnect(d->SiemensPlcOpcUaNode, vtkCommand::ModifiedEvent, 
+        this, SLOT(updateWidgetFromMRML()));
+    }
+
+    if (vtkMRMLNode* node = scene->GetFirstNodeByClass("vtkMRMLScadaOpcUaNode"))
+    {
+      vtkMRMLScadaOpcUaNode* newNode = vtkMRMLScadaOpcUaNode::SafeDownCast(node);
+      if (newNode)
+      {
+        d->ScadaOpcUaNode = vtkSmartPointer<vtkMRMLScadaOpcUaNode>::Take(newNode);
+        d->ScadaOpcUaControlWidget->setParameterNode(d->ScadaOpcUaNode);
+      }
+    }
+    else
+    {
+      d->ScadaOpcUaNode = vtkSmartPointer<vtkMRMLScadaOpcUaNode>::New();
+      std::string nodeName = this->mrmlScene()->GenerateUniqueName("ScadaOpcUa");
+      d->ScadaOpcUaNode->SetName(nodeName.c_str());
+      this->mrmlScene()->AddNode(d->ScadaOpcUaNode);
+      d->ScadaOpcUaControlWidget->setParameterNode(d->ScadaOpcUaNode);
+      // Each time the node is modified, the UI widgets are updated
+      qvtkReconnect(d->ScadaOpcUaNode, vtkCommand::ModifiedEvent, 
         this, SLOT(updateWidgetFromMRML()));
     }
   }
@@ -462,7 +616,7 @@ void qSlicerU70RoomOpcUaModuleWidget::updateWidgetFromMRML()
     d->Label_ModeService->setPixmap(QPixmap(":/Icons/gray.png"));
     d->Label_ModeKukaControllers->setPixmap(QPixmap(":/Icons/gray.png"));
 
-    d->PushButton_GetServerInterfaces->setEnabled(false);
+    d->PushButton_GetSiemensServerInterfaces->setEnabled(false);
     d->PushButton_ModeAutoAndManual->setEnabled(false);
     d->PushButton_ModeService->setEnabled(false);
     d->PushButton_ModeKukaControllers->setEnabled(false);
@@ -663,7 +817,7 @@ void qSlicerU70RoomOpcUaModuleWidget::siemensNamespacesArrayUpdated(const QStrin
   }
 
   // set client for Siemens PLC widget
-  d->PushButton_GetServerInterfaces->setEnabled(true);
+  d->PushButton_GetSiemensServerInterfaces->setEnabled(true);
   d->PushButton_ModeAutoAndManual->setEnabled(true);
   d->PushButton_ModeService->setEnabled(true);
   d->PushButton_ModeKukaControllers->setEnabled(true);
@@ -721,6 +875,219 @@ void qSlicerU70RoomOpcUaModuleWidget::siemensClientError(QOpcUaClient::ClientErr
 
 //-----------------------------------------------------------------------------
 void qSlicerU70RoomOpcUaModuleWidget::siemensClientState(QOpcUaClient::ClientState state)
+{
+  Q_D(qSlicerU70RoomOpcUaModuleWidget);
+  switch (state)
+  {
+  case QOpcUaClient::ClientState::Closing:
+      break;
+  case QOpcUaClient::ClientState::Disconnected:
+    QMessageBox::information(this, tr("OPC UA"), tr("Client disconnected"));
+    break;
+  default:
+    break;
+  }
+}
+
+//-----------------------------------------------------------------------------
+void qSlicerU70RoomOpcUaModuleWidget::scadaFindServers()
+{
+  Q_D(qSlicerU70RoomOpcUaModuleWidget);
+
+  QStringList localeIds;
+  QStringList serverUris;
+  QUrl url(d->LineEdit_ScadaOpcUaServerUrl->text());
+
+  d->updateUiState();
+
+  d->scadaCreateClient();
+  // set default port if missing
+  if (url.port() == -1)
+  {
+    url.setPort(62544);
+  }
+
+  if (d->ScadaOpcUaClient)
+  {
+    d->ScadaOpcUaClient->findServers(url, localeIds, serverUris);
+    qDebug() << Q_FUNC_INFO << tr("Discovering servers on") << url.toString();
+  }
+}
+
+//-----------------------------------------------------------------------------
+void qSlicerU70RoomOpcUaModuleWidget::scadaFindServersComplete(const QVector<QOpcUaApplicationDescription> &servers, QOpcUa::UaStatusCode statusCode)
+{
+  Q_D(qSlicerU70RoomOpcUaModuleWidget);
+
+  if (isSuccessStatus(statusCode))
+  {
+    d->ComboBox_ScadaServers->clear();
+    for (QOpcUaApplicationDescription server : servers)
+    {
+      QVector<QString> urls = server.discoveryUrls();
+      for (const auto &url : qAsConst(urls))
+      {
+        d->ComboBox_ScadaServers->addItem(url);
+      }
+    }
+  }
+  d->updateUiState();
+  emit d->PushButton_ScadaGetEndpoints->clicked();
+}
+
+//-----------------------------------------------------------------------------
+void qSlicerU70RoomOpcUaModuleWidget::scadaGetEndpoints()
+{
+  Q_D(qSlicerU70RoomOpcUaModuleWidget);
+
+  d->ComboBox_ScadaEndpoints->clear();
+  d->updateUiState();
+
+  if (d->ComboBox_ScadaServers->currentIndex() >= 0)
+  {
+    const QString serverUrl = d->ComboBox_ScadaServers->currentText();
+    d->scadaCreateClient();
+    d->ScadaOpcUaClient->requestEndpoints(serverUrl);
+  }
+}
+
+//-----------------------------------------------------------------------------
+void qSlicerU70RoomOpcUaModuleWidget::scadaGetEndpointsComplete(const QVector<QOpcUaEndpointDescription> &endpoints, QOpcUa::UaStatusCode statusCode)
+{
+  Q_D(qSlicerU70RoomOpcUaModuleWidget);
+
+  int index = 0;
+  const char *modes[] = { "Invalid", "None", "Sign", "SignAndEncrypt" };
+
+  if (isSuccessStatus(statusCode))
+  {
+    d->ScadaOpcUaEndpointList = endpoints;
+    for (const auto& endpoint : endpoints)
+    {
+      if (endpoint.securityMode() > sizeof(modes))
+      {
+        qWarning() << Q_FUNC_INFO << tr("Invalid security mode");
+        continue;
+      }
+      const QString EndpointName = QString("%1 (%2)").arg(endpoint.securityPolicy(), modes[endpoint.securityMode()]);
+      d->ComboBox_ScadaEndpoints->addItem(EndpointName, index++);
+    }
+  }
+  d->updateUiState();
+  emit d->PushButton_ScadaConnect->clicked();
+}
+
+//-----------------------------------------------------------------------------
+void qSlicerU70RoomOpcUaModuleWidget::scadaConnectToServer()
+{
+  Q_D(qSlicerU70RoomOpcUaModuleWidget);
+
+  if (d->ScadaClientConnectedFlag)
+  {
+    d->ScadaOpcUaClient->disconnectFromEndpoint();
+    return;
+  }
+
+  if (d->ComboBox_ScadaEndpoints->currentIndex() >= 0)
+  {
+    d->ScadaOpcUaEndpoint = d->ScadaOpcUaEndpointList[d->ComboBox_ScadaEndpoints->currentIndex()];
+    d->scadaCreateClient();
+    d->ScadaOpcUaClient->connectToEndpoint(d->ScadaOpcUaEndpoint);
+  }
+}
+
+//-----------------------------------------------------------------------------
+void qSlicerU70RoomOpcUaModuleWidget::scadaClientConnected()
+{
+  Q_D(qSlicerU70RoomOpcUaModuleWidget);
+
+  d->ScadaClientConnectedFlag = true;
+  d->updateUiState();
+  QObject::connect(d->ScadaOpcUaClient.data(), &QOpcUaClient::namespaceArrayUpdated,
+    this, &qSlicerU70RoomOpcUaModuleWidget::scadaNamespacesArrayUpdated);
+  d->ScadaOpcUaClient->updateNamespaceArray();
+}
+
+//-----------------------------------------------------------------------------
+void qSlicerU70RoomOpcUaModuleWidget::scadaClientDisconnected()
+{
+  Q_D(qSlicerU70RoomOpcUaModuleWidget);
+
+  d->ScadaClientConnectedFlag = false;
+  d->ScadaOpcUaClient.clear();
+  d->updateUiState();
+  if (d->ScadaOpcUaNode)
+  {
+    d->ScadaOpcUaNode->SetSt(vtkMRMLScadaOpcUaNode::ST_APPLICATION_IS_RUNNING);
+  }
+}
+
+//-----------------------------------------------------------------------------
+void qSlicerU70RoomOpcUaModuleWidget::scadaNamespacesArrayUpdated(const QStringList &namespaceArray)
+{
+  Q_D(qSlicerU70RoomOpcUaModuleWidget);
+
+  if (namespaceArray.isEmpty())
+  {
+    qWarning() << Q_FUNC_INFO << tr("Failed to retrieve the namespaces array");
+    return;
+  }
+
+  // set client for SCADA widget
+  d->PushButton_GetScadaServerNodes->setEnabled(true);
+  
+  d->ScadaOpcUaControlWidget->setOpcUaClient(d->ScadaOpcUaClient);
+  d->ScadaOpcUaControlWidget->onOpcUaClientConnected();
+
+  QObject::disconnect(d->ScadaOpcUaClient.data(), &QOpcUaClient::namespaceArrayUpdated,
+    this, &qSlicerU70RoomOpcUaModuleWidget::scadaNamespacesArrayUpdated);
+}
+
+//-----------------------------------------------------------------------------
+void qSlicerU70RoomOpcUaModuleWidget::scadaShowOpcUaErrorDialog(QOpcUaErrorState *errorState)
+{
+  Q_D(qSlicerU70RoomOpcUaModuleWidget);
+  const QString statuscode = QOpcUa::statusToString(errorState->errorCode());
+
+  QString msg = errorState->isClientSideError() ? tr("The client reported: ") : tr("The server reported: ");
+
+  switch (errorState->connectionStep())
+  {
+  case QOpcUaErrorState::ConnectionStep::Unknown:
+    break;
+  case QOpcUaErrorState::ConnectionStep::CertificateValidation:
+    {
+      msg += tr("Server certificate validation failed with error 0x%1 (%2).\nClick 'Abort' to abort the connect, or 'Ignore' to continue connecting.")
+        .arg(static_cast<ulong>(errorState->errorCode()), 8, 16, QLatin1Char('0')).arg(statuscode);
+      qDebug() << Q_FUNC_INFO << msg;
+    }
+    break;
+  case QOpcUaErrorState::ConnectionStep::OpenSecureChannel:
+    msg += tr("OpenSecureChannel failed with error 0x%1 (%2).").arg(errorState->errorCode(), 8, 16, QLatin1Char('0')).arg(statuscode);
+    QMessageBox::warning(this, tr("Connection Error"), msg);
+    break;
+  case QOpcUaErrorState::ConnectionStep::CreateSession:
+    msg += tr("CreateSession failed with error 0x%1 (%2).").arg(errorState->errorCode(), 8, 16, QLatin1Char('0')).arg(statuscode);
+    QMessageBox::warning(this, tr("Connection Error"), msg);
+    break;
+  case QOpcUaErrorState::ConnectionStep::ActivateSession:
+    msg += tr("ActivateSession failed with error 0x%1 (%2).").arg(errorState->errorCode(), 8, 16, QLatin1Char('0')).arg(statuscode);
+    QMessageBox::warning(this, tr("Connection Error"), msg);
+    break;
+  default:
+    break;
+  }
+}
+
+//-----------------------------------------------------------------------------
+void qSlicerU70RoomOpcUaModuleWidget::scadaClientError(QOpcUaClient::ClientError error)
+{
+  Q_D(qSlicerU70RoomOpcUaModuleWidget);
+  Q_UNUSED(error);
+}
+
+//-----------------------------------------------------------------------------
+void qSlicerU70RoomOpcUaModuleWidget::scadaClientState(QOpcUaClient::ClientState state)
 {
   Q_D(qSlicerU70RoomOpcUaModuleWidget);
   switch (state)

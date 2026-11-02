@@ -68,7 +68,7 @@
    <item row="1" column="0">
     <widget class="QTabWidget" name="tabWidget">
      <property name="currentIndex">
-      <number>0</number>
+      <number>1</number>
      </property>
      <widget class="QWidget" name="tab_SiemensPlc">
       <attribute name="title">
@@ -177,7 +177,7 @@
         </widget>
        </item>
        <item row="3" column="0">
-        <widget class="QPushButton" name="PushButton_GetServerInterfaces">
+        <widget class="QPushButton" name="PushButton_GetSiemensServerInterfaces">
          <property name="enabled">
           <bool>false</bool>
          </property>
@@ -192,7 +192,7 @@
           <string>Flags and indicators</string>
          </property>
          <property name="collapsed">
-          <bool>false</bool>
+          <bool>true</bool>
          </property>
          <layout class="QGridLayout" name="gridLayout_7">
           <item row="1" column="0">
@@ -596,6 +596,19 @@
        <string>Scada</string>
       </attribute>
       <layout class="QGridLayout" name="gridLayout_14">
+       <item row="3" column="0">
+        <spacer name="verticalSpacer_2">
+         <property name="orientation">
+          <enum>Qt::Vertical</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>20</width>
+           <height>40</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
        <item row="0" column="0">
         <widget class="ctkCollapsibleButton" name="CollapsibleButton_3">
          <property name="text">
@@ -648,7 +661,7 @@
                </widget>
               </item>
               <item row="0" column="2">
-               <widget class="QPushButton" name="findServersButton">
+               <widget class="QPushButton" name="PushButton_ScadaFindServers">
                 <property name="text">
                  <string>Find servers</string>
                 </property>
@@ -659,8 +672,11 @@
               </item>
               <item row="0" column="1">
                <widget class="QLineEdit" name="LineEdit_ScadaOpcUaServerUrl">
+                <property name="text">
+                 <string>opc.tcp://192.168.26.128:62544</string>
+                </property>
                 <property name="clearButtonEnabled">
-                 <bool>true</bool>
+                 <bool>false</bool>
                 </property>
                </widget>
               </item>
@@ -692,18 +708,25 @@
          </layout>
         </widget>
        </item>
+       <item row="2" column="0">
+        <widget class="QPushButton" name="PushButton_ShowScadaControls">
+         <property name="text">
+          <string>Show controls</string>
+         </property>
+         <property name="checkable">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
        <item row="1" column="0">
-        <spacer name="verticalSpacer_2">
-         <property name="orientation">
-          <enum>Qt::Vertical</enum>
+        <widget class="QPushButton" name="PushButton_GetScadaServerNodes">
+         <property name="enabled">
+          <bool>false</bool>
          </property>
-         <property name="sizeHint" stdset="0">
-          <size>
-           <width>20</width>
-           <height>40</height>
-          </size>
+         <property name="text">
+          <string>Get server nodes</string>
          </property>
-        </spacer>
+        </widget>
        </item>
       </layout>
      </widget>
@@ -759,7 +782,7 @@
   <connection>
    <sender>CheckBox_SiemensHostAutoConnect</sender>
    <signal>clicked(bool)</signal>
-   <receiver>PushButton_GetServerInterfaces</receiver>
+   <receiver>PushButton_GetSiemensServerInterfaces</receiver>
    <slot>setHidden(bool)</slot>
    <hints>
     <hint type="sourcelabel">

@@ -453,8 +453,6 @@ void vtkSlicerU70RoomGeoLogic::RegisterNodes()
     /// Setup Markups fixed beam axis and fixed isocenter
     vtkMRMLMarkupsLineNode* beamAxisLineNode = this->Channel26Cabin3RobotsLogic->CreateBeamAxisLineNode(channel26GeometryNode);
     vtkMRMLMarkupsFiducialNode* fixedIsocenterNode = this->Channel26Cabin3RobotsLogic->CreateIsocenterFiducialNode(channel26GeometryNode);
-    vtkMRMLMarkupsFiducialNode* tabletopIsocenterNode = this->Channel26Cabin3RobotsLogic->CreateTabletopIsocenterFiducialNode(channel26GeometryNode);
-    roomGeoNode->SetAndObserveTabletopIsocenterFiducialNode(tabletopIsocenterNode);
 
     // Update channel-26 geometry node
     channel26GeometryNode->Modified();

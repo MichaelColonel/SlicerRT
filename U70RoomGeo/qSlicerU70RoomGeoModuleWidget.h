@@ -72,7 +72,10 @@ public slots:
   void onCarmRobotA4Changed(double a4);
   void onCarmRobotA5Changed(double a5);
   void onCarmRobotA6Changed(double a6);
-
+  void onTabletopAChanged(double a);
+  void onTabletopBChanged(double b);
+  void onTabletopCChanged(double c);
+  
 protected:
   QScopedPointer<qSlicerU70RoomGeoModuleWidgetPrivate> d_ptr;
   /// Initialize the module

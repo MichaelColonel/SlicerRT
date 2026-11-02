@@ -6,6 +6,7 @@ set(${KIT}_EXPORT_DIRECTIVE "Q_SLICER_MODULE_${MODULE_NAME_UPPER}_WIDGETS_EXPORT
 
 set(${KIT}_INCLUDE_DIRECTORIES
   ${vtkSlicer${MODULE_NAME}ModuleMRML_INCLUDE_DIRS}
+  ${vtkSlicer${MODULE_NAME}ModuleLogic_INCLUDE_DIRS}
   )
 
 set(${KIT}_SRCS
@@ -13,14 +14,18 @@ set(${KIT}_SRCS
 #  qSlicerScadaOpcUaLogic.h
   qSlicerSiemensPlcOpcUaWidget.cxx
   qSlicerSiemensPlcOpcUaWidget.h
-#  qSlicerScadaOpcUaRobotsControlWidget.cxx
-#  qSlicerScadaOpcUaRobotsControlWidget.h
+  qSlicerScadaOpcUaWidget.cxx
+  qSlicerScadaOpcUaWidget.h
   qSlicerOpcUaRobotsMessagesListModel.cxx
   qSlicerOpcUaRobotsMessagesListModel.h
   OpcUaModel.cxx
   OpcUaModel.h
   OpcUaTreeItem.cxx
   OpcUaTreeItem.h
+  ScadaOpcUaModel.cxx
+  ScadaOpcUaModel.h
+  ScadaOpcUaTreeItem.cxx
+  ScadaOpcUaTreeItem.h
 #  opcuamodel.cpp
 #  opcuamodel.h
 #  treeitem.cpp
@@ -31,9 +36,12 @@ set(${KIT}_MOC_SRCS
 #  qSlicerScadaOpcUaLogic.h
 #  qSlicerScadaOpcUaRobotsControlWidget.h
   qSlicerSiemensPlcOpcUaWidget.h
+  qSlicerScadaOpcUaWidget.h
   qSlicerOpcUaRobotsMessagesListModel.h
   OpcUaTreeItem.h
   OpcUaModel.h
+  ScadaOpcUaTreeItem.h
+  ScadaOpcUaModel.h
 #  opcuamodel.h
 #  treeitem.h
   )
@@ -41,6 +49,7 @@ set(${KIT}_MOC_SRCS
 set(${KIT}_UI_SRCS
   ../Resources/UI/qSlicerScadaOpcUaRobotsControlWidget.ui
   ../Resources/UI/qSlicerSiemensPlcOpcUaWidget.ui
+  ../Resources/UI/qSlicerScadaOpcUaWidget.ui
   )
 
 set(${KIT}_RESOURCES

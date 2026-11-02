@@ -287,6 +287,8 @@ public:
   /// Creates a Tabletop isocenter fiducial node (point in Tabletop frame)
   /// \return a valid markups fiducial node pointer or nullptr otherwise
   vtkMRMLMarkupsFiducialNode* CreateTabletopIsocenterFiducialNode(vtkMRMLChannel26GeometryNode* parameterNode);
+  /// Update TableTop isocenter markups fiducial node using parameter node data and geometry hierarchy
+  void UpdateTabletopIsocenterFiducialNode(vtkMRMLChannel26GeometryNode* parameterNode);
 
   void UpdateFrameToRasHierarchy(vtkMRMLChannel26GeometryNode* parameterNode, CoordinateSystemIdentifier type);
   void UpdateTransformsHierarchy(vtkMRMLChannel26GeometryNode* parameterNode, CoordinateSystemIdentifier type);
