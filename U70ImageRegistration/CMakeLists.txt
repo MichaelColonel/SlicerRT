@@ -29,6 +29,9 @@ set(MODULE_SRCS
 
 set(MODULE_UI_SRCS
   Resources/UI/qSlicer${MODULE_NAME}ModuleWidget.ui
+  Resources/UI/ChooseModeWidget.ui
+  Resources/UI/MoveToImmoWidget.ui
+  Resources/UI/MoveToIsoWidget.ui
   )
 
 set(MODULE_TARGET_LIBRARIES

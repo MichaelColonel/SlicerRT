@@ -1,5 +1,28 @@
 <!DOCTYPE RCC><RCC version="1.0">
   <qresource>
     <file>Icons/U70ImageRegistration.png</file>
+    <file>Icons/green.svg</file>
+    <file>Icons/red.svg</file>
+    <file>Icons/gray.svg</file>
+    <file>Icons/connect-1.png</file>
+    <file>Icons/disconnect.png</file>
+    <file>Icons/go-last.svg</file>
+    <file>Icons/media-playback-start.svg</file>
+    <file>Icons/media-playback-stop.svg</file>
+    <file>Icons/dialog-error.svg</file>
+    <file>Icons/dialog-information.svg</file>
+    <file>Icons/process-stop.svg</file>
+    <file>Icons/red.png</file>
+    <file>Icons/process-stop.png</file>
+    <file>Icons/media-skip-backward.png</file>
+    <file>Icons/media-playback-stop.png</file>
+    <file>Icons/green.png</file>
+    <file>Icons/gray.png</file>
+    <file>Icons/go-last.png</file>
+    <file>Icons/go-first.png</file>
+    <file>Icons/dialog-error.png</file>
+    <file>Icons/dialog-information.png</file>
+    <file>Icons/media-playback-start.png</file>
+    <file>Icons/media-skip-forward.png</file>
   </qresource>
 </RCC>

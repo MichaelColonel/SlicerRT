@@ -10,6 +10,14 @@ set(${KIT}_INCLUDE_DIRECTORIES
 set(${KIT}_SRCS
   qSlicer${MODULE_NAME}FooBarWidget.cxx
   qSlicer${MODULE_NAME}FooBarWidget.h
+  ChooseModeWidget.h
+  ChooseModeWidget.cpp
+  MoveToIsoWidget.h
+  MoveToIsoWidget.cpp
+  MoveToImmoWidget.h
+  MoveToImmoWidget.cpp
+  ctkExampleDerivedWorkflowWidgetStep.h
+  ctkExampleDerivedWorkflowWidgetStep.cpp
   )
 
 set(${KIT}_UI_SRCS

@@ -26,6 +26,8 @@
 class qSlicerU70ImageRegistrationModuleWidgetPrivate;
 class vtkMRMLNode;
 
+class ctkWorkflowStep;
+
 class Q_SLICER_QTMODULES_U70IMAGEREGISTRATION_EXPORT qSlicerU70ImageRegistrationModuleWidget : public qSlicerAbstractModuleWidget
 {
   Q_OBJECT
@@ -36,6 +38,7 @@ public:
   virtual ~qSlicerU70ImageRegistrationModuleWidget();
 
 public slots:
+  void onWorkflowCurrentStepChanged(ctkWorkflowStep* currentStep);
 
 protected:
   QScopedPointer<qSlicerU70ImageRegistrationModuleWidgetPrivate> d_ptr;
