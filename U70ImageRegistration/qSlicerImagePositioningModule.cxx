@@ -87,7 +87,7 @@ QStringList qSlicerImagePositioningModule::categories() const
 //-----------------------------------------------------------------------------
 QStringList qSlicerImagePositioningModule::dependencies() const
 {
-  return QStringList();
+  return QStringList() << "U70RoomOpcUa";
 }
 
 //-----------------------------------------------------------------------------

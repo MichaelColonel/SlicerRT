@@ -22,6 +22,16 @@
 #include "qSlicerU70ImageRegistrationModule.h"
 #include "qSlicerU70ImageRegistrationModuleWidget.h"
 
+// SlicerQt includes
+#include <qSlicerCoreApplication.h>
+#include <qSlicerModuleManager.h>
+
+// U70RoomOpcUa includes
+#include <vtkSlicerU70RoomOpcUaLogic.h>
+
+// Qt includes
+#include <QDebug>
+
 //-----------------------------------------------------------------------------
 class qSlicerU70ImageRegistrationModulePrivate
 {
@@ -83,7 +93,7 @@ QStringList qSlicerU70ImageRegistrationModule::categories() const
 //-----------------------------------------------------------------------------
 QStringList qSlicerU70ImageRegistrationModule::dependencies() const
 {
-  return QStringList();
+  return QStringList() << "U70RoomOpcUa";
 }
 
 //-----------------------------------------------------------------------------
@@ -96,6 +106,23 @@ QString qSlicerU70ImageRegistrationModule::title() const
 void qSlicerU70ImageRegistrationModule::setup()
 {
   this->Superclass::setup();
+
+  vtkSlicerU70ImageRegistrationLogic* workflowLogic = vtkSlicerU70ImageRegistrationLogic::SafeDownCast(this->logic());
+
+  // Set planar image logic to the logic
+  qSlicerAbstractCoreModule* u70OpcUaModule = qSlicerCoreApplication::application()->moduleManager()->module("U70RoomOpcUa");
+  if (u70OpcUaModule && workflowLogic)
+  {
+    vtkSlicerU70RoomOpcUaLogic* u70OpcUaLogic = vtkSlicerU70RoomOpcUaLogic::SafeDownCast(u70OpcUaModule->logic());
+    if (u70OpcUaLogic)
+    {
+      qDebug() << Q_FUNC_INFO << tr(": \"U70RoomOpcUa\" module logic is OK");
+    }
+  }
+  else
+  {
+    qCritical() << Q_FUNC_INFO << tr(": \"U70RoomOpcUa\" module is not found");
+  }
 }
 
 //-----------------------------------------------------------------------------

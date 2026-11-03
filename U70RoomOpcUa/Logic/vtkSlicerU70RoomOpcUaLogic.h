@@ -45,11 +45,16 @@ public:
   static vtkSlicerU70RoomOpcUaLogic* New();
   vtkTypeMacro(vtkSlicerU70RoomOpcUaLogic, vtkSlicerModuleLogic);
   void PrintSelf(ostream& os, vtkIndent indent) override;
-  void ServerConnected(const QSharedPointer< QOpcUaClient >& sharedClient, const QHash< QString, QOpcUaNode* >& hashNodes);
+  void ServerConnected(const QSharedPointer< QOpcUaClient >& sharedClient, const QHash< QString, QPointer< QOpcUaNode > >& hashNodes);
   bool WriteBool(const std::string& nodeId, bool value);
   bool WriteByte(const std::string& nodeId, uint8_t value);
   bool WriteUint32(const std::string& nodeId, uint32_t value);
   bool WriteString(const std::string& nodeId, const std::string& textString);
+  bool WriteSysTimeModPos(const std::string& textString);
+  uint64_t ReadSysTimeScada();
+  bool WritePlanFileName(const std::string& textString);
+  bool WritePatientID(const std::string& textString);
+  bool WritePlanOpen(bool);
 
 protected:
   vtkSlicerU70RoomOpcUaLogic();

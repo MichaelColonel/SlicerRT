@@ -558,7 +558,7 @@ void qSlicerScadaOpcUaWidget::onPositionModuleNodesRead(QOpcUa::NodeAttributes a
 {
   Q_D(qSlicerScadaOpcUaWidget);
 
-  QHash< QString, QOpcUaNode* > hashNodes;
+  QHash< QString, QPointer< QOpcUaNode > > hashNodes;
   if (attr & QOpcUa::NodeAttribute::DisplayName)
   { // Make sure the value attribute has been read
     QString nodeDisplayName = d->ServerInterfacesNode->attribute(QOpcUa::NodeAttribute::DisplayName).value<QOpcUaLocalizedText>().text();

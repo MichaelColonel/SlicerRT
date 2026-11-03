@@ -35,6 +35,7 @@
 // QtOpcUa includes
 #include <QOpcUaClient>
 #include <QWeakPointer>
+#include <QPointer>
 #include <QSharedPointer>
 #include <QScopedPointer>
 #include <QOpcUaNode>
@@ -51,9 +52,17 @@ public:
   ~vtkInternal();
   QOpcUaNode* node(const QString& id);
 
-  vtkSlicerU70RoomOpcUaLogic* External{ nullptr };  
+  vtkSlicerU70RoomOpcUaLogic* External{ nullptr };
+
+  struct Entry
+  {
+    QPointer< QOpcUaNode > Node;       // becomes null automatically if node is deleted
+    QMetaObject::Connection Conn;
+    vtkVariant Cache;
+  };
+
   QWeakPointer< QOpcUaClient > Client;
-  QHash< QString, QOpcUaNode* > Nodes;
+  QHash< QString, QPointer< QOpcUaNode > > Nodes;
 };
 
 //---------------------------------------------------------------------------
@@ -158,12 +167,12 @@ void vtkSlicerU70RoomOpcUaLogic::OnMRMLSceneNodeRemoved(vtkMRMLNode* vtkNotUsed(
 }
 
 //---------------------------------------------------------------------------
-void vtkSlicerU70RoomOpcUaLogic::ServerConnected(const QSharedPointer< QOpcUaClient >& sharedClient, const QHash< QString, QOpcUaNode* >& hashNodes)
+void vtkSlicerU70RoomOpcUaLogic::ServerConnected(const QSharedPointer< QOpcUaClient >& sharedClient, const QHash< QString, QPointer< QOpcUaNode > >& hashNodes)
 {
   this->Internal->Client = sharedClient;
   this->Internal->Nodes = hashNodes;
 
-  QHashIterator< QString, QOpcUaNode* > i(this->Internal->Nodes);
+  QHashIterator< QString, QPointer< QOpcUaNode > > i(this->Internal->Nodes);
   while (i.hasNext())
   {
     i.next();
@@ -213,4 +222,34 @@ bool vtkSlicerU70RoomOpcUaLogic::WriteString(const std::string& nodeId, const st
     return false;
   }
   return node->writeValueAttribute(QVariant(QString::fromStdString(textString)), QOpcUa::Types::String);
+}
+
+//---------------------------------------------------------------------------
+bool vtkSlicerU70RoomOpcUaLogic::WriteSysTimeModPos(const std::string& textString)
+{
+  return true;
+}
+
+//---------------------------------------------------------------------------
+uint64_t vtkSlicerU70RoomOpcUaLogic::ReadSysTimeScada()
+{
+  return 0;
+}
+
+//---------------------------------------------------------------------------
+bool vtkSlicerU70RoomOpcUaLogic::WritePlanFileName(const std::string& textString)
+{
+  return true;
+}
+
+//---------------------------------------------------------------------------
+bool vtkSlicerU70RoomOpcUaLogic::WritePatientID(const std::string& textString)
+{
+  return true;
+}
+
+//---------------------------------------------------------------------------
+bool vtkSlicerU70RoomOpcUaLogic::WritePlanOpen(bool)
+{
+  return true;
 }
