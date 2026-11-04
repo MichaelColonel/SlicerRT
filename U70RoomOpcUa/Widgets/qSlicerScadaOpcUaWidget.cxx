@@ -56,6 +56,8 @@ static const char* const SCADA_PLAN_STRING = "PlanStr";
 static const char* const SCADA_IDP = "IDP";
 static const char* const SCADA_ECP = "ECP";
 static const char* const SCADA_PLAN_OPEN = "PlanOpen";
+static const char* const SCADA_EVENT_STRING = "EventStr";
+static const char* const SCADA_STATE = "St";
 
 const QString SCADA_SYS_TIME_NODE_NAME = PARENT_NODE_DISPLAYED_NAME + DOT + QLatin1String(SCADA_SYS_TIME);
 const QString SCADA_SYS_TIME_MOD_POS_NODE_NAME = PARENT_NODE_DISPLAYED_NAME + DOT + QLatin1String(SCADA_SYS_TIME_MOD_POS);
@@ -63,6 +65,8 @@ const QString SCADA_PLAN_STRING_NODE_NAME = PARENT_NODE_DISPLAYED_NAME + DOT + Q
 const QString SCADA_IDP_NODE_NAME = PARENT_NODE_DISPLAYED_NAME + DOT + QLatin1String(SCADA_IDP);
 const QString SCADA_ECP_NODE_NAME = PARENT_NODE_DISPLAYED_NAME + DOT + QLatin1String(SCADA_ECP);
 const QString SCADA_PLAN_OPEN_NODE_NAME = PARENT_NODE_DISPLAYED_NAME + DOT + QLatin1String(SCADA_PLAN_OPEN);
+const QString SCADA_EVENT_STRING_NODE_NAME = PARENT_NODE_DISPLAYED_NAME + DOT + QLatin1String(SCADA_EVENT_STRING);
+const QString SCADA_STATE_NODE_NAME = PARENT_NODE_DISPLAYED_NAME + DOT + QLatin1String(SCADA_STATE);
 
 const QOpcUaMonitoringParameters OpcUaMonitorParameters(1000);
 
@@ -151,7 +155,9 @@ public:
     SCADA_PLAN_STRING_NODE_NAME,
     SCADA_IDP_NODE_NAME,
     SCADA_ECP_NODE_NAME,
-    SCADA_PLAN_OPEN_NODE_NAME
+    SCADA_PLAN_OPEN_NODE_NAME,
+    SCADA_EVENT_STRING_NODE_NAME,
+    SCADA_STATE_NODE_NAME
   };
 };
 
@@ -279,7 +285,12 @@ bool qSlicerScadaOpcUaWidgetPrivate::ConnectNodes()
   QOpcUaNode* scadaSysTimeNode = this->FindNodeFromFullDisplayName(SCADA_SYS_TIME_NODE_NAME);
   // Scada System Time Positioning Module node (Positioning module local system time - write only)
   QOpcUaNode* scadaSysTimeModPosNode = this->FindNodeFromFullDisplayName(SCADA_SYS_TIME_MOD_POS_NODE_NAME);
+  // Scada Event String Positioning Module node (Positioning module event message and time stamp - write only)
+  QOpcUaNode* scadaEventStrModPosNode = this->FindNodeFromFullDisplayName(SCADA_EVENT_STRING_NODE_NAME);
+  // Scada State Positioning Module node (Positioning module state - write only)
+  QOpcUaNode* scadaStateModPosNode = this->FindNodeFromFullDisplayName(SCADA_STATE_NODE_NAME);
 
+  qDebug() << Q_FUNC_INFO << "1";
   // Scada System Time node
   if (!scadaSysTimeNode)
   {
@@ -328,7 +339,7 @@ bool qSlicerScadaOpcUaWidgetPrivate::ConnectNodes()
   );
   // Subscribe to data changes
   scadaSysTimeNode->enableMonitoring(QOpcUa::NodeAttribute::Value, OpcUaMonitorParameters);
-
+qDebug() << Q_FUNC_INFO << "2";
   // Scada System Time Positioning Module node
   if (!scadaSysTimeModPosNode)
   {
@@ -377,6 +388,97 @@ bool qSlicerScadaOpcUaWidgetPrivate::ConnectNodes()
   );
   // Subscribe to data changes
   scadaSysTimeModPosNode->enableMonitoring(QOpcUa::NodeAttribute::Value, OpcUaMonitorParameters);
+qDebug() << Q_FUNC_INFO << "3";
+  // Scada Event String Positioning Module node
+  if (!scadaEventStrModPosNode)
+  {
+    return false;
+  }
+  QObject::connect(scadaEventStrModPosNode,
+    &QOpcUaNode::dataChangeOccurred, [mrmlNode](QOpcUa::NodeAttribute attr, QVariant value)
+    {
+      if (attr == QOpcUa::NodeAttribute::Value && value.canConvert< QString >())
+      {
+        QString eventStrValue = value.toString();
+        mrmlNode->SetEventStr(eventStrValue.toStdString());
+        qDebug() << Q_FUNC_INFO << "Positioning Module Event string changed:" << eventStrValue;
+      }
+    }
+  );
+  QObject::connect(scadaEventStrModPosNode,
+    &QOpcUaNode::attributeRead, [scadaEventStrModPosNode, mrmlNode](QOpcUa::NodeAttributes attr)
+    {
+      if (!scadaEventStrModPosNode || !mrmlNode)
+      {
+        return;
+      }
+      if (attr & QOpcUa::NodeAttribute::Value)
+      {
+        if (scadaEventStrModPosNode->attributeError(QOpcUa::NodeAttribute::Value) == QOpcUa::UaStatusCode::Good)
+        {
+          QVariant value = scadaEventStrModPosNode->attribute(QOpcUa::NodeAttribute::Value);
+          if (value.canConvert< QString >())
+          {
+            QString eventStrValue = value.toString();
+            mrmlNode->SetEventStr(eventStrValue.toStdString());
+            qDebug() << Q_FUNC_INFO << "Positioning Module Event string read:" << eventStrValue;
+          }
+        }
+      }
+    }
+  );
+  // Subscribe to data changes
+  scadaEventStrModPosNode->enableMonitoring(QOpcUa::NodeAttribute::Value, OpcUaMonitorParameters);
+  qDebug() << Q_FUNC_INFO << "4";
+  // Scada State Positioning Module node
+  if (!scadaStateModPosNode)
+  {
+    return false;
+  }
+  QObject::connect(scadaStateModPosNode,
+    &QOpcUaNode::dataChangeOccurred, [mrmlNode](QOpcUa::NodeAttribute attr, QVariant value)
+    {
+      if (attr == QOpcUa::NodeAttribute::Value && value.canConvert< int >())
+      {
+        bool ok = false;
+        int stValue = value.toInt(&ok);
+        if (ok)
+        {
+          mrmlNode->SetSt(static_cast< vtkMRMLScadaOpcUaNode::StateType >(stValue));
+          qDebug() << Q_FUNC_INFO << "Positioning Module state changed:" << stValue;
+        }
+      }
+    }
+  );
+  QObject::connect(scadaStateModPosNode,
+    &QOpcUaNode::attributeRead, [scadaStateModPosNode, mrmlNode](QOpcUa::NodeAttributes attr)
+    {
+      if (!scadaStateModPosNode || !mrmlNode)
+      {
+        return;
+      }
+      if (attr & QOpcUa::NodeAttribute::Value)
+      {
+        if (scadaStateModPosNode->attributeError(QOpcUa::NodeAttribute::Value) == QOpcUa::UaStatusCode::Good)
+        {
+          QVariant value = scadaStateModPosNode->attribute(QOpcUa::NodeAttribute::Value);
+          if (value.canConvert< int >())
+          {
+            bool ok = false;
+            int stValue = value.toInt(&ok);
+            if (ok)
+            {
+              mrmlNode->SetSt(static_cast< vtkMRMLScadaOpcUaNode::StateType >(stValue));
+              qDebug() << Q_FUNC_INFO << "Positioning Module state changed:" << stValue;
+            }
+          }
+        }
+      }
+    }
+  );
+  // Subscribe to data changes
+  scadaStateModPosNode->enableMonitoring(QOpcUa::NodeAttribute::Value, OpcUaMonitorParameters);
+
   return true;
 }
 
@@ -569,9 +671,9 @@ void qSlicerScadaOpcUaWidget::onPositionModuleNodesRead(QOpcUa::NodeAttributes a
       {
         if (nodeData.getNode())
         {
-          qDebug() << Q_FUNC_INFO << "Node ID:" << nodeData.getNodeId()
-              << ", Name:" << nodeData.getNodeName()
-              << ", Description:" << nodeData.getNodeDescription() << Qt::endl;
+//          qDebug() << Q_FUNC_INFO << "Node ID:" << nodeData.getNodeId()
+//              << ", Name:" << nodeData.getNodeName()
+//              << ", Description:" << nodeData.getNodeDescription() << Qt::endl;
           hashNodes.insert(nodeData.getNodeName(), nodeData.getNode());
         }
       }

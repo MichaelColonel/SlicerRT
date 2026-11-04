@@ -15,6 +15,65 @@
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
+    <widget class="QPushButton" name="PushButton_SetModPosSysTime">
+     <property name="text">
+      <string>Set Positioning module local time</string>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <layout class="QHBoxLayout" name="horizontalLayout">
+     <item>
+      <widget class="QLabel" name="label_7">
+       <property name="text">
+        <string>Event text:</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QLineEdit" name="lineEdit"/>
+     </item>
+     <item>
+      <widget class="QPushButton" name="PushButton_SetModPosEventString">
+       <property name="text">
+        <string>Set</string>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+   <item>
+    <layout class="QHBoxLayout" name="horizontalLayout_4">
+     <item>
+      <widget class="QLabel" name="label_10">
+       <property name="text">
+        <string>State:</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="ctkSliderWidget" name="SliderWidget_ModPosState">
+       <property name="decimals">
+        <number>0</number>
+       </property>
+       <property name="minimum">
+        <double>1.000000000000000</double>
+       </property>
+       <property name="maximum">
+        <double>11.000000000000000</double>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="PushButton_SetModPosState">
+       <property name="text">
+        <string>Set</string>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+   <item>
     <widget class="ctkCollapsibleButton" name="CollapsibleButton">
      <property name="text">
       <string>Retrieve DICOM from server</string>

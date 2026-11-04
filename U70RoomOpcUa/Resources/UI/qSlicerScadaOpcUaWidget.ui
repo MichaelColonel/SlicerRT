@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>631</width>
-    <height>936</height>
+    <width>634</width>
+    <height>801</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -54,14 +54,14 @@
            <rect>
             <x>0</x>
             <y>0</y>
-            <width>589</width>
-            <height>840</height>
+            <width>592</width>
+            <height>705</height>
            </rect>
           </property>
           <layout class="QGridLayout" name="gridLayout_31">
            <item row="0" column="0">
             <layout class="QGridLayout" name="gridLayout_7">
-             <item row="0" column="0">
+             <item row="1" column="0">
               <spacer name="verticalSpacer_2">
                <property name="orientation">
                 <enum>Qt::Vertical</enum>

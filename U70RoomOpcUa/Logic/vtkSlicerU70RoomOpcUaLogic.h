@@ -50,7 +50,10 @@ public:
   bool WriteByte(const std::string& nodeId, uint8_t value);
   bool WriteUint32(const std::string& nodeId, uint32_t value);
   bool WriteString(const std::string& nodeId, const std::string& textString);
-  bool WriteSysTimeModPos(const std::string& textString);
+  bool WriteSysTimeModPos(uint64_t val);
+  bool WriteStateModPos(int state);
+  bool WriteEventString(const std::string& text);
+
   uint64_t ReadSysTimeScada();
   bool WritePlanFileName(const std::string& textString);
   bool WritePatientID(const std::string& textString);

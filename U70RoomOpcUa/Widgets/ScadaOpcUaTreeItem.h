@@ -39,6 +39,8 @@ class Q_SLICER_MODULE_U70ROOMOPCUA_WIDGETS_EXPORT ScadaOpcUaTreeItem : public QO
 public:
   static constexpr const char* SCADA_POSITION_MODULE_NODE_ID = "ns=1;s=Модуль позиционирования";
   static constexpr const char* SCADA_SYSTIME_NODE = "SysTimeScada";
+  static constexpr const char* SCADA_EVENT_STRING_NODE = "EventStr";
+  static constexpr const char* SCADA_ERROR_STRING_NODE = "ErrStr";
   
   explicit ScadaOpcUaTreeItem(ScadaOpcUaModel *model);
   ScadaOpcUaTreeItem(QOpcUaNode *node, ScadaOpcUaModel *model, ScadaOpcUaTreeItem *parent);

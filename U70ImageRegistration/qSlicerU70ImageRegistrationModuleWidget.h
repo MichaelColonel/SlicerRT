@@ -38,6 +38,10 @@ public:
   virtual ~qSlicerU70ImageRegistrationModuleWidget();
 
 public slots:
+  void onSetModPosLocalTimeClicked();
+  void onSetEventStringClicked();
+  void onSetStateClicked();
+
   void onWorkflowCurrentStepChanged(ctkWorkflowStep* currentStep);
 
 protected:

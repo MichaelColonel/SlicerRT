@@ -479,9 +479,14 @@ QList< QPointer< ScadaOpcUaTreeItem > > ScadaOpcUaTreeItem::findLeafValueItems(S
 
   // Since messages are list of flags, we get the item of the messages, rather than
   // all the children (items of the list ) items of the parent message item
-  bool scadaSysTimeNodeFlag = item->getNodeDisplayName() == QString(SCADA_SYSTIME_NODE);
+  // Since messages are list of flags, we get the item of the messages, rather than
+  // all the children (items of the list ) items of the parent message item
+  bool nodesFlag = \
+    (item->getNodeDisplayName() == QString(SCADA_SYSTIME_NODE)) || \
+    (item->getNodeDisplayName() == QString(SCADA_EVENT_STRING_NODE)) || \
+    (item->getNodeDisplayName() == QString(SCADA_ERROR_STRING_NODE));
 
-  if (!item->currentChildCount() || scadaSysTimeNodeFlag)
+  if (!item->currentChildCount() || nodesFlag)
   {
 //    if (item->getNodeClass() == QOpcUa::NodeClass::Variable)
 //    {

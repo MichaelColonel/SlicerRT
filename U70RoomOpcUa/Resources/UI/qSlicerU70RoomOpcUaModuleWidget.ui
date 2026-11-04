@@ -797,7 +797,7 @@
   </connection>
  </connections>
  <buttongroups>
-  <buttongroup name="ButtonGroup_TreatmentRoomType"/>
   <buttongroup name="buttonGroup"/>
+  <buttongroup name="ButtonGroup_TreatmentRoomType"/>
  </buttongroups>
 </ui>

@@ -3043,7 +3043,7 @@ vtkMRMLMarkupsFiducialNode* vtkSlicerChannel26Cabin3RobotsTransformLogic::Create
     vtkErrorMacro("CreateTabletopIsocenterFiducialNode: 2");
     using CoordPos = vtkSlicerChannel26Cabin3RobotsGeometryCommon;
     // -338, -158, 158
-    vtkVector3d pFixedIsocenter(0., 158., 0.); // Isocenter in origin of FixedReference frame
+    vtkVector3d pFixedIsocenter(0., -158., 0.); // Isocenter in origin of FixedReference frame
     tabletopIsocenterFiducialNode->AddControlPoint(pFixedIsocenter, "TabletopIsocenter");
 
     vtkMRMLTransformNode* transformNode = this->GetTableTopPlaneCorrectionTransform();

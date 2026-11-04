@@ -17,6 +17,7 @@
 
 // Qt includes
 #include <QDebug>
+#include <QDateTime>
 
 // CTK includes
 #include <ctkPushButton.h>
@@ -32,6 +33,13 @@
 #include "qSlicerU70ImageRegistrationModuleWidget.h"
 #include "ui_qSlicerU70ImageRegistrationModuleWidget.h"
 
+// Logic includes
+#include "vtkSlicerU70ImageRegistrationLogic.h"
+
+// U70RoomOpcUa includes
+#include <vtkSlicerU70RoomOpcUaLogic.h>
+#include "vtkSlicerU70RoomScadaOpcUaNodesNames.h"
+
 // U70ImageRegistration widgets includes
 #include "ctkExampleDerivedWorkflowWidgetStep.h"
 #include "ChooseModeWidget.h"
@@ -41,8 +49,16 @@
 //-----------------------------------------------------------------------------
 class qSlicerU70ImageRegistrationModuleWidgetPrivate : public Ui_qSlicerU70ImageRegistrationModuleWidget
 {
+  Q_DECLARE_PUBLIC(qSlicerU70ImageRegistrationModuleWidget);
+protected:
+  qSlicerU70ImageRegistrationModuleWidget* const q_ptr;
 public:
-  qSlicerU70ImageRegistrationModuleWidgetPrivate();
+  qSlicerU70ImageRegistrationModuleWidgetPrivate(qSlicerU70ImageRegistrationModuleWidget& object);
+  ~qSlicerU70ImageRegistrationModuleWidgetPrivate() = default;
+
+  vtkSlicerU70ImageRegistrationLogic* logic() const;
+  vtkSlicerU70RoomOpcUaLogic* scadaOpcUaLogic() const;
+
   ctkWorkflow* Workflow{ nullptr };
 };
 
@@ -50,7 +66,30 @@ public:
 // qSlicerU70ImageRegistrationModuleWidgetPrivate methods
 
 //-----------------------------------------------------------------------------
-qSlicerU70ImageRegistrationModuleWidgetPrivate::qSlicerU70ImageRegistrationModuleWidgetPrivate() {}
+qSlicerU70ImageRegistrationModuleWidgetPrivate::qSlicerU70ImageRegistrationModuleWidgetPrivate(
+  qSlicerU70ImageRegistrationModuleWidget &object)
+  :
+  q_ptr(&object)
+{
+}
+
+//-----------------------------------------------------------------------------
+vtkSlicerU70ImageRegistrationLogic* qSlicerU70ImageRegistrationModuleWidgetPrivate::logic() const
+{
+  Q_Q(const qSlicerU70ImageRegistrationModuleWidget);
+  return vtkSlicerU70ImageRegistrationLogic::SafeDownCast(q->logic());
+}
+
+//-----------------------------------------------------------------------------
+vtkSlicerU70RoomOpcUaLogic* qSlicerU70ImageRegistrationModuleWidgetPrivate::scadaOpcUaLogic() const
+{
+  vtkSlicerU70RoomOpcUaLogic* opcUaLogic = nullptr;
+  if (this->logic())
+  {
+    opcUaLogic = this->logic()->GetScadaOpcUaLogic();
+  }
+  return opcUaLogic;
+}
 
 //-----------------------------------------------------------------------------
 // qSlicerU70ImageRegistrationModuleWidget methods
@@ -58,7 +97,7 @@ qSlicerU70ImageRegistrationModuleWidgetPrivate::qSlicerU70ImageRegistrationModul
 //-----------------------------------------------------------------------------
 qSlicerU70ImageRegistrationModuleWidget::qSlicerU70ImageRegistrationModuleWidget(QWidget* _parent)
   : Superclass(_parent)
-  , d_ptr(new qSlicerU70ImageRegistrationModuleWidgetPrivate)
+  , d_ptr(new qSlicerU70ImageRegistrationModuleWidgetPrivate(*this))
 {
 }
 
@@ -71,6 +110,13 @@ void qSlicerU70ImageRegistrationModuleWidget::setup()
   Q_D(qSlicerU70ImageRegistrationModuleWidget);
   d->setupUi(this);
   this->Superclass::setup();
+
+  QObject::connect(d->PushButton_SetModPosSysTime, SIGNAL(clicked()), this,
+    SLOT(onSetModPosLocalTimeClicked()));
+  QObject::connect(d->PushButton_SetModPosEventString, SIGNAL(clicked()), this,
+    SLOT(onSetEventStringClicked()));
+  QObject::connect(d->PushButton_SetModPosState, SIGNAL(clicked()), this,
+    SLOT(onSetStateClicked()));
 
   d->Workflow = new ctkWorkflow(this);
   QObject::connect(d->Workflow, &ctkWorkflow::currentStepChanged, this, &qSlicerU70ImageRegistrationModuleWidget::onWorkflowCurrentStepChanged);
@@ -154,6 +200,11 @@ void qSlicerU70ImageRegistrationModuleWidget::setup()
 
   // start the workflow
   d->Workflow->start();
+
+  if (d->scadaOpcUaLogic())
+  {
+    qDebug() << Q_FUNC_INFO << "SCADA OPC UA logic is OK";
+  }
 }
 
 void qSlicerU70ImageRegistrationModuleWidget::onWorkflowCurrentStepChanged(ctkWorkflowStep* currentStep)
@@ -174,5 +225,54 @@ void qSlicerU70ImageRegistrationModuleWidget::onWorkflowCurrentStepChanged(ctkWo
   {
     d->WorkflowWidget->buttonBoxWidget()->setNextButtonFormat("{nextButtonText|\"To ISO\"}(next:description)[->]");
     d->WorkflowWidget->buttonBoxWidget()->setBackButtonFormat("{backButtonText|\"To IMMO\"}(back:description)[<-]");
+  }
+}
+
+void qSlicerU70ImageRegistrationModuleWidget::onSetModPosLocalTimeClicked()
+{
+  Q_D(qSlicerU70ImageRegistrationModuleWidget);
+  qint64 currDateTime = QDateTime::currentMSecsSinceEpoch();
+  vtkSlicerU70RoomOpcUaLogic* logic = d->scadaOpcUaLogic();
+  if (logic)
+  {
+    bool res = logic->WriteSysTimeModPos(static_cast< uint64_t >(currDateTime));
+    if (res)
+    {
+      qDebug() << Q_FUNC_INFO << "Value is written: " << currDateTime;
+    }
+  }
+}
+
+void qSlicerU70ImageRegistrationModuleWidget::onSetEventStringClicked()
+{
+  Q_D(qSlicerU70ImageRegistrationModuleWidget);
+  QDateTime currDateTime = QDateTime::currentDateTime();
+  QString text = currDateTime.toString("[dd.MM.yyyy hh:mm:ss.zzz]: ") + d->lineEdit->text();
+
+  vtkSlicerU70RoomOpcUaLogic* logic = d->scadaOpcUaLogic();
+  if (logic)
+  {
+    bool res = logic->WriteEventString(text.toStdString());
+    if (res)
+    {
+      qDebug() << Q_FUNC_INFO << "Value is written: " << text;
+    }
+  }
+}
+
+void qSlicerU70ImageRegistrationModuleWidget::onSetStateClicked()
+{
+  Q_D(qSlicerU70ImageRegistrationModuleWidget);
+  QDateTime currDateTime = QDateTime::currentDateTime();
+  int st = d->SliderWidget_ModPosState->value();
+
+  vtkSlicerU70RoomOpcUaLogic* logic = d->scadaOpcUaLogic();
+  if (logic)
+  {
+    bool res = logic->WriteStateModPos(st);
+    if (res)
+    {
+      qDebug() << Q_FUNC_INFO << "Value is written: " << st;
+    }
   }
 }

@@ -18,6 +18,7 @@ set(MODULE_INCLUDE_DIRECTORIES
   ${CMAKE_CURRENT_BINARY_DIR}/Logic
   ${CMAKE_CURRENT_SOURCE_DIR}/Widgets
   ${CMAKE_CURRENT_BINARY_DIR}/Widgets
+  ${vtkSlicerU70RoomOpcUaLogic_INCLUDE_DIRS}
   )
 
 set(MODULE_SRCS
@@ -37,6 +38,7 @@ set(MODULE_UI_SRCS
 set(MODULE_TARGET_LIBRARIES
   vtkSlicer${MODULE_NAME}ModuleLogic
   qSlicer${MODULE_NAME}ModuleWidgets
+  vtkSlicerU70RoomOpcUaModuleLogic
   )
 
 set(MODULE_RESOURCES

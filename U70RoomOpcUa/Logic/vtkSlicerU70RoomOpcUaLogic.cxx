@@ -40,9 +40,10 @@
 #include <QScopedPointer>
 #include <QOpcUaNode>
 
+#include "vtkSlicerU70RoomScadaOpcUaNodesNames.h"
+
 //----------------------------------------------------------------------------
 vtkStandardNewMacro(vtkSlicerU70RoomOpcUaLogic);
-
 
 //---------------------------------------------------------------------------
 class vtkSlicerU70RoomOpcUaLogic::vtkInternal
@@ -225,9 +226,39 @@ bool vtkSlicerU70RoomOpcUaLogic::WriteString(const std::string& nodeId, const st
 }
 
 //---------------------------------------------------------------------------
-bool vtkSlicerU70RoomOpcUaLogic::WriteSysTimeModPos(const std::string& textString)
+bool vtkSlicerU70RoomOpcUaLogic::WriteSysTimeModPos(uint64_t value)
 {
-  return true;
+  std::string nodeName = vtkSlicerU70RoomScadaOpcUaNodesNames::GetModPosSysTime();
+  QOpcUaNode* node = this->Internal->node(QString::fromStdString(nodeName));
+  if (!node)
+  {
+    return false;
+  }
+  return node->writeValueAttribute(QVariant(static_cast< qulonglong >(value)), QOpcUa::Types::UInt64);
+}
+
+//---------------------------------------------------------------------------
+bool vtkSlicerU70RoomOpcUaLogic::WriteStateModPos(int state)
+{
+  std::string nodeName = vtkSlicerU70RoomScadaOpcUaNodesNames::GetModPosState();
+  QOpcUaNode* node = this->Internal->node(QString::fromStdString(nodeName));
+  if (!node)
+  {
+    return false;
+  }
+  return node->writeValueAttribute(QVariant(state), QOpcUa::Types::UInt16);
+}
+
+//---------------------------------------------------------------------------
+bool vtkSlicerU70RoomOpcUaLogic:: WriteEventString(const std::string& text)
+{
+  std::string nodeName = vtkSlicerU70RoomScadaOpcUaNodesNames::GetModPosEventString();
+  QOpcUaNode* node = this->Internal->node(QString::fromStdString(nodeName));
+  if (!node)
+  {
+    return false;
+  }
+  return node->writeValueAttribute(QVariant(QString::fromStdString(text)), QOpcUa::Types::String);
 }
 
 //---------------------------------------------------------------------------

@@ -116,6 +116,7 @@ void qSlicerU70ImageRegistrationModule::setup()
     vtkSlicerU70RoomOpcUaLogic* u70OpcUaLogic = vtkSlicerU70RoomOpcUaLogic::SafeDownCast(u70OpcUaModule->logic());
     if (u70OpcUaLogic)
     {
+      workflowLogic->SetScadaOpcUaLogic(u70OpcUaLogic);
       qDebug() << Q_FUNC_INFO << tr(": \"U70RoomOpcUa\" module logic is OK");
     }
   }

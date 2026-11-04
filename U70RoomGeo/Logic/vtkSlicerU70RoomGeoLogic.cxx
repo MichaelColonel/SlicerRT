@@ -522,30 +522,9 @@ void vtkSlicerU70RoomGeoLogic::ProcessMRMLNodesEvents(vtkObject* caller, unsigne
           {
             MRMLNodeModifyBlocker blocker(chan26GeoNode);
             chan26GeoNode->SetTableRobotAngles(robotAngles);
-///            vtkErrorMacro("ProcessMRMLNodesEvents: angles" << robotAngles[0] << ' ' << robotAngles[1] << ' ' << robotAngles[2] << ' ' << robotAngles[3] << ' ' << robotAngles[4] << ' ' << robotAngles[5]);
           }
-          vtkErrorMacro("ProcessMRMLNodesEvents: Update Tabletop robot model geometry");
-          this->Channel26Cabin3RobotsLogic->UpdateTransformsHierarchy(chan26GeoNode, CoordSys::TableTop);
-///          this->Channel26Cabin3RobotsLogic->UpdateFrameToRasHierarchy(chan26GeoNode, CoordSys::TableTop);
-          chan26GeoNode->Modified();
-///          roomGeoNode->Modified();
-/*
-          double pos[3] = {};
-          double res[3];
-          pos[0] = 0.;
-          pos[1] = 0.;
-          pos[2] = 0.;
-          if (this->Channel26Cabin3RobotsLogic->GetTransformForPointBetweenFrames(CoordSys::TableRobotBaseFixed,
-            CoordSys::CarmRobotBaseFixed, pos, res))
-          {
-            vtkErrorMacro("ProcessMRMLNodesEvents: TableRobotBaseFixed->CarmRobotBaseFixed = [0., 0., 0.] " << res[0] << ' ' << res[1] << ' ' << res[2]);
-          }
-          if (this->Channel26Cabin3RobotsLogic->GetTransformForPointBetweenFrames(CoordSys::CarmRobotBaseFixed,
-            CoordSys::TableRobotBaseFixed, pos, res))
-          {
-            vtkErrorMacro("ProcessMRMLNodesEvents: CarmRobotBaseFixed->TableRobotBaseFixed = [0., 0., 0.] " << res[0] << ' ' << res[1] << ' ' << res[2]);
-          }
-*/
+//          this->Channel26Cabin3RobotsLogic->UpdateTransformsHierarchy(chan26GeoNode, CoordSys::TableTop);
+//          chan26GeoNode->Modified();
         }
         else if (event == vtkMRMLSiemensPlcOpcUaNode::CarmRobotAxisCoordsModified)
         {
@@ -554,11 +533,8 @@ void vtkSlicerU70RoomGeoLogic::ProcessMRMLNodesEvents(vtkObject* caller, unsigne
             MRMLNodeModifyBlocker blocker(chan26GeoNode);
             chan26GeoNode->SetCarmRobotAngles(robotAngles);
           }
-          vtkErrorMacro("ProcessMRMLNodesEvents: Update C-arm robot model geometry");
-          this->Channel26Cabin3RobotsLogic->UpdateTransformsHierarchy(chan26GeoNode, CoordSys::TableTop);
-///          this->Channel26Cabin3RobotsLogic->UpdateFrameToRasHierarchy(chan26GeoNode, CoordSys::TableTop);
-          chan26GeoNode->Modified();
-///          roomGeoNode->Modified();
+//          this->Channel26Cabin3RobotsLogic->UpdateTransformsHierarchy(chan26GeoNode, CoordSys::TableTop);
+//          chan26GeoNode->Modified();
         }
       }
       roomGeoNode->Modified();

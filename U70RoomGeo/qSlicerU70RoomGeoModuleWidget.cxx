@@ -1275,6 +1275,13 @@ void qSlicerU70RoomGeoModuleWidget::onRotatePatientHeadFeetToggled(bool toggled)
 void qSlicerU70RoomGeoModuleWidget::updateTabletopIsocenterPosition()
 {
   Q_D(qSlicerU70RoomGeoModuleWidget);
+
+  if (!this->mrmlScene())
+  {
+    qCritical() << Q_FUNC_INFO << ": Invalid scene";
+    return;
+  }
+
   vtkMRMLMarkupsFiducialNode* markupsNode = vtkMRMLMarkupsFiducialNode::SafeDownCast(d->SimpleMarkupsWidget_PointCoordinates->currentNode());
   if (!markupsNode)
   {
@@ -1282,30 +1289,15 @@ void qSlicerU70RoomGeoModuleWidget::updateTabletopIsocenterPosition()
     return;
   }
 
-  int frameIndex = d->ComboBox_FrameReference->currentIndex();
-  
-  auto robotsLogic = d->channel26RobotsLogic();
+  vtkSlicerChannel26Cabin3RobotsTransformLogic* robotsLogic = d->channel26RobotsLogic();
   using CoordSys = vtkSlicerChannel26Cabin3RobotsTransformLogic::CoordinateSystemIdentifier;
-
-  double frameCooors[3] = {};
-  CoordSys frame = CoordSys::TableTop;
-  switch (frameIndex)
-  {
-  case 0:
-    frame = CoordSys::FixedReference;
-    break;
-  case 1:
-  case 2:
-    frame = CoordSys::TableTop;
-    break;
-  default:
-    break;
-  }
-
   using CoordPos = vtkSlicerChannel26Cabin3RobotsGeometryCommon;
 
   double pointRAS[3] = {};
-  double res[3] = {};
+  double patientIsoInCarmHome[3] = {};
+  double fixedIsoInCarmHome[3] = {};
+  bool patientIsoFlag = false, fixedIsoFlag = false;
+/*
   markupsNode->GetNthControlPointPosition(0, pointRAS);
   if (robotsLogic && robotsLogic->GetTransformForPointBetweenFrames(CoordSys::TableTop,
     CoordSys::CarmRobotBaseFixed, pointRAS, res))
@@ -1317,17 +1309,42 @@ void qSlicerU70RoomGeoModuleWidget::updateTabletopIsocenterPosition()
     d->CoordinatesWidget_FixedIsocenterInFrame->setCoordinates(res);
     qDebug() << Q_FUNC_INFO << ": TableTop->CarmRobotBaseFixed orig: X, Y, Z" << res[0] << ' ' << res[1] << ' ' << res[2];
   }
-
+*/
   markupsNode->GetNthControlPointPositionWorld(0, pointRAS);
+  pointRAS[1] *= -1.;
   if (robotsLogic && robotsLogic->GetTransformForPointBetweenFrames(CoordSys::TableTop,
-    CoordSys::CarmRobotBaseFixed, pointRAS, res))
+    CoordSys::CarmRobotBaseFixed, pointRAS, patientIsoInCarmHome))
   {
-    qDebug() << Q_FUNC_INFO << ": Tabletop Isocenter position treans" << pointRAS[0] << ' ' << pointRAS[1] << ' ' << pointRAS[2];
-//    double tmp = -1. * res[1];
-//    res[1] = res[2];
-//    res[2] = tmp;
-    d->CoordinatesWidget_FixedIsocenterInFrame->setCoordinates(res);
-    qDebug() << Q_FUNC_INFO << ": TableTop->CarmRobotBaseFixed trans: X, Y, Z" << res[0] << ' ' << res[1] << ' ' << res[2];
+    patientIsoFlag = true;
+    d->CoordinatesWidget_CarmHomePatientIsocenter->setCoordinates(patientIsoInCarmHome);
+  }
+
+  if (this->mrmlScene()->GetFirstNodeByName(vtkSlicerChannel26Cabin3RobotsTransformLogic::FIXEDISOCENTER_MARKUPS_FIDUCIAL_NODE_NAME))
+  {
+    vtkMRMLMarkupsFiducialNode* fixeIsocenterMarkupsNode = vtkMRMLMarkupsFiducialNode::SafeDownCast(
+      this->mrmlScene()->GetFirstNodeByName(vtkSlicerChannel26Cabin3RobotsTransformLogic::FIXEDISOCENTER_MARKUPS_FIDUCIAL_NODE_NAME));
+    fixeIsocenterMarkupsNode->GetNthControlPointPosition(0, pointRAS);
+
+    if (robotsLogic && robotsLogic->GetTransformForPointBetweenFrames(CoordSys::FixedReference,
+      CoordSys::CarmRobotBaseFixed, pointRAS, fixedIsoInCarmHome))
+    {
+      d->CoordinatesWidget_CarmHomeFixedIsocenter->setCoordinates(fixedIsoInCarmHome);
+      fixedIsoFlag = true;
+    }
+  }
+
+  d->CoordinatesWidget_CarmHomePatientFixedVector->setEnabled(patientIsoFlag && fixedIsoFlag);
+  double res[3] = {};
+  if (patientIsoFlag && fixedIsoFlag)
+  {
+    res[0] = fixedIsoInCarmHome[0] - patientIsoInCarmHome[0];
+    res[1] = fixedIsoInCarmHome[1] - patientIsoInCarmHome[1];
+    res[2] = fixedIsoInCarmHome[2] - patientIsoInCarmHome[2];
+    d->CoordinatesWidget_CarmHomePatientFixedVector->setCoordinates(res);
+  }
+  else
+  {
+    d->CoordinatesWidget_CarmHomePatientFixedVector->setCoordinates(res);
   }
 }
 

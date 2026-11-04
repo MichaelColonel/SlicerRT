@@ -442,7 +442,7 @@
         <item row="3" column="0">
          <widget class="ctkCollapsibleGroupBox" name="CollapsibleGroupBox_PatientTableTopMarkups">
           <property name="title">
-           <string>Patient and Tabletop markups</string>
+           <string>Patient and Tabletop markups in C-arm HOME frame</string>
           </property>
           <property name="collapsed">
            <bool>false</bool>
@@ -458,22 +458,22 @@
              </property>
             </widget>
            </item>
-           <item row="2" column="0">
+           <item row="1" column="0">
             <layout class="QGridLayout" name="gridLayout_2">
              <item row="0" column="0">
               <widget class="QLabel" name="label_3">
                <property name="text">
-                <string>Fixed isocenter (mm):</string>
+                <string>Patient isocenter (mm):</string>
                </property>
               </widget>
              </item>
              <item row="0" column="1">
-              <widget class="ctkCoordinatesWidget" name="CoordinatesWidget_FixedIsocenterInFrame">
+              <widget class="ctkCoordinatesWidget" name="CoordinatesWidget_CarmHomePatientIsocenter">
                <property name="enabled">
                 <bool>true</bool>
                </property>
                <property name="decimals">
-                <number>6</number>
+                <number>3</number>
                </property>
                <property name="readOnly">
                 <bool>true</bool>
@@ -483,7 +483,7 @@
              <item row="1" column="0">
               <widget class="QLabel" name="label_4">
                <property name="text">
-                <string>Patient isocenter (mm):</string>
+                <string>Fixed isocenter (mm):</string>
                </property>
               </widget>
              </item>
@@ -495,12 +495,12 @@
               </widget>
              </item>
              <item row="1" column="1">
-              <widget class="ctkCoordinatesWidget" name="CoordinatesWidget_PatientIsocenterInFrame">
+              <widget class="ctkCoordinatesWidget" name="CoordinatesWidget_CarmHomeFixedIsocenter">
                <property name="enabled">
-                <bool>false</bool>
+                <bool>true</bool>
                </property>
                <property name="decimals">
-                <number>6</number>
+                <number>3</number>
                </property>
                <property name="readOnly">
                 <bool>true</bool>
@@ -508,51 +508,15 @@
               </widget>
              </item>
              <item row="2" column="1">
-              <widget class="ctkCoordinatesWidget" name="CoordinatesWidget_PatientFixedVector">
+              <widget class="ctkCoordinatesWidget" name="CoordinatesWidget_CarmHomePatientFixedVector">
                <property name="enabled">
-                <bool>false</bool>
+                <bool>true</bool>
                </property>
                <property name="decimals">
-                <number>6</number>
+                <number>3</number>
                </property>
                <property name="readOnly">
                 <bool>true</bool>
-               </property>
-              </widget>
-             </item>
-            </layout>
-           </item>
-           <item row="1" column="0">
-            <layout class="QGridLayout" name="gridLayout_11">
-             <item row="0" column="1">
-              <widget class="QComboBox" name="ComboBox_FrameReference">
-               <property name="sizePolicy">
-                <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
-                 <horstretch>0</horstretch>
-                 <verstretch>0</verstretch>
-                </sizepolicy>
-               </property>
-               <item>
-                <property name="text">
-                 <string>Fixed reference</string>
-                </property>
-               </item>
-               <item>
-                <property name="text">
-                 <string>Tabletop</string>
-                </property>
-               </item>
-               <item>
-                <property name="text">
-                 <string>TOOL</string>
-                </property>
-               </item>
-              </widget>
-             </item>
-             <item row="0" column="0">
-              <widget class="QLabel" name="label_11">
-               <property name="text">
-                <string>Frame:</string>
                </property>
               </widget>
              </item>

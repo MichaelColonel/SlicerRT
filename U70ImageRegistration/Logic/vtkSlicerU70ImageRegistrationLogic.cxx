@@ -29,6 +29,9 @@
 // STD includes
 #include <cassert>
 
+// U70RoomOpcUa includes
+#include <vtkSlicerU70RoomOpcUaLogic.h>
+
 //----------------------------------------------------------------------------
 vtkStandardNewMacro(vtkSlicerU70ImageRegistrationLogic);
 
@@ -71,3 +74,14 @@ void vtkSlicerU70ImageRegistrationLogic::OnMRMLSceneNodeAdded(vtkMRMLNode* vtkNo
 
 //---------------------------------------------------------------------------
 void vtkSlicerU70ImageRegistrationLogic::OnMRMLSceneNodeRemoved(vtkMRMLNode* vtkNotUsed(node)) {}
+
+//------------------------------------------------------------------------------
+void vtkSlicerU70ImageRegistrationLogic::SetScadaOpcUaLogic(vtkSlicerU70RoomOpcUaLogic* opcUaLogic)
+{
+  this->ScadaOpcUaLogic = opcUaLogic;
+}
+
+vtkSlicerU70RoomOpcUaLogic* vtkSlicerU70ImageRegistrationLogic::GetScadaOpcUaLogic() const
+{
+  return this->ScadaOpcUaLogic;
+}
