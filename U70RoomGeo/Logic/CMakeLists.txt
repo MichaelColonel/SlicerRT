@@ -17,12 +17,17 @@ set(${KIT}_INCLUDE_DIRECTORIES
 set(${KIT}_SRCS
   vtkSlicer${MODULE_NAME}Logic.cxx
   vtkSlicer${MODULE_NAME}Logic.h
-  vtkSlicerChannel26Cabin3RobotsGeometryCommon.h
-  vtkSlicerChannel26Cabin3RobotsTransformLogic.cxx
-  vtkSlicerChannel26Cabin3RobotsTransformLogic.h
+#  vtkSlicerChannel26Cabin3RobotsGeometryCommon.h
+#  vtkSlicerChannel26Cabin3RobotsTransformLogic.cxx
+#  vtkSlicerChannel26Cabin3RobotsTransformLogic.h
 #  vtkSlicerChannel26Cabin2RobotsGeometryCommon.h
 #  vtkSlicerChannel26Cabin2RobotsTransformLogic.cxx
 #  vtkSlicerChannel26Cabin2RobotsTransformLogic.h
+  vtkSlicerChannel26RoomRobotsGeometryCommon.h
+  vtkSlicerChannel26Room2RobotsGeometryCommon.h
+  vtkSlicerChannel26Room3RobotsGeometryCommon.h
+  vtkSlicerChannel26RoomRobotsTransformLogic.cxx
+  vtkSlicerChannel26RoomRobotsTransformLogic.h
   )
 
 set(${KIT}_TARGET_LIBRARIES

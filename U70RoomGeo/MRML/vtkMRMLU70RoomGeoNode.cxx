@@ -331,10 +331,10 @@ void vtkMRMLU70RoomGeoNode::SetU70RoomGeo(int id)
 {
   switch (id)
   {
-    case 0: this->SetU70RoomGeo(vtkMRMLU70RoomGeoNode::ROOM1); break;
-    case 1: this->SetU70RoomGeo(vtkMRMLU70RoomGeoNode::ROOM2); break;
-    case 2:
-    default: this->SetU70RoomGeo(vtkMRMLU70RoomGeoNode::ROOM3); break;
+    case 1: this->SetU70RoomGeo(vtkMRMLU70RoomGeoNode::ROOM1); break;
+    case 2: this->SetU70RoomGeo(vtkMRMLU70RoomGeoNode::ROOM2); break;
+    case 3: this->SetU70RoomGeo(vtkMRMLU70RoomGeoNode::ROOM3); break;
+    default: this->SetU70RoomGeo(vtkMRMLU70RoomGeoNode::U70RoomGeoType_Last); break;
   }
 }
 
@@ -345,8 +345,8 @@ const char* vtkMRMLU70RoomGeoNode::GetU70RoomGeoAsString(int id)
   {
     case vtkMRMLU70RoomGeoNode::ROOM1: return "ROOM1";
     case vtkMRMLU70RoomGeoNode::ROOM2: return "ROOM2";
-    case vtkMRMLU70RoomGeoNode::ROOM3:
-    default: return "ROOM3";
+    case vtkMRMLU70RoomGeoNode::ROOM3: return "ROOM3";
+    default: return "UNKNOWN";
   }
 }
 

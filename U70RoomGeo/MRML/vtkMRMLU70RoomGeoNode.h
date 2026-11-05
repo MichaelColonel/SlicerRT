@@ -44,9 +44,9 @@ class VTK_SLICER_U70ROOMGEO_MODULE_MRML_EXPORT vtkMRMLU70RoomGeoNode : public vt
 {
 public:
   enum U70RoomGeoType : int {
-    ROOM1,
-    ROOM2,
-    ROOM3,
+    ROOM1 = 1,
+    ROOM2 = 2,
+    ROOM3 = 3,
     U70RoomGeoType_Last
   };
 
@@ -113,7 +113,7 @@ public:
 
   /// Get/Set type of treatment machine room geometry 
   /// Possible values:
-  /// vtkMRMLU70RoomGeoNode::CABIN1, vtkMRMLU70RoomGeoNode::CABIN2, vtkMRMLU70RoomGeoNode::CABIN3
+  /// vtkMRMLU70RoomGeoNode::ROOM1, vtkMRMLU70RoomGeoNode::ROOM2, vtkMRMLU70RoomGeoNode::ROOM3
   vtkGetMacro(U70RoomGeo, U70RoomGeoType);
   vtkSetMacro(U70RoomGeo, U70RoomGeoType);
 

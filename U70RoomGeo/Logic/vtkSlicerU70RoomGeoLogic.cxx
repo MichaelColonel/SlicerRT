@@ -38,7 +38,7 @@
 
 // U70RoomGeo Logic includes
 #include "vtkSlicerU70RoomGeoLogic.h"
-#include "vtkSlicerChannel26Cabin3RobotsGeometryCommon.h"
+#include "vtkSlicerChannel26RoomRobotsGeometryCommon.h"
 
 // VTK includes
 #include <vtkIntArray.h>
@@ -89,7 +89,7 @@ public:
   vtkInternal(vtkSlicerU70RoomGeoLogic* external);
   ~vtkInternal();
 
-  using CoordSys = vtkSlicerChannel26Cabin3RobotsTransformLogic::CoordinateSystemIdentifier;
+  using CoordSys = vtkSlicerChannel26RoomRobotsTransformLogic::CoordinateSystemIdentifier;
 
   vtkSlicerU70RoomGeoLogic* External;
   rapidjson::Document* CurrentTreatmentMachineDescription{ nullptr };
@@ -168,7 +168,7 @@ rapidjson::Value& vtkSlicerU70RoomGeoLogic::vtkInternal::GetTreatmentMachinePart
 }
 
 //---------------------------------------------------------------------------
-std::vector< vtkSlicerChannel26Cabin3RobotsTransformLogic::CoordinateSystemIdentifier >
+std::vector< vtkSlicerChannel26RoomRobotsTransformLogic::CoordinateSystemIdentifier >
 vtkSlicerU70RoomGeoLogic::vtkInternal::GetTreatmentMachineParts()
 {
   std::vector< CoordSys > parts;
@@ -350,16 +350,16 @@ vtkSlicerU70RoomGeoLogic::vtkSlicerU70RoomGeoLogic()
 {
   this->Internal = new vtkInternal(this); 
 
-  this->Channel26Cabin3RobotsLogic = vtkSlicerChannel26Cabin3RobotsTransformLogic::New();
+  this->Channel26RoomRobotsLogic = vtkSlicerChannel26RoomRobotsTransformLogic::New();
 }
 
 //----------------------------------------------------------------------------
 vtkSlicerU70RoomGeoLogic::~vtkSlicerU70RoomGeoLogic()
 {
-  if (this->Channel26Cabin3RobotsLogic)
+  if (this->Channel26RoomRobotsLogic)
   {
-    this->Channel26Cabin3RobotsLogic->Delete();
-    this->Channel26Cabin3RobotsLogic = nullptr;
+    this->Channel26RoomRobotsLogic->Delete();
+    this->Channel26RoomRobotsLogic = nullptr;
   }
 
   if (this->Internal)
@@ -386,11 +386,11 @@ void vtkSlicerU70RoomGeoLogic::SetMRMLSceneInternal(vtkMRMLScene * newScene)
   events->InsertNextValue(vtkMRMLScene::EndBatchProcessEvent);
   this->SetAndObserveMRMLSceneEventsInternal(newScene, events.GetPointer());
 
-  if (this->Channel26Cabin3RobotsLogic)
+  if (this->Channel26RoomRobotsLogic)
   {
-    this->Channel26Cabin3RobotsLogic->SetMRMLScene(newScene);
+    this->Channel26RoomRobotsLogic->SetMRMLScene(newScene);
     this->BuildRobotsTransformHierarchy();
-    this->Channel26Cabin3RobotsLogic->ResetToInitialPositions();
+    this->Channel26RoomRobotsLogic->ResetToInitialPositions();
   }
 }
 
@@ -447,12 +447,12 @@ void vtkSlicerU70RoomGeoLogic::RegisterNodes()
   if (roomGeoNode && channel26GeometryNode)
   {
     roomGeoNode->SetAndObserveChannel26GeometryNode(channel26GeometryNode);
-    using CoordSys = vtkSlicerChannel26Cabin3RobotsTransformLogic::CoordinateSystemIdentifier;
-    this->Channel26Cabin3RobotsLogic->UpdateTransformsHierarchy(channel26GeometryNode, CoordSys::Patient);
+    using CoordSys = vtkSlicerChannel26RoomRobotsTransformLogic::CoordinateSystemIdentifier;
+    this->Channel26RoomRobotsLogic->UpdateTransformsHierarchy(channel26GeometryNode, CoordSys::Patient);
 
     /// Setup Markups fixed beam axis and fixed isocenter
-    vtkMRMLMarkupsLineNode* beamAxisLineNode = this->Channel26Cabin3RobotsLogic->CreateBeamAxisLineNode(channel26GeometryNode);
-    vtkMRMLMarkupsFiducialNode* fixedIsocenterNode = this->Channel26Cabin3RobotsLogic->CreateIsocenterFiducialNode(channel26GeometryNode);
+    vtkMRMLMarkupsLineNode* beamAxisLineNode = this->Channel26RoomRobotsLogic->CreateBeamAxisLineNode(channel26GeometryNode);
+    vtkMRMLMarkupsFiducialNode* fixedIsocenterNode = this->Channel26RoomRobotsLogic->CreateIsocenterFiducialNode(channel26GeometryNode);
 
     // Update channel-26 geometry node
     channel26GeometryNode->Modified();
@@ -477,7 +477,7 @@ void vtkSlicerU70RoomGeoLogic::ProcessMRMLNodesEvents(vtkObject* caller, unsigne
     return;
   }
 
-  using CoordSys = vtkSlicerChannel26Cabin3RobotsTransformLogic::CoordinateSystemIdentifier;
+  using CoordSys = vtkSlicerChannel26RoomRobotsTransformLogic::CoordinateSystemIdentifier;
   if (caller->IsA("vtkMRMLU70RoomGeoNode"))
   {
     if (event == vtkCommand::ModifiedEvent)
@@ -523,7 +523,7 @@ void vtkSlicerU70RoomGeoLogic::ProcessMRMLNodesEvents(vtkObject* caller, unsigne
             MRMLNodeModifyBlocker blocker(chan26GeoNode);
             chan26GeoNode->SetTableRobotAngles(robotAngles);
           }
-//          this->Channel26Cabin3RobotsLogic->UpdateTransformsHierarchy(chan26GeoNode, CoordSys::TableTop);
+//          this->Channel26RoomRobotsLogic->UpdateTransformsHierarchy(chan26GeoNode, CoordSys::TableTop);
 //          chan26GeoNode->Modified();
         }
         else if (event == vtkMRMLSiemensPlcOpcUaNode::CarmRobotAxisCoordsModified)
@@ -533,7 +533,7 @@ void vtkSlicerU70RoomGeoLogic::ProcessMRMLNodesEvents(vtkObject* caller, unsigne
             MRMLNodeModifyBlocker blocker(chan26GeoNode);
             chan26GeoNode->SetCarmRobotAngles(robotAngles);
           }
-//          this->Channel26Cabin3RobotsLogic->UpdateTransformsHierarchy(chan26GeoNode, CoordSys::TableTop);
+//          this->Channel26RoomRobotsLogic->UpdateTransformsHierarchy(chan26GeoNode, CoordSys::TableTop);
 //          chan26GeoNode->Modified();
         }
       }
@@ -545,22 +545,22 @@ void vtkSlicerU70RoomGeoLogic::ProcessMRMLNodesEvents(vtkObject* caller, unsigne
     vtkMRMLChannel26GeometryNode* channel26Geometry = vtkMRMLChannel26GeometryNode::SafeDownCast(caller);
     if (event == vtkCommand::ModifiedEvent)
     {
-      this->Channel26Cabin3RobotsLogic->UpdateFrameToRasHierarchy(channel26Geometry, CoordSys::TableTop);
+      this->Channel26RoomRobotsLogic->UpdateFrameToRasHierarchy(channel26Geometry, CoordSys::TableTop);
 
-///      this->Channel26Cabin3RobotsLogic->UpdateTableTopPlaneNode(channel26Geometry);
-///      this->Channel26Cabin3RobotsLogic->UpdateTableTopFiducialNode(channel26Geometry);
+///      this->Channel26RoomRobotsLogic->UpdateTableTopPlaneNode(channel26Geometry);
+///      this->Channel26RoomRobotsLogic->UpdateTableTopFiducialNode(channel26Geometry);
 /*
           double pos[3] = {};
           double res[3];
           pos[0] = 0.;
           pos[1] = 0.;
           pos[2] = 0.;
-          if (this->Channel26Cabin3RobotsLogic->GetTransformForPointBetweenFrames(CoordSys::TableRobotBaseFixed,
+          if (this->Channel26RoomRobotsLogic->GetTransformForPointBetweenFrames(CoordSys::TableRobotBaseFixed,
             CoordSys::CarmRobotBaseFixed, pos, res))
           {
             vtkErrorMacro("ProcessMRMLNodesEvents: TableRobotBaseFixed->CarmRobotBaseFixed = [0., 0., 0.] " << res[0] << ' ' << res[1] << ' ' << res[2]);
           }
-          if (this->Channel26Cabin3RobotsLogic->GetTransformForPointBetweenFrames(CoordSys::FixedReference,
+          if (this->Channel26RoomRobotsLogic->GetTransformForPointBetweenFrames(CoordSys::FixedReference,
             CoordSys::CarmRobotBaseFixed, pos, res))
           {
             vtkErrorMacro("ProcessMRMLNodesEvents: FixedReference->CarmRobotBaseFixed = [0., 0., 0.] " << res[0] << ' ' << res[1] << ' ' << res[2]);
@@ -570,26 +570,26 @@ void vtkSlicerU70RoomGeoLogic::ProcessMRMLNodesEvents(vtkObject* caller, unsigne
       {
         double pos[3] = { 1220., 0., 0. };
         double res[3];
-        if (this->Channel26Cabin3RobotsLogic->GetTransformForPointBetweenFrames(CoordSys::TableRobotElbowWrist,
+        if (this->Channel26RoomRobotsLogic->GetTransformForPointBetweenFrames(CoordSys::TableRobotElbowWrist,
           CoordSys::TableRobotBaseFixed, pos, res))
         {
           vtkErrorMacro("ProcessMRMLNodesEvents: ElbowWrist = [1220., 0., 0.] " << res[0] << ' ' << res[1] << ' ' << res[2]);
         }
         pos[0] = 0.;
         pos[2] = 0.;
-        if (this->Channel26Cabin3RobotsLogic->GetTransformForPointBetweenFrames(CoordSys::TableRobotWrist,
+        if (this->Channel26RoomRobotsLogic->GetTransformForPointBetweenFrames(CoordSys::TableRobotWrist,
           CoordSys::TableRobotBaseFixed, pos, res))
         {
           vtkErrorMacro("ProcessMRMLNodesEvents: RobotWrist = [0., 0., 0.] " << res[0] << ' ' << res[1] << ' ' << res[2]);
         }
         pos[0] = 240.;
-        if (this->Channel26Cabin3RobotsLogic->GetTransformForPointBetweenFrames(CoordSys::TableRobotFlange,
+        if (this->Channel26RoomRobotsLogic->GetTransformForPointBetweenFrames(CoordSys::TableRobotFlange,
           CoordSys::TableRobotBaseFixed, pos, res))
         {
           vtkErrorMacro("ProcessMRMLNodesEvents: RobotFlange = [240., 0., 0.] " << res[0] << ' ' << res[1] << ' ' << res[2]);
         }
         pos[0] = 1420.;
-        if (this->Channel26Cabin3RobotsLogic->GetTransformForPointBetweenFrames(CoordSys::CarmRobotElbowWrist,
+        if (this->Channel26RoomRobotsLogic->GetTransformForPointBetweenFrames(CoordSys::CarmRobotElbowWrist,
           CoordSys::CarmRobotBaseFixed, pos, res))
         {
           vtkErrorMacro("ProcessMRMLNodesEvents: CarmElbowWrist = [1420., 0., 0.] " << res[0] << ' ' << res[1] << ' ' << res[2]);
@@ -598,12 +598,12 @@ void vtkSlicerU70RoomGeoLogic::ProcessMRMLNodesEvents(vtkObject* caller, unsigne
         pos[0] = 0.;
         pos[1] = 0.;
         pos[2] = 0.;
-        if (this->Channel26Cabin3RobotsLogic->GetTransformForPointBetweenFrames(CoordSys::FixedReference,
+        if (this->Channel26RoomRobotsLogic->GetTransformForPointBetweenFrames(CoordSys::FixedReference,
           CoordSys::RAS, pos, res))
         {
           vtkErrorMacro("ProcessMRMLNodesEvents: FixedReference->RAS = [0., 0., 0.] " << res[0] << ' ' << res[1] << ' ' << res[2]);
         }
-        if (this->Channel26Cabin3RobotsLogic->GetTransformForPointBetweenFrames(CoordSys::TableTop,
+        if (this->Channel26RoomRobotsLogic->GetTransformForPointBetweenFrames(CoordSys::TableTop,
           CoordSys::FixedReference, pos, res))
         {
           vtkErrorMacro("ProcessMRMLNodesEvents: TableTop->FixedReference = [0., 0., 0.] " << res[0] << ' ' << res[1] << ' ' << res[2]);
@@ -691,17 +691,17 @@ void vtkSlicerU70RoomGeoLogic::BuildRobotsTransformHierarchy()
   }
 
   // Build TableTop robot hierarchy
-  if (this->Channel26Cabin3RobotsLogic)
+  if (this->Channel26RoomRobotsLogic)
   {
-    this->Channel26Cabin3RobotsLogic->BuildRobotsTransformHierarchy();
+    this->Channel26RoomRobotsLogic->BuildRobotsTransformHierarchy();
   }
 }
 
 //----------------------------------------------------------------------------
-std::vector<vtkSlicerChannel26Cabin3RobotsTransformLogic::CoordinateSystemIdentifier>
+std::vector<vtkSlicerChannel26RoomRobotsTransformLogic::CoordinateSystemIdentifier>
 vtkSlicerU70RoomGeoLogic::LoadTreatmentMachineComponents(vtkMRMLU70RoomGeoNode* parameterNode)
 {
-  using CoordSys = vtkSlicerChannel26Cabin3RobotsTransformLogic::CoordinateSystemIdentifier;
+  using CoordSys = vtkSlicerChannel26RoomRobotsTransformLogic::CoordinateSystemIdentifier;
 
   vtkMRMLScene* scene = this->GetMRMLScene();
   if (!scene)
@@ -764,10 +764,10 @@ vtkSlicerU70RoomGeoLogic::LoadTreatmentMachineComponents(vtkMRMLU70RoomGeoNode* 
 }
 
 //----------------------------------------------------------------------------
-std::vector<vtkSlicerChannel26Cabin3RobotsTransformLogic::CoordinateSystemIdentifier>
+std::vector<vtkSlicerChannel26RoomRobotsTransformLogic::CoordinateSystemIdentifier>
 vtkSlicerU70RoomGeoLogic::SetupTreatmentMachineModels(vtkMRMLU70RoomGeoNode* parameterNode, bool forceEnableCollisionDetection/*=false*/)
 {
-  using CoordSys = vtkSlicerChannel26Cabin3RobotsTransformLogic::CoordinateSystemIdentifier;
+  using CoordSys = vtkSlicerChannel26RoomRobotsTransformLogic::CoordinateSystemIdentifier;
 
   vtkMRMLScene* scene = this->GetMRMLScene();
   if (!scene)
@@ -866,91 +866,91 @@ vtkSlicerU70RoomGeoLogic::SetupTreatmentMachineModels(vtkMRMLU70RoomGeoNode* par
     switch (partIdx)
     {
       case CoordSys::TableTop:
-        this->Channel26Cabin3RobotsLogic->UpdatePatientToTableTopTransform(channel26GeometryNode);
-        partFrameToRasTransformNode = this->Channel26Cabin3RobotsLogic->UpdateTableTopToRasTransform(channel26GeometryNode);
+        this->Channel26RoomRobotsLogic->UpdatePatientToTableTopTransform(channel26GeometryNode);
+        partFrameToRasTransformNode = this->Channel26RoomRobotsLogic->UpdateTableTopToRasTransform(channel26GeometryNode);
 //        this->DisplayBasisVectorsForTransformNode(partFrameToRasTransformNode);
         break;
       case CoordSys::TableFlange:
-        this->Channel26Cabin3RobotsLogic->UpdateTableTopToTableFlangeTransform(channel26GeometryNode);
-        partFrameToRasTransformNode = this->Channel26Cabin3RobotsLogic->UpdateTableFlangeToRasTransform(channel26GeometryNode);
+        this->Channel26RoomRobotsLogic->UpdateTableTopToTableFlangeTransform(channel26GeometryNode);
+        partFrameToRasTransformNode = this->Channel26RoomRobotsLogic->UpdateTableFlangeToRasTransform(channel26GeometryNode);
 //        this->DisplayBasisVectorsForTransformNode(partFrameToRasTransformNode);
         break;
       case CoordSys::TableRobotFlange:
-        this->Channel26Cabin3RobotsLogic->UpdateTableFlangeToTableRobotFlangeTransform(channel26GeometryNode);
-        partFrameToRasTransformNode = this->Channel26Cabin3RobotsLogic->UpdateTableRobotFlangeToRasTransform(channel26GeometryNode);
+        this->Channel26RoomRobotsLogic->UpdateTableFlangeToTableRobotFlangeTransform(channel26GeometryNode);
+        partFrameToRasTransformNode = this->Channel26RoomRobotsLogic->UpdateTableRobotFlangeToRasTransform(channel26GeometryNode);
         break;
       case CoordSys::TableRobotWrist:
-        this->Channel26Cabin3RobotsLogic->UpdateTableRobotFlangeToTableRobotWristTransform(channel26GeometryNode);
-        partFrameToRasTransformNode = this->Channel26Cabin3RobotsLogic->UpdateTableRobotWristToRasTransform(channel26GeometryNode);
+        this->Channel26RoomRobotsLogic->UpdateTableRobotFlangeToTableRobotWristTransform(channel26GeometryNode);
+        partFrameToRasTransformNode = this->Channel26RoomRobotsLogic->UpdateTableRobotWristToRasTransform(channel26GeometryNode);
         break;
       case CoordSys::TableRobotElbowWrist:
-        this->Channel26Cabin3RobotsLogic->UpdateTableRobotWristToTableRobotElbowWristTransform(channel26GeometryNode);
-        partFrameToRasTransformNode = this->Channel26Cabin3RobotsLogic->UpdateTableRobotElbowWristToRasTransform(channel26GeometryNode);
+        this->Channel26RoomRobotsLogic->UpdateTableRobotWristToTableRobotElbowWristTransform(channel26GeometryNode);
+        partFrameToRasTransformNode = this->Channel26RoomRobotsLogic->UpdateTableRobotElbowWristToRasTransform(channel26GeometryNode);
         break;
       case CoordSys::TableRobotElbowShoulder:
-        this->Channel26Cabin3RobotsLogic->UpdateTableRobotElbowWristToTableRobotElbowShoulderTransform(channel26GeometryNode);
-        partFrameToRasTransformNode = this->Channel26Cabin3RobotsLogic->UpdateTableRobotElbowShoulderToRasTransform(channel26GeometryNode);
+        this->Channel26RoomRobotsLogic->UpdateTableRobotElbowWristToTableRobotElbowShoulderTransform(channel26GeometryNode);
+        partFrameToRasTransformNode = this->Channel26RoomRobotsLogic->UpdateTableRobotElbowShoulderToRasTransform(channel26GeometryNode);
         break;
       case CoordSys::TableRobotShoulder:
-        this->Channel26Cabin3RobotsLogic->UpdateTableRobotElbowShoulderToTableRobotShoulderTransform(channel26GeometryNode);
-        partFrameToRasTransformNode = this->Channel26Cabin3RobotsLogic->UpdateTableRobotShoulderToRasTransform(channel26GeometryNode);
+        this->Channel26RoomRobotsLogic->UpdateTableRobotElbowShoulderToTableRobotShoulderTransform(channel26GeometryNode);
+        partFrameToRasTransformNode = this->Channel26RoomRobotsLogic->UpdateTableRobotShoulderToRasTransform(channel26GeometryNode);
         break;
       case CoordSys::TableRobotBaseRotationDisk:
-        this->Channel26Cabin3RobotsLogic->UpdateTableRobotShoulderToTableRobotBaseRotationTransform(channel26GeometryNode);
-        partFrameToRasTransformNode = this->Channel26Cabin3RobotsLogic->UpdateTableRobotBaseRotationDiskToRasTransform(channel26GeometryNode);
+        this->Channel26RoomRobotsLogic->UpdateTableRobotShoulderToTableRobotBaseRotationTransform(channel26GeometryNode);
+        partFrameToRasTransformNode = this->Channel26RoomRobotsLogic->UpdateTableRobotBaseRotationDiskToRasTransform(channel26GeometryNode);
         break;
       case CoordSys::TableRobotBaseRotation:
-        this->Channel26Cabin3RobotsLogic->UpdateTableRobotShoulderToTableRobotBaseRotationTransform(channel26GeometryNode);
-        partFrameToRasTransformNode = this->Channel26Cabin3RobotsLogic->UpdateTableRobotBaseRotationToRasTransform(channel26GeometryNode);
+        this->Channel26RoomRobotsLogic->UpdateTableRobotShoulderToTableRobotBaseRotationTransform(channel26GeometryNode);
+        partFrameToRasTransformNode = this->Channel26RoomRobotsLogic->UpdateTableRobotBaseRotationToRasTransform(channel26GeometryNode);
         break;
       case CoordSys::TableRobotBaseFixed:
-        this->Channel26Cabin3RobotsLogic->UpdateTableRobotBaseRotationToTableRobotBaseFixedTransform(channel26GeometryNode);
-        partFrameToRasTransformNode = this->Channel26Cabin3RobotsLogic->UpdateTableRobotBaseFixedToRasTransform(channel26GeometryNode);
+        this->Channel26RoomRobotsLogic->UpdateTableRobotBaseRotationToTableRobotBaseFixedTransform(channel26GeometryNode);
+        partFrameToRasTransformNode = this->Channel26RoomRobotsLogic->UpdateTableRobotBaseFixedToRasTransform(channel26GeometryNode);
         break;
       case CoordSys::FixedReference:
-        this->Channel26Cabin3RobotsLogic->UpdateTableRobotBaseFixedToFixedReferenceTransform(channel26GeometryNode);
-        partFrameToRasTransformNode = this->Channel26Cabin3RobotsLogic->UpdateFixedReferenceToRasTransform(channel26GeometryNode);
+        this->Channel26RoomRobotsLogic->UpdateTableRobotBaseFixedToFixedReferenceTransform(channel26GeometryNode);
+        partFrameToRasTransformNode = this->Channel26RoomRobotsLogic->UpdateFixedReferenceToRasTransform(channel26GeometryNode);
 //        this->DisplayBasisVectorsForTransformNode(partFrameToRasTransformNode);
         break;
       case CoordSys::CarmRobotBaseFixed:
-        this->Channel26Cabin3RobotsLogic->UpdateCarmRobotBaseFixedToFixedReferenceTransform(channel26GeometryNode);
-        partFrameToRasTransformNode = this->Channel26Cabin3RobotsLogic->UpdateCarmRobotBaseFixedToRasTransform(channel26GeometryNode);
+        this->Channel26RoomRobotsLogic->UpdateCarmRobotBaseFixedToFixedReferenceTransform(channel26GeometryNode);
+        partFrameToRasTransformNode = this->Channel26RoomRobotsLogic->UpdateCarmRobotBaseFixedToRasTransform(channel26GeometryNode);
         break;
       case CoordSys::CarmRobotBaseRotation:
-        this->Channel26Cabin3RobotsLogic->UpdateCarmRobotBaseRotationToCarmRobotBaseFixedTransform(channel26GeometryNode);
-        partFrameToRasTransformNode = this->Channel26Cabin3RobotsLogic->UpdateCarmRobotBaseRotationToRasTransform(channel26GeometryNode);
+        this->Channel26RoomRobotsLogic->UpdateCarmRobotBaseRotationToCarmRobotBaseFixedTransform(channel26GeometryNode);
+        partFrameToRasTransformNode = this->Channel26RoomRobotsLogic->UpdateCarmRobotBaseRotationToRasTransform(channel26GeometryNode);
         break;
       case CoordSys::CarmRobotShoulder:
-        this->Channel26Cabin3RobotsLogic->UpdateCarmRobotShoulderToCarmRobotBaseRotationTransform(channel26GeometryNode);
-        partFrameToRasTransformNode = this->Channel26Cabin3RobotsLogic->UpdateCarmRobotShoulderToRasTransform(channel26GeometryNode);
+        this->Channel26RoomRobotsLogic->UpdateCarmRobotShoulderToCarmRobotBaseRotationTransform(channel26GeometryNode);
+        partFrameToRasTransformNode = this->Channel26RoomRobotsLogic->UpdateCarmRobotShoulderToRasTransform(channel26GeometryNode);
         break;
       case CoordSys::CarmRobotElbowShoulder:
-        this->Channel26Cabin3RobotsLogic->UpdateCarmRobotShoulderToCarmRobotBaseRotationTransform(channel26GeometryNode);
-        partFrameToRasTransformNode = this->Channel26Cabin3RobotsLogic->UpdateCarmRobotElbowShoulderToRasTransform(channel26GeometryNode);
+        this->Channel26RoomRobotsLogic->UpdateCarmRobotShoulderToCarmRobotBaseRotationTransform(channel26GeometryNode);
+        partFrameToRasTransformNode = this->Channel26RoomRobotsLogic->UpdateCarmRobotElbowShoulderToRasTransform(channel26GeometryNode);
         break;
       case CoordSys::CarmRobotElbowWrist:
-        this->Channel26Cabin3RobotsLogic->UpdateCarmRobotElbowWristToCarmRobotElbowShoulderTransform(channel26GeometryNode);
-        partFrameToRasTransformNode = this->Channel26Cabin3RobotsLogic->UpdateCarmRobotElbowWristToRasTransform(channel26GeometryNode);
+        this->Channel26RoomRobotsLogic->UpdateCarmRobotElbowWristToCarmRobotElbowShoulderTransform(channel26GeometryNode);
+        partFrameToRasTransformNode = this->Channel26RoomRobotsLogic->UpdateCarmRobotElbowWristToRasTransform(channel26GeometryNode);
         break;
       case CoordSys::CarmRobotWrist:
-        this->Channel26Cabin3RobotsLogic->UpdateCarmRobotWristToCarmRobotElbowWristTransform(channel26GeometryNode);
-        partFrameToRasTransformNode = this->Channel26Cabin3RobotsLogic->UpdateCarmRobotWristToRasTransform(channel26GeometryNode);
+        this->Channel26RoomRobotsLogic->UpdateCarmRobotWristToCarmRobotElbowWristTransform(channel26GeometryNode);
+        partFrameToRasTransformNode = this->Channel26RoomRobotsLogic->UpdateCarmRobotWristToRasTransform(channel26GeometryNode);
         break;
       case CoordSys::CarmRobotFlange:
-        this->Channel26Cabin3RobotsLogic->UpdateCarmRobotFlangeToCarmRobotWristTransform(channel26GeometryNode);
-        partFrameToRasTransformNode = this->Channel26Cabin3RobotsLogic->UpdateCarmRobotFlangeToRasTransform(channel26GeometryNode);
+        this->Channel26RoomRobotsLogic->UpdateCarmRobotFlangeToCarmRobotWristTransform(channel26GeometryNode);
+        partFrameToRasTransformNode = this->Channel26RoomRobotsLogic->UpdateCarmRobotFlangeToRasTransform(channel26GeometryNode);
         break;
       case CoordSys::Carm:
-        this->Channel26Cabin3RobotsLogic->UpdateCarmToCarmRobotFlangeTransform(channel26GeometryNode);
-        partFrameToRasTransformNode = this->Channel26Cabin3RobotsLogic->UpdateCarmToRasTransform(channel26GeometryNode);
+        this->Channel26RoomRobotsLogic->UpdateCarmToCarmRobotFlangeTransform(channel26GeometryNode);
+        partFrameToRasTransformNode = this->Channel26RoomRobotsLogic->UpdateCarmToRasTransform(channel26GeometryNode);
         break;
       case CoordSys::CarmXrayBeam:
-        this->Channel26Cabin3RobotsLogic->UpdateCarmXrayBeamToCarmTransform(channel26GeometryNode);
-        partFrameToRasTransformNode = this->Channel26Cabin3RobotsLogic->UpdateCarmXrayBeamToRasTransform(channel26GeometryNode);
+        this->Channel26RoomRobotsLogic->UpdateCarmXrayBeamToCarmTransform(channel26GeometryNode);
+        partFrameToRasTransformNode = this->Channel26RoomRobotsLogic->UpdateCarmXrayBeamToRasTransform(channel26GeometryNode);
         break;
       case CoordSys::CarmXrayDetector:
-        this->Channel26Cabin3RobotsLogic->UpdateCarmXrayDetectorToCarmTransform(channel26GeometryNode);
-        partFrameToRasTransformNode = this->Channel26Cabin3RobotsLogic->UpdateCarmXrayDetectorToRasTransform(channel26GeometryNode);
+        this->Channel26RoomRobotsLogic->UpdateCarmXrayDetectorToCarmTransform(channel26GeometryNode);
+        partFrameToRasTransformNode = this->Channel26RoomRobotsLogic->UpdateCarmXrayDetectorToRasTransform(channel26GeometryNode);
         break;
       default:
         break;
@@ -982,11 +982,11 @@ void vtkSlicerU70RoomGeoLogic::ShowMarkupsNodes(vtkMRMLU70RoomGeoNode* parameter
   }
 
   std::list<std::string> markupsNames;
-  markupsNames.push_back(vtkSlicerChannel26Cabin3RobotsTransformLogic::TABLETOP_MARKUPS_PLANE_NODE_NAME);
-  markupsNames.push_back(vtkSlicerChannel26Cabin3RobotsTransformLogic::TABLETOP_MARKUPS_FIDUCIAL_NODE_NAME);
-  markupsNames.push_back(vtkSlicerChannel26Cabin3RobotsTransformLogic::TABLETOP_ISOCENTER_MARKUPS_FIDUCIAL_NODE_NAME);
-  markupsNames.push_back(vtkSlicerChannel26Cabin3RobotsTransformLogic::FIXEDBEAMAXIS_MARKUPS_LINE_NODE_NAME);
-  markupsNames.push_back(vtkSlicerChannel26Cabin3RobotsTransformLogic::FIXEDISOCENTER_MARKUPS_FIDUCIAL_NODE_NAME);
+  markupsNames.push_back(vtkSlicerChannel26RoomRobotsTransformLogic::TABLETOP_MARKUPS_PLANE_NODE_NAME);
+  markupsNames.push_back(vtkSlicerChannel26RoomRobotsTransformLogic::TABLETOP_MARKUPS_FIDUCIAL_NODE_NAME);
+  markupsNames.push_back(vtkSlicerChannel26RoomRobotsTransformLogic::TABLETOP_ISOCENTER_MARKUPS_FIDUCIAL_NODE_NAME);
+  markupsNames.push_back(vtkSlicerChannel26RoomRobotsTransformLogic::FIXEDBEAMAXIS_MARKUPS_LINE_NODE_NAME);
+  markupsNames.push_back(vtkSlicerChannel26RoomRobotsTransformLogic::FIXEDISOCENTER_MARKUPS_FIDUCIAL_NODE_NAME);
 
   for (auto markupName : markupsNames)
   {
@@ -1062,9 +1062,9 @@ void vtkSlicerU70RoomGeoLogic::ShowModelsNodes(vtkMRMLU70RoomGeoNode* parameterN
 
 //---------------------------------------------------------------------------
 const char* vtkSlicerU70RoomGeoLogic::GetTreatmentMachinePartTypeAsString(
-  vtkSlicerChannel26Cabin3RobotsTransformLogic::CoordinateSystemIdentifier type)
+  vtkSlicerChannel26RoomRobotsTransformLogic::CoordinateSystemIdentifier type)
 {
-  return this->Channel26Cabin3RobotsLogic->GetTreatmentMachinePartTypeAsString(type);
+  return this->Channel26RoomRobotsLogic->GetTreatmentMachinePartTypeAsString(type);
 }
 
 //---------------------------------------------------------------------------
@@ -1199,9 +1199,9 @@ std::string vtkSlicerU70RoomGeoLogic::GetStateForPartType(std::string partType)
   return stateStr;
 }
 
-vtkSlicerChannel26Cabin3RobotsTransformLogic* vtkSlicerU70RoomGeoLogic::GetChannel26RobotsTransformLogic() const
+vtkSlicerChannel26RoomRobotsTransformLogic* vtkSlicerU70RoomGeoLogic::GetChannel26RobotsTransformLogic() const
 {
-  return this->Channel26Cabin3RobotsLogic;
+  return this->Channel26RoomRobotsLogic;
 }
 
 bool vtkSlicerU70RoomGeoLogic::DisplayBasisVectorsForTransformNode(vtkMRMLLinearTransformNode* transformNode)

@@ -93,8 +93,8 @@ public:
   };
   typedef std::list< CoordinateSystemIdentifier > CoordinateSystemsList;
 
-  static vtkSlicerChannel26Cabin3RobotsTransformLogic *New();
-  vtkTypeMacro(vtkSlicerChannel26Cabin3RobotsTransformLogic, vtkMRMLAbstractLogic);
+  static vtkSlicerChannel26Cabin2RobotsTransformLogic *New();
+  vtkTypeMacro(vtkSlicerChannel26Cabin2RobotsTransformLogic, vtkMRMLAbstractLogic);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /// Create or get transforms taking part in the TableTop robot logic, and build the transform hierarchy

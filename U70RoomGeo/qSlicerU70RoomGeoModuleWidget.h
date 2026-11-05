@@ -49,6 +49,7 @@ public slots:
   /// Update widget GUI from parameter node
   void updateWidgetFromMRML();
   void updateTabletopIsocenterPosition();
+  void updateRoomGeometry();
 
   /// Load and unload treatment room machine models and logic 
   void onLoadTreatmentRoomButtonClicked();
@@ -75,6 +76,8 @@ public slots:
   void onTabletopAChanged(double a);
   void onTabletopBChanged(double b);
   void onTabletopCChanged(double c);
+  void onApplyTabletopClicked();
+  void onResetTabletopClicked();
   
 protected:
   QScopedPointer<qSlicerU70RoomGeoModuleWidgetPrivate> d_ptr;

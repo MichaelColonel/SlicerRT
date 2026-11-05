@@ -128,7 +128,7 @@
             <item row="0" column="1">
              <widget class="ctkSliderWidget" name="SliderWidget_TableRobotA1">
               <property name="decimals">
-               <number>6</number>
+               <number>3</number>
               </property>
               <property name="minimum">
                <double>-185.000000000000000</double>
@@ -144,7 +144,7 @@
             <item row="1" column="1">
              <widget class="ctkSliderWidget" name="SliderWidget_TableRobotA2">
               <property name="decimals">
-               <number>6</number>
+               <number>3</number>
               </property>
               <property name="minimum">
                <double>-140.000000000000000</double>
@@ -184,7 +184,7 @@
             <item row="2" column="1">
              <widget class="ctkSliderWidget" name="SliderWidget_TableRobotA3">
               <property name="decimals">
-               <number>6</number>
+               <number>3</number>
               </property>
               <property name="minimum">
                <double>-120.000000000000000</double>
@@ -210,7 +210,7 @@
             <item row="3" column="1">
              <widget class="ctkSliderWidget" name="SliderWidget_TableRobotA4">
               <property name="decimals">
-               <number>6</number>
+               <number>3</number>
               </property>
               <property name="minimum">
                <double>-350.000000000000000</double>
@@ -226,7 +226,7 @@
             <item row="4" column="1">
              <widget class="ctkSliderWidget" name="SliderWidget_TableRobotA5">
               <property name="decimals">
-               <number>6</number>
+               <number>3</number>
               </property>
               <property name="minimum">
                <double>-122.500000000000000</double>
@@ -245,7 +245,7 @@
             <item row="5" column="1">
              <widget class="ctkSliderWidget" name="SliderWidget_TableRobotA6">
               <property name="decimals">
-               <number>6</number>
+               <number>3</number>
               </property>
               <property name="minimum">
                <double>-350.000000000000000</double>
@@ -314,7 +314,7 @@
             <item row="0" column="1">
              <widget class="ctkSliderWidget" name="SliderWidget_CarmRobotA1">
               <property name="decimals">
-               <number>6</number>
+               <number>3</number>
               </property>
               <property name="minimum">
                <double>-185.000000000000000</double>
@@ -330,7 +330,7 @@
             <item row="1" column="1">
              <widget class="ctkSliderWidget" name="SliderWidget_CarmRobotA2">
               <property name="decimals">
-               <number>6</number>
+               <number>3</number>
               </property>
               <property name="minimum">
                <double>-140.000000000000000</double>
@@ -349,7 +349,7 @@
             <item row="2" column="1">
              <widget class="ctkSliderWidget" name="SliderWidget_CarmRobotA3">
               <property name="decimals">
-               <number>6</number>
+               <number>3</number>
               </property>
               <property name="minimum">
                <double>-120.000000000000000</double>
@@ -368,7 +368,7 @@
             <item row="3" column="1">
              <widget class="ctkSliderWidget" name="SliderWidget_CarmRobotA4">
               <property name="decimals">
-               <number>6</number>
+               <number>3</number>
               </property>
               <property name="minimum">
                <double>-350.000000000000000</double>
@@ -384,7 +384,7 @@
             <item row="4" column="1">
              <widget class="ctkSliderWidget" name="SliderWidget_CarmRobotA5">
               <property name="decimals">
-               <number>6</number>
+               <number>3</number>
               </property>
               <property name="minimum">
                <double>-122.500000000000000</double>
@@ -403,7 +403,7 @@
             <item row="5" column="1">
              <widget class="ctkSliderWidget" name="SliderWidget_CarmRobotA6">
               <property name="decimals">
-               <number>6</number>
+               <number>3</number>
               </property>
               <property name="minimum">
                <double>-350.000000000000000</double>

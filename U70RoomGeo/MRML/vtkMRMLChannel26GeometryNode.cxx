@@ -23,6 +23,11 @@
 #include <vtkSmartPointer.h>
 
 #include "vtkMRMLChannel26GeometryNode.h"
+#include "vtkSlicerChannel26RoomRobotsGeometryCommon.h"
+#include "vtkSlicerChannel26Room3RobotsGeometryCommon.h"
+#include "vtkSlicerChannel26Room2RobotsGeometryCommon.h"
+
+#include <cstring>
 
 //------------------------------------------------------------------------------
 vtkMRMLNodeNewMacro(vtkMRMLChannel26GeometryNode);
@@ -50,9 +55,7 @@ void vtkMRMLChannel26GeometryNode::WriteXML(ostream& of, int nIndent)
   vtkMRMLWriteXMLVectorMacro(tableBaseFixedToFixedReferenceTranslation, TableBaseFixedToFixedReferenceTranslation, double, 3);
   vtkMRMLWriteXMLVectorMacro(carmBaseFixedToTableTopBaseFixedOffset, CarmBaseFixedToTableBaseFixedOffset, double, 3);
   vtkMRMLWriteXMLVectorMacro(patientToTableTopTranslation, PatientToTableTopTranslation, double, 3);
-  vtkMRMLWriteXMLFloatMacro(tableTopLateralAngle, TableTopLateralAngle);
-  vtkMRMLWriteXMLFloatMacro(tableTopLongitudinalAngle, TableTopLongitudinalAngle);
-  vtkMRMLWriteXMLFloatMacro(tableTopVerticalAngle, TableTopVerticalAngle);
+  vtkMRMLWriteXMLVectorMacro(anglesABC, AnglesABC, double, 3);
   vtkMRMLWriteXMLBooleanMacro(patientHeadFeetRotation, PatientHeadFeetRotation);
 
   // add new parameters here
@@ -73,9 +76,7 @@ void vtkMRMLChannel26GeometryNode::ReadXMLAttributes(const char** atts)
   vtkMRMLReadXMLVectorMacro(tableBaseFixedToFixedReferenceTranslation, TableBaseFixedToFixedReferenceTranslation, double, 3);
   vtkMRMLReadXMLVectorMacro(carmBaseFixedToTableBaseFixedOffset, CarmBaseFixedToTableBaseFixedOffset, double, 3);
   vtkMRMLReadXMLVectorMacro(patientToTableTopTranslation, PatientToTableTopTranslation, double, 3);
-  vtkMRMLReadXMLFloatMacro(tableTopLateralAngle, TableTopLateralAngle);
-  vtkMRMLReadXMLFloatMacro(tableTopLongitudinalAngle, TableTopLongitudinalAngle);
-  vtkMRMLReadXMLFloatMacro(tableTopVerticalAngle, TableTopVerticalAngle);
+  vtkMRMLReadXMLVectorMacro(anglesABC, AnglesABC, double, 3);
   vtkMRMLReadXMLBooleanMacro(patientHeadFeetRotation, PatientHeadFeetRotation);
 
   // add new parameters here
@@ -110,9 +111,7 @@ void vtkMRMLChannel26GeometryNode::Copy(vtkMRMLNode *anode)
   vtkMRMLCopyVectorMacro(TableBaseFixedToFixedReferenceTranslation, double, 6);
   vtkMRMLCopyVectorMacro(CarmBaseFixedToTableBaseFixedOffset, double, 6);
   vtkMRMLCopyVectorMacro(PatientToTableTopTranslation, double, 3);
-  vtkMRMLCopyFloatMacro(TableTopLateralAngle);
-  vtkMRMLCopyFloatMacro(TableTopLongitudinalAngle);
-  vtkMRMLCopyFloatMacro(TableTopVerticalAngle);
+  vtkMRMLCopyVectorMacro(AnglesABC, double, 3);
   vtkMRMLCopyBooleanMacro(PatientHeadFeetRotation);
 
   // add new parameters here
@@ -142,9 +141,7 @@ void vtkMRMLChannel26GeometryNode::CopyContent(vtkMRMLNode *anode, bool deepCopy
   vtkMRMLCopyVectorMacro(TableBaseFixedToFixedReferenceTranslation, double, 6);
   vtkMRMLCopyVectorMacro(CarmBaseFixedToTableBaseFixedOffset, double, 6);
   vtkMRMLCopyVectorMacro(PatientToTableTopTranslation, double, 3);
-  vtkMRMLCopyFloatMacro(TableTopLateralAngle);
-  vtkMRMLCopyFloatMacro(TableTopLongitudinalAngle);
-  vtkMRMLCopyFloatMacro(TableTopVerticalAngle);
+  vtkMRMLCopyVectorMacro(AnglesABC, double, 3);
   vtkMRMLCopyBooleanMacro(PatientHeadFeetRotation);
 
   // add new parameters here
@@ -164,9 +161,7 @@ void vtkMRMLChannel26GeometryNode::PrintSelf(ostream& os, vtkIndent indent)
   vtkMRMLPrintVectorMacro(TableBaseFixedToFixedReferenceTranslation, double, 6);
   vtkMRMLPrintVectorMacro(CarmBaseFixedToTableBaseFixedOffset, double, 6);
   vtkMRMLPrintVectorMacro(PatientToTableTopTranslation, double, 3);
-  vtkMRMLPrintFloatMacro(TableTopLateralAngle);
-  vtkMRMLPrintFloatMacro(TableTopLongitudinalAngle);
-  vtkMRMLPrintFloatMacro(TableTopVerticalAngle);
+  vtkMRMLPrintVectorMacro(AnglesABC, double, 3);
   vtkMRMLPrintBooleanMacro(PatientHeadFeetRotation);
 
   // add new parameters here
@@ -210,4 +205,173 @@ void vtkMRMLChannel26GeometryNode::GetCarmRobotAnglesModel(double a[6])
   a[3] = this->CarmRobotAngles[3];
   a[4] = this->CarmRobotAngles[4];
   a[5] = this->CarmRobotAngles[5] + 180.;
+}
+
+//----------------------------------------------------------------------------
+void vtkMRMLChannel26GeometryNode::GetTableBaseFixedToFixedReferenceTranslation(double trans[3])
+{
+  double* ptr = this->TableBaseFixedToFixedReferenceTranslation;
+  switch (this->U70RoomGeo)
+  {
+  case vtkMRMLChannel26GeometryNode::R1:
+    break;
+  case vtkMRMLChannel26GeometryNode::R2:
+    {
+      using Room2CoordPos = vtkSlicerChannel26Room2RobotsGeometryCommon;
+      ptr[0] = -4300. + 2930.;
+      ptr[1] = 2780. - 2080.;
+      ptr[2] = -1. * Room2CoordPos::D_BASEMENT_ISOCENTER;
+    }
+    break;
+  case vtkMRMLChannel26GeometryNode::R3:
+    {
+      using Room3CoordPos = vtkSlicerChannel26Room3RobotsGeometryCommon;
+      ptr[0] = Room3CoordPos::D_NORTH_WALL_ISOCENTER - Room3CoordPos::D_NORTH_WALL_TABLE_TOP_ROBOT_BASE,
+      ptr[1] = Room3CoordPos::D_EAST_WALL_ISOCENTER - Room3CoordPos::D_EAST_WALL_TABLE_TOP_ROBOT_BASE,
+      ptr[2] = -1. * Room3CoordPos::D_BASEMENT_ISOCENTER;
+    }
+    break;
+  default:
+    break;
+  }
+  trans[0] = this->TableBaseFixedToFixedReferenceTranslation[0];
+  trans[1] = this->TableBaseFixedToFixedReferenceTranslation[1];
+  trans[2] = this->TableBaseFixedToFixedReferenceTranslation[2];
+}
+
+//----------------------------------------------------------------------------
+double* vtkMRMLChannel26GeometryNode::GetTableBaseFixedToFixedReferenceTranslation()
+{
+  double* ptr = this->TableBaseFixedToFixedReferenceTranslation;
+  switch (this->U70RoomGeo)
+  {
+  case vtkMRMLChannel26GeometryNode::R1:
+    break;
+  case vtkMRMLChannel26GeometryNode::R2:
+    {
+      using Room2CoordPos = vtkSlicerChannel26Room2RobotsGeometryCommon;
+      ptr[0] = -4300. + 2930.;
+      ptr[1] = 2780. - 2080.;
+      ptr[2] = -1. * Room2CoordPos::D_BASEMENT_ISOCENTER;
+    }
+    break;
+  case vtkMRMLChannel26GeometryNode::R3:
+    {
+      using Room3CoordPos = vtkSlicerChannel26Room3RobotsGeometryCommon;
+      ptr[0] = Room3CoordPos::D_NORTH_WALL_ISOCENTER - Room3CoordPos::D_NORTH_WALL_TABLE_TOP_ROBOT_BASE;
+      ptr[1] = Room3CoordPos::D_EAST_WALL_ISOCENTER - Room3CoordPos::D_EAST_WALL_TABLE_TOP_ROBOT_BASE;
+      ptr[2] = -1. * Room3CoordPos::D_BASEMENT_ISOCENTER;
+    }
+    break;
+  default:
+    break;
+  }
+  return this->TableBaseFixedToFixedReferenceTranslation;
+}
+
+//----------------------------------------------------------------------------
+void vtkMRMLChannel26GeometryNode::GetCarmBaseFixedToTableBaseFixedOffset(double trans[3])
+{
+  double* ptr = this->CarmBaseFixedToTableBaseFixedOffset;
+  switch (this->U70RoomGeo)
+  {
+  case vtkMRMLChannel26GeometryNode::R1:
+    break;
+  case vtkMRMLChannel26GeometryNode::R2:
+    {
+      using Room2CoordPos = vtkSlicerChannel26Room2RobotsGeometryCommon;
+      ptr[0] = 2 * (4300. - 1500.);
+      ptr[1] = Room2CoordPos::D_BASEMENT_CARM_ROBOT_BASE;
+      ptr[2] = -2780. + 2080. - (2880 - 1300);
+    }
+    break;
+  case vtkMRMLChannel26GeometryNode::R3:
+    {
+      using Room3CoordPos = vtkSlicerChannel26Room3RobotsGeometryCommon;
+      ptr[0] = Room3CoordPos::D_NORTH_WALL_TABLE_TOP_ROBOT_BASE - Room3CoordPos::D_NORTH_WALL_CARM_XRAY_ROBOT_BASE;
+      ptr[1] = Room3CoordPos::D_BASEMENT_CARM_ROBOT_BASE;
+      ptr[2] = Room3CoordPos::D_EAST_WALL_CARM_XRAY_ROBOT_BASE - Room3CoordPos::D_EAST_WALL_TABLE_TOP_ROBOT_BASE;
+    }
+    break;
+  default:
+    break;
+  }
+  trans[0] = this->CarmBaseFixedToTableBaseFixedOffset[0];
+  trans[1] = this->CarmBaseFixedToTableBaseFixedOffset[1];
+  trans[2] = this->CarmBaseFixedToTableBaseFixedOffset[2];
+}
+
+//----------------------------------------------------------------------------
+double* vtkMRMLChannel26GeometryNode::GetCarmBaseFixedToTableBaseFixedOffset()
+{
+  double* ptr = this->CarmBaseFixedToTableBaseFixedOffset;
+  switch (this->U70RoomGeo)
+  {
+  case vtkMRMLChannel26GeometryNode::R1:
+    break;
+  case vtkMRMLChannel26GeometryNode::R2:
+    {
+      using Room2CoordPos = vtkSlicerChannel26Room2RobotsGeometryCommon;
+      ptr[0] = 2 * (4300. - 1500.);
+      ptr[1] = Room2CoordPos::D_BASEMENT_CARM_ROBOT_BASE;
+      ptr[2] = -2780. + 2080. - (2880 - 1300);
+    }
+    break;
+  case vtkMRMLChannel26GeometryNode::R3:
+    {
+      using Room3CoordPos = vtkSlicerChannel26Room3RobotsGeometryCommon;
+      ptr[0] = Room3CoordPos::D_NORTH_WALL_TABLE_TOP_ROBOT_BASE - Room3CoordPos::D_NORTH_WALL_CARM_XRAY_ROBOT_BASE;
+      ptr[1] = Room3CoordPos::D_BASEMENT_CARM_ROBOT_BASE;
+      ptr[2] = Room3CoordPos::D_EAST_WALL_CARM_XRAY_ROBOT_BASE - Room3CoordPos::D_EAST_WALL_TABLE_TOP_ROBOT_BASE;
+    }
+    break;
+  default:
+    break;
+  }
+  return this->CarmBaseFixedToTableBaseFixedOffset;
+}
+
+
+//---------------------------------------------------------------------------
+void vtkMRMLChannel26GeometryNode::SetU70RoomGeo(int id)
+{
+  switch (id)
+  {
+    case 1: this->SetU70RoomGeo(vtkMRMLChannel26GeometryNode::R1); break;
+    case 2: this->SetU70RoomGeo(vtkMRMLChannel26GeometryNode::R2); break;
+    case 3: this->SetU70RoomGeo(vtkMRMLChannel26GeometryNode::R3); break;
+    default: this->SetU70RoomGeo(vtkMRMLChannel26GeometryNode::U70RoomGeoType_Last); break;
+  }
+}
+
+//---------------------------------------------------------------------------
+const char* vtkMRMLChannel26GeometryNode::GetU70RoomGeoAsString(int id)
+{
+  switch (id)
+  {
+    case vtkMRMLChannel26GeometryNode::R1: return "R1";
+    case vtkMRMLChannel26GeometryNode::R2: return "R2";
+    case vtkMRMLChannel26GeometryNode::R3: return "R2";
+    default: return "UNKNOWN";
+  }
+}
+
+//---------------------------------------------------------------------------
+int vtkMRMLChannel26GeometryNode::GetU70RoomGeoFromString(const char* name)
+{
+  if (name == nullptr)
+  {
+    // invalid name
+    return -1;
+  }
+  for (int i = 0; i < vtkMRMLChannel26GeometryNode::U70RoomGeoType_Last; i++)
+  {
+    if (std::strcmp(name, vtkMRMLChannel26GeometryNode::GetU70RoomGeoAsString(i)) == 0)
+    {
+      // found a matching name
+      return i;
+    }
+  }
+  // unknown name
+  return -1;
 }

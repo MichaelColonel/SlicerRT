@@ -33,7 +33,7 @@
 
 #include "vtkSlicerU70RoomGeoModuleLogicExport.h"
 
-#include "vtkSlicerChannel26Cabin3RobotsTransformLogic.h"
+#include "vtkSlicerChannel26RoomRobotsTransformLogic.h"
 
 class vtkMRMLU70RoomGeoNode;
 class vtkMRMLChannel26GeometryNode;
@@ -55,26 +55,26 @@ public:
   /// Load and setup components of the treatment machine into the scene based on its description.
   /// \param parameterNode Parameter node contains the treatment machine descriptor file path.
   /// \return List of parts that were successfully set up.
-  std::vector<vtkSlicerChannel26Cabin3RobotsTransformLogic::CoordinateSystemIdentifier> LoadTreatmentMachineComponents(
+  std::vector<vtkSlicerChannel26RoomRobotsTransformLogic::CoordinateSystemIdentifier> LoadTreatmentMachineComponents(
     vtkMRMLU70RoomGeoNode* parameterNode);
   /// Set up the IEC transforms and model properties on the treatment machine models.
   /// \param forceEnableCollisionDetection Enable collision detection between parts even if calculation is potentially
   ///        lengthy absed on the number of triangles of the parts.
   /// \return List of parts that were successfully set up.
-  std::vector<vtkSlicerChannel26Cabin3RobotsTransformLogic::CoordinateSystemIdentifier> SetupTreatmentMachineModels(
+  std::vector<vtkSlicerChannel26RoomRobotsTransformLogic::CoordinateSystemIdentifier> SetupTreatmentMachineModels(
     vtkMRMLU70RoomGeoNode* parameterNode, bool forceEnableCollisionDetection=false);
 
   void BuildRobotsTransformHierarchy();
   void ShowModelsNodes(vtkMRMLU70RoomGeoNode* parameterNode, bool show = true);
   void ShowMarkupsNodes(vtkMRMLU70RoomGeoNode* parameterNode, bool show = true);
 
-  /// Get Cabin26RobotsTransformLogic
-  vtkSlicerChannel26Cabin3RobotsTransformLogic* GetChannel26RobotsTransformLogic() const;
+  /// Get Channel26RoomRobotsTransformLogic
+  vtkSlicerChannel26RoomRobotsTransformLogic* GetChannel26RobotsTransformLogic() const;
 
   /// Get treatment machine properties from descriptor file
   /// Get part type as string
-  const char* GetTreatmentMachinePartTypeAsString(vtkSlicerChannel26Cabin3RobotsTransformLogic::CoordinateSystemIdentifier type);
-  vtkGetObjectMacro(Channel26Cabin3RobotsLogic, vtkSlicerChannel26Cabin3RobotsTransformLogic);
+  const char* GetTreatmentMachinePartTypeAsString(vtkSlicerChannel26RoomRobotsTransformLogic::CoordinateSystemIdentifier type);
+  vtkGetObjectMacro(Channel26RoomRobotsLogic, vtkSlicerChannel26RoomRobotsTransformLogic);
 
   /// Get part name for part type in the currently loaded treatment machine description
   std::string GetNameForPartType(std::string partType);
@@ -105,7 +105,7 @@ protected:
   /// Handles events registered in the observer manager
   void ProcessMRMLNodesEvents(vtkObject* caller, unsigned long event, void* callData) override;
 
-  vtkSlicerChannel26Cabin3RobotsTransformLogic* Channel26Cabin3RobotsLogic{ nullptr };
+  vtkSlicerChannel26RoomRobotsTransformLogic* Channel26RoomRobotsLogic{ nullptr };
 
 private:
   vtkSlicerU70RoomGeoLogic(const vtkSlicerU70RoomGeoLogic&); // Not implemented
