@@ -718,7 +718,7 @@ bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectMessagesNodes()
           }
           uint64_t errValue = errors.to_ullong();
           mrmlNode->SetErrorMessages(errValue);
-          qDebug() << Q_FUNC_INFO << "Error messages value changed:" << errValue;
+//          qDebug() << Q_FUNC_INFO << "Error messages value changed:" << errValue;
         }
       }
     }
@@ -750,7 +750,7 @@ bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectMessagesNodes()
               }
               uint64_t errValue = errors.to_ullong();
               mrmlNode->SetErrorMessages(errValue);
-              qDebug() << Q_FUNC_INFO << "Error messages value read:" << errValue;
+//              qDebug() << Q_FUNC_INFO << "Error messages value read:" << errValue;
             }
           }
         }
@@ -783,7 +783,7 @@ bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectMessagesNodes()
           }
           uint64_t servValue = servFlags.to_ullong();
           mrmlNode->SetServiceMessages(servValue);
-          qDebug() << Q_FUNC_INFO << "Service messages value changed:" << servValue;
+//          qDebug() << Q_FUNC_INFO << "Service messages value changed:" << servValue;
         }
       }
     }
@@ -815,7 +815,7 @@ bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectMessagesNodes()
               }
               uint64_t servValue = servFlags.to_ullong();
               mrmlNode->SetServiceMessages(servValue);
-              qDebug() << Q_FUNC_INFO << "Service messages value read:" << servValue;
+//              qDebug() << Q_FUNC_INFO << "Service messages value read:" << servValue;
             }
           }
         }
@@ -848,7 +848,7 @@ bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectMessagesNodes()
           }
           uint64_t miscValue = miscFlags.to_ullong();
           mrmlNode->SetMiscMessages(miscValue);
-          qDebug() << Q_FUNC_INFO << "Miscellaneous messages value changed:" << miscValue;
+//          qDebug() << Q_FUNC_INFO << "Miscellaneous messages value changed:" << miscValue;
         }
       }
     }
@@ -880,7 +880,7 @@ bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectMessagesNodes()
               }
               uint64_t miscValue = miscFlags.to_ullong();
               mrmlNode->SetMiscMessages(miscValue);
-              qDebug() << Q_FUNC_INFO << "Miscellaneous messages value read:" << miscValue;
+//              qDebug() << Q_FUNC_INFO << "Miscellaneous messages value read:" << miscValue;
             }
           }
         }
@@ -924,7 +924,7 @@ bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectAutoManualR1ToLoadNodes()
         mrmlNode->GetAutoManualR1ToLoad(amR1ToLoadCurrentState);
         amR1ToLoadCurrentState[0] = enabledValue;
         mrmlNode->SetAutoManualR1ToLoad(amR1ToLoadCurrentState);
-        qDebug() << Q_FUNC_INFO << "AutoManual R1 ToLoad button enabled changed:" << enabledValue;
+//        qDebug() << Q_FUNC_INFO << "AutoManual R1 ToLoad button enabled changed:" << enabledValue;
       }
     }
   );
@@ -944,7 +944,7 @@ bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectAutoManualR1ToLoadNodes()
           mrmlNode->GetAutoManualR1ToLoad(amR1ToLoadCurrentState);
           amR1ToLoadCurrentState[0] = enabledValue;
           mrmlNode->SetAutoManualR1ToLoad(amR1ToLoadCurrentState);
-          qDebug() << Q_FUNC_INFO << "AutoManual R1 ToLoad button enabled read:" << enabledValue;
+//          qDebug() << Q_FUNC_INFO << "AutoManual R1 ToLoad button enabled read:" << enabledValue;
         }
       }
     }
@@ -967,7 +967,7 @@ bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectAutoManualR1ToLoadNodes()
         mrmlNode->GetAutoManualR1ToLoad(amR1ToLoadCurrentState);
         amR1ToLoadCurrentState[1] = pressedValue;
         mrmlNode->SetAutoManualR1ToLoad(amR1ToLoadCurrentState);
-        qDebug() << Q_FUNC_INFO << "AutoManual R1 ToLoad button pressed changed:" << pressedValue;
+//        qDebug() << Q_FUNC_INFO << "AutoManual R1 ToLoad button pressed changed:" << pressedValue;
       }
     }
   );
@@ -987,7 +987,7 @@ bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectAutoManualR1ToLoadNodes()
           mrmlNode->GetAutoManualR1ToLoad(amR1ToLoadCurrentState);
           amR1ToLoadCurrentState[1] = pressedValue;
           mrmlNode->SetAutoManualR1ToLoad(amR1ToLoadCurrentState);
-          qDebug() << Q_FUNC_INFO << "AutoManual R1 ToLoad button pressed read:" << pressedValue;
+//          qDebug() << Q_FUNC_INFO << "AutoManual R1 ToLoad button pressed read:" << pressedValue;
         }
       }
     }
@@ -1028,7 +1028,7 @@ bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectAutoManualR1LoadToIsoNodes()
         mrmlNode->GetAutoManualR1LoadToIso(amR1LoadToIsoCurrentState);
         amR1LoadToIsoCurrentState[0] = enabledValue;
         mrmlNode->SetAutoManualR1LoadToIso(amR1LoadToIsoCurrentState);
-        qDebug() << Q_FUNC_INFO << "AutoManual R1 LoadToIso button enabled changed:" << enabledValue;
+//        qDebug() << Q_FUNC_INFO << "AutoManual R1 LoadToIso button enabled changed:" << enabledValue;
       }
     }
   );
@@ -1048,7 +1048,7 @@ bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectAutoManualR1LoadToIsoNodes()
           mrmlNode->GetAutoManualR1LoadToIso(amR1LoadToIsoCurrentState);
           amR1LoadToIsoCurrentState[0] = enabledValue;
           mrmlNode->SetAutoManualR1LoadToIso(amR1LoadToIsoCurrentState);
-          qDebug() << Q_FUNC_INFO << "AutoManual R1 LoadToIso button enabled read:" << enabledValue;
+//          qDebug() << Q_FUNC_INFO << "AutoManual R1 LoadToIso button enabled read:" << enabledValue;
         }
       }
     }
@@ -1071,7 +1071,7 @@ bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectAutoManualR1LoadToIsoNodes()
         mrmlNode->GetAutoManualR1LoadToIso(amR1LoadToIsoCurrentState);
         amR1LoadToIsoCurrentState[1] = pressedValue;
         mrmlNode->SetAutoManualR1LoadToIso(amR1LoadToIsoCurrentState);
-        qDebug() << Q_FUNC_INFO << "AutoManual R1 LoadToIso button pressed changed:" << pressedValue;
+//        qDebug() << Q_FUNC_INFO << "AutoManual R1 LoadToIso button pressed changed:" << pressedValue;
       }
     }
   );
@@ -1091,7 +1091,7 @@ bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectAutoManualR1LoadToIsoNodes()
           mrmlNode->GetAutoManualR1LoadToIso(amR1LoadToIsoCurrentState);
           amR1LoadToIsoCurrentState[1] = pressedValue;
           mrmlNode->SetAutoManualR1LoadToIso(amR1LoadToIsoCurrentState);
-          qDebug() << Q_FUNC_INFO << "AutoManual R1 LoadToIso button pressed read:" << pressedValue;
+//          qDebug() << Q_FUNC_INFO << "AutoManual R1 LoadToIso button pressed read:" << pressedValue;
         }
       }
     }
@@ -1132,7 +1132,7 @@ bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectAutoManualR1R2EmergencyEvacuati
         mrmlNode->GetAutoManualEmergencyEvac(amR1R2EmEvacCurrentState);
         amR1R2EmEvacCurrentState[0] = enabledValue;
         mrmlNode->SetAutoManualEmergencyEvac(amR1R2EmEvacCurrentState);
-        qDebug() << Q_FUNC_INFO << "AutoManual R1R2 EmergencyEvacuation button enabled changed:" << enabledValue;
+//        qDebug() << Q_FUNC_INFO << "AutoManual R1R2 EmergencyEvacuation button enabled changed:" << enabledValue;
       }
     }
   );
@@ -1152,7 +1152,7 @@ bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectAutoManualR1R2EmergencyEvacuati
           mrmlNode->GetAutoManualEmergencyEvac(amR1R2EmEvacCurrentState);
           amR1R2EmEvacCurrentState[0] = enabledValue;
           mrmlNode->SetAutoManualEmergencyEvac(amR1R2EmEvacCurrentState);
-          qDebug() << Q_FUNC_INFO << "AutoManual R1R2 EmergencyEvacuation button enabled read:" << enabledValue;
+//          qDebug() << Q_FUNC_INFO << "AutoManual R1R2 EmergencyEvacuation button enabled read:" << enabledValue;
         }
       }
     }
@@ -1175,7 +1175,7 @@ bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectAutoManualR1R2EmergencyEvacuati
         mrmlNode->GetAutoManualEmergencyEvac(amR1R2EmEvacCurrentState);
         amR1R2EmEvacCurrentState[1] = pressedValue;
         mrmlNode->SetAutoManualEmergencyEvac(amR1R2EmEvacCurrentState);
-        qDebug() << Q_FUNC_INFO << "AutoManual R1R2 EmergencyEvacuation button pressed changed:" << pressedValue;
+//        qDebug() << Q_FUNC_INFO << "AutoManual R1R2 EmergencyEvacuation button pressed changed:" << pressedValue;
       }
     }
   );
@@ -1195,7 +1195,7 @@ bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectAutoManualR1R2EmergencyEvacuati
           mrmlNode->GetAutoManualEmergencyEvac(amR1R2EmEvacCurrentState);
           amR1R2EmEvacCurrentState[1] = pressedValue;
           mrmlNode->SetAutoManualEmergencyEvac(amR1R2EmEvacCurrentState);
-          qDebug() << Q_FUNC_INFO << "AutoManual R1R2 EmergencyEvacuation button pressed read:" << pressedValue;
+//          qDebug() << Q_FUNC_INFO << "AutoManual R1R2 EmergencyEvacuation button pressed read:" << pressedValue;
         }
       }
     }
@@ -1237,7 +1237,7 @@ bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectServiceR1BreakTestNodes()
         mrmlNode->GetServiceR1BreakTest(smR1BreakTestCurrentState);
         smR1BreakTestCurrentState[0] = enabledValue;
         mrmlNode->SetServiceR1BreakTest(smR1BreakTestCurrentState);
-        qDebug() << Q_FUNC_INFO << "Service R1 BreakTest button enabled changed:" << enabledValue;
+//        qDebug() << Q_FUNC_INFO << "Service R1 BreakTest button enabled changed:" << enabledValue;
       }
     }
   );
@@ -1257,7 +1257,7 @@ bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectServiceR1BreakTestNodes()
           mrmlNode->GetServiceR1BreakTest(smR1BreakTestCurrentState);
           smR1BreakTestCurrentState[0] = enabledValue;
           mrmlNode->SetServiceR1BreakTest(smR1BreakTestCurrentState);
-          qDebug() << Q_FUNC_INFO << "Service R1 BreakTest button enabled read:" << enabledValue;
+//          qDebug() << Q_FUNC_INFO << "Service R1 BreakTest button enabled read:" << enabledValue;
         }
       }
     }
@@ -1280,7 +1280,7 @@ bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectServiceR1BreakTestNodes()
         mrmlNode->GetServiceR1BreakTest(smR1BreakTestCurrentState);
         smR1BreakTestCurrentState[1] = pressedValue;
         mrmlNode->SetServiceR1BreakTest(smR1BreakTestCurrentState);
-        qDebug() << Q_FUNC_INFO << "Service R1 BreakTest button pressed changed:" << pressedValue;
+//        qDebug() << Q_FUNC_INFO << "Service R1 BreakTest button pressed changed:" << pressedValue;
       }
     }
   );
@@ -1300,7 +1300,7 @@ bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectServiceR1BreakTestNodes()
           mrmlNode->GetServiceR1BreakTest(smR1BreakTestCurrentState);
           smR1BreakTestCurrentState[1] = pressedValue;
           mrmlNode->SetServiceR1BreakTest(smR1BreakTestCurrentState);
-          qDebug() << Q_FUNC_INFO << "Service R1 BreakTest button pressed read:" << pressedValue;
+//          qDebug() << Q_FUNC_INFO << "Service R1 BreakTest button pressed read:" << pressedValue;
         }
       }
     }
@@ -1341,7 +1341,7 @@ bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectServiceR1MasterRefTestNodes()
         mrmlNode->GetServiceR1MasterReferenceTest(smR1MasterRefTestCurrentState);
         smR1MasterRefTestCurrentState[0] = enabledValue;
         mrmlNode->GetServiceR1MasterReferenceTest(smR1MasterRefTestCurrentState);
-        qDebug() << Q_FUNC_INFO << "Service R1 MasterReferenceTest button enabled changed:" << enabledValue;
+//        qDebug() << Q_FUNC_INFO << "Service R1 MasterReferenceTest button enabled changed:" << enabledValue;
       }
     }
   );
@@ -1361,7 +1361,7 @@ bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectServiceR1MasterRefTestNodes()
           mrmlNode->GetServiceR1MasterReferenceTest(smR1MasterRefTestCurrentState);
           smR1MasterRefTestCurrentState[0] = enabledValue;
           mrmlNode->GetServiceR1MasterReferenceTest(smR1MasterRefTestCurrentState);
-          qDebug() << Q_FUNC_INFO << "Service R1 MasterReferenceTest button enabled read:" << enabledValue;
+//          qDebug() << Q_FUNC_INFO << "Service R1 MasterReferenceTest button enabled read:" << enabledValue;
         }
       }
     }
@@ -1384,7 +1384,7 @@ bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectServiceR1MasterRefTestNodes()
         mrmlNode->GetServiceR1MasterReferenceTest(smR1MasterRefTestCurrentState);
         smR1MasterRefTestCurrentState[1] = pressedValue;
         mrmlNode->GetServiceR1MasterReferenceTest(smR1MasterRefTestCurrentState);
-        qDebug() << Q_FUNC_INFO << "Service R1 MasterReferenceTest button pressed changed:" << pressedValue;
+//        qDebug() << Q_FUNC_INFO << "Service R1 MasterReferenceTest button pressed changed:" << pressedValue;
       }
     }
   );
@@ -1404,7 +1404,7 @@ bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectServiceR1MasterRefTestNodes()
           mrmlNode->GetServiceR1MasterReferenceTest(smR1MasterRefTestCurrentState);
           smR1MasterRefTestCurrentState[1] = pressedValue;
           mrmlNode->GetServiceR1MasterReferenceTest(smR1MasterRefTestCurrentState);
-          qDebug() << Q_FUNC_INFO << "Service R1 MasterReferenceTest button pressed read:" << pressedValue;
+//          qDebug() << Q_FUNC_INFO << "Service R1 MasterReferenceTest button pressed read:" << pressedValue;
         }
       }
     }
@@ -1445,7 +1445,7 @@ bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectServiceR1LoadNodes()
         mrmlNode->GetServiceR1Load(smR1LoadCurrentState);
         smR1LoadCurrentState[0] = enabledValue;
         mrmlNode->GetServiceR1Load(smR1LoadCurrentState);
-        qDebug() << Q_FUNC_INFO << "Service R1 Load button enabled changed:" << enabledValue;
+//        qDebug() << Q_FUNC_INFO << "Service R1 Load button enabled changed:" << enabledValue;
       }
     }
   );
@@ -1465,7 +1465,7 @@ bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectServiceR1LoadNodes()
           mrmlNode->GetServiceR1Load(smR1LoadCurrentState);
           smR1LoadCurrentState[0] = enabledValue;
           mrmlNode->GetServiceR1Load(smR1LoadCurrentState);
-          qDebug() << Q_FUNC_INFO << "Service R1 Load button enabled read:" << enabledValue;
+//          qDebug() << Q_FUNC_INFO << "Service R1 Load button enabled read:" << enabledValue;
         }
       }
     }
@@ -1488,7 +1488,7 @@ bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectServiceR1LoadNodes()
         mrmlNode->GetServiceR1Load(smR1LoadCurrentState);
         smR1LoadCurrentState[1] = pressedValue;
         mrmlNode->GetServiceR1Load(smR1LoadCurrentState);
-        qDebug() << Q_FUNC_INFO << "Service R1 Load button pressed changed:" << pressedValue;
+//        qDebug() << Q_FUNC_INFO << "Service R1 Load button pressed changed:" << pressedValue;
       }
     }
   );
@@ -1508,7 +1508,7 @@ bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectServiceR1LoadNodes()
           mrmlNode->GetServiceR1Load(smR1LoadCurrentState);
           smR1LoadCurrentState[1] = pressedValue;
           mrmlNode->GetServiceR1Load(smR1LoadCurrentState);
-          qDebug() << Q_FUNC_INFO << "Service R1 Load button pressed read:" << pressedValue;
+//          qDebug() << Q_FUNC_INFO << "Service R1 Load button pressed read:" << pressedValue;
         }
       }
     }
@@ -1549,7 +1549,7 @@ bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectServiceR1ServicePos1Nodes()
         mrmlNode->GetServiceR1Position1(smR1ServicePos1CurrentState);
         smR1ServicePos1CurrentState[0] = enabledValue;
         mrmlNode->GetServiceR1Position1(smR1ServicePos1CurrentState);
-        qDebug() << Q_FUNC_INFO << "Service R1 ServicePosition1 button enabled changed:" << enabledValue;
+//        qDebug() << Q_FUNC_INFO << "Service R1 ServicePosition1 button enabled changed:" << enabledValue;
       }
     }
   );
@@ -1569,7 +1569,7 @@ bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectServiceR1ServicePos1Nodes()
           mrmlNode->GetServiceR1Position1(smR1ServicePos1CurrentState);
           smR1ServicePos1CurrentState[0] = enabledValue;
           mrmlNode->GetServiceR1Position1(smR1ServicePos1CurrentState);
-          qDebug() << Q_FUNC_INFO << "Service R1 ServicePosition1 button enabled read:" << enabledValue;
+//          qDebug() << Q_FUNC_INFO << "Service R1 ServicePosition1 button enabled read:" << enabledValue;
         }
       }
     }
@@ -1592,7 +1592,7 @@ bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectServiceR1ServicePos1Nodes()
         mrmlNode->GetServiceR1Position1(smR1ServicePos1CurrentState);
         smR1ServicePos1CurrentState[1] = pressedValue;
         mrmlNode->GetServiceR1Position1(smR1ServicePos1CurrentState);
-        qDebug() << Q_FUNC_INFO << "Service R1 ServicePosition1 button pressed changed:" << pressedValue;
+//        qDebug() << Q_FUNC_INFO << "Service R1 ServicePosition1 button pressed changed:" << pressedValue;
       }
     }
   );
@@ -1612,7 +1612,7 @@ bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectServiceR1ServicePos1Nodes()
           mrmlNode->GetServiceR1Position1(smR1ServicePos1CurrentState);
           smR1ServicePos1CurrentState[1] = pressedValue;
           mrmlNode->GetServiceR1Position1(smR1ServicePos1CurrentState);
-          qDebug() << Q_FUNC_INFO << "Service R1 ServicePosition1 button pressed read:" << pressedValue;
+//          qDebug() << Q_FUNC_INFO << "Service R1 ServicePosition1 button pressed read:" << pressedValue;
         }
       }
     }
@@ -1653,7 +1653,7 @@ bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectServiceR1ServicePos2Nodes()
         mrmlNode->GetServiceR1Position2(smR1ServicePos2CurrentState);
         smR1ServicePos2CurrentState[0] = enabledValue;
         mrmlNode->GetServiceR1Position2(smR1ServicePos2CurrentState);
-        qDebug() << Q_FUNC_INFO << "Service R1 ServicePosition2 button enabled changed:" << enabledValue;
+ //       qDebug() << Q_FUNC_INFO << "Service R1 ServicePosition2 button enabled changed:" << enabledValue;
       }
     }
   );
@@ -1673,7 +1673,7 @@ bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectServiceR1ServicePos2Nodes()
           mrmlNode->GetServiceR1Position2(smR1ServicePos2CurrentState);
           smR1ServicePos2CurrentState[0] = enabledValue;
           mrmlNode->GetServiceR1Position2(smR1ServicePos2CurrentState);
-          qDebug() << Q_FUNC_INFO << "Service R1 ServicePosition2 button enabled read:" << enabledValue;
+//          qDebug() << Q_FUNC_INFO << "Service R1 ServicePosition2 button enabled read:" << enabledValue;
         }
       }
     }
@@ -1696,7 +1696,7 @@ bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectServiceR1ServicePos2Nodes()
         mrmlNode->GetServiceR1Position2(smR1ServicePos2CurrentState);
         smR1ServicePos2CurrentState[1] = pressedValue;
         mrmlNode->GetServiceR1Position2(smR1ServicePos2CurrentState);
-        qDebug() << Q_FUNC_INFO << "Service R1 ServicePosition2 button pressed changed:" << pressedValue;
+//        qDebug() << Q_FUNC_INFO << "Service R1 ServicePosition2 button pressed changed:" << pressedValue;
       }
     }
   );
@@ -1716,7 +1716,7 @@ bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectServiceR1ServicePos2Nodes()
           mrmlNode->GetServiceR1Position2(smR1ServicePos2CurrentState);
           smR1ServicePos2CurrentState[1] = pressedValue;
           mrmlNode->GetServiceR1Position2(smR1ServicePos2CurrentState);
-          qDebug() << Q_FUNC_INFO << "Service R1 ServicePosition2 button pressed read:" << pressedValue;
+//          qDebug() << Q_FUNC_INFO << "Service R1 ServicePosition2 button pressed read:" << pressedValue;
         }
       }
     }
@@ -1757,7 +1757,7 @@ bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectServiceR1ServicePos3Nodes()
         mrmlNode->GetServiceR1Position3(smR1ServicePos3CurrentState);
         smR1ServicePos3CurrentState[0] = enabledValue;
         mrmlNode->GetServiceR1Position3(smR1ServicePos3CurrentState);
-        qDebug() << Q_FUNC_INFO << "Service R1 ServicePosition3 button enabled changed:" << enabledValue;
+//        qDebug() << Q_FUNC_INFO << "Service R1 ServicePosition3 button enabled changed:" << enabledValue;
       }
     }
   );
@@ -1777,7 +1777,7 @@ bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectServiceR1ServicePos3Nodes()
           mrmlNode->GetServiceR1Position3(smR1ServicePos3CurrentState);
           smR1ServicePos3CurrentState[0] = enabledValue;
           mrmlNode->GetServiceR1Position3(smR1ServicePos3CurrentState);
-          qDebug() << Q_FUNC_INFO << "Service R1 ServicePosition3 button enabled read:" << enabledValue;
+//          qDebug() << Q_FUNC_INFO << "Service R1 ServicePosition3 button enabled read:" << enabledValue;
         }
       }
     }
@@ -1800,7 +1800,7 @@ bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectServiceR1ServicePos3Nodes()
         mrmlNode->GetServiceR1Position3(smR1ServicePos3CurrentState);
         smR1ServicePos3CurrentState[1] = pressedValue;
         mrmlNode->GetServiceR1Position3(smR1ServicePos3CurrentState);
-        qDebug() << Q_FUNC_INFO << "Service R1 ServicePosition3 button pressed changed:" << pressedValue;
+//        qDebug() << Q_FUNC_INFO << "Service R1 ServicePosition3 button pressed changed:" << pressedValue;
       }
     }
   );
@@ -1820,7 +1820,7 @@ bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectServiceR1ServicePos3Nodes()
           mrmlNode->GetServiceR1Position3(smR1ServicePos3CurrentState);
           smR1ServicePos3CurrentState[1] = pressedValue;
           mrmlNode->GetServiceR1Position3(smR1ServicePos3CurrentState);
-          qDebug() << Q_FUNC_INFO << "Service R1 ServicePosition3 button pressed read:" << pressedValue;
+//          qDebug() << Q_FUNC_INFO << "Service R1 ServicePosition3 button pressed read:" << pressedValue;
         }
       }
     }
@@ -1861,7 +1861,7 @@ bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectServiceR2BreakTestNodes()
         mrmlNode->GetServiceR2BreakTest(smR2BreakTestCurrentState);
         smR2BreakTestCurrentState[0] = enabledValue;
         mrmlNode->SetServiceR2BreakTest(smR2BreakTestCurrentState);
-        qDebug() << Q_FUNC_INFO << "Service R2 BreakTest button enabled changed:" << enabledValue;
+//        qDebug() << Q_FUNC_INFO << "Service R2 BreakTest button enabled changed:" << enabledValue;
       }
     }
   );
@@ -1881,7 +1881,7 @@ bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectServiceR2BreakTestNodes()
           mrmlNode->GetServiceR2BreakTest(smR2BreakTestCurrentState);
           smR2BreakTestCurrentState[0] = enabledValue;
           mrmlNode->SetServiceR2BreakTest(smR2BreakTestCurrentState);
-          qDebug() << Q_FUNC_INFO << "Service R2 BreakTest button enabled read:" << enabledValue;
+//          qDebug() << Q_FUNC_INFO << "Service R2 BreakTest button enabled read:" << enabledValue;
         }
       }
     }
@@ -1904,7 +1904,7 @@ bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectServiceR2BreakTestNodes()
         mrmlNode->GetServiceR2BreakTest(smR2BreakTestCurrentState);
         smR2BreakTestCurrentState[1] = pressedValue;
         mrmlNode->SetServiceR2BreakTest(smR2BreakTestCurrentState);
-        qDebug() << Q_FUNC_INFO << "Service R2 BreakTest button pressed changed:" << pressedValue;
+//        qDebug() << Q_FUNC_INFO << "Service R2 BreakTest button pressed changed:" << pressedValue;
       }
     }
   );
@@ -1924,7 +1924,7 @@ bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectServiceR2BreakTestNodes()
           mrmlNode->GetServiceR2BreakTest(smR2BreakTestCurrentState);
           smR2BreakTestCurrentState[1] = pressedValue;
           mrmlNode->SetServiceR2BreakTest(smR2BreakTestCurrentState);
-          qDebug() << Q_FUNC_INFO << "Service R2 BreakTest button pressed read:" << pressedValue;
+//          qDebug() << Q_FUNC_INFO << "Service R2 BreakTest button pressed read:" << pressedValue;
         }
       }
     }
@@ -1965,7 +1965,7 @@ bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectServiceR2MasterRefTestNodes()
         mrmlNode->GetServiceR2MasterReferenceTest(smR2MasterRefTestCurrentState);
         smR2MasterRefTestCurrentState[0] = enabledValue;
         mrmlNode->SetServiceR2MasterReferenceTest(smR2MasterRefTestCurrentState);
-        qDebug() << Q_FUNC_INFO << "Service R2 MasterReferenceTest button enabled changed:" << enabledValue;
+//        qDebug() << Q_FUNC_INFO << "Service R2 MasterReferenceTest button enabled changed:" << enabledValue;
       }
     }
   );
@@ -1985,7 +1985,7 @@ bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectServiceR2MasterRefTestNodes()
           mrmlNode->GetServiceR2MasterReferenceTest(smR2MasterRefTestCurrentState);
           smR2MasterRefTestCurrentState[0] = enabledValue;
           mrmlNode->SetServiceR2MasterReferenceTest(smR2MasterRefTestCurrentState);
-          qDebug() << Q_FUNC_INFO << "Service R2 MasterReferenceTest button read changed:" << enabledValue;
+//          qDebug() << Q_FUNC_INFO << "Service R2 MasterReferenceTest button read changed:" << enabledValue;
         }
       }
     }
@@ -2008,7 +2008,7 @@ bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectServiceR2MasterRefTestNodes()
         mrmlNode->GetServiceR2MasterReferenceTest(smR2MasterRefTestCurrentState);
         smR2MasterRefTestCurrentState[1] = pressedValue;
         mrmlNode->SetServiceR2MasterReferenceTest(smR2MasterRefTestCurrentState);
-        qDebug() << Q_FUNC_INFO << "Service R2 MasterReferenceTest button pressed changed:" << pressedValue;
+//        qDebug() << Q_FUNC_INFO << "Service R2 MasterReferenceTest button pressed changed:" << pressedValue;
       }
     }
   );
@@ -2028,7 +2028,7 @@ bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectServiceR2MasterRefTestNodes()
           mrmlNode->GetServiceR2MasterReferenceTest(smR2MasterRefTestCurrentState);
           smR2MasterRefTestCurrentState[1] = pressedValue;
           mrmlNode->SetServiceR2MasterReferenceTest(smR2MasterRefTestCurrentState);
-          qDebug() << Q_FUNC_INFO << "Service R2 MasterReferenceTest button pressed read:" << pressedValue;
+//          qDebug() << Q_FUNC_INFO << "Service R2 MasterReferenceTest button pressed read:" << pressedValue;
         }
       }
     }
@@ -2069,7 +2069,7 @@ bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectServiceR2HomeNodes()
         mrmlNode->GetServiceR2Home(smR2HomeCurrentState);
         smR2HomeCurrentState[0] = enabledValue;
         mrmlNode->SetServiceR2Home(smR2HomeCurrentState);
-        qDebug() << Q_FUNC_INFO << "Service R2 Home button enabled changed:" << enabledValue;
+//        qDebug() << Q_FUNC_INFO << "Service R2 Home button enabled changed:" << enabledValue;
       }
     }
   );
@@ -2089,7 +2089,7 @@ bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectServiceR2HomeNodes()
           mrmlNode->GetServiceR2Home(smR2HomeCurrentState);
           smR2HomeCurrentState[0] = enabledValue;
           mrmlNode->SetServiceR2Home(smR2HomeCurrentState);
-          qDebug() << Q_FUNC_INFO << "Service R2 Home button enabled read:" << enabledValue;
+//          qDebug() << Q_FUNC_INFO << "Service R2 Home button enabled read:" << enabledValue;
         }
       }
     }
@@ -2112,7 +2112,7 @@ bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectServiceR2HomeNodes()
         mrmlNode->GetServiceR2Home(smR2HomeCurrentState);
         smR2HomeCurrentState[1] = pressedValue;
         mrmlNode->SetServiceR2Home(smR2HomeCurrentState);
-        qDebug() << Q_FUNC_INFO << "Service R2 Home button pressed changed:" << pressedValue;
+//        qDebug() << Q_FUNC_INFO << "Service R2 Home button pressed changed:" << pressedValue;
       }
     }
   );
@@ -2132,7 +2132,7 @@ bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectServiceR2HomeNodes()
           mrmlNode->GetServiceR2Home(smR2HomeCurrentState);
           smR2HomeCurrentState[1] = pressedValue;
           mrmlNode->SetServiceR2Home(smR2HomeCurrentState);
-          qDebug() << Q_FUNC_INFO << "Service R2 Home button pressed read:" << pressedValue;
+//          qDebug() << Q_FUNC_INFO << "Service R2 Home button pressed read:" << pressedValue;
         }
       }
     }
@@ -2173,7 +2173,7 @@ bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectServiceR2ServicePos1Nodes()
         mrmlNode->GetServiceR2Position1(smR2ServicePos1CurrentState);
         smR2ServicePos1CurrentState[0] = enabledValue;
         mrmlNode->SetServiceR2Position1(smR2ServicePos1CurrentState);
-        qDebug() << Q_FUNC_INFO << "Service R2 ServicePosition1 button enabled changed:" << enabledValue;
+//        qDebug() << Q_FUNC_INFO << "Service R2 ServicePosition1 button enabled changed:" << enabledValue;
       }
     }
   );
@@ -2193,7 +2193,7 @@ bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectServiceR2ServicePos1Nodes()
           mrmlNode->GetServiceR2Position1(smR2ServicePos1CurrentState);
           smR2ServicePos1CurrentState[0] = enabledValue;
           mrmlNode->SetServiceR2Position1(smR2ServicePos1CurrentState);
-          qDebug() << Q_FUNC_INFO << "Service R2 ServicePosition1 button enabled read:" << enabledValue;
+//          qDebug() << Q_FUNC_INFO << "Service R2 ServicePosition1 button enabled read:" << enabledValue;
         }
       }
     }
@@ -2216,7 +2216,7 @@ bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectServiceR2ServicePos1Nodes()
         mrmlNode->GetServiceR2Position1(smR2ServicePos1CurrentState);
         smR2ServicePos1CurrentState[1] = pressedValue;
         mrmlNode->SetServiceR2Position1(smR2ServicePos1CurrentState);
-        qDebug() << Q_FUNC_INFO << "Service R2 ServicePosition1 button pressed changed:" << pressedValue;
+//        qDebug() << Q_FUNC_INFO << "Service R2 ServicePosition1 button pressed changed:" << pressedValue;
       }
     }
   );
@@ -2236,7 +2236,7 @@ bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectServiceR2ServicePos1Nodes()
           mrmlNode->GetServiceR2Position1(smR2ServicePos1CurrentState);
           smR2ServicePos1CurrentState[1] = pressedValue;
           mrmlNode->SetServiceR2Position1(smR2ServicePos1CurrentState);
-          qDebug() << Q_FUNC_INFO << "Service R2 ServicePosition1 button pressed read:" << pressedValue;
+//          qDebug() << Q_FUNC_INFO << "Service R2 ServicePosition1 button pressed read:" << pressedValue;
         }
       }
     }
@@ -2277,7 +2277,7 @@ bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectServiceR2ServicePos2Nodes()
         mrmlNode->GetServiceR2Position2(smR2ServicePos2CurrentState);
         smR2ServicePos2CurrentState[0] = enabledValue;
         mrmlNode->SetServiceR2Position2(smR2ServicePos2CurrentState);
-        qDebug() << Q_FUNC_INFO << "Service R2 ServicePosition2 button enabled changed:" << enabledValue;
+//        qDebug() << Q_FUNC_INFO << "Service R2 ServicePosition2 button enabled changed:" << enabledValue;
       }
     }
   );
@@ -2297,7 +2297,7 @@ bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectServiceR2ServicePos2Nodes()
           mrmlNode->GetServiceR2Position2(smR2ServicePos2CurrentState);
           smR2ServicePos2CurrentState[0] = enabledValue;
           mrmlNode->SetServiceR2Position2(smR2ServicePos2CurrentState);
-          qDebug() << Q_FUNC_INFO << "Service R2 ServicePosition2 button enabled read:" << enabledValue;
+//          qDebug() << Q_FUNC_INFO << "Service R2 ServicePosition2 button enabled read:" << enabledValue;
         }
       }
     }
@@ -2320,7 +2320,7 @@ bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectServiceR2ServicePos2Nodes()
         mrmlNode->GetServiceR2Position2(smR2ServicePos2CurrentState);
         smR2ServicePos2CurrentState[1] = pressedValue;
         mrmlNode->SetServiceR2Position2(smR2ServicePos2CurrentState);
-        qDebug() << Q_FUNC_INFO << "Service R2 ServicePosition2 button pressed changed:" << pressedValue;
+//        qDebug() << Q_FUNC_INFO << "Service R2 ServicePosition2 button pressed changed:" << pressedValue;
       }
     }
   );
@@ -2340,7 +2340,7 @@ bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectServiceR2ServicePos2Nodes()
           mrmlNode->GetServiceR2Position2(smR2ServicePos2CurrentState);
           smR2ServicePos2CurrentState[1] = pressedValue;
           mrmlNode->SetServiceR2Position2(smR2ServicePos2CurrentState);
-          qDebug() << Q_FUNC_INFO << "Service R2 ServicePosition2 button pressed read:" << pressedValue;
+//          qDebug() << Q_FUNC_INFO << "Service R2 ServicePosition2 button pressed read:" << pressedValue;
         }
       }
     }
@@ -2381,7 +2381,7 @@ bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectServiceR2ServicePos3Nodes()
         mrmlNode->GetServiceR2Position3(smR2ServicePos3CurrentState);
         smR2ServicePos3CurrentState[0] = enabledValue;
         mrmlNode->SetServiceR2Position3(smR2ServicePos3CurrentState);
-        qDebug() << Q_FUNC_INFO << "Service R2 ServicePosition3 button enabled changed:" << enabledValue;
+//        qDebug() << Q_FUNC_INFO << "Service R2 ServicePosition3 button enabled changed:" << enabledValue;
       }
     }
   );
@@ -2401,7 +2401,7 @@ bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectServiceR2ServicePos3Nodes()
           mrmlNode->GetServiceR2Position3(smR2ServicePos3CurrentState);
           smR2ServicePos3CurrentState[0] = enabledValue;
           mrmlNode->SetServiceR2Position3(smR2ServicePos3CurrentState);
-          qDebug() << Q_FUNC_INFO << "Service R2 ServicePosition3 button enabled read:" << enabledValue;
+//          qDebug() << Q_FUNC_INFO << "Service R2 ServicePosition3 button enabled read:" << enabledValue;
         }
       }
     }
@@ -2424,7 +2424,7 @@ bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectServiceR2ServicePos3Nodes()
         mrmlNode->GetServiceR2Position3(smR2ServicePos3CurrentState);
         smR2ServicePos3CurrentState[1] = pressedValue;
         mrmlNode->SetServiceR2Position3(smR2ServicePos3CurrentState);
-        qDebug() << Q_FUNC_INFO << "Service R2 ServicePosition3 button pressed changed:" << pressedValue;
+//        qDebug() << Q_FUNC_INFO << "Service R2 ServicePosition3 button pressed changed:" << pressedValue;
       }
     }
   );
@@ -2444,7 +2444,7 @@ bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectServiceR2ServicePos3Nodes()
           mrmlNode->GetServiceR2Position3(smR2ServicePos3CurrentState);
           smR2ServicePos3CurrentState[1] = pressedValue;
           mrmlNode->SetServiceR2Position3(smR2ServicePos3CurrentState);
-          qDebug() << Q_FUNC_INFO << "Service R2 ServicePosition3 button pressed read:" << pressedValue;
+//          qDebug() << Q_FUNC_INFO << "Service R2 ServicePosition3 button pressed read:" << pressedValue;
         }
       }
     }
@@ -2485,7 +2485,7 @@ bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectServiceRestartNodes()
         mrmlNode->GetServiceRestart(smRestartCurrentState);
         smRestartCurrentState[0] = enabledValue;
         mrmlNode->SetServiceRestart(smRestartCurrentState);
-        qDebug() << Q_FUNC_INFO << "Service RestartSM button enabled changed:" << enabledValue;
+//        qDebug() << Q_FUNC_INFO << "Service RestartSM button enabled changed:" << enabledValue;
       }
     }
   );
@@ -2505,7 +2505,7 @@ bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectServiceRestartNodes()
           mrmlNode->GetServiceRestart(smRestartCurrentState);
           smRestartCurrentState[0] = enabledValue;
           mrmlNode->SetServiceRestart(smRestartCurrentState);
-          qDebug() << Q_FUNC_INFO << "Service RestartSM button enabled read:" << enabledValue;
+//          qDebug() << Q_FUNC_INFO << "Service RestartSM button enabled read:" << enabledValue;
         }
       }
     }
@@ -2528,7 +2528,7 @@ bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectServiceRestartNodes()
         mrmlNode->GetServiceRestart(smRestartCurrentState);
         smRestartCurrentState[1] = pressedValue;
         mrmlNode->SetServiceRestart(smRestartCurrentState);
-        qDebug() << Q_FUNC_INFO << "Service RestartSM button pressed changed:" << pressedValue;
+//        qDebug() << Q_FUNC_INFO << "Service RestartSM button pressed changed:" << pressedValue;
       }
     }
   );
@@ -2548,7 +2548,7 @@ bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectServiceRestartNodes()
           mrmlNode->GetServiceRestart(smRestartCurrentState);
           smRestartCurrentState[1] = pressedValue;
           mrmlNode->SetServiceRestart(smRestartCurrentState);
-          qDebug() << Q_FUNC_INFO << "Service RestartSM button pressed read:" << pressedValue;
+//          qDebug() << Q_FUNC_INFO << "Service RestartSM button pressed read:" << pressedValue;
         }
       }
     }
@@ -2611,7 +2611,7 @@ bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectResetErrorsNodes()
         mrmlNode->GetResetErrors(resetErrorsCurrentState);
         resetErrorsCurrentState[0] = enabledValue;
         mrmlNode->SetResetErrors(resetErrorsCurrentState);
-        qDebug() << Q_FUNC_INFO << "ResetErrors button enabled changed:" << enabledValue;
+//        qDebug() << Q_FUNC_INFO << "ResetErrors button enabled changed:" << enabledValue;
       }
     }
   );
@@ -2631,7 +2631,7 @@ bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectResetErrorsNodes()
           mrmlNode->GetResetErrors(resetErrorsCurrentState);
           resetErrorsCurrentState[0] = enabledValue;
           mrmlNode->SetResetErrors(resetErrorsCurrentState);
-          qDebug() << Q_FUNC_INFO << "ResetErrors button enabled read:" << enabledValue;
+//          qDebug() << Q_FUNC_INFO << "ResetErrors button enabled read:" << enabledValue;
         }
       }
     }
@@ -2654,7 +2654,7 @@ bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectResetErrorsNodes()
         mrmlNode->GetResetErrors(resetErrorsCurrentState);
         resetErrorsCurrentState[1] = pressedValue;
         mrmlNode->SetResetErrors(resetErrorsCurrentState);
-        qDebug() << Q_FUNC_INFO << "ResetErrors button pressed changed:" << pressedValue;
+//        qDebug() << Q_FUNC_INFO << "ResetErrors button pressed changed:" << pressedValue;
       }
     }
   );
@@ -2674,7 +2674,7 @@ bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectResetErrorsNodes()
           mrmlNode->GetResetErrors(resetErrorsCurrentState);
           resetErrorsCurrentState[1] = pressedValue;
           mrmlNode->SetResetErrors(resetErrorsCurrentState);
-          qDebug() << Q_FUNC_INFO << "ResetErrors button pressed read:" << pressedValue;
+//          qDebug() << Q_FUNC_INFO << "ResetErrors button pressed read:" << pressedValue;
         }
       }
     }
@@ -2715,7 +2715,7 @@ bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectMakeXrayNodes()
         mrmlNode->GetMakeXray(makeXrayCurrentState);
         makeXrayCurrentState[0] = enabledValue;
         mrmlNode->SetMakeXray(makeXrayCurrentState);
-        qDebug() << Q_FUNC_INFO << "MakeXRay button enabled changed:" << enabledValue;
+//        qDebug() << Q_FUNC_INFO << "MakeXRay button enabled changed:" << enabledValue;
       }
     }
   );
@@ -2735,7 +2735,7 @@ bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectMakeXrayNodes()
           mrmlNode->GetMakeXray(makeXrayCurrentState);
           makeXrayCurrentState[0] = enabledValue;
           mrmlNode->SetMakeXray(makeXrayCurrentState);
-          qDebug() << Q_FUNC_INFO << "MakeXRay button enabled read:" << enabledValue;
+//          qDebug() << Q_FUNC_INFO << "MakeXRay button enabled read:" << enabledValue;
         }
       }
     }
@@ -2758,7 +2758,7 @@ bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectMakeXrayNodes()
         mrmlNode->GetMakeXray(makeXrayCurrentState);
         makeXrayCurrentState[1] = pressedValue;
         mrmlNode->SetMakeXray(makeXrayCurrentState);
-        qDebug() << Q_FUNC_INFO << "MakeXRay button pressed changed:" << pressedValue;
+//        qDebug() << Q_FUNC_INFO << "MakeXRay button pressed changed:" << pressedValue;
       }
     }
   );
@@ -2778,7 +2778,7 @@ bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectMakeXrayNodes()
           mrmlNode->GetMakeXray(makeXrayCurrentState);
           makeXrayCurrentState[1] = pressedValue;
           mrmlNode->SetMakeXray(makeXrayCurrentState);
-          qDebug() << Q_FUNC_INFO << "MakeXRay button pressed read:" << pressedValue;
+//          qDebug() << Q_FUNC_INFO << "MakeXRay button pressed read:" << pressedValue;
         }
       }
     }
@@ -2819,7 +2819,7 @@ bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectAutoManualR1ToNewCoordsNodes()
         mrmlNode->GetAutoManualR1ToNewCoords(amR1ToNewCoordsCurrentState);
         amR1ToNewCoordsCurrentState[0] = enabledValue;
         mrmlNode->SetAutoManualR1ToNewCoords(amR1ToNewCoordsCurrentState);
-        qDebug() << Q_FUNC_INFO << "AutoManual R1 ToNewCoords button enabled changed:" << enabledValue;
+//        qDebug() << Q_FUNC_INFO << "AutoManual R1 ToNewCoords button enabled changed:" << enabledValue;
       }
     }
   );
@@ -2839,7 +2839,7 @@ bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectAutoManualR1ToNewCoordsNodes()
           mrmlNode->GetAutoManualR1ToNewCoords(amR1ToNewCoordsCurrentState);
           amR1ToNewCoordsCurrentState[0] = enabledValue;
           mrmlNode->SetAutoManualR1ToNewCoords(amR1ToNewCoordsCurrentState);
-          qDebug() << Q_FUNC_INFO << "AutoManual R1 ToNewCoords button enabled read:" << enabledValue;
+//          qDebug() << Q_FUNC_INFO << "AutoManual R1 ToNewCoords button enabled read:" << enabledValue;
         }
       }
     }
@@ -2862,7 +2862,7 @@ bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectAutoManualR1ToNewCoordsNodes()
         mrmlNode->GetAutoManualR1ToNewCoords(amR1ToNewCoordsCurrentState);
         amR1ToNewCoordsCurrentState[1] = pressedValue;
         mrmlNode->SetAutoManualR1ToNewCoords(amR1ToNewCoordsCurrentState);
-        qDebug() << Q_FUNC_INFO << "AutoManual R1 ToNewCoords button pressed changed:" << pressedValue;
+//        qDebug() << Q_FUNC_INFO << "AutoManual R1 ToNewCoords button pressed changed:" << pressedValue;
       }
     }
   );
@@ -2882,7 +2882,7 @@ bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectAutoManualR1ToNewCoordsNodes()
           mrmlNode->GetAutoManualR1ToNewCoords(amR1ToNewCoordsCurrentState);
           amR1ToNewCoordsCurrentState[1] = pressedValue;
           mrmlNode->SetAutoManualR1ToNewCoords(amR1ToNewCoordsCurrentState);
-          qDebug() << Q_FUNC_INFO << "AutoManual R1 ToNewCoords button pressed read:" << pressedValue;
+//          qDebug() << Q_FUNC_INFO << "AutoManual R1 ToNewCoords button pressed read:" << pressedValue;
         }
       }
     }
@@ -2923,7 +2923,7 @@ bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectAutoManualR2ToHomeNodes()
         mrmlNode->GetAutoManualR2ToHome(amR2ToHomeCurrentState);
         amR2ToHomeCurrentState[0] = enabledValue;
         mrmlNode->SetAutoManualR2ToHome(amR2ToHomeCurrentState);
-        qDebug() << Q_FUNC_INFO << "AutoManual R2 ToHome button enabled changed:" << enabledValue;
+//        qDebug() << Q_FUNC_INFO << "AutoManual R2 ToHome button enabled changed:" << enabledValue;
       }
     }
   );
@@ -2943,7 +2943,7 @@ bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectAutoManualR2ToHomeNodes()
           mrmlNode->GetAutoManualR2ToHome(amR2ToHomeCurrentState);
           amR2ToHomeCurrentState[0] = enabledValue;
           mrmlNode->SetAutoManualR2ToHome(amR2ToHomeCurrentState);
-          qDebug() << Q_FUNC_INFO << "AutoManual R2 ToHome button enabled read:" << enabledValue;
+//          qDebug() << Q_FUNC_INFO << "AutoManual R2 ToHome button enabled read:" << enabledValue;
         }
       }
     }
@@ -2966,7 +2966,7 @@ bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectAutoManualR2ToHomeNodes()
         mrmlNode->GetAutoManualR2ToHome(amR2ToHomeCurrentState);
         amR2ToHomeCurrentState[1] = pressedValue;
         mrmlNode->SetAutoManualR2ToHome(amR2ToHomeCurrentState);
-        qDebug() << Q_FUNC_INFO << "AutoManual R2 ToHome button pressed changed:" << pressedValue;
+//        qDebug() << Q_FUNC_INFO << "AutoManual R2 ToHome button pressed changed:" << pressedValue;
       }
     }
   );
@@ -2986,7 +2986,7 @@ bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectAutoManualR2ToHomeNodes()
           mrmlNode->GetAutoManualR2ToHome(amR2ToHomeCurrentState);
           amR2ToHomeCurrentState[1] = pressedValue;
           mrmlNode->SetAutoManualR2ToHome(amR2ToHomeCurrentState);
-          qDebug() << Q_FUNC_INFO << "AutoManual R2 ToHome button pressed read:" << pressedValue;
+//          qDebug() << Q_FUNC_INFO << "AutoManual R2 ToHome button pressed read:" << pressedValue;
         }
       }
     }
@@ -3026,7 +3026,7 @@ bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectAutoManualR2ToPlane1Nodes()
         mrmlNode->GetAutoManualR2ToPlane1(amR2ToPlane1CurrentState);
         amR2ToPlane1CurrentState[0] = enabledValue;
         mrmlNode->SetAutoManualR2ToPlane1(amR2ToPlane1CurrentState);
-        qDebug() << Q_FUNC_INFO << "AutoManual R2 ToPlane1 button enabled changed:" << enabledValue;
+//        qDebug() << Q_FUNC_INFO << "AutoManual R2 ToPlane1 button enabled changed:" << enabledValue;
       }
     }
   );
@@ -3046,7 +3046,7 @@ bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectAutoManualR2ToPlane1Nodes()
           mrmlNode->GetAutoManualR2ToPlane1(amR2ToPlane1CurrentState);
           amR2ToPlane1CurrentState[0] = enabledValue;
           mrmlNode->SetAutoManualR2ToPlane1(amR2ToPlane1CurrentState);
-          qDebug() << Q_FUNC_INFO << "AutoManual R2 ToPlane1 button enabled read:" << enabledValue;
+//          qDebug() << Q_FUNC_INFO << "AutoManual R2 ToPlane1 button enabled read:" << enabledValue;
         }
       }
     }
@@ -3069,7 +3069,7 @@ bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectAutoManualR2ToPlane1Nodes()
         mrmlNode->GetAutoManualR2ToPlane1(amR2ToPlane1CurrentState);
         amR2ToPlane1CurrentState[1] = pressedValue;
         mrmlNode->SetAutoManualR2ToPlane1(amR2ToPlane1CurrentState);
-        qDebug() << Q_FUNC_INFO << "AutoManual R2 ToPlane1 button pressed changed:" << pressedValue;
+//        qDebug() << Q_FUNC_INFO << "AutoManual R2 ToPlane1 button pressed changed:" << pressedValue;
       }
     }
   );
@@ -3089,7 +3089,7 @@ bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectAutoManualR2ToPlane1Nodes()
           mrmlNode->GetAutoManualR2ToPlane1(amR2ToPlane1CurrentState);
           amR2ToPlane1CurrentState[1] = pressedValue;
           mrmlNode->SetAutoManualR2ToPlane1(amR2ToPlane1CurrentState);
-          qDebug() << Q_FUNC_INFO << "AutoManual R2 ToPlane1 button pressed read:" << pressedValue;
+//          qDebug() << Q_FUNC_INFO << "AutoManual R2 ToPlane1 button pressed read:" << pressedValue;
         }
       }
     }
@@ -3130,7 +3130,7 @@ bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectAutoManualR2ToPlane2Nodes()
         mrmlNode->GetAutoManualR2ToPlane2(amR2ToPlane2CurrentState);
         amR2ToPlane2CurrentState[0] = enabledValue;
         mrmlNode->SetAutoManualR2ToPlane2(amR2ToPlane2CurrentState);
-        qDebug() << Q_FUNC_INFO << "AutoManual R2 ToPlane2 button enabled changed:" << enabledValue;
+//        qDebug() << Q_FUNC_INFO << "AutoManual R2 ToPlane2 button enabled changed:" << enabledValue;
       }
     }
   );
@@ -3150,7 +3150,7 @@ bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectAutoManualR2ToPlane2Nodes()
           mrmlNode->GetAutoManualR2ToPlane2(amR2ToPlane2CurrentState);
           amR2ToPlane2CurrentState[0] = enabledValue;
           mrmlNode->SetAutoManualR2ToPlane2(amR2ToPlane2CurrentState);
-          qDebug() << Q_FUNC_INFO << "AutoManual R2 ToPlane2 button enabled read:" << enabledValue;
+//          qDebug() << Q_FUNC_INFO << "AutoManual R2 ToPlane2 button enabled read:" << enabledValue;
         }
       }
     }
@@ -3173,7 +3173,7 @@ bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectAutoManualR2ToPlane2Nodes()
         mrmlNode->GetAutoManualR2ToPlane2(amR2ToPlane2CurrentState);
         amR2ToPlane2CurrentState[1] = pressedValue;
         mrmlNode->SetAutoManualR2ToPlane2(amR2ToPlane2CurrentState);
-        qDebug() << Q_FUNC_INFO << "AutoManual R2 ToPlane2 button pressed changed:" << pressedValue;
+//        qDebug() << Q_FUNC_INFO << "AutoManual R2 ToPlane2 button pressed changed:" << pressedValue;
       }
     }
   );
@@ -3193,7 +3193,7 @@ bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectAutoManualR2ToPlane2Nodes()
           mrmlNode->GetAutoManualR2ToPlane2(amR2ToPlane2CurrentState);
           amR2ToPlane2CurrentState[1] = pressedValue;
           mrmlNode->SetAutoManualR2ToPlane2(amR2ToPlane2CurrentState);
-          qDebug() << Q_FUNC_INFO << "AutoManual R2 ToPlane2 button pressed read:" << pressedValue;
+//          qDebug() << Q_FUNC_INFO << "AutoManual R2 ToPlane2 button pressed read:" << pressedValue;
         }
       }
     }
@@ -3252,7 +3252,7 @@ bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectAutoManualApplyTablePositionNod
         mrmlNode->GetAutoManualApplyTabletopPosition(amApplyTablePositionCurrentState);
         amApplyTablePositionCurrentState[0] = enabledValue;
         mrmlNode->SetAutoManualApplyTabletopPosition(amApplyTablePositionCurrentState);
-        qDebug() << Q_FUNC_INFO << "AutoManual ApplyTablePosition button enabled changed:" << enabledValue;
+//        qDebug() << Q_FUNC_INFO << "AutoManual ApplyTablePosition button enabled changed:" << enabledValue;
       }
     }
   );
@@ -3272,7 +3272,7 @@ bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectAutoManualApplyTablePositionNod
           mrmlNode->GetAutoManualApplyTabletopPosition(amApplyTablePositionCurrentState);
           amApplyTablePositionCurrentState[0] = enabledValue;
           mrmlNode->SetAutoManualApplyTabletopPosition(amApplyTablePositionCurrentState);
-          qDebug() << Q_FUNC_INFO << "AutoManual ApplyTablePosition button enabled read:" << enabledValue;
+//          qDebug() << Q_FUNC_INFO << "AutoManual ApplyTablePosition button enabled read:" << enabledValue;
         }
       }
     }
@@ -3295,7 +3295,7 @@ bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectAutoManualApplyTablePositionNod
         mrmlNode->GetAutoManualApplyTabletopPosition(amApplyTablePositionCurrentState);
         amApplyTablePositionCurrentState[1] = pressedValue;
         mrmlNode->SetAutoManualApplyTabletopPosition(amApplyTablePositionCurrentState);
-        qDebug() << Q_FUNC_INFO << "AutoManual ApplyTablePosition button pressed changed:" << pressedValue;
+//        qDebug() << Q_FUNC_INFO << "AutoManual ApplyTablePosition button pressed changed:" << pressedValue;
       }
     }
   );
@@ -3315,7 +3315,7 @@ bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectAutoManualApplyTablePositionNod
           mrmlNode->GetAutoManualApplyTabletopPosition(amApplyTablePositionCurrentState);
           amApplyTablePositionCurrentState[1] = pressedValue;
           mrmlNode->SetAutoManualApplyTabletopPosition(amApplyTablePositionCurrentState);
-          qDebug() << Q_FUNC_INFO << "AutoManual ApplyTablePosition button pressed read:" << pressedValue;
+//          qDebug() << Q_FUNC_INFO << "AutoManual ApplyTablePosition button pressed read:" << pressedValue;
         }
       }
     }
@@ -3357,7 +3357,7 @@ bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectAutoManualApplyNewCoordsNodes()
         mrmlNode->GetAutoManualApplyNewCoords(amApplyNewCoordsCurrentState);
         amApplyNewCoordsCurrentState[0] = enabledValue;
         mrmlNode->GetAutoManualApplyNewCoords(amApplyNewCoordsCurrentState);
-        qDebug() << Q_FUNC_INFO << "AutoManual ApplyNewCoords button enabled changed:" << enabledValue;
+//        qDebug() << Q_FUNC_INFO << "AutoManual ApplyNewCoords button enabled changed:" << enabledValue;
       }
     }
   );
@@ -3377,7 +3377,7 @@ bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectAutoManualApplyNewCoordsNodes()
           mrmlNode->GetAutoManualApplyNewCoords(amApplyNewCoordsCurrentState);
           amApplyNewCoordsCurrentState[0] = enabledValue;
           mrmlNode->GetAutoManualApplyNewCoords(amApplyNewCoordsCurrentState);
-          qDebug() << Q_FUNC_INFO << "AutoManual ApplyNewCoords button enabled read:" << enabledValue;
+//          qDebug() << Q_FUNC_INFO << "AutoManual ApplyNewCoords button enabled read:" << enabledValue;
         }
       }
     }
@@ -3400,7 +3400,7 @@ bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectAutoManualApplyNewCoordsNodes()
         mrmlNode->GetAutoManualApplyNewCoords(amApplyNewCoordsCurrentState);
         amApplyNewCoordsCurrentState[1] = pressedValue;
         mrmlNode->GetAutoManualApplyNewCoords(amApplyNewCoordsCurrentState);
-        qDebug() << Q_FUNC_INFO << "AutoManual ApplyNewCoords button pressed changed:" << pressedValue;
+//        qDebug() << Q_FUNC_INFO << "AutoManual ApplyNewCoords button pressed changed:" << pressedValue;
       }
     }
   );
@@ -3420,7 +3420,7 @@ bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectAutoManualApplyNewCoordsNodes()
           mrmlNode->GetAutoManualApplyNewCoords(amApplyNewCoordsCurrentState);
           amApplyNewCoordsCurrentState[1] = pressedValue;
           mrmlNode->GetAutoManualApplyNewCoords(amApplyNewCoordsCurrentState);
-          qDebug() << Q_FUNC_INFO << "AutoManual ApplyNewCoords button pressed read:" << pressedValue;
+//          qDebug() << Q_FUNC_INFO << "AutoManual ApplyNewCoords button pressed read:" << pressedValue;
         }
       }
     }
@@ -3462,7 +3462,7 @@ bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectKukaAllowT1Nodes()
         mrmlNode->GetKukaAllowT1(kcmAllowT1CurrentState);
         kcmAllowT1CurrentState[0] = enabledValue;
         mrmlNode->SetKukaAllowT1(kcmAllowT1CurrentState);
-        qDebug() << Q_FUNC_INFO << "KukaMovement AllowT1 button enabled changed:" << enabledValue;
+//        qDebug() << Q_FUNC_INFO << "KukaMovement AllowT1 button enabled changed:" << enabledValue;
       }
     }
   );
@@ -3482,7 +3482,7 @@ bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectKukaAllowT1Nodes()
           mrmlNode->GetKukaAllowT1(kcmAllowT1CurrentState);
           kcmAllowT1CurrentState[0] = enabledValue;
           mrmlNode->SetKukaAllowT1(kcmAllowT1CurrentState);
-          qDebug() << Q_FUNC_INFO << "KukaMovement AllowT1 button enabled read:" << enabledValue;
+//          qDebug() << Q_FUNC_INFO << "KukaMovement AllowT1 button enabled read:" << enabledValue;
         }
       }
     }
@@ -3505,7 +3505,7 @@ bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectKukaAllowT1Nodes()
         mrmlNode->GetKukaAllowT1(kcmAllowT1CurrentState);
         kcmAllowT1CurrentState[1] = pressedValue;
         mrmlNode->SetKukaAllowT1(kcmAllowT1CurrentState);
-        qDebug() << Q_FUNC_INFO << "KukaMovement AllowT1 button pressed changed:" << pressedValue;
+//        qDebug() << Q_FUNC_INFO << "KukaMovement AllowT1 button pressed changed:" << pressedValue;
       }
     }
   );
@@ -3525,7 +3525,7 @@ bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectKukaAllowT1Nodes()
           mrmlNode->GetKukaAllowT1(kcmAllowT1CurrentState);
           kcmAllowT1CurrentState[1] = pressedValue;
           mrmlNode->SetKukaAllowT1(kcmAllowT1CurrentState);
-          qDebug() << Q_FUNC_INFO << "KukaMovement AllowT1 button pressed read:" << pressedValue;
+//          qDebug() << Q_FUNC_INFO << "KukaMovement AllowT1 button pressed read:" << pressedValue;
         }
       }
     }
@@ -3567,7 +3567,7 @@ bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectKukaAllowXrayNodes()
         mrmlNode->GetKukaAllowXray(kcmAllowXrayCurrentState);
         kcmAllowXrayCurrentState[0] = enabledValue;
         mrmlNode->SetKukaAllowXray(kcmAllowXrayCurrentState);
-        qDebug() << Q_FUNC_INFO << "KukaMovement AllowXRay button enabled changed:" << enabledValue;
+//        qDebug() << Q_FUNC_INFO << "KukaMovement AllowXRay button enabled changed:" << enabledValue;
       }
     }
   );
@@ -3587,7 +3587,7 @@ bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectKukaAllowXrayNodes()
           mrmlNode->GetKukaAllowXray(kcmAllowXrayCurrentState);
           kcmAllowXrayCurrentState[0] = enabledValue;
           mrmlNode->SetKukaAllowXray(kcmAllowXrayCurrentState);
-          qDebug() << Q_FUNC_INFO << "KukaMovement AllowXRay button enabled read:" << enabledValue;
+//          qDebug() << Q_FUNC_INFO << "KukaMovement AllowXRay button enabled read:" << enabledValue;
         }
       }
     }
@@ -3610,7 +3610,7 @@ bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectKukaAllowXrayNodes()
         mrmlNode->GetKukaAllowXray(kcmAllowXrayCurrentState);
         kcmAllowXrayCurrentState[1] = pressedValue;
         mrmlNode->SetKukaAllowXray(kcmAllowXrayCurrentState);
-        qDebug() << Q_FUNC_INFO << "KukaMovement AllowXRay button pressed changed:" << pressedValue;
+//        qDebug() << Q_FUNC_INFO << "KukaMovement AllowXRay button pressed changed:" << pressedValue;
       }
     }
   );
@@ -3630,7 +3630,7 @@ bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectKukaAllowXrayNodes()
           mrmlNode->GetKukaAllowXray(kcmAllowXrayCurrentState);
           kcmAllowXrayCurrentState[1] = pressedValue;
           mrmlNode->SetKukaAllowXray(kcmAllowXrayCurrentState);
-          qDebug() << Q_FUNC_INFO << "KukaMovement AllowXRay button pressed read:" << pressedValue;
+//          qDebug() << Q_FUNC_INFO << "KukaMovement AllowXRay button pressed read:" << pressedValue;
         }
       }
     }
@@ -3672,7 +3672,7 @@ bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectKukaAllowBeamNodes()
         mrmlNode->GetKukaAllowBeam(kcmAllowBeamCurrentState);
         kcmAllowBeamCurrentState[0] = enabledValue;
         mrmlNode->SetKukaAllowBeam(kcmAllowBeamCurrentState);
-        qDebug() << Q_FUNC_INFO << "KukaMovement AllowBeam button enabled changed:" << enabledValue;
+//        qDebug() << Q_FUNC_INFO << "KukaMovement AllowBeam button enabled changed:" << enabledValue;
       }
     }
   );
@@ -3692,7 +3692,7 @@ bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectKukaAllowBeamNodes()
           mrmlNode->GetKukaAllowBeam(kcmAllowBeamCurrentState);
           kcmAllowBeamCurrentState[0] = enabledValue;
           mrmlNode->SetKukaAllowBeam(kcmAllowBeamCurrentState);
-          qDebug() << Q_FUNC_INFO << "KukaMovement AllowBeam button enabled read:" << enabledValue;
+//          qDebug() << Q_FUNC_INFO << "KukaMovement AllowBeam button enabled read:" << enabledValue;
         }
       }
     }
@@ -3716,7 +3716,7 @@ bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectKukaAllowBeamNodes()
         mrmlNode->GetKukaAllowBeam(kcmAllowBeamCurrentState);
         kcmAllowBeamCurrentState[1] = pressedValue;
         mrmlNode->SetKukaAllowBeam(kcmAllowBeamCurrentState);
-        qDebug() << Q_FUNC_INFO << "KukaMovement AllowBeam button pressed changed:" << pressedValue;
+//        qDebug() << Q_FUNC_INFO << "KukaMovement AllowBeam button pressed changed:" << pressedValue;
       }
     }
   );
@@ -3737,7 +3737,7 @@ bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectKukaAllowBeamNodes()
           mrmlNode->GetKukaAllowBeam(kcmAllowBeamCurrentState);
           kcmAllowBeamCurrentState[1] = pressedValue;
           mrmlNode->SetKukaAllowBeam(kcmAllowBeamCurrentState);
-          qDebug() << Q_FUNC_INFO << "KukaMovement AllowBeam button pressed read:" << pressedValue;
+//          qDebug() << Q_FUNC_INFO << "KukaMovement AllowBeam button pressed read:" << pressedValue;
         }
       }
     }
@@ -3794,7 +3794,7 @@ bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectModeAndStatusNodes()
         if (ok)
         {
           mrmlNode->SetMode(static_cast< vtkMRMLSiemensPlcOpcUaNode::ModeType >(modeValue));
-          qDebug() << Q_FUNC_INFO << "Mode value changed:" << modeValue;
+//          qDebug() << Q_FUNC_INFO << "Mode value changed:" << modeValue;
         }
       }
     }
@@ -3816,7 +3816,7 @@ bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectModeAndStatusNodes()
           if (ok)
           {
             mrmlNode->SetMode(static_cast< vtkMRMLSiemensPlcOpcUaNode::ModeType >(modeValue));
-            qDebug() << Q_FUNC_INFO << "Mode value read:" << modeValue;
+//            qDebug() << Q_FUNC_INFO << "Mode value read:" << modeValue;
           }
         }
       }
@@ -3840,7 +3840,7 @@ bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectModeAndStatusNodes()
         if (ok)
         {
           mrmlNode->SetStateRtk(statusRtkValue);
-          qDebug() << Q_FUNC_INFO << "Status RTK value changed:" << statusRtkValue;
+//          qDebug() << Q_FUNC_INFO << "Status RTK value changed:" << statusRtkValue;
         }
       }
     }
@@ -3862,7 +3862,7 @@ bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectModeAndStatusNodes()
           if (ok)
           {
             mrmlNode->SetStateRtk(statusRtkValue);
-            qDebug() << Q_FUNC_INFO << "Status RTK value read:" << statusRtkValue;
+//            qDebug() << Q_FUNC_INFO << "Status RTK value read:" << statusRtkValue;
           }
         }
       }
@@ -3886,7 +3886,7 @@ bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectModeAndStatusNodes()
         if (ok)
         {
           mrmlNode->SetStateR1(statusR1Value);
-          qDebug() << Q_FUNC_INFO << "Status R1 value changed:" << statusR1Value;
+//          qDebug() << Q_FUNC_INFO << "Status R1 value changed:" << statusR1Value;
         }
       }
     }
@@ -3908,7 +3908,7 @@ bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectModeAndStatusNodes()
           if (ok)
           {
             mrmlNode->SetStateR1(statusR1Value);
-            qDebug() << Q_FUNC_INFO << "Status R1 value read:" << statusR1Value;
+//            qDebug() << Q_FUNC_INFO << "Status R1 value read:" << statusR1Value;
           }
         }
       }
@@ -3932,7 +3932,7 @@ bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectModeAndStatusNodes()
         if (ok)
         {
           mrmlNode->SetStateR2(statusR2Value);
-          qDebug() << Q_FUNC_INFO << "Status R2 value changed:" << statusR2Value;
+//          qDebug() << Q_FUNC_INFO << "Status R2 value changed:" << statusR2Value;
         }
       }
     }
@@ -3954,7 +3954,7 @@ bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectModeAndStatusNodes()
           if (ok)
           {
             mrmlNode->SetStateR2(statusR2Value);
-            qDebug() << Q_FUNC_INFO << "Status R2 value read:" << statusR2Value;
+//            qDebug() << Q_FUNC_INFO << "Status R2 value read:" << statusR2Value;
           }
         }
       }
@@ -4003,7 +4003,7 @@ bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectCurrentCoordA1R1Node()
             mrmlNode->SetCurrentAxisCoordsR1(r1AxisCoords);
           }
           mrmlNode->InvokeCustomModifiedEvent(vtkMRMLSiemensPlcOpcUaNode::TableRobotAxisCoordsModified);
-          qDebug() << Q_FUNC_INFO << "R1 Axis A1 angle changed:" << angleValue;
+//          qDebug() << Q_FUNC_INFO << "R1 Axis A1 angle changed:" << angleValue;
         }
       }
     }
@@ -4032,7 +4032,7 @@ bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectCurrentCoordA1R1Node()
               mrmlNode->SetCurrentAxisCoordsR1(r1AxisCoords);
             }
             mrmlNode->InvokeCustomModifiedEvent(vtkMRMLSiemensPlcOpcUaNode::TableRobotAxisCoordsModified);
-            qDebug() << Q_FUNC_INFO << "R1 Axis A1 angle read:" << angleValue;
+//            qDebug() << Q_FUNC_INFO << "R1 Axis A1 angle read:" << angleValue;
           }
         }
       }
@@ -4081,7 +4081,7 @@ bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectCurrentCoordA2R1Node()
             mrmlNode->SetCurrentAxisCoordsR1(r1AxisCoords);
           }
           mrmlNode->InvokeCustomModifiedEvent(vtkMRMLSiemensPlcOpcUaNode::TableRobotAxisCoordsModified);
-          qDebug() << Q_FUNC_INFO << "R1 Axis A2 angle changed:" << angleValue;
+//          qDebug() << Q_FUNC_INFO << "R1 Axis A2 angle changed:" << angleValue;
         }
       }
     }
@@ -4110,7 +4110,7 @@ bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectCurrentCoordA2R1Node()
               mrmlNode->SetCurrentAxisCoordsR1(r1AxisCoords);
             }
             mrmlNode->InvokeCustomModifiedEvent(vtkMRMLSiemensPlcOpcUaNode::TableRobotAxisCoordsModified);
-            qDebug() << Q_FUNC_INFO << "R1 Axis A2 angle read:" << angleValue;
+//            qDebug() << Q_FUNC_INFO << "R1 Axis A2 angle read:" << angleValue;
           }
         }
       }
@@ -4159,7 +4159,7 @@ bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectCurrentCoordA3R1Node()
             mrmlNode->SetCurrentAxisCoordsR1(r1AxisCoords);
           }
           mrmlNode->InvokeCustomModifiedEvent(vtkMRMLSiemensPlcOpcUaNode::TableRobotAxisCoordsModified);
-          qDebug() << Q_FUNC_INFO << "R1 Axis A3 angle changed:" << angleValue;
+//          qDebug() << Q_FUNC_INFO << "R1 Axis A3 angle changed:" << angleValue;
         }
       }
     }
@@ -4188,7 +4188,7 @@ bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectCurrentCoordA3R1Node()
               mrmlNode->SetCurrentAxisCoordsR1(r1AxisCoords);
             }
             mrmlNode->InvokeCustomModifiedEvent(vtkMRMLSiemensPlcOpcUaNode::TableRobotAxisCoordsModified);
-            qDebug() << Q_FUNC_INFO << "R1 Axis A3 angle read:" << angleValue;
+//            qDebug() << Q_FUNC_INFO << "R1 Axis A3 angle read:" << angleValue;
           }
         }
       }
@@ -4238,7 +4238,7 @@ bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectCurrentCoordA4R1Node()
             mrmlNode->SetCurrentAxisCoordsR1(r1AxisCoords);
           }
           mrmlNode->InvokeCustomModifiedEvent(vtkMRMLSiemensPlcOpcUaNode::TableRobotAxisCoordsModified);
-          qDebug() << Q_FUNC_INFO << "R1 Axis A4 angle changed:" << angleValue;
+//          qDebug() << Q_FUNC_INFO << "R1 Axis A4 angle changed:" << angleValue;
         }
       }
     }
@@ -4267,7 +4267,7 @@ bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectCurrentCoordA4R1Node()
               mrmlNode->SetCurrentAxisCoordsR1(r1AxisCoords);
             }
             mrmlNode->InvokeCustomModifiedEvent(vtkMRMLSiemensPlcOpcUaNode::TableRobotAxisCoordsModified);
-            qDebug() << Q_FUNC_INFO << "R1 Axis A4 angle read:" << angleValue;
+//            qDebug() << Q_FUNC_INFO << "R1 Axis A4 angle read:" << angleValue;
           }
         }
       }
@@ -4316,7 +4316,7 @@ bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectCurrentCoordA5R1Node()
             mrmlNode->SetCurrentAxisCoordsR1(r1AxisCoords);
           }
           mrmlNode->InvokeCustomModifiedEvent(vtkMRMLSiemensPlcOpcUaNode::TableRobotAxisCoordsModified);
-          qDebug() << Q_FUNC_INFO << "R1 Axis A5 angle changed:" << angleValue;
+//          qDebug() << Q_FUNC_INFO << "R1 Axis A5 angle changed:" << angleValue;
         }
       }
     }
@@ -4345,7 +4345,7 @@ bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectCurrentCoordA5R1Node()
               mrmlNode->SetCurrentAxisCoordsR1(r1AxisCoords);
             }
             mrmlNode->InvokeCustomModifiedEvent(vtkMRMLSiemensPlcOpcUaNode::TableRobotAxisCoordsModified);
-            qDebug() << Q_FUNC_INFO << "R1 Axis A5 angle read:" << angleValue;
+//            qDebug() << Q_FUNC_INFO << "R1 Axis A5 angle read:" << angleValue;
           }
         }
       }
@@ -4395,7 +4395,7 @@ bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectCurrentCoordA6R1Node()
             mrmlNode->SetCurrentAxisCoordsR1(r1AxisCoords);
           }
           mrmlNode->InvokeCustomModifiedEvent(vtkMRMLSiemensPlcOpcUaNode::TableRobotAxisCoordsModified);
-          qDebug() << Q_FUNC_INFO << "R1 Axis A6 angle changed:" << angleValue;
+//          qDebug() << Q_FUNC_INFO << "R1 Axis A6 angle changed:" << angleValue;
         }
       }
     }
@@ -4424,7 +4424,7 @@ bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectCurrentCoordA6R1Node()
               mrmlNode->SetCurrentAxisCoordsR1(r1AxisCoords);
             }
             mrmlNode->InvokeCustomModifiedEvent(vtkMRMLSiemensPlcOpcUaNode::TableRobotAxisCoordsModified);
-            qDebug() << Q_FUNC_INFO << "R1 Axis A6 angle read:" << angleValue;
+//            qDebug() << Q_FUNC_INFO << "R1 Axis A6 angle read:" << angleValue;
           }
         }
       }
@@ -4472,7 +4472,7 @@ bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectAcceptedCoordsFlagsR1Node()
           MRMLNodeModifyBlocker block(mrmlNode);
           mrmlNode->SetCoordsAccepted(acceptedFlags);
         }
-        qDebug() << Q_FUNC_INFO << "R1 Coords accepted flag changed:" << acceptedFlag;
+//        qDebug() << Q_FUNC_INFO << "R1 Coords accepted flag changed:" << acceptedFlag;
       }
     }
   );
@@ -4496,7 +4496,7 @@ bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectAcceptedCoordsFlagsR1Node()
             MRMLNodeModifyBlocker block(mrmlNode);
             mrmlNode->SetCoordsAccepted(acceptedFlags);
           }
-          qDebug() << Q_FUNC_INFO << "R1 Coords accepted flag read:" << acceptedFlag;
+//          qDebug() << Q_FUNC_INFO << "R1 Coords accepted flag read:" << acceptedFlag;
         }
       }
     }
@@ -4523,7 +4523,7 @@ bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectAcceptedCoordsFlagsR1Node()
           MRMLNodeModifyBlocker block(mrmlNode);
           mrmlNode->SetCoordsAccepted(acceptedFlags);
         }
-        qDebug() << Q_FUNC_INFO << "R1 Coords NOT accepted flag changed:" << acceptedFlag;
+//        qDebug() << Q_FUNC_INFO << "R1 Coords NOT accepted flag changed:" << acceptedFlag;
       }
     }
   );
@@ -4547,7 +4547,7 @@ bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectAcceptedCoordsFlagsR1Node()
             MRMLNodeModifyBlocker block(mrmlNode);
             mrmlNode->SetCoordsAccepted(acceptedFlags);
           }
-          qDebug() << Q_FUNC_INFO << "R1 Coords NOT accepted flag read:" << acceptedFlag;
+//          qDebug() << Q_FUNC_INFO << "R1 Coords NOT accepted flag read:" << acceptedFlag;
         }
       }
     }
@@ -4594,7 +4594,7 @@ bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectAcceptedCoordsFlagsR2Node()
           MRMLNodeModifyBlocker block(mrmlNode);
           mrmlNode->SetCoordsAccepted(acceptedFlags);
         }
-        qDebug() << Q_FUNC_INFO << "R2 Coords accepted flag changed:" << acceptedFlag;
+//        qDebug() << Q_FUNC_INFO << "R2 Coords accepted flag changed:" << acceptedFlag;
       }
     }
   );
@@ -4618,7 +4618,7 @@ bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectAcceptedCoordsFlagsR2Node()
             MRMLNodeModifyBlocker block(mrmlNode);
             mrmlNode->SetCoordsAccepted(acceptedFlags);
           }
-          qDebug() << Q_FUNC_INFO << "R2 Coords accepted flag read:" << acceptedFlag;
+//          qDebug() << Q_FUNC_INFO << "R2 Coords accepted flag read:" << acceptedFlag;
         }
       }
     }
@@ -4645,7 +4645,7 @@ bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectAcceptedCoordsFlagsR2Node()
           MRMLNodeModifyBlocker block(mrmlNode);
           mrmlNode->SetCoordsAccepted(acceptedFlags);
         }
-        qDebug() << Q_FUNC_INFO << "R2 Coords NOT accepted flag changed:" << acceptedFlag;
+//        qDebug() << Q_FUNC_INFO << "R2 Coords NOT accepted flag changed:" << acceptedFlag;
       }
     }
   );
@@ -4669,7 +4669,7 @@ bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectAcceptedCoordsFlagsR2Node()
             MRMLNodeModifyBlocker block(mrmlNode);
             mrmlNode->SetCoordsAccepted(acceptedFlags);
           }
-          qDebug() << Q_FUNC_INFO << "R2 Coords NOT accepted flag read:" << acceptedFlag;
+//          qDebug() << Q_FUNC_INFO << "R2 Coords NOT accepted flag read:" << acceptedFlag;
         }
       }
     }
@@ -4717,7 +4717,7 @@ bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectCurrentCoordAR1Node()
             MRMLNodeModifyBlocker block(mrmlNode);
             mrmlNode->SetCurrentCoordsR1(r1Coords);
           }
-          qDebug() << Q_FUNC_INFO << "Current R1 KUKA_A changed:" << KUKA_A;
+//          qDebug() << Q_FUNC_INFO << "Current R1 KUKA_A changed:" << KUKA_A;
         }
       }
     }
@@ -4745,7 +4745,7 @@ bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectCurrentCoordAR1Node()
               MRMLNodeModifyBlocker block(mrmlNode);
               mrmlNode->SetCurrentCoordsR1(r1Coords);
             }
-            qDebug() << Q_FUNC_INFO << "Current R1 KUKA_A changed:" << KUKA_A;
+//            qDebug() << Q_FUNC_INFO << "Current R1 KUKA_A changed:" << KUKA_A;
           }
         }
       }
@@ -4794,7 +4794,7 @@ bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectCurrentCoordBR1Node()
             MRMLNodeModifyBlocker block(mrmlNode);
             mrmlNode->SetCurrentCoordsR1(r1Coords);
           }
-          qDebug() << Q_FUNC_INFO << "Current R1 KUKA_B changed:" << KUKA_B;
+//          qDebug() << Q_FUNC_INFO << "Current R1 KUKA_B changed:" << KUKA_B;
         }
       }
     }
@@ -4822,7 +4822,7 @@ bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectCurrentCoordBR1Node()
               MRMLNodeModifyBlocker block(mrmlNode);
               mrmlNode->SetCurrentCoordsR1(r1Coords);
             }
-            qDebug() << Q_FUNC_INFO << "Current R1 KUKA_B changed:" << KUKA_B;
+//            qDebug() << Q_FUNC_INFO << "Current R1 KUKA_B changed:" << KUKA_B;
           }
         }
       }
@@ -4871,7 +4871,7 @@ bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectCurrentCoordCR1Node()
             MRMLNodeModifyBlocker block(mrmlNode);
             mrmlNode->SetCurrentCoordsR1(r1Coords);
           }
-          qDebug() << Q_FUNC_INFO << "Current R1 KUKA_C changed:" << KUKA_C;
+//          qDebug() << Q_FUNC_INFO << "Current R1 KUKA_C changed:" << KUKA_C;
         }
       }
     }
@@ -4899,7 +4899,7 @@ bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectCurrentCoordCR1Node()
               MRMLNodeModifyBlocker block(mrmlNode);
               mrmlNode->SetCurrentCoordsR1(r1Coords);
             }
-            qDebug() << Q_FUNC_INFO << "Current R1 KUKA_C changed:" << KUKA_C;
+//            qDebug() << Q_FUNC_INFO << "Current R1 KUKA_C changed:" << KUKA_C;
           }
         }
       }
@@ -4948,7 +4948,7 @@ bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectCurrentCoordXR1Node()
             MRMLNodeModifyBlocker block(mrmlNode);
             mrmlNode->SetCurrentCoordsR1(r1Coords);
           }
-          qDebug() << Q_FUNC_INFO << "Current R1 KUKA_X changed:" << KUKA_X;
+//          qDebug() << Q_FUNC_INFO << "Current R1 KUKA_X changed:" << KUKA_X;
         }
       }
     }
@@ -4976,7 +4976,7 @@ bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectCurrentCoordXR1Node()
               MRMLNodeModifyBlocker block(mrmlNode);
               mrmlNode->SetCurrentCoordsR1(r1Coords);
             }
-            qDebug() << Q_FUNC_INFO << "Current R1 KUKA_X changed:" << KUKA_X;
+//            qDebug() << Q_FUNC_INFO << "Current R1 KUKA_X changed:" << KUKA_X;
           }
         }
       }
@@ -5025,7 +5025,7 @@ bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectCurrentCoordYR1Node()
             MRMLNodeModifyBlocker block(mrmlNode);
             mrmlNode->SetCurrentCoordsR1(r1Coords);
           }
-          qDebug() << Q_FUNC_INFO << "Current R1 KUKA_Y changed:" << KUKA_Y;
+//          qDebug() << Q_FUNC_INFO << "Current R1 KUKA_Y changed:" << KUKA_Y;
         }
       }
     }
@@ -5053,7 +5053,7 @@ bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectCurrentCoordYR1Node()
               MRMLNodeModifyBlocker block(mrmlNode);
               mrmlNode->SetCurrentCoordsR1(r1Coords);
             }
-            qDebug() << Q_FUNC_INFO << "Current R1 KUKA_Y changed:" << KUKA_Y;
+//            qDebug() << Q_FUNC_INFO << "Current R1 KUKA_Y changed:" << KUKA_Y;
           }
         }
       }
@@ -5102,7 +5102,7 @@ bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectCurrentCoordZR1Node()
             MRMLNodeModifyBlocker block(mrmlNode);
             mrmlNode->SetCurrentCoordsR1(r1Coords);
           }
-          qDebug() << Q_FUNC_INFO << "Current R1 KUKA_Z changed:" << KUKA_Z;
+//          qDebug() << Q_FUNC_INFO << "Current R1 KUKA_Z changed:" << KUKA_Z;
         }
       }
     }
@@ -5130,7 +5130,7 @@ bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectCurrentCoordZR1Node()
               MRMLNodeModifyBlocker block(mrmlNode);
               mrmlNode->SetCurrentCoordsR1(r1Coords);
             }
-            qDebug() << Q_FUNC_INFO << "Current R1 KUKA_Z changed:" << KUKA_Z;
+//            qDebug() << Q_FUNC_INFO << "Current R1 KUKA_Z changed:" << KUKA_Z;
           }
         }
       }
@@ -5179,7 +5179,7 @@ bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectCurrentCoordAR2Node()
             MRMLNodeModifyBlocker block(mrmlNode);
             mrmlNode->SetCurrentCoordsR2(r2Coords);
           }
-          qDebug() << Q_FUNC_INFO << "Current R2 KUKA_A changed:" << KUKA_A;
+//          qDebug() << Q_FUNC_INFO << "Current R2 KUKA_A changed:" << KUKA_A;
         }
       }
     }
@@ -5207,7 +5207,7 @@ bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectCurrentCoordAR2Node()
               MRMLNodeModifyBlocker block(mrmlNode);
               mrmlNode->SetCurrentCoordsR2(r2Coords);
             }
-            qDebug() << Q_FUNC_INFO << "Current R2 KUKA_A changed:" << KUKA_A;
+//            qDebug() << Q_FUNC_INFO << "Current R2 KUKA_A changed:" << KUKA_A;
           }
         }
       }
@@ -5256,7 +5256,7 @@ bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectCurrentCoordBR2Node()
             MRMLNodeModifyBlocker block(mrmlNode);
             mrmlNode->SetCurrentCoordsR2(r2Coords);
           }
-          qDebug() << Q_FUNC_INFO << "Current R2 KUKA_B changed:" << KUKA_B;
+//          qDebug() << Q_FUNC_INFO << "Current R2 KUKA_B changed:" << KUKA_B;
         }
       }
     }
@@ -5284,7 +5284,7 @@ bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectCurrentCoordBR2Node()
               MRMLNodeModifyBlocker block(mrmlNode);
               mrmlNode->SetCurrentCoordsR2(r2Coords);
             }
-            qDebug() << Q_FUNC_INFO << "Current R2 KUKA_B changed:" << KUKA_B;
+//            qDebug() << Q_FUNC_INFO << "Current R2 KUKA_B changed:" << KUKA_B;
           }
         }
       }
@@ -5333,7 +5333,7 @@ bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectCurrentCoordCR2Node()
             MRMLNodeModifyBlocker block(mrmlNode);
             mrmlNode->SetCurrentCoordsR2(r2Coords);
           }
-          qDebug() << Q_FUNC_INFO << "Current R2 KUKA_C changed:" << KUKA_C;
+//          qDebug() << Q_FUNC_INFO << "Current R2 KUKA_C changed:" << KUKA_C;
         }
       }
     }
@@ -5361,7 +5361,7 @@ bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectCurrentCoordCR2Node()
               MRMLNodeModifyBlocker block(mrmlNode);
               mrmlNode->SetCurrentCoordsR2(r2Coords);
             }
-            qDebug() << Q_FUNC_INFO << "Current R2 KUKA_C changed:" << KUKA_C;
+//            qDebug() << Q_FUNC_INFO << "Current R2 KUKA_C changed:" << KUKA_C;
           }
         }
       }
@@ -5410,7 +5410,7 @@ bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectCurrentCoordXR2Node()
             MRMLNodeModifyBlocker block(mrmlNode);
             mrmlNode->SetCurrentCoordsR2(r2Coords);
           }
-          qDebug() << Q_FUNC_INFO << "Current R2 KUKA_X changed:" << KUKA_X;
+//          qDebug() << Q_FUNC_INFO << "Current R2 KUKA_X changed:" << KUKA_X;
         }
       }
     }
@@ -5438,7 +5438,7 @@ bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectCurrentCoordXR2Node()
               MRMLNodeModifyBlocker block(mrmlNode);
               mrmlNode->SetCurrentCoordsR2(r2Coords);
             }
-            qDebug() << Q_FUNC_INFO << "Current R2 KUKA_X changed:" << KUKA_X;
+//            qDebug() << Q_FUNC_INFO << "Current R2 KUKA_X changed:" << KUKA_X;
           }
         }
       }
@@ -5487,7 +5487,7 @@ bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectCurrentCoordYR2Node()
             MRMLNodeModifyBlocker block(mrmlNode);
             mrmlNode->SetCurrentCoordsR2(r2Coords);
           }
-          qDebug() << Q_FUNC_INFO << "Current R2 KUKA_Y changed:" << KUKA_Y;
+//          qDebug() << Q_FUNC_INFO << "Current R2 KUKA_Y changed:" << KUKA_Y;
         }
       }
     }
@@ -5515,7 +5515,7 @@ bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectCurrentCoordYR2Node()
               MRMLNodeModifyBlocker block(mrmlNode);
               mrmlNode->SetCurrentCoordsR2(r2Coords);
             }
-            qDebug() << Q_FUNC_INFO << "Current R2 KUKA_Y changed:" << KUKA_Y;
+//            qDebug() << Q_FUNC_INFO << "Current R2 KUKA_Y changed:" << KUKA_Y;
           }
         }
       }
@@ -5564,7 +5564,7 @@ bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectCurrentCoordZR2Node()
             MRMLNodeModifyBlocker block(mrmlNode);
             mrmlNode->SetCurrentCoordsR2(r2Coords);
           }
-          qDebug() << Q_FUNC_INFO << "Current R2 KUKA_Z changed:" << KUKA_Z;
+//          qDebug() << Q_FUNC_INFO << "Current R2 KUKA_Z changed:" << KUKA_Z;
         }
       }
     }
@@ -5592,7 +5592,7 @@ bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectCurrentCoordZR2Node()
               MRMLNodeModifyBlocker block(mrmlNode);
               mrmlNode->SetCurrentCoordsR2(r2Coords);
             }
-            qDebug() << Q_FUNC_INFO << "Current R2 KUKA_Z changed:" << KUKA_Z;
+//            qDebug() << Q_FUNC_INFO << "Current R2 KUKA_Z changed:" << KUKA_Z;
           }
         }
       }
@@ -5674,7 +5674,7 @@ bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectReflTargetCoordAR1Node()
             MRMLNodeModifyBlocker block(mrmlNode);
             mrmlNode->SetConfirmedCoordsR1(r1Coords);
           }
-          qDebug() << Q_FUNC_INFO << "Reflective R1 KUKA_A changed:" << KUKA_A;
+//          qDebug() << Q_FUNC_INFO << "Reflective R1 KUKA_A changed:" << KUKA_A;
         }
       }
     }
@@ -5702,7 +5702,7 @@ bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectReflTargetCoordAR1Node()
               MRMLNodeModifyBlocker block(mrmlNode);
               mrmlNode->SetConfirmedCoordsR1(r1Coords);
             }
-            qDebug() << Q_FUNC_INFO << "Reflective R1 KUKA_A changed:" << KUKA_A;
+//            qDebug() << Q_FUNC_INFO << "Reflective R1 KUKA_A changed:" << KUKA_A;
           }
         }
       }
@@ -5751,7 +5751,7 @@ bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectReflTargetCoordBR1Node()
             MRMLNodeModifyBlocker block(mrmlNode);
             mrmlNode->SetConfirmedCoordsR1(r1Coords);
           }
-          qDebug() << Q_FUNC_INFO << "Reflective R1 KUKA_B changed:" << KUKA_B;
+//          qDebug() << Q_FUNC_INFO << "Reflective R1 KUKA_B changed:" << KUKA_B;
         }
       }
     }
@@ -5779,7 +5779,7 @@ bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectReflTargetCoordBR1Node()
               MRMLNodeModifyBlocker block(mrmlNode);
               mrmlNode->SetConfirmedCoordsR1(r1Coords);
             }
-            qDebug() << Q_FUNC_INFO << "Reflective R1 KUKA_B changed:" << KUKA_B;
+//            qDebug() << Q_FUNC_INFO << "Reflective R1 KUKA_B changed:" << KUKA_B;
           }
         }
       }
@@ -5828,7 +5828,7 @@ bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectReflTargetCoordCR1Node()
             MRMLNodeModifyBlocker block(mrmlNode);
             mrmlNode->SetConfirmedCoordsR1(r1Coords);
           }
-          qDebug() << Q_FUNC_INFO << "Reflective R1 KUKA_C changed:" << KUKA_C;
+//          qDebug() << Q_FUNC_INFO << "Reflective R1 KUKA_C changed:" << KUKA_C;
         }
       }
     }
@@ -5856,7 +5856,7 @@ bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectReflTargetCoordCR1Node()
               MRMLNodeModifyBlocker block(mrmlNode);
               mrmlNode->SetConfirmedCoordsR1(r1Coords);
             }
-            qDebug() << Q_FUNC_INFO << "Reflective R1 KUKA_C changed:" << KUKA_C;
+//            qDebug() << Q_FUNC_INFO << "Reflective R1 KUKA_C changed:" << KUKA_C;
           }
         }
       }
@@ -5905,7 +5905,7 @@ bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectReflTargetCoordXR1Node()
             MRMLNodeModifyBlocker block(mrmlNode);
             mrmlNode->SetConfirmedCoordsR1(r1Coords);
           }
-          qDebug() << Q_FUNC_INFO << "Reflective R1 KUKA_X changed:" << KUKA_X;
+//          qDebug() << Q_FUNC_INFO << "Reflective R1 KUKA_X changed:" << KUKA_X;
         }
       }
     }
@@ -5933,7 +5933,7 @@ bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectReflTargetCoordXR1Node()
               MRMLNodeModifyBlocker block(mrmlNode);
               mrmlNode->SetConfirmedCoordsR1(r1Coords);
             }
-            qDebug() << Q_FUNC_INFO << "Reflective R1 KUKA_X changed:" << KUKA_X;
+//            qDebug() << Q_FUNC_INFO << "Reflective R1 KUKA_X changed:" << KUKA_X;
           }
         }
       }
@@ -5982,7 +5982,7 @@ bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectReflTargetCoordYR1Node()
             MRMLNodeModifyBlocker block(mrmlNode);
             mrmlNode->SetConfirmedCoordsR1(r1Coords);
           }
-          qDebug() << Q_FUNC_INFO << "Reflective R1 KUKA_Y changed:" << KUKA_Y;
+//          qDebug() << Q_FUNC_INFO << "Reflective R1 KUKA_Y changed:" << KUKA_Y;
         }
       }
     }
@@ -6010,7 +6010,7 @@ bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectReflTargetCoordYR1Node()
               MRMLNodeModifyBlocker block(mrmlNode);
               mrmlNode->SetConfirmedCoordsR1(r1Coords);
             }
-            qDebug() << Q_FUNC_INFO << "Reflective R1 KUKA_Y changed:" << KUKA_Y;
+//            qDebug() << Q_FUNC_INFO << "Reflective R1 KUKA_Y changed:" << KUKA_Y;
           }
         }
       }
@@ -6059,7 +6059,7 @@ bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectReflTargetCoordZR1Node()
             MRMLNodeModifyBlocker block(mrmlNode);
             mrmlNode->SetConfirmedCoordsR1(r1Coords);
           }
-          qDebug() << Q_FUNC_INFO << "Reflective R1 KUKA_Z changed:" << KUKA_Z;
+//          qDebug() << Q_FUNC_INFO << "Reflective R1 KUKA_Z changed:" << KUKA_Z;
         }
       }
     }
@@ -6087,7 +6087,7 @@ bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectReflTargetCoordZR1Node()
               MRMLNodeModifyBlocker block(mrmlNode);
               mrmlNode->SetConfirmedCoordsR1(r1Coords);
             }
-            qDebug() << Q_FUNC_INFO << "Reflective R1 KUKA_Z changed:" << KUKA_Z;
+//            qDebug() << Q_FUNC_INFO << "Reflective R1 KUKA_Z changed:" << KUKA_Z;
           }
         }
       }
@@ -6136,7 +6136,7 @@ bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectReflTargetCoordXR2Node()
             MRMLNodeModifyBlocker block(mrmlNode);
             mrmlNode->SetConfirmedCoordsR2(r2Coords);
           }
-          qDebug() << Q_FUNC_INFO << "Reflective R2 KUKA_X changed:" << KUKA_X;
+//          qDebug() << Q_FUNC_INFO << "Reflective R2 KUKA_X changed:" << KUKA_X;
         }
       }
     }
@@ -6164,7 +6164,7 @@ bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectReflTargetCoordXR2Node()
               MRMLNodeModifyBlocker block(mrmlNode);
               mrmlNode->SetConfirmedCoordsR2(r2Coords);
             }
-            qDebug() << Q_FUNC_INFO << "Reflective R2 KUKA_X changed:" << KUKA_X;
+//            qDebug() << Q_FUNC_INFO << "Reflective R2 KUKA_X changed:" << KUKA_X;
           }
         }
       }
@@ -6213,7 +6213,7 @@ bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectReflTargetCoordYR2Node()
             MRMLNodeModifyBlocker block(mrmlNode);
             mrmlNode->SetConfirmedCoordsR2(r2Coords);
           }
-          qDebug() << Q_FUNC_INFO << "Reflective R2 KUKA_Y changed:" << KUKA_Y;
+//          qDebug() << Q_FUNC_INFO << "Reflective R2 KUKA_Y changed:" << KUKA_Y;
         }
       }
     }
@@ -6241,7 +6241,7 @@ bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectReflTargetCoordYR2Node()
               MRMLNodeModifyBlocker block(mrmlNode);
               mrmlNode->SetConfirmedCoordsR2(r2Coords);
             }
-            qDebug() << Q_FUNC_INFO << "Reflective R2 KUKA_Y changed:" << KUKA_Y;
+//            qDebug() << Q_FUNC_INFO << "Reflective R2 KUKA_Y changed:" << KUKA_Y;
           }
         }
       }
@@ -6290,7 +6290,7 @@ bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectReflTargetCoordZR2Node()
             MRMLNodeModifyBlocker block(mrmlNode);
             mrmlNode->SetConfirmedCoordsR2(r2Coords);
           }
-          qDebug() << Q_FUNC_INFO << "Reflective R2 KUKA_Z changed:" << KUKA_Z;
+//          qDebug() << Q_FUNC_INFO << "Reflective R2 KUKA_Z changed:" << KUKA_Z;
         }
       }
     }
@@ -6318,7 +6318,7 @@ bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectReflTargetCoordZR2Node()
               MRMLNodeModifyBlocker block(mrmlNode);
               mrmlNode->SetConfirmedCoordsR2(r2Coords);
             }
-            qDebug() << Q_FUNC_INFO << "Reflective R2 KUKA_Z changed:" << KUKA_Z;
+//            qDebug() << Q_FUNC_INFO << "Reflective R2 KUKA_Z changed:" << KUKA_Z;
           }
         }
       }
@@ -6368,7 +6368,7 @@ bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectReflTargetCoordAR2Node()
             MRMLNodeModifyBlocker block(mrmlNode);
             mrmlNode->SetConfirmedCoordsR2(r2Coords);
           }
-          qDebug() << Q_FUNC_INFO << "Reflective R2 KUKA_A changed:" << KUKA_A;
+//          qDebug() << Q_FUNC_INFO << "Reflective R2 KUKA_A changed:" << KUKA_A;
         }
       }
     }
@@ -6396,7 +6396,7 @@ bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectReflTargetCoordAR2Node()
               MRMLNodeModifyBlocker block(mrmlNode);
               mrmlNode->SetConfirmedCoordsR2(r2Coords);
             }
-            qDebug() << Q_FUNC_INFO << "Reflective R2 KUKA_A read:" << KUKA_A;
+//            qDebug() << Q_FUNC_INFO << "Reflective R2 KUKA_A read:" << KUKA_A;
           }
         }
       }
@@ -6445,7 +6445,7 @@ bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectReflTargetCoordBR2Node()
             MRMLNodeModifyBlocker block(mrmlNode);
             mrmlNode->SetConfirmedCoordsR2(r2Coords);
           }
-          qDebug() << Q_FUNC_INFO << "Reflective R2 KUKA_B changed:" << KUKA_B;
+//          qDebug() << Q_FUNC_INFO << "Reflective R2 KUKA_B changed:" << KUKA_B;
         }
       }
     }
@@ -6473,7 +6473,7 @@ bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectReflTargetCoordBR2Node()
               MRMLNodeModifyBlocker block(mrmlNode);
               mrmlNode->SetConfirmedCoordsR2(r2Coords);
             }
-            qDebug() << Q_FUNC_INFO << "Reflective R2 KUKA_B changed:" << KUKA_B;
+//            qDebug() << Q_FUNC_INFO << "Reflective R2 KUKA_B changed:" << KUKA_B;
           }
         }
       }
@@ -6522,7 +6522,7 @@ bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectReflTargetCoordCR2Node()
             MRMLNodeModifyBlocker block(mrmlNode);
             mrmlNode->SetConfirmedCoordsR2(r2Coords);
           }
-          qDebug() << Q_FUNC_INFO << "Reflective R2 KUKA_C changed:" << KUKA_C;
+//          qDebug() << Q_FUNC_INFO << "Reflective R2 KUKA_C changed:" << KUKA_C;
         }
       }
     }
@@ -6550,7 +6550,7 @@ bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectReflTargetCoordCR2Node()
               MRMLNodeModifyBlocker block(mrmlNode);
               mrmlNode->SetConfirmedCoordsR2(r2Coords);
             }
-            qDebug() << Q_FUNC_INFO << "Reflective R2 KUKA_C changed:" << KUKA_C;
+//            qDebug() << Q_FUNC_INFO << "Reflective R2 KUKA_C changed:" << KUKA_C;
           }
         }
       }
@@ -6600,7 +6600,7 @@ bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectCurrentCoordA1R2Node()
             mrmlNode->SetCurrentAxisCoordsR2(r2AxisCoords);
           }
           mrmlNode->InvokeCustomModifiedEvent(vtkMRMLSiemensPlcOpcUaNode::CarmRobotAxisCoordsModified);
-          qDebug() << Q_FUNC_INFO << "R2 Axis A1 angle changed:" << angleValue;
+//          qDebug() << Q_FUNC_INFO << "R2 Axis A1 angle changed:" << angleValue;
         }
       }
     }
@@ -6629,7 +6629,7 @@ bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectCurrentCoordA1R2Node()
               mrmlNode->SetCurrentAxisCoordsR2(r2AxisCoords);
             }
             mrmlNode->InvokeCustomModifiedEvent(vtkMRMLSiemensPlcOpcUaNode::CarmRobotAxisCoordsModified);
-            qDebug() << Q_FUNC_INFO << "R2 Axis A1 angle read:" << angleValue;
+//            qDebug() << Q_FUNC_INFO << "R2 Axis A1 angle read:" << angleValue;
           }
         }
       }
@@ -6678,7 +6678,7 @@ bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectCurrentCoordA2R2Node()
             mrmlNode->SetCurrentAxisCoordsR2(r2AxisCoords);
           }
           mrmlNode->InvokeCustomModifiedEvent(vtkMRMLSiemensPlcOpcUaNode::CarmRobotAxisCoordsModified);
-          qDebug() << Q_FUNC_INFO << "R2 Axis A2 angle changed:" << angleValue;
+//          qDebug() << Q_FUNC_INFO << "R2 Axis A2 angle changed:" << angleValue;
         }
       }
     }
@@ -6707,7 +6707,7 @@ bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectCurrentCoordA2R2Node()
               mrmlNode->SetCurrentAxisCoordsR2(r2AxisCoords);
             }
             mrmlNode->InvokeCustomModifiedEvent(vtkMRMLSiemensPlcOpcUaNode::CarmRobotAxisCoordsModified);
-            qDebug() << Q_FUNC_INFO << "R2 Axis A2 angle read:" << angleValue;
+//            qDebug() << Q_FUNC_INFO << "R2 Axis A2 angle read:" << angleValue;
           }
         }
       }
@@ -6756,7 +6756,7 @@ bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectCurrentCoordA3R2Node()
             mrmlNode->SetCurrentAxisCoordsR2(r2AxisCoords);
           }
           mrmlNode->InvokeCustomModifiedEvent(vtkMRMLSiemensPlcOpcUaNode::CarmRobotAxisCoordsModified);
-          qDebug() << Q_FUNC_INFO << "R2 Axis A3 angle changed:" << angleValue;
+//          qDebug() << Q_FUNC_INFO << "R2 Axis A3 angle changed:" << angleValue;
         }
       }
     }
@@ -6785,7 +6785,7 @@ bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectCurrentCoordA3R2Node()
               mrmlNode->SetCurrentAxisCoordsR2(r2AxisCoords);
             }
             mrmlNode->InvokeCustomModifiedEvent(vtkMRMLSiemensPlcOpcUaNode::CarmRobotAxisCoordsModified);
-            qDebug() << Q_FUNC_INFO << "R2 Axis A3 angle read:" << angleValue;
+//            qDebug() << Q_FUNC_INFO << "R2 Axis A3 angle read:" << angleValue;
           }
         }
       }
@@ -6834,7 +6834,7 @@ bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectCurrentCoordA4R2Node()
             mrmlNode->SetCurrentAxisCoordsR2(r2AxisCoords);
           }
           mrmlNode->InvokeCustomModifiedEvent(vtkMRMLSiemensPlcOpcUaNode::CarmRobotAxisCoordsModified);
-          qDebug() << Q_FUNC_INFO << "R2 Axis A4 angle changed:" << angleValue;
+//          qDebug() << Q_FUNC_INFO << "R2 Axis A4 angle changed:" << angleValue;
         }
       }
     }
@@ -6863,7 +6863,7 @@ bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectCurrentCoordA4R2Node()
               mrmlNode->SetCurrentAxisCoordsR2(r2AxisCoords);
             }
             mrmlNode->InvokeCustomModifiedEvent(vtkMRMLSiemensPlcOpcUaNode::CarmRobotAxisCoordsModified);
-            qDebug() << Q_FUNC_INFO << "R2 Axis A4 angle read:" << angleValue;
+//            qDebug() << Q_FUNC_INFO << "R2 Axis A4 angle read:" << angleValue;
           }
         }
       }
@@ -6912,7 +6912,7 @@ bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectCurrentCoordA5R2Node()
             mrmlNode->SetCurrentAxisCoordsR2(r2AxisCoords);
           }
           mrmlNode->InvokeCustomModifiedEvent(vtkMRMLSiemensPlcOpcUaNode::CarmRobotAxisCoordsModified);
-          qDebug() << Q_FUNC_INFO << "R2 Axis A5 angle changed:" << angleValue;
+//          qDebug() << Q_FUNC_INFO << "R2 Axis A5 angle changed:" << angleValue;
         }
       }
     }
@@ -6941,7 +6941,7 @@ bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectCurrentCoordA5R2Node()
               mrmlNode->SetCurrentAxisCoordsR2(r2AxisCoords);
             }
             mrmlNode->InvokeCustomModifiedEvent(vtkMRMLSiemensPlcOpcUaNode::CarmRobotAxisCoordsModified);
-            qDebug() << Q_FUNC_INFO << "R2 Axis A5 angle read:" << angleValue;
+//            qDebug() << Q_FUNC_INFO << "R2 Axis A5 angle read:" << angleValue;
           }
         }
       }
@@ -6990,7 +6990,7 @@ bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectCurrentCoordA6R2Node()
             mrmlNode->SetCurrentAxisCoordsR2(r2AxisCoords);
           }
           mrmlNode->InvokeCustomModifiedEvent(vtkMRMLSiemensPlcOpcUaNode::CarmRobotAxisCoordsModified);
-          qDebug() << Q_FUNC_INFO << "R2 Axis A6 angle changed:" << angleValue;
+//          qDebug() << Q_FUNC_INFO << "R2 Axis A6 angle changed:" << angleValue;
         }
       }
     }
@@ -7019,7 +7019,7 @@ bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectCurrentCoordA6R2Node()
               mrmlNode->SetCurrentAxisCoordsR2(r2AxisCoords);
             }
             mrmlNode->InvokeCustomModifiedEvent(vtkMRMLSiemensPlcOpcUaNode::CarmRobotAxisCoordsModified);
-            qDebug() << Q_FUNC_INFO << "R1 Axis A6 angle read:" << angleValue;
+//            qDebug() << Q_FUNC_INFO << "R1 Axis A6 angle read:" << angleValue;
           }
         }
       }
@@ -7091,7 +7091,7 @@ bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectPatientOnTableTopNode()
       {
         bool flagValue = value.toBool();
         mrmlNode->SetPatientOnTableTop(flagValue);
-        qDebug() << Q_FUNC_INFO << "Patient on the TableTop flag changed:" << flagValue;
+//        qDebug() << Q_FUNC_INFO << "Patient on the TableTop flag changed:" << flagValue;
       }
     }
   );
@@ -7109,7 +7109,7 @@ bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectPatientOnTableTopNode()
           QVariant value = patTableTopNode->attribute(QOpcUa::NodeAttribute::Value);
           bool flagValue = value.toBool(); // Get the attribute from the cache
           mrmlNode->SetPatientOnTableTop(flagValue);
-          qDebug() << Q_FUNC_INFO << "Patient on the TableTop flag read:" << flagValue;
+//          qDebug() << Q_FUNC_INFO << "Patient on the TableTop flag read:" << flagValue;
         }
       }
     }
@@ -7150,7 +7150,7 @@ bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectTablePositionNode()
         if (ok)
         {
           mrmlNode->SetTableTopPosition(tablePos);
-          qDebug() << Q_FUNC_INFO << "TableTop position value changed:" << tablePos;
+//          qDebug() << Q_FUNC_INFO << "TableTop position value changed:" << tablePos;
         }
       }
     }
@@ -7172,7 +7172,7 @@ bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectTablePositionNode()
           if (ok)
           {
             mrmlNode->SetTableTopPosition(tablePos);
-            qDebug() << Q_FUNC_INFO << "TableTop position value read:" << tablePos;
+//            qDebug() << Q_FUNC_INFO << "TableTop position value read:" << tablePos;
           }
         }
       }
@@ -7211,7 +7211,7 @@ bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectEmergencyEvacuationSignalNode()
       {
         bool flagValue = value.toBool();
         mrmlNode->SetEmergencyEvacSignal(flagValue);
-        qDebug() << Q_FUNC_INFO << "Emergency Evacuation signal flag changed:" << flagValue;
+//        qDebug() << Q_FUNC_INFO << "Emergency Evacuation signal flag changed:" << flagValue;
       }
     }
   );
@@ -7229,7 +7229,7 @@ bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectEmergencyEvacuationSignalNode()
           QVariant value = emEvacSignalNode->attribute(QOpcUa::NodeAttribute::Value);
           bool flagValue = value.toBool(); // Get the attribute from the cache
           mrmlNode->SetEmergencyEvacSignal(flagValue);
-          qDebug() << Q_FUNC_INFO << "Emergency Evacuation signal flag read:" << flagValue;
+//          qDebug() << Q_FUNC_INFO << "Emergency Evacuation signal flag read:" << flagValue;
         }
       }
     }
@@ -7267,7 +7267,7 @@ bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectHoldButtonPressedForMovingNode(
       {
         bool flagValue = value.toBool();
         mrmlNode->SetHoldButtonPressedForMovingFlag(flagValue);
-        qDebug() << Q_FUNC_INFO << "Hold button pressed for moving HOME flag changed:" << flagValue;
+//        qDebug() << Q_FUNC_INFO << "Hold button pressed for moving HOME flag changed:" << flagValue;
       }
     }
   );
@@ -7285,7 +7285,7 @@ bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectHoldButtonPressedForMovingNode(
           QVariant value = holdForHomeComingNode->attribute(QOpcUa::NodeAttribute::Value);
           bool flagValue = value.toBool(); // Get the attribute from the cache
           mrmlNode->SetHoldButtonPressedForMovingFlag(flagValue);
-          qDebug() << Q_FUNC_INFO << "Hold button pressed for moving HOME flag read:" << flagValue;
+//          qDebug() << Q_FUNC_INFO << "Hold button pressed for moving HOME flag read:" << flagValue;
         }
       }
     }
@@ -7342,7 +7342,7 @@ bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectFlagNodes()
       {
         bool flagValue = value.toBool();
         mrmlNode->SetRobotsReadyForXray1(flagValue);
-        qDebug() << Q_FUNC_INFO << "Robots ready for x-ray #1 value changed:" << flagValue;
+//        qDebug() << Q_FUNC_INFO << "Robots ready for x-ray #1 value changed:" << flagValue;
       }
     }
   );
@@ -7360,7 +7360,7 @@ bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectFlagNodes()
           QVariant value = robReadyXray1Node->attribute(QOpcUa::NodeAttribute::Value);
           bool flagValue = value.toBool();
           mrmlNode->SetRobotsReadyForXray1(flagValue);
-          qDebug() << Q_FUNC_INFO << "Robots ready for x-ray #1 value read:" << flagValue;
+//          qDebug() << Q_FUNC_INFO << "Robots ready for x-ray #1 value read:" << flagValue;
         }
       }
     }
@@ -7381,7 +7381,7 @@ bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectFlagNodes()
       {
         bool flagValue = value.toBool();
         mrmlNode->SetRobotsReadyForXray2(flagValue);
-        qDebug() << Q_FUNC_INFO << "Robots ready for x-ray #2 value changed:" << flagValue;
+//        qDebug() << Q_FUNC_INFO << "Robots ready for x-ray #2 value changed:" << flagValue;
       }
     }
   );
@@ -7399,7 +7399,7 @@ bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectFlagNodes()
           QVariant value = robReadyXray2Node->attribute(QOpcUa::NodeAttribute::Value);
           bool flagValue = value.toBool();
           mrmlNode->SetRobotsReadyForXray2(flagValue);
-          qDebug() << Q_FUNC_INFO << "Robots ready for x-ray #2 value read:" << flagValue;
+//          qDebug() << Q_FUNC_INFO << "Robots ready for x-ray #2 value read:" << flagValue;
         }
       }
     }
@@ -7419,7 +7419,7 @@ bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectFlagNodes()
       {
         bool flagValue = value.toBool();
         mrmlNode->SetRobotsReadyForBeam(flagValue);
-        qDebug() << Q_FUNC_INFO << "Robots ready for beam value changed:" << flagValue;
+//        qDebug() << Q_FUNC_INFO << "Robots ready for beam value changed:" << flagValue;
       }
     }
   );
@@ -7437,7 +7437,7 @@ bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectFlagNodes()
           QVariant value = robReadyBeamNode->attribute(QOpcUa::NodeAttribute::Value);
           bool flagValue = value.toBool();
           mrmlNode->SetRobotsReadyForBeam(flagValue);
-          qDebug() << Q_FUNC_INFO << "Robots ready for beam value read:" << flagValue;
+//          qDebug() << Q_FUNC_INFO << "Robots ready for beam value read:" << flagValue;
         }
       }
     }
@@ -7483,7 +7483,7 @@ bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectSetCoordsXyzNodes()
         if (ok)
         {
           mrmlNode->SetCoordsX(coordValue);
-          qDebug() << Q_FUNC_INFO << "SetCoords X node value changed:" << coordValue;
+//          qDebug() << Q_FUNC_INFO << "SetCoords X node value changed:" << coordValue;
         }
       }
     }
@@ -7505,7 +7505,7 @@ bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectSetCoordsXyzNodes()
           if (ok)
           {
             mrmlNode->SetCoordsX(coordValue);
-            qDebug() << Q_FUNC_INFO << "SetCoords X node value read:" << coordValue;
+//            qDebug() << Q_FUNC_INFO << "SetCoords X node value read:" << coordValue;
           }
         }
       }
@@ -7530,7 +7530,7 @@ bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectSetCoordsXyzNodes()
         if (ok)
         {
           mrmlNode->SetCoordsY(coordValue);
-          qDebug() << Q_FUNC_INFO << "SetCoords Y node value changed:" << coordValue;
+//          qDebug() << Q_FUNC_INFO << "SetCoords Y node value changed:" << coordValue;
         }
       }
     }
@@ -7552,7 +7552,7 @@ bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectSetCoordsXyzNodes()
           if (ok)
           {
             mrmlNode->SetCoordsY(coordValue);
-            qDebug() << Q_FUNC_INFO << "SetCoords Y node value read:" << coordValue;
+//            qDebug() << Q_FUNC_INFO << "SetCoords Y node value read:" << coordValue;
           }
         }
       }
@@ -7577,7 +7577,7 @@ bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectSetCoordsXyzNodes()
         if (ok)
         {
           mrmlNode->SetCoordsZ(coordValue);
-          qDebug() << Q_FUNC_INFO << "SetCoords Z node value changed:" << coordValue;
+//          qDebug() << Q_FUNC_INFO << "SetCoords Z node value changed:" << coordValue;
         }
       }
     }
@@ -7599,7 +7599,7 @@ bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectSetCoordsXyzNodes()
           if (ok)
           {
             mrmlNode->SetCoordsZ(coordValue);
-            qDebug() << Q_FUNC_INFO << "SetCoords Z node value read:" << coordValue;
+//            qDebug() << Q_FUNC_INFO << "SetCoords Z node value read:" << coordValue;
           }
         }
       }
@@ -7646,7 +7646,7 @@ bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectSetCoordsAbcNodes()
         if (ok)
         {
           mrmlNode->SetCoordsA(angleValue);
-          qDebug() << Q_FUNC_INFO << "SetCoords A node value changed:" << angleValue;
+//          qDebug() << Q_FUNC_INFO << "SetCoords A node value changed:" << angleValue;
         }
       }
     }
@@ -7693,7 +7693,7 @@ bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectSetCoordsAbcNodes()
         if (ok)
         {
           mrmlNode->SetCoordsB(angleValue);
-          qDebug() << Q_FUNC_INFO << "SetCoords B node value changed:" << angleValue;
+//          qDebug() << Q_FUNC_INFO << "SetCoords B node value changed:" << angleValue;
         }
       }
     }
@@ -7715,7 +7715,7 @@ bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectSetCoordsAbcNodes()
           if (ok)
           {
             mrmlNode->SetCoordsB(angleValue);
-            qDebug() << Q_FUNC_INFO << "SetCoords B node value read:" << angleValue;
+//            qDebug() << Q_FUNC_INFO << "SetCoords B node value read:" << angleValue;
           }
         }
       }
@@ -7740,7 +7740,7 @@ bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectSetCoordsAbcNodes()
         if (ok)
         {
           mrmlNode->SetCoordsC(angleValue);
-          qDebug() << Q_FUNC_INFO << "SetCoords C node value changed:" << angleValue;
+//          qDebug() << Q_FUNC_INFO << "SetCoords C node value changed:" << angleValue;
         }
       }
     }
@@ -7762,7 +7762,7 @@ bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectSetCoordsAbcNodes()
           if (ok)
           {
             mrmlNode->SetCoordsC(angleValue);
-            qDebug() << Q_FUNC_INFO << "SetCoords C node value read:" << angleValue;
+//            qDebug() << Q_FUNC_INFO << "SetCoords C node value read:" << angleValue;
           }
         }
       }
@@ -8336,7 +8336,7 @@ void qSlicerSiemensPlcOpcUaWidget::onOpcUaModeChanged(vtkMRMLSiemensPlcOpcUaNode
   QOpcUaNode* modeNode = d->FindNodeFromFullDisplayName(ASU_MODE_NODE_NAME);
   if (modeNode)
   {
-    qDebug() << Q_FUNC_INFO << ": Set new mode:" << mode;
+//    qDebug() << Q_FUNC_INFO << ": Set new mode:" << mode;
     modeNode->writeAttribute(QOpcUa::NodeAttribute::Value, QVariant(mode), QOpcUa::Types::Byte);
   }
 }
@@ -8349,7 +8349,7 @@ void qSlicerSiemensPlcOpcUaWidget::onAutoManualR1LoadToIsoPressed()
   QOpcUaNode* amR1LoadToIsoPressedNode = d->FindNodeFromFullDisplayName(BUTTONS_AM_R1_LOADTOISO_PRESSED_NODE_NAME);
   if (amR1LoadToIsoPressedNode)
   {
-    qDebug() << Q_FUNC_INFO << ": R1 LoadToIso pressed";
+//    qDebug() << Q_FUNC_INFO << ": R1 LoadToIso pressed";
     amR1LoadToIsoPressedNode->writeAttribute(QOpcUa::NodeAttribute::Value, QVariant(true), QOpcUa::Types::Boolean);
   }
 }
@@ -8362,7 +8362,7 @@ void qSlicerSiemensPlcOpcUaWidget::onAutoManualR1LoadToIsoReleased()
   QOpcUaNode* amR1LoadToIsoPressedNode = d->FindNodeFromFullDisplayName(BUTTONS_AM_R1_LOADTOISO_PRESSED_NODE_NAME);
   if (amR1LoadToIsoPressedNode)
   {
-    qDebug() << Q_FUNC_INFO << ": R1 LoadToIso released";
+//    qDebug() << Q_FUNC_INFO << ": R1 LoadToIso released";
     amR1LoadToIsoPressedNode->writeAttribute(QOpcUa::NodeAttribute::Value, QVariant(false), QOpcUa::Types::Boolean);
   }
 }
@@ -8375,7 +8375,7 @@ void qSlicerSiemensPlcOpcUaWidget::onAutoManualR1ToLoadPressed()
   QOpcUaNode* amR1ToLoadPressedNode = d->FindNodeFromFullDisplayName(BUTTONS_AM_R1_TOLOAD_PRESSED_NODE_NAME);
   if (amR1ToLoadPressedNode)
   {
-    qDebug() << Q_FUNC_INFO << ": R1 ToLoad pressed";
+//    qDebug() << Q_FUNC_INFO << ": R1 ToLoad pressed";
     amR1ToLoadPressedNode->writeAttribute(QOpcUa::NodeAttribute::Value, QVariant(true), QOpcUa::Types::Boolean);
   }
 }
@@ -8388,7 +8388,7 @@ void qSlicerSiemensPlcOpcUaWidget::onAutoManualR1ToLoadReleased()
   QOpcUaNode* amR1ToLoadPressedNode = d->FindNodeFromFullDisplayName(BUTTONS_AM_R1_TOLOAD_PRESSED_NODE_NAME);
   if (amR1ToLoadPressedNode)
   {
-    qDebug() << Q_FUNC_INFO << ": R1 ToLoad released";
+//    qDebug() << Q_FUNC_INFO << ": R1 ToLoad released";
     amR1ToLoadPressedNode->writeAttribute(QOpcUa::NodeAttribute::Value, QVariant(false), QOpcUa::Types::Boolean);
   }
 }
@@ -8401,7 +8401,7 @@ void qSlicerSiemensPlcOpcUaWidget::onAutoManualR1ToNewCoordsPressed()
   QOpcUaNode* amR1NewCoordsPressedNode = d->FindNodeFromFullDisplayName(BUTTONS_AM_R1_NEWCOORDS_PRESSED_NODE_NAME);
   if (amR1NewCoordsPressedNode)
   {
-    qDebug() << Q_FUNC_INFO << ": R1 NewCoord pressed";
+//    qDebug() << Q_FUNC_INFO << ": R1 NewCoord pressed";
     amR1NewCoordsPressedNode->writeAttribute(QOpcUa::NodeAttribute::Value, QVariant(true), QOpcUa::Types::Boolean);
   }
 }
@@ -8414,7 +8414,7 @@ void qSlicerSiemensPlcOpcUaWidget::onAutoManualR1ToNewCoordsReleased()
   QOpcUaNode* amR1NewCoordsPressedNode = d->FindNodeFromFullDisplayName(BUTTONS_AM_R1_NEWCOORDS_PRESSED_NODE_NAME);
   if (amR1NewCoordsPressedNode)
   {
-    qDebug() << Q_FUNC_INFO << ": R1 NewCoord released";
+//    qDebug() << Q_FUNC_INFO << ": R1 NewCoord released";
     amR1NewCoordsPressedNode->writeAttribute(QOpcUa::NodeAttribute::Value, QVariant(false), QOpcUa::Types::Boolean);
   }
 }
@@ -8427,7 +8427,7 @@ void qSlicerSiemensPlcOpcUaWidget::onAutoManualR2ToHomePressed()
   QOpcUaNode* amR2ToHomePressedNode = d->FindNodeFromFullDisplayName(BUTTONS_AM_R2_TOHOME_PRESSED_NODE_NAME);
   if (amR2ToHomePressedNode)
   {
-    qDebug() << Q_FUNC_INFO << ": R2 ToHome button pressed";
+//    qDebug() << Q_FUNC_INFO << ": R2 ToHome button pressed";
     amR2ToHomePressedNode->writeAttribute(QOpcUa::NodeAttribute::Value, QVariant(true), QOpcUa::Types::Boolean);
   }
 }
@@ -8440,7 +8440,7 @@ void qSlicerSiemensPlcOpcUaWidget::onAutoManualR2ToHomeReleased()
   QOpcUaNode* amR2ToHomePressedNode = d->FindNodeFromFullDisplayName(BUTTONS_AM_R2_TOHOME_PRESSED_NODE_NAME);
   if (amR2ToHomePressedNode)
   {
-    qDebug() << Q_FUNC_INFO << ": R2 ToHome button released";
+//    qDebug() << Q_FUNC_INFO << ": R2 ToHome button released";
     amR2ToHomePressedNode->writeAttribute(QOpcUa::NodeAttribute::Value, QVariant(false), QOpcUa::Types::Boolean);
   }
 }
@@ -8453,7 +8453,7 @@ void qSlicerSiemensPlcOpcUaWidget::onAutoManualR2ToPlane1Pressed()
   QOpcUaNode* amR2ToPlane1PressedNode = d->FindNodeFromFullDisplayName(BUTTONS_AM_R2_TOPLANE1_PRESSED_NODE_NAME);
   if (amR2ToPlane1PressedNode)
   {
-    qDebug() << Q_FUNC_INFO << ": R2 ToPlane1 button pressed";
+//    qDebug() << Q_FUNC_INFO << ": R2 ToPlane1 button pressed";
     amR2ToPlane1PressedNode->writeAttribute(QOpcUa::NodeAttribute::Value, QVariant(true), QOpcUa::Types::Boolean);
   }
 }
@@ -8466,7 +8466,7 @@ void qSlicerSiemensPlcOpcUaWidget::onAutoManualR2ToPlane1Released()
   QOpcUaNode* amR2ToPlane1PressedNode = d->FindNodeFromFullDisplayName(BUTTONS_AM_R2_TOPLANE1_PRESSED_NODE_NAME);
   if (amR2ToPlane1PressedNode)
   {
-    qDebug() << Q_FUNC_INFO << ": R2 ToPlane1 button released";
+//    qDebug() << Q_FUNC_INFO << ": R2 ToPlane1 button released";
     amR2ToPlane1PressedNode->writeAttribute(QOpcUa::NodeAttribute::Value, QVariant(false), QOpcUa::Types::Boolean);
   }
 }
@@ -8479,7 +8479,7 @@ void qSlicerSiemensPlcOpcUaWidget::onAutoManualR2ToPlane2Pressed()
   QOpcUaNode* amR2ToPlane2PressedNode = d->FindNodeFromFullDisplayName(BUTTONS_AM_R2_TOPLANE2_PRESSED_NODE_NAME);
   if (amR2ToPlane2PressedNode)
   {
-    qDebug() << Q_FUNC_INFO << ": R2 ToPlane2 button pressed";
+//    qDebug() << Q_FUNC_INFO << ": R2 ToPlane2 button pressed";
     amR2ToPlane2PressedNode->writeAttribute(QOpcUa::NodeAttribute::Value, QVariant(true), QOpcUa::Types::Boolean);
   }
 }
@@ -8492,7 +8492,7 @@ void qSlicerSiemensPlcOpcUaWidget::onAutoManualR2ToPlane2Released()
   QOpcUaNode* amR2ToPlane2PressedNode = d->FindNodeFromFullDisplayName(BUTTONS_AM_R2_TOPLANE2_PRESSED_NODE_NAME);
   if (amR2ToPlane2PressedNode)
   {
-    qDebug() << Q_FUNC_INFO << ": R2 ToPlane2 button released";
+//    qDebug() << Q_FUNC_INFO << ": R2 ToPlane2 button released";
     amR2ToPlane2PressedNode->writeAttribute(QOpcUa::NodeAttribute::Value, QVariant(false), QOpcUa::Types::Boolean);
   }
 }
@@ -8505,7 +8505,7 @@ void qSlicerSiemensPlcOpcUaWidget::onAutoManualR1R2EmerEvacPressed()
   QOpcUaNode* amR1R2EmEvacPressedNode = d->FindNodeFromFullDisplayName(BUTTONS_AM_R1R2_EMEVAC_PRESSED_NODE_NAME);
   if (amR1R2EmEvacPressedNode)
   {
-    qDebug() << Q_FUNC_INFO << ": R1R2 Emergency Evacuation button pressed";
+//    qDebug() << Q_FUNC_INFO << ": R1R2 Emergency Evacuation button pressed";
     amR1R2EmEvacPressedNode->writeAttribute(QOpcUa::NodeAttribute::Value, QVariant(true), QOpcUa::Types::Boolean);
   }
 }
@@ -8518,7 +8518,7 @@ void qSlicerSiemensPlcOpcUaWidget::onAutoManualR1R2EmerEvacReleased()
   QOpcUaNode* amR1R2EmEvacPressedNode = d->FindNodeFromFullDisplayName(BUTTONS_AM_R1R2_EMEVAC_PRESSED_NODE_NAME);
   if (amR1R2EmEvacPressedNode)
   {
-    qDebug() << Q_FUNC_INFO << ": R1R2 Emergency Evacuation button released";
+//    qDebug() << Q_FUNC_INFO << ": R1R2 Emergency Evacuation button released";
     amR1R2EmEvacPressedNode->writeAttribute(QOpcUa::NodeAttribute::Value, QVariant(false), QOpcUa::Types::Boolean);
   }
 }
@@ -8531,7 +8531,7 @@ void qSlicerSiemensPlcOpcUaWidget::onAutoManualApplyTablePositionPressed()
   QOpcUaNode* amApplyTableTopPosPressedNode = d->FindNodeFromFullDisplayName(BUTTONS_AM_APPLYTABLEPOSITION_PRESSED_NODE_NAME);
   if (amApplyTableTopPosPressedNode)
   {
-    qDebug() << Q_FUNC_INFO << ": ApplyTableTopPosition button pressed";
+//    qDebug() << Q_FUNC_INFO << ": ApplyTableTopPosition button pressed";
     amApplyTableTopPosPressedNode->writeAttribute(QOpcUa::NodeAttribute::Value, QVariant(true), QOpcUa::Types::Boolean);
   }
 }
@@ -8544,7 +8544,7 @@ void qSlicerSiemensPlcOpcUaWidget::onAutoManualApplyTablePositionReleased()
   QOpcUaNode* amApplyTableTopPosPressedNode = d->FindNodeFromFullDisplayName(BUTTONS_AM_APPLYTABLEPOSITION_PRESSED_NODE_NAME);
   if (amApplyTableTopPosPressedNode)
   {
-    qDebug() << Q_FUNC_INFO << ": ApplyTableTopPosition button pressed";
+//    qDebug() << Q_FUNC_INFO << ": ApplyTableTopPosition button pressed";
     amApplyTableTopPosPressedNode->writeAttribute(QOpcUa::NodeAttribute::Value, QVariant(false), QOpcUa::Types::Boolean);
   }
 }
@@ -8557,7 +8557,7 @@ void qSlicerSiemensPlcOpcUaWidget::onAutoManualApplyNewCoordsPressed()
   QOpcUaNode* amApplyNewCoordsPressedNode = d->FindNodeFromFullDisplayName(BUTTONS_AM_APPLYNEWCOORDS_PRESSED_NODE_NAME);
   if (amApplyNewCoordsPressedNode)
   {
-    qDebug() << Q_FUNC_INFO << ": ApplyNewCoords button pressed";
+//    qDebug() << Q_FUNC_INFO << ": ApplyNewCoords button pressed";
     amApplyNewCoordsPressedNode->writeAttribute(QOpcUa::NodeAttribute::Value, QVariant(true), QOpcUa::Types::Boolean);
   }
 }
@@ -8570,7 +8570,7 @@ void qSlicerSiemensPlcOpcUaWidget::onAutoManualApplyNewCoordsReleased()
   QOpcUaNode* amApplyNewCoordsPressedNode = d->FindNodeFromFullDisplayName(BUTTONS_AM_APPLYNEWCOORDS_PRESSED_NODE_NAME);
   if (amApplyNewCoordsPressedNode)
   {
-    qDebug() << Q_FUNC_INFO << ": ApplyNewCoords button pressed";
+//    qDebug() << Q_FUNC_INFO << ": ApplyNewCoords button pressed";
     amApplyNewCoordsPressedNode->writeAttribute(QOpcUa::NodeAttribute::Value, QVariant(false), QOpcUa::Types::Boolean);
   }
 }
@@ -8583,7 +8583,7 @@ void qSlicerSiemensPlcOpcUaWidget::onServiceR1BreakTestPressed()
   QOpcUaNode* smR1BeakTestPressedNode = d->FindNodeFromFullDisplayName(BUTTONS_SM_R1_BREAKTEST_PRESSED_NODE_NAME);
   if (smR1BeakTestPressedNode)
   {
-    qDebug() << Q_FUNC_INFO << ": R1 BreakTest button pressed";
+//    qDebug() << Q_FUNC_INFO << ": R1 BreakTest button pressed";
     smR1BeakTestPressedNode->writeAttribute(QOpcUa::NodeAttribute::Value, QVariant(true), QOpcUa::Types::Boolean);
   }
 }
@@ -8596,7 +8596,7 @@ void qSlicerSiemensPlcOpcUaWidget::onServiceR1BreakTestReleased()
   QOpcUaNode* smR1BeakTestPressedNode = d->FindNodeFromFullDisplayName(BUTTONS_SM_R1_BREAKTEST_PRESSED_NODE_NAME);
   if (smR1BeakTestPressedNode)
   {
-    qDebug() << Q_FUNC_INFO << ": R1 BreakTest button released";
+//    qDebug() << Q_FUNC_INFO << ": R1 BreakTest button released";
     smR1BeakTestPressedNode->writeAttribute(QOpcUa::NodeAttribute::Value, QVariant(false), QOpcUa::Types::Boolean);
   }
 }
@@ -8609,7 +8609,7 @@ void qSlicerSiemensPlcOpcUaWidget::onServiceR1MasterReferenceTestPressed()
   QOpcUaNode* smR1MasRefTestPressedNode = d->FindNodeFromFullDisplayName(BUTTONS_SM_R1_MASREFTEST_PRESSED_NODE_NAME);
   if (smR1MasRefTestPressedNode)
   {
-    qDebug() << Q_FUNC_INFO << ": R1 MasterReferenceTest button pressed";
+//    qDebug() << Q_FUNC_INFO << ": R1 MasterReferenceTest button pressed";
     smR1MasRefTestPressedNode->writeAttribute(QOpcUa::NodeAttribute::Value, QVariant(true), QOpcUa::Types::Boolean);
   }
 }
@@ -8622,7 +8622,7 @@ void qSlicerSiemensPlcOpcUaWidget::onServiceR1MasterReferenceTestReleased()
   QOpcUaNode* smR1MasRefTestPressedNode = d->FindNodeFromFullDisplayName(BUTTONS_SM_R1_MASREFTEST_PRESSED_NODE_NAME);
   if (smR1MasRefTestPressedNode)
   {
-    qDebug() << Q_FUNC_INFO << ": R1 MasterReferenceTest button released";
+//    qDebug() << Q_FUNC_INFO << ": R1 MasterReferenceTest button released";
     smR1MasRefTestPressedNode->writeAttribute(QOpcUa::NodeAttribute::Value, QVariant(false), QOpcUa::Types::Boolean);
   }
 }
@@ -8635,7 +8635,7 @@ void qSlicerSiemensPlcOpcUaWidget::onServiceR1LoadPressed()
   QOpcUaNode* smR1LoadPressedNode = d->FindNodeFromFullDisplayName(BUTTONS_SM_R1_LOAD_PRESSED_NODE_NAME);
   if (smR1LoadPressedNode)
   {
-    qDebug() << Q_FUNC_INFO << ": R1 Load button pressed";
+//    qDebug() << Q_FUNC_INFO << ": R1 Load button pressed";
     smR1LoadPressedNode->writeAttribute(QOpcUa::NodeAttribute::Value, QVariant(true), QOpcUa::Types::Boolean);
   }
 }
@@ -8648,7 +8648,7 @@ void qSlicerSiemensPlcOpcUaWidget::onServiceR1LoadReleased()
   QOpcUaNode* smR1LoadPressedNode = d->FindNodeFromFullDisplayName(BUTTONS_SM_R1_LOAD_PRESSED_NODE_NAME);
   if (smR1LoadPressedNode)
   {
-    qDebug() << Q_FUNC_INFO << ": R1 Load button released";
+//    qDebug() << Q_FUNC_INFO << ": R1 Load button released";
     smR1LoadPressedNode->writeAttribute(QOpcUa::NodeAttribute::Value, QVariant(false), QOpcUa::Types::Boolean);
   }
 }
@@ -8661,7 +8661,7 @@ void qSlicerSiemensPlcOpcUaWidget::onServiceR1ServicePos1Pressed()
   QOpcUaNode* smR1ServicePos1PressedNode = d->FindNodeFromFullDisplayName(BUTTONS_SM_R1_SERVICEPOS1_PRESSED_NODE_NAME);
   if (smR1ServicePos1PressedNode)
   {
-    qDebug() << Q_FUNC_INFO << ": R1 ServicePosition1 button pressed";
+//    qDebug() << Q_FUNC_INFO << ": R1 ServicePosition1 button pressed";
     smR1ServicePos1PressedNode->writeAttribute(QOpcUa::NodeAttribute::Value, QVariant(true), QOpcUa::Types::Boolean);
   }
 }
@@ -8674,7 +8674,7 @@ void qSlicerSiemensPlcOpcUaWidget::onServiceR1ServicePos1Released()
   QOpcUaNode* smR1ServicePos1PressedNode = d->FindNodeFromFullDisplayName(BUTTONS_SM_R1_SERVICEPOS1_PRESSED_NODE_NAME);
   if (smR1ServicePos1PressedNode)
   {
-    qDebug() << Q_FUNC_INFO << ": R1 ServicePosition1 button released";
+//    qDebug() << Q_FUNC_INFO << ": R1 ServicePosition1 button released";
     smR1ServicePos1PressedNode->writeAttribute(QOpcUa::NodeAttribute::Value, QVariant(false), QOpcUa::Types::Boolean);
   }
 }
@@ -8687,7 +8687,7 @@ void qSlicerSiemensPlcOpcUaWidget::onServiceR1ServicePos2Pressed()
   QOpcUaNode* smR1ServicePos2PressedNode = d->FindNodeFromFullDisplayName(BUTTONS_SM_R1_SERVICEPOS2_PRESSED_NODE_NAME);
   if (smR1ServicePos2PressedNode)
   {
-    qDebug() << Q_FUNC_INFO << ": R1 ServicePosition2 button pressed";
+//    qDebug() << Q_FUNC_INFO << ": R1 ServicePosition2 button pressed";
     smR1ServicePos2PressedNode->writeAttribute(QOpcUa::NodeAttribute::Value, QVariant(true), QOpcUa::Types::Boolean);
   }
 }
@@ -8700,7 +8700,7 @@ void qSlicerSiemensPlcOpcUaWidget::onServiceR1ServicePos2Released()
   QOpcUaNode* smR1ServicePos2PressedNode = d->FindNodeFromFullDisplayName(BUTTONS_SM_R1_SERVICEPOS2_PRESSED_NODE_NAME);
   if (smR1ServicePos2PressedNode)
   {
-    qDebug() << Q_FUNC_INFO << ": R1 ServicePosition2 button released";
+//    qDebug() << Q_FUNC_INFO << ": R1 ServicePosition2 button released";
     smR1ServicePos2PressedNode->writeAttribute(QOpcUa::NodeAttribute::Value, QVariant(false), QOpcUa::Types::Boolean);
   }
 }
@@ -8713,7 +8713,7 @@ void qSlicerSiemensPlcOpcUaWidget::onServiceR1ServicePos3Pressed()
   QOpcUaNode* smR1ServicePos3PressedNode = d->FindNodeFromFullDisplayName(BUTTONS_SM_R1_SERVICEPOS3_PRESSED_NODE_NAME);
   if (smR1ServicePos3PressedNode)
   {
-    qDebug() << Q_FUNC_INFO << ": R1 ServicePosition3 button pressed";
+//    qDebug() << Q_FUNC_INFO << ": R1 ServicePosition3 button pressed";
     smR1ServicePos3PressedNode->writeAttribute(QOpcUa::NodeAttribute::Value, QVariant(true), QOpcUa::Types::Boolean);
   }
 }
@@ -8726,7 +8726,7 @@ void qSlicerSiemensPlcOpcUaWidget::onServiceR1ServicePos3Released()
   QOpcUaNode* smR1ServicePos3PressedNode = d->FindNodeFromFullDisplayName(BUTTONS_SM_R1_SERVICEPOS3_PRESSED_NODE_NAME);
   if (smR1ServicePos3PressedNode)
   {
-    qDebug() << Q_FUNC_INFO << ": R1 ServicePosition3 button released";
+//    qDebug() << Q_FUNC_INFO << ": R1 ServicePosition3 button released";
     smR1ServicePos3PressedNode->writeAttribute(QOpcUa::NodeAttribute::Value, QVariant(false), QOpcUa::Types::Boolean);
   }
 }
@@ -8739,7 +8739,7 @@ void qSlicerSiemensPlcOpcUaWidget::onServiceR2BreakTestPressed()
   QOpcUaNode* smR2BeakTestPressedNode = d->FindNodeFromFullDisplayName(BUTTONS_SM_R2_BREAKTEST_PRESSED_NODE_NAME);
   if (smR2BeakTestPressedNode)
   {
-    qDebug() << Q_FUNC_INFO << ": R2 BreakTest button pressed";
+//    qDebug() << Q_FUNC_INFO << ": R2 BreakTest button pressed";
     smR2BeakTestPressedNode->writeAttribute(QOpcUa::NodeAttribute::Value, QVariant(true), QOpcUa::Types::Boolean);
   }
 }
@@ -8752,7 +8752,7 @@ void qSlicerSiemensPlcOpcUaWidget::onServiceR2BreakTestReleased()
   QOpcUaNode* smR2BeakTestPressedNode = d->FindNodeFromFullDisplayName(BUTTONS_SM_R2_BREAKTEST_PRESSED_NODE_NAME);
   if (smR2BeakTestPressedNode)
   {
-    qDebug() << Q_FUNC_INFO << ": R2 BreakTest button released";
+//    qDebug() << Q_FUNC_INFO << ": R2 BreakTest button released";
     smR2BeakTestPressedNode->writeAttribute(QOpcUa::NodeAttribute::Value, QVariant(false), QOpcUa::Types::Boolean);
   }
 }
@@ -8765,7 +8765,7 @@ void qSlicerSiemensPlcOpcUaWidget::onServiceR2MasterReferenceTestPressed()
   QOpcUaNode* smR2MasRefTestPressedNode = d->FindNodeFromFullDisplayName(BUTTONS_SM_R2_MASREFTEST_PRESSED_NODE_NAME);
   if (smR2MasRefTestPressedNode)
   {
-    qDebug() << Q_FUNC_INFO << ": R1 MasterReferenceTest button pressed";
+//    qDebug() << Q_FUNC_INFO << ": R1 MasterReferenceTest button pressed";
     smR2MasRefTestPressedNode->writeAttribute(QOpcUa::NodeAttribute::Value, QVariant(true), QOpcUa::Types::Boolean);
   }
 }
@@ -8778,7 +8778,7 @@ void qSlicerSiemensPlcOpcUaWidget::onServiceR2MasterReferenceTestReleased()
   QOpcUaNode* smR2MasRefTestPressedNode = d->FindNodeFromFullDisplayName(BUTTONS_SM_R2_MASREFTEST_PRESSED_NODE_NAME);
   if (smR2MasRefTestPressedNode)
   {
-    qDebug() << Q_FUNC_INFO << ": R2 MasterReferenceTest button released";
+//    qDebug() << Q_FUNC_INFO << ": R2 MasterReferenceTest button released";
     smR2MasRefTestPressedNode->writeAttribute(QOpcUa::NodeAttribute::Value, QVariant(false), QOpcUa::Types::Boolean);
   }
 }
@@ -8791,7 +8791,7 @@ void qSlicerSiemensPlcOpcUaWidget::onServiceR2HomePressed()
   QOpcUaNode* smR2HomePressedNode = d->FindNodeFromFullDisplayName(BUTTONS_SM_R2_HOME_PRESSED_NODE_NAME);
   if (smR2HomePressedNode)
   {
-    qDebug() << Q_FUNC_INFO << ": R2 Home button pressed";
+//    qDebug() << Q_FUNC_INFO << ": R2 Home button pressed";
     smR2HomePressedNode->writeAttribute(QOpcUa::NodeAttribute::Value, QVariant(true), QOpcUa::Types::Boolean);
   }
 }
@@ -8804,7 +8804,7 @@ void qSlicerSiemensPlcOpcUaWidget::onServiceR2HomeReleased()
   QOpcUaNode* smR2HomePressedNode = d->FindNodeFromFullDisplayName(BUTTONS_SM_R2_HOME_PRESSED_NODE_NAME);
   if (smR2HomePressedNode)
   {
-    qDebug() << Q_FUNC_INFO << ": R2 Home button released";
+//    qDebug() << Q_FUNC_INFO << ": R2 Home button released";
     smR2HomePressedNode->writeAttribute(QOpcUa::NodeAttribute::Value, QVariant(false), QOpcUa::Types::Boolean);
   }
 }
@@ -8817,7 +8817,7 @@ void qSlicerSiemensPlcOpcUaWidget::onServiceR2ServicePos1Pressed()
   QOpcUaNode* smR2ServicePos1PressedNode = d->FindNodeFromFullDisplayName(BUTTONS_SM_R2_SERVICEPOS1_PRESSED_NODE_NAME);
   if (smR2ServicePos1PressedNode)
   {
-    qDebug() << Q_FUNC_INFO << ": R2 ServicePosition1 button pressed";
+//    qDebug() << Q_FUNC_INFO << ": R2 ServicePosition1 button pressed";
     smR2ServicePos1PressedNode->writeAttribute(QOpcUa::NodeAttribute::Value, QVariant(true), QOpcUa::Types::Boolean);
   }
 }
@@ -8830,7 +8830,7 @@ void qSlicerSiemensPlcOpcUaWidget::onServiceR2ServicePos1Released()
   QOpcUaNode* smR2ServicePos1PressedNode = d->FindNodeFromFullDisplayName(BUTTONS_SM_R2_SERVICEPOS1_PRESSED_NODE_NAME);
   if (smR2ServicePos1PressedNode)
   {
-    qDebug() << Q_FUNC_INFO << ": R2 ServicePosition1 button released";
+//    qDebug() << Q_FUNC_INFO << ": R2 ServicePosition1 button released";
     smR2ServicePos1PressedNode->writeAttribute(QOpcUa::NodeAttribute::Value, QVariant(false), QOpcUa::Types::Boolean);
   }
 }
@@ -8843,7 +8843,7 @@ void qSlicerSiemensPlcOpcUaWidget::onServiceR2ServicePos2Pressed()
   QOpcUaNode* smR2ServicePos2PressedNode = d->FindNodeFromFullDisplayName(BUTTONS_SM_R2_SERVICEPOS2_PRESSED_NODE_NAME);
   if (smR2ServicePos2PressedNode)
   {
-    qDebug() << Q_FUNC_INFO << ": R2 ServicePosition2 button pressed";
+//    qDebug() << Q_FUNC_INFO << ": R2 ServicePosition2 button pressed";
     smR2ServicePos2PressedNode->writeAttribute(QOpcUa::NodeAttribute::Value, QVariant(true), QOpcUa::Types::Boolean);
   }
 }
@@ -8856,7 +8856,7 @@ void qSlicerSiemensPlcOpcUaWidget::onServiceR2ServicePos2Released()
   QOpcUaNode* smR2ServicePos2PressedNode = d->FindNodeFromFullDisplayName(BUTTONS_SM_R2_SERVICEPOS2_PRESSED_NODE_NAME);
   if (smR2ServicePos2PressedNode)
   {
-    qDebug() << Q_FUNC_INFO << ": R2 ServicePosition2 button released";
+//    qDebug() << Q_FUNC_INFO << ": R2 ServicePosition2 button released";
     smR2ServicePos2PressedNode->writeAttribute(QOpcUa::NodeAttribute::Value, QVariant(false), QOpcUa::Types::Boolean);
   }
 }
@@ -8869,7 +8869,7 @@ void qSlicerSiemensPlcOpcUaWidget::onServiceR2ServicePos3Pressed()
   QOpcUaNode* smR2ServicePos3PressedNode = d->FindNodeFromFullDisplayName(BUTTONS_SM_R2_SERVICEPOS3_PRESSED_NODE_NAME);
   if (smR2ServicePos3PressedNode)
   {
-    qDebug() << Q_FUNC_INFO << ": R2 ServicePosition3 button pressed";
+//    qDebug() << Q_FUNC_INFO << ": R2 ServicePosition3 button pressed";
     smR2ServicePos3PressedNode->writeAttribute(QOpcUa::NodeAttribute::Value, QVariant(true), QOpcUa::Types::Boolean);
   }
 }
@@ -8882,7 +8882,7 @@ void qSlicerSiemensPlcOpcUaWidget::onServiceR2ServicePos3Released()
   QOpcUaNode* smR2ServicePos3PressedNode = d->FindNodeFromFullDisplayName(BUTTONS_SM_R2_SERVICEPOS3_PRESSED_NODE_NAME);
   if (smR2ServicePos3PressedNode)
   {
-    qDebug() << Q_FUNC_INFO << ": R2 ServicePosition3 button released";
+//    qDebug() << Q_FUNC_INFO << ": R2 ServicePosition3 button released";
     smR2ServicePos3PressedNode->writeAttribute(QOpcUa::NodeAttribute::Value, QVariant(false), QOpcUa::Types::Boolean);
   }
 }
@@ -8895,7 +8895,7 @@ void qSlicerSiemensPlcOpcUaWidget::onServiceRestartSmPressed()
   QOpcUaNode* smRestartSmPressedNode = d->FindNodeFromFullDisplayName(BUTTONS_SM_RESTARTSM_PRESSED_NODE_NAME);
   if (smRestartSmPressedNode)
   {
-    qDebug() << Q_FUNC_INFO << ": RestartServiceMode button pressed";
+//    qDebug() << Q_FUNC_INFO << ": RestartServiceMode button pressed";
     smRestartSmPressedNode->writeAttribute(QOpcUa::NodeAttribute::Value, QVariant(true), QOpcUa::Types::Boolean);
   }
 }
@@ -8908,7 +8908,7 @@ void qSlicerSiemensPlcOpcUaWidget::onServiceRestartSmReleased()
   QOpcUaNode* smRestartSmPressedNode = d->FindNodeFromFullDisplayName(BUTTONS_SM_RESTARTSM_PRESSED_NODE_NAME);
   if (smRestartSmPressedNode)
   {
-    qDebug() << Q_FUNC_INFO << ": RestartServiceMode button released";
+//    qDebug() << Q_FUNC_INFO << ": RestartServiceMode button released";
     smRestartSmPressedNode->writeAttribute(QOpcUa::NodeAttribute::Value, QVariant(false), QOpcUa::Types::Boolean);
   }
 }
@@ -8921,7 +8921,7 @@ void qSlicerSiemensPlcOpcUaWidget::onKukaAllowT1Pressed()
   QOpcUaNode* kcmAllowT1PressedNode = d->FindNodeFromFullDisplayName(BUTTONS_KCM_ALLOWT1_PRESSED_NODE_NAME);
   if (kcmAllowT1PressedNode)
   {
-    qDebug() << Q_FUNC_INFO << ": AllowT1 button pressed";
+//    qDebug() << Q_FUNC_INFO << ": AllowT1 button pressed";
     kcmAllowT1PressedNode->writeAttribute(QOpcUa::NodeAttribute::Value, QVariant(true), QOpcUa::Types::Boolean);
   }
 }
@@ -8934,7 +8934,7 @@ void qSlicerSiemensPlcOpcUaWidget::onKukaAllowT1Released()
   QOpcUaNode* kcmAllowT1PressedNode = d->FindNodeFromFullDisplayName(BUTTONS_KCM_ALLOWT1_PRESSED_NODE_NAME);
   if (kcmAllowT1PressedNode)
   {
-    qDebug() << Q_FUNC_INFO << ": AllowT1 button released";
+//    qDebug() << Q_FUNC_INFO << ": AllowT1 button released";
     kcmAllowT1PressedNode->writeAttribute(QOpcUa::NodeAttribute::Value, QVariant(false), QOpcUa::Types::Boolean);
   }
 }
@@ -8947,7 +8947,7 @@ void qSlicerSiemensPlcOpcUaWidget::onKukaAllowXrayPressed()
   QOpcUaNode* kcmAllowXrayPressedNode = d->FindNodeFromFullDisplayName(BUTTONS_KCM_ALLOWXRAY_PRESSED_NODE_NAME);
   if (kcmAllowXrayPressedNode)
   {
-    qDebug() << Q_FUNC_INFO << ": AllowXRay button pressed";
+//    qDebug() << Q_FUNC_INFO << ": AllowXRay button pressed";
     kcmAllowXrayPressedNode->writeAttribute(QOpcUa::NodeAttribute::Value, QVariant(true), QOpcUa::Types::Boolean);
   }
 }
@@ -8960,7 +8960,7 @@ void qSlicerSiemensPlcOpcUaWidget::onKukaAllowXrayReleased()
   QOpcUaNode* kcmAllowXrayPressedNode = d->FindNodeFromFullDisplayName(BUTTONS_KCM_ALLOWXRAY_PRESSED_NODE_NAME);
   if (kcmAllowXrayPressedNode)
   {
-    qDebug() << Q_FUNC_INFO << ": AllowXRay button released";
+//    qDebug() << Q_FUNC_INFO << ": AllowXRay button released";
     kcmAllowXrayPressedNode->writeAttribute(QOpcUa::NodeAttribute::Value, QVariant(false), QOpcUa::Types::Boolean);
   }
 }
@@ -8972,7 +8972,7 @@ void qSlicerSiemensPlcOpcUaWidget::onKukaAllowBeamPressed()
   QOpcUaNode* kcmAllowBeamPressedNode = d->FindNodeFromFullDisplayName(BUTTONS_KCM_ALLOWBEAM_PRESSED_NODE_NAME);
   if (kcmAllowBeamPressedNode)
   {
-    qDebug() << Q_FUNC_INFO << ": AllowBeam button pressed";
+//    qDebug() << Q_FUNC_INFO << ": AllowBeam button pressed";
     kcmAllowBeamPressedNode->writeAttribute(QOpcUa::NodeAttribute::Value, QVariant(true), QOpcUa::Types::Boolean);
   }
 }
@@ -8985,7 +8985,7 @@ void qSlicerSiemensPlcOpcUaWidget::onKukaAllowBeamReleased()
   QOpcUaNode* kcmAllowBeamPressedNode = d->FindNodeFromFullDisplayName(BUTTONS_KCM_ALLOWBEAM_PRESSED_NODE_NAME);
   if (kcmAllowBeamPressedNode)
   {
-    qDebug() << Q_FUNC_INFO << ": AllowBeam button released";
+//    qDebug() << Q_FUNC_INFO << ": AllowBeam button released";
     kcmAllowBeamPressedNode->writeAttribute(QOpcUa::NodeAttribute::Value, QVariant(false), QOpcUa::Types::Boolean);
   }
 }
@@ -8998,7 +8998,7 @@ void qSlicerSiemensPlcOpcUaWidget::onResetErrorsPressed()
   QOpcUaNode* resetErrorsPressedNode = d->FindNodeFromFullDisplayName(BUTTONS_RESETERRORS_PRESSED_NODE_NAME);
   if (resetErrorsPressedNode)
   {
-    qDebug() << Q_FUNC_INFO << ": ResetErrors pressed";
+//    qDebug() << Q_FUNC_INFO << ": ResetErrors pressed";
     resetErrorsPressedNode->writeAttribute(QOpcUa::NodeAttribute::Value, QVariant(true), QOpcUa::Types::Boolean);
   }
 }
@@ -9011,7 +9011,7 @@ void qSlicerSiemensPlcOpcUaWidget::onResetErrorsReleased()
   QOpcUaNode* resetErrorsPressedNode = d->FindNodeFromFullDisplayName(BUTTONS_RESETERRORS_PRESSED_NODE_NAME);
   if (resetErrorsPressedNode)
   {
-    qDebug() << Q_FUNC_INFO << ": ResetErrors released";
+//    qDebug() << Q_FUNC_INFO << ": ResetErrors released";
     resetErrorsPressedNode->writeAttribute(QOpcUa::NodeAttribute::Value, QVariant(false), QOpcUa::Types::Boolean);
   }
 }
@@ -9024,7 +9024,7 @@ void qSlicerSiemensPlcOpcUaWidget::onMakeXrayPressed()
   QOpcUaNode* makeXrayPressedNode = d->FindNodeFromFullDisplayName(BUTTONS_MAKEXRAY_PRESSED_NODE_NAME);
   if (makeXrayPressedNode)
   {
-    qDebug() << Q_FUNC_INFO << ": MakeXRay pressed";
+//    qDebug() << Q_FUNC_INFO << ": MakeXRay pressed";
     makeXrayPressedNode->writeAttribute(QOpcUa::NodeAttribute::Value, QVariant(true), QOpcUa::Types::Boolean);
   }
 }
@@ -9037,7 +9037,7 @@ void qSlicerSiemensPlcOpcUaWidget::onMakeXrayReleased()
   QOpcUaNode* makeXrayPressedNode = d->FindNodeFromFullDisplayName(BUTTONS_MAKEXRAY_PRESSED_NODE_NAME);
   if (makeXrayPressedNode)
   {
-    qDebug() << Q_FUNC_INFO << ": MakeXRay released";
+//    qDebug() << Q_FUNC_INFO << ": MakeXRay released";
     makeXrayPressedNode->writeAttribute(QOpcUa::NodeAttribute::Value, QVariant(false), QOpcUa::Types::Boolean);
   }
 }
@@ -9155,7 +9155,7 @@ void qSlicerSiemensPlcOpcUaWidget::onSetCoordXClicked()
   int32_t x = static_cast< int32_t >(coord * 1000.);
   if (coordXNode)
   {
-    qDebug() << Q_FUNC_INFO << ": SetCoords X:" << x;
+//    qDebug() << Q_FUNC_INFO << ": SetCoords X:" << x;
     coordXNode->writeAttribute(QOpcUa::NodeAttribute::Value, QVariant(x), QOpcUa::Types::Int32);
   }
 }
@@ -9170,7 +9170,7 @@ void qSlicerSiemensPlcOpcUaWidget::onSetCoordYClicked()
   int32_t y = static_cast< int32_t >(coord * 1000.);
   if (coordYNode)
   {
-    qDebug() << Q_FUNC_INFO << ": SetCoords Y:" << y;
+//    qDebug() << Q_FUNC_INFO << ": SetCoords Y:" << y;
     coordYNode->writeAttribute(QOpcUa::NodeAttribute::Value, QVariant(y), QOpcUa::Types::Int32);
   }
 }
@@ -9185,7 +9185,7 @@ void qSlicerSiemensPlcOpcUaWidget::onSetCoordZClicked()
   int32_t z = static_cast< int32_t >(coord * 1000.);
   if (coordZNode)
   {
-    qDebug() << Q_FUNC_INFO << ": SetCoords Z:" << z;
+//    qDebug() << Q_FUNC_INFO << ": SetCoords Z:" << z;
     coordZNode->writeAttribute(QOpcUa::NodeAttribute::Value, QVariant(z), QOpcUa::Types::Int32);
   }
 }
@@ -9200,7 +9200,7 @@ void qSlicerSiemensPlcOpcUaWidget::onSetAngleAClicked()
   int32_t a = static_cast< int32_t >(angle * 1000.);
   if (angleANode)
   {
-    qDebug() << Q_FUNC_INFO << ": SetCoords A:" << a;
+//    qDebug() << Q_FUNC_INFO << ": SetCoords A:" << a;
     angleANode->writeAttribute(QOpcUa::NodeAttribute::Value, QVariant(a), QOpcUa::Types::Int32);
   }
 }
@@ -9215,7 +9215,7 @@ void qSlicerSiemensPlcOpcUaWidget::onSetAngleBClicked()
   int32_t b = static_cast< int32_t >(angle * 1000.);
   if (angleBNode)
   {
-    qDebug() << Q_FUNC_INFO << ": SetCoords B:" << b;
+//    qDebug() << Q_FUNC_INFO << ": SetCoords B:" << b;
     angleBNode->writeAttribute(QOpcUa::NodeAttribute::Value, QVariant(b), QOpcUa::Types::Int32);
   }
 }
@@ -9230,7 +9230,7 @@ void qSlicerSiemensPlcOpcUaWidget::onSetAngleCClicked()
   int32_t c = static_cast< int32_t >(angle * 1000.);
   if (angleCNode)
   {
-    qDebug() << Q_FUNC_INFO << ": SetCoords C:" << c;
+//    qDebug() << Q_FUNC_INFO << ": SetCoords C:" << c;
     angleCNode->writeAttribute(QOpcUa::NodeAttribute::Value, QVariant(c), QOpcUa::Types::Int32);
   }
 }

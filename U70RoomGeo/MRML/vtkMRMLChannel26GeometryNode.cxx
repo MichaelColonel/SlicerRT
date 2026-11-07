@@ -218,8 +218,8 @@ void vtkMRMLChannel26GeometryNode::GetTableBaseFixedToFixedReferenceTranslation(
   case vtkMRMLChannel26GeometryNode::R2:
     {
       using Room2CoordPos = vtkSlicerChannel26Room2RobotsGeometryCommon;
-      ptr[0] = -4300. + 2930.;
-      ptr[1] = 2780. - 2080.;
+      ptr[0] = Room2CoordPos::D_NORTH_WALL_ISOCENTER - Room2CoordPos::D_NORTH_WALL_TABLE_TOP_ROBOT_BASE;//-1360.;//-4300. + 2940.;
+      ptr[1] = Room2CoordPos::D_WEST_WALL_TABLE_TOP_ROBOT_BASE - Room2CoordPos::D_WEST_WALL_ISOCENTER;//710.;//2780. - 2080.;
       ptr[2] = -1. * Room2CoordPos::D_BASEMENT_ISOCENTER;
     }
     break;
@@ -250,8 +250,8 @@ double* vtkMRMLChannel26GeometryNode::GetTableBaseFixedToFixedReferenceTranslati
   case vtkMRMLChannel26GeometryNode::R2:
     {
       using Room2CoordPos = vtkSlicerChannel26Room2RobotsGeometryCommon;
-      ptr[0] = -4300. + 2930.;
-      ptr[1] = 2780. - 2080.;
+      ptr[0] = Room2CoordPos::D_NORTH_WALL_ISOCENTER - Room2CoordPos::D_NORTH_WALL_TABLE_TOP_ROBOT_BASE;//-1360.;//-4300. + 2940.;
+      ptr[1] = Room2CoordPos::D_WEST_WALL_TABLE_TOP_ROBOT_BASE - Room2CoordPos::D_WEST_WALL_ISOCENTER;//710.;//2780. - 2080.;
       ptr[2] = -1. * Room2CoordPos::D_BASEMENT_ISOCENTER;
     }
     break;
@@ -280,9 +280,9 @@ void vtkMRMLChannel26GeometryNode::GetCarmBaseFixedToTableBaseFixedOffset(double
   case vtkMRMLChannel26GeometryNode::R2:
     {
       using Room2CoordPos = vtkSlicerChannel26Room2RobotsGeometryCommon;
-      ptr[0] = 2 * (4300. - 1500.);
+      ptr[0] = Room2CoordPos::D_NORTH_WALL_TABLE_TOP_ROBOT_BASE - Room2CoordPos::D_NORTH_WALL_CARM_XRAY_ROBOT_BASE + 2720.;
       ptr[1] = Room2CoordPos::D_BASEMENT_CARM_ROBOT_BASE;
-      ptr[2] = -2780. + 2080. - (2880 - 1300);
+      ptr[2] = Room2CoordPos::D_WEST_WALL_CARM_XRAY_ROBOT_BASE - Room2CoordPos::D_WEST_WALL_TABLE_TOP_ROBOT_BASE;//-2780. + 2080. - (2880 - 1300);
     }
     break;
   case vtkMRMLChannel26GeometryNode::R3:
@@ -312,9 +312,9 @@ double* vtkMRMLChannel26GeometryNode::GetCarmBaseFixedToTableBaseFixedOffset()
   case vtkMRMLChannel26GeometryNode::R2:
     {
       using Room2CoordPos = vtkSlicerChannel26Room2RobotsGeometryCommon;
-      ptr[0] = 2 * (4300. - 1500.);
+      ptr[0] = Room2CoordPos::D_NORTH_WALL_TABLE_TOP_ROBOT_BASE - Room2CoordPos::D_NORTH_WALL_CARM_XRAY_ROBOT_BASE + 2720.;
       ptr[1] = Room2CoordPos::D_BASEMENT_CARM_ROBOT_BASE;
-      ptr[2] = -2780. + 2080. - (2880 - 1300);
+      ptr[2] = Room2CoordPos::D_WEST_WALL_CARM_XRAY_ROBOT_BASE - Room2CoordPos::D_WEST_WALL_TABLE_TOP_ROBOT_BASE;//-2290.;//-2780. + 2080. - (2880 - 1300);
     }
     break;
   case vtkMRMLChannel26GeometryNode::R3:

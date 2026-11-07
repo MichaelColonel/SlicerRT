@@ -20,6 +20,7 @@
 #include <QFileDialog>
 #include <QMessageBox>
 #include <QTimer>
+#include <QElapsedTimer>
 
 // CTK includes
 #include <ctkMessageBox.h>
@@ -99,7 +100,7 @@ qSlicerU70RoomGeoModuleWidgetPrivate::qSlicerU70RoomGeoModuleWidgetPrivate(qSlic
   , ModuleWindowInitialized(false)
 {
   Q_Q(qSlicerU70RoomGeoModuleWidget);
-  this->TimerGeometryUpdater->setInterval(500);
+  this->TimerGeometryUpdater->setInterval(200);
   this->TimerGeometryUpdater->stop();
 }
 
@@ -1546,6 +1547,9 @@ void qSlicerU70RoomGeoModuleWidget::updateRoomGeometry()
   }
   vtkMRMLChannel26GeometryNode* channel26GeometryNode = d->ParameterNode->GetChannel26GeometryNode();
 
+  QElapsedTimer timer;
+  timer.start();
+
   d->getLayoutManager()->pauseRender();
   // Update Channel-26 transforms
   vtkSlicerChannel26RoomRobotsTransformLogic* channel26Logic = d->channel26RobotsLogic();
@@ -1556,6 +1560,8 @@ void qSlicerU70RoomGeoModuleWidget::updateRoomGeometry()
   }
   channel26GeometryNode->Modified();
   d->getLayoutManager()->resumeRender();
+  
+  qDebug() << Q_FUNC_INFO << ": The slow operation took" << timer.elapsed() << "milliseconds";
 
   d->TimerGeometryUpdater->start();
 }

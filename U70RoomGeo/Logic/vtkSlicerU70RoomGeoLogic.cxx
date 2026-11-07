@@ -550,21 +550,21 @@ void vtkSlicerU70RoomGeoLogic::ProcessMRMLNodesEvents(vtkObject* caller, unsigne
 ///      this->Channel26RoomRobotsLogic->UpdateTableTopPlaneNode(channel26Geometry);
 ///      this->Channel26RoomRobotsLogic->UpdateTableTopFiducialNode(channel26Geometry);
 /*
-          double pos[3] = {};
-          double res[3];
-          pos[0] = 0.;
-          pos[1] = 0.;
-          pos[2] = 0.;
-          if (this->Channel26RoomRobotsLogic->GetTransformForPointBetweenFrames(CoordSys::TableRobotBaseFixed,
-            CoordSys::CarmRobotBaseFixed, pos, res))
-          {
-            vtkErrorMacro("ProcessMRMLNodesEvents: TableRobotBaseFixed->CarmRobotBaseFixed = [0., 0., 0.] " << res[0] << ' ' << res[1] << ' ' << res[2]);
-          }
-          if (this->Channel26RoomRobotsLogic->GetTransformForPointBetweenFrames(CoordSys::FixedReference,
-            CoordSys::CarmRobotBaseFixed, pos, res))
-          {
-            vtkErrorMacro("ProcessMRMLNodesEvents: FixedReference->CarmRobotBaseFixed = [0., 0., 0.] " << res[0] << ' ' << res[1] << ' ' << res[2]);
-          }
+      double pos[3] = {};
+      double res[3];
+      pos[0] = 0.;
+      pos[1] = 0.;
+      pos[2] = 0.;
+      if (this->Channel26RoomRobotsLogic->GetTransformForPointBetweenFrames(CoordSys::TableRobotBaseFixed,
+        CoordSys::CarmRobotBaseFixed, pos, res))
+      {
+        vtkErrorMacro("ProcessMRMLNodesEvents: TableRobotBaseFixed->CarmRobotBaseFixed = [0., 0., 0.] " << res[0] << ' ' << res[1] << ' ' << res[2]);
+      }
+      if (this->Channel26RoomRobotsLogic->GetTransformForPointBetweenFrames(CoordSys::FixedReference,
+        CoordSys::CarmRobotBaseFixed, pos, res))
+      {
+        vtkErrorMacro("ProcessMRMLNodesEvents: FixedReference->CarmRobotBaseFixed = [0., 0., 0.] " << res[0] << ' ' << res[1] << ' ' << res[2]);
+      }
 */
 /**
       {

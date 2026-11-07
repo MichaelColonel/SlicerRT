@@ -32,7 +32,7 @@ public:
   //----------------------------------------------------------------------------
 
   // Distance from the north (collimator) wall to the south (back) wall
-  static constexpr double D_NORTH_SOUTH_WALL = 6745.;
+//  static constexpr double D_NORTH_SOUTH_WALL = 6745.;
   // Distance from the north (collimator) wall to C-arm x-ray robot base
   static constexpr double D_NORTH_WALL_CARM_XRAY_ROBOT_BASE = 4400.;
   // Distance from the east (right) wall to C-arm x-ray robot base
