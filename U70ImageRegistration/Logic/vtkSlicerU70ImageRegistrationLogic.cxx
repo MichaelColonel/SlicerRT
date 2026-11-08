@@ -76,12 +76,12 @@ void vtkSlicerU70ImageRegistrationLogic::OnMRMLSceneNodeAdded(vtkMRMLNode* vtkNo
 void vtkSlicerU70ImageRegistrationLogic::OnMRMLSceneNodeRemoved(vtkMRMLNode* vtkNotUsed(node)) {}
 
 //------------------------------------------------------------------------------
-void vtkSlicerU70ImageRegistrationLogic::SetScadaOpcUaLogic(vtkSlicerU70RoomOpcUaLogic* opcUaLogic)
+void vtkSlicerU70ImageRegistrationLogic::SetOpcUaLogic(vtkSlicerU70RoomOpcUaLogic* opcUaLogic)
 {
-  this->ScadaOpcUaLogic = opcUaLogic;
+  this->OpcUaLogic = opcUaLogic;
 }
 
-vtkSlicerU70RoomOpcUaLogic* vtkSlicerU70ImageRegistrationLogic::GetScadaOpcUaLogic() const
+vtkSlicerU70RoomOpcUaLogic* vtkSlicerU70ImageRegistrationLogic::GetOpcUaLogic() const
 {
-  return this->ScadaOpcUaLogic;
+  return this->OpcUaLogic;
 }

@@ -288,7 +288,7 @@ QString qSlicerPatientsQueueTableModel::headerAt(int offset) const
 {
   if (offset >= 0 && offset < NOF_HEADERS)
   {
-    return QObject::tr(tableHeadersList[offset]);
+    return tr(tableHeadersList[offset]);
   }
   return QString();
 }

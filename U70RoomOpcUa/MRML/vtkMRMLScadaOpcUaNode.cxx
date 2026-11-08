@@ -52,6 +52,7 @@ void vtkMRMLScadaOpcUaNode::WriteXML(ostream& of, int nIndent)
   // Write all MRML node attributes into output stream
   vtkMRMLWriteXMLBeginMacro(of);
   // add new parameters here
+  vtkMRMLWriteXMLBooleanMacro(timeoutExpired, TimeoutExpired);
   vtkMRMLWriteXMLIntMacro(sysTime, SysTimeScada);
   vtkMRMLWriteXMLIntMacro(localTime, SysTimeModPos);
   vtkMRMLWriteXMLStdStringMacro(planStr, PlanStr);
@@ -99,6 +100,7 @@ void vtkMRMLScadaOpcUaNode::ReadXMLAttributes(const char** atts)
   vtkMRMLReadXMLBeginMacro(atts);
 
   // add new parameters here
+  vtkMRMLReadXMLBooleanMacro(timeoutExpired, TimeoutExpired);
   vtkMRMLReadXMLIntMacro(sysTime, SysTimeScada);
   vtkMRMLReadXMLIntMacro(localTime, SysTimeModPos);
   vtkMRMLReadXMLStdStringMacro(planStr, PlanStr);
@@ -128,6 +130,7 @@ void vtkMRMLScadaOpcUaNode::Copy(vtkMRMLNode *anode)
   this->DisableModifiedEventOn();
   vtkMRMLCopyBeginMacro(node);
   // add new parameters here
+  vtkMRMLCopyBooleanMacro(TimeoutExpired);
   vtkMRMLCopyIntMacro(SysTimeScada);
   vtkMRMLCopyIntMacro(SysTimeModPos);
   vtkMRMLCopyStdStringMacro(PlanStr);
@@ -153,6 +156,7 @@ void vtkMRMLScadaOpcUaNode::CopyContent(vtkMRMLNode *anode, bool deepCopy/*=true
 
   vtkMRMLCopyBeginMacro(node);
   // add new parameters here
+  vtkMRMLCopyBooleanMacro(TimeoutExpired);
   vtkMRMLCopyIntMacro(SysTimeScada);
   vtkMRMLCopyIntMacro(SysTimeModPos);
   vtkMRMLCopyStdStringMacro(PlanStr);
@@ -167,6 +171,7 @@ void vtkMRMLScadaOpcUaNode::PrintSelf(ostream& os, vtkIndent indent)
 
   vtkMRMLPrintBeginMacro(os, indent);
   // add new parameters here
+  vtkMRMLPrintBooleanMacro(TimeoutExpired);
   vtkMRMLPrintIntMacro(SysTimeScada);
   vtkMRMLPrintIntMacro(SysTimeModPos);
   vtkMRMLPrintStdStringMacro(PlanStr);

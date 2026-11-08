@@ -42,10 +42,10 @@ public:
   vtkTypeMacro(vtkSlicerU70ImageRegistrationLogic, vtkSlicerModuleLogic);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  /// Set U70RoomOpcUa SCADA module logic
-  void SetScadaOpcUaLogic(vtkSlicerU70RoomOpcUaLogic* scadaOpcUaLogic);
-  /// Get U70RoomOpcUa SCADA module logic
-  vtkSlicerU70RoomOpcUaLogic* GetScadaOpcUaLogic() const;
+  /// Set U70RoomOpcUa module logic
+  void SetOpcUaLogic(vtkSlicerU70RoomOpcUaLogic* OpcUaLogic);
+  /// Get U70RoomOpcUa module logic
+  vtkSlicerU70RoomOpcUaLogic* GetOpcUaLogic() const;
 
 protected:
   vtkSlicerU70ImageRegistrationLogic();
@@ -63,7 +63,7 @@ private:
   void operator=(const vtkSlicerU70ImageRegistrationLogic&);            // Not implemented
 
   /// U70RoomOpcUa SCADA logic instance
-  vtkSlicerU70RoomOpcUaLogic* ScadaOpcUaLogic{ nullptr };
+  vtkSlicerU70RoomOpcUaLogic* OpcUaLogic{ nullptr };
 };
 
 #endif

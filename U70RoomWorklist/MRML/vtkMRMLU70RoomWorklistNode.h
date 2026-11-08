@@ -58,14 +58,56 @@ public:
   /// Handles events registered in the observer manager
 //  void ProcessMRMLEvents(vtkObject *caller, unsigned long eventID, void *callData) override;
 
+  vtkGetMacro(AccessionNumber, std::string);
+  vtkSetMacro(AccessionNumber, std::string);
+
   vtkGetMacro(PatientID, std::string);
   vtkSetMacro(PatientID, std::string);
 
   vtkGetMacro(PatientName, std::string);
   vtkSetMacro(PatientName, std::string);
 
+  vtkGetMacro(IssuerOfPatientID, std::string);
+  vtkSetMacro(IssuerOfPatientID, std::string);
+
+  vtkGetMacro(PatientBirthDate, std::string);
+  vtkSetMacro(PatientBirthDate, std::string);
+
+  vtkGetMacro(PatientSex, std::string);
+  vtkSetMacro(PatientSex, std::string);
+
+  vtkGetMacro(StudyInstanceUID, std::string);
+  vtkSetMacro(StudyInstanceUID, std::string);
+
+  vtkGetMacro(RequestedProcedureDescription, std::string);
+  vtkSetMacro(RequestedProcedureDescription, std::string);
+
+  vtkGetMacro(RequestedProcedureID, std::string);
+  vtkSetMacro(RequestedProcedureID, std::string);
+
+  vtkGetMacro(ScheduledProcedureStepModality, std::string);
+  vtkSetMacro(ScheduledProcedureStepModality, std::string);
+
   vtkGetMacro(ScheduledProcedureStepStationAeTitle, std::string);
   vtkSetMacro(ScheduledProcedureStepStationAeTitle, std::string);
+
+  vtkGetMacro(ScheduledProcedureStepStartDateTime, std::string);
+  vtkSetMacro(ScheduledProcedureStepStartDateTime, std::string);
+
+  vtkGetMacro(ScheduledProcedureStepDescription, std::string);
+  vtkSetMacro(ScheduledProcedureStepDescription, std::string);
+
+  vtkGetMacro(ScheduledProcedureStepID, std::string);
+  vtkSetMacro(ScheduledProcedureStepID, std::string);
+
+  vtkGetMacro(ScheduledProcedureStepStationName, std::string);
+  vtkSetMacro(ScheduledProcedureStepStationName, std::string);
+
+  vtkGetMacro(ScheduledProcedureStepLocation, std::string);
+  vtkSetMacro(ScheduledProcedureStepLocation, std::string);
+
+  vtkGetMacro(ScheduledProcedureStepStatus, std::string);
+  vtkSetMacro(ScheduledProcedureStepStatus, std::string);
 
 protected:
   vtkMRMLU70RoomWorklistNode();

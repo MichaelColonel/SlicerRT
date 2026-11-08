@@ -1035,27 +1035,32 @@ void vtkSlicerChannel26RoomRobotsTransformLogic::UpdateTableTopPlaneCorrectionTo
   vtkMRMLLinearTransformNode* tableTopPlaneCorrectionToTableTopTransformNode =
     this->GetTransformNodeBetween(CoordSys::TableTopPlaneCorrection, CoordSys::TableTop);
 
+  using CoordPos = vtkSlicerChannel26RoomRobotsGeometryCommon;
+  double tabletopOffset = CoordPos::TABLE_TOP_FLANGE_LENGTH_OFFSET - CoordPos::TABLE_TOP_LENGTH / 2.;
+
   if (tableTopPlaneCorrectionToTableTopTransformNode)
   {
     double patientToTableTopTranslation[3] = {};
     parameterNode->GetPatientToTableTopTranslation(patientToTableTopTranslation);
-//    patientToTableTopTranslation[0] *= -1;
-//    patientToTableTopTranslation[1] *= -1;
-//    patientToTableTopTranslation[2] *= -1;
-//    vtkNew<vtkTransform> patientToTableTopTransform;
-//    patientToTableTopTransform->Translate(patientToTableTopTranslation);
+    patientToTableTopTranslation[0] = 0;
+    patientToTableTopTranslation[1] = tabletopOffset;
+    patientToTableTopTranslation[2] = 0;
+    vtkNew<vtkTransform> patientToTableTopTransform;
+    patientToTableTopTransform->Translate(patientToTableTopTranslation);
 
     vtkNew<vtkTransform> planeCorrectionToTableTopTransform;
     double planeAnglesABC[3] = {};
     parameterNode->GetAnglesABC(planeAnglesABC);
     planeCorrectionToTableTopTransform->Identity();
+    patientToTableTopTranslation[1] *= -1.;
+    planeCorrectionToTableTopTransform->Translate(patientToTableTopTranslation);
 //    vtkWarningMacro("UpdateTableTopPlaneCorrectionToTableTopTransform:" << planeAnglesABC[0] << ' ' << planeAnglesABC[1] << ' ' << planeAnglesABC[2]);
     planeCorrectionToTableTopTransform->RotateZ(-1. * planeAnglesABC[0]);
     planeCorrectionToTableTopTransform->RotateX(-1. * planeAnglesABC[1]);
     planeCorrectionToTableTopTransform->RotateY(planeAnglesABC[2]);
 //    planeCorrectionToTableTopTransform->Translate(patientToTableTopTranslation);
     
-//    planeCorrectionToTableTopTransform->Concatenate(patientToTableTopTransform);
+    planeCorrectionToTableTopTransform->Concatenate(patientToTableTopTransform);
     tableTopPlaneCorrectionToTableTopTransformNode->SetAndObserveTransformToParent(planeCorrectionToTableTopTransform);
   }
 }

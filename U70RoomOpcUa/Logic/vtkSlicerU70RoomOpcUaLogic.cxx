@@ -17,6 +17,8 @@
 
 // U70RoomOpcUa Logic includes
 #include "vtkSlicerU70RoomOpcUaLogic.h"
+#include "vtkSlicerU70RoomScadaOpcUaNodesNames.h"
+#include "vtkSlicerU70RoomScadaOpcUaLogic.h"
 
 // MRML includes
 #include <vtkMRMLScene.h>
@@ -40,10 +42,9 @@
 #include <QScopedPointer>
 #include <QOpcUaNode>
 
-#include "vtkSlicerU70RoomScadaOpcUaNodesNames.h"
-
 //----------------------------------------------------------------------------
 vtkStandardNewMacro(vtkSlicerU70RoomOpcUaLogic);
+
 
 //---------------------------------------------------------------------------
 class vtkSlicerU70RoomOpcUaLogic::vtkInternal
@@ -103,12 +104,19 @@ QOpcUaNode* vtkSlicerU70RoomOpcUaLogic::vtkInternal::node(const QString& id)
 //----------------------------------------------------------------------------
 vtkSlicerU70RoomOpcUaLogic::vtkSlicerU70RoomOpcUaLogic()
 {
-  this->Internal = new vtkInternal(this); 
+  this->Internal = new vtkInternal(this);
+  this->ScadaOpcUaLogic = vtkSlicerU70RoomScadaOpcUaLogic::New();
 }
 
 //----------------------------------------------------------------------------
 vtkSlicerU70RoomOpcUaLogic::~vtkSlicerU70RoomOpcUaLogic()
 {
+  if (this->ScadaOpcUaLogic)
+  {
+    this->ScadaOpcUaLogic->Delete();
+    this->ScadaOpcUaLogic = nullptr;
+  }
+
   if (this->Internal)
   {
     delete this->Internal;
@@ -130,6 +138,11 @@ void vtkSlicerU70RoomOpcUaLogic::SetMRMLSceneInternal(vtkMRMLScene* newScene)
   events->InsertNextValue(vtkMRMLScene::NodeRemovedEvent);
   events->InsertNextValue(vtkMRMLScene::EndBatchProcessEvent);
   this->SetAndObserveMRMLSceneEventsInternal(newScene, events.GetPointer());
+
+  if (this->ScadaOpcUaLogic)
+  {
+    this->ScadaOpcUaLogic->SetMRMLScene(newScene);
+  }
 }
 
 //-----------------------------------------------------------------------------
@@ -234,7 +247,31 @@ bool vtkSlicerU70RoomOpcUaLogic::WriteSysTimeModPos(uint64_t value)
   {
     return false;
   }
-  return node->writeValueAttribute(QVariant(static_cast< qulonglong >(value)), QOpcUa::Types::UInt64);
+  return node->writeValueAttribute(QVariant(static_cast<qulonglong>(value)), QOpcUa::Types::UInt64);
+}
+
+//---------------------------------------------------------------------------
+uint64_t vtkSlicerU70RoomOpcUaLogic::ReadSysTimeScada()
+{
+  return 0;
+}
+
+//---------------------------------------------------------------------------
+bool vtkSlicerU70RoomOpcUaLogic::WritePlanFileName(const std::string& textString)
+{
+  return true;
+}
+
+//---------------------------------------------------------------------------
+bool vtkSlicerU70RoomOpcUaLogic::WritePatientID(const std::string& textString)
+{
+  return true;
+}
+
+//---------------------------------------------------------------------------
+bool vtkSlicerU70RoomOpcUaLogic::WritePlanOpen(bool)
+{
+  return true;
 }
 
 //---------------------------------------------------------------------------
@@ -261,26 +298,7 @@ bool vtkSlicerU70RoomOpcUaLogic:: WriteEventString(const std::string& text)
   return node->writeValueAttribute(QVariant(QString::fromStdString(text)), QOpcUa::Types::String);
 }
 
-//---------------------------------------------------------------------------
-uint64_t vtkSlicerU70RoomOpcUaLogic::ReadSysTimeScada()
+vtkSlicerU70RoomScadaOpcUaLogic* vtkSlicerU70RoomOpcUaLogic::GetScadaOpcUaLogic() const
 {
-  return 0;
-}
-
-//---------------------------------------------------------------------------
-bool vtkSlicerU70RoomOpcUaLogic::WritePlanFileName(const std::string& textString)
-{
-  return true;
-}
-
-//---------------------------------------------------------------------------
-bool vtkSlicerU70RoomOpcUaLogic::WritePatientID(const std::string& textString)
-{
-  return true;
-}
-
-//---------------------------------------------------------------------------
-bool vtkSlicerU70RoomOpcUaLogic::WritePlanOpen(bool)
-{
-  return true;
+  return this->ScadaOpcUaLogic;
 }

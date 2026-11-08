@@ -38,6 +38,7 @@
 
 class QOpcUaClient;
 class QOpcUaNode;
+class vtkSlicerU70RoomScadaOpcUaLogic;
 
 class VTK_SLICER_U70ROOMOPCUA_MODULE_LOGIC_EXPORT vtkSlicerU70RoomOpcUaLogic : public vtkSlicerModuleLogic
 {
@@ -46,6 +47,7 @@ public:
   vtkTypeMacro(vtkSlicerU70RoomOpcUaLogic, vtkSlicerModuleLogic);
   void PrintSelf(ostream& os, vtkIndent indent) override;
   void ServerConnected(const QSharedPointer< QOpcUaClient >& sharedClient, const QHash< QString, QPointer< QOpcUaNode > >& hashNodes);
+
   bool WriteBool(const std::string& nodeId, bool value);
   bool WriteByte(const std::string& nodeId, uint8_t value);
   bool WriteUint32(const std::string& nodeId, uint32_t value);
@@ -59,6 +61,9 @@ public:
   bool WritePatientID(const std::string& textString);
   bool WritePlanOpen(bool);
 
+  /// Get SCADA OPC UA logic
+  vtkSlicerU70RoomScadaOpcUaLogic* GetScadaOpcUaLogic() const;
+
 protected:
   vtkSlicerU70RoomOpcUaLogic();
   ~vtkSlicerU70RoomOpcUaLogic() override;
@@ -69,6 +74,8 @@ protected:
   void UpdateFromMRMLScene() override;
   void OnMRMLSceneNodeAdded(vtkMRMLNode* node) override;
   void OnMRMLSceneNodeRemoved(vtkMRMLNode* node) override;
+
+  vtkSlicerU70RoomScadaOpcUaLogic* ScadaOpcUaLogic{ nullptr };
 
 private:
   vtkSlicerU70RoomOpcUaLogic(const vtkSlicerU70RoomOpcUaLogic&); // Not implemented

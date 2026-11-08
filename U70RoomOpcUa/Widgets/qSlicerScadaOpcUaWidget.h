@@ -75,6 +75,7 @@ public slots:
   void onPositionModuleNodesRead(QOpcUa::NodeAttributes attr);
 
   void onReadNodesValuesClicked();
+  void onScadaExpiredTimeout();
 
 protected:
   QScopedPointer<qSlicerScadaOpcUaWidgetPrivate> d_ptr;

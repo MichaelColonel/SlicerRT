@@ -93,6 +93,8 @@ public:
   /// Handles events registered in the observer manager
   void ProcessMRMLEvents(vtkObject *caller, unsigned long eventID, void *callData) override;
 
+  vtkGetMacro(TimeoutExpired, bool);
+  vtkSetMacro(TimeoutExpired, bool);
 
   vtkGetMacro(SysTimeScada, uint64_t);
   vtkSetMacro(SysTimeScada, uint64_t);
@@ -192,6 +194,7 @@ protected:
   void SetSt(int id);
 
 private:
+  bool TimeoutExpired{ false };
   uint64_t SysTimeScada{ 0 };
   uint64_t SysTimeModPos{ 0 };
   std::string PlanStr;

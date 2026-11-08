@@ -38,6 +38,7 @@
 
 // U70RoomOpcUa includes
 #include <vtkSlicerU70RoomOpcUaLogic.h>
+#include <vtkSlicerU70RoomScadaOpcUaLogic.h>
 #include "vtkSlicerU70RoomScadaOpcUaNodesNames.h"
 
 // U70ImageRegistration widgets includes
@@ -57,7 +58,8 @@ public:
   ~qSlicerU70ImageRegistrationModuleWidgetPrivate() = default;
 
   vtkSlicerU70ImageRegistrationLogic* logic() const;
-  vtkSlicerU70RoomOpcUaLogic* scadaOpcUaLogic() const;
+  vtkSlicerU70RoomOpcUaLogic* opcUaLogic() const;
+  vtkSlicerU70RoomScadaOpcUaLogic* scadaOpcUaLogic() const;
 
   ctkWorkflow* Workflow{ nullptr };
 };
@@ -81,14 +83,25 @@ vtkSlicerU70ImageRegistrationLogic* qSlicerU70ImageRegistrationModuleWidgetPriva
 }
 
 //-----------------------------------------------------------------------------
-vtkSlicerU70RoomOpcUaLogic* qSlicerU70ImageRegistrationModuleWidgetPrivate::scadaOpcUaLogic() const
+vtkSlicerU70RoomOpcUaLogic* qSlicerU70ImageRegistrationModuleWidgetPrivate::opcUaLogic() const
 {
   vtkSlicerU70RoomOpcUaLogic* opcUaLogic = nullptr;
   if (this->logic())
   {
-    opcUaLogic = this->logic()->GetScadaOpcUaLogic();
+    opcUaLogic = this->logic()->GetOpcUaLogic();
   }
   return opcUaLogic;
+}
+
+//-----------------------------------------------------------------------------
+vtkSlicerU70RoomScadaOpcUaLogic* qSlicerU70ImageRegistrationModuleWidgetPrivate::scadaOpcUaLogic() const
+{
+  vtkSlicerU70RoomScadaOpcUaLogic* scadaOpcUaLogic = nullptr;
+  if (this->opcUaLogic())
+  {
+    scadaOpcUaLogic = this->opcUaLogic()->GetScadaOpcUaLogic();
+  }
+  return scadaOpcUaLogic;
 }
 
 //-----------------------------------------------------------------------------
@@ -232,7 +245,7 @@ void qSlicerU70ImageRegistrationModuleWidget::onSetModPosLocalTimeClicked()
 {
   Q_D(qSlicerU70ImageRegistrationModuleWidget);
   qint64 currDateTime = QDateTime::currentMSecsSinceEpoch();
-  vtkSlicerU70RoomOpcUaLogic* logic = d->scadaOpcUaLogic();
+  vtkSlicerU70RoomScadaOpcUaLogic* logic = d->scadaOpcUaLogic();
   if (logic)
   {
     bool res = logic->WriteSysTimeModPos(static_cast< uint64_t >(currDateTime));
@@ -249,7 +262,7 @@ void qSlicerU70ImageRegistrationModuleWidget::onSetEventStringClicked()
   QDateTime currDateTime = QDateTime::currentDateTime();
   QString text = currDateTime.toString("[dd.MM.yyyy hh:mm:ss.zzz]: ") + d->lineEdit->text();
 
-  vtkSlicerU70RoomOpcUaLogic* logic = d->scadaOpcUaLogic();
+  vtkSlicerU70RoomScadaOpcUaLogic* logic = d->scadaOpcUaLogic();
   if (logic)
   {
     bool res = logic->WriteEventString(text.toStdString());
@@ -266,7 +279,7 @@ void qSlicerU70ImageRegistrationModuleWidget::onSetStateClicked()
   QDateTime currDateTime = QDateTime::currentDateTime();
   int st = d->SliderWidget_ModPosState->value();
 
-  vtkSlicerU70RoomOpcUaLogic* logic = d->scadaOpcUaLogic();
+  vtkSlicerU70RoomScadaOpcUaLogic* logic = d->scadaOpcUaLogic();
   if (logic)
   {
     bool res = logic->WriteStateModPos(st);

@@ -55,6 +55,22 @@ void vtkMRMLU70RoomWorklistNode::WriteXML(ostream& of, int nIndent)
   vtkMRMLWriteXMLStdStringMacro(patientID, PatientID);
   vtkMRMLWriteXMLStdStringMacro(patientName, PatientName);
   vtkMRMLWriteXMLStdStringMacro(scheduledProcedureStepStationAeTitle, ScheduledProcedureStepStationAeTitle);
+  vtkMRMLWriteXMLStdStringMacro(accessionNumber, AccessionNumber);
+  vtkMRMLWriteXMLStdStringMacro(issuerOfPatientID, IssuerOfPatientID);
+  vtkMRMLWriteXMLStdStringMacro(patientBirthDate, PatientBirthDate);
+  vtkMRMLWriteXMLStdStringMacro(patientSex, PatientSex);
+  vtkMRMLWriteXMLStdStringMacro(studyInstanceUID, StudyInstanceUID);
+  vtkMRMLWriteXMLStdStringMacro(requestedProcedureDescription, RequestedProcedureDescription);
+  vtkMRMLWriteXMLStdStringMacro(requestedProcedureID, RequestedProcedureID);
+  vtkMRMLWriteXMLStdStringMacro(scheduledProcedureStepModality, ScheduledProcedureStepModality);
+  vtkMRMLWriteXMLStdStringMacro(scheduledProcedureStepStationAeTitle, ScheduledProcedureStepStationAeTitle);
+  vtkMRMLWriteXMLStdStringMacro(scheduledProcedureStepStartDateTime, ScheduledProcedureStepStartDateTime);
+  vtkMRMLWriteXMLStdStringMacro(scheduledProcedureStepDescription, ScheduledProcedureStepDescription);
+  vtkMRMLWriteXMLStdStringMacro(scheduledProcedureStepID, ScheduledProcedureStepID);
+  vtkMRMLWriteXMLStdStringMacro(scheduledProcedureStepStationName, ScheduledProcedureStepStationName);
+  vtkMRMLWriteXMLStdStringMacro(scheduledProcedureStepLocation, ScheduledProcedureStepLocation);
+  vtkMRMLWriteXMLStdStringMacro(scheduledProcedureStepStatus, ScheduledProcedureStepStatus);
+
   vtkMRMLWriteXMLEndMacro(); 
 }
 
@@ -69,6 +85,22 @@ void vtkMRMLU70RoomWorklistNode::ReadXMLAttributes(const char** atts)
   vtkMRMLReadXMLStdStringMacro(patientID, PatientID);
   vtkMRMLReadXMLStdStringMacro(patientName, PatientName);
   vtkMRMLReadXMLStdStringMacro(scheduledProcedureStepStationAeTitle, ScheduledProcedureStepStationAeTitle);
+  vtkMRMLReadXMLStdStringMacro(accessionNumber, AccessionNumber);
+  vtkMRMLReadXMLStdStringMacro(issuerOfPatientID, IssuerOfPatientID);
+  vtkMRMLReadXMLStdStringMacro(patientBirthDate, PatientBirthDate);
+  vtkMRMLReadXMLStdStringMacro(patientSex, PatientSex);
+  vtkMRMLReadXMLStdStringMacro(studyInstanceUID, StudyInstanceUID);
+  vtkMRMLReadXMLStdStringMacro(requestedProcedureDescription, RequestedProcedureDescription);
+  vtkMRMLReadXMLStdStringMacro(requestedProcedureID, RequestedProcedureID);
+  vtkMRMLReadXMLStdStringMacro(scheduledProcedureStepModality, ScheduledProcedureStepModality);
+  vtkMRMLReadXMLStdStringMacro(scheduledProcedureStepStationAeTitle, ScheduledProcedureStepStationAeTitle);
+  vtkMRMLReadXMLStdStringMacro(scheduledProcedureStepStartDateTime, ScheduledProcedureStepStartDateTime);
+  vtkMRMLReadXMLStdStringMacro(scheduledProcedureStepDescription, ScheduledProcedureStepDescription);
+  vtkMRMLReadXMLStdStringMacro(scheduledProcedureStepID, ScheduledProcedureStepID);
+  vtkMRMLReadXMLStdStringMacro(scheduledProcedureStepStationName, ScheduledProcedureStepStationName);
+  vtkMRMLReadXMLStdStringMacro(scheduledProcedureStepLocation, ScheduledProcedureStepLocation);
+  vtkMRMLReadXMLStdStringMacro(scheduledProcedureStepStatus, ScheduledProcedureStepStatus);
+
   vtkMRMLReadXMLEndMacro();
 
   this->EndModify(disabledModify);
@@ -97,6 +129,21 @@ void vtkMRMLU70RoomWorklistNode::Copy(vtkMRMLNode *anode)
   vtkMRMLCopyStdStringMacro(PatientID);
   vtkMRMLCopyStdStringMacro(PatientName);
   vtkMRMLCopyStdStringMacro(ScheduledProcedureStepStationAeTitle);
+  vtkMRMLCopyStdStringMacro(AccessionNumber);
+  vtkMRMLCopyStdStringMacro(IssuerOfPatientID);
+  vtkMRMLCopyStdStringMacro(PatientBirthDate);
+  vtkMRMLCopyStdStringMacro(PatientSex);
+  vtkMRMLCopyStdStringMacro(StudyInstanceUID);
+  vtkMRMLCopyStdStringMacro(RequestedProcedureDescription);
+  vtkMRMLCopyStdStringMacro(RequestedProcedureID);
+  vtkMRMLCopyStdStringMacro(ScheduledProcedureStepModality);
+  vtkMRMLCopyStdStringMacro(ScheduledProcedureStepStationAeTitle);
+  vtkMRMLCopyStdStringMacro(ScheduledProcedureStepStartDateTime);
+  vtkMRMLCopyStdStringMacro(ScheduledProcedureStepDescription);
+  vtkMRMLCopyStdStringMacro(ScheduledProcedureStepID);
+  vtkMRMLCopyStdStringMacro(ScheduledProcedureStepStationName);
+  vtkMRMLCopyStdStringMacro(ScheduledProcedureStepLocation);
+  vtkMRMLCopyStdStringMacro(ScheduledProcedureStepStatus);
   vtkMRMLCopyEndMacro(); 
 
   this->EndModify(disabledModify);
@@ -121,6 +168,21 @@ void vtkMRMLU70RoomWorklistNode::CopyContent(vtkMRMLNode *anode, bool deepCopy/*
   vtkMRMLCopyStdStringMacro(PatientID);
   vtkMRMLCopyStdStringMacro(PatientName);
   vtkMRMLCopyStdStringMacro(ScheduledProcedureStepStationAeTitle);
+  vtkMRMLCopyStdStringMacro(AccessionNumber);
+  vtkMRMLCopyStdStringMacro(IssuerOfPatientID);
+  vtkMRMLCopyStdStringMacro(PatientBirthDate);
+  vtkMRMLCopyStdStringMacro(PatientSex);
+  vtkMRMLCopyStdStringMacro(StudyInstanceUID);
+  vtkMRMLCopyStdStringMacro(RequestedProcedureDescription);
+  vtkMRMLCopyStdStringMacro(RequestedProcedureID);
+  vtkMRMLCopyStdStringMacro(ScheduledProcedureStepModality);
+  vtkMRMLCopyStdStringMacro(ScheduledProcedureStepStationAeTitle);
+  vtkMRMLCopyStdStringMacro(ScheduledProcedureStepStartDateTime);
+  vtkMRMLCopyStdStringMacro(ScheduledProcedureStepDescription);
+  vtkMRMLCopyStdStringMacro(ScheduledProcedureStepID);
+  vtkMRMLCopyStdStringMacro(ScheduledProcedureStepStationName);
+  vtkMRMLCopyStdStringMacro(ScheduledProcedureStepLocation);
+  vtkMRMLCopyStdStringMacro(ScheduledProcedureStepStatus);
   vtkMRMLCopyEndMacro();
 }
 
@@ -134,6 +196,21 @@ void vtkMRMLU70RoomWorklistNode::PrintSelf(ostream& os, vtkIndent indent)
   vtkMRMLPrintStdStringMacro(PatientID);
   vtkMRMLPrintStdStringMacro(PatientName);
   vtkMRMLPrintStdStringMacro(ScheduledProcedureStepStationAeTitle);
+  vtkMRMLPrintStdStringMacro(AccessionNumber);
+  vtkMRMLPrintStdStringMacro(IssuerOfPatientID);
+  vtkMRMLPrintStdStringMacro(PatientBirthDate);
+  vtkMRMLPrintStdStringMacro(PatientSex);
+  vtkMRMLPrintStdStringMacro(StudyInstanceUID);
+  vtkMRMLPrintStdStringMacro(RequestedProcedureDescription);
+  vtkMRMLPrintStdStringMacro(RequestedProcedureID);
+  vtkMRMLPrintStdStringMacro(ScheduledProcedureStepModality);
+  vtkMRMLPrintStdStringMacro(ScheduledProcedureStepStationAeTitle);
+  vtkMRMLPrintStdStringMacro(ScheduledProcedureStepStartDateTime);
+  vtkMRMLPrintStdStringMacro(ScheduledProcedureStepDescription);
+  vtkMRMLPrintStdStringMacro(ScheduledProcedureStepID);
+  vtkMRMLPrintStdStringMacro(ScheduledProcedureStepStationName);
+  vtkMRMLPrintStdStringMacro(ScheduledProcedureStepLocation);
+  vtkMRMLPrintStdStringMacro(ScheduledProcedureStepStatus);
   vtkMRMLPrintEndMacro(); 
 }
 

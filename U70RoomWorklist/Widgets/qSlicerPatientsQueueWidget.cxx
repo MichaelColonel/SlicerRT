@@ -125,9 +125,10 @@ void qSlicerPatientsQueueWidget::setParameterNode(vtkMRMLNode* node)
 void qSlicerPatientsQueueWidget::updateWidgetFromMRML()
 {
   Q_D(qSlicerPatientsQueueWidget);
-  if (d->ParameterNode)
+  if (!d->ParameterNode)
   {
-    qDebug() << Q_FUNC_INFO << "Node is OK";
+    qCritical() << Q_FUNC_INFO << tr(": Invalid patient WORKLIST node!");
+    return;
   }
   qDebug() << Q_FUNC_INFO << "Update children widgets";
 }
@@ -136,6 +137,12 @@ void qSlicerPatientsQueueWidget::updateWidgetFromMRML()
 void qSlicerPatientsQueueWidget::reset()
 {
   Q_D(qSlicerPatientsQueueWidget);
+  if (!d->ParameterNode)
+  {
+    qCritical() << Q_FUNC_INFO << tr(": Invalid patient WORKLIST node!");
+    return;
+  }
+
   d->TableView_PatientsQueue->reset();
   d->TableView_PatientSPS->reset();
 
@@ -148,6 +155,12 @@ void qSlicerPatientsQueueWidget::reset()
 void qSlicerPatientsQueueWidget::setModalityWorkList(const QList< ModalityWork >& mwl)
 {
   Q_D(qSlicerPatientsQueueWidget);
+  if (!d->ParameterNode)
+  {
+    qCritical() << Q_FUNC_INFO << tr(": Invalid patient WORKLIST node!");
+    return;
+  }
+
   d->TableView_PatientsQueue->reset();
   d->TableView_PatientSPS->reset();
   
@@ -159,6 +172,12 @@ void qSlicerPatientsQueueWidget::setModalityWorkList(const QList< ModalityWork >
 void qSlicerPatientsQueueWidget::onPatientsQueueModelIndexClicked(const QModelIndex& index)
 {
   Q_D(qSlicerPatientsQueueWidget);
+  if (!d->ParameterNode)
+  {
+    qCritical() << Q_FUNC_INFO << tr(": Invalid patient WORKLIST node!");
+    return;
+  }
+
   const QList< ModalityWork >& mwl = d->PatientsQueueTableModel->getModalityWorkList();
   if (index.row() < 0 || !mwl.size())
   {
@@ -169,6 +188,16 @@ void qSlicerPatientsQueueWidget::onPatientsQueueModelIndexClicked(const QModelIn
     qDebug() << Q_FUNC_INFO << "Patient queue index:" << index.row();
     const ModalityWork& mw = d->PatientsQueueTableModel->getModalityWorkList().at(index.row());
     d->PatientSPSTableModel->setScheduledProcedureStepList(mw);
+
+    d->ParameterNode->SetAccessionNumber(mw.AccessionNumber.toStdString());
+    d->ParameterNode->SetPatientName(mw.PatientName.toStdString());
+    d->ParameterNode->SetPatientID(mw.PatientID.toStdString());
+    d->ParameterNode->SetIssuerOfPatientID(mw.IssuerOfPatientID.toStdString());
+    d->ParameterNode->SetPatientBirthDate(mw.PatientBirthDate.toString("yyyyMMdd HHmmss").toStdString());
+    d->ParameterNode->SetPatientSex(mw.PatientSex.toStdString());
+    d->ParameterNode->SetStudyInstanceUID(mw.StudyInstanceUID.toStdString());
+    d->ParameterNode->SetRequestedProcedureDescription(mw.RequestedProcedureDescription.toStdString());
+    d->ParameterNode->SetRequestedProcedureID(mw.RequestedProcedureID.toStdString());    
   }
 }
 
@@ -176,6 +205,25 @@ void qSlicerPatientsQueueWidget::onPatientsQueueModelIndexClicked(const QModelIn
 void qSlicerPatientsQueueWidget::onScheduledProcedureStepModelIndexClicked(const QModelIndex& index)
 {
   Q_D(qSlicerPatientsQueueWidget);
-  qDebug() << Q_FUNC_INFO << "Patient queue row index:" << d->TableView_PatientsQueue->currentIndex().row();
-  qDebug() << Q_FUNC_INFO << "SPS row index:" << index.row();
+  if (!d->ParameterNode)
+  {
+    qCritical() << Q_FUNC_INFO << tr(": Invalid patient WORKLIST node!");
+    return;
+  }
+
+  int patientsQueueIndexRow = d->TableView_PatientsQueue->currentIndex().row();
+  qDebug() << Q_FUNC_INFO << "Patients queue row index:" << patientsQueueIndexRow;
+  qDebug() << Q_FUNC_INFO << "Patient SPS row index:" << index.row();
+
+  const ModalityWork& mw = d->PatientsQueueTableModel->getModalityWorkList().at(patientsQueueIndexRow);
+  const ModalityWork::ScheduledProcedureStep& patientSPS = mw.spsSequence.at(index.row());
+
+  d->ParameterNode->SetRequestedProcedureDescription(patientSPS.Description.toStdString());
+  d->ParameterNode->SetScheduledProcedureStepModality(patientSPS.Modality.toStdString());
+  d->ParameterNode->SetScheduledProcedureStepStationAeTitle(patientSPS.StationAeTitle.toStdString());
+  d->ParameterNode->SetScheduledProcedureStepStartDateTime(patientSPS.StartDateTime.toString("yyyyMMdd HHmmss").toStdString());
+  d->ParameterNode->SetScheduledProcedureStepID(patientSPS.ID.toStdString());
+  d->ParameterNode->SetScheduledProcedureStepStationName(patientSPS.StationName.toStdString());
+  d->ParameterNode->SetScheduledProcedureStepLocation(patientSPS.Location.toStdString());
+  d->ParameterNode->SetScheduledProcedureStepStatus(patientSPS.Status.toStdString());
 }
