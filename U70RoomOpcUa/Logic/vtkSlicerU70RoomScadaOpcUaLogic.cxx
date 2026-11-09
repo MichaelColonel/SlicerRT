@@ -205,7 +205,8 @@ void vtkSlicerU70RoomScadaOpcUaLogic::ServerConnected(const QSharedPointer< QOpc
       }
       this->Internal->Nodes[nodeFullName].Cache = value; // map types as needed
     });
-    scadaOpcUaNodeEntry.ConnRead = QObject::connect(scadaOpcUaNodeEntry.Node.data(),
+
+    scadaOpcUaNodeEntry.ConnRead = QObject::connect(node,
       &QOpcUaNode::attributeRead, [this, nodeFullName, node](QOpcUa::NodeAttributes attr)
     {
       if (!node)

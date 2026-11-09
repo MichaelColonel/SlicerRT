@@ -4003,7 +4003,7 @@ bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectCurrentCoordA1R1Node()
             mrmlNode->SetCurrentAxisCoordsR1(r1AxisCoords);
           }
           mrmlNode->InvokeCustomModifiedEvent(vtkMRMLSiemensPlcOpcUaNode::TableRobotAxisCoordsModified);
-//          qDebug() << Q_FUNC_INFO << "R1 Axis A1 angle changed:" << angleValue;
+          qDebug() << Q_FUNC_INFO << "R1 Axis A1 angle changed:" << angleValue;
         }
       }
     }
@@ -4032,7 +4032,7 @@ bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectCurrentCoordA1R1Node()
               mrmlNode->SetCurrentAxisCoordsR1(r1AxisCoords);
             }
             mrmlNode->InvokeCustomModifiedEvent(vtkMRMLSiemensPlcOpcUaNode::TableRobotAxisCoordsModified);
-//            qDebug() << Q_FUNC_INFO << "R1 Axis A1 angle read:" << angleValue;
+            qDebug() << Q_FUNC_INFO << "R1 Axis A1 angle read:" << angleValue;
           }
         }
       }
@@ -4081,7 +4081,7 @@ bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectCurrentCoordA2R1Node()
             mrmlNode->SetCurrentAxisCoordsR1(r1AxisCoords);
           }
           mrmlNode->InvokeCustomModifiedEvent(vtkMRMLSiemensPlcOpcUaNode::TableRobotAxisCoordsModified);
-//          qDebug() << Q_FUNC_INFO << "R1 Axis A2 angle changed:" << angleValue;
+          qDebug() << Q_FUNC_INFO << "R1 Axis A2 angle changed:" << angleValue;
         }
       }
     }
@@ -4110,7 +4110,7 @@ bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectCurrentCoordA2R1Node()
               mrmlNode->SetCurrentAxisCoordsR1(r1AxisCoords);
             }
             mrmlNode->InvokeCustomModifiedEvent(vtkMRMLSiemensPlcOpcUaNode::TableRobotAxisCoordsModified);
-//            qDebug() << Q_FUNC_INFO << "R1 Axis A2 angle read:" << angleValue;
+            qDebug() << Q_FUNC_INFO << "R1 Axis A2 angle read:" << angleValue;
           }
         }
       }
@@ -4159,7 +4159,7 @@ bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectCurrentCoordA3R1Node()
             mrmlNode->SetCurrentAxisCoordsR1(r1AxisCoords);
           }
           mrmlNode->InvokeCustomModifiedEvent(vtkMRMLSiemensPlcOpcUaNode::TableRobotAxisCoordsModified);
-//          qDebug() << Q_FUNC_INFO << "R1 Axis A3 angle changed:" << angleValue;
+          qDebug() << Q_FUNC_INFO << "R1 Axis A3 angle changed:" << angleValue;
         }
       }
     }
@@ -4188,7 +4188,7 @@ bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectCurrentCoordA3R1Node()
               mrmlNode->SetCurrentAxisCoordsR1(r1AxisCoords);
             }
             mrmlNode->InvokeCustomModifiedEvent(vtkMRMLSiemensPlcOpcUaNode::TableRobotAxisCoordsModified);
-//            qDebug() << Q_FUNC_INFO << "R1 Axis A3 angle read:" << angleValue;
+            qDebug() << Q_FUNC_INFO << "R1 Axis A3 angle read:" << angleValue;
           }
         }
       }
@@ -4238,7 +4238,7 @@ bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectCurrentCoordA4R1Node()
             mrmlNode->SetCurrentAxisCoordsR1(r1AxisCoords);
           }
           mrmlNode->InvokeCustomModifiedEvent(vtkMRMLSiemensPlcOpcUaNode::TableRobotAxisCoordsModified);
-//          qDebug() << Q_FUNC_INFO << "R1 Axis A4 angle changed:" << angleValue;
+          qDebug() << Q_FUNC_INFO << "R1 Axis A4 angle changed:" << angleValue;
         }
       }
     }
@@ -4267,7 +4267,7 @@ bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectCurrentCoordA4R1Node()
               mrmlNode->SetCurrentAxisCoordsR1(r1AxisCoords);
             }
             mrmlNode->InvokeCustomModifiedEvent(vtkMRMLSiemensPlcOpcUaNode::TableRobotAxisCoordsModified);
-//            qDebug() << Q_FUNC_INFO << "R1 Axis A4 angle read:" << angleValue;
+            qDebug() << Q_FUNC_INFO << "R1 Axis A4 angle read:" << angleValue;
           }
         }
       }
@@ -4316,7 +4316,7 @@ bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectCurrentCoordA5R1Node()
             mrmlNode->SetCurrentAxisCoordsR1(r1AxisCoords);
           }
           mrmlNode->InvokeCustomModifiedEvent(vtkMRMLSiemensPlcOpcUaNode::TableRobotAxisCoordsModified);
-//          qDebug() << Q_FUNC_INFO << "R1 Axis A5 angle changed:" << angleValue;
+          qDebug() << Q_FUNC_INFO << "R1 Axis A5 angle changed:" << angleValue;
         }
       }
     }
@@ -4345,7 +4345,7 @@ bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectCurrentCoordA5R1Node()
               mrmlNode->SetCurrentAxisCoordsR1(r1AxisCoords);
             }
             mrmlNode->InvokeCustomModifiedEvent(vtkMRMLSiemensPlcOpcUaNode::TableRobotAxisCoordsModified);
-//            qDebug() << Q_FUNC_INFO << "R1 Axis A5 angle read:" << angleValue;
+            qDebug() << Q_FUNC_INFO << "R1 Axis A5 angle read:" << angleValue;
           }
         }
       }
@@ -4395,7 +4395,7 @@ bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectCurrentCoordA6R1Node()
             mrmlNode->SetCurrentAxisCoordsR1(r1AxisCoords);
           }
           mrmlNode->InvokeCustomModifiedEvent(vtkMRMLSiemensPlcOpcUaNode::TableRobotAxisCoordsModified);
-//          qDebug() << Q_FUNC_INFO << "R1 Axis A6 angle changed:" << angleValue;
+          qDebug() << Q_FUNC_INFO << "R1 Axis A6 angle changed:" << angleValue;
         }
       }
     }
@@ -4424,7 +4424,7 @@ bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectCurrentCoordA6R1Node()
               mrmlNode->SetCurrentAxisCoordsR1(r1AxisCoords);
             }
             mrmlNode->InvokeCustomModifiedEvent(vtkMRMLSiemensPlcOpcUaNode::TableRobotAxisCoordsModified);
-//            qDebug() << Q_FUNC_INFO << "R1 Axis A6 angle read:" << angleValue;
+            qDebug() << Q_FUNC_INFO << "R1 Axis A6 angle read:" << angleValue;
           }
         }
       }
@@ -6600,7 +6600,7 @@ bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectCurrentCoordA1R2Node()
             mrmlNode->SetCurrentAxisCoordsR2(r2AxisCoords);
           }
           mrmlNode->InvokeCustomModifiedEvent(vtkMRMLSiemensPlcOpcUaNode::CarmRobotAxisCoordsModified);
-//          qDebug() << Q_FUNC_INFO << "R2 Axis A1 angle changed:" << angleValue;
+          qDebug() << Q_FUNC_INFO << "R2 Axis A1 angle changed:" << angleValue;
         }
       }
     }
@@ -6629,7 +6629,7 @@ bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectCurrentCoordA1R2Node()
               mrmlNode->SetCurrentAxisCoordsR2(r2AxisCoords);
             }
             mrmlNode->InvokeCustomModifiedEvent(vtkMRMLSiemensPlcOpcUaNode::CarmRobotAxisCoordsModified);
-//            qDebug() << Q_FUNC_INFO << "R2 Axis A1 angle read:" << angleValue;
+            qDebug() << Q_FUNC_INFO << "R2 Axis A1 angle read:" << angleValue;
           }
         }
       }
@@ -6678,7 +6678,7 @@ bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectCurrentCoordA2R2Node()
             mrmlNode->SetCurrentAxisCoordsR2(r2AxisCoords);
           }
           mrmlNode->InvokeCustomModifiedEvent(vtkMRMLSiemensPlcOpcUaNode::CarmRobotAxisCoordsModified);
-//          qDebug() << Q_FUNC_INFO << "R2 Axis A2 angle changed:" << angleValue;
+          qDebug() << Q_FUNC_INFO << "R2 Axis A2 angle changed:" << angleValue;
         }
       }
     }
@@ -6707,7 +6707,7 @@ bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectCurrentCoordA2R2Node()
               mrmlNode->SetCurrentAxisCoordsR2(r2AxisCoords);
             }
             mrmlNode->InvokeCustomModifiedEvent(vtkMRMLSiemensPlcOpcUaNode::CarmRobotAxisCoordsModified);
-//            qDebug() << Q_FUNC_INFO << "R2 Axis A2 angle read:" << angleValue;
+            qDebug() << Q_FUNC_INFO << "R2 Axis A2 angle read:" << angleValue;
           }
         }
       }
@@ -6756,7 +6756,7 @@ bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectCurrentCoordA3R2Node()
             mrmlNode->SetCurrentAxisCoordsR2(r2AxisCoords);
           }
           mrmlNode->InvokeCustomModifiedEvent(vtkMRMLSiemensPlcOpcUaNode::CarmRobotAxisCoordsModified);
-//          qDebug() << Q_FUNC_INFO << "R2 Axis A3 angle changed:" << angleValue;
+          qDebug() << Q_FUNC_INFO << "R2 Axis A3 angle changed:" << angleValue;
         }
       }
     }
@@ -6785,7 +6785,7 @@ bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectCurrentCoordA3R2Node()
               mrmlNode->SetCurrentAxisCoordsR2(r2AxisCoords);
             }
             mrmlNode->InvokeCustomModifiedEvent(vtkMRMLSiemensPlcOpcUaNode::CarmRobotAxisCoordsModified);
-//            qDebug() << Q_FUNC_INFO << "R2 Axis A3 angle read:" << angleValue;
+            qDebug() << Q_FUNC_INFO << "R2 Axis A3 angle read:" << angleValue;
           }
         }
       }
@@ -6834,7 +6834,7 @@ bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectCurrentCoordA4R2Node()
             mrmlNode->SetCurrentAxisCoordsR2(r2AxisCoords);
           }
           mrmlNode->InvokeCustomModifiedEvent(vtkMRMLSiemensPlcOpcUaNode::CarmRobotAxisCoordsModified);
-//          qDebug() << Q_FUNC_INFO << "R2 Axis A4 angle changed:" << angleValue;
+          qDebug() << Q_FUNC_INFO << "R2 Axis A4 angle changed:" << angleValue;
         }
       }
     }
@@ -6863,7 +6863,7 @@ bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectCurrentCoordA4R2Node()
               mrmlNode->SetCurrentAxisCoordsR2(r2AxisCoords);
             }
             mrmlNode->InvokeCustomModifiedEvent(vtkMRMLSiemensPlcOpcUaNode::CarmRobotAxisCoordsModified);
-//            qDebug() << Q_FUNC_INFO << "R2 Axis A4 angle read:" << angleValue;
+            qDebug() << Q_FUNC_INFO << "R2 Axis A4 angle read:" << angleValue;
           }
         }
       }
@@ -6912,7 +6912,7 @@ bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectCurrentCoordA5R2Node()
             mrmlNode->SetCurrentAxisCoordsR2(r2AxisCoords);
           }
           mrmlNode->InvokeCustomModifiedEvent(vtkMRMLSiemensPlcOpcUaNode::CarmRobotAxisCoordsModified);
-//          qDebug() << Q_FUNC_INFO << "R2 Axis A5 angle changed:" << angleValue;
+          qDebug() << Q_FUNC_INFO << "R2 Axis A5 angle changed:" << angleValue;
         }
       }
     }
@@ -6941,7 +6941,7 @@ bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectCurrentCoordA5R2Node()
               mrmlNode->SetCurrentAxisCoordsR2(r2AxisCoords);
             }
             mrmlNode->InvokeCustomModifiedEvent(vtkMRMLSiemensPlcOpcUaNode::CarmRobotAxisCoordsModified);
-//            qDebug() << Q_FUNC_INFO << "R2 Axis A5 angle read:" << angleValue;
+            qDebug() << Q_FUNC_INFO << "R2 Axis A5 angle read:" << angleValue;
           }
         }
       }
@@ -6990,7 +6990,7 @@ bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectCurrentCoordA6R2Node()
             mrmlNode->SetCurrentAxisCoordsR2(r2AxisCoords);
           }
           mrmlNode->InvokeCustomModifiedEvent(vtkMRMLSiemensPlcOpcUaNode::CarmRobotAxisCoordsModified);
-//          qDebug() << Q_FUNC_INFO << "R2 Axis A6 angle changed:" << angleValue;
+          qDebug() << Q_FUNC_INFO << "R2 Axis A6 angle changed:" << angleValue;
         }
       }
     }
@@ -7019,7 +7019,7 @@ bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectCurrentCoordA6R2Node()
               mrmlNode->SetCurrentAxisCoordsR2(r2AxisCoords);
             }
             mrmlNode->InvokeCustomModifiedEvent(vtkMRMLSiemensPlcOpcUaNode::CarmRobotAxisCoordsModified);
-//            qDebug() << Q_FUNC_INFO << "R1 Axis A6 angle read:" << angleValue;
+            qDebug() << Q_FUNC_INFO << "R1 Axis A6 angle read:" << angleValue;
           }
         }
       }

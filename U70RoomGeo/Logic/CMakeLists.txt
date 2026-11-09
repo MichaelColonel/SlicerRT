@@ -24,6 +24,7 @@ set(${KIT}_SRCS
 #  vtkSlicerChannel26Cabin2RobotsTransformLogic.cxx
 #  vtkSlicerChannel26Cabin2RobotsTransformLogic.h
   vtkSlicerChannel26RoomRobotsGeometryCommon.h
+  vtkSlicerChannel26Room1RobotsGeometryCommon.h
   vtkSlicerChannel26Room2RobotsGeometryCommon.h
   vtkSlicerChannel26Room3RobotsGeometryCommon.h
   vtkSlicerChannel26RoomRobotsTransformLogic.cxx

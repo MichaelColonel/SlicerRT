@@ -365,7 +365,6 @@ void qSlicerU70RoomGeoModuleWidget::onLoadTreatmentRoomButtonClicked()
 
   if (channel26GeometryNode)
   {
-    qDebug() << Q_FUNC_INFO << ": OK";
     d->ParameterNode->SetAndObserveChannel26GeometryNode(channel26GeometryNode);
     // Set once again geometry type of geometry node itself
     if (d->ButtonGroup_TreatmentRoomType->checkedButton() == d->RadioButton_Room3)
@@ -1561,7 +1560,7 @@ void qSlicerU70RoomGeoModuleWidget::updateRoomGeometry()
   channel26GeometryNode->Modified();
   d->getLayoutManager()->resumeRender();
   
-  qDebug() << Q_FUNC_INFO << ": The slow operation took" << timer.elapsed() << "milliseconds";
+//  qDebug() << Q_FUNC_INFO << ": The slow operation took" << timer.elapsed() << "milliseconds";
 
   d->TimerGeometryUpdater->start();
 }

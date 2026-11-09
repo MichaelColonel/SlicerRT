@@ -1036,15 +1036,15 @@ void vtkSlicerChannel26RoomRobotsTransformLogic::UpdateTableTopPlaneCorrectionTo
     this->GetTransformNodeBetween(CoordSys::TableTopPlaneCorrection, CoordSys::TableTop);
 
   using CoordPos = vtkSlicerChannel26RoomRobotsGeometryCommon;
-  double tabletopOffset = CoordPos::TABLE_TOP_FLANGE_LENGTH_OFFSET - CoordPos::TABLE_TOP_LENGTH / 2.;
+  constexpr double tabletopOffset = CoordPos::TABLE_TOP_FLANGE_LENGTH_OFFSET - CoordPos::TABLE_TOP_LENGTH / 2.;
 
   if (tableTopPlaneCorrectionToTableTopTransformNode)
   {
     double patientToTableTopTranslation[3] = {};
     parameterNode->GetPatientToTableTopTranslation(patientToTableTopTranslation);
-    patientToTableTopTranslation[0] = 0;
-    patientToTableTopTranslation[1] = tabletopOffset;
-    patientToTableTopTranslation[2] = 0;
+//    patientToTableTopTranslation[0] = 0;
+//    patientToTableTopTranslation[1] = tabletopOffset;
+//    patientToTableTopTranslation[2] = 0;
     vtkNew<vtkTransform> patientToTableTopTransform;
     patientToTableTopTransform->Translate(patientToTableTopTranslation);
 
@@ -1054,7 +1054,7 @@ void vtkSlicerChannel26RoomRobotsTransformLogic::UpdateTableTopPlaneCorrectionTo
     planeCorrectionToTableTopTransform->Identity();
     patientToTableTopTranslation[1] *= -1.;
     planeCorrectionToTableTopTransform->Translate(patientToTableTopTranslation);
-//    vtkWarningMacro("UpdateTableTopPlaneCorrectionToTableTopTransform:" << planeAnglesABC[0] << ' ' << planeAnglesABC[1] << ' ' << planeAnglesABC[2]);
+//    vtkWarningMacro("UpdateTableTopPlaneCorrectionToTableTopTransform a, b, c:" << planeAnglesABC[0] << ' ' << planeAnglesABC[1] << ' ' << planeAnglesABC[2]);
     planeCorrectionToTableTopTransform->RotateZ(-1. * planeAnglesABC[0]);
     planeCorrectionToTableTopTransform->RotateX(-1. * planeAnglesABC[1]);
     planeCorrectionToTableTopTransform->RotateY(planeAnglesABC[2]);
@@ -1912,15 +1912,29 @@ void vtkSlicerChannel26RoomRobotsTransformLogic::UpdateTableRobotBaseFixedToFixe
     return;
   }
 
+
 //  using CoordPos = vtkSlicerChannel26RoomRobotsGeometryCommon;
   double BaseFixedToFixedReferenceTranslate[3] = {};
   parameterNode->GetTableBaseFixedToFixedReferenceTranslation(BaseFixedToFixedReferenceTranslate);
   // Default: FixedReferenceToFixedBasedOffset.data()
   BaseFixedToFixedReferenceTranslate[2] *= -1.; // Make negative Zt (vertical position) value
+
   // Translate the FixedReference model origin (isocenter position)
   // to BaseFixed model origin (0,0,0 position in robot model file)
   vtkNew<vtkTransform> BaseFixedTranslateTransform;
-//  BaseFixedTranslateTransform->Translate(0., 0., -1. * CoordPos::TABLE_ROBOT_BASE_MOUNTING_OFFSET_Y); // 30. mm offset
+  // Translate the BaseRotation so it's empty disk centre in RAS origin
+  switch (parameterNode->GetU70RoomGeo())
+  {
+  case vtkMRMLChannel26GeometryNode::R1:
+    BaseFixedTranslateTransform->RotateZ(-90.); // -90. degrees rotation for Tabletop robot in Room-1
+    break;
+  case vtkMRMLChannel26GeometryNode::R2:
+  case vtkMRMLChannel26GeometryNode::R3:
+    break;
+  default:
+    break;
+  };
+
   BaseFixedTranslateTransform->Translate(BaseFixedToFixedReferenceTranslate);
 
   using CoordSys = CoordinateSystemIdentifier;
@@ -2005,21 +2019,27 @@ void vtkSlicerChannel26RoomRobotsTransformLogic::UpdateCarmRobotBaseFixedToFixed
   double TableBaseFixedToFixedReferenceTranslate[3] = {};
   double CarmBaseFixedToTableBaseFixedOffset[3] = {};
 
+  parameterNode->GetTableBaseFixedToFixedReferenceTranslation(TableBaseFixedToFixedReferenceTranslate);
+  parameterNode->GetCarmBaseFixedToTableBaseFixedOffset(CarmBaseFixedToTableBaseFixedOffset);
+    
   // Translate the BaseRotation so it's empty disk centre in RAS origin
   vtkNew<vtkTransform> BaseFixedTranslateTransform;
   switch (parameterNode->GetU70RoomGeo())
   {
   case vtkMRMLChannel26GeometryNode::R1:
+    BaseFixedTranslateTransform->RotateZ(90.); // 90. degrees rotation for C-arm robot in Room-1
+    BaseFixedTranslateTransform->RotateY(90.); // 90. degrees rotation for C-arm robot in Room-1
+    BaseFixedTranslateTransform->RotateX(180.); // 180. degrees rotation for C-arm robot in Room-1
+    CarmBaseFixedToTableBaseFixedOffset[2] *= -1.; // Make negative Zt (vertical position) value
+    BaseFixedTranslateTransform->Translate(TableBaseFixedToFixedReferenceTranslate);
+    BaseFixedTranslateTransform->Translate(CarmBaseFixedToTableBaseFixedOffset);
+    break;
   case vtkMRMLChannel26GeometryNode::R2:
-    BaseFixedTranslateTransform->RotateY(180.); // 180. degrees rotation for C-arm robot in Room-1 and Room-2
-    parameterNode->GetTableBaseFixedToFixedReferenceTranslation(TableBaseFixedToFixedReferenceTranslate);
-    parameterNode->GetCarmBaseFixedToTableBaseFixedOffset(CarmBaseFixedToTableBaseFixedOffset);
+    BaseFixedTranslateTransform->RotateY(180.); // 180. degrees rotation for C-arm robot in Room-2
     BaseFixedTranslateTransform->Translate(TableBaseFixedToFixedReferenceTranslate);
     BaseFixedTranslateTransform->Translate(CarmBaseFixedToTableBaseFixedOffset);
     break;
   case vtkMRMLChannel26GeometryNode::R3:
-    parameterNode->GetTableBaseFixedToFixedReferenceTranslation(TableBaseFixedToFixedReferenceTranslate);
-    parameterNode->GetCarmBaseFixedToTableBaseFixedOffset(CarmBaseFixedToTableBaseFixedOffset);
     // Default: FixedReferenceToFixedBasedOffset.data()
     TableBaseFixedToFixedReferenceTranslate[2] *= -1.; // Make negative Zt (vertical position) value
     CarmBaseFixedToTableBaseFixedOffset[2] *= -1.; // Make negative Zt (vertical position) value

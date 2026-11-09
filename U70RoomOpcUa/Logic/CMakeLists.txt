@@ -15,6 +15,8 @@ set(${KIT}_SRCS
   vtkSlicerU70RoomScadaOpcUaNodesNames.h
   vtkSlicerU70RoomScadaOpcUaLogic.cxx
   vtkSlicerU70RoomScadaOpcUaLogic.h
+  vtkSlicerU70RoomSiemensPlcOpcUaLogic.cxx
+  vtkSlicerU70RoomSiemensPlcOpcUaLogic.h
   )
 
 set(${KIT}_TARGET_LIBRARIES
