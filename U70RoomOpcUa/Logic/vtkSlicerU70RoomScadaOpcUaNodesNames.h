@@ -31,13 +31,34 @@ public:
   // Constants
   //----------------------------------------------------------------------------
   static std::string GetScadaSysTime();
-  static std::string GetModPosState();
   static std::string GetModPosSysTime();
-  static std::string GetModPosEventString();
-  static std::string GetScadaPlanFilename();
-  static std::string GetScadaPatientId();
-  static std::string GetScadaPlanOpen();
-  static std::string GetScadaPlanEcp();
+  static std::string GetModPosPlanStr();
+  static std::string GetModPosIdp();
+  static std::string GetModPosEcp();
+  static std::string GetModPosImmob();
+  static std::string GetModPlanOpen();
+  static std::string GetModPlanNpos();
+  static std::string GetScadaRemoteCtrl();
+  static std::string GetScadaRemoteStateMachine();
+  static std::string GetScadaRemoteCmd();
+  static std::string GetScadaRemotePause();
+  static std::string GetScadaRemoteAvr();
+  static std::string GetScadaDoorBlock();
+  static std::string GetScadaReadyEq();
+  static std::string GetScadaReadyPlan();
+  static std::string GetScadaReadyProc();
+  static std::string GetModPosSt();
+  static std::string GetScadaInQueue();
+  static std::string GetModPosReadySt();
+  static std::string GetScadaBlock();
+  static std::string GetScadaCurrentLayer();
+  static std::string GetScadaMaxLayer();
+  static std::string GetScadaProcLayer();
+  static std::string GetScadaProcEnd();
+  static std::string GetModPosProcNote();
+  static std::string GetModPosRecClose();
+  static std::string GetModPosErrStr();
+  static std::string GetModPosEventStr();
 };
 
 #endif

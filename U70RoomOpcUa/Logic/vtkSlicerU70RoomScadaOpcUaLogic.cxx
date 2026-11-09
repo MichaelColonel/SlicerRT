@@ -283,7 +283,7 @@ bool vtkSlicerU70RoomScadaOpcUaLogic::WriteSysTimeModPos(uint64_t val)
 //---------------------------------------------------------------------------
 bool vtkSlicerU70RoomScadaOpcUaLogic::WriteStateModPos(int state)
 {
-  std::string nodeName = vtkSlicerU70RoomScadaOpcUaNodesNames::GetModPosState();
+  std::string nodeName = vtkSlicerU70RoomScadaOpcUaNodesNames::GetModPosSt();
   QOpcUaNode* node = this->Internal->node(QString::fromStdString(nodeName));
   if (!node)
   {
@@ -295,7 +295,7 @@ bool vtkSlicerU70RoomScadaOpcUaLogic::WriteStateModPos(int state)
 //---------------------------------------------------------------------------
 bool vtkSlicerU70RoomScadaOpcUaLogic::WriteEventString(const std::string& text)
 {
-  std::string nodeName = vtkSlicerU70RoomScadaOpcUaNodesNames::GetModPosEventString();
+  std::string nodeName = vtkSlicerU70RoomScadaOpcUaNodesNames::GetModPosEventStr();
   QOpcUaNode* node = this->Internal->node(QString::fromStdString(nodeName));
   if (!node)
   {
