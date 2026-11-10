@@ -17,14 +17,15 @@
 
 // U70RoomOpcUa Logic includes
 #include "vtkSlicerU70RoomOpcUaLogic.h"
-#include "vtkSlicerU70RoomScadaOpcUaNodesNames.h"
 #include "vtkSlicerU70RoomScadaOpcUaLogic.h"
+#include "vtkSlicerU70RoomSiemensPlcOpcUaLogic.h"
 
 // MRML includes
 #include <vtkMRMLScene.h>
 
 // U70RoomOpcUa MRML includes
 #include "vtkMRMLScadaOpcUaNode.h"
+#include "vtkMRMLSiemensPlcOpcUaNode.h"
 
 // VTK includes
 #include <vtkIntArray.h>
@@ -55,16 +56,6 @@ public:
   QOpcUaNode* node(const QString& id);
 
   vtkSlicerU70RoomOpcUaLogic* External{ nullptr };
-
-  struct Entry
-  {
-    QPointer< QOpcUaNode > Node;       // becomes null automatically if node is deleted
-    QMetaObject::Connection Conn;
-    vtkVariant Cache;
-  };
-
-  QWeakPointer< QOpcUaClient > Client;
-  QHash< QString, QPointer< QOpcUaNode > > Nodes;
 };
 
 //---------------------------------------------------------------------------
@@ -78,34 +69,12 @@ vtkSlicerU70RoomOpcUaLogic::vtkInternal::~vtkInternal()
 {
 }
 
-//---------------------------------------------------------------------------
-QOpcUaNode* vtkSlicerU70RoomOpcUaLogic::vtkInternal::node(const QString& id)
-{
-  QSharedPointer< QOpcUaClient > sharedClient = this->Client.toStrongRef();
-  if (!sharedClient)
-  {
-    vtkWarningWithObjectMacro( this->External, "node: Scada OPC UA client is invalid");
-    return nullptr;
-  }
-
-  if (sharedClient->state() != QOpcUaClient::Connected)
-  {
-    vtkWarningWithObjectMacro( this->External, "node: Scada OPC UA client is created, but isn't connected");
-    return nullptr;
-  }
-
-  if (!this->Nodes.contains(id))
-  {
-    this->Nodes.insert(id, sharedClient->node(id));
-  }
-  return this->Nodes.value(id);
-}
-
 //----------------------------------------------------------------------------
 vtkSlicerU70RoomOpcUaLogic::vtkSlicerU70RoomOpcUaLogic()
 {
   this->Internal = new vtkInternal(this);
   this->ScadaOpcUaLogic = vtkSlicerU70RoomScadaOpcUaLogic::New();
+  this->SiemensPlcOpcUaLogic = vtkSlicerU70RoomSiemensPlcOpcUaLogic::New();
 }
 
 //----------------------------------------------------------------------------
@@ -115,6 +84,12 @@ vtkSlicerU70RoomOpcUaLogic::~vtkSlicerU70RoomOpcUaLogic()
   {
     this->ScadaOpcUaLogic->Delete();
     this->ScadaOpcUaLogic = nullptr;
+  }
+
+  if (this->SiemensPlcOpcUaLogic)
+  {
+    this->SiemensPlcOpcUaLogic->Delete();
+    this->SiemensPlcOpcUaLogic = nullptr;
   }
 
   if (this->Internal)
@@ -143,6 +118,10 @@ void vtkSlicerU70RoomOpcUaLogic::SetMRMLSceneInternal(vtkMRMLScene* newScene)
   {
     this->ScadaOpcUaLogic->SetMRMLScene(newScene);
   }
+  if (this->SiemensPlcOpcUaLogic)
+  {
+    this->SiemensPlcOpcUaLogic->SetMRMLScene(newScene);
+  }
 }
 
 //-----------------------------------------------------------------------------
@@ -157,6 +136,10 @@ void vtkSlicerU70RoomOpcUaLogic::RegisterNodes()
   if (!scene->IsNodeClassRegistered("vtkMRMLScadaOpcUaNode"))
   {
     scene->RegisterNodeClass(vtkSmartPointer<vtkMRMLScadaOpcUaNode>::New());
+  }
+  if (!scene->IsNodeClassRegistered("vtkMRMLSiemensPlcOpcUaNode"))
+  {
+    scene->RegisterNodeClass(vtkSmartPointer<vtkMRMLSiemensPlcOpcUaNode>::New());
   }
 }
 
@@ -180,125 +163,12 @@ void vtkSlicerU70RoomOpcUaLogic::OnMRMLSceneNodeRemoved(vtkMRMLNode* vtkNotUsed(
 {
 }
 
-//---------------------------------------------------------------------------
-void vtkSlicerU70RoomOpcUaLogic::ServerConnected(const QSharedPointer< QOpcUaClient >& sharedClient, const QHash< QString, QPointer< QOpcUaNode > >& hashNodes)
-{
-  this->Internal->Client = sharedClient;
-  this->Internal->Nodes = hashNodes;
-
-  QHashIterator< QString, QPointer< QOpcUaNode > > i(this->Internal->Nodes);
-  while (i.hasNext())
-  {
-    i.next();
-    vtkWarningMacro("ServerConnected: key: " << i.key().toStdString() << ", node id: " << i.value()->nodeId().toStdString());
-  }
-}
-
-//---------------------------------------------------------------------------
-bool vtkSlicerU70RoomOpcUaLogic::WriteBool(const std::string& nodeId, bool value)
-{
-  QOpcUaNode* node = this->Internal->node(QString::fromStdString(nodeId));
-  if (!node)
-  {
-    return false;
-  }
-  return node->writeValueAttribute(QVariant(value), QOpcUa::Types::Boolean);
-}
-
-//---------------------------------------------------------------------------
-bool vtkSlicerU70RoomOpcUaLogic::WriteByte(const std::string& nodeId, uint8_t value)
-{
-  QOpcUaNode* node = this->Internal->node(QString::fromStdString(nodeId));
-  if (!node)
-  {
-    return false;
-  }
-  return node->writeValueAttribute(QVariant(value), QOpcUa::Types::Byte);
-}
-
-//---------------------------------------------------------------------------
-bool vtkSlicerU70RoomOpcUaLogic::WriteUint32(const std::string& nodeId, uint32_t value)
-{
-  QOpcUaNode* node = this->Internal->node(QString::fromStdString(nodeId));
-  if (!node)
-  {
-    return false;
-  }
-  return node->writeValueAttribute(QVariant(value), QOpcUa::Types::UInt32);
-}
-
-//---------------------------------------------------------------------------
-bool vtkSlicerU70RoomOpcUaLogic::WriteString(const std::string& nodeId, const std::string& textString)
-{
-  QOpcUaNode* node = this->Internal->node(QString::fromStdString(nodeId));
-  if (!node)
-  {
-    return false;
-  }
-  return node->writeValueAttribute(QVariant(QString::fromStdString(textString)), QOpcUa::Types::String);
-}
-
-//---------------------------------------------------------------------------
-bool vtkSlicerU70RoomOpcUaLogic::WriteSysTimeModPos(uint64_t value)
-{
-  std::string nodeName = vtkSlicerU70RoomScadaOpcUaNodesNames::GetModPosSysTime();
-  QOpcUaNode* node = this->Internal->node(QString::fromStdString(nodeName));
-  if (!node)
-  {
-    return false;
-  }
-  return node->writeValueAttribute(QVariant(static_cast<qulonglong>(value)), QOpcUa::Types::UInt64);
-}
-
-//---------------------------------------------------------------------------
-uint64_t vtkSlicerU70RoomOpcUaLogic::ReadSysTimeScada()
-{
-  return 0;
-}
-
-//---------------------------------------------------------------------------
-bool vtkSlicerU70RoomOpcUaLogic::WritePlanFileName(const std::string& textString)
-{
-  return true;
-}
-
-//---------------------------------------------------------------------------
-bool vtkSlicerU70RoomOpcUaLogic::WritePatientID(const std::string& textString)
-{
-  return true;
-}
-
-//---------------------------------------------------------------------------
-bool vtkSlicerU70RoomOpcUaLogic::WritePlanOpen(bool)
-{
-  return true;
-}
-
-//---------------------------------------------------------------------------
-bool vtkSlicerU70RoomOpcUaLogic::WriteStateModPos(int state)
-{
-  std::string nodeName = vtkSlicerU70RoomScadaOpcUaNodesNames::GetModPosState();
-  QOpcUaNode* node = this->Internal->node(QString::fromStdString(nodeName));
-  if (!node)
-  {
-    return false;
-  }
-  return node->writeValueAttribute(QVariant(state), QOpcUa::Types::UInt16);
-}
-
-//---------------------------------------------------------------------------
-bool vtkSlicerU70RoomOpcUaLogic:: WriteEventString(const std::string& text)
-{
-  std::string nodeName = vtkSlicerU70RoomScadaOpcUaNodesNames::GetModPosEventString();
-  QOpcUaNode* node = this->Internal->node(QString::fromStdString(nodeName));
-  if (!node)
-  {
-    return false;
-  }
-  return node->writeValueAttribute(QVariant(QString::fromStdString(text)), QOpcUa::Types::String);
-}
-
 vtkSlicerU70RoomScadaOpcUaLogic* vtkSlicerU70RoomOpcUaLogic::GetScadaOpcUaLogic() const
 {
   return this->ScadaOpcUaLogic;
+}
+
+vtkSlicerU70RoomSiemensPlcOpcUaLogic* vtkSlicerU70RoomOpcUaLogic::GetSiemensPlcOpcUaLogic() const
+{
+  return this->SiemensPlcOpcUaLogic;
 }

@@ -448,17 +448,7 @@
            <bool>false</bool>
           </property>
           <layout class="QGridLayout" name="gridLayout_3">
-           <item row="0" column="0">
-            <widget class="qSlicerSimpleMarkupsWidget" name="SimpleMarkupsWidget_PointCoordinates">
-             <property name="enterPlaceModeOnNodeChange">
-              <bool>false</bool>
-             </property>
-             <property name="optionsVisible">
-              <bool>false</bool>
-             </property>
-            </widget>
-           </item>
-           <item row="1" column="0">
+           <item row="3" column="0">
             <layout class="QGridLayout" name="gridLayout_2">
              <item row="0" column="0">
               <widget class="QLabel" name="label_3">
@@ -519,6 +509,30 @@
                 <bool>true</bool>
                </property>
               </widget>
+             </item>
+            </layout>
+           </item>
+           <item row="2" column="0">
+            <widget class="qSlicerSimpleMarkupsWidget" name="SimpleMarkupsWidget_PointCoordinates">
+             <property name="enterPlaceModeOnNodeChange">
+              <bool>false</bool>
+             </property>
+             <property name="optionsVisible">
+              <bool>false</bool>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="0">
+            <layout class="QHBoxLayout" name="horizontalLayout_5">
+             <item>
+              <widget class="QLabel" name="label_11">
+               <property name="text">
+                <string>TOOL frame offset:</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="ctkCoordinatesWidget" name="CoordinatesWidget_MarkupsOffset"/>
              </item>
             </layout>
            </item>

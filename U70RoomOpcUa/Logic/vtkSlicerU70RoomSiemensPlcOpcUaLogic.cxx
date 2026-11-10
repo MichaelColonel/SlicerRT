@@ -17,7 +17,7 @@
 
 // U70RoomOpcUa Logic includes
 #include "vtkSlicerU70RoomSiemensPlcOpcUaLogic.h"
-#include "vtkSlicerU70RoomScadaOpcUaNodesNames.h"
+#include "vtkSlicerU70RoomSiemensPlcOpcUaNodesNames.h"
 
 // MRML includes
 #include <vtkMRMLScene.h>
@@ -271,7 +271,7 @@ bool vtkSlicerU70RoomSiemensPlcOpcUaLogic::WritePlanOpen(bool)
 //---------------------------------------------------------------------------
 bool vtkSlicerU70RoomSiemensPlcOpcUaLogic::WriteSysTimeModPos(uint64_t val)
 {
-  std::string nodeName = vtkSlicerU70RoomScadaOpcUaNodesNames::GetModPosSysTime();
+  std::string nodeName = vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::GetModPosSysTime();
   QOpcUaNode* node = this->Internal->node(QString::fromStdString(nodeName));
   if (!node)
   {
@@ -283,7 +283,7 @@ bool vtkSlicerU70RoomSiemensPlcOpcUaLogic::WriteSysTimeModPos(uint64_t val)
 //---------------------------------------------------------------------------
 bool vtkSlicerU70RoomSiemensPlcOpcUaLogic::WriteStateModPos(int state)
 {
-  std::string nodeName = vtkSlicerU70RoomScadaOpcUaNodesNames::GetModPosState();
+  std::string nodeName = vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::GetModPosState();
   QOpcUaNode* node = this->Internal->node(QString::fromStdString(nodeName));
   if (!node)
   {
@@ -295,7 +295,7 @@ bool vtkSlicerU70RoomSiemensPlcOpcUaLogic::WriteStateModPos(int state)
 //---------------------------------------------------------------------------
 bool vtkSlicerU70RoomSiemensPlcOpcUaLogic::WriteEventString(const std::string& text)
 {
-  std::string nodeName = vtkSlicerU70RoomScadaOpcUaNodesNames::GetModPosEventString();
+  std::string nodeName = vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::GetModPosEventString();
   QOpcUaNode* node = this->Internal->node(QString::fromStdString(nodeName));
   if (!node)
   {

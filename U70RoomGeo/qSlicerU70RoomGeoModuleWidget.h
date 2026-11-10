@@ -61,6 +61,7 @@ public slots:
   void onRotatePatientHeadFeetToggled(bool toggled);
 
   void onPatientTableTopTranslationChanged(double* position);
+  void onMarkupsOffsetChanged(double* position);
   void onTableRobotA6Changed(double a6);
   void onTableRobotA5Changed(double a5);
   void onTableRobotA4Changed(double a4);

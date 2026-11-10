@@ -38,7 +38,9 @@
 
 class QOpcUaClient;
 class QOpcUaNode;
+
 class vtkSlicerU70RoomScadaOpcUaLogic;
+class vtkSlicerU70RoomSiemensPlcOpcUaLogic;
 
 class VTK_SLICER_U70ROOMOPCUA_MODULE_LOGIC_EXPORT vtkSlicerU70RoomOpcUaLogic : public vtkSlicerModuleLogic
 {
@@ -46,23 +48,11 @@ public:
   static vtkSlicerU70RoomOpcUaLogic* New();
   vtkTypeMacro(vtkSlicerU70RoomOpcUaLogic, vtkSlicerModuleLogic);
   void PrintSelf(ostream& os, vtkIndent indent) override;
-  void ServerConnected(const QSharedPointer< QOpcUaClient >& sharedClient, const QHash< QString, QPointer< QOpcUaNode > >& hashNodes);
-
-  bool WriteBool(const std::string& nodeId, bool value);
-  bool WriteByte(const std::string& nodeId, uint8_t value);
-  bool WriteUint32(const std::string& nodeId, uint32_t value);
-  bool WriteString(const std::string& nodeId, const std::string& textString);
-  bool WriteSysTimeModPos(uint64_t val);
-  bool WriteStateModPos(int state);
-  bool WriteEventString(const std::string& text);
-
-  uint64_t ReadSysTimeScada();
-  bool WritePlanFileName(const std::string& textString);
-  bool WritePatientID(const std::string& textString);
-  bool WritePlanOpen(bool);
 
   /// Get SCADA OPC UA logic
   vtkSlicerU70RoomScadaOpcUaLogic* GetScadaOpcUaLogic() const;
+  /// Get Siemens PLC OPC UA logic
+  vtkSlicerU70RoomSiemensPlcOpcUaLogic* GetSiemensPlcOpcUaLogic() const;
 
 protected:
   vtkSlicerU70RoomOpcUaLogic();
@@ -76,6 +66,7 @@ protected:
   void OnMRMLSceneNodeRemoved(vtkMRMLNode* node) override;
 
   vtkSlicerU70RoomScadaOpcUaLogic* ScadaOpcUaLogic{ nullptr };
+  vtkSlicerU70RoomSiemensPlcOpcUaLogic* SiemensPlcOpcUaLogic{ nullptr };
 
 private:
   vtkSlicerU70RoomOpcUaLogic(const vtkSlicerU70RoomOpcUaLogic&); // Not implemented

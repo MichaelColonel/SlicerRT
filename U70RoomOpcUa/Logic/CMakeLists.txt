@@ -13,6 +13,8 @@ set(${KIT}_SRCS
   vtkSlicer${MODULE_NAME}Logic.h
   vtkSlicerU70RoomScadaOpcUaNodesNames.cxx
   vtkSlicerU70RoomScadaOpcUaNodesNames.h
+  vtkSlicerU70RoomSiemensPlcOpcUaNodesNames.cxx
+  vtkSlicerU70RoomSiemensPlcOpcUaNodesNames.h
   vtkSlicerU70RoomScadaOpcUaLogic.cxx
   vtkSlicerU70RoomScadaOpcUaLogic.h
   vtkSlicerU70RoomSiemensPlcOpcUaLogic.cxx

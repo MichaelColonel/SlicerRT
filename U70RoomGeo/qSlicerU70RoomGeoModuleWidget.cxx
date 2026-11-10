@@ -265,7 +265,8 @@ void qSlicerU70RoomGeoModuleWidget::setup()
 
   QObject::connect(d->CoordinatesWidget_PatientTableTopTranslation, SIGNAL(coordinatesChanged(double*)),
     this, SLOT(onPatientTableTopTranslationChanged(double*)));
-
+  QObject::connect(d->CoordinatesWidget_MarkupsOffset, SIGNAL(coordinatesChanged(double*)),
+    this, SLOT(onMarkupsOffsetChanged(double*)));
 
   // Models, markups, camera checkboxes
   QObject::connect(d->CheckBox_ShowModels, SIGNAL(toggled(bool)),
@@ -863,9 +864,35 @@ void qSlicerU70RoomGeoModuleWidget::onPatientTableTopTranslationChanged(double* 
   channel26GeometryNode->Modified();
   d->getLayoutManager()->resumeRender();
 //  d->ParameterNode->Modified();
+
   updateTabletopIsocenterPosition();
 
   d->TimerGeometryUpdater->start();
+
+}
+
+//-----------------------------------------------------------------------------
+void qSlicerU70RoomGeoModuleWidget::onMarkupsOffsetChanged(double* offset)
+{
+  Q_D(qSlicerU70RoomGeoModuleWidget);
+
+  if (!d->ParameterNode || !d->ModuleWindowInitialized)
+  {
+    qCritical() << Q_FUNC_INFO << ": Parameter node is invalid!";
+    return;
+  }
+
+  vtkMRMLMarkupsFiducialNode* markupsNode = vtkMRMLMarkupsFiducialNode::SafeDownCast(d->SimpleMarkupsWidget_PointCoordinates->currentNode());
+  if (markupsNode)
+  {
+    double pointRAS[3] = {};
+//    markupsNode->GetNthControlPointPosition(0, pointRAS);
+    pointRAS[0] = -1. * offset[1]; // R == -Y
+    pointRAS[1] = -158. - offset[2];
+    pointRAS[2] = offset[0]; // S == X
+    markupsNode->SetNthControlPointPosition(0, pointRAS);
+  }
+  updateTabletopIsocenterPosition();
 }
 
 //-----------------------------------------------------------------------------

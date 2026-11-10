@@ -1052,7 +1052,9 @@ void vtkSlicerChannel26RoomRobotsTransformLogic::UpdateTableTopPlaneCorrectionTo
     double planeAnglesABC[3] = {};
     parameterNode->GetAnglesABC(planeAnglesABC);
     planeCorrectionToTableTopTransform->Identity();
+    patientToTableTopTranslation[0] *= -1.;
     patientToTableTopTranslation[1] *= -1.;
+    patientToTableTopTranslation[2] *= -1.;
     planeCorrectionToTableTopTransform->Translate(patientToTableTopTranslation);
 //    vtkWarningMacro("UpdateTableTopPlaneCorrectionToTableTopTransform a, b, c:" << planeAnglesABC[0] << ' ' << planeAnglesABC[1] << ' ' << planeAnglesABC[2]);
     planeCorrectionToTableTopTransform->RotateZ(-1. * planeAnglesABC[0]);
