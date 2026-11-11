@@ -30,14 +30,48 @@ public:
   //----------------------------------------------------------------------------
   // Constants
   //----------------------------------------------------------------------------
-  static std::string GetScadaSysTime();
-  static std::string GetModPosState();
-  static std::string GetModPosSysTime();
-  static std::string GetModPosEventString();
-  static std::string GetScadaPlanFilename();
-  static std::string GetScadaPatientId();
-  static std::string GetScadaPlanOpen();
-  static std::string GetScadaPlanEcp();
+  static std::string GetErrorsFlags();
+  static std::string GetServiceFlags();
+  static std::string GetMessagesFlags();
+
+  static std::string GetMode();
+  static std::string GetStatusRtk();
+  static std::string GetStatusR1();
+  static std::string GetStatusR2();
+
+  static std::string GetAutoManualR1LoadToIsoButtonIsEnabled();
+  static std::string GetAutoManualR1LoadToIsoButtonIsPressed();
+  static std::string GetAutoManualR1ToLoadButtonIsEnabled();
+  static std::string GetAutoManualR1ToLoadButtonIsPressed();
+  static std::string GetAutoManualR1ToNewCoordsButtonIsEnabled();
+  static std::string GetAutoManualR1ToNewCoordsButtonIsPressed();
+  
+  static std::string GetAutoManualR2ToPlane1ButtonIsEnabled();
+  static std::string GetAutoManualR2ToPlane1ButtonIsPressed();
+  static std::string GetAutoManualR2ToPlane2ButtonIsEnabled();
+  static std::string GetAutoManualR2ToPlane2ButtonIsPressed();
+  static std::string GetAutoManualR2ToHomeButtonIsEnabled();
+  static std::string GetAutoManualR2ToHomeButtonIsPressed();
+
+  static std::string GetAutoManualSetTabletopOrientationButtonIsEnabled();
+  static std::string GetAutoManualSetTabletopOrientationButtonIsPressed();
+
+  static std::string GetAutoManualR1R2EmergencyEvacuationButtonIsEnabled();
+  static std::string GetAutoManualR1R2EmergencyEvacuationButtonIsPressed();
+
+  static std::string GetCurrentAxisCoordR1A1();
+  static std::string GetCurrentAxisCoordR1A2();
+  static std::string GetCurrentAxisCoordR1A3();
+  static std::string GetCurrentAxisCoordR1A4();
+  static std::string GetCurrentAxisCoordR1A5();
+  static std::string GetCurrentAxisCoordR1A6();
+
+  static std::string GetCurrentAxisCoordR2A1();
+  static std::string GetCurrentAxisCoordR2A2();
+  static std::string GetCurrentAxisCoordR2A3();
+  static std::string GetCurrentAxisCoordR2A4();
+  static std::string GetCurrentAxisCoordR2A5();
+  static std::string GetCurrentAxisCoordR2A6();
 };
 
 #endif

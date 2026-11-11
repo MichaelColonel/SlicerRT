@@ -31,7 +31,7 @@
 #include <vtkObjectFactory.h>
 
 // STD includes
-#include <cassert>
+#include <cstring>
 
 // QtOpcUa includes
 #include <QOpcUaClient>
@@ -54,6 +54,7 @@ public:
   vtkInternal(vtkSlicerU70RoomScadaOpcUaLogic* external);
   ~vtkInternal();
    QOpcUaNode* node(const QString& fullNodeName);
+   uint64_t getUint64(const QString& fullNodeName, bool& res);
 
   vtkSlicerU70RoomScadaOpcUaLogic* External{ nullptr };
 
@@ -87,6 +88,36 @@ QOpcUaNode* vtkSlicerU70RoomScadaOpcUaLogic::vtkInternal::node(const QString& fu
   }
 
   return this->Nodes.value(fullNodeName).Node;
+}
+
+//---------------------------------------------------------------------------
+uint64_t vtkSlicerU70RoomScadaOpcUaLogic::vtkInternal::getUint64(const QString& fullNodeName, bool& res)
+{
+  QSharedPointer< QOpcUaClient > sharedClient = this->Client.toStrongRef();
+  if (!sharedClient)
+  {
+    vtkWarningWithObjectMacro(this->External, "getUint64: Scada OPC UA client is invalid");
+    res = false;
+  }
+
+  if (sharedClient->state() != QOpcUaClient::Connected)
+  {
+    vtkWarningWithObjectMacro(this->External, "getUint64: Scada OPC UA client is created, but isn't connected");
+    res = false;
+  }
+
+  const QVariant& var = this->Nodes.value(fullNodeName).Cache;
+  if (var.canConvert< qulonglong >())
+  {
+    bool resBool;
+    qulonglong v = var.toULongLong(&resBool);
+    if (resBool)
+    {
+      res = true;
+      return static_cast< uint64_t >(v);
+    }
+  }
+  return 0;
 }
 
 //---------------------------------------------------------------------------
@@ -178,12 +209,25 @@ void vtkSlicerU70RoomScadaOpcUaLogic::ServerConnected(const QSharedPointer< QOpc
   {
     return;
   }
+
+  vtkMRMLScene* scene = this->GetMRMLScene();
+  if (!scene)
+  {
+    return;
+  }
+
+  vtkMRMLScadaOpcUaNode* scadaOpcUaNode = nullptr;
+  if (vtkMRMLNode* node = scene->GetFirstNodeByClass("vtkMRMLScadaOpcUaNode"))
+  {
+    scadaOpcUaNode = vtkMRMLScadaOpcUaNode::SafeDownCast(node);
+  }
+
   QHashIterator< QString, QString > i(hashNodesFullNamesIds);
   while (i.hasNext())
   {
     i.next();
     QString nodeFullName = i.key();
-    vtkWarningMacro("ServerConnected: key Full Name: " << nodeFullName.toStdString() << ", node value id: " << i.value().toStdString());
+//    vtkWarningMacro("ServerConnected: key Full Name: " << nodeFullName.toStdString() << ", node value id: " << i.value().toStdString());
     
     vtkInternal::Entry scadaOpcUaNodeEntry;
     scadaOpcUaNodeEntry.Node = sharedClient->node(i.value());
@@ -197,17 +241,25 @@ void vtkSlicerU70RoomScadaOpcUaLogic::ServerConnected(const QSharedPointer< QOpc
     node->enableMonitoring(QOpcUa::NodeAttribute::Value, QOpcUaMonitoringParameters(1000));
 
     scadaOpcUaNodeEntry.ConnChanged = QObject::connect(node,
-      &QOpcUaNode::dataChangeOccurred, [this, nodeFullName](QOpcUa::NodeAttribute attr, QVariant value)
+      &QOpcUaNode::dataChangeOccurred, [this, nodeFullName, scadaOpcUaNode](QOpcUa::NodeAttribute attr, QVariant value)
     {
       if (attr != QOpcUa::NodeAttribute::Value)
       {
         return;
       }
       this->Internal->Nodes[nodeFullName].Cache = value; // map types as needed
+      std::string stdNodeName = nodeFullName.toStdString();
+      if (scadaOpcUaNode)
+      {
+        char* ptr = new char[stdNodeName.size() + 1];
+        std::memset(ptr, 0, stdNodeName.size() + 1);
+        stdNodeName.copy(ptr, stdNodeName.size());
+        scadaOpcUaNode->InvokeCustomModifiedEvent(vtkMRMLScadaOpcUaNode::ValueChangedEvent, static_cast< void* >(ptr));
+      }
     });
 
     scadaOpcUaNodeEntry.ConnRead = QObject::connect(node,
-      &QOpcUaNode::attributeRead, [this, nodeFullName, node](QOpcUa::NodeAttributes attr)
+      &QOpcUaNode::attributeRead, [this, nodeFullName, node, scadaOpcUaNode](QOpcUa::NodeAttributes attr)
     {
       if (!node)
       {
@@ -219,6 +271,14 @@ void vtkSlicerU70RoomScadaOpcUaLogic::ServerConnected(const QSharedPointer< QOpc
         {
           QVariant value = node->attribute(QOpcUa::NodeAttribute::Value);
           this->Internal->Nodes[nodeFullName].Cache = value; // map types as needed
+          std::string stdNodeName = nodeFullName.toStdString();
+          if (scadaOpcUaNode)
+          {
+            char* ptr = new char[stdNodeName.size() + 1];
+            std::memset(ptr, 0, stdNodeName.size() + 1);
+            stdNodeName.copy(ptr, stdNodeName.size());
+            scadaOpcUaNode->InvokeCustomModifiedEvent(vtkMRMLScadaOpcUaNode::ValueReadEvent, static_cast< void* >(ptr));
+          }
         }
       }
     });
@@ -303,3 +363,22 @@ bool vtkSlicerU70RoomScadaOpcUaLogic::WriteEventString(const std::string& text)
   }
   return node->writeValueAttribute(QVariant(QString::fromStdString(text)), QOpcUa::Types::String);
 }
+
+//---------------------------------------------------------------------------
+void vtkSlicerU70RoomScadaOpcUaLogic::UpdateMRMLNodeFromOpcUaNodeValue(vtkMRMLScadaOpcUaNode* mrmlScadaNode, const std::string& fullNodeName)
+{
+  bool res = false;
+  if (!mrmlScadaNode)
+  {
+    return;
+  }
+  if (fullNodeName == vtkSlicerU70RoomScadaOpcUaNodesNames::GetScadaSysTime())
+  {
+    uint64_t v = this->Internal->getUint64(QString::fromStdString(fullNodeName), res);
+    if (res)
+    {
+      mrmlScadaNode->SetSysTimeScada(v);
+    }
+  }
+}
+

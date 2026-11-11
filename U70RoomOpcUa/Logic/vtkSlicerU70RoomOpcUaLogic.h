@@ -64,6 +64,8 @@ protected:
   void UpdateFromMRMLScene() override;
   void OnMRMLSceneNodeAdded(vtkMRMLNode* node) override;
   void OnMRMLSceneNodeRemoved(vtkMRMLNode* node) override;
+  /// Handles events registered in the observer manager
+  void ProcessMRMLNodesEvents(vtkObject* caller, unsigned long event, void* callData) override;
 
   vtkSlicerU70RoomScadaOpcUaLogic* ScadaOpcUaLogic{ nullptr };
   vtkSlicerU70RoomSiemensPlcOpcUaLogic* SiemensPlcOpcUaLogic{ nullptr };

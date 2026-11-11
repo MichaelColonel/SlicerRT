@@ -46,7 +46,6 @@
 //----------------------------------------------------------------------------
 vtkStandardNewMacro(vtkSlicerU70RoomSiemensPlcOpcUaLogic);
 
-
 //---------------------------------------------------------------------------
 class vtkSlicerU70RoomSiemensPlcOpcUaLogic::vtkInternal
 {
@@ -54,6 +53,14 @@ public:
   vtkInternal(vtkSlicerU70RoomSiemensPlcOpcUaLogic* external);
   ~vtkInternal();
    QOpcUaNode* node(const QString& fullNodeName);
+   double getDouble(const QString& fullNodeName, bool& res);
+   uint64_t getUint64(const QString& fullNodeName, bool& res);
+   uint32_t getUint32(const QString& fullNodeName, bool& res);
+   int32_t getInt32(const QString& fullNodeName, bool& res);
+   uint16_t getUint16(const QString& fullNodeName, bool& res);
+   bool getBool(const QString& fullNodeName, bool& res);
+   int8_t getInt8(const QString& fullNodeName, bool& res);
+   uint8_t getUint8(const QString& fullNodeName, bool& res);
 
   vtkSlicerU70RoomSiemensPlcOpcUaLogic* External{ nullptr };
 
@@ -76,17 +83,228 @@ QOpcUaNode* vtkSlicerU70RoomSiemensPlcOpcUaLogic::vtkInternal::node(const QStrin
   QSharedPointer< QOpcUaClient > sharedClient = this->Client.toStrongRef();
   if (!sharedClient)
   {
-    vtkWarningWithObjectMacro( this->External, "node: Scada OPC UA client is invalid");
+    vtkWarningWithObjectMacro(this->External, "node: Scada OPC UA client is invalid");
     return nullptr;
   }
 
   if (sharedClient->state() != QOpcUaClient::Connected)
   {
-    vtkWarningWithObjectMacro( this->External, "node: Scada OPC UA client is created, but isn't connected");
+    vtkWarningWithObjectMacro(this->External, "node: Scada OPC UA client is created, but isn't connected");
     return nullptr;
   }
 
   return this->Nodes.value(fullNodeName).Node;
+}
+
+//---------------------------------------------------------------------------
+double vtkSlicerU70RoomSiemensPlcOpcUaLogic::vtkInternal::getDouble(const QString& fullNodeName, bool& res)
+{
+  int32_t v = this->getInt32(fullNodeName, res);
+  return double(v) / 1000.;
+}
+
+//---------------------------------------------------------------------------
+uint64_t vtkSlicerU70RoomSiemensPlcOpcUaLogic::vtkInternal::getUint64(const QString& fullNodeName, bool& res)
+{
+  QSharedPointer< QOpcUaClient > sharedClient = this->Client.toStrongRef();
+  if (!sharedClient)
+  {
+    vtkWarningWithObjectMacro(this->External, "getUint64: Scada OPC UA client is invalid");
+    res = false;
+  }
+
+  if (sharedClient->state() != QOpcUaClient::Connected)
+  {
+    vtkWarningWithObjectMacro(this->External, "getUint64: Scada OPC UA client is created, but isn't connected");
+    res = false;
+  }
+
+  const QVariant& var = this->Nodes.value(fullNodeName).Cache;
+  if (var.canConvert< qulonglong >())
+  {
+    bool resBool;
+    qulonglong v = var.toULongLong(&resBool);
+    if (resBool)
+    {
+      res = true;
+      return static_cast< uint64_t >(v);
+    }
+  }
+  return 0;
+}
+
+//---------------------------------------------------------------------------
+uint32_t vtkSlicerU70RoomSiemensPlcOpcUaLogic::vtkInternal::getUint32(const QString& fullNodeName, bool& res)
+{
+  QSharedPointer< QOpcUaClient > sharedClient = this->Client.toStrongRef();
+  if (!sharedClient)
+  {
+    vtkWarningWithObjectMacro(this->External, "getUint32: Scada OPC UA client is invalid");
+    res = false;
+  }
+
+  if (sharedClient->state() != QOpcUaClient::Connected)
+  {
+    vtkWarningWithObjectMacro(this->External, "getUint32: Scada OPC UA client is created, but isn't connected");
+    res = false;
+  }
+
+  const QVariant& var = this->Nodes.value(fullNodeName).Cache;
+  if (var.canConvert< uint >())
+  {
+    bool resBool;
+    uint v = var.toUInt(&resBool);
+    if (resBool)
+    {
+      res = true;
+      return static_cast< uint32_t >(v);
+    }
+  }
+  return 0;
+}
+
+//---------------------------------------------------------------------------
+int32_t vtkSlicerU70RoomSiemensPlcOpcUaLogic::vtkInternal::getInt32(const QString& fullNodeName, bool& res)
+{
+  QSharedPointer< QOpcUaClient > sharedClient = this->Client.toStrongRef();
+  if (!sharedClient)
+  {
+    vtkWarningWithObjectMacro(this->External, "getInt32: Scada OPC UA client is invalid");
+    res = false;
+  }
+
+  if (sharedClient->state() != QOpcUaClient::Connected)
+  {
+    vtkWarningWithObjectMacro(this->External, "getInt32: Scada OPC UA client is created, but isn't connected");
+    res = false;
+  }
+
+  const QVariant& var = this->Nodes.value(fullNodeName).Cache;
+  if (var.canConvert< int32_t >())
+  {
+    bool resBool;
+    int v = var.toInt(&resBool);
+    if (resBool)
+    {
+      res = true;
+      return static_cast< int32_t >(v);
+    }
+  }
+  return 0;
+}
+
+//---------------------------------------------------------------------------
+bool vtkSlicerU70RoomSiemensPlcOpcUaLogic::vtkInternal::getBool(const QString& fullNodeName, bool& res)
+{
+  QSharedPointer< QOpcUaClient > sharedClient = this->Client.toStrongRef();
+  if (!sharedClient)
+  {
+    vtkWarningWithObjectMacro(this->External, "getInt32: Scada OPC UA client is invalid");
+    res = false;
+  }
+
+  if (sharedClient->state() != QOpcUaClient::Connected)
+  {
+    vtkWarningWithObjectMacro(this->External, "getInt32: Scada OPC UA client is created, but isn't connected");
+    res = false;
+  }
+
+  const QVariant& var = this->Nodes.value(fullNodeName).Cache;
+  if (var.canConvert< bool >())
+  {
+    return var.toBool();
+  }
+  return false;
+}
+
+//---------------------------------------------------------------------------
+int8_t vtkSlicerU70RoomSiemensPlcOpcUaLogic::vtkInternal::getInt8(const QString& fullNodeName, bool& res)
+{
+  QSharedPointer< QOpcUaClient > sharedClient = this->Client.toStrongRef();
+  if (!sharedClient)
+  {
+    vtkWarningWithObjectMacro(this->External, "getInt8: Scada OPC UA client is invalid");
+    res = false;
+  }
+
+  if (sharedClient->state() != QOpcUaClient::Connected)
+  {
+    vtkWarningWithObjectMacro(this->External, "getInt8: Scada OPC UA client is created, but isn't connected");
+    res = false;
+  }
+
+  const QVariant& var = this->Nodes.value(fullNodeName).Cache;
+  if (var.canConvert< int8_t >())
+  {
+    bool resBool;
+    int v = var.toInt(&resBool);
+    if (resBool)
+    {
+      res = true;
+      return static_cast< int8_t >(v);
+    }
+  }
+  return 0;
+}
+
+//---------------------------------------------------------------------------
+uint8_t vtkSlicerU70RoomSiemensPlcOpcUaLogic::vtkInternal::getUint8(const QString& fullNodeName, bool& res)
+{
+  QSharedPointer< QOpcUaClient > sharedClient = this->Client.toStrongRef();
+  if (!sharedClient)
+  {
+    vtkWarningWithObjectMacro(this->External, "getInt32: Scada OPC UA client is invalid");
+    res = false;
+  }
+
+  if (sharedClient->state() != QOpcUaClient::Connected)
+  {
+    vtkWarningWithObjectMacro(this->External, "getInt32: Scada OPC UA client is created, but isn't connected");
+    res = false;
+  }
+
+  const QVariant& var = this->Nodes.value(fullNodeName).Cache;
+  if (var.canConvert< uint8_t >())
+  {
+    bool resBool;
+    int v = var.toInt(&resBool);
+    if (resBool)
+    {
+      res = true;
+      return static_cast< uint8_t >(v);
+    }
+  }
+  return 0;
+}
+
+//---------------------------------------------------------------------------
+uint16_t vtkSlicerU70RoomSiemensPlcOpcUaLogic::vtkInternal::getUint16(const QString& fullNodeName, bool& res)
+{
+  QSharedPointer< QOpcUaClient > sharedClient = this->Client.toStrongRef();
+  if (!sharedClient)
+  {
+    vtkWarningWithObjectMacro(this->External, "getInt32: Scada OPC UA client is invalid");
+    res = false;
+  }
+
+  if (sharedClient->state() != QOpcUaClient::Connected)
+  {
+    vtkWarningWithObjectMacro(this->External, "getInt32: Scada OPC UA client is created, but isn't connected");
+    res = false;
+  }
+
+  const QVariant& var = this->Nodes.value(fullNodeName).Cache;
+  if (var.canConvert< int >())
+  {
+    bool resBool;
+    int v = var.toInt(&resBool);
+    if (resBool)
+    {
+      res = true;
+      return static_cast< uint16_t >(v);
+    }
+  }
+  return 0;
 }
 
 //---------------------------------------------------------------------------
@@ -183,7 +401,7 @@ void vtkSlicerU70RoomSiemensPlcOpcUaLogic::ServerConnected(const QSharedPointer<
   {
     i.next();
     QString nodeFullName = i.key();
-    vtkWarningMacro("ServerConnected: key Full Name: " << nodeFullName.toStdString() << ", node value id: " << i.value().toStdString());
+//    vtkWarningMacro("ServerConnected: key Full Name: " << nodeFullName.toStdString() << ", node value id: " << i.value().toStdString());
     
     vtkInternal::Entry siemensPlcOpcUaNodeEntry;
     siemensPlcOpcUaNodeEntry.Node = sharedClient->node(i.value());
@@ -251,55 +469,145 @@ void vtkSlicerU70RoomSiemensPlcOpcUaLogic::UnregisterAllOpcUaNodes()
 }
 
 //---------------------------------------------------------------------------
-bool vtkSlicerU70RoomSiemensPlcOpcUaLogic::WritePlanFileName(const std::string& textString)
+double vtkSlicerU70RoomSiemensPlcOpcUaLogic::ReadCurrentCoordsR1A1(bool& res)
 {
-  return true;
+  std::string nodeName = vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::GetCurrentAxisCoordR1A1();
+  return this->Internal->getDouble(QString::fromStdString(nodeName), res);
 }
 
 //---------------------------------------------------------------------------
-bool vtkSlicerU70RoomSiemensPlcOpcUaLogic::WritePatientID(const std::string& textString)
+double vtkSlicerU70RoomSiemensPlcOpcUaLogic::ReadCurrentCoordsR1A2(bool& res)
 {
-  return true;
+  std::string nodeName = vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::GetCurrentAxisCoordR1A2();
+  return this->Internal->getDouble(QString::fromStdString(nodeName), res);
 }
 
 //---------------------------------------------------------------------------
-bool vtkSlicerU70RoomSiemensPlcOpcUaLogic::WritePlanOpen(bool)
+double vtkSlicerU70RoomSiemensPlcOpcUaLogic::ReadCurrentCoordsR1A3(bool& res)
 {
-  return true;
+  std::string nodeName = vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::GetCurrentAxisCoordR1A3();
+  return this->Internal->getDouble(QString::fromStdString(nodeName), res);
 }
 
 //---------------------------------------------------------------------------
-bool vtkSlicerU70RoomSiemensPlcOpcUaLogic::WriteSysTimeModPos(uint64_t val)
+double vtkSlicerU70RoomSiemensPlcOpcUaLogic::ReadCurrentCoordsR1A4(bool& res)
 {
-  std::string nodeName = vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::GetModPosSysTime();
-  QOpcUaNode* node = this->Internal->node(QString::fromStdString(nodeName));
-  if (!node)
+  std::string nodeName = vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::GetCurrentAxisCoordR1A4();
+  return this->Internal->getDouble(QString::fromStdString(nodeName), res);
+}
+
+//---------------------------------------------------------------------------
+double vtkSlicerU70RoomSiemensPlcOpcUaLogic::ReadCurrentCoordsR1A5(bool& res)
+{
+  std::string nodeName = vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::GetCurrentAxisCoordR1A5();
+  return this->Internal->getDouble(QString::fromStdString(nodeName), res);
+}
+
+//---------------------------------------------------------------------------
+double vtkSlicerU70RoomSiemensPlcOpcUaLogic::ReadCurrentCoordsR1A6(bool& res)
+{
+  std::string nodeName = vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::GetCurrentAxisCoordR1A6();
+  return this->Internal->getDouble(QString::fromStdString(nodeName), res);
+}
+
+//---------------------------------------------------------------------------
+double vtkSlicerU70RoomSiemensPlcOpcUaLogic::ReadCurrentCoordsR2A1(bool& res)
+{
+  std::string nodeName = vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::GetCurrentAxisCoordR2A1();
+  return this->Internal->getDouble(QString::fromStdString(nodeName), res);
+}
+
+//---------------------------------------------------------------------------
+double vtkSlicerU70RoomSiemensPlcOpcUaLogic::ReadCurrentCoordsR2A2(bool& res)
+{
+  std::string nodeName = vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::GetCurrentAxisCoordR2A2();
+  return this->Internal->getDouble(QString::fromStdString(nodeName), res);
+}
+
+//---------------------------------------------------------------------------
+double vtkSlicerU70RoomSiemensPlcOpcUaLogic::ReadCurrentCoordsR2A3(bool& res)
+{
+  std::string nodeName = vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::GetCurrentAxisCoordR2A3();
+  return this->Internal->getDouble(QString::fromStdString(nodeName), res);
+}
+
+//---------------------------------------------------------------------------
+double vtkSlicerU70RoomSiemensPlcOpcUaLogic::ReadCurrentCoordsR2A4(bool& res)
+{
+  std::string nodeName = vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::GetCurrentAxisCoordR2A4();
+  return this->Internal->getDouble(QString::fromStdString(nodeName), res);
+}
+
+//---------------------------------------------------------------------------
+double vtkSlicerU70RoomSiemensPlcOpcUaLogic::ReadCurrentCoordsR2A5(bool& res)
+{
+  std::string nodeName = vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::GetCurrentAxisCoordR2A5();
+  return this->Internal->getDouble(QString::fromStdString(nodeName), res);
+}
+
+//---------------------------------------------------------------------------
+double vtkSlicerU70RoomSiemensPlcOpcUaLogic::ReadCurrentCoordsR2A6(bool& res)
+{
+  std::string nodeName = vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::GetCurrentAxisCoordR2A6();
+  return this->Internal->getDouble(QString::fromStdString(nodeName), res);
+}
+
+//---------------------------------------------------------------------------
+uint8_t vtkSlicerU70RoomSiemensPlcOpcUaLogic::ReadMode(bool& res)
+{
+  std::string nodeName = vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::GetMode();
+  return this->Internal->getUint8(QString::fromStdString(nodeName), res);
+}
+
+//---------------------------------------------------------------------------
+uint16_t vtkSlicerU70RoomSiemensPlcOpcUaLogic::ReadStatusRtk(bool& res)
+{
+  std::string nodeName = vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::GetStatusRtk();
+  return this->Internal->getUint16(QString::fromStdString(nodeName), res);
+}
+
+//---------------------------------------------------------------------------
+uint16_t vtkSlicerU70RoomSiemensPlcOpcUaLogic::ReadStatusR1(bool& res)
+{
+  std::string nodeName = vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::GetMode();
+  return this->Internal->getUint16(QString::fromStdString(nodeName), res);
+}
+
+//---------------------------------------------------------------------------
+uint16_t vtkSlicerU70RoomSiemensPlcOpcUaLogic::ReadStatusR2(bool& res)
+{
+  std::string nodeName = vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::GetMode();
+  return this->Internal->getUint16(QString::fromStdString(nodeName), res);
+}
+
+//---------------------------------------------------------------------------
+void vtkSlicerU70RoomSiemensPlcOpcUaLogic::UpdateMRMLNodeFromOpcUaNodeValue(vtkMRMLSiemensPlcOpcUaNode* mrmlSiemensPlcNode, const std::string& fullNodeName)
+{
+  bool res = false;
+  if (!mrmlSiemensPlcNode)
   {
-    return false;
+    return;
   }
-  return node->writeValueAttribute(QVariant(static_cast< qulonglong >(val)), QOpcUa::Types::UInt64);
-}
-
-//---------------------------------------------------------------------------
-bool vtkSlicerU70RoomSiemensPlcOpcUaLogic::WriteStateModPos(int state)
-{
-  std::string nodeName = vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::GetModPosState();
-  QOpcUaNode* node = this->Internal->node(QString::fromStdString(nodeName));
-  if (!node)
+  if (fullNodeName == vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::GetCurrentAxisCoordR1A1())
   {
-    return false;
+    int32_t r1a1 = this->Internal->getInt32(QString::fromStdString(fullNodeName), res);
+    if (res)
+    {
+      int32_t r1axis[6] = {};
+      mrmlSiemensPlcNode->GetCurrentAxisCoordsR1(r1axis);
+      r1axis[0] = r1a1;
+      {
+        MRMLNodeModifyBlocker block(mrmlSiemensPlcNode);
+        mrmlSiemensPlcNode->SetCurrentAxisCoordsR1(r1axis);
+      }
+    }
   }
-  return node->writeValueAttribute(QVariant(state), QOpcUa::Types::UInt16);
-}
-
-//---------------------------------------------------------------------------
-bool vtkSlicerU70RoomSiemensPlcOpcUaLogic::WriteEventString(const std::string& text)
-{
-  std::string nodeName = vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::GetModPosEventString();
-  QOpcUaNode* node = this->Internal->node(QString::fromStdString(nodeName));
-  if (!node)
+  else if (fullNodeName == vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::GetErrorsFlags())
   {
-    return false;
+    uint64_t errMsgFlags = this->Internal->getUint64(QString::fromStdString(fullNodeName), res);
+    if (res)
+    {
+      mrmlSiemensPlcNode->SetErrorMessages(errMsgFlags);
+    }
   }
-  return node->writeValueAttribute(QVariant(QString::fromStdString(text)), QOpcUa::Types::String);
 }

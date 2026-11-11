@@ -34,6 +34,12 @@ class vtkMRMLTableNode;
 class VTK_SLICER_U70ROOMOPCUA_MODULE_MRML_EXPORT vtkMRMLScadaOpcUaNode : public vtkMRMLNode
 {
 public:
+
+  enum Events : int {
+    ValueChangedEvent = 63332,
+    ValueReadEvent,
+  };
+
   enum RemoteControlType : int {
     RC_UNDEFINED = 1,
     RC_TEST = 2,

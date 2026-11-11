@@ -153,6 +153,7 @@ endif()
 
 if (SLICERRT_DOCUMENTATION)
   add_subdirectory(Docs)
+  add_subdirectory(U70ProcedureWorkflow)
 endif()
 
 #-----------------------------------------------------------------------------

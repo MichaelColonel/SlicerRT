@@ -20,7 +20,7 @@
       <bool>true</bool>
      </property>
      <property name="currentIndex">
-      <number>0</number>
+      <number>1</number>
      </property>
      <widget class="QWidget" name="tab_OpcUaModel">
       <attribute name="title">
@@ -55,7 +55,7 @@
             <x>0</x>
             <y>0</y>
             <width>575</width>
-            <height>1010</height>
+            <height>1024</height>
            </rect>
           </property>
           <layout class="QGridLayout" name="gridLayout_31">
@@ -797,6 +797,16 @@
                   <property name="text">
                    <string>1</string>
                   </property>
+                  <property name="icon">
+                   <iconset resource="../qSlicerU70RoomOpcUaModule.qrc">
+                    <normaloff>:/Icons/beam_R-L.png</normaloff>:/Icons/beam_R-L.png</iconset>
+                  </property>
+                  <property name="iconSize">
+                   <size>
+                    <width>32</width>
+                    <height>32</height>
+                   </size>
+                  </property>
                   <attribute name="buttonGroup">
                    <string notr="true">ButtonGroup_TabletopPosition</string>
                   </attribute>
@@ -807,6 +817,16 @@
                   <property name="text">
                    <string>2</string>
                   </property>
+                  <property name="icon">
+                   <iconset resource="../qSlicerU70RoomOpcUaModule.qrc">
+                    <normaloff>:/Icons/beam_S-I.png</normaloff>:/Icons/beam_S-I.png</iconset>
+                  </property>
+                  <property name="iconSize">
+                   <size>
+                    <width>32</width>
+                    <height>32</height>
+                   </size>
+                  </property>
                   <attribute name="buttonGroup">
                    <string notr="true">ButtonGroup_TabletopPosition</string>
                   </attribute>
@@ -816,6 +836,16 @@
                  <widget class="QRadioButton" name="RadioButton_Position3">
                   <property name="text">
                    <string>3</string>
+                  </property>
+                  <property name="icon">
+                   <iconset resource="../qSlicerU70RoomOpcUaModule.qrc">
+                    <normaloff>:/Icons/beam_L-R.png</normaloff>:/Icons/beam_L-R.png</iconset>
+                  </property>
+                  <property name="iconSize">
+                   <size>
+                    <width>32</width>
+                    <height>32</height>
+                   </size>
                   </property>
                   <attribute name="buttonGroup">
                    <string notr="true">ButtonGroup_TabletopPosition</string>
@@ -1636,7 +1666,9 @@
    <header>ctkSliderWidget.h</header>
   </customwidget>
  </customwidgets>
- <resources/>
+ <resources>
+  <include location="../qSlicerU70RoomOpcUaModule.qrc"/>
+ </resources>
  <connections/>
  <buttongroups>
   <buttongroup name="ButtonGroup_TabletopPosition"/>

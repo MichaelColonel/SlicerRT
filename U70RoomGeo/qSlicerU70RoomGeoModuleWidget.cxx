@@ -1607,8 +1607,11 @@ void qSlicerU70RoomGeoModuleWidget::onApplyTabletopClicked()
   vtkMRMLChannel26GeometryNode* channel26GeometryNode = d->ParameterNode->GetChannel26GeometryNode();
 
   d->getLayoutManager()->pauseRender();
-  constexpr double r1TableRobotAngles[6] = { 49.574, -42.833, 58.799, -0.013, -105.948, -49.576 };
-  constexpr double r2CarmRobotAngles[6] = { 0.0, -90., 81.075, 90., 90., -171. };
+//  constexpr double r1TableRobotAngles[6] = { 49.574, -42.833, 58.799, -0.013, -105.948, -49.576 };
+//  constexpr double r2CarmRobotAngles[6] = { 0.0, -90., 81.075, 90., 90., -171. };
+
+  constexpr double r1TableRobotAngles[6] = { 6.922, -72.02, 87.68, 0., -105.66, -96.922 };
+  constexpr double r2CarmRobotAngles[6] = { 59.576, -72.615, 108.799, -111.173, 64.316, -48.583 };
   {
     MRMLNodeModifyBlocker blocker(channel26GeometryNode);
     channel26GeometryNode->SetTableRobotAngles(r1TableRobotAngles);

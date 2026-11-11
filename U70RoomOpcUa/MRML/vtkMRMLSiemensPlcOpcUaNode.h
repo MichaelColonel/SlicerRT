@@ -37,6 +37,11 @@ class VTK_SLICER_U70ROOMOPCUA_MODULE_MRML_EXPORT vtkMRMLSiemensPlcOpcUaNode : pu
 public:
   static constexpr size_t MESSAGES_SIZE = 64;
 
+  enum Events : int {
+    ValueChangedEvent = 63332,
+    ValueReadEvent,
+  };
+
   enum CustomSignals : int {
     /// Fired if table robot axis coordinates are modified
     TableRobotAxisCoordsModified = 63322,

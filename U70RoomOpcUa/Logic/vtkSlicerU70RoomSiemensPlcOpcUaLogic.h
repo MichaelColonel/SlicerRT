@@ -37,6 +37,8 @@
 class QOpcUaClient;
 class QOpcUaNode;
 
+class vtkMRMLSiemensPlcOpcUaNode;
+
 class VTK_SLICER_U70ROOMOPCUA_MODULE_LOGIC_EXPORT vtkSlicerU70RoomSiemensPlcOpcUaLogic : public vtkMRMLAbstractLogic
 {
 public:
@@ -44,10 +46,25 @@ public:
   vtkTypeMacro(vtkSlicerU70RoomSiemensPlcOpcUaLogic, vtkMRMLAbstractLogic);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  enum Events {
-    SiemensPlcOpcUaValueChangedEvent = vtkCommand::UserEvent + 1,
-    SiemensPlcOpcUaValueReadEvent = vtkCommand::UserEvent + 2,
-  };
+  uint8_t ReadMode(bool& res);
+  uint16_t ReadStatusRtk(bool& res);
+  uint16_t ReadStatusR1(bool& res);
+  uint16_t ReadStatusR2(bool& res);
+
+  double ReadCurrentCoordsR1A1(bool& res);
+  double ReadCurrentCoordsR1A2(bool& res);
+  double ReadCurrentCoordsR1A3(bool& res);
+  double ReadCurrentCoordsR1A4(bool& res);
+  double ReadCurrentCoordsR1A5(bool& res);
+  double ReadCurrentCoordsR1A6(bool& res);
+  double ReadCurrentCoordsR2A1(bool& res);
+  double ReadCurrentCoordsR2A2(bool& res);
+  double ReadCurrentCoordsR2A3(bool& res);
+  double ReadCurrentCoordsR2A4(bool& res);
+  double ReadCurrentCoordsR2A5(bool& res);
+  double ReadCurrentCoordsR2A6(bool& res);
+
+  void UpdateMRMLNodeFromOpcUaNodeValue(vtkMRMLSiemensPlcOpcUaNode*, const std::string& fullNodeName);
 
   // Called by the widget (C++ only; not wrapped for Python)
   void ServerConnected(const QSharedPointer< QOpcUaClient >& sharedClient, const QHash< QString, QString >& hashNodesFullNamesIds);
@@ -55,21 +72,6 @@ public:
 //  void RegisterNode(const std::string& nodeFullName, QOpcUaNode* node);
   void UnregisterOpcUaNode(const std::string& nodeFullName);
   void UnregisterAllOpcUaNodes();
-
-  bool WritePlanFileName(const std::string& textString);
-  bool WritePatientID(const std::string& textString);
-  bool WritePlanOpen(bool);
-
-  bool WriteSysTimeModPos(uint64_t val);
-  bool WriteStateModPos(int state);
-  bool WriteEventString(const std::string& text);
-
-  // Public API for other modules (C++ and Python)
-//  std::vector<std::string> GetRegisteredNodeFullNames();
-//  std::vector<std::string> GetRegisteredNodeFullIds();
-//  bool WriteNodeValue(const std::string& nodeFullName, vtkVariant value);
-//  vtkVariant GetCachedChangesNodeValue(const std::string& nodeFullName);
-//  vtkVariant GetCachedReadNodeValue(const std::string& nodeFullName);
 
 protected:
   vtkSlicerU70RoomSiemensPlcOpcUaLogic();

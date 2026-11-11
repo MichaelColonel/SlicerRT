@@ -11,5 +11,11 @@
     <file>Icons/yellow.svg</file>
     <file>Icons/blue.png</file>
     <file>Icons/blue.svg</file>
+    <file>Icons/beam_L-R.png</file>
+    <file>Icons/beam_L-R.svg</file>
+    <file>Icons/beam_R-L.png</file>
+    <file>Icons/beam_R-L.svg</file>
+    <file>Icons/beam_S-I.png</file>
+    <file>Icons/beam_S-I.svg</file>
   </qresource>
 </RCC>

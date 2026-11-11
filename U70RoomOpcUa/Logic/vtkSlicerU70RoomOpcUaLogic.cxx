@@ -154,13 +154,87 @@ void vtkSlicerU70RoomOpcUaLogic::UpdateFromMRMLScene()
 }
 
 //---------------------------------------------------------------------------
-void vtkSlicerU70RoomOpcUaLogic::OnMRMLSceneNodeAdded(vtkMRMLNode* vtkNotUsed(node))
+void vtkSlicerU70RoomOpcUaLogic::OnMRMLSceneNodeAdded(vtkMRMLNode* node)
 {
+  vtkMRMLScene* scene = this->GetMRMLScene();
+  if (!scene)
+  {
+    return;
+  }
+
+  if (node->IsA("vtkMRMLScadaOpcUaNode"))
+  {
+    // Observe custom OPC UA node events
+    vtkSmartPointer<vtkIntArray> events = vtkSmartPointer<vtkIntArray>::New();
+    events->InsertNextValue(vtkMRMLScadaOpcUaNode::ValueChangedEvent);
+    events->InsertNextValue(vtkMRMLScadaOpcUaNode::ValueReadEvent);
+    vtkObserveMRMLNodeEventsMacro(node, events);
+  }
 }
 
 //---------------------------------------------------------------------------
 void vtkSlicerU70RoomOpcUaLogic::OnMRMLSceneNodeRemoved(vtkMRMLNode* vtkNotUsed(node))
 {
+}
+
+
+//----------------------------------------------------------------------------
+void vtkSlicerU70RoomOpcUaLogic::ProcessMRMLNodesEvents(vtkObject* caller, unsigned long event, void* callData)
+{
+  Superclass::ProcessMRMLNodesEvents(caller, event, callData);
+  vtkMRMLScene* mrmlScene = this->GetMRMLScene();
+  if (!mrmlScene)
+  {
+    vtkErrorMacro("ProcessMRMLNodesEvents: Invalid MRML scene");
+    return;
+  }
+  if (mrmlScene->IsBatchProcessing())
+  {
+    return;
+  }
+
+  if (caller->IsA("vtkMRMLScadaOpcUaNode"))
+  {
+    vtkMRMLScadaOpcUaNode* opcUaNode = vtkMRMLScadaOpcUaNode::SafeDownCast(caller);
+    if (!opcUaNode)
+    {
+      vtkErrorMacro("ProcessMRMLNodesEvents: Scada OPC UA node is invalid");
+      return;
+    }
+    if (event == vtkMRMLScadaOpcUaNode::ValueChangedEvent)
+    {
+      char* str = reinterpret_cast< char* >(callData);
+      std::string string(str);
+      delete [] str;
+    }
+    else if (event == vtkMRMLScadaOpcUaNode::ValueReadEvent)
+    {
+      char* str = reinterpret_cast< char* >(callData);
+      std::string string(str);
+      delete [] str;
+    }
+  }
+  if (caller->IsA("vtkMRMLSiemensPlcOpcUaNode"))
+  {
+    vtkMRMLSiemensPlcOpcUaNode* opcUaNode = vtkMRMLSiemensPlcOpcUaNode::SafeDownCast(caller);
+    if (!opcUaNode)
+    {
+      vtkErrorMacro("ProcessMRMLNodesEvents: Scada OPC UA node is invalid");
+      return;
+    }
+    if (event == vtkMRMLSiemensPlcOpcUaNode::ValueChangedEvent)
+    {
+      char* str = reinterpret_cast< char* >(callData);
+      std::string string(str);
+      delete [] str;
+    }
+    else if (event == vtkMRMLSiemensPlcOpcUaNode::ValueReadEvent)
+    {
+      char* str = reinterpret_cast< char* >(callData);
+      std::string string(str);
+      delete [] str;
+    }
+  }
 }
 
 vtkSlicerU70RoomScadaOpcUaLogic* vtkSlicerU70RoomOpcUaLogic::GetScadaOpcUaLogic() const

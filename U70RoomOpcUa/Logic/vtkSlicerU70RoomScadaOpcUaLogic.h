@@ -37,6 +37,8 @@
 class QOpcUaClient;
 class QOpcUaNode;
 
+class vtkMRMLScadaOpcUaNode;
+
 class VTK_SLICER_U70ROOMOPCUA_MODULE_LOGIC_EXPORT vtkSlicerU70RoomScadaOpcUaLogic : public vtkMRMLAbstractLogic
 {
 public:
@@ -44,13 +46,9 @@ public:
   vtkTypeMacro(vtkSlicerU70RoomScadaOpcUaLogic, vtkMRMLAbstractLogic);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  enum Events {
-    ScadaOpcUaValueChangedEvent = vtkCommand::UserEvent + 1,
-    ScadaOpcUaValueReadEvent = vtkCommand::UserEvent + 2,
-  };
-
   // Called by the widget (C++ only; not wrapped for Python)
-  void ServerConnected(const QSharedPointer< QOpcUaClient >& sharedClient, const QHash< QString, QString >& hashNodesFullNamesIds);
+  void ServerConnected(const QSharedPointer< QOpcUaClient >& sharedClient,
+    const QHash< QString, QString >& hashNodesFullNamesIds);
 //  void RegisterNode(const std::string& nodeFullName, QOpcUaNode* node);
 //  void RegisterNode(const std::string& nodeFullName, QOpcUaNode* node);
   void UnregisterOpcUaNode(const std::string& nodeFullName);
@@ -63,6 +61,8 @@ public:
   bool WriteSysTimeModPos(uint64_t val);
   bool WriteStateModPos(int state);
   bool WriteEventString(const std::string& text);
+
+  void UpdateMRMLNodeFromOpcUaNodeValue(vtkMRMLScadaOpcUaNode*, const std::string& fullNodeName);
 
   // Public API for other modules (C++ and Python)
 //  std::vector<std::string> GetRegisteredNodeFullNames();

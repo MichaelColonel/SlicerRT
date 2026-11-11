@@ -549,7 +549,7 @@ void vtkSlicerU70RoomGeoLogic::ProcessMRMLNodesEvents(vtkObject* caller, unsigne
 
 ///      this->Channel26RoomRobotsLogic->UpdateTableTopPlaneNode(channel26Geometry);
 ///      this->Channel26RoomRobotsLogic->UpdateTableTopFiducialNode(channel26Geometry);
-
+/*
       double pos[3] = {};
       double res[3];
       pos[0] = 0.;
@@ -565,7 +565,7 @@ void vtkSlicerU70RoomGeoLogic::ProcessMRMLNodesEvents(vtkObject* caller, unsigne
       {
         vtkErrorMacro("ProcessMRMLNodesEvents: FixedReference->CarmRobotBaseFixed = [0., 0., 0.] " << res[0] << ' ' << res[1] << ' ' << res[2]);
       }
-
+*/
 /**
       {
         double pos[3] = { 1220., 0., 0. };
