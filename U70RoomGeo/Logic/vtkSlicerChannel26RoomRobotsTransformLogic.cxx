@@ -2528,7 +2528,7 @@ void vtkSlicerChannel26RoomRobotsTransformLogic::UpdateCarmXrayDetectorToCarmTra
   using CoordPos = vtkSlicerChannel26RoomRobotsGeometryCommon;
   vtkNew<vtkTransform> carmXrayDetectorToCarmTranslate;
   carmXrayDetectorToCarmTranslate->Translate(CoordPos::CARM_DETECTOR_ORIGIN_OFFSET_Z,
-    -1. * CoordPos::CARM_DETECTOR_ORIGIN_OFFSET_X - 20., -1. * CoordPos::CARM_DETECTOR_ORIGIN_OFFSET_Y - 15.);
+    -1. * CoordPos::CARM_DETECTOR_ORIGIN_OFFSET_X, -1. * CoordPos::CARM_DETECTOR_ORIGIN_OFFSET_Y);
 
   using CoordSys = CoordinateSystemIdentifier;
   vtkNew<vtkTransform> patientToCarmTransform;
