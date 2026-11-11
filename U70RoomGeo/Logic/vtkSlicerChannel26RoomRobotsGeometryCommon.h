@@ -109,13 +109,15 @@ public:
   static constexpr double CARM_XRAY_SOURCE_WIDTH = 485.;
   // C-arm x-ray detector width
   static constexpr double CARM_XRAY_DETECTOR_WIDTH = 470.;
+  // C-arm x-ray detector thickness
+  static constexpr double CARM_XRAY_DETECTOR_THICKNESS = 30.;
   // C-arm x-ray distance between mounting point and focal spot along Z-axis
   static constexpr double CARM_XRAY_MOUNTING_POINT_SOURCE_OFFSET_Z = 167.;
 
   // C-arm x-ray detector offset (from C-arm mounting point to X-ray detector bottom center)
-  static constexpr double CARM_DETECTOR_ORIGIN_OFFSET_X = 720.01;
+  static constexpr double CARM_DETECTOR_ORIGIN_OFFSET_X = 740.01 - CARM_XRAY_DETECTOR_THICKNESS;
   static constexpr double CARM_DETECTOR_ORIGIN_OFFSET_Y = 0.2;
-  static constexpr double CARM_DETECTOR_ORIGIN_OFFSET_Z = 751.;
+  static constexpr double CARM_DETECTOR_ORIGIN_OFFSET_Z = 721.;
 
   // Table top robot base fake floor hole diameter
   static constexpr double TABLE_TOP_ROBOT_FLOOR_HOLE_DIAMETER = 2224.;
