@@ -85,7 +85,7 @@ public:
   static std::string GetServiceR2ServicePosition3ButtonIsPressed();
   static std::string GetServiceRestartButtonIsEnabled();
   static std::string GetServiceRestartButtonIsPressed();
-/*
+
   static std::string GetKukaControllersAllowT1ButtonIsEnabled();
   static std::string GetKukaControllersAllowT1ButtonIsPressed();
   static std::string GetKukaControllersAllowXrayButtonIsEnabled();
@@ -111,7 +111,7 @@ public:
   static std::string GetReflectionTargetCoordsR2A();
   static std::string GetReflectionTargetCoordsR2B();
   static std::string GetReflectionTargetCoordsR2C();
-*/
+
   static std::string GetCurrentCoordR1X();
   static std::string GetCurrentCoordR1Y();
   static std::string GetCurrentCoordR1Z();
@@ -137,7 +137,7 @@ public:
   static std::string GetCurrentAxisCoordR2A4();
   static std::string GetCurrentAxisCoordR2A5();
   static std::string GetCurrentAxisCoordR2A6();
-/*
+
   static std::string GetCoordinatesAcceptedR1Flag();
   static std::string GetCoordinatesNotAcceptedR1Flag();
   static std::string GetCoordinatesAcceptedR2Flag();
@@ -150,7 +150,7 @@ public:
   static std::string GetEmergencyEvacuationFlag();
   static std::string GetPatientOnTheTableFlag();
   static std::string GetTabletopOrientation();
-*/
+
 };
 
 #endif

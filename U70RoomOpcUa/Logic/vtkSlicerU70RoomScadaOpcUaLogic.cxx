@@ -54,6 +54,8 @@ public:
   ~vtkInternal();
    QOpcUaNode* node(const QString& fullNodeName);
    uint64_t getUint64(const QString& fullNodeName, bool& res);
+   uint16_t getUint16(const QString& fullNodeName, bool& res);
+   std::string getString(const QString& fullNodeName, bool& res);
 
   vtkSlicerU70RoomScadaOpcUaLogic* External{ nullptr };
 
@@ -117,6 +119,60 @@ uint64_t vtkSlicerU70RoomScadaOpcUaLogic::vtkInternal::getUint64(const QString& 
     }
   }
   return 0;
+}
+
+//---------------------------------------------------------------------------
+uint16_t vtkSlicerU70RoomScadaOpcUaLogic::vtkInternal::getUint16(const QString& fullNodeName, bool& res)
+{
+  QSharedPointer< QOpcUaClient > sharedClient = this->Client.toStrongRef();
+  if (!sharedClient)
+  {
+    vtkWarningWithObjectMacro(this->External, "getUint64: Scada OPC UA client is invalid");
+    res = false;
+  }
+
+  if (sharedClient->state() != QOpcUaClient::Connected)
+  {
+    vtkWarningWithObjectMacro(this->External, "getUint64: Scada OPC UA client is created, but isn't connected");
+    res = false;
+  }
+
+  const QVariant& var = this->Nodes.value(fullNodeName).Cache;
+  if (var.canConvert< uint >())
+  {
+    uint v = var.toUInt(&res);
+    if (res)
+    {
+      return static_cast< uint16_t >(v);
+    }
+  }
+  return 0;
+}
+
+//---------------------------------------------------------------------------
+std::string vtkSlicerU70RoomScadaOpcUaLogic::vtkInternal::getString(const QString& fullNodeName, bool& res)
+{
+  QSharedPointer< QOpcUaClient > sharedClient = this->Client.toStrongRef();
+  if (!sharedClient)
+  {
+    vtkWarningWithObjectMacro(this->External, "getUint64: Scada OPC UA client is invalid");
+    res = false;
+  }
+
+  if (sharedClient->state() != QOpcUaClient::Connected)
+  {
+    vtkWarningWithObjectMacro(this->External, "getUint64: Scada OPC UA client is created, but isn't connected");
+    res = false;
+  }
+
+  const QVariant& var = this->Nodes.value(fullNodeName).Cache;
+  if (var.canConvert< QString >())
+  {
+    QString str = var.toString();
+    res = true;
+    return str.toStdString();
+  }
+  return std::string();
 }
 
 //---------------------------------------------------------------------------
@@ -377,7 +433,103 @@ void vtkSlicerU70RoomScadaOpcUaLogic::UpdateMRMLNodeFromOpcUaNodeValue(vtkMRMLSc
     if (res)
     {
       mrmlScadaNode->SetSysTimeScada(v);
+      vtkWarningMacro("UpdateMRMLNodeFromOpcUaNodeValue: SCADA System Time: " << v);
     }
+  }
+  else if (fullNodeName == vtkSlicerU70RoomScadaOpcUaNodesNames::GetModPosSt())
+  {
+    uint16_t v = this->Internal->getUint16(QString::fromStdString(fullNodeName), res);
+    if (res)
+    {
+      mrmlScadaNode->SetSt(static_cast< vtkMRMLScadaOpcUaNode::StateType >(v));
+      vtkWarningMacro("UpdateMRMLNodeFromOpcUaNodeValue: Positioning module state: " << v);
+    }
+  }
+  else if (fullNodeName == vtkSlicerU70RoomScadaOpcUaNodesNames::GetModPosSysTime())
+  {
+    std::string str = this->Internal->getString(QString::fromStdString(fullNodeName), res);
+    if (res)
+    {
+      vtkWarningMacro("UpdateMRMLNodeFromOpcUaNodeValue: Positioning module system time: " << str);
+    }
+  }
+  else if (fullNodeName == vtkSlicerU70RoomScadaOpcUaNodesNames::GetModPosPlanStr())
+  {
+  }
+  else if (fullNodeName == vtkSlicerU70RoomScadaOpcUaNodesNames::GetModPosIdp())
+  {
+  }
+  else if (fullNodeName == vtkSlicerU70RoomScadaOpcUaNodesNames::GetModPosEcp())
+  {
+  }
+  else if (fullNodeName == vtkSlicerU70RoomScadaOpcUaNodesNames::GetModPosImmob())
+  {
+  }
+  else if (fullNodeName == vtkSlicerU70RoomScadaOpcUaNodesNames::GetModPosPlanOpen())
+  {
+  }
+  else if (fullNodeName == vtkSlicerU70RoomScadaOpcUaNodesNames::GetModPosPlanNpos())
+  {
+  }
+  else if (fullNodeName == vtkSlicerU70RoomScadaOpcUaNodesNames::GetScadaRemoteCtrl())
+  {
+  }
+  else if (fullNodeName == vtkSlicerU70RoomScadaOpcUaNodesNames::GetScadaRemoteStateMachine())
+  {
+  }
+  else if (fullNodeName == vtkSlicerU70RoomScadaOpcUaNodesNames::GetScadaRemoteCmd())
+  {
+  }
+  else if (fullNodeName == vtkSlicerU70RoomScadaOpcUaNodesNames::GetScadaRemotePause())
+  {
+  }
+  else if (fullNodeName == vtkSlicerU70RoomScadaOpcUaNodesNames::GetScadaRemoteAvr())
+  {
+  }
+  else if (fullNodeName == vtkSlicerU70RoomScadaOpcUaNodesNames::GetScadaDoorBlock())
+  {
+  }
+  else if (fullNodeName == vtkSlicerU70RoomScadaOpcUaNodesNames::GetScadaReadyEq())
+  {
+  }
+  else if (fullNodeName == vtkSlicerU70RoomScadaOpcUaNodesNames::GetScadaReadyPlan())
+  {
+  }
+  else if (fullNodeName == vtkSlicerU70RoomScadaOpcUaNodesNames::GetScadaReadyProc())
+  {
+  }
+  else if (fullNodeName == vtkSlicerU70RoomScadaOpcUaNodesNames::GetScadaInQueue())
+  {
+  }
+  else if (fullNodeName == vtkSlicerU70RoomScadaOpcUaNodesNames::GetModPosReadySt())
+  {
+  }
+  else if (fullNodeName == vtkSlicerU70RoomScadaOpcUaNodesNames::GetScadaBlock())
+  {
+  }
+  else if (fullNodeName == vtkSlicerU70RoomScadaOpcUaNodesNames::GetScadaCurrentLayer())
+  {
+  }
+  else if (fullNodeName == vtkSlicerU70RoomScadaOpcUaNodesNames::GetScadaMaxLayer())
+  {
+  }
+  else if (fullNodeName == vtkSlicerU70RoomScadaOpcUaNodesNames::GetScadaProcLayer())
+  {
+  }
+  else if (fullNodeName == vtkSlicerU70RoomScadaOpcUaNodesNames::GetScadaProcEnd())
+  {
+  }
+  else if (fullNodeName == vtkSlicerU70RoomScadaOpcUaNodesNames::GetModPosProcNote())
+  {
+  }
+  else if (fullNodeName == vtkSlicerU70RoomScadaOpcUaNodesNames::GetModPosRecClose())
+  {
+  }
+  else if (fullNodeName == vtkSlicerU70RoomScadaOpcUaNodesNames::GetModPosErrStr())
+  {
+  }
+  else if (fullNodeName == vtkSlicerU70RoomScadaOpcUaNodesNames::GetModPosEventStr())
+  {
   }
 }
 

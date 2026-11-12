@@ -63,6 +63,7 @@ constexpr std::string_view READYBEAM = "RobotsReadyForBeam";
 constexpr std::string_view TABLEPATIENT = "HUMAN_ON_DEKA";
 constexpr std::string_view TABLEPOSITION = "DekaPosition";
 constexpr std::string_view EMEVACFLAG = "EmEvacuationSignal";
+
 constexpr std::string_view COORDS_ACCEPTED_R1 = "CoordsAccepted_R1";
 constexpr std::string_view COORDS_NOTACCEPTED_R1 = "CoordsNotAccepted_R1";
 
@@ -405,6 +406,116 @@ std::string vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::GetServiceRestartButtonIs
   return GetRtkPlcAsuServiceButtons() + std::string(DOT) + std::string(RESTARTSM) + std::string(DOT) + std::string(ISPRESSED);
 }
 
+std::string vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::GetKukaControllersAllowT1ButtonIsEnabled()
+{
+  return GetRtkPlcAsuKukaControllesButtons() + std::string(DOT) + std::string(ALLOW_T1) + std::string(DOT) + std::string(ISENABLED);
+}
+
+std::string vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::GetKukaControllersAllowT1ButtonIsPressed()
+{
+  return GetRtkPlcAsuKukaControllesButtons() + std::string(DOT) + std::string(ALLOW_T1) + std::string(DOT) + std::string(ISPRESSED);
+}
+
+std::string vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::GetKukaControllersAllowXrayButtonIsEnabled()
+{
+  return GetRtkPlcAsuKukaControllesButtons() + std::string(DOT) + std::string(ALLOW_XRAY) + std::string(DOT) + std::string(ISENABLED);
+}
+
+std::string vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::GetKukaControllersAllowXrayButtonIsPressed()
+{
+  return GetRtkPlcAsuKukaControllesButtons() + std::string(DOT) + std::string(ALLOW_XRAY) + std::string(DOT) + std::string(ISPRESSED);
+}
+
+std::string vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::GetKukaControllersAllowBeamButtonIsEnabled()
+{
+  return GetRtkPlcAsuKukaControllesButtons() + std::string(DOT) + std::string(ALLOW_BEAM) + std::string(DOT) + std::string(ISENABLED);
+}
+
+std::string vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::GetKukaControllersAllowBeamButtonIsPressed()
+{
+  return GetRtkPlcAsuKukaControllesButtons() + std::string(DOT) + std::string(ALLOW_BEAM) + std::string(DOT) + std::string(ISPRESSED);
+}
+
+std::string vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::GetResetErrorsButtonIsEnabled()
+{
+  return GetRtkPlcAsuButtons() + std::string(DOT) + std::string(RESET_ERRORS) + std::string(DOT) + std::string(ISENABLED);
+}
+
+std::string vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::GetResetErrorsButtonIsPressed()
+{
+  return GetRtkPlcAsuButtons() + std::string(DOT) + std::string(RESET_ERRORS) + std::string(DOT) + std::string(ISPRESSED);
+}
+
+std::string vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::GetMakeXrayButtonIsEnabled()
+{
+  return GetRtkPlcAsuButtons() + std::string(DOT) + std::string(MAKE_XRAY) + std::string(DOT) + std::string(ISENABLED);
+}
+
+std::string vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::GetMakeXrayButtonIsPressed()
+{
+  return GetRtkPlcAsuButtons() + std::string(DOT) + std::string(MAKE_XRAY) + std::string(DOT) + std::string(ISPRESSED);
+}
+
+std::string vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::GetReflectionTargetCoordsR1X()
+{
+  return GetRtkPlc() + std::string(DOT) + std::string(REFLTARGETCOORDS_R1) + std::string(DOT) + std::string(KUKAX);
+}
+
+std::string vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::GetReflectionTargetCoordsR1Y()
+{
+  return GetRtkPlc() + std::string(DOT) + std::string(REFLTARGETCOORDS_R1) + std::string(DOT) + std::string(KUKAY);
+}
+
+std::string vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::GetReflectionTargetCoordsR1Z()
+{
+  return GetRtkPlc() + std::string(DOT) + std::string(REFLTARGETCOORDS_R1) + std::string(DOT) + std::string(KUKAZ);
+}
+
+std::string vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::GetReflectionTargetCoordsR1A()
+{
+  return GetRtkPlc() + std::string(DOT) + std::string(REFLTARGETCOORDS_R1) + std::string(DOT) + std::string(KUKAA);
+}
+
+std::string vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::GetReflectionTargetCoordsR1B()
+{
+  return GetRtkPlc() + std::string(DOT) + std::string(REFLTARGETCOORDS_R1) + std::string(DOT) + std::string(KUKAB);
+}
+
+std::string vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::GetReflectionTargetCoordsR1C()
+{
+  return GetRtkPlc() + std::string(DOT) + std::string(REFLTARGETCOORDS_R1) + std::string(DOT) + std::string(KUKAC);
+}
+
+std::string vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::GetReflectionTargetCoordsR2X()
+{
+  return GetRtkPlc() + std::string(DOT) + std::string(REFLTARGETCOORDS_R2) + std::string(DOT) + std::string(KUKAX);
+}
+
+std::string vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::GetReflectionTargetCoordsR2Y()
+{
+  return GetRtkPlc() + std::string(DOT) + std::string(REFLTARGETCOORDS_R2) + std::string(DOT) + std::string(KUKAY);
+}
+
+std::string vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::GetReflectionTargetCoordsR2Z()
+{
+  return GetRtkPlc() + std::string(DOT) + std::string(REFLTARGETCOORDS_R2) + std::string(DOT) + std::string(KUKAZ);
+}
+
+std::string vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::GetReflectionTargetCoordsR2A()
+{
+  return GetRtkPlc() + std::string(DOT) + std::string(REFLTARGETCOORDS_R2) + std::string(DOT) + std::string(KUKAA);
+}
+
+std::string vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::GetReflectionTargetCoordsR2B()
+{
+  return GetRtkPlc() + std::string(DOT) + std::string(REFLTARGETCOORDS_R2) + std::string(DOT) + std::string(KUKAB);
+}
+
+std::string vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::GetReflectionTargetCoordsR2C()
+{
+  return GetRtkPlc() + std::string(DOT) + std::string(REFLTARGETCOORDS_R2) + std::string(DOT) + std::string(KUKAC);
+}
+
 std::string vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::GetCurrentCoordR1X()
 {
   return GetRtkPlcCurrentCoordsR1() + std::string(DOT) + std::string(KUKAX);
@@ -523,4 +634,59 @@ std::string vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::GetCurrentAxisCoordR2A5()
 std::string vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::GetCurrentAxisCoordR2A6()
 {
   return GetRtkPlcCurrentCoordsR2() + std::string(DOT) + std::string(AXISCOORDA6);
+}
+
+std::string vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::GetCoordinatesAcceptedR1Flag()
+{
+  return GetRtkPlc() + std::string(DOT) + std::string(COORDS_ACCEPTED_R1);
+}
+
+std::string vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::GetCoordinatesNotAcceptedR1Flag()
+{
+  return GetRtkPlc() + std::string(DOT) + std::string(COORDS_NOTACCEPTED_R1);
+}
+
+std::string vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::GetCoordinatesAcceptedR2Flag()
+{
+  return GetRtkPlc() + std::string(DOT) + std::string(COORDS_ACCEPTED_R2);
+}
+
+std::string vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::GetCoordinatesNotAcceptedR2Flag()
+{
+  return GetRtkPlc() + std::string(DOT) + std::string(COORDS_NOTACCEPTED_R2);
+}
+
+std::string vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::GetComingHomeHoldButtonPressedFlag()
+{
+  return GetRtkPlcAsu() + std::string(DOT) + std::string(RTK_HOMERETURN_HOLDPRESSED);
+}
+
+std::string vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::GetReadyForXray1Flag()
+{
+  return GetRtkPlcAsu() + std::string(DOT) + std::string(READYXRAY1);
+}
+
+std::string vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::GetReadyForXray2Flag()
+{
+  return GetRtkPlcAsu() + std::string(DOT) + std::string(READYXRAY2);
+}
+
+std::string vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::GetReadyForBeamFlag()
+{
+  return GetRtkPlcAsu() + std::string(DOT) + std::string(READYBEAM);
+}
+
+std::string vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::GetEmergencyEvacuationFlag()
+{
+  return GetRtkPlcAsu() + std::string(DOT) + std::string(EMEVACFLAG);
+}
+
+std::string vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::GetPatientOnTheTableFlag()
+{
+  return GetRtkPlcAsu() + std::string(DOT) + std::string(TABLEPATIENT);
+}
+
+std::string vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::GetTabletopOrientation()
+{
+  return GetRtkPlcAsu() + std::string(DOT) + std::string(TABLEPOSITION);
 }

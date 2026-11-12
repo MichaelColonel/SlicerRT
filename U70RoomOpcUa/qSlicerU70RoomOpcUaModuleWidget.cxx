@@ -501,7 +501,7 @@ void qSlicerU70RoomOpcUaModuleWidget::setMRMLScene(vtkMRMLScene* scene)
       qvtkReconnect(d->SiemensPlcOpcUaNode, vtkCommand::ModifiedEvent, 
         this, SLOT(updateWidgetFromMRML()));
     }
-
+/*
     if (vtkMRMLNode* node = scene->GetFirstNodeByClass("vtkMRMLScadaOpcUaNode"))
     {
       vtkMRMLScadaOpcUaNode* newNode = vtkMRMLScadaOpcUaNode::SafeDownCast(node);
@@ -522,6 +522,7 @@ void qSlicerU70RoomOpcUaModuleWidget::setMRMLScene(vtkMRMLScene* scene)
       qvtkReconnect(d->ScadaOpcUaNode, vtkCommand::ModifiedEvent, 
         this, SLOT(updateWidgetFromMRML()));
     }
+*/
   }
   this->updateWidgetFromMRML();
 }

@@ -294,7 +294,7 @@ const QString KUKA_COORDSNOTACCEPTED_R1_NODE_NAME = RTK_PLC_NODE_NAME + DOT + QL
 const QString KUKA_COORDSACCEPTED_R2_NODE_NAME = RTK_PLC_NODE_NAME + DOT + QLatin1String(COORDS_ACCEPTED_R2);
 const QString KUKA_COORDSNOTACCEPTED_R2_NODE_NAME = RTK_PLC_NODE_NAME + DOT + QLatin1String(COORDS_NOTACCEPTED_R2);
 
-const QOpcUaMonitoringParameters OpcUaMonitorParameters(1000);
+const QOpcUaMonitoringParameters OpcUaMonitorParameters(100);
 
 }
 
@@ -718,7 +718,7 @@ bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectMessagesNodes()
           }
           uint64_t errValue = errors.to_ullong();
           mrmlNode->SetErrorMessages(errValue);
-//          qDebug() << Q_FUNC_INFO << "Error messages value changed:" << errValue;
+          qDebug() << Q_FUNC_INFO << "Error messages value changed:" << errValue;
         }
       }
     }
@@ -750,7 +750,7 @@ bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectMessagesNodes()
               }
               uint64_t errValue = errors.to_ullong();
               mrmlNode->SetErrorMessages(errValue);
-//              qDebug() << Q_FUNC_INFO << "Error messages value read:" << errValue;
+              qDebug() << Q_FUNC_INFO << "Error messages value read:" << errValue;
             }
           }
         }
@@ -783,7 +783,7 @@ bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectMessagesNodes()
           }
           uint64_t servValue = servFlags.to_ullong();
           mrmlNode->SetServiceMessages(servValue);
-//          qDebug() << Q_FUNC_INFO << "Service messages value changed:" << servValue;
+          qDebug() << Q_FUNC_INFO << "Service messages value changed:" << servValue;
         }
       }
     }
@@ -815,7 +815,7 @@ bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectMessagesNodes()
               }
               uint64_t servValue = servFlags.to_ullong();
               mrmlNode->SetServiceMessages(servValue);
-//              qDebug() << Q_FUNC_INFO << "Service messages value read:" << servValue;
+              qDebug() << Q_FUNC_INFO << "Service messages value read:" << servValue;
             }
           }
         }
@@ -848,7 +848,7 @@ bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectMessagesNodes()
           }
           uint64_t miscValue = miscFlags.to_ullong();
           mrmlNode->SetMiscMessages(miscValue);
-//          qDebug() << Q_FUNC_INFO << "Miscellaneous messages value changed:" << miscValue;
+          qDebug() << Q_FUNC_INFO << "Miscellaneous messages value changed:" << miscValue;
         }
       }
     }
@@ -880,7 +880,7 @@ bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectMessagesNodes()
               }
               uint64_t miscValue = miscFlags.to_ullong();
               mrmlNode->SetMiscMessages(miscValue);
-//              qDebug() << Q_FUNC_INFO << "Miscellaneous messages value read:" << miscValue;
+              qDebug() << Q_FUNC_INFO << "Miscellaneous messages value read:" << miscValue;
             }
           }
         }

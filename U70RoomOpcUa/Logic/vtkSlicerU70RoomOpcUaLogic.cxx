@@ -203,15 +203,21 @@ void vtkSlicerU70RoomOpcUaLogic::ProcessMRMLNodesEvents(vtkObject* caller, unsig
     }
     if (event == vtkMRMLScadaOpcUaNode::ValueChangedEvent)
     {
-      char* str = reinterpret_cast< char* >(callData);
-      std::string string(str);
-      delete [] str;
+      std::unique_ptr< char[] > str(reinterpret_cast< char* >(callData));
+      std::string string(str.get());
+      if (this->ScadaOpcUaLogic)
+      {
+        this->ScadaOpcUaLogic->UpdateMRMLNodeFromOpcUaNodeValue(opcUaNode, string);
+      }
     }
     else if (event == vtkMRMLScadaOpcUaNode::ValueReadEvent)
     {
-      char* str = reinterpret_cast< char* >(callData);
-      std::string string(str);
-      delete [] str;
+      std::unique_ptr< char[] > str(reinterpret_cast< char* >(callData));
+      std::string string(str.get());
+      if (this->ScadaOpcUaLogic)
+      {
+        this->ScadaOpcUaLogic->UpdateMRMLNodeFromOpcUaNodeValue(opcUaNode, string);
+      }
     }
   }
   if (caller->IsA("vtkMRMLSiemensPlcOpcUaNode"))

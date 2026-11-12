@@ -100,7 +100,7 @@ qSlicerU70RoomGeoModuleWidgetPrivate::qSlicerU70RoomGeoModuleWidgetPrivate(qSlic
   , ModuleWindowInitialized(false)
 {
   Q_Q(qSlicerU70RoomGeoModuleWidget);
-  this->TimerGeometryUpdater->setInterval(200);
+  this->TimerGeometryUpdater->setInterval(100);
   this->TimerGeometryUpdater->stop();
 }
 
