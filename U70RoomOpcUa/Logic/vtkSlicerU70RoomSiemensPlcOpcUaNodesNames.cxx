@@ -143,6 +143,21 @@ std::string GetRtkPlcAsuButtons()
   return GetRtkPlcAsu() + std::string(DOT) + std::string(BUTTONS);
 }
 
+std::string GetRtkPlcAsuAutoManualButtons()
+{
+  return GetRtkPlcAsuButtons() + std::string(DOT) + std::string(AM_MM);
+}
+
+std::string GetRtkPlcAsuServiceButtons()
+{
+    return GetRtkPlcAsuButtons() + std::string(DOT) + std::string(SM);
+}
+
+std::string GetRtkPlcAsuKukaControllesButtons()
+{
+    return GetRtkPlcAsuButtons() + std::string(DOT) + std::string(KCM);
+}
+
 } // namespace
 
 std::string vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::GetErrorsFlags()
@@ -182,82 +197,242 @@ std::string vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::GetStatusR2()
 
 std::string vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::GetAutoManualR1LoadToIsoButtonIsEnabled()
 {
-  return GetRtkPlcAsuButtons() + std::string(DOT) + std::string(R1_LOADTOISO) + std::string(DOT) + std::string(ISENABLED);
+  return GetRtkPlcAsuAutoManualButtons() + std::string(DOT) + std::string(R1_LOADTOISO) + std::string(DOT) + std::string(ISENABLED);
 }
 
 std::string vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::GetAutoManualR1LoadToIsoButtonIsPressed()
 {
-  return GetRtkPlcAsuButtons() + std::string(DOT) + std::string(R1_LOADTOISO) + std::string(DOT) + std::string(ISPRESSED);
+  return GetRtkPlcAsuAutoManualButtons() + std::string(DOT) + std::string(R1_LOADTOISO) + std::string(DOT) + std::string(ISPRESSED);
 }
 
 std::string vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::GetAutoManualR1ToLoadButtonIsEnabled()
 {
-  return GetRtkPlcAsuButtons() + std::string(DOT) + std::string(R1_TOLOAD) + std::string(DOT) + std::string(ISENABLED);
+  return GetRtkPlcAsuAutoManualButtons() + std::string(DOT) + std::string(R1_TOLOAD) + std::string(DOT) + std::string(ISENABLED);
 }
 
 std::string vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::GetAutoManualR1ToLoadButtonIsPressed()
 {
-  return GetRtkPlcAsuButtons() + std::string(DOT) + std::string(R1_TOLOAD) + std::string(DOT) + std::string(ISENABLED);
+  return GetRtkPlcAsuAutoManualButtons() + std::string(DOT) + std::string(R1_TOLOAD) + std::string(DOT) + std::string(ISENABLED);
 }
 
 std::string vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::GetAutoManualR1ToNewCoordsButtonIsEnabled()
 {
-  return GetRtkPlcAsuButtons() + std::string(DOT) + std::string(R1_TONEWCOORDS) + std::string(DOT) + std::string(ISENABLED);
+  return GetRtkPlcAsuAutoManualButtons() + std::string(DOT) + std::string(R1_TONEWCOORDS) + std::string(DOT) + std::string(ISENABLED);
 }
 
 std::string vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::GetAutoManualR1ToNewCoordsButtonIsPressed()
 {
-  return GetRtkPlcAsuButtons() + std::string(DOT) + std::string(R1_TONEWCOORDS) + std::string(DOT) + std::string(ISPRESSED);
+  return GetRtkPlcAsuAutoManualButtons() + std::string(DOT) + std::string(R1_TONEWCOORDS) + std::string(DOT) + std::string(ISPRESSED);
 }
   
 std::string vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::GetAutoManualR2ToPlane1ButtonIsEnabled()
 {
-  return GetRtkPlcAsuButtons() + std::string(DOT) + std::string(R2_TOPLANE1) + std::string(DOT) + std::string(ISENABLED);
+  return GetRtkPlcAsuAutoManualButtons() + std::string(DOT) + std::string(R2_TOPLANE1) + std::string(DOT) + std::string(ISENABLED);
 }
 
 std::string vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::GetAutoManualR2ToPlane1ButtonIsPressed()
 {
-  return GetRtkPlcAsuButtons() + std::string(DOT) + std::string(R2_TOPLANE1) + std::string(DOT) + std::string(ISPRESSED);
+  return GetRtkPlcAsuAutoManualButtons() + std::string(DOT) + std::string(R2_TOPLANE1) + std::string(DOT) + std::string(ISPRESSED);
 }
 
 std::string vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::GetAutoManualR2ToPlane2ButtonIsEnabled()
 {
-  return GetRtkPlcAsuButtons() + std::string(DOT) + std::string(R2_TOPLANE2) + std::string(DOT) + std::string(ISENABLED);
+  return GetRtkPlcAsuAutoManualButtons() + std::string(DOT) + std::string(R2_TOPLANE2) + std::string(DOT) + std::string(ISENABLED);
 }
 
 std::string vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::GetAutoManualR2ToPlane2ButtonIsPressed()
 {
-  return GetRtkPlcAsuButtons() + std::string(DOT) + std::string(R2_TOPLANE2) + std::string(DOT) + std::string(ISPRESSED);
+  return GetRtkPlcAsuAutoManualButtons() + std::string(DOT) + std::string(R2_TOPLANE2) + std::string(DOT) + std::string(ISPRESSED);
 }
 
 std::string vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::GetAutoManualR2ToHomeButtonIsEnabled()
 {
-  return GetRtkPlcAsuButtons() + std::string(DOT) + std::string(R2_TOHOME) + std::string(DOT) + std::string(ISENABLED);
+  return GetRtkPlcAsuAutoManualButtons() + std::string(DOT) + std::string(R2_TOHOME) + std::string(DOT) + std::string(ISENABLED);
 }
 
 std::string vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::GetAutoManualR2ToHomeButtonIsPressed()
 {
-  return GetRtkPlcAsuButtons() + std::string(DOT) + std::string(R2_TOHOME) + std::string(DOT) + std::string(ISPRESSED);
+  return GetRtkPlcAsuAutoManualButtons() + std::string(DOT) + std::string(R2_TOHOME) + std::string(DOT) + std::string(ISPRESSED);
 }
 
 std::string vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::GetAutoManualSetTabletopOrientationButtonIsEnabled()
 {
-  return GetRtkPlcAsuButtons() + std::string(DOT) + std::string(APPLY_DEKA_POSITION) + std::string(DOT) + std::string(ISENABLED);
+  return GetRtkPlcAsuAutoManualButtons() + std::string(DOT) + std::string(APPLY_DEKA_POSITION) + std::string(DOT) + std::string(ISENABLED);
 }
 
 std::string vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::GetAutoManualSetTabletopOrientationButtonIsPressed()
 {
-  return GetRtkPlcAsuButtons() + std::string(DOT) + std::string(APPLY_DEKA_POSITION) + std::string(DOT) + std::string(ISPRESSED);
+  return GetRtkPlcAsuAutoManualButtons() + std::string(DOT) + std::string(APPLY_DEKA_POSITION) + std::string(DOT) + std::string(ISPRESSED);
 }
 
 std::string vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::GetAutoManualR1R2EmergencyEvacuationButtonIsEnabled()
 {
-  return GetRtkPlcAsuButtons() + std::string(DOT) + std::string(R1R2_EMEVAL) + std::string(DOT) + std::string(ISENABLED);
+  return GetRtkPlcAsuAutoManualButtons() + std::string(DOT) + std::string(R1R2_EMEVAL) + std::string(DOT) + std::string(ISENABLED);
 }
 
 std::string vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::GetAutoManualR1R2EmergencyEvacuationButtonIsPressed()
 {
-  return GetRtkPlcAsuButtons() + std::string(DOT) + std::string(R1R2_EMEVAL) + std::string(DOT) + std::string(ISPRESSED);
+  return GetRtkPlcAsuAutoManualButtons() + std::string(DOT) + std::string(R1R2_EMEVAL) + std::string(DOT) + std::string(ISPRESSED);
+}
+
+std::string vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::GetServiceR1BreakTestButtonIsEnabled()
+{
+  return GetRtkPlcAsuServiceButtons() + std::string(DOT) + std::string(R1_BREAKTEST) + std::string(DOT) + std::string(ISENABLED);
+}
+
+std::string vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::GetServiceR1BreakTestButtonIsPressed()
+{
+  return GetRtkPlcAsuServiceButtons() + std::string(DOT) + std::string(R1_BREAKTEST) + std::string(DOT) + std::string(ISPRESSED);
+}
+
+std::string vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::GetServiceR1MasterReferenceTestButtonIsEnabled()
+{
+  return GetRtkPlcAsuServiceButtons() + std::string(DOT) + std::string(R1_MASREFTEST) + std::string(DOT) + std::string(ISENABLED);
+}
+
+std::string vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::GetServiceR1MasterReferenceTestButtonIsPressed()
+{
+  return GetRtkPlcAsuServiceButtons() + std::string(DOT) + std::string(R1_MASREFTEST) + std::string(DOT) + std::string(ISPRESSED);
+}
+
+std::string vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::GetServiceR1LoadButtonIsEnabled()
+{
+  return GetRtkPlcAsuServiceButtons() + std::string(DOT) + std::string(R1_LOAD) + std::string(DOT) + std::string(ISENABLED);
+}
+
+std::string vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::GetServiceR1LoadButtonIsPressed()
+{
+  return GetRtkPlcAsuServiceButtons() + std::string(DOT) + std::string(R1_LOAD) + std::string(DOT) + std::string(ISPRESSED);
+}
+
+std::string vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::GetServiceR1ServicePosition1ButtonIsEnabled()
+{
+  return GetRtkPlcAsuServiceButtons() + std::string(DOT) + std::string(R1_SERVICEPOS1) + std::string(DOT) + std::string(ISENABLED);
+}
+
+std::string vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::GetServiceR1ServicePosition1ButtonIsPressed()
+{
+  return GetRtkPlcAsuServiceButtons() + std::string(DOT) + std::string(R1_SERVICEPOS1) + std::string(DOT) + std::string(ISPRESSED);
+}
+
+std::string vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::GetServiceR1ServicePosition2ButtonIsEnabled()
+{
+  return GetRtkPlcAsuServiceButtons() + std::string(DOT) + std::string(R1_SERVICEPOS2) + std::string(DOT) + std::string(ISENABLED);
+}
+
+std::string vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::GetServiceR1ServicePosition2ButtonIsPressed()
+{
+  return GetRtkPlcAsuServiceButtons() + std::string(DOT) + std::string(R1_SERVICEPOS2) + std::string(DOT) + std::string(ISPRESSED);
+}
+
+std::string vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::GetServiceR1ServicePosition3ButtonIsEnabled()
+{
+  return GetRtkPlcAsuServiceButtons() + std::string(DOT) + std::string(R1_SERVICEPOS3) + std::string(DOT) + std::string(ISENABLED);
+}
+
+std::string vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::GetServiceR1ServicePosition3ButtonIsPressed()
+{
+  return GetRtkPlcAsuServiceButtons() + std::string(DOT) + std::string(R1_SERVICEPOS3) + std::string(DOT) + std::string(ISPRESSED);
+}
+
+std::string vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::GetServiceR2BreakTestButtonIsEnabled()
+{
+  return GetRtkPlcAsuServiceButtons() + std::string(DOT) + std::string(R2_BREAKTEST) + std::string(DOT) + std::string(ISENABLED);
+}
+
+std::string vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::GetServiceR2BreakTestButtonIsPressed()
+{
+  return GetRtkPlcAsuServiceButtons() + std::string(DOT) + std::string(R2_BREAKTEST) + std::string(DOT) + std::string(ISPRESSED);
+}
+
+std::string vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::GetServiceR2MasterReferenceTestButtonIsEnabled()
+{
+  return GetRtkPlcAsuServiceButtons() + std::string(DOT) + std::string(R2_MASREFTEST) + std::string(DOT) + std::string(ISENABLED);
+}
+
+std::string vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::GetServiceR2MasterReferenceTestButtonIsPressed()
+{
+  return GetRtkPlcAsuServiceButtons() + std::string(DOT) + std::string(R2_MASREFTEST) + std::string(DOT) + std::string(ISPRESSED);
+}
+
+std::string vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::GetServiceR2HomeButtonIsEnabled()
+{
+  return GetRtkPlcAsuServiceButtons() + std::string(DOT) + std::string(R2_HOME) + std::string(DOT) + std::string(ISENABLED);
+}
+
+std::string vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::GetServiceR2HomeButtonIsPressed()
+{
+  return GetRtkPlcAsuServiceButtons() + std::string(DOT) + std::string(R2_HOME) + std::string(DOT) + std::string(ISPRESSED);
+}
+
+std::string vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::GetServiceR2ServicePosition1ButtonIsEnabled()
+{
+  return GetRtkPlcAsuServiceButtons() + std::string(DOT) + std::string(R2_SERVICEPOS1) + std::string(DOT) + std::string(ISENABLED);
+}
+
+std::string vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::GetServiceR2ServicePosition1ButtonIsPressed()
+{
+  return GetRtkPlcAsuServiceButtons() + std::string(DOT) + std::string(R2_SERVICEPOS1) + std::string(DOT) + std::string(ISPRESSED);
+}
+
+std::string vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::GetServiceR2ServicePosition2ButtonIsEnabled()
+{
+  return GetRtkPlcAsuServiceButtons() + std::string(DOT) + std::string(R2_SERVICEPOS2) + std::string(DOT) + std::string(ISENABLED);
+}
+
+std::string vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::GetServiceR2ServicePosition2ButtonIsPressed()
+{
+  return GetRtkPlcAsuServiceButtons() + std::string(DOT) + std::string(R2_SERVICEPOS2) + std::string(DOT) + std::string(ISPRESSED);
+}
+
+std::string vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::GetServiceR2ServicePosition3ButtonIsEnabled()
+{
+  return GetRtkPlcAsuServiceButtons() + std::string(DOT) + std::string(R2_SERVICEPOS3) + std::string(DOT) + std::string(ISENABLED);
+}
+
+std::string vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::GetServiceR2ServicePosition3ButtonIsPressed()
+{
+  return GetRtkPlcAsuServiceButtons() + std::string(DOT) + std::string(R2_SERVICEPOS3) + std::string(DOT) + std::string(ISPRESSED);
+}
+
+std::string vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::GetServiceRestartButtonIsEnabled()
+{
+  return GetRtkPlcAsuServiceButtons() + std::string(DOT) + std::string(RESTARTSM) + std::string(DOT) + std::string(ISENABLED);
+}
+
+std::string vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::GetServiceRestartButtonIsPressed()
+{
+  return GetRtkPlcAsuServiceButtons() + std::string(DOT) + std::string(RESTARTSM) + std::string(DOT) + std::string(ISPRESSED);
+}
+
+std::string vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::GetCurrentCoordR1X()
+{
+  return GetRtkPlcCurrentCoordsR1() + std::string(DOT) + std::string(KUKAX);
+}
+
+std::string vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::GetCurrentCoordR1Y()
+{
+  return GetRtkPlcCurrentCoordsR1() + std::string(DOT) + std::string(KUKAY);
+}
+
+std::string vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::GetCurrentCoordR1Z()
+{
+  return GetRtkPlcCurrentCoordsR1() + std::string(DOT) + std::string(KUKAZ);
+}
+
+std::string vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::GetCurrentCoordR1A()
+{
+  return GetRtkPlcCurrentCoordsR1() + std::string(DOT) + std::string(KUKAA);
+}
+
+std::string vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::GetCurrentCoordR1B()
+{
+  return GetRtkPlcCurrentCoordsR1() + std::string(DOT) + std::string(KUKAB);
+}
+
+std::string vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::GetCurrentCoordR1C()
+{
+  return GetRtkPlcCurrentCoordsR1() + std::string(DOT) + std::string(KUKAC);
 }
 
 std::string vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::GetCurrentAxisCoordR1A1()
@@ -288,6 +463,36 @@ std::string vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::GetCurrentAxisCoordR1A5()
 std::string vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::GetCurrentAxisCoordR1A6()
 {
   return GetRtkPlcCurrentCoordsR1() + std::string(DOT) + std::string(AXISCOORDA6);
+}
+
+std::string vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::GetCurrentCoordR2X()
+{
+  return GetRtkPlcCurrentCoordsR2() + std::string(DOT) + std::string(KUKAX);
+}
+
+std::string vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::GetCurrentCoordR2Y()
+{
+  return GetRtkPlcCurrentCoordsR2() + std::string(DOT) + std::string(KUKAY);
+}
+
+std::string vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::GetCurrentCoordR2Z()
+{
+  return GetRtkPlcCurrentCoordsR2() + std::string(DOT) + std::string(KUKAZ);
+}
+
+std::string vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::GetCurrentCoordR2A()
+{
+  return GetRtkPlcCurrentCoordsR2() + std::string(DOT) + std::string(KUKAA);
+}
+
+std::string vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::GetCurrentCoordR2B()
+{
+  return GetRtkPlcCurrentCoordsR2() + std::string(DOT) + std::string(KUKAB);
+}
+
+std::string vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::GetCurrentCoordR2C()
+{
+  return GetRtkPlcCurrentCoordsR2() + std::string(DOT) + std::string(KUKAC);
 }
 
 std::string vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::GetCurrentAxisCoordR2A1()

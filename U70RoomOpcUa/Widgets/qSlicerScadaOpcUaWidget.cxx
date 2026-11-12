@@ -39,6 +39,7 @@
 // U70RoomOpcUa Logic includes
 #include "vtkSlicerU70RoomOpcUaLogic.h"
 #include "vtkSlicerU70RoomScadaOpcUaLogic.h"
+#include "vtkSlicerU70RoomScadaOpcUaNodesNames.h"
 
 #include "ScadaOpcUaModel.h"
 #include "ScadaOpcUaTreeItem.h"
@@ -46,7 +47,7 @@
 #include <vtkMRMLScadaOpcUaNode.h>
 
 namespace {
-
+/*
 constexpr const char* const PARENT_NODE_DISPLAYED_NAME = "Модуль позиционирования";
 
 const QString DOT = QString(QChar('.'));
@@ -70,7 +71,7 @@ const QString SCADA_EVENT_STRING_NODE_NAME = PARENT_NODE_DISPLAYED_NAME + DOT + 
 const QString SCADA_STATE_NODE_NAME = PARENT_NODE_DISPLAYED_NAME + DOT + QLatin1String(SCADA_STATE);
 
 const QOpcUaMonitoringParameters OpcUaMonitorParameters(1000);
-
+*/
 }
 
 //-----------------------------------------------------------------------------
@@ -152,15 +153,16 @@ public:
   bool AutoConnectServerFlag{ false };
 
   const QStringList ReadValueFullNodeNames = {
-//    SCADA_SYS_TIME_NODE_NAME,
-    SCADA_SYS_TIME_MOD_POS_NODE_NAME,
-    SCADA_PLAN_STRING_NODE_NAME,
-    SCADA_IDP_NODE_NAME,
-    SCADA_ECP_NODE_NAME,
-    SCADA_PLAN_OPEN_NODE_NAME,
-    SCADA_EVENT_STRING_NODE_NAME,
-    SCADA_STATE_NODE_NAME
+    QString::fromStdString(vtkSlicerU70RoomScadaOpcUaNodesNames::GetScadaSysTime()),
+    QString::fromStdString(vtkSlicerU70RoomScadaOpcUaNodesNames::GetModPosSysTime()),
+    QString::fromStdString(vtkSlicerU70RoomScadaOpcUaNodesNames::GetModPosPlanStr()),
+    QString::fromStdString(vtkSlicerU70RoomScadaOpcUaNodesNames::GetModPosIdp()),
+    QString::fromStdString(vtkSlicerU70RoomScadaOpcUaNodesNames::GetModPosEcp()),
+    QString::fromStdString(vtkSlicerU70RoomScadaOpcUaNodesNames::GetModPosPlanOpen()),
+    QString::fromStdString(vtkSlicerU70RoomScadaOpcUaNodesNames::GetModPosEventStr()),
+    QString::fromStdString(vtkSlicerU70RoomScadaOpcUaNodesNames::GetModPosSt())
   };
+
 };
 
 // --------------------------------------------------------------------------
@@ -287,14 +289,14 @@ bool qSlicerScadaOpcUaWidgetPrivate::ConnectNodes()
   vtkMRMLScadaOpcUaNode* mrmlNode = this->ParameterNode.GetPointer();
 
   // Scada System Time node (SCADA system time value - read only)
-  QOpcUaNode* scadaSysTimeNode = this->FindNodeFromFullDisplayName(SCADA_SYS_TIME_NODE_NAME);
+///  QOpcUaNode* scadaSysTimeNode = this->FindNodeFromFullDisplayName(SCADA_SYS_TIME_NODE_NAME);
   // Scada System Time Positioning Module node (Positioning module local system time - write only)
 //  QOpcUaNode* scadaSysTimeModPosNode = this->FindNodeFromFullDisplayName(SCADA_SYS_TIME_MOD_POS_NODE_NAME);
   // Scada Event String Positioning Module node (Positioning module event message and time stamp - write only)
 //  QOpcUaNode* scadaEventStrModPosNode = this->FindNodeFromFullDisplayName(SCADA_EVENT_STRING_NODE_NAME);
   // Scada State Positioning Module node (Positioning module state - write only)
 //  QOpcUaNode* scadaStateModPosNode = this->FindNodeFromFullDisplayName(SCADA_STATE_NODE_NAME);
-
+/**
   // Scada System Time node
   if (!scadaSysTimeNode)
   {
@@ -346,6 +348,7 @@ bool qSlicerScadaOpcUaWidgetPrivate::ConnectNodes()
   );
   // Subscribe to data changes
   scadaSysTimeNode->enableMonitoring(QOpcUa::NodeAttribute::Value, OpcUaMonitorParameters);
+*/
 /*
   // Scada System Time Positioning Module node
   if (!scadaSysTimeModPosNode)

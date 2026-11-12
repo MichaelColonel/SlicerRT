@@ -89,12 +89,12 @@ std::string vtkSlicerU70RoomScadaOpcUaNodesNames::GetModPosImmob()
   return std::string(PARENT_NODE_DISPLAYED_NAME) + std::string(DOT) + std::string(SCADA_IMMOB);
 }
 
-std::string vtkSlicerU70RoomScadaOpcUaNodesNames::GetModPlanOpen()
+std::string vtkSlicerU70RoomScadaOpcUaNodesNames::GetModPosPlanOpen()
 {
   return std::string(PARENT_NODE_DISPLAYED_NAME) + std::string(DOT) + std::string(SCADA_PLAN_OPEN);
 }
 
-std::string vtkSlicerU70RoomScadaOpcUaNodesNames::GetModPlanNpos()
+std::string vtkSlicerU70RoomScadaOpcUaNodesNames::GetModPosPlanNpos()
 {
   return std::string(PARENT_NODE_DISPLAYED_NAME) + std::string(DOT) + std::string(SCADA_NPOS);
 }

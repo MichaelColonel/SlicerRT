@@ -46,7 +46,6 @@
 //----------------------------------------------------------------------------
 vtkStandardNewMacro(vtkSlicerU70RoomScadaOpcUaLogic);
 
-
 //---------------------------------------------------------------------------
 class vtkSlicerU70RoomScadaOpcUaLogic::vtkInternal
 {

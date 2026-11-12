@@ -36,8 +36,8 @@ public:
   static std::string GetModPosIdp();
   static std::string GetModPosEcp();
   static std::string GetModPosImmob();
-  static std::string GetModPlanOpen();
-  static std::string GetModPlanNpos();
+  static std::string GetModPosPlanOpen();
+  static std::string GetModPosPlanNpos();
   static std::string GetScadaRemoteCtrl();
   static std::string GetScadaRemoteStateMachine();
   static std::string GetScadaRemoteCmd();
