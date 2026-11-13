@@ -3357,7 +3357,7 @@ bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectAutoManualApplyNewCoordsNodes()
         mrmlNode->GetAutoManualApplyNewCoords(amApplyNewCoordsCurrentState);
         amApplyNewCoordsCurrentState[0] = enabledValue;
         mrmlNode->GetAutoManualApplyNewCoords(amApplyNewCoordsCurrentState);
-//        qDebug() << Q_FUNC_INFO << "AutoManual ApplyNewCoords button enabled changed:" << enabledValue;
+        qDebug() << Q_FUNC_INFO << "AutoManual ApplyNewCoords button enabled changed:" << enabledValue;
       }
     }
   );
@@ -3377,7 +3377,7 @@ bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectAutoManualApplyNewCoordsNodes()
           mrmlNode->GetAutoManualApplyNewCoords(amApplyNewCoordsCurrentState);
           amApplyNewCoordsCurrentState[0] = enabledValue;
           mrmlNode->GetAutoManualApplyNewCoords(amApplyNewCoordsCurrentState);
-//          qDebug() << Q_FUNC_INFO << "AutoManual ApplyNewCoords button enabled read:" << enabledValue;
+          qDebug() << Q_FUNC_INFO << "AutoManual ApplyNewCoords button enabled read:" << enabledValue;
         }
       }
     }
