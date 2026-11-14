@@ -61,13 +61,15 @@ public:
    bool getBool(const QString& fullNodeName, bool& res);
    int8_t getInt8(const QString& fullNodeName, bool& res);
    uint8_t getUint8(const QString& fullNodeName, bool& res);
+
+   bool updateMRMLNodeFromOpcUaModeAndStatus(vtkMRMLSiemensPlcOpcUaNode* mrmlSiemensPlcNode, const std::string& fullNodeName);
    bool updateMRMLNodeFromOpcUaAutoManualButtons(vtkMRMLSiemensPlcOpcUaNode* mrmlSiemensPlcNode, const std::string& fullNodeName);
-   void updateMRMLNodeFromOpcUaServiceButtons(vtkMRMLSiemensPlcOpcUaNode* mrmlSiemensPlcNode, const std::string& fullNodeName);
-   void updateMRMLNodeFromOpcUaKukaControllersButtons(vtkMRMLSiemensPlcOpcUaNode* mrmlSiemensPlcNode, const std::string& fullNodeName);
-   void updateMRMLNodeFromOpcUaSetCoordinates(vtkMRMLSiemensPlcOpcUaNode* mrmlSiemensPlcNode, const std::string& fullNodeName);
+   bool updateMRMLNodeFromOpcUaServiceButtons(vtkMRMLSiemensPlcOpcUaNode* mrmlSiemensPlcNode, const std::string& fullNodeName);
+   bool updateMRMLNodeFromOpcUaKukaControllersButtons(vtkMRMLSiemensPlcOpcUaNode* mrmlSiemensPlcNode, const std::string& fullNodeName);
+   bool updateMRMLNodeFromOpcUaSetCoordinates(vtkMRMLSiemensPlcOpcUaNode* mrmlSiemensPlcNode, const std::string& fullNodeName);
    bool updateMRMLNodeFromOpcUaCurrentCoordinates(vtkMRMLSiemensPlcOpcUaNode* mrmlSiemensPlcNode, const std::string& fullNodeName);
    void updateMRMLNodeFromOpcUaReflectionCoordinates(vtkMRMLSiemensPlcOpcUaNode* mrmlSiemensPlcNode, const std::string& fullNodeName);
-   void updateMRMLNodeFromOpcUaFlags(vtkMRMLSiemensPlcOpcUaNode* mrmlSiemensPlcNode, const std::string& fullNodeName);
+   bool updateMRMLNodeFromOpcUaFlags(vtkMRMLSiemensPlcOpcUaNode* mrmlSiemensPlcNode, const std::string& fullNodeName);
 
   vtkSlicerU70RoomSiemensPlcOpcUaLogic* External{ nullptr };
 
@@ -323,6 +325,48 @@ vtkSlicerU70RoomSiemensPlcOpcUaLogic::vtkInternal::vtkInternal(vtkSlicerU70RoomS
 //---------------------------------------------------------------------------
 vtkSlicerU70RoomSiemensPlcOpcUaLogic::vtkInternal::~vtkInternal()
 {
+}
+
+bool vtkSlicerU70RoomSiemensPlcOpcUaLogic::vtkInternal::updateMRMLNodeFromOpcUaModeAndStatus(vtkMRMLSiemensPlcOpcUaNode* mrmlSiemensPlcNode, const std::string& fullNodeName)
+{
+  bool res = false;
+  if (fullNodeName == vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::GetMode())
+  {
+    uint8_t modeState = this->getUint8(QString::fromStdString(fullNodeName), res);
+    if (res)
+    {
+      MRMLNodeModifyBlocker block(mrmlSiemensPlcNode);
+      mrmlSiemensPlcNode->SetMode(static_cast< vtkMRMLSiemensPlcOpcUaNode::ModeType >(modeState));
+    }
+  }
+  else if (fullNodeName == vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::GetStatusRtk())
+  {
+    uint16_t rtkState = this->getUint16(QString::fromStdString(fullNodeName), res);
+    if (res)
+    {
+      MRMLNodeModifyBlocker block(mrmlSiemensPlcNode);
+      mrmlSiemensPlcNode->SetStateRtk(rtkState);
+    }
+  }
+  else if (fullNodeName == vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::GetStatusR1())
+  {
+    uint16_t r1State = this->getUint16(QString::fromStdString(fullNodeName), res);
+    if (res)
+    {
+      MRMLNodeModifyBlocker block(mrmlSiemensPlcNode);
+      mrmlSiemensPlcNode->SetStateR1(r1State);
+    }
+  }
+  else if (fullNodeName == vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::GetStatusR2())
+  {
+    uint16_t r2State = this->getUint16(QString::fromStdString(fullNodeName), res);
+    if (res)
+    {
+      MRMLNodeModifyBlocker block(mrmlSiemensPlcNode);
+      mrmlSiemensPlcNode->SetStateR2(r2State);
+    }
+  }
+  return res;
 }
 
 bool vtkSlicerU70RoomSiemensPlcOpcUaLogic::vtkInternal::updateMRMLNodeFromOpcUaCurrentCoordinates(vtkMRMLSiemensPlcOpcUaNode* mrmlSiemensPlcNode, const std::string& fullNodeName)
@@ -670,7 +714,6 @@ bool vtkSlicerU70RoomSiemensPlcOpcUaLogic::vtkInternal::updateMRMLNodeFromOpcUaC
   return res;
 }
 
-
 bool vtkSlicerU70RoomSiemensPlcOpcUaLogic::vtkInternal::updateMRMLNodeFromOpcUaAutoManualButtons(vtkMRMLSiemensPlcOpcUaNode* mrmlSiemensPlcNode, const std::string& fullNodeName)
 {
   bool res = false;
@@ -787,7 +830,8 @@ bool vtkSlicerU70RoomSiemensPlcOpcUaLogic::vtkInternal::updateMRMLNodeFromOpcUaA
       }
     }
   }
-  else if (fullNodeName == vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::GetAutoManualR2ToHomeButtonIsEnabled())
+  // R2 == C-arm
+  if (fullNodeName == vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::GetAutoManualR2ToHomeButtonIsEnabled())
   {
     bool enabled = this->getBool(QString::fromStdString(fullNodeName), res);
     if (res)
@@ -869,6 +913,679 @@ bool vtkSlicerU70RoomSiemensPlcOpcUaLogic::vtkInternal::updateMRMLNodeFromOpcUaA
         MRMLNodeModifyBlocker block(mrmlSiemensPlcNode);
         mrmlSiemensPlcNode->SetAutoManualR2ToPlane2(buttonEnabledPressed);
       }
+    }
+  }
+  // Other AM_MM buttons
+
+  if (fullNodeName == vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::GetAutoManualSetTabletopOrientationButtonIsEnabled())
+  {
+    bool enabled = this->getBool(QString::fromStdString(fullNodeName), res);
+    if (res)
+    {
+      bool buttonEnabledPressed[2] = {};
+      mrmlSiemensPlcNode->GetAutoManualApplyTabletopPosition(buttonEnabledPressed);
+      buttonEnabledPressed[0] = enabled;
+      {
+        MRMLNodeModifyBlocker block(mrmlSiemensPlcNode);
+        mrmlSiemensPlcNode->SetAutoManualApplyTabletopPosition(buttonEnabledPressed);
+      }
+    }
+  }
+  else if (fullNodeName == vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::GetAutoManualSetTabletopOrientationButtonIsPressed())
+  {
+    bool pressed = this->getBool(QString::fromStdString(fullNodeName), res);
+    if (res)
+    {
+      bool buttonEnabledPressed[2] = {};
+      mrmlSiemensPlcNode->GetAutoManualApplyTabletopPosition(buttonEnabledPressed);
+      buttonEnabledPressed[1] = pressed;
+      {
+        MRMLNodeModifyBlocker block(mrmlSiemensPlcNode);
+        mrmlSiemensPlcNode->SetAutoManualApplyTabletopPosition(buttonEnabledPressed);
+      }
+    }
+  }
+  return res;
+}
+
+bool vtkSlicerU70RoomSiemensPlcOpcUaLogic::vtkInternal::updateMRMLNodeFromOpcUaServiceButtons(vtkMRMLSiemensPlcOpcUaNode* mrmlSiemensPlcNode, const std::string& fullNodeName)
+{
+  bool res = false;
+  // R1 == Tabletop robot
+  if (fullNodeName == vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::GetServiceR1BreakTestButtonIsEnabled())
+  {
+    bool enabled = this->getBool(QString::fromStdString(fullNodeName), res);
+    if (res)
+    {
+      bool buttonEnabledPressed[2] = {};
+      mrmlSiemensPlcNode->GetServiceR1BreakTest(buttonEnabledPressed);
+      buttonEnabledPressed[0] = enabled;
+      {
+        MRMLNodeModifyBlocker block(mrmlSiemensPlcNode);
+        mrmlSiemensPlcNode->SetServiceR1BreakTest(buttonEnabledPressed);
+      }
+    }
+  }
+  else if (fullNodeName == vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::GetServiceR1BreakTestButtonIsPressed())
+  {
+    bool pressed = this->getBool(QString::fromStdString(fullNodeName), res);
+    if (res)
+    {
+      bool buttonEnabledPressed[2] = {};
+      mrmlSiemensPlcNode->GetServiceR1BreakTest(buttonEnabledPressed);
+      buttonEnabledPressed[1] = pressed;
+      {
+        MRMLNodeModifyBlocker block(mrmlSiemensPlcNode);
+        mrmlSiemensPlcNode->SetServiceR1BreakTest(buttonEnabledPressed);
+      }
+    }
+  }
+  else if (fullNodeName == vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::GetServiceR1MasterReferenceTestButtonIsEnabled())
+  {
+    bool enabled = this->getBool(QString::fromStdString(fullNodeName), res);
+    if (res)
+    {
+      bool buttonEnabledPressed[2] = {};
+      mrmlSiemensPlcNode->GetServiceR1MasterReferenceTest(buttonEnabledPressed);
+      buttonEnabledPressed[0] = enabled;
+      {
+        MRMLNodeModifyBlocker block(mrmlSiemensPlcNode);
+        mrmlSiemensPlcNode->SetServiceR1MasterReferenceTest(buttonEnabledPressed);
+      }
+    }
+  }
+  else if (fullNodeName == vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::GetServiceR1MasterReferenceTestButtonIsPressed())
+  {
+    bool pressed = this->getBool(QString::fromStdString(fullNodeName), res);
+    if (res)
+    {
+      bool buttonEnabledPressed[2] = {};
+      mrmlSiemensPlcNode->GetServiceR1MasterReferenceTest(buttonEnabledPressed);
+      buttonEnabledPressed[1] = pressed;
+      {
+        MRMLNodeModifyBlocker block(mrmlSiemensPlcNode);
+        mrmlSiemensPlcNode->SetServiceR1MasterReferenceTest(buttonEnabledPressed);
+      }
+    }
+  }
+  else if (fullNodeName == vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::GetServiceR1LoadButtonIsEnabled())
+  {
+    bool enabled = this->getBool(QString::fromStdString(fullNodeName), res);
+    if (res)
+    {
+      bool buttonEnabledPressed[2] = {};
+      mrmlSiemensPlcNode->GetServiceR1Load(buttonEnabledPressed);
+      buttonEnabledPressed[0] = enabled;
+      {
+        MRMLNodeModifyBlocker block(mrmlSiemensPlcNode);
+        mrmlSiemensPlcNode->SetServiceR1Load(buttonEnabledPressed);
+      }
+    }
+  }
+  else if (fullNodeName == vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::GetServiceR1LoadButtonIsPressed())
+  {
+    bool pressed = this->getBool(QString::fromStdString(fullNodeName), res);
+    if (res)
+    {
+      bool buttonEnabledPressed[2] = {};
+      mrmlSiemensPlcNode->GetServiceR1Load(buttonEnabledPressed);
+      buttonEnabledPressed[1] = pressed;
+      {
+        MRMLNodeModifyBlocker block(mrmlSiemensPlcNode);
+        mrmlSiemensPlcNode->SetServiceR1Load(buttonEnabledPressed);
+      }
+    }
+  }
+  else if (fullNodeName == vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::GetServiceR1ServicePosition1ButtonIsEnabled())
+  {
+    bool enabled = this->getBool(QString::fromStdString(fullNodeName), res);
+    if (res)
+    {
+      bool buttonEnabledPressed[2] = {};
+      mrmlSiemensPlcNode->GetServiceR1Position1(buttonEnabledPressed);
+      buttonEnabledPressed[0] = enabled;
+      {
+        MRMLNodeModifyBlocker block(mrmlSiemensPlcNode);
+        mrmlSiemensPlcNode->SetServiceR1Position1(buttonEnabledPressed);
+      }
+    }
+  }
+  else if (fullNodeName == vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::GetServiceR1ServicePosition1ButtonIsPressed())
+  {
+    bool pressed = this->getBool(QString::fromStdString(fullNodeName), res);
+    if (res)
+    {
+      bool buttonEnabledPressed[2] = {};
+      mrmlSiemensPlcNode->GetServiceR1Position1(buttonEnabledPressed);
+      buttonEnabledPressed[1] = pressed;
+      {
+        MRMLNodeModifyBlocker block(mrmlSiemensPlcNode);
+        mrmlSiemensPlcNode->SetServiceR1Position1(buttonEnabledPressed);
+      }
+    }
+  }
+  else if (fullNodeName == vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::GetServiceR1ServicePosition2ButtonIsEnabled())
+  {
+    bool enabled = this->getBool(QString::fromStdString(fullNodeName), res);
+    if (res)
+    {
+      bool buttonEnabledPressed[2] = {};
+      mrmlSiemensPlcNode->GetServiceR1Position2(buttonEnabledPressed);
+      buttonEnabledPressed[0] = enabled;
+      {
+        MRMLNodeModifyBlocker block(mrmlSiemensPlcNode);
+        mrmlSiemensPlcNode->SetServiceR1Position2(buttonEnabledPressed);
+      }
+    }
+  }
+  else if (fullNodeName == vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::GetServiceR1ServicePosition2ButtonIsPressed())
+  {
+    bool pressed = this->getBool(QString::fromStdString(fullNodeName), res);
+    if (res)
+    {
+      bool buttonEnabledPressed[2] = {};
+      mrmlSiemensPlcNode->GetServiceR1Position2(buttonEnabledPressed);
+      buttonEnabledPressed[1] = pressed;
+      {
+        MRMLNodeModifyBlocker block(mrmlSiemensPlcNode);
+        mrmlSiemensPlcNode->SetServiceR1Position2(buttonEnabledPressed);
+      }
+    }
+  }
+  else if (fullNodeName == vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::GetServiceR1ServicePosition3ButtonIsEnabled())
+  {
+    bool enabled = this->getBool(QString::fromStdString(fullNodeName), res);
+    if (res)
+    {
+      bool buttonEnabledPressed[2] = {};
+      mrmlSiemensPlcNode->GetServiceR1Position3(buttonEnabledPressed);
+      buttonEnabledPressed[0] = enabled;
+      {
+        MRMLNodeModifyBlocker block(mrmlSiemensPlcNode);
+        mrmlSiemensPlcNode->SetServiceR1Position3(buttonEnabledPressed);
+      }
+    }
+  }
+  else if (fullNodeName == vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::GetServiceR1ServicePosition3ButtonIsPressed())
+  {
+    bool pressed = this->getBool(QString::fromStdString(fullNodeName), res);
+    if (res)
+    {
+      bool buttonEnabledPressed[2] = {};
+      mrmlSiemensPlcNode->GetServiceR1Position3(buttonEnabledPressed);
+      buttonEnabledPressed[1] = pressed;
+      {
+        MRMLNodeModifyBlocker block(mrmlSiemensPlcNode);
+        mrmlSiemensPlcNode->SetServiceR1Position3(buttonEnabledPressed);
+      }
+    }
+  }
+
+  // R2 == C-arm
+  if (fullNodeName == vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::GetServiceR2BreakTestButtonIsEnabled())
+  {
+    bool enabled = this->getBool(QString::fromStdString(fullNodeName), res);
+    if (res)
+    {
+      bool buttonEnabledPressed[2] = {};
+      mrmlSiemensPlcNode->GetServiceR2BreakTest(buttonEnabledPressed);
+      buttonEnabledPressed[0] = enabled;
+      {
+        MRMLNodeModifyBlocker block(mrmlSiemensPlcNode);
+        mrmlSiemensPlcNode->SetServiceR2BreakTest(buttonEnabledPressed);
+      }
+    }
+  }
+  else if (fullNodeName == vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::GetServiceR2BreakTestButtonIsPressed())
+  {
+    bool pressed = this->getBool(QString::fromStdString(fullNodeName), res);
+    if (res)
+    {
+      bool buttonEnabledPressed[2] = {};
+      mrmlSiemensPlcNode->GetServiceR2BreakTest(buttonEnabledPressed);
+      buttonEnabledPressed[1] = pressed;
+      {
+        MRMLNodeModifyBlocker block(mrmlSiemensPlcNode);
+        mrmlSiemensPlcNode->SetServiceR2BreakTest(buttonEnabledPressed);
+      }
+    }
+  }
+  else if (fullNodeName == vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::GetServiceR2MasterReferenceTestButtonIsEnabled())
+  {
+    bool enabled = this->getBool(QString::fromStdString(fullNodeName), res);
+    if (res)
+    {
+      bool buttonEnabledPressed[2] = {};
+      mrmlSiemensPlcNode->GetServiceR2MasterReferenceTest(buttonEnabledPressed);
+      buttonEnabledPressed[0] = enabled;
+      {
+        MRMLNodeModifyBlocker block(mrmlSiemensPlcNode);
+        mrmlSiemensPlcNode->SetServiceR2MasterReferenceTest(buttonEnabledPressed);
+      }
+    }
+  }
+  else if (fullNodeName == vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::GetServiceR2MasterReferenceTestButtonIsPressed())
+  {
+    bool pressed = this->getBool(QString::fromStdString(fullNodeName), res);
+    if (res)
+    {
+      bool buttonEnabledPressed[2] = {};
+      mrmlSiemensPlcNode->GetServiceR2MasterReferenceTest(buttonEnabledPressed);
+      buttonEnabledPressed[1] = pressed;
+      {
+        MRMLNodeModifyBlocker block(mrmlSiemensPlcNode);
+        mrmlSiemensPlcNode->SetServiceR2MasterReferenceTest(buttonEnabledPressed);
+      }
+    }
+  }
+  else if (fullNodeName == vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::GetServiceR2HomeButtonIsEnabled())
+  {
+    bool enabled = this->getBool(QString::fromStdString(fullNodeName), res);
+    if (res)
+    {
+      bool buttonEnabledPressed[2] = {};
+      mrmlSiemensPlcNode->GetServiceR2Home(buttonEnabledPressed);
+      buttonEnabledPressed[0] = enabled;
+      {
+        MRMLNodeModifyBlocker block(mrmlSiemensPlcNode);
+        mrmlSiemensPlcNode->SetServiceR2Home(buttonEnabledPressed);
+      }
+    }
+  }
+  else if (fullNodeName == vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::GetServiceR2HomeButtonIsPressed())
+  {
+    bool pressed = this->getBool(QString::fromStdString(fullNodeName), res);
+    if (res)
+    {
+      bool buttonEnabledPressed[2] = {};
+      mrmlSiemensPlcNode->GetServiceR2Home(buttonEnabledPressed);
+      buttonEnabledPressed[1] = pressed;
+      {
+        MRMLNodeModifyBlocker block(mrmlSiemensPlcNode);
+        mrmlSiemensPlcNode->SetServiceR2Home(buttonEnabledPressed);
+      }
+    }
+  }
+  else if (fullNodeName == vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::GetServiceR2ServicePosition1ButtonIsEnabled())
+  {
+    bool enabled = this->getBool(QString::fromStdString(fullNodeName), res);
+    if (res)
+    {
+      bool buttonEnabledPressed[2] = {};
+      mrmlSiemensPlcNode->GetServiceR2Position1(buttonEnabledPressed);
+      buttonEnabledPressed[0] = enabled;
+      {
+        MRMLNodeModifyBlocker block(mrmlSiemensPlcNode);
+        mrmlSiemensPlcNode->SetServiceR2Position1(buttonEnabledPressed);
+      }
+    }
+  }
+  else if (fullNodeName == vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::GetServiceR2ServicePosition1ButtonIsPressed())
+  {
+    bool pressed = this->getBool(QString::fromStdString(fullNodeName), res);
+    if (res)
+    {
+      bool buttonEnabledPressed[2] = {};
+      mrmlSiemensPlcNode->GetServiceR2Position1(buttonEnabledPressed);
+      buttonEnabledPressed[1] = pressed;
+      {
+        MRMLNodeModifyBlocker block(mrmlSiemensPlcNode);
+        mrmlSiemensPlcNode->SetServiceR2Position1(buttonEnabledPressed);
+      }
+    }
+  }
+  else if (fullNodeName == vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::GetServiceR2ServicePosition2ButtonIsEnabled())
+  {
+    bool enabled = this->getBool(QString::fromStdString(fullNodeName), res);
+    if (res)
+    {
+      bool buttonEnabledPressed[2] = {};
+      mrmlSiemensPlcNode->GetServiceR2Position2(buttonEnabledPressed);
+      buttonEnabledPressed[0] = enabled;
+      {
+        MRMLNodeModifyBlocker block(mrmlSiemensPlcNode);
+        mrmlSiemensPlcNode->SetServiceR2Position2(buttonEnabledPressed);
+      }
+    }
+  }
+  else if (fullNodeName == vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::GetServiceR2ServicePosition2ButtonIsPressed())
+  {
+    bool pressed = this->getBool(QString::fromStdString(fullNodeName), res);
+    if (res)
+    {
+      bool buttonEnabledPressed[2] = {};
+      mrmlSiemensPlcNode->GetServiceR2Position2(buttonEnabledPressed);
+      buttonEnabledPressed[1] = pressed;
+      {
+        MRMLNodeModifyBlocker block(mrmlSiemensPlcNode);
+        mrmlSiemensPlcNode->SetServiceR2Position2(buttonEnabledPressed);
+      }
+    }
+  }
+  else if (fullNodeName == vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::GetServiceR2ServicePosition3ButtonIsEnabled())
+  {
+    bool enabled = this->getBool(QString::fromStdString(fullNodeName), res);
+    if (res)
+    {
+      bool buttonEnabledPressed[2] = {};
+      mrmlSiemensPlcNode->GetServiceR2Position3(buttonEnabledPressed);
+      buttonEnabledPressed[0] = enabled;
+      {
+        MRMLNodeModifyBlocker block(mrmlSiemensPlcNode);
+        mrmlSiemensPlcNode->SetServiceR2Position3(buttonEnabledPressed);
+      }
+    }
+  }
+  else if (fullNodeName == vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::GetServiceR2ServicePosition3ButtonIsPressed())
+  {
+    bool pressed = this->getBool(QString::fromStdString(fullNodeName), res);
+    if (res)
+    {
+      bool buttonEnabledPressed[2] = {};
+      mrmlSiemensPlcNode->GetServiceR2Position3(buttonEnabledPressed);
+      buttonEnabledPressed[1] = pressed;
+      {
+        MRMLNodeModifyBlocker block(mrmlSiemensPlcNode);
+        mrmlSiemensPlcNode->SetServiceR2Position3(buttonEnabledPressed);
+      }
+    }
+  }
+
+  return res;
+}
+
+bool vtkSlicerU70RoomSiemensPlcOpcUaLogic::vtkInternal::updateMRMLNodeFromOpcUaKukaControllersButtons(vtkMRMLSiemensPlcOpcUaNode* mrmlSiemensPlcNode, const std::string& fullNodeName)
+{
+  bool res = false;
+  if (fullNodeName == vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::GetKukaControllersAllowT1ButtonIsEnabled())
+  {
+    bool enabled = this->getBool(QString::fromStdString(fullNodeName), res);
+    if (res)
+    {
+      bool buttonEnabledPressed[2] = {};
+      mrmlSiemensPlcNode->GetKukaAllowT1(buttonEnabledPressed);
+      buttonEnabledPressed[0] = enabled;
+      {
+        MRMLNodeModifyBlocker block(mrmlSiemensPlcNode);
+        mrmlSiemensPlcNode->SetKukaAllowT1(buttonEnabledPressed);
+      }
+    }
+  }
+  else if (fullNodeName == vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::GetKukaControllersAllowT1ButtonIsPressed())
+  {
+    bool pressed = this->getBool(QString::fromStdString(fullNodeName), res);
+    if (res)
+    {
+      bool buttonEnabledPressed[2] = {};
+      mrmlSiemensPlcNode->GetKukaAllowT1(buttonEnabledPressed);
+      buttonEnabledPressed[1] = pressed;
+      {
+        MRMLNodeModifyBlocker block(mrmlSiemensPlcNode);
+        mrmlSiemensPlcNode->SetKukaAllowT1(buttonEnabledPressed);
+      }
+    }
+  }
+  else if (fullNodeName == vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::GetKukaControllersAllowXrayButtonIsEnabled())
+  {
+    bool enabled = this->getBool(QString::fromStdString(fullNodeName), res);
+    if (res)
+    {
+      bool buttonEnabledPressed[2] = {};
+      mrmlSiemensPlcNode->GetKukaAllowXray(buttonEnabledPressed);
+      buttonEnabledPressed[0] = enabled;
+      {
+        MRMLNodeModifyBlocker block(mrmlSiemensPlcNode);
+        mrmlSiemensPlcNode->SetKukaAllowXray(buttonEnabledPressed);
+      }
+    }
+  }
+  else if (fullNodeName == vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::GetKukaControllersAllowXrayButtonIsPressed())
+  {
+    bool pressed = this->getBool(QString::fromStdString(fullNodeName), res);
+    if (res)
+    {
+      bool buttonEnabledPressed[2] = {};
+      mrmlSiemensPlcNode->GetKukaAllowXray(buttonEnabledPressed);
+      buttonEnabledPressed[1] = pressed;
+      {
+        MRMLNodeModifyBlocker block(mrmlSiemensPlcNode);
+        mrmlSiemensPlcNode->SetKukaAllowXray(buttonEnabledPressed);
+      }
+    }
+  }
+  else if (fullNodeName == vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::GetKukaControllersAllowBeamButtonIsEnabled())
+  {
+    bool enabled = this->getBool(QString::fromStdString(fullNodeName), res);
+    if (res)
+    {
+      bool buttonEnabledPressed[2] = {};
+      mrmlSiemensPlcNode->GetKukaAllowBeam(buttonEnabledPressed);
+      buttonEnabledPressed[0] = enabled;
+      {
+        MRMLNodeModifyBlocker block(mrmlSiemensPlcNode);
+        mrmlSiemensPlcNode->SetKukaAllowBeam(buttonEnabledPressed);
+      }
+    }
+  }
+  else if (fullNodeName == vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::GetKukaControllersAllowBeamButtonIsPressed())
+  {
+    bool pressed = this->getBool(QString::fromStdString(fullNodeName), res);
+    if (res)
+    {
+      bool buttonEnabledPressed[2] = {};
+      mrmlSiemensPlcNode->GetKukaAllowBeam(buttonEnabledPressed);
+      buttonEnabledPressed[1] = pressed;
+      {
+        MRMLNodeModifyBlocker block(mrmlSiemensPlcNode);
+        mrmlSiemensPlcNode->SetKukaAllowBeam(buttonEnabledPressed);
+      }
+    }
+  }
+
+  return res;
+}
+
+bool vtkSlicerU70RoomSiemensPlcOpcUaLogic::vtkInternal::updateMRMLNodeFromOpcUaSetCoordinates(vtkMRMLSiemensPlcOpcUaNode* mrmlSiemensPlcNode, const std::string& fullNodeName)
+{
+  bool res = false;
+  if (fullNodeName == vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::GetSetCoordX())
+  {
+    int32_t coord_x = this->getInt32(QString::fromStdString(fullNodeName), res);
+    if (res)
+    {
+      MRMLNodeModifyBlocker block(mrmlSiemensPlcNode);
+      mrmlSiemensPlcNode->SetCoordsX(coord_x);
+    }
+  }
+  else if (fullNodeName == vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::GetSetCoordY())
+  {
+    int32_t coord_y = this->getInt32(QString::fromStdString(fullNodeName), res);
+    if (res)
+    {
+      MRMLNodeModifyBlocker block(mrmlSiemensPlcNode);
+      mrmlSiemensPlcNode->SetCoordsY(coord_y);
+    }
+  }
+  else if (fullNodeName == vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::GetSetCoordZ())
+  {
+    int32_t coord_z = this->getInt32(QString::fromStdString(fullNodeName), res);
+    if (res)
+    {
+      MRMLNodeModifyBlocker block(mrmlSiemensPlcNode);
+      mrmlSiemensPlcNode->SetCoordsZ(coord_z);
+    }
+  }
+  else if (fullNodeName == vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::GetSetCoordA())
+  {
+    int32_t angle_a = this->getInt32(QString::fromStdString(fullNodeName), res);
+    if (res)
+    {
+      MRMLNodeModifyBlocker block(mrmlSiemensPlcNode);
+      mrmlSiemensPlcNode->SetCoordsA(angle_a);
+    }
+  }
+  else if (fullNodeName == vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::GetSetCoordB())
+  {
+    int32_t angle_b = this->getInt32(QString::fromStdString(fullNodeName), res);
+    if (res)
+    {
+      MRMLNodeModifyBlocker block(mrmlSiemensPlcNode);
+      mrmlSiemensPlcNode->SetCoordsB(angle_b);
+    }
+  }
+  else if (fullNodeName == vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::GetSetCoordC())
+  {
+    int32_t angle_c = this->getInt32(QString::fromStdString(fullNodeName), res);
+    if (res)
+    {
+      MRMLNodeModifyBlocker block(mrmlSiemensPlcNode);
+      mrmlSiemensPlcNode->SetCoordsC(angle_c);
+    }
+  }
+
+  // Other coordinates as a Patient (tabletop) position/orientation and
+  else if (fullNodeName == vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::GetTabletopOrientation())
+  {
+    uint8_t tabletopPosition = this->getUint8(QString::fromStdString(fullNodeName), res);
+    if (res)
+    {
+      MRMLNodeModifyBlocker block(mrmlSiemensPlcNode);
+      mrmlSiemensPlcNode->SetTableTopPosition(tabletopPosition);
+    }
+  }
+  return res;
+}
+
+bool vtkSlicerU70RoomSiemensPlcOpcUaLogic::vtkInternal::updateMRMLNodeFromOpcUaFlags(vtkMRMLSiemensPlcOpcUaNode* mrmlSiemensPlcNode, const std::string& fullNodeName)
+{
+  bool res = false;
+
+  if (fullNodeName == vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::GetErrorsFlags())
+  {
+    uint64_t errMsgFlags = this->getUint64(QString::fromStdString(fullNodeName), res);
+    if (res)
+    {
+      mrmlSiemensPlcNode->SetErrorMessages(errMsgFlags);
+    }
+  }
+  else if (fullNodeName == vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::GetServiceFlags())
+  {
+    uint64_t servMsgFlags = this->getUint64(QString::fromStdString(fullNodeName), res);
+    if (res)
+    {
+      mrmlSiemensPlcNode->SetServiceMessages(servMsgFlags);
+    }
+  }
+  else if (fullNodeName == vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::GetMessagesFlags())
+  {
+    uint64_t msgFlags = this->getUint64(QString::fromStdString(fullNodeName), res);
+    if (res)
+    {
+      mrmlSiemensPlcNode->SetMiscMessages(msgFlags);
+    }
+  }
+  else if (fullNodeName == vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::GetCoordinatesAcceptedR1Flag())
+  {
+    bool flag = this->getBool(QString::fromStdString(fullNodeName), res);
+    bool acceptedCoordsFlags[4] = {};
+    if (res)
+    {
+      mrmlSiemensPlcNode->GetCoordsAccepted(acceptedCoordsFlags);
+      acceptedCoordsFlags[0] = flag;
+      {
+        MRMLNodeModifyBlocker block(mrmlSiemensPlcNode);
+        mrmlSiemensPlcNode->SetCoordsAccepted(acceptedCoordsFlags);
+      }
+    }
+  }
+  else if (fullNodeName == vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::GetCoordinatesNotAcceptedR1Flag())
+  {
+    bool flag = this->getBool(QString::fromStdString(fullNodeName), res);
+    bool acceptedCoordsFlags[4] = {};
+    if (res)
+    {
+      mrmlSiemensPlcNode->GetCoordsAccepted(acceptedCoordsFlags);
+      acceptedCoordsFlags[1] = flag;
+      {
+        MRMLNodeModifyBlocker block(mrmlSiemensPlcNode);
+        mrmlSiemensPlcNode->SetCoordsAccepted(acceptedCoordsFlags);
+      }
+    }
+  }
+  else if (fullNodeName == vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::GetCoordinatesAcceptedR2Flag())
+  {
+    bool flag = this->getBool(QString::fromStdString(fullNodeName), res);
+    bool acceptedCoordsFlags[4] = {};
+    if (res)
+    {
+      mrmlSiemensPlcNode->GetCoordsAccepted(acceptedCoordsFlags);
+      acceptedCoordsFlags[2] = flag;
+      {
+        MRMLNodeModifyBlocker block(mrmlSiemensPlcNode);
+        mrmlSiemensPlcNode->SetCoordsAccepted(acceptedCoordsFlags);
+      }
+    }
+  }
+  else if (fullNodeName == vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::GetCoordinatesNotAcceptedR2Flag())
+  {
+    bool flag = this->getBool(QString::fromStdString(fullNodeName), res);
+    bool acceptedCoordsFlags[4] = {};
+    if (res)
+    {
+      mrmlSiemensPlcNode->GetCoordsAccepted(acceptedCoordsFlags);
+      acceptedCoordsFlags[3] = flag;
+      {
+        MRMLNodeModifyBlocker block(mrmlSiemensPlcNode);
+        mrmlSiemensPlcNode->SetCoordsAccepted(acceptedCoordsFlags);
+      }
+    }
+  }
+  else if (fullNodeName == vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::GetComingHomeHoldButtonPressedFlag())
+  {
+    bool flag = this->getBool(QString::fromStdString(fullNodeName), res);
+    if (res)
+    {
+      mrmlSiemensPlcNode->SetHoldButtonPressedForMovingFlag(flag);
+    }
+  }
+  else if (fullNodeName == vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::GetReadyForXray1Flag())
+  {
+    bool flag = this->getBool(QString::fromStdString(fullNodeName), res);
+    if (res)
+    {
+      mrmlSiemensPlcNode->SetRobotsReadyForXray1(flag);
+    }
+  }
+  else if (fullNodeName == vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::GetReadyForXray2Flag())
+  {
+    bool flag = this->getBool(QString::fromStdString(fullNodeName), res);
+    if (res)
+    {
+      mrmlSiemensPlcNode->SetRobotsReadyForXray2(flag);
+    }
+  }
+  else if (fullNodeName == vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::GetReadyForBeamFlag())
+  {
+    bool flag = this->getBool(QString::fromStdString(fullNodeName), res);
+    if (res)
+    {
+      mrmlSiemensPlcNode->SetRobotsReadyForBeam(flag);
+    }
+  }
+  else if (fullNodeName == vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::GetEmergencyEvacuationFlag())
+  {
+    bool flag = this->getBool(QString::fromStdString(fullNodeName), res);
+    if (res)
+    {
+      mrmlSiemensPlcNode->SetEmergencyEvacSignal(flag);
+    }
+  }
+  else if (fullNodeName == vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::GetPatientOnTheTableFlag())
+  {
+    bool flag = this->getBool(QString::fromStdString(fullNodeName), res);
+    if (res)
+    {
+      mrmlSiemensPlcNode->SetPatientOnTableTop(flag);
     }
   }
   return res;
@@ -1145,29 +1862,10 @@ void vtkSlicerU70RoomSiemensPlcOpcUaLogic::UpdateMRMLNodeFromOpcUaNodeValue(vtkM
     return;
   }
 
-  if (fullNodeName == vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::GetErrorsFlags())
-  {
-    uint64_t errMsgFlags = this->Internal->getUint64(QString::fromStdString(fullNodeName), res);
-    if (res)
-    {
-      mrmlSiemensPlcNode->SetErrorMessages(errMsgFlags);
-    }
-  }
-  else if (fullNodeName == vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::GetServiceFlags())
-  {
-    uint64_t servMsgFlags = this->Internal->getUint64(QString::fromStdString(fullNodeName), res);
-    if (res)
-    {
-      mrmlSiemensPlcNode->SetServiceMessages(servMsgFlags);
-    }
-  }
-  else if (fullNodeName == vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::GetMessagesFlags())
-  {
-    uint64_t msgFlags = this->Internal->getUint64(QString::fromStdString(fullNodeName), res);
-    if (res)
-    {
-      mrmlSiemensPlcNode->SetMiscMessages(msgFlags);
-    }
-  }
-  res = this->Internal->updateMRMLNodeFromOpcUaCurrentCoordinates(mrmlSiemensPlcNode, fullNodeName);
+  res &= this->Internal->updateMRMLNodeFromOpcUaModeAndStatus(mrmlSiemensPlcNode, fullNodeName);
+  res &= this->Internal->updateMRMLNodeFromOpcUaFlags(mrmlSiemensPlcNode, fullNodeName);
+  res &= this->Internal->updateMRMLNodeFromOpcUaCurrentCoordinates(mrmlSiemensPlcNode, fullNodeName);
+  res &= this->Internal->updateMRMLNodeFromOpcUaAutoManualButtons(mrmlSiemensPlcNode, fullNodeName);
+  res &= this->Internal->updateMRMLNodeFromOpcUaServiceButtons(mrmlSiemensPlcNode, fullNodeName);
+  res &= this->Internal->updateMRMLNodeFromOpcUaKukaControllersButtons(mrmlSiemensPlcNode, fullNodeName);
 }

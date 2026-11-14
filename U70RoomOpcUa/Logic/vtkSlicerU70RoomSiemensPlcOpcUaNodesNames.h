@@ -151,6 +151,12 @@ public:
   static std::string GetPatientOnTheTableFlag();
   static std::string GetTabletopOrientation();
 
+  static std::string GetSetCoordX();
+  static std::string GetSetCoordY();
+  static std::string GetSetCoordZ();
+  static std::string GetSetCoordA();
+  static std::string GetSetCoordB();
+  static std::string GetSetCoordC();
 };
 
 #endif

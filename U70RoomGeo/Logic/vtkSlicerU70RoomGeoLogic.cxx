@@ -545,8 +545,22 @@ void vtkSlicerU70RoomGeoLogic::ProcessMRMLNodesEvents(vtkObject* caller, unsigne
     vtkMRMLChannel26GeometryNode* channel26Geometry = vtkMRMLChannel26GeometryNode::SafeDownCast(caller);
     if (event == vtkCommand::ModifiedEvent)
     {
+/*
       this->Channel26RoomRobotsLogic->UpdateFrameToRasHierarchy(channel26Geometry, CoordSys::TableTop);
 
+      double pos[3] = {};
+      double res[3];
+      if (this->Channel26RoomRobotsLogic->GetTransformForPointBetweenFrames(CoordSys::TableRobotFlange,
+        CoordSys::TableRobotBaseFixed, pos, res))
+      {
+        vtkErrorMacro("ProcessMRMLNodesEvents: TabletopRobotFlange in TabletopRobotBaseFixed = [0., 0., 0.] " << res[0] << ' ' << res[1] << ' ' << res[2]);
+      }
+      if (this->Channel26RoomRobotsLogic->GetTransformForPointBetweenFrames(CoordSys::CarmRobotFlange,
+        CoordSys::CarmRobotBaseFixed, pos, res))
+      {
+        vtkErrorMacro("ProcessMRMLNodesEvents: CarmRobotFlange in CarmRobotBaseFixed = [240., 0., 0.] " << res[0] << ' ' << res[1] << ' ' << res[2]);
+      }
+*/
 ///      this->Channel26RoomRobotsLogic->UpdateTableTopPlaneNode(channel26Geometry);
 ///      this->Channel26RoomRobotsLogic->UpdateTableTopFiducialNode(channel26Geometry);
 /*

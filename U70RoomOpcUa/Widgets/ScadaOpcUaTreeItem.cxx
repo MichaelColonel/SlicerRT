@@ -37,8 +37,6 @@
 
 #include <vtkMRMLScadaOpcUaNode.h>
 
-#include <bitset>
-
 namespace {
 
 constexpr int numberOfDisplayColumns = 7; // NodeId, Value, NodeClass, DataType, BrowseName, DisplayName, Description
@@ -481,10 +479,13 @@ QList< QPointer< ScadaOpcUaTreeItem > > ScadaOpcUaTreeItem::findLeafValueItems(S
   // all the children (items of the list ) items of the parent message item
   // Since messages are list of flags, we get the item of the messages, rather than
   // all the children (items of the list ) items of the parent message item
+  QString displayNameNode = item->getNodeDisplayName();
+
   bool nodesFlag = \
-    (item->getNodeDisplayName() == QString(SCADA_SYSTIME_NODE)) || \
-    (item->getNodeDisplayName() == QString(SCADA_EVENT_STRING_NODE)) || \
-    (item->getNodeDisplayName() == QString(SCADA_ERROR_STRING_NODE));
+    (item->getNodeDisplayName() == QLatin1String(SCADA_SYS_TIME)) || \
+    (item->getNodeDisplayName() == QLatin1String(SCADA_SYS_TIME_MOD_POS)) || \
+    (item->getNodeDisplayName() == QLatin1String(SCADA_EVENT_STR)) || \
+    (item->getNodeDisplayName() == QLatin1String(SCADA_ST));
 
   if (!item->currentChildCount() || nodesFlag)
   {

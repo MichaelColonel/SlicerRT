@@ -151,12 +151,17 @@ std::string GetRtkPlcAsuAutoManualButtons()
 
 std::string GetRtkPlcAsuServiceButtons()
 {
-    return GetRtkPlcAsuButtons() + std::string(DOT) + std::string(SM);
+  return GetRtkPlcAsuButtons() + std::string(DOT) + std::string(SM);
 }
 
 std::string GetRtkPlcAsuKukaControllesButtons()
 {
-    return GetRtkPlcAsuButtons() + std::string(DOT) + std::string(KCM);
+  return GetRtkPlcAsuButtons() + std::string(DOT) + std::string(KCM);
+}
+
+std::string GetRtkPlcAsuSetCoords()
+{
+  return GetRtkPlcAsu() + std::string(DOT) + std::string(SETCOORDS);
 }
 
 } // namespace
@@ -689,4 +694,34 @@ std::string vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::GetPatientOnTheTableFlag(
 std::string vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::GetTabletopOrientation()
 {
   return GetRtkPlcAsu() + std::string(DOT) + std::string(TABLEPOSITION);
+}
+
+std::string vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::GetSetCoordX()
+{
+  return GetRtkPlcAsuSetCoords() + std::string(DOT) + std::string(KUKAX);
+}
+
+std::string vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::GetSetCoordY()
+{
+  return GetRtkPlcAsuSetCoords() + std::string(DOT) + std::string(KUKAY);
+}
+
+std::string vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::GetSetCoordZ()
+{
+  return GetRtkPlcAsuSetCoords() + std::string(DOT) + std::string(KUKAZ);
+}
+
+std::string vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::GetSetCoordA()
+{
+  return GetRtkPlcAsuSetCoords() + std::string(DOT) + std::string(KUKAA);
+}
+
+std::string vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::GetSetCoordB()
+{
+  return GetRtkPlcAsuSetCoords() + std::string(DOT) + std::string(KUKAB);
+}
+
+std::string vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::GetSetCoordC()
+{
+  return GetRtkPlcAsuSetCoords() + std::string(DOT) + std::string(KUKAC);
 }

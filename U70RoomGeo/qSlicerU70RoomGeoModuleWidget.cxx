@@ -100,7 +100,7 @@ qSlicerU70RoomGeoModuleWidgetPrivate::qSlicerU70RoomGeoModuleWidgetPrivate(qSlic
   , ModuleWindowInitialized(false)
 {
   Q_Q(qSlicerU70RoomGeoModuleWidget);
-  this->TimerGeometryUpdater->setInterval(100);
+  this->TimerGeometryUpdater->setInterval(200);
   this->TimerGeometryUpdater->stop();
 }
 
@@ -1660,7 +1660,8 @@ void qSlicerU70RoomGeoModuleWidget::onResetTabletopClicked()
   if (channel26Logic && channel26GeometryNode)
   {
     using SysCoord = vtkSlicerChannel26RoomRobotsTransformLogic::CoordinateSystemIdentifier;
-    channel26Logic->UpdateTransformsHierarchy(channel26GeometryNode, SysCoord::TableTop);
+    channel26Logic->UpdateFrameToRasHierarchy(channel26GeometryNode, SysCoord::TableTop);
+//    channel26Logic->UpdateTransformsHierarchy(channel26GeometryNode, SysCoord::TableTop);
   }
   channel26GeometryNode->Modified();
 //  this->checkForCollisions();

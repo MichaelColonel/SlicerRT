@@ -37,10 +37,38 @@ class Q_SLICER_MODULE_U70ROOMOPCUA_WIDGETS_EXPORT ScadaOpcUaTreeItem : public QO
 {
   Q_OBJECT
 public:
-  static constexpr const char* SCADA_POSITION_MODULE_NODE_ID = "ns=1;s=Модуль позиционирования";
-  static constexpr const char* SCADA_SYSTIME_NODE = "SysTimeScada";
-  static constexpr const char* SCADA_EVENT_STRING_NODE = "EventStr";
-  static constexpr const char* SCADA_ERROR_STRING_NODE = "ErrStr";
+  static constexpr const char* SCADA_POSITION_MODULE_NODE_ID = "ns=1;s=BEAM_U70.Therapy.Cabin3.MP";
+
+  static constexpr const char* SCADA_SYS_TIME = "SysTimeScada";
+  static constexpr const char* SCADA_SYS_TIME_MOD_POS = "SysTimeModPos";
+  static constexpr const char* SCADA_PLAN_STR = "PlanStr";
+  static constexpr const char* SCADA_IDP = "IDP";
+  static constexpr const char* SCADA_ECP = "ECP";
+  static constexpr const char* SCADA_IMMOB = "Immob";
+  static constexpr const char* SCADA_PLAN_OPEN = "PlanOpen";
+  static constexpr const char* SCADA_NPOS = "NPos";
+  static constexpr const char* SCADA_REMOTE_CTRL = "RemoteCtrl";
+  static constexpr const char* SCADA_REMOTE_STATE_MACHINE = "RemoteStateMachine";
+  static constexpr const char* SCADA_REMOTE_CMD = "RemoteCmd";
+  static constexpr const char* SCADA_REMOTE_PAUSE = "RemotePause";
+  static constexpr const char* SCADA_REMOTE_AVR = "RemoteAvr";
+  static constexpr const char* SCADA_DOOR_BLOCK = "DoorBlock";
+  static constexpr const char* SCADA_READY_EQ = "ReadyEq";
+  static constexpr const char* SCADA_READY_PLAN = "ReadyPlan";
+  static constexpr const char* SCADA_READY_PROC = "ReadyProc";
+  static constexpr const char* SCADA_ST = "St";
+  static constexpr const char* SCADA_IN_QUEUE = "InQueue";
+  static constexpr const char* SCADA_READY_ST = "ReadySt";
+  static constexpr const char* SCADA_BLOCK = "Block";
+  static constexpr const char* SCADA_CURRENT_LAYER = "CurrentLayer";
+  static constexpr const char* SCADA_MAX_LAYER = "MaxLayer";
+  static constexpr const char* SCADA_PROC_LAYER = "ProcLayer";
+  static constexpr const char* SCADA_PROC_END = "ProcEnd";
+  static constexpr const char* SCADA_PROC_NOTE = "ProcNote";
+  static constexpr const char* SCADA_REC_CLOSE = "RecClose";
+  static constexpr const char* SCADA_ERR_STR = "ErrStr";
+  static constexpr const char* SCADA_EVENT_STR = "EventStr";
+
   
   explicit ScadaOpcUaTreeItem(ScadaOpcUaModel *model);
   ScadaOpcUaTreeItem(QOpcUaNode *node, ScadaOpcUaModel *model, ScadaOpcUaTreeItem *parent);

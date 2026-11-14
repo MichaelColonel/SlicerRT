@@ -244,11 +244,11 @@ void qSlicerU70ImageRegistrationModuleWidget::onWorkflowCurrentStepChanged(ctkWo
 void qSlicerU70ImageRegistrationModuleWidget::onSetModPosLocalTimeClicked()
 {
   Q_D(qSlicerU70ImageRegistrationModuleWidget);
-  qint64 currDateTime = QDateTime::currentMSecsSinceEpoch();
+  qint64 currDateTime = QDateTime::currentSecsSinceEpoch();
   vtkSlicerU70RoomScadaOpcUaLogic* logic = d->scadaOpcUaLogic();
   if (logic)
   {
-    bool res = logic->WriteSysTimeModPos(static_cast< uint64_t >(currDateTime));
+    bool res = logic->WriteSysTimeModPos(static_cast< int32_t >(currDateTime));
     if (res)
     {
       qDebug() << Q_FUNC_INFO << "Value is written: " << currDateTime;

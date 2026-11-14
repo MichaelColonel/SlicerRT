@@ -47,8 +47,8 @@
 #include <vtkMRMLScadaOpcUaNode.h>
 
 namespace {
-/*
-constexpr const char* const PARENT_NODE_DISPLAYED_NAME = "Модуль позиционирования";
+
+constexpr const char* const PARENT_NODE_DISPLAYED_NAME = "MP";
 
 const QString DOT = QString(QChar('.'));
 
@@ -71,7 +71,7 @@ const QString SCADA_EVENT_STRING_NODE_NAME = PARENT_NODE_DISPLAYED_NAME + DOT + 
 const QString SCADA_STATE_NODE_NAME = PARENT_NODE_DISPLAYED_NAME + DOT + QLatin1String(SCADA_STATE);
 
 const QOpcUaMonitoringParameters OpcUaMonitorParameters(1000);
-*/
+
 }
 
 //-----------------------------------------------------------------------------
@@ -155,10 +155,6 @@ public:
   const QStringList ReadValueFullNodeNames = {
     QString::fromStdString(vtkSlicerU70RoomScadaOpcUaNodesNames::GetScadaSysTime()),
     QString::fromStdString(vtkSlicerU70RoomScadaOpcUaNodesNames::GetModPosSysTime()),
-    QString::fromStdString(vtkSlicerU70RoomScadaOpcUaNodesNames::GetModPosPlanStr()),
-    QString::fromStdString(vtkSlicerU70RoomScadaOpcUaNodesNames::GetModPosIdp()),
-    QString::fromStdString(vtkSlicerU70RoomScadaOpcUaNodesNames::GetModPosEcp()),
-    QString::fromStdString(vtkSlicerU70RoomScadaOpcUaNodesNames::GetModPosPlanOpen()),
     QString::fromStdString(vtkSlicerU70RoomScadaOpcUaNodesNames::GetModPosEventStr()),
     QString::fromStdString(vtkSlicerU70RoomScadaOpcUaNodesNames::GetModPosSt())
   };
@@ -600,6 +596,7 @@ void qSlicerScadaOpcUaWidget::updateWidgetFromMRML()
   {
     return;
   }
+  qDebug() << Q_FUNC_INFO << ": Parameter node is OK, update GUI";
 }
 
 //-----------------------------------------------------------------------------
@@ -626,6 +623,7 @@ void qSlicerScadaOpcUaWidget::onOpcUaClientConnected()
   d->CurrentTimeNode.reset(sharedClient->node(QOpcUa::namespace0Id(QOpcUa::NodeIds::Namespace0::Server_ServerStatus_CurrentTime)));
   if (d->CurrentTimeNode)
   {
+    qDebug() << Q_FUNC_INFO << ": Current time node is OK";
     // Subscribe to data changes
     d->CurrentTimeNode->enableMonitoring(QOpcUa::NodeAttribute::Value, QOpcUaMonitoringParameters(1000));
   }
@@ -682,6 +680,10 @@ void qSlicerScadaOpcUaWidget::onPositionModuleNodesRead(QOpcUa::NodeAttributes a
 {
   Q_D(qSlicerScadaOpcUaWidget);
 
+  if (!d->ParameterNode)
+  {
+    return;
+  }
   QHash< QString, QString > hashNodes;
   if (attr & QOpcUa::NodeAttribute::DisplayName)
   { // Make sure the value attribute has been read
@@ -693,18 +695,19 @@ void qSlicerScadaOpcUaWidget::onPositionModuleNodesRead(QOpcUa::NodeAttributes a
       {
         if (nodeData.getNode())
         {
-//          qDebug() << Q_FUNC_INFO << "Node ID:" << nodeData.getNodeId()
-//              << ", Name:" << nodeData.getNodeName()
-//              << ", Description:" << nodeData.getNodeDescription() << Qt::endl;
+ //         qDebug() << Q_FUNC_INFO << "Node ID:" << nodeData.getNodeId()
+ //             << ", Name:" << nodeData.getNodeName()
+ //             << ", Description:" << nodeData.getNodeDescription() << Qt::endl;
           hashNodes.insert(nodeData.getNodeName(), nodeData.getNodeId());
         }
       }
     }
-    bool coords = d->ConnectNodes();
+/*   bool coords = d->ConnectNodes();
     if (coords)
     {
       qDebug() << Q_FUNC_INFO << "Nodes are OK";
     }
+*/
   }
 
   d->PushButton_ReadNodesValues->setEnabled(true);

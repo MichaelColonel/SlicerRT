@@ -26,7 +26,7 @@
 namespace {
 
 constexpr std::string_view DOT = ".";
-constexpr std::string_view PARENT_NODE_DISPLAYED_NAME = "Модуль позиционирования";
+constexpr std::string_view PARENT_NODE_DISPLAYED_NAME = "MP";
 constexpr std::string_view SCADA_SYS_TIME = "SysTimeScada";
 constexpr std::string_view SCADA_SYS_TIME_MOD_POS = "SysTimeModPos";
 constexpr std::string_view SCADA_PLAN_STR = "PlanStr";

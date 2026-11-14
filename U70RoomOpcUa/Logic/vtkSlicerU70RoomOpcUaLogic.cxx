@@ -201,17 +201,21 @@ void vtkSlicerU70RoomOpcUaLogic::ProcessMRMLNodesEvents(vtkObject* caller, unsig
       vtkErrorMacro("ProcessMRMLNodesEvents: Scada OPC UA node is invalid");
       return;
     }
+    vtkErrorMacro("ProcessMRMLNodesEvents: 1: ");
     if (event == vtkMRMLScadaOpcUaNode::ValueChangedEvent)
     {
+      vtkErrorMacro("ProcessMRMLNodesEvents: 1: changed");
       std::unique_ptr< char[] > str(reinterpret_cast< char* >(callData));
       std::string string(str.get());
       if (this->ScadaOpcUaLogic)
       {
+        vtkErrorMacro("ProcessMRMLNodesEvents: Scada OPC UA node: " << string);
         this->ScadaOpcUaLogic->UpdateMRMLNodeFromOpcUaNodeValue(opcUaNode, string);
       }
     }
     else if (event == vtkMRMLScadaOpcUaNode::ValueReadEvent)
     {
+      vtkErrorMacro("ProcessMRMLNodesEvents: read: ");
       std::unique_ptr< char[] > str(reinterpret_cast< char* >(callData));
       std::string string(str.get());
       if (this->ScadaOpcUaLogic)
@@ -230,15 +234,13 @@ void vtkSlicerU70RoomOpcUaLogic::ProcessMRMLNodesEvents(vtkObject* caller, unsig
     }
     if (event == vtkMRMLSiemensPlcOpcUaNode::ValueChangedEvent)
     {
-      char* str = reinterpret_cast< char* >(callData);
-      std::string string(str);
-      delete [] str;
+      std::unique_ptr< char[] > str(reinterpret_cast< char* >(callData));
+      std::string string(str.get());
     }
     else if (event == vtkMRMLSiemensPlcOpcUaNode::ValueReadEvent)
     {
-      char* str = reinterpret_cast< char* >(callData);
-      std::string string(str);
-      delete [] str;
+      std::unique_ptr< char[] > str(reinterpret_cast< char* >(callData));
+      std::string string(str.get());
     }
   }
 }

@@ -58,8 +58,8 @@ public:
   bool WritePatientID(const std::string& textString);
   bool WritePlanOpen(bool);
 
-  bool WriteSysTimeModPos(uint64_t val);
-  bool WriteStateModPos(int state);
+  bool WriteSysTimeModPos(int32_t val);
+  bool WriteStateModPos(int32_t state);
   bool WriteEventString(const std::string& text);
 
   void UpdateMRMLNodeFromOpcUaNodeValue(vtkMRMLScadaOpcUaNode*, const std::string& fullNodeName);
