@@ -46,6 +46,13 @@ public:
   vtkTypeMacro(vtkSlicerU70RoomSiemensPlcOpcUaLogic, vtkMRMLAbstractLogic);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
+  // Called by the widget (C++ only; not wrapped for Python)
+  void ServerConnected(const QSharedPointer< QOpcUaClient >& sharedClient, const QHash< QString, QString >& hashNodesFullNamesIds);
+  void UnregisterOpcUaNode(const std::string& nodeFullName);
+  void UnregisterAllOpcUaNodes();
+  void UpdateMRMLNodeFromOpcUaNodeValue(vtkMRMLSiemensPlcOpcUaNode*, const std::string& fullNodeName);
+
+  // Public API for other modules (C++ and Python)
   uint8_t ReadMode(bool& res);
   uint16_t ReadStatusRtk(bool& res);
   uint16_t ReadStatusR1(bool& res);
@@ -63,15 +70,6 @@ public:
   double ReadCurrentCoordsR2A4(bool& res);
   double ReadCurrentCoordsR2A5(bool& res);
   double ReadCurrentCoordsR2A6(bool& res);
-
-  void UpdateMRMLNodeFromOpcUaNodeValue(vtkMRMLSiemensPlcOpcUaNode*, const std::string& fullNodeName);
-
-  // Called by the widget (C++ only; not wrapped for Python)
-  void ServerConnected(const QSharedPointer< QOpcUaClient >& sharedClient, const QHash< QString, QString >& hashNodesFullNamesIds);
-//  void RegisterNode(const std::string& nodeFullName, QOpcUaNode* node);
-//  void RegisterNode(const std::string& nodeFullName, QOpcUaNode* node);
-  void UnregisterOpcUaNode(const std::string& nodeFullName);
-  void UnregisterAllOpcUaNodes();
 
 protected:
   vtkSlicerU70RoomSiemensPlcOpcUaLogic();

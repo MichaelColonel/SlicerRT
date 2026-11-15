@@ -20,6 +20,7 @@
 #include "vtkSlicerU70RoomOpcUaModuleLogicExport.h"
 
 #include <string>
+#include <list>
 
 /// \ingroup SlicerRt_U70RoomOpcUa
 /// Common constants for SCADA OPC UA nodes names
@@ -59,6 +60,8 @@ public:
   static std::string GetModPosRecClose();
   static std::string GetModPosErrStr();
   static std::string GetModPosEventStr();
+  static std::list< std::string > GetScadaDisplayNamesList();
+  static std::list< std::string > GetScadaFullNodeNamesList();
 };
 
 #endif

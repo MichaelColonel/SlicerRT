@@ -20,6 +20,8 @@
 
 #include "OpcUaTreeItem.h"
 #include "OpcUaModel.h"
+// U70Room OPC UA logic includes
+#include "vtkSlicerU70RoomSiemensPlcOpcUaNodesNames.h"
 
 #include <QOpcUaClient>
 #include <QOpcUaArgument>
@@ -492,12 +494,16 @@ QList< QPointer< OpcUaTreeItem > > OpcUaTreeItem::findLeafValueItems(OpcUaTreeIt
     return finalLeaves;
   }
 
+  const std::string ERROR_MESSAGES_NODE = std::string(vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::ERROR_FLAGS);
+  const std::string SERVICE_MESSAGES_NODE = std::string(vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::SERVICE_FLAGS);
+  const std::string MISC_MESSAGES_NODE = std::string(vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::MESSAGES_FLAGS);
+
   // Since messages are list of flags, we get the item of the messages, rather than
   // all the children (items of the list ) items of the parent message item
   bool messagesNodesFlag = \
-    (item->getNodeDisplayName() == QString(ERROR_MESSAGES_NODE)) || \
-    (item->getNodeDisplayName() == QString(SERVICE_MESSAGES_NODE)) || \
-    (item->getNodeDisplayName() == QString(MISC_MESSAGES_NODE));
+    (item->getNodeDisplayName() == QString::fromStdString(ERROR_MESSAGES_NODE)) || \
+    (item->getNodeDisplayName() == QString::fromStdString(SERVICE_MESSAGES_NODE)) || \
+    (item->getNodeDisplayName() == QString::fromStdString(MISC_MESSAGES_NODE));
 
   if (!item->currentChildCount() || messagesNodesFlag)
   {

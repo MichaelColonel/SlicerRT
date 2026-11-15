@@ -431,6 +431,8 @@ void vtkSlicerU70RoomScadaOpcUaLogic::ServerConnected(const QSharedPointer< QOpc
   }
 
   QHashIterator< QString, QString > i(hashNodesFullNamesIds);
+  std::list< std::string > fullNameNodesList = vtkSlicerU70RoomScadaOpcUaNodesNames::GetScadaFullNodeNamesList();
+
   while (i.hasNext())
   {
     i.next();
@@ -444,10 +446,15 @@ void vtkSlicerU70RoomScadaOpcUaLogic::ServerConnected(const QSharedPointer< QOpc
       continue;
     }
     
-    bool flag = (QString::fromStdString(vtkSlicerU70RoomScadaOpcUaNodesNames::GetScadaSysTime()) == nodeFullName) || \
-    (QString::fromStdString(vtkSlicerU70RoomScadaOpcUaNodesNames::GetModPosSysTime()) == nodeFullName) || \
-    (QString::fromStdString(vtkSlicerU70RoomScadaOpcUaNodesNames::GetModPosSt()) == nodeFullName) || \
-    (QString::fromStdString(vtkSlicerU70RoomScadaOpcUaNodesNames::GetModPosEventStr()) == nodeFullName);
+    bool flag = false;
+    for (const auto& builtinFullNodeName : fullNameNodesList)
+    {
+      if (nodeFullName == QString::fromStdString(builtinFullNodeName))
+      {
+        flag = true;
+        break;
+      }
+    }
     if (!flag)
     {
       continue;
@@ -528,21 +535,39 @@ void vtkSlicerU70RoomScadaOpcUaLogic::UnregisterAllOpcUaNodes()
 }
 
 //---------------------------------------------------------------------------
-bool vtkSlicerU70RoomScadaOpcUaLogic::WritePlanFileName(const std::string& textString)
+bool vtkSlicerU70RoomScadaOpcUaLogic::WritePlanFileName(const std::string& planFilename)
 {
-  return true;
+  std::string nodeName = vtkSlicerU70RoomScadaOpcUaNodesNames::GetModPosPlanStr();
+  QOpcUaNode* node = this->Internal->node(QString::fromStdString(nodeName));
+  if (!node)
+  {
+    return false;
+  }
+  return node->writeValueAttribute(QVariant(QString::fromStdString(planFilename)), QOpcUa::Types::String);
 }
 
 //---------------------------------------------------------------------------
-bool vtkSlicerU70RoomScadaOpcUaLogic::WritePatientID(const std::string& textString)
+bool vtkSlicerU70RoomScadaOpcUaLogic::WritePatientID(const std::string& patientId)
 {
-  return true;
+  std::string nodeName = vtkSlicerU70RoomScadaOpcUaNodesNames::GetModPosIdp();
+  QOpcUaNode* node = this->Internal->node(QString::fromStdString(nodeName));
+  if (!node)
+  {
+    return false;
+  }
+  return node->writeValueAttribute(QVariant(QString::fromStdString(patientId)), QOpcUa::Types::String);
 }
 
 //---------------------------------------------------------------------------
-bool vtkSlicerU70RoomScadaOpcUaLogic::WritePlanOpen(bool)
+bool vtkSlicerU70RoomScadaOpcUaLogic::WritePlanOpenFlag(bool flagValue)
 {
-  return true;
+  std::string nodeName = vtkSlicerU70RoomScadaOpcUaNodesNames::GetModPosPlanOpen();
+  QOpcUaNode* node = this->Internal->node(QString::fromStdString(nodeName));
+  if (!node)
+  {
+    return false;
+  }
+  return node->writeValueAttribute(QVariant(flagValue), QOpcUa::Types::Boolean);
 }
 
 //---------------------------------------------------------------------------
@@ -582,43 +607,36 @@ bool vtkSlicerU70RoomScadaOpcUaLogic::WriteEventString(const std::string& text)
 }
 
 //---------------------------------------------------------------------------
-void vtkSlicerU70RoomScadaOpcUaLogic::UpdateMRMLNodeFromOpcUaNodeValue(vtkMRMLScadaOpcUaNode* mrmlScadaNode, const std::string& fullNodeName)
+bool vtkSlicerU70RoomScadaOpcUaLogic::UpdateMRMLNodeFromOpcUaNodeValue(vtkMRMLScadaOpcUaNode* mrmlScadaNode, const std::string& fullNodeName)
 {
   bool res = false;
   if (!mrmlScadaNode)
   {
-    return;
+    return false;
   }
 
   if (fullNodeName == vtkSlicerU70RoomScadaOpcUaNodesNames::GetScadaSysTime())
   {
-    int32_t v = this->Internal->getInt32(QString::fromStdString(fullNodeName), res);
+    int32_t scadaSysTime = this->Internal->getInt32(QString::fromStdString(fullNodeName), res);
     if (res)
     {
-      mrmlScadaNode->SetSysTimeScada(v);
-      QDateTime dt = QDateTime::fromSecsSinceEpoch(v);
-      QString fordt = dt.toString("dd.MM.yyyy hh:mm:ss");
-      vtkWarningMacro("UpdateMRMLNodeFromOpcUaNodeValue: SCADA System Time: " << fordt.toStdString());
+      mrmlScadaNode->SetSysTimeScada(scadaSysTime);
     }
   }
   else if (fullNodeName == vtkSlicerU70RoomScadaOpcUaNodesNames::GetModPosSt())
   {
-    int32_t v = this->Internal->getInt32(QString::fromStdString(fullNodeName), res);
+    int32_t modPosState = this->Internal->getInt32(QString::fromStdString(fullNodeName), res);
     if (res)
     {
-      mrmlScadaNode->SetSt(static_cast< vtkMRMLScadaOpcUaNode::StateType >(v));
-      vtkWarningMacro("UpdateMRMLNodeFromOpcUaNodeValue: Positioning module state: " << v);
+      mrmlScadaNode->SetSt(static_cast< vtkMRMLScadaOpcUaNode::StateType >(modPosState));
     }
   }
   else if (fullNodeName == vtkSlicerU70RoomScadaOpcUaNodesNames::GetModPosSysTime())
   {
-    int32_t v = this->Internal->getInt32(QString::fromStdString(fullNodeName), res);
+    int32_t modPosSysTime = this->Internal->getInt32(QString::fromStdString(fullNodeName), res);
     if (res)
     {
-      mrmlScadaNode->SetSysTimeModPos(v);
-      QDateTime dt = QDateTime::fromSecsSinceEpoch(v);
-      QString fordt = dt.toString("dd.MM.yyyy hh:mm:ss");
-      vtkWarningMacro("UpdateMRMLNodeFromOpcUaNodeValue: PositioningModule System Time: " << fordt.toStdString());
+      mrmlScadaNode->SetSysTimeModPos(modPosSysTime);
     }
   }
   else if (fullNodeName == vtkSlicerU70RoomScadaOpcUaNodesNames::GetModPosPlanStr())
@@ -698,11 +716,12 @@ void vtkSlicerU70RoomScadaOpcUaLogic::UpdateMRMLNodeFromOpcUaNodeValue(vtkMRMLSc
   }
   else if (fullNodeName == vtkSlicerU70RoomScadaOpcUaNodesNames::GetModPosEventStr())
   {
-    std::string str = this->Internal->getString(QString::fromStdString(fullNodeName), res);
+    std::string eventStr = this->Internal->getString(QString::fromStdString(fullNodeName), res);
     if (res)
     {
-      vtkWarningMacro("UpdateMRMLNodeFromOpcUaNodeValue: Positioning module Event string: " << str);
+      mrmlScadaNode->SetEventStr(eventStr);
     }
   }
+  return res;
 }
 

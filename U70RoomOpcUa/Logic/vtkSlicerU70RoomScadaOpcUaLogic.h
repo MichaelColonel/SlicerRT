@@ -49,27 +49,17 @@ public:
   // Called by the widget (C++ only; not wrapped for Python)
   void ServerConnected(const QSharedPointer< QOpcUaClient >& sharedClient,
     const QHash< QString, QString >& hashNodesFullNamesIds);
-//  void RegisterNode(const std::string& nodeFullName, QOpcUaNode* node);
-//  void RegisterNode(const std::string& nodeFullName, QOpcUaNode* node);
   void UnregisterOpcUaNode(const std::string& nodeFullName);
   void UnregisterAllOpcUaNodes();
+  bool UpdateMRMLNodeFromOpcUaNodeValue(vtkMRMLScadaOpcUaNode*, const std::string& fullNodeName);
 
+  // Public API for other modules (C++ and Python)
   bool WritePlanFileName(const std::string& textString);
   bool WritePatientID(const std::string& textString);
-  bool WritePlanOpen(bool);
-
+  bool WritePlanOpenFlag(bool);
   bool WriteSysTimeModPos(int32_t val);
   bool WriteStateModPos(int32_t state);
   bool WriteEventString(const std::string& text);
-
-  void UpdateMRMLNodeFromOpcUaNodeValue(vtkMRMLScadaOpcUaNode*, const std::string& fullNodeName);
-
-  // Public API for other modules (C++ and Python)
-//  std::vector<std::string> GetRegisteredNodeFullNames();
-//  std::vector<std::string> GetRegisteredNodeFullIds();
-//  bool WriteNodeValue(const std::string& nodeFullName, vtkVariant value);
-//  vtkVariant GetCachedChangesNodeValue(const std::string& nodeFullName);
-//  vtkVariant GetCachedReadNodeValue(const std::string& nodeFullName);
 
 protected:
   vtkSlicerU70RoomScadaOpcUaLogic();

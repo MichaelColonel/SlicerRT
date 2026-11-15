@@ -20,6 +20,8 @@
 
 #include "ScadaOpcUaTreeItem.h"
 #include "ScadaOpcUaModel.h"
+// U70Room OPC UA logic includes
+#include "vtkSlicerU70RoomScadaOpcUaNodesNames.h"
 
 #include <QOpcUaClient>
 #include <QOpcUaArgument>
@@ -119,14 +121,14 @@ QVariant ScadaOpcUaTreeItem::data(int column)
   }
   if (column == 1)
   {
-      if (!mAttributesReady)
-      {
-        return tr("Loading ...");
-      }
-      const auto type = mOpcNode->attribute(QOpcUa::NodeAttribute::DataType).toString();
-      const auto value = mOpcNode->attribute(QOpcUa::NodeAttribute::Value);
+    if (!mAttributesReady)
+    {
+      return tr("Loading ...");
+    }
+    const auto type = mOpcNode->attribute(QOpcUa::NodeAttribute::DataType).toString();
+    const auto value = mOpcNode->attribute(QOpcUa::NodeAttribute::Value);
 
-      return variantToString(value, type);
+    return variantToString(value, type);
   }
   if (column == 2)
   {

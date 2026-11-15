@@ -27,12 +27,6 @@ namespace {
 
 constexpr std::string_view DOT = ".";
 
-constexpr std::string_view PARENT = "ServerInterfaces";
-
-constexpr std::string_view ERROR_FLAGS = "ErrorMes";
-constexpr std::string_view SERVICE_FLAGS = "ServMes";
-constexpr std::string_view MESSAGES_FLAGS = "Messages";
-
 constexpr std::string_view KUKAX = "KUKA_X";
 constexpr std::string_view KUKAY = "KUKA_Y";
 constexpr std::string_view KUKAZ = "KUKA_Z";
@@ -121,7 +115,7 @@ constexpr std::string_view CURRENTCOORDS_R2 = "CurrentCoords_R2";
 
 std::string GetRtkPlc()
 {
-  return std::string(PARENT) + std::string(DOT) + std::string(RTK_PLC);
+  return std::string(vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::PARENT) + std::string(DOT) + std::string(RTK_PLC);
 }
 
 std::string GetRtkPlcCurrentCoordsR1()
@@ -724,4 +718,34 @@ std::string vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::GetSetCoordB()
 std::string vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::GetSetCoordC()
 {
   return GetRtkPlcAsuSetCoords() + std::string(DOT) + std::string(KUKAC);
+}
+
+std::list< std::string > vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::GetSiemensPlcDisplayNamesList()
+{
+  std::list< std::string > displayNames;
+
+  displayNames.push_back(std::string(ERROR_FLAGS));
+  displayNames.push_back(std::string(SERVICE_FLAGS));
+  displayNames.push_back(std::string(MESSAGES_FLAGS));
+  displayNames.push_back(std::string(MODE));
+  displayNames.push_back(std::string(STATUS_RTK));
+  displayNames.push_back(std::string(STATUS_R1));
+  displayNames.push_back(std::string(STATUS_R2));
+
+  return displayNames;
+}
+
+std::list< std::string > vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::GetSiemensPlcFullNodeNamesList()
+{
+  std::list< std::string > fullNodeNames;
+
+  fullNodeNames.push_back(GetErrorsFlags());
+  fullNodeNames.push_back(GetServiceFlags());
+  fullNodeNames.push_back(GetMessagesFlags());
+  fullNodeNames.push_back(GetMode());
+  fullNodeNames.push_back(GetStatusRtk());
+  fullNodeNames.push_back(GetStatusR1());
+  fullNodeNames.push_back(GetStatusR2());
+
+  return fullNodeNames;
 }

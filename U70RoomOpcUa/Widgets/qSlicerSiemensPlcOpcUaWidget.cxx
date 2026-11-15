@@ -40,6 +40,8 @@
 #include "OpcUaTreeItem.h"
 #include "qSlicerOpcUaRobotsMessagesListModel.h"
 
+#include "vtkSlicerU70RoomSiemensPlcOpcUaNodesNames.h"
+
 #include <vtkMRMLSiemensPlcOpcUaNode.h>
 
 #include <bitset>
@@ -47,7 +49,7 @@
 namespace {
 
 constexpr const char* const PARENT_NODE_DISPLAYED_NAME = "ServerInterfaces";
-//constexpr const char* SIEMENS_PLC_CURRENT_TIME_NODE_ID = "ns=0;i=2258";
+constexpr const char* SIEMENS_PLC_CURRENT_TIME_NODE_ID = "ns=0;i=2258";
 
 constexpr const char* const KUKAX = "KUKA_X";
 constexpr const char* const KUKAY = "KUKA_Y";
@@ -67,13 +69,13 @@ constexpr const char* const ASU = "ASU";
 constexpr const char* const RTK_PLC = "RTK_PLC";
 
 const QString DOT = QString(QChar('.'));
-const QString SIEMENS_PLC_SERVER_INTERFACES_NODE_ID = QLatin1String("ns=3;s=") + PARENT_NODE_DISPLAYED_NAME;
+const QString SIEMENS_PLC_SERVER_INTERFACES_NODE_ID = QLatin1String("ns=3;s=") + QLatin1String(vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::PARENT.data());//QLatin1String("ns=3;s=") + PARENT_NODE_DISPLAYED_NAME;
 const QString RTK_PLC_NODE_NAME = QLatin1String(PARENT_NODE_DISPLAYED_NAME) + DOT + QLatin1String(RTK_PLC);
 const QString ASU_NODE_NAME = RTK_PLC_NODE_NAME + DOT + QLatin1String(ASU);
 
-const QString ASU_ERROR_MESSAGES_NODE_NAME = ASU_NODE_NAME + DOT + QLatin1String(OpcUaTreeItem::ERROR_MESSAGES_NODE);
-const QString ASU_SERVICE_MESSAGES_NODE_NAME = ASU_NODE_NAME + DOT + QLatin1String(OpcUaTreeItem::SERVICE_MESSAGES_NODE);
-const QString ASU_MESSAGES_NODE_NAME = ASU_NODE_NAME + DOT + QLatin1String(OpcUaTreeItem::MISC_MESSAGES_NODE);
+const QString ASU_ERROR_MESSAGES_NODE_NAME = ASU_NODE_NAME + DOT + QLatin1String(vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::ERROR_FLAGS.data());
+const QString ASU_SERVICE_MESSAGES_NODE_NAME = ASU_NODE_NAME + DOT + QLatin1String(vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::SERVICE_FLAGS.data());
+const QString ASU_MESSAGES_NODE_NAME = ASU_NODE_NAME + DOT + QLatin1String(vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::MESSAGES_FLAGS.data());
 
 constexpr const char* const MODE = "Mode";
 constexpr const char* const STATUS_RTK = "Status_RTK";

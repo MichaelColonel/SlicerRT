@@ -20,6 +20,7 @@
 #include "vtkSlicerU70RoomOpcUaModuleLogicExport.h"
 
 #include <string>
+#include <list>
 
 /// \ingroup SlicerRt_U70RoomOpcUa
 /// Common constants for Siemens PLC OPC UA nodes names
@@ -27,6 +28,11 @@ class VTK_SLICER_U70ROOMOPCUA_MODULE_LOGIC_EXPORT vtkSlicerU70RoomSiemensPlcOpcU
 {
 
 public:
+  static constexpr std::string_view PARENT = "ServerInterfaces";
+
+  static constexpr std::string_view ERROR_FLAGS = "ErrorMes";
+  static constexpr std::string_view SERVICE_FLAGS = "ServMes";
+  static constexpr std::string_view MESSAGES_FLAGS = "Messages";
   //----------------------------------------------------------------------------
   // Constants
   //----------------------------------------------------------------------------
@@ -157,6 +163,9 @@ public:
   static std::string GetSetCoordA();
   static std::string GetSetCoordB();
   static std::string GetSetCoordC();
+
+  static std::list< std::string > GetSiemensPlcDisplayNamesList();
+  static std::list< std::string > GetSiemensPlcFullNodeNamesList();
 };
 
 #endif

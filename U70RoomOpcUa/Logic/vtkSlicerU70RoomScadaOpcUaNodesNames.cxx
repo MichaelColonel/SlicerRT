@@ -203,3 +203,77 @@ std::string vtkSlicerU70RoomScadaOpcUaNodesNames::GetModPosEventStr()
 {
   return std::string(PARENT_NODE_DISPLAYED_NAME) + std::string(DOT) + std::string(SCADA_EVENT_STR);
 }
+
+std::list< std::string > vtkSlicerU70RoomScadaOpcUaNodesNames::GetScadaDisplayNamesList()
+{
+  std::list< std::string > displayNames;
+
+  displayNames.push_back(std::string(SCADA_SYS_TIME));
+  displayNames.push_back(std::string(SCADA_SYS_TIME_MOD_POS));
+  displayNames.push_back(std::string(SCADA_PLAN_STR));
+  displayNames.push_back(std::string(SCADA_IDP));
+  displayNames.push_back(std::string(SCADA_ECP));
+  displayNames.push_back(std::string(SCADA_IMMOB));
+  displayNames.push_back(std::string(SCADA_PLAN_OPEN));
+  displayNames.push_back(std::string(SCADA_NPOS));
+  displayNames.push_back(std::string(SCADA_REMOTE_CTRL));
+  displayNames.push_back(std::string(SCADA_REMOTE_STATE_MACHINE));
+  displayNames.push_back(std::string(SCADA_REMOTE_CMD));
+  displayNames.push_back(std::string(SCADA_REMOTE_PAUSE));
+  displayNames.push_back(std::string(SCADA_REMOTE_AVR));
+  displayNames.push_back(std::string(SCADA_DOOR_BLOCK));
+  displayNames.push_back(std::string(SCADA_READY_EQ));
+  displayNames.push_back(std::string(SCADA_READY_PLAN));
+  displayNames.push_back(std::string(SCADA_READY_PROC));
+  displayNames.push_back(std::string(SCADA_ST));
+  displayNames.push_back(std::string(SCADA_IN_QUEUE));
+  displayNames.push_back(std::string(SCADA_READY_ST));
+  displayNames.push_back(std::string(SCADA_BLOCK));
+  displayNames.push_back(std::string(SCADA_CURRENT_LAYER));
+  displayNames.push_back(std::string(SCADA_MAX_LAYER));
+  displayNames.push_back(std::string(SCADA_PROC_LAYER));
+  displayNames.push_back(std::string(SCADA_PROC_END));
+  displayNames.push_back(std::string(SCADA_PROC_NOTE));
+  displayNames.push_back(std::string(SCADA_REC_CLOSE));
+  displayNames.push_back(std::string(SCADA_ERR_STR));
+  displayNames.push_back(std::string(SCADA_EVENT_STR));
+
+  return displayNames;
+}
+
+std::list< std::string > vtkSlicerU70RoomScadaOpcUaNodesNames::GetScadaFullNodeNamesList()
+{
+  std::list< std::string > fullNodeNames;
+
+  fullNodeNames.push_back(GetScadaSysTime());
+  fullNodeNames.push_back(GetModPosSysTime());
+  fullNodeNames.push_back(GetModPosPlanStr());
+  fullNodeNames.push_back(GetModPosIdp());
+  fullNodeNames.push_back(GetModPosEcp());
+  fullNodeNames.push_back(GetModPosImmob());
+  fullNodeNames.push_back(GetModPosPlanOpen());
+  fullNodeNames.push_back(GetModPosPlanNpos());
+  fullNodeNames.push_back(GetScadaRemoteCtrl());
+  fullNodeNames.push_back(GetScadaRemoteStateMachine());
+  fullNodeNames.push_back(GetScadaRemoteCmd());
+  fullNodeNames.push_back(GetScadaRemotePause());
+  fullNodeNames.push_back(GetScadaRemoteAvr());
+  fullNodeNames.push_back(GetScadaDoorBlock());
+  fullNodeNames.push_back(GetScadaReadyEq());
+  fullNodeNames.push_back(GetScadaReadyPlan());
+  fullNodeNames.push_back(GetScadaReadyProc());
+  fullNodeNames.push_back(GetModPosSt());
+  fullNodeNames.push_back(GetScadaInQueue());
+  fullNodeNames.push_back(GetModPosReadySt());
+  fullNodeNames.push_back(GetScadaBlock());
+  fullNodeNames.push_back(GetScadaCurrentLayer());
+  fullNodeNames.push_back(GetScadaMaxLayer());
+  fullNodeNames.push_back(GetScadaProcLayer());
+  fullNodeNames.push_back(GetScadaProcEnd());
+  fullNodeNames.push_back(GetModPosProcNote());
+  fullNodeNames.push_back(GetModPosRecClose());
+  fullNodeNames.push_back(GetModPosErrStr());
+  fullNodeNames.push_back(GetModPosEventStr());
+
+  return fullNodeNames;
+}

@@ -38,9 +38,6 @@ class Q_SLICER_MODULE_U70ROOMOPCUA_WIDGETS_EXPORT OpcUaTreeItem : public QObject
   Q_OBJECT
 public:
   static constexpr const char* SIEMENS_PLC_SERVER_INTERFACES_NODE_ID = "ns=3;s=ServerInterfaces";
-  static constexpr const char* ERROR_MESSAGES_NODE = "ErrorMes";
-  static constexpr const char* SERVICE_MESSAGES_NODE = "ServMes";
-  static constexpr const char* MISC_MESSAGES_NODE = "Messages";
 
   explicit OpcUaTreeItem(OpcUaModel *model);
   OpcUaTreeItem(QOpcUaNode *node, OpcUaModel *model, OpcUaTreeItem *parent);

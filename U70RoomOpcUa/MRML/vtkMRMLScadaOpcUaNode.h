@@ -102,11 +102,11 @@ public:
   vtkGetMacro(TimeoutExpired, bool);
   vtkSetMacro(TimeoutExpired, bool);
 
-  vtkGetMacro(SysTimeScada, uint64_t);
-  vtkSetMacro(SysTimeScada, uint64_t);
+  vtkGetMacro(SysTimeScada, int32_t);
+  vtkSetMacro(SysTimeScada, int32_t);
   
-  vtkGetMacro(SysTimeModPos, uint64_t);
-  vtkSetMacro(SysTimeModPos, uint64_t);
+  vtkGetMacro(SysTimeModPos, int32_t);
+  vtkSetMacro(SysTimeModPos, int32_t);
 
   vtkGetMacro(PlanStr, std::string);
   vtkSetMacro(PlanStr, std::string);
