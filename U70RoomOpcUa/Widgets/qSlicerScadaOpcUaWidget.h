@@ -68,7 +68,7 @@ public slots:
   /// Update widget GUI from ScadaOpcUa parameters node
   void updateWidgetFromMRML();
   
-  void onParseServerInterfacesClicked();
+  void onParseServerParentNodeClicked();
   void onOpcUaClientConnected();
   void onOpcUaClientDisconnected();
 

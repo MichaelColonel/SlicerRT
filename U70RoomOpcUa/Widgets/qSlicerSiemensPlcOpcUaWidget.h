@@ -65,7 +65,7 @@ public slots:
   /// Update widget GUI from SiemensPlcOpcUa parameters node
   void updateWidgetFromMRML();
 
-  void onParseServerInterfacesClicked();
+  void onParseServerParentNodeClicked();
   void onOpcUaClientConnected();
   void onOpcUaClientDisconnected();
 

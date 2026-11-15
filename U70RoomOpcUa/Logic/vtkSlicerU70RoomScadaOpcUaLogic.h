@@ -60,6 +60,7 @@ public:
   bool WriteSysTimeModPos(int32_t val);
   bool WriteStateModPos(int32_t state);
   bool WriteEventString(const std::string& text);
+  bool ReadNodesValues(const std::list< std::string >& fullNamesList);
 
 protected:
   vtkSlicerU70RoomScadaOpcUaLogic();

@@ -8291,7 +8291,7 @@ void qSlicerSiemensPlcOpcUaWidget::onOpcUaClientConnected()
 }
 
 //-----------------------------------------------------------------------------
-void qSlicerSiemensPlcOpcUaWidget::onParseServerInterfacesClicked()
+void qSlicerSiemensPlcOpcUaWidget::onParseServerParentNodeClicked()
 {
   Q_D(qSlicerSiemensPlcOpcUaWidget);
   

@@ -31,6 +31,7 @@ public:
   //----------------------------------------------------------------------------
   // Constants
   //----------------------------------------------------------------------------
+  static std::string GetScadaOpcUaTreatmentRoomParentNodeId(int roomNumber = 3);
   static std::string GetScadaSysTime();
   static std::string GetModPosSysTime();
   static std::string GetModPosPlanStr();
@@ -60,6 +61,7 @@ public:
   static std::string GetModPosRecClose();
   static std::string GetModPosErrStr();
   static std::string GetModPosEventStr();
+
   static std::list< std::string > GetScadaDisplayNamesList();
   static std::list< std::string > GetScadaFullNodeNamesList();
 };

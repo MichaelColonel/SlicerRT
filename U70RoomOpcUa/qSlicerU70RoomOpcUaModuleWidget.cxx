@@ -366,12 +366,12 @@ void qSlicerU70RoomOpcUaModuleWidget::setup()
   QObject::connect(d->PushButton_ShowSiemensPlcControls, SIGNAL(clicked()),
     this, SLOT(onShowSiemensPlcControlsClicked()));
   QObject::connect(d->PushButton_GetSiemensServerInterfaces, SIGNAL(clicked()),
-    d->SiemensPlcOpcUaControlWidget.data(), SLOT(onParseServerInterfacesClicked()));
+    d->SiemensPlcOpcUaControlWidget.data(), SLOT(onParseServerParentNodeClicked()));
 
   QObject::connect(d->PushButton_ShowScadaControls, SIGNAL(clicked()),
     this, SLOT(onShowScadaControlsClicked()));
   QObject::connect(d->PushButton_GetScadaServerNodes, SIGNAL(clicked()),
-    d->ScadaOpcUaControlWidget.data(), SLOT(onParseServerInterfacesClicked()));
+    d->ScadaOpcUaControlWidget.data(), SLOT(onParseServerParentNodeClicked()));
 
   QObject::connect(d->PushButton_ModeUnknown, &QPushButton::clicked,
     [this](){ emit this->siemensPlcOpcUaModeChanged(vtkMRMLSiemensPlcOpcUaNode::UNKNOWN); });
@@ -391,7 +391,7 @@ void qSlicerU70RoomOpcUaModuleWidget::setup()
     {
       if (d->CheckBox_SiemensHostAutoConnect->isChecked())
       {
-        d->SiemensPlcOpcUaControlWidget->onParseServerInterfacesClicked();
+        d->SiemensPlcOpcUaControlWidget->onParseServerParentNodeClicked();
       }
     }
   );

@@ -22,10 +22,13 @@
 #include "vtkSlicerU70RoomScadaOpcUaNodesNames.h"
 
 #include <string_view>
+#include <sstream>
 
 namespace {
 
 constexpr std::string_view DOT = ".";
+constexpr std::string_view PARENT_NODE_OPC_UA_TEMPLATE = "ns=1;s=BEAM_U70.Therapy.Cabin";
+
 constexpr std::string_view PARENT_NODE_DISPLAYED_NAME = "MP";
 constexpr std::string_view SCADA_SYS_TIME = "SysTimeScada";
 constexpr std::string_view SCADA_SYS_TIME_MOD_POS = "SysTimeModPos";
@@ -276,4 +279,15 @@ std::list< std::string > vtkSlicerU70RoomScadaOpcUaNodesNames::GetScadaFullNodeN
   fullNodeNames.push_back(GetModPosEventStr());
 
   return fullNodeNames;
+}
+
+
+std::string vtkSlicerU70RoomScadaOpcUaNodesNames::GetScadaOpcUaTreatmentRoomParentNodeId(int roomNumber)
+{
+  std::stringstream nodeID;
+
+  nodeID << std::string(PARENT_NODE_OPC_UA_TEMPLATE) << roomNumber \
+    << std::string(DOT) << std::string(PARENT_NODE_DISPLAYED_NAME);
+
+  return nodeID.str();
 }

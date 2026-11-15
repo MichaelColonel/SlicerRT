@@ -40,7 +40,7 @@ public:
     ValueReadEvent,
   };
 
-  enum RemoteControlType : int {
+  enum RemoteControlType : int32_t {
     RC_UNDEFINED = 1,
     RC_TEST = 2,
     RC_PATIENT_POSITIONING = 3,
@@ -48,7 +48,7 @@ public:
     RC_THERAPY_PROCEDURE = 5,
     RemoteControlType_Last,
   };
-  enum RemoteStateMachineType : int {
+  enum RemoteStateMachineType : int32_t {
     RSM_UNPOWERED = 1,
     RSM_PATIENT_POSITIONING = 2,
     RSM_XRAY_POSITIONING = 3,
@@ -58,7 +58,7 @@ public:
     RSM_ACCIDENT_EMERGENCY = 7,
     RemoteStateMachineType_Last,
   };
-  enum StateType : int {
+  enum StateType : int32_t {
     ST_UNDEFINED = 0,
     ST_APPLICATION_IS_RUNNING = 1,
     ST_LOADING_THERAPY_PLAN = 2,
@@ -195,22 +195,22 @@ protected:
   vtkMRMLScadaOpcUaNode(const vtkMRMLScadaOpcUaNode&);
   void operator=(const vtkMRMLScadaOpcUaNode&);
 
-  static const char* GetStAsString(int id);
-  static int GetStFromString(const char* name);
-  void SetSt(int id);
+  static const char* GetStAsString(int32_t id);
+  static int32_t GetStFromString(const char* name);
+  void SetSt(int32_t id);
 
 private:
   bool TimeoutExpired{ false };
-  uint64_t SysTimeScada{ 0 };
-  uint64_t SysTimeModPos{ 0 };
+  int32_t SysTimeScada{ 0 };
+  int32_t SysTimeModPos{ 0 };
   std::string PlanStr;
   std::string IDP;
   bool ECP{ false };
   std::string Immob;
   bool PlanOpen{ false };
-  int NPos{ 0 };
-  int RemoteCtrl{ 0 };
-  int RemoteStateMachine{ 0 };
+  int32_t NPos{ 0 };
+  int32_t RemoteCtrl{ 0 };
+  int32_t RemoteStateMachine{ 0 };
   bool RemoteCmd{ false };
   bool RemotePause{ false };
   bool RemoteAvr{ false };
@@ -222,9 +222,9 @@ private:
   bool inQueue{ false };
   bool ReadySt{ false };
   bool Block{ false };
-  int CurrentLayer{ 0 };
-  int MaxLayer{ 0 };
-  int ProcLayer{ 0 };
+  int32_t CurrentLayer{ 0 };
+  int32_t MaxLayer{ 0 };
+  int32_t ProcLayer{ 0 };
   bool ProcEnd{ false };
   std::string ProcNote;
   bool ProcClose{ false };

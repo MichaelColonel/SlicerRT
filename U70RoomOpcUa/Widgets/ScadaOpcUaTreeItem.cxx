@@ -483,11 +483,16 @@ QList< QPointer< ScadaOpcUaTreeItem > > ScadaOpcUaTreeItem::findLeafValueItems(S
   // all the children (items of the list ) items of the parent message item
   QString displayNameNode = item->getNodeDisplayName();
 
-  bool nodesFlag = \
-    (item->getNodeDisplayName() == QLatin1String(SCADA_SYS_TIME)) || \
-    (item->getNodeDisplayName() == QLatin1String(SCADA_SYS_TIME_MOD_POS)) || \
-    (item->getNodeDisplayName() == QLatin1String(SCADA_EVENT_STR)) || \
-    (item->getNodeDisplayName() == QLatin1String(SCADA_ST));
+  bool nodesFlag = false;
+  std::list< std::string > displayNameNodes = vtkSlicerU70RoomScadaOpcUaNodesNames::GetScadaDisplayNamesList();
+  for (const auto& displayName: displayNameNodes)
+  {
+    if (displayNameNode == QString::fromStdString(displayName))
+    {
+      nodesFlag = true;
+      break;
+    }
+  }
 
   if (!item->currentChildCount() || nodesFlag)
   {

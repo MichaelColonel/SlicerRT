@@ -620,6 +620,7 @@ bool vtkSlicerU70RoomScadaOpcUaLogic::UpdateMRMLNodeFromOpcUaNodeValue(vtkMRMLSc
     int32_t scadaSysTime = this->Internal->getInt32(QString::fromStdString(fullNodeName), res);
     if (res)
     {
+      MRMLNodeModifyBlocker blocker(mrmlScadaNode);
       mrmlScadaNode->SetSysTimeScada(scadaSysTime);
     }
   }
@@ -628,6 +629,7 @@ bool vtkSlicerU70RoomScadaOpcUaLogic::UpdateMRMLNodeFromOpcUaNodeValue(vtkMRMLSc
     int32_t modPosState = this->Internal->getInt32(QString::fromStdString(fullNodeName), res);
     if (res)
     {
+      MRMLNodeModifyBlocker blocker(mrmlScadaNode);
       mrmlScadaNode->SetSt(static_cast< vtkMRMLScadaOpcUaNode::StateType >(modPosState));
     }
   }
@@ -636,6 +638,7 @@ bool vtkSlicerU70RoomScadaOpcUaLogic::UpdateMRMLNodeFromOpcUaNodeValue(vtkMRMLSc
     int32_t modPosSysTime = this->Internal->getInt32(QString::fromStdString(fullNodeName), res);
     if (res)
     {
+      MRMLNodeModifyBlocker blocker(mrmlScadaNode);
       mrmlScadaNode->SetSysTimeModPos(modPosSysTime);
     }
   }
@@ -719,9 +722,27 @@ bool vtkSlicerU70RoomScadaOpcUaLogic::UpdateMRMLNodeFromOpcUaNodeValue(vtkMRMLSc
     std::string eventStr = this->Internal->getString(QString::fromStdString(fullNodeName), res);
     if (res)
     {
+      MRMLNodeModifyBlocker blocker(mrmlScadaNode);
       mrmlScadaNode->SetEventStr(eventStr);
     }
   }
   return res;
+}
+
+//---------------------------------------------------------------------------
+bool vtkSlicerU70RoomScadaOpcUaLogic::ReadNodesValues(const std::list< std::string >& fullNamesList)
+{
+  bool result = true;
+  for (const auto& nodefullName : fullNamesList)
+  {
+    QOpcUaNode* node = this->Internal->node(QString::fromStdString(nodefullName));
+    if (!node)
+    {
+      result = false;
+      continue;
+    }
+    result &= node->readAttributes(QOpcUa::NodeAttribute::Value);
+  }
+  return result;
 }
 
