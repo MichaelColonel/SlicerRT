@@ -74,7 +74,7 @@ public:
 
   QWeakPointer< QOpcUaClient > Client;
   QHash< QString, Entry > Nodes;
-
+  bool InitialReadValuesFlag{ false };
 };
 
 //---------------------------------------------------------------------------
@@ -730,6 +730,12 @@ bool vtkSlicerU70RoomScadaOpcUaLogic::UpdateMRMLNodeFromOpcUaNodeValue(vtkMRMLSc
 }
 
 //---------------------------------------------------------------------------
+void vtkSlicerU70RoomScadaOpcUaLogic::SetInitialReadValuesFlag(bool flag)
+{
+  this->Internal->InitialReadValuesFlag = flag;
+}
+
+//---------------------------------------------------------------------------
 bool vtkSlicerU70RoomScadaOpcUaLogic::ReadNodesValues(const std::list< std::string >& fullNamesList)
 {
   bool result = true;
@@ -744,5 +750,20 @@ bool vtkSlicerU70RoomScadaOpcUaLogic::ReadNodesValues(const std::list< std::stri
     result &= node->readAttributes(QOpcUa::NodeAttribute::Value);
   }
   return result;
+}
+
+//---------------------------------------------------------------------------
+std::vector< std::string > vtkSlicerU70RoomScadaOpcUaLogic::GetRegisteredNodeIds()
+{
+  std::vector< std::string > ids;
+  for (const auto& nodeEntry : this->Internal->Nodes)
+  {
+    if (nodeEntry.Node)
+    {
+      QString nodeID = nodeEntry.Node->nodeId();
+      ids.push_back(nodeID.toStdString());
+    }
+  }
+  return ids;
 }
 

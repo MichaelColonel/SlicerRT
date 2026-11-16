@@ -54,6 +54,8 @@ public:
   bool UpdateMRMLNodeFromOpcUaNodeValue(vtkMRMLScadaOpcUaNode*, const std::string& fullNodeName);
 
   // Public API for other modules (C++ and Python)
+  std::vector< std::string > GetRegisteredNodeIds();
+
   bool WritePlanFileName(const std::string& textString);
   bool WritePatientID(const std::string& textString);
   bool WritePlanOpenFlag(bool);
@@ -61,6 +63,7 @@ public:
   bool WriteStateModPos(int32_t state);
   bool WriteEventString(const std::string& text);
   bool ReadNodesValues(const std::list< std::string >& fullNamesList);
+  void SetInitialReadValuesFlag(bool flag = false);
 
 protected:
   vtkSlicerU70RoomScadaOpcUaLogic();

@@ -37,7 +37,7 @@ public:
 
   enum Events : int {
     ValueChangedEvent = 63332,
-    ValueReadEvent,
+    ValueReadEvent
   };
 
   enum RemoteControlType : int32_t {
