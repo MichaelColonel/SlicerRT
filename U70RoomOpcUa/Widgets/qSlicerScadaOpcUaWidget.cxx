@@ -25,6 +25,7 @@
 #include <QScopedPointer>
 #include <QOpcUaNode>
 #include <QProgressDialog>
+#include <QMessageBox>
 #include <QTimer>
 
 // Slicer includes
@@ -43,6 +44,7 @@
 
 #include "ScadaOpcUaModel.h"
 #include "ScadaOpcUaTreeItem.h"
+#include "qSlicerOpcUaInitialValueNodeReader.h"
 
 #include <vtkMRMLScadaOpcUaNode.h>
 
@@ -118,7 +120,7 @@ public:
   QScopedPointer< QProgressDialog > ProgressDialog;
   QScopedPointer< QTimer > ProgressTimer;
   QScopedPointer< QTimer > ScadaExpiredTimer;
-
+  QScopedPointer< qSlicerOpcUaInitialValueNodeReader > InitialValuesNodeReader;
   bool AutoConnectServerFlag{ false };
 };
 
@@ -149,7 +151,7 @@ void qSlicerScadaOpcUaWidgetPrivate::setupUi(qSlicerScadaOpcUaWidget* widget)
   this->ProgressTimer->setSingleShot(true);
   this->ProgressTimer->setInterval(300);
 
-  this->ScadaExpiredTimer->setInterval(3000);
+  this->ScadaExpiredTimer->setInterval(2900);
 
   this->TreeView_OpcUaModel->setModel(OpcUaModel.data());
   this->TreeView_OpcUaModel->header()->setSectionResizeMode(QHeaderView::ResizeToContents);
@@ -381,7 +383,6 @@ void qSlicerScadaOpcUaWidget::onOpcUaClientConnected()
   d->CurrentTimeNode.reset(sharedClient->node(QOpcUa::namespace0Id(QOpcUa::NodeIds::Namespace0::Server_ServerStatus_CurrentTime)));
   if (d->CurrentTimeNode)
   {
-    qDebug() << Q_FUNC_INFO << ": Current time node is OK";
     // Subscribe to data changes
     d->CurrentTimeNode->enableMonitoring(QOpcUa::NodeAttribute::Value, QOpcUaMonitoringParameters(1000));
   }
@@ -422,7 +423,7 @@ void qSlicerScadaOpcUaWidget::onOpcUaClientDisconnected()
     qWarning() << Q_FUNC_INFO << ": Scada OPC UA node is invalid";
     return;
   }
-
+  d->ScadaExpiredTimer->stop();
   d->PushButton_ReadNodesValues->setEnabled(false);
   if (d->CurrentTimeNode)
   {
@@ -430,7 +431,6 @@ void qSlicerScadaOpcUaWidget::onOpcUaClientDisconnected()
   }
   d->OpcUaModel->clear();
 
-  d->ScadaExpiredTimer->stop();
   d->ParameterNode->SetTimeoutExpired(false);
 }
 
@@ -444,6 +444,8 @@ void qSlicerScadaOpcUaWidget::onPositionModuleNodesRead(QOpcUa::NodeAttributes a
     return;
   }
   QHash< QString, QString > hashNodes;
+  std::list< std::string > fullNamesList = vtkSlicerU70RoomScadaOpcUaNodesNames::GetScadaFullNodeNamesList();
+  QList< QOpcUaNode* > nodesList; 
   if (attr & QOpcUa::NodeAttribute::DisplayName)
   { // Make sure the value attribute has been read
     QString nodeDisplayName = d->ServerParentNode->attribute(QOpcUa::NodeAttribute::DisplayName).value<QOpcUaLocalizedText>().text();
@@ -458,6 +460,11 @@ void qSlicerScadaOpcUaWidget::onPositionModuleNodesRead(QOpcUa::NodeAttributes a
  //             << ", Name:" << nodeData.getNodeName()
  //             << ", Description:" << nodeData.getNodeDescription() << Qt::endl;
           hashNodes.insert(nodeData.getNodeName(), nodeData.getNodeId());
+          auto iter = std::find(fullNamesList.begin(), fullNamesList.end(), nodeData.getNodeName().toStdString());
+          if (iter != fullNamesList.end())
+          {
+            nodesList.push_back(nodeData.getNode());
+          }
         }
       }
     }
@@ -472,7 +479,37 @@ void qSlicerScadaOpcUaWidget::onPositionModuleNodesRead(QOpcUa::NodeAttributes a
     d->opcUaLogic->GetScadaOpcUaLogic()->WriteSysTimeModPos(static_cast< int32_t >(currTimeSecs));
   }
 
-  d->ParameterNode->Modified();
+  d->ProgressDialog->setLabelText(tr("Reading nodes initial value, Please wait!"));
+  d->ProgressDialog->setMaximum(nodesList.size());
+  d->ProgressDialog->setValue(0);
+
+  QProgressDialog* progressDialog = d->ProgressDialog.data();
+  QTimer* progressTimer = d->ProgressTimer.data();
+  d->InitialValuesNodeReader.reset(new qSlicerOpcUaInitialValueNodeReader(nodesList, this));
+  QObject::connect(d->InitialValuesNodeReader.data(), &qSlicerOpcUaInitialValueNodeReader::progress,
+    this, [progressDialog, progressTimer](int done, int total)
+  {
+//    Q_UNUSED(total);
+    qDebug() << Q_FUNC_INFO << ": Reading value in progress: " << done << " of " << total;
+    progressDialog->setValue(done);
+    progressTimer->stop();
+  });
+  QObject::connect(d->InitialValuesNodeReader.data(), &qSlicerOpcUaInitialValueNodeReader::finished,
+    this, [this, progressDialog, progressTimer]()
+  {
+    if (progressTimer && progressDialog)
+    {
+      qDebug() << Q_FUNC_INFO << ": Reading is finished";
+      progressTimer->start();
+      progressDialog->close();
+    }
+    QMessageBox::information(this, tr("SCADA OPC UA"), tr("Client is ready for data exchange with SCADA!"));
+  });
+
+  d->InitialValuesNodeReader->start();
+
+  this->onReadNodesValuesClicked();
+  
   d->ScadaExpiredTimer->start();
 }
 
@@ -511,18 +548,14 @@ void qSlicerScadaOpcUaWidget::onScadaExpiredTimeout()
   if (d->opcUaLogic && d->opcUaLogic->GetScadaOpcUaLogic())
   {
     qint64 currTimeSecs = QDateTime::currentSecsSinceEpoch();
-    MRMLNodeModifyBlocker blocker(d->ParameterNode);
-    d->opcUaLogic->GetScadaOpcUaLogic()->WriteSysTimeModPos(static_cast< int32_t >(currTimeSecs));
+    if (d->opcUaLogic->GetScadaOpcUaLogic()->WriteSysTimeModPos(static_cast< int32_t >(currTimeSecs)))
+    {
+      qDebug() << Q_FUNC_INFO << ": ModPos systen time is written";
+    }
   }
-  if (std::abs(d->ParameterNode->GetSysTimeModPos() - d->ParameterNode->GetSysTimeScada()) > 3)
+  bool timerExpiredSignal = (std::abs(d->ParameterNode->GetSysTimeModPos() - d->ParameterNode->GetSysTimeScada()) > 3);
   {
     MRMLNodeModifyBlocker blocker(d->ParameterNode);
-    d->ParameterNode->SetTimeoutExpired(true);
+    d->ParameterNode->SetTimeoutExpired(timerExpiredSignal);
   }
-  else
-  {
-    MRMLNodeModifyBlocker blocker(d->ParameterNode);
-    d->ParameterNode->SetTimeoutExpired(false);
-  }
-  d->ParameterNode->Modified();
 }

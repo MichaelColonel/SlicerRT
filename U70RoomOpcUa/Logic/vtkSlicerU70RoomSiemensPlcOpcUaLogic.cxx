@@ -68,7 +68,7 @@ public:
    bool updateMRMLNodeFromOpcUaKukaControllersButtons(vtkMRMLSiemensPlcOpcUaNode* mrmlSiemensPlcNode, const std::string& fullNodeName);
    bool updateMRMLNodeFromOpcUaSetCoordinates(vtkMRMLSiemensPlcOpcUaNode* mrmlSiemensPlcNode, const std::string& fullNodeName);
    bool updateMRMLNodeFromOpcUaCurrentCoordinates(vtkMRMLSiemensPlcOpcUaNode* mrmlSiemensPlcNode, const std::string& fullNodeName);
-   void updateMRMLNodeFromOpcUaReflectionCoordinates(vtkMRMLSiemensPlcOpcUaNode* mrmlSiemensPlcNode, const std::string& fullNodeName);
+   bool updateMRMLNodeFromOpcUaReflectionCoordinates(vtkMRMLSiemensPlcOpcUaNode* mrmlSiemensPlcNode, const std::string& fullNodeName);
    bool updateMRMLNodeFromOpcUaFlags(vtkMRMLSiemensPlcOpcUaNode* mrmlSiemensPlcNode, const std::string& fullNodeName);
 
   vtkSlicerU70RoomSiemensPlcOpcUaLogic* External{ nullptr };
@@ -708,6 +708,184 @@ bool vtkSlicerU70RoomSiemensPlcOpcUaLogic::vtkInternal::updateMRMLNodeFromOpcUaC
       {
         MRMLNodeModifyBlocker block(mrmlSiemensPlcNode);
         mrmlSiemensPlcNode->SetCurrentCoordsR2(kuka_coods);
+      }
+    }
+  }
+  return res;
+}
+
+bool vtkSlicerU70RoomSiemensPlcOpcUaLogic::vtkInternal::updateMRMLNodeFromOpcUaReflectionCoordinates(vtkMRMLSiemensPlcOpcUaNode* mrmlSiemensPlcNode, const std::string& fullNodeName)
+{
+  bool res = false;
+  // R1 == Tabletop robot
+
+  if (fullNodeName == vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::GetReflectionTargetCoordsR1X())
+  {
+    int32_t kuka_x = this->getInt32(QString::fromStdString(fullNodeName), res);
+    if (res)
+    {
+      int32_t kuka_coods[6] = {};
+      mrmlSiemensPlcNode->GetConfirmedCoordsR1(kuka_coods);
+      kuka_coods[0] = kuka_x;
+      {
+        MRMLNodeModifyBlocker block(mrmlSiemensPlcNode);
+        mrmlSiemensPlcNode->SetConfirmedCoordsR1(kuka_coods);
+      }
+    }
+  }
+  else if (fullNodeName == vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::GetReflectionTargetCoordsR1Y())
+  {
+    int32_t kuka_y = this->getInt32(QString::fromStdString(fullNodeName), res);
+    if (res)
+    {
+      int32_t kuka_coods[6] = {};
+      mrmlSiemensPlcNode->GetConfirmedCoordsR1(kuka_coods);
+      kuka_coods[1] = kuka_y;
+      {
+        MRMLNodeModifyBlocker block(mrmlSiemensPlcNode);
+        mrmlSiemensPlcNode->SetConfirmedCoordsR1(kuka_coods);
+      }
+    }
+  }
+  else if (fullNodeName == vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::GetReflectionTargetCoordsR1Z())
+  {
+    int32_t kuka_z = this->getInt32(QString::fromStdString(fullNodeName), res);
+    if (res)
+    {
+      int32_t kuka_coods[6] = {};
+      mrmlSiemensPlcNode->GetConfirmedCoordsR1(kuka_coods);
+      kuka_coods[2] = kuka_z;
+      {
+        MRMLNodeModifyBlocker block(mrmlSiemensPlcNode);
+        mrmlSiemensPlcNode->SetConfirmedCoordsR1(kuka_coods);
+      }
+    }
+  }
+  else if (fullNodeName == vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::GetReflectionTargetCoordsR1A())
+  {
+    int32_t kuka_a = this->getInt32(QString::fromStdString(fullNodeName), res);
+    if (res)
+    {
+      int32_t kuka_coods[6] = {};
+      mrmlSiemensPlcNode->GetConfirmedCoordsR1(kuka_coods);
+      kuka_coods[3] = kuka_a;
+      {
+        MRMLNodeModifyBlocker block(mrmlSiemensPlcNode);
+        mrmlSiemensPlcNode->SetConfirmedCoordsR1(kuka_coods);
+      }
+    }
+  }
+  else if (fullNodeName == vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::GetReflectionTargetCoordsR1B())
+  {
+    int32_t kuka_b = this->getInt32(QString::fromStdString(fullNodeName), res);
+    if (res)
+    {
+      int32_t kuka_coods[6] = {};
+      mrmlSiemensPlcNode->GetConfirmedCoordsR1(kuka_coods);
+      kuka_coods[4] = kuka_b;
+      {
+        MRMLNodeModifyBlocker block(mrmlSiemensPlcNode);
+        mrmlSiemensPlcNode->SetConfirmedCoordsR1(kuka_coods);
+      }
+    }
+  }
+  else if (fullNodeName == vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::GetReflectionTargetCoordsR1C())
+  {
+    int32_t kuka_c = this->getInt32(QString::fromStdString(fullNodeName), res);
+    if (res)
+    {
+      int32_t kuka_coods[6] = {};
+      mrmlSiemensPlcNode->GetConfirmedCoordsR1(kuka_coods);
+      kuka_coods[5] = kuka_c;
+      {
+        MRMLNodeModifyBlocker block(mrmlSiemensPlcNode);
+        mrmlSiemensPlcNode->SetConfirmedCoordsR1(kuka_coods);
+      }
+    }
+  }
+
+  // R2 == C-arm robot
+  if (fullNodeName == vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::GetReflectionTargetCoordsR2X())
+  {
+    int32_t kuka_x = this->getInt32(QString::fromStdString(fullNodeName), res);
+    if (res)
+    {
+      int32_t kuka_coods[6] = {};
+      mrmlSiemensPlcNode->GetConfirmedCoordsR2(kuka_coods);
+      kuka_coods[0] = kuka_x;
+      {
+        MRMLNodeModifyBlocker block(mrmlSiemensPlcNode);
+        mrmlSiemensPlcNode->SetConfirmedCoordsR2(kuka_coods);
+      }
+    }
+  }
+  else if (fullNodeName == vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::GetReflectionTargetCoordsR2Y())
+  {
+    int32_t kuka_y = this->getInt32(QString::fromStdString(fullNodeName), res);
+    if (res)
+    {
+      int32_t kuka_coods[6] = {};
+      mrmlSiemensPlcNode->GetConfirmedCoordsR2(kuka_coods);
+      kuka_coods[1] = kuka_y;
+      {
+        MRMLNodeModifyBlocker block(mrmlSiemensPlcNode);
+        mrmlSiemensPlcNode->SetConfirmedCoordsR2(kuka_coods);
+      }
+    }
+  }
+  else if (fullNodeName == vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::GetReflectionTargetCoordsR2Z())
+  {
+    int32_t kuka_z = this->getInt32(QString::fromStdString(fullNodeName), res);
+    if (res)
+    {
+      int32_t kuka_coods[6] = {};
+      mrmlSiemensPlcNode->GetConfirmedCoordsR2(kuka_coods);
+      kuka_coods[2] = kuka_z;
+      {
+        MRMLNodeModifyBlocker block(mrmlSiemensPlcNode);
+        mrmlSiemensPlcNode->SetConfirmedCoordsR2(kuka_coods);
+      }
+    }
+  }
+  else if (fullNodeName == vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::GetReflectionTargetCoordsR2A())
+  {
+    int32_t kuka_a = this->getInt32(QString::fromStdString(fullNodeName), res);
+    if (res)
+    {
+      int32_t kuka_coods[6] = {};
+      mrmlSiemensPlcNode->GetConfirmedCoordsR2(kuka_coods);
+      kuka_coods[3] = kuka_a;
+      {
+        MRMLNodeModifyBlocker block(mrmlSiemensPlcNode);
+        mrmlSiemensPlcNode->SetConfirmedCoordsR2(kuka_coods);
+      }
+    }
+  }
+  else if (fullNodeName == vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::GetReflectionTargetCoordsR2B())
+  {
+    int32_t kuka_b = this->getInt32(QString::fromStdString(fullNodeName), res);
+    if (res)
+    {
+      int32_t kuka_coods[6] = {};
+      mrmlSiemensPlcNode->GetConfirmedCoordsR2(kuka_coods);
+      kuka_coods[4] = kuka_b;
+      {
+        MRMLNodeModifyBlocker block(mrmlSiemensPlcNode);
+        mrmlSiemensPlcNode->SetConfirmedCoordsR2(kuka_coods);
+      }
+    }
+  }
+  else if (fullNodeName == vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::GetReflectionTargetCoordsR2C())
+  {
+    int32_t kuka_c = this->getInt32(QString::fromStdString(fullNodeName), res);
+    if (res)
+    {
+      int32_t kuka_coods[6] = {};
+      mrmlSiemensPlcNode->GetConfirmedCoordsR2(kuka_coods);
+      kuka_coods[5] = kuka_c;
+      {
+        MRMLNodeModifyBlocker block(mrmlSiemensPlcNode);
+        mrmlSiemensPlcNode->SetConfirmedCoordsR2(kuka_coods);
       }
     }
   }
@@ -1865,6 +2043,7 @@ void vtkSlicerU70RoomSiemensPlcOpcUaLogic::UpdateMRMLNodeFromOpcUaNodeValue(vtkM
   res &= this->Internal->updateMRMLNodeFromOpcUaModeAndStatus(mrmlSiemensPlcNode, fullNodeName);
   res &= this->Internal->updateMRMLNodeFromOpcUaFlags(mrmlSiemensPlcNode, fullNodeName);
   res &= this->Internal->updateMRMLNodeFromOpcUaCurrentCoordinates(mrmlSiemensPlcNode, fullNodeName);
+  res &= this->Internal->updateMRMLNodeFromOpcUaReflectionCoordinates(mrmlSiemensPlcNode, fullNodeName);
   res &= this->Internal->updateMRMLNodeFromOpcUaAutoManualButtons(mrmlSiemensPlcNode, fullNodeName);
   res &= this->Internal->updateMRMLNodeFromOpcUaServiceButtons(mrmlSiemensPlcNode, fullNodeName);
   res &= this->Internal->updateMRMLNodeFromOpcUaKukaControllersButtons(mrmlSiemensPlcNode, fullNodeName);

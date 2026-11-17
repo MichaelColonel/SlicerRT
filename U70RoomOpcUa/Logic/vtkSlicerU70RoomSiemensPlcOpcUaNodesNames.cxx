@@ -720,6 +720,32 @@ std::string vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::GetSetCoordC()
   return GetRtkPlcAsuSetCoords() + std::string(DOT) + std::string(KUKAC);
 }
 
+std::list< std::string > vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::GetSiemensPlcMessageFlagsList()
+{
+  std::list< std::string > displayNames;
+
+  displayNames.push_back(std::string(ERROR_FLAGS));
+  displayNames.push_back(std::string(SERVICE_FLAGS));
+  displayNames.push_back(std::string(MESSAGES_FLAGS));
+
+  return displayNames;
+}
+
+bool vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::CheckNodeDisplayNameIsMessageFlags(const std::string& displayname)
+{
+  bool res = false;
+  std::list< std::string > flagsNodeList = GetSiemensPlcMessageFlagsList();
+  for (const auto& flagsNodeName : flagsNodeList)
+  {
+    if (displayname == flagsNodeName)
+    {
+      res = true;
+      break;
+    }
+  }
+  return res;
+}
+
 std::list< std::string > vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::GetSiemensPlcDisplayNamesList()
 {
   std::list< std::string > displayNames;
@@ -731,7 +757,11 @@ std::list< std::string > vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::GetSiemensPl
   displayNames.push_back(std::string(STATUS_RTK));
   displayNames.push_back(std::string(STATUS_R1));
   displayNames.push_back(std::string(STATUS_R2));
-
+  displayNames.push_back(std::string(RTK_HOMERETURN_HOLDPRESSED));
+  displayNames.push_back(std::string(COORDS_ACCEPTED_R1));
+  displayNames.push_back(std::string(COORDS_NOTACCEPTED_R1));
+  displayNames.push_back(std::string(COORDS_ACCEPTED_R2));
+  displayNames.push_back(std::string(COORDS_NOTACCEPTED_R2));
   return displayNames;
 }
 
@@ -746,6 +776,125 @@ std::list< std::string > vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::GetSiemensPl
   fullNodeNames.push_back(GetStatusRtk());
   fullNodeNames.push_back(GetStatusR1());
   fullNodeNames.push_back(GetStatusR2());
+
+  fullNodeNames.push_back(GetAutoManualR1LoadToIsoButtonIsEnabled());
+  fullNodeNames.push_back(GetAutoManualR1LoadToIsoButtonIsPressed());
+  fullNodeNames.push_back(GetAutoManualR1ToLoadButtonIsEnabled());
+  fullNodeNames.push_back(GetAutoManualR1ToLoadButtonIsPressed());
+  fullNodeNames.push_back(GetAutoManualR1ToNewCoordsButtonIsEnabled());
+  fullNodeNames.push_back(GetAutoManualR1ToNewCoordsButtonIsPressed());
+
+  fullNodeNames.push_back(GetAutoManualR2ToPlane1ButtonIsEnabled());
+  fullNodeNames.push_back(GetAutoManualR2ToPlane1ButtonIsPressed());
+  fullNodeNames.push_back(GetAutoManualR2ToPlane2ButtonIsEnabled());
+  fullNodeNames.push_back(GetAutoManualR2ToPlane2ButtonIsPressed());
+  fullNodeNames.push_back(GetAutoManualR2ToHomeButtonIsEnabled());
+  fullNodeNames.push_back(GetAutoManualR2ToHomeButtonIsPressed());
+
+  fullNodeNames.push_back(GetAutoManualSetTabletopOrientationButtonIsEnabled());
+  fullNodeNames.push_back(GetAutoManualSetTabletopOrientationButtonIsPressed());
+  fullNodeNames.push_back(GetAutoManualR1R2EmergencyEvacuationButtonIsEnabled());
+  fullNodeNames.push_back(GetAutoManualR1R2EmergencyEvacuationButtonIsPressed());
+
+  fullNodeNames.push_back(GetServiceR1BreakTestButtonIsEnabled());
+  fullNodeNames.push_back(GetServiceR1BreakTestButtonIsPressed());
+  fullNodeNames.push_back(GetServiceR1MasterReferenceTestButtonIsEnabled());
+  fullNodeNames.push_back(GetServiceR1MasterReferenceTestButtonIsPressed());
+  fullNodeNames.push_back(GetServiceR1LoadButtonIsEnabled());
+  fullNodeNames.push_back(GetServiceR1LoadButtonIsPressed());
+  fullNodeNames.push_back(GetServiceR1ServicePosition1ButtonIsEnabled());
+  fullNodeNames.push_back(GetServiceR1ServicePosition1ButtonIsPressed());
+  fullNodeNames.push_back(GetServiceR1ServicePosition2ButtonIsEnabled());
+  fullNodeNames.push_back(GetServiceR1ServicePosition2ButtonIsPressed());
+  fullNodeNames.push_back(GetServiceR1ServicePosition3ButtonIsEnabled());
+  fullNodeNames.push_back(GetServiceR1ServicePosition3ButtonIsPressed());
+  fullNodeNames.push_back(GetServiceR2BreakTestButtonIsEnabled());
+  fullNodeNames.push_back(GetServiceR2BreakTestButtonIsPressed());
+  fullNodeNames.push_back(GetServiceR2MasterReferenceTestButtonIsEnabled());
+  fullNodeNames.push_back(GetServiceR2MasterReferenceTestButtonIsPressed());
+  fullNodeNames.push_back(GetServiceR2HomeButtonIsEnabled());
+  fullNodeNames.push_back(GetServiceR2HomeButtonIsPressed());
+  fullNodeNames.push_back(GetServiceR2ServicePosition1ButtonIsEnabled());
+  fullNodeNames.push_back(GetServiceR2ServicePosition1ButtonIsPressed());
+  fullNodeNames.push_back(GetServiceR2ServicePosition2ButtonIsEnabled());
+  fullNodeNames.push_back(GetServiceR2ServicePosition2ButtonIsPressed());
+  fullNodeNames.push_back(GetServiceR2ServicePosition3ButtonIsEnabled());
+  fullNodeNames.push_back(GetServiceR2ServicePosition3ButtonIsPressed());
+  fullNodeNames.push_back(GetServiceRestartButtonIsEnabled());
+  fullNodeNames.push_back(GetServiceRestartButtonIsPressed());
+
+  fullNodeNames.push_back(GetKukaControllersAllowT1ButtonIsEnabled());
+  fullNodeNames.push_back(GetKukaControllersAllowT1ButtonIsPressed());
+  fullNodeNames.push_back(GetKukaControllersAllowXrayButtonIsEnabled());
+  fullNodeNames.push_back(GetKukaControllersAllowXrayButtonIsPressed());
+  fullNodeNames.push_back(GetKukaControllersAllowBeamButtonIsEnabled());
+  fullNodeNames.push_back(GetKukaControllersAllowBeamButtonIsPressed());
+
+  fullNodeNames.push_back(GetResetErrorsButtonIsEnabled());
+  fullNodeNames.push_back(GetResetErrorsButtonIsPressed());
+  fullNodeNames.push_back(GetMakeXrayButtonIsEnabled());
+  fullNodeNames.push_back(GetMakeXrayButtonIsPressed());
+
+  fullNodeNames.push_back(GetReflectionTargetCoordsR1X());
+  fullNodeNames.push_back(GetReflectionTargetCoordsR1Y());
+  fullNodeNames.push_back(GetReflectionTargetCoordsR1Z());
+  fullNodeNames.push_back(GetReflectionTargetCoordsR1A());
+  fullNodeNames.push_back(GetReflectionTargetCoordsR1B());
+  fullNodeNames.push_back(GetReflectionTargetCoordsR1C());
+
+  fullNodeNames.push_back(GetReflectionTargetCoordsR2X());
+  fullNodeNames.push_back(GetReflectionTargetCoordsR2Y());
+  fullNodeNames.push_back(GetReflectionTargetCoordsR2Z());
+  fullNodeNames.push_back(GetReflectionTargetCoordsR2A());
+  fullNodeNames.push_back(GetReflectionTargetCoordsR2B());
+  fullNodeNames.push_back(GetReflectionTargetCoordsR2C());
+
+  fullNodeNames.push_back(GetCurrentCoordR1X());
+  fullNodeNames.push_back(GetCurrentCoordR1Y());
+  fullNodeNames.push_back(GetCurrentCoordR1Z());
+  fullNodeNames.push_back(GetCurrentCoordR1A());
+  fullNodeNames.push_back(GetCurrentCoordR1B());
+  fullNodeNames.push_back(GetCurrentCoordR1C());
+  fullNodeNames.push_back(GetCurrentAxisCoordR1A1());
+  fullNodeNames.push_back(GetCurrentAxisCoordR1A2());
+  fullNodeNames.push_back(GetCurrentAxisCoordR1A3());
+  fullNodeNames.push_back(GetCurrentAxisCoordR1A4());
+  fullNodeNames.push_back(GetCurrentAxisCoordR1A5());
+  fullNodeNames.push_back(GetCurrentAxisCoordR1A6());
+
+  fullNodeNames.push_back(GetCurrentCoordR2X());
+  fullNodeNames.push_back(GetCurrentCoordR2Y());
+  fullNodeNames.push_back(GetCurrentCoordR2Z());
+  fullNodeNames.push_back(GetCurrentCoordR2A());
+  fullNodeNames.push_back(GetCurrentCoordR2B());
+  fullNodeNames.push_back(GetCurrentCoordR2C());
+  fullNodeNames.push_back(GetCurrentAxisCoordR2A1());
+  fullNodeNames.push_back(GetCurrentAxisCoordR2A2());
+  fullNodeNames.push_back(GetCurrentAxisCoordR2A3());
+  fullNodeNames.push_back(GetCurrentAxisCoordR2A4());
+  fullNodeNames.push_back(GetCurrentAxisCoordR2A5());
+  fullNodeNames.push_back(GetCurrentAxisCoordR2A6());
+
+  fullNodeNames.push_back(GetCoordinatesAcceptedR1Flag());
+  fullNodeNames.push_back(GetCoordinatesNotAcceptedR1Flag());
+  fullNodeNames.push_back(GetCoordinatesAcceptedR2Flag());
+  fullNodeNames.push_back(GetCoordinatesNotAcceptedR2Flag());
+
+  fullNodeNames.push_back(GetComingHomeHoldButtonPressedFlag());
+
+  fullNodeNames.push_back(GetReadyForXray1Flag());
+  fullNodeNames.push_back(GetReadyForXray2Flag());
+  fullNodeNames.push_back(GetReadyForBeamFlag());
+  fullNodeNames.push_back(GetEmergencyEvacuationFlag());
+  fullNodeNames.push_back(GetPatientOnTheTableFlag());
+  fullNodeNames.push_back(GetTabletopOrientation());
+
+  fullNodeNames.push_back(GetSetCoordX());
+  fullNodeNames.push_back(GetSetCoordY());
+  fullNodeNames.push_back(GetSetCoordZ());
+  fullNodeNames.push_back(GetSetCoordA());
+  fullNodeNames.push_back(GetSetCoordB());
+  fullNodeNames.push_back(GetSetCoordC());
 
   return fullNodeNames;
 }

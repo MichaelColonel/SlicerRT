@@ -290,7 +290,8 @@ void qSlicerU70RoomOpcUaModuleWidget::setup()
   d->ScadaOpcUaProvider.reset(new QOpcUaProvider(this));
 
   d->LineEdit_SiemensOpcUaServerUrl->setText("opc.tcp://172.31.1.1:4840");
-  d->LineEdit_ScadaOpcUaServerUrl->setText("opc.tcp://192.168.26.128:62544");
+//  d->LineEdit_ScadaOpcUaServerUrl->setText("opc.tcp://192.168.26.128:62544");
+  d->LineEdit_ScadaOpcUaServerUrl->setText("opc.tcp://192.168.26.133:62544");
   d->ComboBox_SiemensOpcUaPlugin->addItems(d->SiemensOpcUaProvider->availableBackends());
   d->ComboBox_ScadaOpcUaPlugin->addItems(d->ScadaOpcUaProvider->availableBackends());
 
@@ -391,7 +392,17 @@ void qSlicerU70RoomOpcUaModuleWidget::setup()
     {
       if (d->CheckBox_SiemensHostAutoConnect->isChecked())
       {
-        d->SiemensPlcOpcUaControlWidget->onParseServerParentNodeClicked();
+        emit d->SiemensPlcOpcUaControlWidget->onParseServerParentNodeClicked();
+      }
+    }
+  );
+
+  QObject::connect(d->ScadaOpcUaControlWidget.data(), &qSlicerScadaOpcUaWidget::nodesTreeLoadingFinished,
+    [d]()
+    {
+      if (d->CheckBox_ScadaHostAutoConnect->isChecked())
+      {
+        d->ScadaOpcUaControlWidget->onParseServerParentNodeClicked();
       }
     }
   );

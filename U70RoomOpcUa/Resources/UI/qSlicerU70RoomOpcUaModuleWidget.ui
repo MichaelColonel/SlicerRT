@@ -17,7 +17,7 @@
    <item row="0" column="0">
     <widget class="QTabWidget" name="tabWidget">
      <property name="currentIndex">
-      <number>0</number>
+      <number>1</number>
      </property>
      <widget class="QWidget" name="tab_SiemensPlc">
       <attribute name="title">
@@ -622,7 +622,7 @@
               <item row="0" column="1">
                <widget class="QLineEdit" name="LineEdit_ScadaOpcUaServerUrl">
                 <property name="text">
-                 <string>opc.tcp://192.168.26.128:62544</string>
+                 <string>opc.tcp://192.168.26.133:62544</string>
                 </property>
                 <property name="clearButtonEnabled">
                  <bool>false</bool>
@@ -738,9 +738,24 @@
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>CheckBox_ScadaHostAutoConnect</sender>
+   <signal>clicked(bool)</signal>
+   <receiver>PushButton_GetScadaServerNodes</receiver>
+   <slot>setHidden(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>171</x>
+     <y>207</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>171</x>
+     <y>244</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
  <buttongroups>
   <buttongroup name="buttonGroup"/>
-  <buttongroup name="ButtonGroup_TreatmentRoomType"/>
  </buttongroups>
 </ui>

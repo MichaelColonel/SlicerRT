@@ -18,6 +18,7 @@ set(${KIT}_SRCS
   qSlicerScadaOpcUaWidget.h
   qSlicerOpcUaRobotsMessagesListModel.cxx
   qSlicerOpcUaRobotsMessagesListModel.h
+  qSlicerOpcUaInitialValueNodeReader.h
   OpcUaModel.cxx
   OpcUaModel.h
   OpcUaTreeItem.cxx

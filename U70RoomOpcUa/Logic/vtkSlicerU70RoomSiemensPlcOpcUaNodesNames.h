@@ -164,6 +164,8 @@ public:
   static std::string GetSetCoordB();
   static std::string GetSetCoordC();
 
+  static std::list< std::string > GetSiemensPlcMessageFlagsList();
+  static bool CheckNodeDisplayNameIsMessageFlags(const std::string& displayname);
   static std::list< std::string > GetSiemensPlcDisplayNamesList();
   static std::list< std::string > GetSiemensPlcFullNodeNamesList();
 };

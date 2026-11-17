@@ -141,8 +141,8 @@ public:
   vtkGetMacro(RemoteAvr, bool);
   vtkSetMacro(RemoteAvr, bool);
 
-  vtkGetMacro(DoorLock, bool);
-  vtkSetMacro(DoorLock, bool);
+  vtkGetMacro(DoorBlock, bool);
+  vtkSetMacro(DoorBlock, bool);
 
   vtkGetMacro(ReadyEq, bool);
   vtkSetMacro(ReadyEq, bool);
@@ -156,8 +156,8 @@ public:
   vtkGetMacro(St, StateType);
   vtkSetMacro(St, StateType);
 
-  vtkGetMacro(inQueue, bool);
-  vtkSetMacro(inQueue, bool);
+  vtkGetMacro(InQueue, bool);
+  vtkSetMacro(InQueue, bool);
 
   vtkGetMacro(ReadySt, bool);
   vtkSetMacro(ReadySt, bool);
@@ -180,8 +180,8 @@ public:
   vtkGetMacro(ProcNote, std::string);
   vtkSetMacro(ProcNote, std::string);
 
-  vtkGetMacro(ProcClose, bool);
-  vtkSetMacro(ProcClose, bool);
+  vtkGetMacro(RecClose, bool);
+  vtkSetMacro(RecClose, bool);
 
   vtkGetMacro(ErrStr, std::string);
   vtkSetMacro(ErrStr, std::string);
@@ -214,12 +214,12 @@ private:
   bool RemoteCmd{ false };
   bool RemotePause{ false };
   bool RemoteAvr{ false };
-  bool DoorLock{ false };
+  bool DoorBlock{ false };
   bool ReadyEq{ false };
   bool ReadyPlan{ false };
   bool ReadyProc{ false };
   StateType St{ StateType::ST_UNDEFINED };
-  bool inQueue{ false };
+  bool InQueue{ false };
   bool ReadySt{ false };
   bool Block{ false };
   int32_t CurrentLayer{ 0 };
@@ -227,7 +227,7 @@ private:
   int32_t ProcLayer{ 0 };
   bool ProcEnd{ false };
   std::string ProcNote;
-  bool ProcClose{ false };
+  bool RecClose{ false };
   std::string ErrStr;
   std::string EventStr;
 };

@@ -66,12 +66,12 @@ void vtkMRMLScadaOpcUaNode::WriteXML(ostream& of, int nIndent)
   vtkMRMLWriteXMLBooleanMacro(remoteCmd, RemoteCmd);
   vtkMRMLWriteXMLBooleanMacro(remotePause, RemotePause);
   vtkMRMLWriteXMLBooleanMacro(remoteAvr, RemoteAvr);
-  vtkMRMLWriteXMLBooleanMacro(doorLock, DoorLock);
+  vtkMRMLWriteXMLBooleanMacro(doorBlock, DoorBlock);
   vtkMRMLWriteXMLBooleanMacro(readyEq, ReadyEq);
   vtkMRMLWriteXMLBooleanMacro(readyPlan, ReadyPlan);
   vtkMRMLWriteXMLBooleanMacro(readyProc, ReadyProc);
   vtkMRMLWriteXMLEnumMacro(st, St);
-  vtkMRMLWriteXMLBooleanMacro(inqueue, inQueue);
+  vtkMRMLWriteXMLBooleanMacro(inQueue, InQueue);
   vtkMRMLWriteXMLBooleanMacro(readySt, ReadySt);
   vtkMRMLWriteXMLBooleanMacro(block, Block);
   vtkMRMLWriteXMLIntMacro(currentLayer, CurrentLayer);
@@ -79,7 +79,7 @@ void vtkMRMLScadaOpcUaNode::WriteXML(ostream& of, int nIndent)
   vtkMRMLWriteXMLIntMacro(procLayer, ProcLayer);
   vtkMRMLWriteXMLBooleanMacro(procEnd, ProcEnd);
   vtkMRMLWriteXMLStdStringMacro(procNote, ProcNote);
-  vtkMRMLWriteXMLBooleanMacro(procClose, ProcClose);
+  vtkMRMLWriteXMLBooleanMacro(recClose, RecClose);
   vtkMRMLWriteXMLStdStringMacro(errStr, ErrStr);
   vtkMRMLWriteXMLStdStringMacro(eventStr, EventStr);
 
@@ -109,12 +109,12 @@ void vtkMRMLScadaOpcUaNode::ReadXMLAttributes(const char** atts)
   vtkMRMLReadXMLBooleanMacro(remoteCmd, RemoteCmd);
   vtkMRMLReadXMLBooleanMacro(remotePause, RemotePause);
   vtkMRMLReadXMLBooleanMacro(remoteAvr, RemoteAvr);
-  vtkMRMLReadXMLBooleanMacro(doorLock, DoorLock);
+  vtkMRMLReadXMLBooleanMacro(doorBlock, DoorBlock);
   vtkMRMLReadXMLBooleanMacro(readyEq, ReadyEq);
   vtkMRMLReadXMLBooleanMacro(readyPlan, ReadyPlan);
   vtkMRMLReadXMLBooleanMacro(readyProc, ReadyProc);
   vtkMRMLReadXMLEnumMacro(st, St);
-  vtkMRMLReadXMLBooleanMacro(inqueue, inQueue);
+  vtkMRMLReadXMLBooleanMacro(inQueue, InQueue);
   vtkMRMLReadXMLBooleanMacro(readySt, ReadySt);
   vtkMRMLReadXMLBooleanMacro(block, Block);
   vtkMRMLReadXMLIntMacro(currentLayer, CurrentLayer);
@@ -122,7 +122,7 @@ void vtkMRMLScadaOpcUaNode::ReadXMLAttributes(const char** atts)
   vtkMRMLReadXMLIntMacro(procLayer, ProcLayer);
   vtkMRMLReadXMLBooleanMacro(procEnd, ProcEnd);
   vtkMRMLReadXMLStdStringMacro(procNote, ProcNote);
-  vtkMRMLReadXMLBooleanMacro(procClose, ProcClose);
+  vtkMRMLReadXMLBooleanMacro(recClose, RecClose);
   vtkMRMLReadXMLStdStringMacro(errStr, ErrStr);
   vtkMRMLReadXMLStdStringMacro(eventStr, EventStr);
   vtkMRMLReadXMLEndMacro();
@@ -164,12 +164,12 @@ void vtkMRMLScadaOpcUaNode::Copy(vtkMRMLNode *anode)
   vtkMRMLCopyBooleanMacro(RemoteCmd);
   vtkMRMLCopyBooleanMacro(RemotePause);
   vtkMRMLCopyBooleanMacro(RemoteAvr);
-  vtkMRMLCopyBooleanMacro(DoorLock);
+  vtkMRMLCopyBooleanMacro(DoorBlock);
   vtkMRMLCopyBooleanMacro(ReadyEq);
   vtkMRMLCopyBooleanMacro(ReadyPlan);
   vtkMRMLCopyBooleanMacro(ReadyProc);
   vtkMRMLCopyEnumMacro(St);
-  vtkMRMLCopyBooleanMacro(inQueue);
+  vtkMRMLCopyBooleanMacro(InQueue);
   vtkMRMLCopyBooleanMacro(ReadySt);
   vtkMRMLCopyBooleanMacro(Block);
   vtkMRMLCopyIntMacro(CurrentLayer);
@@ -177,7 +177,7 @@ void vtkMRMLScadaOpcUaNode::Copy(vtkMRMLNode *anode)
   vtkMRMLCopyIntMacro(ProcLayer);
   vtkMRMLCopyBooleanMacro(ProcEnd);
   vtkMRMLCopyStdStringMacro(ProcNote);
-  vtkMRMLCopyBooleanMacro(ProcClose);
+  vtkMRMLCopyBooleanMacro(RecClose);
   vtkMRMLCopyStdStringMacro(ErrStr);
   vtkMRMLCopyStdStringMacro(EventStr);
 
@@ -216,12 +216,12 @@ void vtkMRMLScadaOpcUaNode::CopyContent(vtkMRMLNode *anode, bool deepCopy/*=true
   vtkMRMLCopyBooleanMacro(RemoteCmd);
   vtkMRMLCopyBooleanMacro(RemotePause);
   vtkMRMLCopyBooleanMacro(RemoteAvr);
-  vtkMRMLCopyBooleanMacro(DoorLock);
+  vtkMRMLCopyBooleanMacro(DoorBlock);
   vtkMRMLCopyBooleanMacro(ReadyEq);
   vtkMRMLCopyBooleanMacro(ReadyPlan);
   vtkMRMLCopyBooleanMacro(ReadyProc);
   vtkMRMLCopyEnumMacro(St);
-  vtkMRMLCopyBooleanMacro(inQueue);
+  vtkMRMLCopyBooleanMacro(InQueue);
   vtkMRMLCopyBooleanMacro(ReadySt);
   vtkMRMLCopyBooleanMacro(Block);
   vtkMRMLCopyIntMacro(CurrentLayer);
@@ -229,7 +229,7 @@ void vtkMRMLScadaOpcUaNode::CopyContent(vtkMRMLNode *anode, bool deepCopy/*=true
   vtkMRMLCopyIntMacro(ProcLayer);
   vtkMRMLCopyBooleanMacro(ProcEnd);
   vtkMRMLCopyStdStringMacro(ProcNote);
-  vtkMRMLCopyBooleanMacro(ProcClose);
+  vtkMRMLCopyBooleanMacro(RecClose);
   vtkMRMLCopyStdStringMacro(ErrStr);
   vtkMRMLCopyStdStringMacro(EventStr);
   vtkMRMLCopyEndMacro();
@@ -256,12 +256,12 @@ void vtkMRMLScadaOpcUaNode::PrintSelf(ostream& os, vtkIndent indent)
   vtkMRMLPrintBooleanMacro(RemoteCmd);
   vtkMRMLPrintBooleanMacro(RemotePause);
   vtkMRMLPrintBooleanMacro(RemoteAvr);
-  vtkMRMLPrintBooleanMacro(DoorLock);
+  vtkMRMLPrintBooleanMacro(DoorBlock);
   vtkMRMLPrintBooleanMacro(ReadyEq);
   vtkMRMLPrintBooleanMacro(ReadyPlan);
   vtkMRMLPrintBooleanMacro(ReadyProc);
   vtkMRMLPrintEnumMacro(St);
-  vtkMRMLPrintBooleanMacro(inQueue);
+  vtkMRMLPrintBooleanMacro(InQueue);
   vtkMRMLPrintBooleanMacro(ReadySt);
   vtkMRMLPrintBooleanMacro(Block);
   vtkMRMLPrintIntMacro(CurrentLayer);
@@ -269,7 +269,7 @@ void vtkMRMLScadaOpcUaNode::PrintSelf(ostream& os, vtkIndent indent)
   vtkMRMLPrintIntMacro(ProcLayer);
   vtkMRMLPrintBooleanMacro(ProcEnd);
   vtkMRMLPrintStdStringMacro(ProcNote);
-  vtkMRMLPrintBooleanMacro(ProcClose);
+  vtkMRMLPrintBooleanMacro(RecClose);
   vtkMRMLPrintStdStringMacro(ErrStr);
   vtkMRMLPrintStdStringMacro(EventStr);
   vtkMRMLPrintEndMacro(); 

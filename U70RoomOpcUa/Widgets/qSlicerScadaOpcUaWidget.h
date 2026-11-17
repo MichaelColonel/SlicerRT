@@ -45,6 +45,45 @@ class vtkMRMLNode;
 
 class vtkSlicerU70RoomOpcUaLogic;
 
+class NodeReader : public QObject {
+  Q_OBJECT
+public:
+  NodeReader(const QList< QOpcUaNode* >& nodes, QObject* parent = nullptr)
+    : QObject(parent), m_nodes(nodes), m_total(nodes.size())
+  {
+    for (QOpcUaNode* node : nodes)
+    {
+      QObject::connect(node, &QOpcUaNode::attributeRead, this, [this, node](QOpcUa::NodeAttributes attrs)
+      {
+        Q_UNUSED(attrs);
+        ++m_done;
+        emit progress(m_done, m_total);
+        if (m_done == m_total)
+        {
+          emit finished();
+        }
+      });
+    }
+  }
+  void start()
+  {
+    for (QOpcUaNode* node : m_nodes)
+    {
+      if (node)
+      {
+        node->readAttributes(QOpcUa::NodeAttribute::Value);
+      }
+    }
+  }
+signals:
+  void progress(int done, int total);
+  void finished();
+private:
+  QList< QOpcUaNode* > m_nodes;
+  int m_total{ 0 };
+  int m_done{ 0 };
+};
+
 class Q_SLICER_MODULE_U70ROOMOPCUA_WIDGETS_EXPORT qSlicerScadaOpcUaWidget
   : public QWidget
 {

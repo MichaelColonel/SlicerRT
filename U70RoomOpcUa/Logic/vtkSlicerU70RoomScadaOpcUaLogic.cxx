@@ -644,78 +644,228 @@ bool vtkSlicerU70RoomScadaOpcUaLogic::UpdateMRMLNodeFromOpcUaNodeValue(vtkMRMLSc
   }
   else if (fullNodeName == vtkSlicerU70RoomScadaOpcUaNodesNames::GetModPosPlanStr())
   {
+    std::string planFileName = this->Internal->getString(QString::fromStdString(fullNodeName), res);
+    if (res)
+    {
+      MRMLNodeModifyBlocker blocker(mrmlScadaNode);
+      mrmlScadaNode->SetPlanStr(planFileName);
+    }
   }
   else if (fullNodeName == vtkSlicerU70RoomScadaOpcUaNodesNames::GetModPosIdp())
   {
+    std::string patientID = this->Internal->getString(QString::fromStdString(fullNodeName), res);
+    if (res)
+    {
+      MRMLNodeModifyBlocker blocker(mrmlScadaNode);
+      mrmlScadaNode->SetIDP(patientID);
+    }
   }
   else if (fullNodeName == vtkSlicerU70RoomScadaOpcUaNodesNames::GetModPosEcp())
   {
+    bool ecpPlanIsPresent = this->Internal->getBool(QString::fromStdString(fullNodeName), res);
+    if (res)
+    {
+      MRMLNodeModifyBlocker blocker(mrmlScadaNode);
+      mrmlScadaNode->SetECP(ecpPlanIsPresent);
+    }
   }
   else if (fullNodeName == vtkSlicerU70RoomScadaOpcUaNodesNames::GetModPosImmob())
   {
+    std::string immobName = this->Internal->getString(QString::fromStdString(fullNodeName), res);
+    if (res)
+    {
+      MRMLNodeModifyBlocker blocker(mrmlScadaNode);
+      mrmlScadaNode->SetImmob(immobName);
+    }
   }
   else if (fullNodeName == vtkSlicerU70RoomScadaOpcUaNodesNames::GetModPosPlanOpen())
   {
+    bool planIsOpen = this->Internal->getBool(QString::fromStdString(fullNodeName), res);
+    if (res)
+    {
+      MRMLNodeModifyBlocker blocker(mrmlScadaNode);
+      mrmlScadaNode->SetPlanOpen(planIsOpen);
+    }
   }
   else if (fullNodeName == vtkSlicerU70RoomScadaOpcUaNodesNames::GetModPosPlanNpos())
   {
+    int32_t npos = this->Internal->getInt32(QString::fromStdString(fullNodeName), res);
+    if (res)
+    {
+      MRMLNodeModifyBlocker blocker(mrmlScadaNode);
+      mrmlScadaNode->SetNPos(npos);
+    }
   }
   else if (fullNodeName == vtkSlicerU70RoomScadaOpcUaNodesNames::GetScadaRemoteCtrl())
   {
+    int32_t remoteCtrl = this->Internal->getInt32(QString::fromStdString(fullNodeName), res);
+    if (res)
+    {
+      MRMLNodeModifyBlocker blocker(mrmlScadaNode);
+      mrmlScadaNode->SetRemoteCtrl(static_cast< vtkMRMLScadaOpcUaNode::RemoteControlType >(remoteCtrl));
+    }
   }
   else if (fullNodeName == vtkSlicerU70RoomScadaOpcUaNodesNames::GetScadaRemoteStateMachine())
   {
+    int32_t remoteCtrlStateMachine = this->Internal->getInt32(QString::fromStdString(fullNodeName), res);
+    if (res)
+    {
+      MRMLNodeModifyBlocker blocker(mrmlScadaNode);
+      mrmlScadaNode->SetRemoteCtrl(static_cast< vtkMRMLScadaOpcUaNode::RemoteStateMachineType >(remoteCtrlStateMachine));
+    }
   }
   else if (fullNodeName == vtkSlicerU70RoomScadaOpcUaNodesNames::GetScadaRemoteCmd())
   {
+    bool remoteCmd = this->Internal->getBool(QString::fromStdString(fullNodeName), res);
+    if (res)
+    {
+      MRMLNodeModifyBlocker blocker(mrmlScadaNode);
+      mrmlScadaNode->SetRemoteCmd(remoteCmd);
+    }
   }
   else if (fullNodeName == vtkSlicerU70RoomScadaOpcUaNodesNames::GetScadaRemotePause())
   {
+    bool remotePause = this->Internal->getBool(QString::fromStdString(fullNodeName), res);
+    if (res)
+    {
+      MRMLNodeModifyBlocker blocker(mrmlScadaNode);
+      mrmlScadaNode->SetRemotePause(remotePause);
+    }
   }
   else if (fullNodeName == vtkSlicerU70RoomScadaOpcUaNodesNames::GetScadaRemoteAvr())
   {
+    bool remoteMalfunction = this->Internal->getBool(QString::fromStdString(fullNodeName), res);
+    if (res)
+    {
+      MRMLNodeModifyBlocker blocker(mrmlScadaNode);
+      mrmlScadaNode->SetRemoteAvr(remoteMalfunction);
+    }
   }
   else if (fullNodeName == vtkSlicerU70RoomScadaOpcUaNodesNames::GetScadaDoorBlock())
   {
+    bool doorBlock = this->Internal->getBool(QString::fromStdString(fullNodeName), res);
+    if (res)
+    {
+      MRMLNodeModifyBlocker blocker(mrmlScadaNode);
+      mrmlScadaNode->SetDoorBlock(doorBlock);
+    }
   }
   else if (fullNodeName == vtkSlicerU70RoomScadaOpcUaNodesNames::GetScadaReadyEq())
   {
+    bool readyEq = this->Internal->getBool(QString::fromStdString(fullNodeName), res);
+    if (res)
+    {
+      MRMLNodeModifyBlocker blocker(mrmlScadaNode);
+      mrmlScadaNode->SetReadyEq(readyEq);
+    }
   }
   else if (fullNodeName == vtkSlicerU70RoomScadaOpcUaNodesNames::GetScadaReadyPlan())
   {
+    bool readyPlan = this->Internal->getBool(QString::fromStdString(fullNodeName), res);
+    if (res)
+    {
+      MRMLNodeModifyBlocker blocker(mrmlScadaNode);
+      mrmlScadaNode->SetReadyPlan(readyPlan);
+    }
   }
   else if (fullNodeName == vtkSlicerU70RoomScadaOpcUaNodesNames::GetScadaReadyProc())
   {
+    bool readyProc = this->Internal->getBool(QString::fromStdString(fullNodeName), res);
+    if (res)
+    {
+      MRMLNodeModifyBlocker blocker(mrmlScadaNode);
+      mrmlScadaNode->SetReadyProc(readyProc);
+    }
   }
   else if (fullNodeName == vtkSlicerU70RoomScadaOpcUaNodesNames::GetScadaInQueue())
   {
+    bool inQueue = this->Internal->getBool(QString::fromStdString(fullNodeName), res);
+    if (res)
+    {
+      MRMLNodeModifyBlocker blocker(mrmlScadaNode);
+      mrmlScadaNode->SetInQueue(inQueue);
+    }
   }
   else if (fullNodeName == vtkSlicerU70RoomScadaOpcUaNodesNames::GetModPosReadySt())
   {
+    bool readySt = this->Internal->getBool(QString::fromStdString(fullNodeName), res);
+    if (res)
+    {
+      MRMLNodeModifyBlocker blocker(mrmlScadaNode);
+      mrmlScadaNode->SetReadySt(readySt);
+    }
   }
   else if (fullNodeName == vtkSlicerU70RoomScadaOpcUaNodesNames::GetScadaBlock())
   {
+    bool readySt = this->Internal->getBool(QString::fromStdString(fullNodeName), res);
+    if (res)
+    {
+      MRMLNodeModifyBlocker blocker(mrmlScadaNode);
+      mrmlScadaNode->SetReadySt(readySt);
+    }
   }
   else if (fullNodeName == vtkSlicerU70RoomScadaOpcUaNodesNames::GetScadaCurrentLayer())
   {
+    int32_t currLayer = this->Internal->getInt32(QString::fromStdString(fullNodeName), res);
+    if (res)
+    {
+      MRMLNodeModifyBlocker blocker(mrmlScadaNode);
+      mrmlScadaNode->SetCurrentLayer(currLayer);
+    }
   }
   else if (fullNodeName == vtkSlicerU70RoomScadaOpcUaNodesNames::GetScadaMaxLayer())
   {
+    int32_t maxLayer = this->Internal->getInt32(QString::fromStdString(fullNodeName), res);
+    if (res)
+    {
+      MRMLNodeModifyBlocker blocker(mrmlScadaNode);
+      mrmlScadaNode->SetMaxLayer(maxLayer);
+    }
   }
   else if (fullNodeName == vtkSlicerU70RoomScadaOpcUaNodesNames::GetScadaProcLayer())
   {
+    int32_t procLayer = this->Internal->getInt32(QString::fromStdString(fullNodeName), res);
+    if (res)
+    {
+      MRMLNodeModifyBlocker blocker(mrmlScadaNode);
+      mrmlScadaNode->SetProcLayer(procLayer);
+    }
   }
   else if (fullNodeName == vtkSlicerU70RoomScadaOpcUaNodesNames::GetScadaProcEnd())
   {
+    bool procEnd = this->Internal->getBool(QString::fromStdString(fullNodeName), res);
+    if (res)
+    {
+      MRMLNodeModifyBlocker blocker(mrmlScadaNode);
+      mrmlScadaNode->SetProcEnd(procEnd);
+    }
   }
   else if (fullNodeName == vtkSlicerU70RoomScadaOpcUaNodesNames::GetModPosProcNote())
   {
+    std::string procNote = this->Internal->getString(QString::fromStdString(fullNodeName), res);
+    if (res)
+    {
+      MRMLNodeModifyBlocker blocker(mrmlScadaNode);
+      mrmlScadaNode->SetProcNote(procNote);
+    }
   }
   else if (fullNodeName == vtkSlicerU70RoomScadaOpcUaNodesNames::GetModPosRecClose())
   {
+    bool recClose = this->Internal->getBool(QString::fromStdString(fullNodeName), res);
+    if (res)
+    {
+      MRMLNodeModifyBlocker blocker(mrmlScadaNode);
+      mrmlScadaNode->SetRecClose(recClose);
+    }
   }
   else if (fullNodeName == vtkSlicerU70RoomScadaOpcUaNodesNames::GetModPosErrStr())
   {
+    std::string errStr = this->Internal->getString(QString::fromStdString(fullNodeName), res);
+    if (res)
+    {
+      MRMLNodeModifyBlocker blocker(mrmlScadaNode);
+      mrmlScadaNode->SetErrStr(errStr);
+    }
   }
   else if (fullNodeName == vtkSlicerU70RoomScadaOpcUaNodesNames::GetModPosEventStr())
   {
@@ -725,6 +875,11 @@ bool vtkSlicerU70RoomScadaOpcUaLogic::UpdateMRMLNodeFromOpcUaNodeValue(vtkMRMLSc
       MRMLNodeModifyBlocker blocker(mrmlScadaNode);
       mrmlScadaNode->SetEventStr(eventStr);
     }
+  }
+  else
+  {
+    vtkErrorMacro("UpdateMRMLNodeFromOpcUaNodeValue: Unknown SCADA node, name: " << fullNodeName);
+    res = false;
   }
   return res;
 }
