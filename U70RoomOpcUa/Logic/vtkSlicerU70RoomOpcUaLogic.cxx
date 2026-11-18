@@ -170,6 +170,14 @@ void vtkSlicerU70RoomOpcUaLogic::OnMRMLSceneNodeAdded(vtkMRMLNode* node)
     events->InsertNextValue(vtkMRMLScadaOpcUaNode::ValueReadEvent);
     vtkObserveMRMLNodeEventsMacro(node, events);
   }
+  if (node->IsA("vtkMRMLSiemensPlcOpcUaNode"))
+  {
+    // Observe custom OPC UA node events
+    vtkSmartPointer<vtkIntArray> events = vtkSmartPointer<vtkIntArray>::New();
+    events->InsertNextValue(vtkMRMLSiemensPlcOpcUaNode::ValueChangedEvent);
+    events->InsertNextValue(vtkMRMLSiemensPlcOpcUaNode::ValueReadEvent);
+    vtkObserveMRMLNodeEventsMacro(node, events);
+  }
 }
 
 //---------------------------------------------------------------------------
@@ -232,11 +240,19 @@ void vtkSlicerU70RoomOpcUaLogic::ProcessMRMLNodesEvents(vtkObject* caller, unsig
     {
       std::unique_ptr< char[] > str(reinterpret_cast< char* >(callData));
       std::string string(str.get());
+      if (this->SiemensPlcOpcUaLogic)
+      {
+        this->SiemensPlcOpcUaLogic->UpdateMRMLNodeFromOpcUaNodeValue(opcUaNode, string);
+      }
     }
     else if (event == vtkMRMLSiemensPlcOpcUaNode::ValueReadEvent)
     {
       std::unique_ptr< char[] > str(reinterpret_cast< char* >(callData));
       std::string string(str.get());
+      if (this->SiemensPlcOpcUaLogic)
+      {
+        this->SiemensPlcOpcUaLogic->UpdateMRMLNodeFromOpcUaNodeValue(opcUaNode, string);
+      }
     }
   }
 }

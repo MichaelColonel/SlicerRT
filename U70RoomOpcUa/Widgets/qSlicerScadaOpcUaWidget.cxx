@@ -508,7 +508,7 @@ void qSlicerScadaOpcUaWidget::onPositionModuleNodesRead(QOpcUa::NodeAttributes a
 
   d->InitialValuesNodeReader->start();
 
-  this->onReadNodesValuesClicked();
+//  this->onReadNodesValuesClicked();
   
   d->ScadaExpiredTimer->start();
 }

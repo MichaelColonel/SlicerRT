@@ -409,7 +409,9 @@ void qSlicerU70RoomOpcUaModuleWidget::setup()
 
   // Handle scene change event if occurs
   qvtkConnect(d->logic(), vtkCommand::ModifiedEvent, this, SLOT(onOpcUaLogicModified()));
+
   d->ScadaOpcUaControlWidget->setOpcUaLogic(d->logic());
+  d->SiemensPlcOpcUaControlWidget->setOpcUaLogic(d->logic());
 }
 
 void qSlicerU70RoomOpcUaModuleWidget::onShowSiemensPlcControlsClicked()

@@ -42,6 +42,7 @@ class QOpcUaClient;
 class QAbstractButton;
 
 class vtkMRMLNode;
+class vtkSlicerU70RoomOpcUaLogic;
 
 class Q_SLICER_MODULE_U70ROOMOPCUA_WIDGETS_EXPORT qSlicerSiemensPlcOpcUaWidget
   : public QWidget
@@ -60,6 +61,7 @@ signals:
 public slots:
   /// Set SiemensPlcOpcUa MRML node (Parameter node)
   void setParameterNode(vtkMRMLNode* node);
+  void setOpcUaLogic(vtkSlicerU70RoomOpcUaLogic* logic);
   /// Set SiemensPlcOpcUa client
   void setSiemensPlcOpcUaClient(const QSharedPointer< QOpcUaClient >& opcUaClient);
   /// Update widget GUI from SiemensPlcOpcUa parameters node
@@ -70,6 +72,7 @@ public slots:
   void onOpcUaClientDisconnected();
 
   // Siemens PLC OPC UA slots (values, buttons, etc)
+/*
   void onOpcUaModeChanged(vtkMRMLSiemensPlcOpcUaNode::ModeType mode);
   void onTabletopPositionChanged(QAbstractButton*);
 
@@ -166,7 +169,7 @@ public slots:
   void onSetAngleCClicked();
   void onSetCoordsAndAnglesClicked();
   void onSetTabletopPositionClicked();
-
+*/
   void onServerInterfacesRead(QOpcUa::NodeAttributes attr);
 
   void onReadStatusAndMessagesClicked();

@@ -25,6 +25,7 @@
 #include <QScopedPointer>
 #include <QOpcUaNode>
 #include <QProgressDialog>
+#include <QMessageBox>
 #include <QTimer>
 
 // Slicer includes
@@ -36,14 +37,19 @@
 #include "qSlicerSiemensPlcOpcUaWidget.h"
 #include "ui_qSlicerSiemensPlcOpcUaWidget.h"
 
-#include "OpcUaModel.h"
-#include "OpcUaTreeItem.h"
 #include "qSlicerOpcUaRobotsMessagesListModel.h"
-
 #include "vtkSlicerU70RoomSiemensPlcOpcUaNodesNames.h"
 
-#include <vtkMRMLSiemensPlcOpcUaNode.h>
+// U70RoomOpcUa Logic includes
+#include "vtkSlicerU70RoomOpcUaLogic.h"
+#include "vtkSlicerU70RoomSiemensPlcOpcUaLogic.h"
+#include "vtkSlicerU70RoomSiemensPlcOpcUaNodesNames.h"
 
+#include "OpcUaModel.h"
+#include "OpcUaTreeItem.h"
+#include "qSlicerOpcUaInitialValueNodeReader.h"
+
+#include <vtkMRMLSiemensPlcOpcUaNode.h>
 #include <bitset>
 
 namespace {
@@ -356,7 +362,7 @@ public:
   QOpcUaNode* FindNodeFromFullDisplayName(const QString& nodeDisplayName);
   void ExpandAllAsync(QTreeView *view, QAbstractItemModel* model,
     const QModelIndex &parentIndex = QModelIndex());
-
+/*
   bool ConnectMessagesNodes();
   bool ConnectModeAndStatusNodes();
   bool ConnectSetCoordsXyzNodes();
@@ -453,7 +459,7 @@ public:
   bool ConnectTablePositionNode();
   bool ConnectEmergencyEvacuationSignalNode();
   bool ConnectHoldButtonPressedForMovingNode();
-
+*/
   QScopedPointer< OpcUaModel > SiemensPlcOpcUaModel;
 
   QScopedPointer< qSlicerOpcUaRobotsMessagesListModel > SiemensPlcErrorListModel;
@@ -468,11 +474,14 @@ public:
   // Monitored node
   QScopedPointer< QOpcUaNode > CurrentTimeNode; // Siemens PLC monitored node to prevent session timeout ending
   QMap< QString, NodeData > NodeNameDataMap; // key - node unique full name, value - node data
+  vtkSlicerU70RoomOpcUaLogic* opcUaLogic{ nullptr };
 
   QScopedPointer< QProgressDialog > ProgressDialog;
   QScopedPointer< QTimer > ProgressTimer;
+  QScopedPointer< qSlicerOpcUaInitialValueNodeReader > InitialValuesNodeReader;
 
   bool AutoConnectServerFlag{ false };
+/*
   int NunmberOfNodesRead{ 0 };
 
   const QStringList ReadValueFullNodeNames = {
@@ -559,6 +568,7 @@ public:
     KUKA_COORDSACCEPTED_R2_NODE_NAME,
     KUKA_COORDSNOTACCEPTED_R2_NODE_NAME
   };
+*/
 };
 
 // --------------------------------------------------------------------------
@@ -677,6 +687,7 @@ QOpcUaNode* qSlicerSiemensPlcOpcUaWidgetPrivate::FindNodeFromFullDisplayName(con
 }
 
 //-----------------------------------------------------------------------------
+/**
 bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectMessagesNodes()
 {
   QSharedPointer< QOpcUaClient > opcUaClient = this->OpcUaClient.toStrongRef();
@@ -7783,7 +7794,7 @@ bool qSlicerSiemensPlcOpcUaWidgetPrivate::ConnectSetCoordsNodes()
   res &= this->ConnectSetCoordsAbcNodes();
   return res;
 }
-
+*/
 //-----------------------------------------------------------------------------
 // qSlicerSiemensPlcOpcUaWidget methods
 
@@ -7833,7 +7844,7 @@ qSlicerSiemensPlcOpcUaWidget::qSlicerSiemensPlcOpcUaWidget(QWidget* parentWidget
       }
     }
   );
-
+/**
   // Set coords from ASU buttons
   QObject::connect(d->PushButton_SetCoordX, SIGNAL(clicked()),
     this, SLOT(onSetCoordXClicked()));
@@ -7995,7 +8006,7 @@ qSlicerSiemensPlcOpcUaWidget::qSlicerSiemensPlcOpcUaWidget(QWidget* parentWidget
 
   QObject::connect(d->ButtonGroup_TabletopPosition, SIGNAL(buttonClicked(QAbstractButton*)),
     this, SLOT(onTabletopPositionChanged(QAbstractButton*)));
-
+*/
   // Read nodes manually
   QObject::connect(d->PushButton_ReadStatusAndMessages, SIGNAL(clicked()),
     this, SLOT(onReadStatusAndMessagesClicked()));
@@ -8329,7 +8340,7 @@ void qSlicerSiemensPlcOpcUaWidget::onOpcUaClientDisconnected()
   d->SiemensPlcMessagesListModel->clear();
   
 }
-
+/*
 //-----------------------------------------------------------------------------
 void qSlicerSiemensPlcOpcUaWidget::onOpcUaModeChanged(vtkMRMLSiemensPlcOpcUaNode::ModeType mode)
 {
@@ -9043,11 +9054,19 @@ void qSlicerSiemensPlcOpcUaWidget::onMakeXrayReleased()
     makeXrayPressedNode->writeAttribute(QOpcUa::NodeAttribute::Value, QVariant(false), QOpcUa::Types::Boolean);
   }
 }
-
+*/
 //-----------------------------------------------------------------------------
 void qSlicerSiemensPlcOpcUaWidget::onServerInterfacesRead(QOpcUa::NodeAttributes attr)
 {
   Q_D(qSlicerSiemensPlcOpcUaWidget);
+
+  if (!d->ParameterNode)
+  {
+    return;
+  }
+  QHash< QString, QString > hashNodes;
+  std::list< std::string > fullNamesList = vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::GetSiemensPlcFullNodeNamesList();
+  QList< QOpcUaNode* > nodesList; 
 
   if (attr & QOpcUa::NodeAttribute::DisplayName)
   { // Make sure the value attribute has been read
@@ -9062,9 +9081,20 @@ void qSlicerSiemensPlcOpcUaWidget::onServerInterfacesRead(QOpcUa::NodeAttributes
 //          qDebug() << Q_FUNC_INFO << "Node ID:" << nodeData.getNodeId()
 //              << ", Name:" << nodeData.getNodeName()
 //              << ", Description:" << nodeData.getNodeDescription() << Qt::endl;
+          hashNodes.insert(nodeData.getNodeName(), nodeData.getNodeId());
+          auto iter = std::find(fullNamesList.begin(), fullNamesList.end(), nodeData.getNodeName().toStdString());
+          if (iter != fullNamesList.end())
+          {
+            qDebug() << Q_FUNC_INFO << "Node ID:" << nodeData.getNodeId()
+              << ", Name:" << nodeData.getNodeName()
+              << ", Description:" << nodeData.getNodeDescription() << Qt::endl;
+
+            nodesList.push_back(nodeData.getNode());
+          }
         }
       }
     }
+/*
     bool coords = d->ConnectSetCoordsNodes();
     if (coords)
     {
@@ -9126,9 +9156,43 @@ void qSlicerSiemensPlcOpcUaWidget::onServerInterfacesRead(QOpcUa::NodeAttributes
     {
       qDebug() << Q_FUNC_INFO << "R1 R2 Reflective target coords nodes are OK";
     }
-
+*/
   }
   d->PushButton_ReadStatusAndMessages->setEnabled(true);
+  d->opcUaLogic->GetSiemensPlcOpcUaLogic()->ServerConnected(d->OpcUaClient, hashNodes);
+
+
+  d->ProgressDialog->setLabelText(tr("Reading nodes initial value, Please wait!"));
+  d->ProgressDialog->setMaximum(nodesList.size());
+  d->ProgressDialog->setValue(0);
+
+  QProgressDialog* progressDialog = d->ProgressDialog.data();
+  QTimer* progressTimer = d->ProgressTimer.data();
+  d->InitialValuesNodeReader.reset(new qSlicerOpcUaInitialValueNodeReader(nodesList, this));
+  QObject::connect(d->InitialValuesNodeReader.data(), &qSlicerOpcUaInitialValueNodeReader::progress,
+    this, [progressDialog, progressTimer](int done, int total)
+  {
+//    Q_UNUSED(total);
+    qDebug() << Q_FUNC_INFO << ": Reading value in progress: " << done << " of " << total;
+    progressDialog->setValue(done);
+    progressTimer->stop();
+  });
+  QObject::connect(d->InitialValuesNodeReader.data(), &qSlicerOpcUaInitialValueNodeReader::finished,
+    this, [this, progressDialog, progressTimer]()
+  {
+    if (progressTimer && progressDialog)
+    {
+      qDebug() << Q_FUNC_INFO << ": Reading is finished";
+      progressTimer->start();
+      progressDialog->close();
+    }
+    QMessageBox::information(this, tr("Siemens PLC OPC UA"), tr("Client is ready for data exchange with Siemens PLC!"));
+  });
+
+  d->InitialValuesNodeReader->start();
+
+//  this->onReadStatusAndMessagesClicked();
+
   d->ParameterNode->Modified();
 }
 
@@ -9136,6 +9200,17 @@ void qSlicerSiemensPlcOpcUaWidget::onServerInterfacesRead(QOpcUa::NodeAttributes
 void qSlicerSiemensPlcOpcUaWidget::onReadStatusAndMessagesClicked()
 {
   Q_D(qSlicerSiemensPlcOpcUaWidget);
+
+  std::list< std::string > nodeFullNameList = vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::GetSiemensPlcFullNodeNamesList();
+  if (d->opcUaLogic && d->opcUaLogic->GetSiemensPlcOpcUaLogic())
+  {
+    bool res = d->opcUaLogic->GetSiemensPlcOpcUaLogic()->ReadNodesValues(nodeFullNameList);
+    if (res)
+    {
+      qDebug() << Q_FUNC_INFO << ": Read node attributes";
+    }
+  }
+/*
   for (const QString& nodeName : d->ReadValueFullNodeNames)
   {
     QOpcUaNode* readValueNode = d->FindNodeFromFullDisplayName(nodeName);
@@ -9145,8 +9220,9 @@ void qSlicerSiemensPlcOpcUaWidget::onReadStatusAndMessagesClicked()
     }
   }
   d->ParameterNode->Modified();
+*/
 }
-
+/*
 //-----------------------------------------------------------------------------
 void qSlicerSiemensPlcOpcUaWidget::onSetCoordXClicked()
 {
@@ -9309,4 +9385,12 @@ void qSlicerSiemensPlcOpcUaWidget::onTabletopPositionChanged(QAbstractButton* aB
   {
     qDebug() << Q_FUNC_INFO << "wrong";
   }
+}
+*/
+
+//-----------------------------------------------------------------------------
+void qSlicerSiemensPlcOpcUaWidget::setOpcUaLogic(vtkSlicerU70RoomOpcUaLogic* logic)
+{
+  Q_D(qSlicerSiemensPlcOpcUaWidget);
+  d->opcUaLogic = logic;
 }

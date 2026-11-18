@@ -47,12 +47,17 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   // Called by the widget (C++ only; not wrapped for Python)
-  void ServerConnected(const QSharedPointer< QOpcUaClient >& sharedClient, const QHash< QString, QString >& hashNodesFullNamesIds);
+  void ServerConnected(const QSharedPointer< QOpcUaClient >& sharedClient,
+    const QHash< QString, QString >& hashNodesFullNamesIds);
   void UnregisterOpcUaNode(const std::string& nodeFullName);
   void UnregisterAllOpcUaNodes();
   void UpdateMRMLNodeFromOpcUaNodeValue(vtkMRMLSiemensPlcOpcUaNode*, const std::string& fullNodeName);
 
   // Public API for other modules (C++ and Python)
+  std::vector< std::string > GetRegisteredNodeIds();
+  bool ReadNodesValues(const std::list< std::string >& fullNamesList);
+  void SetInitialReadValuesFlag(bool flag = false);
+
   uint8_t ReadMode(bool& res);
   uint16_t ReadStatusRtk(bool& res);
   uint16_t ReadStatusR1(bool& res);

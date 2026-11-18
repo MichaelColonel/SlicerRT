@@ -38,7 +38,7 @@ public:
   static constexpr size_t MESSAGES_SIZE = 64;
 
   enum Events : int {
-    ValueChangedEvent = 63332,
+    ValueChangedEvent = 63337,
     ValueReadEvent,
   };
 

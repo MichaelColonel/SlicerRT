@@ -31,7 +31,8 @@
 #include <vtkObjectFactory.h>
 
 // STD includes
-#include <cassert>
+#include <cstring>
+#include <bitset>
 
 // QtOpcUa includes
 #include <QOpcUaClient>
@@ -83,7 +84,7 @@ public:
 
   QWeakPointer< QOpcUaClient > Client;
   QHash< QString, Entry > Nodes;
-
+  bool InitialReadValuesFlag{ false };
 };
 
 //---------------------------------------------------------------------------
@@ -129,14 +130,33 @@ uint64_t vtkSlicerU70RoomSiemensPlcOpcUaLogic::vtkInternal::getUint64(const QStr
   }
 
   const QVariant& var = this->Nodes.value(fullNodeName).Cache;
-  if (var.canConvert< qulonglong >())
+/*
+  if (var.canConvert< uint64_t >())
   {
+    vtkWarningWithObjectMacro(this->External, "getUint64: Can convert");
     bool resBool;
     qulonglong v = var.toULongLong(&resBool);
     if (resBool)
     {
       res = true;
       return static_cast< uint64_t >(v);
+    }
+  }
+*/
+  if (var.canConvert< QVariantList >())
+  {
+    std::bitset< vtkMRMLSiemensPlcOpcUaNode::MESSAGES_SIZE > valFlags;
+    QVariantList valList = var.toList(); // Get the attribute from the cache
+    if (valList.size() == vtkMRMLSiemensPlcOpcUaNode::MESSAGES_SIZE)
+    {
+      int i = 0;
+      for (const QVariant& valFlag : valList)
+      {
+        valFlags.set(i, valFlag.toBool());
+        ++i;
+      }
+      res = true;
+      return static_cast< uint64_t >(valFlags.to_ullong());
     }
   }
   return 0;
@@ -335,6 +355,7 @@ bool vtkSlicerU70RoomSiemensPlcOpcUaLogic::vtkInternal::updateMRMLNodeFromOpcUaM
     uint8_t modeState = this->getUint8(QString::fromStdString(fullNodeName), res);
     if (res)
     {
+      vtkErrorWithObjectMacro(this->External, "UpdateMRMLNodeFromOpcUaNodeValue: Mode: " << modeState);
       MRMLNodeModifyBlocker block(mrmlSiemensPlcNode);
       mrmlSiemensPlcNode->SetMode(static_cast< vtkMRMLSiemensPlcOpcUaNode::ModeType >(modeState));
     }
@@ -344,6 +365,7 @@ bool vtkSlicerU70RoomSiemensPlcOpcUaLogic::vtkInternal::updateMRMLNodeFromOpcUaM
     uint16_t rtkState = this->getUint16(QString::fromStdString(fullNodeName), res);
     if (res)
     {
+      vtkErrorWithObjectMacro(this->External, "UpdateMRMLNodeFromOpcUaNodeValue: RTK State: " << rtkState);
       MRMLNodeModifyBlocker block(mrmlSiemensPlcNode);
       mrmlSiemensPlcNode->SetStateRtk(rtkState);
     }
@@ -353,6 +375,7 @@ bool vtkSlicerU70RoomSiemensPlcOpcUaLogic::vtkInternal::updateMRMLNodeFromOpcUaM
     uint16_t r1State = this->getUint16(QString::fromStdString(fullNodeName), res);
     if (res)
     {
+      vtkErrorWithObjectMacro(this->External, "UpdateMRMLNodeFromOpcUaNodeValue: R1 State: " << r1State);
       MRMLNodeModifyBlocker block(mrmlSiemensPlcNode);
       mrmlSiemensPlcNode->SetStateR1(r1State);
     }
@@ -362,6 +385,7 @@ bool vtkSlicerU70RoomSiemensPlcOpcUaLogic::vtkInternal::updateMRMLNodeFromOpcUaM
     uint16_t r2State = this->getUint16(QString::fromStdString(fullNodeName), res);
     if (res)
     {
+      vtkErrorWithObjectMacro(this->External, "UpdateMRMLNodeFromOpcUaNodeValue: R2 State: " << r2State);
       MRMLNodeModifyBlocker block(mrmlSiemensPlcNode);
       mrmlSiemensPlcNode->SetStateR2(r2State);
     }
@@ -1627,6 +1651,7 @@ bool vtkSlicerU70RoomSiemensPlcOpcUaLogic::vtkInternal::updateMRMLNodeFromOpcUaS
     uint8_t tabletopPosition = this->getUint8(QString::fromStdString(fullNodeName), res);
     if (res)
     {
+      vtkErrorWithObjectMacro(this->External, "UpdateMRMLNodeFromOpcUaNodeValue: Tabletop orientation/position: " << tabletopPosition);
       MRMLNodeModifyBlocker block(mrmlSiemensPlcNode);
       mrmlSiemensPlcNode->SetTableTopPosition(tabletopPosition);
     }
@@ -1640,25 +1665,31 @@ bool vtkSlicerU70RoomSiemensPlcOpcUaLogic::vtkInternal::updateMRMLNodeFromOpcUaF
 
   if (fullNodeName == vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::GetErrorsFlags())
   {
+    vtkErrorWithObjectMacro(this->External, "UpdateMRMLNodeFromOpcUaNodeValue: Error messages flags: " << fullNodeName);
     uint64_t errMsgFlags = this->getUint64(QString::fromStdString(fullNodeName), res);
     if (res)
     {
+      vtkErrorWithObjectMacro(this->External, "UpdateMRMLNodeFromOpcUaNodeValue: Error messages flags: " << errMsgFlags);
       mrmlSiemensPlcNode->SetErrorMessages(errMsgFlags);
     }
   }
   else if (fullNodeName == vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::GetServiceFlags())
   {
+    vtkErrorWithObjectMacro(this->External, "UpdateMRMLNodeFromOpcUaNodeValue: Error messages flags: " << fullNodeName);
     uint64_t servMsgFlags = this->getUint64(QString::fromStdString(fullNodeName), res);
     if (res)
     {
+      vtkErrorWithObjectMacro(this->External, "UpdateMRMLNodeFromOpcUaNodeValue: Service messages flags: " << servMsgFlags);
       mrmlSiemensPlcNode->SetServiceMessages(servMsgFlags);
     }
   }
   else if (fullNodeName == vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::GetMessagesFlags())
   {
+    vtkErrorWithObjectMacro(this->External, "UpdateMRMLNodeFromOpcUaNodeValue: Error messages flags: " << fullNodeName);
     uint64_t msgFlags = this->getUint64(QString::fromStdString(fullNodeName), res);
     if (res)
     {
+      vtkErrorWithObjectMacro(this->External, "UpdateMRMLNodeFromOpcUaNodeValue: Misc. messages flags: " << msgFlags);
       mrmlSiemensPlcNode->SetMiscMessages(msgFlags);
     }
   }
@@ -1847,36 +1878,74 @@ void vtkSlicerU70RoomSiemensPlcOpcUaLogic::ServerConnected(const QSharedPointer<
   {
     return;
   }
+
+  vtkMRMLScene* scene = this->GetMRMLScene();
+  if (!scene)
+  {
+    return;
+  }
+
+  vtkMRMLSiemensPlcOpcUaNode* siemensOpcUaNode = nullptr;
+  if (vtkMRMLNode* node = scene->GetFirstNodeByClass("vtkMRMLSiemensPlcOpcUaNode"))
+  {
+    siemensOpcUaNode = vtkMRMLSiemensPlcOpcUaNode::SafeDownCast(node);
+  }
+
   QHashIterator< QString, QString > i(hashNodesFullNamesIds);
+  std::list< std::string > fullNameNodesList = vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::GetSiemensPlcFullNodeNamesList();
+
   while (i.hasNext())
   {
     i.next();
     QString nodeFullName = i.key();
-//    vtkWarningMacro("ServerConnected: key Full Name: " << nodeFullName.toStdString() << ", node value id: " << i.value().toStdString());
-    
+  
     vtkInternal::Entry siemensPlcOpcUaNodeEntry;
     siemensPlcOpcUaNodeEntry.Node = sharedClient->node(i.value());
     if (!siemensPlcOpcUaNodeEntry.Node)
     {
       continue;
     }
-    
+
+    bool flag = false;
+    for (const auto& builtinFullNodeName : fullNameNodesList)
+    {
+      if (nodeFullName == QString::fromStdString(builtinFullNodeName))
+      {
+        flag = true;
+        break;
+      }
+    }
+    if (!flag)
+    {
+      continue;
+    }
+
+//    vtkWarningMacro("ServerConnected: key Full Name: " << nodeFullName.toStdString() << ", node value id: " << i.value().toStdString() << " " << flag);
+  
     QOpcUaNode* node = siemensPlcOpcUaNodeEntry.Node.data();
 
     node->enableMonitoring(QOpcUa::NodeAttribute::Value, QOpcUaMonitoringParameters(1000));
 
     siemensPlcOpcUaNodeEntry.ConnChanged = QObject::connect(node,
-      &QOpcUaNode::dataChangeOccurred, [this, nodeFullName](QOpcUa::NodeAttribute attr, QVariant value)
+      &QOpcUaNode::dataChangeOccurred, [this, nodeFullName, siemensOpcUaNode](QOpcUa::NodeAttribute attr, QVariant value)
     {
       if (attr != QOpcUa::NodeAttribute::Value)
       {
         return;
       }
       this->Internal->Nodes[nodeFullName].Cache = value; // map types as needed
+      std::string stdNodeName = nodeFullName.toStdString();
+      if (siemensOpcUaNode && !nodeFullName.isEmpty())
+      {
+        char* ptr = new char[stdNodeName.size() + 1];
+        std::memset(ptr, 0, stdNodeName.size() + 1);
+        stdNodeName.copy(ptr, stdNodeName.size());
+        siemensOpcUaNode->InvokeCustomModifiedEvent(vtkMRMLSiemensPlcOpcUaNode::ValueChangedEvent, static_cast< void* >(ptr));
+      }
     });
 
     siemensPlcOpcUaNodeEntry.ConnRead = QObject::connect(node,
-      &QOpcUaNode::attributeRead, [this, nodeFullName, node](QOpcUa::NodeAttributes attr)
+      &QOpcUaNode::attributeRead, [this, nodeFullName, node, siemensOpcUaNode](QOpcUa::NodeAttributes attr)
     {
       if (!node)
       {
@@ -1888,6 +1957,14 @@ void vtkSlicerU70RoomSiemensPlcOpcUaLogic::ServerConnected(const QSharedPointer<
         {
           QVariant value = node->attribute(QOpcUa::NodeAttribute::Value);
           this->Internal->Nodes[nodeFullName].Cache = value; // map types as needed
+          std::string stdNodeName = nodeFullName.toStdString();
+          if (siemensOpcUaNode && !nodeFullName.isEmpty())
+          {
+            char* ptr = new char[stdNodeName.size() + 1];
+            std::memset(ptr, 0, stdNodeName.size() + 1);
+            stdNodeName.copy(ptr, stdNodeName.size());
+            siemensOpcUaNode->InvokeCustomModifiedEvent(vtkMRMLSiemensPlcOpcUaNode::ValueReadEvent, static_cast< void* >(ptr));
+          }
         }
       }
     });
@@ -2034,17 +2111,63 @@ uint16_t vtkSlicerU70RoomSiemensPlcOpcUaLogic::ReadStatusR2(bool& res)
 //---------------------------------------------------------------------------
 void vtkSlicerU70RoomSiemensPlcOpcUaLogic::UpdateMRMLNodeFromOpcUaNodeValue(vtkMRMLSiemensPlcOpcUaNode* mrmlSiemensPlcNode, const std::string& fullNodeName)
 {
-  bool res = false;
+  bool res = true;
   if (!mrmlSiemensPlcNode)
   {
     return;
   }
 
   res &= this->Internal->updateMRMLNodeFromOpcUaModeAndStatus(mrmlSiemensPlcNode, fullNodeName);
+  vtkErrorMacro("UpdateMRMLNodeFromOpcUaNodeValue: res " << res);
   res &= this->Internal->updateMRMLNodeFromOpcUaFlags(mrmlSiemensPlcNode, fullNodeName);
+  vtkErrorMacro("UpdateMRMLNodeFromOpcUaNodeValue: res " << res);
   res &= this->Internal->updateMRMLNodeFromOpcUaCurrentCoordinates(mrmlSiemensPlcNode, fullNodeName);
+//  vtkErrorMacro("UpdateMRMLNodeFromOpcUaNodeValue: res " << res);
   res &= this->Internal->updateMRMLNodeFromOpcUaReflectionCoordinates(mrmlSiemensPlcNode, fullNodeName);
+//  vtkErrorMacro("UpdateMRMLNodeFromOpcUaNodeValue: res " << res);
   res &= this->Internal->updateMRMLNodeFromOpcUaAutoManualButtons(mrmlSiemensPlcNode, fullNodeName);
+//  vtkErrorMacro("UpdateMRMLNodeFromOpcUaNodeValue: res " << res);
   res &= this->Internal->updateMRMLNodeFromOpcUaServiceButtons(mrmlSiemensPlcNode, fullNodeName);
+//  vtkErrorMacro("UpdateMRMLNodeFromOpcUaNodeValue: res " << res);
   res &= this->Internal->updateMRMLNodeFromOpcUaKukaControllersButtons(mrmlSiemensPlcNode, fullNodeName);
+//  vtkErrorMacro("UpdateMRMLNodeFromOpcUaNodeValue: res " << res);
+}
+
+
+//---------------------------------------------------------------------------
+void vtkSlicerU70RoomSiemensPlcOpcUaLogic::SetInitialReadValuesFlag(bool flag)
+{
+  this->Internal->InitialReadValuesFlag = flag;
+}
+
+//---------------------------------------------------------------------------
+bool vtkSlicerU70RoomSiemensPlcOpcUaLogic::ReadNodesValues(const std::list< std::string >& fullNamesList)
+{
+  bool result = true;
+  for (const auto& nodefullName : fullNamesList)
+  {
+    QOpcUaNode* node = this->Internal->node(QString::fromStdString(nodefullName));
+    if (!node)
+    {
+      result = false;
+      continue;
+    }
+    result &= node->readAttributes(QOpcUa::NodeAttribute::Value);
+  }
+  return result;
+}
+
+//---------------------------------------------------------------------------
+std::vector< std::string > vtkSlicerU70RoomSiemensPlcOpcUaLogic::GetRegisteredNodeIds()
+{
+  std::vector< std::string > ids;
+  for (const auto& nodeEntry : this->Internal->Nodes)
+  {
+    if (nodeEntry.Node)
+    {
+      QString nodeID = nodeEntry.Node->nodeId();
+      ids.push_back(nodeID.toStdString());
+    }
+  }
+  return ids;
 }

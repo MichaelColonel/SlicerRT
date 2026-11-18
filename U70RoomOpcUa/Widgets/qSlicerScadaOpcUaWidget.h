@@ -44,7 +44,7 @@ class QAbstractButton;
 class vtkMRMLNode;
 
 class vtkSlicerU70RoomOpcUaLogic;
-
+/*
 class NodeReader : public QObject {
   Q_OBJECT
 public:
@@ -83,7 +83,7 @@ private:
   int m_total{ 0 };
   int m_done{ 0 };
 };
-
+*/
 class Q_SLICER_MODULE_U70ROOMOPCUA_WIDGETS_EXPORT qSlicerScadaOpcUaWidget
   : public QWidget
 {

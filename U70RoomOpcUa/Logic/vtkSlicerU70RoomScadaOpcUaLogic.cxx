@@ -921,4 +921,3 @@ std::vector< std::string > vtkSlicerU70RoomScadaOpcUaLogic::GetRegisteredNodeIds
   }
   return ids;
 }
-
