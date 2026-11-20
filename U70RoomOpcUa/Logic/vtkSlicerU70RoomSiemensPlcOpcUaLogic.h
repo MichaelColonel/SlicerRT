@@ -24,7 +24,8 @@
 // Slicer includes
 #include "vtkMRMLAbstractLogic.h"
 
-// MRML includes
+// U70Room OPC UA MRML includes
+#include <vtkMRMLSiemensPlcOpcUaNode.h>
 
 // STD includes
 #include <cstdlib>
@@ -37,8 +38,6 @@
 class QOpcUaClient;
 class QOpcUaNode;
 
-class vtkMRMLSiemensPlcOpcUaNode;
-
 class VTK_SLICER_U70ROOMOPCUA_MODULE_LOGIC_EXPORT vtkSlicerU70RoomSiemensPlcOpcUaLogic : public vtkMRMLAbstractLogic
 {
 public:
@@ -47,7 +46,7 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   // Called by the widget (C++ only; not wrapped for Python)
-  void ServerConnected(const QSharedPointer< QOpcUaClient >& sharedClient,
+  std::list< QOpcUaNode* > ServerConnected(const QSharedPointer< QOpcUaClient >& sharedClient,
     const QHash< QString, QString >& hashNodesFullNamesIds);
   void UnregisterOpcUaNode(const std::string& nodeFullName);
   void UnregisterAllOpcUaNodes();
@@ -56,8 +55,8 @@ public:
   // Public API for other modules (C++ and Python)
   std::vector< std::string > GetRegisteredNodeIds();
   bool ReadNodesValues(const std::list< std::string >& fullNamesList);
-  void SetInitialReadValuesFlag(bool flag = false);
 
+  bool WriteMode(vtkMRMLSiemensPlcOpcUaNode::ModeType mode);
   uint8_t ReadMode(bool& res);
   uint16_t ReadStatusRtk(bool& res);
   uint16_t ReadStatusR1(bool& res);

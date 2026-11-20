@@ -72,8 +72,9 @@ public slots:
   void onOpcUaClientDisconnected();
 
   // Siemens PLC OPC UA slots (values, buttons, etc)
-/*
+
   void onOpcUaModeChanged(vtkMRMLSiemensPlcOpcUaNode::ModeType mode);
+/*
   void onTabletopPositionChanged(QAbstractButton*);
 
   // AutomaticManual R1 LoadToIso button

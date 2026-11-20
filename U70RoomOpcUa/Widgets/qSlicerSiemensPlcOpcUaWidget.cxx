@@ -48,259 +48,12 @@
 #include "OpcUaModel.h"
 #include "OpcUaTreeItem.h"
 #include "qSlicerOpcUaInitialValueNodeReader.h"
+#include "qSlicerOpcUaInitialValueNodeLoader.h"
 
 #include <vtkMRMLSiemensPlcOpcUaNode.h>
 #include <bitset>
 
 namespace {
-
-constexpr const char* const PARENT_NODE_DISPLAYED_NAME = "ServerInterfaces";
-constexpr const char* SIEMENS_PLC_CURRENT_TIME_NODE_ID = "ns=0;i=2258";
-
-constexpr const char* const KUKAX = "KUKA_X";
-constexpr const char* const KUKAY = "KUKA_Y";
-constexpr const char* const KUKAZ = "KUKA_Z";
-constexpr const char* const KUKAA = "KUKA_A";
-constexpr const char* const KUKAB = "KUKA_B";
-constexpr const char* const KUKAC = "KUKA_C";
-
-constexpr const char* const AXISCOORDA1 = "AXIS_cord_A1";
-constexpr const char* const AXISCOORDA2 = "AXIS_cord_A2";
-constexpr const char* const AXISCOORDA3 = "AXIS_cord_A3";
-constexpr const char* const AXISCOORDA4 = "AXIS_cord_A4";
-constexpr const char* const AXISCOORDA5 = "AXIS_cord_A5";
-constexpr const char* const AXISCOORDA6 = "AXIS_cord_A6";
-
-constexpr const char* const ASU = "ASU";
-constexpr const char* const RTK_PLC = "RTK_PLC";
-
-const QString DOT = QString(QChar('.'));
-const QString SIEMENS_PLC_SERVER_INTERFACES_NODE_ID = QLatin1String("ns=3;s=") + QLatin1String(vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::PARENT.data());//QLatin1String("ns=3;s=") + PARENT_NODE_DISPLAYED_NAME;
-const QString RTK_PLC_NODE_NAME = QLatin1String(PARENT_NODE_DISPLAYED_NAME) + DOT + QLatin1String(RTK_PLC);
-const QString ASU_NODE_NAME = RTK_PLC_NODE_NAME + DOT + QLatin1String(ASU);
-
-const QString ASU_ERROR_MESSAGES_NODE_NAME = ASU_NODE_NAME + DOT + QLatin1String(vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::ERROR_FLAGS.data());
-const QString ASU_SERVICE_MESSAGES_NODE_NAME = ASU_NODE_NAME + DOT + QLatin1String(vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::SERVICE_FLAGS.data());
-const QString ASU_MESSAGES_NODE_NAME = ASU_NODE_NAME + DOT + QLatin1String(vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::MESSAGES_FLAGS.data());
-
-constexpr const char* const MODE = "Mode";
-constexpr const char* const STATUS_RTK = "Status_RTK";
-constexpr const char* const STATUS_R1 = "Status_R1_deka";
-constexpr const char* const STATUS_R2 = "Status_R2_C_Duga";
-constexpr const char* const RTK_HOMERETURN_HOLDPRESSED = "RTK_ComingHome_PressBtn";
-
-const QString ASU_MODE_NODE_NAME = ASU_NODE_NAME + DOT + QLatin1String(MODE);
-const QString ASU_STATUS_RTK_NODE_NAME = ASU_NODE_NAME + DOT + QLatin1String(STATUS_RTK);
-const QString ASU_STATUS_R1_TABLE_NODE_NAME = ASU_NODE_NAME + DOT + QLatin1String(STATUS_R1);
-const QString ASU_STATUS_R2_CARM_NODE_NAME = ASU_NODE_NAME + DOT + QLatin1String(STATUS_R2);
-const QString ASU_RTK_COMINGHOME_NODE_NAME = ASU_NODE_NAME + DOT + QLatin1String(RTK_HOMERETURN_HOLDPRESSED);
-
-constexpr const char* const SETCOORDS = "SetCoords";
-const QString ASU_COORDS_NODE_NAME = ASU_NODE_NAME + DOT + QLatin1String(SETCOORDS);
-const QString ASU_COORDS_X_NODE_NAME = ASU_COORDS_NODE_NAME + DOT + QLatin1String(KUKAX);
-const QString ASU_COORDS_Y_NODE_NAME = ASU_COORDS_NODE_NAME + DOT + QLatin1String(KUKAY);
-const QString ASU_COORDS_Z_NODE_NAME = ASU_COORDS_NODE_NAME + DOT + QLatin1String(KUKAZ);
-const QString ASU_COORDS_A_NODE_NAME = ASU_COORDS_NODE_NAME + DOT + QLatin1String(KUKAA);
-const QString ASU_COORDS_B_NODE_NAME = ASU_COORDS_NODE_NAME + DOT + QLatin1String(KUKAB);
-const QString ASU_COORDS_C_NODE_NAME = ASU_COORDS_NODE_NAME + DOT + QLatin1String(KUKAC);
-
-constexpr const char* const READYXRAY1 = "RobotsReadyForXray1";
-constexpr const char* const READYXRAY2 = "RobotsReadyForXray2";
-constexpr const char* const READYBEAM = "RobotsReadyForBeam";
-constexpr const char* const TABLEPATIENT = "HUMAN_ON_DEKA";
-constexpr const char* const TABLEPOSITION = "DekaPosition";
-constexpr const char* const EMEVACFLAG = "EmEvacuationSignal";
-
-constexpr const char* const COORDS_ACCEPTED_R1 = "CoordsAccepted_R1";
-constexpr const char* const COORDS_NOTACCEPTED_R1 = "CoordsNotAccepted_R1";
-
-constexpr const char* const COORDS_ACCEPTED_R2 = "CoordsAccepted_R2";
-constexpr const char* const COORDS_NOTACCEPTED_R2 = "CoordsNotAccepted_R2";
-
-const QString ASU_ROBOTS_READY_XRAY1_NODE_NAME = ASU_NODE_NAME + DOT + QLatin1String(READYXRAY1);
-const QString ASU_ROBOTS_READY_XRAY2_NODE_NAME = ASU_NODE_NAME + DOT + QLatin1String(READYXRAY2);
-const QString ASU_ROBOTS_READY_BEAM_NODE_NAME = ASU_NODE_NAME + DOT + QLatin1String(READYBEAM);
-const QString ASU_PATIENT_ON_TABLE_NODE_NAME = ASU_NODE_NAME + DOT + QLatin1String(TABLEPATIENT);
-const QString ASU_TABLE_POSITION_NODE_NAME = ASU_NODE_NAME + DOT + QLatin1String(TABLEPOSITION);
-const QString ASU_EMEVAC_SIGNAL_NODE_NAME = ASU_NODE_NAME + DOT + QLatin1String(EMEVACFLAG);
-
-constexpr const char* const PRESSED = "isPressed";
-constexpr const char* const ENABLED = "isEnable";
-
-constexpr const char* const BUTTONS = "Buttons";
-constexpr const char* const AM_MM = "AM_MM";
-
-const QString IS_PRESSED = ".isPressed";
-const QString IS_ENABLED = ".isEnable";
-
-const QString BUTTONS_NODE_NAME = ASU_NODE_NAME + DOT + QLatin1String(BUTTONS);
-const QString BUTTONS_AM_NODE_NAME = BUTTONS_NODE_NAME + DOT + QLatin1String(AM_MM);
-
-const QString BUTTONS_AM_R1_LOADTOISO_NODE_NAME = BUTTONS_AM_NODE_NAME + ".R1_LoadToIso";
-const QString BUTTONS_AM_R1_LOADTOISO_PRESSED_NODE_NAME = BUTTONS_AM_R1_LOADTOISO_NODE_NAME + IS_PRESSED;
-const QString BUTTONS_AM_R1_LOADTOISO_ENABLED_NODE_NAME = BUTTONS_AM_R1_LOADTOISO_NODE_NAME + IS_ENABLED;
-
-const QString BUTTONS_AM_R1_NEWCOORDS_NODE_NAME = BUTTONS_AM_NODE_NAME + ".R1_ToNewCoords";
-const QString BUTTONS_AM_R1_NEWCOORDS_PRESSED_NODE_NAME = BUTTONS_AM_R1_NEWCOORDS_NODE_NAME + IS_PRESSED;
-const QString BUTTONS_AM_R1_NEWCOORDS_ENABLED_NODE_NAME = BUTTONS_AM_R1_NEWCOORDS_NODE_NAME + IS_ENABLED;
-
-const QString BUTTONS_AM_R1_TOLOAD_NODE_NAME = BUTTONS_AM_NODE_NAME + ".R1_ToLoad";
-const QString BUTTONS_AM_R1_TOLOAD_PRESSED_NODE_NAME = BUTTONS_AM_R1_TOLOAD_NODE_NAME + IS_PRESSED;
-const QString BUTTONS_AM_R1_TOLOAD_ENABLED_NODE_NAME = BUTTONS_AM_R1_TOLOAD_NODE_NAME + IS_ENABLED;
-
-const QString BUTTONS_AM_R2_TOPLANE1_NODE_NAME = BUTTONS_AM_NODE_NAME + ".R2_ToPL1";
-const QString BUTTONS_AM_R2_TOPLANE1_PRESSED_NODE_NAME = BUTTONS_AM_R2_TOPLANE1_NODE_NAME + IS_PRESSED;
-const QString BUTTONS_AM_R2_TOPLANE1_ENABLED_NODE_NAME = BUTTONS_AM_R2_TOPLANE1_NODE_NAME + IS_ENABLED;
-
-const QString BUTTONS_AM_R2_TOPLANE2_NODE_NAME = BUTTONS_AM_NODE_NAME + ".R2_ToPL2";
-const QString BUTTONS_AM_R2_TOPLANE2_PRESSED_NODE_NAME = BUTTONS_AM_R2_TOPLANE2_NODE_NAME + IS_PRESSED;
-const QString BUTTONS_AM_R2_TOPLANE2_ENABLED_NODE_NAME = BUTTONS_AM_R2_TOPLANE2_NODE_NAME + IS_ENABLED;
-
-const QString BUTTONS_AM_R2_TOHOME_NODE_NAME = BUTTONS_AM_NODE_NAME + ".R2_ToHome";
-const QString BUTTONS_AM_R2_TOHOME_PRESSED_NODE_NAME = BUTTONS_AM_R2_TOHOME_NODE_NAME + IS_PRESSED;
-const QString BUTTONS_AM_R2_TOHOME_ENABLED_NODE_NAME = BUTTONS_AM_R2_TOHOME_NODE_NAME + IS_ENABLED;
-
-const QString BUTTONS_AM_R1R2_EMEVAC_NODE_NAME = BUTTONS_AM_NODE_NAME + ".R1R2_EmEvac";
-const QString BUTTONS_AM_R1R2_EMEVAC_PRESSED_NODE_NAME = BUTTONS_AM_R1R2_EMEVAC_NODE_NAME + IS_PRESSED;
-const QString BUTTONS_AM_R1R2_EMEVAC_ENABLED_NODE_NAME = BUTTONS_AM_R1R2_EMEVAC_NODE_NAME + IS_ENABLED;
-
-const QString BUTTONS_AM_APPLYTABLEPOSITION_NODE_NAME = BUTTONS_AM_NODE_NAME + ".ApplyDekaPosition";
-const QString BUTTONS_AM_APPLYTABLEPOSITION_PRESSED_NODE_NAME = BUTTONS_AM_APPLYTABLEPOSITION_NODE_NAME + IS_PRESSED;
-const QString BUTTONS_AM_APPLYTABLEPOSITION_ENABLED_NODE_NAME = BUTTONS_AM_APPLYTABLEPOSITION_NODE_NAME + IS_ENABLED;
-
-const QString BUTTONS_AM_APPLYNEWCOORDS_NODE_NAME = BUTTONS_AM_NODE_NAME + ".ApplyNewCoords";
-const QString BUTTONS_AM_APPLYNEWCOORDS_PRESSED_NODE_NAME = BUTTONS_AM_APPLYNEWCOORDS_NODE_NAME + IS_PRESSED;
-const QString BUTTONS_AM_APPLYNEWCOORDS_ENABLED_NODE_NAME = BUTTONS_AM_APPLYNEWCOORDS_NODE_NAME + IS_ENABLED;
-
-constexpr const char* const SM = "SM";
-const QString BUTTONS_SM_NODE_NAME = BUTTONS_NODE_NAME + DOT + QLatin1String(SM);
-
-const QString BUTTONS_SM_R1_BREAKTEST_NODE_NAME = BUTTONS_SM_NODE_NAME + ".BrakeTestR1";
-const QString BUTTONS_SM_R1_BREAKTEST_PRESSED_NODE_NAME = BUTTONS_SM_R1_BREAKTEST_NODE_NAME + IS_PRESSED;
-const QString BUTTONS_SM_R1_BREAKTEST_ENABLED_NODE_NAME = BUTTONS_SM_R1_BREAKTEST_NODE_NAME + IS_ENABLED;
-
-const QString BUTTONS_SM_R1_MASREFTEST_NODE_NAME = BUTTONS_SM_NODE_NAME + ".MasRefTestR1";
-const QString BUTTONS_SM_R1_MASREFTEST_PRESSED_NODE_NAME = BUTTONS_SM_R1_MASREFTEST_NODE_NAME + IS_PRESSED;
-const QString BUTTONS_SM_R1_MASREFTEST_ENABLED_NODE_NAME = BUTTONS_SM_R1_MASREFTEST_NODE_NAME + IS_ENABLED;
-
-const QString BUTTONS_SM_R1_LOAD_NODE_NAME = BUTTONS_SM_NODE_NAME + ".LoadR1";
-const QString BUTTONS_SM_R1_LOAD_PRESSED_NODE_NAME = BUTTONS_SM_R1_LOAD_NODE_NAME + IS_PRESSED;
-const QString BUTTONS_SM_R1_LOAD_ENABLED_NODE_NAME = BUTTONS_SM_R1_LOAD_NODE_NAME + IS_ENABLED;
-
-const QString BUTTONS_SM_R1_SERVICEPOS1_NODE_NAME = BUTTONS_SM_NODE_NAME + ".ServicePos1_R1";
-const QString BUTTONS_SM_R1_SERVICEPOS1_PRESSED_NODE_NAME = BUTTONS_SM_R1_SERVICEPOS1_NODE_NAME + IS_PRESSED;
-const QString BUTTONS_SM_R1_SERVICEPOS1_ENABLED_NODE_NAME = BUTTONS_SM_R1_SERVICEPOS1_NODE_NAME + IS_ENABLED;
-
-const QString BUTTONS_SM_R1_SERVICEPOS2_NODE_NAME = BUTTONS_SM_NODE_NAME + ".ServicePos2_R1";
-const QString BUTTONS_SM_R1_SERVICEPOS2_PRESSED_NODE_NAME = BUTTONS_SM_R1_SERVICEPOS2_NODE_NAME + IS_PRESSED;
-const QString BUTTONS_SM_R1_SERVICEPOS2_ENABLED_NODE_NAME = BUTTONS_SM_R1_SERVICEPOS2_NODE_NAME + IS_ENABLED;
-
-const QString BUTTONS_SM_R1_SERVICEPOS3_NODE_NAME = BUTTONS_SM_NODE_NAME + ".ServicePos3_R1";
-const QString BUTTONS_SM_R1_SERVICEPOS3_PRESSED_NODE_NAME = BUTTONS_SM_R1_SERVICEPOS3_NODE_NAME + IS_PRESSED;
-const QString BUTTONS_SM_R1_SERVICEPOS3_ENABLED_NODE_NAME = BUTTONS_SM_R1_SERVICEPOS3_NODE_NAME + IS_ENABLED;
-
-const QString BUTTONS_SM_R2_BREAKTEST_NODE_NAME = BUTTONS_SM_NODE_NAME + ".BrakeTestR2";
-const QString BUTTONS_SM_R2_BREAKTEST_PRESSED_NODE_NAME = BUTTONS_SM_R2_BREAKTEST_NODE_NAME + IS_PRESSED;
-const QString BUTTONS_SM_R2_BREAKTEST_ENABLED_NODE_NAME = BUTTONS_SM_R2_BREAKTEST_NODE_NAME + IS_ENABLED;
-
-const QString BUTTONS_SM_R2_MASREFTEST_NODE_NAME = BUTTONS_SM_NODE_NAME + ".MasRefTestR2";
-const QString BUTTONS_SM_R2_MASREFTEST_PRESSED_NODE_NAME = BUTTONS_SM_R2_MASREFTEST_NODE_NAME + IS_PRESSED;
-const QString BUTTONS_SM_R2_MASREFTEST_ENABLED_NODE_NAME = BUTTONS_SM_R2_MASREFTEST_NODE_NAME + IS_ENABLED;
-
-const QString BUTTONS_SM_R2_HOME_NODE_NAME = BUTTONS_SM_NODE_NAME + ".HomeR2";
-const QString BUTTONS_SM_R2_HOME_PRESSED_NODE_NAME = BUTTONS_SM_R2_HOME_NODE_NAME + IS_PRESSED;
-const QString BUTTONS_SM_R2_HOME_ENABLED_NODE_NAME = BUTTONS_SM_R2_HOME_NODE_NAME + IS_ENABLED;
-
-const QString BUTTONS_SM_R2_SERVICEPOS1_NODE_NAME = BUTTONS_SM_NODE_NAME + ".ServicePos1_R2";
-const QString BUTTONS_SM_R2_SERVICEPOS1_PRESSED_NODE_NAME = BUTTONS_SM_R2_SERVICEPOS1_NODE_NAME + IS_PRESSED;
-const QString BUTTONS_SM_R2_SERVICEPOS1_ENABLED_NODE_NAME = BUTTONS_SM_R2_SERVICEPOS1_NODE_NAME + IS_ENABLED;
-
-const QString BUTTONS_SM_R2_SERVICEPOS2_NODE_NAME = BUTTONS_SM_NODE_NAME + ".ServicePos2_R2";
-const QString BUTTONS_SM_R2_SERVICEPOS2_PRESSED_NODE_NAME = BUTTONS_SM_R2_SERVICEPOS2_NODE_NAME + IS_PRESSED;
-const QString BUTTONS_SM_R2_SERVICEPOS2_ENABLED_NODE_NAME = BUTTONS_SM_R2_SERVICEPOS2_NODE_NAME + IS_ENABLED;
-
-const QString BUTTONS_SM_R2_SERVICEPOS3_NODE_NAME = BUTTONS_SM_NODE_NAME + ".ServicePos3_R2";
-const QString BUTTONS_SM_R2_SERVICEPOS3_PRESSED_NODE_NAME = BUTTONS_SM_R2_SERVICEPOS3_NODE_NAME + IS_PRESSED;
-const QString BUTTONS_SM_R2_SERVICEPOS3_ENABLED_NODE_NAME = BUTTONS_SM_R2_SERVICEPOS3_NODE_NAME + IS_ENABLED;
-
-const QString BUTTONS_SM_RESTARTSM_NODE_NAME = BUTTONS_SM_NODE_NAME + ".RestartSM";
-const QString BUTTONS_SM_RESTARTSM_PRESSED_NODE_NAME = BUTTONS_SM_RESTARTSM_NODE_NAME + IS_PRESSED;
-const QString BUTTONS_SM_RESTARTSM_ENABLED_NODE_NAME = BUTTONS_SM_RESTARTSM_NODE_NAME + IS_ENABLED;
-
-constexpr const char* const KCM = "KCM";
-const QString BUTTONS_KCM_NODE_NAME = BUTTONS_NODE_NAME + DOT + QLatin1String(KCM);
-
-const QString BUTTONS_KCM_ALLOWT1_NODE_NAME = BUTTONS_KCM_NODE_NAME + ".AllowT1";
-const QString BUTTONS_KCM_ALLOWT1_PRESSED_NODE_NAME = BUTTONS_KCM_ALLOWT1_NODE_NAME + IS_PRESSED;
-const QString BUTTONS_KCM_ALLOWT1_ENABLED_NODE_NAME = BUTTONS_KCM_ALLOWT1_NODE_NAME + IS_ENABLED;
-
-const QString BUTTONS_KCM_ALLOWXRAY_NODE_NAME = BUTTONS_KCM_NODE_NAME + ".AllowXRay";
-const QString BUTTONS_KCM_ALLOWXRAY_PRESSED_NODE_NAME = BUTTONS_KCM_ALLOWXRAY_NODE_NAME + IS_PRESSED;
-const QString BUTTONS_KCM_ALLOWXRAY_ENABLED_NODE_NAME = BUTTONS_KCM_ALLOWXRAY_NODE_NAME + IS_ENABLED;
-
-const QString BUTTONS_KCM_ALLOWBEAM_NODE_NAME = BUTTONS_KCM_NODE_NAME + ".AllowBeam";
-const QString BUTTONS_KCM_ALLOWBEAM_PRESSED_NODE_NAME = BUTTONS_KCM_ALLOWBEAM_NODE_NAME + IS_PRESSED;
-const QString BUTTONS_KCM_ALLOWBEAM_ENABLED_NODE_NAME = BUTTONS_KCM_ALLOWBEAM_NODE_NAME + IS_ENABLED;
-
-const QString BUTTONS_RESETERRORS_NODE_NAME = BUTTONS_NODE_NAME + ".ResetErrors";
-const QString BUTTONS_RESETERRORS_PRESSED_NODE_NAME = BUTTONS_RESETERRORS_NODE_NAME + IS_PRESSED;
-const QString BUTTONS_RESETERRORS_ENABLED_NODE_NAME = BUTTONS_RESETERRORS_NODE_NAME + IS_ENABLED;
-
-const QString BUTTONS_MAKEXRAY_NODE_NAME = BUTTONS_NODE_NAME + ".MakeXRay";
-const QString BUTTONS_MAKEXRAY_PRESSED_NODE_NAME = BUTTONS_MAKEXRAY_NODE_NAME + IS_PRESSED;
-const QString BUTTONS_MAKEXRAY_ENABLED_NODE_NAME = BUTTONS_MAKEXRAY_NODE_NAME + IS_ENABLED;
-
-// Reflection target coordinates R1 (confirmed or accepted coordinates by the R1 Tabletop robot)
-const QString KUKA_REFLTARGETCOORDS_R1_NODE_NAME = RTK_PLC_NODE_NAME + ".ReflTargetCoords_R1";
-const QString KUKA_REFLTARGETCOORDS_R1_X_NODE_NAME = KUKA_REFLTARGETCOORDS_R1_NODE_NAME + DOT + QLatin1String(KUKAX);
-const QString KUKA_REFLTARGETCOORDS_R1_Y_NODE_NAME = KUKA_REFLTARGETCOORDS_R1_NODE_NAME + DOT + QLatin1String(KUKAY);
-const QString KUKA_REFLTARGETCOORDS_R1_Z_NODE_NAME = KUKA_REFLTARGETCOORDS_R1_NODE_NAME + DOT + QLatin1String(KUKAZ);
-const QString KUKA_REFLTARGETCOORDS_R1_A_NODE_NAME = KUKA_REFLTARGETCOORDS_R1_NODE_NAME + DOT + QLatin1String(KUKAA);
-const QString KUKA_REFLTARGETCOORDS_R1_B_NODE_NAME = KUKA_REFLTARGETCOORDS_R1_NODE_NAME + DOT + QLatin1String(KUKAB);
-const QString KUKA_REFLTARGETCOORDS_R1_C_NODE_NAME = KUKA_REFLTARGETCOORDS_R1_NODE_NAME + DOT + QLatin1String(KUKAC);
-
-// Reflection target coordinates R2 (confirmed or accepted coordinates by the R2 C-Arm robot)
-const QString KUKA_REFLTARGETCOORDS_R2_NODE_NAME = RTK_PLC_NODE_NAME + ".ReflTargetCoords_R2";
-const QString KUKA_REFLTARGETCOORDS_R2_X_NODE_NAME = KUKA_REFLTARGETCOORDS_R2_NODE_NAME + DOT + QLatin1String(KUKAX);
-const QString KUKA_REFLTARGETCOORDS_R2_Y_NODE_NAME = KUKA_REFLTARGETCOORDS_R2_NODE_NAME + DOT + QLatin1String(KUKAY);
-const QString KUKA_REFLTARGETCOORDS_R2_Z_NODE_NAME = KUKA_REFLTARGETCOORDS_R2_NODE_NAME + DOT + QLatin1String(KUKAZ);
-const QString KUKA_REFLTARGETCOORDS_R2_A_NODE_NAME = KUKA_REFLTARGETCOORDS_R2_NODE_NAME + DOT + QLatin1String(KUKAA);
-const QString KUKA_REFLTARGETCOORDS_R2_B_NODE_NAME = KUKA_REFLTARGETCOORDS_R2_NODE_NAME + DOT + QLatin1String(KUKAB);
-const QString KUKA_REFLTARGETCOORDS_R2_C_NODE_NAME = KUKA_REFLTARGETCOORDS_R2_NODE_NAME + DOT + QLatin1String(KUKAC);
-
-const QString KUKA_CURRENTCOORDS_R1_NODE_NAME = RTK_PLC_NODE_NAME + ".CurrentCoords_R1";
-const QString KUKA_CURRENTCOORDS_R1_X_NODE_NAME = KUKA_CURRENTCOORDS_R1_NODE_NAME + DOT + QLatin1String(KUKAX);
-const QString KUKA_CURRENTCOORDS_R1_Y_NODE_NAME = KUKA_CURRENTCOORDS_R1_NODE_NAME + DOT + QLatin1String(KUKAY);
-const QString KUKA_CURRENTCOORDS_R1_Z_NODE_NAME = KUKA_CURRENTCOORDS_R1_NODE_NAME + DOT + QLatin1String(KUKAZ);
-const QString KUKA_CURRENTCOORDS_R1_A_NODE_NAME = KUKA_CURRENTCOORDS_R1_NODE_NAME + DOT + QLatin1String(KUKAA);
-const QString KUKA_CURRENTCOORDS_R1_B_NODE_NAME = KUKA_CURRENTCOORDS_R1_NODE_NAME + DOT + QLatin1String(KUKAB);
-const QString KUKA_CURRENTCOORDS_R1_C_NODE_NAME = KUKA_CURRENTCOORDS_R1_NODE_NAME + DOT + QLatin1String(KUKAC);
-const QString KUKA_CURRENTCOORDS_R1_A1_NODE_NAME = KUKA_CURRENTCOORDS_R1_NODE_NAME + DOT + QLatin1String(AXISCOORDA1);
-const QString KUKA_CURRENTCOORDS_R1_A2_NODE_NAME = KUKA_CURRENTCOORDS_R1_NODE_NAME + DOT + QLatin1String(AXISCOORDA2);
-const QString KUKA_CURRENTCOORDS_R1_A3_NODE_NAME = KUKA_CURRENTCOORDS_R1_NODE_NAME + DOT + QLatin1String(AXISCOORDA3);
-const QString KUKA_CURRENTCOORDS_R1_A4_NODE_NAME = KUKA_CURRENTCOORDS_R1_NODE_NAME + DOT + QLatin1String(AXISCOORDA4);
-const QString KUKA_CURRENTCOORDS_R1_A5_NODE_NAME = KUKA_CURRENTCOORDS_R1_NODE_NAME + DOT + QLatin1String(AXISCOORDA5);
-const QString KUKA_CURRENTCOORDS_R1_A6_NODE_NAME = KUKA_CURRENTCOORDS_R1_NODE_NAME + DOT + QLatin1String(AXISCOORDA6);
-
-const QString KUKA_CURRENTCOORDS_R2_NODE_NAME = RTK_PLC_NODE_NAME + ".CurrentCoords_R2";
-const QString KUKA_CURRENTCOORDS_R2_X_NODE_NAME = KUKA_CURRENTCOORDS_R2_NODE_NAME + DOT + QLatin1String(KUKAX);
-const QString KUKA_CURRENTCOORDS_R2_Y_NODE_NAME = KUKA_CURRENTCOORDS_R2_NODE_NAME + DOT + QLatin1String(KUKAY);
-const QString KUKA_CURRENTCOORDS_R2_Z_NODE_NAME = KUKA_CURRENTCOORDS_R2_NODE_NAME + DOT + QLatin1String(KUKAZ);
-const QString KUKA_CURRENTCOORDS_R2_A_NODE_NAME = KUKA_CURRENTCOORDS_R2_NODE_NAME + DOT + QLatin1String(KUKAA);
-const QString KUKA_CURRENTCOORDS_R2_B_NODE_NAME = KUKA_CURRENTCOORDS_R2_NODE_NAME + DOT + QLatin1String(KUKAB);
-const QString KUKA_CURRENTCOORDS_R2_C_NODE_NAME = KUKA_CURRENTCOORDS_R2_NODE_NAME + DOT + QLatin1String(KUKAC);
-const QString KUKA_CURRENTCOORDS_R2_A1_NODE_NAME = KUKA_CURRENTCOORDS_R2_NODE_NAME + DOT + QLatin1String(AXISCOORDA1);
-const QString KUKA_CURRENTCOORDS_R2_A2_NODE_NAME = KUKA_CURRENTCOORDS_R2_NODE_NAME + DOT + QLatin1String(AXISCOORDA2);
-const QString KUKA_CURRENTCOORDS_R2_A3_NODE_NAME = KUKA_CURRENTCOORDS_R2_NODE_NAME + DOT + QLatin1String(AXISCOORDA3);
-const QString KUKA_CURRENTCOORDS_R2_A4_NODE_NAME = KUKA_CURRENTCOORDS_R2_NODE_NAME + DOT + QLatin1String(AXISCOORDA4);
-const QString KUKA_CURRENTCOORDS_R2_A5_NODE_NAME = KUKA_CURRENTCOORDS_R2_NODE_NAME + DOT + QLatin1String(AXISCOORDA5);
-const QString KUKA_CURRENTCOORDS_R2_A6_NODE_NAME = KUKA_CURRENTCOORDS_R2_NODE_NAME + DOT + QLatin1String(AXISCOORDA6);
-
-const QString KUKA_COORDSACCEPTED_R1_NODE_NAME = RTK_PLC_NODE_NAME + DOT + QLatin1String(COORDS_ACCEPTED_R1);
-const QString KUKA_COORDSNOTACCEPTED_R1_NODE_NAME = RTK_PLC_NODE_NAME + DOT + QLatin1String(COORDS_NOTACCEPTED_R1);
-
-const QString KUKA_COORDSACCEPTED_R2_NODE_NAME = RTK_PLC_NODE_NAME + DOT + QLatin1String(COORDS_ACCEPTED_R2);
-const QString KUKA_COORDSNOTACCEPTED_R2_NODE_NAME = RTK_PLC_NODE_NAME + DOT + QLatin1String(COORDS_NOTACCEPTED_R2);
 
 const QOpcUaMonitoringParameters OpcUaMonitorParameters(100);
 
@@ -317,22 +70,6 @@ public:
     , nodeDescription(desc)
   {
   }
-  NodeData(const NodeData& obj)
-    : nodePtr(obj.getNode())
-    , nodeId(obj.getNodeId())
-    , nodeName(obj.getNodeName())
-    , nodeDescription(obj.getNodeDescription())
-  {
-  }
-  NodeData& operator=(const NodeData& obj)
-  {
-    this->nodePtr = obj.getNodePtr();
-    this->nodeId = obj.getNodeId();
-    this->nodeName = obj.getNodeName();
-    this->nodeDescription = obj.getNodeDescription();
-    return *this;
-  }
-  virtual ~NodeData() {}
   QSharedPointer< QOpcUaNode > getNodePtr() const { return nodePtr; }
   void setNode(QOpcUaNode* node) { this->nodePtr.reset(node); }
   QOpcUaNode* getNode() { return nodePtr.data(); }
@@ -362,104 +99,7 @@ public:
   QOpcUaNode* FindNodeFromFullDisplayName(const QString& nodeDisplayName);
   void ExpandAllAsync(QTreeView *view, QAbstractItemModel* model,
     const QModelIndex &parentIndex = QModelIndex());
-/*
-  bool ConnectMessagesNodes();
-  bool ConnectModeAndStatusNodes();
-  bool ConnectSetCoordsXyzNodes();
-  bool ConnectSetCoordsAbcNodes();
 
-  bool ConnectSetCoordsNodes();
-  bool ConnectAutoManualMovementNodes();
-  bool ConnectServiceMovementNodes();
-  bool ConnectKukaMovementNodes();
-
-  bool ConnectFlagNodes();
-  bool ConnectMlcNodes();
-
-  bool ConnectCurrentCoordsR1Nodes();
-  bool ConnectCurrentCoordsR2Nodes();
-  bool ConnectReflTargetCoordsR1Nodes();
-  bool ConnectReflTargetCoordsR2Nodes();
-
-  bool ConnectAutoManualR1ToLoadNodes();
-  bool ConnectAutoManualR1LoadToIsoNodes();
-  bool ConnectAutoManualR1ToNewCoordsNodes();
-  bool ConnectAutoManualR2ToHomeNodes();
-  bool ConnectAutoManualR2ToPlane1Nodes();
-  bool ConnectAutoManualR2ToPlane2Nodes();
-  bool ConnectAutoManualR1R2EmergencyEvacuationNodes();
-  bool ConnectAutoManualApplyTablePositionNodes();
-  bool ConnectAutoManualApplyNewCoordsNodes();
-
-  bool ConnectServiceR1BreakTestNodes();
-  bool ConnectServiceR1MasterRefTestNodes();
-  bool ConnectServiceR1LoadNodes();
-  bool ConnectServiceR1ServicePos1Nodes();
-  bool ConnectServiceR1ServicePos2Nodes();
-  bool ConnectServiceR1ServicePos3Nodes();
-
-  bool ConnectServiceR2BreakTestNodes();
-  bool ConnectServiceR2MasterRefTestNodes();
-  bool ConnectServiceR2HomeNodes();
-  bool ConnectServiceR2ServicePos1Nodes();
-  bool ConnectServiceR2ServicePos2Nodes();
-  bool ConnectServiceR2ServicePos3Nodes();
-  bool ConnectServiceRestartNodes();
-
-  bool ConnectKukaAllowT1Nodes();
-  bool ConnectKukaAllowXrayNodes();
-  bool ConnectKukaAllowBeamNodes();
-
-  bool ConnectReflTargetCoordXR1Node();
-  bool ConnectReflTargetCoordYR1Node();
-  bool ConnectReflTargetCoordZR1Node();
-  bool ConnectReflTargetCoordAR1Node();
-  bool ConnectReflTargetCoordBR1Node();
-  bool ConnectReflTargetCoordCR1Node();
-
-  bool ConnectReflTargetCoordXR2Node();
-  bool ConnectReflTargetCoordYR2Node();
-  bool ConnectReflTargetCoordZR2Node();
-  bool ConnectReflTargetCoordAR2Node();
-  bool ConnectReflTargetCoordBR2Node();
-  bool ConnectReflTargetCoordCR2Node();
-
-  bool ConnectCurrentCoordXR1Node();
-  bool ConnectCurrentCoordYR1Node();
-  bool ConnectCurrentCoordZR1Node();
-  bool ConnectCurrentCoordAR1Node();
-  bool ConnectCurrentCoordBR1Node();
-  bool ConnectCurrentCoordCR1Node();
-  bool ConnectCurrentCoordA1R1Node();
-  bool ConnectCurrentCoordA2R1Node();
-  bool ConnectCurrentCoordA3R1Node();
-  bool ConnectCurrentCoordA4R1Node();
-  bool ConnectCurrentCoordA5R1Node();
-  bool ConnectCurrentCoordA6R1Node();
-  bool ConnectAcceptedCoordsFlagsR1Node();
-
-  bool ConnectCurrentCoordXR2Node();
-  bool ConnectCurrentCoordYR2Node();
-  bool ConnectCurrentCoordZR2Node();
-  bool ConnectCurrentCoordAR2Node();
-  bool ConnectCurrentCoordBR2Node();
-  bool ConnectCurrentCoordCR2Node();
-  bool ConnectCurrentCoordA1R2Node();
-  bool ConnectCurrentCoordA2R2Node();
-  bool ConnectCurrentCoordA3R2Node();
-  bool ConnectCurrentCoordA4R2Node();
-  bool ConnectCurrentCoordA5R2Node();
-  bool ConnectCurrentCoordA6R2Node();
-  bool ConnectAcceptedCoordsFlagsR2Node();
-
-  bool ConnectResetErrorsNodes();
-  bool ConnectMakeXrayNodes();
-
-  bool ConnectPatientOnTableTopNode();
-  bool ConnectTablePositionNode();
-  bool ConnectEmergencyEvacuationSignalNode();
-  bool ConnectHoldButtonPressedForMovingNode();
-*/
   QScopedPointer< OpcUaModel > SiemensPlcOpcUaModel;
 
   QScopedPointer< qSlicerOpcUaRobotsMessagesListModel > SiemensPlcErrorListModel;
@@ -479,96 +119,9 @@ public:
   QScopedPointer< QProgressDialog > ProgressDialog;
   QScopedPointer< QTimer > ProgressTimer;
   QScopedPointer< qSlicerOpcUaInitialValueNodeReader > InitialValuesNodeReader;
+  QScopedPointer< qSlicerOpcUaInitialValueNodeLoader > InitialValuesNodeLoader;
 
   bool AutoConnectServerFlag{ false };
-/*
-  int NunmberOfNodesRead{ 0 };
-
-  const QStringList ReadValueFullNodeNames = {
-    ASU_ERROR_MESSAGES_NODE_NAME,
-    ASU_SERVICE_MESSAGES_NODE_NAME,
-    ASU_MESSAGES_NODE_NAME,
-    ASU_MODE_NODE_NAME,
-    ASU_STATUS_RTK_NODE_NAME,
-    ASU_STATUS_R1_TABLE_NODE_NAME,
-    ASU_STATUS_R2_CARM_NODE_NAME,
-    ASU_COORDS_A_NODE_NAME,
-    ASU_COORDS_B_NODE_NAME,
-    ASU_COORDS_C_NODE_NAME,
-    ASU_COORDS_X_NODE_NAME,
-    ASU_COORDS_Y_NODE_NAME,
-    ASU_COORDS_Z_NODE_NAME,
-    BUTTONS_AM_R1_LOADTOISO_ENABLED_NODE_NAME,
-    BUTTONS_AM_R1_TOLOAD_ENABLED_NODE_NAME,
-    BUTTONS_AM_R1_NEWCOORDS_ENABLED_NODE_NAME,
-    BUTTONS_AM_R2_TOHOME_ENABLED_NODE_NAME,
-    BUTTONS_AM_R2_TOPLANE1_ENABLED_NODE_NAME,
-    BUTTONS_AM_R2_TOPLANE2_ENABLED_NODE_NAME,
-    BUTTONS_AM_R1R2_EMEVAC_ENABLED_NODE_NAME,
-    BUTTONS_AM_APPLYTABLEPOSITION_ENABLED_NODE_NAME,
-    BUTTONS_AM_APPLYNEWCOORDS_ENABLED_NODE_NAME,
-    BUTTONS_SM_R1_BREAKTEST_ENABLED_NODE_NAME,
-    BUTTONS_SM_R1_MASREFTEST_ENABLED_NODE_NAME,
-    BUTTONS_SM_R1_LOAD_ENABLED_NODE_NAME,
-    BUTTONS_SM_R1_SERVICEPOS1_ENABLED_NODE_NAME,
-    BUTTONS_SM_R1_SERVICEPOS2_ENABLED_NODE_NAME,
-    BUTTONS_SM_R1_SERVICEPOS3_ENABLED_NODE_NAME,
-    BUTTONS_SM_R2_BREAKTEST_ENABLED_NODE_NAME,
-    BUTTONS_SM_R2_MASREFTEST_ENABLED_NODE_NAME,
-    BUTTONS_SM_R2_HOME_ENABLED_NODE_NAME,
-    BUTTONS_SM_R2_SERVICEPOS1_ENABLED_NODE_NAME,
-    BUTTONS_SM_R2_SERVICEPOS2_ENABLED_NODE_NAME,
-    BUTTONS_SM_R2_SERVICEPOS3_ENABLED_NODE_NAME,
-    BUTTONS_SM_RESTARTSM_ENABLED_NODE_NAME,
-    BUTTONS_KCM_ALLOWT1_ENABLED_NODE_NAME,
-    BUTTONS_KCM_ALLOWXRAY_ENABLED_NODE_NAME,
-    BUTTONS_KCM_ALLOWBEAM_ENABLED_NODE_NAME,
-    ASU_ROBOTS_READY_XRAY1_NODE_NAME,
-    ASU_ROBOTS_READY_XRAY2_NODE_NAME,
-    ASU_TABLE_POSITION_NODE_NAME,
-    ASU_EMEVAC_SIGNAL_NODE_NAME,
-    KUKA_CURRENTCOORDS_R1_A1_NODE_NAME,
-    KUKA_CURRENTCOORDS_R1_A2_NODE_NAME,
-    KUKA_CURRENTCOORDS_R1_A3_NODE_NAME,
-    KUKA_CURRENTCOORDS_R1_A4_NODE_NAME,
-    KUKA_CURRENTCOORDS_R1_A5_NODE_NAME,
-    KUKA_CURRENTCOORDS_R1_A6_NODE_NAME,
-    KUKA_CURRENTCOORDS_R2_A1_NODE_NAME,
-    KUKA_CURRENTCOORDS_R2_A2_NODE_NAME,
-    KUKA_CURRENTCOORDS_R2_A3_NODE_NAME,
-    KUKA_CURRENTCOORDS_R2_A4_NODE_NAME,
-    KUKA_CURRENTCOORDS_R2_A5_NODE_NAME,
-    KUKA_CURRENTCOORDS_R2_A6_NODE_NAME,
-    KUKA_CURRENTCOORDS_R1_A_NODE_NAME,
-    KUKA_CURRENTCOORDS_R1_B_NODE_NAME,
-    KUKA_CURRENTCOORDS_R1_C_NODE_NAME,
-    KUKA_CURRENTCOORDS_R1_X_NODE_NAME,
-    KUKA_CURRENTCOORDS_R1_Y_NODE_NAME,
-    KUKA_CURRENTCOORDS_R1_Z_NODE_NAME,
-    KUKA_CURRENTCOORDS_R2_A_NODE_NAME,
-    KUKA_CURRENTCOORDS_R2_B_NODE_NAME,
-    KUKA_CURRENTCOORDS_R2_C_NODE_NAME,
-    KUKA_CURRENTCOORDS_R2_X_NODE_NAME,
-    KUKA_CURRENTCOORDS_R2_Y_NODE_NAME,
-    KUKA_CURRENTCOORDS_R2_Z_NODE_NAME,
-    KUKA_REFLTARGETCOORDS_R1_X_NODE_NAME,
-    KUKA_REFLTARGETCOORDS_R1_Y_NODE_NAME,
-    KUKA_REFLTARGETCOORDS_R1_Z_NODE_NAME,
-    KUKA_REFLTARGETCOORDS_R1_A_NODE_NAME,
-    KUKA_REFLTARGETCOORDS_R1_B_NODE_NAME,
-    KUKA_REFLTARGETCOORDS_R1_C_NODE_NAME,
-    KUKA_REFLTARGETCOORDS_R2_X_NODE_NAME,
-    KUKA_REFLTARGETCOORDS_R2_Y_NODE_NAME,
-    KUKA_REFLTARGETCOORDS_R2_Z_NODE_NAME,
-    KUKA_REFLTARGETCOORDS_R2_A_NODE_NAME,
-    KUKA_REFLTARGETCOORDS_R2_B_NODE_NAME,
-    KUKA_REFLTARGETCOORDS_R2_C_NODE_NAME,
-    KUKA_COORDSACCEPTED_R1_NODE_NAME,
-    KUKA_COORDSNOTACCEPTED_R1_NODE_NAME,
-    KUKA_COORDSACCEPTED_R2_NODE_NAME,
-    KUKA_COORDSNOTACCEPTED_R2_NODE_NAME
-  };
-*/
 };
 
 // --------------------------------------------------------------------------
@@ -8340,20 +7893,25 @@ void qSlicerSiemensPlcOpcUaWidget::onOpcUaClientDisconnected()
   d->SiemensPlcMessagesListModel->clear();
   
 }
-/*
+
 //-----------------------------------------------------------------------------
 void qSlicerSiemensPlcOpcUaWidget::onOpcUaModeChanged(vtkMRMLSiemensPlcOpcUaNode::ModeType mode)
 {
   Q_D(qSlicerSiemensPlcOpcUaWidget);
-  // Write Mode value
-  QOpcUaNode* modeNode = d->FindNodeFromFullDisplayName(ASU_MODE_NODE_NAME);
-  if (modeNode)
+  bool res = d->opcUaLogic->GetSiemensPlcOpcUaLogic()->WriteMode(mode);
+  if (res)
   {
-//    qDebug() << Q_FUNC_INFO << ": Set new mode:" << mode;
-    modeNode->writeAttribute(QOpcUa::NodeAttribute::Value, QVariant(mode), QOpcUa::Types::Byte);
+    qDebug() << Q_FUNC_INFO << ": Set new mode:" << int(mode);
   }
+  // Write Mode value
+///  QOpcUaNode* modeNode = d->FindNodeFromFullDisplayName(ASU_MODE_NODE_NAME);
+///  if (modeNode)
+///  {
+//    qDebug() << Q_FUNC_INFO << ": Set new mode:" << mode;
+///    modeNode->writeAttribute(QOpcUa::NodeAttribute::Value, QVariant(mode), QOpcUa::Types::Byte);
+///  }
 }
-
+/*
 //-----------------------------------------------------------------------------
 void qSlicerSiemensPlcOpcUaWidget::onAutoManualR1LoadToIsoPressed()
 {
@@ -9066,7 +8624,6 @@ void qSlicerSiemensPlcOpcUaWidget::onServerInterfacesRead(QOpcUa::NodeAttributes
   }
   QHash< QString, QString > hashNodes;
   std::list< std::string > fullNamesList = vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::GetSiemensPlcFullNodeNamesList();
-  QList< QOpcUaNode* > nodesList; 
 
   if (attr & QOpcUa::NodeAttribute::DisplayName)
   { // Make sure the value attribute has been read
@@ -9078,121 +8635,48 @@ void qSlicerSiemensPlcOpcUaWidget::onServerInterfacesRead(QOpcUa::NodeAttributes
       {
         if (nodeData.getNode())
         {
-//          qDebug() << Q_FUNC_INFO << "Node ID:" << nodeData.getNodeId()
-//              << ", Name:" << nodeData.getNodeName()
-//              << ", Description:" << nodeData.getNodeDescription() << Qt::endl;
           hashNodes.insert(nodeData.getNodeName(), nodeData.getNodeId());
           auto iter = std::find(fullNamesList.begin(), fullNamesList.end(), nodeData.getNodeName().toStdString());
           if (iter != fullNamesList.end())
           {
-            qDebug() << Q_FUNC_INFO << "Node ID:" << nodeData.getNodeId()
-              << ", Name:" << nodeData.getNodeName()
-              << ", Description:" << nodeData.getNodeDescription() << Qt::endl;
-
-            nodesList.push_back(nodeData.getNode());
+//            qDebug() << Q_FUNC_INFO << "Node ID:" << nodeData.getNodeId()
+//              << ", Name:" << nodeData.getNodeName()
+//              << ", Description:" << nodeData.getNodeDescription() << Qt::endl;
           }
         }
       }
     }
-/*
-    bool coords = d->ConnectSetCoordsNodes();
-    if (coords)
-    {
-      qDebug() << Q_FUNC_INFO << "SetCoords nodes are OK";
-    }
-
-    bool resMsg = d->ConnectMessagesNodes();
-    bool resStatus = d->ConnectModeAndStatusNodes();
-    if (resMsg && resStatus)
-    {
-      qDebug() << Q_FUNC_INFO << "Messages and Status nodes are OK";
-    }
-
-    bool moveButtons = d->ConnectAutoManualMovementNodes();
-    if (moveButtons)
-    {
-      qDebug() << Q_FUNC_INFO << "AutoManual move buttons nodes are OK";
-    }
-
-    moveButtons &= d->ConnectServiceMovementNodes();
-    if (moveButtons)
-    {
-      qDebug() << Q_FUNC_INFO << "AutoManual & Service move buttons nodes are OK";
-    }
-
-    moveButtons &= d->ConnectKukaMovementNodes();
-    if (moveButtons)
-    {
-      qDebug() << Q_FUNC_INFO << "Move buttons nodes are OK";
-    }
-
-    bool readynessFlags = d->ConnectFlagNodes();
-    readynessFlags &= d->ConnectPatientOnTableTopNode();
-    readynessFlags &= d->ConnectTablePositionNode();
-    readynessFlags &= d->ConnectEmergencyEvacuationSignalNode();
-    readynessFlags &= d->ConnectHoldButtonPressedForMovingNode();
-    if (readynessFlags)
-    {
-      qDebug() << Q_FUNC_INFO << "Readyness flags nodes are OK";
-    }
-
-    bool resetErrors = d->ConnectResetErrorsNodes();
-    bool makeXray = d->ConnectMakeXrayNodes();
-    if (resetErrors && makeXray)
-    {
-      qDebug() << Q_FUNC_INFO << "Reset errors and Make X-Ray nodes are OK";
-    }
-
-    bool currentCoords = d->ConnectCurrentCoordsR1Nodes();
-    currentCoords &= d->ConnectCurrentCoordsR2Nodes();
-    if (currentCoords)
-    {
-      qDebug() << Q_FUNC_INFO << "R1 R2 Current coords nodes are OK";
-    }
-
-    bool reflTargetCoords = d->ConnectReflTargetCoordsR1Nodes();
-    reflTargetCoords &= d->ConnectReflTargetCoordsR2Nodes();
-    if (reflTargetCoords)
-    {
-      qDebug() << Q_FUNC_INFO << "R1 R2 Reflective target coords nodes are OK";
-    }
-*/
   }
   d->PushButton_ReadStatusAndMessages->setEnabled(true);
-  d->opcUaLogic->GetSiemensPlcOpcUaLogic()->ServerConnected(d->OpcUaClient, hashNodes);
 
+  auto list = d->opcUaLogic->GetSiemensPlcOpcUaLogic()->ServerConnected(d->OpcUaClient, hashNodes);
+  QList< QOpcUaNode* > nodesList(list.begin(), list.end());
 
   d->ProgressDialog->setLabelText(tr("Reading nodes initial value, Please wait!"));
   d->ProgressDialog->setMaximum(nodesList.size());
   d->ProgressDialog->setValue(0);
+  d->ProgressDialog->show();
+  d->ProgressDialog->raise();
 
-  QProgressDialog* progressDialog = d->ProgressDialog.data();
-  QTimer* progressTimer = d->ProgressTimer.data();
-  d->InitialValuesNodeReader.reset(new qSlicerOpcUaInitialValueNodeReader(nodesList, this));
-  QObject::connect(d->InitialValuesNodeReader.data(), &qSlicerOpcUaInitialValueNodeReader::progress,
-    this, [progressDialog, progressTimer](int done, int total)
+  d->InitialValuesNodeLoader.reset(new qSlicerOpcUaInitialValueNodeLoader(nodesList, this));
+  QObject::connect(d->InitialValuesNodeLoader.data(), &qSlicerOpcUaInitialValueNodeLoader::progress,
+    this, [d](int done, int total)
   {
-//    Q_UNUSED(total);
-    qDebug() << Q_FUNC_INFO << ": Reading value in progress: " << done << " of " << total;
-    progressDialog->setValue(done);
-    progressTimer->stop();
+//    qDebug() << Q_FUNC_INFO << ": Reading initial values in progress: " << done << " of " << total;
+    d->ProgressDialog->setValue(done);
+    d->ProgressTimer->stop();
   });
-  QObject::connect(d->InitialValuesNodeReader.data(), &qSlicerOpcUaInitialValueNodeReader::finished,
-    this, [this, progressDialog, progressTimer]()
+  QObject::connect(d->InitialValuesNodeLoader.data(), &qSlicerOpcUaInitialValueNodeLoader::finished,
+    this, [d]()
   {
-    if (progressTimer && progressDialog)
+    if (d->ProgressTimer && d->ProgressDialog)
     {
-      qDebug() << Q_FUNC_INFO << ": Reading is finished";
-      progressTimer->start();
-      progressDialog->close();
+//      qDebug() << Q_FUNC_INFO << ": Reading initial values is finished";
+      d->ProgressTimer->start();
+      d->ProgressDialog->close();
     }
-    QMessageBox::information(this, tr("Siemens PLC OPC UA"), tr("Client is ready for data exchange with Siemens PLC!"));
+    d->InitialValuesNodeLoader.reset(nullptr);
   });
-
-  d->InitialValuesNodeReader->start();
-
-//  this->onReadStatusAndMessagesClicked();
-
   d->ParameterNode->Modified();
 }
 
@@ -9201,6 +8685,46 @@ void qSlicerSiemensPlcOpcUaWidget::onReadStatusAndMessagesClicked()
 {
   Q_D(qSlicerSiemensPlcOpcUaWidget);
 
+  std::list< std::string > fullNamesList = vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::GetSiemensPlcFullNodeNamesList();
+  QList< QOpcUaNode* > nodesList; 
+
+  for (auto& nodeData : d->NodeNameDataMap)
+  {
+    if (nodeData.getNode())
+    {
+      auto iter = std::find(fullNamesList.begin(), fullNamesList.end(), nodeData.getNodeName().toStdString());
+      if (iter != fullNamesList.end())
+      {
+        nodesList.push_back(nodeData.getNode());
+      }
+    }
+  }
+
+  d->ProgressDialog->setLabelText(tr("Reading nodes initial value, Please wait!"));
+  d->ProgressDialog->setMaximum(nodesList.size());
+  d->ProgressDialog->setValue(0);
+
+  d->InitialValuesNodeReader.reset(new qSlicerOpcUaInitialValueNodeReader(nodesList, this));
+  QObject::connect(d->InitialValuesNodeReader.data(), &qSlicerOpcUaInitialValueNodeReader::progress,
+    this, [d](int done, int)
+  {
+//    Q_UNUSED(total);
+//    qDebug() << Q_FUNC_INFO << ": Reading value in progress: " << done << " of " << total;
+    d->ProgressDialog->setValue(done);
+    d->ProgressTimer->stop();
+  });
+  QObject::connect(d->InitialValuesNodeReader.data(), &qSlicerOpcUaInitialValueNodeReader::finished,
+    this, [this, d]()
+  {
+//      qDebug() << Q_FUNC_INFO << ": Reading is finished";
+    d->ProgressTimer->start();
+    d->ProgressDialog->close();
+    QMessageBox::information(this, tr("Siemens PLC OPC UA"), tr("Client is ready for data exchange with Siemens PLC!"));
+  });
+
+  d->InitialValuesNodeReader->start();
+
+/**
   std::list< std::string > nodeFullNameList = vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::GetSiemensPlcFullNodeNamesList();
   if (d->opcUaLogic && d->opcUaLogic->GetSiemensPlcOpcUaLogic())
   {
@@ -9210,6 +8734,7 @@ void qSlicerSiemensPlcOpcUaWidget::onReadStatusAndMessagesClicked()
       qDebug() << Q_FUNC_INFO << ": Read node attributes";
     }
   }
+*/
 /*
   for (const QString& nodeName : d->ReadValueFullNodeNames)
   {

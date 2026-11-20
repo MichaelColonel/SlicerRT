@@ -19,6 +19,7 @@ set(${KIT}_SRCS
   qSlicerOpcUaRobotsMessagesListModel.cxx
   qSlicerOpcUaRobotsMessagesListModel.h
   qSlicerOpcUaInitialValueNodeReader.h
+  qSlicerOpcUaInitialValueNodeLoader.h
   OpcUaModel.cxx
   OpcUaModel.h
   OpcUaTreeItem.cxx

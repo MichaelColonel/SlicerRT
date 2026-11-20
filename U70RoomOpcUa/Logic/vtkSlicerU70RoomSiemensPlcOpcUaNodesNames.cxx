@@ -118,14 +118,24 @@ std::string GetRtkPlc()
   return std::string(vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::PARENT) + std::string(DOT) + std::string(RTK_PLC);
 }
 
+std::string GetRtkPlcReflTargetCoordsR1()
+{
+  return GetRtkPlc() + std::string(DOT) + std::string(REFLTARGETCOORDS_R1);
+}
+
+std::string GetRtkPlcReflTargetCoordsR2()
+{
+  return GetRtkPlc() + std::string(DOT) + std::string(REFLTARGETCOORDS_R2);
+}
+
 std::string GetRtkPlcCurrentCoordsR1()
 {
-  return GetRtkPlc() + std::string(CURRENTCOORDS_R1);
+  return GetRtkPlc() + std::string(DOT) + std::string(CURRENTCOORDS_R1);
 }
 
 std::string GetRtkPlcCurrentCoordsR2()
 {
-  return GetRtkPlc() + std::string(CURRENTCOORDS_R2);
+  return GetRtkPlc() + std::string(DOT) + std::string(CURRENTCOORDS_R2);
 }
 
 std::string GetRtkPlcAsu()
@@ -457,62 +467,62 @@ std::string vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::GetMakeXrayButtonIsPresse
 
 std::string vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::GetReflectionTargetCoordsR1X()
 {
-  return GetRtkPlc() + std::string(DOT) + std::string(REFLTARGETCOORDS_R1) + std::string(DOT) + std::string(KUKAX);
+  return GetRtkPlcReflTargetCoordsR1() + std::string(DOT) + std::string(KUKAX);
 }
 
 std::string vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::GetReflectionTargetCoordsR1Y()
 {
-  return GetRtkPlc() + std::string(DOT) + std::string(REFLTARGETCOORDS_R1) + std::string(DOT) + std::string(KUKAY);
+  return GetRtkPlcReflTargetCoordsR1() + std::string(DOT) + std::string(KUKAY);
 }
 
 std::string vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::GetReflectionTargetCoordsR1Z()
 {
-  return GetRtkPlc() + std::string(DOT) + std::string(REFLTARGETCOORDS_R1) + std::string(DOT) + std::string(KUKAZ);
+  return GetRtkPlcReflTargetCoordsR1() + std::string(DOT) + std::string(KUKAZ);
 }
 
 std::string vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::GetReflectionTargetCoordsR1A()
 {
-  return GetRtkPlc() + std::string(DOT) + std::string(REFLTARGETCOORDS_R1) + std::string(DOT) + std::string(KUKAA);
+  return GetRtkPlcReflTargetCoordsR1() + std::string(DOT) + std::string(KUKAA);
 }
 
 std::string vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::GetReflectionTargetCoordsR1B()
 {
-  return GetRtkPlc() + std::string(DOT) + std::string(REFLTARGETCOORDS_R1) + std::string(DOT) + std::string(KUKAB);
+  return GetRtkPlcReflTargetCoordsR1() + std::string(DOT) + std::string(KUKAB);
 }
 
 std::string vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::GetReflectionTargetCoordsR1C()
 {
-  return GetRtkPlc() + std::string(DOT) + std::string(REFLTARGETCOORDS_R1) + std::string(DOT) + std::string(KUKAC);
+  return GetRtkPlcReflTargetCoordsR1() + std::string(DOT) + std::string(KUKAC);
 }
 
 std::string vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::GetReflectionTargetCoordsR2X()
 {
-  return GetRtkPlc() + std::string(DOT) + std::string(REFLTARGETCOORDS_R2) + std::string(DOT) + std::string(KUKAX);
+  return GetRtkPlcReflTargetCoordsR2() + std::string(DOT) + std::string(KUKAX);
 }
 
 std::string vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::GetReflectionTargetCoordsR2Y()
 {
-  return GetRtkPlc() + std::string(DOT) + std::string(REFLTARGETCOORDS_R2) + std::string(DOT) + std::string(KUKAY);
+  return GetRtkPlcReflTargetCoordsR2() + std::string(DOT) + std::string(KUKAY);
 }
 
 std::string vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::GetReflectionTargetCoordsR2Z()
 {
-  return GetRtkPlc() + std::string(DOT) + std::string(REFLTARGETCOORDS_R2) + std::string(DOT) + std::string(KUKAZ);
+  return GetRtkPlcReflTargetCoordsR2() + std::string(DOT) + std::string(KUKAZ);
 }
 
 std::string vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::GetReflectionTargetCoordsR2A()
 {
-  return GetRtkPlc() + std::string(DOT) + std::string(REFLTARGETCOORDS_R2) + std::string(DOT) + std::string(KUKAA);
+  return GetRtkPlcReflTargetCoordsR2() + std::string(DOT) + std::string(KUKAA);
 }
 
 std::string vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::GetReflectionTargetCoordsR2B()
 {
-  return GetRtkPlc() + std::string(DOT) + std::string(REFLTARGETCOORDS_R2) + std::string(DOT) + std::string(KUKAB);
+  return GetRtkPlcReflTargetCoordsR2() + std::string(DOT) + std::string(KUKAB);
 }
 
 std::string vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::GetReflectionTargetCoordsR2C()
 {
-  return GetRtkPlc() + std::string(DOT) + std::string(REFLTARGETCOORDS_R2) + std::string(DOT) + std::string(KUKAC);
+  return GetRtkPlcReflTargetCoordsR2() + std::string(DOT) + std::string(KUKAC);
 }
 
 std::string vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::GetCurrentCoordR1X()
