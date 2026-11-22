@@ -75,6 +75,7 @@ void vtkMRMLSiemensPlcOpcUaNode::WriteXML(ostream& of, int nIndent)
   vtkMRMLWriteXMLVectorMacro(autoManualApplyTabletopPosition, AutoManualApplyTabletopPosition, bool, 2);
   vtkMRMLWriteXMLVectorMacro(autoManualApplyNewCoords, AutoManualApplyNewCoords, bool, 2);
   vtkMRMLWriteXMLVectorMacro(currentAxisCoordsR1, CurrentAxisCoordsR1, int32_t, 6);
+  vtkMRMLWriteXMLVectorMacro(loadPositionAxisCoordsR1, LoadPositionAxisCoordsR1, int32_t, 6);
   vtkMRMLWriteXMLVectorMacro(currentAxisCoordsR2, CurrentAxisCoordsR2, int32_t, 6);
   vtkMRMLWriteXMLVectorMacro(currentCoordsR1, CurrentCoordsR1, int32_t, 6);
   vtkMRMLWriteXMLVectorMacro(currentCoordsR2, CurrentCoordsR2, int32_t, 6);
@@ -118,6 +119,7 @@ void vtkMRMLSiemensPlcOpcUaNode::ReadXMLAttributes(const char** atts)
   vtkMRMLReadXMLVectorMacro(currentAxisCoordsR1, CurrentAxisCoordsR1, int32_t, 6);
   vtkMRMLReadXMLVectorMacro(currentAxisCoordsR2, CurrentAxisCoordsR2, int32_t, 6);
   vtkMRMLReadXMLVectorMacro(currentCoordsR1, CurrentCoordsR1, int32_t, 6);
+  vtkMRMLReadXMLVectorMacro(loadPositionAxisCoordsR1, LoadPositionAxisCoordsR1, int32_t, 6);
   vtkMRMLReadXMLVectorMacro(currentCoordsR2, CurrentCoordsR2, int32_t, 6);
   vtkMRMLReadXMLVectorMacro(confirmedCoordsR1, ConfirmedCoordsR1, int32_t, 6);
   vtkMRMLReadXMLVectorMacro(confirmedCoordsR2, ConfirmedCoordsR2, int32_t, 6);
@@ -172,6 +174,7 @@ void vtkMRMLSiemensPlcOpcUaNode::Copy(vtkMRMLNode *anode)
   vtkMRMLCopyVectorMacro(CurrentAxisCoordsR1, int32_t, 6);
   vtkMRMLCopyVectorMacro(CurrentAxisCoordsR2, int32_t, 6);
   vtkMRMLCopyVectorMacro(CurrentCoordsR1, int32_t, 6);
+  vtkMRMLCopyVectorMacro(LoadPositionAxisCoordsR1, int32_t, 6);
   vtkMRMLCopyVectorMacro(CurrentCoordsR2, int32_t, 6);
   vtkMRMLCopyVectorMacro(ConfirmedCoordsR1, int32_t, 6);
   vtkMRMLCopyVectorMacro(ConfirmedCoordsR2, int32_t, 6);
@@ -222,6 +225,7 @@ void vtkMRMLSiemensPlcOpcUaNode::CopyContent(vtkMRMLNode *anode, bool deepCopy/*
   vtkMRMLCopyVectorMacro(CurrentAxisCoordsR1, int32_t, 6);
   vtkMRMLCopyVectorMacro(CurrentAxisCoordsR2, int32_t, 6);
   vtkMRMLCopyVectorMacro(CurrentCoordsR1, int32_t, 6);
+  vtkMRMLCopyVectorMacro(LoadPositionAxisCoordsR1, int32_t, 6);
   vtkMRMLCopyVectorMacro(CurrentCoordsR2, int32_t, 6);
   vtkMRMLCopyVectorMacro(ConfirmedCoordsR1, int32_t, 6);
   vtkMRMLCopyVectorMacro(ConfirmedCoordsR2, int32_t, 6);
@@ -261,6 +265,7 @@ void vtkMRMLSiemensPlcOpcUaNode::PrintSelf(ostream& os, vtkIndent indent)
   vtkMRMLPrintVectorMacro(CurrentAxisCoordsR1, int32_t, 6);
   vtkMRMLPrintVectorMacro(CurrentAxisCoordsR2, int32_t, 6);
   vtkMRMLPrintVectorMacro(CurrentCoordsR1, int32_t, 6);
+  vtkMRMLPrintVectorMacro(LoadPositionAxisCoordsR1, int32_t, 6);
   vtkMRMLPrintVectorMacro(CurrentCoordsR2, int32_t, 6);
   vtkMRMLPrintVectorMacro(ConfirmedCoordsR1, int32_t, 6);
   vtkMRMLPrintVectorMacro(ConfirmedCoordsR2, int32_t, 6);
@@ -434,4 +439,27 @@ void vtkMRMLSiemensPlcOpcUaNode::GetCoordsAndAngles(double coordsAndAngles[6])
   coordsAndAngles[3] = double(this->CoordsA) / 1000.;
   coordsAndAngles[4] = double(this->CoordsB) / 1000.;
   coordsAndAngles[5] = double(this->CoordsC) / 1000.;
+}
+
+//---------------------------------------------------------------------------
+void vtkMRMLSiemensPlcOpcUaNode::GetLoadPositionAxisCoordsR1(double kukaCoords[6])
+{
+  kukaCoords[0] = double(this->LoadPositionAxisCoordsR1[0]) / 1000.;
+  kukaCoords[1] = double(this->LoadPositionAxisCoordsR1[1]) / 1000.;
+  kukaCoords[2] = double(this->LoadPositionAxisCoordsR1[2]) / 1000.;
+  kukaCoords[3] = double(this->LoadPositionAxisCoordsR1[3]) / 1000.;
+  kukaCoords[4] = double(this->LoadPositionAxisCoordsR1[4]) / 1000.;
+  kukaCoords[5] = double(this->LoadPositionAxisCoordsR1[5]) / 1000.;
+}
+
+//---------------------------------------------------------------------------
+void vtkMRMLSiemensPlcOpcUaNode::SetLoadPositionAxisCoordsR1(double kukaCoords[6])
+{
+  this->LoadPositionAxisCoordsR1[0] = static_cast< int32_t >(kukaCoords[0] * 1000.);
+  this->LoadPositionAxisCoordsR1[1] = static_cast< int32_t >(kukaCoords[1] * 1000.);
+  this->LoadPositionAxisCoordsR1[2] = static_cast< int32_t >(kukaCoords[2] * 1000.);
+  this->LoadPositionAxisCoordsR1[3] = static_cast< int32_t >(kukaCoords[3] * 1000.);
+  this->LoadPositionAxisCoordsR1[4] = static_cast< int32_t >(kukaCoords[4] * 1000.);
+  this->LoadPositionAxisCoordsR1[5] = static_cast< int32_t >(kukaCoords[5] * 1000.);
+  this->InvokeCustomModifiedEvent(vtkMRMLSiemensPlcOpcUaNode::TableRobotLoadPositionAxisCoordsModified);
 }

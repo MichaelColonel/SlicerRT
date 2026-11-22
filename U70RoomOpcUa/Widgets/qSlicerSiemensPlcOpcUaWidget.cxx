@@ -7397,7 +7397,7 @@ qSlicerSiemensPlcOpcUaWidget::qSlicerSiemensPlcOpcUaWidget(QWidget* parentWidget
       }
     }
   );
-/**
+
   // Set coords from ASU buttons
   QObject::connect(d->PushButton_SetCoordX, SIGNAL(clicked()),
     this, SLOT(onSetCoordXClicked()));
@@ -7461,7 +7461,7 @@ qSlicerSiemensPlcOpcUaWidget::qSlicerSiemensPlcOpcUaWidget(QWidget* parentWidget
     this, SLOT(onAutoManualApplyNewCoordsPressed()));
   QObject::connect(d->PushButton_AMApplyNewCoords, SIGNAL(released()),
     this, SLOT(onAutoManualApplyNewCoordsReleased()));
-
+/**
   // Service R1 BreakTest button
   QObject::connect(d->PushButton_SR1BrakeTest, SIGNAL(pressed()),
     this, SLOT(onServiceR1BreakTestPressed()));
@@ -7544,7 +7544,7 @@ qSlicerSiemensPlcOpcUaWidget::qSlicerSiemensPlcOpcUaWidget(QWidget* parentWidget
     this, SLOT(onKukaAllowBeamPressed()));
   QObject::connect(d->PushButton_KCMAllowBeam, SIGNAL(released()),
     this, SLOT(onKukaAllowBeamReleased()));
-
+*/
   // Reset Errors button
   QObject::connect(d->PushButton_ResetErrors, SIGNAL(pressed()),
     this, SLOT(onResetErrorsPressed()));
@@ -7552,14 +7552,14 @@ qSlicerSiemensPlcOpcUaWidget::qSlicerSiemensPlcOpcUaWidget(QWidget* parentWidget
     this, SLOT(onResetErrorsReleased()));
 
   // MakeXRay button
-  QObject::connect(d->PushButton_MakeXRay, SIGNAL(pressed()),
-    this, SLOT(onMakeXrayPressed()));
-  QObject::connect(d->PushButton_MakeXRay, SIGNAL(released()),
-    this, SLOT(onMakeXrayReleased()));
+//  QObject::connect(d->PushButton_MakeXRay, SIGNAL(pressed()),
+//    this, SLOT(onMakeXrayPressed()));
+//  QObject::connect(d->PushButton_MakeXRay, SIGNAL(released()),
+//    this, SLOT(onMakeXrayReleased()));
 
   QObject::connect(d->ButtonGroup_TabletopPosition, SIGNAL(buttonClicked(QAbstractButton*)),
     this, SLOT(onTabletopPositionChanged(QAbstractButton*)));
-*/
+
   // Read nodes manually
   QObject::connect(d->PushButton_ReadStatusAndMessages, SIGNAL(clicked()),
     this, SLOT(onReadStatusAndMessagesClicked()));
@@ -7903,38 +7903,143 @@ void qSlicerSiemensPlcOpcUaWidget::onOpcUaModeChanged(vtkMRMLSiemensPlcOpcUaNode
   {
     qDebug() << Q_FUNC_INFO << ": Set new mode:" << int(mode);
   }
-  // Write Mode value
-///  QOpcUaNode* modeNode = d->FindNodeFromFullDisplayName(ASU_MODE_NODE_NAME);
-///  if (modeNode)
-///  {
-//    qDebug() << Q_FUNC_INFO << ": Set new mode:" << mode;
-///    modeNode->writeAttribute(QOpcUa::NodeAttribute::Value, QVariant(mode), QOpcUa::Types::Byte);
-///  }
 }
-/*
+
+//-----------------------------------------------------------------------------
+void qSlicerSiemensPlcOpcUaWidget::onServerInterfacesRead(QOpcUa::NodeAttributes attr)
+{
+  Q_D(qSlicerSiemensPlcOpcUaWidget);
+
+  if (!d->ParameterNode)
+  {
+    return;
+  }
+  QHash< QString, QString > hashNodes;
+  std::list< std::string > fullNamesList = vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::GetSiemensPlcFullNodeNamesList();
+
+  if (attr & QOpcUa::NodeAttribute::DisplayName)
+  { // Make sure the value attribute has been read
+    QString nodeDisplayName = d->ServerInterfacesNode->attribute(QOpcUa::NodeAttribute::DisplayName).value<QOpcUaLocalizedText>().text();
+    bool res = d->ParseServerParentNode(nodeDisplayName);
+    if (res)
+    {
+      for (auto& nodeData : d->NodeNameDataMap)
+      {
+        if (nodeData.getNode())
+        {
+          hashNodes.insert(nodeData.getNodeName(), nodeData.getNodeId());
+          auto iter = std::find(fullNamesList.begin(), fullNamesList.end(), nodeData.getNodeName().toStdString());
+          if (iter != fullNamesList.end())
+          {
+//            qDebug() << Q_FUNC_INFO << "Node ID:" << nodeData.getNodeId()
+//              << ", Name:" << nodeData.getNodeName()
+//              << ", Description:" << nodeData.getNodeDescription() << Qt::endl;
+          }
+        }
+      }
+    }
+  }
+  d->PushButton_ReadStatusAndMessages->setEnabled(true);
+
+  auto list = d->opcUaLogic->GetSiemensPlcOpcUaLogic()->ServerConnected(d->OpcUaClient, hashNodes);
+  QList< QOpcUaNode* > nodesList(list.begin(), list.end());
+
+  d->ProgressDialog->setLabelText(tr("Reading nodes initial values, Please wait!"));
+  d->ProgressDialog->setMaximum(nodesList.size());
+  d->ProgressDialog->setValue(0);
+
+  d->InitialValuesNodeLoader.reset(new qSlicerOpcUaInitialValueNodeLoader(nodesList, this));
+  QObject::connect(d->InitialValuesNodeLoader.data(), &qSlicerOpcUaInitialValueNodeLoader::progress,
+    this, [d](int done, int total)
+  {
+    d->ProgressDialog->setValue(done);
+    d->ProgressTimer->stop();
+  });
+  QObject::connect(d->InitialValuesNodeLoader.data(), &qSlicerOpcUaInitialValueNodeLoader::finished,
+    this, [this, d]()
+  {
+    if (d->ProgressTimer && d->ProgressDialog)
+    {
+      d->ProgressTimer->start();
+      d->ProgressDialog->close();
+    }
+    d->InitialValuesNodeLoader.reset(nullptr);
+    QMessageBox::information(this, tr("Siemens PLC OPC UA"), tr("Client is ready for data exchange with Siemens PLC!"));
+  });
+  d->ParameterNode->Modified();
+}
+
+//-----------------------------------------------------------------------------
+void qSlicerSiemensPlcOpcUaWidget::onReadStatusAndMessagesClicked()
+{
+  Q_D(qSlicerSiemensPlcOpcUaWidget);
+
+  std::list< std::string > fullNamesList = vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::GetSiemensPlcFullNodeNamesList();
+  QList< QOpcUaNode* > nodesList; 
+
+  for (auto& nodeData : d->NodeNameDataMap)
+  {
+    if (nodeData.getNode())
+    {
+      auto iter = std::find(fullNamesList.begin(), fullNamesList.end(), nodeData.getNodeName().toStdString());
+      if (iter != fullNamesList.end())
+      {
+        nodesList.push_back(nodeData.getNode());
+      }
+    }
+  }
+
+  d->ProgressDialog->setLabelText(tr("Reading nodes values, Please wait!"));
+  d->ProgressDialog->setMaximum(nodesList.size());
+  d->ProgressDialog->setValue(0);
+
+  d->InitialValuesNodeReader.reset(new qSlicerOpcUaInitialValueNodeReader(nodesList, this));
+  QObject::connect(d->InitialValuesNodeReader.data(), &qSlicerOpcUaInitialValueNodeReader::progress,
+    this, [d](int done, int)
+  {
+    d->ProgressDialog->setValue(done);
+    d->ProgressTimer->stop();
+  });
+  QObject::connect(d->InitialValuesNodeReader.data(), &qSlicerOpcUaInitialValueNodeReader::finished,
+    this, [this, d]()
+  {
+    d->ProgressTimer->start();
+    d->ProgressDialog->close();
+    QMessageBox::information(this, tr("Siemens PLC OPC UA"), tr("Client is ready for data exchange with Siemens PLC!"));
+  });
+
+  d->InitialValuesNodeReader->start();
+}
+
 //-----------------------------------------------------------------------------
 void qSlicerSiemensPlcOpcUaWidget::onAutoManualR1LoadToIsoPressed()
 {
   Q_D(qSlicerSiemensPlcOpcUaWidget);
-  // AutoManual R1 LoadToIso button pressed node
-  QOpcUaNode* amR1LoadToIsoPressedNode = d->FindNodeFromFullDisplayName(BUTTONS_AM_R1_LOADTOISO_PRESSED_NODE_NAME);
-  if (amR1LoadToIsoPressedNode)
+  // AutoManual R1 LoadToIso button pressed
+  bool res = d->opcUaLogic->GetSiemensPlcOpcUaLogic()->WriteAutoManualR1LoadToIsoPressed(true);
+  double pos[6] = {};
+  pos[0] = d->SliderWidget_R1A1->value();
+  pos[1] = d->SliderWidget_R1A2->value();
+  pos[2] = d->SliderWidget_R1A3->value();
+  pos[3] = d->SliderWidget_R1A4->value();
+  pos[4] = d->SliderWidget_R1A5->value();
+  pos[5] = d->SliderWidget_R1A6->value();
+  if (res)
   {
-//    qDebug() << Q_FUNC_INFO << ": R1 LoadToIso pressed";
-    amR1LoadToIsoPressedNode->writeAttribute(QOpcUa::NodeAttribute::Value, QVariant(true), QOpcUa::Types::Boolean);
+    qDebug() << Q_FUNC_INFO << ": AutoManual R1 LoadToIso button is pressed";
   }
+  d->ParameterNode->SetLoadPositionAxisCoordsR1(pos);
 }
 
 //-----------------------------------------------------------------------------
 void qSlicerSiemensPlcOpcUaWidget::onAutoManualR1LoadToIsoReleased()
 {
   Q_D(qSlicerSiemensPlcOpcUaWidget);
-  // AutoManual R1 LoadToIso button pressed node
-  QOpcUaNode* amR1LoadToIsoPressedNode = d->FindNodeFromFullDisplayName(BUTTONS_AM_R1_LOADTOISO_PRESSED_NODE_NAME);
-  if (amR1LoadToIsoPressedNode)
+  // AutoManual R1 LoadToIso button released
+  bool res = d->opcUaLogic->GetSiemensPlcOpcUaLogic()->WriteAutoManualR1LoadToIsoPressed(false);
+  if (res)
   {
-//    qDebug() << Q_FUNC_INFO << ": R1 LoadToIso released";
-    amR1LoadToIsoPressedNode->writeAttribute(QOpcUa::NodeAttribute::Value, QVariant(false), QOpcUa::Types::Boolean);
+    qDebug() << Q_FUNC_INFO << ": AutoManual R1 LoadToIso button is released";
   }
 }
 
@@ -7942,12 +8047,11 @@ void qSlicerSiemensPlcOpcUaWidget::onAutoManualR1LoadToIsoReleased()
 void qSlicerSiemensPlcOpcUaWidget::onAutoManualR1ToLoadPressed()
 {
   Q_D(qSlicerSiemensPlcOpcUaWidget);
-  // AutoManual R1 ToLoad button pressed node
-  QOpcUaNode* amR1ToLoadPressedNode = d->FindNodeFromFullDisplayName(BUTTONS_AM_R1_TOLOAD_PRESSED_NODE_NAME);
-  if (amR1ToLoadPressedNode)
+  // AutoManual R1 ToLoad button pressed
+  bool res = d->opcUaLogic->GetSiemensPlcOpcUaLogic()->WriteAutoManualR1ToLoadPressed(true);
+  if (res)
   {
-//    qDebug() << Q_FUNC_INFO << ": R1 ToLoad pressed";
-    amR1ToLoadPressedNode->writeAttribute(QOpcUa::NodeAttribute::Value, QVariant(true), QOpcUa::Types::Boolean);
+    qDebug() << Q_FUNC_INFO << ": AutoManual R1 ToLoad button is pressed";
   }
 }
 
@@ -7955,12 +8059,11 @@ void qSlicerSiemensPlcOpcUaWidget::onAutoManualR1ToLoadPressed()
 void qSlicerSiemensPlcOpcUaWidget::onAutoManualR1ToLoadReleased()
 {
   Q_D(qSlicerSiemensPlcOpcUaWidget);
-  // AutoManual R1 ToLoad button pressed node
-  QOpcUaNode* amR1ToLoadPressedNode = d->FindNodeFromFullDisplayName(BUTTONS_AM_R1_TOLOAD_PRESSED_NODE_NAME);
-  if (amR1ToLoadPressedNode)
+  // AutoManual R1 ToLoad button released
+  bool res = d->opcUaLogic->GetSiemensPlcOpcUaLogic()->WriteAutoManualR1ToLoadPressed(false);
+  if (res)
   {
-//    qDebug() << Q_FUNC_INFO << ": R1 ToLoad released";
-    amR1ToLoadPressedNode->writeAttribute(QOpcUa::NodeAttribute::Value, QVariant(false), QOpcUa::Types::Boolean);
+    qDebug() << Q_FUNC_INFO << ": AutoManual R1 ToLoad button is released";
   }
 }
 
@@ -7968,12 +8071,11 @@ void qSlicerSiemensPlcOpcUaWidget::onAutoManualR1ToLoadReleased()
 void qSlicerSiemensPlcOpcUaWidget::onAutoManualR1ToNewCoordsPressed()
 {
   Q_D(qSlicerSiemensPlcOpcUaWidget);
-  // AutomaticManual R1 NewCoords button pressed node
-  QOpcUaNode* amR1NewCoordsPressedNode = d->FindNodeFromFullDisplayName(BUTTONS_AM_R1_NEWCOORDS_PRESSED_NODE_NAME);
-  if (amR1NewCoordsPressedNode)
+  // AutoManual R1 ToNewCoords button pressed
+  bool res = d->opcUaLogic->GetSiemensPlcOpcUaLogic()->WriteAutoManualR1ToNewCoordsPressed(true);
+  if (res)
   {
-//    qDebug() << Q_FUNC_INFO << ": R1 NewCoord pressed";
-    amR1NewCoordsPressedNode->writeAttribute(QOpcUa::NodeAttribute::Value, QVariant(true), QOpcUa::Types::Boolean);
+    qDebug() << Q_FUNC_INFO << ": AutoManual R1 ToNewCoords button is pressed";
   }
 }
 
@@ -7981,12 +8083,11 @@ void qSlicerSiemensPlcOpcUaWidget::onAutoManualR1ToNewCoordsPressed()
 void qSlicerSiemensPlcOpcUaWidget::onAutoManualR1ToNewCoordsReleased()
 {
   Q_D(qSlicerSiemensPlcOpcUaWidget);
-  // AutomaticManual R1 NewCoords button pressed node
-  QOpcUaNode* amR1NewCoordsPressedNode = d->FindNodeFromFullDisplayName(BUTTONS_AM_R1_NEWCOORDS_PRESSED_NODE_NAME);
-  if (amR1NewCoordsPressedNode)
+  // AutoManual R1 ToNewCoords button released
+  bool res = d->opcUaLogic->GetSiemensPlcOpcUaLogic()->WriteAutoManualR1ToNewCoordsPressed(false);
+  if (res)
   {
-//    qDebug() << Q_FUNC_INFO << ": R1 NewCoord released";
-    amR1NewCoordsPressedNode->writeAttribute(QOpcUa::NodeAttribute::Value, QVariant(false), QOpcUa::Types::Boolean);
+    qDebug() << Q_FUNC_INFO << ": AutoManual R1 ToNewCoords button is released";
   }
 }
 
@@ -7994,12 +8095,11 @@ void qSlicerSiemensPlcOpcUaWidget::onAutoManualR1ToNewCoordsReleased()
 void qSlicerSiemensPlcOpcUaWidget::onAutoManualR2ToHomePressed()
 {
   Q_D(qSlicerSiemensPlcOpcUaWidget);
-  // AutomaticManual R2 ToHome button pressed node
-  QOpcUaNode* amR2ToHomePressedNode = d->FindNodeFromFullDisplayName(BUTTONS_AM_R2_TOHOME_PRESSED_NODE_NAME);
-  if (amR2ToHomePressedNode)
+  // AutoManual R2 ToHome button pressed
+  bool res = d->opcUaLogic->GetSiemensPlcOpcUaLogic()->WriteAutoManualR2ToHomePressed(true);
+  if (res)
   {
-//    qDebug() << Q_FUNC_INFO << ": R2 ToHome button pressed";
-    amR2ToHomePressedNode->writeAttribute(QOpcUa::NodeAttribute::Value, QVariant(true), QOpcUa::Types::Boolean);
+    qDebug() << Q_FUNC_INFO << ": AutoManual R2 ToHome button is pressed";
   }
 }
 
@@ -8007,12 +8107,11 @@ void qSlicerSiemensPlcOpcUaWidget::onAutoManualR2ToHomePressed()
 void qSlicerSiemensPlcOpcUaWidget::onAutoManualR2ToHomeReleased()
 {
   Q_D(qSlicerSiemensPlcOpcUaWidget);
-  // AutomaticManual R2 ToHome button pressed node
-  QOpcUaNode* amR2ToHomePressedNode = d->FindNodeFromFullDisplayName(BUTTONS_AM_R2_TOHOME_PRESSED_NODE_NAME);
-  if (amR2ToHomePressedNode)
+  // AutoManual R2 ToHome button released
+  bool res = d->opcUaLogic->GetSiemensPlcOpcUaLogic()->WriteAutoManualR2ToHomePressed(false);
+  if (res)
   {
-//    qDebug() << Q_FUNC_INFO << ": R2 ToHome button released";
-    amR2ToHomePressedNode->writeAttribute(QOpcUa::NodeAttribute::Value, QVariant(false), QOpcUa::Types::Boolean);
+    qDebug() << Q_FUNC_INFO << ": AutoManual R2 ToHome button is released";
   }
 }
 
@@ -8020,12 +8119,11 @@ void qSlicerSiemensPlcOpcUaWidget::onAutoManualR2ToHomeReleased()
 void qSlicerSiemensPlcOpcUaWidget::onAutoManualR2ToPlane1Pressed()
 {
   Q_D(qSlicerSiemensPlcOpcUaWidget);
-  // AutomaticManual R2 ToPlane1 button pressed node
-  QOpcUaNode* amR2ToPlane1PressedNode = d->FindNodeFromFullDisplayName(BUTTONS_AM_R2_TOPLANE1_PRESSED_NODE_NAME);
-  if (amR2ToPlane1PressedNode)
+  // AutoManual R2 ToPlane1 button pressed
+  bool res = d->opcUaLogic->GetSiemensPlcOpcUaLogic()->WriteAutoManualR2ToPlane1Pressed(true);
+  if (res)
   {
-//    qDebug() << Q_FUNC_INFO << ": R2 ToPlane1 button pressed";
-    amR2ToPlane1PressedNode->writeAttribute(QOpcUa::NodeAttribute::Value, QVariant(true), QOpcUa::Types::Boolean);
+    qDebug() << Q_FUNC_INFO << ": AutoManual R2 ToPlane1 button is pressed";
   }
 }
 
@@ -8033,12 +8131,11 @@ void qSlicerSiemensPlcOpcUaWidget::onAutoManualR2ToPlane1Pressed()
 void qSlicerSiemensPlcOpcUaWidget::onAutoManualR2ToPlane1Released()
 {
   Q_D(qSlicerSiemensPlcOpcUaWidget);
-  // AutomaticManual R2 ToPlane1 button pressed node
-  QOpcUaNode* amR2ToPlane1PressedNode = d->FindNodeFromFullDisplayName(BUTTONS_AM_R2_TOPLANE1_PRESSED_NODE_NAME);
-  if (amR2ToPlane1PressedNode)
+  // AutoManual R2 ToPlane1 button released
+  bool res = d->opcUaLogic->GetSiemensPlcOpcUaLogic()->WriteAutoManualR2ToPlane1Pressed(false);
+  if (res)
   {
-//    qDebug() << Q_FUNC_INFO << ": R2 ToPlane1 button released";
-    amR2ToPlane1PressedNode->writeAttribute(QOpcUa::NodeAttribute::Value, QVariant(false), QOpcUa::Types::Boolean);
+    qDebug() << Q_FUNC_INFO << ": AutoManual R2 ToPlane1 button is released";
   }
 }
 
@@ -8046,12 +8143,11 @@ void qSlicerSiemensPlcOpcUaWidget::onAutoManualR2ToPlane1Released()
 void qSlicerSiemensPlcOpcUaWidget::onAutoManualR2ToPlane2Pressed()
 {
   Q_D(qSlicerSiemensPlcOpcUaWidget);
-  // AutomaticManual R2 ToPlane2 button pressed node
-  QOpcUaNode* amR2ToPlane2PressedNode = d->FindNodeFromFullDisplayName(BUTTONS_AM_R2_TOPLANE2_PRESSED_NODE_NAME);
-  if (amR2ToPlane2PressedNode)
+  // AutoManual R2 ToPlane2 button pressed
+  bool res = d->opcUaLogic->GetSiemensPlcOpcUaLogic()->WriteAutoManualR2ToPlane2Pressed(true);
+  if (res)
   {
-//    qDebug() << Q_FUNC_INFO << ": R2 ToPlane2 button pressed";
-    amR2ToPlane2PressedNode->writeAttribute(QOpcUa::NodeAttribute::Value, QVariant(true), QOpcUa::Types::Boolean);
+    qDebug() << Q_FUNC_INFO << ": AutoManual R2 ToPlane2 button is pressed";
   }
 }
 
@@ -8059,12 +8155,11 @@ void qSlicerSiemensPlcOpcUaWidget::onAutoManualR2ToPlane2Pressed()
 void qSlicerSiemensPlcOpcUaWidget::onAutoManualR2ToPlane2Released()
 {
   Q_D(qSlicerSiemensPlcOpcUaWidget);
-  // AutomaticManual R2 ToPlane2 button pressed node
-  QOpcUaNode* amR2ToPlane2PressedNode = d->FindNodeFromFullDisplayName(BUTTONS_AM_R2_TOPLANE2_PRESSED_NODE_NAME);
-  if (amR2ToPlane2PressedNode)
+  // AutoManual R2 ToPlane2 button released
+  bool res = d->opcUaLogic->GetSiemensPlcOpcUaLogic()->WriteAutoManualR2ToPlane2Pressed(false);
+  if (res)
   {
-//    qDebug() << Q_FUNC_INFO << ": R2 ToPlane2 button released";
-    amR2ToPlane2PressedNode->writeAttribute(QOpcUa::NodeAttribute::Value, QVariant(false), QOpcUa::Types::Boolean);
+    qDebug() << Q_FUNC_INFO << ": AutoManual R2 ToPlane2 button is released";
   }
 }
 
@@ -8072,12 +8167,11 @@ void qSlicerSiemensPlcOpcUaWidget::onAutoManualR2ToPlane2Released()
 void qSlicerSiemensPlcOpcUaWidget::onAutoManualR1R2EmerEvacPressed()
 {
   Q_D(qSlicerSiemensPlcOpcUaWidget);
-  // AutomaticManual R1R2 Emergency Evacuation button pressed node
-  QOpcUaNode* amR1R2EmEvacPressedNode = d->FindNodeFromFullDisplayName(BUTTONS_AM_R1R2_EMEVAC_PRESSED_NODE_NAME);
-  if (amR1R2EmEvacPressedNode)
+  // AutoManual R1R2 EmergencyEvacuation button pressed
+  bool res = d->opcUaLogic->GetSiemensPlcOpcUaLogic()->WriteAutoManualEmergencyEvacuationPressed(true);
+  if (res)
   {
-//    qDebug() << Q_FUNC_INFO << ": R1R2 Emergency Evacuation button pressed";
-    amR1R2EmEvacPressedNode->writeAttribute(QOpcUa::NodeAttribute::Value, QVariant(true), QOpcUa::Types::Boolean);
+    qDebug() << Q_FUNC_INFO << ": AutoManual R1R2 EmergencyEvacuation button is pressed";
   }
 }
 
@@ -8085,12 +8179,11 @@ void qSlicerSiemensPlcOpcUaWidget::onAutoManualR1R2EmerEvacPressed()
 void qSlicerSiemensPlcOpcUaWidget::onAutoManualR1R2EmerEvacReleased()
 {
   Q_D(qSlicerSiemensPlcOpcUaWidget);
-  // AutomaticManual R1R2 Emergency Evacuation button pressed node
-  QOpcUaNode* amR1R2EmEvacPressedNode = d->FindNodeFromFullDisplayName(BUTTONS_AM_R1R2_EMEVAC_PRESSED_NODE_NAME);
-  if (amR1R2EmEvacPressedNode)
+  // AutoManual R1R2 EmergencyEvacuation button released
+  bool res = d->opcUaLogic->GetSiemensPlcOpcUaLogic()->WriteAutoManualEmergencyEvacuationPressed(false);
+  if (res)
   {
-//    qDebug() << Q_FUNC_INFO << ": R1R2 Emergency Evacuation button released";
-    amR1R2EmEvacPressedNode->writeAttribute(QOpcUa::NodeAttribute::Value, QVariant(false), QOpcUa::Types::Boolean);
+    qDebug() << Q_FUNC_INFO << ": AutoManual R1R2 EmergencyEvacuation button is released";
   }
 }
 
@@ -8098,12 +8191,11 @@ void qSlicerSiemensPlcOpcUaWidget::onAutoManualR1R2EmerEvacReleased()
 void qSlicerSiemensPlcOpcUaWidget::onAutoManualApplyTablePositionPressed()
 {
   Q_D(qSlicerSiemensPlcOpcUaWidget);
-  // AutomaticManual ApplyTableTopPosition button pressed node
-  QOpcUaNode* amApplyTableTopPosPressedNode = d->FindNodeFromFullDisplayName(BUTTONS_AM_APPLYTABLEPOSITION_PRESSED_NODE_NAME);
-  if (amApplyTableTopPosPressedNode)
+  // AutoManual ApplyTablePosition button pressed
+  bool res = d->opcUaLogic->GetSiemensPlcOpcUaLogic()->WriteAutoManualApplyTabletopOrientationPressed(true);
+  if (res)
   {
-//    qDebug() << Q_FUNC_INFO << ": ApplyTableTopPosition button pressed";
-    amApplyTableTopPosPressedNode->writeAttribute(QOpcUa::NodeAttribute::Value, QVariant(true), QOpcUa::Types::Boolean);
+    qDebug() << Q_FUNC_INFO << ": AutoManual ApplyTablePosition button is pressed";
   }
 }
 
@@ -8111,12 +8203,11 @@ void qSlicerSiemensPlcOpcUaWidget::onAutoManualApplyTablePositionPressed()
 void qSlicerSiemensPlcOpcUaWidget::onAutoManualApplyTablePositionReleased()
 {
   Q_D(qSlicerSiemensPlcOpcUaWidget);
-  // AutomaticManual ApplyTableTopPosition button pressed node
-  QOpcUaNode* amApplyTableTopPosPressedNode = d->FindNodeFromFullDisplayName(BUTTONS_AM_APPLYTABLEPOSITION_PRESSED_NODE_NAME);
-  if (amApplyTableTopPosPressedNode)
+  // AutoManual ApplyTablePosition button released
+  bool res = d->opcUaLogic->GetSiemensPlcOpcUaLogic()->WriteAutoManualApplyTabletopOrientationPressed(false);
+  if (res)
   {
-//    qDebug() << Q_FUNC_INFO << ": ApplyTableTopPosition button pressed";
-    amApplyTableTopPosPressedNode->writeAttribute(QOpcUa::NodeAttribute::Value, QVariant(false), QOpcUa::Types::Boolean);
+    qDebug() << Q_FUNC_INFO << ": AutoManual ApplyTablePosition button is released";
   }
 }
 
@@ -8124,12 +8215,11 @@ void qSlicerSiemensPlcOpcUaWidget::onAutoManualApplyTablePositionReleased()
 void qSlicerSiemensPlcOpcUaWidget::onAutoManualApplyNewCoordsPressed()
 {
   Q_D(qSlicerSiemensPlcOpcUaWidget);
-  // AutomaticManual ApplyNewCoords button pressed node
-  QOpcUaNode* amApplyNewCoordsPressedNode = d->FindNodeFromFullDisplayName(BUTTONS_AM_APPLYNEWCOORDS_PRESSED_NODE_NAME);
-  if (amApplyNewCoordsPressedNode)
+  // AutoManual R1 ToNewCoords button pressed
+  bool res = d->opcUaLogic->GetSiemensPlcOpcUaLogic()->WriteAutoManualR1ToNewCoordsPressed(true);
+  if (res)
   {
-//    qDebug() << Q_FUNC_INFO << ": ApplyNewCoords button pressed";
-    amApplyNewCoordsPressedNode->writeAttribute(QOpcUa::NodeAttribute::Value, QVariant(true), QOpcUa::Types::Boolean);
+    qDebug() << Q_FUNC_INFO << ": AutoManual R1 ToNewCoords button is pressed";
   }
 }
 
@@ -8137,15 +8227,14 @@ void qSlicerSiemensPlcOpcUaWidget::onAutoManualApplyNewCoordsPressed()
 void qSlicerSiemensPlcOpcUaWidget::onAutoManualApplyNewCoordsReleased()
 {
   Q_D(qSlicerSiemensPlcOpcUaWidget);
-  // AutomaticManual ApplyNewCoords button pressed node
-  QOpcUaNode* amApplyNewCoordsPressedNode = d->FindNodeFromFullDisplayName(BUTTONS_AM_APPLYNEWCOORDS_PRESSED_NODE_NAME);
-  if (amApplyNewCoordsPressedNode)
+  // AutoManual R1 ToNewCoords button released
+  bool res = d->opcUaLogic->GetSiemensPlcOpcUaLogic()->WriteAutoManualR1ToNewCoordsPressed(false);
+  if (res)
   {
-//    qDebug() << Q_FUNC_INFO << ": ApplyNewCoords button pressed";
-    amApplyNewCoordsPressedNode->writeAttribute(QOpcUa::NodeAttribute::Value, QVariant(false), QOpcUa::Types::Boolean);
+    qDebug() << Q_FUNC_INFO << ": AutoManual R1 ToNewCoords button is released";
   }
 }
-
+/*
 //-----------------------------------------------------------------------------
 void qSlicerSiemensPlcOpcUaWidget::onServiceR1BreakTestPressed()
 {
@@ -8560,17 +8649,16 @@ void qSlicerSiemensPlcOpcUaWidget::onKukaAllowBeamReleased()
     kcmAllowBeamPressedNode->writeAttribute(QOpcUa::NodeAttribute::Value, QVariant(false), QOpcUa::Types::Boolean);
   }
 }
-
+*/
 //-----------------------------------------------------------------------------
 void qSlicerSiemensPlcOpcUaWidget::onResetErrorsPressed()
 {
   Q_D(qSlicerSiemensPlcOpcUaWidget);
-  // Reset errors button pressed node
-  QOpcUaNode* resetErrorsPressedNode = d->FindNodeFromFullDisplayName(BUTTONS_RESETERRORS_PRESSED_NODE_NAME);
-  if (resetErrorsPressedNode)
+  // ResetErrors button pressed
+  bool res = d->opcUaLogic->GetSiemensPlcOpcUaLogic()->WriteResetErrorsPressed(true);
+  if (res)
   {
-//    qDebug() << Q_FUNC_INFO << ": ResetErrors pressed";
-    resetErrorsPressedNode->writeAttribute(QOpcUa::NodeAttribute::Value, QVariant(true), QOpcUa::Types::Boolean);
+    qDebug() << Q_FUNC_INFO << ": ResetErrors button is pressed";
   }
 }
 
@@ -8578,15 +8666,14 @@ void qSlicerSiemensPlcOpcUaWidget::onResetErrorsPressed()
 void qSlicerSiemensPlcOpcUaWidget::onResetErrorsReleased()
 {
   Q_D(qSlicerSiemensPlcOpcUaWidget);
-  // AutoManual R1 ToLoad button pressed node
-  QOpcUaNode* resetErrorsPressedNode = d->FindNodeFromFullDisplayName(BUTTONS_RESETERRORS_PRESSED_NODE_NAME);
-  if (resetErrorsPressedNode)
+  // ResetErrors button released
+  bool res = d->opcUaLogic->GetSiemensPlcOpcUaLogic()->WriteResetErrorsPressed(false);
+  if (res)
   {
-//    qDebug() << Q_FUNC_INFO << ": ResetErrors released";
-    resetErrorsPressedNode->writeAttribute(QOpcUa::NodeAttribute::Value, QVariant(false), QOpcUa::Types::Boolean);
+    qDebug() << Q_FUNC_INFO << ": ResetErrors button is released";
   }
 }
-
+/*
 //-----------------------------------------------------------------------------
 void qSlicerSiemensPlcOpcUaWidget::onMakeXrayPressed()
 {
@@ -8613,153 +8700,17 @@ void qSlicerSiemensPlcOpcUaWidget::onMakeXrayReleased()
   }
 }
 */
-//-----------------------------------------------------------------------------
-void qSlicerSiemensPlcOpcUaWidget::onServerInterfacesRead(QOpcUa::NodeAttributes attr)
-{
-  Q_D(qSlicerSiemensPlcOpcUaWidget);
 
-  if (!d->ParameterNode)
-  {
-    return;
-  }
-  QHash< QString, QString > hashNodes;
-  std::list< std::string > fullNamesList = vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::GetSiemensPlcFullNodeNamesList();
-
-  if (attr & QOpcUa::NodeAttribute::DisplayName)
-  { // Make sure the value attribute has been read
-    QString nodeDisplayName = d->ServerInterfacesNode->attribute(QOpcUa::NodeAttribute::DisplayName).value<QOpcUaLocalizedText>().text();
-    bool res = d->ParseServerParentNode(nodeDisplayName);
-    if (res)
-    {
-      for (auto& nodeData : d->NodeNameDataMap)
-      {
-        if (nodeData.getNode())
-        {
-          hashNodes.insert(nodeData.getNodeName(), nodeData.getNodeId());
-          auto iter = std::find(fullNamesList.begin(), fullNamesList.end(), nodeData.getNodeName().toStdString());
-          if (iter != fullNamesList.end())
-          {
-//            qDebug() << Q_FUNC_INFO << "Node ID:" << nodeData.getNodeId()
-//              << ", Name:" << nodeData.getNodeName()
-//              << ", Description:" << nodeData.getNodeDescription() << Qt::endl;
-          }
-        }
-      }
-    }
-  }
-  d->PushButton_ReadStatusAndMessages->setEnabled(true);
-
-  auto list = d->opcUaLogic->GetSiemensPlcOpcUaLogic()->ServerConnected(d->OpcUaClient, hashNodes);
-  QList< QOpcUaNode* > nodesList(list.begin(), list.end());
-
-  d->ProgressDialog->setLabelText(tr("Reading nodes initial value, Please wait!"));
-  d->ProgressDialog->setMaximum(nodesList.size());
-  d->ProgressDialog->setValue(0);
-  d->ProgressDialog->show();
-  d->ProgressDialog->raise();
-
-  d->InitialValuesNodeLoader.reset(new qSlicerOpcUaInitialValueNodeLoader(nodesList, this));
-  QObject::connect(d->InitialValuesNodeLoader.data(), &qSlicerOpcUaInitialValueNodeLoader::progress,
-    this, [d](int done, int total)
-  {
-//    qDebug() << Q_FUNC_INFO << ": Reading initial values in progress: " << done << " of " << total;
-    d->ProgressDialog->setValue(done);
-    d->ProgressTimer->stop();
-  });
-  QObject::connect(d->InitialValuesNodeLoader.data(), &qSlicerOpcUaInitialValueNodeLoader::finished,
-    this, [d]()
-  {
-    if (d->ProgressTimer && d->ProgressDialog)
-    {
-//      qDebug() << Q_FUNC_INFO << ": Reading initial values is finished";
-      d->ProgressTimer->start();
-      d->ProgressDialog->close();
-    }
-    d->InitialValuesNodeLoader.reset(nullptr);
-  });
-  d->ParameterNode->Modified();
-}
-
-//-----------------------------------------------------------------------------
-void qSlicerSiemensPlcOpcUaWidget::onReadStatusAndMessagesClicked()
-{
-  Q_D(qSlicerSiemensPlcOpcUaWidget);
-
-  std::list< std::string > fullNamesList = vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::GetSiemensPlcFullNodeNamesList();
-  QList< QOpcUaNode* > nodesList; 
-
-  for (auto& nodeData : d->NodeNameDataMap)
-  {
-    if (nodeData.getNode())
-    {
-      auto iter = std::find(fullNamesList.begin(), fullNamesList.end(), nodeData.getNodeName().toStdString());
-      if (iter != fullNamesList.end())
-      {
-        nodesList.push_back(nodeData.getNode());
-      }
-    }
-  }
-
-  d->ProgressDialog->setLabelText(tr("Reading nodes initial value, Please wait!"));
-  d->ProgressDialog->setMaximum(nodesList.size());
-  d->ProgressDialog->setValue(0);
-
-  d->InitialValuesNodeReader.reset(new qSlicerOpcUaInitialValueNodeReader(nodesList, this));
-  QObject::connect(d->InitialValuesNodeReader.data(), &qSlicerOpcUaInitialValueNodeReader::progress,
-    this, [d](int done, int)
-  {
-//    Q_UNUSED(total);
-//    qDebug() << Q_FUNC_INFO << ": Reading value in progress: " << done << " of " << total;
-    d->ProgressDialog->setValue(done);
-    d->ProgressTimer->stop();
-  });
-  QObject::connect(d->InitialValuesNodeReader.data(), &qSlicerOpcUaInitialValueNodeReader::finished,
-    this, [this, d]()
-  {
-//      qDebug() << Q_FUNC_INFO << ": Reading is finished";
-    d->ProgressTimer->start();
-    d->ProgressDialog->close();
-    QMessageBox::information(this, tr("Siemens PLC OPC UA"), tr("Client is ready for data exchange with Siemens PLC!"));
-  });
-
-  d->InitialValuesNodeReader->start();
-
-/**
-  std::list< std::string > nodeFullNameList = vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::GetSiemensPlcFullNodeNamesList();
-  if (d->opcUaLogic && d->opcUaLogic->GetSiemensPlcOpcUaLogic())
-  {
-    bool res = d->opcUaLogic->GetSiemensPlcOpcUaLogic()->ReadNodesValues(nodeFullNameList);
-    if (res)
-    {
-      qDebug() << Q_FUNC_INFO << ": Read node attributes";
-    }
-  }
-*/
-/*
-  for (const QString& nodeName : d->ReadValueFullNodeNames)
-  {
-    QOpcUaNode* readValueNode = d->FindNodeFromFullDisplayName(nodeName);
-    if (readValueNode)
-    {
-      readValueNode->readAttributes(QOpcUa::NodeAttribute::Value);
-    }
-  }
-  d->ParameterNode->Modified();
-*/
-}
-/*
 //-----------------------------------------------------------------------------
 void qSlicerSiemensPlcOpcUaWidget::onSetCoordXClicked()
 {
   Q_D(qSlicerSiemensPlcOpcUaWidget);
   // Coord from ASU X node
-  QOpcUaNode* coordXNode = d->FindNodeFromFullDisplayName(ASU_COORDS_X_NODE_NAME);
-  double coord = d->DoubleSpinBox_CoordX->value();
-  int32_t x = static_cast< int32_t >(coord * 1000.);
-  if (coordXNode)
+  int32_t x = static_cast< int32_t >(d->DoubleSpinBox_CoordX->value() * 1000.);
+  bool res = d->opcUaLogic->GetSiemensPlcOpcUaLogic()->WriteNewCoordX(x);
+  if (res)
   {
-//    qDebug() << Q_FUNC_INFO << ": SetCoords X:" << x;
-    coordXNode->writeAttribute(QOpcUa::NodeAttribute::Value, QVariant(x), QOpcUa::Types::Int32);
+    qDebug() << Q_FUNC_INFO << ": SetCoordX button is pressed: " << x;
   }
 }
 
@@ -8768,13 +8719,11 @@ void qSlicerSiemensPlcOpcUaWidget::onSetCoordYClicked()
 {
   Q_D(qSlicerSiemensPlcOpcUaWidget);
   // Coord from ASU Y node
-  QOpcUaNode* coordYNode = d->FindNodeFromFullDisplayName(ASU_COORDS_Y_NODE_NAME);
-  double coord = d->DoubleSpinBox_CoordY->value();
-  int32_t y = static_cast< int32_t >(coord * 1000.);
-  if (coordYNode)
+  int32_t y = static_cast< int32_t >(d->DoubleSpinBox_CoordY->value() * 1000.);
+  bool res = d->opcUaLogic->GetSiemensPlcOpcUaLogic()->WriteNewCoordY(y);
+  if (res)
   {
-//    qDebug() << Q_FUNC_INFO << ": SetCoords Y:" << y;
-    coordYNode->writeAttribute(QOpcUa::NodeAttribute::Value, QVariant(y), QOpcUa::Types::Int32);
+    qDebug() << Q_FUNC_INFO << ": SetCoordY button is pressed: " << y;
   }
 }
 
@@ -8783,13 +8732,11 @@ void qSlicerSiemensPlcOpcUaWidget::onSetCoordZClicked()
 {
   Q_D(qSlicerSiemensPlcOpcUaWidget);
   // Coord from ASU Z node
-  QOpcUaNode* coordZNode = d->FindNodeFromFullDisplayName(ASU_COORDS_Z_NODE_NAME);
-  double coord = d->DoubleSpinBox_CoordZ->value();
-  int32_t z = static_cast< int32_t >(coord * 1000.);
-  if (coordZNode)
+  int32_t z = static_cast< int32_t >(d->DoubleSpinBox_CoordZ->value() * 1000.);
+  bool res = d->opcUaLogic->GetSiemensPlcOpcUaLogic()->WriteNewCoordZ(z);
+  if (res)
   {
-//    qDebug() << Q_FUNC_INFO << ": SetCoords Z:" << z;
-    coordZNode->writeAttribute(QOpcUa::NodeAttribute::Value, QVariant(z), QOpcUa::Types::Int32);
+    qDebug() << Q_FUNC_INFO << ": SetCoordZ button is pressed: " << z;
   }
 }
 
@@ -8798,13 +8745,11 @@ void qSlicerSiemensPlcOpcUaWidget::onSetAngleAClicked()
 {
   Q_D(qSlicerSiemensPlcOpcUaWidget);
   // Coord from ASU A node
-  QOpcUaNode* angleANode = d->FindNodeFromFullDisplayName(ASU_COORDS_A_NODE_NAME);
-  double angle = d->DoubleSpinBox_AngleA->value();
-  int32_t a = static_cast< int32_t >(angle * 1000.);
-  if (angleANode)
+  int32_t a = static_cast< int32_t >(d->DoubleSpinBox_AngleA->value() * 1000.);
+  bool res = d->opcUaLogic->GetSiemensPlcOpcUaLogic()->WriteNewCoordAngleA(a);
+  if (res)
   {
-//    qDebug() << Q_FUNC_INFO << ": SetCoords A:" << a;
-    angleANode->writeAttribute(QOpcUa::NodeAttribute::Value, QVariant(a), QOpcUa::Types::Int32);
+    qDebug() << Q_FUNC_INFO << ": SetAngleA button is pressed: " << a;
   }
 }
 
@@ -8813,13 +8758,11 @@ void qSlicerSiemensPlcOpcUaWidget::onSetAngleBClicked()
 {
   Q_D(qSlicerSiemensPlcOpcUaWidget);
   // Coord from ASU B node
-  QOpcUaNode* angleBNode = d->FindNodeFromFullDisplayName(ASU_COORDS_B_NODE_NAME);
-  double angle = d->DoubleSpinBox_AngleB->value();
-  int32_t b = static_cast< int32_t >(angle * 1000.);
-  if (angleBNode)
+  int32_t b = static_cast< int32_t >(d->DoubleSpinBox_AngleB->value() * 1000.);
+  bool res = d->opcUaLogic->GetSiemensPlcOpcUaLogic()->WriteNewCoordAngleB(b);
+  if (res)
   {
-//    qDebug() << Q_FUNC_INFO << ": SetCoords B:" << b;
-    angleBNode->writeAttribute(QOpcUa::NodeAttribute::Value, QVariant(b), QOpcUa::Types::Int32);
+    qDebug() << Q_FUNC_INFO << ": SetAngleB button is pressed: " << b;
   }
 }
 
@@ -8828,13 +8771,11 @@ void qSlicerSiemensPlcOpcUaWidget::onSetAngleCClicked()
 {
   Q_D(qSlicerSiemensPlcOpcUaWidget);
   // Coord from ASU C node
-  QOpcUaNode* angleCNode = d->FindNodeFromFullDisplayName(ASU_COORDS_C_NODE_NAME);
-  double angle = d->DoubleSpinBox_AngleC->value();
-  int32_t c = static_cast< int32_t >(angle * 1000.);
-  if (angleCNode)
+  int32_t c = static_cast< int32_t >(d->DoubleSpinBox_AngleC->value() * 1000.);
+  bool res = d->opcUaLogic->GetSiemensPlcOpcUaLogic()->WriteNewCoordAngleC(c);
+  if (res)
   {
-//    qDebug() << Q_FUNC_INFO << ": SetCoords C:" << c;
-    angleCNode->writeAttribute(QOpcUa::NodeAttribute::Value, QVariant(c), QOpcUa::Types::Int32);
+    qDebug() << Q_FUNC_INFO << ": SetAngleC button is pressed: " << c;
   }
 }
 
@@ -8853,35 +8794,32 @@ void qSlicerSiemensPlcOpcUaWidget::onSetCoordsAndAnglesClicked()
 void qSlicerSiemensPlcOpcUaWidget::onSetTabletopPositionClicked()
 {
   Q_D(qSlicerSiemensPlcOpcUaWidget);
-  // Table position node
-  QOpcUaNode* tabletopPositionNode = d->FindNodeFromFullDisplayName(ASU_TABLE_POSITION_NODE_NAME);
   QRadioButton* rbutton = qobject_cast< QRadioButton* >(d->ButtonGroup_TabletopPosition->checkedButton());
-  uint8_t pos = 0;
-  if (rbutton == d->RadioButton_PositionNotDefined)
+  vtkMRMLSiemensPlcOpcUaNode::TabletopOrientation orient = vtkMRMLSiemensPlcOpcUaNode::UNKNOWN_ORIENTATION;
+  if (rbutton == d->RadioButton_Position1)
   {
-    pos = 0;
-  }
-  else if (rbutton == d->RadioButton_Position1)
-  {
-    pos = 1;
+    orient = vtkMRMLSiemensPlcOpcUaNode::LEFT_RIGHT_ORIENTATION;
   }
   else if (rbutton == d->RadioButton_Position2)
   {
-    pos = 2;
+    orient = vtkMRMLSiemensPlcOpcUaNode::SUPERIOR_INFERIOR_ORIENTATION;
   }
   else if (rbutton == d->RadioButton_Position3)
   {
-    pos = 3;
+    orient = vtkMRMLSiemensPlcOpcUaNode::RIGHT_LEFT_ORIENTATION;
+  }
+  else if (rbutton == d->RadioButton_PositionNotDefined)
+  {
+    orient = vtkMRMLSiemensPlcOpcUaNode::UNKNOWN_ORIENTATION;
   }
   else
   {
-    pos = 0;
+    orient = vtkMRMLSiemensPlcOpcUaNode::UNKNOWN_ORIENTATION;
   }
-
-  if (tabletopPositionNode)
+  bool res = d->opcUaLogic->GetSiemensPlcOpcUaLogic()->WriteTabletopOrientation(orient);
+  if (res)
   {
-    qDebug() << Q_FUNC_INFO << ": Tabletop position:" << pos;
-    tabletopPositionNode->writeAttribute(QOpcUa::NodeAttribute::Value, QVariant(pos), QOpcUa::Types::Byte);
+    qDebug() << Q_FUNC_INFO << ": Set new Tabletop Orientation:" << int(orient);
   }
 }
 
@@ -8911,7 +8849,7 @@ void qSlicerSiemensPlcOpcUaWidget::onTabletopPositionChanged(QAbstractButton* aB
     qDebug() << Q_FUNC_INFO << "wrong";
   }
 }
-*/
+
 
 //-----------------------------------------------------------------------------
 void qSlicerSiemensPlcOpcUaWidget::setOpcUaLogic(vtkSlicerU70RoomOpcUaLogic* logic)

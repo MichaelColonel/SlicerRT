@@ -407,21 +407,23 @@ void vtkSlicerU70RoomScadaOpcUaLogic::OnMRMLSceneNodeRemoved(vtkMRMLNode* vtkNot
 }
 
 //---------------------------------------------------------------------------
-void vtkSlicerU70RoomScadaOpcUaLogic::ServerConnected(const QSharedPointer< QOpcUaClient >& sharedClient, const QHash< QString, QString >& hashNodesFullNamesIds)
+std::list< QOpcUaNode* > vtkSlicerU70RoomScadaOpcUaLogic::ServerConnected(const QSharedPointer< QOpcUaClient >& sharedClient, const QHash< QString, QString >& hashNodesFullNamesIds)
 {
+  std::list< QOpcUaNode* > connectedNodesList;
+
   this->UnregisterAllOpcUaNodes();
 
   this->Internal->Client = sharedClient;
 
   if (!sharedClient)
   {
-    return;
+    return connectedNodesList;
   }
 
   vtkMRMLScene* scene = this->GetMRMLScene();
   if (!scene)
   {
-    return;
+    return connectedNodesList;
   }
 
   vtkMRMLScadaOpcUaNode* scadaOpcUaNode = nullptr;
@@ -437,8 +439,7 @@ void vtkSlicerU70RoomScadaOpcUaLogic::ServerConnected(const QSharedPointer< QOpc
   {
     i.next();
     QString nodeFullName = i.key();
-//    vtkWarningMacro("ServerConnected: key Full Name: " << nodeFullName.toStdString() << ", node value id: " << i.value().toStdString());
-    
+
     vtkInternal::Entry scadaOpcUaNodeEntry;
     scadaOpcUaNodeEntry.Node = sharedClient->node(i.value());
     if (!scadaOpcUaNodeEntry.Node)
@@ -462,7 +463,9 @@ void vtkSlicerU70RoomScadaOpcUaLogic::ServerConnected(const QSharedPointer< QOpc
 
     QOpcUaNode* node = scadaOpcUaNodeEntry.Node.data();
 
-    node->enableMonitoring(QOpcUa::NodeAttribute::Value, QOpcUaMonitoringParameters(1000));
+    connectedNodesList.push_back(node);
+
+    node->enableMonitoring(QOpcUa::NodeAttribute::Value, QOpcUaMonitoringParameters(100));
 
     scadaOpcUaNodeEntry.ConnChanged = QObject::connect(node,
       &QOpcUaNode::dataChangeOccurred, [this, nodeFullName, scadaOpcUaNode](QOpcUa::NodeAttribute attr, QVariant value)
@@ -508,6 +511,7 @@ void vtkSlicerU70RoomScadaOpcUaLogic::ServerConnected(const QSharedPointer< QOpc
     });
     this->Internal->Nodes.insert(nodeFullName, scadaOpcUaNodeEntry);
   }
+  return connectedNodesList;
 }
 
 //---------------------------------------------------------------------------

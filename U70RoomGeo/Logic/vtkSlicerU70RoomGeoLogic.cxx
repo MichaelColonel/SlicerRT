@@ -523,8 +523,6 @@ void vtkSlicerU70RoomGeoLogic::ProcessMRMLNodesEvents(vtkObject* caller, unsigne
             MRMLNodeModifyBlocker blocker(chan26GeoNode);
             chan26GeoNode->SetTableRobotAngles(robotAngles);
           }
-//          this->Channel26RoomRobotsLogic->UpdateTransformsHierarchy(chan26GeoNode, CoordSys::TableTop);
-//          chan26GeoNode->Modified();
         }
         else if (event == vtkMRMLSiemensPlcOpcUaNode::CarmRobotAxisCoordsModified)
         {
@@ -533,9 +531,32 @@ void vtkSlicerU70RoomGeoLogic::ProcessMRMLNodesEvents(vtkObject* caller, unsigne
             MRMLNodeModifyBlocker blocker(chan26GeoNode);
             chan26GeoNode->SetCarmRobotAngles(robotAngles);
           }
-//          this->Channel26RoomRobotsLogic->UpdateTransformsHierarchy(chan26GeoNode, CoordSys::TableTop);
-//          chan26GeoNode->Modified();
         }
+
+        if (event == vtkMRMLSiemensPlcOpcUaNode::TableRobotLoadPositionAxisCoordsModified)
+        {
+          double robotAngles[6];
+          opcUaNode->GetLoadPositionAxisCoordsR1(robotAngles);
+          {
+            MRMLNodeModifyBlocker blocker(chan26GeoNode);
+            chan26GeoNode->SetTableRobotAngles(robotAngles);
+          }
+          double pos[3] = {};
+          double res[3];
+          this->Channel26RoomRobotsLogic->UpdateTransformsHierarchy(chan26GeoNode, CoordSys::TableTop);
+          if (this->Channel26RoomRobotsLogic->GetTransformForPointBetweenFrames(CoordSys::TableTop,
+            CoordSys::CarmRobotBaseFixed, pos, res))
+          {
+            vtkErrorMacro("ProcessMRMLNodesEvents: TableTop->CarmRobotBaseFixed = [0., 0., 0.] " << res[0] << ' ' << res[1] << ' ' << res[2]);
+          }
+          opcUaNode->GetCurrentAxisCoordsR2(robotAngles);
+          {
+            MRMLNodeModifyBlocker blocker(chan26GeoNode);
+            chan26GeoNode->SetTableRobotAngles(robotAngles);
+          }
+        }
+        this->Channel26RoomRobotsLogic->UpdateTransformsHierarchy(chan26GeoNode, CoordSys::TableTop);
+        chan26GeoNode->Modified();
       }
       roomGeoNode->Modified();
     }
@@ -545,9 +566,9 @@ void vtkSlicerU70RoomGeoLogic::ProcessMRMLNodesEvents(vtkObject* caller, unsigne
     vtkMRMLChannel26GeometryNode* channel26Geometry = vtkMRMLChannel26GeometryNode::SafeDownCast(caller);
     if (event == vtkCommand::ModifiedEvent)
     {
-/*
-      this->Channel26RoomRobotsLogic->UpdateFrameToRasHierarchy(channel26Geometry, CoordSys::TableTop);
 
+      this->Channel26RoomRobotsLogic->UpdateFrameToRasHierarchy(channel26Geometry, CoordSys::TableTop);
+/*
       double pos[3] = {};
       double res[3];
       if (this->Channel26RoomRobotsLogic->GetTransformForPointBetweenFrames(CoordSys::TableRobotFlange,

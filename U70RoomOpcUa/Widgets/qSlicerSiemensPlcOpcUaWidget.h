@@ -74,7 +74,6 @@ public slots:
   // Siemens PLC OPC UA slots (values, buttons, etc)
 
   void onOpcUaModeChanged(vtkMRMLSiemensPlcOpcUaNode::ModeType mode);
-/*
   void onTabletopPositionChanged(QAbstractButton*);
 
   // AutomaticManual R1 LoadToIso button
@@ -104,7 +103,7 @@ public slots:
   // AutomaticManual ApplyNewCoords button
   void onAutoManualApplyNewCoordsPressed();
   void onAutoManualApplyNewCoordsReleased();
-
+/*
   // Service R1 BreakTest button
   void onServiceR1BreakTestPressed();
   void onServiceR1BreakTestReleased();
@@ -154,13 +153,13 @@ public slots:
   // KUKA Controllers Movement
   void onKukaAllowBeamPressed();
   void onKukaAllowBeamReleased();
-
+*/
   // Reset errors button
   void onResetErrorsPressed();
   void onResetErrorsReleased();
   // MakeXray button
-  void onMakeXrayPressed();
-  void onMakeXrayReleased();
+//  void onMakeXrayPressed();
+//  void onMakeXrayReleased();
 
   void onSetCoordXClicked();
   void onSetCoordYClicked();
@@ -170,7 +169,7 @@ public slots:
   void onSetAngleCClicked();
   void onSetCoordsAndAnglesClicked();
   void onSetTabletopPositionClicked();
-*/
+
   void onServerInterfacesRead(QOpcUa::NodeAttributes attr);
 
   void onReadStatusAndMessagesClicked();

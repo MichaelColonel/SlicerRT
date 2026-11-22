@@ -45,6 +45,7 @@
 #include "ScadaOpcUaModel.h"
 #include "ScadaOpcUaTreeItem.h"
 #include "qSlicerOpcUaInitialValueNodeReader.h"
+#include "qSlicerOpcUaInitialValueNodeLoader.h"
 
 #include <vtkMRMLScadaOpcUaNode.h>
 
@@ -121,6 +122,8 @@ public:
   QScopedPointer< QTimer > ProgressTimer;
   QScopedPointer< QTimer > ScadaExpiredTimer;
   QScopedPointer< qSlicerOpcUaInitialValueNodeReader > InitialValuesNodeReader;
+  QScopedPointer< qSlicerOpcUaInitialValueNodeLoader > InitialValuesNodeLoader;
+
   bool AutoConnectServerFlag{ false };
 };
 
@@ -445,7 +448,7 @@ void qSlicerScadaOpcUaWidget::onPositionModuleNodesRead(QOpcUa::NodeAttributes a
   }
   QHash< QString, QString > hashNodes;
   std::list< std::string > fullNamesList = vtkSlicerU70RoomScadaOpcUaNodesNames::GetScadaFullNodeNamesList();
-  QList< QOpcUaNode* > nodesList; 
+
   if (attr & QOpcUa::NodeAttribute::DisplayName)
   { // Make sure the value attribute has been read
     QString nodeDisplayName = d->ServerParentNode->attribute(QOpcUa::NodeAttribute::DisplayName).value<QOpcUaLocalizedText>().text();
@@ -456,14 +459,13 @@ void qSlicerScadaOpcUaWidget::onPositionModuleNodesRead(QOpcUa::NodeAttributes a
       {
         if (nodeData.getNode())
         {
- //         qDebug() << Q_FUNC_INFO << "Node ID:" << nodeData.getNodeId()
- //             << ", Name:" << nodeData.getNodeName()
- //             << ", Description:" << nodeData.getNodeDescription() << Qt::endl;
           hashNodes.insert(nodeData.getNodeName(), nodeData.getNodeId());
           auto iter = std::find(fullNamesList.begin(), fullNamesList.end(), nodeData.getNodeName().toStdString());
           if (iter != fullNamesList.end())
           {
-            nodesList.push_back(nodeData.getNode());
+            qDebug() << Q_FUNC_INFO << "Node ID:" << nodeData.getNodeId()
+              << ", Name:" << nodeData.getNodeName()
+              << ", Description:" << nodeData.getNodeDescription() << Qt::endl;
           }
         }
       }
@@ -471,7 +473,8 @@ void qSlicerScadaOpcUaWidget::onPositionModuleNodesRead(QOpcUa::NodeAttributes a
   }
 
   d->PushButton_ReadNodesValues->setEnabled(true);
-  d->opcUaLogic->GetScadaOpcUaLogic()->ServerConnected(d->OpcUaClient, hashNodes);
+  auto list = d->opcUaLogic->GetScadaOpcUaLogic()->ServerConnected(d->OpcUaClient, hashNodes);
+  QList< QOpcUaNode* > nodesList(list.begin(), list.end());
 
   {
     qint64 currTimeSecs = QDateTime::currentSecsSinceEpoch();
@@ -483,30 +486,24 @@ void qSlicerScadaOpcUaWidget::onPositionModuleNodesRead(QOpcUa::NodeAttributes a
   d->ProgressDialog->setMaximum(nodesList.size());
   d->ProgressDialog->setValue(0);
 
-  QProgressDialog* progressDialog = d->ProgressDialog.data();
-  QTimer* progressTimer = d->ProgressTimer.data();
-  d->InitialValuesNodeReader.reset(new qSlicerOpcUaInitialValueNodeReader(nodesList, this));
-  QObject::connect(d->InitialValuesNodeReader.data(), &qSlicerOpcUaInitialValueNodeReader::progress,
-    this, [progressDialog, progressTimer](int done, int total)
+  d->InitialValuesNodeLoader.reset(new qSlicerOpcUaInitialValueNodeLoader(nodesList, this));
+  QObject::connect(d->InitialValuesNodeLoader.data(), &qSlicerOpcUaInitialValueNodeLoader::progress,
+    this, [d](int done, int total)
   {
-//    Q_UNUSED(total);
-    qDebug() << Q_FUNC_INFO << ": Reading value in progress: " << done << " of " << total;
-    progressDialog->setValue(done);
-    progressTimer->stop();
+    d->ProgressDialog->setValue(done);
+    d->ProgressTimer->stop();
   });
-  QObject::connect(d->InitialValuesNodeReader.data(), &qSlicerOpcUaInitialValueNodeReader::finished,
-    this, [this, progressDialog, progressTimer]()
+  QObject::connect(d->InitialValuesNodeLoader.data(), &qSlicerOpcUaInitialValueNodeLoader::finished,
+    this, [this, d]()
   {
-    if (progressTimer && progressDialog)
+    if (d->ProgressTimer && d->ProgressDialog)
     {
-      qDebug() << Q_FUNC_INFO << ": Reading is finished";
-      progressTimer->start();
-      progressDialog->close();
+      d->ProgressTimer->start();
+      d->ProgressDialog->close();
     }
-    QMessageBox::information(this, tr("SCADA OPC UA"), tr("Client is ready for data exchange with SCADA!"));
+    d->InitialValuesNodeLoader.reset(nullptr);
+    QMessageBox::information(this, tr("Siemens PLC OPC UA"), tr("Client is ready for data exchange with Siemens PLC!"));
   });
-
-  d->InitialValuesNodeReader->start();
 
 //  this->onReadNodesValuesClicked();
   
@@ -517,6 +514,8 @@ void qSlicerScadaOpcUaWidget::onPositionModuleNodesRead(QOpcUa::NodeAttributes a
 void qSlicerScadaOpcUaWidget::onReadNodesValuesClicked()
 {
   Q_D(qSlicerScadaOpcUaWidget);
+
+/*
   std::list< std::string > nodeFullNameList = vtkSlicerU70RoomScadaOpcUaNodesNames::GetScadaFullNodeNamesList();
   if (d->opcUaLogic && d->opcUaLogic->GetScadaOpcUaLogic())
   {
@@ -526,6 +525,42 @@ void qSlicerScadaOpcUaWidget::onReadNodesValuesClicked()
       //
     }
   }
+*/
+  std::list< std::string > fullNamesList = vtkSlicerU70RoomScadaOpcUaNodesNames::GetScadaFullNodeNamesList();
+  QList< QOpcUaNode* > nodesList; 
+
+  for (auto& nodeData : d->NodeNameDataMap)
+  {
+    if (nodeData.getNode())
+    {
+      auto iter = std::find(fullNamesList.begin(), fullNamesList.end(), nodeData.getNodeName().toStdString());
+      if (iter != fullNamesList.end())
+      {
+        nodesList.push_back(nodeData.getNode());
+      }
+    }
+  }
+
+  d->ProgressDialog->setLabelText(tr("Reading nodes values, Please wait!"));
+  d->ProgressDialog->setMaximum(nodesList.size());
+  d->ProgressDialog->setValue(0);
+
+  d->InitialValuesNodeReader.reset(new qSlicerOpcUaInitialValueNodeReader(nodesList, this));
+  QObject::connect(d->InitialValuesNodeReader.data(), &qSlicerOpcUaInitialValueNodeReader::progress,
+    this, [d](int done, int)
+  {
+    d->ProgressDialog->setValue(done);
+    d->ProgressTimer->stop();
+  });
+  QObject::connect(d->InitialValuesNodeReader.data(), &qSlicerOpcUaInitialValueNodeReader::finished,
+    this, [this, d]()
+  {
+    d->ProgressTimer->start();
+    d->ProgressDialog->close();
+    QMessageBox::information(this, tr("Siemens PLC OPC UA"), tr("Client is ready for data exchange with Siemens PLC!"));
+  });
+
+  d->InitialValuesNodeReader->start();
 }
 
 //-----------------------------------------------------------------------------

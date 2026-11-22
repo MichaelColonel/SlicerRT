@@ -222,7 +222,7 @@ std::string vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::GetAutoManualR1ToLoadButt
 
 std::string vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::GetAutoManualR1ToLoadButtonIsPressed()
 {
-  return GetRtkPlcAsuAutoManualButtons() + std::string(DOT) + std::string(R1_TOLOAD) + std::string(DOT) + std::string(ISENABLED);
+  return GetRtkPlcAsuAutoManualButtons() + std::string(DOT) + std::string(R1_TOLOAD) + std::string(DOT) + std::string(ISPRESSED);
 }
 
 std::string vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::GetAutoManualR1ToNewCoordsButtonIsEnabled()

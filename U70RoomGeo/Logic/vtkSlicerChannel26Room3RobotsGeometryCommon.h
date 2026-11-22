@@ -34,13 +34,13 @@ public:
   // Distance from the north (collimator) wall to the south (back) wall
 //  static constexpr double D_NORTH_SOUTH_WALL = 6745.;
   // Distance from the north (collimator) wall to C-arm x-ray robot base
-  static constexpr double D_NORTH_WALL_CARM_XRAY_ROBOT_BASE = 4400.;
+  static constexpr double D_NORTH_WALL_CARM_XRAY_ROBOT_BASE = 4396.;// 4400.;
   // Distance from the east (right) wall to C-arm x-ray robot base
   static constexpr double D_EAST_WALL_CARM_XRAY_ROBOT_BASE = 930.;
   // Distance from the north (collimator) wall to table top robot base
   static constexpr double D_NORTH_WALL_TABLE_TOP_ROBOT_BASE = 4350.;
   // Distance from the east (right) wall to table top robot base
-  static constexpr double D_EAST_WALL_TABLE_TOP_ROBOT_BASE = 2750.;
+  static constexpr double D_EAST_WALL_TABLE_TOP_ROBOT_BASE = 2752.;//2750.;
 
   // Distance from the north (collimator) wall to isocenter
   static constexpr double D_NORTH_WALL_ISOCENTER = 2450.;
@@ -51,7 +51,7 @@ public:
   // Distance from basement (physical floor) to fake floor
   static constexpr double D_BASEMENT_FAKE_FLOOR = 1000.;
   // Distance from basement (physical floor) to C-Arm robot base
-  static constexpr double D_BASEMENT_CARM_ROBOT_BASE = 1500.;
+  static constexpr double D_BASEMENT_CARM_ROBOT_BASE = 1415.5;//1500.;
 
 };
 

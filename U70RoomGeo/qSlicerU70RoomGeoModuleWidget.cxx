@@ -517,9 +517,11 @@ void qSlicerU70RoomGeoModuleWidget::onLoadTreatmentRoomButtonClicked()
     // Update channel-26 geometry node
     channel26GeometryNode->Modified();
 
-    d->logic()->ShowMarkupsNodes(d->ParameterNode, false);
-    d->logic()->ShowModelsNodes(d->ParameterNode, false);
-    
+//    d->logic()->ShowMarkupsNodes(d->ParameterNode, true);
+//    d->logic()->ShowModelsNodes(d->ParameterNode, true);
+    d->CheckBox_ShowModels->setChecked(true);
+    d->CheckBox_ShowMarkups->setChecked(true);
+
     d->getLayoutManager()->resumeRender();
   }
   QApplication::restoreOverrideCursor();
@@ -674,7 +676,11 @@ void qSlicerU70RoomGeoModuleWidget::updateWidgetFromMRML()
 {
   Q_D(qSlicerU70RoomGeoModuleWidget);
 
-  if (d->ParameterNode && this->mrmlScene())
+  if (!this->mrmlScene())
+  {
+    return;
+  }
+  if (d->ParameterNode)
   {
     auto channel26GeometryNode = d->ParameterNode->GetChannel26GeometryNode();
     if (channel26GeometryNode)
@@ -1382,7 +1388,7 @@ void qSlicerU70RoomGeoModuleWidget::updateTabletopIsocenterPosition()
   vtkMRMLMarkupsFiducialNode* markupsNode = vtkMRMLMarkupsFiducialNode::SafeDownCast(d->SimpleMarkupsWidget_PointCoordinates->currentNode());
   if (!markupsNode)
   {
-    qCritical() << Q_FUNC_INFO << ": Invalid markups fiducial node";
+//    qCritical() << Q_FUNC_INFO << ": Invalid markups fiducial node";
     return;
   }
 
@@ -1408,6 +1414,7 @@ void qSlicerU70RoomGeoModuleWidget::updateTabletopIsocenterPosition()
   }
 */
   markupsNode->GetNthControlPointPositionWorld(0, pointRAS);
+  pointRAS[0] *= -1.;
   pointRAS[1] *= -1.;
   if (robotsLogic && robotsLogic->GetTransformForPointBetweenFrames(CoordSys::TableTop,
     CoordSys::CarmRobotBaseFixed, pointRAS, patientIsoInCarmHome))
@@ -1564,8 +1571,11 @@ void qSlicerU70RoomGeoModuleWidget::updateRoomGeometry()
 {
   Q_D(qSlicerU70RoomGeoModuleWidget);
 
-  d->TimerGeometryUpdater->stop();
-
+  if (d->TimerGeometryUpdater->isActive())
+  {
+//    qCritical() << Q_FUNC_INFO << ": Timer active!";
+//    return;
+  }
   if (!d->ParameterNode || !d->ModuleWindowInitialized)
   {
     qCritical() << Q_FUNC_INFO << ": Parameter node is invalid!";
@@ -1583,13 +1593,13 @@ void qSlicerU70RoomGeoModuleWidget::updateRoomGeometry()
   {
     using SysCoord = vtkSlicerChannel26RoomRobotsTransformLogic::CoordinateSystemIdentifier;
     channel26Logic->UpdateTransformsHierarchy(channel26GeometryNode, SysCoord::TableTop);
+//    channel26Logic->UpdateFrameToRasHierarchy(channel26GeometryNode, SysCoord::TableTop);
   }
   channel26GeometryNode->Modified();
   d->getLayoutManager()->resumeRender();
   
 //  qDebug() << Q_FUNC_INFO << ": The slow operation took" << timer.elapsed() << "milliseconds";
 
-  d->TimerGeometryUpdater->start();
 }
 
 //-----------------------------------------------------------------------------

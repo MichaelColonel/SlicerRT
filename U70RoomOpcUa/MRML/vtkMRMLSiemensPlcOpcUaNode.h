@@ -47,6 +47,7 @@ public:
     TableRobotAxisCoordsModified = 63322,
     /// Fired if C-Arm robot axis coordinates are modified
     CarmRobotAxisCoordsModified,
+    TableRobotLoadPositionAxisCoordsModified,
   };
 
   enum ModeType : int {
@@ -55,6 +56,14 @@ public:
     SERVICE = 3,
     KUKA_CONTROLLERS = 77,
     ModeType_Last
+  };
+
+  enum TabletopOrientation : uint8_t {
+    UNKNOWN_ORIENTATION = 0,
+    LEFT_RIGHT_ORIENTATION = 1,
+    SUPERIOR_INFERIOR_ORIENTATION = 2,
+    RIGHT_LEFT_ORIENTATION = 3,
+    TabletopOrientation_Last
   };
 
   enum StatusRtkType : int {
@@ -289,6 +298,9 @@ public:
   vtkGetVector6Macro(CurrentAxisCoordsR1, int32_t);
   vtkSetVector6Macro(CurrentAxisCoordsR1, int32_t);
 
+  vtkGetVector6Macro(LoadPositionAxisCoordsR1, int32_t);
+  vtkSetVector6Macro(LoadPositionAxisCoordsR1, int32_t);
+
   vtkGetVector6Macro(CurrentAxisCoordsR2, int32_t);
   vtkSetVector6Macro(CurrentAxisCoordsR2, int32_t);
 
@@ -301,6 +313,9 @@ public:
   void GetCurrentAxisCoordsR2(double angles[6]);
   void SetCurrentAxisCoordsR1(double angles[6]);
   void SetCurrentAxisCoordsR2(double angles[6]);
+
+  void SetLoadPositionAxisCoordsR1(double kukaCoords[6]);
+  void GetLoadPositionAxisCoordsR1(double kukaCoords[6]);
 
   void GetCurrentCoordsR1(double kukaCoords[6]);
   void GetCurrentCoordsR2(double kukaCoords[6]);
@@ -393,6 +408,7 @@ private:
   // Tabletop current axis coords (A1,A2,A3,A4,A5,A6)
   // { 150580, -137740, 87920, -3780, -92170, -175870 };
   int32_t CurrentAxisCoordsR1[6] = { -150580, -137740, 87920, -3780, -92170, -175870 }; // A1,A2,A3,A4,A5,A6
+  int32_t LoadPositionAxisCoordsR1[6] = {};
   // C-arm current axis coords (A1,A2,A3,A4,A5,A6)
   // { -770, -122030, 142060, 122360, 33380, -130770 };
   int32_t CurrentAxisCoordsR2[6] = { 178770, -122030, 142060, 122360, 33380, -130770 }; // A1,A2,A3,A4,A5,A6

@@ -799,7 +799,7 @@
                   </property>
                   <property name="icon">
                    <iconset resource="../qSlicerU70RoomOpcUaModule.qrc">
-                    <normaloff>:/Icons/beam_R-L.png</normaloff>:/Icons/beam_R-L.png</iconset>
+                    <normaloff>:/Icons/beam_L-R.png</normaloff>:/Icons/beam_L-R.png</iconset>
                   </property>
                   <property name="iconSize">
                    <size>
@@ -839,7 +839,7 @@
                   </property>
                   <property name="icon">
                    <iconset resource="../qSlicerU70RoomOpcUaModule.qrc">
-                    <normaloff>:/Icons/beam_L-R.png</normaloff>:/Icons/beam_L-R.png</iconset>
+                    <normaloff>:/Icons/beam_R-L.png</normaloff>:/Icons/beam_R-L.png</iconset>
                   </property>
                   <property name="iconSize">
                    <size>
@@ -1043,7 +1043,7 @@
            <rect>
             <x>0</x>
             <y>0</y>
-            <width>575</width>
+            <width>334</width>
             <height>850</height>
            </rect>
           </property>

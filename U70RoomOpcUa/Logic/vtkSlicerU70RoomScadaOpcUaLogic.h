@@ -47,7 +47,7 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   // Called by the widget (C++ only; not wrapped for Python)
-  void ServerConnected(const QSharedPointer< QOpcUaClient >& sharedClient,
+  std::list< QOpcUaNode* > ServerConnected(const QSharedPointer< QOpcUaClient >& sharedClient,
     const QHash< QString, QString >& hashNodesFullNamesIds);
   void UnregisterOpcUaNode(const std::string& nodeFullName);
   void UnregisterAllOpcUaNodes();

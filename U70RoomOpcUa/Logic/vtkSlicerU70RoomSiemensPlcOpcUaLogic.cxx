@@ -54,6 +54,7 @@ public:
   vtkInternal(vtkSlicerU70RoomSiemensPlcOpcUaLogic* external);
   ~vtkInternal();
    QOpcUaNode* node(const QString& fullNodeName);
+   bool readNodeValueAttribute(const std::string& fullNodeName);
    double getDouble(const QString& fullNodeName, bool& res);
    uint64_t getFlagsFromList(const QString& fullNodeName, bool& res);
    uint32_t getUint32(const QString& fullNodeName, bool& res);
@@ -84,7 +85,6 @@ public:
 
   QWeakPointer< QOpcUaClient > Client;
   QHash< QString, Entry > Nodes;
-  int InitialReadValuesCount{ 0 };
 };
 
 //---------------------------------------------------------------------------
@@ -111,6 +111,17 @@ double vtkSlicerU70RoomSiemensPlcOpcUaLogic::vtkInternal::getDouble(const QStrin
 {
   int32_t v = this->getInt32(fullNodeName, res);
   return double(v) / 1000.;
+}
+
+//---------------------------------------------------------------------------
+bool vtkSlicerU70RoomSiemensPlcOpcUaLogic::vtkInternal::readNodeValueAttribute(const std::string& fullNodeName)
+{
+  QOpcUaNode* node = this->node(QString::fromStdString(fullNodeName));
+  if (node)
+  {
+    return node->readAttributes(QOpcUa::NodeAttribute::Value);
+  }
+  return false;
 }
 
 //---------------------------------------------------------------------------
@@ -216,19 +227,20 @@ bool vtkSlicerU70RoomSiemensPlcOpcUaLogic::vtkInternal::getBool(const QString& f
   QSharedPointer< QOpcUaClient > sharedClient = this->Client.toStrongRef();
   if (!sharedClient)
   {
-    vtkWarningWithObjectMacro(this->External, "getInt32: Siemens PLC OPC UA client is invalid");
+    vtkWarningWithObjectMacro(this->External, "getBool: Siemens PLC OPC UA client is invalid");
     res = false;
   }
 
   if (sharedClient->state() != QOpcUaClient::Connected)
   {
-    vtkWarningWithObjectMacro(this->External, "getInt32: Siemens PLC OPC UA client is created, but isn't connected");
+    vtkWarningWithObjectMacro(this->External, "getBool: Siemens PLC OPC UA client is created, but isn't connected");
     res = false;
   }
 
   const QVariant& var = this->Nodes.value(fullNodeName).Cache;
   if (var.canConvert< bool >())
   {
+    res = true;
     return var.toBool();
   }
   return false;
@@ -398,6 +410,7 @@ bool vtkSlicerU70RoomSiemensPlcOpcUaLogic::vtkInternal::updateMRMLNodeFromOpcUaC
         MRMLNodeModifyBlocker block(mrmlSiemensPlcNode);
         mrmlSiemensPlcNode->SetCurrentAxisCoordsR1(r1axis);
       }
+      mrmlSiemensPlcNode->InvokeCustomModifiedEvent(vtkMRMLSiemensPlcOpcUaNode::TableRobotAxisCoordsModified);
     }
   }
   else if (fullNodeName == vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::GetCurrentAxisCoordR1A2())
@@ -413,6 +426,7 @@ bool vtkSlicerU70RoomSiemensPlcOpcUaLogic::vtkInternal::updateMRMLNodeFromOpcUaC
         MRMLNodeModifyBlocker block(mrmlSiemensPlcNode);
         mrmlSiemensPlcNode->SetCurrentAxisCoordsR1(r1axis);
       }
+      mrmlSiemensPlcNode->InvokeCustomModifiedEvent(vtkMRMLSiemensPlcOpcUaNode::TableRobotAxisCoordsModified);
     }
   }
   else if (fullNodeName == vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::GetCurrentAxisCoordR1A3())
@@ -428,6 +442,7 @@ bool vtkSlicerU70RoomSiemensPlcOpcUaLogic::vtkInternal::updateMRMLNodeFromOpcUaC
         MRMLNodeModifyBlocker block(mrmlSiemensPlcNode);
         mrmlSiemensPlcNode->SetCurrentAxisCoordsR1(r1axis);
       }
+      mrmlSiemensPlcNode->InvokeCustomModifiedEvent(vtkMRMLSiemensPlcOpcUaNode::TableRobotAxisCoordsModified);
     }
   }
   else if (fullNodeName == vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::GetCurrentAxisCoordR1A4())
@@ -443,6 +458,7 @@ bool vtkSlicerU70RoomSiemensPlcOpcUaLogic::vtkInternal::updateMRMLNodeFromOpcUaC
         MRMLNodeModifyBlocker block(mrmlSiemensPlcNode);
         mrmlSiemensPlcNode->SetCurrentAxisCoordsR1(r1axis);
       }
+      mrmlSiemensPlcNode->InvokeCustomModifiedEvent(vtkMRMLSiemensPlcOpcUaNode::TableRobotAxisCoordsModified);
     }
   }
   else if (fullNodeName == vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::GetCurrentAxisCoordR1A5())
@@ -458,6 +474,7 @@ bool vtkSlicerU70RoomSiemensPlcOpcUaLogic::vtkInternal::updateMRMLNodeFromOpcUaC
         MRMLNodeModifyBlocker block(mrmlSiemensPlcNode);
         mrmlSiemensPlcNode->SetCurrentAxisCoordsR1(r1axis);
       }
+      mrmlSiemensPlcNode->InvokeCustomModifiedEvent(vtkMRMLSiemensPlcOpcUaNode::TableRobotAxisCoordsModified);
     }
   }
   else if (fullNodeName == vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::GetCurrentAxisCoordR1A6())
@@ -473,6 +490,7 @@ bool vtkSlicerU70RoomSiemensPlcOpcUaLogic::vtkInternal::updateMRMLNodeFromOpcUaC
         MRMLNodeModifyBlocker block(mrmlSiemensPlcNode);
         mrmlSiemensPlcNode->SetCurrentAxisCoordsR1(r1axis);
       }
+      mrmlSiemensPlcNode->InvokeCustomModifiedEvent(vtkMRMLSiemensPlcOpcUaNode::TableRobotAxisCoordsModified);
     }
   }
   else if (fullNodeName == vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::GetCurrentCoordR1X())
@@ -579,6 +597,7 @@ bool vtkSlicerU70RoomSiemensPlcOpcUaLogic::vtkInternal::updateMRMLNodeFromOpcUaC
         MRMLNodeModifyBlocker block(mrmlSiemensPlcNode);
         mrmlSiemensPlcNode->SetCurrentAxisCoordsR2(r2axis);
       }
+      mrmlSiemensPlcNode->InvokeCustomModifiedEvent(vtkMRMLSiemensPlcOpcUaNode::CarmRobotAxisCoordsModified);
     }
   }
   else if (fullNodeName == vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::GetCurrentAxisCoordR2A2())
@@ -593,6 +612,7 @@ bool vtkSlicerU70RoomSiemensPlcOpcUaLogic::vtkInternal::updateMRMLNodeFromOpcUaC
         MRMLNodeModifyBlocker block(mrmlSiemensPlcNode);
         mrmlSiemensPlcNode->SetCurrentAxisCoordsR2(r2axis);
       }
+      mrmlSiemensPlcNode->InvokeCustomModifiedEvent(vtkMRMLSiemensPlcOpcUaNode::CarmRobotAxisCoordsModified);
     }
   }
   else if (fullNodeName == vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::GetCurrentAxisCoordR2A3())
@@ -607,6 +627,7 @@ bool vtkSlicerU70RoomSiemensPlcOpcUaLogic::vtkInternal::updateMRMLNodeFromOpcUaC
         MRMLNodeModifyBlocker block(mrmlSiemensPlcNode);
         mrmlSiemensPlcNode->SetCurrentAxisCoordsR2(r2axis);
       }
+      mrmlSiemensPlcNode->InvokeCustomModifiedEvent(vtkMRMLSiemensPlcOpcUaNode::CarmRobotAxisCoordsModified);
     }
   }
   else if (fullNodeName == vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::GetCurrentAxisCoordR2A4())
@@ -621,6 +642,7 @@ bool vtkSlicerU70RoomSiemensPlcOpcUaLogic::vtkInternal::updateMRMLNodeFromOpcUaC
         MRMLNodeModifyBlocker block(mrmlSiemensPlcNode);
         mrmlSiemensPlcNode->SetCurrentAxisCoordsR2(r2axis);
       }
+      mrmlSiemensPlcNode->InvokeCustomModifiedEvent(vtkMRMLSiemensPlcOpcUaNode::CarmRobotAxisCoordsModified);
     }
   }
   else if (fullNodeName == vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::GetCurrentAxisCoordR2A5())
@@ -635,6 +657,7 @@ bool vtkSlicerU70RoomSiemensPlcOpcUaLogic::vtkInternal::updateMRMLNodeFromOpcUaC
         MRMLNodeModifyBlocker block(mrmlSiemensPlcNode);
         mrmlSiemensPlcNode->SetCurrentAxisCoordsR2(r2axis);
       }
+      mrmlSiemensPlcNode->InvokeCustomModifiedEvent(vtkMRMLSiemensPlcOpcUaNode::CarmRobotAxisCoordsModified);
     }
   }
   else if (fullNodeName == vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::GetCurrentAxisCoordR2A6())
@@ -649,6 +672,7 @@ bool vtkSlicerU70RoomSiemensPlcOpcUaLogic::vtkInternal::updateMRMLNodeFromOpcUaC
         MRMLNodeModifyBlocker block(mrmlSiemensPlcNode);
         mrmlSiemensPlcNode->SetCurrentAxisCoordsR2(r2axis);
       }
+      mrmlSiemensPlcNode->InvokeCustomModifiedEvent(vtkMRMLSiemensPlcOpcUaNode::CarmRobotAxisCoordsModified);
     }
   }
   else if (fullNodeName == vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::GetCurrentCoordR2X())
@@ -922,6 +946,7 @@ bool vtkSlicerU70RoomSiemensPlcOpcUaLogic::vtkInternal::updateMRMLNodeFromOpcUaA
   // R1 == Tabletop robot
   if (fullNodeName == vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::GetAutoManualR1LoadToIsoButtonIsEnabled())
   {
+    vtkErrorWithObjectMacro(this->External, "UpdateMRMLNodeFromOpcUaNodeValue: AM R1 LOAD->ISO ENABLED");
     bool enabled = this->getBool(QString::fromStdString(fullNodeName), res);
     if (res)
     {
@@ -932,10 +957,12 @@ bool vtkSlicerU70RoomSiemensPlcOpcUaLogic::vtkInternal::updateMRMLNodeFromOpcUaA
         MRMLNodeModifyBlocker block(mrmlSiemensPlcNode);
         mrmlSiemensPlcNode->SetAutoManualR1LoadToIso(buttonEnabledPressed);
       }
+      vtkErrorWithObjectMacro(this->External, "UpdateMRMLNodeFromOpcUaNodeValue: AM R1 LOAD->ISO ENABLED: " << enabled);
     }
   }
   else if (fullNodeName == vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::GetAutoManualR1LoadToIsoButtonIsPressed())
   {
+    vtkErrorWithObjectMacro(this->External, "UpdateMRMLNodeFromOpcUaNodeValue: AM R1 LOAD->ISO PRESSED");
     bool pressed = this->getBool(QString::fromStdString(fullNodeName), res);
     if (res)
     {
@@ -946,10 +973,12 @@ bool vtkSlicerU70RoomSiemensPlcOpcUaLogic::vtkInternal::updateMRMLNodeFromOpcUaA
         MRMLNodeModifyBlocker block(mrmlSiemensPlcNode);
         mrmlSiemensPlcNode->SetAutoManualR1LoadToIso(buttonEnabledPressed);
       }
+      vtkErrorWithObjectMacro(this->External, "UpdateMRMLNodeFromOpcUaNodeValue: AM R1 LOAD->ISO PRESSED: " << pressed);
     }
   }
   else if (fullNodeName == vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::GetAutoManualR1ToLoadButtonIsEnabled())
   {
+    vtkErrorWithObjectMacro(this->External, "UpdateMRMLNodeFromOpcUaNodeValue: AM R1 toLOAD ENABLED");
     bool enabled = this->getBool(QString::fromStdString(fullNodeName), res);
     if (res)
     {
@@ -960,10 +989,12 @@ bool vtkSlicerU70RoomSiemensPlcOpcUaLogic::vtkInternal::updateMRMLNodeFromOpcUaA
         MRMLNodeModifyBlocker block(mrmlSiemensPlcNode);
         mrmlSiemensPlcNode->SetAutoManualR1ToLoad(buttonEnabledPressed);
       }
+      vtkErrorWithObjectMacro(this->External, "UpdateMRMLNodeFromOpcUaNodeValue: AM R1 TOLOAD ENABLED: " << enabled);
     }
   }
   else if (fullNodeName == vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::GetAutoManualR1ToLoadButtonIsPressed())
   {
+    vtkErrorWithObjectMacro(this->External, "UpdateMRMLNodeFromOpcUaNodeValue: AM R1 toLOAD PRESSED");
     bool pressed = this->getBool(QString::fromStdString(fullNodeName), res);
     if (res)
     {
@@ -974,10 +1005,12 @@ bool vtkSlicerU70RoomSiemensPlcOpcUaLogic::vtkInternal::updateMRMLNodeFromOpcUaA
         MRMLNodeModifyBlocker block(mrmlSiemensPlcNode);
         mrmlSiemensPlcNode->SetAutoManualR1ToLoad(buttonEnabledPressed);
       }
+      vtkErrorWithObjectMacro(this->External, "UpdateMRMLNodeFromOpcUaNodeValue: AM R1 TOLOAD PRESSED: " << pressed);
     }
   }
   else if (fullNodeName == vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::GetAutoManualR1ToNewCoordsButtonIsEnabled())
   {
+    vtkErrorWithObjectMacro(this->External, "UpdateMRMLNodeFromOpcUaNodeValue: AM R1 TONEWCOORDS ENABLED");
     bool enabled = this->getBool(QString::fromStdString(fullNodeName), res);
     if (res)
     {
@@ -988,10 +1021,12 @@ bool vtkSlicerU70RoomSiemensPlcOpcUaLogic::vtkInternal::updateMRMLNodeFromOpcUaA
         MRMLNodeModifyBlocker block(mrmlSiemensPlcNode);
         mrmlSiemensPlcNode->SetAutoManualR1ToNewCoords(buttonEnabledPressed);
       }
+      vtkErrorWithObjectMacro(this->External, "UpdateMRMLNodeFromOpcUaNodeValue: AM R1 TONEWCOORDS ENABLED: " << enabled);
     }
   }
   else if (fullNodeName == vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::GetAutoManualR1ToNewCoordsButtonIsPressed())
   {
+    vtkErrorWithObjectMacro(this->External, "UpdateMRMLNodeFromOpcUaNodeValue: AM R1 TONEWCOORDS PRESSED");
     bool pressed = this->getBool(QString::fromStdString(fullNodeName), res);
     if (res)
     {
@@ -1002,10 +1037,12 @@ bool vtkSlicerU70RoomSiemensPlcOpcUaLogic::vtkInternal::updateMRMLNodeFromOpcUaA
         MRMLNodeModifyBlocker block(mrmlSiemensPlcNode);
         mrmlSiemensPlcNode->SetAutoManualR1ToNewCoords(buttonEnabledPressed);
       }
+      vtkErrorWithObjectMacro(this->External, "UpdateMRMLNodeFromOpcUaNodeValue: AM R1 TONEWCOORDS PRESSED: " << pressed);
     }
   }
   else if (fullNodeName == vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::GetAutoManualR1R2EmergencyEvacuationButtonIsEnabled())
   {
+    vtkErrorWithObjectMacro(this->External, "UpdateMRMLNodeFromOpcUaNodeValue: AM R1R2 EVAC ENABLED");
     bool enabled = this->getBool(QString::fromStdString(fullNodeName), res);
     if (res)
     {
@@ -1016,10 +1053,12 @@ bool vtkSlicerU70RoomSiemensPlcOpcUaLogic::vtkInternal::updateMRMLNodeFromOpcUaA
         MRMLNodeModifyBlocker block(mrmlSiemensPlcNode);
         mrmlSiemensPlcNode->SetAutoManualEmergencyEvac(buttonEnabledPressed);
       }
+      vtkErrorWithObjectMacro(this->External, "UpdateMRMLNodeFromOpcUaNodeValue: AM EVAC ENABLED: " << enabled);
     }
   }
   else if (fullNodeName == vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::GetAutoManualR1R2EmergencyEvacuationButtonIsPressed())
   {
+    vtkErrorWithObjectMacro(this->External, "UpdateMRMLNodeFromOpcUaNodeValue: AM R1R2 EVAC PRESSED");
     bool pressed = this->getBool(QString::fromStdString(fullNodeName), res);
     if (res)
     {
@@ -1030,11 +1069,13 @@ bool vtkSlicerU70RoomSiemensPlcOpcUaLogic::vtkInternal::updateMRMLNodeFromOpcUaA
         MRMLNodeModifyBlocker block(mrmlSiemensPlcNode);
         mrmlSiemensPlcNode->SetAutoManualEmergencyEvac(buttonEnabledPressed);
       }
+      vtkErrorWithObjectMacro(this->External, "UpdateMRMLNodeFromOpcUaNodeValue: AM EVAC PRESSED: " << pressed);
     }
   }
   // R2 == C-arm
   if (fullNodeName == vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::GetAutoManualR2ToHomeButtonIsEnabled())
   {
+    vtkErrorWithObjectMacro(this->External, "UpdateMRMLNodeFromOpcUaNodeValue: AM R2 TOHOME ENABLED");
     bool enabled = this->getBool(QString::fromStdString(fullNodeName), res);
     if (res)
     {
@@ -1045,10 +1086,12 @@ bool vtkSlicerU70RoomSiemensPlcOpcUaLogic::vtkInternal::updateMRMLNodeFromOpcUaA
         MRMLNodeModifyBlocker block(mrmlSiemensPlcNode);
         mrmlSiemensPlcNode->SetAutoManualR2ToHome(buttonEnabledPressed);
       }
+      vtkErrorWithObjectMacro(this->External, "UpdateMRMLNodeFromOpcUaNodeValue: AM R2 TOHOME ENABLED: " << enabled);
     }
   }
   else if (fullNodeName == vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::GetAutoManualR2ToHomeButtonIsPressed())
   {
+    vtkErrorWithObjectMacro(this->External, "UpdateMRMLNodeFromOpcUaNodeValue: AM R2 TOHOME pressed");
     bool pressed = this->getBool(QString::fromStdString(fullNodeName), res);
     if (res)
     {
@@ -1059,10 +1102,12 @@ bool vtkSlicerU70RoomSiemensPlcOpcUaLogic::vtkInternal::updateMRMLNodeFromOpcUaA
         MRMLNodeModifyBlocker block(mrmlSiemensPlcNode);
         mrmlSiemensPlcNode->SetAutoManualR2ToHome(buttonEnabledPressed);
       }
+      vtkErrorWithObjectMacro(this->External, "UpdateMRMLNodeFromOpcUaNodeValue: AM R2 TOHOME PRESSED: " << pressed);
     }
   }
   else if (fullNodeName == vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::GetAutoManualR2ToPlane1ButtonIsEnabled())
   {
+    vtkErrorWithObjectMacro(this->External, "UpdateMRMLNodeFromOpcUaNodeValue: AM R2 TOplan1 ENABLED");
     bool enabled = this->getBool(QString::fromStdString(fullNodeName), res);
     if (res)
     {
@@ -1073,10 +1118,12 @@ bool vtkSlicerU70RoomSiemensPlcOpcUaLogic::vtkInternal::updateMRMLNodeFromOpcUaA
         MRMLNodeModifyBlocker block(mrmlSiemensPlcNode);
         mrmlSiemensPlcNode->SetAutoManualR2ToPlane1(buttonEnabledPressed);
       }
+      vtkErrorWithObjectMacro(this->External, "UpdateMRMLNodeFromOpcUaNodeValue: AM R2 PLANE1 ENABLED: " << enabled);
     }
   }
   else if (fullNodeName == vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::GetAutoManualR2ToPlane1ButtonIsPressed())
   {
+    vtkErrorWithObjectMacro(this->External, "UpdateMRMLNodeFromOpcUaNodeValue: AM R2 TOplan1 pressed");
     bool pressed = this->getBool(QString::fromStdString(fullNodeName), res);
     if (res)
     {
@@ -1087,10 +1134,12 @@ bool vtkSlicerU70RoomSiemensPlcOpcUaLogic::vtkInternal::updateMRMLNodeFromOpcUaA
         MRMLNodeModifyBlocker block(mrmlSiemensPlcNode);
         mrmlSiemensPlcNode->SetAutoManualR2ToPlane1(buttonEnabledPressed);
       }
+      vtkErrorWithObjectMacro(this->External, "UpdateMRMLNodeFromOpcUaNodeValue: AM R2 PLANE1 PRESSED: " << pressed);
     }
   }
   else if (fullNodeName == vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::GetAutoManualR2ToPlane2ButtonIsEnabled())
   {
+    vtkErrorWithObjectMacro(this->External, "UpdateMRMLNodeFromOpcUaNodeValue: AM R2 TOplan2 ENABLED");
     bool enabled = this->getBool(QString::fromStdString(fullNodeName), res);
     if (res)
     {
@@ -1101,10 +1150,12 @@ bool vtkSlicerU70RoomSiemensPlcOpcUaLogic::vtkInternal::updateMRMLNodeFromOpcUaA
         MRMLNodeModifyBlocker block(mrmlSiemensPlcNode);
         mrmlSiemensPlcNode->SetAutoManualR2ToPlane2(buttonEnabledPressed);
       }
+      vtkErrorWithObjectMacro(this->External, "UpdateMRMLNodeFromOpcUaNodeValue: AM R2 PLANE2 ENABLED: " << enabled);
     }
   }
   else if (fullNodeName == vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::GetAutoManualR2ToPlane2ButtonIsPressed())
   {
+    vtkErrorWithObjectMacro(this->External, "UpdateMRMLNodeFromOpcUaNodeValue: AM R2 TOplan1 PRESSED");
     bool pressed = this->getBool(QString::fromStdString(fullNodeName), res);
     if (res)
     {
@@ -1115,12 +1166,14 @@ bool vtkSlicerU70RoomSiemensPlcOpcUaLogic::vtkInternal::updateMRMLNodeFromOpcUaA
         MRMLNodeModifyBlocker block(mrmlSiemensPlcNode);
         mrmlSiemensPlcNode->SetAutoManualR2ToPlane2(buttonEnabledPressed);
       }
+      vtkErrorWithObjectMacro(this->External, "UpdateMRMLNodeFromOpcUaNodeValue: AM R2 PLANE2 PRESSED: " << pressed);
     }
   }
   // Other AM_MM buttons
 
   if (fullNodeName == vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::GetAutoManualSetTabletopOrientationButtonIsEnabled())
   {
+    vtkErrorWithObjectMacro(this->External, "UpdateMRMLNodeFromOpcUaNodeValue: AM APPLYDEKAPOSITION ENABLED");
     bool enabled = this->getBool(QString::fromStdString(fullNodeName), res);
     if (res)
     {
@@ -1131,10 +1184,12 @@ bool vtkSlicerU70RoomSiemensPlcOpcUaLogic::vtkInternal::updateMRMLNodeFromOpcUaA
         MRMLNodeModifyBlocker block(mrmlSiemensPlcNode);
         mrmlSiemensPlcNode->SetAutoManualApplyTabletopPosition(buttonEnabledPressed);
       }
+      vtkErrorWithObjectMacro(this->External, "UpdateMRMLNodeFromOpcUaNodeValue: AM TT ORIENT ENABLED: " << enabled);
     }
   }
   else if (fullNodeName == vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::GetAutoManualSetTabletopOrientationButtonIsPressed())
   {
+    vtkErrorWithObjectMacro(this->External, "UpdateMRMLNodeFromOpcUaNodeValue: AM APPLYDEKAPOSITION PRESSED");
     bool pressed = this->getBool(QString::fromStdString(fullNodeName), res);
     if (res)
     {
@@ -1145,6 +1200,7 @@ bool vtkSlicerU70RoomSiemensPlcOpcUaLogic::vtkInternal::updateMRMLNodeFromOpcUaA
         MRMLNodeModifyBlocker block(mrmlSiemensPlcNode);
         mrmlSiemensPlcNode->SetAutoManualApplyTabletopPosition(buttonEnabledPressed);
       }
+      vtkErrorWithObjectMacro(this->External, "UpdateMRMLNodeFromOpcUaNodeValue: AM TT ORIENT PRESSED: " << pressed);
     }
   }
   return res;
@@ -1650,9 +1706,7 @@ bool vtkSlicerU70RoomSiemensPlcOpcUaLogic::vtkInternal::updateMRMLNodeFromOpcUaS
       mrmlSiemensPlcNode->SetCoordsC(angle_c);
     }
   }
-
-  // Other coordinates as a Patient (tabletop) position/orientation and
-  else if (fullNodeName == vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::GetTabletopOrientation())
+  else if (fullNodeName == vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::GetTabletopOrientation())  // Other coordinates as a Patient (tabletop) position/orientation and
   {
     uint8_t tabletopPosition = this->getUint8(QString::fromStdString(fullNodeName), res);
     if (res)
@@ -1899,8 +1953,6 @@ std::list< QOpcUaNode* > vtkSlicerU70RoomSiemensPlcOpcUaLogic::ServerConnected(c
   QHashIterator< QString, QString > i(hashNodesFullNamesIds);
   std::list< std::string > fullNameNodesList = vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::GetSiemensPlcFullNodeNamesList();
 
-  this->Internal->InitialReadValuesCount = fullNameNodesList.size();
-
   while (i.hasNext())
   {
     i.next();
@@ -1926,6 +1978,8 @@ std::list< QOpcUaNode* > vtkSlicerU70RoomSiemensPlcOpcUaLogic::ServerConnected(c
     {
       continue;
     }
+
+    vtkWarningMacro("ServerConnected: node " << nodeFullName.toStdString());
 
     QOpcUaNode* node = siemensPlcOpcUaNodeEntry.Node.data();
 
@@ -2005,94 +2059,185 @@ void vtkSlicerU70RoomSiemensPlcOpcUaLogic::UnregisterAllOpcUaNodes()
 }
 
 //---------------------------------------------------------------------------
-double vtkSlicerU70RoomSiemensPlcOpcUaLogic::ReadCurrentCoordsR1A1(bool& res)
+double vtkSlicerU70RoomSiemensPlcOpcUaLogic::GetCurrentCoordsR1A1(bool& res)
 {
   std::string nodeName = vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::GetCurrentAxisCoordR1A1();
   return this->Internal->getDouble(QString::fromStdString(nodeName), res);
 }
 
 //---------------------------------------------------------------------------
-double vtkSlicerU70RoomSiemensPlcOpcUaLogic::ReadCurrentCoordsR1A2(bool& res)
+bool vtkSlicerU70RoomSiemensPlcOpcUaLogic::ReadCurrentCoordsR1A1()
+{
+  std::string nodeName = vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::GetCurrentAxisCoordR1A1();
+  return this->Internal->readNodeValueAttribute(nodeName);
+}
+
+//---------------------------------------------------------------------------
+double vtkSlicerU70RoomSiemensPlcOpcUaLogic::GetCurrentCoordsR1A2(bool& res)
 {
   std::string nodeName = vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::GetCurrentAxisCoordR1A2();
   return this->Internal->getDouble(QString::fromStdString(nodeName), res);
 }
 
 //---------------------------------------------------------------------------
-double vtkSlicerU70RoomSiemensPlcOpcUaLogic::ReadCurrentCoordsR1A3(bool& res)
+bool vtkSlicerU70RoomSiemensPlcOpcUaLogic::ReadCurrentCoordsR1A2()
+{
+  std::string nodeName = vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::GetCurrentAxisCoordR1A2();
+  return this->Internal->readNodeValueAttribute(nodeName);
+}
+
+//---------------------------------------------------------------------------
+double vtkSlicerU70RoomSiemensPlcOpcUaLogic::GetCurrentCoordsR1A3(bool& res)
 {
   std::string nodeName = vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::GetCurrentAxisCoordR1A3();
   return this->Internal->getDouble(QString::fromStdString(nodeName), res);
 }
 
 //---------------------------------------------------------------------------
-double vtkSlicerU70RoomSiemensPlcOpcUaLogic::ReadCurrentCoordsR1A4(bool& res)
+bool vtkSlicerU70RoomSiemensPlcOpcUaLogic::ReadCurrentCoordsR1A3()
+{
+  std::string nodeName = vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::GetCurrentAxisCoordR1A3();
+  return this->Internal->readNodeValueAttribute(nodeName);
+}
+
+//---------------------------------------------------------------------------
+double vtkSlicerU70RoomSiemensPlcOpcUaLogic::GetCurrentCoordsR1A4(bool& res)
 {
   std::string nodeName = vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::GetCurrentAxisCoordR1A4();
   return this->Internal->getDouble(QString::fromStdString(nodeName), res);
 }
 
 //---------------------------------------------------------------------------
-double vtkSlicerU70RoomSiemensPlcOpcUaLogic::ReadCurrentCoordsR1A5(bool& res)
+bool vtkSlicerU70RoomSiemensPlcOpcUaLogic::ReadCurrentCoordsR1A4()
+{
+  std::string nodeName = vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::GetCurrentAxisCoordR1A4();
+  return this->Internal->readNodeValueAttribute(nodeName);
+}
+
+//---------------------------------------------------------------------------
+double vtkSlicerU70RoomSiemensPlcOpcUaLogic::GetCurrentCoordsR1A5(bool& res)
 {
   std::string nodeName = vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::GetCurrentAxisCoordR1A5();
   return this->Internal->getDouble(QString::fromStdString(nodeName), res);
 }
 
 //---------------------------------------------------------------------------
-double vtkSlicerU70RoomSiemensPlcOpcUaLogic::ReadCurrentCoordsR1A6(bool& res)
+bool vtkSlicerU70RoomSiemensPlcOpcUaLogic::ReadCurrentCoordsR1A5()
+{
+  std::string nodeName = vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::GetCurrentAxisCoordR1A5();
+  return this->Internal->readNodeValueAttribute(nodeName);
+}
+
+//---------------------------------------------------------------------------
+double vtkSlicerU70RoomSiemensPlcOpcUaLogic::GetCurrentCoordsR1A6(bool& res)
 {
   std::string nodeName = vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::GetCurrentAxisCoordR1A6();
   return this->Internal->getDouble(QString::fromStdString(nodeName), res);
 }
 
 //---------------------------------------------------------------------------
-double vtkSlicerU70RoomSiemensPlcOpcUaLogic::ReadCurrentCoordsR2A1(bool& res)
+bool vtkSlicerU70RoomSiemensPlcOpcUaLogic::ReadCurrentCoordsR1A6()
+{
+  std::string nodeName = vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::GetCurrentAxisCoordR1A6();
+  return this->Internal->readNodeValueAttribute(nodeName);
+}
+
+//---------------------------------------------------------------------------
+double vtkSlicerU70RoomSiemensPlcOpcUaLogic::GetCurrentCoordsR2A1(bool& res)
 {
   std::string nodeName = vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::GetCurrentAxisCoordR2A1();
   return this->Internal->getDouble(QString::fromStdString(nodeName), res);
 }
 
 //---------------------------------------------------------------------------
-double vtkSlicerU70RoomSiemensPlcOpcUaLogic::ReadCurrentCoordsR2A2(bool& res)
+bool vtkSlicerU70RoomSiemensPlcOpcUaLogic::ReadCurrentCoordsR2A1()
+{
+  std::string nodeName = vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::GetCurrentAxisCoordR2A1();
+  return this->Internal->readNodeValueAttribute(nodeName);
+}
+
+//---------------------------------------------------------------------------
+double vtkSlicerU70RoomSiemensPlcOpcUaLogic::GetCurrentCoordsR2A2(bool& res)
 {
   std::string nodeName = vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::GetCurrentAxisCoordR2A2();
   return this->Internal->getDouble(QString::fromStdString(nodeName), res);
 }
 
 //---------------------------------------------------------------------------
-double vtkSlicerU70RoomSiemensPlcOpcUaLogic::ReadCurrentCoordsR2A3(bool& res)
+bool vtkSlicerU70RoomSiemensPlcOpcUaLogic::ReadCurrentCoordsR2A2()
+{
+  std::string nodeName = vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::GetCurrentAxisCoordR2A2();
+  return this->Internal->readNodeValueAttribute(nodeName);
+}
+
+//---------------------------------------------------------------------------
+double vtkSlicerU70RoomSiemensPlcOpcUaLogic::GetCurrentCoordsR2A3(bool& res)
 {
   std::string nodeName = vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::GetCurrentAxisCoordR2A3();
   return this->Internal->getDouble(QString::fromStdString(nodeName), res);
 }
 
 //---------------------------------------------------------------------------
-double vtkSlicerU70RoomSiemensPlcOpcUaLogic::ReadCurrentCoordsR2A4(bool& res)
+bool vtkSlicerU70RoomSiemensPlcOpcUaLogic::ReadCurrentCoordsR2A3()
+{
+  std::string nodeName = vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::GetCurrentAxisCoordR2A3();
+  return this->Internal->readNodeValueAttribute(nodeName);
+}
+
+//---------------------------------------------------------------------------
+double vtkSlicerU70RoomSiemensPlcOpcUaLogic::GetCurrentCoordsR2A4(bool& res)
 {
   std::string nodeName = vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::GetCurrentAxisCoordR2A4();
   return this->Internal->getDouble(QString::fromStdString(nodeName), res);
 }
 
 //---------------------------------------------------------------------------
-double vtkSlicerU70RoomSiemensPlcOpcUaLogic::ReadCurrentCoordsR2A5(bool& res)
+bool vtkSlicerU70RoomSiemensPlcOpcUaLogic::ReadCurrentCoordsR2A4()
+{
+  std::string nodeName = vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::GetCurrentAxisCoordR2A4();
+  return this->Internal->readNodeValueAttribute(nodeName);
+}
+
+//---------------------------------------------------------------------------
+double vtkSlicerU70RoomSiemensPlcOpcUaLogic::GetCurrentCoordsR2A5(bool& res)
 {
   std::string nodeName = vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::GetCurrentAxisCoordR2A5();
   return this->Internal->getDouble(QString::fromStdString(nodeName), res);
 }
 
 //---------------------------------------------------------------------------
-double vtkSlicerU70RoomSiemensPlcOpcUaLogic::ReadCurrentCoordsR2A6(bool& res)
+bool vtkSlicerU70RoomSiemensPlcOpcUaLogic::ReadCurrentCoordsR2A5()
+{
+  std::string nodeName = vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::GetCurrentAxisCoordR2A5();
+  return this->Internal->readNodeValueAttribute(nodeName);
+}
+
+//---------------------------------------------------------------------------
+double vtkSlicerU70RoomSiemensPlcOpcUaLogic::GetCurrentCoordsR2A6(bool& res)
 {
   std::string nodeName = vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::GetCurrentAxisCoordR2A6();
   return this->Internal->getDouble(QString::fromStdString(nodeName), res);
 }
 
 //---------------------------------------------------------------------------
-uint8_t vtkSlicerU70RoomSiemensPlcOpcUaLogic::ReadMode(bool& res)
+bool vtkSlicerU70RoomSiemensPlcOpcUaLogic::ReadCurrentCoordsR2A6()
+{
+  std::string nodeName = vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::GetCurrentAxisCoordR2A6();
+  return this->Internal->readNodeValueAttribute(nodeName);
+}
+
+//---------------------------------------------------------------------------
+uint8_t vtkSlicerU70RoomSiemensPlcOpcUaLogic::GetMode(bool& res)
 {
   std::string nodeName = vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::GetMode();
   return this->Internal->getUint8(QString::fromStdString(nodeName), res);
+}
+
+//---------------------------------------------------------------------------
+bool vtkSlicerU70RoomSiemensPlcOpcUaLogic::ReadMode()
+{
+  std::string nodeName = vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::GetMode();
+  return this->Internal->readNodeValueAttribute(nodeName);
 }
 
 //---------------------------------------------------------------------------
@@ -2108,24 +2253,587 @@ bool vtkSlicerU70RoomSiemensPlcOpcUaLogic::WriteMode(vtkMRMLSiemensPlcOpcUaNode:
 }
 
 //---------------------------------------------------------------------------
-uint16_t vtkSlicerU70RoomSiemensPlcOpcUaLogic::ReadStatusRtk(bool& res)
+bool vtkSlicerU70RoomSiemensPlcOpcUaLogic::WriteTabletopOrientation(vtkMRMLSiemensPlcOpcUaNode::TabletopOrientation ttOrientation)
+{
+  std::string nodeName = vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::GetTabletopOrientation();
+  QOpcUaNode* node = this->Internal->node(QString::fromStdString(nodeName));
+  if (node)
+  {
+    return node->writeValueAttribute(QVariant(ttOrientation), QOpcUa::Types::Byte);
+  }
+  return false;
+}
+
+//---------------------------------------------------------------------------
+uint8_t vtkSlicerU70RoomSiemensPlcOpcUaLogic::GetTabletopOrientation(bool& res)
+{
+  std::string nodeName = vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::GetTabletopOrientation();
+  return this->Internal->getUint8(QString::fromStdString(nodeName), res);
+}
+
+//---------------------------------------------------------------------------
+bool vtkSlicerU70RoomSiemensPlcOpcUaLogic::ReadTabletopOrientation()
+{
+  std::string nodeName = vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::GetTabletopOrientation();
+  return this->Internal->readNodeValueAttribute(nodeName);
+}
+
+//---------------------------------------------------------------------------
+uint16_t vtkSlicerU70RoomSiemensPlcOpcUaLogic::GetStatusRtk(bool& res)
 {
   std::string nodeName = vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::GetStatusRtk();
   return this->Internal->getUint16(QString::fromStdString(nodeName), res);
 }
 
 //---------------------------------------------------------------------------
-uint16_t vtkSlicerU70RoomSiemensPlcOpcUaLogic::ReadStatusR1(bool& res)
+bool vtkSlicerU70RoomSiemensPlcOpcUaLogic::ReadStatusRtk()
+{
+  std::string nodeName = vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::GetStatusRtk();
+  return this->Internal->readNodeValueAttribute(nodeName);
+}
+
+//---------------------------------------------------------------------------
+uint16_t vtkSlicerU70RoomSiemensPlcOpcUaLogic::GetStatusR1(bool& res)
 {
   std::string nodeName = vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::GetMode();
   return this->Internal->getUint16(QString::fromStdString(nodeName), res);
 }
 
 //---------------------------------------------------------------------------
-uint16_t vtkSlicerU70RoomSiemensPlcOpcUaLogic::ReadStatusR2(bool& res)
+bool vtkSlicerU70RoomSiemensPlcOpcUaLogic::ReadStatusR1()
+{
+  std::string nodeName = vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::GetStatusR1();
+  return this->Internal->readNodeValueAttribute(nodeName);
+}
+
+//---------------------------------------------------------------------------
+uint16_t vtkSlicerU70RoomSiemensPlcOpcUaLogic::GetStatusR2(bool& res)
 {
   std::string nodeName = vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::GetMode();
   return this->Internal->getUint16(QString::fromStdString(nodeName), res);
+}
+
+//---------------------------------------------------------------------------
+bool vtkSlicerU70RoomSiemensPlcOpcUaLogic::ReadStatusR2()
+{
+  std::string nodeName = vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::GetStatusR2();
+  return this->Internal->readNodeValueAttribute(nodeName);
+}
+
+//---------------------------------------------------------------------------
+bool vtkSlicerU70RoomSiemensPlcOpcUaLogic::WriteAutoManualR1LoadToIsoPressed(bool pressed)
+{
+  std::string nodeName = vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::GetAutoManualR1LoadToIsoButtonIsPressed();
+  QOpcUaNode* node = this->Internal->node(QString::fromStdString(nodeName));
+  if (node)
+  {
+    return node->writeValueAttribute(QVariant(pressed), QOpcUa::Types::Boolean);
+  }
+  return false;
+}
+
+//---------------------------------------------------------------------------
+bool vtkSlicerU70RoomSiemensPlcOpcUaLogic::GetAutoManualR1LoadToIsoPressed(bool& res)
+{
+  std::string nodeName = vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::GetAutoManualR1LoadToIsoButtonIsPressed();
+  return this->Internal->getBool(QString::fromStdString(nodeName), res);
+}
+
+//---------------------------------------------------------------------------
+bool vtkSlicerU70RoomSiemensPlcOpcUaLogic::ReadAutoManualR1LoadToIsoPressed()
+{
+  std::string nodeName = vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::GetAutoManualR1LoadToIsoButtonIsPressed();
+  return this->Internal->readNodeValueAttribute(nodeName);
+}
+
+//---------------------------------------------------------------------------
+bool vtkSlicerU70RoomSiemensPlcOpcUaLogic::GetAutoManualR1LoadToIsoEnabled(bool& res)
+{
+  std::string nodeName = vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::GetAutoManualR1LoadToIsoButtonIsEnabled();
+  return this->Internal->getBool(QString::fromStdString(nodeName), res);
+}
+
+//---------------------------------------------------------------------------
+bool vtkSlicerU70RoomSiemensPlcOpcUaLogic::ReadAutoManualR1LoadToIsoEnabled()
+{
+  std::string nodeName = vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::GetAutoManualR1LoadToIsoButtonIsEnabled();
+  return this->Internal->readNodeValueAttribute(nodeName);
+}
+
+//---------------------------------------------------------------------------
+bool vtkSlicerU70RoomSiemensPlcOpcUaLogic::WriteAutoManualR1ToLoadPressed(bool pressed)
+{
+  std::string nodeName = vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::GetAutoManualR1ToLoadButtonIsPressed();
+  QOpcUaNode* node = this->Internal->node(QString::fromStdString(nodeName));
+  if (node)
+  {
+    return node->writeValueAttribute(QVariant(pressed), QOpcUa::Types::Boolean);
+  }
+  return false;
+}
+
+//---------------------------------------------------------------------------
+bool vtkSlicerU70RoomSiemensPlcOpcUaLogic::GetAutoManualR1ToLoadPressed(bool& res)
+{
+  std::string nodeName = vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::GetAutoManualR1ToLoadButtonIsPressed();
+  return this->Internal->getBool(QString::fromStdString(nodeName), res);
+}
+
+//---------------------------------------------------------------------------
+bool vtkSlicerU70RoomSiemensPlcOpcUaLogic::ReadAutoManualR1ToLoadPressed()
+{
+  std::string nodeName = vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::GetAutoManualR1ToLoadButtonIsPressed();
+  return this->Internal->readNodeValueAttribute(nodeName);
+}
+
+//---------------------------------------------------------------------------
+bool vtkSlicerU70RoomSiemensPlcOpcUaLogic::GetAutoManualR1ToLoadEnabled(bool& res)
+{
+  std::string nodeName = vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::GetAutoManualR1ToLoadButtonIsEnabled();
+  return this->Internal->getBool(QString::fromStdString(nodeName), res);
+}
+
+//---------------------------------------------------------------------------
+bool vtkSlicerU70RoomSiemensPlcOpcUaLogic::ReadAutoManualR1ToLoadEnabled()
+{
+  std::string nodeName = vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::GetAutoManualR1ToLoadButtonIsEnabled();
+  return this->Internal->readNodeValueAttribute(nodeName);
+}
+
+//---------------------------------------------------------------------------
+bool vtkSlicerU70RoomSiemensPlcOpcUaLogic::WriteAutoManualR1ToNewCoordsPressed(bool pressed)
+{
+  std::string nodeName = vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::GetAutoManualR1ToNewCoordsButtonIsPressed();
+  QOpcUaNode* node = this->Internal->node(QString::fromStdString(nodeName));
+  if (node)
+  {
+    return node->writeValueAttribute(QVariant(pressed), QOpcUa::Types::Boolean);
+  }
+  return false;
+}
+
+//---------------------------------------------------------------------------
+bool vtkSlicerU70RoomSiemensPlcOpcUaLogic::GetAutoManualR1ToNewCoordsPressed(bool& res)
+{
+  std::string nodeName = vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::GetAutoManualR1ToNewCoordsButtonIsPressed();
+  return this->Internal->getBool(QString::fromStdString(nodeName), res);
+}
+
+//---------------------------------------------------------------------------
+bool vtkSlicerU70RoomSiemensPlcOpcUaLogic::ReadAutoManualR1ToNewCoordsPressed()
+{
+  std::string nodeName = vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::GetAutoManualR1ToNewCoordsButtonIsPressed();
+  return this->Internal->readNodeValueAttribute(nodeName);
+}
+
+//---------------------------------------------------------------------------
+bool vtkSlicerU70RoomSiemensPlcOpcUaLogic::GetAutoManualR1ToNewCoordsEnabled(bool& res)
+{
+  std::string nodeName = vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::GetAutoManualR1ToNewCoordsButtonIsEnabled();
+  return this->Internal->getBool(QString::fromStdString(nodeName), res);
+}
+
+//---------------------------------------------------------------------------
+bool vtkSlicerU70RoomSiemensPlcOpcUaLogic::ReadAutoManualR1ToNewCoordsEnabled()
+{
+  std::string nodeName = vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::GetAutoManualR1ToNewCoordsButtonIsEnabled();
+  return this->Internal->readNodeValueAttribute(nodeName);
+}
+
+//---------------------------------------------------------------------------
+bool vtkSlicerU70RoomSiemensPlcOpcUaLogic::WriteAutoManualR2ToHomePressed(bool pressed)
+{
+  std::string nodeName = vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::GetAutoManualR2ToHomeButtonIsPressed();
+  QOpcUaNode* node = this->Internal->node(QString::fromStdString(nodeName));
+  if (node)
+  {
+    return node->writeValueAttribute(QVariant(pressed), QOpcUa::Types::Boolean);
+  }
+  return false;
+}
+
+//---------------------------------------------------------------------------
+bool vtkSlicerU70RoomSiemensPlcOpcUaLogic::GetAutoManualR2ToHomePressed(bool& res)
+{
+  std::string nodeName = vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::GetAutoManualR2ToHomeButtonIsPressed();
+  return this->Internal->getBool(QString::fromStdString(nodeName), res);
+}
+
+//---------------------------------------------------------------------------
+bool vtkSlicerU70RoomSiemensPlcOpcUaLogic::ReadAutoManualR2ToHomePressed()
+{
+  std::string nodeName = vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::GetAutoManualR2ToHomeButtonIsPressed();
+  return this->Internal->readNodeValueAttribute(nodeName);
+}
+
+//---------------------------------------------------------------------------
+bool vtkSlicerU70RoomSiemensPlcOpcUaLogic::GetAutoManualR2ToHomeEnabled(bool& res)
+{
+  std::string nodeName = vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::GetAutoManualR2ToHomeButtonIsEnabled();
+  return this->Internal->getBool(QString::fromStdString(nodeName), res);
+}
+
+//---------------------------------------------------------------------------
+bool vtkSlicerU70RoomSiemensPlcOpcUaLogic::ReadAutoManualR2ToHomeEnabled()
+{
+  std::string nodeName = vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::GetAutoManualR2ToHomeButtonIsEnabled();
+  return this->Internal->readNodeValueAttribute(nodeName);
+}
+
+//---------------------------------------------------------------------------
+bool vtkSlicerU70RoomSiemensPlcOpcUaLogic::WriteAutoManualR2ToPlane1Pressed(bool pressed)
+{
+  std::string nodeName = vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::GetAutoManualR2ToPlane1ButtonIsPressed();
+  QOpcUaNode* node = this->Internal->node(QString::fromStdString(nodeName));
+  if (node)
+  {
+    return node->writeValueAttribute(QVariant(pressed), QOpcUa::Types::Boolean);
+  }
+  return false;
+}
+
+//---------------------------------------------------------------------------
+bool vtkSlicerU70RoomSiemensPlcOpcUaLogic::GetAutoManualR2ToPlane1Pressed(bool& res)
+{
+  std::string nodeName = vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::GetAutoManualR2ToPlane1ButtonIsPressed();
+  return this->Internal->getBool(QString::fromStdString(nodeName), res);
+}
+
+//---------------------------------------------------------------------------
+bool vtkSlicerU70RoomSiemensPlcOpcUaLogic::ReadAutoManualR2ToPlane1Pressed()
+{
+  std::string nodeName = vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::GetAutoManualR2ToPlane1ButtonIsPressed();
+  return this->Internal->readNodeValueAttribute(nodeName);
+}
+
+//---------------------------------------------------------------------------
+bool vtkSlicerU70RoomSiemensPlcOpcUaLogic::GetAutoManualR2ToPlane1Enabled(bool& res)
+{
+  std::string nodeName = vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::GetAutoManualR2ToPlane1ButtonIsEnabled();
+  return this->Internal->getBool(QString::fromStdString(nodeName), res);
+}
+
+//---------------------------------------------------------------------------
+bool vtkSlicerU70RoomSiemensPlcOpcUaLogic::ReadAutoManualR2ToPlane1Enabled()
+{
+  std::string nodeName = vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::GetAutoManualR2ToPlane1ButtonIsEnabled();
+  return this->Internal->readNodeValueAttribute(nodeName);
+}
+
+//---------------------------------------------------------------------------
+bool vtkSlicerU70RoomSiemensPlcOpcUaLogic::WriteAutoManualR2ToPlane2Pressed(bool pressed)
+{
+  std::string nodeName = vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::GetAutoManualR2ToPlane2ButtonIsPressed();
+  QOpcUaNode* node = this->Internal->node(QString::fromStdString(nodeName));
+  if (node)
+  {
+    return node->writeValueAttribute(QVariant(pressed), QOpcUa::Types::Boolean);
+  }
+  return false;
+}
+
+//---------------------------------------------------------------------------
+bool vtkSlicerU70RoomSiemensPlcOpcUaLogic::GetAutoManualR2ToPlane2Pressed(bool& res)
+{
+  std::string nodeName = vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::GetAutoManualR2ToPlane2ButtonIsPressed();
+  return this->Internal->getBool(QString::fromStdString(nodeName), res);
+}
+
+//---------------------------------------------------------------------------
+bool vtkSlicerU70RoomSiemensPlcOpcUaLogic::ReadAutoManualR2ToPlane2Pressed()
+{
+  std::string nodeName = vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::GetAutoManualR2ToPlane2ButtonIsPressed();
+  return this->Internal->readNodeValueAttribute(nodeName);
+}
+
+//---------------------------------------------------------------------------
+bool vtkSlicerU70RoomSiemensPlcOpcUaLogic::GetAutoManualR2ToPlane2Enabled(bool& res)
+{
+  std::string nodeName = vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::GetAutoManualR2ToPlane2ButtonIsEnabled();
+  return this->Internal->getBool(QString::fromStdString(nodeName), res);
+}
+
+//---------------------------------------------------------------------------
+bool vtkSlicerU70RoomSiemensPlcOpcUaLogic::ReadAutoManualR2ToPlane2Enabled()
+{
+  std::string nodeName = vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::GetAutoManualR2ToPlane2ButtonIsEnabled();
+  return this->Internal->readNodeValueAttribute(nodeName);
+}
+
+//---------------------------------------------------------------------------
+bool vtkSlicerU70RoomSiemensPlcOpcUaLogic::WriteAutoManualEmergencyEvacuationPressed(bool pressed)
+{
+  std::string nodeName = vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::GetAutoManualR1R2EmergencyEvacuationButtonIsPressed();
+  QOpcUaNode* node = this->Internal->node(QString::fromStdString(nodeName));
+  if (node)
+  {
+    return node->writeValueAttribute(QVariant(pressed), QOpcUa::Types::Boolean);
+  }
+  return false;
+}
+
+//---------------------------------------------------------------------------
+bool vtkSlicerU70RoomSiemensPlcOpcUaLogic::GetAutoManualEmergencyEvacuationPressed(bool& res)
+{
+  std::string nodeName = vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::GetAutoManualR1R2EmergencyEvacuationButtonIsPressed();
+  return this->Internal->getBool(QString::fromStdString(nodeName), res);
+}
+
+//---------------------------------------------------------------------------
+bool vtkSlicerU70RoomSiemensPlcOpcUaLogic::ReadAutoManualEmergencyEvacuationPressed()
+{
+  std::string nodeName = vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::GetAutoManualR1R2EmergencyEvacuationButtonIsPressed();
+  return this->Internal->readNodeValueAttribute(nodeName);
+}
+
+//---------------------------------------------------------------------------
+bool vtkSlicerU70RoomSiemensPlcOpcUaLogic::GetAutoManualEmergencyEvacuationEnabled(bool& res)
+{
+  std::string nodeName = vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::GetAutoManualR1R2EmergencyEvacuationButtonIsEnabled();
+  return this->Internal->getBool(QString::fromStdString(nodeName), res);
+}
+
+//---------------------------------------------------------------------------
+bool vtkSlicerU70RoomSiemensPlcOpcUaLogic::ReadAutoManualEmergencyEvacuationEnabled()
+{
+  std::string nodeName = vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::GetAutoManualR1R2EmergencyEvacuationButtonIsEnabled();
+  return this->Internal->readNodeValueAttribute(nodeName);
+}
+
+//---------------------------------------------------------------------------
+bool vtkSlicerU70RoomSiemensPlcOpcUaLogic::WriteAutoManualApplyTabletopOrientationPressed(bool pressed)
+{
+  std::string nodeName = vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::GetAutoManualSetTabletopOrientationButtonIsPressed();
+  QOpcUaNode* node = this->Internal->node(QString::fromStdString(nodeName));
+  if (node)
+  {
+    return node->writeValueAttribute(QVariant(pressed), QOpcUa::Types::Boolean);
+  }
+  return false;
+}
+
+//---------------------------------------------------------------------------
+bool vtkSlicerU70RoomSiemensPlcOpcUaLogic::GetAutoManualApplyTabletopOrientationPressed(bool& res)
+{
+  std::string nodeName = vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::GetAutoManualSetTabletopOrientationButtonIsPressed();
+  return this->Internal->getBool(QString::fromStdString(nodeName), res);
+}
+
+//---------------------------------------------------------------------------
+bool vtkSlicerU70RoomSiemensPlcOpcUaLogic::ReadAutoManualApplyTabletopOrientationPressed()
+{
+  std::string nodeName = vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::GetAutoManualSetTabletopOrientationButtonIsPressed();
+  return this->Internal->readNodeValueAttribute(nodeName);
+}
+
+//---------------------------------------------------------------------------
+bool vtkSlicerU70RoomSiemensPlcOpcUaLogic::GetAutoManualApplyTabletopOrientationEnabled(bool& res)
+{
+  std::string nodeName = vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::GetAutoManualSetTabletopOrientationButtonIsEnabled();
+  return this->Internal->getBool(QString::fromStdString(nodeName), res);
+}
+
+//---------------------------------------------------------------------------
+bool vtkSlicerU70RoomSiemensPlcOpcUaLogic::ReadAutoManualApplyTabletopOrientationEnabled()
+{
+  std::string nodeName = vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::GetAutoManualSetTabletopOrientationButtonIsEnabled();
+  return this->Internal->readNodeValueAttribute(nodeName);
+}
+
+//---------------------------------------------------------------------------
+bool vtkSlicerU70RoomSiemensPlcOpcUaLogic::WriteResetErrorsPressed(bool pressed)
+{
+  std::string nodeName = vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::GetResetErrorsButtonIsPressed();
+  QOpcUaNode* node = this->Internal->node(QString::fromStdString(nodeName));
+  if (node)
+  {
+    return node->writeValueAttribute(QVariant(pressed), QOpcUa::Types::Boolean);
+  }
+  return false;
+}
+
+//---------------------------------------------------------------------------
+bool vtkSlicerU70RoomSiemensPlcOpcUaLogic::GetResetErrorsPressed(bool& res)
+{
+  std::string nodeName = vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::GetResetErrorsButtonIsPressed();
+  return this->Internal->getBool(QString::fromStdString(nodeName), res);
+}
+
+//---------------------------------------------------------------------------
+bool vtkSlicerU70RoomSiemensPlcOpcUaLogic::ReadResetErrorsPressed()
+{
+  std::string nodeName = vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::GetResetErrorsButtonIsPressed();
+  return this->Internal->readNodeValueAttribute(nodeName);
+}
+
+//---------------------------------------------------------------------------
+bool vtkSlicerU70RoomSiemensPlcOpcUaLogic::GetResetErrorsEnabled(bool& res)
+{
+  std::string nodeName = vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::GetResetErrorsButtonIsEnabled();
+  return this->Internal->getBool(QString::fromStdString(nodeName), res);
+}
+
+//---------------------------------------------------------------------------
+bool vtkSlicerU70RoomSiemensPlcOpcUaLogic::ReadResetErrorsEnabled()
+{
+  std::string nodeName = vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::GetResetErrorsButtonIsEnabled();
+  return this->Internal->readNodeValueAttribute(nodeName);
+}
+
+//---------------------------------------------------------------------------
+bool vtkSlicerU70RoomSiemensPlcOpcUaLogic::WriteNewCoordX(int32_t coordX)
+{
+  std::string nodeName = vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::GetSetCoordX();
+  QOpcUaNode* node = this->Internal->node(QString::fromStdString(nodeName));
+  if (node)
+  {
+    return node->writeValueAttribute(QVariant(coordX), QOpcUa::Types::Int32);
+  }
+  return false;
+}
+
+//---------------------------------------------------------------------------
+int32_t vtkSlicerU70RoomSiemensPlcOpcUaLogic::GetNewCoordX(bool& res)
+{
+  std::string nodeName = vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::GetSetCoordX();
+  return this->Internal->getInt32(QString::fromStdString(nodeName), res);
+}
+
+//---------------------------------------------------------------------------
+bool vtkSlicerU70RoomSiemensPlcOpcUaLogic::ReadNewCoordX()
+{
+  std::string nodeName = vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::GetSetCoordX();
+  return this->Internal->readNodeValueAttribute(nodeName);
+}
+
+//---------------------------------------------------------------------------
+bool vtkSlicerU70RoomSiemensPlcOpcUaLogic::WriteNewCoordY(int32_t coordY)
+{
+  std::string nodeName = vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::GetSetCoordY();
+  QOpcUaNode* node = this->Internal->node(QString::fromStdString(nodeName));
+  if (node)
+  {
+    return node->writeValueAttribute(QVariant(coordY), QOpcUa::Types::Int32);
+  }
+  return false;
+}
+
+//---------------------------------------------------------------------------
+int32_t vtkSlicerU70RoomSiemensPlcOpcUaLogic::GetNewCoordY(bool& res)
+{
+  std::string nodeName = vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::GetSetCoordY();
+  return this->Internal->getInt32(QString::fromStdString(nodeName), res);
+}
+
+//---------------------------------------------------------------------------
+bool vtkSlicerU70RoomSiemensPlcOpcUaLogic::ReadNewCoordY()
+{
+  std::string nodeName = vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::GetSetCoordY();
+  return this->Internal->readNodeValueAttribute(nodeName);
+}
+
+//---------------------------------------------------------------------------
+bool vtkSlicerU70RoomSiemensPlcOpcUaLogic::WriteNewCoordZ(int32_t coordZ)
+{
+  std::string nodeName = vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::GetSetCoordZ();
+  QOpcUaNode* node = this->Internal->node(QString::fromStdString(nodeName));
+  if (node)
+  {
+    return node->writeValueAttribute(QVariant(coordZ), QOpcUa::Types::Int32);
+  }
+  return false;
+}
+
+//---------------------------------------------------------------------------
+int32_t vtkSlicerU70RoomSiemensPlcOpcUaLogic::GetNewCoordZ(bool& res)
+{
+  std::string nodeName = vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::GetSetCoordZ();
+  return this->Internal->getInt32(QString::fromStdString(nodeName), res);
+}
+
+//---------------------------------------------------------------------------
+bool vtkSlicerU70RoomSiemensPlcOpcUaLogic::ReadNewCoordZ()
+{
+  std::string nodeName = vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::GetSetCoordZ();
+  return this->Internal->readNodeValueAttribute(nodeName);
+}
+
+//---------------------------------------------------------------------------
+bool vtkSlicerU70RoomSiemensPlcOpcUaLogic::WriteNewCoordAngleA(int32_t angleA)
+{
+  std::string nodeName = vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::GetSetCoordA();
+  QOpcUaNode* node = this->Internal->node(QString::fromStdString(nodeName));
+  if (node)
+  {
+    return node->writeValueAttribute(QVariant(angleA), QOpcUa::Types::Int32);
+  }
+  return false;
+}
+
+//---------------------------------------------------------------------------
+int32_t vtkSlicerU70RoomSiemensPlcOpcUaLogic::GetNewCoordAngleA(bool& res)
+{
+  std::string nodeName = vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::GetSetCoordA();
+  return this->Internal->getInt32(QString::fromStdString(nodeName), res);
+}
+
+//---------------------------------------------------------------------------
+bool vtkSlicerU70RoomSiemensPlcOpcUaLogic::ReadNewCoordAngleA()
+{
+  std::string nodeName = vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::GetSetCoordA();
+  return this->Internal->readNodeValueAttribute(nodeName);
+}
+
+//---------------------------------------------------------------------------
+bool vtkSlicerU70RoomSiemensPlcOpcUaLogic::WriteNewCoordAngleB(int32_t angleB)
+{
+  std::string nodeName = vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::GetSetCoordB();
+  QOpcUaNode* node = this->Internal->node(QString::fromStdString(nodeName));
+  if (node)
+  {
+    return node->writeValueAttribute(QVariant(angleB), QOpcUa::Types::Int32);
+  }
+  return false;
+}
+
+//---------------------------------------------------------------------------
+int32_t vtkSlicerU70RoomSiemensPlcOpcUaLogic::GetNewCoordAngleB(bool& res)
+{
+  std::string nodeName = vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::GetSetCoordB();
+  return this->Internal->getInt32(QString::fromStdString(nodeName), res);
+}
+
+//---------------------------------------------------------------------------
+bool vtkSlicerU70RoomSiemensPlcOpcUaLogic::ReadNewCoordAngleB()
+{
+  std::string nodeName = vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::GetSetCoordB();
+  return this->Internal->readNodeValueAttribute(nodeName);
+}
+
+//---------------------------------------------------------------------------
+bool vtkSlicerU70RoomSiemensPlcOpcUaLogic::WriteNewCoordAngleC(int32_t angleC)
+{
+  std::string nodeName = vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::GetSetCoordC();
+  QOpcUaNode* node = this->Internal->node(QString::fromStdString(nodeName));
+  if (node)
+  {
+    return node->writeValueAttribute(QVariant(angleC), QOpcUa::Types::Int32);
+  }
+  return false;
+}
+
+//---------------------------------------------------------------------------
+int32_t vtkSlicerU70RoomSiemensPlcOpcUaLogic::GetNewCoordAngleC(bool& res)
+{
+  std::string nodeName = vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::GetSetCoordC();
+  return this->Internal->getInt32(QString::fromStdString(nodeName), res);
+}
+
+//---------------------------------------------------------------------------
+bool vtkSlicerU70RoomSiemensPlcOpcUaLogic::ReadNewCoordAngleC()
+{
+  std::string nodeName = vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::GetSetCoordC();
+  return this->Internal->readNodeValueAttribute(nodeName);
 }
 
 //---------------------------------------------------------------------------
@@ -2137,11 +2845,6 @@ void vtkSlicerU70RoomSiemensPlcOpcUaLogic::UpdateMRMLNodeFromOpcUaNodeValue(vtkM
     return;
   }
 
-  if (this->Internal->InitialReadValuesCount > 0)
-  {
-    vtkWarningMacro("UpdateMRMLNodeFromOpcUaNodeValue: Values counter: " << this->Internal->InitialReadValuesCount);
-    this->Internal->InitialReadValuesCount--;
-  }
   res &= this->Internal->updateMRMLNodeFromOpcUaModeAndStatus(mrmlSiemensPlcNode, fullNodeName);
   res &= this->Internal->updateMRMLNodeFromOpcUaFlags(mrmlSiemensPlcNode, fullNodeName);
   res &= this->Internal->updateMRMLNodeFromOpcUaSetCoordinates(mrmlSiemensPlcNode, fullNodeName);
