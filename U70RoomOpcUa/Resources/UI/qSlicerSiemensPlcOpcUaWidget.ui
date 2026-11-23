@@ -374,6 +374,31 @@
                 <bool>false</bool>
                </property>
                <layout class="QGridLayout" name="gridLayout_6">
+                <item row="2" column="0">
+                 <layout class="QHBoxLayout" name="horizontalLayout_3">
+                  <item>
+                   <widget class="QPushButton" name="PushButton_AMR1R2EmerEvac">
+                    <property name="text">
+                     <string>EMERGENCY EVACUATION!</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item>
+                   <widget class="QPushButton" name="PushButton_AMApplyTableTopPosition">
+                    <property name="text">
+                     <string>Apply tabletop position</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item>
+                   <widget class="QPushButton" name="PushButton_AMApplyNewCoords">
+                    <property name="text">
+                     <string>Apply new coordinates</string>
+                    </property>
+                   </widget>
+                  </item>
+                 </layout>
+                </item>
                 <item row="0" column="0">
                  <widget class="ctkCollapsibleGroupBox" name="CollapsibleGroupBox_AmTableTopRobot">
                   <property name="title">
@@ -448,31 +473,6 @@
                   </layout>
                  </widget>
                 </item>
-                <item row="2" column="0">
-                 <layout class="QHBoxLayout" name="horizontalLayout_3">
-                  <item>
-                   <widget class="QPushButton" name="PushButton_AMR1R2EmerEvac">
-                    <property name="text">
-                     <string>EMERGENCY EVACUATION!</string>
-                    </property>
-                   </widget>
-                  </item>
-                  <item>
-                   <widget class="QPushButton" name="PushButton_AMApplyTableTopPosition">
-                    <property name="text">
-                     <string>Apply tabletop position</string>
-                    </property>
-                   </widget>
-                  </item>
-                  <item>
-                   <widget class="QPushButton" name="PushButton_AMApplyNewCoords">
-                    <property name="text">
-                     <string>Apply new coordinates</string>
-                    </property>
-                   </widget>
-                  </item>
-                 </layout>
-                </item>
                </layout>
               </widget>
              </item>
@@ -515,7 +515,7 @@
                      <string> deg</string>
                     </property>
                     <property name="decimals">
-                     <number>6</number>
+                     <number>3</number>
                     </property>
                     <property name="minimum">
                      <double>-360.000000000000000</double>
@@ -560,7 +560,7 @@
                      <string> mm</string>
                     </property>
                     <property name="decimals">
-                     <number>6</number>
+                     <number>3</number>
                     </property>
                     <property name="minimum">
                      <double>-1000000.000000000000000</double>
@@ -611,7 +611,7 @@
                      <string> deg</string>
                     </property>
                     <property name="decimals">
-                     <number>6</number>
+                     <number>3</number>
                     </property>
                     <property name="minimum">
                      <double>-360.000000000000000</double>
@@ -656,7 +656,7 @@
                      <string> mm</string>
                     </property>
                     <property name="decimals">
-                     <number>6</number>
+                     <number>3</number>
                     </property>
                     <property name="minimum">
                      <double>-1000000.000000000000000</double>
@@ -715,7 +715,7 @@
                      <string> mm</string>
                     </property>
                     <property name="decimals">
-                     <number>6</number>
+                     <number>3</number>
                     </property>
                     <property name="minimum">
                      <double>-1000000.000000000000000</double>
@@ -747,7 +747,7 @@
                      <string> deg</string>
                     </property>
                     <property name="decimals">
-                     <number>6</number>
+                     <number>3</number>
                     </property>
                     <property name="minimum">
                      <double>-360.000000000000000</double>
@@ -899,7 +899,7 @@
                <item row="0" column="1">
                 <widget class="ctkCoordinatesWidget" name="CoordinatesWidget_ConfirmedTargetCoordsR1">
                  <property name="decimals">
-                  <number>6</number>
+                  <number>3</number>
                  </property>
                  <property name="readOnly">
                   <bool>true</bool>
@@ -925,7 +925,7 @@
                <item row="0" column="1">
                 <widget class="ctkCoordinatesWidget" name="CoordinatesWidget_ConfirmedTargetAnglesR1">
                  <property name="decimals">
-                  <number>6</number>
+                  <number>3</number>
                  </property>
                  <property name="minimum">
                   <double>-360.000000000000000</double>
@@ -966,7 +966,7 @@
                <item row="0" column="1">
                 <widget class="ctkCoordinatesWidget" name="CoordinatesWidget_ConfirmedTargetCoordsR2">
                  <property name="decimals">
-                  <number>6</number>
+                  <number>3</number>
                  </property>
                  <property name="readOnly">
                   <bool>true</bool>
@@ -992,7 +992,7 @@
                <item row="0" column="1">
                 <widget class="ctkCoordinatesWidget" name="CoordinatesWidget_ConfirmedTargetAnglesR2">
                  <property name="decimals">
-                  <number>6</number>
+                  <number>3</number>
                  </property>
                  <property name="minimum">
                   <double>-360.000000000000000</double>
@@ -1043,7 +1043,7 @@
            <rect>
             <x>0</x>
             <y>0</y>
-            <width>334</width>
+            <width>575</width>
             <height>850</height>
            </rect>
           </property>
@@ -1081,7 +1081,7 @@
                       <number>3</number>
                      </property>
                      <property name="decimals">
-                      <number>6</number>
+                      <number>3</number>
                      </property>
                      <property name="minimum">
                       <double>-360.000000000000000</double>
@@ -1112,7 +1112,7 @@
                       <number>3</number>
                      </property>
                      <property name="decimals">
-                      <number>6</number>
+                      <number>3</number>
                      </property>
                      <property name="frame">
                       <bool>true</bool>
@@ -1194,7 +1194,7 @@
                      <item row="0" column="1">
                       <widget class="ctkSliderWidget" name="SliderWidget_R1A1">
                        <property name="decimals">
-                        <number>6</number>
+                        <number>3</number>
                        </property>
                        <property name="minimum">
                         <double>-185.000000000000000</double>
@@ -1213,7 +1213,7 @@
                      <item row="1" column="1">
                       <widget class="ctkSliderWidget" name="SliderWidget_R1A2">
                        <property name="decimals">
-                        <number>6</number>
+                        <number>3</number>
                        </property>
                        <property name="minimum">
                         <double>-140.000000000000000</double>
@@ -1232,7 +1232,7 @@
                      <item row="2" column="1">
                       <widget class="ctkSliderWidget" name="SliderWidget_R1A3">
                        <property name="decimals">
-                        <number>6</number>
+                        <number>3</number>
                        </property>
                        <property name="minimum">
                         <double>-120.000000000000000</double>
@@ -1251,7 +1251,7 @@
                      <item row="3" column="1">
                       <widget class="ctkSliderWidget" name="SliderWidget_R1A4">
                        <property name="decimals">
-                        <number>6</number>
+                        <number>3</number>
                        </property>
                        <property name="minimum">
                         <double>-350.000000000000000</double>
@@ -1267,7 +1267,7 @@
                      <item row="4" column="1">
                       <widget class="ctkSliderWidget" name="SliderWidget_R1A5">
                        <property name="decimals">
-                        <number>6</number>
+                        <number>3</number>
                        </property>
                        <property name="minimum">
                         <double>-122.500000000000000</double>
@@ -1286,7 +1286,7 @@
                      <item row="5" column="1">
                       <widget class="ctkSliderWidget" name="SliderWidget_R1A6">
                        <property name="decimals">
-                        <number>6</number>
+                        <number>3</number>
                        </property>
                        <property name="minimum">
                         <double>-350.000000000000000</double>
@@ -1341,7 +1341,7 @@
                    <item row="0" column="1">
                     <widget class="ctkCoordinatesWidget" name="CoordinatesWidget_CurrAnglesR2">
                      <property name="decimals">
-                      <number>6</number>
+                      <number>3</number>
                      </property>
                      <property name="minimum">
                       <double>-360.000000000000000</double>
@@ -1376,7 +1376,7 @@
                    <item row="0" column="1">
                     <widget class="ctkCoordinatesWidget" name="CoordinatesWidget_CurrCoordsR2">
                      <property name="decimals">
-                      <number>6</number>
+                      <number>3</number>
                      </property>
                      <property name="readOnly">
                       <bool>true</bool>
@@ -1407,7 +1407,7 @@
                      <item row="2" column="1">
                       <widget class="ctkSliderWidget" name="SliderWidget_R2A3">
                        <property name="decimals">
-                        <number>6</number>
+                        <number>3</number>
                        </property>
                        <property name="minimum">
                         <double>-120.000000000000000</double>
@@ -1440,7 +1440,7 @@
                      <item row="0" column="1">
                       <widget class="ctkSliderWidget" name="SliderWidget_R2A1">
                        <property name="decimals">
-                        <number>6</number>
+                        <number>3</number>
                        </property>
                        <property name="minimum">
                         <double>-185.000000000000000</double>
@@ -1456,7 +1456,7 @@
                      <item row="1" column="1">
                       <widget class="ctkSliderWidget" name="SliderWidget_R2A2">
                        <property name="decimals">
-                        <number>6</number>
+                        <number>3</number>
                        </property>
                        <property name="minimum">
                         <double>-140.000000000000000</double>
@@ -1482,7 +1482,7 @@
                      <item row="3" column="1">
                       <widget class="ctkSliderWidget" name="SliderWidget_R2A4">
                        <property name="decimals">
-                        <number>6</number>
+                        <number>3</number>
                        </property>
                        <property name="minimum">
                         <double>-350.000000000000000</double>
@@ -1505,7 +1505,7 @@
                      <item row="4" column="1">
                       <widget class="ctkSliderWidget" name="SliderWidget_R2A5">
                        <property name="decimals">
-                        <number>6</number>
+                        <number>3</number>
                        </property>
                        <property name="minimum">
                         <double>-122.500000000000000</double>
@@ -1538,7 +1538,7 @@
                      <item row="5" column="1">
                       <widget class="ctkSliderWidget" name="SliderWidget_R2A6">
                        <property name="decimals">
-                        <number>6</number>
+                        <number>3</number>
                        </property>
                        <property name="minimum">
                         <double>-350.000000000000000</double>

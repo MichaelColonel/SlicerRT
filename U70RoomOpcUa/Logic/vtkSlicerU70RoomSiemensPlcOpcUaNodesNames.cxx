@@ -275,6 +275,16 @@ std::string vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::GetAutoManualSetTabletopO
   return GetRtkPlcAsuAutoManualButtons() + std::string(DOT) + std::string(APPLY_DEKA_POSITION) + std::string(DOT) + std::string(ISPRESSED);
 }
 
+std::string vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::GetAutoManualApplyNewCoordsButtonIsEnabled()
+{
+  return GetRtkPlcAsuAutoManualButtons() + std::string(DOT) + std::string(APPLY_NEW_COORDS) + std::string(DOT) + std::string(ISENABLED);
+}
+
+std::string vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::GetAutoManualApplyNewCoordsButtonIsPressed()
+{
+  return GetRtkPlcAsuAutoManualButtons() + std::string(DOT) + std::string(APPLY_NEW_COORDS) + std::string(DOT) + std::string(ISPRESSED);
+}
+
 std::string vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::GetAutoManualR1R2EmergencyEvacuationButtonIsEnabled()
 {
   return GetRtkPlcAsuAutoManualButtons() + std::string(DOT) + std::string(R1R2_EMEVAL) + std::string(DOT) + std::string(ISENABLED);
@@ -803,6 +813,8 @@ std::list< std::string > vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::GetSiemensPl
 
   fullNodeNames.push_back(GetAutoManualSetTabletopOrientationButtonIsEnabled());
   fullNodeNames.push_back(GetAutoManualSetTabletopOrientationButtonIsPressed());
+  fullNodeNames.push_back(GetAutoManualApplyNewCoordsButtonIsEnabled());
+  fullNodeNames.push_back(GetAutoManualApplyNewCoordsButtonIsPressed());
   fullNodeNames.push_back(GetAutoManualR1R2EmergencyEvacuationButtonIsEnabled());
   fullNodeNames.push_back(GetAutoManualR1R2EmergencyEvacuationButtonIsPressed());
 

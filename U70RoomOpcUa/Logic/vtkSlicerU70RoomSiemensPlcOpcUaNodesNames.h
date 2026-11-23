@@ -51,7 +51,7 @@ public:
   static std::string GetAutoManualR1ToLoadButtonIsPressed();
   static std::string GetAutoManualR1ToNewCoordsButtonIsEnabled();
   static std::string GetAutoManualR1ToNewCoordsButtonIsPressed();
-  
+
   static std::string GetAutoManualR2ToPlane1ButtonIsEnabled();
   static std::string GetAutoManualR2ToPlane1ButtonIsPressed();
   static std::string GetAutoManualR2ToPlane2ButtonIsEnabled();
@@ -61,9 +61,10 @@ public:
 
   static std::string GetAutoManualSetTabletopOrientationButtonIsEnabled();
   static std::string GetAutoManualSetTabletopOrientationButtonIsPressed();
-
   static std::string GetAutoManualR1R2EmergencyEvacuationButtonIsEnabled();
   static std::string GetAutoManualR1R2EmergencyEvacuationButtonIsPressed();
+  static std::string GetAutoManualApplyNewCoordsButtonIsEnabled();
+  static std::string GetAutoManualApplyNewCoordsButtonIsPressed();
 
   static std::string GetServiceR1BreakTestButtonIsEnabled();
   static std::string GetServiceR1BreakTestButtonIsPressed();

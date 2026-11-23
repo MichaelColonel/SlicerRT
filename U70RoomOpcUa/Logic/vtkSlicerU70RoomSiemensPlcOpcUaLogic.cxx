@@ -1107,7 +1107,7 @@ bool vtkSlicerU70RoomSiemensPlcOpcUaLogic::vtkInternal::updateMRMLNodeFromOpcUaA
   }
   else if (fullNodeName == vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::GetAutoManualR2ToPlane1ButtonIsEnabled())
   {
-    vtkErrorWithObjectMacro(this->External, "UpdateMRMLNodeFromOpcUaNodeValue: AM R2 TOplan1 ENABLED");
+    vtkErrorWithObjectMacro(this->External, "UpdateMRMLNodeFromOpcUaNodeValue: AM R2 PLANE1 ENABLED");
     bool enabled = this->getBool(QString::fromStdString(fullNodeName), res);
     if (res)
     {
@@ -1123,7 +1123,7 @@ bool vtkSlicerU70RoomSiemensPlcOpcUaLogic::vtkInternal::updateMRMLNodeFromOpcUaA
   }
   else if (fullNodeName == vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::GetAutoManualR2ToPlane1ButtonIsPressed())
   {
-    vtkErrorWithObjectMacro(this->External, "UpdateMRMLNodeFromOpcUaNodeValue: AM R2 TOplan1 pressed");
+    vtkErrorWithObjectMacro(this->External, "UpdateMRMLNodeFromOpcUaNodeValue: AM R2 PLANE1 pressed");
     bool pressed = this->getBool(QString::fromStdString(fullNodeName), res);
     if (res)
     {
@@ -1139,7 +1139,7 @@ bool vtkSlicerU70RoomSiemensPlcOpcUaLogic::vtkInternal::updateMRMLNodeFromOpcUaA
   }
   else if (fullNodeName == vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::GetAutoManualR2ToPlane2ButtonIsEnabled())
   {
-    vtkErrorWithObjectMacro(this->External, "UpdateMRMLNodeFromOpcUaNodeValue: AM R2 TOplan2 ENABLED");
+    vtkErrorWithObjectMacro(this->External, "UpdateMRMLNodeFromOpcUaNodeValue: AM R2 PLANE2 ENABLED");
     bool enabled = this->getBool(QString::fromStdString(fullNodeName), res);
     if (res)
     {
@@ -1155,7 +1155,7 @@ bool vtkSlicerU70RoomSiemensPlcOpcUaLogic::vtkInternal::updateMRMLNodeFromOpcUaA
   }
   else if (fullNodeName == vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::GetAutoManualR2ToPlane2ButtonIsPressed())
   {
-    vtkErrorWithObjectMacro(this->External, "UpdateMRMLNodeFromOpcUaNodeValue: AM R2 TOplan1 PRESSED");
+    vtkErrorWithObjectMacro(this->External, "UpdateMRMLNodeFromOpcUaNodeValue: AM R2 PLANE2 PRESSED");
     bool pressed = this->getBool(QString::fromStdString(fullNodeName), res);
     if (res)
     {
@@ -1169,11 +1169,11 @@ bool vtkSlicerU70RoomSiemensPlcOpcUaLogic::vtkInternal::updateMRMLNodeFromOpcUaA
       vtkErrorWithObjectMacro(this->External, "UpdateMRMLNodeFromOpcUaNodeValue: AM R2 PLANE2 PRESSED: " << pressed);
     }
   }
-  // Other AM_MM buttons
 
+  // Other AM_MM buttons
   if (fullNodeName == vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::GetAutoManualSetTabletopOrientationButtonIsEnabled())
   {
-    vtkErrorWithObjectMacro(this->External, "UpdateMRMLNodeFromOpcUaNodeValue: AM APPLYDEKAPOSITION ENABLED");
+    vtkErrorWithObjectMacro(this->External, "UpdateMRMLNodeFromOpcUaNodeValue: AM APPLY_TABLETOP_ORIENTATION ENABLED");
     bool enabled = this->getBool(QString::fromStdString(fullNodeName), res);
     if (res)
     {
@@ -1184,12 +1184,12 @@ bool vtkSlicerU70RoomSiemensPlcOpcUaLogic::vtkInternal::updateMRMLNodeFromOpcUaA
         MRMLNodeModifyBlocker block(mrmlSiemensPlcNode);
         mrmlSiemensPlcNode->SetAutoManualApplyTabletopPosition(buttonEnabledPressed);
       }
-      vtkErrorWithObjectMacro(this->External, "UpdateMRMLNodeFromOpcUaNodeValue: AM TT ORIENT ENABLED: " << enabled);
+      vtkErrorWithObjectMacro(this->External, "UpdateMRMLNodeFromOpcUaNodeValue: AM APPLY_TABLETOP_ORIENTATION ENABLED: " << enabled);
     }
   }
   else if (fullNodeName == vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::GetAutoManualSetTabletopOrientationButtonIsPressed())
   {
-    vtkErrorWithObjectMacro(this->External, "UpdateMRMLNodeFromOpcUaNodeValue: AM APPLYDEKAPOSITION PRESSED");
+    vtkErrorWithObjectMacro(this->External, "UpdateMRMLNodeFromOpcUaNodeValue: AM APPLY_TABLETOP_ORIENTATION PRESSED");
     bool pressed = this->getBool(QString::fromStdString(fullNodeName), res);
     if (res)
     {
@@ -1200,9 +1200,42 @@ bool vtkSlicerU70RoomSiemensPlcOpcUaLogic::vtkInternal::updateMRMLNodeFromOpcUaA
         MRMLNodeModifyBlocker block(mrmlSiemensPlcNode);
         mrmlSiemensPlcNode->SetAutoManualApplyTabletopPosition(buttonEnabledPressed);
       }
-      vtkErrorWithObjectMacro(this->External, "UpdateMRMLNodeFromOpcUaNodeValue: AM TT ORIENT PRESSED: " << pressed);
+      vtkErrorWithObjectMacro(this->External, "UpdateMRMLNodeFromOpcUaNodeValue: AM APPLY_TABLETOP_ORIENTATION PRESSED: " << pressed);
     }
   }
+  else if (fullNodeName == vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::GetAutoManualApplyNewCoordsButtonIsEnabled())
+  {
+    vtkErrorWithObjectMacro(this->External, "UpdateMRMLNodeFromOpcUaNodeValue: AM APPLY_NEW_COORDS ENABLED");
+    bool enabled = this->getBool(QString::fromStdString(fullNodeName), res);
+    if (res)
+    {
+      bool buttonEnabledPressed[2] = {};
+      mrmlSiemensPlcNode->GetAutoManualApplyNewCoords(buttonEnabledPressed);
+      buttonEnabledPressed[0] = enabled;
+      {
+        MRMLNodeModifyBlocker block(mrmlSiemensPlcNode);
+        mrmlSiemensPlcNode->SetAutoManualApplyNewCoords(buttonEnabledPressed);
+      }
+      vtkErrorWithObjectMacro(this->External, "UpdateMRMLNodeFromOpcUaNodeValue: AM APPLY_NEW_COORDS ENABLED: " << enabled);
+    }
+  }
+  else if (fullNodeName == vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::GetAutoManualApplyNewCoordsButtonIsPressed())
+  {
+    vtkErrorWithObjectMacro(this->External, "UpdateMRMLNodeFromOpcUaNodeValue: AM APPLY_NEW_COORDS PRESSED");
+    bool pressed = this->getBool(QString::fromStdString(fullNodeName), res);
+    if (res)
+    {
+      bool buttonEnabledPressed[2] = {};
+      mrmlSiemensPlcNode->GetAutoManualApplyNewCoords(buttonEnabledPressed);
+      buttonEnabledPressed[1] = pressed;
+      {
+        MRMLNodeModifyBlocker block(mrmlSiemensPlcNode);
+        mrmlSiemensPlcNode->SetAutoManualApplyNewCoords(buttonEnabledPressed);
+      }
+      vtkErrorWithObjectMacro(this->External, "UpdateMRMLNodeFromOpcUaNodeValue: AM APPLY_NEW_COORDS PRESSED: " << pressed);
+    }
+  }
+
   return res;
 }
 
@@ -2637,6 +2670,46 @@ bool vtkSlicerU70RoomSiemensPlcOpcUaLogic::GetAutoManualApplyTabletopOrientation
 bool vtkSlicerU70RoomSiemensPlcOpcUaLogic::ReadAutoManualApplyTabletopOrientationEnabled()
 {
   std::string nodeName = vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::GetAutoManualSetTabletopOrientationButtonIsEnabled();
+  return this->Internal->readNodeValueAttribute(nodeName);
+}
+
+//---------------------------------------------------------------------------
+bool vtkSlicerU70RoomSiemensPlcOpcUaLogic::WriteAutoManualApplyNewCoordsPressed(bool pressed)
+{
+  std::string nodeName = vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::GetAutoManualApplyNewCoordsButtonIsPressed();
+  QOpcUaNode* node = this->Internal->node(QString::fromStdString(nodeName));
+  if (node)
+  {
+    return node->writeValueAttribute(QVariant(pressed), QOpcUa::Types::Boolean);
+  }
+  return false;
+}
+
+//---------------------------------------------------------------------------
+bool vtkSlicerU70RoomSiemensPlcOpcUaLogic::GetAutoManualApplyNewCoordsPressed(bool& res)
+{
+  std::string nodeName = vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::GetAutoManualApplyNewCoordsButtonIsPressed();
+  return this->Internal->getBool(QString::fromStdString(nodeName), res);
+}
+
+//---------------------------------------------------------------------------
+bool vtkSlicerU70RoomSiemensPlcOpcUaLogic::ReadAutoManualApplyNewCoordsPressed()
+{
+  std::string nodeName = vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::GetAutoManualApplyNewCoordsButtonIsPressed();
+  return this->Internal->readNodeValueAttribute(nodeName);
+}
+
+//---------------------------------------------------------------------------
+bool vtkSlicerU70RoomSiemensPlcOpcUaLogic::GetAutoManualApplyNewCoordsEnabled(bool& res)
+{
+  std::string nodeName = vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::GetAutoManualApplyNewCoordsButtonIsEnabled();
+  return this->Internal->getBool(QString::fromStdString(nodeName), res);
+}
+
+//---------------------------------------------------------------------------
+bool vtkSlicerU70RoomSiemensPlcOpcUaLogic::ReadAutoManualApplyNewCoordsEnabled()
+{
+  std::string nodeName = vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::GetAutoManualApplyNewCoordsButtonIsEnabled();
   return this->Internal->readNodeValueAttribute(nodeName);
 }
 

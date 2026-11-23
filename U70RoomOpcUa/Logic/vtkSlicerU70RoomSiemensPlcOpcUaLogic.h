@@ -121,6 +121,13 @@ public:
   bool GetAutoManualApplyTabletopOrientationEnabled(bool& res);
   bool ReadAutoManualApplyTabletopOrientationEnabled();
 
+  bool WriteAutoManualApplyNewCoordsPressed(bool);
+  bool GetAutoManualApplyNewCoordsPressed(bool& res);
+  bool ReadAutoManualApplyNewCoordsPressed();
+
+  bool GetAutoManualApplyNewCoordsEnabled(bool& res);
+  bool ReadAutoManualApplyNewCoordsEnabled();
+
   bool WriteAutoManualEmergencyEvacuationPressed(bool);
   bool GetAutoManualEmergencyEvacuationPressed(bool& res);
   bool ReadAutoManualEmergencyEvacuationPressed();

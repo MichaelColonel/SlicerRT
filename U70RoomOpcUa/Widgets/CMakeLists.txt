@@ -10,8 +10,6 @@ set(${KIT}_INCLUDE_DIRECTORIES
   )
 
 set(${KIT}_SRCS
-#  qSlicerScadaOpcUaLogic.cxx
-#  qSlicerScadaOpcUaLogic.h
   qSlicerSiemensPlcOpcUaWidget.cxx
   qSlicerSiemensPlcOpcUaWidget.h
   qSlicerScadaOpcUaWidget.cxx
@@ -28,15 +26,9 @@ set(${KIT}_SRCS
   ScadaOpcUaModel.h
   ScadaOpcUaTreeItem.cxx
   ScadaOpcUaTreeItem.h
-#  opcuamodel.cpp
-#  opcuamodel.h
-#  treeitem.cpp
-#  treeitem.h
   )
 
 set(${KIT}_MOC_SRCS
-#  qSlicerScadaOpcUaLogic.h
-#  qSlicerScadaOpcUaRobotsControlWidget.h
   qSlicerSiemensPlcOpcUaWidget.h
   qSlicerScadaOpcUaWidget.h
   qSlicerOpcUaRobotsMessagesListModel.h
@@ -44,8 +36,8 @@ set(${KIT}_MOC_SRCS
   OpcUaModel.h
   ScadaOpcUaTreeItem.h
   ScadaOpcUaModel.h
-#  opcuamodel.h
-#  treeitem.h
+  qSlicerOpcUaInitialValueNodeReader.h
+  qSlicerOpcUaInitialValueNodeLoader.h
   )
 
 set(${KIT}_UI_SRCS
