@@ -1126,6 +1126,7 @@ void qSlicerSiemensPlcOpcUaWidget::onAutoManualApplyNewCoordsReleased()
     qDebug() << Q_FUNC_INFO << ": AutoManual R1 ToNewCoords button is released";
   }
 }
+
 /*
 //-----------------------------------------------------------------------------
 void qSlicerSiemensPlcOpcUaWidget::onServiceR1BreakTestPressed()

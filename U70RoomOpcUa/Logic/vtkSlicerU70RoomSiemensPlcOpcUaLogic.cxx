@@ -68,6 +68,7 @@ public:
    bool updateMRMLNodeFromOpcUaAutoManualButtons(vtkMRMLSiemensPlcOpcUaNode* mrmlSiemensPlcNode, const std::string& fullNodeName);
    bool updateMRMLNodeFromOpcUaServiceButtons(vtkMRMLSiemensPlcOpcUaNode* mrmlSiemensPlcNode, const std::string& fullNodeName);
    bool updateMRMLNodeFromOpcUaKukaControllersButtons(vtkMRMLSiemensPlcOpcUaNode* mrmlSiemensPlcNode, const std::string& fullNodeName);
+   bool updateMRMLNodeFromOpcUaOtherButtons(vtkMRMLSiemensPlcOpcUaNode* mrmlSiemensPlcNode, const std::string& fullNodeName);
    bool updateMRMLNodeFromOpcUaSetCoordinates(vtkMRMLSiemensPlcOpcUaNode* mrmlSiemensPlcNode, const std::string& fullNodeName);
    bool updateMRMLNodeFromOpcUaCurrentCoordinates(vtkMRMLSiemensPlcOpcUaNode* mrmlSiemensPlcNode, const std::string& fullNodeName);
    bool updateMRMLNodeFromOpcUaReflectionCoordinates(vtkMRMLSiemensPlcOpcUaNode* mrmlSiemensPlcNode, const std::string& fullNodeName);
@@ -1173,7 +1174,7 @@ bool vtkSlicerU70RoomSiemensPlcOpcUaLogic::vtkInternal::updateMRMLNodeFromOpcUaA
   // Other AM_MM buttons
   if (fullNodeName == vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::GetAutoManualSetTabletopOrientationButtonIsEnabled())
   {
-    vtkErrorWithObjectMacro(this->External, "UpdateMRMLNodeFromOpcUaNodeValue: AM APPLY_TABLETOP_ORIENTATION ENABLED");
+    vtkErrorWithObjectMacro(this->External, "UpdateMRMLNodeFromOpcUaNodeValue: " << fullNodeName);
     bool enabled = this->getBool(QString::fromStdString(fullNodeName), res);
     if (res)
     {
@@ -1189,7 +1190,7 @@ bool vtkSlicerU70RoomSiemensPlcOpcUaLogic::vtkInternal::updateMRMLNodeFromOpcUaA
   }
   else if (fullNodeName == vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::GetAutoManualSetTabletopOrientationButtonIsPressed())
   {
-    vtkErrorWithObjectMacro(this->External, "UpdateMRMLNodeFromOpcUaNodeValue: AM APPLY_TABLETOP_ORIENTATION PRESSED");
+    vtkErrorWithObjectMacro(this->External, "UpdateMRMLNodeFromOpcUaNodeValue: " << fullNodeName);
     bool pressed = this->getBool(QString::fromStdString(fullNodeName), res);
     if (res)
     {
@@ -1205,7 +1206,7 @@ bool vtkSlicerU70RoomSiemensPlcOpcUaLogic::vtkInternal::updateMRMLNodeFromOpcUaA
   }
   else if (fullNodeName == vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::GetAutoManualApplyNewCoordsButtonIsEnabled())
   {
-    vtkErrorWithObjectMacro(this->External, "UpdateMRMLNodeFromOpcUaNodeValue: AM APPLY_NEW_COORDS ENABLED");
+    vtkErrorWithObjectMacro(this->External, "UpdateMRMLNodeFromOpcUaNodeValue: " << fullNodeName);
     bool enabled = this->getBool(QString::fromStdString(fullNodeName), res);
     if (res)
     {
@@ -1221,7 +1222,7 @@ bool vtkSlicerU70RoomSiemensPlcOpcUaLogic::vtkInternal::updateMRMLNodeFromOpcUaA
   }
   else if (fullNodeName == vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::GetAutoManualApplyNewCoordsButtonIsPressed())
   {
-    vtkErrorWithObjectMacro(this->External, "UpdateMRMLNodeFromOpcUaNodeValue: AM APPLY_NEW_COORDS PRESSED");
+    vtkErrorWithObjectMacro(this->External, "UpdateMRMLNodeFromOpcUaNodeValue: " << fullNodeName);
     bool pressed = this->getBool(QString::fromStdString(fullNodeName), res);
     if (res)
     {
@@ -1669,6 +1670,70 @@ bool vtkSlicerU70RoomSiemensPlcOpcUaLogic::vtkInternal::updateMRMLNodeFromOpcUaK
       {
         MRMLNodeModifyBlocker block(mrmlSiemensPlcNode);
         mrmlSiemensPlcNode->SetKukaAllowBeam(buttonEnabledPressed);
+      }
+    }
+  }
+
+  return res;
+}
+
+bool vtkSlicerU70RoomSiemensPlcOpcUaLogic::vtkInternal::updateMRMLNodeFromOpcUaOtherButtons(vtkMRMLSiemensPlcOpcUaNode* mrmlSiemensPlcNode, const std::string& fullNodeName)
+{
+  // ResetErrors button
+  bool res = false;
+  if (fullNodeName == vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::GetResetErrorsButtonIsEnabled())
+  {
+    bool enabled = this->getBool(QString::fromStdString(fullNodeName), res);
+    if (res)
+    {
+      bool buttonEnabledPressed[2] = {};
+      mrmlSiemensPlcNode->GetResetErrors(buttonEnabledPressed);
+      buttonEnabledPressed[0] = enabled;
+      {
+        MRMLNodeModifyBlocker block(mrmlSiemensPlcNode);
+        mrmlSiemensPlcNode->SetResetErrors(buttonEnabledPressed);
+      }
+    }
+  }
+  else if (fullNodeName == vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::GetResetErrorsButtonIsPressed())
+  {
+    bool pressed = this->getBool(QString::fromStdString(fullNodeName), res);
+    if (res)
+    {
+      bool buttonEnabledPressed[2] = {};
+      mrmlSiemensPlcNode->GetResetErrors(buttonEnabledPressed);
+      buttonEnabledPressed[1] = pressed;
+      {
+        MRMLNodeModifyBlocker block(mrmlSiemensPlcNode);
+        mrmlSiemensPlcNode->SetResetErrors(buttonEnabledPressed);
+      }
+    }
+  }
+  else if (fullNodeName == vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::GetMakeXrayButtonIsEnabled())
+  {
+    bool enabled = this->getBool(QString::fromStdString(fullNodeName), res);
+    if (res)
+    {
+      bool buttonEnabledPressed[2] = {};
+      mrmlSiemensPlcNode->GetMakeXray(buttonEnabledPressed);
+      buttonEnabledPressed[0] = enabled;
+      {
+        MRMLNodeModifyBlocker block(mrmlSiemensPlcNode);
+        mrmlSiemensPlcNode->SetMakeXray(buttonEnabledPressed);
+      }
+    }
+  }
+  else if (fullNodeName == vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::GetMakeXrayButtonIsPressed())
+  {
+    bool pressed = this->getBool(QString::fromStdString(fullNodeName), res);
+    if (res)
+    {
+      bool buttonEnabledPressed[2] = {};
+      mrmlSiemensPlcNode->GetMakeXray(buttonEnabledPressed);
+      buttonEnabledPressed[1] = pressed;
+      {
+        MRMLNodeModifyBlocker block(mrmlSiemensPlcNode);
+        mrmlSiemensPlcNode->SetMakeXray(buttonEnabledPressed);
       }
     }
   }
@@ -2926,6 +2991,7 @@ void vtkSlicerU70RoomSiemensPlcOpcUaLogic::UpdateMRMLNodeFromOpcUaNodeValue(vtkM
   res &= this->Internal->updateMRMLNodeFromOpcUaAutoManualButtons(mrmlSiemensPlcNode, fullNodeName);
   res &= this->Internal->updateMRMLNodeFromOpcUaServiceButtons(mrmlSiemensPlcNode, fullNodeName);
   res &= this->Internal->updateMRMLNodeFromOpcUaKukaControllersButtons(mrmlSiemensPlcNode, fullNodeName);
+  res &= this->Internal->updateMRMLNodeFromOpcUaOtherButtons(mrmlSiemensPlcNode, fullNodeName);
 }
 
 //---------------------------------------------------------------------------
