@@ -56,6 +56,7 @@ void vtkMRMLScadaOpcUaNode::WriteXML(ostream& of, int nIndent)
   vtkMRMLWriteXMLIntMacro(sysTimeScada, SysTimeScada);
   vtkMRMLWriteXMLIntMacro(sysTimeModPos, SysTimeModPos);
   vtkMRMLWriteXMLStdStringMacro(planStr, PlanStr);
+  vtkMRMLWriteXMLIntMacro(planCtrl, PlanCtrl);
   vtkMRMLWriteXMLStdStringMacro(iDP, IDP);
   vtkMRMLWriteXMLBooleanMacro(eCP, ECP);
   vtkMRMLWriteXMLStdStringMacro(immob, Immob);
@@ -99,6 +100,7 @@ void vtkMRMLScadaOpcUaNode::ReadXMLAttributes(const char** atts)
   vtkMRMLReadXMLIntMacro(sysTimeScada, SysTimeScada);
   vtkMRMLReadXMLIntMacro(sysTimeModPos, SysTimeModPos);
   vtkMRMLReadXMLStdStringMacro(planStr, PlanStr);
+  vtkMRMLReadXMLIntMacro(planCtrl, PlanCtrl);
   vtkMRMLReadXMLStdStringMacro(iDP, IDP);
   vtkMRMLReadXMLBooleanMacro(eCP, ECP);
   vtkMRMLReadXMLStdStringMacro(immob, Immob);
@@ -154,6 +156,7 @@ void vtkMRMLScadaOpcUaNode::Copy(vtkMRMLNode *anode)
   vtkMRMLCopyIntMacro(SysTimeScada);
   vtkMRMLCopyIntMacro(SysTimeModPos);
   vtkMRMLCopyStdStringMacro(PlanStr);
+  vtkMRMLCopyIntMacro(PlanCtrl);
   vtkMRMLCopyStdStringMacro(IDP);
   vtkMRMLCopyBooleanMacro(ECP);
   vtkMRMLCopyStdStringMacro(Immob);
@@ -206,6 +209,7 @@ void vtkMRMLScadaOpcUaNode::CopyContent(vtkMRMLNode *anode, bool deepCopy/*=true
   vtkMRMLCopyIntMacro(SysTimeScada);
   vtkMRMLCopyIntMacro(SysTimeModPos);
   vtkMRMLCopyStdStringMacro(PlanStr);
+  vtkMRMLCopyIntMacro(PlanCtrl);
   vtkMRMLCopyStdStringMacro(IDP);
   vtkMRMLCopyBooleanMacro(ECP);
   vtkMRMLCopyStdStringMacro(Immob);
@@ -246,6 +250,7 @@ void vtkMRMLScadaOpcUaNode::PrintSelf(ostream& os, vtkIndent indent)
   vtkMRMLPrintIntMacro(SysTimeScada);
   vtkMRMLPrintIntMacro(SysTimeModPos);
   vtkMRMLPrintStdStringMacro(PlanStr);
+  vtkMRMLPrintIntMacro(PlanCtrl);
   vtkMRMLPrintStdStringMacro(IDP);
   vtkMRMLPrintBooleanMacro(ECP);
   vtkMRMLPrintStdStringMacro(Immob);

@@ -111,6 +111,9 @@ public:
   vtkGetMacro(PlanStr, std::string);
   vtkSetMacro(PlanStr, std::string);
 
+  vtkGetMacro(PlanCtrl, int);
+  vtkSetMacro(PlanCtrl, int);
+
   vtkGetMacro(IDP, std::string);
   vtkSetMacro(IDP, std::string);
 
@@ -204,6 +207,7 @@ private:
   int32_t SysTimeScada{ 0 };
   int32_t SysTimeModPos{ 0 };
   std::string PlanStr;
+  int PlanCtrl;
   std::string IDP;
   bool ECP{ false };
   std::string Immob;

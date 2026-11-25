@@ -1689,7 +1689,7 @@ void qSlicerSiemensPlcOpcUaWidget::onSetCoordsAndAnglesClicked()
   // Angle C
   int32_t c = static_cast< int32_t >(d->DoubleSpinBox_AngleC->value() * 1000.);
 
-  bool res = d->opcUaLogic->GetSiemensPlcOpcUaLogic()->WriteNewCoordY(x);
+  bool res = d->opcUaLogic->GetSiemensPlcOpcUaLogic()->WriteNewCoordX(x);
   res &= d->opcUaLogic->GetSiemensPlcOpcUaLogic()->WriteNewCoordY(y);
   res &= d->opcUaLogic->GetSiemensPlcOpcUaLogic()->WriteNewCoordZ(z);
   res &= d->opcUaLogic->GetSiemensPlcOpcUaLogic()->WriteNewCoordAngleA(a);

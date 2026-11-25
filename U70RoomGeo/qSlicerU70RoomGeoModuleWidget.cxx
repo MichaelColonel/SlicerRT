@@ -823,6 +823,11 @@ void qSlicerU70RoomGeoModuleWidget::onFixedReferenceCameraToggled(bool toggled)
   {
     fixedReferenceToRasTransformNode = robotsLogic->GetFixedReferenceTransform();
   }
+  else
+  {
+    qCritical() << Q_FUNC_INFO << ": Robots logic is absent";
+    return;
+  }
 
   vtkNew<vtkMatrix4x4> fixedReferenceToRasTransformMatrix;
   fixedReferenceToRasTransformMatrix->Identity();

@@ -356,7 +356,6 @@ bool vtkSlicerU70RoomSiemensPlcOpcUaLogic::vtkInternal::updateMRMLNodeFromOpcUaM
     uint8_t modeState = this->getUint8(QString::fromStdString(fullNodeName), res);
     if (res)
     {
-      vtkErrorWithObjectMacro(this->External, "UpdateMRMLNodeFromOpcUaNodeValue: Mode: " << int(modeState));
       MRMLNodeModifyBlocker block(mrmlSiemensPlcNode);
       mrmlSiemensPlcNode->SetMode(static_cast< vtkMRMLSiemensPlcOpcUaNode::ModeType >(modeState));
     }
@@ -366,7 +365,6 @@ bool vtkSlicerU70RoomSiemensPlcOpcUaLogic::vtkInternal::updateMRMLNodeFromOpcUaM
     uint16_t rtkState = this->getUint16(QString::fromStdString(fullNodeName), res);
     if (res)
     {
-      vtkErrorWithObjectMacro(this->External, "UpdateMRMLNodeFromOpcUaNodeValue: RTK State: " << rtkState);
       MRMLNodeModifyBlocker block(mrmlSiemensPlcNode);
       mrmlSiemensPlcNode->SetStateRtk(rtkState);
     }
@@ -1160,9 +1158,11 @@ bool vtkSlicerU70RoomSiemensPlcOpcUaLogic::vtkInternal::updateMRMLNodeFromOpcUaA
   }
   else if (fullNodeName == vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::GetAutoManualApplyNewCoordsButtonIsEnabled())
   {
+    vtkErrorWithObjectMacro(this->External, "UpdateMRMLNodeFromOpcUaNodeValue: AutoManualApplyNewCoordsButtonIsEnabled");
     bool enabled = this->getBool(QString::fromStdString(fullNodeName), res);
     if (res)
     {
+      vtkErrorWithObjectMacro(this->External, "UpdateMRMLNodeFromOpcUaNodeValue: GetAutoManualApplyNewCoordsButtonIsEnabled: " << enabled);
       bool buttonEnabledPressed[2] = {};
       mrmlSiemensPlcNode->GetAutoManualApplyNewCoords(buttonEnabledPressed);
       buttonEnabledPressed[0] = enabled;
@@ -1174,9 +1174,11 @@ bool vtkSlicerU70RoomSiemensPlcOpcUaLogic::vtkInternal::updateMRMLNodeFromOpcUaA
   }
   else if (fullNodeName == vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::GetAutoManualApplyNewCoordsButtonIsPressed())
   {
+    vtkErrorWithObjectMacro(this->External, "UpdateMRMLNodeFromOpcUaNodeValue: GetAutoManualApplyNewCoordsButtonIsPressed");
     bool pressed = this->getBool(QString::fromStdString(fullNodeName), res);
     if (res)
     {
+      vtkErrorWithObjectMacro(this->External, "UpdateMRMLNodeFromOpcUaNodeValue: GetAutoManualApplyNewCoordsButtonIsPressed: " << pressed);
       bool buttonEnabledPressed[2] = {};
       mrmlSiemensPlcNode->GetAutoManualApplyNewCoords(buttonEnabledPressed);
       buttonEnabledPressed[1] = pressed;
@@ -1854,6 +1856,7 @@ bool vtkSlicerU70RoomSiemensPlcOpcUaLogic::vtkInternal::updateMRMLNodeFromOpcUaF
   else if (fullNodeName == vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::GetComingHomeHoldButtonPressedFlag())
   {
     bool flag = this->getBool(QString::fromStdString(fullNodeName), res);
+    vtkErrorWithObjectMacro(this->External, "UpdateMRMLNodeFromOpcUaNodeValue: ComingHomeHoldButtonPressedFlag: " << int(flag));
     if (res)
     {
       mrmlSiemensPlcNode->SetHoldButtonPressedForMovingFlag(flag);

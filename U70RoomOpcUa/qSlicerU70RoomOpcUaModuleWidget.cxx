@@ -54,6 +54,7 @@
 
 class QAbstractButton;
 
+
 //-----------------------------------------------------------------------------
 class qSlicerU70RoomOpcUaModuleWidgetPrivate: public Ui_qSlicerU70RoomOpcUaModuleWidget
 {
@@ -108,6 +109,39 @@ public:
   QVector<QOpcUaEndpointDescription> ScadaOpcUaEndpointList;
   QOpcUaApplicationIdentity ScadaOpcUaAppIdentity;
   QOpcUaEndpointDescription ScadaOpcUaEndpoint; // current endpoint used to connect
+
+  QHash< vtkMRMLSiemensPlcOpcUaNode::StatusRtkType, const char* > RtkStatusMessagesHash = {
+    { vtkMRMLSiemensPlcOpcUaNode::UNKNOWN_MODE, QT_TR_NOOP("Operating mode not selected") },
+    { vtkMRMLSiemensPlcOpcUaNode::XRAY_EXPOSURE, QT_TR_NOOP("X-ray system in operation") },
+    { vtkMRMLSiemensPlcOpcUaNode::RTK_ERROR, QT_TR_NOOP("Robotic complex error") },
+    { vtkMRMLSiemensPlcOpcUaNode::STARTUP_MOVING_FROM_LOAD_TO_ISO, QT_TR_NOOP("Initial phase. Checking readiness conditions for robots to move from the loading point to the isocenter") },
+    { vtkMRMLSiemensPlcOpcUaNode::BOTH_ROBOTS_IN_START_POSITION, QT_TR_NOOP("BOTH ROBOTS IN STARTING POSITION") },
+    { vtkMRMLSiemensPlcOpcUaNode::TABLETOP_MOVING_FROM_LOAD_TO_ISO, QT_TR_NOOP("Movement of the tabletop from the loading point to the isocenter") },
+    { vtkMRMLSiemensPlcOpcUaNode::CHOOSE_ACTION_TABLETOP_ISO_CARM_HOME, QT_TR_NOOP("ACTION SELECTION: TABLETOP AT ISOCENTER. C-ARM IN HOME POSITION.") },
+    { vtkMRMLSiemensPlcOpcUaNode::TABLETOP_CORRECTION_ISO, QT_TR_NOOP("Adjustment of tabletop coordinates at the isocenter") },
+    { vtkMRMLSiemensPlcOpcUaNode::TABLETOP_RETURN_LOAD, QT_TR_NOOP("Return of the tabletop to the patient loading/unloading point") },
+    { vtkMRMLSiemensPlcOpcUaNode::CARM_MOVING_TO_PLANE1, QT_TR_NOOP("Movement of the C-arm to the imaging position in the first plane") },
+    { vtkMRMLSiemensPlcOpcUaNode::CHOOSE_ACTION_CARM_IN_PLANE1, QT_TR_NOOP("C-ARM IN FIRST PLANE. Select action.") },
+    { vtkMRMLSiemensPlcOpcUaNode::CARM_MOVING_FROM_PLANE1_TO_PLANE2, QT_TR_NOOP("Movement of the C-arm from the first plane to the second plane") },
+    { vtkMRMLSiemensPlcOpcUaNode::CHOOSE_ACTION_CARM_IN_PLANE2, QT_TR_NOOP("C-ARM IN SECOND PLANE. Select action.") },
+    { vtkMRMLSiemensPlcOpcUaNode::CARM_MOVING_TO_HOME_FROM_PLANE1_POSITION, QT_TR_NOOP("Movement of the C-arm to the home position, via an intermediate point, within the first imaging plane") },
+    { vtkMRMLSiemensPlcOpcUaNode::CARM_MOVING_FROM_PLANE2_TO_PLANE1, QT_TR_NOOP("Movement of the C-arm from the second imaging plane to the first imaging plane") },
+    { vtkMRMLSiemensPlcOpcUaNode::EMERGENCY_EVACUATION, QT_TR_NOOP("Emergency evacuation") },
+    { vtkMRMLSiemensPlcOpcUaNode::TABLETOP_IN_EMERGENCY_EVACUATION_POSITION, QT_TR_NOOP("Tabletop has reached the patient emergency evacuation position") },
+    { vtkMRMLSiemensPlcOpcUaNode::WAITING_FOR_OPERATOR_ACTION, QT_TR_NOOP("Awaiting operator action selection") },
+    { vtkMRMLSiemensPlcOpcUaNode::ALLOW_T1, QT_TR_NOOP("Robot control enabled in T1 mode") },
+    { vtkMRMLSiemensPlcOpcUaNode::ALLOW_XRAY, QT_TR_NOOP("X-ray system control enabled") },
+    { vtkMRMLSiemensPlcOpcUaNode::ALLOW_BEAM, QT_TR_NOOP("Beam control enabled") },
+    { vtkMRMLSiemensPlcOpcUaNode::ROBOTS_READYNESS_CHECK_ACTIVE_PROGRAMM_RESET, QT_TR_NOOP("Checking robot readiness; resetting active programs") },
+    { vtkMRMLSiemensPlcOpcUaNode::CARM_MOVING_TO_HOME, QT_TR_NOOP("Moving robot R2 (C-arm) to the HOME position") },
+    { vtkMRMLSiemensPlcOpcUaNode::TABLETOP_MOVING_TO_LOAD, QT_TR_NOOP("Moving robot R1 (tabletop) to the loading position") },
+    { vtkMRMLSiemensPlcOpcUaNode::OPERATOR_ACTION_CHOOSE, QT_TR_NOOP("Command selection by the operator") },
+    { vtkMRMLSiemensPlcOpcUaNode::CARM_MOVING_TO_LOAD, QT_TR_NOOP("Movement of robot R2 (with C-arm) to the loading position") },
+    { vtkMRMLSiemensPlcOpcUaNode::TABLETOP_MOVING_TO_COORDINATES, QT_TR_NOOP("Movement of robot R1 (tabletop) to a specified position") },
+    { vtkMRMLSiemensPlcOpcUaNode::CARM_MOVING_TO_COORDINATES, QT_TR_NOOP("Movement of robot R2 (C-arm) to a specified position") },
+    { vtkMRMLSiemensPlcOpcUaNode::TABLETOP_MASTER_REFERENCE_TEST, QT_TR_NOOP("MASTER REFERENCE TEST for robot R1") },
+    { vtkMRMLSiemensPlcOpcUaNode::CARM_MASTER_REFERENCE_TEST, QT_TR_NOOP("MASTER REFERENCE TEST for robot R2") }
+  };
 };
 
 //-----------------------------------------------------------------------------
@@ -647,6 +681,10 @@ void qSlicerU70RoomOpcUaModuleWidget::updateWidgetFromMRML()
   d->Label_MessagesFlags->setPixmap(miscBits ? QPixmap(":/Icons/blue.png") : QPixmap(":/Icons/gray.png"));
   
   d->SiemensPlcMessagesModel->updateMessagesBits(errBits, servBits, miscBits);
+
+  auto rtkState = static_cast< vtkMRMLSiemensPlcOpcUaNode::StatusRtkType >(d->SiemensPlcOpcUaNode->GetStateRtk());
+  d->SpinBox_RtkStateCode->setValue(rtkState);
+  d->LineEdit_RtkStateMessage->setText(tr(d->RtkStatusMessagesHash.value(rtkState)));
 
   switch (d->SiemensPlcOpcUaNode->GetMode())
   {
