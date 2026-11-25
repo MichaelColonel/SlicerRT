@@ -1083,11 +1083,11 @@ void qSlicerSiemensPlcOpcUaWidget::onAutoManualR1R2EmerEvacReleased()
 void qSlicerSiemensPlcOpcUaWidget::onAutoManualApplyTablePositionPressed()
 {
   Q_D(qSlicerSiemensPlcOpcUaWidget);
-  // AutoManual ApplyTablePosition button pressed
+  // AutoManual ApplyTabletopOrientation button pressed
   bool res = d->opcUaLogic->GetSiemensPlcOpcUaLogic()->WriteAutoManualApplyTabletopOrientationPressed(true);
   if (res)
   {
-    qDebug() << Q_FUNC_INFO << ": AutoManual ApplyTablePosition button is pressed";
+    qDebug() << Q_FUNC_INFO << ": AutoManual ApplyTabletopOrientation button is pressed";
   }
 }
 
@@ -1095,11 +1095,11 @@ void qSlicerSiemensPlcOpcUaWidget::onAutoManualApplyTablePositionPressed()
 void qSlicerSiemensPlcOpcUaWidget::onAutoManualApplyTablePositionReleased()
 {
   Q_D(qSlicerSiemensPlcOpcUaWidget);
-  // AutoManual ApplyTablePosition button released
+  // AutoManual ApplyTabletopOrientation button released
   bool res = d->opcUaLogic->GetSiemensPlcOpcUaLogic()->WriteAutoManualApplyTabletopOrientationPressed(false);
   if (res)
   {
-    qDebug() << Q_FUNC_INFO << ": AutoManual ApplyTablePosition button is released";
+    qDebug() << Q_FUNC_INFO << ": AutoManual ApplyTabletopOrientation button is released";
   }
 }
 
@@ -1108,10 +1108,10 @@ void qSlicerSiemensPlcOpcUaWidget::onAutoManualApplyNewCoordsPressed()
 {
   Q_D(qSlicerSiemensPlcOpcUaWidget);
   // AutoManual R1 ToNewCoords button pressed
-  bool res = d->opcUaLogic->GetSiemensPlcOpcUaLogic()->WriteAutoManualR1ToNewCoordsPressed(true);
+  bool res = d->opcUaLogic->GetSiemensPlcOpcUaLogic()->WriteAutoManualApplyNewCoordsPressed(true);
   if (res)
   {
-    qDebug() << Q_FUNC_INFO << ": AutoManual R1 ToNewCoords button is pressed";
+    qDebug() << Q_FUNC_INFO << ": AutoManual ApplyNewCoords button is pressed";
   }
 }
 
@@ -1120,10 +1120,10 @@ void qSlicerSiemensPlcOpcUaWidget::onAutoManualApplyNewCoordsReleased()
 {
   Q_D(qSlicerSiemensPlcOpcUaWidget);
   // AutoManual R1 ToNewCoords button released
-  bool res = d->opcUaLogic->GetSiemensPlcOpcUaLogic()->WriteAutoManualR1ToNewCoordsPressed(false);
+  bool res = d->opcUaLogic->GetSiemensPlcOpcUaLogic()->WriteAutoManualApplyNewCoordsPressed(false);
   if (res)
   {
-    qDebug() << Q_FUNC_INFO << ": AutoManual R1 ToNewCoords button is released";
+    qDebug() << Q_FUNC_INFO << ": AutoManual ApplyNewCoords button is released";
   }
 }
 

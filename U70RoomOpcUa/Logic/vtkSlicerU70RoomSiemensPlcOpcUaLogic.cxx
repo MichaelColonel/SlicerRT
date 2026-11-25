@@ -179,7 +179,7 @@ uint32_t vtkSlicerU70RoomSiemensPlcOpcUaLogic::vtkInternal::getUint32(const QStr
   }
 
   const QVariant& var = this->Nodes.value(fullNodeName).Cache;
-  if (var.canConvert< uint >())
+  if (var.canConvert< uint32_t >())
   {
     bool resBool;
     uint v = var.toUInt(&resBool);
@@ -324,7 +324,7 @@ uint16_t vtkSlicerU70RoomSiemensPlcOpcUaLogic::vtkInternal::getUint16(const QStr
   }
 
   const QVariant& var = this->Nodes.value(fullNodeName).Cache;
-  if (var.canConvert< int >())
+  if (var.canConvert< uint16_t >())
   {
     bool resBool;
     int v = var.toInt(&resBool);
@@ -376,7 +376,6 @@ bool vtkSlicerU70RoomSiemensPlcOpcUaLogic::vtkInternal::updateMRMLNodeFromOpcUaM
     uint16_t r1State = this->getUint16(QString::fromStdString(fullNodeName), res);
     if (res)
     {
-      vtkErrorWithObjectMacro(this->External, "UpdateMRMLNodeFromOpcUaNodeValue: R1 State: " << r1State);
       MRMLNodeModifyBlocker block(mrmlSiemensPlcNode);
       mrmlSiemensPlcNode->SetStateR1(r1State);
     }
@@ -386,7 +385,6 @@ bool vtkSlicerU70RoomSiemensPlcOpcUaLogic::vtkInternal::updateMRMLNodeFromOpcUaM
     uint16_t r2State = this->getUint16(QString::fromStdString(fullNodeName), res);
     if (res)
     {
-      vtkErrorWithObjectMacro(this->External, "UpdateMRMLNodeFromOpcUaNodeValue: R2 State: " << r2State);
       MRMLNodeModifyBlocker block(mrmlSiemensPlcNode);
       mrmlSiemensPlcNode->SetStateR2(r2State);
     }
@@ -407,7 +405,6 @@ bool vtkSlicerU70RoomSiemensPlcOpcUaLogic::vtkInternal::updateMRMLNodeFromOpcUaC
       mrmlSiemensPlcNode->GetCurrentAxisCoordsR1(r1axis);
       r1axis[0] = r1a1;
       {
-        vtkErrorWithObjectMacro(this->External, "UpdateMRMLNodeFromOpcUaNodeValue: CurrCoordR1A1: " << int(r1a1));
         MRMLNodeModifyBlocker block(mrmlSiemensPlcNode);
         mrmlSiemensPlcNode->SetCurrentAxisCoordsR1(r1axis);
       }
@@ -423,7 +420,6 @@ bool vtkSlicerU70RoomSiemensPlcOpcUaLogic::vtkInternal::updateMRMLNodeFromOpcUaC
       mrmlSiemensPlcNode->GetCurrentAxisCoordsR1(r1axis);
       r1axis[1] = r1a2;
       {
-        vtkErrorWithObjectMacro(this->External, "UpdateMRMLNodeFromOpcUaNodeValue: CurrCoordR1A2: " << int(r1a2));
         MRMLNodeModifyBlocker block(mrmlSiemensPlcNode);
         mrmlSiemensPlcNode->SetCurrentAxisCoordsR1(r1axis);
       }
@@ -439,7 +435,6 @@ bool vtkSlicerU70RoomSiemensPlcOpcUaLogic::vtkInternal::updateMRMLNodeFromOpcUaC
       mrmlSiemensPlcNode->GetCurrentAxisCoordsR1(r1axis);
       r1axis[2] = r1a3;
       {
-        vtkErrorWithObjectMacro(this->External, "UpdateMRMLNodeFromOpcUaNodeValue: CurrCoordR1A3: " << int(r1a3));
         MRMLNodeModifyBlocker block(mrmlSiemensPlcNode);
         mrmlSiemensPlcNode->SetCurrentAxisCoordsR1(r1axis);
       }
@@ -455,7 +450,6 @@ bool vtkSlicerU70RoomSiemensPlcOpcUaLogic::vtkInternal::updateMRMLNodeFromOpcUaC
       mrmlSiemensPlcNode->GetCurrentAxisCoordsR1(r1axis);
       r1axis[3] = r1a4;
       {
-        vtkErrorWithObjectMacro(this->External, "UpdateMRMLNodeFromOpcUaNodeValue: CurrCoordR1A4: " << int(r1a4));
         MRMLNodeModifyBlocker block(mrmlSiemensPlcNode);
         mrmlSiemensPlcNode->SetCurrentAxisCoordsR1(r1axis);
       }
@@ -471,7 +465,6 @@ bool vtkSlicerU70RoomSiemensPlcOpcUaLogic::vtkInternal::updateMRMLNodeFromOpcUaC
       mrmlSiemensPlcNode->GetCurrentAxisCoordsR1(r1axis);
       r1axis[4] = r1a5;
       {
-        vtkErrorWithObjectMacro(this->External, "UpdateMRMLNodeFromOpcUaNodeValue: CurrCoordR1A5: " << int(r1a5));
         MRMLNodeModifyBlocker block(mrmlSiemensPlcNode);
         mrmlSiemensPlcNode->SetCurrentAxisCoordsR1(r1axis);
       }
@@ -487,7 +480,6 @@ bool vtkSlicerU70RoomSiemensPlcOpcUaLogic::vtkInternal::updateMRMLNodeFromOpcUaC
       mrmlSiemensPlcNode->GetCurrentAxisCoordsR1(r1axis);
       r1axis[5] = r1a6;
       {
-        vtkErrorWithObjectMacro(this->External, "UpdateMRMLNodeFromOpcUaNodeValue: CurrCoordR1A6: " << int(r1a6));
         MRMLNodeModifyBlocker block(mrmlSiemensPlcNode);
         mrmlSiemensPlcNode->SetCurrentAxisCoordsR1(r1axis);
       }
@@ -503,7 +495,6 @@ bool vtkSlicerU70RoomSiemensPlcOpcUaLogic::vtkInternal::updateMRMLNodeFromOpcUaC
       mrmlSiemensPlcNode->GetCurrentCoordsR1(kuka_coods);
       kuka_coods[0] = kuka_x;
       {
-        vtkErrorWithObjectMacro(this->External, "UpdateMRMLNodeFromOpcUaNodeValue: CurrCoordR1X: " << int(kuka_x));
         MRMLNodeModifyBlocker block(mrmlSiemensPlcNode);
         mrmlSiemensPlcNode->SetCurrentCoordsR1(kuka_coods);
       }
@@ -518,7 +509,6 @@ bool vtkSlicerU70RoomSiemensPlcOpcUaLogic::vtkInternal::updateMRMLNodeFromOpcUaC
       mrmlSiemensPlcNode->GetCurrentCoordsR1(kuka_coods);
       kuka_coods[1] = kuka_y;
       {
-        vtkErrorWithObjectMacro(this->External, "UpdateMRMLNodeFromOpcUaNodeValue: CurrCoordR1Y: " << int(kuka_y));
         MRMLNodeModifyBlocker block(mrmlSiemensPlcNode);
         mrmlSiemensPlcNode->SetCurrentCoordsR1(kuka_coods);
       }
@@ -533,7 +523,6 @@ bool vtkSlicerU70RoomSiemensPlcOpcUaLogic::vtkInternal::updateMRMLNodeFromOpcUaC
       mrmlSiemensPlcNode->GetCurrentCoordsR1(kuka_coods);
       kuka_coods[2] = kuka_z;
       {
-        vtkErrorWithObjectMacro(this->External, "UpdateMRMLNodeFromOpcUaNodeValue: CurrCoordR1Z: " << int(kuka_z));
         MRMLNodeModifyBlocker block(mrmlSiemensPlcNode);
         mrmlSiemensPlcNode->SetCurrentCoordsR1(kuka_coods);
       }
@@ -548,7 +537,6 @@ bool vtkSlicerU70RoomSiemensPlcOpcUaLogic::vtkInternal::updateMRMLNodeFromOpcUaC
       mrmlSiemensPlcNode->GetCurrentCoordsR1(kuka_coods);
       kuka_coods[3] = kuka_a;
       {
-        vtkErrorWithObjectMacro(this->External, "UpdateMRMLNodeFromOpcUaNodeValue: CurrCoordR1A: " << int(kuka_a));
         MRMLNodeModifyBlocker block(mrmlSiemensPlcNode);
         mrmlSiemensPlcNode->SetCurrentCoordsR1(kuka_coods);
       }
@@ -563,7 +551,6 @@ bool vtkSlicerU70RoomSiemensPlcOpcUaLogic::vtkInternal::updateMRMLNodeFromOpcUaC
       mrmlSiemensPlcNode->GetCurrentCoordsR1(kuka_coods);
       kuka_coods[4] = kuka_b;
       {
-        vtkErrorWithObjectMacro(this->External, "UpdateMRMLNodeFromOpcUaNodeValue: CurrCoordR1B: " << int(kuka_b));
         MRMLNodeModifyBlocker block(mrmlSiemensPlcNode);
         mrmlSiemensPlcNode->SetCurrentCoordsR1(kuka_coods);
       }
@@ -578,7 +565,6 @@ bool vtkSlicerU70RoomSiemensPlcOpcUaLogic::vtkInternal::updateMRMLNodeFromOpcUaC
       mrmlSiemensPlcNode->GetCurrentCoordsR1(kuka_coods);
       kuka_coods[5] = kuka_c;
       {
-        vtkErrorWithObjectMacro(this->External, "UpdateMRMLNodeFromOpcUaNodeValue: CurrCoordR1C: " << int(kuka_c));
         MRMLNodeModifyBlocker block(mrmlSiemensPlcNode);
         mrmlSiemensPlcNode->SetCurrentCoordsR1(kuka_coods);
       }
@@ -947,7 +933,6 @@ bool vtkSlicerU70RoomSiemensPlcOpcUaLogic::vtkInternal::updateMRMLNodeFromOpcUaA
   // R1 == Tabletop robot
   if (fullNodeName == vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::GetAutoManualR1LoadToIsoButtonIsEnabled())
   {
-    vtkErrorWithObjectMacro(this->External, "UpdateMRMLNodeFromOpcUaNodeValue: AM R1 LOAD->ISO ENABLED");
     bool enabled = this->getBool(QString::fromStdString(fullNodeName), res);
     if (res)
     {
@@ -958,12 +943,10 @@ bool vtkSlicerU70RoomSiemensPlcOpcUaLogic::vtkInternal::updateMRMLNodeFromOpcUaA
         MRMLNodeModifyBlocker block(mrmlSiemensPlcNode);
         mrmlSiemensPlcNode->SetAutoManualR1LoadToIso(buttonEnabledPressed);
       }
-      vtkErrorWithObjectMacro(this->External, "UpdateMRMLNodeFromOpcUaNodeValue: AM R1 LOAD->ISO ENABLED: " << enabled);
     }
   }
   else if (fullNodeName == vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::GetAutoManualR1LoadToIsoButtonIsPressed())
   {
-    vtkErrorWithObjectMacro(this->External, "UpdateMRMLNodeFromOpcUaNodeValue: AM R1 LOAD->ISO PRESSED");
     bool pressed = this->getBool(QString::fromStdString(fullNodeName), res);
     if (res)
     {
@@ -974,12 +957,10 @@ bool vtkSlicerU70RoomSiemensPlcOpcUaLogic::vtkInternal::updateMRMLNodeFromOpcUaA
         MRMLNodeModifyBlocker block(mrmlSiemensPlcNode);
         mrmlSiemensPlcNode->SetAutoManualR1LoadToIso(buttonEnabledPressed);
       }
-      vtkErrorWithObjectMacro(this->External, "UpdateMRMLNodeFromOpcUaNodeValue: AM R1 LOAD->ISO PRESSED: " << pressed);
     }
   }
   else if (fullNodeName == vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::GetAutoManualR1ToLoadButtonIsEnabled())
   {
-    vtkErrorWithObjectMacro(this->External, "UpdateMRMLNodeFromOpcUaNodeValue: AM R1 toLOAD ENABLED");
     bool enabled = this->getBool(QString::fromStdString(fullNodeName), res);
     if (res)
     {
@@ -990,12 +971,10 @@ bool vtkSlicerU70RoomSiemensPlcOpcUaLogic::vtkInternal::updateMRMLNodeFromOpcUaA
         MRMLNodeModifyBlocker block(mrmlSiemensPlcNode);
         mrmlSiemensPlcNode->SetAutoManualR1ToLoad(buttonEnabledPressed);
       }
-      vtkErrorWithObjectMacro(this->External, "UpdateMRMLNodeFromOpcUaNodeValue: AM R1 TOLOAD ENABLED: " << enabled);
     }
   }
   else if (fullNodeName == vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::GetAutoManualR1ToLoadButtonIsPressed())
   {
-    vtkErrorWithObjectMacro(this->External, "UpdateMRMLNodeFromOpcUaNodeValue: AM R1 toLOAD PRESSED");
     bool pressed = this->getBool(QString::fromStdString(fullNodeName), res);
     if (res)
     {
@@ -1006,12 +985,10 @@ bool vtkSlicerU70RoomSiemensPlcOpcUaLogic::vtkInternal::updateMRMLNodeFromOpcUaA
         MRMLNodeModifyBlocker block(mrmlSiemensPlcNode);
         mrmlSiemensPlcNode->SetAutoManualR1ToLoad(buttonEnabledPressed);
       }
-      vtkErrorWithObjectMacro(this->External, "UpdateMRMLNodeFromOpcUaNodeValue: AM R1 TOLOAD PRESSED: " << pressed);
     }
   }
   else if (fullNodeName == vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::GetAutoManualR1ToNewCoordsButtonIsEnabled())
   {
-    vtkErrorWithObjectMacro(this->External, "UpdateMRMLNodeFromOpcUaNodeValue: AM R1 TONEWCOORDS ENABLED");
     bool enabled = this->getBool(QString::fromStdString(fullNodeName), res);
     if (res)
     {
@@ -1022,12 +999,10 @@ bool vtkSlicerU70RoomSiemensPlcOpcUaLogic::vtkInternal::updateMRMLNodeFromOpcUaA
         MRMLNodeModifyBlocker block(mrmlSiemensPlcNode);
         mrmlSiemensPlcNode->SetAutoManualR1ToNewCoords(buttonEnabledPressed);
       }
-      vtkErrorWithObjectMacro(this->External, "UpdateMRMLNodeFromOpcUaNodeValue: AM R1 TONEWCOORDS ENABLED: " << enabled);
     }
   }
   else if (fullNodeName == vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::GetAutoManualR1ToNewCoordsButtonIsPressed())
   {
-    vtkErrorWithObjectMacro(this->External, "UpdateMRMLNodeFromOpcUaNodeValue: AM R1 TONEWCOORDS PRESSED");
     bool pressed = this->getBool(QString::fromStdString(fullNodeName), res);
     if (res)
     {
@@ -1038,12 +1013,10 @@ bool vtkSlicerU70RoomSiemensPlcOpcUaLogic::vtkInternal::updateMRMLNodeFromOpcUaA
         MRMLNodeModifyBlocker block(mrmlSiemensPlcNode);
         mrmlSiemensPlcNode->SetAutoManualR1ToNewCoords(buttonEnabledPressed);
       }
-      vtkErrorWithObjectMacro(this->External, "UpdateMRMLNodeFromOpcUaNodeValue: AM R1 TONEWCOORDS PRESSED: " << pressed);
     }
   }
   else if (fullNodeName == vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::GetAutoManualR1R2EmergencyEvacuationButtonIsEnabled())
   {
-    vtkErrorWithObjectMacro(this->External, "UpdateMRMLNodeFromOpcUaNodeValue: AM R1R2 EVAC ENABLED");
     bool enabled = this->getBool(QString::fromStdString(fullNodeName), res);
     if (res)
     {
@@ -1054,12 +1027,10 @@ bool vtkSlicerU70RoomSiemensPlcOpcUaLogic::vtkInternal::updateMRMLNodeFromOpcUaA
         MRMLNodeModifyBlocker block(mrmlSiemensPlcNode);
         mrmlSiemensPlcNode->SetAutoManualEmergencyEvac(buttonEnabledPressed);
       }
-      vtkErrorWithObjectMacro(this->External, "UpdateMRMLNodeFromOpcUaNodeValue: AM EVAC ENABLED: " << enabled);
     }
   }
   else if (fullNodeName == vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::GetAutoManualR1R2EmergencyEvacuationButtonIsPressed())
   {
-    vtkErrorWithObjectMacro(this->External, "UpdateMRMLNodeFromOpcUaNodeValue: AM R1R2 EVAC PRESSED");
     bool pressed = this->getBool(QString::fromStdString(fullNodeName), res);
     if (res)
     {
@@ -1070,13 +1041,11 @@ bool vtkSlicerU70RoomSiemensPlcOpcUaLogic::vtkInternal::updateMRMLNodeFromOpcUaA
         MRMLNodeModifyBlocker block(mrmlSiemensPlcNode);
         mrmlSiemensPlcNode->SetAutoManualEmergencyEvac(buttonEnabledPressed);
       }
-      vtkErrorWithObjectMacro(this->External, "UpdateMRMLNodeFromOpcUaNodeValue: AM EVAC PRESSED: " << pressed);
     }
   }
   // R2 == C-arm
   if (fullNodeName == vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::GetAutoManualR2ToHomeButtonIsEnabled())
   {
-    vtkErrorWithObjectMacro(this->External, "UpdateMRMLNodeFromOpcUaNodeValue: AM R2 TOHOME ENABLED");
     bool enabled = this->getBool(QString::fromStdString(fullNodeName), res);
     if (res)
     {
@@ -1087,12 +1056,10 @@ bool vtkSlicerU70RoomSiemensPlcOpcUaLogic::vtkInternal::updateMRMLNodeFromOpcUaA
         MRMLNodeModifyBlocker block(mrmlSiemensPlcNode);
         mrmlSiemensPlcNode->SetAutoManualR2ToHome(buttonEnabledPressed);
       }
-      vtkErrorWithObjectMacro(this->External, "UpdateMRMLNodeFromOpcUaNodeValue: AM R2 TOHOME ENABLED: " << enabled);
     }
   }
   else if (fullNodeName == vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::GetAutoManualR2ToHomeButtonIsPressed())
   {
-    vtkErrorWithObjectMacro(this->External, "UpdateMRMLNodeFromOpcUaNodeValue: AM R2 TOHOME pressed");
     bool pressed = this->getBool(QString::fromStdString(fullNodeName), res);
     if (res)
     {
@@ -1103,12 +1070,10 @@ bool vtkSlicerU70RoomSiemensPlcOpcUaLogic::vtkInternal::updateMRMLNodeFromOpcUaA
         MRMLNodeModifyBlocker block(mrmlSiemensPlcNode);
         mrmlSiemensPlcNode->SetAutoManualR2ToHome(buttonEnabledPressed);
       }
-      vtkErrorWithObjectMacro(this->External, "UpdateMRMLNodeFromOpcUaNodeValue: AM R2 TOHOME PRESSED: " << pressed);
     }
   }
   else if (fullNodeName == vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::GetAutoManualR2ToPlane1ButtonIsEnabled())
   {
-    vtkErrorWithObjectMacro(this->External, "UpdateMRMLNodeFromOpcUaNodeValue: AM R2 PLANE1 ENABLED");
     bool enabled = this->getBool(QString::fromStdString(fullNodeName), res);
     if (res)
     {
@@ -1119,12 +1084,10 @@ bool vtkSlicerU70RoomSiemensPlcOpcUaLogic::vtkInternal::updateMRMLNodeFromOpcUaA
         MRMLNodeModifyBlocker block(mrmlSiemensPlcNode);
         mrmlSiemensPlcNode->SetAutoManualR2ToPlane1(buttonEnabledPressed);
       }
-      vtkErrorWithObjectMacro(this->External, "UpdateMRMLNodeFromOpcUaNodeValue: AM R2 PLANE1 ENABLED: " << enabled);
     }
   }
   else if (fullNodeName == vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::GetAutoManualR2ToPlane1ButtonIsPressed())
   {
-    vtkErrorWithObjectMacro(this->External, "UpdateMRMLNodeFromOpcUaNodeValue: AM R2 PLANE1 pressed");
     bool pressed = this->getBool(QString::fromStdString(fullNodeName), res);
     if (res)
     {
@@ -1135,12 +1098,10 @@ bool vtkSlicerU70RoomSiemensPlcOpcUaLogic::vtkInternal::updateMRMLNodeFromOpcUaA
         MRMLNodeModifyBlocker block(mrmlSiemensPlcNode);
         mrmlSiemensPlcNode->SetAutoManualR2ToPlane1(buttonEnabledPressed);
       }
-      vtkErrorWithObjectMacro(this->External, "UpdateMRMLNodeFromOpcUaNodeValue: AM R2 PLANE1 PRESSED: " << pressed);
     }
   }
   else if (fullNodeName == vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::GetAutoManualR2ToPlane2ButtonIsEnabled())
   {
-    vtkErrorWithObjectMacro(this->External, "UpdateMRMLNodeFromOpcUaNodeValue: AM R2 PLANE2 ENABLED");
     bool enabled = this->getBool(QString::fromStdString(fullNodeName), res);
     if (res)
     {
@@ -1151,12 +1112,10 @@ bool vtkSlicerU70RoomSiemensPlcOpcUaLogic::vtkInternal::updateMRMLNodeFromOpcUaA
         MRMLNodeModifyBlocker block(mrmlSiemensPlcNode);
         mrmlSiemensPlcNode->SetAutoManualR2ToPlane2(buttonEnabledPressed);
       }
-      vtkErrorWithObjectMacro(this->External, "UpdateMRMLNodeFromOpcUaNodeValue: AM R2 PLANE2 ENABLED: " << enabled);
     }
   }
   else if (fullNodeName == vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::GetAutoManualR2ToPlane2ButtonIsPressed())
   {
-    vtkErrorWithObjectMacro(this->External, "UpdateMRMLNodeFromOpcUaNodeValue: AM R2 PLANE2 PRESSED");
     bool pressed = this->getBool(QString::fromStdString(fullNodeName), res);
     if (res)
     {
@@ -1167,14 +1126,12 @@ bool vtkSlicerU70RoomSiemensPlcOpcUaLogic::vtkInternal::updateMRMLNodeFromOpcUaA
         MRMLNodeModifyBlocker block(mrmlSiemensPlcNode);
         mrmlSiemensPlcNode->SetAutoManualR2ToPlane2(buttonEnabledPressed);
       }
-      vtkErrorWithObjectMacro(this->External, "UpdateMRMLNodeFromOpcUaNodeValue: AM R2 PLANE2 PRESSED: " << pressed);
     }
   }
 
   // Other AM_MM buttons
   if (fullNodeName == vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::GetAutoManualSetTabletopOrientationButtonIsEnabled())
   {
-    vtkErrorWithObjectMacro(this->External, "UpdateMRMLNodeFromOpcUaNodeValue: " << fullNodeName);
     bool enabled = this->getBool(QString::fromStdString(fullNodeName), res);
     if (res)
     {
@@ -1185,12 +1142,10 @@ bool vtkSlicerU70RoomSiemensPlcOpcUaLogic::vtkInternal::updateMRMLNodeFromOpcUaA
         MRMLNodeModifyBlocker block(mrmlSiemensPlcNode);
         mrmlSiemensPlcNode->SetAutoManualApplyTabletopPosition(buttonEnabledPressed);
       }
-      vtkErrorWithObjectMacro(this->External, "UpdateMRMLNodeFromOpcUaNodeValue: AM APPLY_TABLETOP_ORIENTATION ENABLED: " << enabled);
     }
   }
   else if (fullNodeName == vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::GetAutoManualSetTabletopOrientationButtonIsPressed())
   {
-    vtkErrorWithObjectMacro(this->External, "UpdateMRMLNodeFromOpcUaNodeValue: " << fullNodeName);
     bool pressed = this->getBool(QString::fromStdString(fullNodeName), res);
     if (res)
     {
@@ -1201,12 +1156,10 @@ bool vtkSlicerU70RoomSiemensPlcOpcUaLogic::vtkInternal::updateMRMLNodeFromOpcUaA
         MRMLNodeModifyBlocker block(mrmlSiemensPlcNode);
         mrmlSiemensPlcNode->SetAutoManualApplyTabletopPosition(buttonEnabledPressed);
       }
-      vtkErrorWithObjectMacro(this->External, "UpdateMRMLNodeFromOpcUaNodeValue: AM APPLY_TABLETOP_ORIENTATION PRESSED: " << pressed);
     }
   }
   else if (fullNodeName == vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::GetAutoManualApplyNewCoordsButtonIsEnabled())
   {
-    vtkErrorWithObjectMacro(this->External, "UpdateMRMLNodeFromOpcUaNodeValue: " << fullNodeName);
     bool enabled = this->getBool(QString::fromStdString(fullNodeName), res);
     if (res)
     {
@@ -1217,12 +1170,10 @@ bool vtkSlicerU70RoomSiemensPlcOpcUaLogic::vtkInternal::updateMRMLNodeFromOpcUaA
         MRMLNodeModifyBlocker block(mrmlSiemensPlcNode);
         mrmlSiemensPlcNode->SetAutoManualApplyNewCoords(buttonEnabledPressed);
       }
-      vtkErrorWithObjectMacro(this->External, "UpdateMRMLNodeFromOpcUaNodeValue: AM APPLY_NEW_COORDS ENABLED: " << enabled);
     }
   }
   else if (fullNodeName == vtkSlicerU70RoomSiemensPlcOpcUaNodesNames::GetAutoManualApplyNewCoordsButtonIsPressed())
   {
-    vtkErrorWithObjectMacro(this->External, "UpdateMRMLNodeFromOpcUaNodeValue: " << fullNodeName);
     bool pressed = this->getBool(QString::fromStdString(fullNodeName), res);
     if (res)
     {
@@ -1233,7 +1184,6 @@ bool vtkSlicerU70RoomSiemensPlcOpcUaLogic::vtkInternal::updateMRMLNodeFromOpcUaA
         MRMLNodeModifyBlocker block(mrmlSiemensPlcNode);
         mrmlSiemensPlcNode->SetAutoManualApplyNewCoords(buttonEnabledPressed);
       }
-      vtkErrorWithObjectMacro(this->External, "UpdateMRMLNodeFromOpcUaNodeValue: AM APPLY_NEW_COORDS PRESSED: " << pressed);
     }
   }
 
@@ -1809,7 +1759,7 @@ bool vtkSlicerU70RoomSiemensPlcOpcUaLogic::vtkInternal::updateMRMLNodeFromOpcUaS
     uint8_t tabletopPosition = this->getUint8(QString::fromStdString(fullNodeName), res);
     if (res)
     {
-      vtkErrorWithObjectMacro(this->External, "UpdateMRMLNodeFromOpcUaNodeValue: Tabletop orientation/position: " << int(tabletopPosition));
+      vtkErrorWithObjectMacro(this->External, "UpdateMRMLNodeFromOpcUaNodeValue: Tabletop orientation: " << int(tabletopPosition));
       MRMLNodeModifyBlocker block(mrmlSiemensPlcNode);
       mrmlSiemensPlcNode->SetTableTopPosition(tabletopPosition);
     }
@@ -1826,7 +1776,6 @@ bool vtkSlicerU70RoomSiemensPlcOpcUaLogic::vtkInternal::updateMRMLNodeFromOpcUaF
     uint64_t errMsgFlags = this->getFlagsFromList(QString::fromStdString(fullNodeName), res);
     if (res)
     {
-      vtkErrorWithObjectMacro(this->External, "UpdateMRMLNodeFromOpcUaNodeValue: Error messages flags: " << errMsgFlags);
       mrmlSiemensPlcNode->SetErrorMessages(errMsgFlags);
     }
   }
@@ -1835,7 +1784,6 @@ bool vtkSlicerU70RoomSiemensPlcOpcUaLogic::vtkInternal::updateMRMLNodeFromOpcUaF
     uint64_t servMsgFlags = this->getFlagsFromList(QString::fromStdString(fullNodeName), res);
     if (res)
     {
-      vtkErrorWithObjectMacro(this->External, "UpdateMRMLNodeFromOpcUaNodeValue: Service messages flags: " << servMsgFlags);
       mrmlSiemensPlcNode->SetServiceMessages(servMsgFlags);
     }
   }
@@ -1844,7 +1792,6 @@ bool vtkSlicerU70RoomSiemensPlcOpcUaLogic::vtkInternal::updateMRMLNodeFromOpcUaF
     uint64_t msgFlags = this->getFlagsFromList(QString::fromStdString(fullNodeName), res);
     if (res)
     {
-      vtkErrorWithObjectMacro(this->External, "UpdateMRMLNodeFromOpcUaNodeValue: Misc. messages flags: " << msgFlags);
       mrmlSiemensPlcNode->SetMiscMessages(msgFlags);
     }
   }
@@ -2056,13 +2003,6 @@ std::list< QOpcUaNode* > vtkSlicerU70RoomSiemensPlcOpcUaLogic::ServerConnected(c
     i.next();
     QString nodeFullName = i.key();
   
-    vtkInternal::Entry siemensPlcOpcUaNodeEntry;
-    siemensPlcOpcUaNodeEntry.Node = sharedClient->node(i.value());
-    if (!siemensPlcOpcUaNodeEntry.Node)
-    {
-      continue;
-    }
-
     bool flag = false;
     for (const auto& builtinFullNodeName : fullNameNodesList)
     {
@@ -2072,12 +2012,13 @@ std::list< QOpcUaNode* > vtkSlicerU70RoomSiemensPlcOpcUaLogic::ServerConnected(c
         break;
       }
     }
-    if (!flag)
+
+    vtkInternal::Entry siemensPlcOpcUaNodeEntry;
+    siemensPlcOpcUaNodeEntry.Node = sharedClient->node(i.value());
+    if (!flag || !siemensPlcOpcUaNodeEntry.Node)
     {
       continue;
     }
-
-    vtkWarningMacro("ServerConnected: node " << nodeFullName.toStdString());
 
     QOpcUaNode* node = siemensPlcOpcUaNodeEntry.Node.data();
 

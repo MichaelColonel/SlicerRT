@@ -55,7 +55,7 @@
             <x>0</x>
             <y>0</y>
             <width>575</width>
-            <height>1024</height>
+            <height>1111</height>
            </rect>
           </property>
           <layout class="QGridLayout" name="gridLayout_31">
@@ -479,7 +479,7 @@
              <item row="0" column="0">
               <widget class="ctkCollapsibleButton" name="CollapsibleButton_SetCoordinates">
                <property name="text">
-                <string>Set coordinates for KUKA robots</string>
+                <string>Isocenter coordinates and tabletop angles for KUKA robots</string>
                </property>
                <property name="collapsed">
                 <bool>false</bool>
@@ -528,7 +528,7 @@
                   <item row="4" column="0">
                    <widget class="QLabel" name="label_9">
                     <property name="text">
-                     <string>B:</string>
+                     <string>Pitch angle:</string>
                     </property>
                    </widget>
                   </item>
@@ -624,7 +624,7 @@
                   <item row="5" column="0">
                    <widget class="QLabel" name="label_10">
                     <property name="text">
-                     <string>C:</string>
+                     <string>Roll angle:</string>
                     </property>
                    </widget>
                   </item>
@@ -669,7 +669,7 @@
                   <item row="2" column="0">
                    <widget class="QLabel" name="label_5">
                     <property name="text">
-                     <string>Z:</string>
+                     <string>Z coordinate:</string>
                     </property>
                    </widget>
                   </item>
@@ -689,14 +689,14 @@
                   <item row="0" column="0">
                    <widget class="QLabel" name="label_7">
                     <property name="text">
-                     <string>X:</string>
+                     <string>X coordinate:</string>
                     </property>
                    </widget>
                   </item>
                   <item row="3" column="0">
                    <widget class="QLabel" name="label_8">
                     <property name="text">
-                     <string>A:</string>
+                     <string>Yaw angle:</string>
                     </property>
                    </widget>
                   </item>
@@ -728,7 +728,7 @@
                   <item row="1" column="0">
                    <widget class="QLabel" name="label_6">
                     <property name="text">
-                     <string>Y:</string>
+                     <string>Y coordinate:</string>
                     </property>
                    </widget>
                   </item>
@@ -1044,7 +1044,7 @@
             <x>0</x>
             <y>0</y>
             <width>575</width>
-            <height>850</height>
+            <height>922</height>
            </rect>
           </property>
           <layout class="QGridLayout" name="gridLayout_32">

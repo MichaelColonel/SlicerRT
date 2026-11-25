@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>512</width>
-    <height>556</height>
+    <width>528</width>
+    <height>615</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -19,7 +19,7 @@
      <item row="0" column="0">
       <widget class="ctkCollapsibleButton" name="CollapsibleButton_TabletopPosition">
        <property name="text">
-        <string>Set tabletop position</string>
+        <string>Tabletop orientation</string>
        </property>
        <layout class="QGridLayout" name="gridLayout_44">
         <item row="0" column="0">
@@ -41,7 +41,7 @@
             </property>
             <property name="icon">
              <iconset resource="../../../U70RoomOpcUa/Resources/qSlicerU70RoomOpcUaModule.qrc">
-              <normaloff>:/Icons/beam_R-L.png</normaloff>:/Icons/beam_R-L.png</iconset>
+              <normaloff>:/Icons/beam_L-R.png</normaloff>:/Icons/beam_L-R.png</iconset>
             </property>
             <property name="iconSize">
              <size>
@@ -75,7 +75,7 @@
             </property>
             <property name="icon">
              <iconset resource="../../../U70RoomOpcUa/Resources/qSlicerU70RoomOpcUaModule.qrc">
-              <normaloff>:/Icons/beam_L-R.png</normaloff>:/Icons/beam_L-R.png</iconset>
+              <normaloff>:/Icons/beam_R-L.png</normaloff>:/Icons/beam_R-L.png</iconset>
             </property>
             <property name="iconSize">
              <size>
@@ -86,7 +86,7 @@
            </widget>
           </item>
           <item>
-           <widget class="QPushButton" name="PushButton_SetTabletopPosition">
+           <widget class="QPushButton" name="PushButton_SetTabletopOrientation">
             <property name="text">
              <string>Set</string>
             </property>
@@ -100,7 +100,7 @@
      <item row="1" column="0">
       <widget class="ctkCollapsibleButton" name="CollapsibleButton_SetCoordinates">
        <property name="text">
-        <string>Set coordinates for KUKA robots</string>
+        <string>Isocenter coordinates and tabletop angles</string>
        </property>
        <property name="collapsed">
         <bool>false</bool>
@@ -136,7 +136,7 @@
              <string> deg</string>
             </property>
             <property name="decimals">
-             <number>6</number>
+             <number>3</number>
             </property>
             <property name="minimum">
              <double>-360.000000000000000</double>
@@ -149,7 +149,7 @@
           <item row="4" column="0">
            <widget class="QLabel" name="label_9">
             <property name="text">
-             <string>B:</string>
+             <string>Yaw:</string>
             </property>
            </widget>
           </item>
@@ -181,7 +181,7 @@
              <string> mm</string>
             </property>
             <property name="decimals">
-             <number>6</number>
+             <number>3</number>
             </property>
             <property name="minimum">
              <double>-1000000.000000000000000</double>
@@ -232,7 +232,7 @@
              <string> deg</string>
             </property>
             <property name="decimals">
-             <number>6</number>
+             <number>3</number>
             </property>
             <property name="minimum">
              <double>-360.000000000000000</double>
@@ -245,7 +245,7 @@
           <item row="5" column="0">
            <widget class="QLabel" name="label_10">
             <property name="text">
-             <string>C:</string>
+             <string>Roll:</string>
             </property>
            </widget>
           </item>
@@ -277,7 +277,7 @@
              <string> mm</string>
             </property>
             <property name="decimals">
-             <number>6</number>
+             <number>3</number>
             </property>
             <property name="minimum">
              <double>-1000000.000000000000000</double>
@@ -317,7 +317,7 @@
           <item row="3" column="0">
            <widget class="QLabel" name="label_8">
             <property name="text">
-             <string>A:</string>
+             <string>Pitch:</string>
             </property>
            </widget>
           </item>
@@ -336,7 +336,7 @@
              <string> mm</string>
             </property>
             <property name="decimals">
-             <number>6</number>
+             <number>3</number>
             </property>
             <property name="minimum">
              <double>-1000000.000000000000000</double>
@@ -368,7 +368,7 @@
              <string> deg</string>
             </property>
             <property name="decimals">
-             <number>6</number>
+             <number>3</number>
             </property>
             <property name="minimum">
              <double>-360.000000000000000</double>
@@ -485,9 +485,9 @@
          </widget>
         </item>
         <item>
-         <widget class="QPushButton" name="PushButton_AMApplyTableTopPosition">
+         <widget class="QPushButton" name="PushButton_AMApplyTabletopOrientation">
           <property name="text">
-           <string>Apply tabletop position</string>
+           <string>Apply tabletop orientation</string>
           </property>
          </widget>
         </item>
