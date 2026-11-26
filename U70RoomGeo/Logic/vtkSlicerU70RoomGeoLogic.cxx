@@ -566,7 +566,6 @@ void vtkSlicerU70RoomGeoLogic::ProcessMRMLNodesEvents(vtkObject* caller, unsigne
     vtkMRMLChannel26GeometryNode* channel26Geometry = vtkMRMLChannel26GeometryNode::SafeDownCast(caller);
     if (event == vtkCommand::ModifiedEvent)
     {
-
       this->Channel26RoomRobotsLogic->UpdateFrameToRasHierarchy(channel26Geometry, CoordSys::TableTop);
 /*
       double pos[3] = {};

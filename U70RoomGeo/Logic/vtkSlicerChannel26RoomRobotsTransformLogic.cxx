@@ -1049,17 +1049,19 @@ void vtkSlicerChannel26RoomRobotsTransformLogic::UpdateTableTopPlaneCorrectionTo
     patientToTableTopTransform->Translate(patientToTableTopTranslation);
 
     vtkNew<vtkTransform> planeCorrectionToTableTopTransform;
-    double planeAnglesABC[3] = {};
-    parameterNode->GetAnglesABC(planeAnglesABC);
+//    double tabletopRollPitchYawAngles[3] = {};
+//    parameterNode->GetTabletopRollPitchYawAngles(tabletopRollPitchYawAngles);
     planeCorrectionToTableTopTransform->Identity();
     patientToTableTopTranslation[0] *= -1.;
     patientToTableTopTranslation[1] *= -1.;
     patientToTableTopTranslation[2] *= -1.;
     planeCorrectionToTableTopTransform->Translate(patientToTableTopTranslation);
 //    vtkWarningMacro("UpdateTableTopPlaneCorrectionToTableTopTransform a, b, c:" << planeAnglesABC[0] << ' ' << planeAnglesABC[1] << ' ' << planeAnglesABC[2]);
-    planeCorrectionToTableTopTransform->RotateZ(-1. * planeAnglesABC[0]);
-    planeCorrectionToTableTopTransform->RotateX(-1. * planeAnglesABC[1]);
-    planeCorrectionToTableTopTransform->RotateY(planeAnglesABC[2]);
+///    planeCorrectionToTableTopTransform->RotateZ(-1. * parameterNode->GetTabletopRollAngle());
+    planeCorrectionToTableTopTransform->RotateZ(parameterNode->GetTabletopYawAngle());
+    planeCorrectionToTableTopTransform->RotateX(parameterNode->GetTabletopPitchAngle());
+///    planeCorrectionToTableTopTransform->RotateY(parameterNode->GetTabletopYawAngle());
+    planeCorrectionToTableTopTransform->RotateY(parameterNode->GetTabletopRollAngle());
 //    planeCorrectionToTableTopTransform->Translate(patientToTableTopTranslation);
     
     planeCorrectionToTableTopTransform->Concatenate(patientToTableTopTransform);
@@ -2678,7 +2680,7 @@ bool vtkSlicerChannel26RoomRobotsTransformLogic::GetTransformForPointBetweenFram
   const double fromFramePoint[3], double toFramePoint[3], bool transformForBeam)
 {
   // RAS == World
-  // fromFrame->RAS transform
+  // fromFrame -> RAS transform
   vtkNew<vtkTransform> fromFrameToRasTransform;
   if (!this->GetTransformBetween(CoordinateSystemIdentifier::RAS,
     fromFrame, fromFrameToRasTransform, transformForBeam))
@@ -2688,7 +2690,7 @@ bool vtkSlicerChannel26RoomRobotsTransformLogic::GetTransformForPointBetweenFram
   double pointInRas[3] = {};
   fromFrameToRasTransform->TransformPoint(fromFramePoint, pointInRas);
 
-  // toFrame->RAS transform
+  // toFrame -> RAS transform
   vtkNew<vtkTransform> rasToToFrameTransform;
   if (this->GetTransformBetween(toFrame,
     CoordinateSystemIdentifier::RAS, rasToToFrameTransform, transformForBeam))

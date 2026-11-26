@@ -74,9 +74,9 @@ public slots:
   void onCarmRobotA4Changed(double a4);
   void onCarmRobotA5Changed(double a5);
   void onCarmRobotA6Changed(double a6);
-  void onTabletopAChanged(double a);
-  void onTabletopBChanged(double b);
-  void onTabletopCChanged(double c);
+  void onTabletopYawAngleChanged(double yaw);
+  void onTabletopPitchAngleChanged(double pitch);
+  void onTabletopRollAngleChanged(double roll);
   void onApplyTabletopClicked();
   void onResetTabletopClicked();
   

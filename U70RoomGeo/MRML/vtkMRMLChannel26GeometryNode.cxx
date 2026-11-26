@@ -53,10 +53,11 @@ void vtkMRMLChannel26GeometryNode::WriteXML(ostream& of, int nIndent)
 
   vtkMRMLWriteXMLVectorMacro(carmRobotAngles, CarmRobotAngles, double, 6);
   vtkMRMLWriteXMLVectorMacro(tableRobotAngles, TableRobotAngles, double, 6);
+  vtkMRMLWriteXMLVectorMacro(tableRobotPatientImmobilisationAngles, TableRobotPatientImmobilisationAngles, double, 6);
   vtkMRMLWriteXMLVectorMacro(tableBaseFixedToFixedReferenceTranslation, TableBaseFixedToFixedReferenceTranslation, double, 3);
   vtkMRMLWriteXMLVectorMacro(carmBaseFixedToTableTopBaseFixedOffset, CarmBaseFixedToTableBaseFixedOffset, double, 3);
   vtkMRMLWriteXMLVectorMacro(patientToTableTopTranslation, PatientToTableTopTranslation, double, 3);
-  vtkMRMLWriteXMLVectorMacro(anglesABC, AnglesABC, double, 3);
+  vtkMRMLWriteXMLVectorMacro(tabletopRollPitchYawAngles, TabletopRollPitchYawAngles, double, 3);
   vtkMRMLWriteXMLBooleanMacro(patientHeadFeetRotation, PatientHeadFeetRotation);
 
   // add new parameters here
@@ -74,10 +75,11 @@ void vtkMRMLChannel26GeometryNode::ReadXMLAttributes(const char** atts)
 
   vtkMRMLReadXMLVectorMacro(carmRobotAngles, CarmRobotAngles, double, 6);
   vtkMRMLReadXMLVectorMacro(tableRobotAngles, TableRobotAngles, double, 6);
+  vtkMRMLReadXMLVectorMacro(tableRobotPatientImmobilisationAngles, TableRobotPatientImmobilisationAngles, double, 6);
   vtkMRMLReadXMLVectorMacro(tableBaseFixedToFixedReferenceTranslation, TableBaseFixedToFixedReferenceTranslation, double, 3);
   vtkMRMLReadXMLVectorMacro(carmBaseFixedToTableBaseFixedOffset, CarmBaseFixedToTableBaseFixedOffset, double, 3);
   vtkMRMLReadXMLVectorMacro(patientToTableTopTranslation, PatientToTableTopTranslation, double, 3);
-  vtkMRMLReadXMLVectorMacro(anglesABC, AnglesABC, double, 3);
+  vtkMRMLReadXMLVectorMacro(tabletopRollPitchYawAngles, TabletopRollPitchYawAngles, double, 3);
   vtkMRMLReadXMLBooleanMacro(patientHeadFeetRotation, PatientHeadFeetRotation);
 
   // add new parameters here
@@ -109,10 +111,11 @@ void vtkMRMLChannel26GeometryNode::Copy(vtkMRMLNode *anode)
 
   vtkMRMLCopyVectorMacro(CarmRobotAngles, double, 6);
   vtkMRMLCopyVectorMacro(TableRobotAngles, double, 6);
+  vtkMRMLCopyVectorMacro(TableRobotPatientImmobilisationAngles, double, 6);
   vtkMRMLCopyVectorMacro(TableBaseFixedToFixedReferenceTranslation, double, 6);
   vtkMRMLCopyVectorMacro(CarmBaseFixedToTableBaseFixedOffset, double, 6);
   vtkMRMLCopyVectorMacro(PatientToTableTopTranslation, double, 3);
-  vtkMRMLCopyVectorMacro(AnglesABC, double, 3);
+  vtkMRMLCopyVectorMacro(TabletopRollPitchYawAngles, double, 3);
   vtkMRMLCopyBooleanMacro(PatientHeadFeetRotation);
 
   // add new parameters here
@@ -139,10 +142,11 @@ void vtkMRMLChannel26GeometryNode::CopyContent(vtkMRMLNode *anode, bool deepCopy
 
   vtkMRMLCopyVectorMacro(CarmRobotAngles, double, 6);
   vtkMRMLCopyVectorMacro(TableRobotAngles, double, 6);
+  vtkMRMLCopyVectorMacro(TableRobotPatientImmobilisationAngles, double, 6);
   vtkMRMLCopyVectorMacro(TableBaseFixedToFixedReferenceTranslation, double, 6);
   vtkMRMLCopyVectorMacro(CarmBaseFixedToTableBaseFixedOffset, double, 6);
   vtkMRMLCopyVectorMacro(PatientToTableTopTranslation, double, 3);
-  vtkMRMLCopyVectorMacro(AnglesABC, double, 3);
+  vtkMRMLCopyVectorMacro(TabletopRollPitchYawAngles, double, 3);
   vtkMRMLCopyBooleanMacro(PatientHeadFeetRotation);
 
   // add new parameters here
@@ -159,10 +163,11 @@ void vtkMRMLChannel26GeometryNode::PrintSelf(ostream& os, vtkIndent indent)
 
   vtkMRMLPrintVectorMacro(CarmRobotAngles, double, 6);
   vtkMRMLPrintVectorMacro(TableRobotAngles, double, 6);
+  vtkMRMLPrintVectorMacro(TableRobotPatientImmobilisationAngles, double, 6);
   vtkMRMLPrintVectorMacro(TableBaseFixedToFixedReferenceTranslation, double, 6);
   vtkMRMLPrintVectorMacro(CarmBaseFixedToTableBaseFixedOffset, double, 6);
   vtkMRMLPrintVectorMacro(PatientToTableTopTranslation, double, 3);
-  vtkMRMLPrintVectorMacro(AnglesABC, double, 3);
+  vtkMRMLPrintVectorMacro(TabletopRollPitchYawAngles, double, 3);
   vtkMRMLPrintBooleanMacro(PatientHeadFeetRotation);
 
   // add new parameters here
@@ -206,6 +211,45 @@ void vtkMRMLChannel26GeometryNode::GetCarmRobotAnglesModel(double a[6])
   a[3] = this->CarmRobotAngles[3];
   a[4] = this->CarmRobotAngles[4];
   a[5] = this->CarmRobotAngles[5] + 180.;
+}
+
+//----------------------------------------------------------------------------
+void vtkMRMLChannel26GeometryNode::SetTabletopRollAngle(double rollAngle)
+{
+  this->TabletopRollPitchYawAngles[0] = rollAngle;
+  this->Modified();
+}
+
+//----------------------------------------------------------------------------
+double vtkMRMLChannel26GeometryNode::GetTabletopRollAngle()
+{
+  return this->TabletopRollPitchYawAngles[0];
+}
+
+//----------------------------------------------------------------------------
+void vtkMRMLChannel26GeometryNode::SetTabletopPitchAngle(double pitchAngle)
+{
+  this->TabletopRollPitchYawAngles[1] = pitchAngle;
+  this->Modified();
+}
+
+//----------------------------------------------------------------------------
+double vtkMRMLChannel26GeometryNode::GetTabletopPitchAngle()
+{
+  return this->TabletopRollPitchYawAngles[1];
+}
+
+//----------------------------------------------------------------------------
+void vtkMRMLChannel26GeometryNode::SetTabletopYawAngle(double yawAngle)
+{
+  this->TabletopRollPitchYawAngles[2] = yawAngle;
+  this->Modified();
+}
+
+//----------------------------------------------------------------------------
+double vtkMRMLChannel26GeometryNode::GetTabletopYawAngle()
+{
+  return this->TabletopRollPitchYawAngles[2];
 }
 
 //----------------------------------------------------------------------------

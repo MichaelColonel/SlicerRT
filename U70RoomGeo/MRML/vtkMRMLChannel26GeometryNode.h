@@ -82,12 +82,22 @@ public:
   vtkSetVector6Macro(TableRobotAngles, double);
   void GetTableRobotAnglesModel(double[6]);
 
+  vtkGetVector6Macro(TableRobotPatientImmobilisationAngles, double);
+  vtkSetVector6Macro(TableRobotPatientImmobilisationAngles, double);
+
   vtkGetVector6Macro(CarmRobotAngles, double);
   vtkSetVector6Macro(CarmRobotAngles, double);
   void GetCarmRobotAnglesModel(double[6]);
 
-  vtkGetVector3Macro(AnglesABC, double);
-  vtkSetVector3Macro(AnglesABC, double);
+  vtkGetVector3Macro(TabletopRollPitchYawAngles, double);
+  vtkSetVector3Macro(TabletopRollPitchYawAngles, double);
+
+  void SetTabletopRollAngle(double);
+  double GetTabletopRollAngle();
+  void SetTabletopPitchAngle(double);
+  double GetTabletopPitchAngle();
+  void SetTabletopYawAngle(double);
+  double GetTabletopYawAngle();
 
   vtkGetMacro(PatientHeadFeetRotation, bool);
   vtkSetMacro(PatientHeadFeetRotation, bool);
@@ -122,17 +132,22 @@ protected:
   /// Y offset = CarmBaseFixed basement height (along Z-axis)
   /// Z offset = CarmBaseFixed + TableBaseFixed (along Y-axis)
   double CarmBaseFixedToTableBaseFixedOffset[3] = {};
+
 //    Room3CoordPos::D_NORTH_WALL_TABLE_TOP_ROBOT_BASE - Room3CoordPos::D_NORTH_WALL_CARM_XRAY_ROBOT_BASE,
 //    Room3CoordPos::D_BASEMENT_CARM_ROBOT_BASE,
 //    Room3CoordPos::D_EAST_WALL_CARM_XRAY_ROBOT_BASE - Room3CoordPos::D_EAST_WALL_TABLE_TOP_ROBOT_BASE };
   /// Setup table top robot angles
-  double TableRobotAngles[6] = { -150.58, -137.74, 87.92, -3.78, -92.17, -175.87 }; // A1=0, A2=-90, A3=90, A4=0, A5=-90, A6=0
-//  double TableRobotAngles[6] = { 0., 0., 0., 0., 0., 90. }; // A1=0, A2=-90, A3=90, A4=0, A5=-90, A6=0
+///  double TableRobotAngles[6] = { -150.58, -137.74, 87.92, -3.78, -92.17, -175.87 };
+///  double TableRobotAngles[6] = { 0., 0., 0., 0., 0., 90. };
+  double TableRobotAngles[6] = { 49.574, -42.833, 58.799, -0.013, -105.948, -49.576 };
+  double TableRobotPatientImmobilisationAngles[6] = { 49.574, -42.833, 58.799, -0.013, -105.948, -49.576 };
+
   /// Setup x-ray c-arm robot angles
-  // double CarmRobotAngles[6] = { 178.77, -122.03, 142.06, 122.36, 33.38, -130.77 };
-  double CarmRobotAngles[6] = { 0., -90., 81.075, 90., 90., -171. };
-  /// table top plane correction angles (IEC Tabletop angles : vertical, lateral, longitudinal)
-  double AnglesABC[3] = { 0., 0., 0. };
+///  double CarmRobotAngles[6] = { 178.77, -122.03, 142.06, 122.36, 33.38, -130.77 };
+///  double CarmRobotAngles[6] = { 0., -90., 81.075, 90., 90., -171. };
+  double CarmRobotAngles[6] = { 0., -90., 81.073, 90., 90., -171. };
+  /// table top plane correction angles (IEC Tabletop angles : Roll, Pitch, Yaw)
+  double TabletopRollPitchYawAngles[3] = { 0., 0., 0. };
   /// Head first or feet first rotation
   bool PatientHeadFeetRotation{ false };
   /// Type of treatment machine room geometry 

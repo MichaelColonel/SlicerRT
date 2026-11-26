@@ -461,6 +461,7 @@ void qSlicerU70RoomOpcUaModuleWidget::onShowSiemensPlcControlsClicked()
     if (layoutManager)
     {
       layoutManager->setLayout(d->SIEMENS_PLC_OPCUA_LAYOUT_ID);
+//      layoutManager->setLayout(vtkMRMLLayoutNode::SlicerLayoutTriple3DEndoscopyView);
     }
   }
   else
